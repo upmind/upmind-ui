@@ -2,7 +2,13 @@ import { nextTick, watch } from "vue";
 import { invalidateQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
-import { NotAuthenticatedError } from "../../utils";
+import { downloadBlob } from "./invoices.utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  NotAuthenticatedError,
+  responseCodes
+} from "../../utils";
 import type {
   InvoiceItemQuery,
   InvoiceUnpaidAmountQuery,
@@ -140,6 +146,29 @@ export function createInvoiceActions(
     removeFromRegistry(scopeKey);
   }
 
+  /**
+   * AC A — downloads this invoice's PDF (or, for a credit note, its own
+   * PDF — the SAME reader; `invoices.services.ts`'s `downloadPdf` never
+   * branches on category) and saves it locally as `${invoice.number}.pdf`
+   * (`oracle: pdfs.ts:58-77`, `invoiceProvider.vue:453-465`).
+   * @throws {DetailedError} when this scope's invoice has not loaded yet.
+   * @throws {NotAuthenticatedError} when the session cannot address a client
+   * (the same gate `service.downloadPdf` itself enforces).
+   */
+  async function downloadPdf(): Promise<void> {
+    const invoice = query.data.value;
+    if (!invoice?.id) {
+      throw new DetailedError(
+        "Invoice not available",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      );
+    }
+
+    const blob = await service.downloadPdf(invoice.id);
+    downloadBlob(blob, `${invoice.number}.pdf`);
+  }
+
   // --- actor-specific actions: none earned yet (clause 2 — fresh modules
   // start armless). When a scope earns one, add
   // `useInvoice.actions.{actor}.ts` and spread it LAST so it wins.
@@ -147,6 +176,9 @@ export function createInvoiceActions(
   return {
     /** Destroys this scoped instance — removes it from the registry. */
     destroy,
+
+    /** AC A — downloads and saves this invoice's PDF as `${number}.pdf`. */
+    downloadPdf,
 
     /** Marks the shared cache key stale so the next read refetches. */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),

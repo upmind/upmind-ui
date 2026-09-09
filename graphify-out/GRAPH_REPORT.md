@@ -1,181 +1,189 @@
 # Graph Report - .  (2026-09-09)
 
 ## Corpus Check
-- 7511 files · ~15,027,199 words
+- 7574 files · ~15,036,352 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 23970 nodes · 47924 edges · 971 communities (848 shown, 123 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 606 edges (avg confidence: 0.65)
+- 24003 nodes · 48011 edges · 930 communities (801 shown, 129 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 609 edges (avg confidence: 0.65)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- packages / src / headless
-- src / packages / headless
-- packages / src / types
-- packages / client-vue / src
-- packages / src / headless
-- playgrounds / labs-nuxt / modules
-- src / packages / client-vue
-- packages / src / headless
-- packages / src / headless
-- packages / headless / src
-- packages / src / modules
-- packages / src / headless
-- packages / src / headless
-- packages / src / modules
-- packages / headless / src
-- packages / src / design-system
-- packages / src / client-vue
-- packages / client-vue / src
-- packages / headless / src
-- packages / src / types
-- packages / src / design-system
-- playgrounds / labs-nuxt / modules
-- packages / src / modules
-- playgrounds / labs-nuxt / modules
-- packages / src / client-vue
-- packages / headless / src
-- playgrounds / labs-nuxt / modules
-- playgrounds / labs-nuxt / modules
-- design-system / packages / ui
-- apps / src / pages
-- packages / src / modules
-- packages / types / src
-- design-system / packages / ui
-- src / packages / playgrounds
-- playgrounds / labs-nuxt / modules
-- playgrounds / labs-nuxt / app
-- packages / client-vue / src
-- playgrounds / labs-nuxt / modules
-- packages / src / types
-- scenario-harness / packages / src
 - src / packages / modules
-- src / packages / client-vue
-- src / packages / headless
+- playgrounds / labs-nuxt / modules
 - packages / headless / src
-- src / packages / client-vue
 - src / packages / headless
+- packages / src / headless
+- packages / src / modules
+- packages / src / types
+- packages / src / headless
+- src / packages / headless
+- packages / src / headless
+- packages / src / client-vue
+- playgrounds / labs-nuxt / app
+- packages / src / headless
+- packages / headless / src
+- playgrounds / labs-nuxt / modules
+- packages / src / design-system
+- packages / src / types
+- src / apps / pages
+- packages / client-vue / src
 - src / packages / client-vue
+- scenario-harness / packages / src
+- packages / src / client-vue
+- packages / types / src
+- src / packages / client-vue
+- playgrounds / labs-nuxt / modules
 - packages / src / headless
 - packages / client-vue / src
+- playgrounds / labs-nuxt / modules
 - packages / client-vue / src
-- src / apps / hosting
+- src / packages / headless
+- packages / headless / src
+- playgrounds / labs-nuxt / modules
+- playgrounds / labs-nuxt / modules
+- playgrounds / labs-nuxt / modules
+- design-system / packages / ui
+- packages / src / types
+- src / packages / headless
+- design-system / packages / ui
+- modules / playgrounds / labs-nuxt
+- packages / src / headless
+- packages / src / headless
+- packages / src / headless
+- src / packages / modules
+- packages / headless / src
+- packages / src / headless
+- src / packages / client-vue
+- src / packages / modules
+- packages / src / headless
+- packages / src / headless
+- packages / client-vue / src
+- packages / src / client-vue
+- playgrounds / labs-nuxt / modules
+- packages / client-vue / src
+- src / packages / apps
 - packages / client-vue / src
 - playgrounds / labs-nuxt / modules
 - design-system / packages / ui
 - docs / workshop / _initiator
-- src / packages / pages
-- apps / src / cart
-- playgrounds / labs-nuxt / modules
+- src / apps / hosting
 - design-system / packages / ui
-- packages / client-vue / src
-- scenario-harness / packages / src
-- design-system / packages / ui
-- design-system / packages / ui
-- packages / client-vue / src
-- src / packages / apps
-- design-system / packages / ui
-- design-system / packages / ui
-- packages / src / modules
-- packages / headless / src
-- packages / headless / src
-- packages / headless / package.json
-- src / packages / headless
-- packages / src / design-system
-- playgrounds / labs-nuxt / modules
-- packages / headless / src
-- src / design-system / packages
-- packages / headless / src
-- src / design-system / packages
 - design-system / packages / ui
 - playgrounds / labs-nuxt / app
+- src / apps / packages
+- packages / client-vue / src
 - design-system / packages / ui
 - packages / headless / src
-- packages / headless / src
-- playgrounds / labs-nuxt / package.json
+- packages / src / headless
+- design-system / packages / ui
+- design-system / packages / ui
+- packages / src / client-vue
+- packages / client-vue / src
 - src / packages / client-vue
+- apps / cart / src
 - design-system / packages / ui
 - packages / client-vue / src
+- src / packages / i18n
+- packages / src / client-vue
+- design-system / packages / ui
+- src / playgrounds / labs
+- packages / headless / src
+- design-system / packages / ui
+- packages / headless / src
+- packages / src / client-vue
+- design-system / packages / ui
+- packages / headless / package.json
+- playgrounds / labs-nuxt / modules
+- pages / src / playgrounds
+- packages / src / headless
+- src / design-system / packages
+- design-system / packages / ui
+- packages / headless / src
+- apps / app / cart-nuxt
+- design-system / packages / ui
+- src / packages / design-system
+- design-system / packages / ui
+- packages / src / design-system
+- packages / headless / src
+- playgrounds / labs-nuxt / package.json
 - packages / headless / package.json
 - design-system / packages / ui
-- packages / headless / src
 - playgrounds / labs-nuxt / package.json
-- packages / src / headless
 - src / playgrounds / storybook-next
+- packages / headless / src
 - playgrounds / labs / src
-- packages / src / design-system
+- packages / headless / src
 - design-system / packages / ui
-- design-system / packages / ui
-- packages / client-vue / src
+- packages / headless / src
 - apps / cart-nuxt / package.json
 - apps / cart / package.json
-- src / packages / modules
 - packages / headless / src
 - playgrounds / labs-nuxt / modules
 - design-system / packages / ui
 - design-system / packages / ui
+- design-system / packages / ui
 - packages / client-vue / src
+- packages / headless / src
 - apps / cart-nuxt / package.json
 - design-system / packages / ui
+- design-system / packages / ui
 - docs / corpus / build.mjs
+- playgrounds / labs-nuxt / modules
 - packages / headless / src
-- apps / src / velia
+- packages / headless / src
+- packages / headless / src
+- packages / types / src
+- playgrounds / labs-nuxt / modules
+- apps / hosting / package.json
+- apps / velia / package.json
 - design-system / packages / ui
-- design-system / packages / ui
-- modules / packages / src
 - packages / src / modules
-- playgrounds / labs-nuxt / modules
-- app / apps / cart-nuxt
-- apps / hosting / package.json
-- apps / velia / package.json
-- packages / client-vue / package.json
-- packages / client-vue / package.json
 - packages / client-vue / src
 - packages / headless / src
 - packages / headless / src
-- packages / headless / src
-- packages / headless / src
-- playgrounds / labs-nuxt / modules
 - design-system / packages / tokens
-- src / packages / design-system
-- packages / client-vue / src
-- packages / headless / src
-- packages / headless / src
-- playgrounds / labs / src
 - design-system / packages / ui
-- packages / client-vue / src
+- packages / client-vue / package.json
+- packages / src / modules
 - design-system / packages / ui
-- packages / headless / src
-- src / packages / modules
+- design-system / packages / ui
+- design-system / packages / ui
+- design-system / packages / ui
 - apps / hosting / package.json
 - apps / velia / package.json
 - design-system / packages / ui
 - design-system / packages / ui
+- design-system / packages / ui
+- design-system / packages / ui
+- packages / client-vue / src
 - packages / client-vue / tsconfig.json
-- packages / headless / src
-- packages / headless / src
 - packages / i18n / package.json
 - packages / types / package.json
 - playgrounds / labs / package.json
 - design-system / packages / ui
 - design-system / packages / ui
+- design-system / packages / ui
+- packages / headless / src
 - apps / cart / package.json
+- packages / client-vue / package.json
 - packages / scenario-harness / package.json
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
+- packages / headless / src
 - playgrounds / labs / package.json
-- playgrounds / labs-nuxt / modules
+- packages / client-vue / src
+- packages / headless / src
+- packages / src / headless
 - tests / journeys / tsconfig.json
 - design-system / packages / ui
-- packages / client-vue / src
-- design-system / packages / ui
 - docs / corpus / emit-mdx.mjs
-- packages / headless / src
+- packages / src / client-vue
 - playgrounds / labs-nuxt / app
 - design-system / packages / tokens
-- playgrounds / labs-nuxt / app
+- packages / client-vue / src
 - apps / cart / src
 - apps / cart / src
 - apps / cart / src
@@ -260,70 +268,61 @@
 - apps / velia / src
 - apps / velia / src
 - apps / velia / src
+- design-system / packages / ui
+- design-system / packages / ui
+- design-system / packages / ui
+- src / packages / modules
+- packages / client-vue / src
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
+- packages / i18n / public
 - design-system / packages / ui
 - packages / client-vue / src
-- packages / headless / src
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / public
-- packages / i18n / src
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- src / packages / headless
 - packages / headless / src
 - design-system / packages / ui
 - docs / corpus / glossary-inject.mjs
 - packages / client-vue / src
-- packages / src / client-vue
 - packages / client-vue / src
-- packages / src / modules
 - design-system / packages / ui
 - docs / published-docs / docs.json
-- src / playgrounds / labs
+- packages / client-vue / src
+- playgrounds / labs-nuxt / app
 - playgrounds / labs / tsconfig.json
-- src / packages / client-vue
 - apps / pages / src
 - apps / cart / package.json
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
+- modules / playgrounds / labs-nuxt
 - packages / headless / tsconfig.json
 - playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / modules
 - playgrounds / storybook-next / package.json
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- docs / corpus / gates
 - packages / client-vue / src
-- packages / headless / src
 - apps / cart-nuxt / app
 - apps / cart-nuxt / app
 - apps / cart-nuxt / app
@@ -352,16 +351,15 @@
 - apps / cart-nuxt / app
 - apps / cart-nuxt / app
 - apps / cart-nuxt / app
+- apps / src / app
 - apps / cart / tsconfig.json
-- src / packages / design-system
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- packages / src / client-vue
 - playgrounds / storybook-next / package.json
 - packages / client-vue / src
-- packages / src / headless
-- playgrounds / labs-nuxt / modules
+- packages / src / modules
+- src / playgrounds / labs
+- packages / headless / src
 - playgrounds / labs / src
 - playgrounds / labs / src
 - playgrounds / labs / src
@@ -390,66 +388,75 @@
 - playgrounds / labs / src
 - playgrounds / labs / src
 - playgrounds / labs / src
+- src / apps / i18n.ts
 - src / design-system / packages
 - design-system / packages / ui
+- design-system / packages / ui
+- design-system / packages / ui
+- docs / corpus / gates
 - docs / package.json
 - packages / client-vue / src
-- packages / src / modules
-- packages / headless / src
 - packages / headless / src
 - packages / src / types
+- playgrounds / labs-nuxt / app
 - tests / journeys / package.json
+- src / packages / client-vue
+- design-system / packages / ui
 - docs / corpus / gates
 - docs / corpus / gates
-- packages / client-vue / src
-- packages / client-vue / src
+- packages / src / modules
 - packages / client-vue / src
 - design-system / packages / ui
+- design-system / packages / ui
+- packages / client-vue / src
 - packages / client-vue / tsconfig.build.json
-- packages / headless / src
+- packages / src / headless
 - packages / headless / src
 - packages / headless / tsconfig.build.json
 - packages / types / tsconfig.build.json
-- design-system / packages / ui
-- design-system / packages / ui
+- playgrounds / labs-nuxt / app
 - design-system / packages / ui
 - docs / corpus / corpus.types.ts
-- src / playgrounds / labs
-- playgrounds / labs / src
+- packages / client-vue / src
+- packages / src / client-vue
 - design-system / packages / ui
 - design-system / packages / ui
 - docs / typedoc.json
 - packages / src / client-vue
-- playgrounds / labs-nuxt / app
+- tests / journeys / storefront
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
+- packages / src / modules
 - design-system / packages / ui
 - packages / client-vue / src
-- playgrounds / labs-nuxt / app
+- packages / client-vue / src
 - apps / hosting / package.json
 - apps / velia / package.json
 - design-system / packages / tokens
 - design-system / packages / ui
-- design-system / packages / ui
+- src / packages / design-system
+- playgrounds / labs-nuxt / modules
 - design-system / packages / ui
 - docs / corpus / emit-mdx.selftest.mjs
 - docs / corpus / gates
-- packages / src / modules
-- packages / headless / src
+- packages / client-vue / src
+- packages / client-vue / src
+- packages / src / types
 - packages / icons / package.json
 - packages / types / tsconfig.json
-- playgrounds / labs-nuxt / app
-- playgrounds / labs-nuxt / modules
+- playgrounds / labs / src
+- apps / cart / package.json
 - apps / hosting / tsconfig.build.json
 - apps / velia / tsconfig.build.json
 - design-system / packages / ui
 - design-system / packages / ui
-- packages / client-vue / src
-- packages / client-vue / src
-- playgrounds / labs-nuxt / app
+- design-system / packages / ui
+- packages / src / design-system
+- design-system / packages / ui
 - playgrounds / labs-nuxt / modules
+- playgrounds / labs-nuxt / app
 - playgrounds / labs / tsconfig.build.json
 - apps / cart-nuxt / package.json
 - design-system / packages / ui
@@ -458,12 +465,9 @@
 - src / playgrounds / labs
 - packages / headless / package.json
 - packages / headless / src
-- packages / headless / src
-- packages / types / src
-- packages / types / src
+- playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / modules
 - apps / cart / tsconfig.build.json
-- design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
@@ -472,24 +476,20 @@
 - docs / corpus / build.selftest.mjs
 - packages / client-vue / package.json
 - packages / client-vue / src
+- packages / client-vue / src
 - packages / headless / src
-- packages / headless / src
-- packages / scenario-harness / src
-- tests / journeys / storefront
 - apps / hosting / tsconfig.json
 - apps / velia / tsconfig.json
 - design-system / packages / ui
 - design-system / packages / ui
+- design-system / packages / ui
+- design-system / packages / ui
+- design-system / packages / ui
 - packages / client-vue / src
-- modules / playgrounds / labs-nuxt
-- packages / src / client-vue
-- packages / src / headless
+- packages / client-vue / src
+- packages / src / modules
 - packages / headless / src
 - packages / i18n / tsconfig.build.json
-- packages / types / src
-- playgrounds / labs-nuxt / app
-- playgrounds / labs-nuxt / app
-- playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / package.json
 - apps / hosting / eslint.config.mjs
 - apps / velia / eslint.config.mjs
@@ -501,14 +501,14 @@
 - design-system / packages / ui
 - docs / corpus / gates
 - packages / client-vue / src
-- packages / client-vue / src
-- packages / headless / src
 - packages / headless / src
 - packages / i18n / tsconfig.json
 - playgrounds / storybook-next / src
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
+- packages / client-vue / package.json
+- packages / src / client-vue
+- packages / client-vue / src
 - packages / scenario-harness / scripts
 - packages / scenario-harness / tsconfig.json
 - playgrounds / labs-nuxt / app
@@ -520,61 +520,52 @@
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
 - docs / corpus / gates
 - docs / corpus / gates
 - packages / client-vue / src
-- packages / client-vue / src
+- src / packages / modules
 - packages / client-vue / src
 - packages / headless / package.json
-- packages / headless / src
-- packages / src / headless
-- packages / headless / src
-- packages / headless / src
 - playgrounds / labs-nuxt / modules
 - playgrounds / labs / package.json
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- packages / client-vue / src
-- packages / src / modules
-- packages / src / modules
-- packages / headless / src
-- packages / headless / src
-- packages / headless / src
+- design-system / packages / ui
+- design-system / packages / ui
+- design-system / packages / ui
 - packages / headless / src
 - packages / headless / src
 - packages / headless / src
 - playgrounds / labs-nuxt / app
-- playgrounds / labs-nuxt / modules
 - design-system / packages / ui
 - packages / src / design-system
 - design-system / packages / ui
 - design-system / packages / ui
+- design-system / packages / ui
+- design-system / packages / ui
 - packages / client-vue / src
+- packages / src / modules
 - packages / client-vue / src
 - packages / headless / src
+- packages / headless / src
 - playgrounds / labs-nuxt / modules
-- playgrounds / labs / src
 - playgrounds / storybook-next / src
 - tests / journeys / scenario-harness
+- src / packages / modules
 - apps / cart-nuxt / package.json
-- apps / cart / package.json
 - apps / hosting / package.json
 - apps / velia / package.json
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
 - packages / headless / src
 - packages / headless / src
 - packages / headless / src
-- packages / headless / src
+- playgrounds / labs-nuxt / app
+- playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / modules
@@ -587,18 +578,18 @@
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- packages / client-vue / package.json
 - packages / client-vue / src
-- packages / client-vue / src
+- packages / src / modules
 - packages / headless / src
+- packages / types / src
 - playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / modules
 - playgrounds / labs / package.json
+- playgrounds / labs / src
 - design-system / packages / tokens
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
+- packages / src / client-vue
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
@@ -613,11 +604,8 @@
 - playgrounds / storybook-next / package.json
 - playgrounds / storybook-next / tsconfig.json
 - apps / cart-nuxt / package.json
-- apps / cart / package.json
 - apps / hosting / package.json
 - apps / velia / package.json
-- design-system / packages / ui
-- design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
@@ -634,9 +622,9 @@
 - packages / headless / src
 - packages / headless / src
 - packages / scenario-harness / tsconfig.test.json
-- playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / package.json
 - playgrounds / labs-nuxt / public
+- apps / velia / src
 - design-system / packages / tokens
 - design-system / packages / ui
 - design-system / packages / ui
@@ -648,13 +636,7 @@
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- packages / headless / src
 - docs / corpus / glossary-inject.selftest.mjs
-- packages / client-vue / src
-- packages / headless / src
 - packages / headless / src
 - packages / headless / src
 - packages / headless / src
@@ -669,21 +651,12 @@
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
 - docs / corpus / cart-basket-ontology-conflation.test.js
 - docs / corpus / glossary-resolve.selftest.mjs
-- packages / headless / src
-- packages / headless / src
-- packages / headless / src
-- packages / headless / src
-- packages / headless / src
-- packages / headless / src
+- packages / client-vue / src
 - packages / headless / src
 - packages / headless / src
 - packages / headless / vitest.config.ts
-- playgrounds / labs / src
 - playgrounds / storybook-next / src
 - playgrounds / storybook-next / .storybook
 - design-system / packages / tokens
@@ -695,11 +668,8 @@
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
 - docs / corpus / inject-corpus-absent-throws.test.js
 - docs / corpus / unknown-term-silent-success.test.js
-- packages / client-vue / src
 - packages / headless / src
 - packages / headless / src
 - packages / headless / src
@@ -715,34 +685,19 @@
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
 - docs / tsdoc.json
 - packages / headless / src
+- packages / scenario-harness / src
 - playgrounds / labs-nuxt / app
 - playgrounds / labs-nuxt / modules
 - playgrounds / labs-nuxt / vitest.config.ts
+- playgrounds / labs / src
 - apps / cart / vite.config.ts
 - apps / hosting / vite.config.ts
 - apps / velia / vite.config.ts
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- design-system / packages / ui
-- packages / client-vue / src
-- packages / headless / src
 - packages / headless / src
 - packages / headless / src
 - packages / headless / src
@@ -750,10 +705,11 @@
 - packages / headless / src
 - packages / headless / src
 - packages / scenario-harness / src
-- playgrounds / labs-nuxt / app
 - playgrounds / labs-nuxt / modules
 - apps / cart-nuxt / app
 - apps / cart-nuxt / tsconfig.json
+- design-system / packages / ui
+- design-system / packages / ui
 - design-system / packages / ui
 - packages / client-vue / src
 - packages / client-vue / src
@@ -803,7 +759,6 @@
 - apps / velia / package.json
 - apps / velia / package.json
 - apps / velia / package.json
-- packages / client-vue / package.json
 - design-system / packages / ui
 - design-system / packages / ui
 - design-system / packages / ui
@@ -818,6 +773,10 @@
 - docs / published-docs / .husky
 - docs / published-docs / .husky
 - docs / workshop / build-bundle.sh
+- packages / client-vue / package.json
+- packages / client-vue / package.json
+- packages / client-vue / package.json
+- packages / client-vue / package.json
 - packages / client-vue / package.json
 - packages / client-vue / package.json
 - packages / client-vue / package.json
@@ -866,16 +825,16 @@
 - tests / journeys / storefront
 
 ## God Nodes (most connected - your core abstractions)
-1. `ScopeActorTypes` - 305 edges
+1. `ScopeActorTypes` - 307 edges
 2. `useI18n()` - 269 edges
-3. `useQuery()` - 198 edges
-4. `UseActiveSession` - 180 edges
+3. `useQuery()` - 199 edges
+4. `UseActiveSession` - 181 edges
 5. `UseBrand` - 126 edges
 6. `IBrand` - 124 edges
-7. `responseCodes` - 121 edges
+7. `responseCodes` - 122 edges
 8. `useConfig()` - 114 edges
 9. `IClient` - 112 edges
-10. `UseSessionStore` - 109 edges
+10. `DetailedError` - 111 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `handleProductDetails()` --calls--> `t`  [INFERRED]
@@ -890,339 +849,392 @@
   packages/headless/src/modules/payment-gateways/__tests__/usePaymentGateway.actions.test.ts → design-system/packages/ui/src/form/renderers/__tests__/registry.test.ts
 
 ## Import Cycles
-- 2-file cycle: `packages/headless/src/modules/session-store/index.ts -> packages/headless/src/modules/session-store/session-store.utils.ts -> packages/headless/src/modules/session-store/index.ts`
 - 3-file cycle: `playgrounds/labs/src/funnels/engine/services.ts -> playgrounds/labs/src/funnels/index.ts -> playgrounds/labs/src/funnels/labs.ts -> playgrounds/labs/src/funnels/engine/services.ts`
 - 3-file cycle: `playgrounds/labs-nuxt/app/funnels/engine/services.ts -> playgrounds/labs-nuxt/app/funnels/index.ts -> playgrounds/labs-nuxt/app/funnels/labs.ts -> playgrounds/labs-nuxt/app/funnels/engine/services.ts`
+- 3-file cycle: `apps/velia/src/pages/ProductSetup.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/ProductSetup.vue`
+- 3-file cycle: `apps/velia/src/pages/overlays/AccountOverlay.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/overlays/AccountOverlay.vue`
+- 3-file cycle: `apps/velia/src/pages/overlays/AuthOverlay.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/overlays/AuthOverlay.vue`
+- 3-file cycle: `apps/velia/src/pages/session/Login.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/session/Login.vue`
 - 3-file cycle: `apps/velia/src/pages/Basket.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/Basket.vue`
 - 3-file cycle: `apps/velia/src/pages/Catalogue.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/Catalogue.vue`
 - 3-file cycle: `apps/velia/src/pages/Checkout.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/Checkout.vue`
-- 3-file cycle: `apps/velia/src/pages/ProductSetup.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/ProductSetup.vue`
 - 3-file cycle: `apps/velia/src/pages/Recommendations.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/Recommendations.vue`
-- 3-file cycle: `apps/velia/src/pages/overlays/AccountOverlay.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/overlays/AccountOverlay.vue`
-- 3-file cycle: `apps/velia/src/pages/overlays/AuthOverlay.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/overlays/AuthOverlay.vue`
 - 3-file cycle: `apps/velia/src/pages/product/Recommendations.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/product/Recommendations.vue`
-- 3-file cycle: `apps/velia/src/pages/session/Login.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/session/Login.vue`
 - 3-file cycle: `apps/velia/src/pages/session/Recover.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/session/Recover.vue`
 - 3-file cycle: `apps/velia/src/pages/session/Register.vue -> apps/velia/src/router/index.ts -> apps/velia/src/router/routes.ts -> apps/velia/src/pages/session/Register.vue`
-- 3-file cycle: `apps/hosting/src/pages/product/Edit.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/product/Edit.vue`
-- 3-file cycle: `apps/hosting/src/pages/Catalogue.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/Catalogue.vue`
+- 3-file cycle: `apps/hosting/src/pages/Recommendations.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/Recommendations.vue`
 - 3-file cycle: `apps/hosting/src/pages/Basket.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/Basket.vue`
+- 3-file cycle: `apps/hosting/src/pages/Catalogue.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/Catalogue.vue`
 - 3-file cycle: `apps/hosting/src/pages/Checkout.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/Checkout.vue`
 - 3-file cycle: `apps/hosting/src/pages/ProductSetup.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/ProductSetup.vue`
-- 3-file cycle: `apps/hosting/src/pages/Recommendations.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/Recommendations.vue`
+- 3-file cycle: `apps/hosting/src/pages/overlays/AccountOverlay.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/overlays/AccountOverlay.vue`
+- 3-file cycle: `apps/hosting/src/pages/overlays/AuthOverlay.vue -> apps/hosting/src/router/index.ts -> apps/hosting/src/router/routes.ts -> apps/hosting/src/pages/overlays/AuthOverlay.vue`
 
-## Communities (971 total, 123 thin omitted)
+## Communities (930 total, 129 thin omitted)
 
-### Community 0 - "packages / src / headless"
+### Community 0 - "src / packages / modules"
 Cohesion: 0.03
-Nodes (181): BasketProductConfigDetailsProps, BasketProductContentProps, BasketProductProps, BasketProductSkeletonProps, BasketProductSubItemProps, BasketProductSummaryProps, BasketProductUpsellProps, claimBasket() (+173 more)
+Nodes (158): emits, { t }, updateTerm(), BasketProductConfigDetailsProps, BasketProductContentProps, BasketProductProps, BasketProductSkeletonProps, BasketProductSubItemProps (+150 more)
 
-### Community 1 - "src / packages / headless"
-Cohesion: 0.04
-Nodes (140): { meta }, { meta: paymentDetailsMeta }, processingIcon, processingText, processingTitle, { t }, challenge, container (+132 more)
-
-### Community 2 - "packages / src / types"
-Cohesion: 0.04
-Nodes (147): mapAccount(), mapClient(), mapInitials(), Account, OrgPackageLimits, AccessRoleTypes, AuthConfigAvailabilityTypes, AuthConfigFieldTypes (+139 more)
-
-### Community 3 - "packages / client-vue / src"
+### Community 1 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.02
-Nodes (142): attributesToRemove, focussable, maybeFocus(), meta, props, stop, target, props (+134 more)
+Nodes (119): SurfaceActions, SurfaceProps, schema, uischema, controlIn(), rows, TRANSLATED, ACTIONS (+111 more)
+
+### Community 2 - "packages / headless / src"
+Cohesion: 0.03
+Nodes (123): validate(), checkVerifyEmail(), verifyFromLink(), verify2fa(), VerifyFromLinkParams, UseVerifyEmail, loadLookups(), parse() (+115 more)
+
+### Community 3 - "src / packages / headless"
+Cohesion: 0.03
+Nodes (133): useQueryUischema(), useSchemaDefinitions(), useSortUischema(), useUischemaDefinitions(), ADDRESS_TYPE_KEYS, AddressContext, AddressTypes, CLIENT_ADDRESS_SCOPE_MATRIX (+125 more)
 
 ### Community 4 - "packages / src / headless"
 Cohesion: 0.03
-Nodes (149): buildImageDownloadUrl(), extractImageMessages(), isImageValidationError(), mapCustomField(), mapCustomFieldDisplay(), mapCustomFieldValue(), mapCustomFieldValues(), mapCustomFieldValuesToRequest() (+141 more)
+Nodes (121): mapCompleteRegistrationData(), checkVerifyEmail(), completeRegistration(), getCustomFields(), parse(), sendVerificationEmail(), updateGuestEmail(), verifyEmailCode() (+113 more)
 
-### Community 5 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.02
-Nodes (114): { t }, ListEmptyProps, ListRow, ListSurfaceProps, SurfaceActions, SurfaceProps, schema, uischema (+106 more)
+### Community 5 - "packages / src / modules"
+Cohesion: 0.03
+Nodes (112): featureText, unitAcTags(), CLIENT_COMPANIES_COVERED_ACTIONS, CLIENT_COMPANIES_SCENARIO, clientCompaniesSteps, coveredActionIds, settles(), catalogSource (+104 more)
 
-### Community 6 - "src / packages / client-vue"
+### Community 6 - "packages / src / types"
 Cohesion: 0.05
-Nodes (105): layout, route, { t }, FOOTER_BACKGROUND, FOOTER_ITEMS, FOOTER_JUSTIFY, FOOTER_LAYOUT, FOOTER_POSITION (+97 more)
+Nodes (119): recordingsDir, TransactionTypes, AffiliatePayoutDestinationCode, ConditionApplies, ConditionTypes, OverrideCommissionsTypes, PriceType, DaysOfWeekTypes (+111 more)
 
 ### Community 7 - "packages / src / headless"
-Cohesion: 0.03
-Nodes (108): field(), authMachine, useLoginSchema(), useLoginUischema(), useRecoverSchema(), useRecoverUischema(), useRegisterSchema(), useRegisterUischema() (+100 more)
+Cohesion: 0.05
+Nodes (108): DomainCardsProps, SmartDomainDrawerProps, clear(), UseUnified, UseBasketCurrency, UseBasketFields, BasketHelperContext, basketSubscription() (+100 more)
 
-### Community 8 - "packages / src / headless"
-Cohesion: 0.03
-Nodes (119): mapGateway(), mapGatewayData(), mapGateways(), mapPaymentData(), mapStoredPaymentDetailData(), useAddSchema(), useAddUischema(), useAddUischemaDefinitions() (+111 more)
-
-### Community 9 - "packages / headless / src"
+### Community 8 - "src / packages / headless"
 Cohesion: 0.04
-Nodes (108): brandStub, recordingsDir, seedStanding(), SelfResponse, sessionStoreRecordingsDir, ADR-0021, recordingsDir, server (+100 more)
+Nodes (109): doResolve(), { removeTopLevel: _removeCookie }, useGuestEmailSchemaParser(), useGuestEmailUischemaParser(), useVerifyEmailSchemaParser(), useVerifyEmailUischemaParser(), ACCOUNT_SCOPE_MATRIX, AccountContextTypes (+101 more)
 
-### Community 10 - "packages / src / modules"
+### Community 9 - "packages / src / headless"
 Cohesion: 0.04
-Nodes (115): DomainActionsProps, DomainCardMeta, DomainCardsProps, DomainSlotProps, DomainSummaryProps, SmartDomainDrawerProps, isOpen, UseAssetRecovery (+107 more)
+Nodes (111): field(), load(), parse(), update(), validate(), FieldsContext, FieldsModel, useModelParser() (+103 more)
 
-### Community 11 - "packages / src / headless"
-Cohesion: 0.03
-Nodes (112): fetch(), fetchRelated(), remove(), mapAddress(), mapAddresses(), mapIAddressData(), mapIAddressDataDiff(), useQuerySchema() (+104 more)
+### Community 10 - "packages / src / client-vue"
+Cohesion: 0.07
+Nodes (84): FOOTER_BACKGROUND, FOOTER_ITEMS, FOOTER_JUSTIFY, FOOTER_LAYOUT, FOOTER_POSITION, FooterProps, config, defaultFooterProps (+76 more)
+
+### Community 11 - "playgrounds / labs-nuxt / app"
+Cohesion: 0.02
+Nodes (114): ActorContextMatrix, activeClientLabel, actorScope, allClients, applyClientId(), applyContext(), availableClients, brandId (+106 more)
 
 ### Community 12 - "packages / src / headless"
 Cohesion: 0.03
-Nodes (86): getDocumentCountry(), useSchema(), useUischema(), CURRENCY_TO_COUNTRY, MERCADOPAGO_FIELDS, MercadoPagoContext, MercadoPagoTokenResponse, Window (+78 more)
+Nodes (81): getDocumentCountry(), useSchema(), useUischema(), CURRENCY_TO_COUNTRY, MERCADOPAGO_FIELDS, MercadoPagoContext, MercadoPagoTokenResponse, Window (+73 more)
 
-### Community 13 - "packages / src / modules"
-Cohesion: 0.03
-Nodes (100): featureText, unitAcTags(), CLIENT_COMPANIES_COVERED_ACTIONS, CLIENT_COMPANIES_SCENARIO, clientCompaniesSteps, coveredActionIds, settles(), catalogSource (+92 more)
-
-### Community 14 - "packages / headless / src"
+### Community 13 - "packages / headless / src"
 Cohesion: 0.04
-Nodes (105): mapContractProductLookupItem(), mapContractProductLookupItems(), mapVaultAsset(), mapVaultAssetActor(), mapVaultAssetCreate(), mapVaultAssets(), mapVaultAssetUpdate(), PRODUCT_SEARCH_SCOPE (+97 more)
+Nodes (95): useQuerySchema(), useQueryUischema(), useSchema(), useSortUischema(), useUischema(), CLIENT_PHONE_SCOPE_MATRIX, CLIENT_PHONES_SCOPE_MATRIX, ClientPhoneContextTypes (+87 more)
+
+### Community 14 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.04
+Nodes (101): EXPLANATIONS, isRead(), isRefusal(), isServedRead(), Live, Mounted, proveForcedSurface(), recordedValues() (+93 more)
 
 ### Community 15 - "packages / src / design-system"
 Cohesion: 0.02
 Nodes (104): OPTION_TILE_GROUP_INJECTION_KEY, OPTION_TILE_NESTED_INJECTION_KEY, OptionTileGroupContext, OptionTileIndicator, OptionTileMode, OptionTileNestedContext, OptionTileNestedEntry, ariaLabel (+96 more)
 
-### Community 16 - "packages / src / client-vue"
-Cohesion: 0.03
-Nodes (105): handleProductDetails(), t, setDefault(), BasketAsideVariants, basketCustomFieldsRootVariants, promotionsVariants, ADR-0024, { count, meta: basketMeta } (+97 more)
+### Community 16 - "packages / src / types"
+Cohesion: 0.02
+Nodes (86): ClientAreaTemplate, StoreDisplayMode, ClientStatusCode, CancelOptions, CategorySlug, DocCategories, DocsSlugs, DynamicSettingsFieldTypes (+78 more)
 
-### Community 17 - "packages / client-vue / src"
+### Community 17 - "src / apps / pages"
+Cohesion: 0.03
+Nodes (81): { storefrontRoute }, { t }, { t }, { t }, { t }, doResolve(), emit, mode (+73 more)
+
+### Community 18 - "packages / client-vue / src"
+Cohesion: 0.02
+Nodes (95): attributesToRemove, focussable, maybeFocus(), meta, props, stop, target, props (+87 more)
+
+### Community 19 - "src / packages / client-vue"
+Cohesion: 0.02
+Nodes (95): arrayRenderers, { control, appliedOptions, formFieldProps, onInput }, dispatch, handleChange(), items, multiEnumControl, props, tester (+87 more)
+
+### Community 20 - "scenario-harness / packages / src"
 Cohesion: 0.04
-Nodes (81): { card }, columnClass, props, COLUMN_BACKGROUND, COLUMN_FLOW, COLUMN_HIDE, COLUMN_SHOW, COLUMN_WIDTH (+73 more)
+Nodes (79): bootSettledClientAuth(), settlePendingSessionWrites(), UseAuth, classify(), isRealJsonSchema(), ADR-0027, Archetype, ArchetypeDecision (+71 more)
 
-### Community 18 - "packages / headless / src"
+### Community 21 - "packages / src / client-vue"
+Cohesion: 0.03
+Nodes (95): BreadcrumbCategory, UIBreadcrumbVariant, UseBreadcrumbItemsOptions, useBreadcrumbs(), { basketProductId }, configMeta, configurationActions, { configure } (+87 more)
+
+### Community 22 - "packages / types / src"
 Cohesion: 0.04
-Nodes (80): validate(), validate(), validate(), calculateProductDelta(), onRemoveResolved(), onUpdateQuantityResolved(), onUpdateResolved(), UseBasketProductInline (+72 more)
+Nodes (85): OrgPackageLimits, AuthConfigAvailabilityTypes, AuthConfigFieldTypes, DelegateCreatorObjectTypes, DelegateObjectTypes, HttpMethods, OAuthApplicationType, OAuthConnection (+77 more)
 
-### Community 19 - "packages / src / types"
+### Community 23 - "src / packages / client-vue"
+Cohesion: 0.02
+Nodes (85): compiledMarkdown, emit, markedInstance, props, slots, Block, Inline, meta (+77 more)
+
+### Community 24 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.03
+Nodes (83): ControlledTableChannel, SORT_DIRECTION, SortDirection, TABLE_INTENT_TYPE, TableIntent, TableIntentType, TableModel, ADR-0027 (+75 more)
+
+### Community 25 - "packages / src / headless"
 Cohesion: 0.05
-Nodes (93): baseProducts, recordingsDir, TransactionTypes, PriceType, PaymentRefundStates, RefundOptions, RefundSources, DiscountTypes (+85 more)
+Nodes (85): open(), PERSONAL_MODEL, SAVED_MODEL, services, useUnifiedActions(), useUnifiedGuards(), useSchema(), useUischema() (+77 more)
 
-### Community 20 - "packages / src / design-system"
-Cohesion: 0.03
-Nodes (87): emits, forwarded, isGroup(), meta, props, rootProps, slots, CheckboxItems (+79 more)
-
-### Community 21 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.03
-Nodes (85): integrationKits, integrationSetups, ControlledTableChannel, SORT_DIRECTION, SortDirection, TABLE_INTENT_TYPE, TableIntent, TableIntentType (+77 more)
-
-### Community 22 - "packages / src / modules"
-Cohesion: 0.03
-Nodes (90): { basketProductId }, configMeta, configurationActions, { configure }, { copy, copied, isSupported }, doResolve(), emit, { items: breadcrumbItems } (+82 more)
-
-### Community 23 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.05
-Nodes (88): corpusCapabilities(), declaredTags(), hostablePresets(), isAbsentRecordRead(), isRead(), isRefusal(), isRowsRead(), isServableRefusal() (+80 more)
-
-### Community 24 - "packages / src / client-vue"
-Cohesion: 0.03
-Nodes (83): icon, { isDark, toggle }, { t }, setIconVariant(), props, safeLabel, { t }, { navigateBack, navigateNext, isNavigating } (+75 more)
-
-### Community 25 - "packages / headless / src"
-Cohesion: 0.05
-Nodes (81): mapLoginData(), mapRecoverData(), mapRegisterData(), checkSession(), authenticate(), ClientAuthServices, createClientAuthServices(), checkVerifyEmail() (+73 more)
-
-### Community 26 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.03
-Nodes (94): availableActions(), canRetryRow(), cardElements, collectionActionItems, columnCount, columnElements, columnId(), columnKey() (+86 more)
+### Community 26 - "packages / client-vue / src"
+Cohesion: 0.02
+Nodes (106): buttonLoadingTestAttrs, ctaState, emit, getIcon, getLabel, getStatus, getTooltip, meta (+98 more)
 
 ### Community 27 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.03
-Nodes (72): props, renderer, NO_CONTEXT, NO_SCHEMA, resolveCellSizing(), resolveTableCell(), tableCellRenderers, cellHtml (+64 more)
+Cohesion: 0.04
+Nodes (80): { t }, ListEmptyProps, ListSurfaceProps, ACTIONS, declaredScopes(), fakeTable(), mountList(), rows (+72 more)
 
-### Community 28 - "design-system / packages / ui"
+### Community 28 - "packages / client-vue / src"
+Cohesion: 0.04
+Nodes (76): { card }, columnClass, props, COLUMN_BACKGROUND, COLUMN_FLOW, COLUMN_HIDE, COLUMN_ITEMS, COLUMN_JUSTIFY (+68 more)
+
+### Community 29 - "src / packages / headless"
+Cohesion: 0.05
+Nodes (79): useCompanyAddressList(), useCompanyAddressMutate(), useCompanyEmailList(), useCompanyEmailMutate(), useQuerySchema(), useQueryUischema(), useSortUischema(), useUischema() (+71 more)
+
+### Community 30 - "packages / headless / src"
+Cohesion: 0.06
+Nodes (87): mapContractProductLookupItem(), mapContractProductLookupItems(), mapVaultAsset(), mapVaultAssetActor(), mapVaultAssetCreate(), mapVaultAssets(), mapVaultAssetUpdate(), PRODUCT_SEARCH_SCOPE (+79 more)
+
+### Community 31 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.03
+Nodes (77): servesActor(), emit, isNew, onOpen(), overrideUischema, port, props, { t } (+69 more)
+
+### Community 32 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.03
+Nodes (83): isForced, label, props, forcedCanvas, { t }, FORCE_PRESET_LABELS, ForcedCanvasProps, armed (+75 more)
+
+### Community 33 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.03
+Nodes (93): availableActions(), canRetryRow(), cardElements, collectionActionItems, columnCount, columnElements, columnId(), columnKey() (+85 more)
+
+### Community 34 - "design-system / packages / ui"
 Cohesion: 0.03
 Nodes (94): GLYPHS, SIZES, StoryIcon, arrayOfStrings, booleanControl, compositeForm, constHiddenControl, contactSchema (+86 more)
 
-### Community 29 - "apps / src / pages"
-Cohesion: 0.04
-Nodes (61): { storefrontRoute }, { t }, { t }, { t }, { t }, doResolve(), emit, mode (+53 more)
-
-### Community 30 - "packages / src / modules"
+### Community 35 - "packages / src / types"
 Cohesion: 0.03
-Nodes (89): ImageProps, DetailsItemProps, benefitsTestAttrs, configMeta, normalizedBenefits, props, action, actionContent (+81 more)
+Nodes (93): ProductBundle, RelatedProduct, parseRelatedProducts(), basketProduct(), parse(), recommendation(), CancellationRequestStatusCodes, ContractProductsKinds (+85 more)
 
-### Community 31 - "packages / types / src"
-Cohesion: 0.02
-Nodes (62): StoreDisplayMode, ClientStatusCode, CancelOptions, CategorySlug, DocCategories, DocsSlugs, DynamicSettingsFieldTypes, HelperTextTypes (+54 more)
-
-### Community 32 - "design-system / packages / ui"
-Cohesion: 0.03
-Nodes (74): props, Icon, meta, props, slots, tooltipOpen, props, props (+66 more)
-
-### Community 33 - "src / packages / playgrounds"
-Cohesion: 0.03
-Nodes (66): compiledMarkdown, emit, markedInstance, props, slots, Block, Inline, meta (+58 more)
-
-### Community 34 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.03
-Nodes (72): isAbsentRecord(), moduleAnswer(), resolveModuleDetail(), resolveModuleState(), STATUS_KEYS, MODULE_STATE_CONTEXT_ERROR, MODULE_STATE_META_FLAG, ModuleState (+64 more)
-
-### Community 35 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.03
-Nodes (80): activeClientLabel, actorScope, allClients, applyClientId(), applyContext(), availableClients, brandId, clear() (+72 more)
-
-### Community 36 - "packages / client-vue / src"
-Cohesion: 0.03
-Nodes (76): emits, forwarded, props, sections, slots, {
-  attempts,
-  cancelChallenge,
-  meta,
-  isReady: _isReady,
-  uischema,
-  invoice,
-  renderChallenge,
-  reset
-}, backIcon, backLabel (+68 more)
-
-### Community 37 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.04
-Nodes (70): DetailDialogProps, ACTIONS, declaredScopes(), fakeTable(), mountList(), rows, slotted(), Wrapper (+62 more)
-
-### Community 38 - "packages / src / types"
-Cohesion: 0.04
-Nodes (80): ConditionalValue, BadgeInput, IProductConfig, RelatedProduct, CancellationRequestStatusCodes, ContractProductsKinds, ContractProductsTypes, ProvisionRequestStatusCodes (+72 more)
-
-### Community 39 - "scenario-harness / packages / src"
+### Community 36 - "src / packages / headless"
 Cohesion: 0.05
-Nodes (53): createFixtureActions(), createFixtureContext(), createFixtureInternals(), createFixtureMeta(), createFixtureModule(), FixtureModule, FixtureState, FIXTURE_KEY (+45 more)
+Nodes (73): mapDisplayDate(), mapEmailHistory(), mapEmailStatus(), mapReceivedEmail(), useQuerySchema(), useQueryUischema(), useSortUischema(), createClientEmailHistoryServices() (+65 more)
 
-### Community 40 - "src / packages / modules"
+### Community 37 - "design-system / packages / ui"
 Cohesion: 0.03
-Nodes (72): { storefrontRoute }, { t }, { storefrontRoute }, discountRowTestAttrs, displayRows, { inset }, meta, open (+64 more)
+Nodes (72): delegatedProps, emits, forwarded, props, june, delegatedProps, props, delegatedProps (+64 more)
 
-### Community 41 - "src / packages / client-vue"
+### Community 38 - "modules / playgrounds / labs-nuxt"
+Cohesion: 0.04
+Nodes (67): CLIENT_ADDRESSES_COVERED_ACTIONS, CLIENT_ADDRESSES_SCENARIO, clientAddressesSteps, coveredActionIds, open(), RECORDED, settles(), CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS (+59 more)
+
+### Community 39 - "packages / src / headless"
+Cohesion: 0.05
+Nodes (63): loadLookups(), LastPaymentModel, OrderContext, spawnOrderPaymentDetail(), PAYMENT_DETAIL_ADD_KEY, mapAccountCredit(), mapPaymentDetail(), mapPaymentDetails() (+55 more)
+
+### Community 40 - "packages / src / headless"
+Cohesion: 0.04
+Nodes (68): load(), parse(), update(), CurrencyContext, CurrencyModel, accountCurrency(), clearCurrencyStorage(), clearDefaultCurrency() (+60 more)
+
+### Community 41 - "packages / src / headless"
+Cohesion: 0.05
+Nodes (73): mapGateway(), mapGatewayData(), mapGateways(), mapPaymentData(), mapStoredPaymentDetailData(), parse(), AccountCredit, AmountKey (+65 more)
+
+### Community 42 - "src / packages / modules"
 Cohesion: 0.03
-Nodes (75): actions, doAction(), doReject(), doSubmit(), draft, emits, errors, form (+67 more)
-
-### Community 42 - "src / packages / headless"
-Cohesion: 0.06
-Nodes (64): CLIENT_COMPANIES_SCOPE_MATRIX, CLIENT_COMPANY_SCOPE_MATRIX, ClientCompaniesContextTypes, ClientCompaniesScopeMatrix, ClientCompanyContextTypes, ClientCompanyScopeMatrix, bootUnauthenticated(), bootCollection() (+56 more)
+Nodes (79): cardTestAttrs, doEdit(), emits, props, { t }, _doEdit(), emits, props (+71 more)
 
 ### Community 43 - "packages / headless / src"
 Cohesion: 0.06
-Nodes (74): refreshToken(), mapToken(), loadAllSessionUsers(), loadClientUser(), loadStaffUser(), loadUser(), mintGuestToken(), buildInitialState() (+66 more)
+Nodes (72): parse(), mapCustomFieldValuesToRequest(), mapIProfileFields(), mapProfile(), mapProfileFields(), NATIVE_FIELD_META, LanguageOption, languageOptions() (+64 more)
 
-### Community 44 - "src / packages / client-vue"
+### Community 44 - "packages / src / headless"
 Cohesion: 0.03
-Nodes (65): { control, formFieldProps, onInput, handleChange }, props, { t }, tester, { layout }, props, tester, { control, formFieldProps, handleChange } (+57 more)
+Nodes (52): recordingsDir, ADR-0025, FORM_URLENCODED, recordingsDir, ADR-0025, BASKET_WITH, BRAND_CONFIG_KEYS, NON_CONVERTING_BILLING (+44 more)
 
-### Community 45 - "src / packages / headless"
-Cohesion: 0.06
-Nodes (60): BASKET_ROUTES, injectBid(), SKIP_BID_ROUTES, guards, applyBillingDefaults(), bidReturnUrl(), ensureBidAuth(), BASKET_ROUTES (+52 more)
-
-### Community 46 - "src / packages / client-vue"
+### Community 45 - "src / packages / client-vue"
 Cohesion: 0.04
-Nodes (62): props, ariaLabel, emit, fallbackName, glyph, hasAsset, ICON_SIZE, FALLBACK_ICON (+54 more)
+Nodes (55): props, AnimationImportMap, ariaLabel, emit, fallbackName, glyph, hasAsset, ICON_SIZE (+47 more)
+
+### Community 46 - "src / packages / modules"
+Cohesion: 0.03
+Nodes (72): { storefrontRoute }, { t }, { storefrontRoute }, discountRowTestAttrs, displayRows, { inset }, meta, open (+64 more)
 
 ### Community 47 - "packages / src / headless"
-Cohesion: 0.05
-Nodes (49): LastPaymentModel, OrderContext, spawnOrderPaymentDetail(), PaymentDetailData, hasRenderer(), mapApproval(), redirect(), PaymentArgs (+41 more)
+Cohesion: 0.04
+Nodes (65): challenge, container, processingText, processingTitle, { t }, { cancel }, configMeta, doReject() (+57 more)
 
-### Community 48 - "packages / client-vue / src"
-Cohesion: 0.03
-Nodes (74): { activeUser: client }, avatarSrc, { isAuthenticated, isGuestClient }, props, route, router, session, { t } (+66 more)
+### Community 48 - "packages / src / headless"
+Cohesion: 0.04
+Nodes (52): claimBasket(), dismissWarningNote(), dismissWarningNotes(), fetchBasket(), getProvisioningFieldsValues(), load(), refresh(), withRelations (+44 more)
 
 ### Community 49 - "packages / client-vue / src"
 Cohesion: 0.04
 Nodes (69): checked, model, open, props, safeAmountFormatted, { t }, action, emit (+61 more)
 
-### Community 50 - "src / apps / hosting"
-Cohesion: 0.05
-Nodes (53): isAuthRoute, { isOpen: isOverlayOpen, overlayId }, route, { storefrontRoute }, i18n, app, route, { storefrontRoute } (+45 more)
+### Community 50 - "packages / src / client-vue"
+Cohesion: 0.03
+Nodes (61): { control, formFieldProps, onInput, handleChange }, props, { t }, tester, { layout }, props, tester, { control, formFieldProps, handleChange } (+53 more)
 
-### Community 51 - "packages / client-vue / src"
+### Community 51 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.04
+Nodes (63): isAbsentRecord(), moduleAnswer(), resolveModuleDetail(), resolveModuleState(), STATUS_KEYS, MODULE_STATE_CONTEXT_ERROR, MODULE_STATE_META_FLAG, ModuleState (+55 more)
+
+### Community 52 - "packages / client-vue / src"
 Cohesion: 0.03
 Nodes (60): { control, appliedOptions, onInput, formFieldProps }, manageAs, manageClass, props, tester, emits, props, { t } (+52 more)
 
-### Community 52 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.04
-Nodes (60): isForced, label, props, forcedCanvas, { t }, FORCE_PRESET_LABELS, ForcedCanvasProps, armed (+52 more)
+### Community 53 - "src / packages / apps"
+Cohesion: 0.09
+Nodes (56): BASKET_ROUTES, injectBid(), SKIP_BID_ROUTES, guards, applyBillingDefaults(), bidReturnUrl(), ensureBidAuth(), BASKET_ROUTES (+48 more)
 
-### Community 53 - "design-system / packages / ui"
+### Community 54 - "packages / client-vue / src"
+Cohesion: 0.04
+Nodes (71): benefitsTestAttrs, configMeta, normalizedBenefits, props, action, actionContent, actionRoute, benefits (+63 more)
+
+### Community 55 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.04
+Nodes (55): menuItems, overflowItems, props, stretch, actionSlots, { t }, ActionSlotItem, ActionSlotsProps (+47 more)
+
+### Community 56 - "design-system / packages / ui"
 Cohesion: 0.05
 Nodes (49): FILE_UPLOAD_KEY, FileUploadContext, emits, meta, model, props, slots, CsvImport (+41 more)
 
-### Community 54 - "docs / workshop / _initiator"
+### Community 57 - "docs / workshop / _initiator"
 Cohesion: 0.03
 Nodes (77): allow, Bash(biome:*), Bash(bun:*), Bash(bunx:*), Bash(caddy:*), Bash(cat:*), Bash(cd:*), Bash(cp:*) (+69 more)
 
-### Community 55 - "src / packages / pages"
+### Community 58 - "src / apps / hosting"
+Cohesion: 0.05
+Nodes (50): isAuthRoute, { isOpen: isOverlayOpen, overlayId }, route, { storefrontRoute }, route, { storefrontRoute }, template, layout (+42 more)
+
+### Community 59 - "design-system / packages / ui"
+Cohesion: 0.05
+Nodes (61): emits, forwarded, meta, props, rootProps, slots, CheckboxAndRadio, DemoEntry (+53 more)
+
+### Community 60 - "design-system / packages / ui"
+Cohesion: 0.04
+Nodes (57): props, Icon, meta, props, slots, tooltipOpen, props, props (+49 more)
+
+### Community 61 - "playgrounds / labs-nuxt / app"
+Cohesion: 0.04
+Nodes (59): entries, actions, filters, handle, imported, literal(), member(), model (+51 more)
+
+### Community 62 - "src / apps / packages"
 Cohesion: 0.03
-Nodes (44): { storefrontRoute }, { t }, { storefrontRoute }, { t }, { t }, { storefrontRoute }, { t }, { meta } (+36 more)
+Nodes (48): UseStorefrontRoute, { name: brandName, currency }, { storefrontRoute }, { t }, { storefrontRoute }, { t }, { storefrontRoute }, { t } (+40 more)
 
-### Community 56 - "apps / src / cart"
-Cohesion: 0.05
-Nodes (44): { storefrontRoute }, { t }, { t }, isAuthRoute, { isOpen: isOverlayOpen, overlayId }, route, { storefrontRoute }, i18n (+36 more)
-
-### Community 57 - "playgrounds / labs-nuxt / modules"
+### Community 63 - "packages / client-vue / src"
 Cohesion: 0.04
-Nodes (59): servesActor(), direction, emit, footerActions, host, hostClass, hostClassContent, hostClassFooter (+51 more)
+Nodes (65): account, alertTitle, { cancel, register, resend, set, verify }, {
+  canResend,
+  canShowForms,
+  hasErrors,
+  isProcessing,
+  isResending,
+  resendComplete,
+  resendFailed,
+  showGuestUpgradeForm,
+  showVerifyEmailForm
+}, currentForm, doReject(), doResolve(), emit (+57 more)
 
-### Community 58 - "design-system / packages / ui"
-Cohesion: 0.04
-Nodes (48): props, props, arrayRenderers, { control, appliedOptions, formFieldProps, onInput }, items, props, tester, complexRenderers (+40 more)
-
-### Community 59 - "packages / client-vue / src"
+### Community 64 - "design-system / packages / ui"
 Cohesion: 0.05
-Nodes (65): productOptionActionVariants, productOptionBenefitsHeaderVariants, productOptionBenefitsIconVariants, productOptionBenefitsItemVariants, productOptionBenefitsListVariants, ProductOptionDescriptionVariants, productOptionDetailsVariants, productOptionDiscountedVariants (+57 more)
+Nodes (52): delegatedProps, emits, forwarded, props, delegatedProps, forwarded, props, delegatedProps (+44 more)
 
-### Community 60 - "scenario-harness / packages / src"
+### Community 65 - "packages / headless / src"
+Cohesion: 0.09
+Nodes (44): brandStub, recordingsDir, seedStanding(), SelfResponse, sessionStoreRecordingsDir, ADR-0021, recordingsDir, server (+36 more)
+
+### Community 66 - "packages / src / headless"
 Cohesion: 0.06
-Nodes (45): classify(), isRealJsonSchema(), ADR-0027, Archetype, ArchetypeDecision, ArchetypeSignals, ModuleDescriptor, OBJECT_SCHEMA_TYPE (+37 more)
+Nodes (41): PaymentDetailData, hasRenderer(), mapApproval(), mapRenderer(), redirect(), PaymentArgs, PaymentContext, submitViaForm() (+33 more)
 
-### Community 61 - "design-system / packages / ui"
+### Community 67 - "design-system / packages / ui"
 Cohesion: 0.05
 Nodes (57): DESCRIPTION_LIST_KEY, DescriptionListAlign, DescriptionListContext, DescriptionListGap, DescriptionListOrientation, DescriptionListSize, meta, props (+49 more)
 
-### Community 62 - "design-system / packages / ui"
+### Community 68 - "design-system / packages / ui"
 Cohesion: 0.05
 Nodes (49): emits, forwarded, props, rootProps, DemoNavItem, DemoPanelLink, meta, Playground (+41 more)
 
-### Community 63 - "packages / client-vue / src"
-Cohesion: 0.03
-Nodes (67): cardHeaderDetailsBadgeVariants, cardSkeletonHeightsVariants, domainCardActionsVariants, domainCardAvailableActionVariants, domainCardAvailableDiscountVariants, domainCardAvailableIconVariants, domainCardAvailableOwnershipVariants, domainCardAvailablePricesVariants (+59 more)
+### Community 69 - "packages / src / client-vue"
+Cohesion: 0.06
+Nodes (53): shipped(), bars, BUTTON_GROUP_POSITION, catalogue(), clientEmailHistoryQuery(), clientEmailQuery(), elementFor(), FilterMount (+45 more)
 
-### Community 64 - "src / packages / apps"
+### Community 70 - "packages / client-vue / src"
+Cohesion: 0.05
+Nodes (61): productOptionActionVariants, productOptionBenefitsHeaderVariants, productOptionBenefitsIconVariants, productOptionBenefitsItemVariants, productOptionBenefitsListVariants, ProductOptionDescriptionVariants, productOptionDetailsVariants, productOptionDiscountedVariants (+53 more)
+
+### Community 71 - "src / packages / client-vue"
 Cohesion: 0.04
-Nodes (47): UseStorefrontRoute, { name: brandName, currency }, { storefrontRoute }, { t }, emits, open, props, summary (+39 more)
+Nodes (45): { overflow }, props, RootVariants, variants, { onEnter, shouldTransition }, UseLayoutProps, config, defaultLayoutProps (+37 more)
 
-### Community 65 - "design-system / packages / ui"
+### Community 72 - "apps / cart / src"
+Cohesion: 0.06
+Nodes (38): isAuthRoute, { isOpen: isOverlayOpen, overlayId }, route, { storefrontRoute }, { storefrontRoute }, { storefrontRoute }, { storefrontRoute }, { storefrontRoute } (+30 more)
+
+### Community 73 - "design-system / packages / ui"
+Cohesion: 0.05
+Nodes (49): forwarded, props, delegatedProps, emits, forwarded, props, query, props (+41 more)
+
+### Community 74 - "packages / client-vue / src"
+Cohesion: 0.04
+Nodes (53): autoUpdate, { card }, { data: billingData }, editing, meta, { meta: basketMeta }, { meta: billingMeta, model: billingModel }, { navigate } (+45 more)
+
+### Community 75 - "src / packages / i18n"
+Cohesion: 0.04
+Nodes (56): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+48 more)
+
+### Community 76 - "packages / src / client-vue"
+Cohesion: 0.06
+Nodes (59): handleProductDetails(), t, setDefault(), { formatPrice }, { summary, meta }, { t }, { ui, data }, { card } (+51 more)
+
+### Community 77 - "design-system / packages / ui"
 Cohesion: 0.05
 Nodes (43): emits, forwarded, meta, props, rootProps, slots, Controlled, CustomHeader (+35 more)
 
-### Community 66 - "design-system / packages / ui"
+### Community 78 - "src / playgrounds / labs"
+Cohesion: 0.04
+Nodes (49): formRenderers, { card, border, inset: insetDefault }, currentSectionProps, doAction(), emits, hasActions, meta, modelValue (+41 more)
+
+### Community 79 - "packages / headless / src"
+Cohesion: 0.07
+Nodes (47): bootCollection(), Collection, LEGACY_KEYS, ADR-0001, bootUnauthenticated(), assertNoActingAsHeaders(), assertRetargetIdentityTransport(), clientCustomFieldsScopeKeys() (+39 more)
+
+### Community 80 - "design-system / packages / ui"
+Cohesion: 0.05
+Nodes (44): inputEl, meta, model, props, slots, Disabled, FileUpload, Invalid (+36 more)
+
+### Community 81 - "packages / headless / src"
+Cohesion: 0.04
+Nodes (38): mapAccount(), mapClient(), mapInitials(), Account, Client, { brandId, clientId }, context(), currency (+30 more)
+
+### Community 82 - "packages / src / client-vue"
+Cohesion: 0.04
+Nodes (52): layout, route, { t }, { navigateBack, navigateNext, isNavigating }, props, { set }, summaryAppendTestAttrs, supportedTemplates (+44 more)
+
+### Community 83 - "design-system / packages / ui"
 Cohesion: 0.06
 Nodes (47): delegatedProps, forwarded, props, delegatedProps, forwarded, props, delegatedProps, forwarded (+39 more)
 
-### Community 67 - "packages / src / modules"
-Cohesion: 0.04
-Nodes (51): debouncedEmit, emit, { isFree }, meta, onClear(), onSearch(), onSelect(), ownedItems (+43 more)
-
-### Community 68 - "packages / headless / src"
-Cohesion: 0.11
-Nodes (39): CLIENT_NOTE_SCOPE_MATRIX, CLIENT_NOTES_SCOPE_MATRIX, ClientNoteContextTypes, ClientNotesContextTypes, brandGate, ensureConfigCalls, bootUnauthenticated(), assertClientIdentityTransport() (+31 more)
-
-### Community 69 - "packages / headless / src"
-Cohesion: 0.10
-Nodes (44): bootQuery(), LEGACY_KEYS, Query, assertClientIdentityTransport(), assertNoActingAsHeaders(), clientPhoneScopeKeys(), countriesWithGb(), Envelope (+36 more)
-
-### Community 70 - "packages / headless / package.json"
+### Community 84 - "packages / headless / package.json"
 Cohesion: 0.03
 Nodes (61): object-hash, devDependencies, eslint, eslint-config-prettier, eslint-plugin-vue, happy-dom, jiti, jsdom (+53 more)
 
-### Community 71 - "src / packages / headless"
-Cohesion: 0.07
-Nodes (48): callAdd(), phone, spies, UnifiedContext, Address, AddressContext, AddressModel, Company (+40 more)
-
-### Community 72 - "packages / src / design-system"
+### Community 85 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.05
-Nodes (38): build(), colorsValue(), effectiveTrigger, host, intentTokens(), loadSrc(), props, reducedMotion (+30 more)
+Nodes (46): props, renderer, NO_CONTEXT, NO_SCHEMA, resolveCellSizing(), resolveTableCell(), tableCellRenderers, cellHtml (+38 more)
 
-### Community 73 - "playgrounds / labs-nuxt / modules"
+### Community 86 - "pages / src / playgrounds"
 Cohesion: 0.04
-Nodes (41): clean, props, meta, Playground, Story, StripsUnsafeMarkup, SanitizedProps, featureText (+33 more)
+Nodes (25): { storefrontRoute }, { t }, { storefrontRoute }, { t }, { t }, { storefrontRoute }, { t }, { meta } (+17 more)
 
-### Community 74 - "packages / headless / src"
-Cohesion: 0.08
-Nodes (42): { removeTopLevel: _removeCookie }, mapCompleteRegistrationData(), useGuestEmailSchemaParser(), useGuestEmailUischemaParser(), useVerifyEmailSchemaParser(), useVerifyEmailUischemaParser(), checkVerifyEmail(), completeRegistration() (+34 more)
+### Community 87 - "packages / src / headless"
+Cohesion: 0.09
+Nodes (51): mapToken(), loadAllSessionUsers(), loadClientUser(), loadStaffUser(), loadUser(), mintGuestToken(), buildInitialState(), initialise() (+43 more)
 
-### Community 75 - "src / design-system / packages"
+### Community 88 - "src / design-system / packages"
 Cohesion: 0.04
 Nodes (37): actions, {
   meta,
@@ -1237,415 +1249,377 @@ Nodes (37): actions, {
   remove
 }, open, processing, { t }, toggle, tooltipLabel, delegatedProps (+29 more)
 
-### Community 76 - "packages / headless / src"
-Cohesion: 0.08
-Nodes (40): CapturedPut, findRecordedFieldByCode(), ProjectedField, recordedFieldDefinitions(), assertClientIdentityTransport(), assertNoActingAsHeaders(), clientPersonalDetailsScopeKeys(), CONSUMED_NAMESPACES (+32 more)
-
-### Community 77 - "src / design-system / packages"
+### Community 89 - "design-system / packages / ui"
 Cohesion: 0.05
-Nodes (35): inputEl, meta, model, props, slots, Disabled, FileUpload, Invalid (+27 more)
+Nodes (37): slides, Autoplay, meta, Playground, Story, images, carouselApi, carouselImages (+29 more)
 
-### Community 78 - "design-system / packages / ui"
+### Community 90 - "packages / headless / src"
+Cohesion: 0.08
+Nodes (55): DataSchema, UISchema, ALL_CONTEXTS, BadgeAppearance, BadgeInput, BadgeVariant, Breadcrumbs, CATEGORY_GRID_LAYOUT (+47 more)
+
+### Community 91 - "apps / app / cart-nuxt"
+Cohesion: 0.07
+Nodes (30): BASKET_ROUTES, SKIP_BID_ROUTES, guards, applyBillingDefaults(), getDefaultFunnel(), registerFunnels(), BID_PREFIX, FUNNEL (+22 more)
+
+### Community 92 - "design-system / packages / ui"
 Cohesion: 0.06
 Nodes (38): emits, forwarded, meta, props, rootProps, slots, props, props (+30 more)
 
-### Community 79 - "playgrounds / labs-nuxt / app"
+### Community 93 - "src / packages / design-system"
 Cohesion: 0.05
-Nodes (45): entries, actions, filters, handle, imported, literal(), member(), model (+37 more)
+Nodes (42): actionAttrs, emit, isAction, navAttrs, onClick(), props, resolvedAs, RouterLink (+34 more)
 
-### Community 80 - "design-system / packages / ui"
+### Community 94 - "design-system / packages / ui"
 Cohesion: 0.07
 Nodes (41): emits, forwarded, props, rootProps, EmailHistory, meta, NumberedPages, Playground (+33 more)
 
-### Community 81 - "packages / headless / src"
-Cohesion: 0.09
-Nodes (46): useUnifiedActions(), useSchema(), useUischema(), mapIPhone(), mapPhone(), mapPhones(), useQuerySchema(), useQueryUischema() (+38 more)
+### Community 95 - "packages / src / design-system"
+Cohesion: 0.05
+Nodes (44): activeIndex, activeOptionId, emit, fallbackId, fieldId, hasModelValue, internalSearch, isValid (+36 more)
 
-### Community 82 - "packages / headless / src"
-Cohesion: 0.06
-Nodes (55): BrandMeta, ALL_OPERATORS, ALL_STATE_KEYS, ARRAY_STATE_KEYS, createIssue(), evaluateOperator(), matchesCondition(), suggestNamespace() (+47 more)
+### Community 96 - "packages / headless / src"
+Cohesion: 0.05
+Nodes (55): ALL_OPERATORS, ALL_STATE_KEYS, ARRAY_STATE_KEYS, createIssue(), evaluateOperator(), isConditionalValue(), matchesCondition(), resolveStateKey() (+47 more)
 
-### Community 83 - "playgrounds / labs-nuxt / package.json"
+### Community 97 - "playgrounds / labs-nuxt / package.json"
 Cohesion: 0.04
 Nodes (57): dependencies, class-variance-authority, @jsonforms/core, lodash-es, lucide-vue-next, nuxt, @nuxtjs/seo, @nuxtjs/web-vitals (+49 more)
 
-### Community 84 - "src / packages / client-vue"
-Cohesion: 0.05
-Nodes (38): dismiss(), emit, internalOpen, open, props, InShell, Intents, meta (+30 more)
-
-### Community 85 - "design-system / packages / ui"
-Cohesion: 0.06
-Nodes (39): delegatedProps, forwarded, props, delegatedProps, forwarded, props, delegatedProps, forwarded (+31 more)
-
-### Community 86 - "packages / client-vue / src"
-Cohesion: 0.04
-Nodes (50): reset, handleReturn(), emit, props, query, { t }, emit, inputValue (+42 more)
-
-### Community 87 - "packages / headless / package.json"
+### Community 98 - "packages / headless / package.json"
 Cohesion: 0.04
 Nodes (55): ajv-formats, braintree-web-drop-in, dayjs, @googlemaps/google-maps-services-js, @googlemaps/js-api-loader, nanoid, dependencies, ajv (+47 more)
 
-### Community 88 - "design-system / packages / ui"
+### Community 99 - "design-system / packages / ui"
 Cohesion: 0.08
-Nodes (40): TIMELINE_KEY, TimelineContext, TimelineSize, props, props, bare, props, slots (+32 more)
+Nodes (40): emits, meta, props, DemoSlide, meta, MultiPerView, Playground, PropFirst (+32 more)
 
-### Community 89 - "packages / headless / src"
-Cohesion: 0.09
-Nodes (52): UISchema, ALL_CONTEXTS, BadgeAppearance, BadgeVariant, Breadcrumbs, CATEGORY_GRID_LAYOUT, CategoryGridLayout, CLAMP_LINES (+44 more)
-
-### Community 90 - "playgrounds / labs-nuxt / package.json"
+### Community 100 - "playgrounds / labs-nuxt / package.json"
 Cohesion: 0.04
 Nodes (53): @nuxt/cli, devDependencies, eslint, eslint-plugin-vue, happy-dom, jiti, msw, @nuxt/cli (+45 more)
 
-### Community 91 - "packages / src / headless"
-Cohesion: 0.06
-Nodes (28): recordingsDir, ADR-0025, FORM_URLENCODED, recordingsDir, ADR-0025, BRAND_CONFIG_KEYS, recordingsDir, ADR-0025 (+20 more)
-
-### Community 92 - "src / playgrounds / storybook-next"
+### Community 101 - "src / playgrounds / storybook-next"
 Cohesion: 0.06
 Nodes (45): typeScale, INVOICE_MENU, Layering, meta, Shadows, Story, FIELD_CLASSES, MENU_ITEMS (+37 more)
 
-### Community 93 - "playgrounds / labs / src"
-Cohesion: 0.06
-Nodes (32): isAuthRoute, { meta: routingMeta, isReady }, { navigation }, route, router, hasChildren, isOpen, paddingLeft (+24 more)
+### Community 102 - "packages / headless / src"
+Cohesion: 0.10
+Nodes (39): consolidatableCriteria(), creditNotesCriteria(), Invoice, INVOICE_SCOPE_MATRIX, InvoiceBundleGroup, InvoiceFilterModel, InvoiceItemQuery, InvoicePaymentDetailsModel (+31 more)
 
-### Community 94 - "packages / src / design-system"
+### Community 103 - "playgrounds / labs / src"
 Cohesion: 0.06
-Nodes (41): emit, model, onGenerate(), props, meta, Playground, Story, WithGenerator (+33 more)
+Nodes (31): isAuthRoute, { meta: routingMeta, isReady }, { navigation }, route, router, hasChildren, isOpen, paddingLeft (+23 more)
 
-### Community 95 - "design-system / packages / ui"
+### Community 104 - "packages / headless / src"
+Cohesion: 0.10
+Nodes (32): CapturedPut, findRecordedFieldByCode(), ProjectedField, recordedFieldDefinitions(), assertClientIdentityTransport(), assertNoActingAsHeaders(), clientPersonalDetailsScopeKeys(), CONSUMED_NAMESPACES (+24 more)
+
+### Community 105 - "design-system / packages / ui"
+Cohesion: 0.07
+Nodes (37): emits, meta, props, slots, CustomIcon, Intents, meta, Outline (+29 more)
+
+### Community 106 - "packages / headless / src"
 Cohesion: 0.08
-Nodes (38): delegatedProps, props, meta, props, slots, delegatedProps, props, emits (+30 more)
+Nodes (36): ADR-0027, useActionInputSchemas(), useQueryUischema(), useSchema(), useSortUischema(), CLIENT_EMAIL_SCOPE_MATRIX, CLIENT_EMAILS_SCOPE_MATRIX, ClientEmailContextTypes (+28 more)
 
-### Community 96 - "design-system / packages / ui"
-Cohesion: 0.04
-Nodes (35): ColumnMeta, @tanstack/vue-table, props, rowSelection, showFooter, skeletonRowCount, sorting, baseColumns (+27 more)
-
-### Community 97 - "packages / client-vue / src"
-Cohesion: 0.04
-Nodes (41): { brandId }, { data: loginTemplate }, { isAuthenticated }, { isReady }, isResolving, meta, { meta: basketMeta }, { meta: templateMeta } (+33 more)
-
-### Community 98 - "apps / cart-nuxt / package.json"
+### Community 107 - "apps / cart-nuxt / package.json"
 Cohesion: 0.04
 Nodes (49): devDependencies, eslint, eslint-plugin-playwright, eslint-plugin-vue, jsdom, @nuxt/eslint, @playwright/test, prettier (+41 more)
 
-### Community 99 - "apps / cart / package.json"
+### Community 108 - "apps / cart / package.json"
 Cohesion: 0.04
-Nodes (49): devDependencies, eslint, eslint-plugin-vue, jiti, jsdom, @playwright/test, prettier, sass (+41 more)
-
-### Community 100 - "src / packages / modules"
-Cohesion: 0.05
-Nodes (44): { addSuccess, addError }, clientPhones, companiesScope, {
-  data: companies,
-  default: defaultCompany,
-  getOne: getCompany
-}, { data: phones, default: defaultPhone }, doResolve(), emit, { isEmpty: isCompaniesEmpty, isLoading: isCompaniesLoading } (+36 more)
-
-### Community 101 - "packages / headless / src"
-Cohesion: 0.10
-Nodes (36): SENT_EMAIL_DEFAULT_SORT, bootCollection(), Collection, INTENT_VERB, latestFilterKeys(), latestParams(), PortActions, TableIntent (+28 more)
-
-### Community 102 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.05
-Nodes (41): handoff, LiveAction, LiveActions, LiveContext, LiveMeta, LiveMetaFlag, ADR-0027, UseCompositionPortOptions (+33 more)
-
-### Community 103 - "design-system / packages / ui"
-Cohesion: 0.08
-Nodes (34): props, delegatedProps, emits, forwarded, props, delegatedProps, forwarded, props (+26 more)
-
-### Community 104 - "design-system / packages / ui"
-Cohesion: 0.07
-Nodes (36): delegatedProps, forwarded, props, delegatedProps, forwarded, props, delegatedProps, forwarded (+28 more)
-
-### Community 105 - "packages / client-vue / src"
-Cohesion: 0.05
-Nodes (40): isOneoff, props, { t }, anyQuantifiable, canDeselect, doUpdateQuantity(), emit, GRID_MIN_WIDTH (+32 more)
-
-### Community 106 - "apps / cart-nuxt / package.json"
-Cohesion: 0.04
-Nodes (47): dependencies, class-variance-authority, @formkit/auto-animate, lodash-es, nuxt, @nuxtjs/seo, @nuxtjs/web-vitals, @sentry/nuxt (+39 more)
-
-### Community 107 - "design-system / packages / ui"
-Cohesion: 0.06
-Nodes (34): cells, DIGITS, DURATION_CLASS, formatted, options, props, AnimatedNumberFormat, AnimatedNumberProps (+26 more)
-
-### Community 108 - "docs / corpus / build.mjs"
-Cohesion: 0.09
-Nodes (46): ADR_DIR, buildAdrs(), buildChangelog(), buildGuides(), buildIndex(), buildRelations(), buildSignature(), buildSymbols() (+38 more)
+Nodes (49): devDependencies, eslint, eslint-plugin-playwright, eslint-plugin-vue, jiti, jsdom, @localazy/cli, @playwright/test (+41 more)
 
 ### Community 109 - "packages / headless / src"
 Cohesion: 0.08
-Nodes (39): isConditionalValue(), getDataProperty(), getDefaultValue(), getPropertyValue(), getScopeValue(), getUIProperty(), normalizeValue(), MetaItems (+31 more)
+Nodes (37): doFetch(), refreshToken(), CriteriaInput, InfiniteQueryPage, MutationParams, MutationResult, PaginationInfo, QueryCriteriaHandle (+29 more)
 
-### Community 110 - "apps / src / velia"
-Cohesion: 0.07
-Nodes (22): isAuthRoute, { isOpen: isOverlayOpen, overlayId }, { meta: routingMeta }, route, showLoader, { storefrontRoute }, { storefrontRoute }, { t } (+14 more)
+### Community 110 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.06
+Nodes (40): featureText, StepModule, stepModules, recordedBodies, IntegrationKit, integrationKits, IntegrationSetup, integrationSetups (+32 more)
 
 ### Community 111 - "design-system / packages / ui"
-Cohesion: 0.09
-Nodes (33): emits, meta, props, CarouselApi, CarouselEmits, CarouselOptions, CarouselPlugin, CarouselProps (+25 more)
+Cohesion: 0.07
+Nodes (35): emits, forwarded, meta, props, rootProps, slots, props, contentTestAttrs (+27 more)
 
 ### Community 112 - "design-system / packages / ui"
+Cohesion: 0.08
+Nodes (34): props, delegatedProps, emits, forwarded, props, delegatedProps, forwarded, props (+26 more)
+
+### Community 113 - "design-system / packages / ui"
 Cohesion: 0.07
-Nodes (32): forwarded, props, props, delegatedProps, forwarded, props, delegatedProps, props (+24 more)
+Nodes (36): delegatedProps, forwarded, props, delegatedProps, forwarded, props, delegatedProps, forwarded (+28 more)
 
-### Community 113 - "modules / packages / src"
+### Community 114 - "packages / client-vue / src"
 Cohesion: 0.05
-Nodes (37): resolve(), type(), type(), type(), whenPostSaveEffectsLand(), CLIENT_ADDRESSES_COVERED_ACTIONS, CLIENT_ADDRESSES_SCENARIO, clientAddressesSteps (+29 more)
+Nodes (35): emits, forwarded, props, sections, slots, BasketAsideVariants, basketCustomFieldsRootVariants, promotionsVariants (+27 more)
 
-### Community 114 - "packages / src / modules"
-Cohesion: 0.05
-Nodes (38): emits, hasTerms, onSelect(), props, selectedLabel, selectedTerm, { t }, termOptions (+30 more)
+### Community 115 - "packages / headless / src"
+Cohesion: 0.10
+Nodes (36): heldWhileSettling(), tick(), assertClientIdentityTransport(), assertNoActingAsHeaders(), clientEmailScopeKeys(), Envelope, heldFor(), installBackgroundStubs() (+28 more)
 
-### Community 115 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.06
-Nodes (38): duplicatesOf(), setup(), DiscoveredScenario, declared, registry, scenarioKeys, scenarioRegistry, scenarioRoutes (+30 more)
-
-### Community 116 - "app / apps / cart-nuxt"
-Cohesion: 0.09
-Nodes (23): BASKET_ROUTES, SKIP_BID_ROUTES, guards, applyBillingDefaults(), getDefaultFunnel(), registerFunnels(), BID_PREFIX, FUNNEL (+15 more)
-
-### Community 117 - "apps / hosting / package.json"
+### Community 116 - "apps / cart-nuxt / package.json"
 Cohesion: 0.04
-Nodes (45): devDependencies, eslint, eslint-plugin-playwright, eslint-plugin-vue, jsdom, @localazy/cli, @playwright/test, prettier (+37 more)
+Nodes (47): dependencies, class-variance-authority, @formkit/auto-animate, lodash-es, nuxt, @nuxtjs/seo, @nuxtjs/web-vitals, @sentry/nuxt (+39 more)
 
-### Community 118 - "apps / velia / package.json"
+### Community 117 - "design-system / packages / ui"
+Cohesion: 0.07
+Nodes (36): delegatedProps, forwarded, props, delegatedProps, forwarded, props, delegatedProps, emits (+28 more)
+
+### Community 118 - "design-system / packages / ui"
+Cohesion: 0.05
+Nodes (37): TOGGLE_GROUP_INJECTION_KEY, ToggleGroupContext, ToggleGroupSize, context, delegatedProps, props, size, delegatedProps (+29 more)
+
+### Community 119 - "docs / corpus / build.mjs"
+Cohesion: 0.09
+Nodes (46): ADR_DIR, buildAdrs(), buildChangelog(), buildGuides(), buildIndex(), buildRelations(), buildSignature(), buildSymbols() (+38 more)
+
+### Community 120 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.05
+Nodes (33): randexp, flush(), Handle, LookupItem, messages, Meta, mountControl(), openCombobox() (+25 more)
+
+### Community 121 - "packages / headless / src"
+Cohesion: 0.06
+Nodes (24): { authIntBrandConfig }, awaitClientSessionCommitted(), { overrideToken, overrideSelf }, recordingsDir, ADR-0021, NOTE: `import.meta.dirname` (not `fileURLToPath(new URL(..., import.meta.url))`), recordingsDir, server (+16 more)
+
+### Community 122 - "packages / headless / src"
+Cohesion: 0.11
+Nodes (35): SENT_EMAIL_DEFAULT_SORT, bootCollection(), Collection, INTENT_VERB, latestFilterKeys(), latestParams(), PortActions, TableIntent (+27 more)
+
+### Community 123 - "packages / headless / src"
+Cohesion: 0.05
+Nodes (36): boot(), brandConfig, { brandId, clientId }, CURRENCY, held(), outbound, payContext(), recordingsDir (+28 more)
+
+### Community 124 - "packages / types / src"
+Cohesion: 0.09
+Nodes (34): FileTypes, MimeTypes, ImportFileScanStatus, ImportLogLevels, ImportStatusCodes, ImportStepCodes, ImportTaxSettingTypes, ImportTypes (+26 more)
+
+### Community 125 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.05
+Nodes (30): ScenarioAction, TableCell, allActions(), CELL_RENDERERS, declaredHandoffs(), MODULE_ROOT, allActions(), CELL_RENDERERS (+22 more)
+
+### Community 126 - "apps / hosting / package.json"
+Cohesion: 0.04
+Nodes (45): devDependencies, eslint, eslint-plugin-playwright, jiti, jsdom, @localazy/cli, @playwright/test, prettier (+37 more)
+
+### Community 127 - "apps / velia / package.json"
 Cohesion: 0.04
 Nodes (45): devDependencies, eslint, eslint-plugin-playwright, jiti, @localazy/cli, @playwright/test, prettier, prettier-plugin-tailwindcss (+37 more)
 
-### Community 119 - "packages / client-vue / package.json"
-Cohesion: 0.04
-Nodes (45): filepond, filepond-plugin-file-validate-type, filepond-plugin-image-preview, dependencies, class-variance-authority, filepond, filepond-plugin-file-validate-type, filepond-plugin-image-preview (+37 more)
+### Community 128 - "design-system / packages / ui"
+Cohesion: 0.10
+Nodes (31): TIMELINE_KEY, TimelineContext, TimelineSize, props, props, bare, props, slots (+23 more)
 
-### Community 120 - "packages / client-vue / package.json"
-Cohesion: 0.04
-Nodes (45): devDependencies, ajv, eslint, eslint-plugin-vue, jiti, postcss, prettier, prettier-plugin-tailwindcss (+37 more)
-
-### Community 121 - "packages / client-vue / src"
-Cohesion: 0.05
-Nodes (32): productSummaryRenewRenewsVariants, productSummaryRenewUsuallyVariants, groupedDetails, props, { t }, atMin, doUpdateQuantity(), emits (+24 more)
-
-### Community 122 - "packages / headless / src"
+### Community 129 - "packages / src / modules"
 Cohesion: 0.09
-Nodes (35): useQueryUischema(), useSchemaDefinitions(), useSortUischema(), useUischemaDefinitions(), ADDRESS_TYPE_KEYS, AddressTypes, CLIENT_ADDRESS_SCOPE_MATRIX, CLIENT_ADDRESSES_SCOPE_MATRIX (+27 more)
+Nodes (34): icon, { isDark, toggle }, { t }, setIconVariant(), COLOR_MODE, brandPreferred, isDark, prefersDark (+26 more)
 
-### Community 123 - "packages / headless / src"
-Cohesion: 0.12
-Nodes (39): mapCompanies(), mapCompany(), mapICompany(), useQuerySchema(), useQueryUischema(), useSchema(), useSortUischema(), add() (+31 more)
+### Community 130 - "packages / client-vue / src"
+Cohesion: 0.05
+Nodes (42): categoryBadge, props, { t }, modelValue, props, query, { t }, categoriesControlsRootVariants (+34 more)
 
-### Community 124 - "packages / headless / src"
-Cohesion: 0.11
-Nodes (35): Invoice, INVOICE_SCOPE_MATRIX, InvoiceBundleGroup, InvoiceFilterModel, InvoiceItemQuery, InvoicePaymentDetailsModel, InvoiceQueryModel, INVOICES_SCOPE_MATRIX (+27 more)
+### Community 131 - "packages / headless / src"
+Cohesion: 0.08
+Nodes (39): getDataProperty(), getDefaultValue(), getPropertyValue(), getScopeValue(), getUIProperty(), DataItems, MetaItems, PropertyDefinition (+31 more)
 
-### Community 125 - "packages / headless / src"
+### Community 132 - "packages / headless / src"
 Cohesion: 0.15
 Nodes (27): InvoicesContextTypes, mapWith(), bootPagedCollection(), FLOOR_RELATIONS, assertClientIdentityTransport(), assertNoActingAsHeaders(), bootUnauthenticated(), installBackgroundStubs() (+19 more)
 
-### Community 126 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.07
-Nodes (28): EXPLANATIONS, isRead(), isRefusal(), isServedRead(), Live, Mounted, proveForcedSurface(), recordedValues() (+20 more)
-
-### Community 127 - "design-system / packages / tokens"
+### Community 133 - "design-system / packages / tokens"
 Cohesion: 0.10
 Nodes (36): dist, main(), primitivesCss(), scopedDerivedCss(), tailwindCss(), typeSizeFormulas(), contextualCss(), ContextualToken (+28 more)
 
-### Community 128 - "src / packages / design-system"
-Cohesion: 0.06
-Nodes (31): actionAttrs, emit, isAction, navAttrs, onClick(), props, resolvedAs, RouterLink (+23 more)
-
-### Community 129 - "packages / client-vue / src"
-Cohesion: 0.06
-Nodes (41): categoryBadge, props, { t }, modelValue, props, query, { t }, categoriesControlsRootVariants (+33 more)
-
-### Community 130 - "packages / headless / src"
-Cohesion: 0.10
-Nodes (33): useQuerySchema(), useQueryUischema(), useSortUischema(), RECEIVED_EMAIL_SCOPE_MATRIX, RECEIVED_EMAILS_SCOPE_MATRIX, ReceivedEmailsContextTypes, ReceivedEmailScopeMatrix, ReceivedEmailsListQuery (+25 more)
-
-### Community 131 - "packages / headless / src"
-Cohesion: 0.09
-Nodes (29): PAYMENT_DETAIL_ADD_KEY, clearOperation(), getOperationReturnUrl(), registerOperation(), PendingOperation, add(), operationsStore, storeTick (+21 more)
-
-### Community 132 - "playgrounds / labs / src"
-Cohesion: 0.05
-Nodes (25): emailId, route, actionKeys, actions, activeStatus, context, contextKeys, debouncedFilterQuery (+17 more)
-
-### Community 133 - "design-system / packages / ui"
+### Community 134 - "design-system / packages / ui"
 Cohesion: 0.09
 Nodes (29): meta, props, slots, HeaderAction, Interactive, meta, Playground, PropFirst (+21 more)
 
-### Community 134 - "packages / client-vue / src"
+### Community 135 - "packages / client-vue / package.json"
 Cohesion: 0.05
-Nodes (39): basketProductConfigTestAttrs, basketProductSummaryTestAttrs, basketProductUpsellTestAttrs, configErrors, debouncedUpdate, doRemove(), editRoute, emits (+31 more)
+Nodes (43): filepond, filepond-plugin-file-validate-type, filepond-plugin-image-preview, dependencies, class-variance-authority, filepond, filepond-plugin-file-validate-type, filepond-plugin-image-preview (+35 more)
 
-### Community 135 - "design-system / packages / ui"
+### Community 136 - "packages / src / modules"
+Cohesion: 0.06
+Nodes (34): emit, { t }, basketItems, debouncedSearch, editing, emit, {
+  isReady,
+  available,
+  added,
+  searchParams,
+  search,
+  searchMore,
+  remove,
+  add,
+  basket,
+  choices,
+  meta: domainMeta,
+  model,
+  pagination,
+  query,
+  selected,
+  type,
+  choose,
+  reset,
+  select,
+  stop,
+  stopDac,
+  update,
+  pricing,
+  addTransfer,
+  addRegistration,
+  removeTransfer,
+  clearExisting,
+  change,
+  isDomainLike,
+  owned,
+  filteredOwned
+}, meta (+26 more)
+
+### Community 137 - "design-system / packages / ui"
+Cohesion: 0.07
+Nodes (30): cells, DIGITS, DURATION_CLASS, formatted, options, props, Currency, LargeNumber (+22 more)
+
+### Community 138 - "design-system / packages / ui"
+Cohesion: 0.09
+Nodes (36): mrr, AxisTick, buildAreaPath(), buildLinePath(), ChartCurve, ChartDatum, ChartMargin, ChartSeries (+28 more)
+
+### Community 139 - "design-system / packages / ui"
 Cohesion: 0.07
 Nodes (31): delegatedProps, forwarded, props, delegatedProps, emits, forwarded, props, emits (+23 more)
 
-### Community 136 - "packages / headless / src"
-Cohesion: 0.11
-Nodes (30): PRODUCT_DEFAULT_SORT, ProductQuerySchema, bootCatalogue(), bootCatalogue(), categoriesRecordingsDir, corpus(), installCategoriesHandler(), installProductsHandler() (+22 more)
-
-### Community 137 - "src / packages / modules"
-Cohesion: 0.06
-Nodes (34): { t }, activeTab, { activeUser: client }, addressesScope, buildModel(), clientPhones, companiesScope, doContinue() (+26 more)
-
-### Community 138 - "apps / hosting / package.json"
-Cohesion: 0.05
-Nodes (41): dependencies, class-variance-authority, @formkit/auto-animate, lodash-es, @sentry/vue, tailwind-merge, tailwindcss, tailwindcss-animate (+33 more)
-
-### Community 139 - "apps / velia / package.json"
-Cohesion: 0.05
-Nodes (41): dependencies, class-variance-authority, @formkit/auto-animate, lodash-es, @sentry/vue, tailwind-merge, tailwindcss, tailwindcss-animate (+33 more)
-
 ### Community 140 - "design-system / packages / ui"
 Cohesion: 0.07
-Nodes (38): actions, doAction(), doReject(), doSubmit(), emits, errors, Icon, jsonform (+30 more)
+Nodes (39): actions, doAction(), doReject(), doSubmit(), emits, errors, Icon, jsonform (+31 more)
 
-### Community 141 - "design-system / packages / ui"
+### Community 141 - "apps / hosting / package.json"
+Cohesion: 0.05
+Nodes (41): dependencies, class-variance-authority, @formkit/auto-animate, lodash-es, @sentry/vue, tailwind-merge, tailwindcss, tailwindcss-animate (+33 more)
+
+### Community 142 - "apps / velia / package.json"
+Cohesion: 0.05
+Nodes (41): dependencies, class-variance-authority, @formkit/auto-animate, lodash-es, @sentry/vue, tailwind-merge, tailwindcss, tailwindcss-animate (+33 more)
+
+### Community 143 - "design-system / packages / ui"
+Cohesion: 0.08
+Nodes (29): delegatedProps, emits, forwarded, props, delegatedProps, forwarded, props, delegatedProps (+21 more)
+
+### Community 144 - "design-system / packages / ui"
+Cohesion: 0.07
+Nodes (25): props, props, delegatedProps, emits, forwarded, props, emits, forwarded (+17 more)
+
+### Community 145 - "design-system / packages / ui"
+Cohesion: 0.07
+Nodes (28): arrayRenderers, { control, appliedOptions, formFieldProps, onInput }, items, props, tester, complexRenderers, { control }, detailUiSchema (+20 more)
+
+### Community 146 - "design-system / packages / ui"
 Cohesion: 0.05
 Nodes (40): compilerOptions, composite, declaration, declarationDir, declarationMap, emitDeclarationOnly, esModuleInterop, forceConsistentCasingInFileNames (+32 more)
 
-### Community 142 - "packages / client-vue / tsconfig.json"
+### Community 147 - "packages / client-vue / src"
+Cohesion: 0.06
+Nodes (29): productSummaryRenewRenewsVariants, productSummaryRenewUsuallyVariants, groupedDetails, props, { t }, emits, hasTerms, onSelect() (+21 more)
+
+### Community 148 - "packages / client-vue / tsconfig.json"
 Cohesion: 0.05
 Nodes (40): compilerOptions, baseUrl, noEmit, outDir, paths, skipLibCheck, exclude, extends (+32 more)
 
-### Community 143 - "packages / headless / src"
-Cohesion: 0.12
-Nodes (31): heldWhileSettling(), tick(), assertClientIdentityTransport(), assertNoActingAsHeaders(), clientEmailScopeKeys(), Envelope, installBackgroundStubs(), installEmailsListHandler() (+23 more)
-
-### Community 144 - "packages / headless / src"
-Cohesion: 0.05
-Nodes (23): braintreeGatewayId, clientId, CURRENCY, mockBraintreeDropin, mockStripe, mockStripeElement, mockStripeElements, outbound (+15 more)
-
-### Community 145 - "packages / i18n / package.json"
+### Community 149 - "packages / i18n / package.json"
 Cohesion: 0.05
 Nodes (40): authors, dependencies, dompurify, @localazy/cli, lodash-es, marked, description, devDependencies (+32 more)
 
-### Community 146 - "packages / types / package.json"
+### Community 150 - "packages / types / package.json"
 Cohesion: 0.05
 Nodes (40): author, description, devDependencies, eslint, eslint-config-prettier, eslint-plugin-prettier, prettier, @tsconfig/node22 (+32 more)
 
-### Community 147 - "playgrounds / labs / package.json"
+### Community 151 - "playgrounds / labs / package.json"
 Cohesion: 0.05
 Nodes (41): dependencies, class-variance-authority, @formkit/auto-animate, lodash-es, @sentry/vue, tailwind-merge, tailwindcss, tailwindcss-animate (+33 more)
 
-### Community 148 - "design-system / packages / ui"
+### Community 152 - "design-system / packages / ui"
 Cohesion: 0.08
-Nodes (28): emits, forwarded, meta, props, rootProps, slots, props, delegatedProps (+20 more)
+Nodes (29): emits, forwarded, props, rootProps, DisabledItem, meta, Multiple, Playground (+21 more)
 
-### Community 149 - "design-system / packages / ui"
+### Community 153 - "design-system / packages / ui"
+Cohesion: 0.10
+Nodes (26): props, CollapsedPath, meta, Playground, PropFirst, Story, TextSeparator, props (+18 more)
+
+### Community 154 - "design-system / packages / ui"
 Cohesion: 0.11
 Nodes (26): props, Hero, LeftAside, meta, Playground, Story, props, props (+18 more)
 
-### Community 150 - "apps / cart / package.json"
+### Community 155 - "packages / headless / src"
+Cohesion: 0.12
+Nodes (30): bootCatalogue(), bootCatalogue(), categoriesRecordingsDir, corpus(), installCategoriesHandler(), installProductsHandler(), recorded, recordedCategoryWithChildren() (+22 more)
+
+### Community 156 - "apps / cart / package.json"
 Cohesion: 0.05
 Nodes (39): dependencies, class-variance-authority, @formkit/auto-animate, lodash-es, @sentry/vue, tailwind-merge, tailwindcss, tailwindcss-animate (+31 more)
 
-### Community 151 - "packages / scenario-harness / package.json"
+### Community 157 - "packages / client-vue / package.json"
+Cohesion: 0.05
+Nodes (39): autoprefixer, devDependencies, ajv, autoprefixer, eslint, eslint-plugin-vue, jiti, postcss (+31 more)
+
+### Community 158 - "packages / scenario-harness / package.json"
 Cohesion: 0.05
 Nodes (38): @cucumber/cucumber-expressions, @cucumber/gherkin, @cucumber/messages, dependencies, @cucumber/cucumber-expressions, @cucumber/gherkin, @cucumber/messages, @jsonforms/core (+30 more)
 
-### Community 152 - "design-system / packages / ui"
-Cohesion: 0.09
-Nodes (29): emits, meta, props, slots, CustomIcon, Intents, meta, Outline (+21 more)
-
-### Community 153 - "design-system / packages / ui"
+### Community 159 - "design-system / packages / ui"
 Cohesion: 0.07
 Nodes (26): props, Appearances, InContext, Intents, meta, Playground, Sizes, Story (+18 more)
 
-### Community 154 - "design-system / packages / ui"
-Cohesion: 0.07
-Nodes (30): delegatedProps, emits, forwarded, props, delegatedProps, filled, props, rootContext (+22 more)
+### Community 160 - "design-system / packages / ui"
+Cohesion: 0.06
+Nodes (30): configProvider, display, emit, formatter, locale, onSelect(), open, props (+22 more)
 
-### Community 155 - "playgrounds / labs / package.json"
+### Community 161 - "design-system / packages / ui"
+Cohesion: 0.11
+Nodes (29): delegatedProps, props, meta, props, slots, delegatedProps, props, emits (+21 more)
+
+### Community 162 - "packages / headless / src"
+Cohesion: 0.07
+Nodes (29): ADR-0028, EXPECTED_RUNTIME_EXPORTS, MODULE_DIR, ScopeBuilder, ScopeBuilderAfterBrand, ScopeBuilderAfterFor, ScopeBuilderAfterId, ScopeBuilderResult (+21 more)
+
+### Community 163 - "playgrounds / labs / package.json"
 Cohesion: 0.05
-Nodes (39): @faker-js/faker, devDependencies, eslint, eslint-plugin-playwright, eslint-plugin-vue, @faker-js/faker, jsdom, @localazy/cli (+31 more)
+Nodes (39): @faker-js/faker, devDependencies, eslint, eslint-plugin-vue, @faker-js/faker, jsdom, @localazy/cli, @playwright/test (+31 more)
 
-### Community 156 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.07
-Nodes (26): menuItems, overflowItems, props, stretch, actionSlots, { t }, ActionSlotItem, ActionSlotsProps (+18 more)
+### Community 164 - "packages / client-vue / src"
+Cohesion: 0.08
+Nodes (34): meta, props, { ui }, { card }, InsetProps, LayoutProps, VariantProps, canvasCardCardVariants (+26 more)
 
-### Community 157 - "tests / journeys / tsconfig.json"
+### Community 165 - "packages / headless / src"
+Cohesion: 0.08
+Nodes (30): bootActionSchemas(), INPUT_TAKING, NON_INPUT, ADR-0027, Validator, installFilteredEmailsHandler(), observeEmailRequests(), bootCollection() (+22 more)
+
+### Community 166 - "packages / src / headless"
+Cohesion: 0.12
+Nodes (36): mapInvoices(), mapUnpaidAmount(), CATEGORY_VOCABULARY, consolidatableCountCriteria(), createInvoicesSchemas(), scopedSchemas(), STATUS_VOCABULARY, UNPAID_EXISTENCE_CRITERIA (+28 more)
+
+### Community 167 - "tests / journeys / tsconfig.json"
 Cohesion: 0.05
 Nodes (38): ../fixtures/*, ../fixtures/index.ts, google.maps, ./node_modules/psl/types/index.d.ts, ./node_modules/@types, ../../packages/scenario-harness/src/index.ts, scenario-harness/**/*.int.test.ts, scenario-harness/**/*.ts (+30 more)
 
-### Community 158 - "design-system / packages / ui"
-Cohesion: 0.10
-Nodes (27): meta, props, Fallbacks, Group, InContext, meta, Playground, PropFirst (+19 more)
-
-### Community 159 - "packages / client-vue / src"
-Cohesion: 0.08
-Nodes (32): { overflow }, props, RootVariants, variants, { card }, canvasCardCardVariants, canvasCardContainerVariants, canvasCardContentHeaderVariants (+24 more)
-
-### Community 160 - "design-system / packages / ui"
+### Community 168 - "design-system / packages / ui"
 Cohesion: 0.10
 Nodes (24): props, props, props, props, props, props, props, props (+16 more)
 
-### Community 161 - "docs / corpus / emit-mdx.mjs"
+### Community 169 - "docs / corpus / emit-mdx.mjs"
 Cohesion: 0.09
 Nodes (34): assertInPartition(), CALLOUT_MAP, CHANGELOG_ROOT, changelogPages(), cmp(), CORPUS_IN, die(), DOCS_DIR (+26 more)
 
-### Community 162 - "packages / headless / src"
-Cohesion: 0.13
-Nodes (30): bootCollection(), Collection, LEGACY_KEYS, ADR-0001, assertNoActingAsHeaders(), assertRetargetIdentityTransport(), clientCustomFieldsScopeKeys(), Envelope (+22 more)
+### Community 170 - "packages / src / client-vue"
+Cohesion: 0.06
+Nodes (29): emit, heroBadge, meta, props, slots, HeroActionProps, HeroProps, HeroVariantProps (+21 more)
 
-### Community 163 - "playgrounds / labs-nuxt / app"
+### Community 171 - "playgrounds / labs-nuxt / app"
 Cohesion: 0.10
 Nodes (32): activeActor, activeSessionId, allowedScopes, Bench, benchOn(), CLIENT_EMAILS_ROUTE, clientEmailsRouter(), clientSessions (+24 more)
 
-### Community 164 - "design-system / packages / tokens"
+### Community 172 - "design-system / packages / tokens"
 Cohesion: 0.06
 Nodes (35): description, devDependencies, @types/node, typescript, vite, vitest, engines, node (+27 more)
 
-### Community 165 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.07
-Nodes (31): useRelativeTime(), activeSession, {
-  actorScope,
-  addableScopes,
-  addSession,
-  canUseGuestMode,
-  directClientItems,
-  getAddSessionLabel,
-  getAddSessionTestKey,
-  getScopeIcon,
-  logoutSession,
-  sessionItems,
-  staffSessionNodes,
-  switchScope,
-  switchSession
-}, { add: addSessionToStore }, debouncedSearch, doImpersonate(), expanded, { get: queryGet, useUrl } (+23 more)
-
-### Community 166 - "apps / cart / src"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 167 - "apps / cart / src"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 168 - "apps / cart / src"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 169 - "apps / cart / src"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 170 - "apps / cart / src"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 171 - "apps / cart / src"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 172 - "apps / cart / src"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 173 - "apps / cart / src"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+### Community 173 - "packages / client-vue / src"
+Cohesion: 0.09
+Nodes (28): { formatPrice }, formattedPrice, priceMeta, props, { t }, { ui, data }, { formatPrice }, formattedPrice (+20 more)
 
 ### Community 174 - "apps / cart / src"
 Cohesion: 0.06
@@ -1727,35 +1701,35 @@ Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 194 - "apps / hosting / src"
+### Community 194 - "apps / cart / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 195 - "apps / hosting / src"
+### Community 195 - "apps / cart / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 196 - "apps / hosting / src"
+### Community 196 - "apps / cart / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 197 - "apps / hosting / src"
+### Community 197 - "apps / cart / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 198 - "apps / hosting / src"
+### Community 198 - "apps / cart / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 199 - "apps / hosting / src"
+### Community 199 - "apps / cart / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 200 - "apps / hosting / src"
+### Community 200 - "apps / cart / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 201 - "apps / hosting / src"
+### Community 201 - "apps / cart / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
@@ -1839,35 +1813,35 @@ Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 222 - "apps / velia / src"
+### Community 222 - "apps / hosting / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 223 - "apps / velia / src"
+### Community 223 - "apps / hosting / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 224 - "apps / velia / src"
+### Community 224 - "apps / hosting / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 225 - "apps / velia / src"
+### Community 225 - "apps / hosting / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 226 - "apps / velia / src"
+### Community 226 - "apps / hosting / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 227 - "apps / velia / src"
+### Community 227 - "apps / hosting / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 228 - "apps / velia / src"
+### Community 228 - "apps / hosting / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 229 - "apps / velia / src"
+### Community 229 - "apps / hosting / src"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
@@ -1951,57 +1925,57 @@ Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 250 - "design-system / packages / ui"
+### Community 250 - "apps / velia / src"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 251 - "apps / velia / src"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 252 - "apps / velia / src"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 253 - "apps / velia / src"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 254 - "apps / velia / src"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 255 - "apps / velia / src"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 256 - "apps / velia / src"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 257 - "apps / velia / src"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 258 - "design-system / packages / ui"
 Cohesion: 0.06
 Nodes (35): clsx, d3-shape, dependencies, class-variance-authority, clsx, d3-shape, dompurify, embla-carousel (+27 more)
 
-### Community 251 - "packages / client-vue / src"
-Cohesion: 0.06
-Nodes (34): catalogueConfigureRoute, category, categoryId, container, { data, meta, pagination, nextPage, prevPage }, direction, doNextPage(), doPrevPage() (+26 more)
+### Community 259 - "design-system / packages / ui"
+Cohesion: 0.08
+Nodes (27): props, context, isCollapsed, isDesktop, props, props, props, props (+19 more)
 
-### Community 252 - "packages / headless / src"
-Cohesion: 0.14
-Nodes (22): openCollection(), bootCollection(), ClientAddressesInstance, feedback, FEEDBACK_KEYS, LOCALES_DIR, openCollection(), installAddressesListHandler() (+14 more)
+### Community 260 - "design-system / packages / ui"
+Cohesion: 0.07
+Nodes (21): props, props, { control, formFieldProps }, props, tester, upmindUIRenderers, EngineSchema, nameOf() (+13 more)
 
-### Community 253 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+### Community 261 - "src / packages / modules"
+Cohesion: 0.09
+Nodes (26): currentSort, direction, directionIcon, items, property, { t }, ProductSortProps, ProductsProps (+18 more)
 
-### Community 254 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 255 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 256 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 257 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 258 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 259 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 260 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 261 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
-
-### Community 262 - "packages / i18n / public"
-Cohesion: 0.06
-Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+### Community 262 - "packages / client-vue / src"
+Cohesion: 0.08
+Nodes (27): getIcon, props, active, carouselApi, doResolve(), emit, fetchVisibleRecommendations(), preservePromotions (+19 more)
 
 ### Community 263 - "packages / i18n / public"
 Cohesion: 0.06
@@ -2075,141 +2049,137 @@ Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 281 - "packages / i18n / src"
+### Community 281 - "packages / i18n / public"
 Cohesion: 0.06
 Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 282 - "design-system / packages / ui"
-Cohesion: 0.07
-Nodes (22): Currency, LargeNumber, meta, Percentage, Playground, Story, props, renderAsChild (+14 more)
+### Community 282 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 283 - "design-system / packages / ui"
-Cohesion: 0.09
-Nodes (23): emits, forwarded, props, rootProps, Controlled, meta, Playground, PropFirst (+15 more)
+### Community 283 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 284 - "design-system / packages / ui"
-Cohesion: 0.08
-Nodes (20): emits, forwarded, props, rootProps, DomainPreview, meta, Playground, PropFirst (+12 more)
+### Community 284 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
 
-### Community 285 - "design-system / packages / ui"
+### Community 285 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 286 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 287 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 288 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 289 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 290 - "packages / i18n / public"
+Cohesion: 0.06
+Nodes (34): additionalItems, allOf, alpha, alpha-dash, alpha-dash-dot, alpha-num, anyOf, const (+26 more)
+
+### Community 291 - "design-system / packages / ui"
 Cohesion: 0.12
 Nodes (22): props, FlushInvoices, InteractiveTickets, meta, Playground, PropFirst, Story, props (+14 more)
 
-### Community 286 - "src / packages / headless"
-Cohesion: 0.13
-Nodes (27): ClientAddressContextTypes, control(), FORBIDDING_CONFIG, JsonSchema, UiNode, uiNodes(), installAddressHandler(), installBrandConfigHandler() (+19 more)
+### Community 292 - "packages / client-vue / src"
+Cohesion: 0.06
+Nodes (33): catalogueConfigureRoute, category, categoryId, container, { data, meta, pagination, nextPage, prevPage }, direction, doNextPage(), doPrevPage() (+25 more)
 
-### Community 287 - "packages / headless / src"
+### Community 293 - "packages / headless / src"
+Cohesion: 0.14
+Nodes (30): mapEmail(), mapEmails(), mapIEmail(), useUischema(), add(), addressableClientId(), baseModel, createClientEmailServices() (+22 more)
+
+### Community 294 - "design-system / packages / ui"
 Cohesion: 0.09
-Nodes (16): FakeBroadcastChannel, FakeBroadcastMessage, ADR-0025, { overrideToken, overrideSelf, overrideAdminSelf }, recordingsDir, SelfEnvelope, { overrideToken, overrideSelf }, recordingsDir (+8 more)
+Nodes (25): delegatedProps, emits, forwarded, props, delegatedProps, filled, props, rootContext (+17 more)
 
-### Community 288 - "design-system / packages / ui"
-Cohesion: 0.13
-Nodes (20): props, props, props, props, props, props, props, props (+12 more)
-
-### Community 289 - "docs / corpus / glossary-inject.mjs"
+### Community 295 - "docs / corpus / glossary-inject.mjs"
 Cohesion: 0.13
 Nodes (30): DEFAULT_GLOSSARY_PATH, digestLine(), FILE_TOOLS, loadCorpus(), loadInjectedSlugs(), main(), matchTerms(), mentionsPhrase() (+22 more)
 
-### Community 290 - "packages / client-vue / src"
+### Community 296 - "packages / client-vue / src"
 Cohesion: 0.08
 Nodes (26): { layout }, props, { t }, tester, hasBorder, { layout, appliedOptions }, props, tester (+18 more)
 
-### Community 291 - "packages / src / client-vue"
+### Community 297 - "packages / client-vue / src"
+Cohesion: 0.08
+Nodes (25): { t }, currentCategory, displayCategories, hasCategories, modelValue, props, { ui, data }, props (+17 more)
+
+### Community 298 - "design-system / packages / ui"
 Cohesion: 0.09
-Nodes (28): getBackground, leftBackground, { meta }, { onTransition }, props, rightBackground, shouldShow, logo (+20 more)
+Nodes (25): { layout }, props, tester, hasBorder, { layout, appliedOptions }, props, tester, layoutRenderers (+17 more)
 
-### Community 292 - "packages / client-vue / src"
-Cohesion: 0.10
-Nodes (29): addressesScope, companiesScope, emit, { getOne: getAddress }, { getOne: getCompany }, { getOne: getPhone }, { isReady, meta: billingMeta, model }, onEdit() (+21 more)
-
-### Community 293 - "packages / src / modules"
-Cohesion: 0.10
-Nodes (26): { formatPrice }, formattedPrice, priceMeta, props, { t }, { ui, data }, { formatPrice }, formattedPrice (+18 more)
-
-### Community 294 - "design-system / packages / ui"
-Cohesion: 0.07
-Nodes (27): SETTINGS_GROUP_KEY, SETTINGS_SEARCH_KEY, SettingsGroupContext, SettingsSearchContext, delegatedProps, emits, forwarded, props (+19 more)
-
-### Community 295 - "docs / published-docs / docs.json"
+### Community 299 - "docs / published-docs / docs.json"
 Cohesion: 0.06
 Nodes (31): colors, dark, light, primary, favicon, dark, light, footer (+23 more)
 
-### Community 296 - "src / playgrounds / labs"
-Cohesion: 0.06
-Nodes (21): I18nText, InterstitialExtendedProps, SectionItem, UseSectionProps, { data }, { isReady }, profile, _props (+13 more)
+### Community 300 - "packages / client-vue / src"
+Cohesion: 0.07
+Nodes (27): anyQuantifiable, canDeselect, doUpdateQuantity(), emit, GRID_MIN_WIDTH, gridColumns, gridMinTileWidth, groupedOptions (+19 more)
 
-### Community 297 - "playgrounds / labs / tsconfig.json"
+### Community 301 - "playgrounds / labs-nuxt / app"
+Cohesion: 0.10
+Nodes (27): BINDING_TAGS, brandSegment(), buildNavigationTree(), FAMILY_CONFIG, familyOf(), FALLBACK_ICON, NAV_ICONS, navIcon() (+19 more)
+
+### Community 302 - "playgrounds / labs / tsconfig.json"
 Cohesion: 0.06
 Nodes (31): compilerOptions, baseUrl, paths, exclude, extends, include, ../../design-system/packages/ui/src/**/*, ../../design-system/packages/ui/src/index.ts (+23 more)
 
-### Community 298 - "src / packages / client-vue"
-Cohesion: 0.07
-Nodes (17): { t }, { storefrontRoute }, { t }, currentBpid, { isReady: isBasketReady }, { navigateBack, navigateNext }, props, {
-  reset,
-  getNextRequiringSetup,
-  isReady: isSetupReady
-} (+9 more)
-
-### Community 299 - "apps / pages / src"
+### Community 303 - "apps / pages / src"
 Cohesion: 0.07
 Nodes (19): { navigateNext }, route, { t }, { tlds }, { navigateNext }, { t }, { navigateNext }, route (+11 more)
 
-### Community 300 - "apps / cart / package.json"
+### Community 304 - "apps / cart / package.json"
 Cohesion: 0.06
 Nodes (31): scripts, build, build-only, build:staging, deploy:firebase:production, deploy:firebase:sprighost, deploy:firebase:staging, deploy:gcs:production (+23 more)
 
-### Community 301 - "design-system / packages / ui"
-Cohesion: 0.12
-Nodes (22): emits, forwarded, props, rootProps, delegatedProps, props, delegatedProps, props (+14 more)
-
-### Community 302 - "design-system / packages / ui"
+### Community 305 - "design-system / packages / ui"
 Cohesion: 0.11
 Nodes (25): { fallback, refresh }, props, rootRef, { fallback, refresh }, props, rootRef, GrainGradientProps, MeshGradientProps (+17 more)
 
-### Community 303 - "design-system / packages / ui"
-Cohesion: 0.09
-Nodes (24): { layout }, props, tester, hasBorder, { layout, appliedOptions }, props, tester, layoutRenderers (+16 more)
+### Community 306 - "modules / playgrounds / labs-nuxt"
+Cohesion: 0.08
+Nodes (24): flushToasts(), resolve(), type(), type(), type(), whenPostSaveEffectsLand(), settleDebounce(), settle() (+16 more)
 
-### Community 304 - "packages / headless / tsconfig.json"
+### Community 307 - "packages / headless / tsconfig.json"
 Cohesion: 0.06
 Nodes (30): compilerOptions, baseUrl, noEmit, outDir, paths, skipLibCheck, types, exclude (+22 more)
 
-### Community 305 - "playgrounds / labs-nuxt / modules"
+### Community 308 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.09
 Nodes (23): CONTROL_COUNT, i18n(), IDLE_CONTROLS, messages, mountTransport(), PLAYING_VARIANTS, railHost(), SCENE_COUNT (+15 more)
 
-### Community 306 - "playgrounds / labs-nuxt / modules"
+### Community 309 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.17
 Nodes (29): absentReadOf(), answer(), armedFixtures(), collectionReadOf(), EVIDENCE, failureOf(), foreignPathsFor(), hasRows() (+21 more)
 
-### Community 307 - "playgrounds / storybook-next / package.json"
+### Community 310 - "playgrounds / storybook-next / package.json"
 Cohesion: 0.06
 Nodes (31): devDependencies, playwright, storybook, @storybook/addon-a11y, @storybook/addon-docs, @storybook/addon-themes, @storybook/addon-vitest, @storybook/vue3-vite (+23 more)
 
-### Community 308 - "design-system / packages / ui"
+### Community 311 - "design-system / packages / ui"
 Cohesion: 0.07
 Nodes (23): bufferLines, clampStyle, collapsed, contentId, contentRef, emit, expanded, fullLines (+15 more)
 
-### Community 309 - "design-system / packages / ui"
-Cohesion: 0.09
-Nodes (22): configProvider, display, emit, formatter, locale, onSelect(), open, props (+14 more)
-
-### Community 310 - "design-system / packages / ui"
-Cohesion: 0.10
-Nodes (23): activeIndex, images, moveTo(), { onKey: onThumbnailKey }, previewOpen, props, selectImage(), startAutoplay() (+15 more)
-
-### Community 311 - "docs / corpus / gates"
-Cohesion: 0.09
-Nodes (28): argv, CHANGELOG_DIR, checkCorpusPin(), checkEmitReplay(), checkProvenance(), checkRelationsPin(), CORPUS_DIR, CORPUS_JSON (+20 more)
-
 ### Community 312 - "packages / client-vue / src"
-Cohesion: 0.09
-Nodes (23): getIcon, props, active, carouselApi, doResolve(), emit, fetchVisibleRecommendations(), preservePromotions (+15 more)
-
-### Community 313 - "packages / headless / src"
 Cohesion: 0.10
-Nodes (23): open(), PERSONAL_MODEL, SAVED_MODEL, services, add(), loadLookups(), parse(), useUnifiedServices() (+15 more)
+Nodes (27): actions, doAction(), doReject(), doSubmit(), draft, emits, errors, form (+19 more)
+
+### Community 313 - "apps / cart-nuxt / app"
+Cohesion: 0.07
+Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, exclusiveMaximum (+20 more)
 
 ### Community 314 - "apps / cart-nuxt / app"
 Cohesion: 0.07
@@ -2319,53 +2289,49 @@ Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, 
 Cohesion: 0.07
 Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, exclusiveMaximum (+20 more)
 
-### Community 341 - "apps / cart-nuxt / app"
+### Community 341 - "apps / src / app"
 Cohesion: 0.07
-Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, exclusiveMaximum (+20 more)
+Nodes (17): isAuthRoute, { isOpen: isOverlayOpen, overlayId }, { meta: routingMeta }, route, showLoader, { storefrontRoute }, { storefrontRoute }, { t } (+9 more)
 
 ### Community 342 - "apps / cart / tsconfig.json"
 Cohesion: 0.07
 Nodes (28): compilerOptions, baseUrl, paths, exclude, extends, include, dist, node_modules (+20 more)
 
-### Community 343 - "src / packages / design-system"
-Cohesion: 0.09
-Nodes (18): _emits, { meta, products, summary }, PricingRow, productsItems, subtotalItems, { t }, props, InvoiceRows (+10 more)
-
-### Community 344 - "design-system / packages / ui"
+### Community 343 - "design-system / packages / ui"
 Cohesion: 0.07
 Nodes (29): devDependencies, ajv-errors, jsdom, storybook, @storybook/vue3-vite, @types/d3-scale, @types/d3-shape, @types/lodash-es (+21 more)
 
-### Community 345 - "design-system / packages / ui"
-Cohesion: 0.13
-Nodes (21): availableFlagCodes(), escapeRegExp(), FLAGS, flagSvg(), hasFlag(), modules, normalizeFlagSvg(), uniquifyFlagIds() (+13 more)
+### Community 344 - "design-system / packages / ui"
+Cohesion: 0.15
+Nodes (19): meta, props, delegatedProps, forwarded, props, props, delegatedProps, emits (+11 more)
 
-### Community 346 - "design-system / packages / ui"
-Cohesion: 0.10
-Nodes (22): TOGGLE_GROUP_INJECTION_KEY, ToggleGroupContext, ToggleGroupSize, context, delegatedProps, props, size, delegatedProps (+14 more)
-
-### Community 347 - "packages / src / client-vue"
-Cohesion: 0.09
-Nodes (21): emit, heroBadge, meta, props, slots, HeroActionProps, HeroProps, HeroVariantProps (+13 more)
-
-### Community 348 - "playgrounds / storybook-next / package.json"
+### Community 345 - "playgrounds / storybook-next / package.json"
 Cohesion: 0.07
 Nodes (29): @fontsource/gilda-display, @fontsource/instrument-serif, @fontsource-variable/bricolage-grotesque, @fontsource-variable/inter, @fontsource-variable/jetbrains-mono, @fontsource-variable/outfit, @fontsource-variable/rethink-sans, @fontsource-variable/sora (+21 more)
 
-### Community 349 - "packages / client-vue / src"
+### Community 346 - "packages / client-vue / src"
 Cohesion: 0.07
-Nodes (25): _doEdit(), emits, props, clientAddresses, clientPhones, {
-  data: addresses,
-  default: defaultAddressId,
-  getOne: getAddress
-}, { data: phones, default: defaultPhone }, doResolve() (+17 more)
+Nodes (27): basketProductConfigTestAttrs, basketProductSummaryTestAttrs, basketProductUpsellTestAttrs, configErrors, debouncedUpdate, doRemove(), editRoute, emits (+19 more)
 
-### Community 350 - "packages / src / headless"
+### Community 347 - "packages / src / modules"
 Cohesion: 0.11
-Nodes (21): mapBrandConfig(), mapBrandSettings(), useQuerySchema(), brandConfigKeysStore, defaultBrandConfigKeys, defaultOrgFeatureKeys, ensureBrandConfig(), fetchBrandConfig() (+13 more)
+Nodes (24): DetailsItemProps, titleTestAttrs, props, summary, SummaryItem, { t: _t }, props, { t } (+16 more)
 
-### Community 351 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.12
-Nodes (21): dataDerived, model, dataDerived, flippable(), labelsOf(), pseudo(), rows, STATES (+13 more)
+### Community 348 - "src / playgrounds / labs"
+Cohesion: 0.09
+Nodes (21): filteredCategories, items, modelValue, props, useProductCategories, productsFacetExpandButtonVariants, ProductCategory, ProductCategoryQueryModel (+13 more)
+
+### Community 349 - "packages / headless / src"
+Cohesion: 0.10
+Nodes (24): useQuerySchema(), QueryModel, QuerySchema, SortEntry, CriteriaList, idsOf(), listWithCriteria(), publishedRows() (+16 more)
+
+### Community 350 - "playgrounds / labs / src"
+Cohesion: 0.07
+Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, exclusiveMaximum (+20 more)
+
+### Community 351 - "playgrounds / labs / src"
+Cohesion: 0.07
+Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, exclusiveMaximum (+20 more)
 
 ### Community 352 - "playgrounds / labs / src"
 Cohesion: 0.07
@@ -2471,137 +2437,49 @@ Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, 
 Cohesion: 0.07
 Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, exclusiveMaximum (+20 more)
 
-### Community 378 - "playgrounds / labs / src"
-Cohesion: 0.07
-Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, exclusiveMaximum (+20 more)
+### Community 378 - "src / apps / i18n.ts"
+Cohesion: 0.13
+Nodes (14): i18n, app, router, i18n, app, router, theme, ADR-0024 (+6 more)
 
-### Community 379 - "playgrounds / labs / src"
-Cohesion: 0.07
-Nodes (28): additionalItems, allOf, anyOf, const, contains, dependencies, enum, exclusiveMaximum (+20 more)
-
-### Community 380 - "src / design-system / packages"
+### Community 379 - "src / design-system / packages"
 Cohesion: 0.14
 Nodes (24): brand, theme, ADR-0024, brand, applyExplicit(), asOverrides(), block(), DarkCore (+16 more)
 
-### Community 381 - "design-system / packages / ui"
-Cohesion: 0.15
-Nodes (19): SIDEBAR_NAV_KEY, SidebarNavContext, collapsed, context, isRail, orientation, props, collapsed (+11 more)
+### Community 380 - "design-system / packages / ui"
+Cohesion: 0.12
+Nodes (18): emits, forwarded, props, rootProps, delegatedProps, props, delegatedProps, emits (+10 more)
 
-### Community 382 - "docs / package.json"
+### Community 381 - "design-system / packages / ui"
+Cohesion: 0.10
+Nodes (22): activeIndex, images, moveTo(), { onKey: onThumbnailKey }, previewOpen, props, selectImage(), startAutoplay() (+14 more)
+
+### Community 382 - "design-system / packages / ui"
+Cohesion: 0.08
+Nodes (19): delegatedProps, props, DisabledField, meta, Playground, Required, Story, WithInput (+11 more)
+
+### Community 383 - "docs / corpus / gates"
+Cohesion: 0.10
+Nodes (26): argv, CHANGELOG_DIR, checkCorpusPin(), checkEmitReplay(), checkProvenance(), checkRelationsPin(), CORPUS_DIR, CORPUS_JSON (+18 more)
+
+### Community 384 - "docs / package.json"
 Cohesion: 0.07
 Nodes (27): author, description, devDependencies, typedoc, typedoc-plugin-markdown, typedoc-vitepress-theme, vitepress, vitepress-jsdoc (+19 more)
 
-### Community 383 - "packages / client-vue / src"
+### Community 385 - "packages / client-vue / src"
 Cohesion: 0.08
-Nodes (27): buttonLoadingTestAttrs, ctaState, emit, getIcon, getLabel, getStatus, getTooltip, meta (+19 more)
-
-### Community 384 - "packages / src / modules"
-Cohesion: 0.11
-Nodes (23): titleTestAttrs, props, summary, SummaryItem, { t: _t }, props, { t }, PricingItemProps (+15 more)
-
-### Community 385 - "packages / headless / src"
-Cohesion: 0.11
-Nodes (23): ADR-0027, useActionInputSchemas(), useQuerySchema(), useSchema(), useUischema(), DEFAULT_SORT, EmailContext, EmailModel (+15 more)
+Nodes (27): activeTab, { activeUser: client }, addressesScope, buildModel(), clientPhones, companiesScope, doContinue(), emit (+19 more)
 
 ### Community 386 - "packages / headless / src"
 Cohesion: 0.11
-Nodes (20): CLIENT_PHONE_SCOPE_MATRIX, CLIENT_PHONES_SCOPE_MATRIX, ClientPhoneContextTypes, ClientPhonesContextTypes, ClientPhoneScopeMatrix, ClientPhonesScopeMatrix, FilterModel, IPhoneData (+12 more)
+Nodes (20): parseTaxes(), parseTaxTagName(), mapCurrency(), Currency, mapAttribution(), mapBundle(), mapBundleGroups(), mapBundleGroupsSummary() (+12 more)
 
 ### Community 387 - "packages / src / types"
-Cohesion: 0.09
-Nodes (23): sessionTransferServices, IAuthTransfer, SessionTransfer, TransferContext, SAFE_PROTOCOLS, AccountTypeCodes, ActionTypes, AdjustTypes (+15 more)
+Cohesion: 0.13
+Nodes (24): SystemContext, AppliedTaxTagReason, TaxCodesTypes, TaxTagBaseTypes, TaxTagTypes, IAddressForm, IBrandForm, IBrandSettingsForm (+16 more)
 
-### Community 388 - "tests / journeys / package.json"
-Cohesion: 0.07
-Nodes (27): description, devDependencies, happy-dom, lodash-es, psl, @types/google.maps, @types/lodash-es, vite (+19 more)
-
-### Community 389 - "docs / corpus / gates"
+### Community 388 - "playgrounds / labs-nuxt / app"
 Cohesion: 0.08
-Nodes (19): committedIds, committedSet, corpus, CORPUS_PATH, DEFAULT_ROOT, failClosed(), findings, freshIds (+11 more)
-
-### Community 390 - "docs / corpus / gates"
-Cohesion: 0.19
-Nodes (25): assert(), caseCleanGreen(), caseCorpusPinRed(), caseDeterminismTwiceDiffClean(), caseFailClosedOnCorruptCorpus(), caseHandEditRed(), caseOutOfPartitionGeneratedFlagRed(), casePrintManifest() (+17 more)
-
-### Community 391 - "packages / client-vue / src"
-Cohesion: 0.11
-Nodes (23): { name }, { t }, leftBackground, { meta }, rightBackground, meta, { meta: footerMeta }, props (+15 more)
-
-### Community 392 - "packages / client-vue / src"
-Cohesion: 0.11
-Nodes (20): bars, BUTTON_GROUP_POSITION, clientEmailHistoryQuery(), FilterMount, invoicesQuery(), messages, messagesOf(), positionsOf() (+12 more)
-
-### Community 393 - "packages / client-vue / src"
-Cohesion: 0.10
-Nodes (20): { t }, currentCategory, displayCategories, hasCategories, modelValue, props, { ui, data }, props (+12 more)
-
-### Community 394 - "design-system / packages / ui"
-Cohesion: 0.12
-Nodes (17): props, delegatedProps, emits, forwarded, props, emits, forwarded, props (+9 more)
-
-### Community 395 - "packages / client-vue / tsconfig.build.json"
-Cohesion: 0.08
-Nodes (25): compilerOptions, baseUrl, composite, declarationDir, emitDeclarationOnly, outDir, paths, rootDir (+17 more)
-
-### Community 396 - "packages / headless / src"
-Cohesion: 0.09
-Nodes (15): BasketService, BillingActor, billingChild(), putBodies, recordingsDir, sessionRecordingsDir, waitForBillingAvailable(), BasketService (+7 more)
-
-### Community 397 - "packages / headless / src"
-Cohesion: 0.12
-Nodes (20): CLIENT_EMAIL_SCOPE_MATRIX, CLIENT_EMAILS_SCOPE_MATRIX, ClientEmailContextTypes, ClientEmailManagerMachineServices, ClientEmailsContextTypes, ClientEmailScopeMatrix, ClientEmailsScopeMatrix, EmailTypes (+12 more)
-
-### Community 398 - "packages / headless / tsconfig.build.json"
-Cohesion: 0.08
-Nodes (25): compilerOptions, composite, declarationDir, emitDeclarationOnly, outDir, rootDir, tsBuildInfoFile, types (+17 more)
-
-### Community 399 - "packages / types / tsconfig.build.json"
-Cohesion: 0.08
-Nodes (25): compilerOptions, composite, declaration, declarationDir, declarationMap, emitDeclarationOnly, esModuleInterop, forceConsistentCasingInFileNames (+17 more)
-
-### Community 400 - "design-system / packages / ui"
-Cohesion: 0.12
-Nodes (15): Autoplay, meta, Playground, Story, images, emit, imageRef, props (+7 more)
-
-### Community 401 - "design-system / packages / ui"
-Cohesion: 0.11
-Nodes (16): props, context, isCollapsed, isDesktop, props, props, props, props (+8 more)
-
-### Community 402 - "design-system / packages / ui"
-Cohesion: 0.12
-Nodes (22): FALLBACK_PATTERNS, FALLBACK_REQUIREMENT_COUNT, generateStrongPassword(), getPasswordErrorKey(), randomString(), scorePassword(), secureRandom(), { control, appliedOptions, formFieldProps, onInput, translate } (+14 more)
-
-### Community 403 - "docs / corpus / corpus.types.ts"
-Cohesion: 0.08
-Nodes (24): ADR-0019, AdrEntry, ChangelogEntry, ChangelogSection, Corpus, CorpusId, CorpusKind, CorpusMeta (+16 more)
-
-### Community 404 - "src / playgrounds / labs"
-Cohesion: 0.12
-Nodes (17): useQuerySchema(), queryKey, ProductCategory, ProductCategoryQueryModel, ProductCategoryQuerySchema, all, { data: categories, meta, filter }, debouncedFilterQuery (+9 more)
-
-### Community 405 - "playgrounds / labs / src"
-Cohesion: 0.09
-Nodes (21): doDelete(), doEdit(), emits, props, setDefault(), { t }, activeTab, addressesScope (+13 more)
-
-### Community 406 - "design-system / packages / ui"
-Cohesion: 0.11
-Nodes (18): delegatedProps, props, delegatedProps, props, delegatedProps, props, delegatedProps, props (+10 more)
-
-### Community 407 - "design-system / packages / ui"
-Cohesion: 0.09
-Nodes (18): meta, Playground, Split, Story, delegatedProps, forwarded, hasLabel, isVertical (+10 more)
-
-### Community 408 - "docs / typedoc.json"
-Cohesion: 0.08
-Nodes (23): alwaysCreateEntryPointModule, cleanOutputDir, disableSources, entryPoints, entryPointStrategy, excludeScopesInPaths, githubPages, indexFormat (+15 more)
-
-### Community 409 - "packages / src / client-vue"
-Cohesion: 0.09
-Nodes (21): drawerDescription, drawerTitle, emit, isDrawer, isModal, onOpenChange(), OverlayContainerProps, props (+13 more)
-
-### Community 410 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.09
-Nodes (23): activeSession, { actor: sessionActor }, alertTitle, auth, {
+Nodes (25): activeSession, { actor: sessionActor }, alertTitle, auth, {
   canLogin,
   canRecover,
   canRegister,
@@ -2615,283 +2493,422 @@ Nodes (23): activeSession, { actor: sessionActor }, alertTitle, auth, {
   showLoginForm,
   showRecoverPasswordForm,
   showRegisterForm
-}, { destroy, isReady, reject, resolve, set, start }, emit, handleLogout() (+15 more)
+}, { destroy, isReady, reject, resolve, set, start }, emit, handleLogout() (+17 more)
 
-### Community 411 - "design-system / packages / ui"
+### Community 389 - "tests / journeys / package.json"
+Cohesion: 0.07
+Nodes (27): description, devDependencies, happy-dom, lodash-es, psl, @types/google.maps, @types/lodash-es, vite (+19 more)
+
+### Community 390 - "src / packages / client-vue"
+Cohesion: 0.09
+Nodes (18): { t }, {
+  apply,
+  configure,
+  error: setupError,
+  meta: setupMeta,
+  schema,
+  uischema,
+  selected,
+  similarProducts,
+  total
+}, basketProductConfig, doResolve(), emit, meta, props, { t } (+10 more)
+
+### Community 391 - "design-system / packages / ui"
+Cohesion: 0.12
+Nodes (17): injectShellContext(), SHELL_CONTEXT_KEY, ShellContext, context, isSticky, props, context, el (+9 more)
+
+### Community 392 - "docs / corpus / gates"
+Cohesion: 0.08
+Nodes (19): committedIds, committedSet, corpus, CORPUS_PATH, DEFAULT_ROOT, failClosed(), findings, freshIds (+11 more)
+
+### Community 393 - "docs / corpus / gates"
+Cohesion: 0.19
+Nodes (25): assert(), caseCleanGreen(), caseCorpusPinRed(), caseDeterminismTwiceDiffClean(), caseFailClosedOnCorruptCorpus(), caseHandEditRed(), caseOutOfPartitionGeneratedFlagRed(), casePrintManifest() (+17 more)
+
+### Community 394 - "packages / src / modules"
+Cohesion: 0.07
+Nodes (24): badge, category, categoryId, description, instance, isFaceted, params, props (+16 more)
+
+### Community 395 - "packages / client-vue / src"
+Cohesion: 0.09
+Nodes (23): props, renewalDescription, { t }, emit, props, query, { t }, emit (+15 more)
+
+### Community 396 - "design-system / packages / ui"
+Cohesion: 0.10
+Nodes (15): AsyncConfirm, meta, NonDestructiveConfirm, Playground, PropFirst, Story, props, renderAsChild (+7 more)
+
+### Community 397 - "design-system / packages / ui"
+Cohesion: 0.08
+Nodes (22): activeIndex, chartLabel, clearActive(), descId, formatValue, hasData, hasHeader, hitRects (+14 more)
+
+### Community 398 - "packages / client-vue / src"
+Cohesion: 0.11
+Nodes (22): { name }, { t }, leftBackground, { meta }, rightBackground, meta, { meta: footerMeta }, props (+14 more)
+
+### Community 399 - "packages / client-vue / tsconfig.build.json"
+Cohesion: 0.08
+Nodes (25): compilerOptions, baseUrl, composite, declarationDir, emitDeclarationOnly, outDir, paths, rootDir (+17 more)
+
+### Community 400 - "packages / src / headless"
+Cohesion: 0.11
+Nodes (20): contractField(), Envelope, recordedAge(), recordedDefinitions(), recordedImage(), recordingsDir, WireField, WireValue (+12 more)
+
+### Community 401 - "packages / headless / src"
+Cohesion: 0.13
+Nodes (22): hydrateFromStorage(), broadcastSessionChange(), COOKIE_SYNC_KEY, CookieSyncState, getGlobalSyncState(), handleIncomingBroadcast(), initCookieSync(), isCookieSyncActive() (+14 more)
+
+### Community 402 - "packages / headless / tsconfig.build.json"
+Cohesion: 0.08
+Nodes (25): compilerOptions, composite, declarationDir, emitDeclarationOnly, outDir, rootDir, tsBuildInfoFile, types (+17 more)
+
+### Community 403 - "packages / types / tsconfig.build.json"
+Cohesion: 0.08
+Nodes (25): compilerOptions, composite, declaration, declarationDir, declarationMap, emitDeclarationOnly, esModuleInterop, forceConsistentCasingInFileNames (+17 more)
+
+### Community 404 - "playgrounds / labs-nuxt / app"
+Cohesion: 0.13
+Nodes (17): LABS_OVERLAYS, registerFunnels(), authCollectActor(), authNamedActor(), authOverlayTarget(), ACTOR_PARAM, ADD_SESSION_PARAM, AUTH_TARGET_PARAMS (+9 more)
+
+### Community 405 - "design-system / packages / ui"
+Cohesion: 0.12
+Nodes (22): FALLBACK_PATTERNS, FALLBACK_REQUIREMENT_COUNT, generateStrongPassword(), getPasswordErrorKey(), randomString(), scorePassword(), secureRandom(), { control, appliedOptions, formFieldProps, onInput, translate } (+14 more)
+
+### Community 406 - "docs / corpus / corpus.types.ts"
+Cohesion: 0.08
+Nodes (24): ADR-0019, AdrEntry, ChangelogEntry, ChangelogSection, Corpus, CorpusId, CorpusKind, CorpusMeta (+16 more)
+
+### Community 407 - "packages / client-vue / src"
+Cohesion: 0.12
+Nodes (22): getBackground, leftBackground, { meta }, { onTransition }, props, rightBackground, shouldShow, logo (+14 more)
+
+### Community 408 - "packages / src / client-vue"
+Cohesion: 0.09
+Nodes (21): { count, summary, meta }, { formatPrice }, { t }, { ui, data }, BasketHeroProps, { formatPrice }, hasPricing, props (+13 more)
+
+### Community 409 - "design-system / packages / ui"
+Cohesion: 0.10
+Nodes (20): SETTINGS_GROUP_KEY, SETTINGS_SEARCH_KEY, SettingsGroupContext, SettingsSearchContext, anyVisible, matches, props, search (+12 more)
+
+### Community 410 - "design-system / packages / ui"
+Cohesion: 0.09
+Nodes (17): delegatedProps, isDark, props, sonnerVars, BottomCenterWithClose, Intents, meta, Playground (+9 more)
+
+### Community 411 - "docs / typedoc.json"
+Cohesion: 0.08
+Nodes (23): alwaysCreateEntryPointModule, cleanOutputDir, disableSources, entryPoints, entryPointStrategy, excludeScopesInPaths, githubPages, indexFormat (+15 more)
+
+### Community 412 - "packages / src / client-vue"
+Cohesion: 0.09
+Nodes (21): drawerDescription, drawerTitle, emit, isDrawer, isModal, onOpenChange(), OverlayContainerProps, props (+13 more)
+
+### Community 413 - "tests / journeys / storefront"
+Cohesion: 0.10
+Nodes (20): CartCalculation, Gateway, GatewayMap, GuestToken, journey, Order, Product, recordingsDir (+12 more)
+
+### Community 414 - "design-system / packages / ui"
 Cohesion: 0.11
 Nodes (15): emit, mainRef, props, slots, meta, navLink, navLinkCurrent, Playground (+7 more)
 
-### Community 412 - "design-system / packages / ui"
+### Community 415 - "design-system / packages / ui"
 Cohesion: 0.12
 Nodes (16): brandLeading, formId, formRef, formTone, isCentered, props, railCollapse, slots (+8 more)
 
-### Community 413 - "design-system / packages / ui"
+### Community 416 - "design-system / packages / ui"
 Cohesion: 0.11
-Nodes (16): delegatedProps, emits, forwarded, props, delegatedProps, props, props, props (+8 more)
+Nodes (14): emits, forwarded, isGroup(), meta, props, rootProps, slots, toMenuGroups() (+6 more)
 
-### Community 414 - "design-system / packages / ui"
-Cohesion: 0.09
-Nodes (20): activeIndex, chartLabel, clearActive(), descId, formatValue, hasData, hasHeader, hitRects (+12 more)
+### Community 417 - "design-system / packages / ui"
+Cohesion: 0.13
+Nodes (15): emits, forwarded, props, rootProps, delegatedProps, forwarded, props, emits (+7 more)
 
-### Community 415 - "design-system / packages / ui"
+### Community 418 - "packages / src / modules"
+Cohesion: 0.11
+Nodes (19): ImageProps, props, { t }, modelValue, priceOptions, props, selectedLabel, { t } (+11 more)
+
+### Community 419 - "design-system / packages / ui"
 Cohesion: 0.13
 Nodes (17): delegatedProps, emits, forwarded, indeterminate, indicatorStyle, props, Indeterminate, LiveProvisioning (+9 more)
 
-### Community 416 - "packages / client-vue / src"
+### Community 420 - "packages / client-vue / src"
+Cohesion: 0.09
+Nodes (19): { t }, PromotionProps, props, { t }, promotions, props, showCustomBadge, showSummary (+11 more)
+
+### Community 421 - "packages / client-vue / src"
 Cohesion: 0.09
 Nodes (20): basketDomains, formMeta, mappedChoices, meta, modelValue, ownedDomains, props, query (+12 more)
 
-### Community 417 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.14
-Nodes (15): LABS_OVERLAYS, authCollectActor(), authNamedActor(), authOverlayTarget(), ACTOR_PARAM, ADD_SESSION_PARAM, AUTH_TARGET_PARAMS, MODE_PARAM (+7 more)
-
-### Community 418 - "apps / hosting / package.json"
+### Community 422 - "apps / hosting / package.json"
 Cohesion: 0.09
 Nodes (22): scripts, build-only, build:prod, build:staging, deploy, deploy:firebase, deploy:firebase:staging, deploy:gcs (+14 more)
 
-### Community 419 - "apps / velia / package.json"
+### Community 423 - "apps / velia / package.json"
 Cohesion: 0.09
 Nodes (22): scripts, build-only, build:prod, build:staging, deploy, deploy:firebase, deploy:firebase:staging, deploy:gcs (+14 more)
 
-### Community 420 - "design-system / packages / tokens"
+### Community 424 - "design-system / packages / tokens"
 Cohesion: 0.09
 Nodes (21): compilerOptions, composite, declaration, declarationDir, declarationMap, emitDeclarationOnly, lib, noEmit (+13 more)
 
-### Community 421 - "design-system / packages / ui"
-Cohesion: 0.11
-Nodes (15): carouselApi, carouselImages, currentImage, error, expanded, imageIndex, meta, props (+7 more)
+### Community 425 - "design-system / packages / ui"
+Cohesion: 0.15
+Nodes (16): build(), colorsValue(), effectiveTrigger, host, intentTokens(), loadSrc(), props, reducedMotion (+8 more)
 
-### Community 422 - "design-system / packages / ui"
+### Community 426 - "src / packages / design-system"
+Cohesion: 0.15
+Nodes (15): dismiss(), emit, internalOpen, open, props, AnnouncementBarEmits, AnnouncementBarProps, AnnouncementBarSlots (+7 more)
+
+### Community 427 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.11
+Nodes (21): isGroup(), toEntryGroups(), entry(), walk(), sourceFiles(), declaredProps(), declaredSurface(), Offence (+13 more)
+
+### Community 428 - "design-system / packages / ui"
 Cohesion: 0.13
 Nodes (12): emit, isDesktop, mainRef, mobileNavId, mobileNavOpen, props, slots, PortalShellEmits (+4 more)
 
-### Community 423 - "design-system / packages / ui"
-Cohesion: 0.10
-Nodes (18): activeIndex, activeOptionId, emit, fallbackId, fieldId, hasModelValue, internalSearch, isValid (+10 more)
-
-### Community 424 - "docs / corpus / emit-mdx.selftest.mjs"
+### Community 429 - "docs / corpus / emit-mdx.selftest.mjs"
 Cohesion: 0.23
 Nodes (20): assert(), caseCorpusVersionMatches(), caseOutOfPartitionWriteFailsEmit(), casePartitionConfinement(), caseProvenanceAndMdxMapping(), caseRelatedSectionPresent(), CASES, combinedOutput() (+12 more)
 
-### Community 425 - "docs / corpus / gates"
+### Community 430 - "docs / corpus / gates"
 Cohesion: 0.12
 Nodes (18): bail(), corpus, DEFAULT_ROOT, docPageOf(), findings, glossaryLines, kebab(), KIND_DIR (+10 more)
 
-### Community 426 - "packages / src / modules"
-Cohesion: 0.13
-Nodes (14): { meta, data }, { name: brandName }, open, props, { t }, termsAndConditionsTestAttrs, TermsAndConditionsProps, parseTerm() (+6 more)
+### Community 431 - "packages / client-vue / src"
+Cohesion: 0.12
+Nodes (20): FALLBACK_PATTERNS, FALLBACK_REQUIREMENT_COUNT, generateStrongPassword(), getPasswordErrorKey(), randomString(), scorePassword(), secureRandom(), { control, appliedOptions, formFieldProps, onInput, translate } (+12 more)
 
-### Community 427 - "packages / headless / src"
-Cohesion: 0.16
-Nodes (16): assertClientIdentityTransport(), assertNoActingAsHeaders(), clientAddressScopeKeys(), Envelope, installBackgroundStubs(), installGuestTokenStub(), logoutClientSession(), observeAllRequests() (+8 more)
+### Community 432 - "packages / client-vue / src"
+Cohesion: 0.10
+Nodes (19): doResolve(), emit, props, { t }, emits, meta, { meta: productsMeta }, open (+11 more)
 
-### Community 428 - "packages / icons / package.json"
+### Community 433 - "packages / src / types"
+Cohesion: 0.10
+Nodes (18): sessionTransferServices, IAuthTransfer, SessionTransfer, TransferContext, SAFE_PROTOCOLS, AccountTypeCodes, ActionTypes, AdjustTypes (+10 more)
+
+### Community 434 - "packages / icons / package.json"
 Cohesion: 0.09
 Nodes (21): authors, description, engines, node, exports, ./assets/*, Dom da Costa <dominic.dacosta@upmind.com>, Rafael Macedo <rafael.macedo@upmind.com> (+13 more)
 
-### Community 429 - "packages / types / tsconfig.json"
+### Community 435 - "packages / types / tsconfig.json"
 Cohesion: 0.09
 Nodes (21): compilerOptions, baseUrl, esModuleInterop, forceConsistentCasingInFileNames, isolatedModules, module, moduleResolution, noEmit (+13 more)
 
-### Community 430 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.16
-Nodes (19): BINDING_TAGS, brandSegment(), buildNavigationTree(), FAMILY_CONFIG, familyOf(), FALLBACK_ICON, NAV_ICONS, navIcon() (+11 more)
+### Community 436 - "playgrounds / labs / src"
+Cohesion: 0.09
+Nodes (9): emailId, route, { data }, { destroy, isReady }, email, emailId, { hasError, isBounced, isError, isSent }, route (+1 more)
 
-### Community 431 - "playgrounds / labs-nuxt / modules"
+### Community 437 - "apps / cart / package.json"
+Cohesion: 0.10
+Nodes (20): authors, description, engines, node, automation, billing, Dom da Costa <dominic.dacosta@upmind.com>, e-commerce (+12 more)
+
+### Community 438 - "apps / hosting / tsconfig.build.json"
+Cohesion: 0.10
+Nodes (20): compilerOptions, baseUrl, paths, exclude, extends, include, ../../design-system/packages/tokens/src/index.ts, ../../design-system/packages/ui/src/index.ts (+12 more)
+
+### Community 439 - "apps / velia / tsconfig.build.json"
+Cohesion: 0.10
+Nodes (20): compilerOptions, baseUrl, paths, exclude, extends, include, ../../design-system/packages/tokens/src/index.ts, ../../design-system/packages/ui/src/index.ts (+12 more)
+
+### Community 440 - "design-system / packages / ui"
+Cohesion: 0.10
+Nodes (12): ColumnMeta, @tanstack/vue-table, props, rowSelection, showFooter, skeletonRowCount, sorting, table (+4 more)
+
+### Community 441 - "design-system / packages / ui"
 Cohesion: 0.21
-Nodes (18): create(), legal(), PlaygroundUrlBag, reconcile(), PlaygroundSurfaceParam, PlaygroundUrlParams, PlaygroundUrlPatch, usePlaygroundUrlState() (+10 more)
-
-### Community 432 - "apps / hosting / tsconfig.build.json"
-Cohesion: 0.10
-Nodes (20): compilerOptions, baseUrl, paths, exclude, extends, include, ../../design-system/packages/tokens/src/index.ts, ../../design-system/packages/ui/src/index.ts (+12 more)
-
-### Community 433 - "apps / velia / tsconfig.build.json"
-Cohesion: 0.10
-Nodes (20): compilerOptions, baseUrl, paths, exclude, extends, include, ../../design-system/packages/tokens/src/index.ts, ../../design-system/packages/ui/src/index.ts (+12 more)
-
-### Community 434 - "design-system / packages / ui"
-Cohesion: 0.12
-Nodes (15): delegatedProps, forwarded, props, delegatedProps, props, activity, AlwaysVisible, Horizontal (+7 more)
-
-### Community 435 - "design-system / packages / ui"
-Cohesion: 0.10
-Nodes (13): delegatedProps, emits, forwarded, props, BandwidthRange, Disabled, meta, Playground (+5 more)
-
-### Community 436 - "packages / client-vue / src"
-Cohesion: 0.12
-Nodes (18): { card, border, inset: insetDefault }, currentSectionProps, doAction(), emits, hasActions, meta, modelValue, props (+10 more)
-
-### Community 437 - "packages / client-vue / src"
-Cohesion: 0.10
-Nodes (13): basketProductConfig, configMeta, { configure, meta: setupMeta, total }, currentProductTitle, doReject(), emit, { isNavigating }, onFormResolve() (+5 more)
-
-### Community 438 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.10
-Nodes (19): activeSession, { actor, session }, brandParams, { clientSessions, guestSession, impersonatedSessions, staffSessions }, flatLinks, isActive(), _isAuthRoute, looseLinks (+11 more)
-
-### Community 439 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.16
-Nodes (16): captureGaps(), beforeItsCapture(), corpusOf(), fixturesDir(), gapsOf(), hasRows(), hasWrite(), isAbsentRecord() (+8 more)
-
-### Community 440 - "playgrounds / labs / tsconfig.build.json"
-Cohesion: 0.10
-Nodes (20): compilerOptions, baseUrl, declaration, declarationMap, outDir, paths, rootDir, exclude (+12 more)
-
-### Community 441 - "apps / cart-nuxt / package.json"
-Cohesion: 0.10
-Nodes (20): scripts, build-only, build:prod, deploy, deploy:staging, dev, format, generate (+12 more)
+Nodes (14): availableFlagCodes(), escapeRegExp(), FLAGS, flagSvg(), hasFlag(), modules, normalizeFlagSvg(), uniquifyFlagIds() (+6 more)
 
 ### Community 442 - "design-system / packages / ui"
 Cohesion: 0.12
+Nodes (15): delegatedProps, forwarded, props, delegatedProps, props, activity, AlwaysVisible, Horizontal (+7 more)
+
+### Community 443 - "packages / src / design-system"
+Cohesion: 0.13
+Nodes (12): props, InvoiceRows, meta, Playground, ServiceCard, Shapes, Story, SkeletonProps (+4 more)
+
+### Community 444 - "design-system / packages / ui"
+Cohesion: 0.10
+Nodes (13): delegatedProps, emits, forwarded, props, BandwidthRange, Disabled, meta, Playground (+5 more)
+
+### Community 445 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.14
+Nodes (14): parseScopeSuffix(), duplicatesOf(), setup(), DiscoveredScenario, SCENARIO_DECLARATION_GLOB, SCENARIO_ROUTE_META_KEY, SCOPE_SUFFIX_SEGMENT, HookHandler (+6 more)
+
+### Community 446 - "playgrounds / labs-nuxt / app"
+Cohesion: 0.10
+Nodes (19): activeSession, { actor, session }, brandParams, { clientSessions, guestSession, impersonatedSessions, staffSessions }, flatLinks, isActive(), _isAuthRoute, looseLinks (+11 more)
+
+### Community 447 - "playgrounds / labs / tsconfig.build.json"
+Cohesion: 0.10
+Nodes (20): compilerOptions, baseUrl, declaration, declarationMap, outDir, paths, rootDir, exclude (+12 more)
+
+### Community 448 - "apps / cart-nuxt / package.json"
+Cohesion: 0.10
+Nodes (20): scripts, build-only, build:prod, deploy, deploy:staging, dev, format, generate (+12 more)
+
+### Community 449 - "design-system / packages / ui"
+Cohesion: 0.12
 Nodes (18): { control, formFieldProps, appliedOptions, onInput, translate }, { countries, ensureCountries }, countryItems, defaultCountryCode, errors, errorsMapped, exampleNumber, Icon (+10 more)
 
-### Community 443 - "docs / corpus / gates"
+### Community 450 - "docs / corpus / gates"
 Cohesion: 0.15
 Nodes (17): collectAmbientTypes(), { corpusRoot, corpusPath: CORPUS_PATH }, findings, LANG_EXT, materialized, materializeExamples(), materializeMarked(), ADR-0026 (+9 more)
 
-### Community 444 - "packages / client-vue / src"
+### Community 451 - "packages / client-vue / src"
 Cohesion: 0.12
 Nodes (18): { control, formFieldProps, appliedOptions, onInput }, { countries, ensureCountries }, countryItems, defaultCountryCode, errors, errorsMapped, exampleNumber, initialPhoneData() (+10 more)
 
-### Community 445 - "src / playgrounds / labs"
+### Community 452 - "src / playgrounds / labs"
 Cohesion: 0.13
 Nodes (15): UseClientEmailManager, clientEmails, { default: defaultEmail }, defaultEmailValue, { isReady, verify }, { t }, useEmailManagerForManage(), doDelete() (+7 more)
 
-### Community 446 - "packages / headless / package.json"
+### Community 453 - "packages / headless / package.json"
 Cohesion: 0.10
 Nodes (19): author, description, engines, node, exports, ./features, ./fixtures, ./package.json (+11 more)
 
-### Community 447 - "packages / headless / src"
+### Community 454 - "packages / headless / src"
 Cohesion: 0.13
 Nodes (16): CLIENT_NOTES_COVERED_ACTIONS, CLIENT_NOTES_SCENARIO, clientNotesSteps, coveredActionIds, open(), RECORDED, settles(), CATALOG_FILE (+8 more)
 
-### Community 448 - "packages / headless / src"
-Cohesion: 0.26
-Nodes (19): mapInvoices(), mapUnpaidAmount(), useQuerySchema(), createInvoicesServices(), isAddressable(), LOAD_LIST_INCLUDES, LOAD_ONE_INCLUDES, loadConsolidatableCount() (+11 more)
+### Community 455 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.12
+Nodes (16): bodyCell, messages, EMAIL_DETAIL, HISTORY_DETAIL, mountOverlay(), observedDetail(), openedText(), Step (+8 more)
 
-### Community 449 - "packages / types / src"
+### Community 456 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.17
-Nodes (16): HookCodes, WebhookAdapterVersion, WebhookStatuses, IHook, INotificationChannelParam, INotificationHook, NotificationTemplateForm, ITemplateCategory (+8 more)
+Nodes (15): beforeItsCapture(), corpusOf(), fixturesDir(), gapsOf(), hasRows(), hasWrite(), isAbsentRecord(), isAuthRefusal() (+7 more)
 
-### Community 450 - "packages / types / src"
-Cohesion: 0.17
-Nodes (16): ImportFileScanStatus, ImportLogLevels, ImportStatusCodes, ImportStepCodes, ImportTaxSettingTypes, ImportTypes, LogoSize, LogoType (+8 more)
-
-### Community 451 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.13
-Nodes (19): entry(), walk(), sourceFiles(), declaredProps(), declaredSurface(), Offence, OFFENCES, offencesIn() (+11 more)
-
-### Community 452 - "apps / cart / tsconfig.build.json"
+### Community 457 - "apps / cart / tsconfig.build.json"
 Cohesion: 0.11
 Nodes (18): compilerOptions, baseUrl, declaration, declarationMap, outDir, paths, rootDir, exclude (+10 more)
 
-### Community 453 - "design-system / packages / ui"
+### Community 458 - "design-system / packages / ui"
+Cohesion: 0.14
+Nodes (16): BundledSet, Feedback, icons, InEmptyState, intents, Playground, Sizes, Story (+8 more)
+
+### Community 459 - "design-system / packages / ui"
 Cohesion: 0.17
 Nodes (9): props, meta, OpaqueBackdrop, OverContent, Story, LoadingProps, props, SpinnerProps (+1 more)
 
-### Community 454 - "design-system / packages / ui"
-Cohesion: 0.12
-Nodes (15): collapsed, emit, headerSticky, internalCollapsed, isDesktop, mainId, props, sheetOpen (+7 more)
-
-### Community 455 - "design-system / packages / ui"
-Cohesion: 0.20
-Nodes (12): props, props, AsideContent, ContentAside, meta, Playground, Story, Trio (+4 more)
-
-### Community 456 - "design-system / packages / ui"
+### Community 460 - "design-system / packages / ui"
 Cohesion: 0.23
 Nodes (11): props, props, props, props, StageFooterProps, StageHeaderProps, StagePaneProps, StageProps (+3 more)
 
-### Community 457 - "design-system / packages / ui"
+### Community 461 - "design-system / packages / ui"
 Cohesion: 0.16
 Nodes (13): delegatedProps, emits, forwarded, props, Disabled, meta, Playground, SettingsList (+5 more)
 
-### Community 458 - "design-system / packages / ui"
+### Community 462 - "design-system / packages / ui"
 Cohesion: 0.15
 Nodes (13): delegatedProps, emits, forwarded, props, Disabled, IconOnly, meta, Playground (+5 more)
 
-### Community 459 - "docs / corpus / build.selftest.mjs"
+### Community 463 - "docs / corpus / build.selftest.mjs"
 Cohesion: 0.21
 Nodes (17): assert(), caseCleanBuildAllSections(), caseGlossaryCompiles(), caseMalformedGlossaryFailsBuild(), caseRelationsAndChangelogPresent(), caseRendererIndependent(), CASES, combinedOutput() (+9 more)
 
-### Community 460 - "packages / client-vue / package.json"
+### Community 464 - "packages / client-vue / package.json"
 Cohesion: 0.11
 Nodes (18): author, description, engines, node, exports, ./style.css, ./vars.css, files (+10 more)
 
-### Community 461 - "packages / client-vue / src"
-Cohesion: 0.20
-Nodes (14): shipped(), clientEmailQuery(), labelOf(), mountFilters(), ownText(), rawKeysIn(), renderedStrings(), uischemaWithOptions() (+6 more)
-
-### Community 462 - "packages / headless / src"
-Cohesion: 0.19
-Nodes (14): parseTaxes(), parseTaxTagName(), mapCurrency(), Currency, mapAttribution(), mapBundle(), mapBundleGroups(), mapBundleGroupsSummary() (+6 more)
-
-### Community 463 - "packages / headless / src"
-Cohesion: 0.15
-Nodes (14): bootActionSchemas(), INPUT_TAKING, NON_INPUT, ADR-0027, Validator, installFilteredEmailsHandler(), bootCollection(), Collection (+6 more)
-
-### Community 464 - "packages / scenario-harness / src"
-Cohesion: 0.18
-Nodes (15): runGate(), GATE_CAUSE, GATE_STATUS, GateCause, GateInput, GateReport, GateStatus, GateVerdict (+7 more)
-
-### Community 465 - "tests / journeys / storefront"
+### Community 465 - "packages / client-vue / src"
 Cohesion: 0.12
-Nodes (16): CartCalculation, Gateway, GatewayMap, GuestToken, journey, Order, Product, recordingsDir (+8 more)
+Nodes (16): productRootItemsVariants, productRootListVariants, productRootTaxVariants, basketProductTestAttrs, { card: sectionCard }, emits, { includesTax }, { meta, products, updateQuantity, remove } (+8 more)
 
-### Community 466 - "apps / hosting / tsconfig.json"
+### Community 466 - "packages / client-vue / src"
+Cohesion: 0.11
+Nodes (17): { count, summary, meta: basketMeta }, { currencyCode }, debouncedSearch, doResolve(), emit, hasActiveItems, {
+  isReady,
+  available,
+  model,
+  added: _added,
+  search,
+  meta,
+  pagination,
+  query,
+  searchMore,
+  remove,
+  add,
+  reset,
+  stop
+}, open (+9 more)
+
+### Community 467 - "packages / headless / src"
+Cohesion: 0.20
+Nodes (9): useSchema(), useUischema(), BillingContext, READY_CTX(), services(), start(), RecaptchaContext, service (+1 more)
+
+### Community 468 - "apps / hosting / tsconfig.json"
 Cohesion: 0.11
 Nodes (17): exclude, extends, include, dist, **/*.no-test.*, node_modules, ../../packages/client-vue/src/**/*, ../../packages/headless/src/**/* (+9 more)
 
-### Community 467 - "apps / velia / tsconfig.json"
+### Community 469 - "apps / velia / tsconfig.json"
 Cohesion: 0.11
 Nodes (17): exclude, extends, include, dist, **/*.no-test.*, node_modules, ../../packages/client-vue/src/**/*, ../../packages/headless/src/**/* (+9 more)
 
-### Community 468 - "design-system / packages / ui"
+### Community 470 - "design-system / packages / ui"
 Cohesion: 0.14
 Nodes (16): activeTargets, componentPatches, componentsDir, covered, findPatches(), git(), isVitestReport(), patches (+8 more)
 
-### Community 469 - "design-system / packages / ui"
-Cohesion: 0.13
-Nodes (11): delegatedProps, isDark, props, sonnerVars, flushToasts(), theme, toastClasses, toastOptions (+3 more)
+### Community 471 - "design-system / packages / ui"
+Cohesion: 0.11
+Nodes (10): delegatedProps, forwarded, props, emits, forwarded, props, props, InvoiceRow (+2 more)
 
-### Community 470 - "packages / client-vue / src"
-Cohesion: 0.12
-Nodes (15): catalogue(), positionAt(), positionNamed(), positionValuesOf(), QueryModel, BOUNCED_FALSE, BOUNCED_TRUE, shipped() (+7 more)
-
-### Community 471 - "modules / playgrounds / labs-nuxt"
-Cohesion: 0.14
-Nodes (14): elementFor(), lookupControlOf(), column(), element(), i18n, props, refinements, remove() (+6 more)
-
-### Community 472 - "packages / src / client-vue"
-Cohesion: 0.18
-Nodes (15): drive(), clickValue(), declaration, enumValuesOf(), optionTileFor(), rawArrayAt(), rawPathFor(), runFacetSequence() (+7 more)
-
-### Community 473 - "packages / src / headless"
+### Community 472 - "design-system / packages / ui"
 Cohesion: 0.16
-Nodes (16): CATEGORY_VOCABULARY, consolidatableCountCriteria(), consolidatableCriteria(), createInvoicesSchemas(), creditNotesCriteria(), scopedSchemas(), STATUS_VOCABULARY, UNPAID_EXISTENCE_CRITERIA (+8 more)
+Nodes (10): emit, onOpenChange(), props, props, InterstitialAnimatedIcon, InterstitialBodyProps, InterstitialEmits, InterstitialProps (+2 more)
 
-### Community 474 - "packages / headless / src"
+### Community 473 - "design-system / packages / ui"
+Cohesion: 0.12
+Nodes (14): delegatedProps, forwarded, hasLabel, isVertical, props, slots, BetweenSections, LabelledActivityFeed (+6 more)
+
+### Community 474 - "design-system / packages / ui"
+Cohesion: 0.25
+Nodes (12): SIDEBAR_NAV_KEY, SidebarNavContext, collapsed, orientation, props, props, SidebarNavItem, SidebarNavProps (+4 more)
+
+### Community 475 - "packages / client-vue / src"
+Cohesion: 0.19
+Nodes (16): { t }, BillingSummarySkeletonProps, cardRootVariants, formSectionsVariants, summaryAvatarVariants, summaryRowVariants, summarySkeletonActionVariants, summarySkeletonAddressCityVariants (+8 more)
+
+### Community 476 - "packages / client-vue / src"
+Cohesion: 0.12
+Nodes (16): { t }, debouncedSearch, doResolve(), emit, {
+  isReady,
+  // --- DAC
+  available,
+  added,
+  searchParams,
+  search,
+  searchMore,
+  remove,
+  add,
+  // ---
+  basket,
+  choices,
+  meta,
+  owned,
+  pagination,
+  query,
+  selected,
+  type,
+  // ---
+  choose,
+  errors: _errors,
+  reset,
+  select,
+  stop,
+  stopDac,
+  update
+}, modelValue, onError(), open (+8 more)
+
+### Community 477 - "packages / src / modules"
+Cohesion: 0.22
+Nodes (12): isOpen, IMessage, Message, messageDisplays, MessageError, MessageModel, MessagesContext, messageTypes (+4 more)
+
+### Community 478 - "packages / headless / src"
 Cohesion: 0.13
 Nodes (12): { orderId, paidOrderId, currencyCode }, NOTE: useOrder.ts:137-138 (completeChallenge) remains uncovered. The stub's, recordingsDir, sessionRecordingsDir, settle(), ChallengeStubOutcome, { invoiceAmount, walletAmount }, PaymentStubOutcome (+4 more)
 
-### Community 475 - "packages / i18n / tsconfig.build.json"
+### Community 479 - "packages / i18n / tsconfig.build.json"
 Cohesion: 0.11
 Nodes (17): compilerOptions, composite, declarationDir, emitDeclarationOnly, outDir, rootDir, exclude, extends (+9 more)
-
-### Community 476 - "packages / types / src"
-Cohesion: 0.16
-Nodes (16): AffiliatePayoutDestinationCode, ConditionApplies, ConditionTypes, OverrideCommissionsTypes, IAffiliateBalance, IAffiliateBalanceAmount, IAffiliateBrandPayoutDestination, IAffiliateCommission (+8 more)
-
-### Community 477 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.17
-Nodes (13): isArmed, props, rows, stepIcon, stepRow, { t }, tracks, trackScopePath (+5 more)
-
-### Community 478 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.12
-Nodes (15): actor, choice, choices, emit, handoff(), isAddSession, isGate, journey (+7 more)
-
-### Community 479 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.15
-Nodes (12): emit, handleSelect(), isLastVisible, isOpen, props, columnPicker, { t }, toggle() (+4 more)
 
 ### Community 480 - "playgrounds / labs-nuxt / package.json"
 Cohesion: 0.11
@@ -2914,16 +2931,16 @@ Cohesion: 0.12
 Nodes (15): Bare, byProduct, GroupedBar, lifecycle, meta, mrr, MultiLine, Playground (+7 more)
 
 ### Community 485 - "design-system / packages / ui"
-Cohesion: 0.20
-Nodes (16): AxisTick, buildAreaPath(), buildLinePath(), ChartMargin, computeChart(), ComputeChartArgs, ComputedChart, ComputedSparkline (+8 more)
-
-### Community 486 - "design-system / packages / ui"
 Cohesion: 0.18
 Nodes (9): isDesktop, mainRef, props, slots, CheckoutShellSlots, CheckoutShellBodyVariants, CheckoutShellConfig, CheckoutShellLayout (+1 more)
 
-### Community 487 - "design-system / packages / ui"
+### Community 486 - "design-system / packages / ui"
 Cohesion: 0.18
 Nodes (9): delegatedProps, forwarded, props, ComboboxOption, ComboboxOptionGroup, ComboboxSeparatorProps, ComboboxSize, ComboboxSlots (+1 more)
+
+### Community 487 - "design-system / packages / ui"
+Cohesion: 0.12
+Nodes (15): DemoAction, InDialog, meta, paletteItems, Playground, PropFirst, SearchResults, Story (+7 more)
 
 ### Community 488 - "design-system / packages / ui"
 Cohesion: 0.17
@@ -2935,39 +2952,39 @@ Nodes (14): assert(), caseCleanGreen(), caseDeadGlossaryReferentRed(), caseFailC
 
 ### Community 490 - "packages / client-vue / src"
 Cohesion: 0.15
-Nodes (11): flush(), Handle, LookupItem, messages, Meta, mountControl(), openCombobox(), renderedItems() (+3 more)
+Nodes (15): debouncedEmit, emit, { isFree }, meta, onClear(), onSearch(), onSelect(), ownedItems (+7 more)
 
-### Community 491 - "packages / client-vue / src"
-Cohesion: 0.12
-Nodes (16): badge, category, categoryId, description, instance, isFaceted, params, props (+8 more)
-
-### Community 492 - "packages / headless / src"
-Cohesion: 0.17
-Nodes (13): QueryModel, heldFor(), installPagedEmailsHandler(), CriteriaHandle, seedEmailsEndpoint(), bootPagedCollection(), Collection, expectModelPage() (+5 more)
-
-### Community 493 - "packages / headless / src"
+### Community 491 - "packages / headless / src"
 Cohesion: 0.12
 Nodes (10): charges, { orderId, brandId, gatewayId }, outbound, recordingsDir, sessionRecordingsDir, settle(), ADR-0021, NOTE: `import.meta.dirname` (not `fileURLToPath(new URL(..., import.meta.url))`) (+2 more)
 
-### Community 494 - "packages / i18n / tsconfig.json"
+### Community 492 - "packages / i18n / tsconfig.json"
 Cohesion: 0.12
 Nodes (16): compilerOptions, baseUrl, noEmit, outDir, paths, skipLibCheck, exclude, extends (+8 more)
 
-### Community 495 - "playgrounds / storybook-next / src"
+### Community 493 - "playgrounds / storybook-next / src"
 Cohesion: 0.12
 Nodes (15): CSS_SNIPPET, DefineThemeInputs, ENGINE_SNIPPET, GENERATED_CSS, GENERATED_LINES, HTML_SNIPPET, JS_SNIPPET, meta (+7 more)
 
-### Community 496 - "design-system / packages / ui"
+### Community 494 - "design-system / packages / ui"
 Cohesion: 0.12
-Nodes (11): june, delegatedProps, emits, forwarded, props, props, props, delegatedProps (+3 more)
+Nodes (13): Controlled, EditClient, meta, Playground, PropFirst, ScrollingBody, Story, WithoutCloseButton (+5 more)
 
-### Community 497 - "design-system / packages / ui"
-Cohesion: 0.12
-Nodes (13): delegatedProps, emits, forwarded, props, delegatedProps, forwarded, props, delegatedProps (+5 more)
-
-### Community 498 - "design-system / packages / ui"
+### Community 495 - "design-system / packages / ui"
 Cohesion: 0.18
-Nodes (11): injectShellContext(), SHELL_CONTEXT_KEY, ShellContext, context, el, props, context, props (+3 more)
+Nodes (10): props, InlineCode, InvoiceSummary, meta, Playground, Sizes, Story, Variants (+2 more)
+
+### Community 496 - "packages / client-vue / package.json"
+Cohesion: 0.12
+Nodes (16): scripts, build, build-only, format, lint, lint:fix, preview, reset (+8 more)
+
+### Community 497 - "packages / src / client-vue"
+Cohesion: 0.21
+Nodes (13): clickValue(), declaration, enumValuesOf(), optionTileFor(), rawArrayAt(), rawPathFor(), runFacetSequence(), wireArrayFor() (+5 more)
+
+### Community 498 - "packages / client-vue / src"
+Cohesion: 0.13
+Nodes (14): addressesScope, companiesScope, emit, { getOne: getAddress }, { getOne: getCompany }, { getOne: getPhone }, { isReady, meta: billingMeta, model }, onEdit() (+6 more)
 
 ### Community 499 - "packages / scenario-harness / scripts"
 Cohesion: 0.20
@@ -2990,947 +3007,761 @@ Cohesion: 0.14
 Nodes (11): delegatedProps, emits, forwarded, props, Disabled, meta, Playground, SelectAll (+3 more)
 
 ### Community 504 - "design-system / packages / ui"
-Cohesion: 0.14
-Nodes (11): emits, forwarded, isGroup(), meta, props, rootProps, slots, toEntryGroups() (+3 more)
+Cohesion: 0.16
+Nodes (11): delegatedProps, emits, forwarded, props, props, delegatedProps, forwarded, props (+3 more)
 
 ### Community 505 - "design-system / packages / ui"
 Cohesion: 0.14
-Nodes (13): CheckboxAndRadio, DemoEntry, invoiceActions, InvoiceRow, meta, Playground, PropFirst, Story (+5 more)
+Nodes (10): props, meta, NoDomains, NoInvoices, NoResults, NoServices, Playground, Story (+2 more)
 
 ### Community 506 - "design-system / packages / ui"
 Cohesion: 0.20
-Nodes (10): delegatedProps, forwarded, props, props, props, ContextMenuEntryGroup, ContextMenuLabelProps, ContextMenuProps (+2 more)
-
-### Community 507 - "design-system / packages / ui"
-Cohesion: 0.13
-Nodes (8): emits, forwarded, props, delegatedProps, forwarded, props, InvoiceRow, ContextMenuTriggerProps
-
-### Community 508 - "design-system / packages / ui"
-Cohesion: 0.13
-Nodes (12): Controlled, EditClient, meta, Playground, PropFirst, ScrollingBody, Story, WithoutCloseButton (+4 more)
-
-### Community 509 - "design-system / packages / ui"
-Cohesion: 0.20
 Nodes (10): props, delegatedProps, props, delegatedProps, props, NumberFieldContentProps, NumberFieldDecrementProps, NumberFieldIncrementProps (+2 more)
 
-### Community 510 - "design-system / packages / ui"
+### Community 507 - "design-system / packages / ui"
 Cohesion: 0.17
 Nodes (10): forwarded, isMinimal, minimalWidth, modelValue, pendingValue, props, numberFieldContentVariants, numberFieldInputVariants (+2 more)
 
-### Community 511 - "design-system / packages / ui"
-Cohesion: 0.14
-Nodes (10): model, props, AutoResize, Disabled, Invalid, meta, Playground, Story (+2 more)
+### Community 508 - "design-system / packages / ui"
+Cohesion: 0.13
+Nodes (13): delegatedProps, forwarded, props, checkoutSteps, DisabledStep, meta, Playground, PropFirst (+5 more)
 
-### Community 512 - "design-system / packages / ui"
+### Community 509 - "design-system / packages / ui"
 Cohesion: 0.13
 Nodes (13): cardValue, { control, appliedOptions, formFieldProps, onInput }, defaultItems, handleChange(), isChecked, props, tester, { control, formFieldProps, appliedOptions, handleChange, touched } (+5 more)
 
-### Community 513 - "docs / corpus / gates"
+### Community 510 - "docs / corpus / gates"
 Cohesion: 0.23
 Nodes (13): assert(), caseCleanGreen(), caseFailClosedOnCorruptCorpus(), caseRenamedExportRed(), CASES, combinedOutput(), CORPUS_JSON_PATH, DOCS_DIR (+5 more)
 
-### Community 514 - "docs / corpus / gates"
+### Community 511 - "docs / corpus / gates"
 Cohesion: 0.23
 Nodes (13): assert(), caseBrokenSnippetRed(), caseCleanGreen(), caseFailClosedOnCorruptCorpus(), CASES, combinedOutput(), CORPUS_JSON_PATH, DOCS_DIR (+5 more)
 
-### Community 515 - "packages / client-vue / src"
+### Community 512 - "packages / client-vue / src"
 Cohesion: 0.14
 Nodes (13): asyncMeta, { control, appliedOptions, onInput, formFieldProps }, currentOption, debouncedSearch, items, LookupControlOptions, lookupOptions, onSearchInput() (+5 more)
 
-### Community 516 - "packages / client-vue / src"
-Cohesion: 0.13
-Nodes (14): descWidthOptions, meta, props, titleWidthOptions, DomainCardSkeletonProps, cardFooterPriceRootVariants, cardFooterRootVariants, cardHeaderDetailsRootVariants (+6 more)
+### Community 513 - "src / packages / modules"
+Cohesion: 0.15
+Nodes (8): { meta, data }, { name: brandName }, open, props, { t }, termsAndConditionsTestAttrs, TermsAndConditionsProps, UseTermsAndConditions
 
-### Community 517 - "packages / client-vue / src"
+### Community 514 - "packages / client-vue / src"
 Cohesion: 0.14
 Nodes (12): emit, props, { t }, emit, { focused }, inputRef, internalOpen, meta (+4 more)
 
-### Community 518 - "packages / headless / package.json"
+### Community 515 - "packages / headless / package.json"
 Cohesion: 0.13
 Nodes (15): scripts, build, build-only, format, lint, lint:fix, preview, reset (+7 more)
 
-### Community 519 - "packages / headless / src"
-Cohesion: 0.12
-Nodes (10): BASKET_WITH, BRAND_CONFIG_KEYS, NON_CONVERTING_BILLING, recordingsDir, ADR-0025, GATEWAY_WITH, GatewayRow, recordingsDir (+2 more)
-
-### Community 520 - "packages / src / headless"
-Cohesion: 0.23
-Nodes (9): mapDisplayDate(), mapEmailHistory(), mapEmailStatus(), mapReceivedEmail(), Envelope, recordingsDir, useDate(), EmailTypes (+1 more)
-
-### Community 521 - "packages / headless / src"
-Cohesion: 0.16
-Nodes (11): CLIENT_PHONES_COVERED_ACTIONS, CLIENT_PHONES_SCENARIO, clientPhonesSteps, coveredActionIds, open(), RECORDED, settles(), catalogSource (+3 more)
-
-### Community 522 - "packages / headless / src"
-Cohesion: 0.24
-Nodes (14): buildConditionState(), evaluateRules(), resolveStateKey(), RecommendationVisibility, checkConditionVisibility(), ensureId(), hasBasketProductKeys(), isRecommendationInBasket() (+6 more)
-
-### Community 523 - "playgrounds / labs-nuxt / modules"
+### Community 516 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.26
 Nodes (14): canEmptyOf(), CORPORA, corpusOf(), fixturesDir(), hasRows(), isAbsentRecord(), isAuthRefusal(), isRead() (+6 more)
 
-### Community 524 - "playgrounds / labs / package.json"
+### Community 517 - "playgrounds / labs / package.json"
 Cohesion: 0.13
 Nodes (14): authors, description, engines, node, Dom da Costa <dominic.dacosta@upmind.com>, Rafael Macedo <rafael.macedo@upmind.com>, Rhodri Jones <rhodri.jones@upmind.com>, Upmind (+6 more)
 
-### Community 525 - "design-system / packages / ui"
-Cohesion: 0.25
-Nodes (11): ChartCurve, ChartDatum, ChartSeries, ChartSeriesType, ResolvedSeries, items, props, ChartLegendProps (+3 more)
+### Community 518 - "design-system / packages / ui"
+Cohesion: 0.14
+Nodes (13): baseColumns, currency, Empty, Invoice, invoices, Loading, meta, Playground (+5 more)
 
-### Community 526 - "design-system / packages / ui"
+### Community 519 - "design-system / packages / ui"
+Cohesion: 0.14
+Nodes (12): CheckboxItems, DisabledItems, meta, Playground, PropFirst, RadioItems, ServiceRowActions, Story (+4 more)
+
+### Community 520 - "design-system / packages / ui"
 Cohesion: 0.16
 Nodes (11): delegatedProps, emits, forwarded, props, delegatedProps, emits, forwarded, props (+3 more)
 
-### Community 527 - "design-system / packages / ui"
+### Community 521 - "design-system / packages / ui"
+Cohesion: 0.14
+Nodes (7): emits, forwarded, props, emits, forwarded, props, ServiceMenu
+
+### Community 522 - "design-system / packages / ui"
 Cohesion: 0.14
 Nodes (12): meta, navLink, navLinkCurrent, Playground, RailCollapsed, SettingsMenu, SidebarContained, SidebarContainedGrain (+4 more)
 
-### Community 528 - "design-system / packages / ui"
+### Community 523 - "design-system / packages / ui"
+Cohesion: 0.14
+Nodes (11): collapsed, emit, headerSticky, internalCollapsed, isDesktop, mainId, props, sheetOpen (+3 more)
+
+### Community 524 - "design-system / packages / ui"
 Cohesion: 0.19
 Nodes (10): control(), glyphs(), Host, readAll(), render(), Rendered, schema, settle() (+2 more)
 
-### Community 529 - "packages / client-vue / src"
-Cohesion: 0.18
-Nodes (12): basketAlertsItemVariants, basketAlertsListVariants, basketAlertsRootVariants, ADR-0024, meta, {
-  meta: basketMeta,
-  warningNotes,
-  dismissAllWarnings,
-  errors
-}, { meta: billingMeta, errors: billingErrors }, { meta: fieldsMeta, errors: fieldsErrors } (+4 more)
-
-### Community 530 - "packages / src / modules"
-Cohesion: 0.20
-Nodes (10): currentSort, direction, directionIcon, items, property, { t }, ProductSortProps, ProductsProps (+2 more)
-
-### Community 531 - "packages / src / modules"
-Cohesion: 0.16
-Nodes (13): ProductBenefits, RecommendationBenefitProps, RecommendationConfigurationProps, RecommendationItemProps, RecommendationsProps, DataSchema, Badge, DataPropertyDefinition (+5 more)
-
-### Community 532 - "packages / headless / src"
-Cohesion: 0.16
-Nodes (7): regionCountryId(), WireAddress, installSavingAddressServer(), OracleCreate, oracleCreates(), oracleRegionCase(), SavedValue
-
-### Community 533 - "packages / headless / src"
+### Community 525 - "packages / headless / src"
 Cohesion: 0.18
 Nodes (10): CLIENT_CUSTOM_FIELDS_COVERED_ACTIONS, CLIENT_CUSTOM_FIELDS_SCENARIO, clientCustomFieldsSteps, coveredActionIds, open(), settles(), catalogSource, COLOCATED_FEATURE (+2 more)
 
-### Community 534 - "packages / headless / src"
-Cohesion: 0.26
-Nodes (12): observeEmailRequests(), applyUnverified(), bootFilteredCollection(), Collection, corpusIds(), handleOf(), idsOf(), latestUrl() (+4 more)
-
-### Community 535 - "packages / headless / src"
+### Community 526 - "packages / headless / src"
 Cohesion: 0.18
 Nodes (10): CLICKWRAP, gatewayDouble, GatewayDoubleContext, noGateway, spawnGateway(), ADR-0021, CARD, SDK (+2 more)
 
-### Community 536 - "packages / headless / src"
+### Community 527 - "packages / headless / src"
 Cohesion: 0.29
-Nodes (10): AutocompleteSuggestions, Place, PlacePrediction, PlacePredictions, PlaceService, parseCountry(), parsePlaces(), parseRegion() (+2 more)
+Nodes (9): createSessionActions(), readActiveUser(), createSessionContext(), UseActiveSessionContext, createSessionInternals(), UseActiveSessionInternals, createSessionMeta(), UseActiveSessionMeta (+1 more)
 
-### Community 537 - "packages / headless / src"
-Cohesion: 0.14
-Nodes (13): differentKeyword, phoneCountryCodeKeyword, TODO: find a better way to9 implement this as current DOES NOT WORK, TODO: find a better way to9 implement this as current DOES NOT WORK, requiredIfKeyword, requiredUnlessKeyword, requiredWithKeyword, requiredWithoutKeyword (+5 more)
-
-### Community 538 - "playgrounds / labs-nuxt / app"
+### Community 528 - "playgrounds / labs-nuxt / app"
 Cohesion: 0.20
 Nodes (12): ClientAccessTokenResponse, ClientSearchResponse, ClientSearchResult, impersonateUser(), searchClients(), searchUsers(), UserAccessTokenResponse, UserSearchResponse (+4 more)
 
-### Community 539 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.16
-Nodes (9): playhead, props, rail, step, steps, sceneRail, { t }, SceneRailProps (+1 more)
-
-### Community 540 - "design-system / packages / ui"
+### Community 529 - "design-system / packages / ui"
 Cohesion: 0.15
 Nodes (12): description, engines, node, files, **/*.css, dist, src, name (+4 more)
 
-### Community 541 - "packages / src / design-system"
+### Community 530 - "packages / src / design-system"
 Cohesion: 0.15
 Nodes (9): meta, Offset, Playground, Split, Story, Triptych, groupTestAttrs, selected (+1 more)
 
-### Community 542 - "design-system / packages / ui"
+### Community 531 - "design-system / packages / ui"
+Cohesion: 0.15
+Nodes (10): meta, Playground, Split, Story, AsideContent, ContentAside, meta, Playground (+2 more)
+
+### Community 532 - "design-system / packages / ui"
+Cohesion: 0.17
+Nodes (11): delegatedProps, emits, forwarded, props, delegatedProps, emits, forwarded, props (+3 more)
+
+### Community 533 - "design-system / packages / ui"
 Cohesion: 0.17
 Nodes (8): props, Combos, CommandPaletteHint, meta, Playground, ShortcutList, Story, KbdProps
 
-### Community 543 - "design-system / packages / ui"
+### Community 534 - "design-system / packages / ui"
 Cohesion: 0.15
 Nodes (12): Controlled, DisabledTab, meta, Minimal, Playground, PropFirst, PropFirstWithAffixes, Segmented (+4 more)
 
-### Community 544 - "packages / client-vue / src"
-Cohesion: 0.15
-Nodes (11): currentCategory, filteredCategories, items, modelValue, parentCategory, props, { t }, useProductCategories (+3 more)
-
-### Community 545 - "packages / client-vue / src"
+### Community 535 - "packages / client-vue / src"
 Cohesion: 0.18
 Nodes (11): emit, interstitialMeta, meta, onAdd(), onRemove(), props, resultsSkeletonCount, { t } (+3 more)
 
-### Community 546 - "packages / headless / src"
+### Community 536 - "packages / src / modules"
+Cohesion: 0.19
+Nodes (8): { message, meta }, props, activeToasts, { notifications, toasts, dismiss, system }, props, bannersVariants, rootVariants, useMessage()
+
+### Community 537 - "packages / client-vue / src"
+Cohesion: 0.17
+Nodes (12): action, actions, animatedIcon, emit, ErrorAction, icon, props, router (+4 more)
+
+### Community 538 - "packages / headless / src"
+Cohesion: 0.28
+Nodes (11): applyUnverified(), bootFilteredCollection(), Collection, corpusIds(), handleOf(), idsOf(), latestUrl(), settle() (+3 more)
+
+### Community 539 - "packages / headless / src"
 Cohesion: 0.15
 Nodes (9): AddressRow, CurrencyRow, GATEWAY_WITH, GatewayRow, recordingsDir, STORED_WITH, StoredRow, TEST_CARD (+1 more)
 
-### Community 547 - "playgrounds / labs-nuxt / modules"
+### Community 540 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.17
 Nodes (9): Feature, FEATURES, PLAYGROUND_ROOT, SCANNED_ROOTS, SKIPPED_DIRS, Spec, SPECS, under() (+1 more)
 
-### Community 549 - "playgrounds / storybook-next / src"
+### Community 541 - "playgrounds / storybook-next / src"
 Cohesion: 0.15
 Nodes (12): ChoreoDemo, CHOREOGRAPHY, ChoreoRow, DURATIONS, DurationsAndEasings, EASINGS, IndicatorDemo, IndicatorIdiom (+4 more)
 
-### Community 550 - "tests / journeys / scenario-harness"
+### Community 542 - "tests / journeys / scenario-harness"
 Cohesion: 0.28
 Nodes (5): BRIDGE_WORLD_NOT_IMPLEMENTED, BridgeWorld, COMPOSABLE_KEY, ComposableKey, registry
 
-### Community 551 - "apps / cart-nuxt / package.json"
+### Community 543 - "src / packages / modules"
+Cohesion: 0.26
+Nodes (6): { t }, BILLING_TEMPLATE, BillingFormProps, BillingHeroProps, BillingProps, BillingModel
+
+### Community 544 - "apps / cart-nuxt / package.json"
 Cohesion: 0.17
 Nodes (11): authors, description, engines, node, Dom da Costa <dominic.dacosta@upmind.com>, Rhodri Jones <rhodri.jones@upmind.com>, license, name (+3 more)
 
-### Community 552 - "apps / cart / package.json"
+### Community 545 - "apps / hosting / package.json"
 Cohesion: 0.17
 Nodes (11): authors, description, engines, node, Dom da Costa <dominic.dacosta@upmind.com>, Rhodri Jones <rhodri.jones@upmind.com>, license, name (+3 more)
 
-### Community 553 - "apps / hosting / package.json"
+### Community 546 - "apps / velia / package.json"
 Cohesion: 0.17
 Nodes (11): authors, description, engines, node, Dom da Costa <dominic.dacosta@upmind.com>, Rhodri Jones <rhodri.jones@upmind.com>, license, name (+3 more)
 
-### Community 554 - "apps / velia / package.json"
-Cohesion: 0.17
-Nodes (11): authors, description, engines, node, Dom da Costa <dominic.dacosta@upmind.com>, Rhodri Jones <rhodri.jones@upmind.com>, license, name (+3 more)
-
-### Community 555 - "design-system / packages / ui"
+### Community 547 - "design-system / packages / ui"
 Cohesion: 0.27
 Nodes (11): buildTokenCandidates(), collectSourceFiles(), deriveFilesAndDependencies(), externalPackage(), isKnownToken(), isSourceFile(), main(), parseIndexExports() (+3 more)
 
-### Community 556 - "design-system / packages / ui"
-Cohesion: 0.17
-Nodes (10): delegatedProps, emits, forwarded, props, delegatedProps, emits, forwarded, props (+2 more)
-
-### Community 557 - "design-system / packages / ui"
-Cohesion: 0.18
-Nodes (10): delegatedProps, emits, forwarded, props, delegatedProps, forwarded, props, ContextMenuItemProps (+2 more)
-
-### Community 558 - "design-system / packages / ui"
-Cohesion: 0.17
-Nodes (10): contentTestAttrs, delegatedProps, emits, forwarded, props, delegatedProps, forwarded, props (+2 more)
-
-### Community 559 - "design-system / packages / ui"
+### Community 548 - "design-system / packages / ui"
 Cohesion: 0.29
 Nodes (7): computedSize, defaultSizeForLevel, props, tag, HeadingLevel, HeadingProps, HeadingVariants
 
-### Community 560 - "design-system / packages / ui"
-Cohesion: 0.27
-Nodes (9): delegatedProps, forwarded, props, StepperDescriptionProps, StepperProps, StepperRootProps, StepperSlots, StepperStep (+1 more)
+### Community 549 - "design-system / packages / ui"
+Cohesion: 0.39
+Nodes (6): props, props, SplitPaneProps, SplitProps, SplitPaneVariants, SplitVariants
 
-### Community 561 - "packages / headless / src"
+### Community 550 - "design-system / packages / ui"
+Cohesion: 0.17
+Nodes (9): emits, forwarded, meta, props, resolvedDefault, rootProps, slots, TABS (+1 more)
+
+### Community 551 - "packages / headless / src"
 Cohesion: 0.26
-Nodes (10): ClientEmailListQuery, bootCollection(), Collection, corpusRows(), handleOf(), idsOf(), idsWhere(), toggle() (+2 more)
+Nodes (8): useLoginSchema(), useLoginUischema(), useRecoverSchema(), useRecoverUischema(), TWOFA_DEFAULT_OPTIONS, TWOFA_PROVIDER_OPTIONS, useTwoFASchema(), useTwoFAUischema()
 
-### Community 562 - "packages / headless / src"
-Cohesion: 0.21
-Nodes (8): bootCollection(), Collection, lastOrder(), lastParam(), SETTLE_FILTER, SETTLE_SORT, settleByFilter(), settleBySort()
-
-### Community 563 - "packages / headless / src"
+### Community 552 - "packages / headless / src"
 Cohesion: 0.18
 Nodes (8): GATEWAY_WITH, InvoiceRow, ORDER_WITH, recordingsDir, SEED_PRODUCT, seedPayableOrder(), ADR-0025, writeLive()
 
-### Community 564 - "packages / headless / src"
+### Community 553 - "packages / headless / src"
 Cohesion: 0.18
 Nodes (8): GATEWAY_WITH, InvoiceRow, ORDER_WITH, recordingsDir, SEED_PRODUCT, seedPayableOrder(), ADR-0025, writeLive()
 
-### Community 565 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.20
-Nodes (8): parseScopeSuffix(), HookHandler, RegisteredRoutes, registerScenarioRoutes(), declaredDirectories, MODULE_DIR, PLAYGROUND, resolvedScope()
+### Community 554 - "playgrounds / labs-nuxt / app"
+Cohesion: 0.17
+Nodes (10): brandParams, { composables, families }, gettingStarted, metrics, query, route, scenarioCount, { t } (+2 more)
 
-### Community 566 - "playgrounds / labs-nuxt / modules"
+### Community 555 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.21
 Nodes (7): items, props, sections, contextPanel, { t }, ContextPanelItem, ContextPanelProps
 
-### Community 567 - "playgrounds / labs-nuxt / modules"
+### Community 556 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.18
+Nodes (8): playhead, props, rail, step, steps, sceneRail, { t }, uiConfig
+
+### Community 557 - "playgrounds / labs-nuxt / modules"
+Cohesion: 0.24
+Nodes (9): presetRefusal(), CORPORA, corpusOf(), fixturesDir(), isRefused(), isServableRefusal(), jsonFiles(), MODULES_DIR (+1 more)
+
+### Community 558 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.26
 Nodes (11): at(), englishStrings(), FILES, KNOWN_HEAD_STRINGS, Offence, offences(), PLAYGROUND_ROOT, SCANNED_ROOTS (+3 more)
 
-### Community 568 - "playgrounds / labs-nuxt / package.json"
+### Community 559 - "playgrounds / labs-nuxt / package.json"
 Cohesion: 0.17
 Nodes (11): authors, description, engines, node, Dom da Costa <dominic.dacosta@upmind.com>, Rhodri Jones <rhodri.jones@upmind.com>, license, name (+3 more)
 
-### Community 569 - "design-system / packages / ui"
+### Community 560 - "design-system / packages / ui"
 Cohesion: 0.22
 Nodes (9): emits, forwarded, isGroup(), localOpen, meta, onFocus(), props, rootProps (+1 more)
 
-### Community 570 - "design-system / packages / ui"
+### Community 561 - "design-system / packages / ui"
 Cohesion: 0.18
 Nodes (9): delegatedProps, emits, forwarded, props, delegatedProps, forwarded, props, ComboboxContentProps (+1 more)
 
-### Community 571 - "design-system / packages / ui"
+### Community 562 - "design-system / packages / ui"
 Cohesion: 0.18
 Nodes (7): emits, forwarded, props, delegatedProps, forwarded, props, ComboboxTriggerProps
 
-### Community 572 - "design-system / packages / ui"
+### Community 563 - "design-system / packages / ui"
 Cohesion: 0.20
 Nodes (8): emits, forwarded, isGroup(), meta, props, rootProps, toOptionGroups(), items
 
-### Community 573 - "design-system / packages / ui"
+### Community 564 - "design-system / packages / ui"
 Cohesion: 0.20
-Nodes (10): DemoAction, InDialog, meta, paletteItems, Playground, PropFirst, SearchResults, Story (+2 more)
+Nodes (7): clean, props, meta, Playground, Story, StripsUnsafeMarkup, SanitizedProps
 
-### Community 574 - "design-system / packages / ui"
+### Community 565 - "design-system / packages / ui"
 Cohesion: 0.18
 Nodes (10): BillingCycle, CountryPicker, Disabled, GroupedWithDisabledItems, Invalid, meta, Playground, PropFirst (+2 more)
 
-### Community 575 - "design-system / packages / ui"
+### Community 566 - "design-system / packages / ui"
 Cohesion: 0.18
 Nodes (10): Animated, Dashboard, FourColumns, meta, Playground, PropFirst, Standalone, Story (+2 more)
 
-### Community 576 - "design-system / packages / ui"
+### Community 567 - "design-system / packages / ui"
 Cohesion: 0.18
 Nodes (10): compilerOptions, types, extends, include, node, src/**/*.ts, ../../tsconfig.base.json, vite/client (+2 more)
 
-### Community 577 - "packages / client-vue / package.json"
-Cohesion: 0.18
-Nodes (11): scripts, build, build-only, format, lint, lint:fix, preview, test (+3 more)
-
-### Community 578 - "packages / client-vue / src"
+### Community 568 - "packages / client-vue / src"
 Cohesion: 0.20
-Nodes (9): { control, appliedOptions, formFieldProps, onInput }, detailUiSchema, open, props, { search, predictions, getPlaceDetails }, selectAddress(), setShowAddressFields(), { t } (+1 more)
+Nodes (10): desc, emit, hasTrailing, isCustom, onQuantity(), promotions, props, showPrice (+2 more)
 
-### Community 579 - "packages / client-vue / src"
-Cohesion: 0.24
-Nodes (9): {
-  apply,
-  configure,
-  error: setupError,
-  meta: setupMeta,
-  schema,
-  uischema,
-  selected,
-  similarProducts,
-  total
-}, basketProductConfig, doResolve(), emit, meta, props, { t }, formFullVariants (+1 more)
-
-### Community 580 - "packages / headless / src"
+### Community 569 - "packages / src / modules"
 Cohesion: 0.20
-Nodes (8): brandCurrency, brandCurrencyRef, outbound, recordingsDir, replay(), replayHappyPath(), sessionRecordingsDir, ADR-0021
+Nodes (9): columns, doResolve(), emits, hasItems, isRows, layout, minTileWidth, props (+1 more)
 
-### Community 581 - "playgrounds / labs-nuxt / modules"
+### Community 570 - "packages / headless / src"
+Cohesion: 0.36
+Nodes (9): mapLoginData(), mapRecoverData(), mapRegisterData(), authenticate(), createStaffAuthServices(), loadLookups(), recover(), register() (+1 more)
+
+### Community 571 - "packages / types / src"
+Cohesion: 0.29
+Nodes (9): ScheduledActionPriceChangeDirection, ScheduledActionPriceChangeType, ScheduledActionStatusTypes, ScheduledActionTypes, IBulkScheduledAction, IScheduledAction, IScheduledActionProduct, IScheduledActionsOption (+1 more)
+
+### Community 572 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.22
 Nodes (10): Declaration, declarations(), DECLARED, FALLBACK_GLYPH, glyphOf(), PLAYGROUND_ROOT, resolves(), SCANNED_ROOTS (+2 more)
 
-### Community 582 - "playgrounds / labs-nuxt / modules"
+### Community 573 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.18
 Nodes (7): Control, CONTROLS, exists(), PLAYGROUND_ROOT, REPO_ROOT, SCANNED_ROOTS, SKIPPED_DIRS
 
-### Community 583 - "playgrounds / labs / package.json"
+### Community 574 - "playgrounds / labs / package.json"
 Cohesion: 0.18
 Nodes (11): scripts, build-only, build:prod, dev, format, lint, lint:fix, preview (+3 more)
 
-### Community 584 - "design-system / packages / tokens"
+### Community 575 - "playgrounds / labs / src"
+Cohesion: 0.18
+Nodes (3): messageToDismissId, {
+  notifications,
+  toasts,
+  system,
+  addError,
+  addWarning,
+  addSuccess,
+  add, // Direct add for generic messages
+  dismiss // The dismiss function that sends to the main service
+}, routes
+
+### Community 576 - "design-system / packages / tokens"
 Cohesion: 0.20
 Nodes (9): compilerOptions, lib, types, extends, include, ES2023, node, src/**/*.ts (+1 more)
 
-### Community 585 - "design-system / packages / ui"
+### Community 577 - "design-system / packages / ui"
 Cohesion: 0.20
 Nodes (9): AsLink, Block, Loading, meta, Playground, Sizes, Story, Variants (+1 more)
 
-### Community 586 - "design-system / packages / ui"
+### Community 578 - "design-system / packages / ui"
 Cohesion: 0.20
 Nodes (9): DisabledAndReadonly, InvoiceDueDate, LimitedRange, meta, MultipleMonths, Playground, RenewalWindow, ServicePeriodRange (+1 more)
 
-### Community 587 - "design-system / packages / ui"
+### Community 579 - "packages / src / client-vue"
+Cohesion: 0.22
+Nodes (9): MenuItem, { activeUser: client }, emit, { isAuthenticated, isGuestClient }, items, { logout }, session, SessionMenuItem (+1 more)
+
+### Community 580 - "design-system / packages / ui"
 Cohesion: 0.20
-Nodes (5): delegatedProps, forwarded, props, Palette, CommandEmptyProps
+Nodes (7): collapsed, context, isRail, orientation, props, SidebarNavLinkProps, SidebarNavLinkVariants
 
-### Community 588 - "design-system / packages / ui"
+### Community 581 - "design-system / packages / ui"
 Cohesion: 0.20
-Nodes (8): props, InvoiceFilter, meta, Placement, Playground, PropFirst, Story, WithAnchor
+Nodes (9): Compact, meta, OrderHistory, PaymentActivity, Playground, PropFirst, Story, WithAvatars (+1 more)
 
-### Community 589 - "design-system / packages / ui"
-Cohesion: 0.27
-Nodes (7): FRUIT, meta, Playground, Story, SearchEmits, SearchItem, SearchProps
-
-### Community 590 - "design-system / packages / ui"
+### Community 582 - "design-system / packages / ui"
 Cohesion: 0.20
-Nodes (8): Contained, footerLink, meta, navLink, navLinkCurrent, Playground, RailCollapsed, Story
+Nodes (9): columns, { control, formFieldProps, appliedOptions, onInput }, EnumTile, isGrid, items, layout, minTileWidth, props (+1 more)
 
-### Community 591 - "design-system / packages / ui"
-Cohesion: 0.20
-Nodes (9): checkoutSteps, DisabledStep, meta, Playground, PropFirst, Story, Vertical, WithControls (+1 more)
-
-### Community 592 - "docs / corpus / inject-unbounded-digest.test.js"
+### Community 583 - "docs / corpus / inject-unbounded-digest.test.js"
 Cohesion: 0.20
 Nodes (8): assert, { execFileSync }, FIXTURE, { mkdtempSync, writeFileSync, rmSync }, path, SCRIPT, test, { tmpdir }
 
-### Community 593 - "docs / workshop / _initiator"
+### Community 584 - "docs / workshop / _initiator"
 Cohesion: 0.20
 Nodes (9): _comment, permissions, deny, $schema, Bash(git push:*), Bash(git push -f:*), Bash(git push --force:*), Bash(rm -rf /*) (+1 more)
 
-### Community 594 - "packages / client-vue / src"
+### Community 585 - "packages / client-vue / src"
 Cohesion: 0.22
-Nodes (8): columns, doResolve(), emits, hasItems, isRows, layout, minTileWidth, props
+Nodes (8): doResolve(), emits, hasErrors, hasItems, props, selectedTerm, { t }, termOptions
 
-### Community 595 - "packages / headless / src"
-Cohesion: 0.22
-Nodes (8): SortEntry, CriteriaList, idsOf(), publishedRows(), recordedIds, SETTLE_SORT, UNVERIFIED, VERIFIED
-
-### Community 596 - "packages / headless / src"
+### Community 586 - "packages / headless / src"
 Cohesion: 0.20
 Nodes (7): artefacts, featureText, MODULES_DIR, REPO_ROOT, scenarioNames, sourceFiles(), trackedFiles
 
-### Community 597 - "playgrounds / labs-nuxt / app"
+### Community 587 - "packages / headless / src"
+Cohesion: 0.22
+Nodes (8): bootConfiguredBasket(), bootInvalidBasket(), ConfiguredIds, recordingsDir, REGISTRANT_MODEL, ADR-0021, recordingsDir, server
+
+### Community 588 - "playgrounds / labs-nuxt / app"
 Cohesion: 0.24
 Nodes (9): HEADER_SLOTS, headerSlot(), marked(), passthrough(), UpmHeader, UpmMain, UpmOverlayController, UpmPage (+1 more)
 
-### Community 598 - "playgrounds / labs-nuxt / app"
+### Community 589 - "playgrounds / labs-nuxt / app"
 Cohesion: 0.20
 Nodes (9): actorScope, brandId, brandScope, contextScope, isFreshRequest, { register: registerContexts }, { register: registerScopes }, route (+1 more)
 
-### Community 599 - "playgrounds / labs-nuxt / modules"
+### Community 590 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.24
 Nodes (8): code(), COMPOUND, FILES, MODULES, MODULES_DIR, named(), offenders(), RUNTIME
 
-### Community 600 - "playgrounds / storybook-next / package.json"
+### Community 591 - "playgrounds / storybook-next / package.json"
 Cohesion: 0.20
 Nodes (9): name, private, scripts, build-storybook, dev, test:a11y, typecheck, type (+1 more)
 
-### Community 601 - "playgrounds / storybook-next / tsconfig.json"
+### Community 592 - "playgrounds / storybook-next / tsconfig.json"
 Cohesion: 0.20
 Nodes (9): compilerOptions, types, extends, include, src/**/*.ts, ../../tsconfig.base.json, vite/client, .storybook/**/*.ts (+1 more)
 
-### Community 602 - "apps / cart-nuxt / package.json"
+### Community 593 - "apps / cart-nuxt / package.json"
 Cohesion: 0.22
 Nodes (9): automation, billing, e-commerce, platform, sales, service business, shopping cart, Upmind (+1 more)
 
-### Community 603 - "apps / cart / package.json"
+### Community 594 - "apps / hosting / package.json"
 Cohesion: 0.22
 Nodes (9): automation, billing, e-commerce, platform, sales, service business, shopping cart, Upmind (+1 more)
 
-### Community 604 - "apps / hosting / package.json"
+### Community 595 - "apps / velia / package.json"
 Cohesion: 0.22
 Nodes (9): automation, billing, e-commerce, platform, sales, service business, shopping cart, Upmind (+1 more)
 
-### Community 605 - "apps / velia / package.json"
+### Community 596 - "design-system / packages / ui"
 Cohesion: 0.22
-Nodes (9): automation, billing, e-commerce, platform, sales, service business, shopping cart, Upmind (+1 more)
+Nodes (8): Fallbacks, Group, InContext, meta, Playground, PropFirst, Sizes, Story
 
-### Community 606 - "design-system / packages / ui"
-Cohesion: 0.22
-Nodes (7): mrr, colorVar, measuredWidth, model, props, root, { width }
-
-### Community 607 - "design-system / packages / ui"
+### Community 597 - "design-system / packages / ui"
 Cohesion: 0.22
 Nodes (8): FieldSwitcher, GroupedCountryPicker, meta, Playground, PropFirst, Story, TldPicker, ComboboxProps
 
-### Community 608 - "design-system / packages / ui"
-Cohesion: 0.39
-Nodes (6): props, CommandOptionGroup, CommandProps, CommandShortcutProps, CommandSlots, CommandUi
-
-### Community 609 - "design-system / packages / ui"
-Cohesion: 0.22
-Nodes (8): Disabled, Empty, InvoiceDueDate, meta, Playground, ServicePeriodRange, Story, UsageReportRange
-
-### Community 610 - "design-system / packages / ui"
+### Community 598 - "design-system / packages / ui"
 Cohesion: 0.22
 Nodes (8): CollapsedRail, Horizontal, meta, nav, Playground, PropFirst, Story, Vertical
 
-### Community 611 - "design-system / packages / ui"
-Cohesion: 0.22
-Nodes (7): emits, forwarded, meta, props, rootProps, slots, items
-
-### Community 612 - "design-system / packages / ui"
+### Community 599 - "design-system / packages / ui"
 Cohesion: 0.25
 Nodes (7): attributesToRemove, focussable, maybeFocus(), meta, props, stop, target
 
-### Community 613 - "design-system / packages / ui"
+### Community 600 - "design-system / packages / ui"
+Cohesion: 0.22
+Nodes (8): canClear, clearLabel, {
+  control,
+  appliedOptions,
+  onInput,
+  onClear,
+  translate,
+  formFieldProps,
+  controlDataAttrs
+}, Icon, props, safeMax, safeMin, tester
+
+### Community 601 - "design-system / packages / ui"
 Cohesion: 0.28
 Nodes (7): decorated, i18n, mountStubbed(), Rendered, schema, Stub, uischema()
 
-### Community 614 - "docs / corpus / alias-precedence-inversion.test.js"
+### Community 602 - "docs / corpus / alias-precedence-inversion.test.js"
 Cohesion: 0.22
 Nodes (8): assert, { execFileSync }, FIXTURE, { mkdtempSync, writeFileSync, rmSync }, path, SCRIPT, test, { tmpdir }
 
-### Community 615 - "docs / corpus / extract-relations.mjs"
+### Community 603 - "docs / corpus / extract-relations.mjs"
 Cohesion: 0.22
 Nodes (6): edges, nodeById, nodes, out, relCounts, relSummary
 
-### Community 616 - "packages / client-vue / package.json"
+### Community 604 - "packages / client-vue / package.json"
 Cohesion: 0.22
 Nodes (9): tailwindcss, vue, vue-i18n, vue-router, peerDependencies, tailwindcss, vue, vue-i18n (+1 more)
 
-### Community 617 - "packages / client-vue / src"
+### Community 605 - "packages / client-vue / src"
 Cohesion: 0.31
 Nodes (7): basketProductActionsVariants, ADR-0024, doResolve(), emits, { isNavigating }, { t }, updateQuantity()
 
-### Community 618 - "packages / headless / package.json"
+### Community 606 - "packages / headless / package.json"
 Cohesion: 0.22
 Nodes (9): vue, vue-i18n, vue-router, @vueuse/core, peerDependencies, vue, vue-i18n, vue-router (+1 more)
 
-### Community 619 - "packages / headless / src"
+### Community 607 - "packages / headless / src"
 Cohesion: 0.25
 Nodes (6): BRAND_CONFIG_KEYS, call(), fetchClientId(), recordingsDir, ADR-0025, WireAddress
 
-### Community 620 - "packages / headless / src"
-Cohesion: 0.28
-Nodes (5): bareKeyResolves(), catalogue(), feedback, formRefResolves(), LOCALES_DIR
+### Community 608 - "packages / headless / src"
+Cohesion: 0.33
+Nodes (7): Collection, expectModelPage(), expectWirePage(), handleOf(), latestFilterKeys(), latestParams(), setCriteria()
 
-### Community 621 - "packages / headless / src"
+### Community 609 - "packages / headless / src"
 Cohesion: 0.28
 Nodes (7): makeRawBasketProduct(), makeRawOption(), makeRefreshEvent(), optionLookup, plainOptionLookup, requiredOptionLookup, selectedChoice
 
-### Community 622 - "packages / headless / src"
+### Community 610 - "packages / headless / src"
 Cohesion: 0.22
 Nodes (6): BANNED, consumerCwd, packageRoot, repoRoot, Resolution, SANCTIONED
 
-### Community 623 - "packages / scenario-harness / tsconfig.test.json"
+### Community 611 - "packages / scenario-harness / tsconfig.test.json"
 Cohesion: 0.22
 Nodes (8): compilerOptions, noEmit, exclude, extends, dist, node_modules, ./tsconfig.json, $schema
 
-### Community 624 - "playgrounds / labs-nuxt / modules"
-Cohesion: 0.31
-Nodes (6): items, props, metaPanel, { t }, MetaPanelItem, MetaPanelProps
-
-### Community 625 - "playgrounds / labs-nuxt / package.json"
+### Community 612 - "playgrounds / labs-nuxt / package.json"
 Cohesion: 0.22
 Nodes (9): automation, billing, e-commerce, platform, sales, service business, shopping cart, Upmind (+1 more)
 
-### Community 626 - "playgrounds / labs-nuxt / public"
+### Community 613 - "playgrounds / labs-nuxt / public"
 Cohesion: 0.42
 Nodes (8): activeClientIds, getResponse(), handleRequest(), IS_MOCKED_RESPONSE, resolveMainClient(), respondWithMock(), sendToClient(), serializeRequest()
 
-### Community 628 - "design-system / packages / ui"
+### Community 614 - "apps / velia / src"
+Cohesion: 0.25
+Nodes (6): _emits, { meta, products, summary }, PricingRow, productsItems, subtotalItems, { t }
+
+### Community 616 - "design-system / packages / ui"
+Cohesion: 0.25
+Nodes (7): InShell, Intents, meta, NonDismissible, Playground, Story, WithIconAndAction
+
+### Community 617 - "design-system / packages / ui"
 Cohesion: 0.25
 Nodes (6): meta, Offset, Playground, Split, Story, Triptych
 
-### Community 629 - "design-system / packages / ui"
-Cohesion: 0.25
-Nodes (7): DemoSlide, meta, MultiPerView, Playground, PropFirst, slides, Story
-
-### Community 631 - "design-system / packages / ui"
+### Community 618 - "design-system / packages / ui"
 Cohesion: 0.25
 Nodes (7): delegatedProps, emits, forwarded, listId, props, rootContext, CommandInputProps
 
-### Community 632 - "design-system / packages / ui"
+### Community 619 - "design-system / packages / ui"
+Cohesion: 0.25
+Nodes (7): AvatarBadge, Countries, meta, Playground, Sizes, Story, UnknownFallback
+
+### Community 620 - "design-system / packages / ui"
 Cohesion: 0.25
 Nodes (7): Bold, DecoupledSize, Hierarchy, meta, Playground, Sizes, Story
 
-### Community 633 - "design-system / packages / ui"
+### Community 621 - "design-system / packages / ui"
 Cohesion: 0.25
 Nodes (7): Currency, Disabled, meta, Minimal, Playground, RemoveAction, Story
 
-### Community 634 - "design-system / packages / ui"
-Cohesion: 0.25
-Nodes (7): accountGroups, Controlled, meta, Playground, PropFirst, Searchable, Story
-
-### Community 635 - "design-system / packages / ui"
+### Community 622 - "design-system / packages / ui"
 Cohesion: 0.25
 Nodes (7): ariaLabel, context, expanded, isDesktop, props, renders, ShellSidebarTriggerProps
 
-### Community 636 - "design-system / packages / ui"
+### Community 623 - "design-system / packages / ui"
 Cohesion: 0.25
 Nodes (7): Colors, InlineStates, meta, PageLoading, Playground, Sizes, Story
 
-### Community 637 - "design-system / packages / ui"
-Cohesion: 0.25
-Nodes (5): delegatedProps, forwarded, props, checkout, StepperIndicatorProps
-
-### Community 638 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): props, TextProps, TextVariants
-
-### Community 639 - "design-system / packages / ui"
-Cohesion: 0.25
-Nodes (7): InlineCode, InvoiceSummary, meta, Playground, Sizes, Story, Variants
-
-### Community 640 - "design-system / packages / ui"
+### Community 624 - "design-system / packages / ui"
 Cohesion: 0.25
 Nodes (7): { control, appliedOptions, formFieldProps, onInput }, isInteger, max, min, props, step, tester
 
-### Community 641 - "packages / headless / src"
+### Community 625 - "design-system / packages / ui"
 Cohesion: 0.25
-Nodes (4): ADR-0028, PERSONAL_DETAILS_SCOPE_MATRIX, EXPECTED_RUNTIME_EXPORTS, MODULE_DIR
+Nodes (6): { control, appliedOptions, onInput, formFieldProps, translate }, items, LookupItem, open, props, tester
 
-### Community 642 - "docs / corpus / glossary-inject.selftest.mjs"
+### Community 626 - "docs / corpus / glossary-inject.selftest.mjs"
 Cohesion: 0.25
 Nodes (6): CORPUS_PATH, GLOSSARY_PATH, HERE, REPO_ROOT, SCRIPT, SETTINGS_PATH
 
-### Community 643 - "packages / client-vue / src"
-Cohesion: 0.25
-Nodes (6): { items: breadcrumbItems }, modelValue, props, { t }, { ui }, useProductCategories
-
-### Community 644 - "packages / headless / src"
+### Community 627 - "packages / headless / src"
 Cohesion: 0.29
 Nodes (5): Envelope, fullRow(), recordedRows(), recordingsDir, WireRow
 
-### Community 645 - "packages / headless / src"
+### Community 628 - "packages / headless / src"
 Cohesion: 0.29
 Nodes (6): COLOCATED_FEATURE, CONSUMER_PROOFS, provenAcs(), provingTests(), REPO_ROOT, ADR-0020
 
-### Community 646 - "packages / headless / src"
-Cohesion: 0.39
-Nodes (7): useCompanyAddressList(), useCompanyAddressMutate(), useCompanyEmailList(), useCompanyEmailMutate(), useUischema(), DEFAULT_SORT, QuerySchema
-
-### Community 647 - "packages / headless / src"
+### Community 629 - "packages / headless / src"
 Cohesion: 0.29
 Nodes (6): BRAND_CONFIG_KEYS, call(), fetchClientId(), recordingsDir, ADR-0025, WireCompany
 
-### Community 648 - "packages / headless / src"
+### Community 630 - "packages / headless / src"
 Cohesion: 0.29
 Nodes (5): call(), fetchClientId(), recordingsDir, ADR-0025, WireEmail
 
-### Community 649 - "packages / headless / src"
+### Community 631 - "packages / headless / src"
 Cohesion: 0.29
 Nodes (5): call(), fetchClientId(), recordingsDir, ADR-0025, WireClient
 
-### Community 650 - "packages / headless / src"
+### Community 632 - "packages / headless / src"
 Cohesion: 0.29
 Nodes (5): call(), fetchClientId(), recordingsDir, ADR-0025, WirePhone
 
-### Community 651 - "packages / headless / src"
+### Community 633 - "packages / headless / src"
 Cohesion: 0.32
 Nodes (6): ACTION_FILES, isCommentLine(), MODULE_DIR, returnBlockLines(), TaggedMember, taggedMembers()
 
-### Community 652 - "packages / headless / tsconfig.testcheck.json"
+### Community 634 - "packages / headless / tsconfig.testcheck.json"
 Cohesion: 0.25
 Nodes (7): exclude, extends, include, dist, node_modules, src/**/*, ./tsconfig.json
 
-### Community 653 - "playgrounds / labs-nuxt / modules"
+### Community 635 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.25
 Nodes (5): APP_RUNTIME, PLAYGROUND, POSITIONS, REPO_ROOT, SPECIFIERS
 
-### Community 654 - "design-system / packages / ui"
+### Community 636 - "design-system / packages / ui"
 Cohesion: 0.29
 Nodes (7): tailwindcss, vue, tailwindcss, vue, peerDependencies, tailwindcss, vue
 
-### Community 655 - "design-system / packages / ui"
-Cohesion: 0.29
-Nodes (6): DisabledItem, meta, Multiple, Playground, PropFirst, Story
-
-### Community 656 - "design-system / packages / ui"
-Cohesion: 0.29
-Nodes (6): AsyncConfirm, meta, NonDestructiveConfirm, Playground, PropFirst, Story
-
-### Community 657 - "design-system / packages / ui"
+### Community 637 - "design-system / packages / ui"
 Cohesion: 0.29
 Nodes (6): Grain, GrainShapes, Playground, ratio01, speedCtl, Story
 
-### Community 658 - "design-system / packages / ui"
-Cohesion: 0.29
-Nodes (6): CollapsedPath, meta, Playground, PropFirst, Story, TextSeparator
-
-### Community 659 - "design-system / packages / ui"
+### Community 638 - "design-system / packages / ui"
 Cohesion: 0.33
 Nodes (5): delegatedProps, forwarded, props, ComboboxAnchorProps, comboboxAnchorVariants
 
-### Community 660 - "design-system / packages / ui"
+### Community 639 - "design-system / packages / ui"
 Cohesion: 0.29
-Nodes (5): Carousel, Fallback, meta, Single, Story
+Nodes (6): Error, meta, Modal, Playground, Searching, Story
 
-### Community 661 - "design-system / packages / ui"
+### Community 640 - "design-system / packages / ui"
 Cohesion: 0.29
 Nodes (6): meta, Playground, PropFirst, Sides, Story, WithoutCloseButton
 
-### Community 662 - "docs / corpus / cart-basket-ontology-conflation.test.js"
+### Community 641 - "docs / corpus / cart-basket-ontology-conflation.test.js"
 Cohesion: 0.29
 Nodes (5): assert, { execFileSync }, path, SCRIPT, test
 
-### Community 663 - "docs / corpus / glossary-resolve.selftest.mjs"
+### Community 642 - "docs / corpus / glossary-resolve.selftest.mjs"
 Cohesion: 0.33
 Nodes (6): CORPUS, FIXTURES, HERE, run(), runExpectFailure(), SCRIPT
 
-### Community 664 - "packages / headless / src"
-Cohesion: 0.38
-Nodes (5): billingDouble, spawnBilling(), ADR-0021, holder, mount()
-
-### Community 665 - "packages / headless / src"
-Cohesion: 0.33
-Nodes (5): BRAND_CONFIG_KEYS, call(), fetchClientId(), recordingsDir, ADR-0025
-
-### Community 666 - "packages / headless / src"
-Cohesion: 0.33
-Nodes (4): call(), fetchClientRecord(), recordingsDir, ADR-0025
-
-### Community 667 - "packages / headless / src"
-Cohesion: 0.33
-Nodes (5): call(), fetchClientId(), recordingsDir, ADR-0025, WITH
-
-### Community 668 - "packages / headless / src"
+### Community 643 - "packages / client-vue / src"
 Cohesion: 0.29
-Nodes (4): Envelope, paidRaw, recordingsDir, unpaidRaw
+Nodes (6): { meta }, { meta: paymentDetailsMeta }, processingIcon, processingText, processingTitle, { t }
 
-### Community 669 - "packages / headless / src"
+### Community 644 - "packages / headless / src"
 Cohesion: 0.29
 Nodes (6): BRAND_VALUE_KEYS, ORDER_WITH, ORG_VALUE_KEYS, PRODUCT_WITH, recordingsDir, ADR-0025
 
-### Community 670 - "packages / headless / src"
+### Community 645 - "packages / headless / src"
 Cohesion: 0.33
 Nodes (5): buildSchema(), lookups, optionalLookup, parseOnLoad(), requiredLookup
 
-### Community 671 - "packages / headless / src"
-Cohesion: 0.29
-Nodes (6): alphaDashDotFormat, alphaDashFormat, alphaFormat, alphaNumericFormat, domainNameFormat, NamedFormatDefinition
-
-### Community 672 - "packages / headless / vitest.config.ts"
+### Community 646 - "packages / headless / vitest.config.ts"
 Cohesion: 0.29
 Nodes (4): alias, root, alias, root
 
-### Community 673 - "playgrounds / labs / src"
-Cohesion: 0.43
-Nodes (6): doDelete(), doEdit(), emits, props, setDefault(), { t }
-
-### Community 674 - "playgrounds / storybook-next / src"
+### Community 647 - "playgrounds / storybook-next / src"
 Cohesion: 0.29
 Nodes (6): BrandPane, Gallery, meta, Story, TEXTURES, TextureSpec
 
-### Community 675 - "playgrounds / storybook-next / .storybook"
+### Community 648 - "playgrounds / storybook-next / .storybook"
 Cohesion: 0.38
 Nodes (3): config, UPMIND_BADGE_BRAND_IMAGE, UPMIND_BADGE_FAVICON
 
-### Community 676 - "design-system / packages / tokens"
+### Community 649 - "design-system / packages / tokens"
 Cohesion: 0.40
 Nodes (3): BUILD_ENTRY, SRC_DIR, upmindTokensCss()
 
-### Community 677 - "design-system / packages / ui"
+### Community 650 - "design-system / packages / ui"
 Cohesion: 0.33
 Nodes (6): exports, ./COMPONENT_SPEC.md, ./components/*, ./lib/*, ./registry.json, ./styles
 
-### Community 678 - "design-system / packages / ui"
+### Community 651 - "design-system / packages / ui"
+Cohesion: 0.33
+Nodes (5): Controlled, meta, Playground, PropFirst, Story
+
+### Community 652 - "design-system / packages / ui"
 Cohesion: 0.33
 Nodes (5): delegatedProps, emits, forwarded, props, ComboboxInputProps
 
-### Community 679 - "design-system / packages / ui"
+### Community 653 - "design-system / packages / ui"
 Cohesion: 0.33
 Nodes (5): delegatedProps, emits, forwarded, props, ComboboxItemProps
 
-### Community 680 - "design-system / packages / ui"
-Cohesion: 0.33
-Nodes (5): delegatedProps, emits, forwarded, props, CommandItemProps
-
-### Community 681 - "design-system / packages / ui"
+### Community 654 - "design-system / packages / ui"
 Cohesion: 0.33
 Nodes (5): delegatedProps, emits, forwarded, props, CommandListProps
 
-### Community 682 - "design-system / packages / ui"
+### Community 655 - "design-system / packages / ui"
 Cohesion: 0.33
-Nodes (5): delegatedProps, emits, forwarded, props, ContextMenuCheckboxItemProps
+Nodes (5): DomainPreview, meta, Playground, PropFirst, Story
 
-### Community 683 - "design-system / packages / ui"
-Cohesion: 0.33
-Nodes (5): delegatedProps, emits, forwarded, props, ContextMenuRadioItemProps
-
-### Community 684 - "design-system / packages / ui"
+### Community 656 - "design-system / packages / ui"
 Cohesion: 0.33
 Nodes (5): delegatedProps, emits, forwarded, props, NumberFieldRootProps
 
-### Community 685 - "design-system / packages / ui"
-Cohesion: 0.40
-Nodes (5): context, isSticky, props, ShellHeaderProps, ShellHeaderVariants
-
-### Community 687 - "docs / corpus / inject-corpus-absent-throws.test.js"
+### Community 658 - "docs / corpus / inject-corpus-absent-throws.test.js"
 Cohesion: 0.33
 Nodes (5): assert, { execFileSync }, path, SCRIPT, test
 
-### Community 688 - "docs / corpus / unknown-term-silent-success.test.js"
+### Community 659 - "docs / corpus / unknown-term-silent-success.test.js"
 Cohesion: 0.33
 Nodes (5): assert, { execFileSync }, path, SCRIPT, test
 
-### Community 689 - "packages / client-vue / src"
-Cohesion: 0.40
-Nodes (5): cardTestAttrs, doEdit(), emits, props, { t }
-
-### Community 690 - "packages / headless / src"
+### Community 660 - "packages / headless / src"
 Cohesion: 0.47
 Nodes (5): ACTIONS_SOURCE, INPUT_TAKING, memberBelow(), NON_MEMBER_TOKENS, scenarioTags()
 
-### Community 691 - "packages / headless / src"
+### Community 661 - "packages / headless / src"
 Cohesion: 0.33
 Nodes (3): COLOCATED_FEATURE, DEFERRED, ADR-0020
 
-### Community 692 - "packages / headless / src"
+### Community 662 - "packages / headless / src"
 Cohesion: 0.33
 Nodes (3): COLOCATED_FEATURE, DEFERRED, ADR-0020
 
-### Community 693 - "packages / headless / src"
+### Community 663 - "packages / headless / src"
 Cohesion: 0.33
 Nodes (3): COLOCATED_FEATURE, DEFERRED, ADR-0020
 
-### Community 694 - "packages / headless / src"
+### Community 664 - "packages / headless / src"
 Cohesion: 0.33
-Nodes (5): actorForA, h, productA, productB, ADR-0021
+Nodes (4): cart, express, funnels, onePage
 
-### Community 695 - "packages / headless / src"
+### Community 665 - "packages / headless / src"
 Cohesion: 0.33
 Nodes (3): COLOCATED_FEATURE, DEFERRED, ADR-0020
 
-### Community 696 - "tests / journeys / vitest.journeys.config.ts"
+### Community 666 - "tests / journeys / vitest.journeys.config.ts"
 Cohesion: 0.33
 Nodes (4): alias, headlessDepAliases, headlessPkg, require
 
-### Community 697 - "design-system / packages / ui"
+### Community 667 - "design-system / packages / ui"
 Cohesion: 0.40
 Nodes (5): scripts, build, build:registry, test, typecheck
 
-### Community 698 - "design-system / packages / ui"
-Cohesion: 0.40
-Nodes (4): SeriesRenderSpec, activeMarker, props, ChartSeriesProps
-
-### Community 699 - "design-system / packages / ui"
+### Community 669 - "design-system / packages / ui"
 Cohesion: 0.40
 Nodes (4): delegatedProps, forwarded, props, ComboboxEmptyProps
 
-### Community 700 - "design-system / packages / ui"
+### Community 670 - "design-system / packages / ui"
 Cohesion: 0.40
 Nodes (4): delegatedProps, forwarded, props, ComboboxGroupProps
 
-### Community 701 - "design-system / packages / ui"
+### Community 671 - "design-system / packages / ui"
 Cohesion: 0.40
 Nodes (4): delegatedProps, forwarded, props, ComboboxLabelProps
 
-### Community 702 - "design-system / packages / ui"
+### Community 672 - "design-system / packages / ui"
 Cohesion: 0.40
-Nodes (4): delegatedProps, forwarded, props, CommandGroupProps
+Nodes (4): delegatedProps, forwarded, props, DropdownMenuLabelProps
 
-### Community 703 - "design-system / packages / ui"
+### Community 673 - "design-system / packages / ui"
 Cohesion: 0.40
-Nodes (4): delegatedProps, forwarded, props, CommandSeparatorProps
+Nodes (4): delegatedProps, forwarded, props, DropdownMenuSeparatorProps
 
-### Community 704 - "design-system / packages / ui"
+### Community 674 - "design-system / packages / ui"
 Cohesion: 0.40
-Nodes (4): delegatedProps, forwarded, props, ContextMenuSeparatorProps
+Nodes (4): delegatedProps, forwarded, props, DropdownMenuSubTriggerProps
 
-### Community 706 - "design-system / packages / ui"
-Cohesion: 0.40
-Nodes (4): delegatedProps, forwarded, props, StepperItemProps
-
-### Community 707 - "design-system / packages / ui"
-Cohesion: 0.40
-Nodes (4): delegatedProps, emits, forwarded, props
-
-### Community 708 - "design-system / packages / ui"
-Cohesion: 0.40
-Nodes (4): delegatedProps, forwarded, props, StepperSeparatorProps
-
-### Community 709 - "design-system / packages / ui"
-Cohesion: 0.40
-Nodes (4): delegatedProps, forwarded, props, StepperTitleProps
-
-### Community 710 - "design-system / packages / ui"
-Cohesion: 0.40
-Nodes (4): delegatedProps, forwarded, props, StepperTriggerProps
-
-### Community 711 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (4): render(), schema, settle(), uischema
-
-### Community 712 - "docs / tsdoc.json"
+### Community 676 - "docs / tsdoc.json"
 Cohesion: 0.40
 Nodes (4): extends, $schema, tagDefinitions, typedoc/tsdoc.json
 
-### Community 713 - "packages / headless / src"
+### Community 677 - "packages / headless / src"
 Cohesion: 0.40
 Nodes (3): FOUNDATION_FILE, GLOSSARY_FILE, GOTCHAS_FILE
 
-### Community 714 - "playgrounds / labs-nuxt / app"
+### Community 679 - "playgrounds / labs-nuxt / app"
 Cohesion: 0.40
 Nodes (4): #app, PageMeta, ParsedDomain, psl
 
-### Community 715 - "playgrounds / labs-nuxt / modules"
+### Community 680 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.40
 Nodes (3): model, schema, uischema
 
-### Community 716 - "playgrounds / labs-nuxt / vitest.config.ts"
+### Community 681 - "playgrounds / labs-nuxt / vitest.config.ts"
 Cohesion: 0.40
 Nodes (4): alias, auditInclude, base, root
 
-### Community 720 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, CalendarCellProps
-
-### Community 721 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, CalendarGridProps
-
-### Community 722 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, CalendarGridRowProps
-
-### Community 723 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, CalendarHeaderProps
-
-### Community 724 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, RangeCalendarCellTriggerProps
-
-### Community 725 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, RangeCalendarGridProps
-
-### Community 726 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, RangeCalendarGridRowProps
-
-### Community 727 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, RangeCalendarNextButtonProps
-
-### Community 728 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): delegatedProps, props, RangeCalendarPrevButtonProps
-
-### Community 729 - "design-system / packages / ui"
+### Community 686 - "design-system / packages / ui"
 Cohesion: 0.50
 Nodes (3): emits, forwarded, props
 
-### Community 731 - "design-system / packages / ui"
+### Community 687 - "design-system / packages / ui"
+Cohesion: 0.50
+Nodes (3): emits, forwarded, props
+
+### Community 689 - "design-system / packages / ui"
 Cohesion: 0.50
 Nodes (3): delegatedProps, props, NumberFieldInputProps
 
-### Community 732 - "design-system / packages / ui"
-Cohesion: 0.50
-Nodes (3): emits, forwarded, props
-
-### Community 733 - "packages / client-vue / src"
-Cohesion: 0.50
-Nodes (3): props, renewalDescription, { t }
-
-### Community 736 - "packages / headless / src"
-Cohesion: 0.67
-Nodes (3): bootAddresses(), bootContext(), ClientAddressesInstance
-
-### Community 738 - "packages / headless / src"
+### Community 693 - "packages / headless / src"
 Cohesion: 0.50
 Nodes (3): PLAYGROUND_ROOT, REMOVED_PAGES, ROUTES_FILE
 
-### Community 739 - "packages / headless / src"
+### Community 694 - "packages / headless / src"
 Cohesion: 0.50
 Nodes (3): SCENARIO_DIR, SCENARIO_FILE, STEPS_FILE
 
-### Community 741 - "packages / scenario-harness / src"
+### Community 696 - "packages / scenario-harness / src"
 Cohesion: 0.50
 Nodes (3): allDeclaredDependencies, packageJson, packageJsonPath
 
-### Community 742 - "playgrounds / labs-nuxt / app"
-Cohesion: 0.50
-Nodes (3): labs(), registerFunnels(), registerFunnels()
-
-### Community 743 - "playgrounds / labs-nuxt / modules"
+### Community 697 - "playgrounds / labs-nuxt / modules"
 Cohesion: 0.50
 Nodes (3): declared, proofs, scenarios
 
 ## Knowledge Gaps
-- **13341 isolated node(s):** `name`, `private`, `version`, `description`, `Upmind` (+13336 more)
+- **13356 isolated node(s):** `name`, `private`, `version`, `description`, `Upmind` (+13351 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **123 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **129 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ScopeActorTypes` connect `packages / src / headless` to `src / packages / headless`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `packages / headless / src`, `packages / src / headless`, `playgrounds / labs / src`, `src / packages / modules`, `packages / headless / src`, `packages / src / headless`, `packages / headless / src`, `packages / src / modules`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `playgrounds / labs / src`, `packages / headless / src`, `playgrounds / labs-nuxt / app`, `playgrounds / labs-nuxt / modules`, `src / packages / headless`, `playgrounds / labs-nuxt / app`, `packages / headless / src`, `playgrounds / labs-nuxt / app`, `packages / client-vue / src`, `packages / client-vue / src`, `playgrounds / labs-nuxt / app`, `scenario-harness / packages / src`, `src / packages / modules`, `src / packages / client-vue`, `src / packages / headless`, `packages / headless / src`, `packages / headless / src`, `src / packages / headless`, `packages / client-vue / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `scenario-harness / packages / src`, `src / playgrounds / labs`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `src / packages / headless`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs-nuxt / app`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs-nuxt / app`, `packages / src / headless`, `packages / client-vue / src`, `playgrounds / labs-nuxt / app`, `packages / headless / src`, `packages / client-vue / src`, `src / packages / modules`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `modules / packages / src`, `playgrounds / labs-nuxt / modules`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Why does `UseActiveSession` connect `packages / headless / src` to `packages / src / headless`, `src / packages / headless`, `packages / src / headless`, `src / packages / client-vue`, `packages / src / headless`, `packages / headless / src`, `src / packages / modules`, `packages / src / modules`, `packages / src / headless`, `packages / headless / src`, `packages / headless / src`, `packages / src / client-vue`, `packages / headless / src`, `packages / src / design-system`, `playgrounds / labs / src`, `packages / src / client-vue`, `playgrounds / labs-nuxt / app`, `apps / src / pages`, `src / packages / headless`, `src / packages / playgrounds`, `packages / headless / src`, `playgrounds / labs-nuxt / app`, `src / packages / headless`, `packages / headless / src`, `packages / headless / src`, `src / packages / headless`, `src / packages / client-vue`, `packages / client-vue / src`, `src / apps / hosting`, `apps / src / cart`, `src / playgrounds / labs`, `src / packages / apps`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs / src`, `playgrounds / labs-nuxt / app`, `packages / client-vue / src`, `src / packages / modules`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`?**
+- **Why does `ScopeActorTypes` connect `src / packages / headless` to `packages / client-vue / src`, `packages / headless / src`, `src / packages / headless`, `packages / src / headless`, `packages / src / modules`, `packages / headless / src`, `packages / src / headless`, `src / packages / headless`, `packages / src / headless`, `playgrounds / labs-nuxt / app`, `playgrounds / labs-nuxt / app`, `playgrounds / labs-nuxt / modules`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `src / packages / client-vue`, `playgrounds / labs-nuxt / app`, `scenario-harness / packages / src`, `src / packages / client-vue`, `playgrounds / labs-nuxt / modules`, `packages / src / headless`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `playgrounds / labs-nuxt / modules`, `packages / headless / src`, `src / packages / headless`, `packages / headless / src`, `modules / playgrounds / labs-nuxt`, `packages / headless / src`, `packages / src / headless`, `src / packages / modules`, `packages / headless / src`, `src / packages / modules`, `playgrounds / labs / src`, `src / packages / apps`, `packages / headless / src`, `playgrounds / labs-nuxt / app`, `packages / client-vue / src`, `packages / headless / src`, `src / playgrounds / labs`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `packages / client-vue / src`, `playgrounds / labs-nuxt / app`, `packages / headless / src`, `packages / src / headless`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `packages / client-vue / src`, `packages / headless / src`, `design-system / packages / ui`, `packages / headless / src`, `packages / headless / src`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `UseActiveSession` connect `src / packages / apps` to `packages / client-vue / src`, `packages / headless / src`, `src / packages / headless`, `packages / src / headless`, `packages / headless / src`, `playgrounds / labs-nuxt / app`, `packages / src / headless`, `packages / src / headless`, `playgrounds / labs-nuxt / app`, `packages / headless / src`, `packages / headless / src`, `src / apps / pages`, `packages / headless / src`, `src / packages / client-vue`, `packages / src / headless`, `packages / headless / src`, `src / packages / headless`, `packages / headless / src`, `tests / journeys / storefront`, `src / packages / headless`, `packages / headless / src`, `packages / src / headless`, `packages / src / headless`, `packages / src / headless`, `packages / src / client-vue`, `packages / headless / src`, `src / packages / modules`, `src / packages / client-vue`, `packages / src / headless`, `src / apps / hosting`, `src / apps / packages`, `packages / client-vue / src`, `packages / headless / src`, `packages / src / client-vue`, `src / playgrounds / labs`, `src / packages / client-vue`, `apps / cart / src`, `packages / headless / src`, `pages / src / playgrounds`, `packages / headless / src`, `playgrounds / labs / src`, `packages / headless / src`, `packages / headless / src`, `packages / headless / src`, `design-system / packages / ui`, `packages / headless / src`?**
   _High betweenness centrality (0.010) - this node is a cross-community bridge._
-- **Why does `Icon` connect `src / packages / client-vue` to `src / packages / design-system`, `packages / client-vue / src`, `src / packages / headless`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `src / packages / modules`, `packages / client-vue / src`, `packages / src / design-system`, `packages / src / client-vue`, `packages / client-vue / src`, `packages / src / modules`, `packages / src / design-system`, `packages / src / modules`, `packages / src / client-vue`, `packages / src / modules`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `src / packages / modules`, `src / packages / client-vue`, `src / packages / client-vue`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `src / packages / pages`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `src / packages / apps`, `packages / src / modules`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / src / client-vue`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`, `packages / client-vue / src`?**
+- **Why does `responseCodes` connect `packages / headless / src` to `src / packages / modules`, `packages / src / headless`, `packages / src / modules`, `src / packages / client-vue`, `packages / src / headless`, `src / packages / headless`, `packages / src / headless`, `packages / src / client-vue`, `packages / client-vue / src`, `packages / src / headless`, `packages / headless / src`, `playgrounds / labs-nuxt / modules`, `packages / headless / src`, `packages / src / headless`, `packages / src / headless`, `packages / headless / src`, `packages / src / headless`, `packages / src / headless`, `packages / client-vue / src`, `packages / headless / src`, `packages / headless / src`, `packages / src / headless`, `packages / headless / src`, `packages / headless / src`, `packages / client-vue / src`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
-  _13341 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `packages / src / headless` be split into smaller, more focused modules?**
-  _Cohesion score 0.026587657401270906 - nodes in this community are weakly interconnected._
-- **Should `src / packages / headless` be split into smaller, more focused modules?**
-  _Cohesion score 0.0356994603569946 - nodes in this community are weakly interconnected._
-- **Should `packages / src / types` be split into smaller, more focused modules?**
-  _Cohesion score 0.03648008911166806 - nodes in this community are weakly interconnected._
+  _13356 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `src / packages / modules` be split into smaller, more focused modules?**
+  _Cohesion score 0.030664042266652855 - nodes in this community are weakly interconnected._
+- **Should `playgrounds / labs-nuxt / modules` be split into smaller, more focused modules?**
+  _Cohesion score 0.02292642601267567 - nodes in this community are weakly interconnected._
+- **Should `packages / headless / src` be split into smaller, more focused modules?**
+  _Cohesion score 0.034468263976460696 - nodes in this community are weakly interconnected._

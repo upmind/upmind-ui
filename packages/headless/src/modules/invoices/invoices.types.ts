@@ -13,6 +13,10 @@
  * `invoices.types.ts:8-16` and are REUSED here, not re-minted. A fourth,
  * `"InvoiceStatusGroups CreditNoteStatus InvoiceCategoryCode"`, confirms all
  * three already exist in `packages/types` and are imported, not re-declared.
+ * A fifth, `"InvoicesServices downloadPdf invoice PDF download blob"`
+ * (2026-09-09), returns only this module's own pre-existing nodes — no
+ * `downloadPdf` member anywhere in the tree, so `InvoicesServices.downloadPdf`
+ * below is new ground, not a duplicate.
  * See `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------
@@ -580,6 +584,15 @@ export type InvoicesServices = {
     invoiceId: Invoice["id"],
     model: InvoicePaymentDetailsModel
   ) => Promise<unknown>;
+  /**
+   * AC A — downloads this invoice's raw PDF blob via
+   * `GET invoices/{id}/download`. A credit note is an invoice with a
+   * different `category` and rides the SAME reader (no branch). The CALLER
+   * derives the save filename from the already-loaded invoice's `number`
+   * (`useInvoice.actions.ts`), never this layer. Not a new type — see this
+   * file's head `graphify-out/` citation, re-queried for `downloadPdf`.
+   */
+  downloadPdf: (invoiceId: Invoice["id"]) => Promise<Blob>;
 };
 
 /**

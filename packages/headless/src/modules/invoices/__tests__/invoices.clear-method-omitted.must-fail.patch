@@ -8,16 +8,26 @@
 # Re-rolled 2026-09-08 (developer, FE-3031 H1 durability repair): the import
 # block grew a `has` import (the `withDurableClientId` H1 fix) directly below
 # the anchor line this patch inserts above — same mutation, new line anchors.
+#
+# Re-rolled 2026-09-09 (developer, FE-3031 AC A/AC B dispatch): the
+# `../../utils` import widened to a multi-line block (`DetailedError`,
+# `ErrorOrigin` joined `useTime`/`NotAuthenticatedError` for AC A's PDF
+# download) and a `useLocale` import landed above it — same mutation, new
+# line anchors again.
 --- a/packages/headless/src/modules/invoices/invoices.services.ts
 +++ b/packages/headless/src/modules/invoices/invoices.services.ts
-@@ -11,5 +11,6 @@
- } from "./invoices.schemas";
+@@ -13,9 +13,10 @@
  import { InvoicesContextTypes } from "./invoices.types";
- import { useTime, NotAuthenticatedError } from "../../utils";
+ import {
+   useTime,
+   DetailedError,
+   ErrorOrigin,
+   NotAuthenticatedError
+ } from "../../utils";
 +import { isNil, omitBy } from "lodash-es";
  import { has } from "lodash-es";
  import type { ScopeContext } from "../scope";
-@@ -447,7 +448,7 @@
+@@ -482,7 +483,7 @@
    return patch({
      mutationKey: [...queryKey, invoiceId, "payment_details"],
      url: useUrl(`invoices/${invoiceId}/payment_details`),

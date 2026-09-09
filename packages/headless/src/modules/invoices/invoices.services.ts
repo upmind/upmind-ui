@@ -3,6 +3,7 @@ import { keepPreviousData } from "@tanstack/vue-query";
 import { computed, ref, unref, watch } from "vue";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
+import { useLocale } from "../system-localisation";
 import { mapInvoice, mapInvoices, mapUnpaidAmount } from "./invoices.mappers";
 import {
   consolidatableCountCriteria,
@@ -10,7 +11,12 @@ import {
   UNPAID_EXISTENCE_CRITERIA
 } from "./invoices.schemas";
 import { InvoicesContextTypes } from "./invoices.types";
-import { useTime, NotAuthenticatedError } from "../../utils";
+import {
+  useTime,
+  DetailedError,
+  ErrorOrigin,
+  NotAuthenticatedError
+} from "../../utils";
 import { has } from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
@@ -481,6 +487,62 @@ function updatePaymentDetails(
   });
 }
 
+/**
+ * AC A's PDF download — `GET invoices/{id}/download` as a blob (`oracle:
+ * pdfs.ts:16-24,28-41`; `invoiceProvider.vue:448-475`). Credit notes are
+ * invoices with a different `category` (`design.md`) — this reader takes
+ * only an id and never branches on it. Scoped through the SAME
+ * `resolveClientId`/`isAddressable` seam every other request in this file
+ * uses; the caller (`useInvoice.actions.ts`) derives the save filename from
+ * the already-loaded invoice's `number`.
+ *
+ * @decision
+ * what: a hand-rolled `fetch`, not `useQuery().request()`.
+ * why: `request()` -> `doFetch` (`query.services.ts:50-61`) unconditionally
+ * calls `response.json()` — there is no blob/arraybuffer arm, and
+ * `packages/headless/src/modules/query/**` is untouchable (operator ruling
+ * 2026-09-08, verbatim "do not chnage any query stuff"). The URL
+ * (`useUrl`), the locale param, and the session's own access token are the
+ * SAME seam `request()` itself reads, consumed directly rather than
+ * re-derived — only the response-body branch a binary payload needs is new.
+ * rejected: adding a `responseType` option to `request()`/`doFetch` — the
+ * exact query-core change the 2026-09-08 ruling withdraws.
+ */
+async function downloadPdf(
+  invoiceId: Invoice["id"],
+  scopeContext?: ScopeContext
+): Promise<Blob> {
+  const { useUrl } = useQuery();
+  const { locale } = useLocale();
+  const clientId = resolveClientId(scopeContext);
+
+  if (!isAddressable(clientId.value)) throw new NotAuthenticatedError();
+
+  const url = useUrl(`invoices/${invoiceId}/download`);
+  if (locale.value) url.searchParams.set("lang", locale.value as string);
+
+  const token = await useActiveSession()
+    .useActions()
+    .isReady()
+    .then(() => useActiveSession().useContext().session.value?.access_token);
+
+  const response = await fetch(url.toString(), {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => undefined);
+    throw new DetailedError(
+      body?.error?.message ?? response.statusText,
+      response.status,
+      ErrorOrigin.Headless,
+      body?.error?.data
+    );
+  }
+
+  return response.blob();
+}
+
 // -----------------------------------------------------------------------------
 // Scope-Ready Services
 
@@ -549,6 +611,7 @@ export const createInvoicesServices = (
       consolidatableCountRequested.value = true;
     },
     updatePaymentDetails,
+    downloadPdf: invoiceId => downloadPdf(invoiceId, scopeContext),
     ...scopedServices(scopeActor, scopeContext)
   };
 };
