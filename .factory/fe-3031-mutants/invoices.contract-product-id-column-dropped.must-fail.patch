@@ -1,0 +1,73 @@
+Negative control for invoices-contract-product-id-wire.test.ts (FE-3031's
+mid-run AC B — the LIST filter set names the per-product column explicitly).
+
+Authored by the developer seat (`agent-seat-separation.companion.md`,
+developer-authors-mutant / prover-verifies-blind) — it knows the exact line
+it mutates; the prover applies this blind and reverts, never reading
+`invoices.schemas.ts` to construct it.
+
+Assertion it attacks: the declared `products.contracts_product_id` filter
+column reaching the wire under the API's own accepted key
+(`filter[products.contracts_product_id|eq]`), post-`translateQuery` — the
+exact class of defect this story's own `setCriteria` silent-strip incident
+established: a declared column can look correct on the model and still be
+stripped with no ajv error by `additionalProperties: false`, so the
+assertion must be post-wire, never pre-.
+
+Mutation: removes the `"products.contracts_product_id"` property from the
+`filters` branch of `useQuerySchema()` (`invoices.schemas.ts`) — the same
+class of mutation as the already-verified `invoices.scope.retarget-drop`
+control (deletes a declared filter column outright), scoped to a different
+column and a different colocated test file.
+
+Verified by hand before filing (developer seat, source-read; the prover
+verifies the RED blind, per `agent-seat-separation.companion.md`): applying
+this mutation and running
+`pnpm --filter @upmind-automation/client-vue test -- invoices-contract-product-id-wire.test.ts`
+reddens all 3 assertions in the file — the schema-declaration check, the
+wire-pin check, and the fairness control — because all three read the same
+now-absent schema property. Breadth here is inherent to the capability, not
+a sign of an over-broad mutant: every assertion this file carries is a
+DIFFERENT angle on the SAME single declared column, so removing that one
+column legitimately reddens the file's whole 3-test surface, exactly the
+precedent `invoices.scope.retarget-drop` already sets for a dropped
+declared column. Graded on flipping its OWN file's assertions, not on the
+count.
+
+Apply from the repo root: `git apply <this file>`; revert with
+`git apply -R`.
+
+Proven RED 2026-09-09
+(`pnpm --filter @upmind-automation/client-vue test -- invoices-contract-product-id-wire.test.ts`):
+  x the invoices module's published schema declares
+    products.contracts_product_id > the column is declared under filters, so
+    additionalProperties:false cannot silently strip it
+      -> AssertionError: expected undefined to be defined
+  x scoping by product reaches the wire under the API's own key (AC B) >
+    setting products.contracts_product_id|eq on the model reaches the wire
+    as filter[products.contracts_product_id|eq], post-translateQuery
+      -> AssertionError: expected undefined to be 'product-scope-001'
+  x scoping by product reaches the wire under the API's own key (AC B) >
+    FAIRNESS CONTROL — an unset products.contracts_product_id reaches the
+    wire as the declared key, present and empty, never absent
+      -> AssertionError: expected false to be true
+  Test Files  1 failed | 14 passed (15)
+       Tests  3 failed | 139 passed (142)
+
+diff --git a/packages/headless/src/modules/invoices/invoices.schemas.ts b/packages/headless/src/modules/invoices/invoices.schemas.ts
+index fc77bfdcf..51268eb12 100644
+--- a/packages/headless/src/modules/invoices/invoices.schemas.ts
++++ b/packages/headless/src/modules/invoices/invoices.schemas.ts
+@@ -207,12 +207,6 @@ export function useQuerySchema(): InvoiceQuerySchema {
+             title: "invoices.filter.contract_id",
+             additionalProperties: false,
+             properties: { eq: { type: ["string", "null"], minLength: 1 } }
+-          },
+-          "products.contracts_product_id": {
+-            type: "object",
+-            title: "invoices.filter.contracts_product_id",
+-            additionalProperties: false,
+-            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+           }
+         }
+       },
