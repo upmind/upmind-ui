@@ -1,0 +1,78 @@
+Negative control for the StringsRenderer facet-write fix (FE-3031, operator
+sign-off 2026-09-09, "Authorise the one-line client-vue fix").
+
+Assertion it attacks: "drives status then category and prints/asserts the
+model" — after clicking a status tile then a category tile, the criteria
+model carries `filters.status.code.in` and `filters.category.slug.in` with
+the driven values.
+
+PROVING ASSERTION EXISTS YET: NO. No committed test in
+`packages/client-vue/src/**/__tests__/` or
+`playgrounds/labs-nuxt/modules/scenarios/__tests__/` yet drives a facet tile
+and reads the criteria model back (that gate is the prover's, named in this
+story's "Not yours" list). The assertion named above lives today only in the
+developer's own ephemeral driving-proof script used to prove this fix works
+(`mountFilters` from `packages/client-vue/src/components/form/renderers/__tests__/filter.harness.ts`,
+driven against a transcribed copy of the invoices `status.code.in` /
+`category.slug.in` facet schema — transcribed, not imported, because
+`invoices.schemas.ts` is `@internal`). When the prover lands the permanent
+gate, this patch attacks its facet-write assertion the same way; until then
+it is proven red against the developer's own script, as recorded below.
+
+Mutation: restores the ORIGINAL no-op `handleChange: () => {}` this story
+fixed — the whole-selection write `onInput` hands off is swallowed again, so
+neither facet's click ever reaches the criteria model.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-09-09 (developer's ephemeral driving-proof script, run via
+`npx vitest run --config <scratch-config pointing test.include at the
+developer's proof file>` from `packages/client-vue`; command and full log
+filed in the developer HANDOFF, not committed):
+  x developer driving proof — StringsRenderer facet write > drives status
+    then category and prints/asserts the model
+      -> AssertionError: expected undefined to deeply equal [ 'unpaid', 'paid' ]
+
+--- a/packages/client-vue/src/components/form/engine/renderers/array/StringsRenderer.vue
++++ b/packages/client-vue/src/components/form/engine/renderers/array/StringsRenderer.vue
+@@ -28,38 +28,15 @@ import { OptionTileGroup, OptionTile } from "@upmind/ui";
+ import { computed } from "vue";
+ import FormField from "../../FormField.vue";
+ import { useUpmindUIRenderer } from "../utils";
+-import { difference, forEach } from "lodash-es";
+ import type { ControlElement, JsonSchema } from "@jsonforms/core";
+ import type { RendererProps } from "@jsonforms/vue";
+ // ----------------------------------------------
+ const props = defineProps<RendererProps<ControlElement>>();
+
+-const multiEnumControl = useJsonFormsMultiEnumControl(props);
+-
+-/**
+- * `useJsonFormsMultiEnumControl` dispatches via `addItem`/`removeItem` (one
+- * value at a time) and never returns a `handleChange` — `useUpmindUIRenderer`
+- * requires one, so this replays the tile group's whole-next-selection write
+- * as the add/remove calls JSONForms' multi-enum control actually understands.
+- */
+-const handleChange = (path: string, value: unknown) => {
+-  const next = Array.isArray(value) ? value : [];
+-  const current = Array.isArray(multiEnumControl.control.value.data)
+-    ? multiEnumControl.control.value.data
+-    : [];
+-
+-  forEach(difference(next, current), item =>
+-    multiEnumControl.addItem(path, item)
+-  );
+-  forEach(difference(current, next), item =>
+-    multiEnumControl.removeItem?.(path, item)
+-  );
+-};
+-
+ const { control, appliedOptions, formFieldProps, onInput } =
+   useUpmindUIRenderer({
+-    ...multiEnumControl,
+-    handleChange
++    ...useJsonFormsMultiEnumControl(props),
++    handleChange: () => {} // Provide a default handleChange function
+   });
+
+ const items = computed(

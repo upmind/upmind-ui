@@ -28,15 +28,38 @@ import { OptionTileGroup, OptionTile } from "@upmind/ui";
 import { computed } from "vue";
 import FormField from "../../FormField.vue";
 import { useUpmindUIRenderer } from "../utils";
+import { difference, forEach } from "lodash-es";
 import type { ControlElement, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
+const multiEnumControl = useJsonFormsMultiEnumControl(props);
+
+/**
+ * `useJsonFormsMultiEnumControl` dispatches via `addItem`/`removeItem` (one
+ * value at a time) and never returns a `handleChange` — `useUpmindUIRenderer`
+ * requires one, so this replays the tile group's whole-next-selection write
+ * as the add/remove calls JSONForms' multi-enum control actually understands.
+ */
+const handleChange = (path: string, value: unknown) => {
+  const next = Array.isArray(value) ? value : [];
+  const current = Array.isArray(multiEnumControl.control.value.data)
+    ? multiEnumControl.control.value.data
+    : [];
+
+  forEach(difference(next, current), item =>
+    multiEnumControl.addItem(path, item)
+  );
+  forEach(difference(current, next), item =>
+    multiEnumControl.removeItem?.(path, item)
+  );
+};
+
 const { control, appliedOptions, formFieldProps, onInput } =
   useUpmindUIRenderer({
-    ...useJsonFormsMultiEnumControl(props),
-    handleChange: () => {} // Provide a default handleChange function
+    ...multiEnumControl,
+    handleChange
   });
 
 const items = computed(
