@@ -13,26 +13,35 @@
 # client, blocker H1) was cleared 2026-09-08 against the landed fix at
 # a46d8a6d7 and its green read-back.
 #
-# CAPABILITY ROWS: 12 (R01-R12). All 12 carry a disposition, so undispositioned
+# CAPABILITY ROWS: 14 (R01-R14). All 14 carry a disposition, so undispositioned
 # ROW count = 0: R12 was signed by the operator on 2026-09-08. Both formerly
 # open items are recorded CLOSED in review-notes.md as H1 and H2. Hand-graded
 # 2026-09-08 — ci/lint-plan-compliance.mjs does not exist in this repo (plugin
 # cache only), and its parity parser grades CELLS only (its loop breaks at the
 # first top-level key, so this `rows:` block is never parsed). The hand grade
 # is the load-bearing one.
+#
+# R13 AND R14 ADDED 2026-09-09 for AC17 and AC18, the two acceptance criteria
+# APPENDED TO THE LINEAR ISSUE MID-RUN at 12:17 under its own heading "Added
+# 2026-09-09 (audit U8, D11)". No gate of this run saw them, because nobody
+# re-read the issue after intake; the terminal JTBD readback graded the JTBD as
+# it stood AT INTAKE, and that verdict is NOT re-opened here. Both new rows are
+# Direct, so the Dropped census and the operator-signoff census are unchanged.
+# Both carry an explicit PROOF STATE: each AC's read-back measured 0 tests / 0
+# files on 2026-09-09 and is RED pending the prover dispatch.
 
 cells:
   - actor: client
     context: self
     disposition: Direct
-    legacy: "oracle:25-33 contextual->api/invoices; :227-238 list; :239-249 get; :250-276 getWithParams (its with= array at :255-268); :288-301 updatePaymentDetails; :553-573 hasUnpaid; :574-592 getConsolidatableTotal; :621-632 getUnpaidConvertedAmount"
-    notes: "The reading client's own id resolves from activeUser through the shared resolveClientId seam. Serves AC1-AC11."
+    legacy: "oracle:25-33 contextual->api/invoices; :227-238 list; :239-249 get; :250-276 getWithParams (its with= array at :255-268); :288-301 updatePaymentDetails; :553-573 hasUnpaid; :574-592 getConsolidatableTotal; :621-632 getUnpaidConvertedAmount. ADDED 2026-09-09 with AC17/AC18: the SIBLING ORACLE FILE store/modules/data/invoices/pdfs.ts - its own contextual->api/invoices getter at pdfs.ts:15-25, the download action at :27-41 and the save half tryDownload at :58-77 (row R13); and cProdProvider.vue:951-971, whose filter[products.contracts_product_id] at :961 is the per-product narrowing of this same contextual list (row R14)."
+    notes: "The reading client's own id resolves from activeUser through the shared resolveClientId seam. Serves AC1-AC11. Serves AC17-AC18 from 2026-09-09. The PDF download rides the SAME resolveClientId seam (invoices.services.ts:517) behind the SAME isAddressable gate (:519) as every other request in the factory, so this cell covers it with no new mechanism. NOTHING IN THIS CELL WAS WEAKENED to admit the two new ACs - the sentence above is byte-identical to its 2026-09-08 form."
 
   - actor: client
     context: client
     disposition: Direct
     legacy: "oracle:561-563 (conditional filter[client_id] on hasUnpaid) and :585 (unconditional filter[client_id] on getConsolidatableTotal), both on apiPath().contextual (:25-33); :137-142 belongsToChildOfClient; :143-146 belongsToDelegate"
-    notes: "IN SCOPE per operator ruling 2026-09-01 'In - run both client cells'. Retarget is a DECLARED client_id filter column on the one useQuerySchema() (invoices.schemas.ts:68-73), never a path change and never a hand-appended param - the client lane has no api/clients/{id}/invoices route. Row attribution (own/sub-account/delegated) is the second half of this cell, see row R02. Serves AC12-AC13. RE-STATED 2026-09-08 (3rd correction) AGAINST THE LANDED CODE at a46d8a6d7, after Review blockers B1/B2 and planner finding H1 - all three now CLOSED. THE CELL IS DECLARED BY THREE READS; the Direct disposition is graded against all three, each with its landed receipt. (1) LIST - loadList (invoices.services.ts:232-261) calls trackClientIdFilter(handle, clientId) (:258, helper :137-152), which watches the resolved target with { immediate: true } and applies setCriteria({ filters: { ...handle.criteria.value.filters, client_id: { eq: value } } }) on the declared column; loadList then returns withDurableClientId(handle, clientId) (:260, helper :195-215), so what every published verb shares is a handle whose client_id column is DURABLE rather than a mint-time seed - each filters-branch write that OMITS client_id has it re-asserted inside the CALLER'S OWN filters object (:208-211), while a caller that DECLARES client_id explicitly still wins (:203), which keeps setCriteria's own manual-retarget door open. The retarget and the select attribution input (:253) therefore agree on every write, not just the first. (2) UNPAID-EXISTENCE - loadUnpaidExistence (:369-397) calls the same tracking helper (:394); its criteria object is private to the factory, so no published verb can replace its filters branch. This is the oracle's own conditional seeding at oracle:561-563, reproduced. (3) CONSOLIDATABLE-COUNT - loadConsolidatableCount (:415-446) seeds client_id at mint through consolidatableCountCriteria(clientId.value) (:425) AND calls the tracking helper (:443), so a self-scope whose id resolves after construction is covered too; its criteria object is likewise private. This is the oracle's unconditional filter[client_id] at oracle:585, reproduced. EXECUTABLE RECEIPT: invoices.scope-identity.int.test.ts:261-382 - five request-contract assertions on a .for(client, X) scope covering filterCreditNotes(), a bare setCriteria({ filters }) write, an explicit caller-declared client_id (the manual door), sortBy() and filterConsolidatable(); the file ran 11/11 green on 2026-09-08. WHY THE HISTORY IS KEPT BELOW: this row was mis-graded Direct TWICE, and the record of how is worth more than a clean row. Neither paragraph describes a live defect. (i) 1st pass disclosed only that loadList did not auto-seed the filter and was SILENT on the half that made the answer wrong - loadList passed the retargeted id into select: raw => mapInvoices(raw, clientId.value), so a .for(client, X) list fetched the READER'S rows and attributed them against X (Review blocker B2), while loadUnpaidExistence applied no client_id at all and had no caller-side remedy, the handle never leaving the factory (B1). Neither was 'reachable as documented'; both were wrong answers. (ii) 2nd pass seeded the column at mint but did not make it DURABLE: criteria.set MERGES AT BRANCH LEVEL - 'set({ filters }) replaces the whole filters branch' (packages/headless/src/modules/query/useQueryCriteria.ts:100-101, implementation :111-123) - and trackClientIdFilter watches clientId, which does not change after a mint, so it never re-applied. Two published verbs therefore re-widened the list to the reader's rows while select still attributed against X: useActions().filterCreditNotes() (useInvoices.actions.ts:168-170; its preset creditNotesCriteria, invoices.schemas.ts:378-390, carries no client_id) and the published useActions().setCriteria (useInvoices.actions.ts:231), which useInvoices.ts:92's own doc example calls with a bare filters branch. That was planner finding H1, filed as an open blocker rather than dispositioned away. withDurableClientId is its structural fix: it closes BOTH doors at the one shared handle instead of patching one preset, so a future preset cannot re-open the defect. blocked_by REMOVED 2026-09-08 on the landed code plus the green read-back above."
+    notes: "IN SCOPE per operator ruling 2026-09-01 'In - run both client cells'. Retarget is a DECLARED client_id filter column on the one useQuerySchema() (invoices.schemas.ts:68-73), never a path change and never a hand-appended param - the client lane has no api/clients/{id}/invoices route. Row attribution (own/sub-account/delegated) is the second half of this cell, see row R02. Serves AC12-AC13. RE-STATED 2026-09-08 (3rd correction) AGAINST THE LANDED CODE at a46d8a6d7, after Review blockers B1/B2 and planner finding H1 - all three now CLOSED. THE CELL IS DECLARED BY THREE READS; the Direct disposition is graded against all three, each with its landed receipt. (1) LIST - loadList (invoices.services.ts:232-261) calls trackClientIdFilter(handle, clientId) (:258, helper :137-152), which watches the resolved target with { immediate: true } and applies setCriteria({ filters: { ...handle.criteria.value.filters, client_id: { eq: value } } }) on the declared column; loadList then returns withDurableClientId(handle, clientId) (:260, helper :195-215), so what every published verb shares is a handle whose client_id column is DURABLE rather than a mint-time seed - each filters-branch write that OMITS client_id has it re-asserted inside the CALLER'S OWN filters object (:208-211), while a caller that DECLARES client_id explicitly still wins (:203), which keeps setCriteria's own manual-retarget door open. The retarget and the select attribution input (:253) therefore agree on every write, not just the first. (2) UNPAID-EXISTENCE - loadUnpaidExistence (:369-397) calls the same tracking helper (:394); its criteria object is private to the factory, so no published verb can replace its filters branch. This is the oracle's own conditional seeding at oracle:561-563, reproduced. (3) CONSOLIDATABLE-COUNT - loadConsolidatableCount (:415-446) seeds client_id at mint through consolidatableCountCriteria(clientId.value) (:425) AND calls the tracking helper (:443), so a self-scope whose id resolves after construction is covered too; its criteria object is likewise private. This is the oracle's unconditional filter[client_id] at oracle:585, reproduced. EXECUTABLE RECEIPT: invoices.scope-identity.int.test.ts:261-382 - five request-contract assertions on a .for(client, X) scope covering filterCreditNotes(), a bare setCriteria({ filters }) write, an explicit caller-declared client_id (the manual door), sortBy() and filterConsolidatable(); the file ran 11/11 green on 2026-09-08. WHY THE HISTORY IS KEPT BELOW: this row was mis-graded Direct TWICE, and the record of how is worth more than a clean row. Neither paragraph describes a live defect. (i) 1st pass disclosed only that loadList did not auto-seed the filter and was SILENT on the half that made the answer wrong - loadList passed the retargeted id into select: raw => mapInvoices(raw, clientId.value), so a .for(client, X) list fetched the READER'S rows and attributed them against X (Review blocker B2), while loadUnpaidExistence applied no client_id at all and had no caller-side remedy, the handle never leaving the factory (B1). Neither was 'reachable as documented'; both were wrong answers. (ii) 2nd pass seeded the column at mint but did not make it DURABLE: criteria.set MERGES AT BRANCH LEVEL - 'set({ filters }) replaces the whole filters branch' (packages/headless/src/modules/query/useQueryCriteria.ts:100-101, implementation :111-123) - and trackClientIdFilter watches clientId, which does not change after a mint, so it never re-applied. Two published verbs therefore re-widened the list to the reader's rows while select still attributed against X: useActions().filterCreditNotes() (useInvoices.actions.ts:168-170; its preset creditNotesCriteria, invoices.schemas.ts:378-390, carries no client_id) and the published useActions().setCriteria (useInvoices.actions.ts:231), which useInvoices.ts:92's own doc example calls with a bare filters branch. That was planner finding H1, filed as an open blocker rather than dispositioned away. withDurableClientId is its structural fix: it closes BOTH doors at the one shared handle instead of patching one preset, so a future preset cannot re-open the defect. blocked_by REMOVED 2026-09-08 on the landed code plus the green read-back above. ADDED 2026-09-09 (AC17/AC18, appended to the issue mid-run). AC18 is the one that touches this cell's mechanism: narrowing to a contract product is a filters-branch write, so it is exactly the H1 class, and AC18's read-back therefore requires the target client's id to still be on the request after the product narrowing - withDurableClientId (:195-215) is what makes that hold, and the assertion is stated rather than assumed. AC17 does NOT retarget: GET api/invoices/{id}/download is addressed by INVOICE id and carries no client filter, so on a .for(client, X) scope this cell shows up only as the isAddressable gate (invoices.services.ts:519) and the credential remains the READING client's own session bearer token (:524-531) - no impersonation header, no token swap. Stated so nobody reads a silent retarget into a download. The Direct disposition and every receipt above are unchanged."
 
   - actor: staff
     context: self
@@ -96,10 +105,12 @@ arms:
     reason: "ONE useQuerySchema() serves both cells - the client_id column is the same declared column whichever client fills it. No actor sees a different filter, sort or pagination vocabulary. Parity rows: client x self + client x client."
 
 # ---------------------------------------------------------------------------
-# CAPABILITY ROWS — the ten rows carried forward from the Research stage, plus
+# CAPABILITY ROWS — the ten rows carried forward from the Research stage; plus
 # R11 and R12, split out of R05 on 2026-09-08 because Review found four
-# unrequested relations listed inside R05's Direct capability.
-# R01-R12 ALL carry a disposition: R12's drop was signed by the operator on
+# unrequested relations listed inside R05's Direct capability; plus R13 and R14,
+# added 2026-09-09 for the two acceptance criteria the operator appended to the
+# issue MID-RUN (AC17 the PDF download, AC18 the contract-product column).
+# R01-R14 ALL carry a disposition: R12's drop was signed by the operator on
 # 2026-09-08 (H2 in review-notes.md, closed).
 # Undispositioned row count = 0.
 # ---------------------------------------------------------------------------
@@ -377,13 +388,13 @@ rows:
 
   - id: R08
     capability: "partial_amount_to_credit - the BARE numeric field (amount queued for credit)"
-    legacy: "invoices/docs/foundation.md:30 and :192 document it; oracle exposes it on the invoice payload"
+    legacy: "invoices/docs/foundation.md:207-216 documents the consolidation / credit / refund field block, and the bare partial_amount_to_credit field itself is at :217 inside it; the prose is :29-30. Oracle exposes it on the invoice payload. CITATION CORRECTED 2026-09-09 by operator ruling - this row cited :30 and :192. :192 is created_at, inside the payments/dates band (:183-195), which is the exact wrong range the operator called out; the issue description already carries the fix. :30 (Credit note prose) is kept but widened to :29-30, since :29 is the sentence that carries 'how much is queued for credit against it'. Verified line-exact at source by the planner seat 2026-09-09."
     disposition: Dropped-with-issue-reference
     reason: "The bare field is ABSENT from packages/types - only partial_amount_to_credit_converted (packages/types/src/models/invoices.ts:75) and _formatted (:76) are declared; a grep for the bare name across packages/types/src returns zero. packages/types is a git SUBMODULE and outside this run's write lane, so adding it is not available to this run. AC5 IS STILL MET: its capability is 'a client can see how much is queued for credit', and the _converted (display-currency numeric) plus _formatted (locale string) variants deliver exactly that quantity - the bare field is the same amount in the invoice's own currency. This is a field-variant deferral, NOT a capability narrowing, which is why it is not a HALT: a HALT would be warranted only if no served variant carried the quantity."
     signoff: "op:dom@upmind.com:2026-09-01"
     tracker: "FE-3031-TYPES-PARTIAL-AMOUNT-TO-CREDIT (Linear issue to be filed against packages/types by the operator; the submodule change is outside this story's write lane)"
     delivered_by: "AC5 - Invoice['consolidation'].amountToCreditConverted + .amountToCreditFormatted + .amountCredited"
-    notes: "Also flagged: foundation.md:192 documents a field the typed model lacks, so the module doc and packages/types disagree. Docs-stage item."
+    notes: "Also flagged: foundation.md:217 documents a field the typed model lacks, so the module doc and packages/types disagree. Docs-stage item. (Line corrected 2026-09-09 with the legacy anchor above: this said :192, which is created_at.) THE DISPOSITION, THE reason, THE signoff AND THE tracker ARE UNCHANGED - only the two doc anchors moved."
 
   - id: R09
     capability: "balance and its post-consolidation divergence from unpaid_amount"
@@ -459,6 +470,272 @@ rows:
     tracker: "none owed - the operator chose the plain sign-off over the tracked variant (ruling 2026-09-08). Recorded at H2 in review-notes.md."
     notes: "UNDISPOSITIONED ROW COUNT IS NOW 0. The honest 1 this row carried through the 2nd correction pass was deliberate and is worth keeping in the record: a false zero there would have been exactly the paperwork-as-permission failure R04 and R01/R02 already demonstrated on this story. The alternative the operator declined was to rule the two relations in scope, which would have owed an include-set entry, mapped VM fields and an AC."
 
+  - id: R13
+    capability: "Invoice PDF download - GET api/invoices/{id}/download read as a blob and saved locally as ${number}.pdf; the credit-note PDF rides the same reader"
+    legacy: >-
+      A SECOND ORACLE FILE ENTERS SCOPE WITH THIS ROW:
+      vue-app/src/store/modules/data/invoices/pdfs.ts, a sibling of the
+      index.ts this story's oracle declaration names. READ AT SOURCE 2026-09-09
+      BY THE PLANNER SEAT and cited line-exact rather than inherited.
+
+      THE REQUEST HALF. apiPath getter at pdfs.ts:15-25 - slug defaults to
+      "invoices" (:18), client = `api/${slug}` (:20), contextual = admin when
+      an admin context and not a mock-client context, else client (:21-22).
+      The download action at pdfs.ts:27-41 - Methods.GET (:33),
+      returnData: false (:34), path
+      `${getters.apiPath().contextual}/${payload?.invoiceId}/download` (:35),
+      requestConfig responseType: "arraybuffer" (:37).
+
+      THE SAVE HALF. tryDownload at pdfs.ts:58-77 - new Blob([data], { type:
+      "application/pdf;" }) (:61-63), const filename =
+      `${invoice.number}.pdf` (:64), downloadBlob(blob, filename) (:65), and a
+      404 answered with the "file is being generated" toast (:70-73) rather
+      than the generic error handler (:74).
+
+      CONSUMED AT: invoiceProvider.vue:453-481 - its download() method, whose
+      dispatch at :456 passes ONLY invoiceId, with the Blob at :461-463, the
+      filename at :464 and downloadBlob at :465; invoiceRowItem.vue:418 and
+      downloadInvoiceCta.vue:38, both dispatching tryDownload. NO consumer
+      branches on category - invoiceProvider's own isCreditNote computed
+      (:146-148) is not read by download().
+
+      THE ISSUE'S OWN ANCHORS WERE RE-VERIFIED, NOT TRUSTED. pdfs.ts:16-24 and
+      :28-41 are EXACT (the apiPath getter body and the download action).
+      invoiceProvider.vue:448-475 is NOT: :448 is `InvoiceStatus.OVERDUE`
+      inside the share-modal payload (:441-451), and download() runs :453-481 -
+      the cited range starts five lines early and stops six lines short of the
+      method's close. Corrected here; the issue text is the operator's and is
+      left as it stands.
+    disposition: Direct
+    delivered_by: >-
+      AC17. useInvoice().useActions().downloadPdf() (useInvoice.actions.ts:158-170,
+      docblock :149-157, published on the actions surface at :180-181) reads the
+      loaded invoice off this scope's own query (:159), raises
+      DetailedError/Not_Found when nothing is loaded (:160-166), calls
+      service.downloadPdf(invoice.id) (:168) and hands the blob to
+      downloadBlob(blob, `${invoice.number}.pdf`) (:169) - the oracle's own
+      filename expression at pdfs.ts:64 / invoiceProvider.vue:464. downloadBlob
+      is the NEW invoices.utils.ts:9-19 (createObjectURL -> anchor -> append ->
+      click -> remove -> revokeObjectURL), which mirrors payment.utils.ts's
+      submitViaForm rather than inventing a pattern.
+
+      The reader is invoices.services.ts:511-548 (docblock :490-510), wired into
+      the factory at :614. It goes through the module's ONE resolveClientId seam
+      (:517) behind the same isAddressable gate every other request in the file
+      uses (:519); URL from useUrl(`invoices/${invoiceId}/download`) (:521); the
+      active locale as the `lang` param (:522); the session's own access token as
+      a Bearer header (:524-531); the platform's status re-raised as a
+      DetailedError on a non-ok response (:533-540).
+
+      NET-NEW CONFIRMED AT SOURCE 2026-09-09 (the issue asserts it; this seat
+      re-ran it): `/download` across packages/headless/src outside this module
+      hits only system-upload.machine.ts:136 and
+      client-custom-fields.mappers.ts:275, both the `images/{hash}/download`
+      route. No invoice download existed in headless.
+    notes: >-
+      ADDED TO THE ISSUE MID-RUN 2026-09-09 12:17 under its own heading "Added
+      2026-09-09 (audit U8, D11)". No gate of this run saw it - the terminal
+      JTBD readback graded the JTBD as it stood AT INTAKE. That verdict is not
+      re-opened; this row records a capability that was outside the snapshot it
+      graded. FE-1900 (individual invoice view) needs it.
+
+      PROOF STATE, MEASURED TWICE ON 2026-09-09 AND STATED RATHER THAN
+      ASSUMED. The capability code landed at 6fc02ff8c. First measurement:
+      AC17's read-back selected 0 tests / 0 files - RED - and the read-back was
+      recorded at full strength anyway. Second measurement, after the prover
+      dispatch landed __tests__/invoices.download.int.test.ts: 3 tests / 1
+      file, 3 passed, exit 0. Direct NOW rests on an OBSERVED request for the
+      clauses below, and NOT on the declaration.
+
+      OBSERVED (invoices.download.int.test.ts, verified at source by this
+      seat): the single outbound GET with pathname api/invoices/{id}/download
+      (:125-126); the body handled as a real Blob (:133); the filename exactly
+      `${row.number}.pdf` off a RECORDED row (:134); the credit note taking the
+      SAME pathname and the SAME query-param key set through the same reader
+      with no category branch (:182-193); an unaddressable session issuing NO
+      request with the save utility never called (:212-215). The browser save
+      itself is mocked at the invoices.utils boundary (:67-72) and the
+      assertion is on what the module hands it - disclosed in that file's own
+      docblock, not hidden.
+
+      NOT OBSERVED, AND THE READ-BACK IS NOT TRIMMED TO FIT: (a) the AUTH
+      IDENTITY TRANSPORT - no landed assertion names the Authorization header
+      or the reading client's own bearer token (invoices.services.ts:524-531),
+      which is the half verify-reality-check.companion.md A7 makes
+      load-bearing for a scoped read; (b) the `lang` param's VALUE - the key
+      set is pinned, the locale it carries is not; (c) the FAILED DOWNLOAD
+      raising the platform's own status (:533-540) rather than saving an empty
+      file. All three are owed to tasks.md T19 and are named in
+      requirements.md under AC17.
+
+      MECHANISM DIVERGENCE 1, recorded, not capability-bearing: the oracle asks
+      for `responseType: "arraybuffer"` and wraps the result in a Blob
+      (pdfs.ts:37, :61-63); this module asks the response for a blob directly.
+      Same bytes, same media handling. The hand-rolled fetch is itself
+      dispositioned in code (invoices.services.ts:499-509): request() ->
+      doFetch (query.services.ts:50-61) unconditionally calls response.json()
+      with no blob arm, and query/** is untouchable under the operator ruling of
+      2026-09-08, verbatim "do not chnage any query stuff".
+
+      MECHANISM DIVERGENCE 2, recorded WITH ITS RESIDUAL: the oracle
+      discriminates a 404 into a distinct "the file is being generated, try
+      again" signal (pdfs.ts:70-73, invoiceProvider.vue:471-475) instead of the
+      generic error path. This module does not make that discrimination - it
+      re-raises the platform status on a DetailedError
+      (invoices.services.ts:533-540), so the discriminating input REACHES the
+      caller and a consumer can reproduce the oracle's answer, but nothing in
+      this module or in AC17 does. THE INFERENCE IS STATED SO A REVIEWER CAN
+      REJECT IT: this row treats the 404 message as consumer-surface
+      presentation (headless raises no toasts), not as a dropped read
+      capability. If that reading is wrong, the discrimination needs its own
+      row and its own operator token - exactly as R12 did. It is NOT dispositioned
+      away here and it is NOT claimed as served.
+
+      THE THIRD ACTION IN pdfs.ts IS ENUMERATED RATHER THAN OMITTED, because
+      grading a Direct row against part of a file is what R05's own 2026-09-08
+      correction (iii) had to undo. pdfs.ts declares THREE actions: download
+      (:27-41) and tryDownload (:58-77), both covered above, and downloadLegacy
+      (:42-57). downloadLegacy is NOT covered and owes no row here: it addresses
+      a DIFFERENT RESOURCE - `${apiPath("import_invoice_data").contextual}/${invoiceId}/download_pdf`
+      (:49-51) - and serves the separate legacyInvoices surface
+      (legacyInvoiceProvider.vue:204), which has its own oracle data module, its
+      own client views (views/client/billing/legacy-invoices/) and NO headless
+      module. THE INFERENCE A REVIEWER MAY REJECT: the step from "different
+      resource and different surface" to "outside this module's parity
+      boundary". Effort is no part of it.
+
+  - id: R14
+    capability: "The contract-product filter column on the invoices LIST - narrow the list to one contract product's invoices (the per-product Billing tab's discriminator)"
+    legacy: >-
+      cProdProvider.vue:951-971 - getUnpaidInvoices() dispatches
+      `data/${DataModules.INVOICES}/list` (:952-953) with limit: 0 (:959),
+      filter[contracts.id] (:960), filter[products.contracts_product_id]
+      (:961), filter[status.code] = UNPAID,ADJUSTED,OVERDUE (:962-966),
+      with: "status" (:967) and order: "-id" (:968). THIS IS the per-product
+      Billing tab's own invoices read, and it is the receipt for the key. The
+      same key reaches the same resource from the credit-notes view:
+      creditNotesTable.vue's productFilter() at :222-225.
+    disposition: Direct
+    delivered_by: >-
+      AC18. The declared filter column "products.contracts_product_id"
+      (invoices.schemas.ts:211-216) on the module's ONE useQuerySchema() - title
+      invoices.filter.contracts_product_id (:213), additionalProperties: false
+      (:214), operator `eq` only (:215), matching the oracle's single-value
+      send. Declared-but-undrawn by design (invoices.schemas.ts:271-272), so it
+      is filterable through the criteria channel and absent from the client
+      filter bar. NO CODE CHANGE WAS OWED: the column was already designed and
+      landed (design.md's "Filter columns" table already carried it) before this
+      AC existed.
+    notes: >-
+      ADDED TO THE ISSUE MID-RUN 2026-09-09 12:17 under its own heading "Added
+      2026-09-09 (audit U8, D11)", citing Delegates AC-12 and the mock
+      client-invoices.ts:193. No gate of this run saw it.
+
+      WHICH KEY THE PLATFORM ACCEPTS, AND WHICH SEAT ESTABLISHED IT. The key is
+      "products.contracts_product_id", NOT the bare "contract_product_id" the
+      AC sentence names. THE DEVELOPER claimed the AC already met at 6fc02ff8c
+      against invoices.schemas.ts:211. THE PLANNER SEAT independently
+      established the key at the ORACLE on 2026-09-09, line-exact and at source
+      rather than on the developer's word: the per-product Billing tab's own
+      invoices read sends filter[products.contracts_product_id]
+      (cProdProvider.vue:961), and the credit-notes view of the same resource
+      sends the same key (creditNotesTable.vue:222-225). The bare
+      filter[contract_product_id] DOES exist in the legacy app, but only on
+      OTHER resources - tickets (ticketsProvider.ts:420, cProdTicketsComp.vue:43)
+      and retention activity logs (retentionActivityLogsProvider.vue:107) -
+      never on GET /invoices. THE PROVER dispatch is pinning the same conclusion
+      on the wire in parallel and routes it back if its own reading of
+      client-invoices.ts:193 disagrees.
+
+      WHAT client-invoices.ts:193 ACTUALLY SAYS, checked at source: it is a
+      contract type in apps/portal-nuxt/app/portal/mock/contracts/, and :193
+      declares an ACTION - `contractProductId: (value?: IContractProduct["id"])
+      => void`, documented "Narrows to one product's invoices - the product
+      billing tab's discriminator" (:192). It names a composable member, not a
+      wire key, so it neither confirms nor contradicts the wire spelling. The
+      AC sentence's `contract_product_id` is the same logical noun in the same
+      register.
+
+      THIS IS A RESTATEMENT WITH ITS OVERTURN CONDITION, in the shape D4 used
+      for AC7 rather than a quiet re-spelling: the capability is served under
+      the key the platform serves. IF the platform serves a bare
+      contract_product_id on GET /invoices, this row is WRONG and the column
+      must be ADDED rather than the AC restated. Nothing here narrows the
+      capability - one contract product's invoices, reachable through the
+      declared criteria channel.
+
+      PROOF STATE, STATED RATHER THAN ASSUMED - AND THIS ROW IS NOT GRADED ON
+      THE DECLARATION ALONE.
+
+      WHAT LANDED, GRADED RATHER THAN ACCEPTED. The prover's commit 67c7bf7c2
+      added packages/client-vue/src/components/form/renderers/__tests__/invoices-contract-product-id-wire.test.ts
+      - THREE UNIT TESTS IN THE client-vue PROJECT, not the headless
+      integration project: the column is declared under filters so
+      additionalProperties:false cannot strip it (:37-45); setting
+      products.contracts_product_id|eq on the model emits
+      filter[products.contracts_product_id|eq]=<id> OUT OF translateQuery
+      (:49-57); and a FAIRNESS CONTROL that an unset column still emits the
+      declared key, present and empty (:59-69). That is MATERIALLY STRONGER
+      than the declaration alone - it proves the dotted key survives
+      translateQuery and additionalProperties:false, the very mechanism
+      invoices.collection.int.test.ts:16-29's stale docblock denies.
+
+      BUT IT IS THE MODEL, NOT THE WIRE. translateQuery's return value is the
+      params object ONE STEP BEFORE the request is built; nothing in that test
+      observes an outbound URL, a request count or a session. So the row is
+      proven up to the TRANSLATION boundary and no further, and two clauses of
+      AC18's read-back are untouched: the bare contract_product_id spelling
+      being REFUSED, and the target client's id SURVIVING the product narrowing
+      on a .for(client, X) scope (the H1 class). Grading the model instead of
+      the wire and staying green is precisely the gate-design lesson recorded
+      under Ruling 3 (review-notes.md, 5th pass). THE ROW IS THEREFORE PARTLY
+      PROVEN AT THE MODEL LAYER, NOT MET, and AC18's read-back stands unchanged.
+
+      TWO DEFECTS IN THAT LANDED FILE, recorded 2026-09-09 and routed to the
+      prover. (1) Its docblock :23 declares "Negative control:
+      invoices-contract-product-id-wire.must-fail.patch" - THAT FILE DOES NOT
+      EXIST (confirmed at source: the directory holds only
+      invoices-filter-wire.must-fail.patch), and the same commit's own message
+      says "No .must-fail.patch exists yet for either capability". A docblock
+      naming a control that does not exist is the H4 failure in another
+      register: it reads as covered and is not. (2) Its docblock cites
+      creditNotesTable.vue:223-226 - the anchor THIS PASS corrected to :222-225
+      - and design.md:475, which this pass moved. Neither is a capability
+      defect; neither is in this seat's write lane.
+
+      AC18's OWN read-back measured 0 tests / 0 files on 2026-09-09, and again
+      after 67c7bf7c2, so it is RED: no landed test observes this column on the
+      wire
+      (grepped 2026-09-09 - contracts_product_id appears in the module's tests
+      only as a line-item mapper input and in one docblock,
+      invoices.collection.int.test.ts:20-21). What IS landed and green is (a)
+      the column's declaration and (b) the wire mechanism for a literal dotted
+      column of exactly this shape - filter[status.code|in] reaching the wire
+      (invoices.collection.int.test.ts:199-216), with its own negative control
+      useValidation.dotted-key-path-split.must-fail.patch proven to redden it
+      (verify.md:244). That is a mechanism-by-SIBLING argument, not an
+      observation of this column, and it is named as such because grading a row
+      Direct on include-set or schema MEMBERSHIP alone is the exact criterion
+      R05's own 2026-09-08 correction (iii) rejected.
+
+      STALE DOCBLOCK WARNING for whoever reads the sibling receipt:
+      invoices.collection.int.test.ts:16-29 still claims EVERY dotted filter
+      column is 422-rejected and that its status-filter test is "EXPECTED to
+      fail". It is not: the useValidation dotted-key fix (cdb13b280a) closed it
+      and the test passes with a sound control. That staleness is already filed
+      as verify.md:275 and routes to the prover; this row does not depend on it
+      being fixed.
+
+      CITATION CORRECTED AT SOURCE 2026-09-09: design.md's "Filter columns"
+      table cited creditNotesTable.vue:223-226 for this column. productFilter()
+      is :222-225 - one line off at each end, the same error class as the
+      oracle:279-542 and oracle:172-179 anchors this bundle already corrected.
+      Fixed in design.md by this pass. The two adjacent rows drift the same way
+      and are RECORDED, NOT SILENTLY EDITED: contracts.id is cited :219-222
+      (real contractFilter() :218-221) and credit_invoice_id is cited :225-230
+      (real invoiceFilter() :226-229). Neither is this AC's lane; both are
+      logged in review-notes.md for whoever next touches that table.
+
 # ---------------------------------------------------------------------------
 # JTBD CHECK — every Dropped-* disposition above, tested against the JTBD:
 # "serve every invoice-resource read/write the billing briefs need - unpaid
@@ -484,6 +761,16 @@ rows:
 #                  flow, which the scope excludes by name. NOT contradicted.
 #                  (Signed 2026-09-08; the block was the missing operator
 #                  token, never the JTBD.)
+#
+# R13 and R14 (added 2026-09-09) are BOTH Direct, so neither adds a drop to
+# test. Recorded against the JTBD anyway, because a mid-run addition is exactly
+# the scope nobody checks: the JTBD's nouns are "unpaid amount, list, assigned
+# method, consolidation fields, credit notes". R14 serves the LIST noun — one
+# more declared way to narrow it. R13 serves NONE of the five nouns directly:
+# taking the document away is a sixth thing the billing briefs need, and it is
+# in scope because THE OPERATOR PUT IT IN THE ISSUE on 2026-09-09, not because
+# the intake JTBD sentence implied it. Stated plainly so nobody later reads R13
+# as JTBD-derived.
 #
 # JTBD-CONTRADICTED DROP COUNT: 0
 # ---------------------------------------------------------------------------

@@ -49,6 +49,8 @@ graph LR
   T14 --> T15[T15 prove mapping]
   T15 --> T16[T16 negative controls]
   T16 --> T17[T17 build + orders green]
+  T17 --> T18[T18 AC17 download - landed]
+  T18 --> T19[T19 prove AC17+AC18 - owed]
 ```
 
 ## Complexity
@@ -72,6 +74,8 @@ graph LR
 | T15 prove mapping | prover | M | 30 min |
 | T16 negative controls | developer + prover | M | 30 min |
 | T17 build + orders green | developer | S | 15 min |
+| T18 AC17 PDF download (**landed `6fc02ff8c`**) | developer | S | 20 min |
+| T19 prove AC17 + AC18 (**owed**) | prover | M | 30 min |
 
 ---
 
@@ -389,6 +393,41 @@ graph LR
 ### Output State
 - [ ] Build green; `orders` untouched and compiling; graph refreshed.
 
+## Task 18: AC17 — the invoice/credit-note PDF download — seat: developer (code-step) — **LANDED `6fc02ff8c`**
+
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__ -t "AC-17"` → **one** outbound `GET api/invoices/{id}/download` for the loaded invoice, carrying the reading client's own session bearer token and the active locale as `lang`; the body consumed as a **blob**, never JSON; the saved file named `${invoice.number}.pdf` from the loaded invoice, never its id; a recorded credit note issuing the **same** request through the **same** reader with no category branch. A typecheck may accompany but never constitute this. **Measured 2026-09-09 by the planner seat, twice: 0 tests / 0 files (RED), then 3 tests / 1 file, 3 passed, after the prover landed `__tests__/invoices.download.int.test.ts`.** Three clauses remain unproven — the bearer-token identity transport, the `lang` value, and the failed-download case — see T19.
+
+### Input State
+- [x] Tasks 1-17 output state holds.
+- [x] The AC exists — appended to the Linear issue **mid-run**, 2026-09-09 12:17, under its own "Added 2026-09-09 (audit U8, D11)" heading. No gate of this run saw it before the completion door.
+
+### Actions
+1. `invoices.services.ts:511-548` — `downloadPdf(invoiceId, scopeContext?)`: the same `resolveClientId` seam (`:517`) and `isAddressable` gate (`:519`) as every other request in the factory, `useUrl` (`:521`), locale as `lang` (`:522`), the session's own access token as a `Bearer` header (`:524-531`), the platform status re-raised as a `DetailedError` on a non-ok response (`:533-540`). Wired into the factory at `:614`. The hand-rolled `fetch` is **dispositioned in code** (`:499-509`) against the 2026-09-08 "do not chnage any query stuff" ruling.
+2. `invoices.utils.ts:9-19` (NEW) — `downloadBlob(blob, filename)`, mirroring `payment.utils.ts`' `submitViaForm`.
+3. `useInvoice.actions.ts:158-170` — `downloadPdf()`, published at `:180-181`.
+
+### Output State
+- [x] The capability is reachable from the public surface (`6fc02ff8c`).
+- [ ] Its behavioural read-back executes green — **owed by Task 19**.
+
+## Task 19: Prove AC17 and AC18 — seat: prover (test-step) — **OWED, in flight**
+
+- Reality Check: `pnpm --filter @upmind-automation/headless test:integration src/modules/invoices/__tests__ -t "AC-17"` **and** `… -t "AC-18"` → each selects a **non-zero** number of tests and passes against the real PROD code path. **The measured match count, not the exit code, is the grade**: a `-t` pattern matching nothing selects zero tests and **exits 0** — the H4 failure this bundle already carries thirteen instances of. Both patterns are **directory-scoped on purpose**: measured 2026-09-09 with `vitest list --project integration`, a bare `-t "AC-17"` selects **19** tests project-wide and a bare `-t "AC-18"` **16**, because other modules mint the same AC ids.
+
+### Input State
+- [x] Task 18 output state holds (AC17's code landed).
+- [x] AC18 needs **no** code — the declared column landed at `invoices.schemas.ts:211-216` before the AC existed.
+
+### Actions
+1. AC-17 — **partly landed** at `__tests__/invoices.download.int.test.ts` (3 tests, green: the `GET …/download` pathname, the `Blob` body, the `${number}.pdf` filename, the credit-note case through the same reader, and the unaddressable no-request gate). **Still owed, and not to be dropped from the read-back:** an assertion on the **`Authorization` header / the reading client's own bearer token** (the A7 identity-transport half), on the **`lang` param's value** (the key set is pinned, the locale is not), and on a **failed download** raising the platform's own status rather than saving an empty file.
+2. AC-18 — a **`client-vue` unit** proof landed at `67c7bf7c2` (`invoices-contract-product-id-wire.test.ts`): the column declared, the key emitted out of `translateQuery`, and a fairness control. **Still owed, because `translateQuery`'s output is the model and not the wire:** `filter[products.contracts_product_id|eq]=<id>` decoded off the **observed request URL** — never off the criteria model, and never off the schema declaration, which is a structural fact and therefore not a proof; the bare `contract_product_id` spelling **refused** by the declared criteria; and on a `.for('client', X)` scope the target client's id **still** on the request after the product narrowing (the H1 class).
+3. Route AC18 back to the planner seat if your own reading of `apps/portal-nuxt/app/portal/mock/contracts/client-invoices.ts:193` disagrees with `parity.yaml` `R14`'s conclusion on the wire key.
+4. Negative controls: neither AC carries a mutant yet. Authoring a `.must-fail.patch` is the **developer's** lane (`.claude/rules/agent-seat-separation.companion.md`) — route the mutant request there rather than reading production source to hand-author one.
+
+### Output State
+- [ ] `-t "AC-17"` selects at least one test in this module's `__tests__` and passes.
+- [ ] `-t "AC-18"` selects at least one test in this module's `__tests__` and passes.
+
 ---
 
 ## Per-AC executable-proof vetting (planner seat)
@@ -396,7 +435,9 @@ graph LR
 Every AC in `requirements.md` maps to at least one task bearing a
 non-excluded Reality Check. No gaps, nothing parked.
 
-**Re-swept 2026-09-08 (4th pass), after AC14–AC16 were promoted into `requirements.md`** by conductor ruling (`review-notes.md` H3). The sweep now covers **16** ACs, not 13. Two Reality Checks were extended so the named pattern actually executes the landed proof — T12 for AC15 and T15 for AC16; AC14's proof was already inside T11's named file. **Task titles are NOT authoritative for AC coverage** — they still list the AC subsets they were authored with (T11 "AC1, AC2, AC9, AC10", T12 "AC6, AC7", T15 "AC3, AC5, AC8, AC11"); this table is the AC → task map. No task was added: all three behaviours were already landed and green, so nothing new is owed to the build.
+**Re-swept 2026-09-09 (7th pass), after AC17 and AC18 were appended to the Linear issue MID-RUN (2026-09-09 12:17) and recorded into `requirements.md`.** The sweep now covers **18** ACs. Both new ACs map to a task bearing a non-excluded Reality Check (T18 code, T19 proof), so the **mapping** gap count stays 0 — but **their read-backs are RED**: each measures **0 tests / 0 files** as of 2026-09-09, because the prover dispatch authoring them is still in flight. **Those are two distinct numbers and this table reports both**; collapsing them into a single 0 would be the paperwork-as-permission failure this bundle already records three times. Nothing was parked on effort grounds, and no existing AC or Reality Check was weakened to accommodate the two new ones.
+
+**Previously re-swept 2026-09-08 (4th pass), after AC14–AC16 were promoted into `requirements.md`** by conductor ruling (`review-notes.md` H3). The sweep now covers **16** ACs, not 13. Two Reality Checks were extended so the named pattern actually executes the landed proof — T12 for AC15 and T15 for AC16; AC14's proof was already inside T11's named file. **Task titles are NOT authoritative for AC coverage** — they still list the AC subsets they were authored with (T11 "AC1, AC2, AC9, AC10", T12 "AC6, AC7", T15 "AC3, AC5, AC8, AC11"); this table is the AC → task map. No task was added: all three behaviours were already landed and green, so nothing new is owed to the build.
 
 | AC | Capability | Proving task(s) |
 |----|-----------|-----------------|
@@ -416,9 +457,27 @@ non-excluded Reality Check. No gaps, nothing parked.
 | AC14 | Refuses to read when no client is addressable | T1/T7 (code) → **T11** (proof — its Reality Check names the whole `invoices.collection.int.test.ts`, which carries the AC-14 case at `:234`) |
 | AC15 | Refuses an undeclared filter, and never lets one bypass the declared criteria | T2 (code — its own Reality Check already reads "an undeclared column is unspellable") → **T12** (proof; its Reality Check was extended 2026-09-08 to name `invoices.scope-identity.int.test.ts -t "AC-15"`, which is where the case landed) |
 | AC16 | Whole-invoice payment state, incl. a failed load reporting no guessed state | T3/T8 (code) → **T15** (proof; its Reality Check was extended 2026-09-08 to name `invoices.payment-state.int.test.ts`) |
+| AC17 | Invoice (and credit-note) PDF download, saved as `${number}.pdf` | **T18** (code — landed `6fc02ff8c`) → **T19** (proof — **PARTLY LANDED**: `__tests__/invoices.download.int.test.ts`, 3 tests / 1 file, 3 passed. Still owed: the bearer-token identity transport, the `lang` value, the failed-download case) |
+| AC18 | The declared contract-product filter column on the list | *no code owed — the column landed at `invoices.schemas.ts:211-216`* → **T19** (proof — **OWED. A `client-vue` **unit** proof landed at `67c7bf7c2` (`invoices-contract-product-id-wire.test.ts`, 3 tests: declaration, `translateQuery` emission, fairness control) — that is the **model**, one step before the **wire**. The integration read-back still measures 0 tests / 0 files: RED**) |
 
 Every AC also carries a negative control in T16 except AC1, AC2, AC3, AC9 and
 AC10, whose controls are the retarget and criteria-bypass mutants they share a
-request path with. Gap count: **0**.
+request path with. **AC17 and AC18 carry no mutant either** — see T19 action 4;
+authoring one is the developer's lane, and this seat did not mint work it cannot
+write.
+
+**The honest count, 2026-09-09 — three numbers, not one:**
+
+| Measure | Count |
+| --- | --- |
+| ACs with **no** task bearing a non-excluded Reality Check (the mapping gap `sdd-tasks` Step 7 defines) | **0** — 18 of 18 ACs map |
+| ACs whose read-back is **RED** (measures 0 tests / 0 files, or is otherwise not green) | **1** — AC18. *AC17 moved from RED to PARTLY PROVEN during this pass: 3 tests / 1 file, 3 passed, with three named clauses still unproven.* |
+| ACs whose read-back is green but **narrower than the read-back's own text** | **1** — AC17 (three clauses named under the AC, unproven) |
+| ACs whose only landed proof grades the **model** rather than the **wire** | **1** — AC18 (`invoices-contract-product-id-wire.test.ts` asserts `translateQuery`'s output; Ruling 3's gate-design lesson applies) |
+| ACs with **no negative control** | **7** — AC1, AC2, AC3, AC9, AC10 (controls shared with the retarget / criteria-bypass mutants) + AC17, AC18 (owed to the developer's lane) |
+
+The mapping gap is 0. **The proof gap is 2** — AC18 with no proof at all, and AC17 with a proof narrower than its own read-back — and it closes when T19 lands in full, not
+before. A reader who takes "gap count 0" alone from this section has read the
+wrong number.
 
 **Negative-control coverage of the three promoted ACs, stated honestly rather than back-filled.** AC15's control is T16 mutant **#3** (`invoices.criteria-bypass.must-fail.patch` — appends a raw `filter[status.code]` beside `criteria`), which is the mutant that AC15's own read-back is paired with. **AC14 and AC16 carry no dedicated mutant in T16.** Their feature scenarios are tagged `@guard`, not `@negative-control`, and this seat did not mint new mutants: authoring a `.must-fail.patch` is the developer's lane (`.claude/rules/agent-seat-separation.companion.md`) and would be new work, which the promotion explicitly is not. Recorded for the reviewer as a coverage observation, not as a gap in the AC → task map, which stands at **0**.
