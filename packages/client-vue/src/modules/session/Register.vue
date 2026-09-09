@@ -155,7 +155,6 @@
           >
             <template #[`privacyPolicy`]>
               <Link
-                class="text-muted"
                 href="https://policies.google.com/privacy"
                 target="_blank"
                 size="inherit"
@@ -165,7 +164,6 @@
             </template>
             <template #[`termsOfService`]>
               <Link
-                class="text-muted"
                 href="https://policies.google.com/terms"
                 target="_blank"
                 size="inherit"

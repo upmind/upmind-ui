@@ -23,9 +23,7 @@
         {{ title }}
       </DialogTitle>
 
-      <DialogDescription
-        class="text-muted m-0 text-center text-sm leading-5 tracking-tight"
-      >
+      <DialogDescription class="m-0 text-center leading-5 tracking-tight">
         {{ text }}
       </DialogDescription>
 

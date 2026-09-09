@@ -2,7 +2,7 @@
   <template v-if="!loading">
     <DescriptionListRoot
       align="between"
-      class="gap-y-2 font-normal"
+      class="gap-y-2"
       data-test-key="description-list"
     >
       <DescriptionItem

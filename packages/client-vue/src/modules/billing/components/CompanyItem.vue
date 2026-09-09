@@ -22,7 +22,7 @@
         tabindex="-1"
         :data-attrs="{ 'data-test-key': 'link-edit' }"
         @mousedown.stop.prevent
-        class="pointer-events-auto h-4"
+        class="pointer-events-auto"
         @click.stop.prevent="doEdit"
         >{{ t("action.edit") }}</Link
       >
