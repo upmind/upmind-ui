@@ -13,11 +13,18 @@
 # visibility and presentation concerns (FE-3039) are likewise not described here — this module
 # reads and writes the five persisted values; it does not derive or present them.
 #
-# JTBD (binding, verbatim): "read and write the client's invoice-consolidation preference on
-# the client record."
+# WIDENED 2026-09-09 by operator ruling: a second oracle form folds in, on the same client-
+# facing page — the client's own account currency and (brand-gated) preferred payment
+# currency. Different entity (the account, not the client record), different endpoint
+# (accounts/{accountId}, not clients/{id}), different brand key of the OPPOSITE polarity from
+# the consolidation surface's own gate.
 #
-# Exactly nineteen scenarios, one per @AC-* tag in docs/sdd/FE-3033/requirements.md §5 —
-# no more, no fewer.
+# JTBD (binding, verbatim, WIDENED): "read and write the client's own billing settings — the
+# invoice-consolidation preference on their client record, and the account currency and
+# preferred payment currency on their account."
+#
+# Exactly twenty-six scenarios, one per @AC-* tag — the original nineteen plus the seven
+# account-currency ACs folded in 2026-09-09 — no more, no fewer.
 
 @module:client-billing-settings @variant:hybrid @cell:client-settings
 Feature: A client reads and manages their own invoice-consolidation preference
@@ -169,3 +176,58 @@ Feature: A client reads and manages their own invoice-consolidation preference
     When I look for my consolidation preference surface
     Then it is hidden from me
     And it only becomes visible once my brand explicitly turns it on for clients
+
+  # === READING MY ACCOUNT'S CURRENCIES (folded in 2026-09-09) ===================
+
+  @AC-20 @read
+  Scenario: I can see the currency my account bills in, and my preferred payment currency if I have one
+    Given I hold a real account with a billing currency, addressed as my own
+    When I read my account's currencies
+    Then I see the currency my account actually bills in
+    And I see my preferred payment currency exactly when one is actually set, never a substitute for it
+
+  # === CHANGING MY ACCOUNT'S CURRENCIES (folded in 2026-09-09) ===================
+
+  @AC-21 @write
+  Scenario: I can choose a preferred payment currency for my account, and clear it again
+    Given my brand lets me pay in a different currency than my account bills in
+    When I choose a preferred payment currency and save, and later clear that choice and save again
+    Then my chosen payment currency is recorded against my own account when I chose one
+    And clearing it is recorded as an explicit choice to have no preferred payment currency, not left unspecified
+    And saving with no change to either currency makes no request at all
+
+  @AC-22 @write
+  Scenario: I can change the currency my account bills in
+    Given I have opened my account's currencies in the editor
+    When I change the currency my account bills in and save
+    Then the new billing currency is recorded against my own account
+    And changing both my billing currency and my preferred payment currency together saves them in one request
+
+  @AC-23 @availability @negative-control
+  Scenario: My choice of preferred payment currency is offered only when my brand explicitly allows it
+    Given my brand has not explicitly allowed paying in a different currency
+    When I look for the preferred-payment-currency choice
+    Then it is not offered to me
+    And it only becomes offered once my brand explicitly allows it
+    And my consolidation preference surface's own visibility is unaffected either way
+
+  @AC-24 @read
+  Scenario: My currency choices are my brand's supported currencies, and always include my own
+    Given my brand supports a set of currencies for billing
+    When I look at the currencies I can choose between
+    Then I see my brand's supported currencies, ordered by name
+    And if my brand's list does not include my account's own billing currency, I still see and can keep it
+
+  @AC-25 @availability @negative-control
+  Scenario: My account's currencies are never shown or changed for a client that is not me
+    Given the request is addressed to a client record that is not my own
+    When I look for that client's account currencies
+    Then neither the currencies nor the preferred-payment-currency choice are shown to me
+    And attempting to save any change is refused, with no request made
+
+  @AC-26 @write
+  Scenario: After I save a new preferred payment currency, that is what I and the rest of the app see next
+    Given I have just saved a new preferred payment currency for my account
+    When I read my account's currencies again
+    Then I see the payment currency I just saved, not the one I had before
+    And the rest of the app resolves my currency the same new way

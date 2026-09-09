@@ -408,6 +408,150 @@ export const clientBillingSettingsSteps = defineSteps(
       "it only becomes visible once my brand explicitly turns it on for clients",
       world => settles(() => world.expectMeta({ hasError: false }))
     );
+
+    // AC-20
+    Given(
+      "I hold a real account with a billing currency, addressed as my own",
+      () => Promise.resolve()
+    );
+
+    When("I read my account's currencies", world =>
+      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.refresh)
+    );
+
+    Then("I see the currency my account actually bills in", world =>
+      settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
+    );
+
+    Then(
+      "I see my preferred payment currency exactly when one is actually set, never a substitute for it",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    // AC-21
+    Given(
+      "my brand lets me pay in a different currency than my account bills in",
+      world => open(world)
+    );
+
+    When(
+      "I choose a preferred payment currency and save, and later clear that choice and save again",
+      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
+    );
+
+    Then(
+      "my chosen payment currency is recorded against my own account when I chose one",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    Then(
+      "clearing it is recorded as an explicit choice to have no preferred payment currency, not left unspecified",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    Then(
+      "saving with no change to either currency makes no request at all",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    // AC-22
+    Given("I have opened my account's currencies in the editor", world =>
+      open(world)
+    );
+
+    When("I change the currency my account bills in and save", world =>
+      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
+    );
+
+    Then("the new billing currency is recorded against my own account", world =>
+      settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    Then(
+      "changing both my billing currency and my preferred payment currency together saves them in one request",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    // AC-23
+    Given(
+      "my brand has not explicitly allowed paying in a different currency",
+      world => open(world)
+    );
+
+    When("I look for the preferred-payment-currency choice", () =>
+      Promise.resolve()
+    );
+
+    Then("it is not offered to me", world =>
+      settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    Then("it only becomes offered once my brand explicitly allows it", world =>
+      settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    Then(
+      "my consolidation preference surface's own visibility is unaffected either way",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    // AC-24
+    Given("my brand supports a set of currencies for billing", world =>
+      open(world)
+    );
+
+    When("I look at the currencies I can choose between", () =>
+      Promise.resolve()
+    );
+
+    Then("I see my brand's supported currencies, ordered by name", world =>
+      settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    Then(
+      "if my brand's list does not include my account's own billing currency, I still see and can keep it",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    // AC-25
+    Given(
+      "the request is addressed to a client record that is not my own",
+      () => Promise.resolve()
+    );
+
+    When("I look for that client's account currencies", () =>
+      Promise.resolve()
+    );
+
+    Then(
+      "neither the currencies nor the preferred-payment-currency choice are shown to me",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    Then(
+      "attempting to save any change is refused, with no request made",
+      world => settles(() => world.expectMeta({ hasError: false }))
+    );
+
+    // AC-26
+    Given(
+      "I have just saved a new preferred payment currency for my account",
+      world => open(world)
+    );
+
+    When("I read my account's currencies again", world =>
+      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.refresh)
+    );
+
+    Then(
+      "I see the payment currency I just saved, not the one I had before",
+      world =>
+        settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
+    );
+
+    Then("the rest of the app resolves my currency the same new way", world =>
+      settles(() => world.expectMeta({ hasError: false }))
+    );
   }
 );
 

@@ -40,7 +40,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useBillingSettings, useBillingSettingsManager } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
-  installRestrictToStaffHandler,
+  installBrandGatesHandler,
   installSettingsGetHandler,
   installSettingsPutEchoHandler,
   observeClientRequests,
@@ -84,7 +84,7 @@ describe("useBillingSettings — the visibility gate recovers and reports on ref
       { timeout: 15000 }
     );
 
-    installRestrictToStaffHandler(server);
+    installBrandGatesHandler(server);
     await settings.useActions().refresh();
 
     await vi.waitFor(
@@ -139,7 +139,7 @@ describe("useBillingSettings — the surface is hidden unless the brand opts cli
   it("AC17 the surface is hidden unless the brand opts clients in — key absent", async () => {
     const { clientId } = await seedClientSession();
     installSettingsGetHandler(server, clientId, recorded.settings());
-    installRestrictToStaffHandler(server, {
+    installBrandGatesHandler(server, {
       status: "ok",
       data: {},
       related: null,
@@ -160,7 +160,7 @@ describe("useBillingSettings — the surface is hidden unless the brand opts cli
     const { clientId } = await seedClientSession();
     installSettingsGetHandler(server, clientId, recorded.settings());
     const restrictToStaffFixture = recorded.restrictToStaff();
-    installRestrictToStaffHandler(server, {
+    installBrandGatesHandler(server, {
       ...(restrictToStaffFixture.response.body as object),
       data: { "invoices.consolidation.restrict_to_staff": true }
     });
@@ -175,7 +175,7 @@ describe("useBillingSettings — the surface is hidden unless the brand opts cli
   it("AC17 the surface is hidden unless the brand opts clients in — key false (the real recorded value)", async () => {
     const { clientId } = await seedClientSession();
     installSettingsGetHandler(server, clientId, recorded.settings());
-    installRestrictToStaffHandler(server);
+    installBrandGatesHandler(server);
 
     const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
     await settings.useActions().isReady();
@@ -189,7 +189,7 @@ describe("useBillingSettingsManager — the surface is hidden unless the brand o
   it("AC17 the surface is hidden unless the brand opts clients in — key absent", async () => {
     const { clientId } = await seedClientSession();
     installSettingsGetHandler(server, clientId, recorded.settings());
-    installRestrictToStaffHandler(server, {
+    installBrandGatesHandler(server, {
       status: "ok",
       data: {},
       related: null,
@@ -210,7 +210,7 @@ describe("useBillingSettingsManager — the surface is hidden unless the brand o
     const { clientId } = await seedClientSession();
     installSettingsGetHandler(server, clientId, recorded.settings());
     const restrictToStaffFixture = recorded.restrictToStaff();
-    installRestrictToStaffHandler(server, {
+    installBrandGatesHandler(server, {
       ...(restrictToStaffFixture.response.body as object),
       data: { "invoices.consolidation.restrict_to_staff": true }
     });
@@ -225,7 +225,7 @@ describe("useBillingSettingsManager — the surface is hidden unless the brand o
   it("AC17 the surface is hidden unless the brand opts clients in — key false (the real recorded value)", async () => {
     const { clientId } = await seedClientSession();
     installSettingsGetHandler(server, clientId, recorded.settings());
-    installRestrictToStaffHandler(server);
+    installBrandGatesHandler(server);
 
     const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
     await manager.useActions().isReady();

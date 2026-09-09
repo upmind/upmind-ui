@@ -5,14 +5,15 @@
  * ## Job To Be Done
  * Enforce the AC <-> proving-spec link over the CO-LOCATED
  * `client-billing-settings.feature` — the SOLE source of truth for this
- * module's 19 acceptance criteria (`requirements.md` §5's anchor list). This
- * file reads NO path outside `__tests__/` — exactly three assertions,
- * mirroring the `client-personal-details` exemplar's own shape:
+ * module's 26 acceptance criteria (`requirements.md` §5's anchor list,
+ * WIDENED 2026-09-09 by the account-currency fold-in). This file reads NO
+ * path outside `__tests__/` — exactly three assertions, mirroring the
+ * `client-personal-details` exemplar's own shape:
  *
  *   1. every non-`@todo` scenario has >=1 sibling spec naming its `AC-<n>`;
  *   2. every AC a test names is a scenario the feature actually tags
  *      (coverage never silently falls);
- *   3. the hard count — the distinct `@AC-<n>` tag set has exactly 19
+ *   3. the hard count — the distinct `@AC-<n>` tag set has exactly 26
  *      members, matching this module's AC set, and no member has an empty
  *      proving-file list.
  *
@@ -111,7 +112,7 @@ describe("client-billing-settings traceability — co-located feature vs proving
     ).toEqual([]);
   });
 
-  it("the distinct @AC-<n> tag set has exactly 19 members, and every non-@todo member has a proving file", () => {
+  it("the distinct @AC-<n> tag set has exactly 26 members, and every non-@todo member has a proving file", () => {
     const tests = provingTests();
     const allTagged = [...featureAcTags(COLOCATED_FEATURE, true)].sort(
       (a, b) => Number(a.slice(3)) - Number(b.slice(3))
@@ -123,7 +124,7 @@ describe("client-billing-settings traceability — co-located feature vs proving
       files: tests.get(ac) ?? []
     }));
 
-    expect(allTagged).toHaveLength(19);
+    expect(allTagged).toHaveLength(26);
     expect(
       map.filter(entry => !entry.todo && entry.files.length === 0)
     ).toEqual([]);

@@ -48,6 +48,24 @@
  * Every field this run touches is restored to the account's own recorded
  * baseline value at the end of the run so a re-record does not leave the
  * shared staging client permanently altered.
+ *
+ * ## Account-currency slice captures (folded in 2026-09-09, T23/T24)
+ * `GET config/brand/values` with BOTH gate keys (O8's `restrict_to_staff`
+ * AND B6's `enable_different_currency_payment`) — re-recorded here because
+ * `design.md` §15.6 widens the single `ensureConfig()` call to carry both
+ * keys, which changes the outbound key set AC17's landed read-back already
+ * depends on (T23). `GET brand/settings` — a REAL `currencies` array for
+ * AC24, replacing the throwaway `{ languages: [] }` stub the harness answers
+ * with elsewhere. `PUT accounts/{accountId}` — one case per AC21/AC22
+ * branch (`case-currency-set`, `case-preferred-set`, `case-preferred-clear`,
+ * `case-both`), against the SAME staging account `client-personal-details`
+ * and this module's own consolidation captures use. `GET self` re-captured
+ * once, immediately after `case-preferred-set`, into this module's own
+ * `fixtures/` (never into `session-store`'s) — the "a preference IS set"
+ * read state AC20/AC26 need, which the shared `session-store` capture
+ * cannot supply (its own recorded baseline has `preferred_payment_currency_id:
+ * null`). Every account field this run touches is restored at the end,
+ * mirroring the existing consolidation restore.
  */
 
 import { join } from "node:path";
@@ -87,6 +105,12 @@ type WireClient = {
   invoice_consolidation_base_rule_day_of_week?: string | null;
   invoice_consolidation_base_rule_date_of_month_day?: number | null;
   invoice_consolidation_due_date_day?: number | null;
+};
+
+type WireAccount = {
+  id: string;
+  currency_id: string;
+  preferred_payment_currency_id: string | null;
 };
 
 // -----------------------------------------------------------------------------
@@ -144,6 +168,11 @@ describe("Client-Billing-Settings API Fixtures Generator", () => {
   let clientToken: IToken;
   let clientId: string;
   let baseline: WireClient | undefined;
+  let accountBaseline: WireAccount | undefined;
+  /** A REAL currency id from the brand's own list, distinct from the account's baseline currency (case-currency-set / case-both). */
+  let altCurrencyId: string | undefined;
+  /** A SECOND real currency id, distinct from both the baseline and `altCurrencyId` (case-preferred-set / case-both). */
+  let altPreferredCurrencyId: string | undefined;
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -187,6 +216,62 @@ describe("Client-Billing-Settings API Fixtures Generator", () => {
       );
     }
     baseline = (body as { data: WireClient }).data;
+
+    // The account-currency slice's own baseline (T24) — a RAW, unrecorded
+    // read (mirrors `baseline` above), so the real ids below never touch a
+    // saved fixture; only the sanitised captures do.
+    const selfWithAccounts = await call(
+      "GET",
+      "/api/self?with=accounts",
+      clientToken.access_token
+    );
+    const account = (
+      selfWithAccounts.body as {
+        data?: { accounts?: WireAccount[] };
+      }
+    )?.data?.accounts?.[0];
+    if (selfWithAccounts.status !== 200 || !account) {
+      throw new Error(
+        `Account baseline read returned ${selfWithAccounts.status} — cannot ` +
+          "resolve the session's own account to capture or restore the " +
+          "account-currency writes."
+      );
+    }
+    accountBaseline = account;
+
+    const brandSettings = await call(
+      "GET",
+      "/api/brand/settings",
+      clientToken.access_token
+    );
+    const currencies =
+      (
+        brandSettings.body as {
+          data?: { currencies?: { id: string; code: string }[] };
+        }
+      )?.data?.currencies ?? [];
+    if (brandSettings.status !== 200 || currencies.length === 0) {
+      throw new Error(
+        `Brand settings read returned ${brandSettings.status} with ` +
+          `${currencies.length} currencies — cannot pick real, distinct ` +
+          "currency ids for the account-currency write captures."
+      );
+    }
+    altCurrencyId = currencies.find(
+      currency => currency.id !== accountBaseline?.currency_id
+    )?.id;
+    altPreferredCurrencyId = currencies.find(
+      currency =>
+        currency.id !== accountBaseline?.currency_id &&
+        currency.id !== altCurrencyId
+    )?.id;
+    if (!altCurrencyId || !altPreferredCurrencyId) {
+      throw new Error(
+        "Could not find two REAL currency ids distinct from the account's " +
+          "own baseline currency — the brand's currency list is too small " +
+          "to capture the account-currency write cases."
+      );
+    }
   }, 30000);
 
   afterAll(async () => {
@@ -203,6 +288,18 @@ describe("Client-Billing-Settings API Fixtures Generator", () => {
         invoice_consolidation_due_date_day:
           baseline.invoice_consolidation_due_date_day
       });
+    }
+    if (clientToken && accountBaseline) {
+      await call(
+        "PUT",
+        `/api/accounts/${accountBaseline.id}`,
+        clientToken.access_token,
+        {
+          currency_id: accountBaseline.currency_id,
+          preferred_payment_currency_id:
+            accountBaseline.preferred_payment_currency_id
+        }
+      );
     }
   });
 
@@ -378,6 +475,149 @@ describe("Client-Billing-Settings API Fixtures Generator", () => {
     if (status >= 400) {
       throw new Error(`diff-only capture returned ${status}.`);
     }
+  });
+
+  // === Account-currency slice (T23/T24) ===================================
+
+  it("captures GET /api/config/brand/values with BOTH gate keys (O8's restrict_to_staff + B6's enable_different_currency_payment)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      "/api/config/brand/values?keys=invoices.consolidation.restrict_to_staff,billing.payment_currencies.enable_different_currency_payment"
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(
+        `Two-key brand-gates capture returned ${status} — AC17 and AC23 ` +
+          "have no real two-key brand-gate fixture to replay."
+      );
+    }
+  });
+
+  it("captures GET /api/brand/settings (AC24 — a real currencies array)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get("/api/brand/settings");
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(
+        `brand/settings capture returned ${status} — AC24 has no real ` +
+          "currency-options fixture to replay."
+      );
+    }
+  });
+
+  it("captures PUT /api/accounts/{accountId}?case=currency-set (AC22 — currency_id alone)", async () => {
+    if (!accountBaseline || !altCurrencyId) {
+      throw new Error("No account baseline/altCurrencyId — see beforeAll.");
+    }
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.put(
+      `/api/accounts/${accountBaseline.id}?case=currency-set`,
+      { currency_id: altCurrencyId }
+    );
+    generator.clearBearerToken();
+    if (status >= 400) {
+      throw new Error(`currency-set capture returned ${status}.`);
+    }
+  });
+
+  /**
+   * `preferred_payment_currency_id` set to a non-null value is REJECTED by
+   * the real API on this staging brand with a genuine `409` — "Payments in
+   * different than the document (invoice) currencies are disabled!" — because
+   * `billing.payment_currencies.enable_different_currency_payment` is
+   * genuinely `false` here (confirmed by the two-key capture above). This is
+   * the backend's OWN enforcement of row B6's gate, not a fixture artefact.
+   * Recording it honestly (as a real `409`) is correct; presenting it as a
+   * `200` would be fabrication. The SUCCESS shape AC21/AC22/AC26 need for the
+   * "preference is set" case cannot be recorded on this brand without an
+   * admin enabling that brand-wide setting — a cross-cutting change no
+   * prover run makes unilaterally. Per `design.md` §15.10's own anticipated
+   * risk and `tasks.md` T24 action 4, that state is instead DERIVED — a
+   * single-field override of this exact `currency-set` success envelope's
+   * shape, declared as a derivation at its point of use in
+   * `client-billing-settings.int-helpers.ts`, never dressed up as a capture.
+   */
+  it("captures PUT /api/accounts/{accountId}?case=preferred-set (AC21 — the REAL 409 this brand's closed B6 gate returns)", async () => {
+    if (!accountBaseline || !altPreferredCurrencyId) {
+      throw new Error(
+        "No account baseline/altPreferredCurrencyId — see beforeAll."
+      );
+    }
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.put(
+      `/api/accounts/${accountBaseline.id}?case=preferred-set`,
+      { preferred_payment_currency_id: altPreferredCurrencyId }
+    );
+    generator.clearBearerToken();
+    if (status !== 409) {
+      throw new Error(
+        `preferred-set capture returned ${status}, expected the KNOWN real ` +
+          "409 (brand gate closed) — if this brand's config changed and a " +
+          "200 is now possible, replace this derivation-based case with a " +
+          "genuine recorded success and update the int-helpers docstring."
+      );
+    }
+  });
+
+  it("captures PUT /api/accounts/{accountId}?case=preferred-clear (AC21 — the explicit null clear)", async () => {
+    if (!accountBaseline) {
+      throw new Error("No account baseline — see beforeAll.");
+    }
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.put(
+      `/api/accounts/${accountBaseline.id}?case=preferred-clear`,
+      { preferred_payment_currency_id: null }
+    );
+    generator.clearBearerToken();
+    if (status >= 400) {
+      throw new Error(`preferred-clear capture returned ${status}.`);
+    }
+  });
+
+  /**
+   * The joint write is REJECTED for the SAME reason as `case-preferred-set`
+   * above — the non-null `preferred_payment_currency_id` leaf alone trips
+   * the real, server-side B6 gate on this brand, regardless of what
+   * `currency_id` carries in the same body. Recorded honestly as the real
+   * `409`; AC22's "both keys in one request" success shape is DERIVED from
+   * `case-currency-set`'s genuine success envelope (see int-helpers).
+   */
+  it("captures PUT /api/accounts/{accountId}?case=both (AC22 — the REAL 409 this brand's closed B6 gate returns)", async () => {
+    if (!accountBaseline || !altCurrencyId || !altPreferredCurrencyId) {
+      throw new Error("No account baseline/alt currency ids — see beforeAll.");
+    }
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.put(
+      `/api/accounts/${accountBaseline.id}?case=both`,
+      {
+        currency_id: altCurrencyId,
+        preferred_payment_currency_id: altPreferredCurrencyId
+      }
+    );
+    generator.clearBearerToken();
+    if (status !== 409) {
+      throw new Error(
+        `both capture returned ${status}, expected the KNOWN real 409 ` +
+          "(brand gate closed) — if this brand's config changed and a 200 " +
+          "is now possible, replace this derivation-based case with a " +
+          "genuine recorded success and update the int-helpers docstring."
+      );
+    }
+  });
+
+  it("captures PUT /api/accounts/{accountId}?case=restore (staging hygiene — restores the account's own baseline)", async () => {
+    if (!accountBaseline) {
+      throw new Error(
+        "No account baseline captured — cannot record the account restore case."
+      );
+    }
+    generator.setBearerToken(clientToken.access_token);
+    await generator.put(`/api/accounts/${accountBaseline.id}?case=restore`, {
+      currency_id: accountBaseline.currency_id,
+      preferred_payment_currency_id:
+        accountBaseline.preferred_payment_currency_id
+    });
+    generator.clearBearerToken();
   });
 
   it("captures PUT /api/clients/{id}?case=restore (staging hygiene — restores the account's own baseline)", async () => {
