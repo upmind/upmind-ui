@@ -1,8 +1,8 @@
 <template>
   <div :class="productOptionDetailsVariants()">
-    <h5 :class="productSummaryCategoryTextVariants()">
+    <p :class="productSummaryCategoryTextVariants()">
       {{ summary.category }}
-    </h5>
+    </p>
 
     <div :class="productOptionTitleVariants()">
       <strong :class="productSummaryTitleTextVariants()">

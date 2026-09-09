@@ -16,9 +16,9 @@
       <div :class="productSummaryHeaderContentVariants()">
         <div :class="productSummaryHeaderTopVariants()">
           <div :class="productSummaryCategoryRootVariants()">
-            <strong :class="productSummaryCategoryTextVariants()">
+            <span :class="productSummaryCategoryTextVariants()">
               {{ summary.category }}
-            </strong>
+            </span>
 
             <Link
               v-if="isMobile && !isEmpty(filteredDetails)"

@@ -24,9 +24,7 @@ export const productSummaryHeaderTopVariants = cva("flex justify-between");
 export const productSummaryCategoryRootVariants = cva(
   "flex items-center gap-2"
 );
-export const productSummaryCategoryTextVariants = cva(
-  "text-faint text-sm font-normal"
-);
+export const productSummaryCategoryTextVariants = cva("text-faint text-sm");
 
 export const productSummaryTitleRootVariants = cva(
   "flex items-start justify-between gap-x-4"
