@@ -37,7 +37,6 @@ export const productSummaryTitleTextVariants = cva(
   "text-xl font-medium break-all no-underline"
 );
 
-export const productSummaryIconVariants = cva("[&>svg]:p-[2px]");
 export const productSummaryImageVariants = cva("rounded-image m-0 size-13");
 export const productSummaryExcerptVariants = cva(
   "text-muted m-0 line-clamp-3 text-sm"
