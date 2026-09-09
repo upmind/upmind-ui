@@ -19,6 +19,17 @@ export default defineConfig({
       "@upmind-automation/types": fileURLToPath(
         new URL("../../../packages/types/src/index.ts", import.meta.url)
       ),
+      // The layouts pull `foundation`, whose brand module reaches headless —
+      // the one workspace package whose `main` is unbuilt dist, so it needs the
+      // src alias here too (packages/auth/vitest.config.ts precedent).
+      "@upmind-automation/headless": fileURLToPath(
+        new URL("../../../packages/headless/src/index.ts", import.meta.url)
+      ),
+      // headless's locale loader globs this specifier, and vite's glob plugin
+      // resolves no bare specifier — without the alias the glob throws.
+      "@upmind-automation/i18n": fileURLToPath(
+        new URL("../../../packages/i18n/src/index.ts", import.meta.url)
+      ),
       "@upmind/ui/styles": fileURLToPath(
         new URL(
           "../../../design-system/packages/ui/src/styles/index.css",
