@@ -20,7 +20,10 @@ export default defineNuxtPlugin(() => {
   void useUpmind.init({
     allowedScopes: [AccessRoleTypes.CLIENT, AccessRoleTypes.GUEST],
     debug: import.meta.dev,
-    platformUrl: "https://upmind.com",
+    // No `platformUrl`. It is headless's "brand unavailable, leave the site"
+    // hop, and this app owns pages that must render with no brand resolved at
+    // all — configuring it sends every route, mocked ones included, to
+    // upmind.com the moment the host does not match a brand.
     pop: {
       name: config.API_NAME,
       apiUrl: config.API_URL,
