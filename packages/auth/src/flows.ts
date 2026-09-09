@@ -8,7 +8,11 @@
  */
 import { watch } from "vue";
 import { QUERY_PARAMS, useActiveSession } from "@upmind-automation/headless";
-import type { RouteLocationNormalizedLoaded, Router } from "vue-router";
+import type {
+  RouteLocationNormalizedLoaded,
+  RouteLocationRaw,
+  Router
+} from "vue-router";
 
 /**
  * Two origins, not one. A target that carries its own authority takes the host
@@ -54,22 +58,64 @@ export function readReturnTarget(
   return target;
 }
 
-/** The target this route should hand back to, if it should hand back at all. */
+/** Whether a query asked to be sent anywhere at all, refused or not. */
+export function hasReturnTarget(query: Record<string, unknown>): boolean {
+  const raw = query[QUERY_PARAMS.RETURN_URL];
+
+  return typeof raw === "string" && raw !== "";
+}
+
+/**
+ * Query the hand-back adds to the fallback landing. It carries the VERDICT, not
+ * the target: echoing a refused string back into the URL would put an
+ * attacker's own text on the page that reports refusing it.
+ */
+export const AUTH_QUERY = {
+  RETURN_REFUSED: "returnRefused"
+} as const;
+
+export type AuthFlowOptions = {
+  /**
+   * Where an authenticated visitor lands when the route named no usable return
+   * target. Without it, a host with no funnel of its own strands the visitor on
+   * the form that just accepted them.
+   */
+  fallback?: string;
+};
+
+/** Where this route should send an authenticated visitor, if anywhere. */
 function handBackTarget(
-  route: RouteLocationNormalizedLoaded
-): string | undefined {
+  route: RouteLocationNormalizedLoaded,
+  options: AuthFlowOptions
+): RouteLocationRaw | undefined {
   if (!route.meta.authReturnTarget) return undefined;
 
   const { isAuthenticated } = useActiveSession().useMeta();
 
   if (!isAuthenticated.value) return undefined;
 
-  return readReturnTarget(route.query);
+  const target = readReturnTarget(route.query);
+
+  if (target) return target;
+
+  // Asked to be sent somewhere this package would not go. The landing is told
+  // which it was, because a refusal reaching the same screen as "nobody asked"
+  // is the silent recovery this branch exists to make visible.
+  if (hasReturnTarget(route.query) && options.fallback)
+    return {
+      path: options.fallback,
+      query: { [AUTH_QUERY.RETURN_REFUSED]: "1" }
+    };
+
+  return undefined;
 }
 
-export function registerAuthFlows(engine: Router): void {
+export function registerAuthFlows(
+  engine: Router,
+  options: AuthFlowOptions = {}
+): void {
   // Arriving already authenticated: the navigation in flight IS the hand-back.
-  engine.beforeEach(to => handBackTarget(to) ?? true);
+  engine.beforeEach(to => handBackTarget(to, options) ?? true);
 
   const { isAuthenticated } = useActiveSession().useMeta();
 
@@ -80,8 +126,16 @@ export function registerAuthFlows(engine: Router): void {
   watch(isAuthenticated, authenticated => {
     if (!authenticated) return;
 
-    const target = handBackTarget(engine.currentRoute.value);
+    const route = engine.currentRoute.value;
+    const target = handBackTarget(route, options);
 
-    if (target) void engine.replace(target);
+    if (target) return void engine.replace(target);
+
+    // Nothing asked us to send them on. Only THIS arm falls through to the
+    // landing: the guard above must still let an authenticated visitor reach
+    // an auth route it was handed back to, or the hand-back's own destination
+    // would be taken off it.
+    if (route.meta.authReturnTarget && options.fallback)
+      void engine.replace(options.fallback);
   });
 }

@@ -8,7 +8,8 @@
     "declaration": false,
     "declarationMap": false,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"]
     }
   },
   "include": ["src"],

@@ -8,15 +8,17 @@
 import { defineFeature } from "@upmind-automation/foundation";
 import { registerAuthFlows } from "./flows";
 import { authRoutes } from "./routes";
+import type { AuthFlowOptions } from "./flows";
 import type { AuthRoutesOptions } from "./routes";
 
-export type AuthFeatureOptions = AuthRoutesOptions & {
-  /**
-   * Contribute this package's own route records. A host that already owns its
-   * auth pages (cart, cart-nuxt) sets this false and keeps its own paths.
-   */
-  routes?: boolean;
-};
+export type AuthFeatureOptions = AuthRoutesOptions &
+  AuthFlowOptions & {
+    /**
+     * Contribute this package's own route records. A host that already owns its
+     * auth pages (cart, cart-nuxt) sets this false and keeps its own paths.
+     */
+    routes?: boolean;
+  };
 
 export const defineAuthFeature = (options: AuthFeatureOptions = {}) =>
   defineFeature({
@@ -30,7 +32,7 @@ export const defineAuthFeature = (options: AuthFeatureOptions = {}) =>
       const contributesRoutes = options.routes ?? true;
       if (contributesRoutes) ctx.addRoutes(authRoutes(options));
 
-      ctx.registerFlows(registerAuthFlows);
+      ctx.registerFlows(engine => registerAuthFlows(engine, options));
     }
   });
 
