@@ -823,10 +823,18 @@ const IMPORT_RESOLVE_EXTENSIONS = [
   ".vue"
 ];
 
+// eslint-plugin-import parses a RESOLVED dependency with the IMPORTING file's
+// parser, so an SFC reached from a `.ts` barrel was handed to the TS parser and
+// threw on `<template>`. It then treats the module as empty, and `import/no-cycle`
+// below cannot follow a cycle that runs through an SFC. Naming the SFC parser per
+// extension is the only channel eslint-plugin-import offers for that.
 const importGraphSettings = {
   "import/resolver": { node: { extensions: IMPORT_RESOLVE_EXTENSIONS } },
   "import/extensions": IMPORT_RESOLVE_EXTENSIONS,
-  "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx", ".mts"] }
+  "import/parsers": {
+    "@typescript-eslint/parser": [".ts", ".tsx", ".mts"],
+    "vue-eslint-parser": [".vue"]
+  }
 };
 
 // The ADR 023 §3 roster. Kept as one list so the glob and the forbid pattern
@@ -993,7 +1001,15 @@ export default [
     files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: {
       parser: typescriptParser,
-      parserOptions: { ecmaVersion: "latest", sourceType: "module" }
+      // `parser` is vue-eslint-parser's inner-script parser. It is set HERE, on
+      // the TS block, because eslint-plugin-import hands an SFC dependency the
+      // parserOptions of the `.ts` file that imported it; typescriptParser
+      // itself ignores the key.
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        parser: typescriptParser
+      }
     },
     plugins: {
       import: eslintPluginImport,
