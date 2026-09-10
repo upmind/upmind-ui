@@ -68,7 +68,7 @@ import { accountPages } from "./account-pages";
 import { authPages } from "./auth-pages";
 import { billingPages } from "./billing-pages";
 import { brandNoteRow } from "./pager";
-import { productPages } from "./product-pages";
+import { NEEDS_SETUP_ROW, productPages } from "./product-pages";
 import { supportPages } from "./support-pages";
 import type { PortalConfig, UtilityConfig } from "../types";
 
@@ -78,7 +78,6 @@ import type { PortalConfig, UtilityConfig } from "../types";
  * an identity row and a fact list are different shapes of the same panel.
  */
 /** How many products waiting on setup show before the Show-more control — legacy's own two. */
-const NEEDS_ATTENTION_SHOWN = 2;
 
 const ACCOUNT_CARD = moduleGroup(GROUP_AXIS.STACKED, [
   moduleRef(LIST_MODULE_ID, {
@@ -369,29 +368,7 @@ export const hostgridConfig: PortalConfig = {
         // that cannot go live until the client answers their blueprint, each
         // naming what it is short of. Two show, as legacy's did, and the rest
         // arrive behind the Show-more control.
-        {
-          layout: ROW_LAYOUT.FULL,
-          surface: ROW_SURFACE.PANEL,
-          visible: dataRef(DATA_REF_ID.HAS_PRODUCTS_AWAITING_SETUP),
-          header: {
-            title: "Almost ready",
-            description:
-              "We just need a few more details in order to complete setup."
-          },
-          slots: [
-            moduleRef(LIST_MODULE_ID, {
-              variant: LIST_MODULE_VARIANT.ROW_CARDS,
-              props: {
-                items: dataRef(DATA_REF_ID.NEEDS_ATTENTION_PRODUCT_ITEMS),
-                maxItems: NEEDS_ATTENTION_SHOWN,
-                showMoreLabel: "Show more",
-                showLessLabel: "Show fewer",
-                emptyTitle: "Nothing waiting on you",
-                moreLabel: "Product actions"
-              }
-            })
-          ]
-        },
+        NEEDS_SETUP_ROW,
         // One grammar for every group (operator request 2026-08-26): each
         // section IS a bordered panel — heading, description and a View-all
         // action inside it — over a flat divided list, so cards never nest.

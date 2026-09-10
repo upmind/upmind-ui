@@ -146,7 +146,14 @@ describe("panel control band — search left, order and filters right", () => {
     const context: DataRouteContext = { groupSlug: "products" };
     const wrapper = mountPage(PAGE_KEY.GROUP_LISTING, data, context);
 
-    expect(wrapper.findAll(LIST_ITEM).length).toBeGreaterThan(1);
+    // The needs-setup billboard above the listing carries rows of its own.
+    const listing = () =>
+      wrapper
+        .findAll('[data-test-key="portal-section"]')
+        .find(section =>
+          section.text().includes("Manage each from its own page.")
+        );
+    expect(listing()?.findAll(LIST_ITEM).length).toBeGreaterThan(1);
 
     dispatchMockAction(
       data,
@@ -155,7 +162,7 @@ describe("panel control band — search left, order and filters right", () => {
     );
     await nextTick();
 
-    expect(wrapper.findAll(LIST_ITEM)).toHaveLength(1);
+    expect(listing()?.findAll(LIST_ITEM)).toHaveLength(1);
     expect(wrapper.text()).toContain("Archive Storage");
   });
 
