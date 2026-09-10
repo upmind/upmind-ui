@@ -146,21 +146,22 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 
 ## Changes since July 2024 seen outside the product screens
 
-From `RELEASES.md` 1.12.6 → 1.74.0. Not yet in the portal:
+From `RELEASES.md` 1.12.6 → 1.74.0, checked against current legacy code.
 
-- A product filter on the client's ticket list.
-- Notification topics chosen per email address.
-- Pinned vault notes and secrets reachable from the profile menu.
-- An email code before a username or password change.
-- Brand setting that stops clients scheduling tickets.
+| Legacy change | Portal | Status |
+| --- | --- | --- |
+| Product filter on the ticket list | Legacy's listing has the prop; no client screen turns it on | Present |
+| Notification topics per email address | Email topic opt-ins form | Present |
+| Pinned vault assets from the profile card | "Pinned notes and secrets" row on the account card | Present |
+| Emailed code before a username or password change | "Confirm it is you" prompt, then the change | Present |
+| Brand setting that stops clients scheduling tickets | `canSchedule` gate on the ticket form | Present |
 
 ## Gaps to act on
 
-1. From outside the product screens: a product filter on the ticket list,
-   notification topics per email address, pinned vault items in the profile
-   menu, an email code before a username or password change, and the brand
-   setting that stops clients scheduling tickets.
-2. Payment method waits on client-vue.
-3. Partial today: mobile tab dropdown, in-group paging on the dashboard, notes
+1. Payment method waits on client-vue.
+2. Partial today: mobile tab dropdown, in-group paging on the dashboard, notes
    paging on the overview, the migration detail modal, a "Go back" on a custom
    page's not-found state, row click anywhere on a list row.
+3. Unverified: the dashboard's empty state, the billboard's exclusions, the
+   delegated-access notice, the "cannot disable auto-renew" message, and the
+   invoice redirect after a migration.
