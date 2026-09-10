@@ -146,7 +146,10 @@ const ACCOUNT_UTILITY_PANE = {
     }),
     botmid: SUPPORT_PIN_PANEL
   },
-  slotVisible: { botmid: dataRef(DATA_REF_ID.IS_SUPPORT_PIN_ENABLED) }
+  slotVisible: {
+    topmid: dataRef(DATA_REF_ID.HAS_PILLAR_SUBMENU),
+    botmid: dataRef(DATA_REF_ID.IS_SUPPORT_PIN_ENABLED)
+  }
 } as const satisfies UtilityConfig;
 
 /** hostgrid — Host·Grid's own palette (config/hostgrid.ts), on this shape. */
@@ -319,7 +322,10 @@ export const hostgridConfig: PortalConfig = {
             navLabel: "Section navigation"
           }
         })
-      }
+      },
+      // A pillar with no side menu (a custom page, the logged-out screens)
+      // keeps no pane: gated off, the aside track goes with it.
+      slotVisible: { top: dataRef(DATA_REF_ID.HAS_PILLAR_SUBMENU) }
     }
   },
   // The singular fallback — any position with no entry renders a bare titled

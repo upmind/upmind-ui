@@ -5880,6 +5880,14 @@ export function pillarSubmenuItems(
   }
 }
 
+/** Whether the pillar serves a side menu at all — a custom page and the logged-out screens do not, and a pane slot showing an empty menu is a bordered blank. */
+export function hasPillarSubmenu(
+  data: MockDataset,
+  context: DataRouteContext
+): boolean {
+  return pillarSubmenuItems(data, context).length > 0;
+}
+
 /** Legacy's account-menu `if:` predicates, by the item's own destination. */
 function accountItemPermitted(data: MockDataset, item: MenuItem): boolean {
   if (item.to === "/account/notes") {

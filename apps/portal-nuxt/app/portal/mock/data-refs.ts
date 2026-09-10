@@ -124,6 +124,7 @@ import {
   notificationItems,
   notificationPageItems,
   brandLogoHref,
+  hasPillarSubmenu,
   pillarNavItems,
   pillarSubmenuItems,
   placeOrderAction,
@@ -589,6 +590,7 @@ export const DATA_REF_ID = {
   PILLAR_NAV_ITEMS: "pillar-nav-items",
   BRAND_LOGO_HREF: "brand-logo-href",
   PILLAR_SUBMENU_ITEMS: "pillar-submenu-items",
+  HAS_PILLAR_SUBMENU: "has-pillar-submenu",
   // --- the profile dropdown (gap doc §6)
   ACCOUNT_MENU_HEADING: "account-menu-heading",
   ACCOUNT_MENU_ITEMS: "account-menu-items",
@@ -1144,6 +1146,7 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PILLAR_NAV_ITEMS]: pillarNavItems,
   [DATA_REF_ID.BRAND_LOGO_HREF]: brandLogoHref,
   [DATA_REF_ID.PILLAR_SUBMENU_ITEMS]: pillarSubmenuItems,
+  [DATA_REF_ID.HAS_PILLAR_SUBMENU]: hasPillarSubmenu,
   [DATA_REF_ID.GROUP_PRODUCTS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.GROUP_PRODUCTS
   ),
