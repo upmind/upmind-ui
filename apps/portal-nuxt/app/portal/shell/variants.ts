@@ -186,9 +186,15 @@ export const PORTAL_FOOTER_LINK_CLASS = "shrink-0 hover:underline";
  * declares its own tracks — one per bar, the content, the footer, and the
  * pane column. Every extra track is `auto`, so a shell composing one bar and
  * no pane lays out exactly as the library's own grid does.
+ *
+ * Important, because `Shell` concatenates `ui.panel` after its own classes
+ * without a merge: both `grid-rows-[…]` utilities stay on the element and the
+ * stylesheet's order picks the library's. Under that template the empty
+ * second row takes the `1fr` and a short page sinks to the foot of the
+ * viewport.
  */
 export const CHROME_PANEL_CLASS =
-  "grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)_auto]";
+  "grid-rows-[auto_auto_auto_minmax(0,1fr)_auto]! lg:grid-cols-[auto_minmax(0,1fr)_auto]!";
 
 /** The two track heights the sub-bars and the bottom strip read, on the Shell root beside its own `--shell-header-h`. */
 export const CHROME_TRACK_CLASS =
