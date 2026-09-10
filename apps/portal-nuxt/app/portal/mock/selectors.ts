@@ -439,7 +439,8 @@ export function activeProductItems(data: MockDataset): ListModuleItem[] {
     leadingIcon: Package,
     tags: productTags(product),
     action: productRowAction(product),
-    moreActions: productRowMoreActions(product)
+    moreActions: productRowMoreActions(product),
+    isInactive: isProductInactive(product)
   }));
 }
 
@@ -517,10 +518,26 @@ function productSummaryLine(product: MockProduct): string {
 }
 
 /** What a product IS reads first — its hostname, then what kind of thing it is. */
-function productLine(product: MockProduct): string {
-  const lead = compact([product.serviceIdentifier, product.category]).join(
-    " · "
+/** Legacy's `cProdOriginalName`: the name the brand replaced, kept in view. */
+function formerlyLine(product: MockProduct): string | undefined {
+  if (product.originalName === undefined) return undefined;
+  return `formerly ${product.originalName}`;
+}
+
+/** Cancelled and closed products read as past — legacy dims them and strikes the name. */
+function isProductInactive(product: MockProduct): boolean {
+  return (
+    product.status === ContractStatusCodes.CANCELLED ||
+    product.status === ContractStatusCodes.CLOSED
   );
+}
+
+function productLine(product: MockProduct): string {
+  const lead = compact([
+    product.serviceIdentifier,
+    product.category,
+    formerlyLine(product)
+  ]).join(" · ");
   if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
     return `${lead} · Action Needed`;
   }
@@ -840,6 +857,7 @@ export function groupProductItems(
     ],
     tags: productTags(product),
     status: productBadge(product),
+    isInactive: isProductInactive(product),
     // Legacy's list item carries one CTA and no overflow: "Manage", or the
     // way into setup while that is still owed. The function button and the
     // menu belong to the dashboard rows only (`cProdRowWithFuncs`).
@@ -1191,7 +1209,10 @@ export function productBillboardItems(
       id: product.id,
       title: product.customLabel ?? product.name,
       category: product.category,
-      description: product.serviceIdentifier,
+      description: compact([
+        product.serviceIdentifier,
+        formerlyLine(product)
+      ]).join(" · "),
       leadingImageSrc: product.imageSrc,
       leadingIcon: Package,
       status: productBadge(product),

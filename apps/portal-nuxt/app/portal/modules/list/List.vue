@@ -46,7 +46,7 @@
       </ListItem>
       <ListItem
         v-if="showsRow(item)"
-        :class="STACK_ITEM_CLASS"
+        :class="[STACK_ITEM_CLASS, inactiveClass(item)]"
         v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
       >
         <template v-if="item.leadingIcon || item.leadingImageSrc" #leading>
@@ -69,7 +69,7 @@
           :class="STACK_CATEGORY_CLASS"
           >{{ item.category }}</StatusBadge
         >
-        <ListItemTitle>
+        <ListItemTitle :class="inactiveTitleClass(item)">
           <NuxtLink v-if="item.to" :to="item.to" class="hover:underline">{{
             item.title
           }}</NuxtLink>
@@ -170,7 +170,7 @@
     <div
       v-for="item in visibleItems"
       :key="item.id"
-      :class="ROW_CARD_CLASS"
+      :class="[ROW_CARD_CLASS, inactiveClass(item)]"
       v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
     >
       <span
@@ -279,7 +279,7 @@
     <CardRoot
       v-for="item in visibleItems"
       :key="item.id"
-      class="flex flex-col overflow-hidden"
+      :class="['flex flex-col overflow-hidden', inactiveClass(item)]"
       v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
     >
       <!-- Media above the header. The composed `Card` renders its header
@@ -332,7 +332,7 @@
             >{{ badgeFor(item)?.label }}</StatusBadge
           >
         </div>
-        <CardTitle class="text-sm">
+        <CardTitle :class="['text-sm', inactiveTitleClass(item)]">
           <NuxtLink v-if="item.to" :to="item.to" class="hover:underline">{{
             item.title
           }}</NuxtLink>
@@ -378,6 +378,7 @@
         <TableRow
           v-for="item in visibleItems"
           :key="item.id"
+          :class="inactiveClass(item)"
           v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
         >
           <TableCell :class="TABLE_CELL_CLASS">
@@ -391,7 +392,9 @@
                 :src="item.leadingImageSrc"
                 :alt="item.leadingImageAlt ?? ''"
               />
-              <span class="text-display font-medium">
+              <span
+                :class="['text-display font-medium', inactiveTitleClass(item)]"
+              >
                 <NuxtLink
                   v-if="item.to"
                   :to="item.to"
@@ -581,6 +584,8 @@ import { EMPTY_STATE_UI } from "../../variants";
 import { LIST_MODULE_VARIANT } from "./types";
 import {
   CARD_BADGE_ROW_CLASS,
+  INACTIVE_ITEM_CLASS,
+  INACTIVE_TITLE_CLASS,
   CARD_CAROUSEL_CLASS,
   GROUP_HEADER_CLASS,
   GROUP_TOGGLE_CLASS,
@@ -724,6 +729,17 @@ function moreMenuItems(
 }
 
 /** Whether a stacked row has anything at all to put after its text. */
+/** Legacy dims a cancelled or lapsed product and strikes its name, wherever the row appears. */
+function inactiveClass(item: ListModuleItem): string | undefined {
+  if (!item.isInactive) return undefined;
+  return INACTIVE_ITEM_CLASS;
+}
+
+function inactiveTitleClass(item: ListModuleItem): string | undefined {
+  if (!item.isInactive) return undefined;
+  return INACTIVE_TITLE_CLASS;
+}
+
 function hasTrailing(item: ListModuleItem): boolean {
   return (
     badgeFor(item) !== undefined ||

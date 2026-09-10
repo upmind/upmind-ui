@@ -1539,6 +1539,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
         // On a free trial that simply RUNS OUT rather than renewing — the
         // end-trial branch, and the auto-expire banner beside it.
         id: "prod-seats",
+        originalName: "Seat Bundle",
         groupSlug: "products",
         serviceIdentifier: "seats.fieldnotes.app",
         createdAt: "2026-08-20",

@@ -135,3 +135,7 @@ export const TIMELINE_EVENT_HEAD_CLASS =
 
 /** A revealed secret is a value to read exactly, so it wears the tabular face amounts and ids do. */
 export const SECRET_VALUE_CLASS = "type-data";
+
+/** A row whose subject is over reads as past — dimmed as a whole, and its title struck through. */
+export const INACTIVE_ITEM_CLASS = "opacity-60";
+export const INACTIVE_TITLE_CLASS = "line-through";

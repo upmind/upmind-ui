@@ -59,6 +59,33 @@ describe("the products listing carries legacy's row controls", () => {
   });
 });
 
+describe("legacy's list presentation", () => {
+  it("dims a cancelled product and leaves a running one alone", () => {
+    const data = clone();
+    const cancelled = groupProductItems(data, {
+      groupSlug: "products",
+      status: "cancelled"
+    });
+    expect(cancelled.length).toBeGreaterThan(0);
+    expect(every(cancelled, item => item.isInactive === true)).toBe(true);
+    const running = groupProductItems(data, { groupSlug: "products" });
+    expect(some(running, item => item.isInactive === true)).toBe(false);
+  });
+
+  it("keeps a renamed product's original name in view", () => {
+    const renamed = find(
+      HOSTGRID_MOCK_DATASET.products,
+      product => product.originalName !== undefined
+    );
+    if (renamed === undefined) throw new Error("seed has no renamed product");
+    const row = find(
+      groupProductItems(clone(), { groupSlug: "products", status: "all" }),
+      { id: renamed.id }
+    );
+    expect(row?.description).toContain(`formerly ${renamed.originalName}`);
+  });
+});
+
 describe("a product still owed its setup opens on the Setup tab", () => {
   const data = clone();
   const pending = find(data.products, {
