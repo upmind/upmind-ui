@@ -46,6 +46,7 @@
       </ListItem>
       <ListItem
         v-if="showsRow(item)"
+        :class="STACK_ITEM_CLASS"
         v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
       >
         <template v-if="item.leadingIcon || item.leadingImageSrc" #leading>
@@ -98,7 +99,7 @@
           </span>
         </ListItemDescription>
         <template v-if="hasTrailing(item)" #trailing>
-          <div class="flex items-center gap-2">
+          <div :class="STACK_TRAILING_CLASS">
             <component
               :is="tag.action ? 'button' : 'span'"
               v-for="tag in item.tags"
@@ -157,13 +158,13 @@
 
   <div
     v-else-if="meta.isRowCards"
-    class="flex flex-col gap-3"
+    :class="ROW_CARDS_ROOT_CLASS"
     v-bind="useTestAttrs({ key: 'portal-list' })"
   >
     <div
       v-for="item in visibleItems"
       :key="item.id"
-      class="rounded-card border-stroke bg-surface flex items-center gap-4 border p-4"
+      :class="ROW_CARD_CLASS"
       v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
     >
       <span
@@ -215,7 +216,7 @@
           </span>
         </p>
       </div>
-      <div class="flex shrink-0 items-center gap-2">
+      <div :class="ROW_CARD_TRAILING_CLASS">
         <component
           :is="tag.action ? 'button' : 'span'"
           v-for="tag in item.tags"
@@ -549,9 +550,15 @@ import {
   CARD_CAROUSEL_CLASS,
   GROUP_HEADER_CLASS,
   GROUP_TOGGLE_CLASS,
+  ROW_CARDS_ROOT_CLASS,
+  ROW_CARD_CLASS,
+  ROW_CARD_TRAILING_CLASS,
   ROW_CONTROLS_CLASS,
   SECRET_MASK,
   SECRET_VALUE_CLASS,
+  STACK_ITEM_CLASS,
+  STACK_ROOT_CLASS,
+  STACK_TRAILING_CLASS,
   TIMELINE_EVENT_HEAD_CLASS,
   cardGridClass,
   cardMediaClass,
@@ -701,13 +708,13 @@ const visibleItems = computed(() => {
   return take(props.items, props.maxItems);
 });
 
-/** `compact` renders the ruled stack; only `masonry` takes the column flow. */
-function masonryRootClass(
+/** `compact` renders the ruled stack; only `masonry` takes the column flow. Both are the query root their rows measure against. */
+function stackRootClass(
   columns: ListModuleProps["columns"],
   isMasonry: boolean
-): string | undefined {
-  if (!isMasonry) return undefined;
-  return masonryClass(columns);
+): string {
+  if (!isMasonry) return STACK_ROOT_CLASS;
+  return `${STACK_ROOT_CLASS} ${masonryClass(columns)}`;
 }
 
 const meta = computed(() => {
@@ -742,7 +749,7 @@ const meta = computed(() => {
     // A stacked list rules between its rows; a masonry one flows them into
     // columns, where a divider would draw across the gutter.
     isDivided: !isMasonry,
-    rootClass: masonryRootClass(props.columns, isMasonry),
+    rootClass: stackRootClass(props.columns, isMasonry),
     showMoreLabel: showAllLabel()
   } as const;
 });

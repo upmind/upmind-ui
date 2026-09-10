@@ -72,6 +72,34 @@ export function cardMediaClass(media: ListModuleMedia | undefined): string {
   return CARD_MEDIA_CLASS[media ?? "video"];
 }
 
+/**
+ * The ruled stack is a container query root: its rows key off the width the
+ * list actually has (a 20rem rail, a phone), not the viewport's.
+ */
+export const STACK_ROOT_CLASS = "@container";
+
+/**
+ * A row's trailing cluster — badges, the action, the menu — drops onto its own
+ * line under the text where the list is narrower than 24rem. On one line it
+ * would take the width it needs and leave the title nothing to truncate into.
+ */
+export const STACK_ITEM_CLASS =
+  "flex-wrap @max-sm:[&>[data-slot=list-item-trailing]]:basis-full @max-sm:[&>[data-slot=list-item-trailing]]:justify-end";
+
+/** The cluster itself wraps too — two tags and an action rarely share one narrow line. */
+export const STACK_TRAILING_CLASS =
+  "flex flex-wrap items-center justify-end gap-2";
+
+/** `row-cards` — the same container query, on the column of cards. */
+export const ROW_CARDS_ROOT_CLASS = "@container flex flex-col gap-3";
+
+export const ROW_CARD_CLASS =
+  "rounded-card border-stroke bg-surface flex flex-wrap items-center gap-4 border p-4";
+
+/** A card's trailing cluster, on its own line under 24rem for the same reason as a row's. */
+export const ROW_CARD_TRAILING_CLASS =
+  "flex shrink-0 flex-wrap items-center justify-end gap-2 @max-sm:basis-full";
+
 /** A group's header row: quieter and tighter than the rows it heads, since it is a label, not an entry. */
 export const GROUP_HEADER_CLASS = "bg-neutral-muted/40 py-1.5";
 
