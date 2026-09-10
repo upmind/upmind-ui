@@ -14,15 +14,17 @@
           :footer="row.footer"
           :anchor="row.anchor"
         >
-          <PortalRow :layout="row.layout" :measure="row.measure">
-            <template
-              v-for="(slotName, slotIndex) in ROW_SLOT_NAMES[row.layout]"
-              :key="slotName"
-              #[slotName]
-            >
-              <PortalSlotContent :resolved-slot="row.slots[slotIndex]" />
-            </template>
-          </PortalRow>
+          <template v-if="row.slots.length" #default>
+            <PortalRow :layout="row.layout" :measure="row.measure">
+              <template
+                v-for="(slotName, slotIndex) in ROW_SLOT_NAMES[row.layout]"
+                :key="slotName"
+                #[slotName]
+              >
+                <PortalSlotContent :resolved-slot="row.slots[slotIndex]" />
+              </template>
+            </PortalRow>
+          </template>
         </PortalSection>
       </template>
     </div>
@@ -43,15 +45,17 @@
           :footer="row.footer"
           :anchor="row.anchor"
         >
-          <PortalRow :layout="row.layout" :measure="row.measure">
-            <template
-              v-for="(slotName, slotIndex) in ROW_SLOT_NAMES[row.layout]"
-              :key="slotName"
-              #[slotName]
-            >
-              <PortalSlotContent :resolved-slot="row.slots[slotIndex]" />
-            </template>
-          </PortalRow>
+          <template v-if="row.slots.length" #default>
+            <PortalRow :layout="row.layout" :measure="row.measure">
+              <template
+                v-for="(slotName, slotIndex) in ROW_SLOT_NAMES[row.layout]"
+                :key="slotName"
+                #[slotName]
+              >
+                <PortalSlotContent :resolved-slot="row.slots[slotIndex]" />
+              </template>
+            </PortalRow>
+          </template>
         </PortalSection>
       </template>
     </PageAside>
