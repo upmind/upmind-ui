@@ -1,8 +1,12 @@
 # Legacy parity — product pages
 
-What a client can do on legacy's product screens (`vue-app`), against what the
-portal sandbox offers today. One row per legacy control. Actor is the client;
-staff-only controls are out of scope.
+What a client can do on legacy's product screens, against what the portal
+sandbox offers. One row per legacy control. Actor is the client; staff-only
+controls are out of scope.
+
+**Oracle:** `vue-app` `master` at `0ab2fabdb3`, release 1.74.0, 8 September
+2026. An earlier version of this table was graded on a July 2024 checkout and
+is superseded.
 
 Status: **Present** — same capability, wherever it sits. **Partial** — a
 narrower form. **Absent** — nothing offers it. **Dropped** — left out on a
@@ -12,22 +16,26 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Header "Place new order" | Nav tab, and the group's Order page | Present |
-| Section menu: all / subscriptions / one-time / by category | Aside menu | Present |
+| Header "Place new order"; brand storefront URL when set | Nav tab, Order page, storefront redirect | Present |
+| Section menu: all / subscriptions / one-time / by category; one-time hidden by brand setting | Aside menu, same gate | Present |
 | "Show delegated products" switch | — (`mock/selectors.ts`: belongs to the delegates area) | Dropped |
-| Tabs active / cancelled / all | Status tabs on the list | Present |
+| Tabs active / cancelled / all | Status tabs | Present |
 | Quick search | "Search by name" | Present |
-| Filters: purchased, next due, price, category, status | Same, plus tag | Present |
-| Sort: status, purchased, next due, cancelled | Sort control | Present |
+| Filters: purchased, next due, price, name, category, status, type | Same, plus tag | Present |
+| Sort, with the cancelled tab's own set | Sort control | Present |
 | Refresh button | — (no live data to reload) | Absent |
-| Grid / table toggle | Same | Present |
-| Pagination with per-page size | Same | Present |
-| Empty state "Place new order" | `emptyAction` on the list | Present |
-| Card: whole card opens the product; "Manage" CTA | Title link and footer button | Partial |
-| Card: setup warning icon → Setup tab | "Complete setup" button | Present |
-| Card / row: unresolved provisioning request icon | Danger tag on the row and card, opens the product | Present |
-| Table row: click opens the product | Title link, button, "…" menu | Partial |
-| Needs-confirmation billboard + load more | "Almost ready" heads the dashboard and the Products page | Present |
+| Grid / list toggle | Same | Present |
+| Pagination with page size | Same | Present |
+| Empty state, informational | Empty state with "Place new order" | Present |
+| Card click and "Manage" CTA | Title link and one CTA: "Manage", or "Complete setup" while owed | Present |
+| Card corner icon: pending setup → Setup tab | The "Complete setup" CTA | Present |
+| Card / row icon: unresolved provisioning request | Red tag on row and card, opens the product | Present |
+| Row click opens the product | Title link only | Partial |
+| Row dropdown | None for clients; none here | Present |
+| "Add label" tag; reference tag opens the label form | Same | Present |
+| Free trial, delegated and promo-code tags | Same | Present |
+| Original product name where the brand renamed it | — | Absent |
+| Cancelled and lapsed rows dimmed, names struck through | — | Absent |
 | Sole product: redirect to its page | `soleProductRedirect` | Present |
 
 ## Dashboard product group list
@@ -35,109 +43,124 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Legacy control | Portal | Status |
 | --- | --- | --- |
 | "View all" | Same | Present |
-| Service / category tiles, "Show more" | Same | Present |
+| Service / category chips, "Show more" | Same | Present |
 | Row: name link, featured function button, "Manage" | Same helpers | Present |
 | Row menu: every function, Manage, Manage billing | Same | Present |
 | Compact pagination inside a group | "Show more" only | Partial |
 | Empty state "Place new order" | — | Unverified |
+| Needs-confirmation billboard + load more | "Almost ready" on dashboard and Products page | Present |
+| Billboard excludes products pending cancellation, and delegated ones | — | Unverified |
 
 ## Product detail shell
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Tabs setup / overview / billing / settings | Same, plus Tickets and Delegates | Present |
-| Mobile: tabs as a dropdown, featured functions appended | The tab row stays; no dropdown, no appended functions | Partial |
+| Tabs setup / overview / billing / tickets / settings | Same, plus a Delegates tab | Present |
+| Mobile: tabs as a dropdown, featured functions appended | Tab row stays | Partial |
+| Product root lands on Setup while setup is owed, else Overview | Lands on Overview | Absent |
+| Billboard: image, category, reference tag | Same | Present |
 | Notice: "Go to order" while pending | Same | Present |
-| Notice: "Don't cancel" (auto-expire, cancellation request) | Same | Present |
+| Notice: "Don't cancel" for auto-expire, a hard request, a scheduled date | Same, one action for all three | Present |
 | Notice: "Complete setup" | Same | Present |
-| Notice: "View invoices" (suspended, unpaid) | "View unpaid invoices" | Present |
-| Notice: "Turn on auto-renew" | Settings toggle only | Partial |
-| Quick actions: featured functions | Same | Present |
-| Quick actions: upgrade / downgrade | "Change product" | Present |
-| Summary: purchase date links to the order | "View order" | Present |
+| Notice: "View invoices" when suspended or unpaid | "View unpaid invoices" | Present |
+| Notice: "Turn on auto-renew" | "Keep renewing" | Present |
+| Quick actions: featured functions, upgrade / downgrade | Same; "Change product" | Present |
+| Summary list; purchase date links to the order | "View order" | Present |
 | Trial message: end trial early | Same | Present |
+| About this product | Same | Present |
 | "Open a support ticket" | Same | Present |
 
 ## Overview
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Copy a provisioning value | Copy icons | Present |
-| "Show all details" | Same | Present |
-| One button per provisioning function; redirect opens the panel | "Provisioning actions" | Present |
-| Function that asks for input fields first | — (run takes no fields) | Absent |
-| Add note, add secret | Same | Present |
-| Secret reveal and copy | Same | Present |
-| Note / secret menu: edit, convert, delete | Same | Present |
+| Delegated-access notice | — | Unverified |
+| Brand markdown template | Template slot | Present |
+| Copy a provisioning value; "Show all details" | Same | Present |
+| One button per provisioning function; disabled per function | "Provisioning actions" | Present |
+| Provisioning iframe panels | "From your provider" | Present |
+| Add note; note pin, edit, convert, delete | Same | Present |
+| Notes paged on the overview | Capped list with "View all" | Partial |
+| Add secret; reveal, copy, pin, edit, convert, delete | Same | Present |
 
 ## Setup
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Provisioning field form, confirm | Setup form, save | Present |
-| Fields the client may not edit shown read-only | — (the mock marks no field read-only) | Absent |
+| Setup fields form, "Confirm" | Setup form, save | Present |
 | Revert to initial values | "Cancel" | Partial |
-| Redirect away when setup is not pending | `setupAreaRedirect` sends the URL to the overview | Present |
+| Redirect away when setup is not owed | `setupAreaRedirect` | Present |
 
 ## Billing
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
+| Price breakdown | "What you are charged for" | Present |
 | Manage-subscription band | Same | Present |
-| End trial early | Same | Present |
-| Upgrade / downgrade | Same | Present |
-| Issue next invoice / late renewal invoice | Same | Present |
-| Cancellation options (end of term, immediate, reason) | Form | Present |
-| Custom fields on the cancellation form | Same | Present |
-| "Don't cancel" on the pending-request and auto-expire messages | Same | Present |
-| Timeline links: create invoice, turn on auto-renew, stop auto-expire | Inline actions on the three events | Present |
-| Timeline: due invoice number opens the invoice | The payment event links to the invoice | Present |
-| Invoice consolidation choice | Same | Present |
+| End trial early; upgrade / downgrade | Same | Present |
+| "Cancellation options", disabled with a reason: pro-rata pending, overdue invoices, brand forbids | Disabled for pro-rata only | Partial |
+| Pending pro-rata warning | "Pending change" notice | Present |
+| "Don't cancel" on the request and auto-expire messages | Same | Present |
+| Automation timeline | "What is scheduled" | Present |
+| Timeline links: create invoice, turn on auto-renew, stop expiry | Inline actions on the three events | Present |
+| Invoice consolidation form | Same | Present |
 | Invoices and credit notes listings | Same | Present |
 
 ## Settings
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Custom label | Same | Present |
+| Custom label form | Same | Present |
 | Change / select payment method | client-vue stub | Absent |
-| Turn auto-renew off (confirm) / on | Toggle | Present |
-| Unpaid-invoices link, cancellation-options link | Same | Present |
-| Billing address / company selectors | Same | Present |
-| Create an address or company from here | "Add a new address", "Add company" | Present |
-| Invite delegate, revoke delegate | Same | Present |
+| Renewals: turn auto-renew off with confirm, on; create renewal invoice | Toggle and "Renew it yourself" | Present |
+| Unpaid-invoices and cancellation-options links in the renewal message | Same | Present |
+| "Cannot disable auto-renew" message offering cancellation instead | — | Unverified |
+| Billing address / company form; create one from here | Same | Present |
+| Invite delegate; per-delegate manage and revoke | Same | Present |
+
+## Tickets tab
+
+| Legacy control | Portal | Status |
+| --- | --- | --- |
+| Tickets filtered to this product, five at a time | Same | Present |
+| "Open new ticket" here | Staff only in legacy; the aside button serves the client | Present |
 
 ## Modals
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Migrations list: pick a product, read more, load more | Options list | Partial |
-| Upgrade / downgrade: confirm, then the resulting invoice | "Review changes", then the migration | Present |
-| Provisioning function input form | — | Absent |
+| Cancellation: don't cancel, end of term, immediate, future date with picker; reason and custom fields; submit | Same options and fields | Present |
+| Migrations list: cards, read-more detail, load more, cancel | Options list, no detail modal | Partial |
+| Upgrade / downgrade confirm, then the resulting invoice | "Review changes", then the migration | Unverified |
+| Order-complete celebration | "Order complete" banner | Present |
 
-## Place new order — first screen
-
-The portal's Order page is a one-step catalogue: "Order" creates a processing
-order and its unpaid invoice. Decision, 10 September 2026: the cart owns the
-shop, so the portal never re-implements legacy's shop step. Every row below is
-dropped on that decision.
+## Brand custom pages
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Currency switcher, basket stepper, basket button | — | Dropped |
-| Category search, category tree | Aside categories | Dropped |
-| Product search, domain search widget | — | Dropped |
-| Product title opens a product view; "read more" | — | Dropped |
-| CTA: add to basket / view / try free | "Order" | Dropped |
-| Load more | Pagination | Present |
+| Nav ribbon and side menu entry per page with "show on menu" | Nav item | Present |
+| Route `/~/:slug`, one page per slug | `/:slug` custom area | Present |
+| Title block over the body | Page header, body in a panel | Present |
+| Body as markdown or embedded frame | Same two variants | Present |
+| Not found state with "Go back" | Not-found page; no back button | Partial |
+
+## Changes since July 2024 seen outside the product screens
+
+From `RELEASES.md` 1.12.6 → 1.74.0. Not yet in the portal:
+
+- A product filter on the client's ticket list.
+- Notification topics chosen per email address.
+- Pinned vault notes and secrets reachable from the profile menu.
+- An email code before a username or password change.
+- Brand setting that stops clients scheduling tickets.
 
 ## Gaps to act on
 
-1. A provisioning function that asks for input has no form. The mock's
-   functions carry no fields.
-2. Setup fields the client may not edit are not modelled as read-only.
-3. Payment method on Settings waits on client-vue.
-4. Dashboard groups page with "Show more" only; legacy paged inside a group.
-5. Mobile keeps the tab row; legacy folded the tabs into a dropdown.
-6. The dashboard's empty state and the trial "end early" confirm remain to be
-   checked by hand.
+1. Land a product's root URL on Setup while setup is owed.
+2. Show the original product name where the brand renamed it.
+3. Dim cancelled and lapsed rows and cards, strike the name.
+4. Disable "Cancellation options" for overdue invoices and a brand that forbids
+   cancellation, with the reason.
+5. The five items above from outside the product screens.
+6. Payment method waits on client-vue. Mobile tab dropdown, in-group paging on
+   the dashboard, notes paging and the migration detail modal remain partial.
