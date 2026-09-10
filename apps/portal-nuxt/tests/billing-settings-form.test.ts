@@ -178,18 +178,12 @@ describe("two controls are offered only where there is a choice to make", () => 
     expect(controlAt(off, "#/properties/paymentCurrencyCode")).toBeUndefined();
   });
 
-  it("the price list is offered only where the brand publishes more than one", () => {
+  it("the price list is never offered to a client, however many the brand publishes", () => {
+    // Legacy lets only staff pick the list a client is quoted from.
     const many = hostgrid();
-    const one = minimal();
-
     expect(many.priceLists.length).toBeGreaterThan(1);
-    expect(one.priceLists).toHaveLength(1);
-    expect(get(schemaFor(many), "properties.priceListId.enum")).toEqual(
-      map(many.priceLists, "id")
-    );
-    expect(controlAt(many, "#/properties/priceListId")).toBeDefined();
-    expect(get(schemaFor(one), "properties.priceListId")).toBeUndefined();
-    expect(controlAt(one, "#/properties/priceListId")).toBeUndefined();
+    expect(get(schemaFor(many), "properties.priceListId")).toBeUndefined();
+    expect(controlAt(many, "#/properties/priceListId")).toBeUndefined();
   });
 });
 
@@ -264,13 +258,6 @@ describe("the consolidation schedule is asked for only while it applies", () => 
     ).toBe(false);
     expect(validate({ consolidation: 0 })).toBe(false);
     expect(validate({ currencyCode: "XXX", consolidation: 0 })).toBe(false);
-    expect(
-      validate({
-        currencyCode: "GBP",
-        consolidation: 0,
-        priceListId: "pl-none"
-      })
-    ).toBe(false);
   });
 });
 
