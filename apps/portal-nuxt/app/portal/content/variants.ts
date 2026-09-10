@@ -17,8 +17,12 @@ import type { RowMeasure, RowSurface } from "./types";
  * sticky, nothing clever. The gap is the rhythm two modules sharing a row
  * already keep. Only a bottom margin: every surface's header already pads
  * itself below the description, and the body it opens does not.
+ *
+ * A module group inside the band wraps: the shared horizontal axis is
+ * `flex-nowrap` for the chrome bars (shell/variants.ts), and a control band
+ * on a narrow viewport has to break its filters onto new lines instead.
  */
-export const ROW_CONTROLS_BAND_CLASS = `mb-6 flex flex-wrap items-center justify-between ${MODULE_CLUSTER_GAP}`;
+export const ROW_CONTROLS_BAND_CLASS = `mb-6 flex flex-wrap items-center justify-between ${MODULE_CLUSTER_GAP} [&_[data-slot=portal-module-group]]:flex-wrap`;
 
 const ROW_FULL_MEASURE_CLASS: Readonly<Record<RowMeasure, string>> = {
   // Cancels Page's own `px-4 sm:px-6 lg:px-8` (design-system/packages/ui/src/components/page/variants.ts)
