@@ -99,6 +99,13 @@ export type MockProductEvent = {
  * Derived here rather than in the selector: every reading is arithmetic over
  * the product's dates and the figures on its invoices (plan R6).
  */
+/** The lifecycle events a selector may hang an action on — named once, so the two files cannot drift apart. */
+export const PRODUCT_EVENT_ID = {
+  AUTO_RENEW_OFF: "auto-renew-off",
+  NEXT_INVOICE: "next-invoice",
+  TERMINATED: "terminated"
+} as const;
+
 export function productLifecycleEvents(
   data: MockDataset,
   product: MockProduct
@@ -122,7 +129,7 @@ function renewalEvent(product: MockProduct): MockProductEvent | undefined {
   if (product.nextDueDate === undefined) return undefined;
   if (!product.autoRenew) {
     return {
-      id: "auto-renew-off",
+      id: PRODUCT_EVENT_ID.AUTO_RENEW_OFF,
       title: "Automatic renewal is off",
       description: `This product will not renew itself on ${product.nextDueDate}.`,
       datetime: product.nextDueDate,
@@ -143,7 +150,7 @@ function nextInvoiceEvent(product: MockProduct): MockProductEvent | undefined {
   if (product.nextDueDate === undefined) return undefined;
   if (product.autoRenew) return undefined;
   return {
-    id: "next-invoice",
+    id: PRODUCT_EVENT_ID.NEXT_INVOICE,
     title: "Next invoice",
     description: `The next invoice is due to be raised ${relativeReading(product.nextDueDate)}. You can raise it yourself.`,
     datetime: product.nextDueDate,
@@ -228,7 +235,7 @@ function lifecycleStopEvent(
   }
   if (product.autoExpireAt !== undefined) {
     return {
-      id: "terminated",
+      id: PRODUCT_EVENT_ID.TERMINATED,
       title: "Terminates",
       description: `This product ends ${relativeReading(product.autoExpireAt)}, and will not be renewed.`,
       datetime: product.autoExpireAt,

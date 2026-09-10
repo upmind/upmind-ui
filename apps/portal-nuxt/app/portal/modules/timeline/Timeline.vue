@@ -25,8 +25,16 @@
         >
         <template v-else>{{ event.title }}</template>
       </TimelineTitle>
-      <TimelineDescription v-if="event.description">
+      <TimelineDescription v-if="event.description || event.action">
         {{ event.description }}
+        <Link
+          v-if="event.action"
+          size="sm"
+          :class="TIMELINE_ACTION_CLASS"
+          v-bind="useTestAttrs({ key: 'portal-timeline-action' })"
+          @click="emits('select', event.action.value)"
+          >{{ event.action.label }}</Link
+        >
       </TimelineDescription>
     </template>
   </Timeline>
@@ -42,6 +50,7 @@
  */
 import {
   EmptyState,
+  Link,
   Timeline,
   TimelineDescription,
   TimelineTime,
@@ -50,18 +59,22 @@ import {
 } from "@upmind/ui";
 import { computed } from "vue";
 import { EMPTY_STATE_UI } from "../../variants";
-import { TIMELINE_LINK_CLASS } from "./variants";
+import { TIMELINE_ACTION_CLASS, TIMELINE_LINK_CLASS } from "./variants";
 import { map } from "lodash-es";
-import type { TimelineModuleProps } from "./types";
+import type { TimelineModuleEmits, TimelineModuleProps } from "./types";
 import type { TimelineEvent } from "@upmind/ui";
 import { NuxtLink } from "#components";
 
 /** The library's event, plus where this one leads. */
-type PortalTimelineEvent = TimelineEvent & { readonly to?: string };
+type PortalTimelineEvent = TimelineEvent & {
+  readonly to?: string;
+  readonly action?: TimelineModuleProps["items"][number]["action"];
+};
 
 defineOptions({ name: "PortalTimeline" });
 
 const props = defineProps<TimelineModuleProps>();
+const emits = defineEmits<TimelineModuleEmits>();
 
 const meta = computed(() => ({
   isEmpty: props.items.length === 0,
@@ -76,6 +89,7 @@ const meta = computed(() => ({
       datetime: item.datetime,
       intent: item.tone,
       to: item.to,
+      action: item.action,
       dataAttrs: {
         "data-test-key": "portal-timeline-item",
         "data-test-value": item.id

@@ -175,6 +175,7 @@ import {
   migrationPriceLabel,
   orderedMigrationOptions,
   productLifecycleEvents,
+  PRODUCT_EVENT_ID,
   migrationRefusal,
   MOCK_RECEIPT_REASON,
   templateSlotBody,
@@ -1968,6 +1969,36 @@ export function productHasPendingProRata(
 }
 
 /** An event that has PASSED reads as a warning; one still coming reads as information. */
+/**
+ * Legacy's timeline links, one per event that the client can still change:
+ * raise the renewal invoice yourself, turn automatic renewal back on, or call
+ * off a scheduled termination.
+ */
+function lifecycleAction(
+  product: MockProduct,
+  event: MockProductEvent
+): TimelineModuleItem["action"] {
+  switch (event.id) {
+    case PRODUCT_EVENT_ID.NEXT_INVOICE:
+      return {
+        value: mockActionValue(MOCK_ACTION.CREATE_RENEWAL_INVOICE, product.id),
+        label: renewalInvoiceLabel(product)
+      };
+    case PRODUCT_EVENT_ID.AUTO_RENEW_OFF:
+      return {
+        value: mockActionValue(MOCK_ACTION.TOGGLE_AUTO_RENEW, product.id),
+        label: "Turn on auto-renew"
+      };
+    case PRODUCT_EVENT_ID.TERMINATED:
+      return {
+        value: mockActionValue(MOCK_ACTION.ABORT_CANCELLATION, product.id),
+        label: "Don't cancel"
+      };
+    default:
+      return undefined;
+  }
+}
+
 function lifecycleTone(event: MockProductEvent): TimelineTone {
   if (event.isPast) return "warning";
   return "info";
@@ -1997,7 +2028,8 @@ export function productTimelineItems(
     to: event.to,
     // What has already happened reads as a warning; what is coming reads as
     // information — legacy's own future-vs-overdue split.
-    tone: lifecycleTone(event)
+    tone: lifecycleTone(event),
+    action: lifecycleAction(product, event)
   }));
   const rail: TimelineModuleItem[] = [...lifecycle, ...scheduled];
   // Two passes, one fact each: the dated events take their place on the rail,

@@ -52,6 +52,7 @@ export {
   migrationPriceLabel,
   orderedMigrationOptions,
   productLifecycleEvents,
+  PRODUCT_EVENT_ID,
   migrationRefusal,
   renewalInvoiceRefusal,
   useMockContractProduct

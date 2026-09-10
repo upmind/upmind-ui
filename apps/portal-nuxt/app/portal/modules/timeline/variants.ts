@@ -11,3 +11,6 @@
 /** A dated event whose title is reachable reads as a link, and only on hover. */
 export const TIMELINE_LINK_CLASS =
   "hover:text-primary underline-offset-4 hover:underline";
+
+/** The inline action after an event's description — a gap from the sentence it follows. */
+export const TIMELINE_ACTION_CLASS = "ms-1";
