@@ -86,6 +86,9 @@ export const STACK_ROOT_CLASS = "@container";
 export const STACK_ITEM_CLASS =
   "flex-wrap @max-sm:[&>[data-slot=list-item-trailing]]:basis-full @max-sm:[&>[data-slot=list-item-trailing]]:justify-end";
 
+/** A row's category, on its own line over the title it qualifies. `block`, so a long one truncates inside the row instead of pushing past it — a flex badge cannot ellipsise. */
+export const STACK_CATEGORY_CLASS = "mb-1 block max-w-full truncate";
+
 /** The cluster itself wraps too — two tags and an action rarely share one narrow line. */
 export const STACK_TRAILING_CLASS =
   "flex flex-wrap items-center justify-end gap-2";

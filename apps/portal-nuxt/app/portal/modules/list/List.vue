@@ -59,14 +59,17 @@
             :alt="item.leadingImageAlt ?? ''"
           />
         </template>
+        <!-- Above the title, not inside it: the title truncates, and a
+             category the length of "Jonah Reyes · 2026-07-11" would leave it
+             two letters on a phone. -->
+        <StatusBadge
+          v-if="item.category && !props.grouped"
+          variant="secondary"
+          :dot="false"
+          :class="STACK_CATEGORY_CLASS"
+          >{{ item.category }}</StatusBadge
+        >
         <ListItemTitle>
-          <StatusBadge
-            v-if="item.category && !props.grouped"
-            variant="secondary"
-            :dot="false"
-            class="me-2"
-            >{{ item.category }}</StatusBadge
-          >
           <NuxtLink v-if="item.to" :to="item.to" class="hover:underline">{{
             item.title
           }}</NuxtLink>
@@ -556,6 +559,7 @@ import {
   ROW_CONTROLS_CLASS,
   SECRET_MASK,
   SECRET_VALUE_CLASS,
+  STACK_CATEGORY_CLASS,
   STACK_ITEM_CLASS,
   STACK_ROOT_CLASS,
   STACK_TRAILING_CLASS,
