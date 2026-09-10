@@ -63,6 +63,11 @@ function payload(verb: string, model: unknown): string {
   return `${verb}:${JSON.stringify(model)}`;
 }
 
+/** The change, cleared by the emailed code — legacy's sensitive-action chain, mocked. */
+function confirmed(verb: string, model: unknown): string {
+  return `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${payload(verb, model)}:${JSON.stringify({ token: "123456" })}`;
+}
+
 function toastText(result: {
   toast?: { title: string; description?: string };
 }): string {
@@ -122,7 +127,7 @@ describe("changing the name the client signs in with", () => {
     const result = dispatchMockAction(
       data,
       NO_CONTEXT,
-      payload(MOCK_ACTION.USERNAME_CHANGE, { username: "kestrel" })
+      confirmed(MOCK_ACTION.USERNAME_CHANGE, { username: "kestrel" })
     );
 
     expect(result?.toast?.intent).toBe(MOCK_TOAST_INTENT.SUCCESS);
@@ -140,7 +145,7 @@ describe("changing the name the client signs in with", () => {
     const result = dispatchMockAction(
       data,
       NO_CONTEXT,
-      payload(MOCK_ACTION.USERNAME_CHANGE, { username: "   " })
+      confirmed(MOCK_ACTION.USERNAME_CHANGE, { username: "   " })
     );
 
     expect(result?.toast?.intent).toBe(MOCK_TOAST_INTENT.WARNING);
@@ -178,7 +183,7 @@ describe("changing the password", () => {
     const result = dispatchMockAction(
       data,
       NO_CONTEXT,
-      payload(MOCK_ACTION.PASSWORD_CHANGE, Object.fromEntries(typed))
+      confirmed(MOCK_ACTION.PASSWORD_CHANGE, Object.fromEntries(typed))
     );
 
     expect(result?.toast?.intent).toBe(MOCK_TOAST_INTENT.SUCCESS);
@@ -194,7 +199,7 @@ describe("changing the password", () => {
     const result = dispatchMockAction(
       data,
       NO_CONTEXT,
-      payload(MOCK_ACTION.PASSWORD_CHANGE, {
+      confirmed(MOCK_ACTION.PASSWORD_CHANGE, {
         [password ?? ""]: "Sup3rSecret!",
         [confirm ?? ""]: "Sup3rSecret?"
       })

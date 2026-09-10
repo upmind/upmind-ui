@@ -75,7 +75,9 @@ export const FORM_ID = {
    * Legacy's `parentBrandAppearanceForm` — the name, colour and font a parent
    * account lends to the accounts it manages.
    */
-  PARENT_BRANDING: "parent-branding"
+  PARENT_BRANDING: "parent-branding",
+  /** The code the brand emails before a username or password change lands (legacy's sensitive-action chain). */
+  SENSITIVE_CODE: "sensitive-code"
 } as const;
 
 export type FormId = (typeof FORM_ID)[keyof typeof FORM_ID];

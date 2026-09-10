@@ -326,6 +326,19 @@ const FORM_BUILDER: Readonly<Record<FormId, MockFormBuilder>> = {
       resetLabel: CANCEL_LABEL
     };
   },
+  [FORM_ID.SENSITIVE_CODE]: (data, entityId) => {
+    if (entityId === undefined) return undefined;
+    return {
+      title: "Confirm it is you",
+      description: `We emailed a code to ${data.persona.email}. Type it here to finish the change.`,
+      schema: useTwoFASchema(),
+      uischema: useTwoFAUischema(),
+      model: { token: "" },
+      submit: `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${entityId}`,
+      submitLabel: "Confirm",
+      resetLabel: CANCEL_LABEL
+    };
+  },
   [FORM_ID.PRODUCT_LABEL]: (data, entityId) => {
     if (entityId === undefined) return undefined;
     const product = useMockContractProduct(data, entityId).useContext().data

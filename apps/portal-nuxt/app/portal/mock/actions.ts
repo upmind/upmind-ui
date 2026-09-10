@@ -65,7 +65,8 @@ import {
   useMockVault,
   useMockWallet,
   trialEndConfirmation,
-  whyNotShareable
+  whyNotShareable,
+  isCodeShaped
 } from "./facades";
 import { useMockClientEmails } from "./facades/useMockContacts";
 import { FORM_ID, isFormId } from "./forms/ids";
@@ -245,6 +246,8 @@ export const MOCK_ACTION = {
   /** The security page's own three forms. */
   USERNAME_CHANGE: "username-change",
   PASSWORD_CHANGE: "password-change",
+  /** The emailed code confirms a pending username or password change: `sensitive-code-confirm:<change>:<json>:<code json>`. */
+  SENSITIVE_CODE_CONFIRM: "sensitive-code-confirm",
   TWOFA_ENABLE: "twofa-enable",
   TWOFA_DISABLE: "twofa-disable",
   /** One more address sign-in is allowed from: `ip-whitelist-create:<json>`. */
@@ -878,6 +881,48 @@ const TOPIC_SWITCH_MESSAGE: Readonly<Record<TopicSwitch, string>> = {
  * is the standing QUIET no-op tier: nobody authored it, and there is nothing
  * to answer with.
  */
+/** `<change>:<change json>:<code json>` — the pending change, then the code typed against it. */
+function splitSensitivePayload(
+  tail: string | undefined
+): { change: string; model: FormModel; code: FormModel } | undefined {
+  if (tail === undefined) return undefined;
+  const asked = splitAtFirstColon(tail);
+  if (asked === undefined) return undefined;
+  const boundary = asked.tail.lastIndexOf(":{");
+  if (boundary < 0) return undefined;
+  const model = parseFormPayload(asked.tail.slice(0, boundary));
+  const code = parseFormPayload(asked.tail.slice(boundary + 1));
+  if (model === undefined || code === undefined) return undefined;
+  return { change: asked.head, model, code };
+}
+
+/** The change itself, once the code has cleared it. */
+function applySensitiveChange(
+  data: MockDataset,
+  change: string,
+  model: FormModel
+): MockActionResult | undefined {
+  if (change === MOCK_ACTION.USERNAME_CHANGE) {
+    const receipt = useMockPersonalDetails(data)
+      .useActions()
+      .changeUsername(model);
+    return fromFormReceipt(receipt, persona =>
+      contactSaved("Username changed", persona.username)
+    );
+  }
+  if (change === MOCK_ACTION.PASSWORD_CHANGE) {
+    const receipt = useMockSecurity(data).useActions().changePassword(model);
+    return fromFormReceipt(receipt, () => ({
+      toast: {
+        intent: MOCK_TOAST_INTENT.SUCCESS,
+        title: "Password changed",
+        description: "Use the new one next time you sign in."
+      }
+    }));
+  }
+  return undefined;
+}
+
 function parseFormPayload(tail: string | undefined): FormModel | undefined {
   if (tail === undefined) return undefined;
   try {
@@ -1056,27 +1101,25 @@ export function dispatchMockAction(
         toast: { intent: MOCK_TOAST_INTENT.SUCCESS, title: "Answers saved" }
       }));
     }
-    case MOCK_ACTION.USERNAME_CHANGE: {
-      const model = parseFormPayload(id);
-      if (model === undefined) return undefined;
-      const receipt = useMockPersonalDetails(data)
-        .useActions()
-        .changeUsername(model);
-      return fromFormReceipt(receipt, persona =>
-        contactSaved("Username changed", persona.username)
-      );
-    }
+    case MOCK_ACTION.USERNAME_CHANGE:
     case MOCK_ACTION.PASSWORD_CHANGE: {
-      const model = parseFormPayload(id);
-      if (model === undefined) return undefined;
-      const receipt = useMockSecurity(data).useActions().changePassword(model);
-      return fromFormReceipt(receipt, () => ({
-        toast: {
-          intent: MOCK_TOAST_INTENT.SUCCESS,
-          title: "Password changed",
-          description: "Use the new one next time you sign in."
-        }
-      }));
+      // Legacy's sensitive-action chain: the change waits on the code the
+      // brand emails, so the first submit only opens that prompt.
+      if (parseFormPayload(id) === undefined) return undefined;
+      return {
+        form: { id: FORM_ID.SENSITIVE_CODE, entityId: `${verb}:${id}` }
+      };
+    }
+    case MOCK_ACTION.SENSITIVE_CODE_CONFIRM: {
+      const pending = splitSensitivePayload(id);
+      if (pending === undefined) return undefined;
+      if (!isCodeShaped(submittedText(pending.code, "token"))) {
+        return fromReceipt(
+          { ok: false, reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE },
+          () => ({})
+        );
+      }
+      return applySensitiveChange(data, pending.change, pending.model);
     }
     case MOCK_ACTION.TWOFA_ENABLE: {
       const model = parseFormPayload(id);

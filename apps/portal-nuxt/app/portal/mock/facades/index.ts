@@ -90,7 +90,7 @@ export {
   useMockPersonalDetails
 } from "./useMockPersonalDetails";
 export { useMockProvisioning } from "./useMockProvisioning";
-export { useMockSecurity } from "./useMockSecurity";
+export { useMockSecurity, isCodeShaped } from "./useMockSecurity";
 export type { MockProvisioningView } from "./useMockProvisioning";
 export { useMockIpWhitelist } from "./useMockIpWhitelist";
 export { useMockRelation } from "./useMockRelation";
