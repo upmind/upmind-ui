@@ -1099,6 +1099,21 @@ function productPath(context: DataRouteContext, product: MockProduct): string {
  * Legacy's setup tab sends a finished product back to its overview — once
  * setup is confirmed the page has nothing left to ask.
  */
+/** Legacy opens a product still waiting on setup at its Setup tab, not its overview. */
+export function productRootRedirect(
+  data: MockDataset | undefined,
+  resolution: CatchAllResolution
+): string | undefined {
+  if (data === undefined) return undefined;
+  if (resolution.kind !== "product-detail") return undefined;
+  const product = find(data.products, { id: resolution.id });
+  if (product === undefined) return undefined;
+  if (product.status !== ContractStatusCodes.AWAITING_ACTIVATION) {
+    return undefined;
+  }
+  return `/${resolution.group.slug}/${product.id}/${PRODUCT_AREA_SLUG.SETUP}`;
+}
+
 export function setupAreaRedirect(
   data: MockDataset | undefined,
   resolution: CatchAllResolution

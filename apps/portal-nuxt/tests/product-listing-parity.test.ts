@@ -4,7 +4,11 @@ import { every, find, some } from "lodash-es";
 import type { MockDataset } from "~/portal/mock/types";
 import { MOCK_ACTION, mockActionValue } from "~/portal/mock/actions";
 import { HOSTGRID_MOCK_DATASET } from "~/portal/mock/hostgrid";
-import { groupProductItems, setupAreaRedirect } from "~/portal/mock/selectors";
+import {
+  groupProductItems,
+  productRootRedirect,
+  setupAreaRedirect
+} from "~/portal/mock/selectors";
 import { defineProductGroup } from "~/portal/routes";
 
 /**
@@ -52,6 +56,25 @@ describe("the products listing carries legacy's row controls", () => {
           some(row.tags, tag => /open request/.test(tag.label))
       )
     ).toBe(false);
+  });
+});
+
+describe("a product still owed its setup opens on the Setup tab", () => {
+  const data = clone();
+  const pending = find(data.products, {
+    status: ContractStatusCodes.AWAITING_ACTIVATION
+  });
+  const running = find(data.products, { status: ContractStatusCodes.ACTIVE });
+  if (pending === undefined || running === undefined)
+    throw new Error("seed lacks a pending or a running product");
+  const rootOf = (id: string) =>
+    ({ kind: "product-detail", group: products, id }) as const;
+
+  it("sends the pending product to setup, and leaves the running one on its overview", () => {
+    expect(productRootRedirect(data, rootOf(pending.id))).toBe(
+      `/products/${pending.id}/setup`
+    );
+    expect(productRootRedirect(data, rootOf(running.id))).toBeUndefined();
   });
 });
 
