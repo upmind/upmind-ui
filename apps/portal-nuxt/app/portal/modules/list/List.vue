@@ -320,7 +320,12 @@
             >{{ badgeFor(item)?.label }}</StatusBadge
           >
         </div>
-        <CardTitle class="text-sm">{{ item.title }}</CardTitle>
+        <CardTitle class="text-sm">
+          <NuxtLink v-if="item.to" :to="item.to" class="hover:underline">{{
+            item.title
+          }}</NuxtLink>
+          <template v-else>{{ item.title }}</template>
+        </CardTitle>
         <CardDescription v-if="item.description" class="text-xs">{{
           item.description
         }}</CardDescription>
