@@ -814,7 +814,11 @@ export function groupProductItems(
       { value: product.price?.formatted ?? "—", numeric: true }
     ],
     tags: productTags(product),
-    status: productBadge(product)
+    status: productBadge(product),
+    // The same button and overflow the dashboard rows carry — legacy's
+    // product row is one component, wherever the list appears.
+    action: productRowAction(product),
+    moreActions: productRowMoreActions(product)
   }));
 }
 
