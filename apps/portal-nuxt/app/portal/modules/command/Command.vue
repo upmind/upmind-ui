@@ -61,7 +61,9 @@ import { Search } from "lucide-vue-next";
 import { ref } from "vue";
 import type { CommandModuleEmits, CommandModuleProps } from "./types";
 
-defineOptions({ name: "PortalCommand" });
+// Two roots (the trigger and its dialog), so the host's `variant` attribute
+// has nowhere to land — and this module has no variants to take it.
+defineOptions({ name: "PortalCommand", inheritAttrs: false });
 
 const props = defineProps<CommandModuleProps>();
 const emits = defineEmits<CommandModuleEmits>();
