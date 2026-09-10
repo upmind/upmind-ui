@@ -984,6 +984,14 @@ export function productBillingSpecItems(
  * is a subscription to set anything on, and never on a product managed for
  * someone else; Tickets only where the brand runs a support desk.
  */
+/** The product's action areas, as the route spells them — named once for the nav and the guards. */
+export const PRODUCT_AREA_SLUG = {
+  SETUP: "setup",
+  BILLING: "billing",
+  TICKETS: "tickets",
+  SETTINGS: "settings"
+} as const;
+
 export function productAreaNavItems(
   data: MockDataset,
   context: DataRouteContext
@@ -996,19 +1004,23 @@ export function productAreaNavItems(
     product.isDelegated !== true;
   return compact([
     product.status === ContractStatusCodes.AWAITING_ACTIVATION && {
-      to: `${base}/setup`,
+      to: `${base}/${PRODUCT_AREA_SLUG.SETUP}`,
       label: "Setup",
       icon: Wrench
     },
     { to: base, label: "Overview", icon: LayoutDashboard },
-    { to: `${base}/billing`, label: "Billing", icon: CreditCard },
+    {
+      to: `${base}/${PRODUCT_AREA_SLUG.BILLING}`,
+      label: "Billing",
+      icon: CreditCard
+    },
     isSupportEnabled(data) && {
-      to: `${base}/tickets`,
+      to: `${base}/${PRODUCT_AREA_SLUG.TICKETS}`,
       label: "Tickets",
       icon: LifeBuoy
     },
     hasSettings && {
-      to: `${base}/settings`,
+      to: `${base}/${PRODUCT_AREA_SLUG.SETTINGS}`,
       label: "Settings",
       icon: Settings
     },
@@ -1069,6 +1081,25 @@ function productPath(context: DataRouteContext, product: MockProduct): string {
  * for the LIST, so the redirect stands down. Pure: the catch-all page holds
  * the navigation, this holds the decision.
  */
+/**
+ * Legacy's setup tab sends a finished product back to its overview — once
+ * setup is confirmed the page has nothing left to ask.
+ */
+export function setupAreaRedirect(
+  data: MockDataset | undefined,
+  resolution: CatchAllResolution
+): string | undefined {
+  if (data === undefined) return undefined;
+  if (resolution.kind !== "product-action-area") return undefined;
+  if (resolution.area !== PRODUCT_AREA_SLUG.SETUP) return undefined;
+  const product = find(data.products, { id: resolution.id });
+  if (product === undefined) return undefined;
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return undefined;
+  }
+  return `/${resolution.group.slug}/${product.id}`;
+}
+
 export function soleProductRedirect(
   data: MockDataset | undefined,
   resolution: CatchAllResolution,
@@ -1198,7 +1229,10 @@ function productCondition(
       message: "We need a few details before this product can go live.",
       tone: "warning",
       action: {
-        value: mockActionValue(MOCK_ACTION.NAVIGATE, `${base}/setup`),
+        value: mockActionValue(
+          MOCK_ACTION.NAVIGATE,
+          `${base}/${PRODUCT_AREA_SLUG.SETUP}`
+        ),
         label: "Complete setup"
       }
     };
@@ -1355,7 +1389,10 @@ function productStandingCondition(
       message: `This product renews automatically. The next invoice is raised on ${product.nextDueDate}.`,
       tone: "success",
       action: {
-        value: mockActionValue(MOCK_ACTION.NAVIGATE, `${base}/billing`),
+        value: mockActionValue(
+          MOCK_ACTION.NAVIGATE,
+          `${base}/${PRODUCT_AREA_SLUG.BILLING}`
+        ),
         label: "View billing"
       }
     };

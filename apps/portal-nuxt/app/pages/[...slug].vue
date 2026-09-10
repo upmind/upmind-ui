@@ -7,7 +7,10 @@ import type { PageKey } from "~/portal/types";
 import { usePortalConfig } from "~/composables/usePortalConfig";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { routeQueryContext } from "~/portal/mock/injection";
-import { soleProductRedirect } from "~/portal/mock/selectors";
+import {
+  setupAreaRedirect,
+  soleProductRedirect
+} from "~/portal/mock/selectors";
 import { isMockDatasetId, useMockData } from "~/portal/mock/store";
 import { resolveCatchAll } from "~/portal/routes";
 import { PAGE_KEY, PORTAL_PILLAR } from "~/portal/types";
@@ -52,6 +55,9 @@ watch(
     // off the redirect (mock/selectors.ts holds the decision).
     const sole = soleProductRedirect(activeData.value, current, queryFilters());
     if (sole !== undefined) await navigateTo(sole, { replace: true });
+    // Setup is done: the tab is gone from the rail, so its URL goes too.
+    const finished = setupAreaRedirect(activeData.value, current);
+    if (finished !== undefined) await navigateTo(finished, { replace: true });
   },
   { immediate: true }
 );
