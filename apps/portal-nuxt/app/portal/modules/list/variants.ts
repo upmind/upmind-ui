@@ -89,6 +89,9 @@ export const STACK_ITEM_CLASS =
 /** A row's category, on its own line over the title it qualifies. `block`, so a long one truncates inside the row instead of pushing past it — a flex badge cannot ellipsise. */
 export const STACK_CATEGORY_CLASS = "mb-1 block max-w-full truncate";
 
+/** A card's badge line: the category at the start, the status pushed to the end. */
+export const CARD_BADGE_ROW_CLASS = "mb-1 flex flex-wrap items-center gap-2";
+
 /** The cluster itself wraps too — two tags and an action rarely share one narrow line. */
 export const STACK_TRAILING_CLASS =
   "flex flex-wrap items-center justify-end gap-2";

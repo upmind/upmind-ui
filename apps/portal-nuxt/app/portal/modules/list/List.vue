@@ -299,22 +299,28 @@
       </div>
 
       <CardHeader class="p-4 pb-2">
-        <StatusBadge
-          v-if="item.category"
-          variant="secondary"
-          :dot="false"
-          class="mb-1 w-fit"
-          >{{ item.category }}</StatusBadge
+        <!-- One line above the title for both badges, not the header's action
+             corner: a corner badge as long as "£19.00 · Monthly" takes its
+             column off the title, which then breaks one word to a line. -->
+        <div
+          v-if="item.category || badgeFor(item)"
+          :class="CARD_BADGE_ROW_CLASS"
         >
+          <StatusBadge v-if="item.category" variant="secondary" :dot="false">{{
+            item.category
+          }}</StatusBadge>
+          <StatusBadge
+            v-if="badgeFor(item)"
+            class="ms-auto"
+            :tone="badgeFor(item)?.tone"
+            :dot="false"
+            >{{ badgeFor(item)?.label }}</StatusBadge
+          >
+        </div>
         <CardTitle class="text-sm">{{ item.title }}</CardTitle>
         <CardDescription v-if="item.description" class="text-xs">{{
           item.description
         }}</CardDescription>
-        <CardAction v-if="badgeFor(item)">
-          <StatusBadge :tone="badgeFor(item)?.tone" :dot="false">{{
-            badgeFor(item)?.label
-          }}</StatusBadge>
-        </CardAction>
       </CardHeader>
 
       <CardFooter v-if="item.action" class="mt-auto gap-2 p-4 pt-2">
@@ -509,7 +515,6 @@ import {
   Avatar,
   Button as PortalButton,
   Switch,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -550,6 +555,7 @@ import { MOCK_ACTION, mockActionValue } from "../../mock/actions";
 import { EMPTY_STATE_UI } from "../../variants";
 import { LIST_MODULE_VARIANT } from "./types";
 import {
+  CARD_BADGE_ROW_CLASS,
   CARD_CAROUSEL_CLASS,
   GROUP_HEADER_CLASS,
   GROUP_TOGGLE_CLASS,
