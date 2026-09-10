@@ -20,9 +20,10 @@ const PORTAL_GROUP_AXIS_CLASS: Readonly<Record<GroupAxis, string>> = {
   // cluster shared the right region.
   horizontal: `flex flex-row flex-nowrap items-center ${MODULE_CLUSTER_GAP}`,
   vertical: `flex flex-col items-start ${MODULE_CLUSTER_GAP}`,
-  // Not yet exercised by any acceptance criterion — every member occupies
-  // the same cell rather than adding to the flow.
-  stacked: "grid [&>*]:col-start-1 [&>*]:row-start-1"
+  // A vertical stack whose members take the group's full width — a card
+  // built from a list over a fact sheet. `vertical` shrink-wraps its members
+  // (`items-start`), which is right for a button cluster and wrong for rows.
+  stacked: `flex flex-col ${MODULE_CLUSTER_GAP}`
 };
 
 export function portalGroupClass(axis: GroupAxis): string {
