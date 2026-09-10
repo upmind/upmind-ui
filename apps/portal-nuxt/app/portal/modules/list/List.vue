@@ -345,100 +345,105 @@
     </CardRoot>
   </div>
 
-  <Table v-else-if="meta.isTable">
-    <TableHeader v-if="meta.hasHeadings">
-      <TableRow>
-        <TableHead
-          v-for="heading in props.headings"
-          :key="heading.label"
-          :numeric="heading.numeric"
-          >{{ heading.label }}</TableHead
+  <div v-else-if="meta.isTable" :class="TABLE_ROOT_CLASS">
+    <Table>
+      <TableHeader v-if="meta.hasHeadings">
+        <TableRow>
+          <TableHead
+            v-for="heading in props.headings"
+            :key="heading.label"
+            :numeric="heading.numeric"
+            >{{ heading.label }}</TableHead
+          >
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow
+          v-for="item in visibleItems"
+          :key="item.id"
+          v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
         >
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      <TableRow
-        v-for="item in visibleItems"
-        :key="item.id"
-        v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
-      >
-        <TableCell :class="TABLE_CELL_CLASS">
-          <div class="flex items-center gap-3">
-            <IconTile v-if="item.leadingIcon" size="sm"
-              ><component :is="item.leadingIcon"
-            /></IconTile>
-            <Avatar
-              v-else-if="item.leadingImageSrc"
-              size="sm"
-              :src="item.leadingImageSrc"
-              :alt="item.leadingImageAlt ?? ''"
-            />
-            <span class="text-display font-medium">
-              <NuxtLink v-if="item.to" :to="item.to" class="hover:underline">{{
-                item.title
-              }}</NuxtLink>
-              <template v-else>{{ item.title }}</template>
-            </span>
-          </div>
-        </TableCell>
-        <TableCell
-          v-for="(cell, index) in rowCells(item)"
-          :key="index"
-          :numeric="cell.numeric"
-          :class="['text-muted', TABLE_CELL_CLASS]"
-          >{{ cell.value }}</TableCell
-        >
-        <TableCell v-if="meta.hasTrailing" class="text-right">
-          <span class="inline-flex items-center gap-1">
-            <component
-              :is="tag.action ? 'button' : 'span'"
-              v-for="tag in item.tags"
-              :key="tag.label"
-              :type="tag.action ? 'button' : undefined"
-              :aria-label="tag.action?.label"
-              @click="tag.action && onAction(tag.action.value)"
-            >
-              <StatusBadge :tone="tag.tone" :dot="false">{{
-                tag.label
-              }}</StatusBadge>
-            </component>
-            <StatusBadge
-              v-if="badgeFor(item)"
-              :tone="badgeFor(item)?.tone"
-              :dot="false"
-              >{{ badgeFor(item)?.label }}</StatusBadge
-            >
-          </span>
-        </TableCell>
-        <TableCell v-if="meta.hasRowActions" class="text-right">
-          <span class="inline-flex items-center gap-1">
-            <PortalButton
-              v-if="item.action"
-              variant="outline"
-              size="sm"
-              @click="onAction(item.action.value)"
-              >{{ item.action.label }}</PortalButton
-            >
-            <DropdownMenu
-              v-if="item.moreActions?.length"
-              :items="moreMenuItems(item.moreActions)"
-            >
-              <template #trigger>
-                <PortalButton
-                  size="sm"
-                  variant="ghost"
-                  icon-only
-                  :aria-label="props.moreLabel"
+          <TableCell :class="TABLE_CELL_CLASS">
+            <div class="flex items-center gap-3">
+              <IconTile v-if="item.leadingIcon" size="sm"
+                ><component :is="item.leadingIcon"
+              /></IconTile>
+              <Avatar
+                v-else-if="item.leadingImageSrc"
+                size="sm"
+                :src="item.leadingImageSrc"
+                :alt="item.leadingImageAlt ?? ''"
+              />
+              <span class="text-display font-medium">
+                <NuxtLink
+                  v-if="item.to"
+                  :to="item.to"
+                  class="hover:underline"
+                  >{{ item.title }}</NuxtLink
                 >
-                  <Ellipsis />
-                </PortalButton>
-              </template>
-            </DropdownMenu>
-          </span>
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>
+                <template v-else>{{ item.title }}</template>
+              </span>
+            </div>
+          </TableCell>
+          <TableCell
+            v-for="(cell, index) in rowCells(item)"
+            :key="index"
+            :numeric="cell.numeric"
+            :class="['text-muted', TABLE_CELL_CLASS]"
+            >{{ cell.value }}</TableCell
+          >
+          <TableCell v-if="meta.hasTrailing" class="text-right">
+            <span class="inline-flex items-center gap-1">
+              <component
+                :is="tag.action ? 'button' : 'span'"
+                v-for="tag in item.tags"
+                :key="tag.label"
+                :type="tag.action ? 'button' : undefined"
+                :aria-label="tag.action?.label"
+                @click="tag.action && onAction(tag.action.value)"
+              >
+                <StatusBadge :tone="tag.tone" :dot="false">{{
+                  tag.label
+                }}</StatusBadge>
+              </component>
+              <StatusBadge
+                v-if="badgeFor(item)"
+                :tone="badgeFor(item)?.tone"
+                :dot="false"
+                >{{ badgeFor(item)?.label }}</StatusBadge
+              >
+            </span>
+          </TableCell>
+          <TableCell v-if="meta.hasRowActions" class="text-right">
+            <span class="inline-flex items-center gap-1">
+              <PortalButton
+                v-if="item.action"
+                variant="outline"
+                size="sm"
+                @click="onAction(item.action.value)"
+                >{{ item.action.label }}</PortalButton
+              >
+              <DropdownMenu
+                v-if="item.moreActions?.length"
+                :items="moreMenuItems(item.moreActions)"
+              >
+                <template #trigger>
+                  <PortalButton
+                    size="sm"
+                    variant="ghost"
+                    icon-only
+                    :aria-label="props.moreLabel"
+                  >
+                    <Ellipsis />
+                  </PortalButton>
+                </template>
+              </DropdownMenu>
+            </span>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  </div>
 
   <Timeline v-else :items="timelineEvents">
     <template #marker="{ event }">
@@ -574,6 +579,7 @@ import {
   STACK_ROOT_CLASS,
   STACK_TRAILING_CLASS,
   TABLE_CELL_CLASS,
+  TABLE_ROOT_CLASS,
   TIMELINE_EVENT_HEAD_CLASS,
   cardGridClass,
   cardMediaClass,

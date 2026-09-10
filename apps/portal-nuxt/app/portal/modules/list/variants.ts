@@ -109,6 +109,10 @@ export const ROW_CARD_TRAILING_CLASS =
 /** A table cell never breaks a date or an amount across lines — the table scrolls sideways inside its container instead. */
 export const TABLE_CELL_CLASS = "whitespace-nowrap";
 
+/** A wide table scrolls inside the library's container; overlay scrollbars hide that, so the bar is drawn thin and always. */
+export const TABLE_ROOT_CLASS =
+  "[&_[data-slot=table-container]::-webkit-scrollbar]:h-1.5 [&_[data-slot=table-container]::-webkit-scrollbar-thumb]:rounded-full [&_[data-slot=table-container]::-webkit-scrollbar-thumb]:bg-stroke";
+
 /** A group's header row: quieter and tighter than the rows it heads, since it is a label, not an entry. */
 export const GROUP_HEADER_CLASS = "bg-neutral-muted/40 py-1.5";
 
