@@ -306,12 +306,24 @@
              corner: a corner badge as long as "£19.00 · Monthly" takes its
              column off the title, which then breaks one word to a line. -->
         <div
-          v-if="item.category || badgeFor(item)"
+          v-if="item.category || item.tags?.length || badgeFor(item)"
           :class="CARD_BADGE_ROW_CLASS"
         >
           <StatusBadge v-if="item.category" variant="secondary" :dot="false">{{
             item.category
           }}</StatusBadge>
+          <component
+            :is="tag.action ? 'button' : 'span'"
+            v-for="tag in item.tags"
+            :key="tag.label"
+            :type="tag.action ? 'button' : undefined"
+            :aria-label="tag.action?.label"
+            @click="tag.action && onAction(tag.action.value)"
+          >
+            <StatusBadge :tone="tag.tone" :dot="false">{{
+              tag.label
+            }}</StatusBadge>
+          </component>
           <StatusBadge
             v-if="badgeFor(item)"
             class="ms-auto"

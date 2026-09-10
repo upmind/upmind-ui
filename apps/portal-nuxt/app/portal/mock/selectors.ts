@@ -388,7 +388,17 @@ export function productTrialAction(
  */
 function productTags(product: MockProduct): ListModuleItem["tags"] {
   const labelForm = openFormValue(FORM_ID.PRODUCT_LABEL, product.id);
+  const openRequests = product.provisioning.unresolvedRequests ?? 0;
   return compact([
+    // Legacy's danger marker: the provider still owes this product something.
+    openRequests > 0 && {
+      label: `${countedNoun(openRequests, "open request")} with the provider`,
+      tone: "danger" as const,
+      action: {
+        value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
+        label: "Open the product"
+      }
+    },
     isTrialAhead(product) && {
       label: `Free trial · ends in ${countedNoun(trialDaysRemaining(product), "day")} on ${product.trialEndsAt}`,
       tone: "info"
