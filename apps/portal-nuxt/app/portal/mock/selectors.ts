@@ -580,6 +580,20 @@ function productRowAction(product: MockProduct): ListModuleItem["action"] {
   };
 }
 
+/** Legacy's list item CTA (`cProdGridItem` `_action.manage_entity`), with setup taking its place while it is owed. */
+function listingRowAction(product: MockProduct): ListModuleItem["action"] {
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return {
+      value: mockActionValue(MOCK_ACTION.COMPLETE_SETUP, product.id),
+      label: "Complete setup"
+    };
+  }
+  return {
+    value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
+    label: MANAGE_PRODUCT_LABEL
+  };
+}
+
 /**
  * The row's overflow — legacy's dropdown, in its own order: every provider
  * function, then the product itself, then its billing.
@@ -826,10 +840,10 @@ export function groupProductItems(
     ],
     tags: productTags(product),
     status: productBadge(product),
-    // The same button and overflow the dashboard rows carry — legacy's
-    // product row is one component, wherever the list appears.
-    action: productRowAction(product),
-    moreActions: productRowMoreActions(product)
+    // Legacy's list item carries one CTA and no overflow: "Manage", or the
+    // way into setup while that is still owed. The function button and the
+    // menu belong to the dashboard rows only (`cProdRowWithFuncs`).
+    action: listingRowAction(product)
   }));
 }
 

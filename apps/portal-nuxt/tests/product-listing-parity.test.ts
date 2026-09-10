@@ -22,12 +22,14 @@ function clone(): MockDataset {
 describe("the products listing carries legacy's row controls", () => {
   const items = groupProductItems(clone(), { groupSlug: "products" });
 
-  it("gives every row its button and its overflow menu", () => {
+  it("gives every row legacy's one CTA and no overflow menu", () => {
     expect(items.length).toBeGreaterThan(0);
-    expect(every(items, item => item.action?.label !== undefined)).toBe(true);
-    expect(every(items, item => (item.moreActions?.length ?? 0) >= 2)).toBe(
-      true
-    );
+    expect(
+      every(items, item =>
+        /^(Manage|Complete setup)$/.test(item.action?.label ?? "")
+      )
+    ).toBe(true);
+    expect(every(items, item => item.moreActions === undefined)).toBe(true);
   });
 
   it("marks a product the provider still owes a request on", () => {
