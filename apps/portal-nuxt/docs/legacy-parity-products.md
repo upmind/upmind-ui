@@ -25,9 +25,9 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Empty state "Place new order" | `emptyAction` on the list | Present |
 | Card: whole card opens the product; "Manage" CTA | Title link and footer button | Partial |
 | Card: setup warning icon → Setup tab | "Complete setup" button | Present |
-| Card / row: unresolved provisioning request icon | — | Absent |
+| Card / row: unresolved provisioning request icon | Danger tag on the row and card, opens the product | Present |
 | Table row: click opens the product | Title link, button, "…" menu | Partial |
-| Needs-confirmation billboard + load more | Dashboard only ("Almost ready") | Partial |
+| Needs-confirmation billboard + load more | "Almost ready" heads the dashboard and the Products page | Present |
 | Sole product: redirect to its page | `soleProductRedirect` | Present |
 
 ## Dashboard product group list
@@ -38,7 +38,7 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Service / category tiles, "Show more" | Same | Present |
 | Row: name link, featured function button, "Manage" | Same helpers | Present |
 | Row menu: every function, Manage, Manage billing | Same | Present |
-| Compact pagination inside a group | — | Unverified |
+| Compact pagination inside a group | "Show more" only | Partial |
 | Empty state "Place new order" | — | Unverified |
 
 ## Product detail shell
@@ -46,7 +46,7 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Legacy control | Portal | Status |
 | --- | --- | --- |
 | Tabs setup / overview / billing / settings | Same, plus Tickets and Delegates | Present |
-| Mobile: tabs as a dropdown, featured functions appended | — | Absent |
+| Mobile: tabs as a dropdown, featured functions appended | The tab row stays; no dropdown, no appended functions | Partial |
 | Notice: "Go to order" while pending | Same | Present |
 | Notice: "Don't cancel" (auto-expire, cancellation request) | Same | Present |
 | Notice: "Complete setup" | Same | Present |
@@ -75,9 +75,9 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Legacy control | Portal | Status |
 | --- | --- | --- |
 | Provisioning field form, confirm | Setup form, save | Present |
-| Fields the client may not edit shown read-only | — | Unverified |
+| Fields the client may not edit shown read-only | — (the mock marks no field read-only) | Absent |
 | Revert to initial values | "Cancel" | Partial |
-| Redirect away when setup is not pending | Tab hidden; direct URL not checked | Unverified |
+| Redirect away when setup is not pending | `setupAreaRedirect` sends the URL to the overview | Present |
 
 ## Billing
 
@@ -88,10 +88,10 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Upgrade / downgrade | Same | Present |
 | Issue next invoice / late renewal invoice | Same | Present |
 | Cancellation options (end of term, immediate, reason) | Form | Present |
-| Custom fields on the cancellation form | — | Unverified |
+| Custom fields on the cancellation form | Same | Present |
 | "Don't cancel" on the pending-request and auto-expire messages | Same | Present |
-| Timeline links: create invoice, turn on auto-renew, stop auto-expire | Timeline rows carry no actions | Absent |
-| Timeline: due invoice number opens the invoice | — | Unverified |
+| Timeline links: create invoice, turn on auto-renew, stop auto-expire | Inline actions on the three events | Present |
+| Timeline: due invoice number opens the invoice | The payment event links to the invoice | Present |
 | Invoice consolidation choice | Same | Present |
 | Invoices and credit notes listings | Same | Present |
 
@@ -104,7 +104,7 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Turn auto-renew off (confirm) / on | Toggle | Present |
 | Unpaid-invoices link, cancellation-options link | Same | Present |
 | Billing address / company selectors | Same | Present |
-| Create an address or company from here | — | Unverified |
+| Create an address or company from here | "Add a new address", "Add company" | Present |
 | Invite delegate, revoke delegate | Same | Present |
 
 ## Modals
@@ -112,31 +112,32 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Legacy control | Portal | Status |
 | --- | --- | --- |
 | Migrations list: pick a product, read more, load more | Options list | Partial |
-| Upgrade / downgrade: confirm, then the resulting invoice | Confirm | Unverified |
+| Upgrade / downgrade: confirm, then the resulting invoice | "Review changes", then the migration | Present |
 | Provisioning function input form | — | Absent |
 
 ## Place new order — first screen
 
 The portal's Order page is a one-step catalogue: "Order" creates a processing
-order and its unpaid invoice. Legacy's shop step is the cart's job. Every row
-below is a simplification, not yet a recorded decision.
+order and its unpaid invoice. Decision, 10 September 2026: the cart owns the
+shop, so the portal never re-implements legacy's shop step. Every row below is
+dropped on that decision.
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Currency switcher, basket stepper, basket button | — | Absent |
-| Category search, category tree | Aside categories | Partial |
-| Product search, domain search widget | — | Absent |
-| Product title opens a product view; "read more" | — | Absent |
-| CTA: add to basket / view / try free | "Order" | Partial |
+| Currency switcher, basket stepper, basket button | — | Dropped |
+| Category search, category tree | Aside categories | Dropped |
+| Product search, domain search widget | — | Dropped |
+| Product title opens a product view; "read more" | — | Dropped |
+| CTA: add to basket / view / try free | "Order" | Dropped |
 | Load more | Pagination | Present |
 
 ## Gaps to act on
 
-1. Timeline rows need their actions back: create invoice, turn on auto-renew,
-   stop auto-expire, open the due invoice.
-2. A provisioning function that asks for input has no form.
-3. The needs-confirmation billboard is missing from the Products page.
-4. Unresolved provisioning requests have no indicator on a row or card.
-5. Mobile tabs: check what the tabs module does at 390px.
-6. Payment method on Settings waits on client-vue.
-7. Decide the Order page's scope against the cart, then record it.
+1. A provisioning function that asks for input has no form. The mock's
+   functions carry no fields.
+2. Setup fields the client may not edit are not modelled as read-only.
+3. Payment method on Settings waits on client-vue.
+4. Dashboard groups page with "Show more" only; legacy paged inside a group.
+5. Mobile keeps the tab row; legacy folded the tabs into a dropdown.
+6. The dashboard's empty state and the trial "end early" confirm remain to be
+   checked by hand.
