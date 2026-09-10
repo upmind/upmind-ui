@@ -596,6 +596,10 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
       "That account has not allowed you to log in as it.",
     [MOCK_RECEIPT_REASON.NOT_CANCELLABLE]:
       "That order can no longer be cancelled.",
+    [MOCK_RECEIPT_REASON.OVERDUE_INVOICES]:
+      "Settle the overdue invoice on this product before cancelling it.",
+    [MOCK_RECEIPT_REASON.CANCELLATION_FORBIDDEN]:
+      "This product cannot be cancelled from here — open a ticket and we will help.",
     [MOCK_RECEIPT_REASON.ALREADY_DEFAULT]:
       "That card is already charged first.",
     [MOCK_RECEIPT_REASON.NO_PROVISION_TARGET]:

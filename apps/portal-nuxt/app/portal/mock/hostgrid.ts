@@ -1607,6 +1607,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
         // && !isPendingContract`): stopping a contract that never began takes
         // nothing away, so it is not warned about.
         id: "prod-vault",
+        canCancel: false,
         groupSlug: "products",
         serviceIdentifier: "vault.fieldnotes.app",
         createdAt: "2026-08-09",

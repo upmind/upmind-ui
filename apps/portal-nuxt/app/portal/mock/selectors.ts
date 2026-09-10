@@ -1932,7 +1932,7 @@ export function productManageActions(
         `${FORM_ID.PRODUCT_CANCEL_REQUEST}:${product.id}`
       ),
       label: "Cancellation options",
-      disabledReason: cancellationDisabledReason(product)
+      disabledReason: cancellationDisabledReason(data, product)
     }
   ]);
 }
@@ -1949,9 +1949,31 @@ function canAskToCancel(product: MockProduct): boolean {
 }
 
 /** Why the cancellation control is not live, in the same words its refusal would use. */
-function cancellationDisabledReason(product: MockProduct): string | undefined {
-  if (!product.pendingProRata) return undefined;
-  return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.PRO_RATA_PENDING];
+/** Legacy's three reasons the cancellation control is dead, in the words its refusal would use. */
+function cancellationDisabledReason(
+  data: MockDataset,
+  product: MockProduct
+): string | undefined {
+  if (product.canCancel === false) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.CANCELLATION_FORBIDDEN];
+  }
+  if (product.pendingProRata) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.PRO_RATA_PENDING];
+  }
+  if (hasOverdueInvoice(data, product)) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.OVERDUE_INVOICES];
+  }
+  return undefined;
+}
+
+function hasOverdueInvoice(data: MockDataset, product: MockProduct): boolean {
+  return some(
+    data.invoices,
+    invoice =>
+      invoice.productId === product.id &&
+      includes(InvoiceStatusGroups.UNPAID, invoice.status) &&
+      invoice.dueDate < today()
+  );
 }
 
 /** Why the change control is not live, in the same words its refusal would use. */
