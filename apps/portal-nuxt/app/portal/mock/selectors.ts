@@ -31,6 +31,7 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBasket,
+  Pin,
   UserRound,
   UsersRound,
   Wrench
@@ -3747,7 +3748,19 @@ export function accountCardItems(data: MockDataset): ListModuleItem[] {
       label: "Change photo"
     }
   };
-  return [row];
+  // Legacy's profile card foots itself with the client's pinned vault assets.
+  const pinned = filter(data.vault, { pinned: true });
+  if (isEmpty(pinned)) return [row];
+  return [
+    row,
+    {
+      id: "pinned-vault",
+      title: "Pinned notes and secrets",
+      description: `${countedNoun(size(pinned), "item")} kept to hand`,
+      to: "/account/notes",
+      leadingIcon: Pin
+    }
+  ];
 }
 
 /**
