@@ -5,8 +5,10 @@
     :description="props.emptyDescription"
   />
 
+  <!-- Clamped only where the config names a line count: `ClampText` defaults
+       to three lines on its own, which cut a custom page's whole body. -->
   <ClampText
-    v-else-if="meta.isMarkdown"
+    v-else-if="meta.isMarkdown && props.lines !== undefined"
     :lines="props.lines"
     :show-more-label="props.showMoreLabel ?? ''"
     :show-less-label="props.showLessLabel ?? ''"
@@ -18,6 +20,14 @@
       :class="PROSE_BODY_CLASS"
     />
   </ClampText>
+
+  <Markdown
+    v-else-if="meta.isMarkdown"
+    tag="div"
+    :model-value="props.markdown"
+    :class="PROSE_BODY_CLASS"
+    v-bind="useTestAttrs({ key: 'portal-prose' })"
+  />
 
   <div
     v-else
