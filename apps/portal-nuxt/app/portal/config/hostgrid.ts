@@ -499,6 +499,9 @@ export const hostgridConfig: PortalConfig = {
       rows: [
         {
           layout: ROW_LAYOUT.FULL,
+          // The page header already names the page; the body sits in a panel
+          // like every other row, not as bare prose on the canvas.
+          surface: ROW_SURFACE.PANEL,
           visible: dataRef(DATA_REF_ID.CUSTOM_PAGE_HAS_BODY),
           slots: [
             moduleRef(PROSE_MODULE_ID, {

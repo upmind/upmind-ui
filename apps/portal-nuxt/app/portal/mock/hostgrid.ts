@@ -3471,7 +3471,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
       slug: "getting-started",
       title: "Getting started",
       showOnMenu: true,
-      body: "## Getting started\n\n1. Point your domain at `ns1.hostgrid.example`\n2. Add the mailboxes you need\n3. Turn on automatic backups\n\nNeed a hand? Open a ticket and we will walk you through it."
+      body: "Three steps stand between you and a working setup.\n\n1. **Point your domain** at `ns1.hostgrid.example`. Changes take up to an hour to reach everyone.\n2. **Add the mailboxes you need** from the Mail Relay page.\n3. **Turn on automatic backups**, so a bad day costs you nothing.\n\nNeed a hand? [Open a ticket](/support/tickets/new) and we will walk you through it."
     },
     {
       slug: "network-status",
