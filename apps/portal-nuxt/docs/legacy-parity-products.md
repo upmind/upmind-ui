@@ -34,8 +34,8 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Row dropdown | None for clients; none here | Present |
 | "Add label" tag; reference tag opens the label form | Same | Present |
 | Free trial, delegated and promo-code tags | Same | Present |
-| Original product name where the brand renamed it | — | Absent |
-| Cancelled and lapsed rows dimmed, names struck through | — | Absent |
+| Original product name where the brand renamed it | "formerly …" in the row and billboard line | Present |
+| Cancelled and lapsed rows dimmed, names struck through | Same, on rows, cards and table rows | Present |
 | Sole product: redirect to its page | `soleProductRedirect` | Present |
 
 ## Dashboard product group list
@@ -57,7 +57,7 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | --- | --- | --- |
 | Tabs setup / overview / billing / tickets / settings | Same, plus a Delegates tab | Present |
 | Mobile: tabs as a dropdown, featured functions appended | Tab row stays | Partial |
-| Product root lands on Setup while setup is owed, else Overview | Lands on Overview | Absent |
+| Product root lands on Setup while setup is owed, else Overview | `productRootRedirect` | Present |
 | Billboard: image, category, reference tag | Same | Present |
 | Notice: "Go to order" while pending | Same | Present |
 | Notice: "Don't cancel" for auto-expire, a hard request, a scheduled date | Same, one action for all three | Present |
@@ -98,7 +98,7 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Price breakdown | "What you are charged for" | Present |
 | Manage-subscription band | Same | Present |
 | End trial early; upgrade / downgrade | Same | Present |
-| "Cancellation options", disabled with a reason: pro-rata pending, overdue invoices, brand forbids | Disabled for pro-rata only | Partial |
+| "Cancellation options", disabled with a reason: pro-rata pending, overdue invoices, brand forbids | Same three reasons | Present |
 | Pending pro-rata warning | "Pending change" notice | Present |
 | "Don't cancel" on the request and auto-expire messages | Same | Present |
 | Automation timeline | "What is scheduled" | Present |
@@ -156,11 +156,11 @@ From `RELEASES.md` 1.12.6 → 1.74.0. Not yet in the portal:
 
 ## Gaps to act on
 
-1. Land a product's root URL on Setup while setup is owed.
-2. Show the original product name where the brand renamed it.
-3. Dim cancelled and lapsed rows and cards, strike the name.
-4. Disable "Cancellation options" for overdue invoices and a brand that forbids
-   cancellation, with the reason.
-5. The five items above from outside the product screens.
-6. Payment method waits on client-vue. Mobile tab dropdown, in-group paging on
-   the dashboard, notes paging and the migration detail modal remain partial.
+1. From outside the product screens: a product filter on the ticket list,
+   notification topics per email address, pinned vault items in the profile
+   menu, an email code before a username or password change, and the brand
+   setting that stops clients scheduling tickets.
+2. Payment method waits on client-vue.
+3. Partial today: mobile tab dropdown, in-group paging on the dashboard, notes
+   paging on the overview, the migration detail modal, a "Go back" on a custom
+   page's not-found state, row click anywhere on a list row.
