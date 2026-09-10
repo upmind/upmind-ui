@@ -100,6 +100,9 @@ export const ROW_CARD_CLASS =
 export const ROW_CARD_TRAILING_CLASS =
   "flex shrink-0 flex-wrap items-center justify-end gap-2 @max-sm:basis-full";
 
+/** A table cell never breaks a date or an amount across lines — the table scrolls sideways inside its container instead. */
+export const TABLE_CELL_CLASS = "whitespace-nowrap";
+
 /** A group's header row: quieter and tighter than the rows it heads, since it is a label, not an entry. */
 export const GROUP_HEADER_CLASS = "bg-neutral-muted/40 py-1.5";
 

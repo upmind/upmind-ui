@@ -350,7 +350,7 @@
         :key="item.id"
         v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
       >
-        <TableCell>
+        <TableCell :class="TABLE_CELL_CLASS">
           <div class="flex items-center gap-3">
             <IconTile v-if="item.leadingIcon" size="sm"
               ><component :is="item.leadingIcon"
@@ -373,7 +373,7 @@
           v-for="(cell, index) in rowCells(item)"
           :key="index"
           :numeric="cell.numeric"
-          class="text-muted"
+          :class="['text-muted', TABLE_CELL_CLASS]"
           >{{ cell.value }}</TableCell
         >
         <TableCell v-if="meta.hasTrailing" class="text-right">
@@ -559,6 +559,7 @@ import {
   STACK_ITEM_CLASS,
   STACK_ROOT_CLASS,
   STACK_TRAILING_CLASS,
+  TABLE_CELL_CLASS,
   TIMELINE_EVENT_HEAD_CLASS,
   cardGridClass,
   cardMediaClass,
