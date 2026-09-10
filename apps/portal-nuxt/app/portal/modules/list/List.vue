@@ -75,8 +75,11 @@
           }}</NuxtLink>
           <template v-else>{{ item.title }}</template>
         </ListItemTitle>
-        <ListItemDescription v-if="item.description">
-          <span :class="secretValueClass(item)">{{
+        <ListItemDescription
+          v-if="item.description"
+          :class="item.secret ? SECRET_DESCRIPTION_CLASS : undefined"
+        >
+          <span :class="['truncate', secretValueClass(item)]">{{
             descriptionFor(item)
           }}</span>
           <span v-if="item.secret" :class="ROW_CONTROLS_CLASS">
@@ -563,6 +566,7 @@ import {
   ROW_CARD_CLASS,
   ROW_CARD_TRAILING_CLASS,
   ROW_CONTROLS_CLASS,
+  SECRET_DESCRIPTION_CLASS,
   SECRET_MASK,
   SECRET_VALUE_CLASS,
   STACK_CATEGORY_CLASS,

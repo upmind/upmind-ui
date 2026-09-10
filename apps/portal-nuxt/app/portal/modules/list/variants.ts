@@ -122,6 +122,9 @@ export const SECRET_MASK = "••••••••";
 /** The row-level control cluster a secret or a toggle adds beside the text. */
 export const ROW_CONTROLS_CLASS = "flex shrink-0 items-center gap-1";
 
+/** A secret's description line lays the masked value and its controls side by side — a block would drop the controls under it. */
+export const SECRET_DESCRIPTION_CLASS = "flex items-center gap-1";
+
 /** A timeline event's top line — its time, and its own menu pushed to the end. */
 export const TIMELINE_EVENT_HEAD_CLASS =
   "flex items-start justify-between gap-2";
