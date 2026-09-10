@@ -3432,12 +3432,9 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
     }
   ],
   // The brand's own words on the pages that carry a slot (plan R12). Short by
-  // design: a slot is a note above the page, never a second page.
+  // design: a slot is a note above the page, never a second page. The dashboard
+  // slot stays blank: that page opens on the client's own data.
   templates: [
-    {
-      code: ClientTemplateSlotCodes.DASHBOARD_OVERVIEW,
-      body: "### Welcome back\n\nEverything you run with us is below. Our team answers tickets from **09:00 to 18:00 UK time**, Monday to Friday."
-    },
     {
       code: ClientTemplateSlotCodes.INVOICES_OVERVIEW,
       body: "Invoices are raised **14 days before** the due date and settled automatically where you have told us to. Anything unpaid can be paid from its own page."

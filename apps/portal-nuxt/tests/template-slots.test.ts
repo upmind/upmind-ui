@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import { ClientTemplateSlotCodes } from "@upmind-automation/types";
 import { propsBinding, rowBinding } from "./support/page-config";
-import { find, map } from "lodash-es";
+import { find, map, filter, some } from "lodash-es";
 import type { ConfigNode } from "./support/page-config";
 import type { DataRefId } from "~/portal/mock/data-refs";
 import type { MockDataset } from "~/portal/mock/types";
@@ -125,11 +125,16 @@ describe("the facade reads one slot, by the platform's own code", () => {
       const seeded = find(HOSTGRID_MOCK_DATASET.templates, { code });
       const slot = useMockClientTemplate(HOSTGRID_MOCK_DATASET, code);
 
-      expect(slot.useContext().data.value?.code).toBe(code);
-      expect(slot.useContext().data.value?.body).toBe(seeded?.body);
-      expect(templateSlotBody(HOSTGRID_MOCK_DATASET.templates, code)).not.toBe(
-        ""
-      );
+      const record = slot.useContext().data.value;
+      const body = templateSlotBody(HOSTGRID_MOCK_DATASET.templates, code);
+      if (seeded === undefined) {
+        expect(record).toBeUndefined();
+        expect(body).toBe("");
+      } else {
+        expect(record?.code).toBe(code);
+        expect(record?.body).toBe(seeded.body);
+        expect(body).toBe(seeded.body);
+      }
     }
     expect(
       templateSlotBody(
@@ -139,23 +144,40 @@ describe("the facade reads one slot, by the platform's own code", () => {
     ).toBe("");
   });
 
-  it("seats every slot this plan renders on the brand that authors them", () => {
+  it("seats every slot this plan renders on the brand that authors them, bar the dashboard's", () => {
+    // The dashboard opens on the client's own data, so this brand writes no
+    // note there — and that blank slot is what the loop above grades as "".
+    const authored = filter(
+      SLOT_CODES,
+      code => code !== ClientTemplateSlotCodes.DASHBOARD_OVERVIEW
+    );
     expect(map(HOSTGRID_MOCK_DATASET.templates, "code").sort()).toEqual(
-      [...SLOT_CODES].sort()
+      [...authored].sort()
     );
   });
 });
 
 describe("the brand note on each of the five pages", () => {
-  it("renders the slot's own body where the brand wrote one", () => {
+  it("renders the slot's own body where the brand wrote one, and hides the note where it did not", () => {
     for (const { code, page, markdownRef } of SLOT_NOTES) {
       const row = noteRow(page, markdownRef);
       const body = templateSlotBody(HOSTGRID_MOCK_DATASET.templates, code);
+      const isAuthored = body !== "";
 
-      expect(noteVisible(row, HOSTGRID_MOCK_DATASET)).toBe(true);
-      expect(noteMarkdown(row, markdownRef, HOSTGRID_MOCK_DATASET)).toBe(body);
-      expect(body).not.toBe("");
+      expect(noteVisible(row, HOSTGRID_MOCK_DATASET)).toBe(isAuthored);
+      if (isAuthored) {
+        expect(noteMarkdown(row, markdownRef, HOSTGRID_MOCK_DATASET)).toBe(
+          body
+        );
+      }
     }
+    expect(
+      some(
+        SLOT_NOTES,
+        note =>
+          templateSlotBody(HOSTGRID_MOCK_DATASET.templates, note.code) !== ""
+      )
+    ).toBe(true);
   });
 
   it("hides every one of them on a brand that authored only its footer", () => {
