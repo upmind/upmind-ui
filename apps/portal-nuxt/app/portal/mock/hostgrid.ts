@@ -3334,7 +3334,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
     name: "Fieldnotes",
     colour: "#1F5EFF",
     font: "Inter",
-    logoSrc: "https://placehold.co/160x40/1F5EFF/FFFFFF?text=Fieldnotes"
+    logoSrc: "https://placehold.co/160x160/1F5EFF/FFFFFF?text=F"
   },
   // The brand is running behind on mail, which is what raises legacy's
   // delivery-delay notice over the email history.
