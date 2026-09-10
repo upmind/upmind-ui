@@ -14,22 +14,22 @@
       :data-attrs="{ 'data-test-key': 'portal-pagination-page-size' }"
       @update:model-value="onPageSize"
     />
-    <Pagination
-      v-if="meta.hasPages"
-      :total="meta.total"
-      :items-per-page="meta.itemsPerPage"
-      :page="meta.page"
-      :aria-label="props.label"
-      class="ms-auto"
-      v-bind="useTestAttrs({ key: 'portal-pagination' })"
-      @update:page="onPage"
-    >
-      <template #info="{ page, pages }">
-        <span class="text-muted text-sm">{{
-          props.info ?? `${page} / ${pages}`
-        }}</span>
-      </template>
-    </Pagination>
+    <div v-if="meta.hasPages" :class="PAGER_END_CLASS">
+      <Pagination
+        :total="meta.total"
+        :items-per-page="meta.itemsPerPage"
+        :page="meta.page"
+        :aria-label="props.label"
+        v-bind="useTestAttrs({ key: 'portal-pagination' })"
+        @update:page="onPage"
+      >
+        <template #info="{ page, pages }">
+          <span class="text-muted text-sm">{{
+            props.info ?? `${page} / ${pages}`
+          }}</span>
+        </template>
+      </Pagination>
+    </div>
   </div>
 </template>
 
@@ -51,7 +51,11 @@
  */
 import { Pagination, Select, useTestAttrs } from "@upmind/ui";
 import { computed } from "vue";
-import { PAGER_ROW_CLASS, PAGE_SIZE_SELECT_CLASS } from "./variants";
+import {
+  PAGER_END_CLASS,
+  PAGER_ROW_CLASS,
+  PAGE_SIZE_SELECT_CLASS
+} from "./variants";
 import { map, min } from "lodash-es";
 import type { PaginationModuleEmits, PaginationModuleProps } from "./types";
 
