@@ -65,7 +65,8 @@ function payload(verb: string, model: unknown): string {
 
 /** The change, cleared by the emailed code — legacy's sensitive-action chain, mocked. */
 function confirmed(verb: string, model: unknown): string {
-  return `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${payload(verb, model)}:${JSON.stringify({ token: "123456" })}`;
+  // Legacy's chain asks the current password; the seed signs in with "hostgrid".
+  return `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${payload(verb, model)}:${JSON.stringify({ password: "hostgrid" })}`;
 }
 
 function toastText(result: {

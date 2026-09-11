@@ -12,10 +12,16 @@ function clone(): MockDataset {
   return structuredClone(HOSTGRID_MOCK_DATASET);
 }
 
-describe("a username or password change waits on the emailed code", () => {
+describe("a username or password change waits on legacy's identity check", () => {
   const change = `${MOCK_ACTION.USERNAME_CHANGE}:${JSON.stringify({ username: "jonah.reyes" })}`;
+  const confirm = (data: MockDataset, typed: Record<string, string>) =>
+    dispatchMockAction(
+      data,
+      {},
+      `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${change}:${JSON.stringify(typed)}`
+    );
 
-  it("opens the code prompt instead of changing anything", () => {
+  it("opens the prompt instead of changing anything", () => {
     const data = clone();
     const before = data.persona.username;
     const result = dispatchMockAction(data, {}, change);
@@ -24,18 +30,14 @@ describe("a username or password change waits on the emailed code", () => {
     expect(data.persona.username).toBe(before);
   });
 
-  it("refuses a code that is not six digits, and lands the change on one that is", () => {
+  it("asks the current password, and lands on the right one", () => {
     const data = clone();
-    const confirm = (token: string) =>
-      dispatchMockAction(
-        data,
-        {},
-        `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${change}:${JSON.stringify({ token })}`
-      );
-    const refused = confirm("12");
-    expect(refused?.toast?.title).toMatch(/code/i);
+    Object.assign(data.security, { twoFactorEnabled: false });
+    expect(confirm(data, { password: "nope" })?.toast?.title).toMatch(
+      /password/i
+    );
     expect(data.persona.username).not.toBe("jonah.reyes");
-    const landed = confirm("123456");
+    const landed = confirm(data, { password: data.persona.password ?? "" });
     expect(landed?.toast?.title).toBe("Username changed");
     expect(data.persona.username).toBe("jonah.reyes");
   });

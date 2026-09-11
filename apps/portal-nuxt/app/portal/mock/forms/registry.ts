@@ -80,6 +80,11 @@ import {
   useUischema as usePersonalDetailsUischema
 } from "../contracts/client-personal-details.schemas";
 import {
+  sensitiveDefaults,
+  useSensitiveSchema,
+  useSensitiveUischema
+} from "../contracts/client-security.sensitive.schemas";
+import {
   messageDefaults,
   relatedProductDefaults,
   supportPreferencesDefaults,
@@ -334,14 +339,35 @@ const FORM_BUILDER: Readonly<Record<FormId, MockFormBuilder>> = {
       resetLabel: CANCEL_LABEL
     };
   },
+  [FORM_ID.CONSOLIDATE_INVOICES]: data => {
+    const gathered = consolidatableInvoices(data);
+    if (size(gathered) < CONSOLIDATION_PICK_MIN) return undefined;
+    return {
+      title: "Bring these invoices together",
+      description:
+        "Tick the unpaid invoices to close into one document. It falls due on your due day, or with the soonest of them.",
+      schema: useConsolidationPickSchema(gathered),
+      uischema: useConsolidationPickUischema(),
+      model: consolidationPickDefaults(gathered),
+      submit: MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED,
+      submitLabel: "Consolidate invoices",
+      resetLabel: CANCEL_LABEL
+    };
+  },
   [FORM_ID.SENSITIVE_CODE]: (data, entityId) => {
     if (entityId === undefined) return undefined;
+    const asksCode = data.security.twoFactorEnabled;
+    let description = "Type your current password to finish the change.";
+    if (asksCode) {
+      description =
+        "Type your current password and the code from your authenticator to finish the change.";
+    }
     return {
       title: "Confirm it is you",
-      description: `We emailed a code to ${data.persona.email}. Type it here to finish the change.`,
-      schema: useTwoFASchema(),
-      uischema: useTwoFAUischema(),
-      model: { token: "" },
+      description,
+      schema: useSensitiveSchema(asksCode),
+      uischema: useSensitiveUischema(asksCode),
+      model: sensitiveDefaults(asksCode),
       submit: `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${entityId}`,
       submitLabel: "Confirm",
       resetLabel: CANCEL_LABEL

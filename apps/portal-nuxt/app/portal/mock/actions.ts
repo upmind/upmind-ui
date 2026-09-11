@@ -600,6 +600,7 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
       "That order can no longer be cancelled.",
     [MOCK_RECEIPT_REASON.OVERDUE_INVOICES]:
       "Settle the overdue invoice on this product before cancelling it.",
+    [MOCK_RECEIPT_REASON.WRONG_PASSWORD]: "That is not your current password.",
     [MOCK_RECEIPT_REASON.CANCELLATION_FORBIDDEN]:
       "This product cannot be cancelled from here — open a ticket and we will help.",
     [MOCK_RECEIPT_REASON.ALREADY_DEFAULT]:
@@ -1123,7 +1124,20 @@ export function dispatchMockAction(
     case MOCK_ACTION.SENSITIVE_CODE_CONFIRM: {
       const pending = splitSensitivePayload(id);
       if (pending === undefined) return undefined;
-      if (!isCodeShaped(submittedText(pending.code, "token"))) {
+      // Legacy's chain: the current password first, then the second-step
+      // code only where two-factor is on.
+      const typed = submittedText(pending.code, "password");
+      const expected = data.persona.password;
+      const isWrongPassword =
+        typed.length === 0 || (expected !== undefined && typed !== expected);
+      if (isWrongPassword) {
+        return fromReceipt(
+          { ok: false, reason: MOCK_RECEIPT_REASON.WRONG_PASSWORD },
+          () => ({})
+        );
+      }
+      const needsCode = data.security.twoFactorEnabled;
+      if (needsCode && !isCodeShaped(submittedText(pending.code, "token"))) {
         return fromReceipt(
           { ok: false, reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE },
           () => ({})
