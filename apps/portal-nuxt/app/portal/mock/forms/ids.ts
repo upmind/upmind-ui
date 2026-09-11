@@ -77,7 +77,9 @@ export const FORM_ID = {
    */
   PARENT_BRANDING: "parent-branding",
   /** The code the brand emails before a username or password change lands (legacy's sensitive-action chain). */
-  SENSITIVE_CODE: "sensitive-code"
+  SENSITIVE_CODE: "sensitive-code",
+  /** Which unpaid invoices to close into one document. */
+  CONSOLIDATE_INVOICES: "consolidate-invoices"
 } as const;
 
 export type FormId = (typeof FORM_ID)[keyof typeof FORM_ID];

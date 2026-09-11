@@ -43,28 +43,37 @@ const routeContext = computed(() => catchAllRouteContext(resolution.value));
 
 // A path that names nothing RENDERS the not-found page (gap doc §6): the
 // silent replace-navigation to "/" left a client who mistyped an address on
-// the dashboard with no way to tell what had happened. `immediate` covers
-// first load; the watch covers a client-side navigation between two different
-// catch-all paths, since this one component instance is reused across every
+// the dashboard with no way to tell what had happened.
+/** The one redirect a resolution asks for, or none — mock/selectors.ts holds each decision. */
+function pendingRedirect(current: CatchAllResolution): string | undefined {
+  if (current.kind === "unmatched") return undefined;
+  // A client who owns exactly one product in the group has no listing to
+  // read; `replace` so Back still leaves the pillar rather than bouncing
+  // off the redirect.
+  const sole = soleProductRedirect(activeData.value, current, queryFilters());
+  if (sole !== undefined) return sole;
+  // Setup is done: the tab is gone from the rail, so its URL goes too.
+  const finished = setupAreaRedirect(activeData.value, current);
+  if (finished !== undefined) return finished;
+  // Setup still owed: the product opens on the tab that finishes it.
+  return productRootRedirect(activeData.value, current);
+}
+
+// First load is awaited HERE, in setup, so the redirect lands before this
+// page renders: a `navigateTo` fired from an immediate watcher during the
+// initial navigation moved the URL but left the first page on screen.
+const initialRedirect = pendingRedirect(resolution.value);
+if (initialRedirect !== undefined) {
+  await navigateTo(initialRedirect, { replace: true });
+}
+
+// The watch covers a client-side navigation between two different catch-all
+// paths, since this one component instance is reused across every
 // unmatched-by-name route.
-watch(
-  resolution,
-  async current => {
-    if (current.kind === "unmatched") return;
-    // A client who owns exactly one product in the group has no listing to
-    // read; `replace` so Back still leaves the pillar rather than bouncing
-    // off the redirect (mock/selectors.ts holds the decision).
-    const sole = soleProductRedirect(activeData.value, current, queryFilters());
-    if (sole !== undefined) await navigateTo(sole, { replace: true });
-    // Setup is done: the tab is gone from the rail, so its URL goes too.
-    const finished = setupAreaRedirect(activeData.value, current);
-    if (finished !== undefined) await navigateTo(finished, { replace: true });
-    // Setup still owed: the product opens on the tab that finishes it.
-    const owed = productRootRedirect(activeData.value, current);
-    if (owed !== undefined) await navigateTo(owed, { replace: true });
-  },
-  { immediate: true }
-);
+watch(resolution, async current => {
+  const target = pendingRedirect(current);
+  if (target !== undefined) await navigateTo(target, { replace: true });
+});
 
 function catchAllHeading(resolution: CatchAllResolution): string {
   switch (resolution.kind) {

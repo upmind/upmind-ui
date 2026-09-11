@@ -23,10 +23,11 @@ import {
   COMPOSER_MODULE_ID,
   FORM_MODULE_ID,
   LIST_MODULE_ID,
-  SPEC_MODULE_ID,
-  moduleRef
+  moduleGroup,
+  moduleRef,
+  SPEC_MODULE_ID
 } from "../registry";
-import { PAGE_KEY } from "../types";
+import { GROUP_AXIS, PAGE_KEY } from "../types";
 import { brandNoteRow, pagerFooter, panelControls, statusRail } from "./pager";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { ContentConfig, PageKey, SlotAssignment } from "../types";
@@ -81,13 +82,25 @@ export function supportPages(options?: {
           layout: ROW_LAYOUT.FULL,
           surface: ROW_SURFACE.MUTED,
           slots: [
-            moduleRef(SPEC_MODULE_ID, {
-              variant: "micro",
-              props: {
-                items: dataRef(DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS),
-                emptyTitle: "No support PIN"
-              }
-            })
+            // Legacy's support-menu PIN panel: the masked PIN with show and
+            // copy, and "Generate new" beneath it.
+            moduleGroup(GROUP_AXIS.STACKED, [
+              moduleRef(SPEC_MODULE_ID, {
+                variant: "micro",
+                props: {
+                  items: dataRef(DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS),
+                  emptyTitle: "No support PIN"
+                }
+              }),
+              moduleRef(BUTTON_MODULE_ID, {
+                variant: BUTTON_MODULE_VARIANT.GROUP,
+                props: {
+                  label: "Support PIN",
+                  actions: dataRef(DATA_REF_ID.SUPPORT_PIN_ACTIONS),
+                  emptyTitle: "No PIN controls"
+                }
+              })
+            ])
           ]
         }
       ]

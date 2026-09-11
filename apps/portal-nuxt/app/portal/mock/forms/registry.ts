@@ -9,7 +9,8 @@
  * The schema and uischema are FUNCTIONS of the dataset and the addressed
  * entity, called with the REAL module's own parameter where one exists
  * (`ProfileContext`, `AddressContext`, `CompanyContext`), so the go-real swap
- * is one import line and the form itself never changes (plan F3, F4).
+ * is one
+import line and the form itself never changes (plan F3, F4).
  *
  * A CREATE opens on the schema module's own `defaults()`; an EDIT opens on the
  * row, and answers `undefined` when the dataset holds no such row — which the
@@ -58,6 +59,12 @@ import {
   delegateInviteDefaults
 } from "../contracts/client-delegates.schemas";
 import {
+  CONSOLIDATION_PICK_MIN,
+  consolidationPickDefaults,
+  useConsolidationPickSchema,
+  useConsolidationPickUischema
+} from "../contracts/client-invoices.consolidation.schemas";
+import {
   invoiceShareDefaults,
   useSchema as useShareSchema,
   useUischema as useShareUischema
@@ -72,6 +79,11 @@ import {
   useSchema as usePersonalDetailsSchema,
   useUischema as usePersonalDetailsUischema
 } from "../contracts/client-personal-details.schemas";
+import {
+  sensitiveDefaults,
+  useSensitiveSchema,
+  useSensitiveUischema
+} from "../contracts/client-security.sensitive.schemas";
 import {
   messageDefaults,
   relatedProductDefaults,
@@ -112,6 +124,7 @@ import {
   useMockTicket
 } from "../facades";
 import { useMockClientEmails } from "../facades/useMockContacts";
+import { consolidatableInvoices } from "../facades/useMockInvoice";
 import {
   affiliateLinkContext,
   delegateInviteContext,
@@ -326,14 +339,35 @@ const FORM_BUILDER: Readonly<Record<FormId, MockFormBuilder>> = {
       resetLabel: CANCEL_LABEL
     };
   },
+  [FORM_ID.CONSOLIDATE_INVOICES]: data => {
+    const gathered = consolidatableInvoices(data);
+    if (size(gathered) < CONSOLIDATION_PICK_MIN) return undefined;
+    return {
+      title: "Bring these invoices together",
+      description:
+        "Tick the unpaid invoices to close into one document. It falls due on your due day, or with the soonest of them.",
+      schema: useConsolidationPickSchema(gathered),
+      uischema: useConsolidationPickUischema(),
+      model: consolidationPickDefaults(gathered),
+      submit: MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED,
+      submitLabel: "Consolidate invoices",
+      resetLabel: CANCEL_LABEL
+    };
+  },
   [FORM_ID.SENSITIVE_CODE]: (data, entityId) => {
     if (entityId === undefined) return undefined;
+    const asksCode = data.security.twoFactorEnabled;
+    let description = "Type your current password to finish the change.";
+    if (asksCode) {
+      description =
+        "Type your current password and the code from your authenticator to finish the change.";
+    }
     return {
       title: "Confirm it is you",
-      description: `We emailed a code to ${data.persona.email}. Type it here to finish the change.`,
-      schema: useTwoFASchema(),
-      uischema: useTwoFAUischema(),
-      model: { token: "" },
+      description,
+      schema: useSensitiveSchema(asksCode),
+      uischema: useSensitiveUischema(asksCode),
+      model: sensitiveDefaults(asksCode),
       submit: `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${entityId}`,
       submitLabel: "Confirm",
       resetLabel: CANCEL_LABEL

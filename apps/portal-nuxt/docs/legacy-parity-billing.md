@@ -20,7 +20,7 @@ checked by hand yet.
 | `/billing` opens Orders | Same | Present |
 | My orders, My invoices with paid / unpaid / credited, Credit notes, Payment methods, Account credit, Settings | Aside menu, status tabs on the invoices page | Present |
 | "Place new order", brand storefront URL when set | Nav tab | Present |
-| My legacy invoices, for a client with imported invoices | — | Absent |
+| My legacy invoices, for a client with imported invoices | — (an import-only case; decision pending) | Absent |
 
 ## Orders
 
@@ -38,7 +38,7 @@ checked by hand yet.
 | Tabs all / paid / unpaid / credited | Same | Present |
 | Brand markdown slot above the list | Template slot | Present |
 | Consolidation notice and "Consolidate invoices" | Notice and confirm dialog | Present |
-| Consolidation modal: pick which invoices | Confirm consolidates them all | Partial |
+| Consolidation modal: pick which invoices | Picker form, at least two ticks | Present |
 | Search by number | Same | Present |
 | Filters: created, due, invoice id, proforma, subtotal, number, total, discount; status on "All" | Same set | Present |
 | Fraud-status filter | Staff filter leaking to clients in legacy — not copied | — |
@@ -100,7 +100,7 @@ checked by hand yet.
 | Save / revert | Save and cancel | Present |
 | Consolidation section, gated by the brand setting | Same | Present |
 | Enable / disable / inherit; weekly or monthly rule; day of week; day of month | Same | Present |
-| Consolidated-invoice due-date day, 1 to 28 | "Days until it falls due" | Partial |
+| Consolidated-invoice due-date day, 1 to 28 | Same, asked under a monthly rule; dates the gathered invoice | Present |
 
 ## Notices
 
@@ -111,11 +111,10 @@ checked by hand yet.
 
 ## Gaps to act on
 
-1. Credit notes cannot be shared. Legacy shares them the way it shares invoices.
-2. Consolidation asks which invoices to bring together; the portal takes all.
-3. The consolidated invoice's due day should be a day of the month, 1 to 28.
-4. Pay in another currency, pending-payment instructions, and `?init=pay` wait
+1. Credit notes cannot be shared. Legacy shares them the way it shares
+   invoices; the sandbox has no public credit-note route to share to yet.
+2. Pay in another currency, pending-payment instructions, and `?init=pay` wait
    on the pay flow, which is client-vue's.
-5. Orders and payment methods are client-vue stubs. Nothing to mock here.
-6. Imported "legacy invoices" are not modelled. Decision needed: model them, or
+3. Orders and payment methods are client-vue stubs. Nothing to mock here.
+4. Imported "legacy invoices" are not modelled. Decision needed: model them, or
    drop with a note.

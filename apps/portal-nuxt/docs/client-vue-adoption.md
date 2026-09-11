@@ -27,7 +27,6 @@ Ruled 2026-09-07: "we don't need to mock the client-vue components, as they are 
 | invoice Pay (document control, list row, `?init=pay`)                | `PaymentDetails`, `PaymentAmount`, `AccountCredit`, `PaymentGateways`                        | `payment`, `invoices`                                              | `MOCK_ACTION.PAY_INVOICE` → prose     |
 | product settings — payment method                                    | `StoredPaymentMethods`                                                                       | `payment-details`                                                  | `config/product-pages.ts`             |
 | `/billing/orders`, `/billing/orders/[id]`                            | `UpmOrder` (`Order`, `OrderProducts`)                                                        | `orders`                                                           | `config/billing-pages.ts`             |
-| product `setup` area                                                 | `UpmProductSetup`                                                                            | `product-setup`                                                    | `config/product-pages.ts`             |
 | billing entity — "Add company" door                                  | `UpmBilling` company form                                                                    | `client-company`                                                   | `MOCK_ACTION.CLIENT_VUE_STUB` → prose |
 
 The two token-addressed logged-out pages (`/preferences`, `/preferences/email/opt-ins`)
@@ -99,8 +98,10 @@ portal ships the family.
 
 ### Product setup
 
-- The provider's blueprint as a form; a blueprint that asks nothing still renders and
-  its Confirm is the setup step; outstanding fields named on the product's notice.
+Mocked since 11 September 2026 (operator ruling: mock where no surface component exists).
+`UpmProductSetup` is the basket funnel's repair step and never served this page (FE-3219).
+The mock renders the provider's blueprint as one form whose Confirm is the setup step
+(`mock/contracts/contract-product-provisioning.schemas.ts`, `tests/product-setup-form.test.ts`).
 
 ## Stand-in schema modules removed
 

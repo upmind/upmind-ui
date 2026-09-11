@@ -35,7 +35,6 @@ import { parseAttachmentNames } from "./contracts/client-tickets.schemas";
 import { shareLinkFor } from "./documents";
 import {
   activePersonaAccount,
-  consolidatableInvoices,
   hasDelegateObject,
   invoicePaymentMethod,
   isInvoicePayable,
@@ -70,7 +69,7 @@ import {
 } from "./facades";
 import { useMockClientEmails } from "./facades/useMockContacts";
 import { FORM_ID, isFormId } from "./forms/ids";
-import { assign, find, includes, isPlainObject, size, values } from "lodash-es";
+import { assign, find, includes, isPlainObject, values } from "lodash-es";
 import type { NotificationFilter } from "./collection-defs";
 import type { VaultAssetScope } from "./contracts";
 import type { NewLineKey } from "./contracts/client-tickets";
@@ -91,7 +90,6 @@ import type { FormModel } from "@upmind/ui";
 import { useListViewPreference } from "~/composables/useListViewPreference";
 
 export const MOCK_ACTION = {
-  COMPLETE_SETUP: "complete-setup",
   VIEW_PRODUCT: "view-product",
   PAY_INVOICE: "pay-invoice",
   /** Puts the document's public link on the clipboard — the token is the dataset's. */
@@ -590,6 +588,8 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
     [MOCK_RECEIPT_REASON.ALREADY_PAID]: "That invoice is not awaiting payment.",
     [MOCK_RECEIPT_REASON.NOT_AWAITING_SETUP]:
       "That product is not waiting on setup.",
+    [MOCK_RECEIPT_REASON.SETUP_INCOMPLETE]:
+      "Answer every required field to complete setup.",
     [MOCK_RECEIPT_REASON.DEFAULT_METHOD]:
       "The default payment method cannot be removed.",
     [MOCK_RECEIPT_REASON.LAST_METHOD]:
@@ -601,6 +601,7 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
       "That order can no longer be cancelled.",
     [MOCK_RECEIPT_REASON.OVERDUE_INVOICES]:
       "Settle the overdue invoice on this product before cancelling it.",
+    [MOCK_RECEIPT_REASON.WRONG_PASSWORD]: "That is not your current password.",
     [MOCK_RECEIPT_REASON.CANCELLATION_FORBIDDEN]:
       "This product cannot be cancelled from here — open a ticket and we will help.",
     [MOCK_RECEIPT_REASON.ALREADY_DEFAULT]:
@@ -923,6 +924,17 @@ function applySensitiveChange(
   return undefined;
 }
 
+/** The invoices ticked in the consolidation form; absent means every one that qualifies. */
+function pickedInvoiceIds(
+  tail: string | undefined
+): readonly string[] | undefined {
+  const model = parseFormPayload(tail);
+  if (model === undefined) return undefined;
+  const ids = model["invoiceIds"];
+  if (!Array.isArray(ids)) return undefined;
+  return ids.filter((value): value is string => typeof value === "string");
+}
+
 function parseFormPayload(tail: string | undefined): FormModel | undefined {
   if (tail === undefined) return undefined;
   try {
@@ -1113,7 +1125,20 @@ export function dispatchMockAction(
     case MOCK_ACTION.SENSITIVE_CODE_CONFIRM: {
       const pending = splitSensitivePayload(id);
       if (pending === undefined) return undefined;
-      if (!isCodeShaped(submittedText(pending.code, "token"))) {
+      // Legacy's chain: the current password first, then the second-step
+      // code only where two-factor is on.
+      const typed = submittedText(pending.code, "password");
+      const expected = data.persona.password;
+      const isWrongPassword =
+        typed.length === 0 || (expected !== undefined && typed !== expected);
+      if (isWrongPassword) {
+        return fromReceipt(
+          { ok: false, reason: MOCK_RECEIPT_REASON.WRONG_PASSWORD },
+          () => ({})
+        );
+      }
+      const needsCode = data.security.twoFactorEnabled;
+      if (needsCode && !isCodeShaped(submittedText(pending.code, "token"))) {
         return fromReceipt(
           { ok: false, reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE },
           () => ({})
@@ -1211,6 +1236,24 @@ export function dispatchMockAction(
           intent: MOCK_TOAST_INTENT.SUCCESS,
           title: "Invoice consolidation saved"
         }
+      }));
+    }
+    case MOCK_ACTION.PRODUCT_SETUP_SAVE: {
+      // Legacy's setup view: the confirmed blueprint sends the product to
+      // its overview and says so.
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockContractProduct(data, submitted.head)
+        .useActions()
+        .confirmSetup(model);
+      return fromFormReceipt(receipt, product => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Setup complete",
+          description: `${product.name} is now active`
+        },
+        to: `/${product.groupSlug}/${product.id}`
       }));
     }
     case MOCK_ACTION.PRODUCT_LABEL_SAVE: {
@@ -1475,17 +1518,13 @@ export function dispatchMockAction(
       // to gather is refused outright rather than behind a question.
       const refused = useMockInvoices(data).useActions().whyNotConsolidatable();
       if (refused?.reason !== undefined) return refusal(refused.reason);
-      return {
-        confirm: {
-          title: "Bring these invoices together?",
-          description: `${size(consolidatableInvoices(data))} unpaid invoices will be closed, and one document raised in their place.`,
-          actionLabel: "Consolidate invoices",
-          then: MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED
-        }
-      };
+      // Legacy asks WHICH invoices: a tick per document, in the shell's form dialog.
+      return { form: { id: FORM_ID.CONSOLIDATE_INVOICES } };
     }
     case MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED: {
-      const receipt = useMockInvoices(data).useActions().consolidate();
+      const receipt = useMockInvoices(data)
+        .useActions()
+        .consolidate(pickedInvoiceIds(id));
       return fromReceipt(receipt, invoice => ({
         toast: {
           intent: MOCK_TOAST_INTENT.SUCCESS,
@@ -1530,20 +1569,6 @@ export function dispatchMockAction(
 
     // --- the logged-out screens (plan F11) -----------------------------------
 
-    case MOCK_ACTION.COMPLETE_SETUP: {
-      const productId = id ?? context.productId;
-      if (productId === undefined) return undefined;
-      const receipt = useMockContractProduct(data, productId)
-        .useActions()
-        .completeSetup();
-      return fromReceipt(receipt, product => ({
-        toast: {
-          intent: MOCK_TOAST_INTENT.SUCCESS,
-          title: `${product.name} is now active`
-        },
-        to: `/${product.groupSlug}/${product.id}`
-      }));
-    }
     case MOCK_ACTION.VIEW_PRODUCT: {
       if (id === undefined) return undefined;
       const product = useMockContractProduct(data, id).useContext().data.value;

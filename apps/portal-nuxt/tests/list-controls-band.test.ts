@@ -166,15 +166,25 @@ describe("panel control band — search left, order and filters right", () => {
     expect(wrapper.text()).toContain("Archive Storage");
   });
 
-  it("a sort-less collection keeps its band and its rail, with no select", () => {
+  it("a sort-less collection keeps its band, with no select", () => {
+    // The IP whitelist declares no sort options, so that half renders
+    // nothing at all; tickets now sort, as legacy's do.
+    const data = useMockData(MOCK_DATASET_ID.HOSTGRID);
+    const wrapper = mountPage(PAGE_KEY.ACCOUNT_SECURITY, data, {});
+    const { start } = bandSides(wrapper);
+
+    expect(start).toContain("portal-list-controls-search");
+    expect(wrapper.find(SORT).exists()).toBe(false);
+  });
+
+  it("tickets carry legacy's sort select beside their rail", () => {
     const data = useMockData(MOCK_DATASET_ID.HOSTGRID);
     const wrapper = mountPage(PAGE_KEY.SUPPORT_TICKETS, data, {});
     const { start, end } = bandSides(wrapper);
 
     expect(start).toContain("portal-list-controls-search");
     expect(end).toContain('role="tab"');
-    // Tickets declare no sort options, so that half renders nothing at all.
-    expect(wrapper.find(SORT).exists()).toBe(false);
+    expect(wrapper.find(SORT).exists()).toBe(true);
     expect(wrapper.findAll(TAB)).toHaveLength(2);
   });
 });

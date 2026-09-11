@@ -2,11 +2,12 @@ import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { computed } from "vue";
 import { ContractStatusCodes, InvoiceStatus } from "@upmind-automation/types";
-import { find } from "lodash-es";
+import { assign, find } from "lodash-es";
 import type { ListModuleItem } from "~/portal/modules/list/types";
 import type { MenuItem } from "~/portal/modules/menu/types";
 import type { SpecModuleItem } from "~/portal/modules/spec/types";
-import { dispatchMockAction } from "~/portal/mock/actions";
+import { MOCK_ACTION, dispatchMockAction } from "~/portal/mock/actions";
+import { setupDefaults } from "~/portal/mock/contracts/contract-product-provisioning.schemas";
 import {
   DATA_REF_ID,
   dataRef,
@@ -196,12 +197,17 @@ describe("the action seam — module emits run the store and name the next step"
     Reflect.deleteProperty(globalThis, "navigateTo");
   });
 
-  it("complete-setup activates the context's product and lands on its detail", () => {
+  it("confirming the setup blueprint activates the context's product and lands on its detail", () => {
     const data = useMockData(MOCK_DATASET_ID.HOSTGRID);
+    const fields =
+      find(data.products, { id: "prod-team" })?.provisioning.fields ?? [];
+    const answers = assign(setupDefaults(fields), {
+      admin_email: "ops@fieldnotes.app"
+    });
     const result = dispatchMockAction(
       data,
       { groupSlug: "products", productId: "prod-team" },
-      "complete-setup"
+      `${MOCK_ACTION.PRODUCT_SETUP_SAVE}:prod-team:${JSON.stringify(answers)}`
     );
 
     expect(find(data.products, { id: "prod-team" })?.status).toBe(
@@ -272,9 +278,11 @@ describe("the action seam — module emits run the store and name the next step"
     expect(setupButton).toBeDefined();
     await setupButton?.trigger("click");
 
+    // The card leads INTO the product; its root lands on the Setup tab while
+    // setup is owed, so nothing is activated from the card itself.
     const data = useMockData(MOCK_DATASET_ID.HOSTGRID);
     expect(find(data.products, { id: "prod-team" })?.status).toBe(
-      ContractStatusCodes.ACTIVE
+      ContractStatusCodes.AWAITING_ACTIVATION
     );
     expect(navigateTo).toHaveBeenCalledWith("/products/prod-team");
   });

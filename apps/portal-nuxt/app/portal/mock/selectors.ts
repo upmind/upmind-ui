@@ -31,7 +31,6 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBasket,
-  Pin,
   UserRound,
   UsersRound,
   Wrench
@@ -134,6 +133,11 @@ import {
   useUischema as useNewTicketUischema,
   newTicketDefaults
 } from "./contracts/client-tickets.schemas";
+import {
+  setupDefaults,
+  useSetupSchema,
+  useSetupUischema
+} from "./contracts/contract-product-provisioning.schemas";
 import {
   useSchema as usePreferencesSchema,
   useUischema as usePreferencesUischema,
@@ -580,13 +584,13 @@ function productFunctionAction(
 /**
  * A product row's own button — legacy's `cProdRowWithFuncs`: the provider's
  * featured function where it published one, and the way in to the product
- * where it did not. A product still waiting on its setup keeps the control
- * that finishes it, whatever its provider offers.
+ * where it did not. A product still waiting on its setup leads to the Setup
+ * tab instead, whatever its provider offers — the product root lands there.
  */
 function productRowAction(product: MockProduct): ListModuleItem["action"] {
   if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
     return {
-      value: mockActionValue(MOCK_ACTION.COMPLETE_SETUP, product.id),
+      value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
       label: "Complete setup"
     };
   }
@@ -602,7 +606,7 @@ function productRowAction(product: MockProduct): ListModuleItem["action"] {
 function listingRowAction(product: MockProduct): ListModuleItem["action"] {
   if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
     return {
-      value: mockActionValue(MOCK_ACTION.COMPLETE_SETUP, product.id),
+      value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
       label: "Complete setup"
     };
   }
@@ -2229,11 +2233,43 @@ function productFormSubmit(
   return mockActionValue(action, product.id);
 }
 
+/**
+ * The setup blueprint as a form — legacy's `cProdProvConfigManageForm`:
+ * one control per field the provider asks for, confirmed in one step.
+ */
+export function productSetupFormSchema(
+  data: MockDataset,
+  context: DataRouteContext
+): JsonSchema {
+  return useSetupSchema(contextProvisionFields(data, context));
+}
+
+export function productSetupFormUischema(
+  data: MockDataset,
+  context: DataRouteContext
+): UISchemaElement {
+  return useSetupUischema(contextProvisionFields(data, context));
+}
+
+export function productSetupFormModel(
+  data: MockDataset,
+  context: DataRouteContext
+): FormModel {
+  return setupDefaults(contextProvisionFields(data, context));
+}
+
 export function productSetupFormSubmit(
   data: MockDataset,
   context: DataRouteContext
 ): string {
   return productFormSubmit(MOCK_ACTION.PRODUCT_SETUP_SAVE, data, context);
+}
+
+function contextProvisionFields(
+  data: MockDataset,
+  context: DataRouteContext
+): MockProduct["provisioning"]["fields"] {
+  return contextProduct(data, context)?.provisioning.fields ?? [];
 }
 
 /**
@@ -3748,19 +3784,7 @@ export function accountCardItems(data: MockDataset): ListModuleItem[] {
       label: "Change photo"
     }
   };
-  // Legacy's profile card foots itself with the client's pinned vault assets.
-  const pinned = filter(data.vault, { pinned: true });
-  if (isEmpty(pinned)) return [row];
-  return [
-    row,
-    {
-      id: "pinned-vault",
-      title: "Pinned notes and secrets",
-      description: `${countedNoun(size(pinned), "item")} kept to hand`,
-      to: "/account/notes",
-      leadingIcon: Pin
-    }
-  ];
+  return [row];
 }
 
 /**
@@ -5962,10 +5986,6 @@ export function accountMenuItems(data: MockDataset): AccountMenuItem[] {
     {
       value: mockActionValue(MOCK_ACTION.NAVIGATE, "/account/profile"),
       label: "My account"
-    },
-    {
-      value: mockActionValue(MOCK_ACTION.NAVIGATE, "/account/security"),
-      label: "Security"
     },
     // The sign-out route owns what happens next (plan F11): it ends any
     // impersonation, says so, and lands on the sign-in screen.

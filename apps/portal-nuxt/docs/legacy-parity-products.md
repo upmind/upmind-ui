@@ -87,8 +87,8 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Setup fields form, "Confirm" | Setup form, save | Present |
-| Revert to initial values | "Cancel" | Partial |
+| Setup fields form, "Confirm" | Setup form on the blueprint's asked fields, "Confirm" | Present |
+| Revert to initial values | "Revert changes" | Present |
 | Redirect away when setup is not owed | `setupAreaRedirect` | Present |
 
 ## Billing
@@ -111,7 +111,7 @@ recorded decision, cited. **Unverified** — not checked by hand yet.
 | Legacy control | Portal | Status |
 | --- | --- | --- |
 | Custom label form | Same | Present |
-| Change / select payment method | client-vue stub | Absent |
+| Change / select payment method | Waits on `StoredPaymentMethods` being published from the payment package | Absent |
 | Renewals: turn auto-renew off with confirm, on; create renewal invoice | Toggle and "Renew it yourself" | Present |
 | Unpaid-invoices and cancellation-options links in the renewal message | Same | Present |
 | "Cannot disable auto-renew" message offering cancellation instead | — | Unverified |
@@ -152,13 +152,14 @@ From `RELEASES.md` 1.12.6 → 1.74.0, checked against current legacy code.
 | --- | --- | --- |
 | Product filter on the ticket list | Legacy's listing has the prop; no client screen turns it on | Present |
 | Notification topics per email address | Email topic opt-ins form | Present |
-| Pinned vault assets from the profile card | "Pinned notes and secrets" row on the account card | Present |
-| Emailed code before a username or password change | "Confirm it is you" prompt, then the change | Present |
+| Pinned vault assets from the profile card | Staff-only in legacy; not offered to the client | Present |
+| Current password, then a code where two-factor is on, before a username or password change | "Confirm it is you" prompt, then the change | Present |
 | Brand setting that stops clients scheduling tickets | `canSchedule` gate on the ticket form | Present |
 
 ## Gaps to act on
 
-1. Payment method waits on client-vue.
+1. Payment method waits on `StoredPaymentMethods` being published from the payment
+   package (`client-vue-placeholder-audit.md`).
 2. Partial today: mobile tab dropdown, in-group paging on the dashboard, notes
    paging on the overview, the migration detail modal, a "Go back" on a custom
    page's not-found state, row click anywhere on a list row.

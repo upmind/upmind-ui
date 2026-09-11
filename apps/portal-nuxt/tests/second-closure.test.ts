@@ -466,14 +466,16 @@ describe("P2 — a dashboard product row leads with what its provider highlighte
     for (const row of rows) {
       const isAwaiting =
         productOf(data, row).status === ContractStatusCodes.AWAITING_ACTIVATION;
-      expect([
+      expect([row.id, row.action?.label === COMPLETE_SETUP]).toEqual([
         row.id,
-        row.action?.value ===
-          mockActionValue(MOCK_ACTION.COMPLETE_SETUP, row.id)
-      ]).toEqual([row.id, isAwaiting]);
+        isAwaiting
+      ]);
     }
+    // The way in lands on the Setup tab while setup is owed (`productRootRedirect`).
     for (const row of awaiting) {
-      expect(row.action?.label).toBe(COMPLETE_SETUP);
+      expect(row.action?.value).toBe(
+        mockActionValue(MOCK_ACTION.VIEW_PRODUCT, row.id)
+      );
     }
   });
 
@@ -631,9 +633,9 @@ describe("P3 — the invoices ledger offers to bring what is owed into one docum
     const result = dispatchMockAction(data, NO_CONTEXT, action.value);
 
     expect(action.value).toBe(MOCK_ACTION.CONSOLIDATE_INVOICES);
-    expect(result?.confirm?.then).toBe(
-      MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED
-    );
+    // Legacy asks WHICH invoices, so the ask is the picker form.
+    expect(result?.form?.id).toBe("consolidate-invoices");
+    expect(result?.confirm).toBeUndefined();
     expect(result?.toast).toBeUndefined();
     expect(size(data.invoices)).toBe(before);
     expect(
