@@ -1539,6 +1539,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
         // On a free trial that simply RUNS OUT rather than renewing — the
         // end-trial branch, and the auto-expire banner beside it.
         id: "prod-seats",
+        originalName: "Seat Bundle",
         groupSlug: "products",
         serviceIdentifier: "seats.fieldnotes.app",
         createdAt: "2026-08-20",
@@ -1606,6 +1607,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
         // && !isPendingContract`): stopping a contract that never began takes
         // nothing away, so it is not warned about.
         id: "prod-vault",
+        canCancel: false,
         groupSlug: "products",
         serviceIdentifier: "vault.fieldnotes.app",
         createdAt: "2026-08-09",
@@ -3334,7 +3336,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
     name: "Fieldnotes",
     colour: "#1F5EFF",
     font: "Inter",
-    logoSrc: "https://placehold.co/160x40/1F5EFF/FFFFFF?text=Fieldnotes"
+    logoSrc: "https://placehold.co/160x160/1F5EFF/FFFFFF?text=F"
   },
   // The brand is running behind on mail, which is what raises legacy's
   // delivery-delay notice over the email history.
@@ -3432,12 +3434,9 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
     }
   ],
   // The brand's own words on the pages that carry a slot (plan R12). Short by
-  // design: a slot is a note above the page, never a second page.
+  // design: a slot is a note above the page, never a second page. The dashboard
+  // slot stays blank: that page opens on the client's own data.
   templates: [
-    {
-      code: ClientTemplateSlotCodes.DASHBOARD_OVERVIEW,
-      body: "### Welcome back\n\nEverything you run with us is below. Our team answers tickets from **09:00 to 18:00 UK time**, Monday to Friday."
-    },
     {
       code: ClientTemplateSlotCodes.INVOICES_OVERVIEW,
       body: "Invoices are raised **14 days before** the due date and settled automatically where you have told us to. Anything unpaid can be paid from its own page."
@@ -3474,7 +3473,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
       slug: "getting-started",
       title: "Getting started",
       showOnMenu: true,
-      body: "## Getting started\n\n1. Point your domain at `ns1.hostgrid.example`\n2. Add the mailboxes you need\n3. Turn on automatic backups\n\nNeed a hand? Open a ticket and we will walk you through it."
+      body: "Three steps stand between you and a working setup.\n\n1. **Point your domain** at `ns1.hostgrid.example`. Changes take up to an hour to reach everyone.\n2. **Add the mailboxes you need** from the Mail Relay page.\n3. **Turn on automatic backups**, so a bad day costs you nothing.\n\nNeed a hand? [Open a ticket](/support/tickets/new) and we will walk you through it."
     },
     {
       slug: "network-status",

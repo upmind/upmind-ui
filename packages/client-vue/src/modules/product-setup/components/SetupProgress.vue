@@ -3,7 +3,7 @@
     <span v-if="props.total > 1" class="text-muted text-sm">
       {{ t("cart.product_setup_count", { count: props.total }) }}
     </span>
-    <h2 class="text-xl font-semibold">
+    <h2 class="text-xl">
       {{ props.title }}
     </h2>
   </div>

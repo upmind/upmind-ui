@@ -238,9 +238,13 @@ describe("banner notice — the action beside the message", () => {
       label: "Complete setup"
     });
 
-    const button = control(wrapper, "Complete setup");
-    expect(button).toBeDefined();
-    await button?.trigger("click");
+    // The library's own inline action: a `Link` with no destination, which
+    // renders as a focusable `role="button"` span, not a `<button>`.
+    const action = wrapper
+      .findAll("[role=button]")
+      .find(el => el.text().trim() === "Complete setup");
+    expect(action).toBeDefined();
+    await action?.trigger("click");
 
     expect(wrapper.emitted("select")).toContainEqual(["complete-setup:prod-1"]);
   });
@@ -249,7 +253,7 @@ describe("banner notice — the action beside the message", () => {
     const wrapper = mountNotice();
 
     expect(wrapper.text()).toContain("Your server is waiting on setup.");
-    expect(wrapper.findAll("button")).toHaveLength(0);
+    expect(wrapper.findAll("button, [role=button]")).toHaveLength(0);
   });
 });
 

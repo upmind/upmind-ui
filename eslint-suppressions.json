@@ -245,11 +245,6 @@
       "count": 4
     }
   },
-  "packages/client-vue/src/modules/order/Order.vue": {
-    "vue/return-in-computed-property": {
-      "count": 2
-    }
-  },
   "packages/client-vue/src/modules/payment/components/AccountCredit.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1

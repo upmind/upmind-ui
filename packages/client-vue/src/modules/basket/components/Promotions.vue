@@ -48,7 +48,7 @@
           appearance="solid"
           variant="promo"
           size="md"
-          class="cursor-pointer gap-1 rounded-full"
+          class="cursor-pointer"
           @click="toggleTooltip(promotion.id)"
           @mouseenter="toggleTooltip(promotion.id, true)"
           @mouseleave="toggleTooltip(promotion.id, false)"
@@ -59,7 +59,7 @@
             @click.prevent="doRemove(promotion.id)"
             color="inherit"
           >
-            <Icon icon="x-close" size="xs" />
+            <Icon icon="x-close" />
           </Link>
           {{ promotion.code }}
         </Badge>

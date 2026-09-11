@@ -24,9 +24,7 @@ export const productSummaryHeaderTopVariants = cva("flex justify-between");
 export const productSummaryCategoryRootVariants = cva(
   "flex items-center gap-2"
 );
-export const productSummaryCategoryTextVariants = cva(
-  "text-faint text-sm font-normal"
-);
+export const productSummaryCategoryTextVariants = cva("text-faint text-sm");
 
 export const productSummaryTitleRootVariants = cva(
   "flex items-start justify-between gap-x-4"
@@ -37,7 +35,6 @@ export const productSummaryTitleTextVariants = cva(
   "text-xl font-medium break-all no-underline"
 );
 
-export const productSummaryIconVariants = cva("[&>svg]:p-[2px]");
 export const productSummaryImageVariants = cva("rounded-image m-0 size-13");
 export const productSummaryExcerptVariants = cva(
   "text-muted m-0 line-clamp-3 text-sm"
@@ -55,7 +52,6 @@ export const productSummaryFooterTermsRootVariants = cva(
 export const productSummaryFooterTermsControlsVariants = cva(
   "flex items-center gap-2"
 );
-export const productSummaryFooterTermsContentVariants = cva("max-h-74!");
 export const productSummaryFooterRemoveVariants = cva(
   "p-2 [&>span>i>svg]:size-4"
 );

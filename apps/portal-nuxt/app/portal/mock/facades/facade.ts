@@ -40,6 +40,10 @@ export const MOCK_RECEIPT_REASON = {
   IMPERSONATION_REFUSED: "impersonation-refused",
   /** An order that has moved past the point a client may call it off. */
   NOT_CANCELLABLE: "not-cancellable",
+  /** A product with an invoice past its due date — settle first, then cancel. */
+  OVERDUE_INVOICES: "overdue-invoices",
+  /** A product the brand does not let clients cancel. */
+  CANCELLATION_FORBIDDEN: "cancellation-forbidden",
   /** The card the account already charges first. */
   ALREADY_DEFAULT: "already-default",
   /** A provider function that goes somewhere, with nowhere named. */

@@ -75,7 +75,7 @@ export const productsMainEmptyStateRootVariants = cva(
   "flex w-full flex-col items-center justify-center space-y-4 p-4 py-10 text-center"
 );
 export const productsMainEmptyStateIconVariants = cva("text-muted");
-export const productsMainEmptyStateTitleVariants = cva("font-medium");
+export const productsMainEmptyStateTitleVariants = cva("");
 export const productsMainEmptyStateDescriptionVariants = cva("text-muted");
 
 // --- categories
@@ -104,7 +104,7 @@ export const categoriesControlsRootVariants = cva(
 
 // --- categories.item
 export const categoriesItemRootVariants = cva(
-  "before:border-stroke group relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none bg-transparent! p-8 text-left text-base whitespace-normal shadow-none before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-[''] [&:hover:not(:disabled),&:focus-within:not(:disabled),&[data-hover=true]:not([data-disabled=true]),&[data-focus=true]:not([data-disabled=true])]:shadow-none!"
+  "before:border-stroke group duration-base focus-visible:outline-ring/40 relative z-10 m-0 flex h-full w-full cursor-pointer flex-col items-start justify-start gap-4 p-8 text-base transition before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-[''] focus-visible:outline-2 focus-visible:-outline-offset-2"
 );
 export const categoriesItemIconVariants = cva(
   "text-muted text-primary transition-all duration-200 [&>svg]:p-px"
@@ -116,7 +116,9 @@ export const categoriesItemTitleContainerVariants = cva(
   "m-0 flex w-full items-start justify-between gap-2 text-lg font-normal"
 );
 export const categoriesItemTitleVariants = cva("");
-export const categoriesItemLinkVariants = cva("font-medium");
+export const categoriesItemLinkVariants = cva(
+  "text-base font-medium text-(--text-button-link) underline underline-offset-4 transition-colors duration-200 group-hover:text-(--text-button-link-hover) group-hover:[text-decoration-color:var(--text-button-link-hover)]"
+);
 export const categoriesItemBadgeVariants = cva("mt-1 mr-auto");
 export const categoriesItemArrowIconVariants = cva(
   "text-muted mt-1.5 transition-all duration-200"

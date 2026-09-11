@@ -5,6 +5,12 @@
     :dismissible="false"
     :title="t('action.configure_your_product')"
     :description="t('text.product_info_needed_msg')"
+    :ui="{
+      header: 'mx-auto w-full max-w-app md:px-6 lg:px-18',
+      body: 'mx-auto flex w-full max-w-app flex-col md:px-6 lg:px-18',
+      footer:
+        'mx-auto w-full max-w-app md:px-6 lg:px-18 lg:flex-row lg:justify-between'
+    }"
   >
     <ProductConfig
       v-if="pendingProduct && productMeta?.isAvailable"
@@ -26,7 +32,6 @@
         variant="primary"
         size="lg"
       >
-        <Icon icon="plus-circle" />
         {{ t("action.add_to_basket") }}
       </Button>
     </template>
@@ -49,7 +54,6 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import ProductConfig from "../../product/components/Config.vue";
 import type { RecommendationConfigurationProps } from "./types";
 // -----------------------------------------------------------------------------

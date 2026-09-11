@@ -7,7 +7,11 @@ import type { PageKey } from "~/portal/types";
 import { usePortalConfig } from "~/composables/usePortalConfig";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { routeQueryContext } from "~/portal/mock/injection";
-import { soleProductRedirect } from "~/portal/mock/selectors";
+import {
+  productRootRedirect,
+  setupAreaRedirect,
+  soleProductRedirect
+} from "~/portal/mock/selectors";
 import { isMockDatasetId, useMockData } from "~/portal/mock/store";
 import { resolveCatchAll } from "~/portal/routes";
 import { PAGE_KEY, PORTAL_PILLAR } from "~/portal/types";
@@ -52,6 +56,12 @@ watch(
     // off the redirect (mock/selectors.ts holds the decision).
     const sole = soleProductRedirect(activeData.value, current, queryFilters());
     if (sole !== undefined) await navigateTo(sole, { replace: true });
+    // Setup is done: the tab is gone from the rail, so its URL goes too.
+    const finished = setupAreaRedirect(activeData.value, current);
+    if (finished !== undefined) await navigateTo(finished, { replace: true });
+    // Setup still owed: the product opens on the tab that finishes it.
+    const owed = productRootRedirect(activeData.value, current);
+    if (owed !== undefined) await navigateTo(owed, { replace: true });
   },
   { immediate: true }
 );

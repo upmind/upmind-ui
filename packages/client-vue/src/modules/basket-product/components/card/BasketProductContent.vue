@@ -16,9 +16,9 @@
       <div :class="productSummaryHeaderContentVariants()">
         <div :class="productSummaryHeaderTopVariants()">
           <div :class="productSummaryCategoryRootVariants()">
-            <strong :class="productSummaryCategoryTextVariants()">
+            <span :class="productSummaryCategoryTextVariants()">
               {{ summary.category }}
-            </strong>
+            </span>
 
             <Link
               v-if="isMobile && !isEmpty(filteredDetails)"
@@ -27,11 +27,7 @@
               color="muted"
               aria-label="Product information"
             >
-              <Icon
-                icon="info-circle"
-                size="md"
-                :class="productSummaryIconVariants()"
-              />
+              <Icon icon="info-circle" size="xs" />
             </Link>
           </div>
 
@@ -78,11 +74,7 @@
                   color="muted"
                   aria-label="Product information"
                 >
-                  <Icon
-                    icon="info-circle"
-                    size="md"
-                    :class="productSummaryIconVariants()"
-                  />
+                  <Icon icon="info-circle" size="xs" />
                 </Link>
                 <template #content>{{ t("action.show_details") }}</template>
               </Tooltip>
@@ -242,7 +234,6 @@ import {
   productSummaryHeaderTopVariants,
   productSummaryCategoryRootVariants,
   productSummaryCategoryTextVariants,
-  productSummaryIconVariants,
   productSummaryImageVariants,
   productSummaryExcerptVariants,
   productSummaryTitleRootVariants,

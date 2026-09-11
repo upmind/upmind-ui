@@ -20,9 +20,10 @@ const PORTAL_GROUP_AXIS_CLASS: Readonly<Record<GroupAxis, string>> = {
   // cluster shared the right region.
   horizontal: `flex flex-row flex-nowrap items-center ${MODULE_CLUSTER_GAP}`,
   vertical: `flex flex-col items-start ${MODULE_CLUSTER_GAP}`,
-  // Not yet exercised by any acceptance criterion — every member occupies
-  // the same cell rather than adding to the flow.
-  stacked: "grid [&>*]:col-start-1 [&>*]:row-start-1"
+  // A vertical stack whose members take the group's full width — a card
+  // built from a list over a fact sheet. `vertical` shrink-wraps its members
+  // (`items-start`), which is right for a button cluster and wrong for rows.
+  stacked: `flex flex-col ${MODULE_CLUSTER_GAP}`
 };
 
 export function portalGroupClass(axis: GroupAxis): string {
@@ -185,9 +186,15 @@ export const PORTAL_FOOTER_LINK_CLASS = "shrink-0 hover:underline";
  * declares its own tracks — one per bar, the content, the footer, and the
  * pane column. Every extra track is `auto`, so a shell composing one bar and
  * no pane lays out exactly as the library's own grid does.
+ *
+ * Important, because `Shell` concatenates `ui.panel` after its own classes
+ * without a merge: both `grid-rows-[…]` utilities stay on the element and the
+ * stylesheet's order picks the library's. Under that template the empty
+ * second row takes the `1fr` and a short page sinks to the foot of the
+ * viewport.
  */
 export const CHROME_PANEL_CLASS =
-  "grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)_auto]";
+  "grid-rows-[auto_auto_auto_minmax(0,1fr)_auto]! lg:grid-cols-[auto_minmax(0,1fr)_auto]!";
 
 /** The two track heights the sub-bars and the bottom strip read, on the Shell root beside its own `--shell-header-h`. */
 export const CHROME_TRACK_CLASS =

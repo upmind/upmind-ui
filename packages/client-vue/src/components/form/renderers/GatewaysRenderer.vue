@@ -17,18 +17,18 @@
         :description="gateway.secondaryLabel"
         v-bind="gateway.dataAttrs"
       />
-    </OptionTileGroup>
 
-    <Link
-      v-if="allowShowMore"
-      color="muted"
-      size="sm"
-      :data-attrs="{ 'data-test-key': 'show-more-payment-options' }"
-      class="mt-1 inline-flex items-center justify-start gap-1 px-3"
-      @click="isExpanded = true"
-    >
-      <Icon icon="plus" /> {{ t("action.show_more_options") }}
-    </Link>
+      <Link
+        v-if="allowShowMore"
+        color="muted"
+        size="sm"
+        :data-attrs="{ 'data-test-key': 'show-more-payment-options' }"
+        class="w-fit self-center px-4"
+        @click="isExpanded = true"
+      >
+        <Icon icon="plus" /> {{ t("action.show_more_options") }}
+      </Link>
+    </OptionTileGroup>
   </FormField>
 </template>
 

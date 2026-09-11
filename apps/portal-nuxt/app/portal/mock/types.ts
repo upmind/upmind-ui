@@ -395,6 +395,10 @@ export type MockProduct = {
   readonly promotionCodes?: readonly string[];
   /** Managed on someone else's behalf — legacy's delegated-object marker. */
   readonly isDelegated?: boolean;
+  /** The name the product carried before the brand renamed it — legacy shows it beside the new one. */
+  readonly originalName?: string;
+  /** Whether the brand lets the client cancel this product at all; absent reads as yes. */
+  readonly canCancel?: boolean;
   /** Closed and replaced — the product that took this one's place. */
   readonly movedTo?: MockProductMove;
   /** The price waiting on the next renewal invoice; absent means the price stands. */

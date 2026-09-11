@@ -67,7 +67,7 @@
       :processing="isSubmitting"
       @update:model-value="onUpdate"
       @resolve="onResolve"
-      @reject="emit('rejected')"
+      @reject="onReject"
     />
   </template>
 </template>
@@ -208,6 +208,33 @@ const submitAction = computed(
     ) ?? FormFlowActionTypes.RESOLVE
 );
 
+/**
+ * @decision
+ * what:     An OPTIONAL `revert` lookup, added to the shared runtime
+ *           (`FormFlowSurface.vue`) — the one exception to operator ruling
+ *           (c) (`docs/sdd/client-notifications-scf/review-notes.md`
+ *           "Binding inputs recorded at this pass"). The conductor's ruling
+ *           forbade shared-runtime changes generally; the operator lifted it
+ *           for this one additive lookup only (`verify.md`'s ABSENT verdict,
+ *           row 8 — the in-place-revert parity failure).
+ * why:      `UpmForm`'s reset path has no reset-time hook beyond `@reject`
+ *           (`Form.vue`'s `doReject`), which every sibling scenario relies on
+ *           to destroy-and-close. A module that publishes a live `revert()`
+ *           (`useClientNotificationsManager.actions.ts`) needs its OWN
+ *           reset-time behaviour — restore the draft, keep the form open —
+ *           and the surface has no other seam to read that capability from.
+ *           Additive: absent, `revertAction` resolves `undefined` and
+ *           `onReject` falls through to the exact `emit('rejected')` every
+ *           sibling already runs, byte-identical.
+ * rejected: A second prop threading the capability in from the scenario
+ *           declaration — the write path already reads the live port's own
+ *           member names this same way (`inputAction`/`submitAction`
+ *           above); a `revert` lookup is the same seam, not a new one.
+ */
+const revertAction = computed(() =>
+  find(["revert"], name => isFunction(props.actions[name]))
+);
+
 const isSubmitting = computed(() => feedback.isPending(SUBMIT_CONTROL));
 
 // The API's own sentence where the refusal carried one — a save the user has
@@ -230,7 +257,12 @@ const actions = computed<FormProps["actions"]>(() => ({
   },
   reset: {
     type: "reset",
-    label: t("action.cancel"),
+    // A module publishing `revert()` reads its OWN reset control as a revert,
+    // not a cancel — the label the oracle's own in-place-revert button
+    // carries. Absent, unchanged.
+    label: revertAction.value
+      ? t("action.notification_revert_changes")
+      : t("action.cancel"),
     variant: "ghost",
     disabled: isSubmitting.value
   }
@@ -248,6 +280,18 @@ const submitCopy = computed(() =>
 function onUpdate(value: unknown): void {
   const input = props.actions[inputAction.value];
   if (isFunction(input)) input(value);
+}
+
+// Reset. Present, `revert()` restores the draft and the dialog STAYS OPEN —
+// the oracle's in-place revert. Absent, today's destroy-and-close is
+// unchanged: every sibling scenario is byte-identical.
+function onReject(): void {
+  const revert = revertAction.value && props.actions[revertAction.value];
+  if (isFunction(revert)) {
+    revert();
+    return;
+  }
+  emit("rejected");
 }
 
 // --- The stage. An open editor is the thing a scenario types into, so its own

@@ -29,7 +29,7 @@ export const summaryListRootVariants = cva(
 export const summaryListItemRootVariants = cva(
   "flex list-none justify-between text-sm"
 );
-export const summaryListItemCategoryVariants = cva("text-muted font-normal");
+export const summaryListItemCategoryVariants = cva("text-muted");
 export const summaryListItemTitleVariants = cva("font-normal");
 
 export const summaryFooterVariants = cva(

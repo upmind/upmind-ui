@@ -35,6 +35,8 @@ import { join } from "node:path";
 import { chromium } from "@playwright/test";
 import { describe, it, expect } from "vitest";
 import { attachRecorder } from "@upmind-automation/test-fixtures/playwright-recorder";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import { mintGuestToken } from "../../auth/__tests__/auth.tokens";
 
 // -----------------------------------------------------------------------------
 
@@ -188,6 +190,11 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
             );
 
           // --- 1) guest session ------------------------------------------------
+          // Minted INLINE, and it must stay that way: this block runs inside
+          // `page.evaluate`, i.e. in the BROWSER. A Node-side import (the auth
+          // module's mintGuestToken) is not in scope there and fails with
+          // "__vite_ssr_import_4__ is not defined". The browser also supplies
+          // its own Origin header, which is why none is set here.
           const tokenRes = await fetch(`${API}/oauth/access_token?lang=en`, {
             method: "POST",
             headers: {
@@ -332,17 +339,7 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
       }
     };
 
-    const tokenBody = await fetch(`${API_URL}/oauth/access_token?lang=en`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-        Origin: ORIGIN
-      },
-      body: new URLSearchParams({ grant_type: "guest" }).toString()
-    }).then(jsonOf);
-    const token: string =
-      tokenBody?.access_token ?? tokenBody?.data?.access_token ?? "";
+    const token: string = (await mintGuestToken())?.access_token ?? "";
     expect(token, "guest token minted for setup").toBeTruthy();
 
     const created = await fetch(`${API_URL}/api/orders?lang=en-US`, {

@@ -43,6 +43,7 @@ import {
   first,
   get,
   isArray,
+  isEmpty,
   isEqual,
   isNumber,
   isUndefined,
@@ -609,6 +610,13 @@ export function resolveCorpusAbsence(
  * errored — a forced failure nobody armed. The refusal is still reached, by the
  * preset named for it; picking it here would be the resolver forcing a state.
  */
+/** The capture run's own `case` label for a recording, if it carries one. */
+function labelOf(fixture: RecordedFixture): string | null {
+  const [, search = ""] = split(fixture.request.path, "?");
+
+  return new URLSearchParams(search).get("case");
+}
+
 function pickRecording(
   candidates: RecordedFixture[],
   params: URLSearchParams
@@ -616,11 +624,10 @@ function pickRecording(
   const requestedCase = params.get("case");
 
   if (requestedCase) {
-    const labelled = find(candidates, fixture => {
-      const [, search = ""] = split(fixture.request.path, "?");
-
-      return new URLSearchParams(search).get("case") === requestedCase;
-    });
+    const labelled = find(
+      candidates,
+      fixture => labelOf(fixture) === requestedCase
+    );
 
     if (labelled) return labelled;
   }
@@ -631,13 +638,22 @@ function pickRecording(
   );
   const asked = criteriaOf(params);
 
+  // A labelled capture answers its OWN case and nothing else. `criteriaOf`
+  // drops the `case` label on purpose, so a variant captured under one compares
+  // identical to the plain capture beside it — and an unlabelled request was
+  // being answered by whichever of the two sorted first. That is how
+  // client-notifications served the 3-row `case=after-save` opt-outs capture to
+  // the plain `?limit=0` read staging recorded 2 rows for.
+  const unlabelled = filter(served, fixture => !labelOf(fixture));
+  const pool = requestedCase || isEmpty(unlabelled) ? served : unlabelled;
+
   return (
-    find(served, fixture => {
+    find(pool, fixture => {
       const [, search = ""] = split(fixture.request.path, "?");
 
       return criteriaOf(new URLSearchParams(search)) === asked;
     }) ??
-    first(served) ??
+    first(pool) ??
     first(candidates)
   );
 }
@@ -747,6 +763,10 @@ export function createCorpusSession(source: CorpusBodies): CorpusSession {
         return;
       }
 
+      if (shape === collection && (verb === "PUT" || verb === "PATCH")) {
+        rows = replacedRows(source, verb, pathname) ?? rows;
+        return;
+      }
       if (shape === collection && verb === "POST") {
         const recorded = createdRow(source, pathname);
         if (!recorded) return;
@@ -783,6 +803,21 @@ function pagedFixtureNames(source: CorpusBodies): string[] {
 }
 
 /** The row the module's own POST recording created, if it carries one. */
+/** A full-set write on the collection itself: the rows its recorded answer carries. */
+function replacedRows(
+  source: CorpusBodies,
+  method: string,
+  pathname: string
+): WireRecord[] | undefined {
+  const recording = find(
+    matching(source, method, pathname),
+    fixture => fixture.response.status < REFUSED_FROM
+  );
+  const data = (recording?.response.body as { data?: unknown } | undefined)
+    ?.data;
+  return isArray(data) ? (data as WireRecord[]) : undefined;
+}
+
 function createdRow(
   source: CorpusBodies,
   pathname: string

@@ -1,9 +1,7 @@
 <template>
   <div class="flex w-full flex-col gap-1">
-    <header
-      class="pointer-events-none flex w-full cursor-pointer! items-start justify-between"
-    >
-      <h3 class="m-0 flex items-center gap-x-2 text-base font-medium">
+    <header class="pointer-events-none flex w-full items-start justify-between">
+      <h3 class="m-0 flex items-center gap-x-2 text-base">
         {{ title }}
         <Badge
           v-if="meta?.isDefault"
@@ -22,7 +20,7 @@
         tabindex="-1"
         :data-attrs="{ 'data-test-key': 'link-edit' }"
         @mousedown.stop.prevent
-        class="pointer-events-auto h-4"
+        class="pointer-events-auto"
         @click.stop.prevent="doEdit"
         >{{ t("action.edit") }}</Link
       >

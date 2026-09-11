@@ -182,7 +182,25 @@ export async function loadAllSessionUsers(
  */
 const GUEST_MINT_MAX_ATTEMPTS = 3;
 
-export async function mintGuestToken(): Promise<IToken> {
+export function mintGuestToken(): Promise<IToken> {
+  return driveGuestMint();
+}
+
+/**
+ * Mint an ADDITIONAL guest token — the guest counterpart of a fresh login.
+ *
+ * Grants a new guest session even while one is already pooled, and never
+ * adopts the guest the cookie names.
+ *
+ * @private
+ * @returns Promise resolving to the newly minted guest token
+ * @throws DetailedError when every attempt fails
+ */
+export function mintNewGuestToken(): Promise<IToken> {
+  return driveGuestMint(true);
+}
+
+async function driveGuestMint(fresh?: boolean): Promise<IToken> {
   // `useAuth` stays a lazy import: the auth module imports session-store
   // statically, so importing the auth barrel at the top of this file would
   // close a real auth ↔ session-store cycle. (ScopeActorTypes is imported
@@ -193,7 +211,8 @@ export async function mintGuestToken(): Promise<IToken> {
     // A fresh instance per attempt: `destroy()` clears the registry so the next
     // `.as(GUEST)` re-runs the mint rather than reusing a machine parked in a
     // terminal state.
-    const guestAuth = useAuth().as(ScopeActorTypes.GUEST);
+    const scoped = useAuth().as(ScopeActorTypes.GUEST);
+    const guestAuth = fresh ? scoped.fresh() : scoped;
     const { onDone, onError, destroy } = guestAuth.useActions();
 
     // Race success against failure: `onError` (the failure counterpart to

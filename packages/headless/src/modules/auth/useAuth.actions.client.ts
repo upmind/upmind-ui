@@ -50,13 +50,21 @@ export function createClientAuthActions(actor: UseActor) {
 
   /**
    * Drive the guest-register path (M5) — two-step GUEST_CUSTOMER grant.
-   * Gated on the machine by the canRegisterAsGuest guard (F3b); if the guard
-   * blocks the transition, the machine stays idle and this resolves false.
+   * Gated on the machine by the canRegisterAsGuest guard (F3b).
    * @private
    */
   async function registerAsGuest(): Promise<boolean> {
+    // Settle past `checking` first: the shared instance may sit anywhere the gate
+    // left it (`idle`, or a `login` form), and GUEST is a global transition off
+    // whichever that is.
+    await isReady();
     send({ type: "GUEST" });
-    return waitForProcessing(service, "authenticated", "idle");
+    // Guard blocked (GUEST_CHECKOUT disabled): GUEST is ignored and the machine
+    // never enters the guest-register flow.
+    if (!stateMatches(service, "registeringGuest")) return false;
+    // `authenticated` is a final state, so entering it settles the machine
+    // `done`; count `done` a success or the settle reads as a failure.
+    return waitForProcessing(service, ["authenticated", "done"]);
   }
 
   return {

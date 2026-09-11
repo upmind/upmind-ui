@@ -2,7 +2,7 @@
   <section :class="cardHeaderInfoRootVariants()">
     <div :class="cardHeaderInfoContainerVariants()">
       <Badge v-if="detailsBadge" size="sm" appearance="muted" variant="promo">
-        <Icon v-if="detailsBadge.icon" :icon="detailsBadge.icon" size="xs" />
+        <Icon v-if="detailsBadge.icon" :icon="detailsBadge.icon" />
         {{ detailsBadge.label }}
       </Badge>
 
@@ -13,7 +13,7 @@
         appearance="muted"
         variant="promo"
       >
-        <Icon icon="clock-stopwatch" size="xs" />
+        <Icon icon="clock-stopwatch" />
         {{ t("text.free_trial") }}
       </Badge>
 
@@ -28,7 +28,7 @@
             })
           "
         >
-          <Icon icon="edit-01" size="xs" />
+          <Icon icon="edit-01" />
           {{ t("text.custom_price") }}
         </Badge>
         <template #content>{{
@@ -47,7 +47,7 @@
           })
         "
       >
-        <Icon icon="tag-02" size="xs" />
+        <Icon icon="tag-02" />
         {{ t("text.on_sale") }}
       </Badge>
 
@@ -56,7 +56,7 @@
         appearance="outline"
         variant="neutral"
       >
-        <Icon v-if="productBadge.icon" :icon="productBadge.icon" size="xs" />
+        <Icon v-if="productBadge.icon" :icon="productBadge.icon" />
         {{ productBadge.label }}
       </Badge>
 

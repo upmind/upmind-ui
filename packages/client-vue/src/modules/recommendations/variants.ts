@@ -7,7 +7,9 @@ export const benefitRootVariants = cva(
 export const benefitIconVariants = cva("text-secondary size-5 shrink-0");
 export const benefitLabelVariants = cva("m-0");
 
-export const carouselNavigationVariants = cva("flex justify-end space-x-2");
+export const carouselNavigationVariants = cva(
+  "mb-4 flex justify-end space-x-2"
+);
 export const carouselItemVariants = cva("pl-12 md:basis-1/2 xl:basis-1/3");
 
 export const footerRootVariants = cva(

@@ -139,6 +139,37 @@ function panelRow(
   };
 }
 
+/** How many needs-setup products show before "Show more" — the dashboard's own cap. */
+const NEEDS_ATTENTION_SHOWN = 2;
+
+/**
+ * The products still waiting on the client's setup — legacy's needs-confirmation
+ * billboard, which heads BOTH the dashboard and the products list. One row, so
+ * the two pages cannot drift.
+ */
+export const NEEDS_SETUP_ROW: ContentRowConfig = {
+  layout: ROW_LAYOUT.FULL,
+  surface: ROW_SURFACE.PANEL,
+  visible: dataRef(DATA_REF_ID.HAS_PRODUCTS_AWAITING_SETUP),
+  header: {
+    title: "Almost ready",
+    description: "We just need a few more details in order to complete setup."
+  },
+  slots: [
+    moduleRef(LIST_MODULE_ID, {
+      variant: LIST_MODULE_VARIANT.ROW_CARDS,
+      props: {
+        items: dataRef(DATA_REF_ID.NEEDS_ATTENTION_PRODUCT_ITEMS),
+        maxItems: NEEDS_ATTENTION_SHOWN,
+        showMoreLabel: "Show more",
+        showLessLabel: "Show fewer",
+        emptyTitle: "Nothing waiting on you",
+        moreLabel: "Product actions"
+      }
+    })
+  ]
+};
+
 /**
  * The product's billboard — what it IS: its image or glyph, the category over
  * the name, the lifecycle badge and whatever else is standing true of it. A
@@ -686,6 +717,7 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
       "Everything in this group, running and past.",
       [
         ORDER_COMPLETE_ROW,
+        NEEDS_SETUP_ROW,
         {
           layout: ROW_LAYOUT.FULL,
           surface: ROW_SURFACE.PANEL,

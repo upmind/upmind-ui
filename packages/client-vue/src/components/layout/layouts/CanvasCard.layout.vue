@@ -1,10 +1,11 @@
 <template>
   <Root :class="canvasCardRootVariants()">
     <div :class="canvasCardContainerVariants()">
-      <CardRoot
+      <Card
         as="article"
+        size="lg"
         :class="canvasCardCardVariants()"
-        class="p-8 lg:p-18"
+        :ui="{ content: canvasCardBodyVariants() }"
       >
         <!-- Content Header -->
         <section :class="canvasCardContentHeaderVariants()">
@@ -21,18 +22,19 @@
           <slot name="content" />
           <slot name="default" />
         </section>
-      </CardRoot>
+      </Card>
     </div>
   </Root>
 </template>
 
 <script lang="ts" setup>
-import { CardRoot } from "@upmind/ui";
+import { Card } from "@upmind/ui";
 import Root from "../components/root/Root.vue";
 import {
   canvasCardRootVariants,
   canvasCardContainerVariants,
   canvasCardCardVariants,
+  canvasCardBodyVariants,
   canvasCardContentHeaderVariants,
   canvasCardContentVariants
 } from "../variants";

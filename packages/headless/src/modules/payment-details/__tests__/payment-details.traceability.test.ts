@@ -34,8 +34,11 @@ import { describe, expect, it } from "vitest";
 const TEST_DIR = import.meta.dirname;
 const COLOCATED_FEATURE = join(TEST_DIR, "payment-details.feature");
 
-/** Total scenarios the co-located feature tags. */
-const SCENARIO_COUNT = 29;
+/**
+ * Total `@AC-*` capabilities the co-located feature tags. Three scenarios each
+ * carry a merged pair, so 26 scenarios hold these 29 ids.
+ */
+const CAPABILITY_COUNT = 29;
 
 /**
  * Scenarios with no proof yet, each with its reason and owning issue.
@@ -122,9 +125,9 @@ function provingTests(): Map<string, string[]> {
 // -----------------------------------------------------------------------------
 
 describe("paymentDetails traceability — co-located feature vs proving tests", () => {
-  it("the co-located feature is present and tags every scenario in the module's own tree", () => {
+  it("the co-located feature is present and tags every capability in the module's own tree", () => {
     expect(existsSync(COLOCATED_FEATURE)).toBe(true);
-    expect(featureAcTags(COLOCATED_FEATURE).size).toBe(SCENARIO_COUNT);
+    expect(featureAcTags(COLOCATED_FEATURE).size).toBe(CAPABILITY_COUNT);
   });
 
   it("every scenario is either proven by a test or openly owed on an issue", () => {
@@ -169,7 +172,7 @@ describe("paymentDetails traceability — co-located feature vs proving tests", 
     expect(broken).toEqual([]);
   });
 
-  it("the coverage map accounts for all 29 scenarios", () => {
+  it("the coverage map accounts for all 29 tagged capabilities", () => {
     const tests = provingTests();
     const map = [...featureAcTags(COLOCATED_FEATURE)].sort().map(ac => ({
       ac,
@@ -177,7 +180,7 @@ describe("paymentDetails traceability — co-located feature vs proving tests", 
       deferred: DEFERRED[ac] ?? null
     }));
 
-    expect(map).toHaveLength(SCENARIO_COUNT);
+    expect(map).toHaveLength(CAPABILITY_COUNT);
     expect(
       map.filter(entry => entry.files.length === 0 && entry.deferred === null)
     ).toEqual([]);

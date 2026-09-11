@@ -44,7 +44,9 @@
               size="xs"
               :src="member.avatar?.src"
               :alt="member.avatar?.caption"
-              :force-caption="member.avatar?.forceCaption"
+              :force-caption="
+                member.avatar?.forceCaption ?? !member.avatar?.src
+              "
             >
               <template #fallback>{{ member.avatar?.caption }}</template>
             </Avatar>
@@ -59,7 +61,7 @@
           size="xs"
           :src="member.avatar?.src"
           :alt="member.avatar?.caption"
-          :force-caption="member.avatar?.forceCaption"
+          :force-caption="member.avatar?.forceCaption ?? !member.avatar?.src"
         >
           <template #fallback>{{ member.avatar?.caption }}</template>
         </Avatar>
@@ -157,8 +159,8 @@ const next = computed(() => {
 });
 
 /** Activate the next session — the SAME write the pool's own rows make. */
-function cycle() {
+async function cycle() {
   if (!next.value) return;
-  switchSession(next.value.actor, next.value.id);
+  await switchSession(next.value.actor, next.value.id);
 }
 </script>

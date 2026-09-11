@@ -9,23 +9,17 @@
       @pointer-down-outside.prevent
       @interact-outside.prevent
     >
-      <Avatar
-        size="lg"
-        class="size-20 p-2"
-        :ui="{ fallback: 'bg-primary text-primary-contrast' }"
-      >
+      <Avatar size="xl" :ui="{ fallback: 'bg-primary text-primary-contrast' }">
         <template #fallback>
           <Icon :icon="avatar.icon ?? 'basket'" />
         </template>
       </Avatar>
 
-      <DialogTitle class="m-0 text-center text-3xl font-light text-inherit">
+      <DialogTitle class="m-0 text-center text-3xl text-inherit">
         {{ title }}
       </DialogTitle>
 
-      <DialogDescription
-        class="text-muted m-0 text-center text-sm leading-5 tracking-tight"
-      >
+      <DialogDescription class="m-0 text-center leading-5 tracking-tight">
         {{ text }}
       </DialogDescription>
 
@@ -49,17 +43,13 @@
     v-else
     class="relative flex w-full flex-col flex-wrap items-center justify-center gap-6 py-16"
   >
-    <Avatar
-      size="lg"
-      class="size-20 p-2"
-      :ui="{ fallback: 'bg-primary text-primary-contrast' }"
-    >
+    <Avatar size="xl" :ui="{ fallback: 'bg-primary text-primary-contrast' }">
       <template #fallback>
         <Icon :icon="avatar.icon ?? 'basket'" />
       </template>
     </Avatar>
 
-    <h3 class="m-0 text-center text-3xl font-light text-inherit">
+    <h3 class="m-0 text-center text-3xl text-inherit">
       {{ title }}
     </h3>
 

@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a14e38969f6e6cb8-DUR",
+      "cf-ray": "a38bf3873f33816d-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 02 Jul 2026 14:08:11 GMT",
+      "date": "Thu, 10 Sep 2026 05:14:49 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4vA3tWCed2owpUy5X4XMPi4Xfvyv4e1IUNjzJXc5OPQvD%2F5atmJ76AnLeOaHUxRbkikBQ7ul0iXAt7jtGyrA6yPexWZFbw6yoZ6HnqUwP1B3MnqenN4K4NdHxHvZGS4DOzZWh9EtLg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=nSt1b71di4lxCLXYRuNQ%2Fs8cxR%2B904DU0XN%2B%2F%2BtTysI7PsLMllvXKwhh10xl8YsHZY%2BibA79K%2F8FazRYh%2F0hcvoa%2B9zDEjAXlJHOraQYOZayLYtOo2wStNztW7WDCa937gIZtxYW3A%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -35,7 +35,7 @@
       "status": "ok",
       "data": [
         {
-          "id": "mock-uuid-4",
+          "id": "20403869-6e54-721d-29f5-18d9305e7d23",
           "import_id": null,
           "staged_import": false,
           "external_id": null,
@@ -48,7 +48,7 @@
           "hidden": false,
           "client_readonly": false,
           "required": false,
-          "user_id": "mock-uuid-5",
+          "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
           "order": 1,
           "values": {
             "min": {
@@ -72,8 +72,8 @@
           "show_on_invoice": false,
           "deleted_at": null,
           "validation_rules": [],
-          "org_id": "mock-uuid-3",
-          "brand_id": "mock-uuid-6",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
           "name_translated": "Age",
           "short_description_translated": null,
           "description_translated": null,
@@ -96,7 +96,7 @@
           "translations": []
         },
         {
-          "id": "mock-uuid-7",
+          "id": "3de78642-de53-9714-7ec2-1208469530d0",
           "import_id": null,
           "staged_import": false,
           "external_id": null,
@@ -109,7 +109,7 @@
           "hidden": false,
           "client_readonly": false,
           "required": false,
-          "user_id": "mock-uuid-5",
+          "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
           "order": 2,
           "values": [],
           "created_at": "2025-12-19 12:58:57",
@@ -120,8 +120,8 @@
           "show_on_invoice": false,
           "deleted_at": null,
           "validation_rules": [],
-          "org_id": "mock-uuid-3",
-          "brand_id": "mock-uuid-6",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
           "name_translated": "Profile Picture",
           "short_description_translated": null,
           "description_translated": null,
@@ -138,7 +138,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-07-02T14:08:11.614Z",
+  "captured_at": "2026-09-10T05:14:48.910Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

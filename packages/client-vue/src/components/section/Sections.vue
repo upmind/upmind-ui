@@ -42,12 +42,13 @@
         #[`tab.${section.value}`]
       >
         <!-- the glyphs draw bottom-weighted in their box, so centring drops
-             them under the baseline -->
+             them under the baseline; the forced svg size beats TabsTrigger's
+             own cap, so a tabbed section matches a lone one -->
         <Icon
           v-if="section.icon"
           :icon="section.icon"
           size="sm"
-          class="relative -top-0.5"
+          class="relative -top-0.5 [&>svg]:size-5!"
         />
         {{ section.label }}
       </template>

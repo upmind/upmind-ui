@@ -31,6 +31,7 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBasket,
+  Pin,
   UserRound,
   UsersRound,
   Wrench
@@ -175,6 +176,7 @@ import {
   migrationPriceLabel,
   orderedMigrationOptions,
   productLifecycleEvents,
+  PRODUCT_EVENT_ID,
   migrationRefusal,
   MOCK_RECEIPT_REASON,
   templateSlotBody,
@@ -387,7 +389,17 @@ export function productTrialAction(
  */
 function productTags(product: MockProduct): ListModuleItem["tags"] {
   const labelForm = openFormValue(FORM_ID.PRODUCT_LABEL, product.id);
+  const openRequests = product.provisioning.unresolvedRequests ?? 0;
   return compact([
+    // Legacy's danger marker: the provider still owes this product something.
+    openRequests > 0 && {
+      label: `${countedNoun(openRequests, "open request")} with the provider`,
+      tone: "danger" as const,
+      action: {
+        value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
+        label: "Open the product"
+      }
+    },
     isTrialAhead(product) && {
       label: `Free trial · ends in ${countedNoun(trialDaysRemaining(product), "day")} on ${product.trialEndsAt}`,
       tone: "info"
@@ -428,7 +440,8 @@ export function activeProductItems(data: MockDataset): ListModuleItem[] {
     leadingIcon: Package,
     tags: productTags(product),
     action: productRowAction(product),
-    moreActions: productRowMoreActions(product)
+    moreActions: productRowMoreActions(product),
+    isInactive: isProductInactive(product)
   }));
 }
 
@@ -506,10 +519,26 @@ function productSummaryLine(product: MockProduct): string {
 }
 
 /** What a product IS reads first — its hostname, then what kind of thing it is. */
-function productLine(product: MockProduct): string {
-  const lead = compact([product.serviceIdentifier, product.category]).join(
-    " · "
+/** Legacy's `cProdOriginalName`: the name the brand replaced, kept in view. */
+function formerlyLine(product: MockProduct): string | undefined {
+  if (product.originalName === undefined) return undefined;
+  return `formerly ${product.originalName}`;
+}
+
+/** Cancelled and closed products read as past — legacy dims them and strikes the name. */
+function isProductInactive(product: MockProduct): boolean {
+  return (
+    product.status === ContractStatusCodes.CANCELLED ||
+    product.status === ContractStatusCodes.CLOSED
   );
+}
+
+function productLine(product: MockProduct): string {
+  const lead = compact([
+    product.serviceIdentifier,
+    product.category,
+    formerlyLine(product)
+  ]).join(" · ");
   if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
     return `${lead} · Action Needed`;
   }
@@ -563,6 +592,20 @@ function productRowAction(product: MockProduct): ListModuleItem["action"] {
   }
   const featured = highlightedFunction(product);
   if (featured !== undefined) return productFunctionAction(product, featured);
+  return {
+    value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
+    label: MANAGE_PRODUCT_LABEL
+  };
+}
+
+/** Legacy's list item CTA (`cProdGridItem` `_action.manage_entity`), with setup taking its place while it is owed. */
+function listingRowAction(product: MockProduct): ListModuleItem["action"] {
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return {
+      value: mockActionValue(MOCK_ACTION.COMPLETE_SETUP, product.id),
+      label: "Complete setup"
+    };
+  }
   return {
     value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
     label: MANAGE_PRODUCT_LABEL
@@ -814,7 +857,12 @@ export function groupProductItems(
       { value: product.price?.formatted ?? "—", numeric: true }
     ],
     tags: productTags(product),
-    status: productBadge(product)
+    status: productBadge(product),
+    isInactive: isProductInactive(product),
+    // Legacy's list item carries one CTA and no overflow: "Manage", or the
+    // way into setup while that is still owed. The function button and the
+    // menu belong to the dashboard rows only (`cProdRowWithFuncs`).
+    action: listingRowAction(product)
   }));
 }
 
@@ -969,6 +1017,14 @@ export function productBillingSpecItems(
  * is a subscription to set anything on, and never on a product managed for
  * someone else; Tickets only where the brand runs a support desk.
  */
+/** The product's action areas, as the route spells them — named once for the nav and the guards. */
+export const PRODUCT_AREA_SLUG = {
+  SETUP: "setup",
+  BILLING: "billing",
+  TICKETS: "tickets",
+  SETTINGS: "settings"
+} as const;
+
 export function productAreaNavItems(
   data: MockDataset,
   context: DataRouteContext
@@ -981,19 +1037,23 @@ export function productAreaNavItems(
     product.isDelegated !== true;
   return compact([
     product.status === ContractStatusCodes.AWAITING_ACTIVATION && {
-      to: `${base}/setup`,
+      to: `${base}/${PRODUCT_AREA_SLUG.SETUP}`,
       label: "Setup",
       icon: Wrench
     },
     { to: base, label: "Overview", icon: LayoutDashboard },
-    { to: `${base}/billing`, label: "Billing", icon: CreditCard },
+    {
+      to: `${base}/${PRODUCT_AREA_SLUG.BILLING}`,
+      label: "Billing",
+      icon: CreditCard
+    },
     isSupportEnabled(data) && {
-      to: `${base}/tickets`,
+      to: `${base}/${PRODUCT_AREA_SLUG.TICKETS}`,
       label: "Tickets",
       icon: LifeBuoy
     },
     hasSettings && {
-      to: `${base}/settings`,
+      to: `${base}/${PRODUCT_AREA_SLUG.SETTINGS}`,
       label: "Settings",
       icon: Settings
     },
@@ -1054,6 +1114,40 @@ function productPath(context: DataRouteContext, product: MockProduct): string {
  * for the LIST, so the redirect stands down. Pure: the catch-all page holds
  * the navigation, this holds the decision.
  */
+/**
+ * Legacy's setup tab sends a finished product back to its overview — once
+ * setup is confirmed the page has nothing left to ask.
+ */
+/** Legacy opens a product still waiting on setup at its Setup tab, not its overview. */
+export function productRootRedirect(
+  data: MockDataset | undefined,
+  resolution: CatchAllResolution
+): string | undefined {
+  if (data === undefined) return undefined;
+  if (resolution.kind !== "product-detail") return undefined;
+  const product = find(data.products, { id: resolution.id });
+  if (product === undefined) return undefined;
+  if (product.status !== ContractStatusCodes.AWAITING_ACTIVATION) {
+    return undefined;
+  }
+  return `/${resolution.group.slug}/${product.id}/${PRODUCT_AREA_SLUG.SETUP}`;
+}
+
+export function setupAreaRedirect(
+  data: MockDataset | undefined,
+  resolution: CatchAllResolution
+): string | undefined {
+  if (data === undefined) return undefined;
+  if (resolution.kind !== "product-action-area") return undefined;
+  if (resolution.area !== PRODUCT_AREA_SLUG.SETUP) return undefined;
+  const product = find(data.products, { id: resolution.id });
+  if (product === undefined) return undefined;
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return undefined;
+  }
+  return `/${resolution.group.slug}/${product.id}`;
+}
+
 export function soleProductRedirect(
   data: MockDataset | undefined,
   resolution: CatchAllResolution,
@@ -1116,7 +1210,10 @@ export function productBillboardItems(
       id: product.id,
       title: product.customLabel ?? product.name,
       category: product.category,
-      description: product.serviceIdentifier,
+      description: compact([
+        product.serviceIdentifier,
+        formerlyLine(product)
+      ]).join(" · "),
       leadingImageSrc: product.imageSrc,
       leadingIcon: Package,
       status: productBadge(product),
@@ -1183,7 +1280,10 @@ function productCondition(
       message: "We need a few details before this product can go live.",
       tone: "warning",
       action: {
-        value: mockActionValue(MOCK_ACTION.NAVIGATE, `${base}/setup`),
+        value: mockActionValue(
+          MOCK_ACTION.NAVIGATE,
+          `${base}/${PRODUCT_AREA_SLUG.SETUP}`
+        ),
         label: "Complete setup"
       }
     };
@@ -1340,7 +1440,10 @@ function productStandingCondition(
       message: `This product renews automatically. The next invoice is raised on ${product.nextDueDate}.`,
       tone: "success",
       action: {
-        value: mockActionValue(MOCK_ACTION.NAVIGATE, `${base}/billing`),
+        value: mockActionValue(
+          MOCK_ACTION.NAVIGATE,
+          `${base}/${PRODUCT_AREA_SLUG.BILLING}`
+        ),
         label: "View billing"
       }
     };
@@ -1830,7 +1933,7 @@ export function productManageActions(
         `${FORM_ID.PRODUCT_CANCEL_REQUEST}:${product.id}`
       ),
       label: "Cancellation options",
-      disabledReason: cancellationDisabledReason(product)
+      disabledReason: cancellationDisabledReason(data, product)
     }
   ]);
 }
@@ -1847,9 +1950,31 @@ function canAskToCancel(product: MockProduct): boolean {
 }
 
 /** Why the cancellation control is not live, in the same words its refusal would use. */
-function cancellationDisabledReason(product: MockProduct): string | undefined {
-  if (!product.pendingProRata) return undefined;
-  return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.PRO_RATA_PENDING];
+/** Legacy's three reasons the cancellation control is dead, in the words its refusal would use. */
+function cancellationDisabledReason(
+  data: MockDataset,
+  product: MockProduct
+): string | undefined {
+  if (product.canCancel === false) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.CANCELLATION_FORBIDDEN];
+  }
+  if (product.pendingProRata) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.PRO_RATA_PENDING];
+  }
+  if (hasOverdueInvoice(data, product)) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.OVERDUE_INVOICES];
+  }
+  return undefined;
+}
+
+function hasOverdueInvoice(data: MockDataset, product: MockProduct): boolean {
+  return some(
+    data.invoices,
+    invoice =>
+      invoice.productId === product.id &&
+      includes(InvoiceStatusGroups.UNPAID, invoice.status) &&
+      invoice.dueDate < today()
+  );
 }
 
 /** Why the change control is not live, in the same words its refusal would use. */
@@ -1964,6 +2089,36 @@ export function productHasPendingProRata(
 }
 
 /** An event that has PASSED reads as a warning; one still coming reads as information. */
+/**
+ * Legacy's timeline links, one per event that the client can still change:
+ * raise the renewal invoice yourself, turn automatic renewal back on, or call
+ * off a scheduled termination.
+ */
+function lifecycleAction(
+  product: MockProduct,
+  event: MockProductEvent
+): TimelineModuleItem["action"] {
+  switch (event.id) {
+    case PRODUCT_EVENT_ID.NEXT_INVOICE:
+      return {
+        value: mockActionValue(MOCK_ACTION.CREATE_RENEWAL_INVOICE, product.id),
+        label: renewalInvoiceLabel(product)
+      };
+    case PRODUCT_EVENT_ID.AUTO_RENEW_OFF:
+      return {
+        value: mockActionValue(MOCK_ACTION.TOGGLE_AUTO_RENEW, product.id),
+        label: "Turn on auto-renew"
+      };
+    case PRODUCT_EVENT_ID.TERMINATED:
+      return {
+        value: mockActionValue(MOCK_ACTION.ABORT_CANCELLATION, product.id),
+        label: "Don't cancel"
+      };
+    default:
+      return undefined;
+  }
+}
+
 function lifecycleTone(event: MockProductEvent): TimelineTone {
   if (event.isPast) return "warning";
   return "info";
@@ -1993,7 +2148,8 @@ export function productTimelineItems(
     to: event.to,
     // What has already happened reads as a warning; what is coming reads as
     // information — legacy's own future-vs-overdue split.
-    tone: lifecycleTone(event)
+    tone: lifecycleTone(event),
+    action: lifecycleAction(product, event)
   }));
   const rail: TimelineModuleItem[] = [...lifecycle, ...scheduled];
   // Two passes, one fact each: the dated events take their place on the rail,
@@ -3592,7 +3748,19 @@ export function accountCardItems(data: MockDataset): ListModuleItem[] {
       label: "Change photo"
     }
   };
-  return [row];
+  // Legacy's profile card foots itself with the client's pinned vault assets.
+  const pinned = filter(data.vault, { pinned: true });
+  if (isEmpty(pinned)) return [row];
+  return [
+    row,
+    {
+      id: "pinned-vault",
+      title: "Pinned notes and secrets",
+      description: `${countedNoun(size(pinned), "item")} kept to hand`,
+      to: "/account/notes",
+      leadingIcon: Pin
+    }
+  ];
 }
 
 /**
@@ -5878,6 +6046,14 @@ export function pillarSubmenuItems(
     default:
       return [];
   }
+}
+
+/** Whether the pillar serves a side menu at all — a custom page and the logged-out screens do not, and a pane slot showing an empty menu is a bordered blank. */
+export function hasPillarSubmenu(
+  data: MockDataset,
+  context: DataRouteContext
+): boolean {
+  return pillarSubmenuItems(data, context).length > 0;
 }
 
 /** Legacy's account-menu `if:` predicates, by the item's own destination. */

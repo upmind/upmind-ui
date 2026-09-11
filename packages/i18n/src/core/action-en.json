@@ -53,6 +53,9 @@
   "log_in_to_your_account": "Log in to your account",
   "login": "Log in",
   "logout": "Log out",
+  "notification_generate_preferences_link": "Generate preferences link",
+  "notification_manage_preferences": "Manage preferences",
+  "notification_revert_changes": "Revert changes",
   "pay_now": "Pay now",
   "pay_today": "Pay {amount} today",
   "place_order": "Place order",
@@ -99,6 +102,7 @@
   "sort_products": "Sort products",
   "toggle_appearance": "Toggle light and dark mode",
   "toggle_pinned": "Pin | Unpin",
+  "update_group": "Update {group}",
   "verify": "Verify",
   "view": "View",
   "view_email": "View Email"

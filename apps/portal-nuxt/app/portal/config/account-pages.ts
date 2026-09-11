@@ -440,17 +440,21 @@ export function accountPages(options?: {
             description: "Which updates reach you, and where.",
             // Legacy's per-row select-all/clear-all link. The form engine has
             // no group-action renderer, so the one control per topic rides on
-            // the panel that holds the groups (plan §10 O-3).
-            actions: moduleRef(BUTTON_MODULE_ID, {
-              variant: BUTTON_MODULE_VARIANT.GROUP,
-              props: {
-                label: "Set a whole topic",
-                tone: "outline",
-                size: "sm",
-                actions: dataRef(DATA_REF_ID.NOTIFICATION_TOPIC_ACTIONS),
-                emptyTitle: "Nothing to set"
-              }
-            })
+            // the panel that holds the groups (plan §10 O-3). In the controls
+            // band, not the header's action corner: three sentence-long
+            // buttons there squeeze the title into a column a word wide.
+            controls: {
+              start: moduleRef(BUTTON_MODULE_ID, {
+                variant: BUTTON_MODULE_VARIANT.GROUP,
+                props: {
+                  label: "Set a whole topic",
+                  tone: "outline",
+                  size: "sm",
+                  actions: dataRef(DATA_REF_ID.NOTIFICATION_TOPIC_ACTIONS),
+                  emptyTitle: "Nothing to set"
+                }
+              })
+            }
           },
           slots: [
             moduleRef(FORM_MODULE_ID, {

@@ -23,12 +23,10 @@
               separator="/"
             >
               <template #item="{ crumb }">
-                <Link
+                <BreadcrumbPage
                   v-if="(!crumb.to && !crumb.href) || crumb.current"
-                  class="hover:text-muted! text-faint cursor-default no-underline hover:opacity-100!"
-                  size="md"
-                  tabindex="-1"
-                  ><Icon :icon="crumb.icon" /> {{ crumb.label }}</Link
+                  class="text-faint inline-flex items-center gap-1 text-base font-normal"
+                  ><Icon :icon="crumb.icon" /> {{ crumb.label }}</BreadcrumbPage
                 >
                 <Link
                   v-else
@@ -231,6 +229,7 @@
 import { useTestAttrs } from "@upmind/ui";
 import { Link, Markdown } from "@upmind/ui";
 import { Breadcrumb } from "@upmind/ui";
+import { BreadcrumbPage } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { useClipboard } from "@vueuse/core";
 import { computed, onUnmounted, provide, watch } from "vue";

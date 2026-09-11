@@ -11,7 +11,6 @@ export const tableHeaderCellVariants = cva(
   "border-stroke text-faint border-b pb-4 pl-6 text-right align-top font-medium whitespace-nowrap first:w-full first:pl-0 first:text-left first:whitespace-normal"
 );
 export const tableHeaderLabelVariants = cva("inline-flex items-center gap-1");
-export const tableHeaderIconVariants = cva("size-5 [&>svg]:p-0.5");
 
 export const tableBodyVariants = cva("");
 

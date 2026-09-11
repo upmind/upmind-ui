@@ -59,6 +59,28 @@ export function useScenarioStage(): ScenarioStage {
     editor.value = value;
   }
 
+  /**
+   * Resolves once a collection surface has registered itself on the stage.
+   *
+   * A handoff id (`manage`, `editRow`, `add`, `edit`) can only ever be pressed
+   * on a mounted surface, and a deep link (`?track=…&scene=1`) arms and fires a
+   * track while that surface is still mounting — so `offers()` was answering
+   * false for a control that was merely late, not absent, and the world fell
+   * through to the port and reported `unknown action`. Waiting turns that race
+   * into a bounded wait; a control that genuinely never arrives still fails.
+   */
+  async function whenStaged(
+    timeout: number = EDITOR_TIMEOUT_MS
+  ): Promise<boolean> {
+    const deadline = performance.now() + timeout;
+    while (!collection.value) {
+      if (performance.now() > deadline) return false;
+      await new Promise(resolve => setTimeout(resolve, EDITOR_POLL_MS));
+    }
+
+    return true;
+  }
+
   async function whenEditor(
     timeout: number = EDITOR_TIMEOUT_MS
   ): Promise<StageEditor> {
@@ -78,6 +100,7 @@ export function useScenarioStage(): ScenarioStage {
     registerCollection,
     registerEditor,
     whenEditor,
+    whenStaged,
     isStaged: () => !!collection.value,
     press: (actionName, rowId) =>
       collection.value

@@ -176,11 +176,6 @@ function offersPaymentCurrency(context: BillingSettingsContext): boolean {
   return size(context.paymentCurrencies) > 0;
 }
 
-/** One list is what everybody is quoted from; a choice needs two. */
-function offersPriceList(context: BillingSettingsContext): boolean {
-  return size(context.priceLists) > 1;
-}
-
 export const useSchema = (context: BillingSettingsContext): JsonSchema7 => {
   const properties: Record<string, SchemaProperty> = {
     currencyCode: {
@@ -231,18 +226,6 @@ export const useSchema = (context: BillingSettingsContext): JsonSchema7 => {
       options: currencyChoices(context.paymentCurrencies ?? [])
     };
   }
-  if (offersPriceList(context)) {
-    properties["priceListId"] = {
-      type: "string",
-      title: "Price list",
-      enum: map(context.priceLists, "id"),
-      options: map(context.priceLists, list => ({
-        label: `${list.name} (${list.currencyCode})`,
-        value: list.id
-      }))
-    };
-  }
-
   return {
     type: "object",
     title: "Billing settings",
@@ -297,7 +280,6 @@ export const useUischema = (
   elements: compact([
     control("currencyCode"),
     offersPaymentCurrency(context) && control("paymentCurrencyCode"),
-    offersPriceList(context) && control("priceListId"),
     {
       type: "Control",
       scope: "#/properties/consolidation",
@@ -322,6 +304,8 @@ export const billingSettingsDefaults = (
 ): BillingSettings => ({
   currencyCode: context.model.currencyCode,
   paymentCurrencyCode: context.model.paymentCurrencyCode,
+  // Carried, never offered: legacy lets only staff pick the price list a
+  // client is quoted from, so the client's form shows no control for it.
   priceListId: context.model.priceListId,
   consolidation: context.model.consolidation,
   rule: context.model.rule,

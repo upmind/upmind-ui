@@ -2,14 +2,14 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/orders/mock-uuid-262/products/mock-uuid-265/provision_fields/values",
+    "path": "/api/orders/0e435795-e78d-184e-458d-b31643202d98/products/98574264-8970-1259-e96c-21e325d0ed36/provision_fields/values",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
       "content-type": "application/json",
       "origin": "null",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
-      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"HeadlessChrome\";v=\"151\", \"Chromium\";v=\"151\"",
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
@@ -39,7 +39,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-07-11T09:38:20.711Z",
+  "captured_at": "2026-09-10T05:20:04.885Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

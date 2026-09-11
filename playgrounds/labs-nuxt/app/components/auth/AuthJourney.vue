@@ -22,7 +22,7 @@
         @resolve="resolve(model)"
       >
         <template #actions="{ doResolve }">
-          <div class="flex flex-col gap-3">
+          <div class="flex w-full flex-col gap-3">
             <Button
               block
               variant="primary"
@@ -34,9 +34,22 @@
               {{ t(submitLabel) }}
             </Button>
 
+            <!-- Cancel sits with the primary action, not the host's header. The
+                 kit orders submit before cancel, so it stacks beneath the
+                 full-width Sign In rather than beside it. -->
+            <Button
+              v-if="cancellable"
+              block
+              variant="secondary"
+              :data-attrs="{ 'data-test-key': 'auth-gate-back' }"
+              @click="emit('cancel')"
+            >
+              {{ t("action.back") }}
+            </Button>
+
             <div
               v-if="switches.length"
-              class="flex items-center justify-center gap-4"
+              class="flex items-center justify-between"
             >
               <Button
                 v-for="entry in switches"
@@ -190,6 +203,8 @@ const emit = defineEmits<{
   resolve: [];
   /** The signed-in session was ended from the surface itself. */
   logout: [];
+  /** The host's cancel control (its back-to-list) was pressed. */
+  cancel: [];
 }>();
 
 const { t } = useI18n();

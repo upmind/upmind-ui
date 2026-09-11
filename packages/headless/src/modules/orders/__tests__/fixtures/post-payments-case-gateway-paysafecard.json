@@ -10,7 +10,7 @@
       "Authorization": "mock-Authorization"
     },
     "body": {
-      "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+      "invoice_id": "98574264-8970-1206-0348-a21e325d0ed3",
       "gateway_id": "78985742-6489-7012-250a-21e325d0ed36"
     }
   },
@@ -20,14 +20,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a33bd9043ef7e3cd-LIS",
+      "cf-ray": "a38bf9df9802be46-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Mon, 31 Aug 2026 11:55:43 GMT",
+      "date": "Thu, 10 Sep 2026 05:19:10 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=lONMCylE2aBm9NgHFrtsL%2BADW7FeVz0Mp%2B4BjNVPItdo8hP6z3en3Sv2tID%2BE59DyfTpJQtbZfRTd2H6gyfOWkfXtpaEoYAAoTRrXqCODHHwG4dRk5xmvEu2zKtRJ7z9MyBaIAoEqA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=OM7xMH7BFZQrd6Ho6o%2F5Ry%2FWaoGIpCn7NHZkWc0Y3cQReKPKTQY8TjZmJ%2FUvexHWyLzEIPhwO5IzjZjVQghY2k72A2V%2Bc6bAHc%2FPqC1sxYm%2FQHs5k%2FsFLI9aogPGY53cHyQjXSn1wQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -40,11 +40,11 @@
         "transaction_status": "REDIRECT",
         "transaction_type": 3,
         "approval_url": {
-          "url": "https://customer.test.at.paysafecard.com/psccustomer/GetCustomerPanelServlet?mid=1020014864&mtid=pay_1020014864_JbG1vLZCOEx4MX0Sk9U390Mou5pyRFU7_GBP&amount=72.00&currency=GBP",
+          "url": "https://customer.test.at.paysafecard.com/psccustomer/GetCustomerPanelServlet?mid=1020014864&mtid=pay_1020014864_WIF7Xq37zEKee9WIjsKWbGR7RpXsyLxB_GBP&amount=72.00&currency=GBP",
           "method": "GET",
           "fields": []
         },
-        "transaction_id": "pay_1020014864_JbG1vLZCOEx4MX0Sk9U390Mou5pyRFU7_GBP"
+        "transaction_id": "pay_1020014864_WIF7Xq37zEKee9WIjsKWbGR7RpXsyLxB_GBP"
       },
       "related": null,
       "total": null,
@@ -53,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-31T11:55:43.502Z",
+  "captured_at": "2026-09-10T05:19:10.004Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

@@ -25,7 +25,7 @@ const TWO_FACTOR_CODE_LENGTH = 6;
 const DIGITS_ONLY = /^\d+$/;
 
 /** The mock accepts ANY six digits: there is no authenticator to agree with. */
-function isCodeShaped(code: string): boolean {
+export function isCodeShaped(code: string): boolean {
   const isRightLength = size(code) === TWO_FACTOR_CODE_LENGTH;
   const isAllDigits = DIGITS_ONLY.test(code);
   return isRightLength && isAllDigits;

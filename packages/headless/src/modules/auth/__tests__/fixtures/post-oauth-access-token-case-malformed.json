@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/oauth/access_token?case=malformed",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": {
+      "grant_type": "password"
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a38bf3726e48816d-DUB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 10 Sep 2026 05:14:45 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=jGp8uDPhpExRfpsn96F%2FG0XyfaFYBYA2zplizgkUzEpZPPJ9dYLG4BqEoZWNfdobDOcOAmKWmeJK3Arq%2BzOpSCInu%2FzYW8954A8TEw7h8CVXTskiAbwyZg35jqaSSKRXgvhD%2BJTkzg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "34036516a94944cd87d75617f997b579619d1942",
+        "type": 3,
+        "code": 400,
+        "message": "The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.",
+        "data": null
+      },
+      "messages": {
+        "hint": "Check the `username` parameter"
+      },
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-10T05:14:45.586Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "auth"
+  }
+}

@@ -17,20 +17,28 @@
  *
  * ## What this generator captures
  * `useInvoice` only ever issues `GET /invoices/{id}`. So this captures the read
- * in its two settled shapes plus the two control responses:
+ * in its settled shapes plus the two control responses:
  * - a fully-paid invoice   → get-invoices-id-case-paid
  * - an unpaid invoice      → get-invoices-id-case-unpaid
+ * - a cancelled invoice    → get-invoices-id-case-cancelled
  * - an unknown id (404)    → get-invoices-id-case-not-found
  * - no bearer (401)        → get-invoices-id-case-signed-out
+ *
+ * The relation set is the UNION of `useInvoice`'s own read and `useOrder`'s
+ * (`address`, `address.country`), so ONE captured body answers both queries for
+ * the same invoice: the two modules read this endpoint under two distinct
+ * TanStack keys, so the wire is hit twice (FE-3136 design §6.5a).
  *
  * No payment is submitted — this module never POSTs, so no real money moves.
  */
 
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, it } from "vitest";
-import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { GrantTypes } from "@upmind-automation/types";
+import { InvoiceStatus } from "@upmind-automation/types";
+import { find, toNumber } from "lodash-es";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import { mintClientToken } from "../../auth/__tests__/auth.tokens";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -55,9 +63,12 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
-// The exact relation set useInvoice's service requests — so the recorded body
-// carries the same expansions the module maps at runtime.
+// The relation set useInvoice's service requests, UNIONED with useOrder's own
+// (`address`, `address.country`) — so one recorded body carries every expansion
+// either module maps at runtime.
 const INVOICE_WITH = [
+  "address",
+  "address.country",
   "brand",
   "taxes",
   "client",
@@ -75,33 +86,6 @@ const INVOICE_WITH = [
   "products.product.image",
   "account.affiliate_referral.affiliate_account.account.client"
 ].join(",");
-
-async function mintClientToken(): Promise<IToken> {
-  const response = await fetch(`${API_URL}/oauth/access_token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      Origin: ORIGIN
-    },
-    body: new URLSearchParams({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS.client.username,
-      password: API_CREDENTIALS.client.password
-    }).toString()
-  });
-
-  const body = await response.json().catch(() => null);
-  const token = (body?.access_token ? body : body?.data) as IToken | undefined;
-
-  if (!token?.access_token) {
-    throw new Error(
-      `Could not mint a client token (${response.status}) — check ` +
-        "tests/fixtures/credentials.ts against the recording brand."
-    );
-  }
-  return token;
-}
 
 type InvoiceRow = {
   id: string;
@@ -193,6 +177,7 @@ describe("Invoices API Fixtures Generator", () => {
   let token: IToken;
   let paidId: string | undefined;
   let unpaidId: string | undefined;
+  let cancelledId: string | undefined;
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -207,13 +192,19 @@ describe("Invoices API Fixtures Generator", () => {
 
     const rows = await readInvoiceList(token.access_token);
 
-    const paidRow = rows.find(
-      row => owed(row) <= 0 && Number(row.paid_amount ?? 0) > 0
+    const paidRow = find(
+      rows,
+      row => owed(row) <= 0 && toNumber(row.paid_amount ?? 0) > 0
     );
-    const unpaidRow = rows.find(row => owed(row) > 0);
+    const unpaidRow = find(rows, row => owed(row) > 0);
+    const cancelledRow = find(
+      rows,
+      row => row.status?.code === InvoiceStatus.CANCELLED
+    );
 
     paidId = paidRow?.id;
     unpaidId = unpaidRow?.id ?? (await seedPayableInvoice(token.access_token));
+    cancelledId = cancelledRow?.id;
   }, 60000);
 
   afterAll(() => {
@@ -243,6 +234,19 @@ describe("Invoices API Fixtures Generator", () => {
     }
     await generator.get(
       `/api/invoices/${unpaidId}?case=unpaid&with=${INVOICE_WITH}`
+    );
+  });
+
+  it("captures a cancelled invoice read (@INV-read cancelled)", async () => {
+    if (!cancelledId) {
+      console.warn(
+        "No cancelled invoice found on the recording client — " +
+          "get-invoices-id-case-cancelled not captured."
+      );
+      return;
+    }
+    await generator.get(
+      `/api/invoices/${cancelledId}?case=cancelled&with=${INVOICE_WITH}`
     );
   });
 
