@@ -41,16 +41,25 @@ describe("a username or password change waits on legacy's identity check", () =>
     expect(landed?.toast?.title).toBe("Username changed");
     expect(data.persona.username).toBe("jonah.reyes");
   });
+
+  it("asks the second-step code too, only while two-factor is on", () => {
+    const data = clone();
+    Object.assign(data.security, { twoFactorEnabled: true });
+    const password = data.persona.password ?? "";
+    expect(confirm(data, { password })?.toast?.title).toMatch(/code/i);
+    expect(confirm(data, { password, token: "12" })?.toast?.title).toMatch(
+      /code/i
+    );
+    expect(confirm(data, { password, token: "123456" })?.toast?.title).toBe(
+      "Username changed"
+    );
+  });
 });
 
-describe("the account card foots itself with the pinned vault assets", () => {
-  it("adds one row to the notes page when anything is pinned, and none when nothing is", () => {
+describe("the account card offers no pinned-vault shortcut", () => {
+  it("shows none: legacy offers that to staff only", () => {
     const data = clone();
     expect(filter(data.vault, { pinned: true }).length).toBeGreaterThan(0);
-    const row = find(accountCardItems(data), { id: "pinned-vault" });
-    expect(row?.to).toBe("/account/notes");
-    expect(row?.description).toMatch(/kept to hand/);
-    for (const asset of data.vault) Object.assign(asset, { pinned: false });
     expect(
       find(accountCardItems(data), { id: "pinned-vault" })
     ).toBeUndefined();
