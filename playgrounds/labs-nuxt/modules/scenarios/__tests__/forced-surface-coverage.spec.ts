@@ -26,7 +26,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { filter, map } from "lodash-es";
+import { filter, map, some } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -34,13 +34,26 @@ const scenarios = resolve(import.meta.dirname, "..");
 
 const proofs = join(scenarios, "runtime/components/__tests__");
 
-/** Every declared scenario, as the module's own registrar discovers them. */
+/**
+ * A module that DRAWS ITSELF has no force picker and no playground surfaces, so
+ * there are no forced states to arm on it and nothing for this gate to demand.
+ * The switch is the same file the registrar routes on.
+ */
+const drawsItself = (directory: string): boolean =>
+  some(readdirSync(join(scenarios, directory)), file =>
+    file.endsWith(".page.vue")
+  );
+
+/** Every declared scenario the shared playground draws. */
 const declared = map(
   filter(
     map(
       filter(
         readdirSync(scenarios, { withFileTypes: true }),
-        entry => entry.isDirectory() && entry.name.startsWith("use")
+        entry =>
+          entry.isDirectory() &&
+          entry.name.startsWith("use") &&
+          !drawsItself(entry.name)
       ),
       directory =>
         map(

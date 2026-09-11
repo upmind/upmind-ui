@@ -16,22 +16,28 @@ The store manages which session is "active" and handles switching between them.
 
 **What it's for, in one paragraph:** at most three cookies exist at once — one per scope (guest, client, staff) — and each holds only that scope's currently-active token. The store itself holds unlimited sessions per scope for the length of the browsing session. Calling `activate(scope, id)` regenerates that scope's cookie from the store — the cookie is downstream of the store, not the source of it. Holding every session's token in the store's sessionStorage cache is a required feature (it's what makes switching back to a cached session instant, with zero server round trips), not a leak.
 
-> **🧪 For Testers:** Verify that switching sessions updates `activeActor`/`activeSession`, impersonation restores correctly, and logout falls back to the next session (or guest) — all observable via `allSessions`/`activeActor`/`activeSession`/`isAuthenticated`/`isImpersonated`, not by inspecting cookies or storage directly.
+> **🧪 For Testers:** Verify that switching sessions updates `activeActor`/`activeSession`, impersonation restores correctly, and logout falls back to the next session (or guest) — all observable via `allSessions`/`activeActor`/`activeSession` on `useSessionStore().useContext()` and `isAuthenticated`/`isImpersonated` on `useActiveSession().useMeta()`, not by inspecting cookies or storage directly.
 
 > **👩‍💻 For Developers:** Each session is keyed by `actor_id`. The store maintains a `SessionEntry` containing both the token and optional user profile data for UI display.
 
 ## Quick Start
 
 ```typescript
-import { useSessionStore } from "@upmind/headless";
+import { useActiveSession, useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
+import type { IToken } from "@upmind-automation/types";
 
 const store = useSessionStore();
+const token = {} as IToken;
 
 // Context (computed values)
 const { activeActor, activeSession, activeUser } = store.useContext();
 
-// Meta (state flags)
-const { isAuthenticated, isImpersonated } = store.useMeta();
+// Meta (store-wide state flags)
+const { hasMultipleSessions, isAvailable } = store.useMeta();
+
+// Identity flags belong to the active session, not the store
+const { isAuthenticated, isImpersonated } = useActiveSession().useMeta();
 
 // Actions (mutations)
 const { add, activate, remove, logout } = store.useActions();
@@ -75,15 +81,17 @@ Think of it like this: Your app is **never without an identity**. Just like you'
 - **After logout** → Falls back to guest session (or mints one if needed)
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+
 const { activeSession } = useSessionStore().useContext();
 
-// activeSession is ALWAYS defined (never null/undefined)
-console.log(activeSession.value.access_token); // Always works ✅
+// A session ALWAYS exists once the store is ready, so assert rather than branch
+console.log(activeSession.value!.access_token); // Always works ✅
 ```
 
 > **🧪 For Testers:** Clear all cookies and reload the app. Verify that `activeSession` exists and API requests work (guest token was minted automatically).
 
-> **👩‍💻 For Developers:** You can safely destructure `activeSession` without null checks. The store initialization blocks until a session exists.
+> **👩‍💻 For Developers:** You can safely destructure `activeSession` without runtime null checks. The store initialization blocks until a session exists. The ref type stays `IToken | undefined`, so assert (`activeSession.value!`) after readiness instead of branching — the same idiom `account.services.ts` uses for `activeSessionId`.
 
 **Why this matters:**
 
@@ -127,6 +135,8 @@ Guest tokens are minted **only on initial app load** if:
 **Code example:**
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+
 // App initialization
 const { isReady } = useSessionStore().useActions();
 
@@ -144,20 +154,24 @@ console.log(activeSession.value); // Works immediately (may be default guest sta
 Sessions are stored as `SessionEntry` objects (not raw `IToken`):
 
 ```typescript
+import type { SessionUser } from "@upmind-automation/headless";
+import type { AccessRoleTypes, IToken } from "@upmind-automation/types";
+
 type SessionEntry = {
-  token: IToken        // The OAuth token
-  user?: SessionUser   // Optional user profile for UI display
-}
+  scope: AccessRoleTypes; // The actor type this entry belongs to
+  token: IToken; // The OAuth token
+  user?: SessionUser; // Optional user profile for UI display
+};
 
 // State structure
-{
-  guestSession?: IToken                        // Single guest token
-  clientSessions: Record<string, SessionEntry> // Keyed by actor_id
-  staffSessions: Record<string, SessionEntry>  // Keyed by actor_id
-  activeActor: AccessRoleTypes                 // Current active type
-  activeSessionId?: string                     // Current active actor_id
-  impersonatedSessions: Record<string, string> // Maps impersonated → parent
-}
+type SessionState = {
+  guestSessions: Record<string, SessionEntry>; // Keyed by session id
+  clientSessions: Record<string, SessionEntry>; // Keyed by actor_id
+  staffSessions: Record<string, SessionEntry>; // Keyed by actor_id
+  activeActor: AccessRoleTypes; // Current active type
+  activeSessionId?: string; // Key of the active session in its own map; absent when guest is the unclaimed floor
+  impersonatedSessions: Record<string, string>; // Maps impersonated → parent
+};
 ```
 
 **Why `SessionEntry`?**
@@ -171,10 +185,14 @@ type SessionEntry = {
 Only **one session is active** at a time:
 
 ```typescript
-const { activeActor, activeSessionId } = store.useContext();
+import { useSessionStore } from "@upmind-automation/headless";
+
+const { activeActor, activeSessionId } = useSessionStore().useContext();
 
 // activeActor can be: GUEST | CLIENT | STAFF
-// activeSessionId is the actor_id of the active session (undefined for guest)
+// activeSessionId is the active session's key in its own actor's map.
+// Present for a chosen guest, same as client/staff; absent for the guest
+// "floor" (nobody signed in, nothing explicitly chosen).
 ```
 
 ### Impersonation Flow
@@ -183,6 +201,7 @@ Impersonation is handled via the scoped auth API with `.for()`:
 
 ```typescript
 import {
+  AuthContextTypes,
   ScopeActorTypes,
   useAuth,
   useSessionStore
@@ -193,7 +212,7 @@ const store = useSessionStore();
 // Staff impersonating a client
 const staffAuth = useAuth()
   .as(ScopeActorTypes.STAFF)
-  .for(ScopeActorTypes.CLIENT, "client-456");
+  .for(AuthContextTypes.CLIENT, "client-456");
 
 const { resolve } = staffAuth.useActions();
 
@@ -213,10 +232,18 @@ logout();
 **Client impersonating child client:**
 
 ```typescript
+import {
+  AuthContextTypes,
+  ScopeActorTypes,
+  useAuth
+} from "@upmind-automation/headless";
+
+const credentials = { username: "parent@example.com", password: "password" };
+
 // Parent client impersonating child
 const clientAuth = useAuth()
   .as(ScopeActorTypes.CLIENT)
-  .for(ScopeActorTypes.CLIENT, "child-client-789");
+  .for(AuthContextTypes.CLIENT, "child-client-789");
 
 await clientAuth.useActions().resolve(credentials);
 ```
@@ -227,12 +254,12 @@ await clientAuth.useActions().resolve(credentials);
 
 The module follows the factory pattern:
 
-| Sub-composable   | Purpose                                                  |
-| ---------------- | -------------------------------------------------------- |
-| `useActions()`   | Mutations: add, remove, activate, logout, clear          |
-| `useContext()`   | Computed values: activeSession, activeUser, allSessions  |
-| `useMeta()`      | State flags: isAuthenticated, isImpersonated, canRefresh |
-| `useInternals()` | Debug: raw store access                                  |
+| Sub-composable   | Purpose                                                       |
+| ---------------- | ------------------------------------------------------------- |
+| `useActions()`   | Mutations: add, remove, activate, logout, clear               |
+| `useContext()`   | Computed values: activeSession, activeUser, allSessions       |
+| `useMeta()`      | Store flags: hasMultipleSessions, isAvailable, isScopeAllowed |
+| `useInternals()` | Debug: raw store access                                       |
 
 ## Documentation
 
@@ -249,8 +276,11 @@ The module follows the factory pattern:
 ### Multi-Session Management
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import { values } from "lodash-es";
 
+const store = useSessionStore();
 const { allSessions } = store.useContext();
 const { activate } = store.useActions();
 
@@ -266,15 +296,18 @@ activate(AccessRoleTypes.CLIENT, "client-789");
 ### Check Authentication Status
 
 ```typescript
-const { isAuthenticated, isGuest } = store.useMeta();
-const { activeSession } = store.useContext();
+import { useActiveSession } from "@upmind-automation/headless";
+
+const session = useActiveSession();
+const { isAuthenticated, isGuest } = session.useMeta();
+const { session: activeSession } = session.useContext();
 
 // activeSession is ALWAYS defined (guaranteed active session)
-console.log(activeSession.value.access_token); // ✅ Always works
+console.log(activeSession.value!.access_token); // ✅ Always works
 
 if (isAuthenticated.value) {
   // User has client or staff session
-  console.log("Logged in as:", activeSession.value.actor_type);
+  console.log("Logged in as:", activeSession.value!.actor_type);
 } else if (isGuest.value) {
   // User has guest session (auto-minted if needed)
   console.log("Browsing as guest");
@@ -285,9 +318,10 @@ if (isAuthenticated.value) {
 ### Subscribe to Logout Events
 
 ```typescript
-import { useSessionStoreActions } from "@upmind/headless";
+import { useSessionStore } from "@upmind-automation/headless";
+import { onBeforeUnmount } from "vue";
 
-const { onLogout } = useSessionStoreActions();
+const { onLogout } = useSessionStore().useActions();
 
 // Subscribe (returns cleanup function)
 const unsubscribe = onLogout(actor => {
@@ -301,17 +335,19 @@ onBeforeUnmount(unsubscribe);
 
 ### Session Expiry Handling
 
-```typescript
-const { isExpired, canRefresh } = store.useMeta();
+The expiry flags live on the active session, and refresh is the transport's job — the only decision left to a caller is whether to end a session that can no longer refresh.
 
-if (isExpired.value) {
-  if (canRefresh.value) {
-    // Token expired but refresh token still valid
-    await refreshToken();
-  } else {
-    // Session completely expired
-    logout();
-  }
+```typescript
+import { useActiveSession } from "@upmind-automation/headless";
+
+const session = useActiveSession();
+const { isExpired, canRefresh } = session.useMeta();
+const { logout } = session.useActions();
+
+// The HTTP transport refreshes on the next 401 while canRefresh is true —
+// there is no public refresh action to call. Only the dead case is yours.
+if (isExpired.value && !canRefresh.value) {
+  logout();
 }
 ```
 
@@ -322,6 +358,8 @@ if (isExpired.value) {
 #### Test 1: Verify Guest Token Minting
 
 ```typescript
+import { useQuery, useSessionStore } from "@upmind-automation/headless";
+
 // 1. Clear all cookies
 document.cookie.split(";").forEach(c => {
   document.cookie =
@@ -337,19 +375,28 @@ console.log(activeActor.value); // Should be "guest"
 console.log(activeSession.value?.access_token); // Should exist ✅
 
 // 4. Verify API calls work
-const { get } = useQuery();
-const result = await get({ url: "/some-endpoint" });
-// Should succeed with guest token authorization
+const { get, useUrl } = useQuery();
+const result = await get({
+  queryKey: ["some-endpoint"],
+  url: useUrl("some-endpoint")
+});
+console.log(result); // Should succeed with guest token authorization
 ```
 
 #### Test 2: Verify Session Restoration from Cookies
 
 ```typescript
+import {
+  ScopeActorTypes,
+  useAuth,
+  useSessionStore
+} from "@upmind-automation/headless";
+
 // 1. Log in as client
-const auth = useAuth().as("client");
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
 await auth
   .useActions()
-  .login({ username: "user@example.com", password: "pass" });
+  .resolve({ username: "user@example.com", password: "pass" });
 
 // 2. Check active session
 const { activeActor, activeSession } = useSessionStore().useContext();
@@ -367,6 +414,8 @@ console.log(activeSession.value?.actor_id); // Still "client-123" ✅
 #### Test 3: Verify Initialization Completes
 
 ```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+
 // Wait for full initialization (cookies loaded + user data fetched)
 const { isReady } = useSessionStore().useActions();
 await isReady();
@@ -382,10 +431,14 @@ console.log(activeUser.value?.email); // User profile loaded ✅
 The auth module automatically persists tokens to the session store on successful login:
 
 ```typescript
-import { useAuth } from "@upmind/headless";
+import {
+  ScopeActorTypes,
+  useAuth,
+  useSessionStore
+} from "@upmind-automation/headless";
 
-const auth = useAuth().as("client");
-const { login } = auth.useActions();
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+const { resolve: login } = auth.useActions();
 
 // After successful login, token is automatically added to session store
 await login({ username: "user@example.com", password: "secret" });
@@ -400,7 +453,7 @@ console.log(activeSession.value?.access_token);
 `useActiveSession()` reads the current active identity. It is **pure identity — not a scoped composable**; there is no `.as(actor)`. Whatever actor is active (guest, client, or staff) is what you read (FE-2945 reversed an earlier plan to fold scoping in here).
 
 ```typescript
-import { useActiveSession } from "@upmind/headless";
+import { useActiveSession } from "@upmind-automation/headless";
 
 // Always the currently active session, whatever the actor
 const session = useActiveSession();
@@ -414,16 +467,24 @@ const { session: token, actor } = session.useContext();
 
 If you're upgrading from an older version:
 
-```typescript
-// OLD API ❌
-const { setSession, removeSession, setActiveActor } = useSessionStoreActions();
-setSession(token);
-removeSession(AccessRoleTypes.CLIENT, "client-123");
-setActiveActor(AccessRoleTypes.CLIENT, "client-123");
+The old flat action names are gone from the package — map each call across:
 
-// NEW API ✅
-const { add, remove, activate } = useSessionStoreActions();
-add(token);
+| Old (removed)                      | New                              |
+| ---------------------------------- | -------------------------------- |
+| `useSessionStoreActions()`         | `useSessionStore().useActions()` |
+| `setSession(token)`                | `await add(token)`               |
+| `removeSession(actor, sessionId)`  | `remove(actor, sessionId)`       |
+| `setActiveActor(actor, sessionId)` | `activate(actor, sessionId)`     |
+
+```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
+import type { IToken } from "@upmind-automation/types";
+
+const token = {} as IToken;
+const { add, remove, activate } = useSessionStore().useActions();
+
+await add(token);
 remove(AccessRoleTypes.CLIENT, "client-123");
 activate(AccessRoleTypes.CLIENT, "client-123");
 ```

@@ -10,7 +10,7 @@
       "Authorization": "mock-Authorization"
     },
     "body": {
-      "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+      "invoice_id": "98574264-8970-1206-0348-a21e325d0ed3",
       "gateway_id": "825d96e7-63ed-0913-605a-417482528340"
     }
   },
@@ -20,14 +20,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a33bd8c89abcc156-LIS",
+      "cf-ray": "a38bf9a79f2abe40-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Mon, 31 Aug 2026 11:55:36 GMT",
+      "date": "Thu, 10 Sep 2026 05:19:03 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=f5KnE74ik3M8J%2BME1sup%2FdwMF7lB0WOGEExKy7i%2BljW6EkFk6wFHhIREwUHvUxGWPZmDHWy7xb9xWxipngFPnzBsMsNoOHIsZl%2BmLVHLFLBT%2Ff11Z6XsZcGgagB9%2BZurLXbwbCMvrA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=k8DsdzD1pMLQXiyYJAU%2B1ADh9OEyywUW4qXn4ip0JoiKBgYX5fmbf%2Fh%2B7inus3C7gP8pNgPb9tVSQeiNUj38vynh%2FC3EgRhh4hHHGVBXHn%2FODXgyg9kAM9svnGXSRXBwvqzESXh5ug%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -40,7 +40,7 @@
         "transaction_status": "WAITING",
         "transaction_type": 13,
         "approval_url": null,
-        "transaction_id": "3MPDAgvaruYoMLZA5V4UKAbGAN5Q9c7tZF"
+        "transaction_id": "3HpB7BDXhQqN3zM6YiAiZYXvENSm2Doco8"
       },
       "related": null,
       "total": null,
@@ -49,7 +49,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-31T11:55:36.099Z",
+  "captured_at": "2026-09-10T05:19:03.537Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

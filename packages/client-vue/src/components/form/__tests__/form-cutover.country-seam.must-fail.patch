@@ -1,0 +1,51 @@
+Negative control for form-cutover.test.ts — the reference-data seam.
+
+Drops the wrapper's `provideFormEngineData({ countries, ensureCountries })` call,
+so the engine's phone control gets no country list from the host: the country
+picker opens empty and nothing ever asks the host to load the list. The icon
+seam, the host binding and the model round-trip are untouched.
+
+The now-unused `useSystem` destructure and import go with it. Left behind they
+trip `noUnusedLocals` and the mutant grades TYPECHECK instead of the assertion.
+
+Expected: the two assertions under "the wrapper's country list reaches the phone
+control" that read the wrapper path go red — "offers the countries the host
+supplied, and nothing else" and "asks the host to load the list". The paired
+bare-engine control, "offers no country on a host nobody supplied a list to",
+must stay GREEN; that pairing is what separates a real seam assertion from one
+passing on ambient state. Both icon assertions stay green.
+
+APPLIED BY HAND. No superproject lane scans `packages/client-vue` for
+`*.must-fail.patch`, so no runner applies this file. That gap is FE-3131.
+
+diff --git a/packages/client-vue/src/components/form/Form.vue b/packages/client-vue/src/components/form/Form.vue
+index f826961..fd396c7 100644
+--- a/packages/client-vue/src/components/form/Form.vue
++++ b/packages/client-vue/src/components/form/Form.vue
+@@ -23,12 +23,11 @@
+ <script lang="ts" setup>
+ import {
+   Form,
+-  provideFormEngineData,
+   provideFormIcon,
+   useForwardPropsEmits
+ } from "@upmind/ui";
+ import { useI18n } from "vue-i18n";
+-import { useSystem, useValidation } from "@upmind-automation/headless";
++import { useValidation } from "@upmind-automation/headless";
+ import { Icon } from "../icon";
+ import { formRenderers } from "./renderers";
+ import { useFormI18n } from ".";
+@@ -44,12 +43,10 @@ const props = defineProps<Omit<FormProps, "ajv">>();
+ const { t, locale } = useI18n();
+ // B: Always ensure we use our internal ajv instance
+ const { ajv } = useValidation();
+-const { countries, ensureCountries } = useSystem();
+ 
+ // The engine takes its glyph and its reference data from the host: it resolves
+ // neither an app icon name-map nor a BE country list itself.
+ provideFormIcon(Icon);
+-provideFormEngineData({ countries, ensureCountries });
+ 
+ const emits = defineEmits<{
+   reject: [];

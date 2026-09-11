@@ -288,10 +288,16 @@ export async function proveForcedSurface(
     server.resetHandlers();
     await (kit.seedClientSession as () => Promise<unknown>)();
     (kit.installBackgroundStubs as (target: unknown) => void)(server);
-    server.use(...createForceHandlers(preset, bodies!, feature));
+    // Boot LIVE first: the page must cache its real rows before a preset is
+    // ARMED over them, so the arm exercises the operator's own boot→arm→reset
+    // path (FE-3113). Arming before the port boots is what let this lane pass
+    // green while the page was broken for want of the module's `reset` action —
+    // the page never held the rows the preset had to replace.
+    server.use(...createForceHandlers("replay", bodies!, feature));
 
     const port = useModulePort(declaration.useList as never, {
-      actor: ScopeActorTypes.CLIENT
+      actor: ScopeActorTypes.CLIENT,
+      offeredActors: declaration.actors
     });
 
     // The page hands the refusal down only under the preset it belongs to
@@ -320,6 +326,26 @@ export async function proveForcedSurface(
     });
 
     const wrapper = mount(host, { attachTo: document.body });
+
+    // The arm itself: cache the live rows, swap the transport to the preset, then
+    // clear the module's OWN cache through its published `reset` — the real path
+    // `useForcedState` drives (FE-3113). `replay` IS the live boot, so it arms
+    // nothing further. The reset is raced: a `loading` preset never answers the
+    // re-read it triggers, and the page is meant to sit on the pending state.
+    if (preset !== "replay") {
+      await Promise.race([
+        (port.actions.isReady as () => Promise<unknown>)(),
+        settle(20000)
+      ]);
+      server.resetHandlers();
+      (kit.installBackgroundStubs as (target: unknown) => void)(server);
+      server.use(...createForceHandlers(preset, bodies!, feature));
+      await Promise.race([
+        (port.actions.reset as () => Promise<unknown>)(),
+        settle(2000)
+      ]);
+    }
+
     // The design-system Table draws its own "no results" placeholder as a
     // `<tr data-slot="table-empty">` INSIDE `tbody` — a real record row
     // carries `data-slot="table-row"` — so a bare `tbody tr` count reports 1

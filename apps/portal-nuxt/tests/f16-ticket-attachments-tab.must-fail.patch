@@ -1,0 +1,21 @@
+# Negative control — the Attachments tab shows the whole conversation again,
+# so the view legacy gave the files of their own (`ticketMessages.vue:42-46`)
+# is indistinguishable from the Messages one.
+#
+# REBASED 2026-09-06 (the thread now pages from its newest end). Same mutation.
+#
+# Intended RED (to be added by the prover): "the Attachments tab shows only
+# the messages carrying files".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -6098,9 +6098,6 @@
+ ): ListModuleItem[] {
+   const ticket = find(data.tickets, { id: context.entityId ?? "" });
+   if (ticket === undefined) return [];
+-  if (showingThreadTab(context.status) === TICKET_THREAD_TAB.ATTACHMENTS) {
+-    return ticketAttachmentItems(ticket);
+-  }
+   return groupedFeed(threadPage(ticketFeed(ticket), threadShown(context)));
+ }
+ 

@@ -1,0 +1,19 @@
+Negative control for LookupRenderer.test.ts (AC8 static-options fallback).
+
+Removes the `lookupOptions?.options` fallback from the renderer's `items` computed, so a
+service-less lookup bag that carries only embedded `options` renders nothing. The AC8
+static assertion — that such a control renders its embedded options client-side (and never
+calls useLookup) — goes red.
+
+diff --git a/packages/client-vue/src/components/form/renderers/LookupRenderer.vue b/packages/client-vue/src/components/form/renderers/LookupRenderer.vue
+index 44f2e458d..72c3c3a50 100644
+--- a/packages/client-vue/src/components/form/renderers/LookupRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/LookupRenderer.vue
+@@ -91,7 +91,6 @@ const items = computed<LookupItem[]>(() =>
+     ? (lookup!.items.value ?? [])
+     : (control.value?.options as LookupItem[]) ||
+       (appliedOptions.value?.items as LookupItem[]) ||
+-      lookupOptions?.options ||
+       []
+ );
+

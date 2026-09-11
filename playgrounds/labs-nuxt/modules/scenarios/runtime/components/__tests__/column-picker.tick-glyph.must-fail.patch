@@ -25,7 +25,7 @@ which columns the table is drawing, while every behaviour case stays green.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPicker.vue
-@@ -19,18 +19,17 @@
+@@ -23,17 +23,17 @@
        <!-- `select` is prevented so the menu stays open: picking a column set is
             several choices, and a menu that closes on each one makes the user
             re-open it per column. -->
@@ -35,21 +35,19 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPi
          :key="column.value"
          data-test-key="column"
          :data-test-value="column.value"
--        :checked="column.isVisible"
+-        :model-value="column.isVisible"
          :disabled="column.isVisible && isLastVisible"
--        @select="onSelect"
--        @update:checked="toggle(column)"
-+        @select="onSelect($event); toggle(column)"
+         @select="handleSelect(column, $event)"
        >
-+        <span>{{ column.isVisible ? "✓" : "" }}</span>
++        <span>{{ column.isVisible ? "\u2713" : "" }}</span>
          {{ column.label }}
 -      </DropdownMenuCheckboxItem>
 +      </DropdownMenuItem>
      </DropdownMenuContent>
    </DropdownMenuRoot>
  </template>
-@@ -55,8 +54,8 @@ import { computed, ref } from "vue";
- import { useI18n } from "vue-i18n";
+@@ -56,8 +56,8 @@
+ 
  import {
    Button,
 -  DropdownMenuCheckboxItem,
@@ -57,4 +55,4 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ColumnPi
 +  DropdownMenuItem,
    DropdownMenuLabel,
    DropdownMenuRoot,
-   DropdownMenuTrigger,
+   DropdownMenuTrigger

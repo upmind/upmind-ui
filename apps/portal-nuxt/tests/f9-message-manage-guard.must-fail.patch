@@ -1,0 +1,25 @@
+# Negative control — the manage guard stops asking whether the thread is
+# FINISHED, so a client may rewrite and withdraw messages on a closed ticket
+# and the doors that defer to it open the dialogs.
+#
+# Intended RED: "answers ALREADY_CLOSED on a finished thread",
+# "refuses editing at the door, before any confirm or form",
+# "withholds the edit form itself wherever a guard refuses"
+# (tests/fifth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
+@@ -245,13 +245,6 @@
+       if (subject === undefined || written === undefined) {
+         return unknownMessage();
+       }
+-      if (isTicketClosed(subject)) {
+-        return {
+-          ok: false,
+-          reason: MOCK_RECEIPT_REASON.ALREADY_CLOSED,
+-          entity: written
+-        };
+-      }
+       if (isTicketLocked(subject)) {
+         return {
+           ok: false,

@@ -1,0 +1,18 @@
+# Negative control — the relation switch flips a fixed key rather than the one
+# the row named, so every switch on the panel moves impersonation.
+#
+# Intended RED: "flips inherit_payment_details both ways and leaves the other
+# two where they were" and "flips use_parent_branding both ways and leaves the
+# other two where they were" (tests/child-accounts.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -1333,7 +1333,7 @@
+       if (!isRelationToggleKey(switchKey)) return undefined;
+       const receipt = useMockRelation(data, asked.head)
+         .useActions()
+-        .toggle(switchKey);
++        .toggle(ClientRelationToggleKeys.ALLOW_IMPERSONATION);
+       return fromReceipt(receipt, child => {
+         const label = RELATION_TOGGLE_LABEL[switchKey];
+         let title = `${label} off for ${child.name}`;

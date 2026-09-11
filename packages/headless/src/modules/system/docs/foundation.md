@@ -34,6 +34,11 @@ How the lists are kept fresh, persisted between sessions, or invalidated is up t
 ## Data shape
 
 ```ts
+// The two scalar aliases the shapes below reference. Both arrive as plain
+// strings on the wire; a rebuild is free to narrow them to its own unions.
+type ISO4217Code = string; // ISO 4217 three-letter code
+type ObjectType = string; // domain-entity discriminator ("invoice", "client")
+
 type Country = {
   id: string;
   name: string; // localised by Accept-Language
@@ -73,7 +78,7 @@ type Language = {
 
 type Currency = {
   id: string;
-  code: ISO_4217_Code; // "GBP", "USD", "EUR"
+  code: ISO4217Code; // "GBP", "USD", "EUR"
   name: string;
   prefix: string; // "£"
   suffix: string; // "" or " EUR"
@@ -88,7 +93,7 @@ type Status = {
   id: string;
   code: string;
   name: string;
-  object_type: UpmindObjectType; // which domain entity this status applies to
+  object_type: ObjectType; // which domain entity this status applies to
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

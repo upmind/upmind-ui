@@ -12,11 +12,28 @@
  *
  * Names absent from this map (country flags, provider logos, anything not yet
  * mapped) fall through to the registered SVG asset loader; see Icon.vue.
+ *
+ * @decision
+ * what:     `bell-01` and `settings-01` (client-notifications scenario) are
+ *           mapped to their own real lucide glyphs (`Bell`, `Settings`)
+ *           rather than aliased to an already-mapped, different-shaped name.
+ * why:      Both are genuine lucide v1 exports (verified in
+ *           `lucide-vue-next@1.0.0`'s type declarations) for the exact
+ *           concept the declared name names — a notification bell, a
+ *           settings gear. Aliasing `bell-01` to an in-map name like
+ *           `inbox-01` would pass the resolvability gate while drawing a
+ *           mismatched glyph on the page, the same "gradeable, not honest"
+ *           shape this map's own judgement-call list warns against.
+ * rejected: (a) substituting in-map names (`inbox-01` for the page icon,
+ *           `settings-04` for the control) — cheaper (no new import) but
+ *           spends an existing glyph on a different meaning purely to avoid
+ *           adding one import.
  */
 import {
   ArrowLeft,
   ArrowLeftRight,
   ArrowRight,
+  Bell,
   Boxes,
   Building2,
   Check,
@@ -32,18 +49,22 @@ import {
   CircleUser,
   Clock,
   Columns3,
+  CreditCard,
   Delete,
   Dot,
   EllipsisVertical,
+  ExternalLink,
   Eye,
   Globe,
   House,
   Inbox,
   Info,
   Languages,
+  Layers,
   List,
   LoaderCircle,
   Lock,
+  LockOpen,
   LogOut,
   Mail,
   MapPin,
@@ -52,6 +73,7 @@ import {
   Paperclip,
   Phone,
   Plus,
+  Receipt,
   RefreshCw,
   ArrowDown,
   ArrowRightLeft,
@@ -76,6 +98,7 @@ import {
   Undo2,
   User,
   UserPlus,
+  Wallet,
   X
 } from "lucide-vue-next";
 import type { Component } from "vue";
@@ -99,6 +122,17 @@ import type { Component } from "vue";
  * - `box` → Boxes, matching the labs navigation table so one declared name
  *   draws one glyph wherever it is rendered.
  * - `shield-tick` → ShieldCheck — same shield, lucide's spelling of the tick.
+ * - `card` → CreditCard and `credit-card-01` → CreditCard — `card` is a lottie
+ *   ANIMATION name (not an SVG glyph), mapped so the playground's icon gate
+ *   resolves it, following the `internet` precedent; `credit-card-01` is the
+ *   Untitled-UI numbered variant of lucide's single CreditCard.
+ * - `layers-three-01` → Layers, `lock-unlocked-01` → LockOpen and
+ *   `wallet-01` → Wallet — Untitled numbered or hyphenated what lucide names
+ *   once. All three are declared by the labs playground, whose icon gate reds
+ *   on any name this map cannot serve.
+ * - `receipt` → Receipt — the labs invoice module's declared name, matching
+ *   that playground's navigation table so one name draws one glyph in the
+ *   sidebar and on the page alike.
  */
 export const ICON_MAP: Record<string, Component> = {
   "alert-octagon": OctagonAlert,
@@ -109,10 +143,12 @@ export const ICON_MAP: Record<string, Component> = {
   "arrow-right": ArrowRight,
   "arrow-up": ArrowUp,
   basket: ShoppingBasket,
+  "bell-01": Bell,
   box: Boxes,
   "building-01": Building2,
   "building-02": Building2,
   "building-07": Building2,
+  card: CreditCard,
   check: Check,
   "check-circle": CircleCheck,
   "check-circle-broken": CircleCheckBig,
@@ -122,6 +158,7 @@ export const ICON_MAP: Record<string, Component> = {
   "clock-fast-forward": Clock,
   "clock-stopwatch": Timer,
   "columns-03": Columns3,
+  "credit-card-01": CreditCard,
   delete: Delete,
   dot: Dot,
   "dots-vertical": EllipsisVertical,
@@ -136,8 +173,11 @@ export const ICON_MAP: Record<string, Component> = {
   internet: Globe,
   list: List,
   "loading-01": LoaderCircle,
+  "layers-three-01": Layers,
+  "link-external-01": ExternalLink,
   "lock-01": Lock,
   "lock-04": Lock,
+  "lock-unlocked-01": LockOpen,
   "log-out-01": LogOut,
   "mail-01": Mail,
   "marker-pin-01": MapPin,
@@ -147,6 +187,7 @@ export const ICON_MAP: Record<string, Component> = {
   "play-circle": CirclePlay,
   plus: Plus,
   "plus-circle": CirclePlus,
+  receipt: Receipt,
   "refresh-cw-01": RefreshCw,
   search: Search,
   "search-lg": Search,
@@ -154,6 +195,7 @@ export const ICON_MAP: Record<string, Component> = {
   "switch-horizontal-02": ArrowRightLeft,
   "search-refraction": Search,
   "search-sm": Search,
+  "settings-01": Settings,
   "settings-04": Settings,
   "share-07": Share2,
   "shield-tick": ShieldCheck,
@@ -173,6 +215,7 @@ export const ICON_MAP: Record<string, Component> = {
   "user-03": User,
   "user-circle": CircleUser,
   "user-plus-01": UserPlus,
+  "wallet-01": Wallet,
   "x-close": X
 };
 

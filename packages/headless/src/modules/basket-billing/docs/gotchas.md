@@ -11,12 +11,14 @@ Edge cases, known issues, and things to watch out for.
 The billing child is only started once the basket it hangs off has an owning client (`client_id`). A guest / unclaimed basket loads and reaches a normal, shopping-ready state — but billing itself is never made available on it, and stays that way indefinitely.
 
 ```typescript
+import { useBasket, useBasketBilling } from "@upmind-automation/headless";
+
 // ❌ Wrong — assumes billing will eventually resolve, on any basket
 await useBasketBilling().isReady();
 
 // ✅ Correct — check the basket is owned before waiting on billing
 const { context: basketContext } = useBasket();
-if (basketContext.value?.client_id) {
+if (basketContext.value?.basket?.client_id) {
   await useBasketBilling().isReady();
 }
 ```
@@ -38,6 +40,11 @@ if (basketContext.value?.client_id) {
 If a client tries to load a basket that belongs to someone else, the load itself is denied (a real `403`). Billing never becomes available — but `basket-billing` raises no error of its own; the failure is entirely the basket load's.
 
 ```typescript
+import { useBasket, useBasketBilling } from "@upmind-automation/headless";
+
+declare function showBillingError(): void;
+declare function showBasketLoadError(): void;
+
 // ❌ Wrong — checking only basket-billing's own error state
 const { errors } = useBasketBilling();
 if (errors.value) showBillingError();
@@ -56,6 +63,8 @@ if (basketErrors.value) showBasketLoadError();
 `address_id: null` on the commit body does not mean "no address" — the server substitutes the client's default address. There is no wire value that means "explicitly no address."
 
 ```typescript
+import { useBasketBilling } from "@upmind-automation/headless";
+
 // This does NOT clear the address — it applies the client's default instead.
 await useBasketBilling().update({
   addressId: null,
@@ -71,12 +80,33 @@ await useBasketBilling().update({
 The `client-company` create already carries the phone inline. Issuing a separate phone create for a business detail's phone creates a duplicate phone record.
 
 ```typescript
-// ❌ Wrong — a separate phone create for a business detail
-await useClientPhones().as("self").useActions().ensure(phoneModel);
-await useClientCompanies().as("client").useActions().ensure(companyModel);
+import {
+  ScopeActorTypes,
+  UnifiedType,
+  useBasketBilling,
+  useClientCompanies,
+  useClientPhones
+} from "@upmind-automation/headless";
+import type { CompanyModel, PhoneModel } from "@upmind-automation/headless";
 
-// ✅ Correct — let the unified `add()` fold the phone into the company create
-await useBasketBilling().useUnifiedBillingDetail("business").update(model);
+declare const phoneModel: PhoneModel;
+declare const companyModel: CompanyModel;
+declare const model: { company: CompanyModel; phone: PhoneModel };
+
+// ❌ Wrong — a separate phone create for a business detail
+await useClientPhones()
+  .as(ScopeActorTypes.SELF)
+  .useActions()
+  .ensure(phoneModel);
+await useClientCompanies()
+  .as(ScopeActorTypes.CLIENT)
+  .useActions()
+  .ensure(companyModel);
+
+// ✅ Correct — let the unified `update()` fold the phone into the company create
+await useBasketBilling()
+  .useUnifiedBillingDetail(UnifiedType.BUSINESS)
+  .update(model);
 ```
 
 **Test scenario:** create a business billing detail with a phone via `useUnifiedBillingDetail`. Confirm exactly one phone create fires (carried inline on the company create), not two.
@@ -115,7 +145,9 @@ Only an address is ever required by this module's own model. Company, phone, and
 Before performing operations, confirm the basket is claimed, then wait for billing to be ready:
 
 ```typescript
-if (useBasket().context.value?.client_id) {
+import { useBasket, useBasketBilling } from "@upmind-automation/headless";
+
+if (useBasket().context.value?.basket?.client_id) {
   await useBasketBilling().isReady();
 }
 ```
@@ -125,6 +157,9 @@ if (useBasket().context.value?.client_id) {
 `useUnifiedBillingDetail()` starts its own machine instance; call `stop()` when the new-detail form is dismissed:
 
 ```typescript
-const detail = useBasketBilling().useUnifiedBillingDetail("personal");
+import { UnifiedType, useBasketBilling } from "@upmind-automation/headless";
+import { onUnmounted } from "vue";
+
+const detail = useBasketBilling().useUnifiedBillingDetail(UnifiedType.PERSONAL);
 onUnmounted(() => detail.stop());
 ```

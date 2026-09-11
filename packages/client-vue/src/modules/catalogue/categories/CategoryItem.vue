@@ -1,74 +1,50 @@
 <template>
-  <Button variant="control" as-child :class="categoriesItemRootVariants()">
-    <RouterLink
-      :aria-label="t('action.category_select', { name })"
-      :to="{
-        ...props.categoryRoute,
-        query: {
-          [QUERY_PARAMS.CATEGORY_ID]: id,
-          sort: props.sort,
-          direction: props.direction
-        }
-      }"
-      tabindex="-1"
-    >
-      <!-- TODO: Add category icon when available from backend -->
-      <!-- <Icon v-if="ui.categoryIcon.value" size="sm" :class="styles.categories.item.icon" /> -->
+  <RouterLink
+    :aria-label="t('action.category_select', { name })"
+    :class="categoriesItemRootVariants()"
+    :to="{
+      ...props.categoryRoute,
+      query: {
+        [QUERY_PARAMS.CATEGORY_ID]: id,
+        sort: props.sort,
+        direction: props.direction
+      }
+    }"
+  >
+    <!-- TODO: Add category icon when available from backend -->
+    <!-- <Icon v-if="ui.categoryIcon.value" size="sm" :class="styles.categories.item.icon" /> -->
 
-      <section :class="categoriesItemActionVariants()">
-        <header :class="categoriesItemTitleContainerVariants()">
-          <Link
-            size="md"
-            :class="[
-              categoriesItemLinkVariants(),
-              'underline transition-colors duration-200',
-              'group-hover:text-(--text-button-link-hover) group-hover:[text-decoration-color:var(--text-button-link-hover)]'
-            ]"
-            :to="{
-              ...props.categoryRoute,
-              query: {
-                [QUERY_PARAMS.CATEGORY_ID]: id,
-                sort: props.sort,
-                direction: props.direction
-              }
-            }"
-            >{{ name }}</Link
-          >
-          <Badge
-            v-if="categoryBadge"
-            appearance="outline"
-            size="sm"
-            variant="neutral"
-            :class="categoriesItemBadgeVariants()"
-          >
-            <Icon
-              v-if="categoryBadge.icon"
-              :icon="categoryBadge.icon"
-              size="xs"
-            />
-            {{ categoryBadge.label }}
-          </Badge>
-          <Icon
-            icon="arrow-right"
-            size="sm"
-            :class="[
-              categoriesItemArrowIconVariants(),
-              'group-hover:text-(--text-button-link-hover)'
-            ]"
-          />
-        </header>
+    <section :class="categoriesItemActionVariants()">
+      <header :class="categoriesItemTitleContainerVariants()">
+        <span :class="categoriesItemLinkVariants()">{{ name }}</span>
+        <Badge
+          v-if="categoryBadge"
+          appearance="outline"
+          size="sm"
+          variant="neutral"
+          :class="categoriesItemBadgeVariants()"
+        >
+          <Icon v-if="categoryBadge.icon" :icon="categoryBadge.icon" />
+          {{ categoryBadge.label }}
+        </Badge>
+        <Icon
+          icon="arrow-right"
+          size="xs"
+          :class="[
+            categoriesItemArrowIconVariants(),
+            'group-hover:text-(--text-button-link-hover)'
+          ]"
+        />
+      </header>
 
-        <p v-if="excerpt" :class="categoriesItemDescriptionVariants()">
-          {{ excerpt }}
-        </p>
-      </section>
-    </RouterLink>
-  </Button>
+      <p v-if="excerpt" :class="categoriesItemDescriptionVariants()">
+        {{ excerpt }}
+      </p>
+    </section>
+  </RouterLink>
 </template>
 
 <script setup lang="ts">
-import { Link } from "@upmind/ui";
-import { Button } from "@upmind/ui";
 import { Badge } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";

@@ -22,7 +22,7 @@ This release converts `client-address` from a pre-scope module (bare `useClientA
 - **The editor's `useMeta()` returns flat computeds, not a single `meta` object.** Read `useMeta().isValid`; the `meta.value.isValid` form is gone.
 - **`isReady()` and `onDone()` on the editor are now bounded**, converting an unbounded upstream stall into a reportable timeout instead of a silent hang.
 - **`refresh()` rejects with `NotAuthenticatedError`** when the scope cannot address a client — both before the request is issued and if the session dies mid-flight. Every other collection read resolves quietly.
-- **The collection's `useMeta()` is seven members** — `hasError`, `hasNextPage`, `hasPages`, `hasPrevPage`, `isAvailable`, `isEmpty`, `isLoading`.
+- **The collection's `useMeta()` is eight members** — `hasError`, `hasNextPage`, `hasPages`, `hasPrevPage`, `isAvailable`, `isEmpty`, `isFiltered`, `isLoading`.
 - **`useClientAddressServices` is retired, not deprecated.** Its callers now reach find-or-create through `useClientAddresses().as('client').useActions().ensure(...)` — passing the model directly, not wrapped in `{ model }`. See [gotchas.md](./gotchas.md#13-useclientaddressservices-is-retired-not-deprecated).
 - **A region cleared by a country change now reaches the wire as an explicit `region_id: null` on an edit**, rather than being silently dropped by serialisation. A create with no region chosen still sends no `region_id` key at all — the two cases are deliberately not the same wire shape. See [gotchas.md](./gotchas.md#8-a-country-change-clears-the-region-differently-depending-on-whether-the-address-is-new).
 - **The update limb of the editor's save resolves the same mapped shape as the create limb**, so a successful edit's saved model is derived consistently rather than a raw wire response silently reverting the model to its pre-edit values on `setModel`.
@@ -85,34 +85,60 @@ Genuinely captured request/response pairs back every documented behaviour:
 
 **Breaking change:** both composables are now scoped and require `.as('client')`.
 
+**Before** — the bare calls. `useClientAddresses()` still resolves, but it now
+hands back the scope builder rather than an instance, and the editor no longer
+accepts an id argument:
+
 ```ts
-// Before
+import { useClientAddressManager } from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// @ts-expect-error — Expected 0 arguments: the editor is scoped now, not seeded
+useClientAddressManager(addressId);
+```
+
+**After** — `.as('client')`, then a context or `.fresh()`:
+
+```ts
 import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
   useClientAddresses,
   useClientAddressManager
 } from "@upmind-automation/headless";
-const addresses = useClientAddresses();
-const manager = useClientAddressManager(addressId);
-const draft = useClientAddressManager();
 
-// After
-const addresses = useClientAddresses().as("client");
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
 const manager = useClientAddressManager()
-  .as("client")
-  .for("address", addressId);
-const draft = useClientAddressManager().as("client").fresh();
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+const draft = useClientAddressManager().as(ScopeActorTypes.CLIENT).fresh();
 ```
 
 ### Reading state — the four-layer destructure
 
 **Breaking change:** every member now lives behind one of `useActions()` / `useContext()` / `useMeta()` / `useInternals()`, not on the composable's own return value.
 
-```ts
-// Before
-const { data, default: defaultAddress, isReady } = useClientAddresses();
+**Before** — one flat destructure:
 
-// After
-const addresses = useClientAddresses().as("client");
+```ts
+import { useClientAddresses } from "@upmind-automation/headless";
+
+// @ts-expect-error — none of these live on the scope builder any more
+const { data, default: defaultAddress, isReady } = useClientAddresses();
+```
+
+**After** — read each member from the layer that owns it:
+
+```ts
+import {
+  ScopeActorTypes,
+  useClientAddresses
+} from "@upmind-automation/headless";
+
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
 const { data, default: defaultAddressId } = addresses.useContext();
 const { isReady } = addresses.useActions();
 ```
@@ -121,14 +147,40 @@ const { isReady } = addresses.useActions();
 
 **Breaking change:** the editor's `useMeta()` returns one computed per flag instead of a single `meta` object.
 
-```ts
-// Before
-const { meta } = manager.useMeta();
-if (meta.value.isValid) await save();
+**Before** — one `meta` object:
 
-// After
+```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
+// @ts-expect-error — `meta` is gone; the flags are the return value now
+const { meta } = manager.useMeta();
+```
+
+**After** — one computed per flag:
+
+```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 const { isValid } = manager.useMeta();
-if (isValid.value) await save();
+if (isValid.value) await manager.useActions().update();
 ```
 
 Flags available: `hasErrors`, `isAvailable`, `isComplete`, `isDirty`, `isLoading`, `isNew`, `isProcessing`, `isValid`.
@@ -138,12 +190,24 @@ Flags available: `hasErrors`, `isAvailable`, `isComplete`, `isDirty`, `isLoading
 **Breaking change:** the editor no longer accepts a `clientId` construction option.
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const someOtherClientId = "3b0b3e2a-6d4e-4a17-9f6a-1c2d3e4f5a6b";
+
 // Before (never actually worked — see the changelog entry above)
+// @ts-expect-error — Expected 0 arguments: both parameters are gone
 useClientAddressManager(addressId, { clientId: someOtherClientId });
 
 // After — there is no equivalent today; the editor always addresses the
 // account the scope resolved
-useClientAddressManager().as("client").for("address", addressId);
+useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
 ```
 
 If your integration relied on this option, it was not functioning before this release either — no request was ever retargeted by it.
@@ -153,13 +217,18 @@ If your integration relied on this option, it was not functioning before this re
 **Breaking change:** a bare services import is gone.
 
 ```ts
-// Before
+// @ts-expect-error — Before: there is no such export any more
 import { useClientAddressServices } from "@upmind-automation/headless";
-await useClientAddressServices().ensure({ model: addressModel });
 
 // After
-import { useClientAddresses } from "@upmind-automation/headless";
-import { ScopeActorTypes } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  useClientAddresses,
+  type AddressModel
+} from "@upmind-automation/headless";
+
+declare const addressModel: AddressModel;
+
 await useClientAddresses()
   .as(ScopeActorTypes.CLIENT)
   .useActions()
@@ -168,21 +237,41 @@ await useClientAddresses()
 
 ### Obtaining the form definition
 
+**Before** — a bare parsed schema/uischema pair on the barrel:
+
 ```ts
-// Before
-import {
-  useAddressSchema,
-  useAddressUischema
-} from "@upmind-automation/headless";
+// @ts-expect-error — neither export survives; read the editor's context instead
+import { useAddressSchema } from "@upmind-automation/headless";
+// @ts-expect-error — same: the parsers are module-private now
+import { useAddressUischema } from "@upmind-automation/headless";
+```
 
-// After — rendering the address form standalone
-const { schema, uischema } = manager.useContext();
+**After** — rendering the address form standalone reads the editor's context;
+composing the address FIELDS into a parent schema is a different job, served by
+the two fragment builders:
 
-// After — composing the address FIELDS into a parent schema (a different job)
+```ts
 import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager,
   useSchemaDefinitions,
   useUischemaDefinitions
 } from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
+// Rendering the address form standalone
+const { schema, uischema } = manager.useContext();
+
+// Composing the address FIELDS into a parent schema
+const definitions = useSchemaDefinitions();
+const uiDefinitions = useUischemaDefinitions();
+
+console.log(schema.value, uischema.value, definitions, uiDefinitions);
 ```
 
 ### `default()` still returns an id, not the row

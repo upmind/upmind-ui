@@ -6,12 +6,10 @@
     separator="/"
   >
     <template #item="{ crumb }">
-      <Link
+      <BreadcrumbPage
         v-if="(!crumb.to && !crumb.href) || crumb.current"
-        class="hover:text-muted! text-faint cursor-default no-underline hover:opacity-100!"
-        size="md"
-        tabindex="-1"
-        ><Icon :icon="crumb.icon" /> {{ crumb.label }}</Link
+        class="text-faint inline-flex items-center gap-1 text-base font-normal"
+        ><Icon :icon="crumb.icon" /> {{ crumb.label }}</BreadcrumbPage
       >
       <Link
         v-else
@@ -29,6 +27,7 @@
 <script setup lang="ts">
 import { Link } from "@upmind/ui";
 import { Breadcrumb } from "@upmind/ui";
+import { BreadcrumbPage } from "@upmind/ui";
 import { inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";

@@ -21,9 +21,14 @@ The synchronous accessors `getCountry()` / `getBillingCycle()` return `undefined
 
 By the time a sync schema parser, formatter, or assign action runs **inside that machine**, the data is loaded and `getCountry()` / `getBillingCycle()` work correctly.
 
-```typescript
-// ✅ Correct — machine load service ensures upfront
-async function load(_context, _event) {
+```ts
+import { useBrand, useSystem } from "@upmind-automation/headless";
+import { BrandConfigKeys } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
+
+// ✅ Correct — machine load service ensures upfront.
+// Mirrors `basket.services.ts`'s own `load` service.
+export async function load(_context: unknown, _event: AnyEventObject) {
   const { ensureConfig } = useBrand();
   const { ensureCountries, ensureBillingCycles } = useSystem();
 
@@ -36,9 +41,11 @@ async function load(_context, _event) {
 }
 ```
 
-```typescript
+```ts
+import { useSystem } from "@upmind-automation/headless";
+
 // ✅ Sync utility runs AFTER load — getCountry() is populated
-export const useRegisterSchemaParser = (data: any) => {
+export const useRegisterSchemaParser = (_data: unknown) => {
   const { getCountry } = useSystem();
   return {
     properties: {
@@ -54,18 +61,22 @@ export const useRegisterSchemaParser = (data: any) => {
 
 ### Anti-patterns
 
-```typescript
+```ts
+import { useSystem } from "@upmind-automation/headless";
+
 // ❌ Sync util tries to use getCountry() in a path that didn't ensure first
-export function parseProvisioningSchema(data, product) {
+export function parseProvisioningSchema(_data: unknown, _product: unknown) {
   const { getCountry } = useSystem();
   const defaultCountry = getCountry(); // undefined! No upstream ensure()
-  // ...
+  return defaultCountry;
 }
 ```
 
-```typescript
+```ts
+import { useSystem } from "@upmind-automation/headless";
+
 // ❌ Adding ensure() inside a sync function — it returns a promise but you can't await it
-export function parseProductSummary(raw) {
+export function parseProductSummary(raw: { billing_cycle_months: number }) {
   const { ensureBillingCycles, getBillingCycle } = useSystem();
   ensureBillingCycles(); // fire-and-forget — STILL undefined this call
   return getBillingCycle(raw.billing_cycle_months); // Likely undefined
@@ -86,11 +97,21 @@ If only the `register` substate parses a country default, ensure inside the serv
 
 #### 3. Fire-and-forget is fine **inside an async service that the consuming code awaits afterwards**
 
-```typescript
-async function getCustomFields(_ctx, _ev) {
+```ts
+import { useQuery, useSystem } from "@upmind-automation/headless";
+import type { AnyEventObject } from "xstate";
+
+export async function getCustomFields(_ctx: unknown, _ev: AnyEventObject) {
+  const { get, useUrl } = useQuery();
   const { ensureCountries } = useSystem();
+
   ensureCountries(); // kicks off the fetch in parallel
-  return get({ url: "..." }); // by the time this resolves, countries is populated
+
+  // by the time this resolves, countries is populated
+  return get({
+    url: useUrl("clients_fields"),
+    queryKey: ["custom-fields"]
+  });
 }
 ```
 

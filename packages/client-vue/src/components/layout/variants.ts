@@ -42,8 +42,9 @@ export const canvasCardContainerVariants = cva(
   "max-w-app mx-auto py-12 lg:py-24"
 );
 export const canvasCardHeaderVariants = cva("w-full");
-export const canvasCardCardVariants = cva(
-  "bg-surface rounded-card flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32"
+export const canvasCardCardVariants = cva("w-full");
+export const canvasCardBodyVariants = cva(
+  "flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32"
 );
 export const canvasCardContentHeaderVariants = cva("w-app-aside w-full");
 export const canvasCardContentVariants = cva("w-full");

@@ -4,8 +4,8 @@
  * reach (AC-3, AC-13)
  *
  * ## Job To Be Done
- * Three branches of this module's mappers are unreachable from any recorded
- * staging capture, and ALL THREE are pure-function branches:
+ * Two branches of this module's mappers are unreachable from any recorded
+ * staging capture, and both are pure-function branches:
  *
  * - **AC-3 precedence** — `mapEmailStatus` must resolve `ERROR` over `BOUNCED`
  *   for a row that is both. The staging client this module's fixtures were
@@ -14,16 +14,22 @@
  *   `fixtures/get-self-email-history-filter-bounced-true.json` carries
  *   `total: 0` with an empty `data` array. No bounced row exists to capture, so
  *   no bounced+error row can.
- * - **AC-3 SENDING** — `mapEmailStatus` must resolve `SENDING` for a row that
- *   is neither sent, bounced nor errored. This account held a handful when the
- *   corpus was first captured and holds none now: the whole-history
- *   `fixtures/get-self-email-history-filter-error-id-null.json` carries
- *   `total: 1` and that one row is already `sent`. The generator asserts this
- *   rather than assuming it, so the day staging holds an in-flight row again
- *   the capture case fails loudly instead of quietly re-recording.
  * - **AC-13 body defaulting** — `mapReceivedEmail` must yield `""`, never
  *   `undefined`, when a row carries no nested `data.body`. Every real row
  *   sampled while capturing carried a populated one.
+ *
+ * ## AC-3 SENDING is no longer one of them
+ * SENDING was the third entry here, standing on a real errored row with its
+ * `error_id` cleared, because the account held no in-flight email. The
+ * generator asserted that absence rather than assuming it, so that the day
+ * staging held an in-flight row again the capture would fail loudly instead of
+ * quietly re-recording. That day came: the account now carries a stuck sending
+ * row, stable across recording runs, so
+ * `fixtures/get-self-email-history-filter-error-id-null.json` carries it and
+ * the toggle is GONE. SENDING is proven twice over on real recorded evidence —
+ * here via `recordedInFlightRow()`, and on the replay path in
+ * `client-email-history.collection.int.test.ts`. The generator's guard is now
+ * inverted: it fails if that row ever clears, rather than if it appears.
  *
  * ## Why these live HERE and not in the `*.int.test.ts` files
  * Both are branches of pure functions (`client-email-history.mappers.ts`) —
@@ -37,12 +43,12 @@
  *
  * ## Provenance of the inputs
  * Every input below is a REAL recorded row, read from this module's captured
- * fixtures via `getFixtureBody`, with EXACTLY ONE field toggled to construct
- * the hypothetical under test (`bounced: true`; a cleared `error_id`; a removed
- * `data.body`). The toggle is stated at each call site. The capture disclosure in
- * `client-email-history.fixtures.ts` stands unchanged — this file does not
- * close that gap in the recorded corpus, it proves the branch the corpus cannot
- * reach.
+ * fixtures via `getFixtureBody`. Where the branch under test is unreachable
+ * from the corpus, EXACTLY ONE field is toggled to construct the hypothetical
+ * (`bounced: true`; a removed `data.body`), and the toggle is stated at its
+ * call site. Where the corpus DOES reach the branch — AC-3 SENDING — the row
+ * is used untouched. The capture disclosure in
+ * `client-email-history.fixtures.ts` is the authority on which is which.
  *
  * ## What Breaks If These Fail
  * A row that both errored and bounced reports the wrong status to the client
@@ -58,6 +64,7 @@ import {
   mapEmailStatus,
   mapReceivedEmail
 } from "../client-email-history.mappers";
+import { find } from "lodash-es";
 import type { Envelope, WireEmail } from "./client-email-history.int-helpers";
 
 // -----------------------------------------------------------------------------
@@ -78,6 +85,30 @@ const recordedErrorRow = (): WireEmail =>
 /** The REAL recorded single read — `sent:true`, no error, populated `data.body`. */
 const recordedSingleRow = (): WireEmail =>
   getFixtureBody<Envelope<WireEmail>>("get-emails-id", { recordingsDir }).data;
+
+/**
+ * The REAL recorded in-flight row — `sent:false`, `bounced:false`, no
+ * `error_id`. Captured from the wire, NOT constructed: this account carries a
+ * stuck sending row that is stable across recording runs, so AC-3's SENDING
+ * branch is proven on genuine recorded evidence rather than a toggled field.
+ */
+const recordedInFlightRow = (): WireEmail => {
+  const row = find(
+    getFixtureBody<Envelope<WireEmail[]>>(
+      "get-self-email-history-filter-error-id-null",
+      { recordingsDir }
+    ).data,
+    candidate => !candidate.sent && !candidate.bounced && !candidate.error_id
+  );
+  if (!row) {
+    throw new Error(
+      "The recorded error-id-null page carries no in-flight row, so AC-3's " +
+        "SENDING branch has lost its recorded evidence. Re-record before " +
+        "falling back to a toggled row."
+    );
+  }
+  return row;
+};
 
 /** `WireEmail` is the recorded wire shape; the mappers are typed on `ISentEmail`. */
 const asSentEmail = (row: WireEmail): ISentEmail =>
@@ -110,23 +141,17 @@ describe("client-email-history status resolution — precedence (AC-3)", () => {
     expect(mapped.meta.isBounced).toBe(true);
   });
 
-  it("AC-3 resolves SENDING for a row still in flight — a real recorded error row with its error_id cleared", () => {
-    const row = recordedErrorRow();
-    expect(row.error_id).toBeTruthy();
+  it("AC-3 resolves SENDING for a row still in flight — a REAL recorded in-flight row, NO toggle", () => {
+    const row = recordedInFlightRow();
     expect(row.sent).toBe(false);
     expect(row.bounced).toBe(false);
+    expect(row.error_id).toBeFalsy();
 
-    // The ONE toggle: this account's in-flight emails have all since sent, so
-    // the in-flight row is constructed from a real errored one.
-    const inFlight = { ...row, error_id: null };
-
-    expect(mapEmailStatus(asSentEmail(inFlight))).toBe(SentEmailStatus.SENDING);
+    expect(mapEmailStatus(asSentEmail(row))).toBe(SentEmailStatus.SENDING);
   });
 
   it("AC-3 reports an in-flight row as neither sent, bounced nor errored on meta", () => {
-    const inFlight = { ...recordedErrorRow(), error_id: null };
-
-    const mapped = mapReceivedEmail(asSentEmail(inFlight));
+    const mapped = mapReceivedEmail(asSentEmail(recordedInFlightRow()));
 
     expect(mapped.status).toBe(SentEmailStatus.SENDING);
     expect(mapped.meta.isSent).toBe(false);

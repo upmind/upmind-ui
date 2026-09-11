@@ -1,0 +1,19 @@
+# Negative control — the sign-in log declares no searchable text, so legacy's
+# `ip_address` CONTAINS filter narrows nothing: every attempt comes back
+# whatever address the client typed part of.
+#
+# Intended RED: "finds every attempt from one address, by part of it"
+# (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -759,9 +759,6 @@
+   }),
+   undefined,
+   () => ({
+-    // Legacy's `ip_address` CONTAINS filter — free text over the one column
+-    // it narrowed, which is what the band's search already is.
+-    searchProps: ["ip"],
+     sortOptions: LOGIN_ATTEMPT_SORT_OPTIONS,
+     filterControls: LOGIN_ATTEMPT_FILTER_CONTROLS
+   })

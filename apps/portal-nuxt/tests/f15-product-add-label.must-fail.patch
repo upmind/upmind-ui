@@ -1,0 +1,24 @@
+# Negative control — a product with no reference of its own offers nothing to
+# add one, so legacy's client-only "+ Add label"
+# (`cProdTags.vue:78-82`, withheld from the desk and from a read-only row) is
+# gone from every row that has not got a label yet.
+#
+# Intended RED (to be added by the prover): "offers Add label on a product
+# with no reference".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -429,12 +429,7 @@
+       label: `Promo: ${code}`,
+       tone: "info" as const
+     })),
+-    product.customLabel === undefined &&
+-      product.canModify && {
+-        label: "+ Add label",
+-        tone: "neutral" as const,
+-        action: { value: labelForm, label: "Add your own reference" }
+-      }
++    false
+   ]);
+ }
+ 

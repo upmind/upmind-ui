@@ -1,7 +1,7 @@
 import { watch, type Ref } from "vue";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { useBrand } from "../brand";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, resetQueryByKey } from "../query";
 // Deep path, never the `../scope` barrel — see useClientNotes.ts for the
 // aggregator-barrel `export *` hazard this sidesteps.
 import { remove as removeFromRegistry } from "../scope/scope.registry";
@@ -381,6 +381,11 @@ export function createClientNotesActions(
      * @scenario-include
      */
     remove: service.remove,
+
+    /**
+     * @scenario-exclude internal cache-key reset, not a user-facing capability
+     */
+    reset: resetQueryByKey(service.queryKey),
 
     /**
      * @scenario-include

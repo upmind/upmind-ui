@@ -43,20 +43,20 @@ Adopt **XState v4** as the primary state management solution for complex flows, 
 
 ### Singleton Machines
 
-Long-lived, shared across the application:
+Long-lived, shared across the application. The example uses `paymentMachine`, the one machine the package exports:
 
-```typescript
+```ts
+import { interpret, InterpreterStatus, paymentMachine } from '@upmind-automation/headless'
+import { useActor } from '@xstate/vue'
+
 // Instantiate at module scope, start on first use
-const service = interpret(basketMachine, { devTools: true })
+const service = interpret(paymentMachine, { devTools: true })
 
-export function useBasket() {
-  // Start if not already running
-  if (service.status !== InterpreterStatus.Running) {
-    service.start()
-  }
+export function usePayment() {
+  if (service.status === InterpreterStatus.NotStarted) service.start()
 
-  const { state } = useActor(service)
-  // ...
+  const { send, state } = useActor(service)
+  return { send, state }
 }
 ```
 
@@ -66,14 +66,17 @@ export function useBasket() {
 
 Short-lived, created per usage:
 
-```typescript
-export function useDomain() {
-  // Create fresh instance each time
-  const service = interpret(domainMachine, { devTools: true })
+```ts
+import { interpret, paymentMachine } from '@upmind-automation/headless'
+import { useActor } from '@xstate/vue'
+
+export function usePaymentForm() {
+  // Create a fresh instance each time
+  const service = interpret(paymentMachine, { devTools: true })
   service.start()
 
-  const { state, send } = useActor(service)
-  // ...
+  const { send, state } = useActor(service)
+  return { send, state }
 }
 ```
 
@@ -85,31 +88,33 @@ export function useDomain() {
 
 ### Standard States
 
-```typescript
-const machine = createMachine({
+```ts
+import { createMachine } from '@upmind-automation/headless'
+
+export const machine = createMachine({
   id: 'featureName',
   initial: 'loading',
-  context: { /* initial context */ },
+  context: {},
   states: {
     loading: {
       invoke: {
         src: 'load',
         onDone: { target: 'available', actions: 'setData' },
-        onError: { target: 'error', actions: 'setError' },
-      },
+        onError: { target: 'error', actions: 'setError' }
+      }
     },
     available: {
       on: {
         ACTION: 'processing',
-        REFRESH: 'loading',
-      },
+        REFRESH: 'loading'
+      }
     },
-    processing: { /* ... */ },
+    processing: {},
     error: {
-      on: { RETRY: 'loading' },
+      on: { RETRY: 'loading' }
     },
-    complete: { type: 'final' },
-  },
+    complete: { type: 'final' }
+  }
 })
 ```
 
@@ -117,20 +122,45 @@ const machine = createMachine({
 
 Async operations are invoked, not embedded:
 
-```typescript
-// In machine
-invoke: {
-  src: 'load',  // References services.load
-  onDone: { target: 'available', actions: 'setData' },
-  onError: { target: 'error' },
-}
+```ts
+import { createMachine, useQuery } from '@upmind-automation/headless'
+import type { AnyEventObject } from '@upmind-automation/headless'
+
+type FeatureContext = { data?: unknown }
 
 // services.ts
-async function load(context, event) {
-  return useQuery().get({ url: '...', withAccessToken: true })
+async function load(_context: FeatureContext, _event: AnyEventObject) {
+  const { get, useUrl } = useQuery()
+  return get({
+    queryKey: ['feature'],
+    url: useUrl('self'),
+    withAccessToken: true
+  })
 }
 
-export default { load }
+export const services = { load }
+
+// In the machine — `src` names the service, and BOTH handbacks are wired, the
+// way `order.machine.ts` and `basket.machine.ts` wire their real invocations.
+export const machine = createMachine(
+  {
+    id: 'feature',
+    initial: 'loading',
+    context: {} as FeatureContext,
+    states: {
+      loading: {
+        invoke: {
+          src: 'load',
+          onDone: { target: 'available', actions: 'setData' },
+          onError: { target: 'error', actions: 'setError' }
+        }
+      },
+      available: {},
+      error: {}
+    }
+  },
+  { services }
+)
 ```
 
 ---
@@ -139,15 +169,21 @@ export default { load }
 
 **Never access XState context directly.** Use Upmind utilities:
 
-```typescript
-// ❌ WRONG
-const value = state.value.context.basket
+```ts
+import { stateMatches, useContext } from '@upmind-automation/headless'
+import type { UseActor } from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
 
-// ✅ CORRECT
-import { useContext, stateMatches, contextValue } from '@/utils'
+declare const state: UseActor['state']
 
-const basket = useContext(state, 'basket')
+// ❌ WRONG — reaching through the raw machine state
+const wrong = state.value.context.basket
+
+// ✅ CORRECT — the reactive helpers
+const basket = useContext<IBasket>(state, 'basket')
 const isLoading = stateMatches(state, ['loading'])
+
+export const reads = { basket, isLoading, wrong }
 ```
 
 ### Available Utilities
@@ -165,11 +201,21 @@ const isLoading = stateMatches(state, ['loading'])
 
 ### useActor Pattern
 
-```typescript
+```ts
+import {
+  interpret,
+  paymentMachine,
+  stateMatches,
+  useContext
+} from '@upmind-automation/headless'
+import type { IBasket } from '@upmind-automation/types'
 import { useActor } from '@xstate/vue'
+import { computed } from 'vue'
+
+const service = interpret(paymentMachine, { devTools: true })
 
 export function useBasket() {
-  const { state, send } = useActor(service)
+  const { send, state } = useActor(service)
 
   // Reactive context
   const basket = useContext<IBasket>(state, 'basket')
@@ -178,30 +224,30 @@ export function useBasket() {
   const meta = computed(() => ({
     isLoading: stateMatches(state, ['loading']),
     isAvailable: stateMatches(state, ['available']),
-    hasError: stateMatches(state, ['error']),
+    hasError: stateMatches(state, ['error'])
   }))
 
   return {
     basket,
     meta,
-    addProduct: (product) => send({ type: 'ADD_PRODUCT', product }),
-    checkout: () => send({ type: 'CHECKOUT' }),
+    addProduct: (product: { id: string }) => send({ type: 'ADD_PRODUCT', product }),
+    checkout: () => send({ type: 'CHECKOUT' })
   }
 }
 ```
 
 ### isReady Pattern
 
-```typescript
-async function isReady(): Promise<boolean> {
-  return waitFor(
-    service,
-    state => stateMatches(state, ['available', 'error']),
-    { timeout: Infinity }
-  ).then(state => {
-    if (stateMatches(state, ['error'])) return false
-    return true
-  })
+```ts
+import { interpret, paymentMachine, stateMatches } from '@upmind-automation/headless'
+import { waitFor } from 'xstate/lib/waitFor'
+
+const service = interpret(paymentMachine, { devTools: true })
+
+export async function isReady(): Promise<boolean> {
+  return waitFor(service, state => stateMatches(state, ['available', 'error']), {
+    timeout: Infinity
+  }).then(state => !stateMatches(state, ['error']))
 }
 ```
 
@@ -211,34 +257,68 @@ async function isReady(): Promise<boolean> {
 
 For child machines and subscriptions:
 
-```typescript
-// Parent machine spawns child
-actions: {
-  spawnPayment: assign({
-    paymentActor: () => spawn(paymentMachine),
-  }),
-}
+```ts
+import {
+  assign,
+  createMachine,
+  paymentMachine,
+  send,
+  spawn
+} from '@upmind-automation/headless'
+import type { ActorRef, AnyEventObject } from '@upmind-automation/headless'
 
-// Send to child
-send({ type: 'PROCESS' }, { to: context.paymentActor })
+type ParentContext = { paymentActor?: ActorRef<AnyEventObject> }
+
+export const parentMachine = createMachine(
+  {
+    id: 'parent',
+    initial: 'idle',
+    context: {} as ParentContext,
+    states: {
+      idle: { on: { PAY: { target: 'paying', actions: 'spawnPayment' } } },
+      paying: { on: { PROCESS: { actions: 'forwardProcess' } } }
+    }
+  },
+  {
+    actions: {
+      // Parent machine spawns child
+      spawnPayment: assign<ParentContext>({
+        paymentActor: () => spawn(paymentMachine)
+      }),
+      // Send to child
+      forwardProcess: send(
+        { type: 'PROCESS' },
+        { to: (context: ParentContext) => context.paymentActor! }
+      )
+    }
+  }
+)
 ```
 
 ### Session Helper Pattern
 
 The session helper uses spawned actors for authentication subscriptions:
 
-```typescript
-export const authSubscription = async (callback, onReceive) => {
-  const { subscribe } = useSession()
+```ts
+import { useActiveSession, useSessionStore } from '@upmind-automation/headless'
 
-  const subscription = subscribe(state => {
-    if (stateMatches(state, ['expired'])) {
-      callback({ type: 'UNAUTHENTICATED' })
-    }
-    // ...
+// Spawned as a callback actor: `callback` emits up to the parent machine,
+// `onReceive` registers a handler for events sent down to it. The raw store
+// subscription is used, not a Vue watch — spawn() runs outside Vue's scope.
+export const authSubscription = (
+  callback: (event: { type: string }) => void,
+  onReceive: (handler: (event: unknown) => void) => void
+): (() => void) => {
+  const { store } = useSessionStore().useInternals()
+
+  onReceive(() => {
+    // no-op — the parent machine sends this actor no events
   })
 
-  return () => subscription.unsubscribe()
+  return store.subscribe(() => {
+    const { isAuthenticated } = useActiveSession().useMeta()
+    if (!isAuthenticated.value) callback({ type: 'UNAUTHENTICATED' })
+  })
 }
 ```
 
@@ -285,8 +365,10 @@ export const authSubscription = async (callback, onReceive) => {
 
 Development builds include XState Inspector:
 
-```typescript
-const service = interpret(machine, { devTools: true })
+```ts
+import { interpret, paymentMachine } from '@upmind-automation/headless'
+
+export const service = interpret(paymentMachine, { devTools: true })
 ```
 
 Access via browser devtools or standalone inspector.

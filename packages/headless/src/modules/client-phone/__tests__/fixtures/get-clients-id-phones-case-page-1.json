@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a2f863888e9f881b-DUR",
+      "cf-ray": "a38bf75bde9dbdb1-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Sun, 23 Aug 2026 07:26:24 GMT",
+      "date": "Thu, 10 Sep 2026 05:17:25 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=H2zy5Xj%2B8TYSDxaXGEWBut0S733aNnCwH5VGqYZBlPcWkBJ7%2Fw5hQ1SplojDL1Eeu4q74bxpDCC2V00mde2QuB2yVRSQSZRf8%2BxZDlLqVXfJ%2BjCuvUXrnMcFDhqMWwFeUruy65NkHw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=lAY7yAmhU%2BYPgwtzi27B8cDNIB%2BvKCcRvogeMx28uWpHqlBKXkBQgMeXfl6%2B%2BJn0K3bxODlG2d4hX3TyfheX2HKcOR%2FlOmaAMQUIeDhMEDbWPCRe%2FqExv1Sa6UJ5KoW2GdZpUSn%2B%2Fw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -50,7 +50,7 @@
           "international_phone": "mock-phone-1",
           "phone_country_code": "GB",
           "created_at": "2025-06-26 08:32:10",
-          "updated_at": "2026-08-23 07:26:22",
+          "updated_at": "2026-09-10 05:17:23",
           "deleted_at": null,
           "full_phone": "mock-phone-1",
           "can_delete": true
@@ -71,7 +71,7 @@
           "international_phone": "mock-phone-2",
           "phone_country_code": "GB",
           "created_at": "2025-06-26 08:41:45",
-          "updated_at": "2026-08-23 07:26:22",
+          "updated_at": "2026-09-10 05:17:23",
           "deleted_at": null,
           "full_phone": "mock-phone-2",
           "can_delete": true
@@ -84,7 +84,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-23T07:26:24.336Z",
+  "captured_at": "2026-09-10T05:17:25.819Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

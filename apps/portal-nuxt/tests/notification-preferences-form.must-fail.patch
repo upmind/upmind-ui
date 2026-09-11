@@ -1,0 +1,18 @@
+# Negative control — the preference save writes every cell it is handed, so a
+# topic the brand made mandatory moves on a submitted model.
+#
+# Intended RED: "moves the client's own topics and leaves the brand's where
+# they were" (tests/notification-preferences-form.test.ts).
+
+diff --git a/apps/portal-nuxt/app/portal/mock/facades/useMockNotifications.ts b/apps/portal-nuxt/app/portal/mock/facades/useMockNotifications.ts
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockNotifications.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockNotifications.ts
+@@ -45,7 +45,7 @@ function applyPreference(data: MockDataset, key: string, value: unknown): void {
+     data.notificationPreferences,
+     { topic: cell.topicId }
+   );
+-  if (row === undefined || row.mandatory) return;
++  if (row === undefined) return;
+   if (!(cell.channel in row.channels)) return;
+   assign(row.channels, { [cell.channel]: value });
+ }

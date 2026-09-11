@@ -10,7 +10,7 @@
              so, and picking Live releases them in the same tick. -->
         <PageHeader
           :name="scenario.route"
-          :actions="collectionActions"
+          :actions="headerActions"
           :locked="isLocked"
         />
 
@@ -76,6 +76,8 @@
  */
 
 import { Card, Page } from "@upmind/ui";
+import { useI18n } from "vue-i18n";
+import { ScopeActorTypes } from "@upmind-automation/headless";
 import { createHarness } from "@upmind-automation/scenario-harness";
 import { ModuleRenderer } from "./components";
 import ForcedCanvas from "./components/ForcedCanvas.vue";
@@ -91,10 +93,22 @@ import { answerablePresets, captureGaps } from "./force/capabilities";
 import { armCorpusModule, runtimeCorpus } from "./force/corpus";
 import { featureTextFor, featureTracksFor } from "./force/corpus.source";
 import { presetRefusal } from "./force/presets";
-import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
-import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
-import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
-import { get, includes, isEmpty, mapValues } from "lodash-es";
+import {
+  scenarioRegistry,
+  scenarioRouteOf,
+  scenarioRoutes,
+  scenarioSources
+} from "./registry";
+import { ActionPlacementTypes, DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
+import {
+  get,
+  includes,
+  isArray,
+  isEmpty,
+  mapValues,
+  reduce,
+  toPairs
+} from "lodash-es";
 import type { ActionSlotItem } from "./components";
 import type {
   ForceReset,
@@ -106,7 +120,6 @@ import type {
   ResolvedDetail,
   ResolvedHandoff
 } from "./scenario.types";
-import type { ScopeActorTypes } from "@upmind-automation/headless";
 import type { ScopeActor } from "@upmind-automation/scenario-harness";
 import { useContextScopeSelector } from "~/components/scope";
 import { usePlaygroundSheet } from "~/components/sheets/usePlaygroundSheet";
@@ -124,7 +137,12 @@ definePageMeta({
   // `/for/:type/:id`) are what the port is built from, so they must remount and
   // rebuild it — while the criteria, which task 58 persists into the QUERY
   // string, must not. A `fullPath` key ties a teardown to every filter write.
-  key: route => route.path
+  //
+  // `token` is the one query param that DOES rebuild: it is the guest link
+  // identity the cell boots on (`.withId(token)`), so a change of token must
+  // remount to re-address — the criteria params, which the rest of the query
+  // carries, never do.
+  key: route => `${route.path}::token=${route.query.token ?? ""}`
   // NO `name`/`path` here: `augmentPages` assigns an extracted macro name onto
   // every route sharing this file, so one declared here would collapse all
   // sixty scenario routes onto a single name.
@@ -132,7 +150,7 @@ definePageMeta({
 
 const route = useRoute();
 
-const scenarioRoute = get(route.meta, SCENARIO_ROUTE_META_KEY) as string;
+const scenarioRoute = scenarioRouteOf(route);
 const scenario: RegisteredScenario | undefined = get(
   scenarioRoutes,
   scenarioRoute
@@ -149,6 +167,16 @@ const scenarioKey = scenario.key;
 const actorScope = useActorScope();
 const contextScope = useContextScope();
 
+// An emailed link token rides the query (`?token=`), read the way the client
+// area reads it (vue-app `to.query.token`). It is the client cell's own identity
+// when it carries no session — `.withId(token)` is the addressability the
+// opt-outs read boots on — so it is threaded as the single-record id ONLY for a
+// client url, leaving every other actor's id channel untouched. Absent, the
+// client cell falls back to the active session, or boots unaddressable and
+// settles to its empty list.
+const rawToken = route.query.token;
+const linkToken = (isArray(rawToken) ? rawToken[0] : rawToken) || undefined;
+
 // A handoff is the module's OWN editor, declared inline (`R6-27`): the
 // composable it boots is this declaration's `useMutate`, so a module publishing
 // none offers no editor control at all rather than one that opens nothing.
@@ -157,7 +185,9 @@ const handoffs = computed<Record<string, ResolvedHandoff>>(() =>
     ? mapValues(scenario.handoff ?? {}, handoff => ({
         ...handoff,
         useMutate: scenario.useMutate as FourLayerComposable,
-        actor: actorScope.value
+        actor: actorScope.value,
+        offeredActors: scenario.actors,
+        id: actorScope.value === ScopeActorTypes.CLIENT ? linkToken : undefined
       }))
     : {}
 );
@@ -180,7 +210,12 @@ const detail = computed<ResolvedDetail | undefined>(() =>
 // binding's own union guarantees at least one of.
 const port = useModulePort((scenario.useList ?? scenario.useMutate)!, {
   actor: actorScope.value,
-  context: contextScope.value
+  context: contextScope.value,
+  id: actorScope.value === ScopeActorTypes.CLIENT ? linkToken : undefined,
+  // The actors this declaration offers beyond SELF. Identity comes from the
+  // session store — `switchScope` activates the matching session as it pushes
+  // the url — so nothing else is needed to serve them.
+  offeredActors: scenario.actors
 });
 
 // --- Request state ⇄ url, when the scenario opts in
@@ -300,6 +335,46 @@ const forcedRefusal = computed(() =>
 // for the same reason (`R6-23`): the transport a write would answer through is
 // not yet the one the rows on screen came from.
 const isLocked = computed(() => isReplaying.value || isSettling.value);
+
+// --- Labs page actions: HEADER actions the declaration backs with its own
+// composables rather than the cell's port (`pageActions`). Each factory is
+// booted once here; the offered ones render in the header beside the
+// collection's own controls, presented from the matching declared action.
+const { t } = useI18n();
+
+const pageActions = mapValues(scenario.pageActions ?? {}, ({ use }) => use());
+
+const pageActionItems = computed<ActionSlotItem[]>(() =>
+  reduce(
+    toPairs(pageActions),
+    (items: ActionSlotItem[], [name, instance]) => {
+      const declared = scenario.pageActions?.[name];
+      if (!declared || !instance.isOffered.value) return items;
+
+      items.push({
+        name,
+        label: t(declared.i18n),
+        icon: declared.icon,
+        variant: declared.variant,
+        placement: ActionPlacementTypes.HEADER,
+        disabled:
+          isLocked.value ||
+          instance.isRunning.value ||
+          !!instance.isDisabled?.value,
+        disabledReason: instance.disabledReason?.value,
+        loading: instance.isRunning.value,
+        onSelect: () => void instance.run()
+      });
+      return items;
+    },
+    []
+  )
+);
+
+const headerActions = computed<ActionSlotItem[]>(() => [
+  ...pageActionItems.value,
+  ...collectionActions.value
+]);
 
 // --- The page's three sheet providers, all page-scoped
 const { register, registerPane } = usePlaygroundSheet();

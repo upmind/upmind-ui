@@ -18,10 +18,11 @@ import {
   registry,
   scenarioKeys
 } from "../../modules/scenarios/runtime/registry";
-import { FALLBACK_ICON, navIcon } from "./useNavigation.icons";
+import { navIcon } from "./useNavigation.icons";
 import {
   compact,
   filter,
+  find,
   first,
   get,
   groupBy,
@@ -39,34 +40,11 @@ import type {
   LabFamily,
   NavItem,
   NavMeta,
-  NavSection,
   NavSource
 } from "./useNavigation.types";
 import type { Component } from "vue";
 
 // -----------------------------------------------------------------------------
-
-// Section config - defines section order and icons
-const SECTION_CONFIG: Record<string, { icon: Component; order: number }> = {
-  Composables: { icon: navIcon("code-browser"), order: 1 },
-  Labs: { icon: navIcon("beaker-01"), order: 2 },
-  "Client Management": { icon: navIcon("users-01"), order: 3 },
-  Products: { icon: navIcon("shopping-bag-02"), order: 4 },
-  Invoices: { icon: navIcon("receipt"), order: 5 },
-  Session: { icon: navIcon("lock-01"), order: 6 },
-  Portal: { icon: navIcon("user-01"), order: 7 },
-  Admin: { icon: navIcon("shield-01"), order: 8 }
-};
-
-/** A family with no icon of its own still lists — it falls back. */
-const FAMILY_CONFIG: Record<string, Component> = {
-  auth: navIcon("lock-01"),
-  basket: navIcon("shopping-cart-01"),
-  client: navIcon("users-01"),
-  invoices: navIcon("receipt"),
-  orders: navIcon("shopping-bag-02"),
-  products: navIcon("package")
-};
 
 /** Which declared binding fields a developer is shown, and as what. */
 const BINDING_TAGS: Record<string, string> = {
@@ -74,8 +52,6 @@ const BINDING_TAGS: Record<string, string> = {
   persistCriteria: "URL state",
   useMutate: "Editable"
 };
-
-const COMPOSABLES_SECTION = "Composables";
 
 // --- Helper Functions
 function familyOf(identifier: string): string {
@@ -157,45 +133,45 @@ type NavSourceInput = {
   to?: string;
 };
 
-function buildNavigationTree(
-  sources: NavSourceInput[]
-): Map<string, NavItem[]> {
-  const sectionMap = new Map<string, NavItem[]>();
-  const childMap = new Map<string, NavItem[]>(); // parent route name -> children
+/**
+ * Every declaration as one top-level entry. There are no sections: the entries
+ * ARE the composables, so a "Composables" group grouped them by the only thing
+ * they all share. Declared order first, then alphabetical — an entry that does
+ * not claim a position sorts by its own label, never by registration accident.
+ */
+function buildNavigation(sources: NavSourceInput[]): NavItem[] {
+  const top: NavItem[] = [];
+  const childMap = new Map<string, NavItem[]>();
 
-  for (const { nav, route, to } of sortBy(
-    sources,
-    source => source.nav.order ?? 99
-  )) {
-    const bucket = nav.parent ? childMap : sectionMap;
-    const bucketKey = nav.parent ?? nav.section ?? "Other";
-    const items = bucket.get(bucketKey) ?? [];
-
-    // Convert string icon names to Components; pass through existing Components
-    const icon = typeof nav.icon === "string" ? navIcon(nav.icon) : nav.icon;
-
-    items.push({
+  for (const { nav, route, to } of sortBy(sources, [
+    source => source.nav.order ?? 99,
+    source => toLower(source.nav.label ?? "")
+  ])) {
+    const item: NavItem = {
       label: nav.label,
-      icon,
+      // A route declares its icon as a NAME; the registry resolves its own.
+      icon: typeof nav.icon === "string" ? navIcon(nav.icon) : nav.icon,
       route,
       to,
       dynamic: false
-    });
-    bucket.set(bucketKey, items);
-  }
+    };
 
-  // Attach children to parent items and sum counts
-  for (const [parentName, children] of childMap) {
-    for (const [, items] of sectionMap) {
-      for (const item of items) {
-        if (item.route === parentName) {
-          item.children = children;
-        }
-      }
+    if (!nav.parent) {
+      top.push(item);
+      continue;
     }
+
+    const siblings = childMap.get(nav.parent) ?? [];
+    siblings.push(item);
+    childMap.set(nav.parent, siblings);
   }
 
-  return sectionMap;
+  for (const [parent, children] of childMap) {
+    const owner = find(top, item => item.route === parent);
+    if (owner) owner.children = children;
+  }
+
+  return top;
 }
 
 // --- Composable
@@ -212,64 +188,22 @@ export function useNavigation() {
 
   const scenarios = computed((): LabEntry[] => scenarioEntries(brandId.value));
 
-  const navigation = computed((): NavItem[] => {
-    const sectionMap = buildNavigationTree([
+  const navigation = computed((): NavItem[] =>
+    buildNavigation([
       ...routes.value,
       ...map(scenarios.value, entry => ({
-        nav: {
-          label: entry.label,
-          icon: entry.icon,
-          section: COMPOSABLES_SECTION
-        },
+        nav: { label: entry.label, icon: entry.icon },
         to: entry.to
       }))
-    ]);
-
-    // Build final navigation array
-    const result: NavItem[] = [];
-    const sections: NavSection[] = [];
-
-    for (const [sectionName, items] of sectionMap) {
-      const config = SECTION_CONFIG[sectionName] || {
-        icon: navIcon("folder"),
-        order: 99
-      };
-
-      // Labs items go directly to top level (not grouped)
-      if (sectionName === "Labs") {
-        result.push(...items);
-      } else {
-        sections.push({
-          label: sectionName,
-          icon: config.icon,
-          order: config.order,
-          children: items
-        });
-      }
-    }
-
-    // Add top-level Labs items first (already in result), then sections
-    for (const section of sortBy(sections, "order")) {
-      result.push({
-        label: section.label,
-        icon: section.icon,
-        children: section.children
-      });
-    }
-
-    return result;
-  });
+    ])
+  );
 
   /** Every composable the playground can open, both sources merged. */
   const composables = computed((): LabEntry[] =>
     sortBy(
       [
         ...map(
-          filter(
-            routes.value,
-            source =>
-              source.nav.section === COMPOSABLES_SECTION && !source.nav.parent
-          ),
+          filter(routes.value, source => !source.nav.parent),
           source => ({
             key: source.route as string,
             label: source.nav.label,
@@ -290,7 +224,6 @@ export function useNavigation() {
       map(groupBy(composables.value, "family"), (entries, name) => ({
         name,
         label: startCase(name),
-        icon: get(FAMILY_CONFIG, name, FALLBACK_ICON),
         entries
       })),
       "label"

@@ -1,0 +1,20 @@
+# Negative control — the brand-appearance panel stops reading the platform key
+# and hangs on the seeded facts alone, so `UI_PARENT_BRANDING_ENABLED` grades as
+# bound while a brand that forbids parent branding still shows the panel.
+#
+# Intended RED: "shows the panel only where the brand lends an appearance and
+# there is one" (tests/fourth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4687,9 +4687,8 @@
+  * least one relation is wearing it. Legacy drew the panel off the same three.
+  */
+ export function hasParentBranding(data: MockDataset): boolean {
+-  const isAllowed = data.features.UI_PARENT_BRANDING_ENABLED;
+   const isLent = some(data.childAccounts, child => child.use_parent_branding);
+-  return isAllowed && data.parentBranding !== null && isLent;
++  return data.parentBranding !== null && isLent;
+ }
+ 
+ /** What the children that inherit it actually see. */

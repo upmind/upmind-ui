@@ -1,0 +1,21 @@
+# Negative control — every Pay control falls back to the account's default
+# card whatever the document itself named, so a client who chose one card is
+# charged another and the message promises what the write will not do.
+#
+# Intended RED: "names the card the document itself chose, and offers to
+# change it", "resolves the card the document names, else the one the account
+# charges first", "charges that card on every Pay control the document offers",
+# "saves the chosen card through the form's own verb, and every control
+# follows it" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
+@@ -413,8 +413,6 @@
+   data: MockDataset,
+   invoice: MockInvoice
+ ): MockPaymentMethod | undefined {
+-  const chosen = find(data.paymentMethods, { id: invoice.paymentDetailId });
+-  if (chosen !== undefined) return chosen;
+   return find(data.paymentMethods, { isDefault: true });
+ }
+ 

@@ -101,11 +101,15 @@ Feature: A client manages the companies on their own account
     And asking for one I do not have tells me so rather than failing
     And none of this goes back to the server
 
-  @AC-7 @collection
-  Scenario: Search my companies
+  @AC-7 @AC-34 @collection @criteria
+  Scenario: I narrow my companies by name, and clear it back
     When I search my companies for a word
     Then only companies matching that word are returned
     And when I clear the search, all my companies come back
+    When I search my companies for "Heg"
+    Then only my companies whose name contains "Heg" remain
+    When I clear my company search
+    Then every one of my companies is back
 
   @AC-8 @collection
   Scenario: See my companies in a stable order
@@ -146,32 +150,30 @@ Feature: A client manages the companies on their own account
     And invalidating them makes the next read fetch them again
     And refreshing without a signed-in client is refused, and reads nothing
 
-  @AC-13 @collection @lifecycle
-  Scenario: Discarding a companies collection releases it
+  @AC-13 @AC-24 @collection @manager @lifecycle
+  Scenario: I leave the list or the form, and it lets go of what it held
     Given I have opened my companies
     When I destroy that collection
     Then it is released, and nothing is left holding it open
     And opening my companies again gives me a fresh collection, not the one I released
+    Given I have opened a company for editing
+    When I destroy that form
+    Then it is released, and nothing is left holding it open
+    And opening that company again gives me a fresh form, not the one I released
 
   # === THE FORM EDITOR =======================================================
   # Its own scenarios, not the collection's footnote: a separately exported
   # capability with its own consumers and its own lifecycle (design.md D1).
 
-  @AC-14 @manager
-  Scenario: Open one of my companies to edit
+  @AC-14 @AC-15 @AC-16 @manager
+  Scenario: I open a company to edit, or start a new one, with what I already have on file
     Given a company on my account
     When I open it for editing
     Then I am shown that company's current details
     And I am given the form and the layout needed to edit it
-
-  @AC-15 @manager
-  Scenario: Start a new company
     When I start adding a company
     Then I am given an empty form to complete, marked as new
     And if I start a second one at the same time, the two do not interfere with each other
-
-  @AC-16 @manager
-  Scenario: The form knows what I already have on file
     When I open the company form
     Then it offers me the addresses, emails and phone numbers already on my account
     And it offers me the countries I can pick from
@@ -227,19 +229,18 @@ Feature: A client manages the companies on their own account
     And I can wait for it to be ready before using it
     And that wait always finishes — including when I turn out not to be signed in, where it finishes by telling me it is not ready rather than waiting forever
 
-  @AC-23 @manager
-  Scenario: Be told when a save fails
+  @AC-23 @AC-29 @manager @module @negative-control
+  Scenario: I am told when a save fails, where I am working
     Given I am editing a company
     When the save is rejected
     Then I can read what went wrong
     And what I am told is about my company, not about some other part of my account
-
-  @AC-24 @manager @lifecycle
-  Scenario: Discarding a company form releases it
-    Given I have opened a company for editing
-    When I destroy that form
-    Then it is released, and nothing is left holding it open
-    And opening that company again gives me a fresh form, not the one I released
+    Given something goes wrong while I read or change my companies
+    When I inspect either surface
+    Then I can read what went wrong
+    And the module itself raises no message, toast or notification on my behalf
+    And the surface I am using is the thing that tells me
+    And putting that announcement back into the module turns this scenario red
 
   # === WHOLE-MODULE GUARANTEES ==============================================
 
@@ -276,30 +277,14 @@ Feature: A client manages the companies on their own account
     And every dependent module still compiles with no new error
     And removing the company form from what a larger form can compose turns this scenario red
 
-  @AC-29 @module @negative-control
-  Scenario: Problems are reported to me, never announced by the module
-    Given something goes wrong while I read or change my companies
-    When I inspect either surface
-    Then I can read what went wrong
-    And the module itself raises no message, toast or notification on my behalf
-    And the surface I am using is the thing that tells me
-    And putting that announcement back into the module turns this scenario red
-
   # === THE CRITERIA CHANNEL (M2 -> M3 upgrade) ===============================
   # One request-state channel — a filter, a sort or a page cannot be spelled
   # two ways. requirements.md AC-31..AC-40.
 
   @AC-31 @AC-32 @collection @criteria
-  Scenario: My companies open on the window and order my account declares, unprompted
+  Scenario: My companies open already paged and ordered the way my account declares
     When I open my companies for the first time this session
     Then they arrive unpaged, and ordered oldest first, exactly as my account declares
-
-  @AC-34 @collection @criteria
-  Scenario: I narrow my companies by name, and clear it back
-    When I search my companies for "Heg"
-    Then only my companies whose name contains "Heg" remain
-    When I clear my company search
-    Then every one of my companies is back
 
   @AC-34 @collection @criteria
   Scenario: I choose the order my companies come in
@@ -307,7 +292,7 @@ Feature: A client manages the companies on their own account
     Then my companies are now ordered by name, descending
 
   @AC-33 @AC-35 @collection @criteria
-  Scenario: I can read what my list is currently asking for, and what it is allowed to ask for
+  Scenario: I can see how my companies are being narrowed, and how else I could narrow them
     Then I can read the request my companies collection is currently making
     And I can read what a search or a sort on my companies is allowed to name
 

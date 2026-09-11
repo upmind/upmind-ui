@@ -21,6 +21,7 @@
  * routes), and a dev restart when a scenario directory appears or leaves.
  */
 
+import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
 import {
   createResolver,
@@ -29,6 +30,7 @@ import {
   resolveFiles
 } from "nuxt/kit";
 import {
+  MODULE_PAGE_GLOB,
   SCENARIO_DECLARATION_GLOB,
   SCENARIO_ROUTE_META_KEY,
   SCOPE_SUFFIX_SEGMENT
@@ -38,7 +40,9 @@ import {
   endsWith,
   filter,
   forEach,
+  get,
   join,
+  keyBy,
   keys,
   map,
   pickBy
@@ -55,6 +59,19 @@ function duplicatesOf(values: string[]): string[] {
   return keys(pickBy(countBy(values), count => count > 1));
 }
 
+/**
+ * The route params a scenario declares, read from its source. The registrar runs
+ * in the Node/jiti config context where the declaration cannot be imported (its
+ * own imports may not resolve there), so this scans for the `params` array —
+ * `params: ["oid"]` — which is a plain literal in every declaration. Absent, a
+ * module has no id segment and its url is unchanged.
+ */
+function declaredParams(file: string): string[] {
+  const match = readFileSync(file, "utf-8").match(/params\s*:\s*\[([^\]]*)\]/);
+  if (!match) return [];
+  return map([...match[1].matchAll(/["']([^"']+)["']/g)], hit => hit[1]);
+}
+
 export default defineNuxtModule({
   meta: { name: MODULE_NAME, configKey: MODULE_NAME },
 
@@ -67,17 +84,40 @@ export default defineNuxtModule({
       SCENARIO_DECLARATION_GLOB
     );
 
+    // A module that draws itself, addressed by the directory it sits in. One
+    // page per directory, so a second is a declaration the build cannot honour.
+    const ownPages = keyBy(
+      await resolveFiles(resolve("."), MODULE_PAGE_GLOB),
+      file => basename(dirname(file))
+    );
+
     const scenarios: DiscoveredScenario[] = map(declarations, file => ({
       route: basename(dirname(file)),
-      file
+      file,
+      // A module may declare route PARAMS (`params: ["oid"]`) so its url carries
+      // an id segment — `/useInvoice/:oid` — the same way `/order/:oid` does. We
+      // read them from the declaration SOURCE, not by importing it: this runs in
+      // the Node/jiti config context where the declaration's own imports may not
+      // be reached (module.types docblock). The declaration files are plain
+      // literals, so a scan for the `params` array is exact.
+      params: declaredParams(file)
     }));
 
     extendPages(pages => {
       forEach(scenarios, scenario =>
         pages.push({
           name: scenario.route,
-          path: `/${scenario.route}${SCOPE_SUFFIX_SEGMENT}`,
-          file: playground,
+          // Declared params come first as `/:param` segments, then the scope
+          // catch-all — so `/useInvoice/:oid`, and `/useInvoice/:oid/as/:actor`
+          // both resolve, and a module with no params is unchanged.
+          path: `/${scenario.route}${join(
+            map(scenario.params, p => `/:${p}`),
+            ""
+          )}${SCOPE_SUFFIX_SEGMENT}`,
+          // The module's own page wins; absent one, the shared playground draws
+          // the declaration. Registration, url and nav entry are identical
+          // either way — only the component differs.
+          file: get(ownPages, scenario.route, playground),
           meta: { [SCENARIO_ROUTE_META_KEY]: scenario.route }
         } satisfies NuxtPage)
       );
@@ -106,7 +146,8 @@ export default defineNuxtModule({
     nuxt.options.watch.push(resolve("."));
     nuxt.hook("builder:watch", (event, path) => {
       if (event === "add" || event === "unlink")
-        if (endsWith(path, ".scenario.ts")) nuxt.callHook("restart");
+        if (endsWith(path, ".scenario.ts") || endsWith(path, ".page.vue"))
+          nuxt.callHook("restart");
     });
   }
 });

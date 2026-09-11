@@ -42,7 +42,12 @@
     v-model:open="open"
     :dismissible="true"
     :title="t(action)"
-    :ui="{ footer: 'flex-row items-center justify-between gap-x-4' }"
+    :ui="{
+      header: 'mx-auto w-full max-w-app-content md:px-6',
+      body: 'mx-auto w-full max-w-app-content md:px-6',
+      footer:
+        'mx-auto w-full max-w-app-content flex-row items-center justify-between gap-x-4 md:px-6'
+    }"
   >
     <Markdown
       :model-value="data?.content"

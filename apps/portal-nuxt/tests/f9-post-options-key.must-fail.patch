@@ -1,0 +1,17 @@
+# Negative control — the composer's send key stops reading the client's
+# new-line answer and always sends on Enter, so the two halves of legacy's
+# post-options form can contradict each other.
+#
+# Intended RED: "sends on the OTHER key, on each seed, while the shortcut is
+# on" (tests/fifth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockPersonalDetails.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockPersonalDetails.ts
+@@ -120,7 +120,6 @@
+  */
+ export function composerSubmitKey(data: MockDataset): NewLineKey | undefined {
+   if (!submitsWithShortcut(data)) return undefined;
+-  if (newLineKey(data) === NEW_LINE_KEY.ENTER) return NEW_LINE_KEY.SHIFT_ENTER;
+   return NEW_LINE_KEY.ENTER;
+ }
+ 

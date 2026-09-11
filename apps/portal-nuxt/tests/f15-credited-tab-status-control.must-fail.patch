@@ -1,0 +1,40 @@
+# Negative control — the Credited tab is special-cased out of the status
+# control again, so a tab gathering TWO statuses (cancelled and refunded)
+# offers no way to ask which, while the Unpaid tab — also two — does. One rule
+# governs every tab: a control the showing rows offer no choice in is dropped,
+# and a control they do is kept.
+#
+#
+# Intended RED (verified by apply/run/revert): "the Credited invoice tab asks
+# when it was credited, and which of its two statuses"
+# (tests/collection-filters.test.ts); "the Credited invoice tab asks which of
+# the two statuses it gathers" (tests/eleventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -1102,15 +1102,16 @@
+     // drops a control the showing rows offer no choice in. A tab holding one
+     // status renders none; the Unpaid and Credited tabs each gather two, so
+     // both ask which.
+-    selectFilter(
+-      "status",
+-      "Status",
+-      "Any status",
+-      optionsPresent(
+-        map(showing, "status"),
+-        status => INVOICE_STATUS_LABEL[status]
+-      )
+-    ),
++    !isCredited &&
++      selectFilter(
++        "status",
++        "Status",
++        "Any status",
++        optionsPresent(
++          map(showing, "status"),
++          status => INVOICE_STATUS_LABEL[status]
++        )
++      ),
+     dateRangeFilter("dateCreated", "Issued"),
+     dateRangeFilter("dateDue", "Due"),
+     isCredited && dateRangeFilter("dateCancelled", "Credited"),

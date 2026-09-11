@@ -19,7 +19,7 @@
                   color="muted"
                   :aria-label="t('invoice.product_information')"
                 >
-                  <Icon icon="info-circle" :class="tableHeaderIconVariants()" />
+                  <Icon icon="info-circle" size="xs" />
                 </Link>
               </span>
             </th>
@@ -111,7 +111,6 @@ import {
   tableFooterCellVariants,
   tableFooterRowVariants,
   tableHeaderCellVariants,
-  tableHeaderIconVariants,
   tableHeaderLabelVariants,
   tableHeaderRootVariants,
   tableRootVariants,

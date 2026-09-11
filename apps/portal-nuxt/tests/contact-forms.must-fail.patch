@@ -1,0 +1,20 @@
+# Negative control — a created email is subscribed to NOTHING, so the address
+# the client just added silently receives nothing and the row never carries the
+# "Receiving notifications" tag legacy gives it. The opt-ins are the only
+# stored answer (`receive_emails` is derived from them), so emptying them is
+# what takes the tag away.
+#
+# Intended RED: "a new address joins the account unverified, not default,
+# receiving mail" (tests/contact-forms.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockContacts.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockContacts.ts
+@@ -450,7 +450,7 @@
+           type: MOCK_EMAIL_TYPE.ACCOUNT,
+           // Subscribed to everything the brand publishes: legacy's own new
+           // address receives, and the opt-in screen is where that is narrowed.
+-          topicOptIns: map(data.emailTopics, "id"),
++          topicOptIns: [],
+           meta: {
+             isDefault: false,
+             canDelete: true,

@@ -24,6 +24,7 @@ A scoped collection composable must **declare** what can be filtered, sorted and
 
 Filter parameters are hand-written literal text at each call site. The live example is the product catalogue's permanent exclusion of domain names:
 
+<!-- corpus-example: skip — verbatim quote of product-catalogue.services.ts:34-35: two object-literal properties cut mid-argument-list inside the useUrl() call the prose cites by line range; adding the enclosing call stops being the cited lines -->
 ```ts
 // packages/headless/src/modules/product-catalogue/product-catalogue.services.ts:34-35
 "filter[provision_blueprint.category.code|neq]":
@@ -34,6 +35,7 @@ That literal sits inside the `useUrl(...)` call the service already builds (`:32
 
 The list renderer derives its columns by key-sniffing the first row and marks every sniffed key filterable:
 
+<!-- corpus-example: skip — verbatim quote of ListSurface.vue:211-217: the excerpt ends inside an unterminated object literal and an unterminated map() call because :217 is where the cited range ends; closing them fabricates lines outside the citation -->
 ```ts
 // playgrounds/labs-nuxt/app/components/factory/surfaces/ListSurface.vue:211-217
 function deriveColumns(data: ListRow[]): ColumnDef<ListRow>[] {
@@ -47,6 +49,7 @@ function deriveColumns(data: ListRow[]): ColumnDef<ListRow>[] {
 
 And the client-email collection's free-text filter writes a key the API does not honour, into a mutated `ref`:
 
+<!-- corpus-example: skip — verbatim quote of useClientEmails.actions.ts:127-132: the excerpt ends mid-function-body (the closing brace is :133), and the prose's point is exactly which six lines write the unhonoured key -->
 ```ts
 // packages/headless/src/modules/client-email/useClientEmails.actions.ts:127-132
 const filters = ref<RequestFilters & { query?: string }>({});
@@ -140,6 +143,7 @@ The service already builds the URL and already owns its filter and sort paramete
 
 The translator emits **one key per declared filter, always** — active as a non-empty string, inactive as `""`. Every branch of the existing serialiser then does the right thing untouched:
 
+<!-- corpus-example: skip — verbatim quote of useQuery.ts:134-148, carrying the source's own literal `...` elision: the if/else is cut at :148 because the prose argues about the :147-148 branch by line number -->
 ```ts
 // packages/headless/src/modules/query/useQuery.ts:134-148 (existing)
 if (!isEmpty(filters) && isObject(filters)) {
@@ -225,6 +229,14 @@ Filters and sort are **not** two independent schemas. There is **one schema whos
 
 ```ts
 // packages/headless/src/modules/query/query.types.ts:113-129
+// `RequestSortDirection`, `RequestFilters` and `RequestPagination` are declared
+// further down the same file; imported here so the type stands alone.
+import type {
+  RequestFilters,
+  RequestPagination,
+  RequestSortDirection
+} from '@upmind-automation/headless'
+
 export type QueryProps = {
   sort?:
     | [direction: RequestSortDirection, property: string]

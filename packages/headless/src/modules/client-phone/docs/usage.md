@@ -11,18 +11,37 @@ Both act on the calling client's own numbers. Every capability below carries a �
 
 ```ts
 import {
+  ClientPhoneContextTypes,
+  ScopeActorTypes,
   useClientPhones,
-  useClientPhoneManager
+  useClientPhoneManager,
+  type ScopeBuilderActorWithContexts,
+  type UseClientPhoneManager
 } from "@upmind-automation/headless";
 
+const phoneId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// `.as(SELF)` erases `.for()` / `.fresh()` from the builder's TYPE — SELF is
+// `never` in the scope matrix. This cast is the bridge every live consumer
+// uses; see [gotchas.md](./gotchas.md#11-asselffor-does-not-typecheck-without-a-cast).
+type ScopedPhoneManager = ScopeBuilderActorWithContexts<
+  ReturnType<UseClientPhoneManager["fresh"]>,
+  ClientPhoneContextTypes
+>;
+
 // The collection — the calling client's own phone numbers
-const phones = useClientPhones().as("self");
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
+
+// The editor, scoped to the calling client
+const scoped = useClientPhoneManager().as(
+  ScopeActorTypes.SELF
+) as ScopedPhoneManager;
 
 // The editor, opened on one existing phone number
-const manager = useClientPhoneManager().as("self").for("phone", phoneId);
+const manager = scoped.for(ClientPhoneContextTypes.PHONE, phoneId);
 
 // The editor, started on a brand-new phone number
-const draft = useClientPhoneManager().as("self").fresh();
+const draft = scoped.fresh();
 ```
 
 Both composables return the same four sub-composables:
@@ -34,7 +53,7 @@ Both composables return the same four sub-composables:
 | Meta      | `.useMeta()`      | four state flags               | eight state flags                |
 | Internals | `.useInternals()` | the raw list query             | the raw machine state and sender |
 
-> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` are compile-time errors, not runtime failures — there is no scope in this module today for a staff member to read or edit another party's phone numbers.
+> **🧪 For Testers:** Both composables support the client's own (`self`) scope only. `staff` and `guest` resolve no context in either scope matrix, so targeting another party is a compile-time error, not a runtime failure — there is no scope in this module today for a staff member to read or edit another party's phone numbers.
 
 ---
 
@@ -42,7 +61,7 @@ Both composables return the same four sub-composables:
 
 ### Collection actions — `useActions()`
 
-Ten members. Per-number **form** editing (`add` / `update` / field validation) is deliberately not here — that lives on the editor, which owns the dirty/valid state those need.
+The ten members a consumer reaches for, below; `sortBy`, `setCriteria` and `reset` round out the surface. Per-number **form** editing (`add` / `update` / field validation) is deliberately not here — that lives on the editor, which owns the dirty/valid state those need.
 
 #### `ensure(model)`
 
@@ -104,9 +123,13 @@ Advertised list-paging members.
 
 > **🧪 For Testers: these two ALWAYS THROW `text.page_next_not_available` through this surface.** The collection opens its read with no page size, so it already holds the entire list in one response — there is never a second page for these to move to. This is not a bug specific to this module; see [gotchas.md](./gotchas.md#2-nextpage--prevpage-always-throw--the-collection-already-holds-everything) for why paging genuinely works one layer down instead, and where.
 
-#### `filters.query(value)`
+#### `filterBy(intent)`
 
-Applies a free-text filter and re-issues the list request.
+Applies a free-text filter INTENT — merges the `filters` branch into the one query model and re-issues the list request. `sort` and `pagination` are untouched.
+
+| Param          | Type                | Required |
+| -------------- | ------------------- | -------- |
+| `intent.phone` | `{ like?: string }` | No       |
 
 **Returns:** `void`.
 
@@ -129,7 +152,7 @@ Removes this scoped instance from the registry.
 | `getOne(id)` | `(id, data?) => Phone \| undefined`                        | Finds a single number by id                              |
 | `pagination` | `ComputedRef<PaginationInfo>`                              | `{ limit, total, page, pages, from, to }`                |
 
-> **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it. `findOne()` matches a **nested partial mapping** — `findOne({ phone: { number } })` matches on the parsed number alone, without needing the rest of the `phone` object. See [gotchas.md](./gotchas.md#6-findone-matches-nested-partials-the-shared-usecollection-helper-does-not) for why that matters if you are porting matching logic from another module.
+> **🧪 For Testers:** `data` is always an array — before the first read completes, and when the read errors. Read `useMeta().isLoading` / `hasError` rather than inferring state from an empty list. `error` is **state you read**, never an event: a failed mutation lands here and stays until the next one supersedes it. `findOne()` matches a **nested partial mapping** at runtime — `findOne({ phone: { number } })` matches on the parsed number alone, without needing the rest of the `phone` object; the published `Partial<Phone>` parameter type is partial in its top-level keys only, so such a mapping has to be widened past the signature to compile. See [gotchas.md](./gotchas.md#6-findone-matches-nested-partials-the-shared-usecollection-helper-does-not) for why that matters if you are porting matching logic from another module.
 
 ### Collection meta — `useMeta()`
 
@@ -162,7 +185,24 @@ For debugging and tests. Not for production consumers.
 A form editor over one phone number. Open an existing number with `.for("phone", id)`; start a new one with `.fresh()`. Each call to `.fresh()` mints its own isolated instance, so two concurrent drafts never share a model.
 
 ```ts
-const manager = useClientPhoneManager().as("self").for("phone", phoneId);
+import {
+  ClientPhoneContextTypes,
+  ScopeActorTypes,
+  useClientPhoneManager,
+  type ScopeBuilderActorWithContexts,
+  type UseClientPhoneManager
+} from "@upmind-automation/headless";
+
+type ScopedPhoneManager = ScopeBuilderActorWithContexts<
+  ReturnType<UseClientPhoneManager["fresh"]>,
+  ClientPhoneContextTypes
+>;
+
+const phoneId = "825d96e7-63ed-0913-46c4-174825283406";
+
+const manager = (
+  useClientPhoneManager().as(ScopeActorTypes.SELF) as ScopedPhoneManager
+).for(ClientPhoneContextTypes.PHONE, phoneId);
 
 await manager.useActions().isReady();
 await manager.useActions().update({
@@ -386,6 +426,16 @@ Notes for the paste:
 This module is not uniform on feedback, and that is deliberate — see [gotchas.md](./gotchas.md#8-remove-and-setdefault-raise-feedback--nothing-else-does) for why:
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientPhones,
+  useClientPhoneManager
+} from "@upmind-automation/headless";
+
+const phones = useClientPhones().as(ScopeActorTypes.SELF);
+// No `.for()` / `.fresh()` is needed to read the four layers, so no cast here.
+const manager = useClientPhoneManager().as(ScopeActorTypes.SELF);
+
 // Collection — remove() / setDefault() raise a message AND capture state
 const { error } = phones.useContext();
 const { hasError } = phones.useMeta();

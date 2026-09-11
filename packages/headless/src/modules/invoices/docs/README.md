@@ -20,7 +20,9 @@ An invoice is a frozen bill. This module reads a client's invoices — the whole
 
 ## Quick Start
 
-```typescript
+```ts
+import { useInvoices } from "@upmind-automation/headless";
+
 // Your own invoices
 const invoices = useInvoices().as("self");
 await invoices.useActions().isReady();

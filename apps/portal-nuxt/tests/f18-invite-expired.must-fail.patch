@@ -1,0 +1,21 @@
+# Negative control — an EXPIRED invite link is accepted as though it were
+# live, so a link already spent grants access and names the object it no
+# longer reaches (`acceptInviteModal.vue:8-70` read the two apart).
+#
+#
+# Intended RED (verified by apply/run/revert, both
+# tests/fourteenth-closure.test.ts): "an expired invite link reads as expired,
+# and grants nothing" and "a hash nothing issued reads invalid too, and names
+# nothing either".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4842,7 +4842,7 @@
+     };
+   }
+   const invite = find(data.delegateInvites, { hash });
+-  if (invite === undefined || invite.isExpired === true) {
++  if (invite === undefined) {
+     return {
+       title: "That link no longer works",
+       message:

@@ -101,7 +101,7 @@ describe("homepage Card grammar and Badge slot migration", () => {
           path: "/use-basket",
           name: "useBasket",
           component: { template: "<div />" },
-          meta: { nav: { label: "useBasket", section: "Composables" } }
+          meta: { nav: { label: "useBasket" } }
         }
       ]
     });

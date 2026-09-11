@@ -1,0 +1,20 @@
+# Negative control — the delegates panel ignores the invitation narrowing it
+# was asked for, so filtering to the ones taken up hands back the outstanding
+# invitations beside them.
+#
+# Intended RED: "narrows to the invitations taken up, and to whole-account
+# access" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -494,10 +494,6 @@
+       data.delegates,
+       delegate =>
+         matchesExact(delegateAccessType(delegate), criteria.accessType) &&
+-        matchesFlag(
+-          delegate.status === MOCK_DELEGATE_STATUS.ACCEPTED,
+-          criteria.active
+-        ) &&
+         matchesFlag(delegate.isFullDelegate === true, criteria.isFullDelegate)
+     ),
+   apply => ({

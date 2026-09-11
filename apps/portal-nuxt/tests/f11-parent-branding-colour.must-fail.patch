@@ -1,0 +1,17 @@
+# Negative control — the appearance form stops insisting its colour is a
+# six-digit hex, so anything typed into the field is accepted and the swatch
+# beside it has nothing it can read.
+#
+# Intended RED: "refuses a colour that is not a six-digit hex, and a face off
+# the list" (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/contracts/client-account.branding.schemas.ts
++++ b/apps/portal-nuxt/app/portal/mock/contracts/client-account.branding.schemas.ts
+@@ -63,7 +63,6 @@
+     colour: {
+       type: "string",
+       title: "Brand colour",
+-      pattern: HEX_COLOUR_PATTERN,
+       description: "A six-digit hex colour, such as #1F5EFF."
+     },
+     font: {

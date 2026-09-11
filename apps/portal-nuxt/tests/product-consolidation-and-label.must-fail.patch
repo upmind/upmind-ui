@@ -1,0 +1,26 @@
+# Negative control — the consolidation panel's gate reads the brand's switch
+# ALONE, so the desk-only arm stops mattering: a brand that consolidates but
+# reserves the setting for staff hands the client a control they may not use
+# (BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF).
+#
+# Intended RED: "stands only while the brand consolidates AND leaves the choice
+# to clients" (tests/product-consolidation-and-label.test.ts).
+#
+# AUTHORED UNAPPLIED. Its subject is mock/selectors.ts, which another phase was
+# editing while this was written, so the red was never taken here: the prover
+# applies it blind, confirms the intended assertion goes red, and reverts.
+
+diff --git a/apps/portal-nuxt/app/portal/mock/selectors.ts b/apps/portal-nuxt/app/portal/mock/selectors.ts
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -2128,9 +2128,8 @@ export function productHasConsolidationForm(
+   context: DataRouteContext
+ ): boolean {
+   const brandConsolidates = data.features.INVOICE_CONSOLIDATION_ENABLED;
+-  const clientMaySet = !data.features.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF;
+   const hasProduct = contextProduct(data, context) !== undefined;
+-  return hasProduct && brandConsolidates && clientMaySet;
++  return hasProduct && brandConsolidates;
+ }
+ 
+ /** What the row already in use wears instead of a control. */

@@ -1,0 +1,22 @@
+# Negative control — the renewal control is called the same thing whether the
+# date has passed or not, so a client raising an invoice for a renewal that
+# was DUE last month is told they are issuing the next one: legacy named the
+# two apart off `nextInvoiceDateInFuture` (`cProdProvider.vue:571-573`).
+#
+# Intended RED (to be added by the prover): "names the late renewal invoice
+# apart from the next one".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -2154,10 +2154,7 @@
+  * invoice, and says so.
+  */
+ function renewalInvoiceLabel(product: MockProduct): string {
+-  const isDueLater =
+-    product.nextDueDate !== undefined && product.nextDueDate >= today();
+-  if (isDueLater) return "Issue next invoice";
+-  return "Create late renewal invoice";
++  return "Issue next invoice";
+ }
+ 
+ export function productHasAutoRenewControls(

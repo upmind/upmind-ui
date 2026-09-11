@@ -1,0 +1,28 @@
+# Negative control — the dataset's pages never become areas, so a brand's own
+# published page resolves as nothing the config declares and lands on the
+# not-found state instead.
+#
+# Intended RED: "folds every published page in, in the order the brand
+# published them", "resolves every one of them as a custom area" and "still
+# renders a published page rather than the not-found state"
+# (tests/custom-pages.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/custom-pages.ts
++++ b/apps/portal-nuxt/app/portal/mock/custom-pages.ts
+@@ -27,15 +27,7 @@
+ export function datasetCustomAreas(
+   data: MockDataset | undefined
+ ): readonly CustomArea[] {
+-  // `defineCustomArea`'s guard only fires on a literal, and a seeded slug is a
+-  // plain string, so the reserved segments are rejected here or nowhere.
+-  const publishable = filter(
+-    data?.customPages ?? [],
+-    page => !includes(values(RESERVED_PILLAR_SEGMENT), page.slug)
+-  );
+-  return map(publishable, page =>
+-    defineCustomArea({ slug: page.slug, label: page.title })
+-  );
++  return [];
+ }
+ 
+ /** The shape's own areas plus the brand's pages; a brand with none is unchanged. */

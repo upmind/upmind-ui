@@ -1,0 +1,54 @@
+# Negative control — the table row drops its ACTION column: every heading still
+# renders, every cell still lines up, and the rows still read as a table, so a
+# screenshot and a heading assertion both pass. Only the Pay button is gone —
+# the exact drop that kept the billing panels off this variant, and the reason
+# a capability check has to name the control, not the columns.
+#
+# Intended RED: "carries the row's action, and emits its value — the drop that
+# blocked the billing panels" and "invoices head their columns and keep Pay on
+# the unpaid rows" (tests/list-table-columns.test.ts).
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 0b moved this file's context). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 1 moved this file's context). Same mutation.
+#
+# REBASED 2026-09-03 (Phase 2 put the row menu in the same cell). Same mutation.
+
+--- a/apps/portal-nuxt/app/portal/modules/list/List.vue
++++ b/apps/portal-nuxt/app/portal/modules/list/List.vue
+@@ -352,33 +352,7 @@
+               :tone="badgeFor(item)?.tone"
+               :dot="false"
+               >{{ badgeFor(item)?.label }}</StatusBadge
+-            >
+-          </span>
+-        </TableCell>
+-        <TableCell v-if="meta.hasRowActions" class="text-right">
+-          <span class="inline-flex items-center gap-1">
+-            <PortalButton
+-              v-if="item.action"
+-              variant="outline"
+-              size="sm"
+-              @click="onAction(item.action.value)"
+-              >{{ item.action.label }}</PortalButton
+-            >
+-            <DropdownMenu
+-              v-if="item.moreActions?.length"
+-              :items="moreMenuItems(item.moreActions)"
+             >
+-              <template #trigger>
+-                <PortalButton
+-                  size="sm"
+-                  variant="ghost"
+-                  icon-only
+-                  :aria-label="props.moreLabel"
+-                >
+-                  <Ellipsis />
+-                </PortalButton>
+-              </template>
+-            </DropdownMenu>
+           </span>
+         </TableCell>
+       </TableRow>

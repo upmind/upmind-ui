@@ -1,0 +1,19 @@
+# Negative control — the standing message calls a PROFORMA an invoice, so a
+# quote reads as a demand: legacy published a separate sentence for every one
+# of the six states (`data/enums/invoice.ts:58-62,88-92,124-128,201-205`).
+#
+# Intended RED (to be added by the prover): "words a proforma's standing as a
+# proforma, in every state".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
+@@ -665,9 +665,6 @@
+ 
+ /** What a document of this kind is CALLED in the sentence that reports it. */
+ function documentNoun(invoice: MockInvoice): string {
+-  if (invoice.category === MOCK_INVOICE_CATEGORY.PROFORMA) {
+-    return "proforma invoice";
+-  }
+   return "invoice";
+ }
+ 

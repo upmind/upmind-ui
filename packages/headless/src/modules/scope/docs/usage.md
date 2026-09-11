@@ -9,37 +9,64 @@ DevTools helpers.
 Call the composable, name the actor, optionally name a context / brand / fresh, then
 read from the returned instance.
 
-```typescript
-// Actor only
-useAuth().as("self"); // actor resolved from the active session
-useAuth().as("guest");
-useAuth().as("client");
-useAuth().as("staff");
+```ts
+import {
+  AccountContextTypes,
+  AuthContextTypes,
+  ScopeActorTypes,
+  useAccount,
+  useAuth,
+  useClientEmailManager,
+  useClientReceivedEmail
+} from "@upmind-automation/headless";
 
-// Actor + context (only when the module's matrix allows it)
-useAuth().as("staff").for("client", clientId); // staff acting on a client
-useClientEmails().as("staff").for("client", id); // staff's view of a client's emails
+declare const clientId: string;
+declare const brandId: string;
+declare const emailId: string;
+
+// Actor only. The actor is the enum member, never a bare string — the matrix
+// types are keyed on ScopeActorTypes.
+useAuth().as(ScopeActorTypes.SELF); // actor resolved from the active session
+useAuth().as(ScopeActorTypes.GUEST);
+useAuth().as(ScopeActorTypes.CLIENT);
+useAuth().as(ScopeActorTypes.STAFF);
+
+// Actor + context (only when the module's matrix allows it). The context type
+// is the module's OWN enum member, so a context it never declared is unspellable.
+useAuth().as(ScopeActorTypes.STAFF).for(AuthContextTypes.CLIENT, clientId);
+useAccount()
+  .as(ScopeActorTypes.STAFF)
+  .for(AccountContextTypes.CLIENT, clientId);
 
 // Staff brand filter (staff only; order-independent with .for)
-useAuth().as("staff").inBrand(brandId);
-useAuth().as("staff").inBrand(brandId).for("client", clientId);
-useAuth().as("staff").for("client", clientId).inBrand(brandId); // same instance
+useAuth().as(ScopeActorTypes.STAFF).inBrand(brandId);
+useAuth()
+  .as(ScopeActorTypes.STAFF)
+  .inBrand(brandId)
+  .for(AuthContextTypes.CLIENT, clientId);
+useAuth()
+  .as(ScopeActorTypes.STAFF)
+  .for(AuthContextTypes.CLIENT, clientId)
+  .inBrand(brandId); // same instance
 
-// Force a brand-new instance + new session
-useClientEmailManager().as("self").fresh();
+// Force a brand-new instance + new session. Offered at the root, and on any
+// actor whose matrix row carries a context — never on a context-less actor.
+useClientEmailManager().fresh();
 
 // Single-record read — mark the ONE record by id, not by a synthesised context.
 // Available with no .as() at all; the actor defaults to self.
 useClientReceivedEmail().withId(emailId);
-useClientReceivedEmail().as("staff").withId(emailId); // an explicit actor still works
+useClientReceivedEmail().as(ScopeActorTypes.STAFF).withId(emailId); // explicit actor
 ```
 
 The chain returns the composable instance. Read its sub-composables as usual:
 
-```typescript
-const account = useAccount().as("self");
+```ts
+import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
+
+const account = useAccount().as(ScopeActorTypes.SELF);
 const { model } = account.useContext();
-const { isLoading } = account.useMeta();
+const { isProcessing } = account.useMeta();
 const { resolve } = account.useActions();
 ```
 
@@ -49,15 +76,19 @@ const { resolve } = account.useActions();
 
 ### Which methods are available?
 
-| Actor    |          `.for(type, id)`          | `.inBrand(id)` | `.fresh()` | `.withId(id)` |
-| -------- | :--------------------------------: | :------------: | :--------: | :-----------: |
-| `self`   |                 —                  |       —        |     ✅     |      ✅       |
-| `guest`  | if matrix defines a guest context  |       —        |     ✅     |      ✅       |
-| `client` | if matrix defines a client context |       —        |     ✅     |      ✅       |
-| `staff`  | if matrix defines a staff context  |  ✅ (always)   |     ✅     |      ✅       |
+| Actor    |          `.for(type, id)`          | `.inBrand(id)` |         `.fresh()`         | `.withId(id)` |
+| -------- | :--------------------------------: | :------------: | :------------------------: | :-----------: |
+| `self`   |                 —                  |       —        |             —              |      ✅       |
+| `guest`  | if matrix defines a guest context  |       —        | if matrix gives it context |      ✅       |
+| `client` | if matrix defines a client context |       —        | if matrix gives it context |      ✅       |
+| `staff`  | if matrix defines a staff context  |  ✅ (always)   |        ✅ (always)         |      ✅       |
 
-Availability is enforced at **compile time**. Calling `.for('ticket', id)` when the
-matrix does not map that actor to `ticket` is a type error, not a runtime failure.
+Availability is enforced at **compile time**. Calling `.for()` with a context type
+the matrix does not map to that actor is a type error, not a runtime failure — and
+because the matrix carries the module's own enum members, a context the module never
+declared cannot even be named. `.fresh()` is gated on the same matrix cell after `.as()`, so a
+context-less actor — `self` always among them — is not offered it; `.fresh()` **is** always offered at the root,
+before any `.as()`, which is how `useClientEmailManager().fresh()` reads.
 `.withId(id)` carries no matrix constraint — every actor gets it, and it is offered
 before `.as()` too: a caller that never names an actor resolves to `self`.
 
@@ -68,8 +99,8 @@ before `.as()` too: a caller that never names an actor resolves to `self`.
 The enum and matrix below already exist in [`../../auth/auth.types.ts`](../../auth/auth.types.ts);
 they are shown (without their `export` keywords) as the shape to copy:
 
-```typescript
-import { ScopeActorTypes } from "../scope/scope.types";
+```ts
+import { ScopeActorTypes } from "@upmind-automation/headless";
 
 // The context types THIS module understands.
 enum AuthContextTypes {
@@ -89,16 +120,41 @@ type AuthScopeMatrix = typeof AUTH_SCOPE_MATRIX;
 
 ### 2. Wrap the factory (in `use<Module>.ts`)
 
-```typescript
-// Import createScopedComposable directly (hoisted declaration — safe at module scope).
-import { createScopedComposable } from "../scope/scope.builder";
-import { AUTH_SCOPE_MATRIX } from "./auth.types";
+```ts
+import { computed, type ComputedRef } from "vue";
+// Inside the package this is `import { createScopedComposable } from
+// "../scope/scope.builder"` — the hoisted declaration, never an aggregator barrel.
+import {
+  createScopedComposable,
+  ScopeActorTypes,
+  type ScopeConfig,
+  type ScopeKey
+} from "@upmind-automation/headless";
+
+enum AuthContextTypes {
+  CLIENT = "client"
+}
+
+const AUTH_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: AuthContextTypes.CLIENT,
+  [ScopeActorTypes.CLIENT]: AuthContextTypes.CLIENT,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+type AuthScopeMatrix = typeof AUTH_SCOPE_MATRIX;
+
+type UseAuth = {
+  useMeta: () => { isLoading: ComputedRef<boolean> };
+};
 
 // The factory receives an ALREADY-RESOLVED, concrete actor and the scope key.
 function createAuthForScope(config: ScopeConfig, scopeKey: ScopeKey): UseAuth {
   const actor = config.actor; // never "self" here — resolution already happened
   // ...build the four sub-composables (useMeta/useContext/useActions/useInternals)...
-  return authInstance;
+  return {
+    useMeta: () => ({ isLoading: computed(() => !actor || !scopeKey) })
+  };
 }
 
 const useAuth = createScopedComposable<UseAuth, AuthScopeMatrix>(
@@ -106,6 +162,8 @@ const useAuth = createScopedComposable<UseAuth, AuthScopeMatrix>(
   createAuthForScope, // (config, key) => instance
   AUTH_SCOPE_MATRIX // matrix value, carried onto useAuth.scopeMatrix
 );
+
+useAuth().as(ScopeActorTypes.STAFF).for(AuthContextTypes.CLIENT, "client-id");
 ```
 
 **Rules for the factory** (see [Gotchas](./gotchas.md) and ADR-001):
@@ -122,7 +180,9 @@ const useAuth = createScopedComposable<UseAuth, AuthScopeMatrix>(
 
 ### Reading which actors a module serves
 
-```typescript
+```ts
+import { useAuth } from "@upmind-automation/headless";
+
 useAuth.scopeMatrix; // the AUTH_SCOPE_MATRIX value, for runtime introspection
 ```
 
@@ -131,14 +191,18 @@ useAuth.scopeMatrix; // the AUTH_SCOPE_MATRIX value, for runtime introspection
 Low-level singleton map. Most code never touches this directly — the builder calls
 `ensure` for you — but managers that derive nested instances do.
 
-```typescript
+```ts
 import {
   ensure,
   remove,
   clearAll,
   size,
-  getRegistry
-} from "../scope/scope.registry";
+  getRegistry,
+  type ScopeKey
+} from "@upmind-automation/headless";
+
+declare const key: ScopeKey;
+declare function buildThing(): { id: string };
 
 // Get-or-create the singleton for a key. Runs `factory` in a detached effect scope.
 const instance = ensure(key, () => buildThing());
@@ -166,33 +230,47 @@ getRegistry();
 
 ## Key generation
 
-```typescript
-import { generateScopeKey, resolveSelfActor } from "../scope/scope.utils";
+```ts
+import {
+  generateScopeKey,
+  resolveSelfActor,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
 
+// STAFF's wire value is "user" (AccessRoleTypes.STAFF), so it is the enum member
+// that belongs in a config — never the word "staff".
 generateScopeKey("basket", {
-  actor: "staff",
+  actor: ScopeActorTypes.STAFF,
   context: { type: "client", id: "123" }
 });
-// → "basket:staff:client:123"
+// → "basket:user:client:123"
 
-generateScopeKey("client-email", { actor: "client", newSession: true });
+generateScopeKey("client-email", {
+  actor: ScopeActorTypes.CLIENT,
+  newSession: true
+});
 // → "client-email:client:fresh:1"  (counter increments each call)
 
-generateScopeKey("client-email-history", { actor: "self", id: "42" });
+generateScopeKey("client-email-history", {
+  actor: ScopeActorTypes.SELF,
+  id: "42"
+});
 // → "client-email-history:self:id:42"  (set via the builder's .withId('42'))
 
-resolveSelfActor("self"); // → the active session actor, or "guest"
-resolveSelfActor("client"); // → "client" (pass-through)
+resolveSelfActor(ScopeActorTypes.SELF); // → the active session actor, or "guest"
+resolveSelfActor(ScopeActorTypes.CLIENT); // → "client" (pass-through)
 ```
 
 ## DevTools setup
 
 Call once at app bootstrap to register the "Scope Registry" inspector in Vue DevTools.
 
-```typescript
+```ts
 import { setupScopeDevtools, getRegistry } from "@upmind-automation/headless";
 
 // e.g. in a Nuxt client plugin
+declare const nuxtApp: { vueApp: Parameters<typeof setupScopeDevtools>[0] };
+
 setupScopeDevtools(nuxtApp.vueApp, getRegistry());
 ```
 

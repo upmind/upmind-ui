@@ -16,7 +16,7 @@
 
 ### Documentation
 
-- **[ADR 023](../../../../../../docs/adr/023-funnel-inheritance.md)** — Funnel inheritance: rejected alternatives, merge semantics, and where the starting funnel is chosen
+- **[ADR 034](../../../../../../docs/adr/034-funnel-inheritance.md)** — Funnel inheritance: rejected alternatives, merge semantics, and where the starting funnel is chosen
 - **`architecture.md`** — Funnel Composition and Starting-Funnel sections
 - **`gotchas.md`** — #3: an `extends` override owns the whole state node
 - **`usage.md`** — `register()` / `switchFunnel()` notes on funnel selection vs runtime override

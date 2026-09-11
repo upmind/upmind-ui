@@ -1,0 +1,23 @@
+# Negative control — loginAs stops asking whether the child allowed it, so a
+# parent can become any account it is related to, including one that has
+# switched impersonation off.
+#
+# Intended RED: "refuses a child that has not allowed it — no swap, no ribbon,
+# no navigation" (tests/impersonation-flow.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockRelation.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockRelation.ts
+@@ -36,13 +36,6 @@
+     loginAs: (): MockActionReceipt<MockChildAccount> | undefined => {
+       const child = find(data.childAccounts, { id: relationId });
+       if (child === undefined) return undefined;
+-      if (!child.allow_impersonation) {
+-        return {
+-          ok: false,
+-          reason: MOCK_RECEIPT_REASON.IMPERSONATION_REFUSED,
+-          entity: child
+-        };
+-      }
+       useMockImpersonation().begin(child.name, data.persona);
+       assign(data, { persona: personaFor(child) });
+       return { ok: true, entity: child };

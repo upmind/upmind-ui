@@ -26,6 +26,7 @@ import {
   has,
   isObject,
   keys,
+  map,
   omit,
   omitBy,
   values
@@ -34,6 +35,7 @@ import type {
   AuthEventType,
   PersistedSessionState,
   SessionEntry,
+  SessionState,
   Token
 } from "./session-store.types";
 import type { ScopeContext } from "../scope/scope.types";
@@ -146,6 +148,7 @@ export function getSessionsRecord(
 ): Record<string, SessionEntry> | undefined {
   if (actor === AccessRoleTypes.CLIENT) return store.state.clientSessions;
   if (actor === AccessRoleTypes.STAFF) return store.state.staffSessions;
+  if (actor === AccessRoleTypes.GUEST) return store.state.guestSessions;
   return undefined;
 }
 
@@ -237,9 +240,142 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   return mapToken(token) as Token;
 }
 
+/**
+ * A random UUID v4, in the same id space as a server `actor_id`.
+ *
+ * `crypto.randomUUID` exists only in a secure context, so it is `undefined` on
+ * a plain-http origin (the e2e host) and minting a guest there would throw.
+ * `getRandomValues` carries no such restriction.
+ *
+ * @returns A version-4 UUID
+ */
+function randomSessionId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = ((bytes[6] as number) & 0x0f) | 0x40;
+  bytes[8] = ((bytes[8] as number) & 0x3f) | 0x80;
+
+  const hex = map(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20)
+  ].join("-");
+}
+
+/**
+ * Resolve the session id a guest token is stored under, and stamp it onto the
+ * token so the guest cookie carries it (FE-3087, operator ruling R6).
+ *
+ * The guest grant returns `actor_id: ""`, so a guest session id has to be
+ * client-synthesised. Carrying it on the cookie is what makes the id survive
+ * the token changing: a refresh mints a new token with `actor_id: ""` again, so
+ * without this the guest session would be re-keyed on every refresh and an
+ * explicitly chosen guest would silently fall back to the floor.
+ *
+ * @param token - The guest token about to be written to its cookie
+ * @param newSession - True when the token opens a new session and so inherits
+ *   no id; the intent travels with the persist call, never inferred from state
+ * @returns The token carrying a stable guest session id
+ */
+function withGuestSessionId(token: IToken, newSession?: boolean): IToken {
+  if (token.actor_id) return token;
+  const current = newSession
+    ? undefined
+    : (getTokenFromStorage(AccessRoleTypes.GUEST) as IToken | null);
+  return { ...token, actor_id: current?.actor_id || randomSessionId() };
+}
+
+/**
+ * The session id a guest token is keyed under — pure, no cookie write.
+ *
+ * For a token the guest cookie does NOT back: the persisted-state migration
+ * keys a legacy guest with this, and must not touch the cookie doing so — a
+ * cookie written from persisted state would make the boot mint decision read a
+ * guest that no live cookie holds.
+ *
+ * @param token - The guest token being keyed
+ * @returns The guest session id
+ */
+export function resolveGuestSessionId(token: IToken): string {
+  return withGuestSessionId(token).actor_id as string;
+}
+
+/**
+ * Resolve the id a cookie-backed guest session is keyed by, migrating a guest
+ * cookie written before FE-3087 that carries no id (operator ruling R6).
+ *
+ * The cookie is the id authority for a guest session, so this runs once per
+ * boot on the live guest cookie BEFORE the persisted state is read — the
+ * migration then adopts the id from the stamped cookie rather than synthesising
+ * a second one for the same session. Everything downstream —
+ * `reconcileToCookies`, `add`, the `SET_SESSION` handler — reads the id
+ * straight off the cookie/token as it does for client and staff.
+ *
+ * @param token - The guest token read from the guest cookie
+ * @returns The guest session id, written back to the cookie when synthesised
+ */
+export function resolveGuestCookieId(token: IToken): string {
+  const stamped = withGuestSessionId(token);
+
+  // Reference identity is the signal that an id was synthesised — the helper
+  // returns the SAME object when the cookie already carried one, so only a
+  // genuine migration pays a cookie write.
+  if (stamped !== token)
+    useCookies().setTopLevel(`upm_${AccessRoleTypes.GUEST}_session`, stamped, {
+      expires: "8h"
+    });
+
+  return stamped.actor_id as string;
+}
+
+/**
+ * The live guest session's token — the one guest the singular public surface
+ * (`get(GUEST)`, the `guestSession` context member) means when several are
+ * pooled.
+ *
+ * Ordered: the guest the active pointer names, else the cookie-backed guest,
+ * else the pool's first. Only one guest is cookie-backed at a time, exactly as
+ * for client and staff.
+ *
+ * @param s - The session state slice the guest pool and pointer live on
+ * @returns The live guest's token, or undefined while no guest is pooled
+ */
+export function getLiveGuestToken(
+  s: Pick<SessionState, "activeActor" | "activeSessionId" | "guestSessions">
+): IToken | undefined {
+  if (
+    s.activeActor === AccessRoleTypes.GUEST &&
+    s.activeSessionId &&
+    s.guestSessions[s.activeSessionId]
+  )
+    return s.guestSessions[s.activeSessionId]?.token;
+
+  const cookieId = (getTokenFromStorage(AccessRoleTypes.GUEST) as IToken | null)
+    ?.actor_id;
+  if (cookieId && s.guestSessions[cookieId])
+    return s.guestSessions[cookieId]?.token;
+
+  return first(values(s.guestSessions))?.token;
+}
+
+/**
+ * Write a token to its scope cookie and, unless the caller wants the cookie
+ * only, into the session store.
+ *
+ * @param token - The token to persist
+ * @param opts - `event` drives the login/sign_up dataLayer event; `sync: false`
+ *   writes the cookie without routing back through `add`; `newSession: true`
+ *   declares the token opens a NEW session rather than continuing one, so a
+ *   guest token takes its own id instead of inheriting the cookie's
+ * @returns The persisted token, carrying the id it was stored under
+ * @throws DetailedError when the token has no `access_token`, or when
+ *   localStorage is unavailable
+ */
 export function persistTokenToStorage(
   token: IToken,
-  opts?: { event?: AuthEventType; sync?: boolean }
+  opts?: { event?: AuthEventType; newSession?: boolean; sync?: boolean }
 ) {
   const { t } = useI18n();
   const { setTopLevel: setCookie } = useCookies();
@@ -260,6 +396,9 @@ export function persistTokenToStorage(
     );
 
   const actor_type = token?.actor_type || AccessRoleTypes.GUEST;
+
+  if (actor_type === AccessRoleTypes.GUEST)
+    token = withGuestSessionId(token, opts?.newSession);
 
   // Persist to cookies
   setCookie(`upm_${actor_type}_session`, token, {

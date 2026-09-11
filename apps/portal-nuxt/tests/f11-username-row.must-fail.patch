@@ -1,0 +1,17 @@
+# Negative control — the account card states the username even where it IS
+# the default email address, which legacy withheld ("as it just adds
+# duplicate data", `accountMenu.vue:111-117`).
+#
+# Intended RED: "withholds the username row where it repeats the default
+# email address" (tests/ninth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4003,7 +4003,6 @@
+ function usernameRow(data: MockDataset): SpecModuleItem | undefined {
+   const { username } = data.persona;
+   if (username === undefined) return undefined;
+-  if (username === defaultEmailAddress(data)) return undefined;
+   return {
+     id: "username",
+     label: "Username",

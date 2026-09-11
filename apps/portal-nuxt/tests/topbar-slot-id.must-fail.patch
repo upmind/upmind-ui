@@ -1,0 +1,21 @@
+# Negative control — widens the topbar's slot-id union so an unknown key
+# (e.g. `topbar.bottom`) is accepted instead of rejected at compile time
+# (design.md §D3/§D4, AC1.2, tasks.md 1.10b).
+#
+# Intended RED: the AC1.2 type-check control — a config assigning
+# `topbar.bottom` should fail `nuxt typecheck`; after this mutation it
+# compiles clean.
+# REBASED 2026-08-25: the hosting removal / per-brand config reorg moved this
+# context. Same mutation, new anchors — asserted unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/types.ts
++++ b/apps/portal-nuxt/app/portal/types.ts
+@@ -117,7 +117,7 @@
+ // --- per-primitive slot records and configs (the discriminated union)
+ 
+ export type TopbarVariant = "full" | "inset" | "docked" | "floating" | "mobile";
+-export type TopbarSlotId = "left" | "centre" | "right";
++export type TopbarSlotId = "left" | "centre" | "right" | string;
+ 
+ /**
+  * Whether the chrome bars sit on their own raised surface or flush on the

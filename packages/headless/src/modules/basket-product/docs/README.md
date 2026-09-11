@@ -12,6 +12,8 @@ import {
   useBasketProductInline
 } from "@upmind-automation/headless";
 
+const basketProductId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
+
 // List all basket products
 const { products, configure, remove } = useBasketProducts();
 

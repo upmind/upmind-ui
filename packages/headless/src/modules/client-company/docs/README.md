@@ -37,18 +37,19 @@ for a staff member to act on a client's companies through this module.
 
 ```ts
 import {
+  ScopeActorTypes,
   useClientCompanies,
   useClientCompanyManager
 } from "@upmind-automation/headless";
 
 // --- The collection: read the list, promote the default company
-const companies = useClientCompanies().as("client");
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
 const { data, default: defaultCompanyId } = companies.useContext();
 await companies.useActions().isReady();
 await companies.useActions().setDefault("some-company-id");
 
 // --- The editor: create a new company through the validated form
-const draft = useClientCompanyManager().as("client").fresh();
+const draft = useClientCompanyManager().as(ScopeActorTypes.CLIENT).fresh();
 await draft.useActions().isReady();
 await draft
   .useActions()
@@ -60,25 +61,25 @@ change up on its next read.
 
 ## Features
 
-| Capability                             | Surface                                                          | What it does                                                             |
-| -------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| List own companies                     | `useClientCompanies().useContext().data`                         | Reactive list of the client's own companies                              |
-| Read the default company's id          | `…useContext().default()`                                        | Returns the default company's **id** — look the row up with `getOne()`   |
-| Know whether the list is yours to read | `useClientCompanies().useMeta().isAvailable`                     | Authenticated **and** a client id resolved                               |
-| Delete                                 | `useClientCompanies().useActions().remove()`                     | Removes a deletable company                                              |
-| Set default                            | `…useActions().setDefault()`                                     | Promotes a company to the default                                        |
-| Find or create                         | `…useActions().ensure()`                                         | Resolves an existing match by id, or creates the company if absent       |
-| Filter                                 | `…useActions().filterBy({ name: { like } })`                     | Re-queries the server, narrowed to a free-text match on the name         |
-| Sort                                   | `…useActions().sortBy([{ field, dir }])`                         | Re-queries the server in the given order — `name` or `created_at`        |
-| Open a page size                       | `…useActions().setCriteria({ pagination: { limit } })`           | Turns on paging — `pagination.limit` starts at `0`, an unpaged read      |
-| Know whether a filter is active        | `useClientCompanies().useMeta().isFiltered`                      | True while the declared filter column carries a value                    |
-| Render the filter bar                  | `useClientCompanies().useContext().schemas.query`                | `{ schema, uischema, sortUischema }` — the ready-made filter description |
-| Create a new company                   | `useClientCompanyManager().as('client').fresh()` then `update()` | Creates through the validated form                                       |
-| Change a company                       | `…for('company', id)` then `update()`                            | Edits through the validated form; sends only the changed fields          |
-| Pick address/email/phone               | the form's schema controls, or an inline value                   | Choose an existing sibling record, or supply one inline to create it     |
-| Validate as the client types           | `…useActions().input()` + `useMeta().isValid`                    | Reports acceptance and which field is wrong                              |
-| Render the form                        | `…useContext().schema` / `.uischema`                             | The form definition, served by the editor                                |
-| Compose the company form into a parent | `useCompanySchema()` / `useCompanyUischema()`                    | Pure schema-fragment functions for embedding this form in another one    |
+| Capability                             | Surface                                                          | What it does                                                                                         |
+| -------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| List own companies                     | `useClientCompanies().useContext().data`                         | Reactive list of the client's own companies                                                          |
+| Read the default company's id          | `…useContext().default()`                                        | Returns the default company's **id** — look the row up with `getOne()`                               |
+| Know whether the list is yours to read | `useClientCompanies().useMeta().isAvailable`                     | Authenticated **and** a client id resolved                                                           |
+| Delete                                 | `useClientCompanies().useActions().remove()`                     | Removes a deletable company                                                                          |
+| Set default                            | `…useActions().setDefault()`                                     | Promotes a company to the default                                                                    |
+| Find or create                         | `…useActions().ensure()`                                         | Resolves an existing match by id, or creates the company if absent                                   |
+| Filter                                 | `…useActions().filterBy({ name: { like } })`                     | Re-queries the server, narrowed to a free-text match on the name                                     |
+| Sort                                   | `…useActions().sortBy([{ field, dir }])`                         | Re-queries the server in the given order — `name` or `created_at`; `dir` is the `SortDirection` enum |
+| Open a page size                       | `…useActions().setCriteria({ pagination: { limit } })`           | Turns on paging — `pagination.limit` starts at `0`, an unpaged read                                  |
+| Know whether a filter is active        | `useClientCompanies().useMeta().isFiltered`                      | True while the declared filter column carries a value                                                |
+| Render the filter bar                  | `useClientCompanies().useContext().schemas.query`                | `{ schema, uischema, sortUischema }` — the ready-made filter description                             |
+| Create a new company                   | `useClientCompanyManager().as('client').fresh()` then `update()` | Creates through the validated form                                                                   |
+| Change a company                       | `…for('company', id)` then `update()`                            | Edits through the validated form; sends only the changed fields                                      |
+| Pick address/email/phone               | the form's schema controls, or an inline value                   | Choose an existing sibling record, or supply one inline to create it                                 |
+| Validate as the client types           | `…useActions().input()` + `useMeta().isValid`                    | Reports acceptance and which field is wrong                                                          |
+| Render the form                        | `…useContext().schema` / `.uischema`                             | The form definition, served by the editor                                                            |
+| Compose the company form into a parent | `useCompanySchema()` / `useCompanyUischema()`                    | Pure schema-fragment functions for embedding this form in another one                                |
 
 ## Key Concepts
 
@@ -116,10 +117,18 @@ Compose freely: setting a filter and a sort at the same time produces one
 request carrying both, not two competing ones.
 
 ```ts
-const companies = useClientCompanies().as("client");
+import {
+  ScopeActorTypes,
+  SortDirection,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
 
 await companies.useActions().filterBy({ name: { like: "acme" } });
-await companies.useActions().sortBy([{ field: "created_at", dir: "desc" }]);
+await companies
+  .useActions()
+  .sortBy([{ field: "created_at", dir: SortDirection.DESC }]);
 await companies.useActions().setCriteria({ pagination: { limit: 10 } });
 await companies.useActions().nextPage();
 ```
@@ -142,10 +151,16 @@ and an unrecognised order column is rejected by the server.
 row up with `getOne(default())` when you need the full record.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientCompanies
+} from "@upmind-automation/headless";
+
+const companies = useClientCompanies().as(ScopeActorTypes.CLIENT);
 const { default: defaultId, getOne } = companies.useContext();
 
-const defaultCompanyId = defaultId(); // e.g. "4d036794-24d0-e710-639b-3153698d582e"
-const defaultCompany = getOne(defaultCompanyId()); // the full row, or undefined
+const defaultCompanyId = defaultId(); // e.g. "4d036794-24d0-e710-639b…"
+const defaultCompany = getOne(defaultCompanyId); // the full row, or undefined
 ```
 
 > **🧪 For Testers:** Against a fixture with exactly one `default: true` row,

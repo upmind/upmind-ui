@@ -2,17 +2,17 @@ export { default as UpmForm } from "./Form.vue";
 export * from "./renderers";
 export * from "./useFormI18n";
 
-// Form engine — the canonical client-vue source now the JSONForms host lives in
-// ./engine (off the old lib). Chrome + composables + types for consumers.
-export { default as FormField } from "./engine/FormField.vue";
-export { default as FormControl } from "./engine/FormControl.vue";
-export { default as FormMessage } from "./engine/FormMessage.vue";
-export { default as FormLabel } from "./engine/FormLabel.vue";
+// Form engine — a pass-through for @upmind/ui, which now hosts the JSONForms
+// engine. Chrome + composables + types for consumers, under their old names.
 export {
+  FormField,
+  FormControl,
+  FormMessage,
+  FormLabel,
   useUpmindUIRenderer,
   registerEntry,
   toSafeControlId
-} from "./engine/renderers/utils";
+} from "@upmind/ui";
 export type {
   FormProps,
   FormActionProps,
@@ -20,4 +20,4 @@ export type {
   FormAdditionalProps,
   FormFooterProps,
   FormMeta
-} from "./engine/types";
+} from "@upmind/ui";

@@ -1,0 +1,18 @@
+# Negative control — the Subtotal band narrows on the invoice TOTAL, so it stops
+# being its own filter: it agrees with the Total band on every document and the
+# figure legacy filtered on (`net_amount`) is never read at all.
+#
+# Intended RED: "narrows the whole ledger to the subtotals in the chosen band"
+# (tests/product-notices-and-filters.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -662,7 +662,7 @@
+   );
+   const inTotalBand = matchesAmountBand(invoice.total.amount, criteria.total);
+   const inNetBand = matchesAmountBand(
+-    invoice.subtotal.amount,
++    invoice.total.amount,
+     criteria.netAmount
+   );
+   // An invoice with nothing taken off is a ZERO discount, not an absent one —

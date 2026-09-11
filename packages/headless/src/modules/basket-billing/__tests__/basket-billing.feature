@@ -7,14 +7,14 @@ Feature: Basket billing module
   # --- Basket billing composable (useBasketBilling) ---
 
   @AC-1 @layer-unit
-  Scenario: Set billing model without triggering an update
+  Scenario: I enter how I am billed without it being saved yet
     Given a ready billing actor
     When I set a billing model
     Then the model is stored on the actor
     And no billing update is requested
 
   @AC-2 @layer-unit
-  Scenario: Update billing model commits and settles
+  Scenario: I save how I am billed, and it sticks
     Given a ready billing actor
     When I update the billing model
     Then the change is committed
@@ -26,28 +26,31 @@ Feature: Basket billing module
     When I update the billing model
     Then the call rejects with a billing update error
 
-  @AC-4 @layer-unit
-  Scenario: Clear the billing details
+  @AC-4 @AC-12 @layer-unit
+  Scenario: I clear my billing details back to empty
     Given a ready billing actor holding a model
     When I clear the billing details
     Then the actor discards the stored model
+    Given an available unified billing detail holding a model
+    When I clear the billing detail
+    Then the billing-detail context is reset
 
   @AC-5 @layer-unit
-  Scenario: Pause and resume billing validation
+  Scenario: I am not nagged about my billing details while I am still entering them
     Given a ready billing actor
     When I put billing into a wait state
     And I resume billing
     Then billing revalidates the details
 
   @AC-6 @layer-unit
-  Scenario: Read the current billing readiness and requirements
+  Scenario: I can see whether my billing details are complete, and what is still missing
     Given a billing actor that has loaded
     When I read the billing meta
     Then it reports availability, validity, and dirtiness
     And it reports whether address, company, and phone are required
 
   @AC-7 @layer-unit
-  Scenario: Capture the initial billing snapshot
+  Scenario: I can get back to the billing details I started with
     Given a billing actor with a persisted base model
     When I capture the initial billing snapshot
     Then I receive the persisted base model
@@ -55,20 +58,20 @@ Feature: Basket billing module
   # --- Unified billing-detail composable (useUnified) ---
 
   @AC-8 @layer-unit
-  Scenario: Open a new personal billing detail
+  Scenario: I start entering billing details for myself
     Given no billing-detail type is specified
     When I open a unified billing detail
     Then a personal billing detail is prepared
 
   @AC-9 @layer-unit
-  Scenario: Input a billing-detail model for validation
+  Scenario: I enter my billing details and see what is wrong before I save
     Given an available unified billing detail
     When I input a billing-detail model
     Then the model is validated
     And the checked model is returned
 
   @AC-10 @layer-unit
-  Scenario: Save a unified billing detail
+  Scenario: I save my billing details, whether they are mine or my company's
     Given an available unified billing detail with changes
     When I save the billing detail
     Then the saved model is returned
@@ -79,14 +82,8 @@ Feature: Basket billing module
     When I save the billing detail
     Then the save rejects with a billing-detail error
 
-  @AC-12 @layer-unit
-  Scenario: Clear a unified billing detail
-    Given an available unified billing detail holding a model
-    When I clear the billing detail
-    Then the billing-detail context is reset
-
   @AC-13 @layer-unit
-  Scenario: Stop a unified billing detail
+  Scenario: I leave my billing details, and the form lets go of what it held
     Given a running unified billing detail
     When I stop the billing detail
     Then its service is torn down
@@ -94,21 +91,21 @@ Feature: Basket billing module
   # --- Unified add() collaborator seam (crosses client-phone/company/address) ---
 
   @AC-14 @layer-integration
-  Scenario: Business billing detail folds the phone into one company create
+  Scenario: My company's billing details are saved in one go, phone included
     Given a business billing-detail model with a phone
     When the billing detail is added
     Then the phone rides inside the single company create
     And no standalone phone create fires
 
   @AC-15 @layer-integration
-  Scenario: Personal billing detail creates the phone once
+  Scenario: My phone number is saved once, not twice
     Given a personal billing-detail model with a phone
     When the billing detail is added
     Then the phone is created exactly once on its own
     And no company create fires
 
   @AC-16 @layer-integration
-  Scenario: Personal billing detail creates the address directly
+  Scenario: My address is saved as my address, not as a company's
     Given a personal billing-detail model with an address
     When the billing detail is added
     Then the address is created from the model directly

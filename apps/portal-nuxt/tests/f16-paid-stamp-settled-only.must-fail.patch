@@ -1,0 +1,19 @@
+# Negative control — the stamp is inked on anything not OWED, so a refunded or
+# cancelled document reads as paid: legacy stamped `isPaid && !isClearing`
+# (`invoiceItems.vue:279`), and a document that was unwound is neither owed
+# nor paid.
+#
+# Intended RED (to be added by the prover): the stamp is absent on a refunded
+# and on a cancelled document.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3369,7 +3369,7 @@
+   // SETTLED, not merely "not owed": legacy stamped `isPaid && !isClearing`
+   // (`invoiceItems.vue:279`), and a refunded or cancelled document is neither
+   // owed nor paid — it was unwound, which is not the same fact.
+-  if (invoice.status !== InvoiceStatus.PAID) return undefined;
++  if (isInvoiceOwed(invoice)) return undefined;
+   if (isInvoiceClearing(invoice)) return undefined;
+   return "Paid";
+ }

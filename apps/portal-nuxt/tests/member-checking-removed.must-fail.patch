@@ -1,0 +1,40 @@
+# Negative control — member checking is ripped out of resolve.ts's group
+# branch entirely (design.md §D4/§D6, tasks.md 2.0 F7 — "the round's most
+# important finding": on pristine HEAD, before F2's re-point, the whole
+# 56-test suite stayed green with this exact mutation applied, because
+# nothing asserted a group MEMBER against its host slot).
+#
+# The mutation replaces the recursive per-member resolution with a
+# pass-through that reports every member as an accepted module, regardless
+# of whether that member's own accept-tag is legal at the host slot.
+#
+# Reproduced by direct execution before filing: with this patch applied,
+# `tests/resolve.test.ts`'s re-pointed B2 test — "a group is admitted at a
+# slot unconditionally, but its member is rejected against that HOST slot's
+# own accept list" — fails `expected 'module' to be 'rejected'`
+# (`bottom.default` only accepts `nav`; `fixture-marker` carries `content`,
+# so its member must resolve `rejected`, not silently `module`). One
+# failure, 58 other tests unaffected.
+#
+# Intended RED: `members[0]?.status === "rejected"` in that test — the one
+# assertion in the suite that can see member-checking being dropped.
+# REBASED 2026-08-25 (board-conformance): the group branch / ModuleRef context
+# moved. Same mutation, new anchors — asserted unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/resolve.ts
++++ b/apps/portal-nuxt/app/portal/resolve.ts
+@@ -350,9 +350,11 @@
+       axis: assignment.axis,
+       surface: assignment.surface,
+       header: resolveRowHeader(assignment.header),
+-      members: map(assignment.members, member =>
+-        resolveSlotAssignment(primitiveId, slotId, member)
+-      )
++      members: map(assignment.members, member => ({
++        status: "module" as const,
++        id: member.id,
++        variant: member.variant
++      }))
+     };
+   }
+ 

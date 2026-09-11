@@ -55,9 +55,9 @@
 
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, it } from "vitest";
-import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { GrantTypes } from "@upmind-automation/types";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import { mintClientToken } from "../../auth/__tests__/auth.tokens";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -113,38 +113,6 @@ type GatewayRow = {
   };
 };
 
-/**
- * Mint a REAL (unsanitised) token outside the capture pipeline — the Generator
- * only ever returns sanitised bodies, so an authed capture's credentials must
- * come from a plain fetch that never touches disk.
- */
-async function mintToken(actor: "client"): Promise<IToken> {
-  const response = await fetch(`${API_URL}/oauth/access_token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      Origin: ORIGIN
-    },
-    body: new URLSearchParams({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS[actor].username,
-      password: API_CREDENTIALS[actor].password
-    }).toString()
-  });
-
-  const body = await response.json().catch(() => null);
-  const token = (body?.access_token ? body : body?.data) as IToken | undefined;
-
-  if (!token?.access_token) {
-    throw new Error(
-      `Could not mint a ${actor} token (${response.status}) — check ` +
-        "tests/fixtures/credentials.ts against the recording brand."
-    );
-  }
-  return token;
-}
-
 /** Read a real value off the live API without buffering a capture for it. */
 async function readLive<T>(path: string, accessToken: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -177,7 +145,7 @@ describe("paymentGateways API Fixtures Generator", () => {
       name: "payment-gateways"
     });
 
-    token = await mintToken("client");
+    token = await mintClientToken();
     generator.setBearerToken(token.access_token);
 
     const self = await readLive<{

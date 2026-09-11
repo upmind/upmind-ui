@@ -1,0 +1,20 @@
+# Negative control — the active dataset ignores what was stored and always
+# answers the default, so a pick never survives the load that follows it.
+#
+# Intended RED: "a pick changes the active dataset and persists under the
+# dataset key" and "a stored dataset is read back on the next load"
+# (tests/dataset-choice.test.ts).
+
+--- a/apps/portal-nuxt/app/composables/usePortalConfig.ts
++++ b/apps/portal-nuxt/app/composables/usePortalConfig.ts
+@@ -135,10 +135,6 @@
+   // `?dataset=` is deliberately absent: the shape's query pin exists so one
+   // dev server per shape needs no URL, and the dataset rides the same server.
+   const activeDatasetId = computed<MockDatasetId>(() => {
+-    const stored = storedDatasetId.value;
+-    if (stored === null) return DEFAULT_MOCK_DATASET_ID;
+-    if (isMockDatasetId(stored)) return stored;
+-    warnUnrecognisedId(stored, "storage", DEFAULT_MOCK_DATASET_ID);
+     return DEFAULT_MOCK_DATASET_ID;
+   });
+ 

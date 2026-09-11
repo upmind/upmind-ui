@@ -12,8 +12,14 @@
     }"
   >
     <div v-if="active" :class="carouselNavigationVariants()">
-      <CarouselPrevious :label="t('text.previous_slide')" class="static!" />
-      <CarouselNext :label="t('text.next_slide')" class="static!" />
+      <CarouselPrevious
+        :label="t('text.previous_slide')"
+        class="static translate-none active:translate-none"
+      />
+      <CarouselNext
+        :label="t('text.next_slide')"
+        class="static translate-none active:translate-none"
+      />
     </div>
 
     <CarouselContent

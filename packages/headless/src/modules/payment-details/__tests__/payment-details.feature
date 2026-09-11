@@ -76,30 +76,27 @@ Feature: paymentDetails — capture a payment intent and store payment methods
     Then my selection names that gateway
     And my selection names no stored method
 
-  @AC-A8 @client @layer-unit
-  Scenario: A client is offered a part payment only when every condition allows it
+  @AC-A8
+  @AC-A9
+  @client @layer-unit
+  Scenario: I am offered a part payment only when every condition allows it, and lose it when my brand forbids it
     Given I am a client with an outstanding amount of 50.00 in GBP
     And the brand permits part payments
     And the gateway I can use supports a part payment
     When I open payment details for a draft amount
     Then I am offered the choice to pay part of the amount
-
-  @AC-A9 @client @layer-unit
-  Scenario: A client loses the part-payment choice when the brand forbids it
-    Given I am a client with an outstanding amount of 50.00 in GBP
-    And the brand forbids part payments
+    Given the brand forbids part payments
     When I open payment details for that amount
     Then I am not offered the choice to pay part of the amount
 
-  @AC-A10 @client @layer-unit
-  Scenario: A client can defer payment while the amount is still a draft
+  @AC-A10
+  @AC-A11
+  @client @layer-unit
+  Scenario: I can defer payment while the amount is still a draft, and lose that choice once part of it is paid
     Given I am a client with a draft amount of 50.00 in GBP
     And the brand permits deferring payment
     When I open payment details for that amount
     Then I am offered the choice to pay later
-
-  @AC-A11 @client @layer-unit
-  Scenario: A client loses the defer choice once part of the amount is paid
     Given I am a client with an amount of 50.00 in GBP that is part paid
     And the brand permits deferring payment
     When I open payment details for that amount
@@ -119,15 +116,14 @@ Feature: paymentDetails — capture a payment intent and store payment methods
     When I read back what I am about to pay
     Then the amount, the outstanding balance and the credit each read as GBP money
 
-  @AC-A14 @client @layer-integration
-  Scenario: A client who changes the currency is re-offered the eligible gateways
+  @AC-A14
+  @AC-A20
+  @client @layer-integration
+  Scenario: When my currency or my outstanding amount changes, I am re-offered the gateways that fit
     Given I am a client offered two gateways for an amount in GBP
     When I switch the amount to USD
     Then I am offered the gateways the brand accepts for USD
     And the gateways that do not accept USD are withdrawn
-
-  @AC-A20 @client @layer-integration
-  Scenario: A client whose outstanding amount changes is re-offered against the new one
     Given I am a client offered payment methods for an outstanding amount of 50.00
     When the amount I owe changes to 12.50
     Then my methods and gateways are fetched again for 12.50

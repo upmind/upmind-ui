@@ -17,32 +17,36 @@
         :description="gateway.secondaryLabel"
         v-bind="gateway.dataAttrs"
       />
-    </OptionTileGroup>
 
-    <Link
-      v-if="allowShowMore"
-      color="muted"
-      size="sm"
-      :data-attrs="{ 'data-test-key': 'show-more-payment-options' }"
-      class="mt-1 inline-flex items-center justify-start gap-1 px-3"
-      @click="isExpanded = true"
-    >
-      <Icon icon="plus" /> {{ t("action.show_more_options") }}
-    </Link>
+      <Link
+        v-if="allowShowMore"
+        color="muted"
+        size="sm"
+        :data-attrs="{ 'data-test-key': 'show-more-payment-options' }"
+        class="w-fit self-center px-4"
+        @click="isExpanded = true"
+      >
+        <Icon icon="plus" /> {{ t("action.show_more_options") }}
+      </Link>
+    </OptionTileGroup>
   </FormField>
 </template>
 
 <script setup lang="ts">
 import { isEnumControl, and, scopeEndIs } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
-import { Link, OptionTileGroup, OptionTile } from "@upmind/ui";
+import {
+  Link,
+  OptionTileGroup,
+  OptionTile,
+  FormField,
+  useUpmindUIRenderer
+} from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
 import { PaymentType } from "@upmind-automation/types";
 import { Icon } from "../../icon";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { map, take, get } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

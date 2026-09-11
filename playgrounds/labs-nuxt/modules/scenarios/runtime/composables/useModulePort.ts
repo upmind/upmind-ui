@@ -111,7 +111,16 @@ export function useModulePort(
   // module resolves its request target from the ACTIVE SESSION, not from the
   // url, so a cell booted at a refused scope answers the previous actor's
   // identity and re-serves that actor's records under a url saying otherwise.
-  if (!servesActor(composable.scopeMatrix, actor))
+  // The ONE exception: an actor the declaration explicitly offers. The
+  // refusal above guards a divergence between the url's actor and the active
+  // session, and `switchScope` prevents exactly that — it activates the
+  // matching session in the store as it pushes the url, so the store's own
+  // session (a guest's included, with its own access token) identifies the
+  // caller. A module whose matrix marks an actor `never` because that actor
+  // may not act simply does not list it.
+  const offered = !!scope.offeredActors?.includes(actor);
+
+  if (!servesActor(composable.scopeMatrix, actor) && !offered)
     return {
       actions: {},
       getMeta: () => UNSERVED_META,

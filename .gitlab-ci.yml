@@ -104,9 +104,14 @@ dependencies:
       - apps/hosting/node_modules
       - packages/headless/node_modules
       - packages/client-vue/node_modules
+      - packages/i18n/node_modules
+      - packages/icons/node_modules
+      - design-system/packages/ui/node_modules
+      - design-system/packages/tokens/node_modules
       - packages/types
       - packages/ui
       - docs/node_modules
+      - docs/published-docs
   script:
     - apk --no-cache add git openssh-client bash
     - |

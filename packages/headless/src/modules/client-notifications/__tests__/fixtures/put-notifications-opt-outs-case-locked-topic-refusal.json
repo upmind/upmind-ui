@@ -1,0 +1,68 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/notifications/opt-outs?case=locked-topic-refusal",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "opt_outs": [
+        {
+          "topic_id": "45952098-d3de-4091-76a3-1578626e347e",
+          "channel_id": "3825d96e-763e-d091-3dc4-174825283406"
+        },
+        {
+          "topic_id": "45952098-d3de-4091-76a3-1578626e347e",
+          "channel_id": "24d03679-424d-0e71-04b3-153698d582e8"
+        },
+        {
+          "topic_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "channel_id": "3825d96e-763e-d091-3dc4-174825283406"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a38bf69a895dbe39-DUB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 10 Sep 2026 05:16:54 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ylhFTgCkjsLvitlYiHYc%2BYrffpvPeRb7ZTjyycACU855Puu2ujJqiNWrlbPHOsXVPIrl2KGFSK4Ci5t1SIDczwf6cgxwBLIvbGhW7WwFQej137VYLQft%2BkdWDWuHr4qkqxk1pjV6vw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "2438a781ea10df02b216115fdb335dc42d55d46b",
+        "type": 0,
+        "code": 409,
+        "message": "Unable to unsubscribe from System notifications",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-10T05:16:54.873Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-notifications"
+  }
+}

@@ -22,14 +22,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a32c457deffbc554-LIS",
+      "cf-ray": "a38bf7d829341387-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Sat, 29 Aug 2026 14:33:33 GMT",
+      "date": "Thu, 10 Sep 2026 05:17:46 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=OoBIm5D8dr6A0C5Yb5CM9EAhUQIpWJTn5dGf5iwbCerSKBEgAAw%2FLo%2BfjkizV0gA8DDftkN%2F0vrVULXEvpgDk2eCrplctiaM1HXcbAKC8k75nCBqixoO6jFP9R18HSUZA0ybLELvHw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=YQVYMZAlvD0eHwZA28KtMU2cNk%2BqrNFA4xrUYUvpgoCOa%2BPd34ZonwjMuq1z%2BxpZuuUl9tJ5K5fc%2BlWYk0ao9AX2aQPIzg1BsiXCzYfrHOUgEXurlmPDovrdJER%2Fw3hI%2Fm2M9bsyCw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -46,9 +46,9 @@
           "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
           "user_id": "25d96e76-3ed0-913d-d52c-417482528340",
           "type": 1,
-          "updated_at": "2026-08-29 14:33:33",
-          "created_at": "2026-08-29 14:33:33",
-          "id": "d0367942-4d0e-7107-89db-3153698d582e",
+          "updated_at": "2026-09-10 05:17:46",
+          "created_at": "2026-09-10 05:17:46",
+          "id": "04038696-e547-21d0-70ea-518d9305e7d2",
           "active": true,
           "can_delete": true,
           "errors": [],
@@ -71,7 +71,7 @@
             "location_ip": null,
             "user_id": "sys",
             "created_at": "2025-06-02 16:00:34",
-            "updated_at": "2026-08-29 14:33:19",
+            "updated_at": "2026-09-10 05:17:33",
             "reseller_account_id": null,
             "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
             "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -88,7 +88,7 @@
             "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
             "picture": 0,
             "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-            "last_login": "2026-08-29 14:33:19",
+            "last_login": "2026-09-10 05:17:33",
             "last_password_change_at": "mock-last_password_change_at",
             "fraud_policy": 3,
             "fraud_status": 1,
@@ -138,7 +138,7 @@
               "receive_emails": false,
               "bounced": false,
               "created_at": "2025-06-02 16:00:35",
-              "updated_at": "2026-04-17 13:26:16",
+              "updated_at": "2026-09-09 15:25:12",
               "bounced_at": null,
               "can_delete": false
             },
@@ -148,7 +148,7 @@
         "gateway_specific": {
           "customerReference": "cus_ShcpAsVaEXtTGl",
           "client_secret": "mock-client_secret",
-          "setup_intent_id": "seti_1U9nK5QEz8uaHZG6Q4pu6Yh8"
+          "setup_intent_id": "seti_1UE0MnQEz8uaHZG6Yjk6QSwB"
         }
       },
       "related": null,
@@ -158,7 +158,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-29T14:33:33.749Z",
+  "captured_at": "2026-09-10T05:17:46.103Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

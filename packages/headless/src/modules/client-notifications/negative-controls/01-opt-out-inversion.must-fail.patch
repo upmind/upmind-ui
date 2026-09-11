@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-notifications/useClientNotifications.context.ts
++++ b/packages/headless/src/modules/client-notifications/useClientNotifications.context.ts
+@@ -44,7 +44,7 @@
+ 
+   /** Server-held state: enabled is the ABSENCE of an opt-out row. */
+   function isEnabled(topicId: string, channelId: string): boolean {
+-    return !isOptedOut(optOuts.value, topicId, channelId);
++    return isOptedOut(optOuts.value, topicId, channelId);
+   }
+ 
+   /**

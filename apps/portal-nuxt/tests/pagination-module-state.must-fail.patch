@@ -1,0 +1,24 @@
+# Negative control — the pager's self-hide gate goes inert: it renders for any
+# non-empty collection, so every single-page panel grows a useless pager row.
+#
+# REBASED: the row is now gated on `isVisible` (pages OR a size control) with
+# the arrows gated on `hasPages` beneath it, so mutating the inner `v-if` alone
+# left the wrapper hidden and reddened nothing. The gate itself is now the
+# mutated line, which is what both `v-if`s read.
+#
+# Intended RED: "self-hides while the collection fits one page"
+# (tests/pagination-module-state.test.ts) — five rows at ten a page render the
+# pager instead of hiding it.
+
+
+--- a/apps/portal-nuxt/app/portal/modules/pagination/Pagination.vue
++++ b/apps/portal-nuxt/app/portal/modules/pagination/Pagination.vue
+@@ -68,7 +68,7 @@
+   const sizeOptions = props.state?.pageSizeOptions ?? [];
+   const smallestSize =
+     min(map(sizeOptions, option => Number(option.value))) ?? itemsPerPage;
+-  const hasPages = pages > 1;
++  const hasPages = total > 0;
+   // A list that already fits the SMALLEST page offers nothing to resize.
+   const hasPageSize =
+     props.state?.pageSizeAction !== undefined &&

@@ -1,0 +1,17 @@
+# Negative control — the affiliate links panel stops searching its own two
+# fields, so the quick search legacy published (`filters/affiliate.ts`: name
+# and redirect_url, both CONTAINS) hands back every link whatever is typed.
+#
+# Intended RED: "searches the links by name and by where they point"
+# (tests/filter-seams.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -769,7 +769,6 @@
+   }),
+   undefined,
+   () => ({
+-    searchProps: ["name", "redirectUrl"],
+     sortOptions: AFFILIATE_LINK_SORTS,
+     filterControls: AFFILIATE_LINK_FILTER_CONTROLS
+   })

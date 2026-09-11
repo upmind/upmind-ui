@@ -1,0 +1,21 @@
+# Negative control — a new referral link opens on an EMPTY redirect whatever
+# the brand publishes, so the default legacy read straight into the field
+# (`addEditAffiliateLinkModal.vue:163-166`) is never read at all.
+#
+# REBASED 2026-09-06 (the builders took a required context when the bare
+# caller was re-pointed). Same mutation: the default goes unread.
+#
+# Intended RED: "fills the field where the brand publishes one, and leaves it
+# empty where it does not" (tests/eighth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/contracts/client-affiliate.schemas.ts
++++ b/apps/portal-nuxt/app/portal/mock/contracts/client-affiliate.schemas.ts
+@@ -123,7 +123,7 @@
+ export const linkDefaults = (
+   context: AffiliateLinkContext
+ ): AffiliateLinkModel => ({
+-  redirectUrl: context.defaultRedirectUrl ?? "",
++  redirectUrl: "",
+   name: ""
+ });
+ 

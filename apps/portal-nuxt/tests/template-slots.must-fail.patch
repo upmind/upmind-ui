@@ -1,0 +1,19 @@
+# Negative control — the slot facade stops keying on the platform's slot code
+# and hands back whichever template the brand authored first, so every page
+# prints the same brand note.
+#
+# Intended RED: "hands back the body the brand authored, and an empty string
+# for a slot it left blank" and "hides every one of them on a brand that
+# authored only its footer" (tests/template-slots.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockClientTemplate.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockClientTemplate.ts
+@@ -17,7 +17,7 @@
+   templates: readonly MockTemplateSlot[],
+   code: IClientTemplateSlot["code"]
+ ): string {
+-  return find(templates, { code })?.body ?? "";
++  return templates[0]?.body ?? "";
+ }
+ 
+ export const useMockClientTemplate = defineMockFacade(

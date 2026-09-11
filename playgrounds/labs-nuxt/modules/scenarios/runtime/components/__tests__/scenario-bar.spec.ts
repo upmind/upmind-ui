@@ -89,7 +89,7 @@ const track = (name: string): FeatureTrack => ({
 
 const TRACKS = map(TRACK_NAMES, track);
 
-function fakePlayer() {
+function fakePlayer(reason?: string) {
   const armed = ref<FeatureTrack | undefined>();
   const status = ref<ScenarioPlayerStatus>(SCENARIO_PLAYER_STATUS.LIVE);
   const playhead = ref(SCENE_UNPLAYED);
@@ -99,7 +99,7 @@ function fakePlayer() {
     status: computed(() => status.value),
     playhead: computed(() => playhead.value),
     isBusy: computed(() => false),
-    failure: computed(() => undefined),
+    failure: computed(() => reason),
     isAvailable: true,
     arm: vi.fn(async next => {
       armed.value = next;
@@ -128,8 +128,10 @@ function fakePlayer() {
   return player;
 }
 
-const mountBar = (options: { tracks?: readonly FeatureTrack[] } = {}) => {
-  const player = fakePlayer();
+const mountBar = (
+  options: { tracks?: readonly FeatureTrack[]; failure?: string } = {}
+) => {
+  const player = fakePlayer(options.failure);
   const wrapper = mount(ScenarioBar, {
     attachTo: document.body,
     props: { player, tracks: options.tracks ?? TRACKS },
@@ -327,6 +329,29 @@ describe("T4.5 every track stays reachable behind ONE overflow (AC2.4 · G1 · R
  * repoint to and its limit is declared absent rather than invented.
  */
 declare const TRACK_LIST_VISIBLE_LIMIT: number;
+
+describe("T4.5 a failed scene is never silent (S14)", () => {
+  // A scene that failed says so ON the bar: the reason is the operator's only
+  // signal that the run stopped, and a bar that swallows it reads as idle.
+  // Negative control: `scenario-bar.silent-failure.must-fail.patch`.
+  it("names a failed scene on the bar itself", () => {
+    const reason = "step 3 never settled";
+    const { wrapper } = mountBar({ failure: reason });
+
+    const chip = wrapper.find('[data-test-key="scene-failure"]');
+
+    expect(chip.exists()).toBe(true);
+    expect(chip.text()).toContain(reason);
+  });
+
+  it("shows no failure chip while the run is healthy", () => {
+    const { wrapper } = mountBar();
+
+    expect(wrapper.find('[data-test-key="scene-failure"]').exists()).toBe(
+      false
+    );
+  });
+});
 
 describe.skip("T4.5 eleven tracks stay reachable without crowding the bar (AC2.4 · G1)", () => {
   it("shows Live plus at most what the bar's own width admits, never all eleven", () => {

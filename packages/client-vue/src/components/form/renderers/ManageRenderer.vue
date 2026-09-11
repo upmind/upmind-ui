@@ -18,10 +18,9 @@
 <script setup lang="ts">
 import { and, uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControlWithDetail } from "@jsonforms/vue";
+import { FormField, useUpmindUIRenderer } from "@upmind/ui";
 import { computed } from "vue";
 import Manage from "../../manage/Manage.vue";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import type { ManageRendererProps } from "../../manage/types";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

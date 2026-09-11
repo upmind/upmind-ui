@@ -1,0 +1,18 @@
+# Negative control — the engine's reference-data seam is dropped. It degrades
+# SILENTLY (`@upmind/ui` src/form/README.md): every form still renders, and
+# the phone control's country picker simply lists nothing.
+#
+# Intended RED: the layout-provides-the-engine-data assertion
+# (tests/engine-data.test.ts).
+
+--- a/apps/portal-nuxt/app/layouts/default.vue
++++ b/apps/portal-nuxt/app/layouts/default.vue
+@@ -51,7 +51,7 @@
+ // degrade SILENTLY when absent — a form with no picker and no icons still
+ // renders — so they are provided once here rather than per form.
+ provideFormIcon(PortalFormIcon);
+-provideFormEngineData(portalFormEngineData());
++
+ 
+ // Chrome's own route context: the pillar, so the sidebar's contextual side
+ // menu resolves (mock/injection.ts). The PAGE host provides its own, richer

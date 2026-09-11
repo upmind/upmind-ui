@@ -1,14 +1,10 @@
 <template>
-  <div
-    class="inline-flex w-full"
-    role="group"
-    :aria-label="t('action.sort_products')"
-  >
+  <InputGroup :aria-label="t('action.sort_products')">
     <Button
       variant="control"
       size="lg"
       :disabled="isEmpty(property)"
-      class="shadow-field hover:bg-surface hover:text-muted rounded-r-none"
+      class="shadow-field hover:bg-surface hover:text-muted"
       @click="toggleDirection"
     >
       <Icon :icon="directionIcon" />
@@ -19,14 +15,13 @@
       :items="items"
       :placeholder="currentSort?.label"
       size="lg"
-      class="w-full rounded-l-none border-l-0"
       @update:model-value="onSort"
     />
-  </div>
+  </InputGroup>
 </template>
 
 <script setup lang="ts">
-import { Button, Select } from "@upmind/ui";
+import { Button, InputGroup, Select } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {

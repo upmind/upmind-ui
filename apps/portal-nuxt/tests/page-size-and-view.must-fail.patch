@@ -1,0 +1,20 @@
+# Negative control — resizing a panel throws the reader back to page 1 instead
+# of clamping to the last page the new size still reaches, so changing the page
+# size loses the client's place every time.
+#
+# Intended RED: "clamps to the LAST page the bigger size still has" and "keeps
+# a page the bigger size still holds" (tests/page-size-and-view.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collections.ts
++++ b/apps/portal-nuxt/app/portal/mock/collections.ts
+@@ -417,9 +417,7 @@
+   function setLimit(value: number): void {
+     if (!Number.isInteger(value) || value < 1) return;
+     limit.value = value;
+-    // The same materialised clamp a filter change gets: a bigger page can
+-    // strand the requested index past the new end.
+-    requestedPage.value = page.value;
++    requestedPage.value = 1;
+   }
+ 
+   const actions: MockCollectionActions<TFilters, TSortProperty> = {

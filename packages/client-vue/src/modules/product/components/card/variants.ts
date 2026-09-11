@@ -81,9 +81,7 @@ export const cardHeaderRootVariants = cva(
 
 export const cardHeaderInfoRootVariants = cva("flex flex-col gap-3");
 export const cardHeaderInfoContainerVariants = cva("flex flex-col gap-2");
-export const cardHeaderInfoTitleVariants = cva(
-  "m-0 inline-block text-2xl font-medium"
-);
+export const cardHeaderInfoTitleVariants = cva("m-0 inline-block text-2xl");
 export const cardHeaderInfoTermsVariants = cva("m-0 text-base");
 export const cardHeaderInfoDescriptionVariants = cva(
   "text-muted m-0 line-clamp-3 text-sm"

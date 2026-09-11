@@ -28,6 +28,7 @@
           isDisabled: meta.isDisabled
         }),
         heading: sectionHeadingVariants({
+          hasIcon: meta.hasIcon,
           isInset: meta.isInset,
           isDisabled: meta.isDisabled
         }),
@@ -40,7 +41,15 @@
         :key="`tab-${section.value}`"
         #[`tab.${section.value}`]
       >
-        <Icon v-if="section.icon" :icon="section.icon" />
+        <!-- the glyphs draw bottom-weighted in their box, so centring drops
+             them under the baseline; the forced svg size beats TabsTrigger's
+             own cap, so a tabbed section matches a lone one -->
+        <Icon
+          v-if="section.icon"
+          :icon="section.icon"
+          size="sm"
+          class="relative -top-0.5 [&>svg]:size-5!"
+        />
         {{ section.label }}
       </template>
 
@@ -161,7 +170,8 @@ const meta = computed(() => {
   // default comes from the active template via the section store.
   const isInset = hasCard && (props.inset ?? insetDefault.value);
   const hasBorder = !isInset && (props.border ?? border.value);
-  return { hasCard, hasBorder, isInset, isDisabled: props.disabled };
+  const hasIcon = !!first(props.sections)?.icon;
+  return { hasCard, hasBorder, hasIcon, isInset, isDisabled: props.disabled };
 });
 
 // The tab-{label} keys are the e2e contract; a section's own dataAttrs win.

@@ -1,0 +1,19 @@
+# Negative control — the date-range predicate turns exclusive at the `to` end,
+# so a row dated on the last day of the period the client asked for is dropped
+# out of it.
+#
+# Intended RED: "keeps the rows purchased ON the boundary days and drops the
+# days outside" and "a single-day window keeps that day alone"
+# (tests/collection-filters.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-filters.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-filters.ts
+@@ -151,7 +151,7 @@
+   const [from, to] = wanted.split(LIST_CONTROLS_RANGE_SEPARATOR);
+   const day = date.slice(0, 10);
+   if (from !== undefined && from !== "" && day < from) return false;
+-  if (to !== undefined && to !== "" && day > to) return false;
++  if (to !== undefined && to !== "" && day >= to) return false;
+   return true;
+ }
+ 

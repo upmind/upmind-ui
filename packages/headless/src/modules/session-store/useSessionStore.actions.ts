@@ -1,7 +1,11 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { useQuery } from "../query";
 import { useDataLayer } from "../system-analytics";
-import { loadUser } from "./session-store.services";
+import {
+  loadUser,
+  mintGuestToken,
+  mintNewGuestToken
+} from "./session-store.services";
 import {
   sessionStore as store,
   isScopeAllowed,
@@ -17,10 +21,12 @@ import {
   dumpTokenFromStorage,
   getExpiresAt,
   getFirstSessionId,
+  getLiveGuestToken,
+  getTokenFromStorage,
   persistActorToStorage,
   persistTokenToStorage
 } from "./session-store.utils";
-import { omit } from "lodash-es";
+import { first, isEmpty, keys, omit } from "lodash-es";
 import type {
   AuthEventType,
   SessionEntry,
@@ -38,34 +44,134 @@ import type { IToken } from "@upmind-automation/types";
 // --- Private Helpers
 
 /**
+ * Sequence number of the most recent activation asked for.
+ *
+ * Activating GUEST can await a network mint, so a switch is not instantaneous:
+ * "switch to guest, then back to the client" would otherwise have the resolving
+ * mint write the guest pointer back over the client. The last activation asked
+ * for is the one that wins.
+ */
+let activationSequence = 0;
+
+/**
+ * Claim the newest activation, and hand back the token that proves it.
+ *
+ * @returns The claimed sequence number.
+ */
+function claimActivation(): number {
+  return ++activationSequence;
+}
+
+/**
+ * Whether a claimed activation is still the newest one asked for.
+ *
+ * @param sequence - The number `claimActivation` handed back.
+ * @returns False once a later activation has superseded it.
+ */
+function isActivationCurrent(sequence: number): boolean {
+  return sequence === activationSequence;
+}
+
+/**
  * Set the tentative active actor and session ID. The write gate validates the
- * pointer against the session maps and falls through to the GUEST floor if the
- * requested session does not exist.
+ * pointer against the session maps and re-resolves it if the requested session
+ * does not exist.
  *
  * `activate(actor)` with no id (CLIENT/STAFF) means "switch to this scope": a
  * no-op when the scope is already active, else its first session; no sessions →
  * no-op. It must not stomp a specific active session back to the scope's first.
+ *
+ * GUEST is a session like any other here: choosing it records its id on the
+ * pointer, a named pooled guest is switched to on the same terms as a client or
+ * staff one, and one is minted first when no id is named and the pool holds
+ * none. This is the only writer of the guest pointer — `add` deliberately is
+ * not, because it cannot tell a chosen mint from a background token refresh.
+ *
+ * @returns A promise that resolves once the switch has settled. Never rejects:
+ *   a guest mint that fails leaves the pointer where it was, and a switch a
+ *   later activation supersedes resolves without writing at all.
  */
-function activateSession(actor: AccessRoleTypes, sessionId?: string): void {
-  if (!sessionId && actor !== AccessRoleTypes.GUEST) {
+async function activateSession(
+  actor: AccessRoleTypes,
+  sessionId?: string
+): Promise<void> {
+  const sequence = claimActivation();
+
+  if (actor === AccessRoleTypes.GUEST) {
+    const { activeActor, activeSessionId, guestSessions } = store.state;
+
+    // Already on the guest being asked for — the same predicate the resolver
+    // uses to honour the pointer. Mirrors the client/staff same-scope no-op
+    // below.
+    if (
+      activeActor === AccessRoleTypes.GUEST &&
+      activeSessionId &&
+      guestSessions[activeSessionId] &&
+      (!sessionId || sessionId === activeSessionId)
+    )
+      return;
+
+    if (!sessionId && isEmpty(guestSessions)) {
+      try {
+        await mintGuestToken();
+      } catch (error) {
+        // Soft degrade, matching `add`'s /self failure: the user keeps the
+        // session they had. Not SessionState.error — that field is the fatal
+        // BOOT error, not a failed mid-session switch.
+        console.warn("Failed to mint a guest session to switch to:", error);
+        return;
+      }
+
+      // Superseded while the mint was in flight — the newer activation owns the
+      // pointer, so this one resolves without touching it. The minted guest
+      // stays pooled and switchable.
+      if (!isActivationCurrent(sequence)) return;
+    }
+
+    // Without an id the guest to switch to is the one the cookie names. Reading
+    // the cookie rather than only the map also covers a mint that landed while
+    // the store was not yet available for `add` to run: reconcile keys the entry
+    // by exactly this id on the write below.
+    const guestCookie = getTokenFromStorage(
+      AccessRoleTypes.GUEST
+    ) as IToken | null;
+    const targetId =
+      sessionId ??
+      guestCookie?.actor_id ??
+      first(keys(store.state.guestSessions));
+    if (!targetId) return;
+
+    // A named pooled guest is switched to exactly as a client or staff session
+    // is — its token becomes the one the guest cookie carries (R8).
+    const pooled = store.state.guestSessions[targetId]?.token;
+    if (pooled && guestCookie?.actor_id !== targetId)
+      persistTokenToStorage(pooled, { sync: false });
+
+    updateSession(state => ({
+      ...state,
+      activeActor: AccessRoleTypes.GUEST,
+      activeSessionId: targetId
+    }));
+    return;
+  }
+
+  if (!sessionId) {
     if (store.state.activeActor === actor) return;
     sessionId = getFirstSessionId(actor);
     if (!sessionId) return;
   }
 
-  if (sessionId && actor !== AccessRoleTypes.GUEST) {
-    const record =
-      actor === AccessRoleTypes.CLIENT
-        ? store.state.clientSessions
-        : store.state.staffSessions;
-    const token = record[sessionId]?.token;
-    if (token) persistTokenToStorage(token, { sync: false });
-  }
+  const record =
+    actor === AccessRoleTypes.CLIENT
+      ? store.state.clientSessions
+      : store.state.staffSessions;
+  const token = record[sessionId]?.token;
+  if (token) persistTokenToStorage(token, { sync: false });
 
   updateSession(state => ({
     ...state,
     activeActor: actor,
-    activeSessionId: actor === AccessRoleTypes.GUEST ? undefined : sessionId
+    activeSessionId: sessionId
   }));
 }
 
@@ -96,11 +202,15 @@ export function useSessionStoreActions() {
     sessionId?: string
   ): IToken | undefined => {
     const targetId = sessionId ?? getFirstSessionId(actor);
-    const { guestSession, clientSessions, staffSessions } = store.state;
+    const { guestSessions, clientSessions, staffSessions } = store.state;
 
     switch (actor) {
       case AccessRoleTypes.GUEST:
-        return guestSession;
+        // Unnamed, the singular guest surface means the LIVE guest, not an
+        // arbitrary one of the pool (R8).
+        return sessionId
+          ? guestSessions[sessionId]?.token
+          : getLiveGuestToken(store.state);
       case AccessRoleTypes.CLIENT:
         return targetId ? clientSessions[targetId]?.token : undefined;
       case AccessRoleTypes.STAFF:
@@ -133,7 +243,18 @@ export function useSessionStoreActions() {
 
     // NEW: If user data not provided, load it asynchronously
     let userLoadError: SessionState["userError"];
-    if (!user && sessionId && token.access_token) {
+    // A guest has no `/self` profile in this store's model (`activeUser` is
+    // null for guest, and boot's loadAllSessionUsers skips the guest map), and
+    // `loadUser` would route a guest token to the CLIENT `/self` via its
+    // default arm. Guest carried no id before FE-3087, so an empty `sessionId`
+    // used to skip this implicitly; now that a guest session IS keyed, the
+    // exemption has to be stated.
+    if (
+      !user &&
+      sessionId &&
+      token.access_token &&
+      actor !== AccessRoleTypes.GUEST
+    ) {
       // Login must reflect server truth — bust the 24h-cached /self so a change
       // made elsewhere (e.g. a freshly verified email) is seen, not the stale
       // snapshot. Register mints a new actor (never cached); refresh/hydration keep it.
@@ -165,8 +286,13 @@ export function useSessionStoreActions() {
 
     updateSession(state => {
       // Update the relevant session based on actor type
-      const guestSession =
-        actor === AccessRoleTypes.GUEST ? token : state.guestSession;
+      const guestSessions =
+        actor === AccessRoleTypes.GUEST && sessionId
+          ? {
+              ...state.guestSessions,
+              [sessionId]: { scope: actor, token }
+            }
+          : state.guestSessions;
 
       const clientSessions =
         actor === AccessRoleTypes.CLIENT
@@ -184,13 +310,21 @@ export function useSessionStoreActions() {
             }
           : state.staffSessions;
 
-      // Optionally activate this session
+      // Optionally activate this session. For GUEST only the actor is set and
+      // the standing pointer is left for the write gate to re-validate —
+      // omitting the key from this spread is the point, not an oversight.
+      //
+      // `add` cannot tell a mint driven by an explicit `activate(GUEST)` from a
+      // token refresh: modules/query/query.services.ts fires
+      // `persistTokenToStorage(data)` with sync enabled after a refresh_token
+      // grant, for whichever session refreshed, guest included. Writing the
+      // guest key here would silently promote a fallen-back guest into a chosen
+      // one, and that tab would stop upgrading on a remote login. Intent
+      // belongs to `activate`; `add` only records that a token exists.
       const activation = shouldActivate
-        ? {
-            activeActor: actor,
-            activeSessionId:
-              actor === AccessRoleTypes.GUEST ? undefined : sessionId
-          }
+        ? actor === AccessRoleTypes.GUEST
+          ? { activeActor: actor }
+          : { activeActor: actor, activeSessionId: sessionId }
         : {};
 
       // Adding a session makes the store usable — mark it ready (as `clear`
@@ -199,7 +333,7 @@ export function useSessionStoreActions() {
       return {
         ...state,
         clientSessions,
-        guestSession,
+        guestSessions,
         initialised: true,
         staffSessions,
         ...activation,
@@ -219,6 +353,35 @@ export function useSessionStoreActions() {
     }
 
     broadcastSessionChange({ type: "SET_SESSION", session: token });
+  }
+
+  /**
+   * Add a NEW guest session — the guest counterpart of a fresh login.
+   *
+   * Mints a guest grant under its own session id, pools it beside the guests
+   * already there, and makes it the active, cookie-backed guest. The guest that
+   * was cookie-backed stays pooled and is reached again with
+   * `activate(GUEST, id)`, exactly as a previous client is. A background token
+   * refresh is the opposite request and keeps its id — only this asks for a new
+   * one.
+   *
+   * @returns A promise resolving once the new guest is active. Never rejects: a
+   *   failed mint leaves every existing session where it was, and an activation
+   *   asked for while the mint is in flight wins — the new guest is still
+   *   pooled and switchable, but the pointer stays where that activation put it.
+   */
+  async function addGuest(): Promise<void> {
+    if (!isScopeAllowed(AccessRoleTypes.GUEST)) return;
+
+    const sequence = claimActivation();
+
+    try {
+      const token = await mintNewGuestToken();
+      if (!isActivationCurrent(sequence)) return;
+      await activateSession(AccessRoleTypes.GUEST, token.actor_id || undefined);
+    } catch (error) {
+      console.warn("Failed to mint a new guest session:", error);
+    }
   }
 
   /**
@@ -251,7 +414,9 @@ export function useSessionStoreActions() {
   }
 
   /**
-   * Remove a session from the store.
+   * Remove one session from the store — guest on the same terms as client and
+   * staff: the named entry is dropped from its own map and every sibling in
+   * that map is left alone.
    * If removing the active session, restores parent (impersonation) or next available.
    *
    * @param actor - The actor type to remove
@@ -263,8 +428,7 @@ export function useSessionStoreActions() {
     // Capture state before mutation
     const isActive =
       actor === store.state.activeActor &&
-      (actor === AccessRoleTypes.GUEST ||
-        targetId === store.state.activeSessionId);
+      targetId === store.state.activeSessionId;
     const parentId = targetId
       ? store.state.impersonatedSessions[targetId]
       : undefined;
@@ -286,6 +450,10 @@ export function useSessionStoreActions() {
         actor === AccessRoleTypes.CLIENT && targetId
           ? omit(state.clientSessions, targetId)
           : state.clientSessions;
+      const guestSessions: Record<string, SessionEntry> =
+        actor === AccessRoleTypes.GUEST && targetId
+          ? omit(state.guestSessions, targetId)
+          : state.guestSessions;
       const staffSessions: Record<string, SessionEntry> =
         actor === AccessRoleTypes.STAFF && targetId
           ? omit(state.staffSessions, targetId)
@@ -307,8 +475,7 @@ export function useSessionStoreActions() {
 
       return {
         ...state,
-        guestSession:
-          actor === AccessRoleTypes.GUEST ? undefined : state.guestSession,
+        guestSessions,
         clientSessions,
         staffSessions,
         impersonatedSessions: targetId
@@ -328,10 +495,21 @@ export function useSessionStoreActions() {
   /**
    * Activate a specific actor and session.
    * No-op if the actor scope is not allowed by the store config.
+   *
+   * @param actor - The actor type to switch to
+   * @param sessionId - The session to switch to; defaults to that scope's first
+   *   session (for GUEST, the one its cookie names)
+   * @returns A promise resolving once the switch has settled. Activating GUEST
+   *   with no id mints a session when the pool holds none, so this can involve a
+   *   network call; a failed mint resolves WITHOUT moving the pointer. Never
+   *   rejects.
    */
-  function activate(actor: AccessRoleTypes, sessionId?: string): void {
+  async function activate(
+    actor: AccessRoleTypes,
+    sessionId?: string
+  ): Promise<void> {
     if (!isScopeAllowed(actor)) return;
-    activateSession(actor, sessionId);
+    return activateSession(actor, sessionId);
   }
 
   function clear(): void {
@@ -339,7 +517,7 @@ export function useSessionStoreActions() {
       activeActor: AccessRoleTypes.GUEST,
       activeSessionId: undefined,
       clientSessions: {},
-      guestSession: undefined,
+      guestSessions: {},
       impersonatedSessions: {},
       staffSessions: {},
       initialised: true,
@@ -471,6 +649,12 @@ export function useSessionStoreActions() {
      */
     add,
 
+    /**
+     * Add a NEW guest session and make it active; the previous guest stays
+     * pooled and switchable.
+     */
+    addGuest,
+
     /** Clear all sessions and reset to guest. */
     clear,
 
@@ -514,11 +698,11 @@ export function useSessionStoreActions() {
     registerImpersonation,
 
     /**
-     * Remove a client or staff session from state.
+     * Remove one session from state, leaving its siblings in place.
      * If removing active session, handles impersonation restoration.
      * Use logout() for full removal including cookies.
-     * @param actor - CLIENT or STAFF
-     * @param sessionId - The actor_id to remove
+     * @param actor - GUEST, CLIENT or STAFF
+     * @param sessionId - The session id to remove
      */
     remove,
 

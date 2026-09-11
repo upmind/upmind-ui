@@ -1,0 +1,22 @@
+# Negative control — the pin answers as though it moved the row and writes
+# nothing, so a client pressing Pin sees the control report a change the panel
+# never made and the row stays on whichever side of the order it began.
+#
+# Intended RED: "lifts a row to the head of its panel, and lets it back down
+# where it was", "keeps every held row above every loose one, on both account
+# panels", "keeps the held row above the loose one on a product's panels too"
+# (tests/seventh-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockVault.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockVault.ts
+@@ -66,10 +66,6 @@
+           entity: asset
+         };
+       }
+-      assign(asset, {
+-        pinned: asset.pinned !== true,
+-        updated_at: new Date().toISOString()
+-      });
+       return { ok: true, entity: asset };
+     },
+ 

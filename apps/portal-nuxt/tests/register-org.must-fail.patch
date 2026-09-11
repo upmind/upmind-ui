@@ -1,0 +1,24 @@
+# Negative control — the org-registration screen drops its gate, so it stands
+# for every brand: a visitor to a brand that opens no organisations is served
+# the org form instead of being sent to the client registration screen, and
+# `isUpmindOrgContext` stops deciding anything.
+#
+# Intended RED: "sends everybody else to the client screen instead"
+# (tests/register-org.test.ts).
+
+--- a/apps/portal-nuxt/app/pages/register-org.vue
++++ b/apps/portal-nuxt/app/pages/register-org.vue
+@@ -12,13 +12,6 @@
+ definePageMeta({ layout: "logged-out" });
+ 
+ const { isOrgRegistrationEnabled } = useMockBrandGates();
+-
+-if (!isOrgRegistrationEnabled.value) {
+-  toast.info("Organisations are not opened here", {
+-    description: "You can open a client account instead."
+-  });
+-  void navigateTo("/register", { replace: true });
+-}
+ </script>
+ 
+ <template>

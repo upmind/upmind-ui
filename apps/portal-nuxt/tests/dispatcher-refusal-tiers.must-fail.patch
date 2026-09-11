@@ -1,0 +1,20 @@
+# Negative control — a known verb naming a row the dataset does not hold falls
+# silent instead of refusing: the two tiers collapse into one, and a control
+# the client pressed answers nothing at all.
+#
+# Intended RED: every "<value> refuses out loud" case
+# (tests/dispatcher-refusal-tiers.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/actions.ts
++++ b/apps/portal-nuxt/app/portal/mock/actions.ts
+@@ -391,8 +391,8 @@
+  * because a case that resolves its subject BEFORE asking the facade (a
+  * destructive verb wording its own dialog) has to answer the same way.
+  */
+-function notFound(): MockActionResult {
+-  return refusal(MOCK_RECEIPT_REASON.NOT_FOUND);
++function notFound(): MockActionResult | undefined {
++  return undefined;
+ }
+ 
+ /**

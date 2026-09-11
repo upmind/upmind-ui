@@ -1,0 +1,18 @@
+# Negative control — the child-accounts panel stops searching the child's own
+# name and address, so the three narrowings legacy published
+# (`data/filters/childAccounts.ts`: firstname, lastname, default email) —
+# which the band spells as one search box — hand back every relation.
+#
+# Intended RED: "searches the child accounts by name and by email"
+# (tests/filter-seams.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -621,7 +621,6 @@
+     // Legacy narrowed the child's own name and address
+     // (`data/filters/childAccounts.ts`: firstname, lastname, default email),
+     // which the band spells as one search box.
+-    searchProps: ["name", "email"],
+     sortOptions: CHILD_ACCOUNT_SORT_OPTIONS,
+     filterControls: CHILD_ACCOUNT_FILTER_CONTROLS
+   })

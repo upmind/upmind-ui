@@ -42,6 +42,8 @@ Payment gateways is the one contract every payment provider is driven through on
 ### The chosen gateway record
 
 ```ts
+import type { GatewayTypes } from "@upmind-automation/types";
+
 // The fields this module reads off the gateway record a caller hands it.
 // The wider record (currencies, card types, provider capabilities) is the
 // sibling capture module's own concern; only the fields below drive this

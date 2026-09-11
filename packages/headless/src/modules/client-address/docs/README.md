@@ -25,19 +25,20 @@ Both always manage the **calling client's own** book. There is no capability her
 
 ```ts
 import {
+  ScopeActorTypes,
   useClientAddresses,
   useClientAddressManager
 } from "@upmind-automation/headless";
 
 // --- The collection: read the list, promote an address to default
-const addresses = useClientAddresses().as("client");
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
 const { data, default: defaultAddressId, getOne } = addresses.useContext();
 await addresses.useActions().isReady();
 await addresses.useActions().setDefault("some-address-id");
 const defaultAddress = getOne(defaultAddressId()); // look the row up — see below
 
 // --- The editor: add a new address through the validated form
-const draft = useClientAddressManager().as("client").fresh();
+const draft = useClientAddressManager().as(ScopeActorTypes.CLIENT).fresh();
 await draft.useActions().isReady();
 await draft.useActions().update({
   address: {
@@ -88,13 +89,19 @@ The collection and the editor are separate composables, but they share one ident
 `useClientAddresses().useContext().default()` returns the default address's `id` (or `undefined` if none) — it is not the address record itself. Look the row up with `getOne(default())` when you need the full record.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientAddresses
+} from "@upmind-automation/headless";
+
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
 const { default: defaultId, getOne } = addresses.useContext();
 
 const defaultAddressId = defaultId(); // e.g. "20e43579-5e78-d184-78db-31643202d986"
 const defaultAddress = getOne(defaultAddressId); // the full row, or undefined
 ```
 
-> **🧪 For Testers:** Against a fixture with exactly one `default: true` row, `default()` resolves to that row's `id`. Against a fixture with none, it resolves `undefined` and never throws. A test asserting `default()` returns a row object is asserting the wrong contract. This is compiler-invisible — nothing about the type signature stops a caller from treating it as the row.
+> **🧪 For Testers:** Against a fixture with exactly one `default: true` row, `default()` resolves to that row's `id`. Against a fixture with none, it resolves `undefined` and never throws. A test asserting `default()` returns a row object is asserting the wrong contract. The compiler catches a direct field read off the id, but not an id threaded into a template or a loosely-typed helper.
 
 ### `ensure()` finds an existing address only by its `id` — never by matching address lines
 

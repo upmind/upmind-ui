@@ -144,7 +144,44 @@ export function useScenarioWorld(
       // No screen at all — the Node runner, and the playability probe that boots
       // a track without mounting it. Nothing else may take this branch.
       const action = get(requirePort().actions, actionId);
-      if (!isFunction(action)) fail(`unknown action "${actionId}"`);
+
+      // Neither on the stage nor on the port. A handoff id (`manage`,
+      // `editRow`, `add`, `edit`) lives ONLY on a mounted surface, and a deep
+      // link (`?track=…&scene=1`) fires its first scene while that surface is
+      // still mounting — so `offers()` above answered false for a control that
+      // was late, not absent, and this branch reported `unknown action`.
+      // Wait for the surface once, then press it. A control that genuinely
+      // never arrives still fails, and the Node runner (where no surface ever
+      // registers) pays the wait only on an id that was going to throw anyway.
+      if (!isFunction(action)) {
+        if (await stage.whenStaged()) {
+          if (stage.offers(actionId, rowId)) {
+            await stage.press(actionId, rowId);
+
+            const late = await stage
+              .whenEditor(EDITOR_WAIT_MS)
+              .catch(() => undefined);
+            if (late) {
+              await beat();
+
+              const fields = omit(
+                (input ?? {}) as Record<string, unknown>,
+                "id"
+              );
+              if (!isEmpty(fields)) {
+                late.fill(fields);
+                await beat();
+              }
+
+              await late.submit();
+            }
+
+            return;
+          }
+        }
+
+        fail(`unknown action "${actionId}"`);
+      }
 
       await action(input);
     },

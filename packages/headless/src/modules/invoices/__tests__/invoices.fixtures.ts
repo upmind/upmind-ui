@@ -55,16 +55,18 @@
  * `get-invoices-id-case-first` (one real single-invoice read, full include set, AC-2/5/8/9/11) ·
  * `get-invoices-id-case-unpaid` (one real UNPAID/OVERDUE single-invoice read, if one exists) ·
  * `get-invoices-id-case-paid` (one real fully-paid single-invoice read, if one exists — AC-16) ·
+ * `get-invoices-id-case-cancelled` (one real CANCELLED single-invoice read, if one exists) ·
  * `get-invoices-id-case-not-found` (control: unknown id, 404) ·
  * `get-invoices-id-case-signed-out` (control: unauthenticated, 401 — AC-14) ·
  * `get-invoices-unpaid_amount-id` (one real unpaid-amount read, AC-1)
  */
 
 import { join } from "node:path";
-import { describe, it, beforeAll, afterAll } from "vitest";
-import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
+import { afterAll, beforeAll, describe, it } from "vitest";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { GrantTypes } from "@upmind-automation/types";
+import { InvoiceStatus } from "@upmind-automation/types";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import { mintClientToken } from "../../auth/__tests__/auth.tokens";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -108,25 +110,6 @@ const LOAD_LIST_WITH =
 
 // -----------------------------------------------------------------------------
 
-async function mintToken(
-  grant: Record<string, string>
-): Promise<IToken | undefined> {
-  const response = await fetch(`${API_URL}/oauth/access_token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      Origin: ORIGIN
-    },
-    body: new URLSearchParams(grant).toString()
-  });
-  const body = await response.json().catch(() => null);
-  const token = (body?.access_token ? body : body?.data) as IToken | undefined;
-  return token?.access_token ? token : undefined;
-}
-
-// -----------------------------------------------------------------------------
-
 describe("Invoices API Fixtures Generator", () => {
   let generator: Generator;
   let clientToken: IToken;
@@ -134,6 +117,7 @@ describe("Invoices API Fixtures Generator", () => {
   let unpaidInvoiceId: string | undefined;
   let unpaidInvoiceCurrencyId: string | undefined;
   let paidInvoiceId: string | undefined;
+  let cancelledInvoiceId: string | undefined;
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -143,18 +127,7 @@ describe("Invoices API Fixtures Generator", () => {
       name: "invoices"
     });
 
-    const token = await mintToken({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS.client.username,
-      password: API_CREDENTIALS.client.password
-    });
-    if (!token) {
-      throw new Error(
-        "Could not mint a client token with the staging credentials — " +
-          "check tests/fixtures/credentials.ts against the recording brand."
-      );
-    }
-    clientToken = token;
+    clientToken = await mintClientToken();
   }, 30000);
 
   afterAll(() => {
@@ -191,6 +164,9 @@ describe("Invoices API Fixtures Generator", () => {
     )?.id;
     paidInvoiceId = rows.find(
       row => asRow(row).status?.code === "invoice_paid"
+    )?.id;
+    cancelledInvoiceId = rows.find(
+      row => asRow(row).status?.code === InvoiceStatus.CANCELLED
     )?.id;
 
     // Disclosure only — never a hard failure; the int tests fall back to a
@@ -283,6 +259,24 @@ describe("Invoices API Fixtures Generator", () => {
     generator.clearBearerToken();
     if (status !== 200) {
       throw new Error(`Paid single-read capture returned ${status}.`);
+    }
+  });
+
+  it("captures GET /invoices/{id} for a real CANCELLED invoice, if one exists", async () => {
+    if (!cancelledInvoiceId) {
+      console.log(
+        "[fixtures:generate invoices] no cancelled row in this capture " +
+          "window — get-invoices-id-case-cancelled not (re)captured."
+      );
+      return;
+    }
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/invoices/${cancelledInvoiceId}?${LOAD_ONE_WITH}&with_count=products&case=cancelled`
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(`Cancelled single-read capture returned ${status}.`);
     }
   });
 

@@ -1,0 +1,18 @@
+# Negative control — the referrals panel's predicate reads a key nobody
+# writes, so both callers go inert: the module's own `dateCreated` setter and
+# the band's control (which writes the same key) stop narrowing.
+#
+# Intended RED (to be added by the prover): "the referrals panel's own
+# dateCreated setter narrows the rows".
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -703,7 +703,7 @@
+       data.affiliate?.referrals ?? [],
+       referral =>
+         matchesExact(referral.linkId, criteria.linkId) &&
+-        matchesDateRange(referral.date, criteria.dateCreated)
++        matchesDateRange(referral.date, criteria.date)
+     ),
+   apply => ({
+     linkId: value => apply({ linkId: value }),

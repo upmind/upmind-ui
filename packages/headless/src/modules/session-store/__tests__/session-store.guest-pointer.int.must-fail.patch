@@ -1,0 +1,33 @@
+FE-3087 negative control — AC8 (chosen vs defaulted guest on the public context).
+
+Target spec:  session-store.guest-pointer.int.test.ts
+Target case:  the AC8 case whose title contains
+              "distinguishes a chosen guest from a defaulted guest on the public context"
+              (an @AC-8 id prefix/suffix on the title is permitted — substring match)
+Mutation:     activateSession's guest arm force-clears the pointer again
+              (activeSessionId: targetId -> undefined), restoring the pre-FE-3087
+              special case. A chosen guest then looks identical to the floor, so the
+              case above MUST go RED. Every pre-existing session-store case stays
+              GREEN (the mutation re-creates the old behaviour, not a crash).
+Authored by:  developer seat hand-off, run wf_a640869d-5e9 (re-anchored to 605ac9b4c);
+              filed verbatim by the operator at the reviewer gate (review-notes §17).
+Verified by:  prover seat, blind — apply, run the target case RED, revert.
+
+diff --git a/packages/headless/src/modules/session-store/useSessionStore.actions.ts b/packages/headless/src/modules/session-store/useSessionStore.actions.ts
+--- a/packages/headless/src/modules/session-store/useSessionStore.actions.ts
++++ b/packages/headless/src/modules/session-store/useSessionStore.actions.ts
+@@ -106,13 +106,13 @@ async function activateSession(
+     if (pooled && guestCookie?.actor_id !== targetId)
+       persistTokenToStorage(pooled, { sync: false });
+
+     updateSession(state => ({
+       ...state,
+       activeActor: AccessRoleTypes.GUEST,
+-      activeSessionId: targetId
++      activeSessionId: undefined
+     }));
+     return;
+   }
+
+   if (!sessionId) {
+     if (store.state.activeActor === actor) return;

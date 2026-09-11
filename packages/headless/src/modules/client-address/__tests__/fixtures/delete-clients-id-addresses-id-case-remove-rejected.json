@@ -17,13 +17,13 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a2fa26b698c5e3b0-LIS",
+      "cf-ray": "a38bf4710f7d9d4b-DUB",
       "connection": "keep-alive",
       "content-type": "application/json",
-      "date": "Sun, 23 Aug 2026 12:34:24 GMT",
+      "date": "Thu, 10 Sep 2026 05:15:26 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=52KWH4UhMF1w8h4jC6FAUvdPkSOeVbyt0nJf4MfhTZUX9jn%2FycQYSL78bJZpVekUy0BDrpMYq%2BeZCXiyf0j23PIEh7am%2F8p%2FWeOpUqieluX6fYcy%2BqcZp4QH%2BuBOq1cdkfzmNfn5og%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=MbUGWQsIgNeyer8Zfdw1FYMJBqES6ujbndSTRsCMtmMl0mIIt0GEI1ylsIgz0tGMPzahyuvL%2Bo7111bpAmg4JzLStUW9T6vpeipzkPsXT99%2FkyeI61Ml97YkbSRNy6hExr%2FlbN%2FYNw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "x-frame-options": "SAMEORIGIN"
@@ -34,7 +34,7 @@
       "related": null,
       "total": null,
       "error": {
-        "id": "ab259a08d87e4b99f53853b8e265cb850d891f67",
+        "id": "e5048349138f854edf7342c088d115c3848157e8",
         "type": 0,
         "code": 409,
         "message": "The email address is in use and cannot be replaced!",
@@ -44,7 +44,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-23T12:34:24.521Z",
+  "captured_at": "2026-09-10T05:15:26.354Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

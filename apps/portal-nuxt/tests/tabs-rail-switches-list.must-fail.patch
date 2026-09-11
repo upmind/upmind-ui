@@ -1,0 +1,21 @@
+# Negative control — the Cancelled tab shows the WRONG side of the split: it
+# lists everything that is NOT cancelled, so the tab rail lies about what it
+# filters and Active and Cancelled show the same rows.
+#
+# Intended RED: "the Cancelled tab narrows the same list — legacy's Cancelled
+# route, as query state" (tests/product-pages.test.ts).
+#
+# REBASED 2026-09-02: the status is the platform enum now (plan R7). Same
+# mutation, enum anchors.
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -386,7 +386,7 @@ function matchesProductStatus(
+ ): boolean {
+   if (status === PRODUCT_STATUS_TAB.ALL) return true;
+   if (status === PRODUCT_STATUS_TAB.CANCELLED) {
+-    return product.status === ContractStatusCodes.CANCELLED;
++    return product.status !== ContractStatusCodes.CANCELLED;
+   }
+   return product.status !== ContractStatusCodes.CANCELLED;
+ }

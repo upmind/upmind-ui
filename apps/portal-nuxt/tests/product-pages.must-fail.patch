@@ -1,0 +1,17 @@
+# Negative control — the resolver drops the route context, handing every
+# selector an empty position: a group listing resolves no products, a product
+# page no spec, the area nav nothing (plan Phase D).
+#
+# Intended RED: any assertion that a context-keyed ref resolves the route's
+# own group or product (tests/product-pages.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/data-refs.ts
++++ b/apps/portal-nuxt/app/portal/mock/data-refs.ts
+@@ -107,6 +107,6 @@
+       }
+       return undefined;
+     }
+-    return SELECTOR_BY_REF[value.id](data, context);
++    return SELECTOR_BY_REF[value.id](data, {});
+   });
+ }

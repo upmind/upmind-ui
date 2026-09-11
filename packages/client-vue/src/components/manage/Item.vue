@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full flex-col gap-1">
     <header class="flex w-full items-start justify-between">
-      <h3 class="m-0 flex items-center gap-x-2 text-base font-medium">
+      <h3 class="m-0 flex items-center gap-x-2 text-base">
         {{ title }}
         <Badge
           v-if="meta?.isDefault"

@@ -51,13 +51,10 @@ import {
   rendererProps,
   useJsonFormsControlWithDetail
 } from "@jsonforms/vue";
-import { Search } from "@upmind/ui";
-import { Link } from "@upmind/ui";
+import { Search, Link, FormField, useUpmindUIRenderer } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { usePlaces } from "@upmind-automation/headless";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import { get } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { SearchItem } from "@upmind/ui";

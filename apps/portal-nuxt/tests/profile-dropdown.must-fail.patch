@@ -1,0 +1,20 @@
+# Negative control — the profile dropdown prints the support PIN in the clear
+# whether or not the client asked for it, so the mask and the toggle behind it
+# do nothing.
+#
+# Intended RED: "sits in the menu masked, and prints the brand's PIN once
+# toggled" and "masks it again on a second press — the control toggles, it does
+# not latch" (tests/profile-dropdown.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -4303,8 +4303,7 @@
+ function supportPinDisplay(data: MockDataset): string {
+   const pin = supportPin(data);
+   if (pin === undefined) return PIN_MASK;
+-  if (isSupportPinRevealed(data.persona)) return pin;
+-  return PIN_MASK;
++  return pin;
+ }
+ 
+ /**

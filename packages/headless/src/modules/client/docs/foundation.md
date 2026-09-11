@@ -47,6 +47,13 @@ Client is the customer record once a visitor has been authenticated as a real pe
 The customer-area surfaces of this module operate against the client whose id is exposed by session. The full client record itself is loaded by session via `/self` (covered in the session foundation doc). Profile mutations write back to `/clients/{id}`; the same id is the path prefix for every sub-record collection below.
 
 ```ts
+// Sibling records, documented in their own sections below.
+import type {
+  IAccount as Account,
+  IAddress as Address,
+  ITag as Tag
+} from "@upmind-automation/types";
+
 // IClient — the canonical client row. The fields below are the ones a storefront
 // commonly reads or writes from the customer-area surfaces. The full record carries
 // further admin-adjacent columns: fraud policy, support pin, reseller affiliate
@@ -115,6 +122,12 @@ type ProfileUpdateBody = {
 ### Address
 
 ```ts
+// System reference records, owned by the `system` module.
+import type {
+  ICountry as Country,
+  IRegion as Region
+} from "@upmind-automation/types";
+
 // IAddress — one row in the /clients/{id}/addresses collection.
 type Address = {
   id: string;
@@ -222,6 +235,17 @@ type EmailBody = {
 ### Company
 
 ```ts
+// Related records, documented in their own sections above.
+import type {
+  IAddress as Address,
+  IEmail as Email,
+  IPhone as Phone
+} from "@upmind-automation/types";
+
+// The create/update bodies documented under "Address" and "Phone" above.
+type AddressBody = object;
+type PhoneBody = object;
+
 // ICompany — one row in the /clients/{id}/companies collection.
 // Carries the company identity plus references to the address / phone / email
 // records used for invoicing and tax correspondence.

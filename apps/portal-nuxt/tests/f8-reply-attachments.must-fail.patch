@@ -1,0 +1,20 @@
+# Negative control — the reply keeps the file names out of the message it
+# appends, so the composer's attachments field is collected, parsed and then
+# thrown away: the thread shows the body alone and F9's second half is shape
+# without capability.
+#
+# Intended RED: "stores the names on the new message, and none where none were
+# given" (tests/fourth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockTicket.ts
+@@ -200,8 +200,7 @@
+           author: data.persona.name,
+           authorType: "client",
+           sentAt: new Date().toISOString(),
+-          body: model.body,
+-          attachments: model.attachments
++          body: model.body
+         };
+         subject.messages.push(message);
+         assign(subject, { updatedAt: message.sentAt });

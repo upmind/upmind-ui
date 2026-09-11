@@ -17,14 +17,11 @@ count label, and no tally of its own chips.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/RefinementsRow.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/RefinementsRow.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/RefinementsRow.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/RefinementsRow.vue
-@@ -32,6 +32,10 @@
-       :data-attrs="{ 'data-test-key': 'clear-all' }"
-       @click="clearAll"
-     />
+@@ -1,3 +1,7 @@
 +
 +    <span data-test-key="refinements-count">
 +      {{ t("labs.results_shown", { count: refinements.length }) }}
 +    </span>
-   </div>
- </template>
- 
+ <template>
+   <div
+     v-if="!isEmpty(refinements)"

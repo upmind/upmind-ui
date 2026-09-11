@@ -1,0 +1,19 @@
+# Negative control — a settled document can be left payable over its public
+# link, because the write takes the ticked box at face value rather than
+# asking whether anything is still owed.
+#
+# Intended RED (to be added by the prover): "never stores payment permission
+# on a settled invoice".
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockInvoice.ts
+@@ -168,8 +168,7 @@
+         shareAllowsDownload: model["allowDownload"] === true,
+         // A settled document is never payable over the link, whatever was
+         // ticked before it settled — the same gate the schema withholds on.
+-        shareAllowsPayment:
+-          isInvoiceOwed(invoice) && model["allowPayment"] === true
++        shareAllowsPayment: model["allowPayment"] === true
+       });
+       return { ok: true, entity: invoice };
+     },

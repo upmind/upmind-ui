@@ -14,12 +14,16 @@ The module wraps all credential exchange — login, registration, recovery, 2FA,
 ## Quick Start
 
 ```typescript
-import { useAuth } from "@upmind-automation/headless";
+import {
+  AuthFlowTypes,
+  ScopeActorTypes,
+  useAuth
+} from "@upmind-automation/headless";
 
-const auth = useAuth().as("client");
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
 
 // Start the login flow, then submit credentials
-await auth.useActions().start("login");
+await auth.useActions().start(AuthFlowTypes.LOGIN);
 const ok = await auth.useActions().resolve({
   username: "jane@example.com",
   password: "s3cret-pass"

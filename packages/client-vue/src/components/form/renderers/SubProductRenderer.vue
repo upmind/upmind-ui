@@ -16,12 +16,11 @@
 <script lang="ts" setup>
 import { uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import { FormField, useUpmindUIRenderer } from "@upmind/ui";
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
 import SubproductSelector from "../../../modules/product/components/subproduct/SubproductSelector.vue";
-import FormField from "../engine/FormField.vue";
-import { useUpmindUIRenderer } from "../engine/renderers/utils";
 import {
   cloneDeep,
   compact,

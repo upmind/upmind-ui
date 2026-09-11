@@ -1,0 +1,22 @@
+# Negative control — the billing rail is gated on the SCHEDULED ACTIONS alone
+# again, so the lifecycle events derive on every product and render on the one
+# the desk happens to have scheduled something against: 38 of the 39 seeded
+# products draw nothing they can derive (the F16 class of defect).
+#
+# REBASED 2026-09-06 (the gate's two suppressions now stand above the row
+# check). Same mutation.
+#
+# Intended RED (to be added by the prover): the mounted billing page draws the
+# lifecycle events it derives.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1959,7 +1959,7 @@
+   const isExpiringTrial =
+     product.trialEndsAt !== undefined && product.autoExpireAt !== undefined;
+   if (!isSubscription || isExpiringTrial) return false;
+-  return !isEmpty(productTimelineItems(data, context));
++  return !isEmpty(product.scheduledActions);
+ }
+ 
+ // --- products: the settings area (plan Phase 3; legacy cProdSettings)

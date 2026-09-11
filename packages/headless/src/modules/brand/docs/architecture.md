@@ -42,11 +42,21 @@ It then issues a single `query()` call under a **fixed** `queryKey: ["brand", "c
 carrying the accumulated key set as a filter criterion rather than as part of the key
 list itself:
 
-```typescript
-criteria: {
+```ts
+import { Store } from "@upmind-automation/headless";
+import { BrandConfigKeys } from "@upmind-automation/types";
+import type { JsonSchema7 } from "@jsonforms/core";
+
+// Both live inside the module: `useQuerySchema` in brand.schemas.ts, and the
+// append-only key store at brand.services.ts module scope.
+declare function useQuerySchema(): JsonSchema7;
+declare const brandConfigKeysStore: Store<BrandConfigKeys[]>;
+
+// the `criteria` the brand-config `query()` call carries
+const criteria = {
   schema: useQuerySchema(),
   model: { filters: { keys: { eq: brandConfigKeysStore.state } } }
-}
+};
 ```
 
 `useQuerySchema()` (`brand.schemas.ts`) declares the single `filters.keys.eq` branch as a
@@ -92,12 +102,16 @@ read brand-derived state — not duplicated here.
 
 ## Module-boundary note
 
-`packages/headless/src/modules/brand/index.ts` re-exports both `./useBrand` and
-`../brand-terms` through brand's own barrel:
+`packages/headless/src/modules/brand/index.ts` is exactly two lines —
+`export * from "./useBrand"` and `export * from "../brand-terms"` — so both
+surfaces arrive through brand's own barrel, and out of the package barrel
+side by side:
 
-```typescript
-export * from "./useBrand";
-export * from "../brand-terms";
+```ts
+import { useBrand, useTermsAndConditions } from "@upmind-automation/headless";
+
+const brand = useBrand();
+const terms = useTermsAndConditions();
 ```
 
 `brand-terms` (terms & conditions) is a sibling module, not a sub-module of brand — it has

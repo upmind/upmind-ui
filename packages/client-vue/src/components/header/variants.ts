@@ -31,7 +31,7 @@ export const headerPictureVariants = cva("h-full w-full");
 export const headerImageVariants = cva(
   "h-9 max-w-32 object-contain md:max-w-64"
 );
-export const headerNameVariants = cva("text-2xl font-medium");
+export const headerNameVariants = cva("text-2xl");
 export const headerContainerVariants = cva("flex-row lg:flex-row");
 
 export const headerLeftColumnVariants = cva("py-0 lg:py-0", {

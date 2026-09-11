@@ -74,6 +74,12 @@ collection; see [gotchas.md](./gotchas.md).
 The record returned for each company:
 
 ```ts
+// The three nested sibling records are each that resource's own full record
+// shape, specified in its own module's foundation doc — opaque here.
+type AddressRecord = Record<string, unknown>;
+type EmailRecord = Record<string, unknown>;
+type PhoneRecord = Record<string, unknown>;
+
 type CompanyRecord = {
   id: string;
   import_id: string | null;

@@ -1,47 +1,119 @@
 <template>
   <div class="flex flex-col gap-4">
-    <ToggleGroup
-      v-if="isGate"
-      type="single"
-      :model-value="choice"
-      class="grid w-full grid-cols-3"
-      @update:model-value="choose($event as AuthGateChoice)"
-    >
-      <ToggleGroupItem
-        v-for="entry in choices"
-        :key="entry.value"
-        :value="entry.value"
-        :data-attrs="entry.dataAttrs"
+    <!-- A real dialog header, so the container's absolute close button lands in
+         this row and never over the choices below it. -->
+    <DialogHeader>
+      <DialogTitle>{{ t("labs.auth_gate_title") }}</DialogTitle>
+    </DialogHeader>
+
+    <template v-if="isGate && !hasChoice">
+      <div
+        v-for="group in sessionGroups"
+        :key="group.label"
+        class="flex flex-col gap-1"
       >
-        {{ entry.label }}
-      </ToggleGroupItem>
-    </ToggleGroup>
+        <p class="text-muted text-xs tracking-wider uppercase">
+          {{ t(group.label) }}
+        </p>
+
+        <button
+          v-for="node in group.nodes"
+          :key="node.id"
+          type="button"
+          class="hover:bg-button-ghost-hover flex w-full items-center rounded-xs text-left"
+          :class="sessionItem({ isActive: node.isActive })"
+          data-test-key="session-switch"
+          :data-test-value="node.id"
+          @click="switchInto(node)"
+        >
+          <Avatar
+            size="sm"
+            :src="node.avatar?.src"
+            :alt="node.avatar?.caption"
+            :force-caption="node.avatar?.forceCaption"
+          >
+            <template #fallback>{{ node.avatar?.caption }}</template>
+          </Avatar>
+          <span class="flex min-w-0 flex-col">
+            <span class="truncate text-sm font-medium">{{ node.label }}</span>
+            <span v-if="node.sublabel" class="text-muted truncate text-xs">
+              {{ t(node.sublabel) }}
+            </span>
+          </span>
+          <Icon
+            v-if="node.isActive"
+            icon="check"
+            size="nano"
+            class="text-success ml-auto"
+          />
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-1" data-test-key="actor-scope-add-account">
+        <template v-for="entry in addChoices" :key="entry.value">
+          <!-- Guest Customer is an ACTION, fired on its own row: the list stays
+               up, the row shows the working state, and the dialog closes when the
+               session lands (`registerAsGuest`). -->
+          <template v-if="entry.value === AUTH_GATE_GUEST_CUSTOMER">
+            <Button
+              variant="ghost"
+              size="sm"
+              block
+              class="justify-start"
+              :loading="isRegisteringAsGuest"
+              :disabled="!canRegisterAsGuest || isRegisteringAsGuest"
+              :data-attrs="{ 'data-test-key': entry.testKey }"
+              @click="registerGuestCustomer()"
+            >
+              <Icon :icon="entry.icon" size="xs" />
+              {{
+                isRegisteringAsGuest
+                  ? t("labs.auth_guest_customer_running")
+                  : t(entry.label)
+              }}
+            </Button>
+            <p
+              v-if="!canRegisterAsGuest"
+              class="text-muted px-2 text-xs"
+              data-test-key="auth-guest-customer-disabled"
+            >
+              {{ t("labs.auth_guest_customer_disabled") }}
+            </p>
+            <p
+              v-else-if="guestCustomerFailed"
+              class="text-danger px-2 text-xs"
+              data-test-key="auth-guest-customer-error"
+            >
+              {{ guestCustomerErrors }}
+            </p>
+          </template>
+
+          <Button
+            v-else
+            variant="ghost"
+            size="sm"
+            block
+            class="justify-start"
+            :data-attrs="{ 'data-test-key': entry.testKey }"
+            @click="choose(entry.value)"
+          >
+            <Icon :icon="entry.icon" size="xs" />
+            {{ t(entry.label) }}
+          </Button>
+        </template>
+      </div>
+    </template>
 
     <AuthJourney
-      v-if="actor"
+      v-if="journeyActor"
       :key="journey"
-      :actor="actor"
+      :actor="journeyActor"
       :fresh="isAddSession"
+      :cancellable="isGate"
+      @cancel="back()"
       @logout="emit('close')"
       @resolve="handoff()"
     />
-
-    <!-- Guest signs into nothing, so it is a SCOPE change and not a journey —
-         it leaves the overlay for the page beneath, re-scoped. R9's chooser is
-         the three journeys; this is the fourth way in, and it is a route-out. -->
-    <Button
-      v-if="isGate"
-      variant="link"
-      size="sm"
-      class="self-center"
-      :data-attrs="{
-        'data-test-key': 'auth-actor',
-        'data-test-value': ScopeActorTypes.GUEST
-      }"
-      @click="continueAsGuest()"
-    >
-      {{ t("labs.session_guest") }}
-    </Button>
   </div>
 </template>
 
@@ -49,56 +121,46 @@
 // -----------------------------------------------------------------------------
 /**
  * @module pages/overlays/auth
- * @description The auth-collect OVERLAY — the session form a guarded route
- * opens over itself, rather than sitting on skeletons that never settle (`D2`).
+ * @description The auth-collect OVERLAY — the session form a guarded route opens
+ * over itself. `registerOverlayRoutes` injects it as `<parent>--session`, and
+ * the shared `OverlayController` renders it in the modal over the page beneath;
+ * on success it emits close and the controller returns to the parent, where the
+ * composable re-reads the now-authenticated session.
  *
- * It is the cart's `AuthOverlay` in this playground: the route carries the
- * overlay meta, `registerOverlayRoutes` injects it as `<parent>--session` onto
- * every eligible page, and the shared `OverlayController` renders it in the
- * modal container over whatever page is underneath. On success it emits close,
- * and the controller navigates back to the parent route — where the composable
- * this playground boots re-reads the now-authenticated session by itself.
+ * The GATE renders the app's own actor picker, not a picker of its own: the same
+ * `useActorScopeSelector` vocabulary the header `SessionSwitcher` drives —
+ * grouped held sessions the user can switch into, and the `actor-scope-add-*`
+ * ways in beneath them (`R7-1`).
  *
- * The journey is the `useAuth` page's own, rendered here (`R6-15`/`R6-15b`).
- * That page already collects a session for any actor and already adds one
- * beside a live session, so this presents it instead of rebuilding it: the two
- * things a second wiring could not reach — `useAuth`'s `.as()` and `.fresh()`
- * builder channels — are exactly what the two entrances need, and both arrive
- * as props.
+ * The ways in split by shape. Client and Staff REPLACE the list with
+ * `AuthJourney` for the chosen actor, whose action row carries the back control
+ * to the list; Guest routes out to the page beneath. Guest Customer is an ACTION,
+ * not a form: it fires in place from its own row through a FRESH client instance
+ * — isolated from the `AuthJourney` client instance, which is stopped when its
+ * form unmounts — and the row itself carries the working state and any failure
+ * reason, closing the overlay only when the session lands.
  *
- * Two entries, ONE overlay (`H5`, `AC7.1`/`AC7.2`). The funnel states the split
- * in the target it builds and this reads it rather than restating it: the
- * ADD-SESSION marker asks the journey for a session BESIDE the live ones, and
- * the actor comes with it, since the pool's own control already named which
- * kind. No marker is the guard's own rejection, at the actor it rejected on.
- *
- * The key is that pair. `OverlayController` mounts one component per overlay
- * route, so a second add-session — a new nonce on the same route — would
- * otherwise reuse the instance that already holds a scope, and `useAuth`
- * resolves its instance once, at call time.
- *
- * The GATE also CHOOSES that actor (`R7-1`). Add-session is taken from a control
- * that already says which kind, so it arrives named; an arrival at a guarded
- * page names one only when the url does. Nothing named is nobody chosen — so the
- * gate offers the three journeys (`R9`: Client │ Staff │ Impersonate) and
- * collects nothing until one is taken, rather than locking a staff visitor into
- * the client journey the page happens to declare.
- *
- * Guest sits BESIDE the group, not in it: it collects no session at all, so it
- * is a scope change on the page underneath rather than a fourth journey — which
- * is why R9's chooser names three and the way in numbers four.
+ * An arrival that already names an actor (its query, else the url scope) brings
+ * its own journey and shows no gate; the ADD-SESSION marker asks that journey
+ * for a session beside the live ones (`H5`, `AC7.1`/`AC7.2`).
  */
 
-import { Button, ToggleGroup, ToggleGroupItem } from "@upmind/ui";
-import { computed, ref } from "vue";
+import { Avatar, Button, DialogHeader, DialogTitle } from "@upmind/ui";
+import { computed, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { OverlayType } from "@upmind-automation/client-vue";
-import { ScopeActorTypes, useActiveSession } from "@upmind-automation/headless";
-import { get } from "lodash-es";
+import { Icon, OverlayType } from "@upmind-automation/client-vue";
+import {
+  ScopeActorTypes,
+  useActiveSession,
+  useAuth
+} from "@upmind-automation/headless";
+import { get, isEmpty, reject } from "lodash-es";
 import type { AuthGateChoice } from "~/components/auth";
-import { AuthJourney, AUTH_GATE_IMPERSONATE } from "~/components/auth";
-import { ACTOR_LABEL_KEYS } from "~/components/scope";
+import type { SessionItem } from "~/components/scope";
+import { AuthJourney, AUTH_GATE_GUEST_CUSTOMER } from "~/components/auth";
+import { useActorScopeSelector } from "~/components/scope";
+import { sessionItem } from "~/components/scope/SessionSwitcher.styles";
 import { useActorScope } from "~/composables/scope";
 import {
   authNamedActor,
@@ -112,12 +174,9 @@ import { ROUTE } from "~/funnels/types";
 // -----------------------------------------------------------------------------
 
 /**
- * `dismissable` is DECLARED, not inherited (`R7-12`). `OverlayController` merges
- * an overlay's own meta over its props, and its `dismissable` prop is a Boolean
- * absent from its `withDefaults` — which Vue casts to `false` when nobody passes
- * it, so every overlay it renders arrives at the dialog hard-refused: no close
- * control drawn, ESC and the backdrop both prevented. This is the one overlay
- * that must close, so it says so on its own route.
+ * `dismissable` is DECLARED, not inherited (`R7-12`): `OverlayController` casts
+ * an absent Boolean to `false`, hard-refusing the close control. This is the one
+ * overlay that must close, so it says so on its own route.
  */
 definePageMeta({
   name: ROUTE.OVERLAY_AUTH,
@@ -144,100 +203,167 @@ const named = computed(() =>
   authNamedActor(authRequestActor(route) ?? scope.value)
 );
 
-/**
- * The one taken at the gate, which nothing but this arrival carries. It opens on
- * CLIENT rather than on nobody: an unnamed arrival is overwhelmingly a client
- * signing in, and a gate collecting nothing until it is pressed presents an
- * empty box where the form belongs. The group stays above it either way, so
- * staff and guest remain one press from the surface, not two.
- *
- * It holds the CHOICE, never the actor it resolves to: Impersonate and Staff
- * run the same journey, so a group bound to the actor draws Staff pressed when
- * Impersonate was taken, and Impersonate can never read as chosen at all.
- */
-const choice = ref<AuthGateChoice>(ScopeActorTypes.CLIENT);
-
-/** Impersonate IS the staff journey; the client is picked after staff login. */
-const picked = computed<ScopeActorTypes>(() =>
-  choice.value === AUTH_GATE_IMPERSONATE ? ScopeActorTypes.STAFF : choice.value
-);
-
-const actor = computed(() => named.value ?? picked.value);
+/** The actor taken at the gate, which nothing but this arrival carries. */
+const choice = ref<AuthGateChoice>();
 
 /**
- * The chooser stays up once answered rather than collapsing into the journey:
- * the wrong pick is one press away from the right one, and the group's own
- * pressed state is what says which is being collected.
+ * The actor whose JOURNEY renders. A named arrival brings its own; at the gate
+ * only Client and Staff run a journey — Guest routes out and Guest Customer is an
+ * in-place action, so neither resolves to a journey actor.
  */
+const journeyActor = computed<ScopeActorTypes | undefined>(() => {
+  if (named.value) return named.value;
+  return choice.value === ScopeActorTypes.CLIENT ||
+    choice.value === ScopeActorTypes.STAFF
+    ? choice.value
+    : undefined;
+});
+
 const isGate = computed(() => !named.value);
 
-const choices = computed(() => [
-  {
-    value: ScopeActorTypes.CLIENT,
-    label: t(ACTOR_LABEL_KEYS[ScopeActorTypes.CLIENT]),
-    dataAttrs: {
-      "data-test-key": "auth-actor",
-      "data-test-value": ScopeActorTypes.CLIENT
-    }
-  },
-  {
-    value: ScopeActorTypes.STAFF,
-    label: t(ACTOR_LABEL_KEYS[ScopeActorTypes.STAFF]),
-    dataAttrs: {
-      "data-test-key": "auth-actor",
-      "data-test-value": ScopeActorTypes.STAFF
-    }
-  },
-  {
-    value: AUTH_GATE_IMPERSONATE,
-    label: t("labs.auth_scope_impersonate"),
-    dataAttrs: {
-      "data-test-key": "auth-actor",
-      "data-test-value": AUTH_GATE_IMPERSONATE
-    }
-  }
-]);
+/** A gate choice is being collected — its form replaces the chooser. */
+const hasChoice = computed(() => choice.value !== undefined);
+
+const {
+  directClientItems,
+  getAddSessionIcon,
+  getAddSessionLabel,
+  getAddSessionTestKey,
+  guestItems,
+  staffSessionNodes,
+  switchSession
+} = useActorScopeSelector();
+
+// A FRESH client instance for the guest-customer action, isolated from the
+// Client journey's own instance (which is stopped when its form unmounts).
+const guestCustomer = useAuth().as(ScopeActorTypes.CLIENT).fresh();
+const guestCustomerActions = guestCustomer.useActions();
+const {
+  canRegisterAsGuest,
+  isRegisteringAsGuest,
+  hasErrors: guestCustomerFailed
+} = guestCustomer.useMeta();
+const { errors: guestCustomerErrors } = guestCustomer.useContext();
+
+/** The held sessions, grouped exactly as the header pool groups them. */
+const sessionGroups = computed(() =>
+  reject(
+    [
+      { label: "labs.session_staff", nodes: staffSessionNodes.value },
+      { label: "labs.session_clients", nodes: directClientItems.value },
+      { label: "labs.session_guests", nodes: guestItems.value }
+    ],
+    group => isEmpty(group.nodes)
+  )
+);
+
+/**
+ * The ways in — the pool's own `actor-scope-add-*` controls, plus Guest Customer
+ * which the pool never offered.
+ */
+const addChoices = computed(
+  () =>
+    [
+      {
+        value: ScopeActorTypes.GUEST,
+        testKey: getAddSessionTestKey(ScopeActorTypes.GUEST),
+        icon: getAddSessionIcon(ScopeActorTypes.GUEST),
+        label: getAddSessionLabel(ScopeActorTypes.GUEST)
+      },
+      {
+        value: AUTH_GATE_GUEST_CUSTOMER,
+        testKey: "actor-scope-add-guest-customer",
+        icon: "user-plus-01",
+        label: "labs.auth_add_guest_customer"
+      },
+      {
+        value: ScopeActorTypes.CLIENT,
+        testKey: getAddSessionTestKey(ScopeActorTypes.CLIENT),
+        icon: getAddSessionIcon(ScopeActorTypes.CLIENT),
+        label: getAddSessionLabel(ScopeActorTypes.CLIENT)
+      },
+      {
+        value: ScopeActorTypes.STAFF,
+        testKey: getAddSessionTestKey(ScopeActorTypes.STAFF),
+        icon: getAddSessionIcon(ScopeActorTypes.STAFF),
+        label: getAddSessionLabel(ScopeActorTypes.STAFF)
+      }
+    ] satisfies {
+      value: AuthGateChoice;
+      testKey: string;
+      icon: string;
+      label: string;
+    }[]
+);
 
 const journey = computed(
-  () => `${actor.value}:${get(route.query, ADD_SESSION_PARAM, "")}`
+  () => `${journeyActor.value}:${get(route.query, ADD_SESSION_PARAM, "")}`
 );
 
 const { whenAuthenticated } = useActiveSession().useActions();
 
 /**
- * Handle the scope choice. Client and Staff start their respective auth
- * journeys. Impersonate starts the Staff journey; the client to impersonate is
- * selected from SessionSwitcher after staff login.
+ * Handle the scope choice. Client and Staff replace the chooser with their form;
+ * Guest collects no session, so taking it leaves the overlay for the page
+ * beneath.
  */
 function choose(next: AuthGateChoice): void {
-  // The group re-emits as it mounts, and an empty emit is not a choice: taking
-  // it would clear the pick the gate opens on and leave three blank tiles over
-  // the space the form belongs in.
-  if (!next) return;
+  if (next === ScopeActorTypes.GUEST) {
+    continueAsGuest();
+    return;
+  }
 
   choice.value = next;
 }
 
+/** Return from a chosen form to the chooser. */
+function back(): void {
+  choice.value = undefined;
+}
+
 /**
- * Guest is a SCOPE, not a session — there is nothing for `useAuth` to collect
- * and `guardScenario` admits a url that names it — so it leaves the overlay for
- * the page beneath, re-scoped (`R7-1`).
+ * Mint a guest-customer client session from the list, in place. The row shows
+ * the working state and, on failure, the reason; the overlay closes only once
+ * the session lands.
+ */
+async function registerGuestCustomer(): Promise<void> {
+  if (!canRegisterAsGuest.value || isRegisteringAsGuest.value) return;
+
+  await guestCustomerActions.isReady();
+  if (
+    "registerAsGuest" in guestCustomerActions &&
+    (await guestCustomerActions.registerAsGuest())
+  )
+    await handoff();
+}
+
+/**
+ * Guest is a SCOPE, not a session — nothing for `useAuth` to collect and
+ * `guardScenario` admits a url that names it — so it leaves the overlay for the
+ * page beneath, re-scoped (`R7-1`).
  */
 function continueAsGuest(): void {
   void router.push(scopedPageTarget(route, ScopeActorTypes.GUEST));
 }
 
+/** Switch into a held session, the same write the header pool's rows make. */
+async function switchInto(node: SessionItem): Promise<void> {
+  await switchSession(node.actor, node.id);
+  await handoff();
+}
+
 /**
- * The journey resolves the instant its OWN machine holds the token, but the
+ * The journey resolves the instant its own machine holds the token, but the
  * guard that sent us here reads the ACTIVE session, which the store promotes a
- * beat later. Closing on the earlier signal hands the page back to a guard that
- * still sees a guest: it re-targets this very overlay, vue-router discards that
- * as a redundant navigation, and the close never lands — the overlay is gone
- * and the url is stranded on `/auth/` forever (`R6-2b`). So the hand-off waits
- * for the signal the guard itself reads.
+ * beat later. Closing on the earlier signal strands the url on `/auth/`
+ * (`R6-2b`), so the hand-off waits for the signal the guard itself reads.
  */
 async function handoff(): Promise<void> {
   await whenAuthenticated().catch(() => undefined);
   emit("close");
 }
+
+onUnmounted(() => {
+  guestCustomerActions.destroy();
+});
 </script>

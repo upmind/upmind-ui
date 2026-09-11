@@ -97,6 +97,28 @@ Additional always-on behaviours (not endpoints):
 ### Invoice — `IInvoice`
 
 ```ts
+// The embedded shapes are the shared package's own; this doc drops their `I`
+// prefix, so the import aliases them.
+import type {
+  IAccount as Account,
+  IAddress as Address,
+  IAffiliatePendingCommission as AffiliateCommission,
+  IAppliedTax as AppliedTax,
+  IBasketPromotion as BasketPromotion,
+  IBrand as Brand,
+  IClient as Client,
+  ICompany as Company,
+  IContract as Contract,
+  ICurrency as Currency,
+  ICustomFieldValue as CustomFieldValue,
+  IInvoiceContent as InvoiceContent,
+  IInvoiceProduct as InvoiceProduct,
+  IPayment as Payment,
+  IPhone as Phone,
+  IWarningNote as WarningNote,
+  InvoiceStatus
+} from "@upmind-automation/types";
+
 // Returned by GET /invoices/{id} or as one row of GET /invoices. The same
 // record id is what the basket had pre-conversion — `PATCH /orders/{id}/convert`
 // is the transition from basket shape to invoice shape against a stable id.
@@ -292,6 +314,11 @@ type InvoiceCategory = {
 ### Invoice product line — `IInvoiceProduct`
 
 ```ts
+import type {
+  IBasketProduct as BasketProduct,
+  InvoiceStatus
+} from "@upmind-automation/types";
+
 // Extends IBasketProduct with credit-tracking fields. The per-line product
 // shape is the same as a basket line item (catalogue link, configuration,
 // pricing, taxes, embedded product snapshot); see basket/docs/foundation.md
@@ -344,6 +371,11 @@ type InvoiceProduct = BasketProduct & {
 ### Payment — `IPayment`
 
 ```ts
+import type {
+  ICurrency as Currency,
+  IPaymentDetail as PaymentDetails
+} from "@upmind-automation/types";
+
 type Payment = {
   id: string;
   invoice_id: string;
@@ -390,6 +422,8 @@ type Payment = {
 The subscription record embedded on every recurring-product invoice. Read-only from this module — the act of cancelling a subscription is a separate write against the contract, not against the invoice.
 
 ```ts
+import type { ICurrency as Currency } from "@upmind-automation/types";
+
 type Contract = {
   id: string;
   name: string | null;
@@ -444,6 +478,17 @@ Same shape as basket's applied tax: one entry per tax tag with a per-line breakd
 ### Invoice content snapshot — `IInvoiceContent`
 
 ```ts
+import type {
+  IAddress as Address,
+  IBrand as Brand,
+  IClient as Client,
+  ICompany as Company,
+  ICustomFieldValue as CustomFieldValue,
+  IInvoiceProduct as InvoiceProduct,
+  IPhone as Phone,
+  IPromotion as Promotion
+} from "@upmind-automation/types";
+
 // A frozen rendering blob captured by the BE each time the invoice's
 // presentation-relevant data changes. The PDF / email rendering pipeline
 // consumes this; the customer panel reads the live top-level fields instead.

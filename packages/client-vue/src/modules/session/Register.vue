@@ -102,12 +102,7 @@
                   size="xs"
                   class="m-1.5"
                 />
-                <Icon
-                  v-else
-                  icon="arrow-right"
-                  size="sm"
-                  class="p-1.5 [&>svg]:size-3"
-                />
+                <Icon v-else icon="arrow-right" size="xs" />
               </Link>
             </template>
           </Alert>
@@ -160,7 +155,6 @@
           >
             <template #[`privacyPolicy`]>
               <Link
-                class="text-muted"
                 href="https://policies.google.com/privacy"
                 target="_blank"
                 size="inherit"
@@ -170,7 +164,6 @@
             </template>
             <template #[`termsOfService`]>
               <Link
-                class="text-muted"
                 href="https://policies.google.com/terms"
                 target="_blank"
                 size="inherit"

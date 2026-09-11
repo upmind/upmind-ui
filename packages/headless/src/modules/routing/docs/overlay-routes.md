@@ -17,13 +17,20 @@ Think of overlay routes like **pop-up windows** — the underlying page stays, a
 All overlay routes use the `QUERY_PARAMS` enum for type-safe parameter access:
 
 ```typescript
+import { useQueryParams } from "@upmind-automation/headless";
 import { QUERY_PARAMS } from "@upmind-automation/types";
+import { useRoute } from "vue-router";
 
-// Setting params
-query: {
-  [QUERY_PARAMS.RETURN_URL]: route.fullPath,
-  [QUERY_PARAMS.CANCEL_URL]: "basket"
-}
+const route = useRoute();
+
+// Setting params — on a funnel's reject target
+const target = {
+  name: "session",
+  query: {
+    [QUERY_PARAMS.RETURN_URL]: route.fullPath,
+    [QUERY_PARAMS.CANCEL_URL]: "basket"
+  }
+};
 
 // Reading params
 const { getParam } = useQueryParams(route);
@@ -47,7 +54,7 @@ const {
   overlayId, // The overlay identifier
   overlayType, // 'modal' | 'drawer'
   close, // Close after success → navigates to returnUrl
-  dismiss // Dismiss (backdrop click) → navigates back or to cancelUrl
+  dismiss // Dismiss (backdrop click) → navigates to cancelUrl, back, or parent
 } = useOverlayRoute();
 ```
 
@@ -56,6 +63,25 @@ const {
 Called after a successful flow (e.g., user logged in). Uses `router.replace()` to avoid adding stale overlay routes to browser history.
 
 ```typescript
+import { QUERY_PARAMS, useQueryParams } from "@upmind-automation/headless";
+import { find } from "lodash-es";
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+const router = useRouter();
+const { getParam } = useQueryParams();
+
+/** The nearest matched non-overlay ancestor. */
+function resolveParentRoute() {
+  const parent = find(
+    [...route.matched].reverse(),
+    r => !!r.name && !r.meta?.overlay
+  );
+  return parent
+    ? { name: parent.name as string, params: route.params }
+    : { path: "/" };
+}
+
 function close(): void {
   const returnUrl = getParam(QUERY_PARAMS.RETURN_URL);
   if (returnUrl) {
@@ -68,18 +94,30 @@ function close(): void {
 
 ### `dismiss()` — User Cancelled
 
-Called when the user clicks the backdrop or presses Escape.
+Called when the user clicks the backdrop or presses Escape. `cancelUrl` is checked **first**, and it is read off the **live** route:
+
+- A funnel that names where cancelling lands has said something the history stack cannot.
+- `useQueryParams()` snapshots the route at call time, and this composable is set up once in the app shell — so without passing the live `route`, what it read was the route the app booted on.
 
 ```typescript
+import { QUERY_PARAMS, useQueryParams } from "@upmind-automation/headless";
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+const router = useRouter();
+
+declare function resolveParentRoute(): { name: string } | { path: string };
+
 function dismiss(): void {
-  if (window.history.state?.back) {
-    router.back(); // Go back if there's history
-  } else {
-    const cancelUrl = getParam(QUERY_PARAMS.CANCEL_URL);
-    router.push(cancelUrl ? { name: cancelUrl } : resolveParentRoute());
-  }
+  const cancelUrl = useQueryParams(route).getParam(QUERY_PARAMS.CANCEL_URL);
+
+  if (cancelUrl) router.push({ name: cancelUrl });
+  else if (window.history.state?.back) router.back();
+  else router.push(resolveParentRoute());
 }
 ```
+
+Going back first was a bug: it sent a guarded page's overlay into the guard that opened it, which re-targets the overlay — so the close control, ESC and the backdrop all appeared to do nothing at all.
 
 ## Auth Overlay Flow
 
@@ -106,14 +144,41 @@ The most common overlay is the authentication modal on basket routes:
 When redirecting through the auth overlay, the basket ID (BID) must survive the round-trip:
 
 ```typescript
+import {
+  QUERY_PARAMS,
+  useQueryParams,
+  useRoutingEngine
+} from "@upmind-automation/headless";
+import type {
+  FunnelContext,
+  FunnelResponse
+} from "@upmind-automation/headless";
+import type { RouteLocation } from "vue-router";
+
+enum ROUTE {
+  BASKET = "basket",
+  SESSION = "session"
+}
+
 // In guardBasket / ensureBidAuth:
-return Promise.reject({
-  target: {
-    name: ROUTE.SESSION,
-    params: { segment: "basket", bid: basketId },
-    query: { [QUERY_PARAMS.RETURN_URL]: route.fullPath }
-  }
-} as FunnelResponse);
+async function ensureBidAuth(context: FunnelContext): Promise<never> {
+  const route = (context.targetRoute ?? context.currentRoute) as RouteLocation;
+  const { getParam } = useQueryParams(route);
+  const { router } = useRoutingEngine();
+
+  const basketId = getParam(QUERY_PARAMS.BASKET_ID);
+  const returnUrl =
+    route?.fullPath ??
+    router.resolve({ name: ROUTE.BASKET, params: { bid: basketId } }).fullPath;
+
+  return Promise.reject({
+    target: {
+      name: ROUTE.SESSION,
+      params: { segment: "basket", bid: basketId },
+      query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+    }
+  } as FunnelResponse);
+}
 ```
 
 The `returnUrl` is the **full path** (e.g., `/order/basket/abc-123/`), which includes the BID. When `close()` navigates back to this path, the BID is automatically present.

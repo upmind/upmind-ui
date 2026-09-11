@@ -46,6 +46,16 @@ The following are in-memory reads off a product record already retrieved via cap
 ### Product record — returned by `GET /basket/products/{productId}`
 
 ```ts
+// The related records the product record carries inline. Each is the platform's
+// own shipped shape, so this doc's Product cannot drift from them.
+import type {
+  IBlueprint as Blueprint,
+  IBlueprintField as BlueprintField,
+  IBrand as Brand,
+  IImage as Image,
+  ITranslation as Translation
+} from "@upmind-automation/types";
+
 type Product = {
   id: string; // product UUID
   brand_id: string;

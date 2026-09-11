@@ -59,10 +59,10 @@
     <!-- Unsupported Message -->
     <Alert
       v-if="meta.isNotSupported || meta.isUnavailable"
+      variant="danger"
       appearance="outline"
       :title="t('error.payment_gateway_not_supported_title')"
       :description="errors ?? t('error.payment_gateway_not_supported_msg')"
-      class="text-danger!"
       :dataAttrs="{ 'data-test-key': 'payment-gateway-unavailable-message' }"
     >
       <template #icon><Icon icon="info-circle" /></template>

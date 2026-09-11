@@ -2,14 +2,14 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/basket/products/mock-uuid-292/provision_fields?case=related-host",
+    "path": "/api/basket/products/3de78642-de53-9714-76df-21208469530d/provision_fields?case=related-host",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
       "content-type": "application/json",
       "origin": "null",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
-      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"HeadlessChrome\";v=\"151\", \"Chromium\";v=\"151\"",
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
@@ -22,8 +22,8 @@
       "status": "ok",
       "data": [
         {
-          "id": "mock-uuid-3",
-          "blueprint_id": "mock-uuid-3",
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "blueprint_id": "3825d96e-763e-d091-3dc4-174825283406",
           "type": "order",
           "store_per": "blueprint",
           "name": "domain",
@@ -59,7 +59,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-07-11T18:57:12.810Z",
+  "captured_at": "2026-09-10T05:20:21.934Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

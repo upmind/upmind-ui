@@ -1,11 +1,11 @@
 <template>
   <li :class="summaryListItemRootVariants()">
-    <h5 :class="summaryListItemCategoryVariants()">
+    <p :class="summaryListItemCategoryVariants()">
       {{ category }}
       <template v-if="quantity && quantity > 1">
         {{ `x&nbsp;${quantity}` }}
       </template>
-    </h5>
+    </p>
 
     <p :class="summaryListItemTitleVariants()" v-bind="titleTestAttrs">
       {{ title ?? "&ndash;" }}

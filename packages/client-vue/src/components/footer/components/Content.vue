@@ -26,7 +26,7 @@
         href="https://upmind.com"
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-block underline underline-offset-2"
+        class="inline-block"
         >Upmind</Link
       >
     </span>

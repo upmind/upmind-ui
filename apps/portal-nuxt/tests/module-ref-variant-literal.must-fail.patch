@@ -1,0 +1,63 @@
+# Negative control — widens `ModuleRef.variant` back to an unguarded `string`
+# and drops `MODULE_REF_TAG`'s requirement, so a slot assignment naming an
+# undeclared variant can be written as a bare object literal instead of going
+# through `moduleRef()` (design.md §D3/§D4, AC2.4, tasks.md 1.10e).
+#
+# Intended RED: an assertion that the plain-literal shape —
+# `{ kind: "module", id: FIXTURE_MODULE_ID, variant: "form" }` — fails
+# `pnpm --filter @upmind-automation/portal-nuxt type-check` the same way
+# `moduleRef(FIXTURE_MODULE_ID, { variant: "form" })` already does. No such
+# assertion exists yet: the committed fixture
+# `app/portal/type-tests/module-variant-closure.typecheck.ts` only exercises
+# the `moduleRef()` call form — the one authoring position this control does
+# NOT touch — so it stays green through this mutation. Filed for the prover
+# to pair with the plain-literal position.
+#
+# Confirmed by isolating both shapes in one file, one run, before filing:
+# the `moduleRef()` call still errors (TS2322 — that check lives in its own
+# generic call signature, untouched by this mutation); the plain literal
+# with the same undeclared variant compiles clean. Exactly one error comes
+# out of a file carrying both.
+#
+# Rebased (fix round 1, tasks.md 2.7): `ModuleRef` grew an optional `props`
+# field (config-owned module data) on both branches of the union. The
+# mutation is unchanged in kind — collapse the two-branch union into one
+# shape with an unguarded optional `variant` and an optional
+# `MODULE_REF_TAG` — `props` carries through untouched on the mutated shape.
+# Re-verified by direct execution against the rebased source: applying this
+# patch reproduces the exact same TS2578 "Unused '@ts-expect-error' directive"
+# at module-variant-closure.typecheck.ts:38, `nuxt typecheck` EXIT=2.
+# REBASED 2026-08-25 (board-conformance): the group branch / ModuleRef context
+# moved. Same mutation, new anchors — asserted unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/types.ts
++++ b/apps/portal-nuxt/app/portal/types.ts
+@@ -92,21 +92,13 @@
+  * `MODULE_REF_TAG` — `moduleRef()` (registry.ts) is the only place that can
+  * supply it, and it is also the place the variant gets checked.
+  */
+-export type ModuleRef =
+-  | {
+-      readonly kind: "module";
+-      readonly id: string;
+-      readonly variant?: undefined;
+-      /** Config-owned data the module renders (tasks.md 2.7) — opaque to the resolver, read only by the module component itself. */
+-      readonly props?: Readonly<Record<string, unknown>>;
+-    }
+-  | {
+-      readonly kind: "module";
+-      readonly id: string;
+-      readonly variant: string;
+-      readonly props?: Readonly<Record<string, unknown>>;
+-      readonly [MODULE_REF_TAG]: true;
+-    };
++export type ModuleRef = {
++  readonly kind: "module";
++  readonly id: string;
++  readonly variant?: string;
++  readonly props?: Readonly<Record<string, unknown>>;
++  readonly [MODULE_REF_TAG]?: true;
++};
+ 
+ /**
+  * A Module Group: itself a registered module (§D6), holding an ordered,

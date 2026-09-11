@@ -6,16 +6,25 @@ The sharp edges of the client's own address collection and its per-address edito
 
 ## 1. `default()` returns an **id**, not the row
 
-`useClientAddresses().useContext().default()` resolves the default address's `id` — or `undefined` if none is flagged default — **never the address object itself**. This is the single easiest thing to get wrong reaching for this module, because nothing about the type signature stops you from treating it as the row.
+`useClientAddresses().useContext().default()` resolves the default address's `id` — or `undefined` if none is flagged default — **never the address object itself**. This is the single easiest thing to get wrong reaching for this module: the name reads like the row, and an id threaded straight into a template or a loosely-typed helper never trips the compiler.
 
 ```ts
-// ⚠️ Wrong — default() is a string, not an address
-const defaultAddress = addresses.useContext().default();
-console.log(defaultAddress.city); // runtime error, or `undefined` under loose typing
+import {
+  ScopeActorTypes,
+  useClientAddresses
+} from "@upmind-automation/headless";
+
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+
+// ⚠️ Wrong — default() resolves an id, not an address
+const defaultId = addresses.useContext().default();
+// @ts-expect-error — Property 'city' does not exist on type 'string'
+console.log(defaultId.city);
 
 // ✅ Right — chain getOne() to get the row
-const { default: defaultId, getOne } = addresses.useContext();
-const defaultAddress = getOne(defaultId());
+const { default: getDefaultId, getOne } = addresses.useContext();
+const defaultAddress = getOne(getDefaultId());
+console.log(defaultAddress?.address.city); // the city lives on `.address`
 ```
 
 Every in-tree consumer of this collection threads the id through `getOne()` (or an equivalent lookup) rather than treating `default()` as the record — that is the pattern to copy.
@@ -27,6 +36,17 @@ Every in-tree consumer of this collection threads the id through `getOne()` (or 
 Both `input()` and `update()` accept a **partial** model — you do not have to pass the whole `address` object back. Every key a partial payload omits is refilled from the form's **opening** snapshot, not from whatever the model currently holds. That is safe the first time, on an untouched form. It is not safe the second time.
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 // One prior edit, then one partial call — the FIRST edit is silently lost.
 await manager.useActions().input({ address: { city: "London" } });
 await manager.useActions().update({ address: { postcode: "SW1A 1AA" } });
@@ -35,15 +55,30 @@ await manager.useActions().update({ address: { postcode: "SW1A 1AA" } });
 ```
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 // ✅ Right — pass the whole model back, or fold your partial into what
 // input() last resolved.
 const current = await manager
   .useActions()
   .input({ address: { city: "London" } });
-await manager.useActions().update({
-  ...current,
-  address: { ...current.address, postcode: "SW1A 1AA" }
-});
+
+// `input` is debounced, so a coalesced call resolves nothing — guard on it.
+if (current) {
+  await manager.useActions().update({
+    ...current,
+    address: { ...current.address, postcode: "SW1A 1AA" }
+  });
+}
 ```
 
 The JSON-form renderer this editor was built for is never exposed to this: it always submits the whole model on every change, so the fill-from-snapshot rule never has an omitted key to misfire on. A caller driving the editor directly with hand-built partial payloads — a script, a test, an alternative UI — is the one exposed to it, and the failure is silent: no error, no rejected promise, just a save that resolves and quietly did less than asked.
@@ -55,8 +90,19 @@ The JSON-form renderer this editor was built for is never exposed to this: it al
 The editor's `isDirty` flag compares the live model against its persisted baseline (`isEqual(model, baseModel)`). Immediately after a successful save, the live model can carry a handful of extra display-only fields the machine folds in on save (the address's title and description among them) — fields the baseline was never given. The two no longer compare equal, so `isDirty` reads `true` even though nothing the client can edit has actually changed.
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 await manager.useActions().update(); // succeeds
-manager.useMeta().isDirty.value; // true — even though nothing is pending
+console.log(manager.useMeta().isDirty.value); // true — nothing is pending
 ```
 
 No consumer in this codebase currently reads `isDirty` to gate a Save button, so this is inert today. A future consumer that does would see a button that never goes quiet after a save.
@@ -70,11 +116,22 @@ No consumer in this codebase currently reads `isDirty` to gate a Save button, so
 The reason: the collection opens its list read with no page size (`limit: 0`), so it already returns the client's entire address collection in one request. There is never a second page for `nextPage()` to move to.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientAddresses
+} from "@upmind-automation/headless";
+
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+
 // ⚠️ Wrong: assuming a large collection needs paging through the collection
-await addresses.useActions().nextPage(); // settles rejected — always, on this surface
+await addresses
+  .useActions()
+  .nextPage()
+  .catch(() => undefined); // always rejects here
 
 // ✅ Right: the collection already holds every row
 const { data } = addresses.useContext(); // the whole list, already loaded
+console.log(data.value.length);
 ```
 
 Paging genuinely works — one layer down, at the services factory, not through `useClientAddresses()`. A consumer that needs a real paged read builds its own query directly off the services layer with an explicit page size, rather than going through the collection composable.
@@ -88,11 +145,23 @@ Fixtures: `__tests__/fixtures/get-clients-id-addresses-case-page-1.json` / `-pag
 The editor's `isReady()` rejects with a catchable timeout error, and `onDone()` resolves `false`, if the underlying wait runs past its bound rather than hanging forever. The collection's own `isReady()` resolves `false` at its own bound if the list never arrives.
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 // isReady() rejects past the bound
 await manager.useActions().isReady(); // throws if never available in time
 
 // onDone() resolves false, it does not hang, past the bound
 const completed = await manager.useActions().onDone(); // false if unsettled
+console.log(completed);
 ```
 
 This is deliberate: the editor's lookup chain awaits cross-module, network-backed calls this module does not own the timing of, and an unbounded wait turns any stall upstream into a silent hang with no error surface for the caller to react to. The bound converts that into a reportable timeout instead.
@@ -110,8 +179,25 @@ This module is asymmetric on user-visible feedback, and it is easy to assume the
 | Everything else (`ensure`, `refresh`, the whole editor's `update()`) | No — read the state              |
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddresses,
+  useClientAddressManager,
+  type AddressModel
+} from "@upmind-automation/headless";
+
+declare const model: AddressModel;
+declare function renderYourOwnError(): void;
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 // remove() and setDefault(): a message appears without you doing anything
-await addresses.useActions().remove(id); // raises success/failure feedback itself
+await addresses.useActions().remove(addressId); // raises the feedback itself
 
 // update() on the editor: nothing is announced — you render the outcome
 await manager
@@ -130,6 +216,16 @@ This is a deliberate, kept divergence: the data layer this module was converted 
 Find-or-create on this collection (and the editor's own create path, which calls the same function under the hood) checks **only** whether the model carries an `id` already present in the loaded collection. It does **not** compare address lines, city, postcode or country against existing rows.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientAddresses
+} from "@upmind-automation/headless";
+
+const addresses = useClientAddresses().as(ScopeActorTypes.CLIENT);
+
+const existingAddressId = "825d96e7-63ed-0913-46c4-174825283406";
+const gbCountryId = "1ae7c9f1-3f7f-4f0a-9b0a-7c4b6c2d5e10";
+
 // ⚠️ This ALWAYS creates a new row, even if an identical address already exists —
 // there is no id to match on.
 await addresses.useActions().ensure({
@@ -137,7 +233,7 @@ await addresses.useActions().ensure({
     address1: "1 Prover Street",
     city: "Guildford",
     postcode: "GU4 8PH",
-    countryId: "…"
+    countryId: gbCountryId
   }
 });
 
@@ -145,7 +241,10 @@ await addresses.useActions().ensure({
 await addresses.useActions().ensure({
   id: existingAddressId,
   address: {
-    /* … */
+    address1: "1 Prover Street",
+    city: "Guildford",
+    postcode: "GU4 8PH",
+    countryId: gbCountryId
   }
 });
 ```
@@ -180,46 +279,86 @@ The reason for the asymmetry: an edit's body is a **diff** against the form-open
 The `type` field (Home / Office / Holiday / Company) has a form control **only when editing an existing address**. A brand-new address always saves as Home (`type: 1`); there is no control on the create form to choose anything else, and the field is not required on create.
 
 ```ts
+import {
+  ADDRESS_TYPE_KEYS,
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const gbCountryId = "1ae7c9f1-3f7f-4f0a-9b0a-7c4b6c2d5e10";
+
 // Creating a fresh address: `type` is not part of the visible form,
 // and the saved record is always Home.
-const draft = useClientAddressManager().as("client").fresh();
+const draft = useClientAddressManager().as(ScopeActorTypes.CLIENT).fresh();
 await draft.useActions().update({
   address: {
-    /* … */
+    address1: "1 Prover Street",
+    city: "Guildford",
+    postcode: "GU4 8PH",
+    countryId: gbCountryId
   }
-}); // type: 1, always
+}); // type: ADDRESS_TYPE_KEYS.HOME, always
 
 // Editing an EXISTING address: the type control appears, and a chosen
 // value is sent on the wire.
-const manager = useClientAddressManager().as("client").for("address", id);
-await manager.useActions().update({ type: 2 /* Office */ });
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+await manager.useActions().update({ type: ADDRESS_TYPE_KEYS.OFFICE });
 ```
 
 If your integration needs to pick a category on the address a client is creating for the first time, this module does not offer a control for that — it has to be a follow-up edit.
 
 ## 10. Staff address management is not delivered here — it's tracked, not forgotten
 
-`useClientAddresses().as('staff')` and `useClientAddressManager().as('staff')` are **compile-time errors**. Only the calling client's own `client` scope resolves.
+Only the calling client's own `client` scope resolves. `staff` is refused in two different places, and it matters which: a **bare** `.as('staff')` type-checks and is rejected at **runtime** by the scope factory, while `.as('staff').for(...)` is a **compile-time error** — the matrix's `null as never` row removes `.for(...)` and nothing else.
 
 ```ts
-// ⚠️ Does not compile — 'staff' is `null as never` in this module's scope matrix
-useClientAddresses().as("staff");
+import {
+  ClientAddressesContextTypes,
+  ScopeActorTypes,
+  useClientAddresses
+} from "@upmind-automation/headless";
+
+const clientId = "3b0b3e2a-6d4e-4a17-9f6a-1c2d3e4f5a6b";
+
+// A bare `.as('staff')` TYPE-CHECKS — the matrix row only decides whether
+// `.for(...)` exists — and the scope factory refuses it at RUNTIME.
+const staffScoped = useClientAddresses().as(ScopeActorTypes.STAFF);
+
+// @ts-expect-error — Property 'for' does not exist: the staff row is `null as never`
+staffScoped.for(ClientAddressesContextTypes.CLIENT, clientId);
 ```
 
 The wider platform genuinely has a staff-facing surface for managing a client's addresses on their behalf: a distinct admin endpoint family, three capability gates (creating, updating, deleting a client's address on their behalf), an "acting as this client" impersonation mode, a per-client admin cache scope, and a staff-only copy-address-to-clipboard affordance. None of this is delivered here. It is recorded as an intentional, signed gap awaiting a tracked follow-up, not something silently dropped along the way.
 
-> **🧪 For Testers:** A `.as('staff')` call is a TypeScript compile failure, not a runtime rejection — write a type-level check for it, not a runtime assertion.
+> **🧪 For Testers:** Split the assertion the way the refusal splits. `.as('staff').for(...)` is a TypeScript compile failure — assert it at type level. A bare `.as('staff')` compiles, so assert its refusal at runtime.
 
 ## 11. `.as(SELF).for(...)` does not typecheck without a cast
 
 Chaining `.for(...)` or `.fresh()` directly off a scope builder call that was itself built with `.as(SELF)` does not typecheck as written — the scope builder keys its available contexts off the literal actor type, not the one TypeScript has resolved by that point in the chain. This does not come up for `client-address` in normal use, because `client` — not `self` — is the actor that resolves here, but it is worth knowing if you are porting a call pattern from a sibling module that scopes on `self`.
 
 ```ts
-// ⚠️ Does not typecheck as written, and is also the wrong actor for this module
-useClientAddressManager().as(ScopeActorTypes.SELF).for("address", id);
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// ⚠️ Does not typecheck, and is the wrong actor for this module
+useClientAddressManager()
+  .as(ScopeActorTypes.SELF)
+  // @ts-expect-error — the SELF row is `null as never`, so `.for` is absent
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
 
 // ✅ Right — this module resolves on CLIENT
-useClientAddressManager().as(ScopeActorTypes.CLIENT).for("address", id);
+useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
 ```
 
 This is a known, filed-not-fixed typing gap in the shared scope builder, not specific to this module — it affects every scoped-composable conversion that needs the same chain.
@@ -231,9 +370,21 @@ The editor fetches two brand settings before it becomes usable: whether a region
 The capability those settings gate — the country field locking on an existing address, the region requirement being enforced — works correctly either way, because it reads whatever the cache holds. What cannot always be independently demonstrated is the dedicated wire-level request for these two keys.
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 // This works regardless of whether the request for these two keys is
 // independently observable this session:
-manager.useContext().config.value; // { "clients.settings.allow_address_update": true, … }
+console.log(manager.useContext().config.value);
+// { "clients.settings.allow_address_update": true, … }
 ```
 
 > **🧪 For Testers:** Do not write a read-back that asserts a `config/brand/values` request naming exactly this module's two keys fires on every editor open — on a session where the cache already holds them, it will not, and that is expected, not a regression.
@@ -243,24 +394,28 @@ manager.useContext().config.value; // { "clients.settings.allow_address_update":
 There is no bare services import for this module's data on the public surface, and there never will be again under that name. Every consumer that used to reach for it now goes through the scoped collection instead:
 
 ```ts
-// ⚠️ Gone — not deprecated, retired
+// @ts-expect-error — ⚠️ Gone: not deprecated, retired. There is no such export.
 import { useClientAddressServices } from "@upmind-automation/headless";
-await useClientAddressServices().ensure({
-  address: {
-    /* … */
-  }
-});
 
 // ✅ Current
 import {
   useClientAddresses,
   ScopeActorTypes
 } from "@upmind-automation/headless";
-await useClientAddresses().as(ScopeActorTypes.CLIENT).useActions().ensure({
-  address: {
-    /* … */
-  }
-});
+
+const gbCountryId = "1ae7c9f1-3f7f-4f0a-9b0a-7c4b6c2d5e10";
+
+await useClientAddresses()
+  .as(ScopeActorTypes.CLIENT)
+  .useActions()
+  .ensure({
+    address: {
+      address1: "1 Prover Street",
+      city: "Guildford",
+      postcode: "GU4 8PH",
+      countryId: gbCountryId
+    }
+  });
 ```
 
 Note the shape of the argument to `ensure()` — it is the model **directly**, not wrapped in a `{ model }` object.
@@ -270,12 +425,30 @@ Note the shape of the argument to `ensure()` — it is the model **directly**, n
 `useSchemaDefinitions()` and `useUischemaDefinitions()` are on the barrel, and it is tempting to reach for them to render the address form standalone. They exist for a narrower job: two other modules compose the address fields into a _larger_ schema (a company form, a unified billing form) at module scope, before any editor instance exists to read from. A consumer rendering the address form on its own always reads `useClientAddressManager().useContext().schema` / `.uischema` instead — those are the schemas the editor's machine actually validates against, and the only ones a save is checked against.
 
 ```ts
+import {
+  ClientAddressContextTypes,
+  ScopeActorTypes,
+  useClientAddressManager,
+  useSchemaDefinitions,
+  type AddressContext
+} from "@upmind-automation/headless";
+
+declare const countries: AddressContext["countries"];
+declare const regions: AddressContext["regions"];
+declare const config: AddressContext["config"];
+
+const addressId = "825d96e7-63ed-0913-46c4-174825283406";
+const manager = useClientAddressManager()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientAddressContextTypes.ADDRESS, addressId);
+
 // ⚠️ Wrong for a standalone address form — this is a bare fragment, not the
 // schema the editor validates against
-const schema = useSchemaDefinitions({ countries, regions, config });
+const definitions = useSchemaDefinitions({ countries, regions, config });
 
 // ✅ Right — read the editor's own context
 const { schema, uischema } = manager.useContext();
+console.log(definitions, schema.value, uischema.value);
 ```
 
 The two fragment functions are pure — no scope, no session, no request, no reactive state — and are not, and must never become, a second route to this module's own data.

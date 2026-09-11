@@ -273,6 +273,52 @@ type Promotion = {
   description?: string | null;
 };
 
+// Image record. `image` on a card is the primary (the row whose `default` is 1);
+// `images` is the full set. `image_url` is the category-sized rendition a card
+// grid should use; `full_url` is the original upload.
+type Image = {
+  id: string;
+  brand_id: string;
+  object_id: string; // the product this image belongs to
+  object_type: "product" | "product_category" | string;
+  image_category_id: string;
+  size_category: { id: string; name: string };
+  image_category_sizes: {
+    id: string;
+    name: string;
+    width: number;
+    height: number;
+    image_category_id: string;
+    default: number;
+    order: number;
+  }[];
+  full_url: string;
+  image_url: string;
+  hash: string;
+  origin_name: string;
+  default: number; // 1 = primary
+  order: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+// Translated field bag for ONE language. `translated_fields` keys the record's
+// own property names (`name`, `description`, …) to their localised values; the
+// `*_translated` fields on the parent record are the negotiated locale's
+// already-resolved copy of the same data.
+type Translation = {
+  id: string;
+  object_id: string;
+  object_type: number;
+  language_id: string;
+  language_code: string;
+  translated_fields: Record<string, string>;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
 // Pagination cursor — supplied via query string, not echoed in the body.
 type CatalogueCursor = {
   limit: number; // page size

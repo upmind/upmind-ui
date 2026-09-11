@@ -48,6 +48,11 @@ Brand configuration is keyed and fetched on demand. Keys group by the lifecycle 
 ## Data shape
 
 ```ts
+import type { ICountry } from "@upmind-automation/types";
+
+// The expanded country relation, when `?with=country` is requested.
+type Country = ICountry;
+
 // Brand identity bundle — returned by GET /brand/settings.
 type BrandSettings = {
   id: string; // brand UUID

@@ -4,7 +4,9 @@
 
 ## Reading your own invoices — the collection
 
-```typescript
+```ts
+import { useInvoices } from "@upmind-automation/headless";
+
 const invoices = useInvoices().as("self");
 
 const { data, error, findOne, getOne, pagination, query, schemas, total } =
@@ -36,7 +38,9 @@ const {
 
 `data` defaults to `[]` until the first fetch settles. Await `isReady()` before branching on it:
 
-```typescript
+```ts
+import { useInvoices } from "@upmind-automation/headless";
+
 const invoices = useInvoices().as("self");
 const ok = await invoices.useActions().isReady();
 if (!ok) return; // unauthenticated, or the fetch timed out
@@ -46,7 +50,11 @@ if (!ok) return; // unauthenticated, or the fetch timed out
 
 All request state travels through `setCriteria` — there is no raw filter string, sort string, or limit/page literal anywhere in this module:
 
-```typescript
+```ts
+import { useInvoices } from "@upmind-automation/headless";
+
+const invoices = useInvoices().as("self");
+
 invoices.useActions().setCriteria({
   filters: { "status.code": { in: ["invoice_unpaid", "invoice_overdue"] } },
   sort: [{ field: "due_date", dir: "asc" }],
@@ -60,7 +68,11 @@ An undeclared filter column or operator does not silently pass through or get dr
 
 ### Credit notes and consolidation, as presets over the same collection
 
-```typescript
+```ts
+import { useInvoices } from "@upmind-automation/headless";
+
+const invoices = useInvoices().as("self");
+
 // Read this client's credit notes
 invoices.useActions().filterCreditNotes();
 
@@ -187,7 +199,11 @@ Invalidates the shared invoices cache key on success, so both the list and the s
 
 ## Refresh & invalidate
 
-```typescript
+```ts
+import { useInvoice, useInvoices } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+
 const invoices = useInvoices().as("self");
 await invoices.useActions().refresh(); // re-read the list
 await invoices.useActions().refreshAfterPayment(); // the payment-outcome refetch
@@ -202,8 +218,14 @@ await invoice.useActions().invalidate();
 
 `mapInvoice(raw, readingClientId?)` and `mapInvoices(raw, readingClientId?)` are curated re-exports (also used by the query's own `select`). `readingClientId` drives the co-mingled row attribution — a call with no second argument (as `orders/order.machine.ts` makes) still resolves a correct delegated signal, but a conservative (never "mine") sub-account signal:
 
-```typescript
-import { mapInvoice } from "..";
+```ts
+import { mapInvoice } from "@upmind-automation/headless";
+import type { IInvoice } from "@upmind-automation/types";
+
+// the record straight off GET /invoices/{id}
+declare const rawInvoice: IInvoice;
+declare const readingClientId: string;
+
 const invoice = mapInvoice(rawInvoice, readingClientId);
 ```
 
@@ -213,14 +235,17 @@ const invoice = mapInvoice(rawInvoice, readingClientId);
 <template>
   <div v-if="meta.isLoading">Loading…</div>
   <div v-else-if="meta.hasError">Could not load this invoice.</div>
-  <Receipt v-else-if="meta.isPaid" :invoice="data" />
-  <PayPanel
-    v-else-if="meta.isPending || meta.isPartiallyPaid"
-    :invoice="data"
-  />
+  <div v-else-if="meta.isPaid">Paid — {{ data.summary.total }}</div>
+  <div v-else-if="meta.isPending || meta.isPartiallyPaid">
+    {{ data.summary.unpaidAmountFormatted }} still owed
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useInvoice } from "@upmind-automation/headless";
+
+const props = defineProps<{ invoiceId: string }>();
+
 const invoice = useInvoice().withId(props.invoiceId);
 const { data } = invoice.useContext();
 const meta = invoice.useMeta();

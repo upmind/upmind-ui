@@ -6,7 +6,9 @@ import {
   getTokenFromStorage,
   loadPersistedState,
   persistStoreState,
-  persistTokenToStorage
+  persistTokenToStorage,
+  resolveGuestCookieId,
+  resolveGuestSessionId
 } from "../session-store/session-store.utils";
 import {
   loadAllSessionUsers,
@@ -61,9 +63,11 @@ export function isScopeAllowed(actor: AccessRoleTypes): boolean {
 /**
  * Resolve a valid active-session pointer for a candidate state.
  *
- * Pure and synchronous — no side effects, no network. If the current pointer
- * is still backed by a real session it is respected; otherwise it falls by
- * priority (staff > client) within allowed scopes, with GUEST as the floor.
+ * Pure and synchronous — no side effects, no network. One ordered lookup:
+ * a pointer still backed by a real session in its actor's own map is honoured
+ * — for guest on the same terms as client and staff — otherwise the pointer
+ * falls by priority (staff > client) within allowed scopes, with an unclaimed
+ * GUEST as the floor.
  *
  * @private
  */
@@ -77,6 +81,16 @@ export function resolveActiveSession(
   )
     return {
       activeActor: AccessRoleTypes.STAFF,
+      activeSessionId: s.activeSessionId
+    };
+
+  if (
+    s.activeActor === AccessRoleTypes.GUEST &&
+    s.activeSessionId &&
+    s.guestSessions[s.activeSessionId]
+  )
+    return {
+      activeActor: AccessRoleTypes.GUEST,
       activeSessionId: s.activeSessionId
     };
 
@@ -100,21 +114,25 @@ export function resolveActiveSession(
     if (id) return { activeActor: AccessRoleTypes.CLIENT, activeSessionId: id };
   }
 
+  // The guest floor NEVER claims the pointer, even when a guest session sits in
+  // the pool. `updateSession` persists whatever this returns, so a claimed floor
+  // would make a fallen-back guest sticky and stop it upgrading on a remote
+  // login. Since a fallen-back guest has a real pooled entry too, the ABSENT
+  // pointer is the only thing left that separates it from a chosen guest.
   return { activeActor: AccessRoleTypes.GUEST, activeSessionId: undefined };
 }
 
 /**
  * Reconcile the session maps to the live session cookies.
  *
- * The store maps own which sessions exist (unlimited client/staff, a single
- * guest); a scope cookie is a downstream projection of that scope's active
+ * The store maps own which sessions exist — guest included, unlimited for all
+ * three (R8); a scope cookie is a downstream projection of that scope's active
  * session. For each scope the cookie-backed session is overlaid onto the maps —
  * restoring a session dropped from state but still cookie-backed and adopting a
  * fresher token (post refresh) — while every other cached session is preserved
- * untouched. The active session is the only one dropped: if the active
- * client/staff scope has no cookie at all (user cleared / expiry) it is removed
- * so the pointer re-resolves to the guest floor. The guest session mirrors its
- * cookie. Impersonation links and transient flags are left untouched.
+ * untouched. The active session is the only one dropped: if the active scope has
+ * no cookie at all (user cleared / expiry) it is removed so the pointer
+ * re-resolves. Impersonation links and transient flags are left untouched.
  *
  * @private
  */
@@ -163,15 +181,41 @@ export function reconcileToCookies(s: SessionState): SessionState {
   )
     staffSessions = omit(staffSessions, s.activeSessionId);
 
-  const guestToken = getTokenFromStorage(
+  // The guest cookie carries its own session id (R6), so the guest arm keys off
+  // the cookie exactly as the client/staff arms do — overlaying the one guest
+  // the cookie backs and preserving every other pooled guest (R8).
+  const guestCookie = getTokenFromStorage(
     AccessRoleTypes.GUEST
   ) as IToken | null;
+  let guestSessions: Record<string, SessionEntry> =
+    guestCookie?.access_token && guestCookie.actor_id
+      ? {
+          ...s.guestSessions,
+          [guestCookie.actor_id]: {
+            scope: AccessRoleTypes.GUEST,
+            token: guestCookie,
+            user: s.guestSessions[guestCookie.actor_id]?.user
+          }
+        }
+      : s.guestSessions;
+  // The active-scope drop, on exactly the client/staff terms: the entry the
+  // vanished cookie backed is the one the POINTER names, never the pool's
+  // first. An unclaimed guest pointer (the floor) names none, so the pool
+  // survives — a guest pooled beside the one that logged out is a sibling, not
+  // a stale copy of it (R8).
+  if (
+    s.activeActor === AccessRoleTypes.GUEST &&
+    s.activeSessionId &&
+    guestSessions[s.activeSessionId] &&
+    !guestCookie?.access_token
+  )
+    guestSessions = omit(guestSessions, s.activeSessionId);
 
   return {
     ...s,
     clientSessions,
     staffSessions,
-    guestSession: guestToken?.access_token ? guestToken : undefined
+    guestSessions
   };
 }
 
@@ -204,8 +248,9 @@ export function updateSession(
   // floor. Only a write that MOVED the pointer projects: with an unchanged
   // pointer a cookie/state mismatch means the cookie changed externally, and
   // the cookie is the source of truth — writing the in-memory token back would
-  // heal a tampered/foreign cookie. GUEST is skipped: reconcile already
-  // mirrors the guest cookie.
+  // heal a tampered/foreign cookie. GUEST is skipped: the gate never PROMOTES a
+  // guest — the floor leaves the pointer unclaimed — so a guest pointer only
+  // moves through `activate`, which projects the token itself.
   if (
     next.activeSessionId &&
     (next.activeActor === AccessRoleTypes.CLIENT ||
@@ -235,6 +280,45 @@ export function updateSession(
 }
 
 /**
+ * Migrate persisted state written before FE-3087, when a guest was a single
+ * `guestSession` token rather than an id-keyed `guestSessions` map.
+ *
+ * The shape is discriminated by which key is present — no schema version. A
+ * pre-FE-3087 persisted guest always has `activeSessionId: undefined` (the old
+ * code force-cleared it), so it is the unclaimed floor and synthesising its key
+ * cannot orphan a pointer. Without this a reload across the deploy would drop
+ * the guest session and the store would needlessly re-mint.
+ *
+ * Pure: it keys a persisted token, and never writes the guest cookie. A cookie
+ * written from persisted state ahead of the boot mint decision would resurrect
+ * an expired legacy token and skip the mint the tab is owed. The id comes off
+ * the live guest cookie when one is there, which is why callers resolve the
+ * cookie's own id first.
+ *
+ * @param persisted - Raw persisted state, possibly in the pre-FE-3087 shape
+ * @returns The same state with any legacy guest session keyed into `guestSessions`
+ * @private
+ */
+function migratePersistedGuest(
+  persisted: PersistedSessionState & { guestSession?: IToken }
+): PersistedSessionState {
+  const { guestSession, ...rest } = persisted;
+  if (!guestSession?.access_token) return rest;
+  if (!isEmpty(rest.guestSessions)) return rest;
+
+  const guestSessionId = resolveGuestSessionId(guestSession);
+  return {
+    ...rest,
+    guestSessions: {
+      [guestSessionId]: {
+        scope: AccessRoleTypes.GUEST,
+        token: { ...guestSession, actor_id: guestSessionId }
+      }
+    }
+  };
+}
+
+/**
  * Build initial session state.
  *
  * 1. Load persisted state from sessionStorage (all sessions, user data, impersonations, active session)
@@ -245,14 +329,32 @@ export function updateSession(
  * @returns Session state ready for hydration
  */
 async function buildInitialState(): Promise<SessionState> {
+  // --- Step 0: The guest cookie is the id authority for a guest session, so
+  //     stamp a pre-FE-3087 cookie with its id BEFORE the persisted read — the
+  //     migration then adopts that id instead of synthesising a second one for
+  //     the same guest. It only ever stamps a cookie that already holds a token,
+  //     so the mint decision below still reads real cookie state.
+  let existingGuestToken = getTokenFromStorage(
+    AccessRoleTypes.GUEST
+  ) as IToken | null;
+  if (existingGuestToken?.access_token)
+    existingGuestToken = {
+      ...existingGuestToken,
+      actor_id: resolveGuestCookieId(existingGuestToken)
+    };
+
   // --- Step 1: Load persisted state from sessionStorage
-  const persisted: PersistedSessionState = defaultsDeep(loadPersistedState(), {
-    activeActor: undefined,
-    activeSessionId: undefined,
-    clientSessions: {},
-    staffSessions: {},
-    impersonatedSessions: {}
-  });
+  const persisted: PersistedSessionState = defaultsDeep(
+    migratePersistedGuest(loadPersistedState()),
+    {
+      activeActor: undefined,
+      activeSessionId: undefined,
+      clientSessions: {},
+      guestSessions: {},
+      staffSessions: {},
+      impersonatedSessions: {}
+    }
+  );
 
   const clientToken = getTokenFromStorage(
     AccessRoleTypes.CLIENT
@@ -280,9 +382,6 @@ async function buildInitialState(): Promise<SessionState> {
 
   // --- Step 2: Overlay session cookies (may have fresher tokens from refresh)
   //             NB: Mint a new guestToken if no sessions exist AND guest is allowed
-  const existingGuestToken = getTokenFromStorage(
-    AccessRoleTypes.GUEST
-  ) as IToken | null;
   const shouldMintGuest =
     isScopeAllowed(AccessRoleTypes.GUEST) && !(staffToken || clientToken);
   const guestToken = existingGuestToken?.access_token
@@ -293,7 +392,7 @@ async function buildInitialState(): Promise<SessionState> {
 
   // M5: a two-step guest-customer mint returns a CLIENT-coerced token — route
   // it to clientSessions so the user runs through the client lifecycle. A plain
-  // anonymous guest stays in guestSession.
+  // anonymous guest stays in guestSessions, under the id its cookie carries.
   if (guestToken?.access_token) {
     if (
       guestToken.actor_type === AccessRoleTypes.CLIENT &&
@@ -305,7 +404,11 @@ async function buildInitialState(): Promise<SessionState> {
         user: persisted.clientSessions?.[guestToken.actor_id]?.user
       };
     } else {
-      persisted.guestSession = guestToken;
+      const guestSessionId = resolveGuestCookieId(guestToken);
+      persisted.guestSessions[guestSessionId] = {
+        scope: AccessRoleTypes.GUEST,
+        token: { ...guestToken, actor_id: guestSessionId }
+      };
     }
   }
 
@@ -358,7 +461,7 @@ export const sessionStore = new Store<SessionState>({
   activeActor: AccessRoleTypes.GUEST,
   activeSessionId: undefined,
   clientSessions: {},
-  guestSession: undefined,
+  guestSessions: {},
   impersonatedSessions: {},
   initialised: false,
   loading: false,
@@ -388,10 +491,10 @@ sessionStore.subscribe(() => {
   if (sessionStore.state.initialised) {
     persistStoreState();
 
-    const { activeActor, guestSession } = sessionStore.state;
+    const { activeActor, guestSessions } = sessionStore.state;
     const needsGuest =
       activeActor === AccessRoleTypes.GUEST &&
-      !guestSession &&
+      isEmpty(guestSessions) &&
       isScopeAllowed(AccessRoleTypes.GUEST);
     if (needsGuest) {
       updateSession(state => ({ ...state, initialised: false }));
@@ -489,14 +592,20 @@ export async function hydrateFromStorage(): Promise<void> {
   // Don't hydrate before initialisation is complete
   if (!sessionStore.state.initialised) return;
 
-  // Re-read persisted state (same as buildInitialState but skip guest mint).
-  const persisted: PersistedSessionState = defaultsDeep(loadPersistedState(), {
-    activeActor: undefined,
-    activeSessionId: undefined,
-    clientSessions: {},
-    staffSessions: {},
-    impersonatedSessions: {}
-  });
+  // Re-read persisted state (same as buildInitialState but skip guest mint) —
+  // through the SAME legacy-guest migration, or a blob written before FE-3087
+  // would publish an undefined guest pool on this path alone.
+  const persisted: PersistedSessionState = defaultsDeep(
+    migratePersistedGuest(loadPersistedState()),
+    {
+      activeActor: undefined,
+      activeSessionId: undefined,
+      clientSessions: {},
+      guestSessions: {},
+      staffSessions: {},
+      impersonatedSessions: {}
+    }
+  );
 
   // Apply via the gate, preserving transient flags. The gate reconciles the
   // persisted maps to the live cookies (overlay + adopt fresher) and re-resolves

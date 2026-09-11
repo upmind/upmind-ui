@@ -5,11 +5,11 @@ Full API reference for `useAccount`. Every capability carries a 🧪 **For Teste
 ## Getting an instance
 
 ```ts
-import { useAccount } from "@upmind-automation/headless";
+import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
 
-const account = useAccount().as("self"); // active session's actor
+const account = useAccount().as(ScopeActorTypes.SELF); // active session's actor
 // or
-const account = useAccount().as("client"); // client scope explicitly
+const clientAccount = useAccount().as(ScopeActorTypes.CLIENT); // client scope explicitly
 ```
 
 `useAccount` is a scoped composable returning four sub-composables:

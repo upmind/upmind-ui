@@ -1,0 +1,23 @@
+# Negative control — the product's Tickets tab mounts no control band, so the
+# whole tickets toolbar legacy carried onto the tab (`cProdTicketsComp.vue:12`
+# mounts the listing itself) is gone: no search, no department, no status, no
+# window.
+#
+# Intended RED (to be added by the prover): "the product Tickets tab mounts
+# the tickets toolbar".
+
+--- a/apps/portal-nuxt/app/portal/config/product-pages.ts
++++ b/apps/portal-nuxt/app/portal/config/product-pages.ts
+@@ -950,11 +950,7 @@
+             description: "Conversations linked to this product.",
+             // Legacy mounted the whole tickets listing on this tab
+             // (`cProdTicketsComp.vue:12`), toolbar and all.
+-            controls: panelControls(
+-              DATA_REF_ID.PRODUCT_TICKET_ITEMS,
+-              "tickets",
+-              "Search by reference or subject"
+-            )
++            controls: undefined
+           },
+           slots: [
+             moduleRef(LIST_MODULE_ID, {

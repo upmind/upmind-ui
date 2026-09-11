@@ -4,24 +4,39 @@
 
 There is exactly one composable, and it is a **lens onto an already-spawned actor** — it never spawns one itself:
 
-```typescript
-function usePaymentGateway(
+```ts
+import type { ComputedRef } from "vue";
+import type { ActorRef } from "xstate";
+import type { UseActor, UsePaymentGateway } from "@upmind-automation/headless";
+
+declare function usePaymentGateway(
   service: ActorRef<any, any> | ComputedRef<UseActor | undefined>
 ): UsePaymentGateway;
 ```
 
 `service` is the gateway actor the capture module spawned (a raw `ActorRef`) or a `ComputedRef` that resolves to one — the composable accepts either so a caller can pass a reactive "whichever gateway is currently selected" reference. There is no scoped-composable split (`.as('client')` / `.as('staff')`) and no `useMeta()`/`useContext()`/`useActions()` layering — every member sits flat on the one return object.
 
-```typescript
+```ts
+import { inject } from "vue";
 import { usePaymentGateway } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+import type { UseActor } from "@upmind-automation/headless";
 
 // `actor` is a gateway spawned elsewhere and handed down — never spawned here.
-const gateway = usePaymentGateway(actor);
+const actor = inject<ComputedRef<UseActor | undefined>>("gatewayActor");
+const gateway = usePaymentGateway(actor!);
 ```
 
 ## State
 
-```typescript
+```ts
+import { usePaymentGateway } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+import type { UseActor } from "@upmind-automation/headless";
+
+// The gateway actor the capture module spawned and handed down.
+declare const actor: ComputedRef<UseActor | undefined>;
+
 const {
   state, // computed(() => actor.value?.state.value.toStrings())
   isReady // () => Promise<boolean>
@@ -53,7 +68,14 @@ const {
 
 ## Context (Computed Values)
 
-```typescript
+```ts
+import { usePaymentGateway } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+import type { UseActor } from "@upmind-automation/headless";
+
+// The gateway actor the capture module spawned and handed down.
+declare const actor: ComputedRef<UseActor | undefined>;
+
 const {
   context, // the full gateway context
   errors, // the machine's error message, if any
@@ -71,7 +93,14 @@ const {
 
 ## Actions
 
-```typescript
+```ts
+import { usePaymentGateway } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+import type { UseActor } from "@upmind-automation/headless";
+
+// The gateway actor the capture module spawned and handed down.
+declare const actor: ComputedRef<UseActor | undefined>;
+
 const {
   clear, // () => void — resets captured input and any error
   input, // (value) => void — records a value without asking the gateway to proceed
@@ -99,7 +128,8 @@ The real consumer (`packages/client-vue/src/modules/payment/components/PaymentGa
 
 ```vue
 <script setup lang="ts">
-import { computed, inject } from "vue";
+import { inject } from "vue";
+import type { ComputedRef } from "vue";
 import { usePaymentGateway } from "@upmind-automation/headless";
 import type { UseActor } from "@upmind-automation/headless";
 
@@ -113,8 +143,8 @@ const { meta, schema, uischema, model, errors } = gateway;
   <div v-if="meta.isRenderless === false" ref="container" />
   <!-- for renderless gateways, drive `schema`/`uischema` through a JSONForms
        renderer bound to `model` instead -->
-  <p v-if="meta.hasInstructions">{{ gateway.instructions.value }}</p>
-  <p v-if="meta.hasErrors">{{ errors.value }}</p>
+  <p v-if="meta.hasInstructions">{{ gateway.instructions }}</p>
+  <p v-if="meta.hasErrors">{{ errors }}</p>
 </template>
 ```
 

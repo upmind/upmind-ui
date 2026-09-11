@@ -1,0 +1,20 @@
+# Negative control — the composer's Enter behaviour stops reading the client's
+# own answer and reads the brand's key alone, so the post-options form saves a
+# preference nothing honours: the write lands on the persona and the key keeps
+# deciding.
+#
+# Intended RED: "reads the client's own answer once given, against the brand on
+# both seeds", "saves the answer through the verb, and opens on it next time"
+# (tests/fourth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockPersonalDetails.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockPersonalDetails.ts
+@@ -88,8 +88,6 @@
+  * disagree about what the key does.
+  */
+ export function submitsWithShortcut(data: MockDataset): boolean {
+-  const answered = data.persona.supportPreferences;
+-  if (answered !== undefined) return answered.submitWithShortcut;
+   return data.features.UI_ENTER_KEY_ACTION === MOCK_ENTER_KEY_ACTION.SUBMIT;
+ }
+ 

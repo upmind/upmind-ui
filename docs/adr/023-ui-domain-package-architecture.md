@@ -2,7 +2,7 @@
 
 **Date:** June 15, 2026
 **Updated:** June 15, 2026 — §10 rewritten as a two-axis SSR-safe state model (brand-invariant shared cache + per-user request scope), after reviewing the `@next-legacy` scope-based composables (`modules/scope/`). They are built and SPA-correct; the SSR gap is that the scope registry, `QueryClient`, and session-store are module-level (per-process) rather than per-request — fixable at one chokepoint (`ensure()`). **Accepted 2026-06-16** — all Open Questions (Q1–Q4) resolved.
-**Status:** Accepted
+**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave) and 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED). See the Amendments below.
 **Authors:** Dom da Costa
 
 ---
@@ -19,11 +19,11 @@ We are **deprecating `client-vue`** and re-homing its organisms into smaller dom
 2. **Acyclic.** The dependency graph must be a clean DAG; existing cycles must be broken.
 3. **Collapse velia + hosting into a single configurable `cart`** (no fork).
 4. **Teams aspirational.** Optimise current DevX; keep team-independence possible; do not over-fit ownership.
-5. **`ui` stays presentational** (dumb by preference, may now know `headless`); `headless` is already cleanly modular.
+5. **`ui` stays presentational** (dumb by preference, may now know `headless`); `headless` is already cleanly modular. *(Narrowed 2026-08-25 to `ui`'s `src/components/` tree — see the Amendment below.)*
 6. **Nuxt is the de-facto app platform going forward.** **`cart-nuxt` is the de-facto app; the existing Vite apps (`cart`, `velia`, `hosting`) are *deprecated, not migrated*** — velia/hosting variation is re-homed as cart-nuxt config/layers (Q3). Every surviving app targets Nuxt, moving to **SSR/SSG** for speed and SEO. (cart-nuxt is SPA today; SSR is the direction — greenfield, not a migration. **Enabling SSR is a separate workstream from this package cut** — see §10.)
 7. **Brand is always resolved from the path/domain**; the BE returns the brand's settings bundle **with its id** on every request.
 
-This ADR is grounded in the module-foundation docs (`workshop-bundle/02-module-foundations/*`) and the headless reference (`docs/@upmind-automation/headless/*`) — the canonical domain taxonomy — not invented nomenclature.
+This ADR is grounded in the module-foundation docs (`<agent-runner>/workshop-bundle/02-module-foundations/*`) and the headless reference (`docs/published-docs/developers/reference/headless/*`) — the canonical domain taxonomy — not invented nomenclature.
 
 ---
 
@@ -92,7 +92,7 @@ Acyclic by construction. `product`, `recommendations`, `payment`, `auth` are low
 
 ### 5. Breaking the existing cycles
 
-- `Promotion.vue` → `ui` (a presentational badge; kills `product → basket-product`).
+- ~~`Promotion.vue` → `ui`~~ → **`product`'s pricing kit** *(revised by Amendment 1 change 6: a promotion is cart/commerce opinion, so it cannot sit in a presentational library. Still kills `product → basket-product`.)*
 - the misfiled `product/Recommendations.vue` → the `recommendations` package (kills `product → recommendations`).
 - `basket-product` → **`basket`** (domain ownership); it consumes `product`'s public components as a downward dependency.
 - `catalogue`'s DAC (`catalogue/products/WidgetDAC.vue`) currently **hard-imports `domain`** → reroute it through the provision-field renderer socket (§7), so `domain` stays a genuinely optional package rather than a hard dependency of the (non-optional) browse surface.
@@ -114,6 +114,25 @@ Each package self-describes its contribution through one uniform contract:
 
 ```ts
 // packages/<pkg>/src/feature.ts — default export, identical signature everywhere
+import type { Router } from 'vue-router'
+
+// The contract this ADR proposes. `foundation` owns `defineFeature` and the
+// empty typed registries; the entries below live in the contributing package.
+type FeatureContext = {
+  addRenderers: (renderers: Record<string, unknown>) => void
+  addRoutes: (routes: unknown[]) => void
+  registerFlows: (register: (engine: Router) => void) => void
+}
+
+declare function defineFeature(feature: {
+  name: string
+  setup: (ctx: FeatureContext) => void
+}): unknown
+
+declare const domainRenderers: Record<string, unknown>
+declare const domainRoutes: unknown[]
+declare function useDomainFlows(): { register: (engine: Router) => void }
+
 export default defineFeature({
   name: "domain",
   setup(ctx) {
@@ -202,6 +221,8 @@ The scope-based composables are built and well-designed *for SPA*, but the port 
 
 ## Migration (big-bang wave)
 
+> ⚠️ **SUPERSEDED by [Amendment 1](#amendment-1-2026-09-07--a-phased-strangler-replaces-the-big-bang-wave) (2026-09-07).** Delivery is a phased strangler — one package per phase, an operator gate between phases, `client-vue` deleted last. The pre-flight shape, the coverage watchlist and the `invoice`-last tranche below all still bind; only the one-wave delivery model is replaced. Read this section for that retained detail, not for the shape of the run.
+
 Move all `client-vue` modules into the 10 packages in **one dependency-ordered wave** — parallel agents, the regression suite as the single gate. Source-only (`git mv` + alias + import-rewrite); no strangler, no shim. Mechanical work with a mechanical check (`tsc -b` + lint + suite) — same risk profile as the FE-2820 lint/rename wave.
 
 **Scope of this wave:** purely the *mechanical re-homing of modules into packages*. It is **independent of the scope-registry/SSR work (§10)** — that is a separate workstream gating only `ssr: true`, not this migration. Do not block or sequence the wave on it.
@@ -221,16 +242,64 @@ Detailed batches, agent ownership, and codemod specifics come from the **full im
 ## Open Questions (to resolve before / during implementation)
 
 1. **velia / hosting → `cart` consolidation (Q3) — resolved.** Most variation is **brand data** (theme now; features + funnels once the BE serves them) → no code, no build. Bespoke markup → a thin **Nuxt layer** dropped into the organisms' named slots. So **hosting = config-only (no layer)**, **velia = a thin layer** on the base cart. *Velia inspected (2026-06-15): the delta is **~45% brand-data / ~50% slot-components / ~5% structural**. The slot half is **9 bespoke Vue components injected into existing `<Upm>` named slots** (footer, logo, basket pricing, product-config pricing). The structural 5% is **a single item — the URL prefix `/order/cart/` vs `/order/basket/`, a one-line config change**; the funnel machine, guards, route names, and all pages are byte-for-byte identical to base cart (no velia-only pages, no extra/reordered checkout steps). The "velia = thin layer" premise holds — no fork.*
-2. **Migration off `client-vue` (Q4) — resolved: a single big-bang wave.** The regression suite is the safety net (precedent: the FE-2820 lint/rename wave). Pre-flight (cycle fixes, package shells + aliases, `import/no-cycle` → ERROR), then all modules move in one **dependency-ordered, parallel-agent wave**; codemod the in-repo app imports; `tsc -b` + full suite as the **single gate**; delete `client-vue`. No strangler, no `@deprecated` shim (velia/hosting handled via Q3). See the *Migration* section above (GO-WITH-WATCHLIST audit).
+2. **Migration off `client-vue` (Q4) — resolved as a single big-bang wave; *re-resolved as a phased strangler* by [Amendment 1](#amendment-1-2026-09-07--a-phased-strangler-replaces-the-big-bang-wave).** The regression suite is the safety net (precedent: the FE-2820 lint/rename wave). Pre-flight (cycle fixes, package shells + aliases, `import/no-cycle` → ERROR), then all modules move in one **dependency-ordered, parallel-agent wave**; codemod the in-repo app imports; `tsc -b` + full suite as the **single gate**; delete `client-vue`. No strangler, no `@deprecated` shim (velia/hosting handled via Q3). See the *Migration* section above (GO-WITH-WATCHLIST audit).
 3. **`product`'s public API surface — resolved (proposed barrel, lock during extraction).** Derived from actual cross-module usage — the public barrel is the cross-boundary-consumed set (~17 symbols): config/views kit (`Config`, `ConfigErrors`, `ConfigSkeleton`, `NotFound`), hero kit (`ProductHero`, `ProductHeroSkeleton`, `ProductImage`, `PRODUCT_HERO_DIRECTION`), pricing atoms + list (`CurrentPrice`, `ExPrice`, `Pricing`, `PricingSkeleton`, `PricingTotal`), `TermCard`, card kit (`ProductCard`, `ProductCardSkeleton`), and `PRODUCT_TEMPLATE`. **~22 components stay internal** (actions, card/term sub-components, layout templates, `product.config.ts`). Three edge cases resolve via §5, not a new decision: `SubproductCard`/`TermCard`'s `Promotion` import → `Promotion` moves to `ui`; the misfiled `product/Recommendations.vue` → `recommendations` (drop from barrel); `SubproductCardPricing` has no cross-boundary consumer → drop.
 4. **Detailed Nuxt wiring — starting shape drafted; validate during build-out.** Proposed shape: each package ships `@upmind-automation/<pkg>/nuxt` = a `defineNuxtModule` that (a) registers the package's `defineFeature` contribution (renderers, routes/funnels, plugins) into the `foundation` registries, and (b) contributes its pages via `extendPages`. The app's `nuxt.config` `modules: [...]` is the uniform feature list, **ordered to mirror the DAG** (`foundation/nuxt` first → domains → `basket/nuxt` last). Brand variants: **velia = a Nuxt layer** (`extends`) overriding tokens + dropping its 9 slot components (Q1); **hosting = config-only**. Per-brand funnels: a module registers the *capability*; the **active** funnel/route set is **brand-resolved per request** from the brand bundle (§10 Axis 1), never baked at build. *Validate against cart-nuxt during build-out:* module-execution order vs registry population, layer `extends` order, and that build-time module registration composes with request-time brand-driven funnels (the §9 ↔ §10 seam).
 
 ---
 
+## Amendment (2026-08-25) — `ui` hosts the vendored form engine; constraint 5 narrows to `src/components/`
+
+**Scope:** narrows binding constraint 5 only. The layer table (§2), the package roster and DAG (§3), the socket rule (§7), the feature-wiring contract (§8) and the state model (§10) stand unchanged.
+
+**What changes.** Constraint 5 ("`ui` stays presentational") is narrowed to: **`ui`'s `src/components/` tree stays presentational.** `ui` additionally hosts one vendored, non-presentational subtree — the JSONForms form engine at `src/form/**` — which §2 already assigns to the `ui` layer (`registerEntry`, the dumb `Form` with renderers via prop). The subtree sits outside `COMPONENT_SPEC.md`'s scope and outside the composed-component contract; it carries its own dependencies (`@jsonforms/*`, `ajv`, `lodash-es`, `libphonenumber-js`) and imports no `@upmind-automation/*` package. Nothing under `src/components/` may import them.
+
+**Why the narrowing is required, and why it is only a narrowing.** The engine sits at the `ui` layer's DAG position either way — §2's layer table already put `registerEntry` and the dumb `Form` there — so this is a placement decision, not a layering one. What could not survive unqualified is the word *presentational*: a `rankWith` tester registry, an error-collection and translation pipeline, and a validation-mode state machine are not presentational, and they now live in `ui`. Splitting the subtree out to keep the old wording would have created a second physical home for a live engine, which is the divergence failure class ADR 024's August 19, 2026 amendment closed.
+
+**What `foundation` keeps.** Unchanged: the form-host wrapper, `useFormI18n`, and the renderer registry + `useFormRenderers` inject that will replace today's `additionalRenderers` prop. None of it is built or moved by this work; the wrapper stays in `client-vue` until the package cut, and the engine's departure leaves that cut smaller, not larger.
+
+**See also** ADR 024's amendment of the same date, which records the engine's home (`@upmind/ui` at `src/form/**`), the five dependencies `ui` gains, and the Upmind-domain renderers that stay in `client-vue`.
+
+---
+
+## Amendment 1 (2026-09-07) — a phased strangler replaces the big-bang wave
+
+> **Provenance.** The original text of this amendment is not in this repository. It is reconstructed from the twelve phase issues written against it on 2026-09-07 (FE-3188 … FE-3199), each of which names "ADR 023 + Amendment 1" as its binding record and cites the change numbers below. Those issues were written by Dominic da Costa; the amendment's own text was reconstructed by an agent and is NOT operator-ratified. One item could not be reconstructed and is marked open at the end.
+
+**Scope.** Supersedes the *Migration (big-bang wave)* section and Open Question 2's "single big-bang wave" resolution. Also supersedes §5's placement of `Promotion.vue` (change 6) and the consumer set implied by constraint 6 (change 2). The roster and DAG (§3), the taxonomy (§4), the no-`headless`-re-export rule (§6), the socket rule (§7), the feature-wiring contract (§8), the platform shape (§9) and the state model (§10) stand unchanged.
+
+**What changes.** Delivery is a **phased strangler**, one package per phase, not one dependency-ordered wave:
+
+1. **`client-vue` is deleted last**, in its own phase, after every consumer is off it — not as the tail of a single wave.
+2. **All apps come off it first, and stay deployable throughout.** The consumer set is **cart, cart-nuxt and portal-nuxt** — `portal-nuxt` did not exist when this ADR was written, and `cart` is still the shipped Vue app, so constraint 6's "deprecated, not migrated" does not exempt either from per-phase wiring.
+3. **The shell is app-owned.** Page, layouts, header and footer belong to each app, not to `ui` and not to `foundation`.
+4. **`auth` and `payment` each also ship as a standalone app**, booting from a redirect/return-target input and depending only on their own package plus the shared bases. This is the decoupling proof: a package that cannot boot alone is not decoupled.
+5. **`foundation` is grown minimally per phase**, not built up front. Each phase adds only the glue its box needs; a closing sweep in the final phase migrates whatever residual no single box pulled.
+6. **`Promotion.vue` goes to `product`, not `ui`.** A promotion is cart/commerce opinion, so it cannot sit in a presentational library. It lands in `product`'s pricing kit — the shared base both `product` and `basket` reach down to — which still kills the `product → basket-product` cycle §5 identified.
+
+**Unchanged and held.** The pre-flight shape survives intact: the STEP 0 barrel eager-load fix, the two cycle breaks, `import/no-cycle` set to ERROR, and the ten package shells with their aliases and project references. It is applied at the phased run's start (Phase 0) rather than ahead of a wave. The coverage watchlist also holds: `invoice` moves in its own revertable tranche behind a smoke spec authored first, and the unit-dark basket/payment/feedback machines land behind their green e2e.
+
+**The "Placement Ladder" citation is retired (2026-09-08).** Phase 0 and Phase 10 cited a Placement Ladder by rung — rung 2 for the `Promotion.vue` ruling, rung 0 for the app-owned shell. That text was never in this repository and is not recoverable from the citations. It is not owed, because both rungs it produced are recorded above as rulings that bind on their own, and the one open decision that reached for it — where the shared `manage` kit lands, in Phase 7 — is already answered by **§2's admission rule**: `foundation` earns a thing only if two or more domain packages depend on it and it knows no single domain. A consumer count decides it; no rung lookup is required. Phase 7's story was re-pointed at §2 accordingly.
+
+---
+
+## Amendment 2 (2026-09-08) — four scope rulings before the run
+
+**Scope.** Four scope decisions recorded before Phase 0. Additive to Amendment 1; nothing in the Decision changes.
+
+> ⚠️ **UNRATIFIED.** An agent authored these; the operator has not ratified rulings 1, 3 or 4. Ruling 2 is ratified — the operator created FE-3202 for it and confirmed the velia/hosting retirement on 2026-09-08. Treat rulings 1, 3 and 4 as a proposal until ratified.
+
+1. **The Upmind-domain renderers ride their domain phase.** ADR 024's 2026-08-25 amendment leaves the domain renderers in `client-vue` to "move into their domain modules with the ADR 023 package cut", and named no phase. They are assigned per box: Gateways and PaymentDetails → `payment`; SubProduct and Terms → `product`; Domain and SLD → `domain`; the collection `Filter*` family → `catalogue`; Address and Manage → `client`; Image → `product`. No dedicated renderer phase.
+2. **velia and hosting are retired in their own phase, before the delete.** Both still import `client-vue` (47 and 40 files), so the final phase's "no consumer imports `client-vue`" criterion cannot pass while they stand. A phase ahead of it re-homes velia's slot components and hosting's configuration into cart-nuxt per Open Question 1, then retires both apps.
+3. **The standalone `auth` and `payment` apps stay in their phases** (Amendment 1 change 4), rather than deferring to a follow-up.
+4. **`ui` means `design-system/packages/ui`.** Per ADR 024's 2026-08-19 amendment, the library's single home is the `design-system` submodule and the in-tree copies are deleted. The ten packages' project references target the submodule's workspace package; the leftover `packages/ui` working tree from the old library is removed.
+
+---
+
 ## References
 
-- Module-foundation docs: `workshop-bundle/02-module-foundations/*`
-- Headless reference: `docs/@upmind-automation/headless/*` (`useOrder` = `useInvoice`, `useCheckoutFlows`, `useBasketFlows`, `useRoutingFlows`, …)
+- Module-foundation docs: `<agent-runner>/workshop-bundle/02-module-foundations/*`
+- Headless reference: `docs/published-docs/developers/reference/headless/*` (`useOrder` = `useInvoice`, `useCheckoutFlows`, `useBasketFlows`, `useRoutingFlows`, …)
 - ADR 001 (scope-based composables) — a separate `headless`-layer initiative; **implemented in `@next-legacy` (`modules/scope/`)**. Does not gate the *package cut*, but its registry's per-request lifetime **IS the SSR fix** (§10 Axis 2), so it **gates enabling SSR**.
 - ADR 004 (monorepo structure), ADR 007 (headless architecture), ADR 012 (multi-theme architecture), ADR 017/018 (funnel navigation)
 - **ADR 022 (UI library split — `ui-cart`/`ui-checkout`) — *superseded by this ADR.*** 022 split along a UI-component-library axis; 023 supersedes it with the domain-axis package cut. ADR 021 (testing pyramid) governs the test strategy the Migration leans on.

@@ -13,26 +13,28 @@ _Any `meta` field returned by Upmind endpoints is UI-specific to our own client 
 ## Core concepts
 
 - **Actor** — the kind of identity a token authorises: `guest` (anonymous, no account), `client` (a customer), or `staff` (an employee). The active actor determines which endpoints and data the caller can reach.
-- **Session** — a token paired with the minimal display identity it resolves to. Guests have at most one; clients and staff can each hold several, keyed by their actor id.
+- **Session** — a token paired with the minimal display identity it resolves to. Every actor — guest included — can hold several sessions concurrently, each keyed by its own session id: client and staff key by the server-assigned actor id, guest by a locally-generated one (the guest grant carries no actor id of its own).
 - **Active session** — the single session whose token authorises requests right now. Exactly one is active at any moment; there is never _no_ active identity.
 - **Guest floor** — the fallback identity. When no client or staff session is available, the active actor falls back to guest, minting a fresh guest token if none exists.
+- **Chosen vs. floor guest** — activating guest explicitly and merely falling back to guest are different states with the same visible actor. A guest reached only because nothing else was available (the floor) must stay upgradeable: the moment a client or staff session becomes available (e.g. a sign-in completing elsewhere), the active identity should move to it automatically. A guest reached because it was explicitly chosen must not be silently replaced this way. An equivalent needs some way to tell the two apart — this store does it by leaving the active session's key unset for the floor and set for a chosen guest, rather than adding a separate flag.
 - **Impersonation** — one actor (typically staff) operating under another actor's identity. The originating ("parent") identity is remembered so it can be restored when impersonation ends.
 
 ## Operations
 
 The module makes only three back-end calls (one grant, two profile reads). Everything else is identity bookkeeping over the cookie-persisted token set — capabilities an equivalent must provide even though they are not HTTP calls. The `BE?` column marks which rows are network operations.
 
-| #   | Capability                          | BE? | Inputs                                                                        | Outputs                                                                                                                                                                       |
-| --- | ----------------------------------- | --- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Mint an anonymous guest token**   | ✅  | — (triggered at boot when no session exists)                                  | A guest token, persisted to the guest cookie                                                                                                                                  |
-| 2   | **Read the active client identity** | ✅  | client access token                                                           | Identity profile: actor, verification state, guest flag, accounts, analytics                                                                                                  |
-| 3   | **Read the active staff identity**  | ✅  | staff access token                                                            | Staff identity profile: actor, brands, functionalities                                                                                                                        |
-| 4   | **Establish a session**             | —   | a token (actor type + actor id embedded)                                      | Session stored under its actor; optionally made active; guest sessions replace the single guest slot                                                                          |
-| 5   | **Switch the active session**       | —   | actor type + optional actor id                                                | Active pointer moves to the named session and that scope's cookie is regenerated from the stored session (ignored if that actor scope is disallowed or the session is absent) |
-| 6   | **End a session**                   | —   | actor type (defaults to active)                                               | Token cookie removed, session dropped, active pointer falls to the next available session or the guest floor                                                                  |
-| 7   | **Impersonate another actor**       | —   | impersonated actor id (link registered before the new session is established) | Active identity swaps to the impersonated actor; parent link retained for restoration                                                                                         |
-| 8   | **Observe identity changes**        | —   | a logout callback                                                             | Callback fired with the actor type on every logout (any cause); returns an unsubscribe handle                                                                                 |
-| 9   | **Derive token lifecycle state**    | —   | the active token                                                              | Expiry timestamp, expired / about-to-expire flags, refresh-eligibility — all computed from the token, no call                                                                 |
+| #   | Capability                              | BE? | Inputs                                                                                                                                                                      | Outputs                                                                                                                                                                             |
+| --- | --------------------------------------- | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Mint an anonymous guest token**       | ✅  | — (triggered at boot when no session exists; when guest is the session being switched to and none is pooled; or on an explicit request for an additional new guest session) | A guest token, persisted to the guest cookie and pooled under its own session id                                                                                                    |
+| 2   | **Read the active client identity**     | ✅  | client access token                                                                                                                                                         | Identity profile: actor, verification state, guest flag, accounts, analytics                                                                                                        |
+| 3   | **Read the active staff identity**      | ✅  | staff access token                                                                                                                                                          | Staff identity profile: actor, brands, functionalities                                                                                                                              |
+| 4   | **Establish a session**                 | —   | a token (actor type + actor id embedded)                                                                                                                                    | Session stored under its actor, keyed by its own session id (server-assigned for client/staff, locally generated for guest); optionally made active                                 |
+| 5   | **Switch the active session**           | —   | actor type + optional actor id                                                                                                                                              | Active pointer moves to the named session and that scope's cookie is regenerated from the stored session (ignored if that actor scope is disallowed or the session is absent)       |
+| 6   | **End a session**                       | —   | actor type (defaults to active)                                                                                                                                             | Token cookie removed, session dropped, active pointer falls to the next available session or the guest floor                                                                        |
+| 7   | **Impersonate another actor**           | —   | impersonated actor id (link registered before the new session is established)                                                                                               | Active identity swaps to the impersonated actor; parent link retained for restoration                                                                                               |
+| 8   | **Observe identity changes**            | —   | a logout callback                                                                                                                                                           | Callback fired with the actor type on every logout (any cause); returns an unsubscribe handle                                                                                       |
+| 9   | **Derive token lifecycle state**        | —   | the active token                                                                                                                                                            | Expiry timestamp, expired / about-to-expire flags, refresh-eligibility — all computed from the token, no call                                                                       |
+| 10  | **Add a new, additional guest session** | ✅  | — (an explicit request for another anonymous identity, independent of whether one is already pooled)                                                                        | A second (or further) guest token, pooled alongside any existing guest session and made active; the previous guest session stays pooled and reachable again by switching back to it |
 
 Additional always-on behaviours:
 
@@ -137,12 +139,26 @@ type SelfIdentity = {
 Framework-neutral shape of the state the store holds across the token set:
 
 ```ts
+// Repeated from "The persisted token (cookie-of-record)" above so this shape stands alone.
+type Token = {
+  access_token: string | null;
+  refresh_token: string | null;
+  expires_in: number | null;
+  refresh_expires_in: number | null;
+  created_at?: number | null;
+  second_factor_required: boolean | null;
+  actor_type: "guest" | "client" | "user";
+  actor_id?: string | null;
+  guest_token?: string | null;
+  redirect?: string | null;
+};
+
 type IdentityModel = {
-  guestSession?: Token; // at most one anonymous guest
+  guestSessions: Record<string, Token>; // keyed by a synthesised session id
   clientSessions: Record<string, Token>; // keyed by actor_id
   staffSessions: Record<string, Token>; // keyed by actor_id
   activeActor: "guest" | "client" | "user";
-  activeSessionId?: string; // actor_id of the active session; absent for guest
+  activeSessionId?: string; // key of the active session in its own map; absent when guest is the unclaimed floor
   impersonatedSessions: Record<string, string>; // impersonated actor_id → parent (impersonator) actor_id
 };
 ```
@@ -332,12 +348,13 @@ Fixture: `__tests__/fixtures/get-admin-self-case-wrong-actor.json`
 
 The profile reads are GETs, so the failure surface is the token itself; the guest mint is the one boot-critical operation.
 
-| Trigger                                          | Response                                                                       | Recovery                                                                                                                                                                               |
-| ------------------------------------------------ | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Client token invalid / expired / malformed       | `401` on `/self`                                                               | The session is not backed by a live token; drop it and fall through to the next session or the guest floor. Re-authenticate to restore.                                                |
-| Client or guest token calls `/admin/self`        | `403` "Access forbidden for customers"                                         | The token's actor cannot reach the staff endpoint. Route the profile read by actor type — never call the staff endpoint with a client/guest token.                                     |
-| Guest mint fails every retry at boot             | The mint throws after its retry budget                                         | **Fatal boot condition.** There is no safe identity floor to fall back to, so boot resolves into an error state the app must surface — not a state to silently proceed guestless from. |
-| One session's `/self` fails while others succeed | The failing session is loaded without its display user; siblings load normally | Soft degradation — the session is still usable for requests; only the display identity is missing. Retry the profile read to populate it.                                              |
+| Trigger                                                          | Response                                                                       | Recovery                                                                                                                                                                               |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Client token invalid / expired / malformed                       | `401` on `/self`                                                               | The session is not backed by a live token; drop it and fall through to the next session or the guest floor. Re-authenticate to restore.                                                |
+| Client or guest token calls `/admin/self`                        | `403` "Access forbidden for customers"                                         | The token's actor cannot reach the staff endpoint. Route the profile read by actor type — never call the staff endpoint with a client/guest token.                                     |
+| Guest mint fails every retry at boot                             | The mint throws after its retry budget                                         | **Fatal boot condition.** There is no safe identity floor to fall back to, so boot resolves into an error state the app must surface — not a state to silently proceed guestless from. |
+| One session's `/self` fails while others succeed                 | The failing session is loaded without its display user; siblings load normally | Soft degradation — the session is still usable for requests; only the display identity is missing. Retry the profile read to populate it.                                              |
+| Guest mint fails when triggered by switching to guest (not boot) | The mint throws after its retry budget                                         | Soft degrade, not fatal. The active identity stays whatever it was before the switch was attempted; the caller only sees the switch not happen.                                        |
 
 ## Flows
 
@@ -366,7 +383,7 @@ Guarantees the platform holds:
 
 - An active identity always exists once boot resolves successfully — client, staff, or guest.
 - The cookie is the token-of-record; the in-memory session set is reconciled to it, so an active session always has a live backing cookie.
-- Guest minting happens only during boot resolution, never during cross-tab or cookie-change re-reads.
+- Guest minting happens during boot resolution, and separately whenever guest is the session being switched to and none is pooled (see **Switch the active session**, Operations #5) — never during cross-tab or cookie-change re-reads.
 
 Constraints the caller has to plan around:
 

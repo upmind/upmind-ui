@@ -6,26 +6,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 // Nested config keys are flattened into one named export per cva.
 
 // --- root
-export const productRootCardVariants = cva(
-  "relative flex list-none flex-col p-0 text-base lg:p-0",
-  {
-    variants: {
-      isDisabled: {
-        true: "pointer-events-none cursor-not-allowed!",
-        false: ""
-      },
-      isLoading: {
-        true: "",
-        false: ""
-      }
-    },
-    compoundVariants: [
-      {
-        isLoading: false
-      }
-    ]
-  }
-);
 export const productRootSummariesVariants = cva(
   "divide-stroke flex flex-col divide-y divide-dashed *:py-4 *:first:pt-0 *:last:pb-0",
   {
@@ -44,9 +24,7 @@ export const productSummaryHeaderTopVariants = cva("flex justify-between");
 export const productSummaryCategoryRootVariants = cva(
   "flex items-center gap-2"
 );
-export const productSummaryCategoryTextVariants = cva(
-  "text-faint text-sm font-normal"
-);
+export const productSummaryCategoryTextVariants = cva("text-faint text-sm");
 
 export const productSummaryTitleRootVariants = cva(
   "flex items-start justify-between gap-x-4"
@@ -57,7 +35,6 @@ export const productSummaryTitleTextVariants = cva(
   "text-xl font-medium break-all no-underline"
 );
 
-export const productSummaryIconVariants = cva("[&>svg]:p-[2px]");
 export const productSummaryImageVariants = cva("rounded-image m-0 size-13");
 export const productSummaryExcerptVariants = cva(
   "text-muted m-0 line-clamp-3 text-sm"
@@ -75,7 +52,6 @@ export const productSummaryFooterTermsRootVariants = cva(
 export const productSummaryFooterTermsControlsVariants = cva(
   "flex items-center gap-2"
 );
-export const productSummaryFooterTermsContentVariants = cva("max-h-74!");
 export const productSummaryFooterRemoveVariants = cva(
   "p-2 [&>span>i>svg]:size-4"
 );
@@ -140,9 +116,6 @@ export const productSkeletonControlsVariants = cva(
 export const productSkeletonQuantityVariants = cva("h-10 w-12");
 export const productSkeletonRenewVariants = cva("h-5 w-28");
 
-export type ProductRootCardVariants = VariantProps<
-  typeof productRootCardVariants
->;
 export type ProductOptionDescriptionVariants = VariantProps<
   typeof productOptionDescriptionVariants
 >;

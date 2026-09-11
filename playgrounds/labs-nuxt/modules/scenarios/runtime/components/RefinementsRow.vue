@@ -18,23 +18,27 @@
 
          The accessible name NAMES the refinement. A bare `action.remove`
          aria-label overrides the visible content, so every chip in the row
-         announced the same word and none of them said what it would drop. -->
+         announced the same word and none of them said what it would drop.
+
+         The test hooks ride the BADGE: `as-child` folds it into the Button, and
+         the Badge's own default key wins that merge, so a key declared on the
+         child never reaches the DOM. -->
     <Badge
       v-for="refinement in refinements"
       :key="refinement.id"
       as-child
       variant="promo"
       size="sm"
+      :data-attrs="{
+        'data-test-key': 'refinement',
+        'data-test-value': refinement.id
+      }"
     >
       <Button
         variant="ghost"
         size="xs"
         :class="refinementsRow.chip()"
         :aria-label="t('action.remove_value', { value: refinement.label })"
-        :data-attrs="{
-          'data-test-key': 'refinement',
-          'data-test-value': refinement.id
-        }"
         @click="remove(refinement)"
       >
         {{ refinement.label }}

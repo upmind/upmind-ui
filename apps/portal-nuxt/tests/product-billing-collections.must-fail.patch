@@ -1,0 +1,20 @@
+# Negative control — the product ledger stops narrowing to its product, so one
+# product's billing page lists the whole account's invoices.
+#
+# Intended RED: "resolves this product's documents and no others", "pages at
+# the platform's own limit", "keeps the narrowing while it searches — another
+# product's document is never found here", "gives a product the client does not
+# own an empty ledger, not the account's" and "never lends one product's rows
+# to the other" (tests/product-billing-collections.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/collection-defs.ts
++++ b/apps/portal-nuxt/app/portal/mock/collection-defs.ts
+@@ -970,7 +970,7 @@
+   context: DataRouteContext
+ ): MockInvoice[] {
+   if (context.productId === undefined) return [];
+-  return filter(data.invoices, { productId: context.productId });
++  return [...data.invoices];
+ }
+ 
+ /** The product ledger's band: which state, over what period, at what size. */

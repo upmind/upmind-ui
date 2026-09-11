@@ -1,0 +1,26 @@
+# Negative control — the route's query is threaded by a HAND-WRITTEN list
+# again, so a member the context declares reaches the selectors from nowhere:
+# `?page=` was declared, read by the thread selectors and threaded by nobody
+# for a whole phase, and a long thread paged only by typing the URL.
+#
+#
+# Intended RED (verified by apply/run/revert): "every declared query member of
+# the route context reaches the page's own context"
+# (tests/fourteenth-closure.test.ts).
+
+--- a/apps/portal-nuxt/app/pages/[...slug].vue
++++ b/apps/portal-nuxt/app/pages/[...slug].vue
+@@ -86,7 +86,12 @@
+  * typing the URL.
+  */
+ function queryFilters(): DataRouteContext {
+-  return routeQueryContext(route.query);
++  return {
++    productType: routeQueryValue(route.query, "type"),
++    category: routeQueryValue(route.query, "category"),
++    status: routeQueryValue(route.query, "status"),
++    orderComplete: routeQueryValue(route.query, "orderComplete")
++  };
+ }
+ 
+ /** The route position the data-ref selectors key off (mock/injection.ts). */

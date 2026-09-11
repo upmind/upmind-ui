@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-notifications/useClientNotificationsManager.machine.ts
++++ b/packages/headless/src/modules/client-notifications/useClientNotificationsManager.machine.ts
+@@ -112,7 +112,7 @@
+             schema,
+             data ?? baseModel
+           );
+-          return { model, baseModel: model };
++          return { model };
+         }
+       ),
+

@@ -9,15 +9,22 @@ The sharp edges of the client's own email-address collection and its per-email e
 Per-address **form** editing lives on `useClientEmailManager`. The collection deliberately does not expose `add`, `update` or field validation, because those need the dirty/valid state the editor owns.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useClientEmailManager,
+  useClientEmails
+} from "@upmind-automation/headless";
+
+const actions = useClientEmails().as(ScopeActorTypes.SELF).useActions();
+
 // ⚠️ Wrong: there is no add() on the collection
-const { add } = useClientEmails().as("self").useActions(); // undefined
+const hasAdd = "add" in actions; // false
 
 // ✅ Right, when you want find-or-create without a form
-const { ensure } = useClientEmails().as("self").useActions();
-await ensure({ email: "me@example.com" });
+await actions.ensure({ email: "me@example.com" });
 
 // ✅ Right, when the client is filling in a form
-const draft = useClientEmailManager().as("self").fresh();
+const draft = useClientEmailManager().fresh();
 await draft.useActions().isReady();
 await draft.useActions().update({ email: "me@example.com" });
 ```
@@ -33,7 +40,11 @@ Fixture: `__tests__/fixtures/post-clients-id-emails.json`.
 An editor save on an existing address always sends `{ email, verified: 0 }`. This happens on **every** save, not only when the submitted address differs from the stored one.
 
 ```ts
-const manager = useClientEmailManager().withId(id);
+import { useClientEmailManager } from "@upmind-automation/headless";
+
+const manager = useClientEmailManager().withId(
+  "825d96e7-63ed-0913-46c4-174825283406"
+);
 
 // ⚠️ Wrong: saving as a generic "form closed" action
 await manager.useActions().update(); // unverifies the address even if nothing changed
@@ -55,14 +66,21 @@ Fixture: `__tests__/fixtures/put-clients-id-emails-id.json`.
 > `409 — The default email cannot be changed to unverified email address!`
 
 ```ts
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+const { setDefault, verify } = emails.useActions();
+const emailId = "825d96e7-63ed-0913-46c4-174825283406";
+const email = emails.useContext().getOne(emailId);
+
 // ⚠️ Wrong: promoting whatever the user clicked
-await setDefault(email.id); // 409 when email.meta.isVerified is false
+await setDefault(emailId); // 409 when email.meta.isVerified is false
 
 // ✅ Right: gate on the flag you already have, and offer verification instead
-if (email.meta.isVerified) {
-  await setDefault(email.id);
+if (email?.meta.isVerified) {
+  await setDefault(emailId);
 } else {
-  await verify(email.id); // ask for a fresh verification message first
+  await verify(emailId); // ask for a fresh verification message first
 }
 ```
 
@@ -83,11 +101,18 @@ Fixture: `__tests__/fixtures/patch-clients-id-emails-id-send-verify.json`.
 `meta.canDelete` reflects what the platform last reported. Calling `remove()` on a record whose `canDelete` is `false` is not stopped in this module.
 
 ```ts
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+const { remove } = emails.useActions();
+const emailId = "825d96e7-63ed-0913-46c4-174825283406";
+const email = emails.useContext().getOne(emailId);
+
 // ⚠️ Wrong: assuming the module blocks a disallowed action locally
-await remove(email.id); // fires the DELETE regardless of email.meta.canDelete
+await remove(emailId); // fires the DELETE regardless of email.meta.canDelete
 
 // ✅ Right: gate the call in your own UI using the status flag
-if (email.meta.canDelete) await remove(email.id);
+if (email?.meta.canDelete) await remove(emailId);
 ```
 
 > **🧪 For Testers:** No local guard exists for `canDelete` before a `remove()` request is sent. The rejection shape for a non-deletable record has not been captured — treat the flag as advisory and the platform as the final word.
@@ -121,7 +146,14 @@ Fixtures: `__tests__/fixtures/get-clients-id-emails.json` (the default page, und
 It is not a mirror of the guard; it _is_ the guard, exposed reactively. One predicate is read by the meta layer, by the actions layer and by all eight request gates.
 
 ```ts
-const { isAvailable, isLoading } = useClientEmails().as("self").useMeta();
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+// Your own UI seam — this module raises nothing itself.
+declare function showSignInPrompt(): void;
+
+const { isAvailable, isLoading } = useClientEmails()
+  .as(ScopeActorTypes.SELF)
+  .useMeta();
 
 // ⚠️ Wrong: treating a false isAvailable as "signed out"
 if (!isAvailable.value) showSignInPrompt(); // also fires mid-boot, before the session settles
@@ -137,6 +169,10 @@ if (!isAvailable.value && !isLoading.value) showSignInPrompt();
 `refresh()` is the one collection action that throws. With no addressable client it rejects with `NotAuthenticatedError` before issuing anything, and it also rejects if the session dies between the pre-check and the response.
 
 ```ts
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+const { refresh } = useClientEmails().as(ScopeActorTypes.SELF).useActions();
+
 // ⚠️ Wrong: a bare forced re-read
 await refresh(); // throws NotAuthenticatedError when the session is gone
 
@@ -167,13 +203,14 @@ No mutation in this module produces a toast, a notification or any other user-vi
 The barrel exports no `useSchema` / `useUischema`. The schema and UI schema enter the system inside the editor's machine configuration and reach consumers as `useClientEmailManager().useContext().schema` / `.uischema`.
 
 ```ts
-// ⚠️ Wrong: importing the pair
-import { useSchema } from "@upmind-automation/headless"; // not exported
+import { useClientEmailManager } from "@upmind-automation/headless";
+
+// ⚠️ Wrong: importing the pair. `useSchema` / `useUischema` are not on the
+// barrel, so importing either from "@upmind-automation/headless" fails to compile.
 
 // ✅ Right
 const { schema, uischema } = useClientEmailManager()
-  .as("self")
-  .withId(id)
+  .withId("825d96e7-63ed-0913-46c4-174825283406")
   .useContext();
 ```
 
@@ -195,6 +232,18 @@ The two halves also clean up differently:
 The editor additionally offers `stop()`, which stops the service but leaves the registry entry in place.
 
 ```ts
+import { onUnmounted } from "vue";
+import {
+  ScopeActorTypes,
+  useClientEmailManager,
+  useClientEmails
+} from "@upmind-automation/headless";
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+const manager = useClientEmailManager().withId(
+  "825d96e7-63ed-0913-46c4-174825283406"
+);
+
 onUnmounted(() => {
   emails.useActions().destroy();
   manager.useActions().destroy();
@@ -214,6 +263,16 @@ The editor's `input()` is debounced, so rapid keystrokes collapse into one parse
 The collection's `isReady()` resolves once the first fetch has settled. A fetch that settles in **error** counts as settled, so `isReady()` can resolve `true` over a list that never loaded — at which point `isEmpty` reads `true` for a collection that is failed, not empty.
 
 ```ts
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+// Your own UI seams — this module raises nothing itself.
+declare function showEmptyState(): void;
+declare function showErrorState(): void;
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+const { isReady } = emails.useActions();
+const { hasError, isEmpty } = emails.useMeta();
+
 // ⚠️ Wrong: inferring an empty collection from readiness alone
 await isReady();
 if (isEmpty.value) showEmptyState();
@@ -231,19 +290,30 @@ else if (isEmpty.value) showEmptyState();
 `filterBy()` and `sortBy()` only accept the columns and operators `useContext().schemas.query.schema` declares (`email`, `verified`, `bounced`, `default` for filters; `created_at`, `email`, `default` for sort). An **unknown** key is quietly left out of the candidate before it is ever checked — it never reaches `useContext().error` and it never reaches the wire; it behaves as if it had never been passed.
 
 ```ts
-// ⚠️ Wrong: expecting an unrecognised column to surface a validation error
-await filterBy({ title: { like: "x" } }); // silently has no effect at all
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+const { filterBy } = useClientEmails().as(ScopeActorTypes.SELF).useActions();
+
+// ⚠️ Wrong: expecting an unrecognised column to surface a validation error.
+// The model never declares `title`, so only a caller casting past the types
+// reaches this call at all — and it then has no effect whatsoever.
+filterBy({ title: { like: "x" } } as never); // silently has no effect at all
 
 // ✅ Right: only filter/sort on what the schema declares
-await filterBy({ email: { like: "x" } });
+filterBy({ email: { like: "x" } });
 ```
 
 A **declared** column carrying an invalid value is a different case, and it is stricter than it looks: the whole write is refused, not just the bad part. The candidate is validated **before** it is committed, and a failing candidate never reaches the live model at all — `useContext().query` (what you render) keeps its last valid state, **no new request is fired**, and the only trace of the attempt is `useContext().error`, which carries ajv's verdict (the failing keyword and the exact path inside the model that failed).
 
 ```ts
-await filterBy({ verified: { eq: false } }); // applies, re-queries
-await filterBy({ verified: { eq: "nope" } } as never); // REFUSED — model unchanged, zero requests, error set
-// useContext().query.value.filters is still { verified: { eq: false } }
+import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
+
+const emails = useClientEmails().as(ScopeActorTypes.SELF);
+const { filterBy } = emails.useActions();
+
+filterBy({ verified: { eq: false } }); // applies, re-queries
+filterBy({ verified: { eq: "nope" } } as never); // REFUSED — model unchanged, zero requests, error set
+// emails.useContext().query.value.filters is still { verified: { eq: false } }
 ```
 
 > **🧪 For Testers:** `filterBy({ title: { like: "x" } })` (unknown column) leaves the request exactly as it was before the call — no `filter[title|…]` param, no error, and any _other_ filter in the same call still applies. `filterBy({ verified: { eq: "nope" } })` (known column, bad value) also leaves the request and the rendered rows exactly as they were — **but** `useContext().error` is now set with the ajv failure, and `useMeta().hasError` stays `false` (a refused write is a verdict on the write, not a broken collection — the rows on screen are still correct for the criteria that IS applied). Assert the wire params and the model together, not a rejected promise — nothing here ever rejects.

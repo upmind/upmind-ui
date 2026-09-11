@@ -1,0 +1,19 @@
+# Negative control — the switcher's gate admits a sign-in holding ONE account,
+# so the control is offered where there is nothing to switch to: the menu grows
+# an entry that opens a dialog listing the account already in play, and the
+# gates-off brand stops being the other side of anything.
+#
+# Intended RED: "keeps it out of a sign-in holding only its own account"
+# (tests/account-switch-and-avatar.test.ts).
+
+--- a/apps/portal-nuxt/app/portal/mock/facades/useMockAccount.ts
++++ b/apps/portal-nuxt/app/portal/mock/facades/useMockAccount.ts
+@@ -35,7 +35,7 @@
+ 
+ /** Whether there is more than one to switch between — the control's own gate. */
+ export function hasAccountChoice(persona: MockPersona): boolean {
+-  return personaAccounts(persona).length > 1;
++  return personaAccounts(persona).length >= 1;
+ }
+ 
+ /** The persona, with these members moved — the dataset's handle is the mutable one. */

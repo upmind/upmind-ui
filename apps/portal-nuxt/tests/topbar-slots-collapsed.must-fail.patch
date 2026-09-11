@@ -1,0 +1,33 @@
+# Negative control — the topbar's three independently addressable slots
+# collapse into one container (design.md §D4, tasks.md 2.2/2.6).
+#
+# Reproduced by direct execution before filing: with a distinct marker in
+# each of topbar.left/centre/right, applying this patch clusters all three
+# markers together at the container's start (x=328, 408, 489 at 1440px, none
+# within the bar's midpoint ~848 or its right edge ~1440) instead of one
+# left-aligned, one centred on the bar, one right-aligned.
+#
+# Intended RED: any assertion that the centre module's horizontal midpoint
+# sits at the bar's midpoint, or that the right module starts after the
+# centre module ends.
+# REBASED 2026-08-25 (2): the sidebar-trigger placement option changed the
+# trigger line beside this context. Same mutation, new anchors — asserted
+# unique before mutating.
+
+--- a/apps/portal-nuxt/app/portal/shell/PortalFrame.vue
++++ b/apps/portal-nuxt/app/portal/shell/PortalFrame.vue
+@@ -75,13 +75,9 @@
+           v-if="sidebarMeta.renders"
+           :class="sidebarMeta.topbarTriggerClass"
+         />
+-        <div class="flex min-w-0 shrink-0 items-center gap-3">
++        <div class="flex min-w-0 flex-1 items-center gap-3">
+           <PortalSlotContent :resolved-slot="topbarMeta.left" />
+-        </div>
+-        <div class="flex min-w-0 flex-1 items-center justify-center gap-3">
+           <PortalSlotContent :resolved-slot="topbarMeta.centre" />
+-        </div>
+-        <div class="flex shrink-0 items-center justify-end gap-3">
+           <PortalSlotContent :resolved-slot="topbarMeta.right" />
+         </div>
+         <slot name="header-actions" />

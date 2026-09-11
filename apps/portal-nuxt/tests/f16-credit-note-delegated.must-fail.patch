@@ -1,0 +1,20 @@
+# Negative control — a credit note that reached this client through a
+# delegation says nothing about it, so legacy's `delegatedObjectMsg` over the
+# document (`credit-note/index.vue:11-16`) never renders.
+#
+# Intended RED (to be added by the prover): "renders the delegated notice on a
+# delegated credit note".
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3386,9 +3386,7 @@
+   data: MockDataset,
+   context: DataRouteContext
+ ): DocumentModuleMessage[] {
+-  const note = contextCreditNote(data, context);
+-  if (note?.isDelegated !== true) return [];
+-  return [delegatedDocumentMessage("credit note")];
++  return [];
+ }
+ 
+ export function invoiceDocumentMessages(

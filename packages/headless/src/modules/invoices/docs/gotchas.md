@@ -61,7 +61,12 @@ The query schema declares a non-numeric `"count"` value as a legal `pagination.l
 
 Before the fetch settles, `data` is `[]` (collection) or empty (single read), and `meta` derives from loaded data. Reading `meta` on a non-loaded scope observes the pre-load default, not the invoice.
 
-```typescript
+```ts
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const id: string;
+declare function settle(): void;
+
 // ❌ Wrong — reads before the invoice has loaded
 const { isPaid } = useInvoice().withId(id).useMeta();
 if (isPaid.value) settle();
@@ -118,7 +123,11 @@ The snapshot does not follow the live client record. Renames and address edits a
 
 Both composables' `destroy()` removes the scoped instance from the registry so the next `.as()` / `.withId()` mints a fresh one. `isReady()` always settles — even a fetch that never completes resolves `false` on a bound timeout, rather than leaving a caller's `await` hanging forever.
 
-```typescript
+```ts
+import { useInvoice, useInvoices } from "@upmind-automation/headless";
+
+declare const id: string;
+
 await useInvoices().as("self").useActions().isReady();
 await useInvoice().withId(id).useActions().isReady();
 ```

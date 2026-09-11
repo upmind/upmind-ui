@@ -9,6 +9,13 @@ The sharp edges of the profile read view and its editor. For anyone consuming `u
 A cleared native field (first name, last name, public name) reaches the wire as an empty string `""`. A cleared custom field value reaches the wire as JSON `null`. Both are **present** in the update body — neither is ever silently omitted — but they are not the same value.
 
 ```ts
+import {
+  usePersonalDetailsManager,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
+const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+
 // Native field, cleared
 await manager.useActions().update({ publicName: "" });
 // → PUT body: { "public_name": "" }
@@ -27,6 +34,12 @@ Fixtures: `put-clients-id-case-native-falsy.json` (native, `{"public_name":""}`)
 Some other scoped modules in this codebase register a query-backed collection and a machine-backed editor under one shared internal name, relying on the editor always supplying its own `.for()` or `.fresh()` to keep the two composables' scope keys apart. **This module cannot use that pattern**, because a client has exactly one profile — the editor's normal, everyday call (`.as(ScopeActorTypes.SELF)`, no further argument) would produce the _identical_ scope key the read view's own normal call produces, under a shared name. So this module's two composables are registered under two distinct internal names instead; they still share one scope matrix and one identity-resolution function underneath.
 
 ```ts
+import {
+  usePersonalDetails,
+  usePersonalDetailsManager,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
 // Both of these resolve the SAME target client, through the SAME seam —
 // but they are two SEPARATE registry entries, not one shared instance.
 const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
@@ -48,13 +61,29 @@ This module and the sibling custom-fields module both read the same underlying c
 This module's editor **composes** the sibling custom-fields module's own collection internally (to build its validation schema). A test suite that resets only this module's own two registry namespaces between tests will still see a stale, previously-cached instance of the sibling module's collection carried over from an earlier test in the same file — which matters whenever a test mutates a custom field definition's fixture (flipping `required`, for instance) and expects the _next_ test's editor to see the mutated definition.
 
 ```ts
+import { getRegistry, queryClient, remove } from "@upmind-automation/headless";
+
+/** This module's own two registry namespaces — both composables register under them. */
+const SCOPE_NAMESPACES = [
+  "client-personal-details",
+  "client-personal-details-manager"
+];
+
+/** The sibling collection's namespace this module's editor composes. */
+const CONSUMED_NAMESPACES = ["client-custom-fields"];
+
+const liveKeysIn = (namespaces: string[]): string[] =>
+  [...getRegistry().keys()].filter(key =>
+    namespaces.some(namespace => key.startsWith(`${namespace}:`))
+  );
+
 // ⚠️ Wrong: only evicting this module's own namespaces
-for (const key of clientPersonalDetailsScopeKeys()) remove(key);
+for (const key of liveKeysIn(SCOPE_NAMESPACES)) remove(key);
 
 // ✅ Right: also evict the sibling module's namespace this module composes
 for (const key of [
-  ...clientPersonalDetailsScopeKeys(),
-  ...consumedSiblingScopeKeys()
+  ...liveKeysIn(SCOPE_NAMESPACES),
+  ...liveKeysIn(CONSUMED_NAMESPACES)
 ]) {
   remove(key);
 }
@@ -70,11 +99,32 @@ This module's own integration test scaffolding does exactly this — evicting it
 Unlike the sibling custom-fields module (which defers its scope-registry registration to first call, precisely to dodge a real crash), both composables here register **eagerly**, at module top level, the moment the file is imported — the pattern most scoped composables in this codebase use.
 
 ```ts
-// This module's OWN pattern — eager, unlike the sibling custom-fields module
-export const usePersonalDetails = createScopedComposable(
-  "client-personal-details",
-  createPersonalDetailsForScope
-);
+import {
+  createScopedComposable,
+  type PersonalDetailsScopeMatrix,
+  type ScopeConfig,
+  type ScopeKey
+} from "@upmind-automation/headless";
+
+/** Stand-in for this module's real per-scope factory. */
+function createPersonalDetailsForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+) {
+  return {
+    useActions: () => ({ scopeKey }),
+    useContext: () => ({ actor: config.actor }),
+    useInternals: () => ({}),
+    useMeta: () => ({})
+  };
+}
+
+// This module's OWN pattern — eager, at module top level, unlike the sibling
+// custom-fields module's deferred registration.
+export const usePersonalDetails = createScopedComposable<
+  ReturnType<typeof createPersonalDetailsForScope>,
+  PersonalDetailsScopeMatrix
+>("client-personal-details", createPersonalDetailsForScope);
 ```
 
 **Why this is safe today.** The crash the sibling module dodges happens when a module's own eager registration call re-enters the scope system while it is still mid-evaluation, because a generic layer that module depends on loops back through a sibling client module's barrel before the scope system has finished initialising. This module does not sit on that loop: nothing on the path that closes it imports this module's barrel, so this module is never the "entrant" that would trigger the crash — it simply hasn't been asked to be.
@@ -88,16 +138,29 @@ export const usePersonalDetails = createScopedComposable(
 Both scoping methods on both composables are typed against the actual enum, not against the string a member happens to resolve to. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut.
 
 ```ts
-// ❌ Wrong — TS2345, not a working shortcut
-const manager = usePersonalDetailsManager()
-  .as("client")
-  .for("profile", clientId);
+import {
+  usePersonalDetailsManager,
+  ScopeActorTypes,
+  ClientPersonalDetailsContextTypes
+} from "@upmind-automation/headless";
 
-// ✅ Right
+const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// ❌ Wrong — TS2345 on the actor: a bare string is not the enum member
+// @ts-expect-error
+usePersonalDetailsManager().as("client");
+
+// ❌ Wrong — TS2345 on the context type, for the same reason
+// @ts-expect-error
+usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).for("profile", clientId);
+
+// ✅ Right — both arguments are enum members
 const manager = usePersonalDetailsManager()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientPersonalDetailsContextTypes.PROFILE, clientId);
 ```
+
+Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real.
 
 **This bites hardest in specs and playground files**, because `__tests__/**` and the labs playground both sit outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug. See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#2-as-and-for-take-enum-members-never-string-literals) for the fuller account — the same rule applies here.
 
@@ -106,11 +169,17 @@ const manager = usePersonalDetailsManager()
 Both composables in this module share one scope matrix, which maps `self` to `null as never` (the same shape the sibling custom-fields module uses). `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but the type it produces cannot chain a further `.for()` or `.fresh()` — this is a distinct issue from gotcha 6 above: the code here typechecks fine, it just doesn't have the method you might reach for next.
 
 ```ts
+import {
+  usePersonalDetailsManager,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
 // ✅ Right: .as(ScopeActorTypes.SELF) alone
-const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+const selfScoped = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
 
 // ❌ Wrong: chaining .fresh() off SELF does not typecheck
-const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF).fresh(); // type error
+// @ts-expect-error — no .fresh() on the SELF branch's type
+usePersonalDetailsManager().as(ScopeActorTypes.SELF).fresh();
 
 // ✅ Right: name the concrete actor when you need .for()/.fresh()
 const manager = usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).fresh();
@@ -128,7 +197,7 @@ This module's own composables don't strictly need `.for()`/`.fresh()` for the ev
 
 ### Assuming a client id resolved into `.for(...)` is validated against the caller
 
-The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.PROFILE, someOtherId)` compiles and addresses that other id's profile, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here, and `.as('staff')` / `.as('guest')` are both compile-time errors — only the entity id being named is caller-controlled, not the identity making the call.
+The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.PROFILE, someOtherId)` compiles and addresses that other id's profile, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. Be precise about where that boundary is enforced, because it splits in two. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** on both composables — the shared matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead: with no context naming a target, every request resolves its client id from the active session itself and is gated by this module's own addressability check. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error. Only the entity id being named is caller-controlled, not the identity making the call.
 
 ### Assuming the editor needs a `.for()` argument
 
@@ -147,6 +216,16 @@ A hand-built body has to apply the correct clear value for each field kind itsel
 ### Destroy the instance when done
 
 ```ts
+import { onUnmounted } from "vue";
+import {
+  usePersonalDetails,
+  usePersonalDetailsManager,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
+const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
+const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+
 onUnmounted(() => {
   profile.useActions().destroy();
   manager.useActions().destroy(); // also stops the underlying machine
@@ -156,6 +235,15 @@ onUnmounted(() => {
 ### Wait for readiness before reading or editing
 
 ```ts
+import {
+  usePersonalDetails,
+  usePersonalDetailsManager,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
+const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
+const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+
 await profile.useActions().isReady();
 await manager.useActions().isReady(); // bounded — resolves false rather than hanging
 ```

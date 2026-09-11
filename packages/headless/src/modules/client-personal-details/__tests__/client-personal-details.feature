@@ -49,11 +49,16 @@ Feature: A client reads and manages their own personal details, including their 
     And each shows its type's own empty value rather than being left out entirely
 
   @AC-31 @read
-  Scenario: I can tell when my profile failed to load, and I'm never left waiting forever
+  @AC-40 @manager
+  Scenario: I am told when my profile fails to load, and I am never left waiting
     Given loading my profile fails
     When I wait for it to be ready
     Then I am told it is not ready, with the failure visible to me
     And I am not left waiting indefinitely
+    Given loading my custom field definitions fails
+    When I wait for my profile editor to be ready
+    Then it settles rather than staying stuck loading
+    And it tells me it is not ready, rather than hanging indefinitely
 
   @AC-32 @read
   Scenario: Each of my profile fields correctly tells me whether it's read-only for me
@@ -63,11 +68,16 @@ Feature: A client reads and manages their own personal details, including their 
     And my native fields report the permission state they actually have, not a fixed one
 
   @AC-33 @read
-  Scenario: My selected language is tracked by its identity, not by its display name
+  @AC-48 @manager
+  Scenario: My language is tracked by which language it is, and only changes when I change it
     Given my profile's language is set to a particular language
     When I view and then save my profile unchanged
     Then the language I hold is still that same language
     And what I see displayed is its name, while what is held and round-tripped is its identity
+    Given I have opened my profile in the editor
+    When I change only my first name and save
+    Then no document-language change is sent
+    And when I do change my interface language and save, my document language changes to match
 
   @AC-34 @read
   Scenario: The languages I can choose from are the ones my own brand offers
@@ -83,23 +93,20 @@ Feature: A client reads and manages their own personal details, including their 
     And it is not silently blanked out
 
   @AC-41 @read
-  Scenario: Opening my profile before I'm fully signed in still loads the right profile once I am
+  @AC-54 @manager
+  Scenario: Opening my profile before I am fully signed in still loads my profile once I am
     Given I open my profile before my session has finished resolving
     When my session finishes resolving
     Then my profile loads for the profile that turned out to be mine
     And no request was ever made without knowing whose profile it was for
+    Given my editor does not yet know which profile is mine
+    When it learns which profile is mine
+    Then it moves on to loading right away, and for that reason alone
 
   # === MANAGING MY PROFILE — THE JTBD'S OWN VERB ===============================
 
-  @AC-40 @manager
-  Scenario: My editor never sits waiting forever while it doesn't yet know my custom field definitions
-    Given loading my custom field definitions fails
-    When I wait for my profile editor to be ready
-    Then it settles rather than staying stuck loading
-    And it tells me it is not ready, rather than hanging indefinitely
-
   @AC-42 @manager
-  Scenario: A failed sign-in check never leaves an unexplained error, and my editor stops acting once I'm done with it
+  Scenario: I always get a reason when my profile cannot load, and my editor stops when I leave it
     Given my session fails to resolve while my editor is waiting on it
     When I check whether my editor is ready
     Then I am told it is not ready, with nothing left unexplained
@@ -111,7 +118,7 @@ Feature: A client reads and manages their own personal details, including their 
     Then it constructs successfully and reaches a settled state
 
   @AC-44 @manager
-  Scenario: An error I see from my profile editor is still shown in my own language
+  Scenario: Any problem with my profile is shown to me in my own language
     Given my profile editor reports an error to me
     When I read that error
     Then it is shown in my own language, the same as any other message in the module
@@ -124,25 +131,16 @@ Feature: A client reads and manages their own personal details, including their 
     And when I save without having changed anything, nothing is sent at all, and it succeeds
 
   @AC-46 @manager
-  Scenario: Clearing one of my custom field values on my profile actually clears it
+  @AC-47
+  Scenario: Clearing a value on my profile actually clears it — a blank name, an unticked box, a zero
     Given one of my custom fields currently holds a value
     When I clear that field and save
     Then the save explicitly carries that field as cleared
     And it is not simply left out of what was sent
-
-  @AC-47 @manager
-  Scenario: Clearing my name, or switching a toggle off, or setting a number to zero, is saved as I set it
     Given I set a text field to empty, a toggle to off, and a number to zero
     When I save my profile
     Then all three of those changes are sent
     And none of them is silently dropped for looking empty
-
-  @AC-48 @manager
-  Scenario: My document language only changes when I actually change my interface language
-    Given I have opened my profile in the editor
-    When I change only my first name and save
-    Then no document-language change is sent
-    And when I do change my interface language and save, my document language changes to match
 
   @AC-49 @manager
   Scenario: Saving my profile only ever touches the fields that are mine to change
@@ -176,12 +174,6 @@ Feature: A client reads and manages their own personal details, including their 
     Given something outside my profile's own fields ends up in what gets loaded into the editor
     When I open my profile editor
     Then that extra piece is stripped before I see it
-
-  @AC-54 @manager
-  Scenario: My editor starts loading the moment it knows which profile is mine
-    Given my editor does not yet know which profile is mine
-    When it learns which profile is mine
-    Then it moves on to loading right away, and for that reason alone
 
   @AC-55 @manager @public-surface
   Scenario: A consumer referring to my profile's types by name gets exactly the type they expect
