@@ -57,6 +57,10 @@ import {
   delegateInviteTitle,
   delegateInviteTone,
   ipWhitelistItems,
+  profileEmailItems,
+  profilePhoneItems,
+  billableEntityItems,
+  billableEntityActions,
   isSupportPinEnabled,
   notificationFilterValue,
   notificationFilters,
@@ -500,6 +504,12 @@ export const DATA_REF_ID = {
   DELEGATE_INVITE_TONE: "delegate-invite-tone",
   DELEGATE_INVITE_ACTION: "delegate-invite-action",
   IP_WHITELIST_ITEMS: "ip-whitelist-items",
+  // --- the profile page's contact lists
+  PROFILE_EMAIL_ITEMS: "profile-email-items",
+  PROFILE_PHONE_ITEMS: "profile-phone-items",
+  BILLABLE_ENTITY_ITEMS: "billable-entity-items",
+  BILLABLE_ENTITY_ACTIONS: "billable-entity-actions",
+  BILLABLE_ENTITIES_CONTROLS: "billable-entities-controls",
   NOTIFICATION_ITEMS: "notification-items",
   NOTIFICATION_FILTERS: "notification-filters",
   NOTIFICATION_FILTER_VALUE: "notification-filter-value",
@@ -1023,6 +1033,10 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.DELEGATE_INVITE_TONE]: delegateInviteTone,
   [DATA_REF_ID.DELEGATE_INVITE_ACTION]: delegateInviteAction,
   [DATA_REF_ID.IP_WHITELIST_ITEMS]: ipWhitelistItems,
+  [DATA_REF_ID.PROFILE_EMAIL_ITEMS]: profileEmailItems,
+  [DATA_REF_ID.PROFILE_PHONE_ITEMS]: profilePhoneItems,
+  [DATA_REF_ID.BILLABLE_ENTITY_ITEMS]: billableEntityItems,
+  [DATA_REF_ID.BILLABLE_ENTITY_ACTIONS]: billableEntityActions,
   [DATA_REF_ID.NOTIFICATION_ITEMS]: notificationItems,
   [DATA_REF_ID.NOTIFICATION_FILTERS]: notificationFilters,
   [DATA_REF_ID.NOTIFICATION_FILTER_VALUE]: notificationFilterValue,
@@ -1253,6 +1267,9 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.LOGIN_ATTEMPTS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.LOGIN_ATTEMPTS
   ),
+  [DATA_REF_ID.BILLABLE_ENTITIES_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.BILLABLE_ENTITIES
+  ),
   [DATA_REF_ID.IP_WHITELIST_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.IP_WHITELIST
   ),
@@ -1340,6 +1357,7 @@ export const CONTROLS_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> =
     [DATA_REF_ID.CHILD_ACCOUNT_ITEMS]: DATA_REF_ID.CHILD_ACCOUNTS_CONTROLS,
     [DATA_REF_ID.LOGIN_ATTEMPT_ITEMS]: DATA_REF_ID.LOGIN_ATTEMPTS_CONTROLS,
     [DATA_REF_ID.IP_WHITELIST_ITEMS]: DATA_REF_ID.IP_WHITELIST_CONTROLS,
+    [DATA_REF_ID.BILLABLE_ENTITY_ITEMS]: DATA_REF_ID.BILLABLE_ENTITIES_CONTROLS,
     [DATA_REF_ID.PRODUCT_INVOICE_ITEMS]: DATA_REF_ID.PRODUCT_INVOICES_CONTROLS,
     [DATA_REF_ID.PRODUCT_CREDIT_NOTE_ITEMS]:
       DATA_REF_ID.PRODUCT_CREDIT_NOTES_CONTROLS

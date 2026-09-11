@@ -39,7 +39,14 @@ const COUNTER_FIXTURE_ONLY: readonly PagedCollectionId[] = [
   PAGED_COLLECTION_ID.CHILD_ACCOUNTS
 ];
 
-const COLLECTIONS = Object.values(PAGED_COLLECTION_ID);
+/** Legacy's "Address and company details" carries a find box and no pager (`billableEntities.vue`). */
+const UNPAGED: readonly PagedCollectionId[] = [
+  PAGED_COLLECTION_ID.BILLABLE_ENTITIES
+];
+
+const COLLECTIONS = Object.values(PAGED_COLLECTION_ID).filter(
+  collection => !UNPAGED.includes(collection)
+);
 
 describe("seed — every results list carries three pages", () => {
   it.each(COLLECTIONS)("%s pages three deep", collection => {

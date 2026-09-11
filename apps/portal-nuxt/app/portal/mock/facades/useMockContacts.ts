@@ -1,11 +1,13 @@
 // -----------------------------------------------------------------------------
 /**
  * @module portal/mock/facades/useMockContacts
- * @description The client's contact emails as the REAL scoped collection headless
- * ships (plan R1 (a)), kept for the token opt-ins page alone: phones, addresses and
- * companies are client-vue's (`docs/client-vue-adoption.md`). The facade is DECLARED
- * with the module's own `Use<X>{Context,Meta,Actions}` types, so a member the real
- * module renames fails to compile here rather than drifting.
+ * @description The client's four contact lists — emails, phones, addresses and
+ * companies — as legacy's profile page manages them. No client-vue component
+ * serves that page (`docs/client-vue-placeholder-audit.md`), so every list is
+ * mocked here. The email facade is DECLARED with the real module's own
+ * `Use<X>{Context,Meta,Actions}` types, so a member the real module renames
+ * fails to compile here rather than drifting; the other three carry the same
+ * receipt-shaped `writes`.
  *
  * `useActions()` therefore carries the real members with their real
  * signatures — which answer with the wire's own reply, never a receipt. The
@@ -23,13 +25,20 @@
 
 import { computed, unref } from "vue";
 import { clientEmailsCollection } from "../collection-defs";
-import { MOCK_EMAIL_TYPE } from "../types";
+import { countryName } from "../forms/engine-data";
+import {
+  MOCK_ADDRESS_TYPE,
+  MOCK_EMAIL_TYPE,
+  MOCK_PHONE_TYPE,
+  MOCK_VERIFIED_LEVEL
+} from "../types";
 import { MOCK_RECEIPT_REASON, mockId } from "./facade";
 import {
   assign,
   filter,
   find,
   get,
+  isNumber,
   isString,
   map,
   remove,
@@ -39,7 +48,13 @@ import {
   trim
 } from "lodash-es";
 import type { MockActionReceipt, MockFacadeInternals } from "./facade";
-import type { MockDataset, MockEmail } from "../types";
+import type {
+  MockAddress,
+  MockCompany,
+  MockDataset,
+  MockEmail,
+  MockPhone
+} from "../types";
 import type { FormModel } from "@upmind/ui";
 import type { Email } from "@upmind-automation/headless";
 import type { MaybeRef } from "vue";
@@ -394,6 +409,273 @@ export const useMockClientEmails = perDataset((data: MockDataset) => {
 
 // --- phones ------------------------------------------------------------------
 
+/** The account's country for a new contact — where its default address is, else the seed's. */
+export function accountCountryId(data: MockDataset): string {
+  const home = find(data.addresses, row => row.meta.isDefault);
+  if (home !== undefined) return home.address.countryId;
+  return "GB";
+}
+
+/** Digits and the leading plus — what two spellings of one number share. */
+function phoneKey(number: string | null): string {
+  if (number === null) return "";
+  return number.replace(/[^\d+]/g, "");
+}
+
+/**
+ * The dial code and country a new number is filed under. The mock carries no
+ * number parser, so it files a new number where the account's default number
+ * is — legacy's own modal defaults its dial code the same way.
+ */
+function phoneOrigin(
+  data: MockDataset
+): Pick<MockPhone["phone"], "countryCallingCode" | "country"> {
+  const home = find(data.phones, row => row.meta.isDefault);
+  if (home !== undefined) {
+    return {
+      countryCallingCode: home.phone.countryCallingCode,
+      country: home.phone.country
+    };
+  }
+  return { countryCallingCode: "44", country: accountCountryId(data) };
+}
+
+/** The wire insists a company has a phone; a new one takes the account's own. */
+function accountPhoneId(data: MockDataset): string {
+  const home = defaultRow(data.phones) ?? data.phones[0];
+  return home?.id ?? "";
+}
+
+export const useMockClientPhones = perDataset((data: MockDataset) => {
+  const writes: MockContactWrites<MockPhone> = assign(
+    {},
+    contactWrites(data.phones),
+    {
+      update: (
+        id: string | undefined,
+        model: FormModel
+      ): MockActionReceipt<MockPhone> | undefined => {
+        const typed = modelString(model, "phone");
+        const held = some(
+          data.phones,
+          candidate =>
+            candidate.id !== id &&
+            phoneKey(candidate.phone.number) === phoneKey(typed)
+        );
+        if (held) return duplicate<MockPhone>();
+        const origin = phoneOrigin(data);
+        const phone = {
+          number: phoneKey(typed),
+          nationalNumber: typed,
+          countryCallingCode: origin.countryCallingCode,
+          country: origin.country
+        };
+        if (id === undefined) {
+          const created: MockPhone = {
+            id: mockId("tel", map(data.phones, "id")),
+            title: typed,
+            description: "Mobile",
+            phone,
+            type: MOCK_PHONE_TYPE.MOBILE,
+            meta: { canDelete: true, isVerified: false, isDefault: false }
+          };
+          data.phones.push(created);
+          return { ok: true, entity: created };
+        }
+        const row = find(data.phones, candidate => candidate.id === id);
+        if (row === undefined) return undefined;
+        assign(row, { title: typed, phone });
+        return { ok: true, entity: row };
+      }
+    }
+  );
+  return { useActions: () => ({ writes }) };
+});
+
 // --- addresses ---------------------------------------------------------------
 
+type AddressBlock = MockAddress["address"];
+
+/** The wire keeps an optional line as null, never as "". */
+function nullIfBlank(text: string): string | null {
+  if (text === "") return null;
+  return text;
+}
+
+/** The address fields a form submitted, in the wire's spelling. */
+function submittedAddress(model: FormModel): AddressBlock {
+  const block = get(model, "address");
+  const text = (key: string) => modelString(block, key);
+  const region = text("regionId");
+  const line2 = text("address2");
+  return {
+    address1: text("address1"),
+    address2: nullIfBlank(line2),
+    city: text("city"),
+    postcode: text("postcode"),
+    countryId: text("countryId"),
+    regionId: nullIfBlank(region)
+  };
+}
+
+/** One line for a card — legacy's own `description`: street, then town and postcode. */
+function addressLine(block: AddressBlock): string {
+  return `${block.address1}, ${block.city} ${block.postcode}`;
+}
+
+function submittedAddressType(model: FormModel): MockAddress["type"] {
+  const type = get(model, "type");
+  if (isNumber(type)) return type;
+  return MOCK_ADDRESS_TYPE.HOME;
+}
+
+/** Writes one address row from a form, minting it where no id is given. */
+function writeAddress(
+  data: MockDataset,
+  id: string | undefined,
+  name: string,
+  type: MockAddress["type"],
+  block: AddressBlock
+): MockAddress | undefined {
+  const facts = {
+    name,
+    title: name,
+    description: addressLine(block),
+    countryName: countryName(block.countryId),
+    type,
+    address: block
+  };
+  if (id === undefined) {
+    const created: MockAddress = assign(
+      {
+        id: mockId("addr", map(data.addresses, "id")),
+        clientId: data.persona.id,
+        verifiedLevel: MOCK_VERIFIED_LEVEL.NONE,
+        meta: { canDelete: true, isDefault: false, isVerified: false }
+      },
+      facts
+    );
+    data.addresses.push(created);
+    return created;
+  }
+  const row = find(data.addresses, candidate => candidate.id === id);
+  if (row === undefined) return undefined;
+  assign(row, facts);
+  return row;
+}
+
+export const useMockClientAddresses = perDataset((data: MockDataset) => {
+  const writes: MockContactWrites<MockAddress> = assign(
+    {},
+    contactWrites(data.addresses),
+    {
+      update: (
+        id: string | undefined,
+        model: FormModel
+      ): MockActionReceipt<MockAddress> | undefined => {
+        const row = writeAddress(
+          data,
+          id,
+          modelString(model, "name"),
+          submittedAddressType(model),
+          submittedAddress(model)
+        );
+        if (row === undefined) return undefined;
+        return { ok: true, entity: row };
+      }
+    }
+  );
+  return { useActions: () => ({ writes }) };
+});
+
 // --- companies ---------------------------------------------------------------
+
+/** The address book row a company invoices from, where it still exists. */
+export function companyAddress(
+  data: MockDataset,
+  company: MockCompany
+): MockAddress | undefined {
+  return find(data.addresses, candidate => candidate.id === company.addressId);
+}
+
+export const useMockClientCompanies = perDataset((data: MockDataset) => {
+  const writes: MockContactWrites<MockCompany> = assign(
+    {},
+    // The wire carries the default twice (`default`, `meta.isDefault`); one
+    // write moves both.
+    contactWrites(data.companies, (row, isDefault) => {
+      assign(row, { default: isDefault });
+    }),
+    {
+      update: (
+        id: string | undefined,
+        model: FormModel
+      ): MockActionReceipt<MockCompany> | undefined => {
+        const name = modelString(model, "name");
+        const held = some(
+          data.companies,
+          candidate =>
+            candidate.id !== id && toLower(candidate.name) === toLower(name)
+        );
+        if (held) return duplicate<MockCompany>();
+        const regNumber = modelString(model, "regNumber");
+        const taxNumber = modelString(model, "tax.number");
+        const block = submittedAddress(model);
+        const existing = find(data.companies, candidate => candidate.id === id);
+        // A company's address is its own row in the address book, filed under
+        // the company's name — legacy's `address_id`.
+        const address = writeAddress(
+          data,
+          existing?.addressId,
+          name,
+          MOCK_ADDRESS_TYPE.COMPANY,
+          block
+        );
+        if (address === undefined) return undefined;
+        const facts = {
+          name,
+          title: name,
+          description: addressLine(block),
+          regNumber: nullIfBlank(regNumber),
+          addressId: address.id
+        };
+        if (existing === undefined) {
+          // Unchecked until the platform validates it — legacy's fresh company.
+          const tax: MockCompany["tax"] = {
+            valid: 0,
+            percent: null,
+            number: nullIfBlank(taxNumber),
+            reason: null,
+            checked: { date: null, relative: "" },
+            with: null
+          };
+          const created: MockCompany = assign(
+            {
+              id: mockId("co", map(data.companies, "id")),
+              emailId: defaultRow(data.emails)?.id ?? null,
+              phoneId: accountPhoneId(data),
+              default: false,
+              tax,
+              meta: {
+                isDefault: false,
+                canDelete: true,
+                isVerified: false,
+                hasTax: taxNumber !== "",
+                hasTaxValidation: false,
+                hasValidTax: false
+              }
+            },
+            facts
+          );
+          data.companies.push(created);
+          return { ok: true, entity: created };
+        }
+        assign(existing, facts);
+        assign(existing.tax, { number: nullIfBlank(taxNumber) });
+        assign(existing.meta, { hasTax: taxNumber !== "" });
+        return { ok: true, entity: existing };
+      }
+    }
+  );
+  return { useActions: () => ({ writes }) };
+});

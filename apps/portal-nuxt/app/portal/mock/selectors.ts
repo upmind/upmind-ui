@@ -11,22 +11,26 @@
 
 import {
   Bell,
+  Building2,
   CircleUserRound,
-  Coins,
-  House,
-  MessagesSquare,
-  NotebookPen,
-  Receipt,
-  Package,
   ClipboardList,
-  FolderTree,
+  Coins,
   CreditCard,
   FileClock,
   FileText,
+  FolderTree,
+  House,
   KeyRound,
   LayoutDashboard,
   LifeBuoy,
   Link2,
+  Mail,
+  MapPin,
+  MessagesSquare,
+  NotebookPen,
+  Package,
+  Phone,
+  Receipt,
   Repeat,
   Settings,
   ShieldCheck,
@@ -78,6 +82,8 @@ import {
   TICKET_STATUS_TAB,
   invoicesCollection,
   ipWhitelistCollection,
+  billableEntitiesCollection,
+  BILLABLE_ENTITY_KIND,
   ticketsCollection,
   groupProductsCollection,
   groupCatalogueCollection,
@@ -277,6 +283,7 @@ import type {
   MockChildAccount,
   MockCompany,
   MockCreditNote,
+  MockCustomPage,
   MockDataset,
   MockDelegate,
   MockDocumentPayment,
@@ -285,8 +292,8 @@ import type {
   MockMoney,
   MockOrder,
   MockParty,
+  MockPhone,
   MockProduct,
-  MockCustomPage,
   MockProvisionField,
   MockProvisionFunction,
   MockTaxLine,
@@ -2558,21 +2565,19 @@ const ADD_COMPANY_ROW: ListModuleItem = {
   title: "Add new company details",
   description: "Invoice this product as another business.",
   action: {
-    value: mockActionValue(
-      MOCK_ACTION.CLIENT_VUE_STUB,
-      "UpmBilling|client-company"
-    ),
+    value: openFormValue(FORM_ID.COMPANY_CREATE),
     label: "Add company"
   }
 };
 
 /** The address book itself lives on the profile — adding one is form work there. */
+// Legacy's "create one from here": the profile's own add-address modal.
 const ADD_ADDRESS_ROW: ListModuleItem = {
   id: "add-address",
   title: "Add a new address",
-  description: "Your address book lives on your profile.",
+  description: "It joins the address book on your profile.",
   action: {
-    value: mockActionValue(MOCK_ACTION.NAVIGATE, "/account/profile"),
+    value: openFormValue(FORM_ID.ADDRESS_CREATE),
     label: "Add a new address"
   }
 };
@@ -4121,6 +4126,179 @@ export function securityTwoFactorActions(
 }
 
 /** A company reads by its numbers — the registration one, then the tax one. */
+// --- the profile page's contact lists (legacy's clientEmailRow, clientPhoneRow,
+// billableAddressEntity, billableCompanyEntity) ---------------------------------
+
+type ListTag = NonNullable<ListModuleItem["tags"]>[number];
+
+/** A row the wire has already keyed — the seed's rows all are. */
+function hasId<TRow extends { readonly id?: string }>(
+  row: TRow
+): row is TRow & { readonly id: string } {
+  return row.id !== undefined;
+}
+
+/** How legacy printed a number — its formatted title, else the raw number. */
+function phoneLabel(row: MockPhone): string {
+  if (row.title !== undefined) return row.title;
+  return row.phone.number ?? "";
+}
+
+const DEFAULT_TAG: ListTag = { label: "Default", tone: "neutral" };
+const UNVERIFIED_TAG: ListTag = { label: "Unverified", tone: "warning" };
+const BOUNCED_TAG: ListTag = { label: "Bounced", tone: "danger" };
+
+function defaultTagFor(noun: string): ListTag {
+  return { label: `Default ${noun}`, tone: "neutral" };
+}
+
+/** Legacy's `clientEmailRow`: the address, its standing, and the row menu. */
+export function profileEmailItems(data: MockDataset): ListModuleItem[] {
+  const canManageOptIns = size(data.emailTopics) > 0;
+  return map(filter(data.emails, hasId), row => {
+    const { isDefault, isVerified, isBounced } = row.meta;
+    return {
+      id: row.id,
+      title: row.email ?? "",
+      description: row.description,
+      leadingIcon: Mail,
+      tags: compact([
+        isDefault && DEFAULT_TAG,
+        !isVerified && UNVERIFIED_TAG,
+        isBounced && BOUNCED_TAG
+      ]),
+      action: {
+        value: openFormValue(FORM_ID.EMAIL_EDIT, row.id),
+        label: "Edit"
+      },
+      moreActions: compact([
+        {
+          value: mockActionValue(MOCK_ACTION.COPY, row.email ?? ""),
+          label: "Copy to clipboard"
+        },
+        !isDefault && {
+          value: mockActionValue(MOCK_ACTION.EMAIL_SET_DEFAULT, row.id),
+          label: "Set as default email"
+        },
+        !isVerified && {
+          value: mockActionValue(MOCK_ACTION.EMAIL_VERIFY, row.id),
+          label: "Resend verification email"
+        },
+        // Offered on the address the account signs in with, while unconfirmed.
+        !isVerified &&
+          isDefault && {
+            value: openFormValue(FORM_ID.EMAIL_VERIFY_CODE, row.id),
+            label: "Enter verification code"
+          },
+        // Legacy's `canManageOptIns`: a verified address, on a brand with topics.
+        isVerified &&
+          canManageOptIns && {
+            value: openFormValue(FORM_ID.EMAIL_TOPIC_OPT_INS, row.id),
+            label: "Manage notifications"
+          },
+        {
+          value: mockActionValue(MOCK_ACTION.EMAIL_REMOVE, row.id),
+          label: "Delete email"
+        }
+      ])
+    };
+  });
+}
+
+/** Legacy's `clientPhoneRow`: the number, its type, and the row menu. */
+export function profilePhoneItems(data: MockDataset): ListModuleItem[] {
+  return map(data.phones, row => ({
+    id: row.id,
+    title: phoneLabel(row),
+    description: row.description,
+    leadingIcon: Phone,
+    tags: compact([row.meta.isDefault && DEFAULT_TAG]),
+    action: {
+      value: openFormValue(FORM_ID.PHONE_EDIT, row.id),
+      label: "Edit"
+    },
+    moreActions: compact([
+      !row.meta.isDefault && {
+        value: mockActionValue(MOCK_ACTION.PHONE_SET_DEFAULT, row.id),
+        label: "Set as default phone"
+      },
+      {
+        value: mockActionValue(MOCK_ACTION.PHONE_REMOVE, row.id),
+        label: "Delete phone"
+      }
+    ])
+  }));
+}
+
+/** The two "Add new" controls legacy's `billableEntitiesControl` offers. */
+export function billableEntityActions(): ButtonModuleAction[] {
+  return [
+    {
+      value: openFormValue(FORM_ID.ADDRESS_CREATE),
+      label: "Add new address"
+    },
+    {
+      value: openFormValue(FORM_ID.COMPANY_CREATE),
+      label: "Add new company details"
+    }
+  ];
+}
+
+/**
+ * Legacy's "Address and company details" section: both kinds of billable
+ * entity in one searchable list, each card with its own menu
+ * (`billableAddressEntity`, `billableCompanyEntity`). "Validate tax number"
+ * was staff-only and is not offered.
+ */
+export function billableEntityItems(
+  data: MockDataset,
+  context: DataRouteContext
+): ListModuleItem[] {
+  const { data: rows } = billableEntitiesCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, entity => {
+    const isAddress = entity.kind === BILLABLE_ENTITY_KIND.ADDRESS;
+    let editForm: FormId = FORM_ID.COMPANY_EDIT;
+    let setDefault: MockAction = MOCK_ACTION.COMPANY_SET_DEFAULT;
+    let removeVerb: MockAction = MOCK_ACTION.COMPANY_REMOVE;
+    let noun = "company";
+    let icon = Building2;
+    if (isAddress) {
+      editForm = FORM_ID.ADDRESS_EDIT;
+      setDefault = MOCK_ACTION.ADDRESS_SET_DEFAULT;
+      removeVerb = MOCK_ACTION.ADDRESS_REMOVE;
+      noun = "address";
+      icon = MapPin;
+    }
+    return {
+      id: entity.id,
+      title: entity.title,
+      description: entity.description,
+      leadingIcon: icon,
+      tags: compact([entity.isDefault && defaultTagFor(noun)]),
+      action: {
+        value: openFormValue(editForm, entity.id),
+        label: "Edit"
+      },
+      moreActions: compact([
+        {
+          value: mockActionValue(MOCK_ACTION.COPY, entity.description),
+          label: "Copy to clipboard"
+        },
+        !entity.isDefault && {
+          value: mockActionValue(setDefault, entity.id),
+          label: `Set as default ${noun}`
+        },
+        {
+          value: mockActionValue(removeVerb, entity.id),
+          label: `Delete ${noun}`
+        }
+      ])
+    };
+  });
+}
+
 function companyDescription(entry: MockCompany): string {
   return compact([
     entry.regNumber !== null && `Reg. ${entry.regNumber}`,
