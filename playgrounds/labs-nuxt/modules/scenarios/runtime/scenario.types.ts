@@ -640,6 +640,8 @@ export type ScenarioDeclaration = ScenarioBinding & {
   key: ScenarioKey;
   presentation: ScenarioPresentation;
   tracks?: ScenarioTracks;
+  /** Route params this module's url carries — `["oid"]` gives `/useInvoice/:oid`. */
+  params?: string[];
 };
 
 /** A declaration once the registry has attached the directory it was found in. */

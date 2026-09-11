@@ -93,8 +93,12 @@ import { answerablePresets, captureGaps } from "./force/capabilities";
 import { armCorpusModule, runtimeCorpus } from "./force/corpus";
 import { featureTextFor, featureTracksFor } from "./force/corpus.source";
 import { presetRefusal } from "./force/presets";
-import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
-import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
+import {
+  scenarioRegistry,
+  scenarioRouteOf,
+  scenarioRoutes,
+  scenarioSources
+} from "./registry";
 import { ActionPlacementTypes, DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
 import {
   get,
@@ -146,7 +150,7 @@ definePageMeta({
 
 const route = useRoute();
 
-const scenarioRoute = get(route.meta, SCENARIO_ROUTE_META_KEY) as string;
+const scenarioRoute = scenarioRouteOf(route);
 const scenario: RegisteredScenario | undefined = get(
   scenarioRoutes,
   scenarioRoute
