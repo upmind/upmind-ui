@@ -1,13 +1,14 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import { gatesOffDataset } from "./support/counter-dataset";
-import { find } from "lodash-es";
+import { find, sortBy, filter } from "lodash-es";
 import type { MockDataset } from "~/portal/mock/types";
 import type { ListModuleItem } from "~/portal/modules/list/types";
 import type { MenuItem } from "~/portal/modules/menu/types";
 import type { MetricModuleItem } from "~/portal/modules/metric/types";
 import type { SpecModuleItem } from "~/portal/modules/spec/types";
 import { dispatchMockAction } from "~/portal/mock/actions";
+import { ticketStatusTab } from "~/portal/mock/collection-defs";
 import {
   DATA_REF_ID,
   dataRef,
@@ -118,13 +119,18 @@ describe("support — tickets, thread, and the reply", () => {
       "tkt-207"
     ]);
     expect(open[0]?.to).toBe("/support/tickets/tkt-211");
-    expect(closed.map(item => item.id).slice(0, 5)).toEqual([
-      "tkt-198",
-      "tkt-197",
-      "tkt-196",
-      "tkt-195",
-      "tkt-194"
-    ]);
+    // Newest first, as the list's default sort orders the closed threads.
+    const closedNewestFirst = sortBy(
+      filter(
+        HOSTGRID_MOCK_DATASET.tickets,
+        ticket => ticketStatusTab(ticket.status) === "closed"
+      ),
+      ticket => ticket.createdAt
+    )
+      .reverse()
+      .slice(0, 5)
+      .map(ticket => ticket.id);
+    expect(closed.map(item => item.id).slice(0, 5)).toEqual(closedNewestFirst);
     // The two lists never bleed into each other.
     expect(open.every(item => !closed.some(row => row.id === item.id))).toBe(
       true

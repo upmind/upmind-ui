@@ -1240,13 +1240,9 @@ function ticketFilterControls(
     data.tickets,
     ticket => ticketStatusTab(ticket.status) === wanted
   );
+  // Legacy's client filters (`data/filters/tickets.ts`): reference and subject
+  // ride the search box, then status and the created date — no department.
   return presentControls([
-    selectFilter(
-      "department",
-      "Department",
-      "Any department",
-      optionsPresent(map(showing, "department"), department => department)
-    ),
     selectFilter(
       "status",
       "Status",
@@ -1262,6 +1258,30 @@ function ticketFilterControls(
     dateRangeFilter("dateCreated", "Raised")
   ]);
 }
+
+/** Legacy's ticket sorters (`data/sorters/tickets.ts`): created date, reference, subject. */
+const TICKET_SORT_OPTIONS: readonly MockSortOption<MockTicket>[] = [
+  {
+    value: "newest",
+    label: "Newest first",
+    compare: (a, b) => b.createdAt.localeCompare(a.createdAt)
+  },
+  {
+    value: "oldest",
+    label: "Oldest first",
+    compare: (a, b) => a.createdAt.localeCompare(b.createdAt)
+  },
+  {
+    value: "reference",
+    label: "By reference",
+    compare: (a, b) => (a.reference ?? "").localeCompare(b.reference ?? "")
+  },
+  {
+    value: "subject",
+    label: "By subject",
+    compare: (a, b) => a.subject.localeCompare(b.subject)
+  }
+];
 
 export const ticketsCollection = filteredCollection<
   MockTicket,
@@ -1279,6 +1299,7 @@ export const ticketsCollection = filteredCollection<
   apply => ticketFilterMap(apply),
   context => context.status ?? "",
   (data, context) => ({
+    sortOptions: TICKET_SORT_OPTIONS,
     // Legacy filtered the reference and the subject through the same box the
     // search is here, so both are searchable props rather than controls.
     searchProps: ["reference", "subject", "department"],
@@ -1319,13 +1340,9 @@ function productTicketFilterControls(
   context: DataRouteContext
 ): MockFilterControl[] {
   const showing = filter(data.tickets, { productId: context.productId ?? "" });
+  // Legacy's client filters (`data/filters/tickets.ts`): reference and subject
+  // ride the search box, then status and the created date — no department.
   return presentControls([
-    selectFilter(
-      "department",
-      "Department",
-      "Any department",
-      optionsPresent(map(showing, "department"), department => department)
-    ),
     selectFilter(
       "status",
       "Status",

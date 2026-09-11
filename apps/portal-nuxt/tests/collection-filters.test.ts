@@ -157,35 +157,19 @@ describe("collection filters — one declared key narrows the whole collection",
     expect(pagination.value.total).toBe(openingTotal);
   });
 
-  it("narrows tickets by the department its tab offers", () => {
+  it("ignores a department filter — legacy offers none to clients", () => {
     const data = useMockData(MOCK_DATASET_ID.HOSTGRID);
     const instance = ticketsCollection.resolve(data, {});
     const { pagination } = instance.useContext();
-
-    const billing = filter(
-      data.tickets,
-      ticket =>
-        ticketStatusTab(ticket.status) === TICKET_ACTIVE &&
-        ticket.department === "Billing"
-    );
-    expect(billing.length).toBeGreaterThan(0);
+    const all = pagination.value.total;
+    expect(all).toBeGreaterThan(0);
 
     dispatchMockAction(
       data,
       {},
       filterValue(PAGED_COLLECTION_ID.TICKETS, "department", "Billing")
     );
-    expect(pagination.value.total).toBe(billing.length);
-    expect(
-      every(everyRow(instance), ticket => ticket.department === "Billing")
-    ).toBe(true);
-
-    dispatchMockAction(
-      data,
-      {},
-      filterValue(PAGED_COLLECTION_ID.TICKETS, "department", "")
-    );
-    expect(pagination.value.total).toBeGreaterThan(billing.length);
+    expect(pagination.value.total).toBe(all);
   });
 });
 
@@ -326,9 +310,10 @@ describe("a select offers only values the showing tab's rows carry", () => {
     const bandKeys = controlKeys(controlsFor(PAGED_COLLECTION_ID.TICKETS, {}));
 
     expect(uniq(map(showing, ticket => ticket.status))).toHaveLength(1);
-    // The two questions the tab CANNOT answer for itself, and only those:
-    // a status control here would offer the one value the tab already holds.
-    expect(bandKeys).toEqual(["department", "dateCreated"]);
+    // The one question the tab CANNOT answer for itself: a status control
+    // here would offer the one value the tab already holds, and legacy offers
+    // clients no department filter.
+    expect(bandKeys).toEqual(["dateCreated"]);
     expect(
       uniq(map(showing, ticket => ticket.department)).length
     ).toBeGreaterThan(1);
