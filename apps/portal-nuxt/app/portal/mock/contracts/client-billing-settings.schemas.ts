@@ -106,8 +106,12 @@ const DAY_OF_MONTH_MIN = 1;
 const DAY_OF_MONTH_MAX = 28;
 
 /** How far after it is raised a consolidated invoice may fall due. */
-const DUE_DATE_DAY_MIN = 0;
-const DUE_DATE_DAY_MAX = 60;
+/** Every monthly rule: the day a consolidated invoice falls due is asked only under these. */
+const MONTHLY_RULES = [
+  InvoiceConsolidationRuleTypes.DAY_OF_MONTH,
+  InvoiceConsolidationRuleTypes.FIRST_DAY_OF_MONTH,
+  InvoiceConsolidationRuleTypes.LAST_DAY_OF_MONTH
+];
 
 /**
  * The brand's own consolidation schedule in words, off its three config
@@ -211,9 +215,11 @@ export const useSchema = (context: BillingSettingsContext): JsonSchema7 => {
     },
     dueDateDay: {
       type: ["number", "null"],
-      title: "Days until it falls due",
-      minimum: DUE_DATE_DAY_MIN,
-      maximum: DUE_DATE_DAY_MAX
+      title: "Due on this day of the month",
+      description:
+        "Leave it empty and the gathered invoices fall due with the soonest of them.",
+      minimum: DAY_OF_MONTH_MIN,
+      maximum: DAY_OF_MONTH_MAX
     }
   };
 
@@ -262,6 +268,18 @@ function whileConsolidated(): Rule {
  * arms are needed: a stored rule outlives the switch being turned off, so the
  * rule alone would leave a day field standing under a disabled preference.
  */
+/** Shown while consolidation is on AND the rule is one of these — legacy asks the due day only for monthly gathering. */
+function whileRuleIn(rules: readonly InvoiceConsolidationRuleTypes[]): Rule {
+  const condition: AndCondition = {
+    type: "AND",
+    conditions: [
+      fulfilledBy("consolidation", [InvoiceConsolidationTypes.ENABLED]),
+      fulfilledBy("rule", rules)
+    ]
+  };
+  return { effect: RuleEffect.SHOW, condition };
+}
+
 function whileRuleIs(rule: InvoiceConsolidationRuleTypes): Rule {
   const condition: AndCondition = {
     type: "AND",
@@ -294,7 +312,7 @@ export const useUischema = (
       "dayOfMonth",
       whileRuleIs(InvoiceConsolidationRuleTypes.DAY_OF_MONTH)
     ),
-    control("dueDateDay", whileConsolidated())
+    control("dueDateDay", whileRuleIn(MONTHLY_RULES))
   ])
 });
 

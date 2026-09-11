@@ -224,12 +224,20 @@ describe("the consolidation schedule is asked for only while it applies", () => 
       expect(get(conditions[1], "schema.enum")).toEqual([ruleType]);
     }
 
-    for (const scope of [SCHEDULE_SCOPE.rule, SCHEDULE_SCOPE.dueDateDay]) {
-      expect(get(conditionFor(scope), "scope")).toBe(
-        "#/properties/consolidation"
-      );
-      expect(get(conditionFor(scope), "conditions")).toBeUndefined();
-    }
+    expect(get(conditionFor(SCHEDULE_SCOPE.rule), "scope")).toBe(
+      "#/properties/consolidation"
+    );
+    expect(
+      get(conditionFor(SCHEDULE_SCOPE.rule), "conditions")
+    ).toBeUndefined();
+    // Legacy asks the due day only for monthly gathering.
+    expect(
+      get(conditionFor(SCHEDULE_SCOPE.dueDateDay), "conditions[1].schema.enum")
+    ).toEqual([
+      InvoiceConsolidationRuleTypes.DAY_OF_MONTH,
+      InvoiceConsolidationRuleTypes.FIRST_DAY_OF_MONTH,
+      InvoiceConsolidationRuleTypes.LAST_DAY_OF_MONTH
+    ]);
   });
 
   it("the schema bounds what each schedule field may say", () => {
