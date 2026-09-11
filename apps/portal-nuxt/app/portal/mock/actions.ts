@@ -275,6 +275,10 @@ export const MOCK_ACTION = {
   /** The security page's own three forms. */
   USERNAME_CHANGE: "username-change",
   PASSWORD_CHANGE: "password-change",
+  /** Legacy's reset link, verification link, and organisation sign-up — the logged-out forms. */
+  RESET_PASSWORD: "reset-password",
+  VERIFY_SET_PASSWORD: "verify-set-password",
+  REGISTER_ORG: "register-org",
   /** The emailed code confirms a pending username or password change: `sensitive-code-confirm:<change>:<json>:<code json>`. */
   SENSITIVE_CODE_CONFIRM: "sensitive-code-confirm",
   TWOFA_ENABLE: "twofa-enable",
@@ -1752,6 +1756,45 @@ export function dispatchMockAction(
      * signed-in one: a link that reached here stands in for the session, and
      * the rows it moves are the same rows.
      */
+    case MOCK_ACTION.RESET_PASSWORD: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockSecurity(data).useActions().resetPassword(model);
+      return fromFormReceipt(receipt, () => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Password changed."
+        },
+        to: "/login"
+      }));
+    }
+    case MOCK_ACTION.VERIFY_SET_PASSWORD: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockSecurity(data).useActions().setPassword(model);
+      return fromFormReceipt(receipt, () => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Account activation was successful."
+        },
+        to: "/login"
+      }));
+    }
+    case MOCK_ACTION.REGISTER_ORG: {
+      // A new organisation is a new tenant — nothing in this dataset to write
+      // to. Legacy's own reply, then the sign-in door it points at.
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      return fromFormReceipt({ ok: true, entity: model }, () => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Registration successful!",
+          description:
+            "Your organisation has been created. Please check your mailbox for a verification email and details on how to login."
+        },
+        to: "/login"
+      }));
+    }
     case MOCK_ACTION.PREFERENCES_SAVE: {
       const model = parseFormPayload(id);
       if (model === undefined) return undefined;

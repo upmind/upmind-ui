@@ -33,59 +33,96 @@ export function isCodeShaped(code: string): boolean {
 
 export const useMockSecurity = defineMockFacade(
   (data): MockSecurity => data.security,
-  data => ({
-    /** Sets a new password; a confirmation that does not match refuses. */
-    changePassword: (
-      model: FormModel
-    ): MockActionReceipt<MockSecurity> | undefined => {
-      const password = submittedText(model, "password");
-      const confirmation = submittedText(model, "passwordConfirm");
-      if (password !== confirmation) {
-        return {
-          ok: false,
-          reason: MOCK_RECEIPT_REASON.PASSWORD_MISMATCH,
-          entity: data.security
-        };
-      }
+  data => {
+    /** The one write every password door ends in — the sign-in secret and the date it moved. */
+    function applyNewPassword(
+      password: string
+    ): MockActionReceipt<MockSecurity> {
+      assign(data.persona, { password });
       assign(data.security, { passwordChangedAt: today() });
       return { ok: true, entity: data.security };
-    },
-
-    /** Turns the second sign-in step on, against a code the client reads off their authenticator. */
-    enableTwoFactor: (
-      model: FormModel
-    ): MockActionReceipt<MockSecurity> | undefined => {
-      const code = submittedText(model, "token");
-      if (!isCodeShaped(code)) {
-        return {
-          ok: false,
-          reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE,
-          entity: data.security
-        };
-      }
-      assign(data.security, { twoFactorEnabled: true });
-      return { ok: true, entity: data.security };
-    },
-
-    /**
-     * Turns the second sign-in step off. Legacy asked for the code on the way
-     * OUT as well as the way in — its DELETE carried the same `auth_code` its
-     * POST did (`configure2faModal.vue:112-124`) — so the step is only taken
-     * off by somebody holding the app that put it on. Asked BEFORE the write.
-     */
-    disableTwoFactor: (
-      model: FormModel
-    ): MockActionReceipt<MockSecurity> | undefined => {
-      const code = submittedText(model, "token");
-      if (!isCodeShaped(code)) {
-        return {
-          ok: false,
-          reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE,
-          entity: data.security
-        };
-      }
-      assign(data.security, { twoFactorEnabled: false });
-      return { ok: true, entity: data.security };
     }
-  })
+
+    return {
+      /**
+       * Legacy's reset link: the new password lands, after the second-step code
+       * where the account signs in with two-factor (`resetPasswordForm`).
+       */
+      resetPassword: (
+        model: FormModel
+      ): MockActionReceipt<MockSecurity> | undefined => {
+        if (
+          data.security.twoFactorEnabled &&
+          !isCodeShaped(submittedText(model, "token"))
+        ) {
+          return {
+            ok: false,
+            reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE,
+            entity: data.security
+          };
+        }
+        return applyNewPassword(submittedText(model, "password"));
+      },
+
+      /** Legacy's account-verification link that still wants a password: it lands, code unasked. */
+      setPassword: (
+        model: FormModel
+      ): MockActionReceipt<MockSecurity> | undefined =>
+        applyNewPassword(submittedText(model, "password")),
+
+      /** Sets a new password; a confirmation that does not match refuses. */
+      changePassword: (
+        model: FormModel
+      ): MockActionReceipt<MockSecurity> | undefined => {
+        const password = submittedText(model, "password");
+        const confirmation = submittedText(model, "passwordConfirm");
+        if (password !== confirmation) {
+          return {
+            ok: false,
+            reason: MOCK_RECEIPT_REASON.PASSWORD_MISMATCH,
+            entity: data.security
+          };
+        }
+        assign(data.security, { passwordChangedAt: today() });
+        return { ok: true, entity: data.security };
+      },
+
+      /** Turns the second sign-in step on, against a code the client reads off their authenticator. */
+      enableTwoFactor: (
+        model: FormModel
+      ): MockActionReceipt<MockSecurity> | undefined => {
+        const code = submittedText(model, "token");
+        if (!isCodeShaped(code)) {
+          return {
+            ok: false,
+            reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE,
+            entity: data.security
+          };
+        }
+        assign(data.security, { twoFactorEnabled: true });
+        return { ok: true, entity: data.security };
+      },
+
+      /**
+       * Turns the second sign-in step off. Legacy asked for the code on the way
+       * OUT as well as the way in — its DELETE carried the same `auth_code` its
+       * POST did (`configure2faModal.vue:112-124`) — so the step is only taken
+       * off by somebody holding the app that put it on. Asked BEFORE the write.
+       */
+      disableTwoFactor: (
+        model: FormModel
+      ): MockActionReceipt<MockSecurity> | undefined => {
+        const code = submittedText(model, "token");
+        if (!isCodeShaped(code)) {
+          return {
+            ok: false,
+            reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE,
+            entity: data.security
+          };
+        }
+        assign(data.security, { twoFactorEnabled: false });
+        return { ok: true, entity: data.security };
+      }
+    };
+  }
 );

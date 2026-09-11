@@ -107,6 +107,16 @@ import {
   verifyEmailDefaults
 } from "./contracts/account.schemas";
 import {
+  registerOrgDefaults,
+  useRegisterOrgSchema,
+  useRegisterOrgUischema
+} from "./contracts/auth.schemas.register-org";
+import {
+  resetPasswordDefaults,
+  useResetPasswordSchema,
+  useResetPasswordUischema
+} from "./contracts/auth.schemas.reset";
+import {
   useTwoFASchema,
   useTwoFAUischema,
   twoFactorDefaults
@@ -5397,6 +5407,46 @@ export function isEmailDeliveryDelayed(data: MockDataset): boolean {
  */
 export function emailHeaderActions(): ButtonModuleAction[] {
   return [];
+}
+
+// --- the logged-out forms: reset link, verification link, organisation sign-up
+
+/** Legacy's `resetPasswordForm`: the code joins the password only where two-factor is on. */
+export function resetPasswordFormSchema(data: MockDataset): JsonSchema {
+  return useResetPasswordSchema(data.security.twoFactorEnabled);
+}
+
+export function resetPasswordFormUischema(data: MockDataset): UISchemaElement {
+  return useResetPasswordUischema(data.security.twoFactorEnabled);
+}
+
+export function resetPasswordFormModel(data: MockDataset): FormModel {
+  return resetPasswordDefaults(data.security.twoFactorEnabled);
+}
+
+/** The verification link's first password — the same form, code unasked. */
+export function setPasswordFormSchema(): JsonSchema {
+  return useResetPasswordSchema(false);
+}
+
+export function setPasswordFormUischema(): UISchemaElement {
+  return useResetPasswordUischema(false);
+}
+
+export function setPasswordFormModel(): FormModel {
+  return resetPasswordDefaults(false);
+}
+
+export function registerOrgFormSchema(): JsonSchema {
+  return useRegisterOrgSchema();
+}
+
+export function registerOrgFormUischema(): UISchemaElement {
+  return useRegisterOrgUischema();
+}
+
+export function registerOrgFormModel(): FormModel {
+  return registerOrgDefaults();
 }
 
 // --- email history (legacy's emailHistoryTable, emailHistoryStatus, viewEmailModal)
