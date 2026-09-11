@@ -447,12 +447,18 @@ export const useMockInvoices = defineMockFacade(
      * against the document that replaced them, and the money is worked out
      * here, where the mock's writes live (plan R6).
      */
-    consolidate: (): MockActionReceipt<MockInvoice> => {
-      const gathered = consolidatableInvoices(data);
+    consolidate: (
+      picked?: readonly string[]
+    ): MockActionReceipt<MockInvoice> => {
+      const gathered = filter(
+        consolidatableInvoices(data),
+        invoice => picked === undefined || includes(picked, invoice.id)
+      );
       const opening = first(gathered);
       const refusal = whyNotConsolidatable(data);
       if (refusal !== undefined) return refusal;
-      if (opening === undefined) {
+      // Legacy's modal will not fire below two ticks: one invoice is already one document.
+      if (opening === undefined || gathered.length < 2) {
         return {
           ok: false,
           reason: MOCK_RECEIPT_REASON.NOTHING_TO_CONSOLIDATE

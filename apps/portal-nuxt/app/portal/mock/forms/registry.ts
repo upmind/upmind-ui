@@ -9,7 +9,8 @@
  * The schema and uischema are FUNCTIONS of the dataset and the addressed
  * entity, called with the REAL module's own parameter where one exists
  * (`ProfileContext`, `AddressContext`, `CompanyContext`), so the go-real swap
- * is one import line and the form itself never changes (plan F3, F4).
+ * is one
+import line and the form itself never changes (plan F3, F4).
  *
  * A CREATE opens on the schema module's own `defaults()`; an EDIT opens on the
  * row, and answers `undefined` when the dataset holds no such row — which the
@@ -57,6 +58,12 @@ import {
   useUischema as useDelegateInviteUischema,
   delegateInviteDefaults
 } from "../contracts/client-delegates.schemas";
+import {
+  CONSOLIDATION_PICK_MIN,
+  consolidationPickDefaults,
+  useConsolidationPickSchema,
+  useConsolidationPickUischema
+} from "../contracts/client-invoices.consolidation.schemas";
 import {
   invoiceShareDefaults,
   useSchema as useShareSchema,
@@ -112,6 +119,7 @@ import {
   useMockTicket
 } from "../facades";
 import { useMockClientEmails } from "../facades/useMockContacts";
+import { consolidatableInvoices } from "../facades/useMockInvoice";
 import {
   affiliateLinkContext,
   delegateInviteContext,

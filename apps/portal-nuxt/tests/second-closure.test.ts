@@ -631,9 +631,9 @@ describe("P3 — the invoices ledger offers to bring what is owed into one docum
     const result = dispatchMockAction(data, NO_CONTEXT, action.value);
 
     expect(action.value).toBe(MOCK_ACTION.CONSOLIDATE_INVOICES);
-    expect(result?.confirm?.then).toBe(
-      MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED
-    );
+    // Legacy asks WHICH invoices, so the ask is the picker form.
+    expect(result?.form?.id).toBe("consolidate-invoices");
+    expect(result?.confirm).toBeUndefined();
     expect(result?.toast).toBeUndefined();
     expect(size(data.invoices)).toBe(before);
     expect(

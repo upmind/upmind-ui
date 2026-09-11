@@ -35,7 +35,6 @@ import { parseAttachmentNames } from "./contracts/client-tickets.schemas";
 import { shareLinkFor } from "./documents";
 import {
   activePersonaAccount,
-  consolidatableInvoices,
   hasDelegateObject,
   invoicePaymentMethod,
   isInvoicePayable,
@@ -70,7 +69,7 @@ import {
 } from "./facades";
 import { useMockClientEmails } from "./facades/useMockContacts";
 import { FORM_ID, isFormId } from "./forms/ids";
-import { assign, find, includes, isPlainObject, size, values } from "lodash-es";
+import { assign, find, includes, isPlainObject, values } from "lodash-es";
 import type { NotificationFilter } from "./collection-defs";
 import type { VaultAssetScope } from "./contracts";
 import type { NewLineKey } from "./contracts/client-tickets";
@@ -923,6 +922,17 @@ function applySensitiveChange(
   return undefined;
 }
 
+/** The invoices ticked in the consolidation form; absent means every one that qualifies. */
+function pickedInvoiceIds(
+  tail: string | undefined
+): readonly string[] | undefined {
+  const model = parseFormPayload(tail);
+  if (model === undefined) return undefined;
+  const ids = model["invoiceIds"];
+  if (!Array.isArray(ids)) return undefined;
+  return ids.filter((value): value is string => typeof value === "string");
+}
+
 function parseFormPayload(tail: string | undefined): FormModel | undefined {
   if (tail === undefined) return undefined;
   try {
@@ -1475,17 +1485,13 @@ export function dispatchMockAction(
       // to gather is refused outright rather than behind a question.
       const refused = useMockInvoices(data).useActions().whyNotConsolidatable();
       if (refused?.reason !== undefined) return refusal(refused.reason);
-      return {
-        confirm: {
-          title: "Bring these invoices together?",
-          description: `${size(consolidatableInvoices(data))} unpaid invoices will be closed, and one document raised in their place.`,
-          actionLabel: "Consolidate invoices",
-          then: MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED
-        }
-      };
+      // Legacy asks WHICH invoices: a tick per document, in the shell's form dialog.
+      return { form: { id: FORM_ID.CONSOLIDATE_INVOICES } };
     }
     case MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED: {
-      const receipt = useMockInvoices(data).useActions().consolidate();
+      const receipt = useMockInvoices(data)
+        .useActions()
+        .consolidate(pickedInvoiceIds(id));
       return fromReceipt(receipt, invoice => ({
         toast: {
           intent: MOCK_TOAST_INTENT.SUCCESS,
