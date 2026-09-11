@@ -21,7 +21,6 @@ Ruled 2026-09-07: "we don't need to mock the client-vue components, as they are 
 | `/reset-password`                                                    | recover component, reset step — to be added                                                  | `auth`                                                             | `config/auth-pages.ts`                |
 | `/verify`, `/verify-email` (+ expired, set-password)                 | verify component — to be added                                                               | `auth` · `useVerifyEmail`                                          | `config/auth-pages.ts`                |
 | `/logout`                                                            | `UpmSessionLogout`                                                                           | `auth`                                                             | `config/auth-pages.ts`                |
-| `/account/logs` (email history section), `/account/logs/emails/[id]` | email history component — to be added (client-vue's `emailHistory/*` was retired in FE-3103) | `client-email-history`                                             | `config/account-pages.ts`             |
 | `/billing/payment-methods`                                           | `PaymentDetails`, `StoredPaymentMethods`                                                     | `payment-details`, `payment-gateways`                              | `config/billing-pages.ts`             |
 | invoice Pay (document control, list row, `?init=pay`)                | `PaymentDetails`, `PaymentAmount`, `AccountCredit`, `PaymentGateways`                        | `payment`, `invoices`                                              | `MOCK_ACTION.PAY_INVOICE` → prose     |
 | product settings — payment method                                    | `StoredPaymentMethods`                                                                       | `payment-details`                                                  | `config/product-pages.ts`             |
@@ -102,6 +101,13 @@ The four lists — emails, phones, and the addresses and companies legacy draws 
 "Address and company details" section — run on `mock/facades/useMockContacts.ts`, with
 stand-in forms in `mock/contracts/client-contacts.schemas.ts` (`tests/profile-contacts.test.ts`).
 The product's "Add a new address" and "Add company" doors open the same forms.
+
+### Email history
+
+Mocked since 11 September 2026. Client-vue's `emailHistory` module was retired in FE-3103, so
+nothing was coming. The Logs page carries legacy's four status tabs over one list, the
+delivery-delay notice, and the preview as a page under `/account/logs/emails/[id]`
+(`mock/collection-defs.ts` `sentEmailsCollection`, `tests/email-history.test.ts`).
 
 ### Product setup
 

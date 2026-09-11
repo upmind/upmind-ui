@@ -95,6 +95,7 @@ import type {
   MockNotification,
   MockNotificationPreference,
   MockProduct,
+  MockSentEmail,
   MockTicket,
   MockVaultAsset
 } from "./types";
@@ -188,6 +189,83 @@ export const EMAIL_STATUS_TAB = {
   FAILED: SentEmailStatus.ERROR,
   BOUNCED: SentEmailStatus.BOUNCED
 } as const;
+
+export type EmailStatusTab =
+  (typeof EMAIL_STATUS_TAB)[keyof typeof EMAIL_STATUS_TAB];
+
+/** Which tab is showing — All unless the route names one of the other three. */
+export function showingEmailTab(status: string | undefined): EmailStatusTab {
+  if (status === EMAIL_STATUS_TAB.SENT) return EMAIL_STATUS_TAB.SENT;
+  if (status === EMAIL_STATUS_TAB.BOUNCED) return EMAIL_STATUS_TAB.BOUNCED;
+  if (status === EMAIL_STATUS_TAB.FAILED) return EMAIL_STATUS_TAB.FAILED;
+  return EMAIL_STATUS_TAB.ALL;
+}
+
+function inEmailTab(email: MockSentEmail, tab: EmailStatusTab): boolean {
+  if (tab === EMAIL_STATUS_TAB.ALL) return true;
+  return email.status === tab;
+}
+
+type ClientSentEmailsFilters = {
+  query: (value: string) => void;
+  dateCreated: (value: string) => void;
+};
+
+/** Legacy's email sorters (`data/sorters/emails.ts`): date, then subject. */
+const SENT_EMAIL_SORT_OPTIONS: readonly MockSortOption<MockSentEmail>[] = [
+  {
+    value: "newest",
+    label: "Newest first",
+    compare: (a, b) =>
+      (b.dateCreated.date ?? "").localeCompare(a.dateCreated.date ?? "")
+  },
+  {
+    value: "oldest",
+    label: "Oldest first",
+    compare: (a, b) =>
+      (a.dateCreated.date ?? "").localeCompare(b.dateCreated.date ?? "")
+  },
+  {
+    value: "subject",
+    label: "By subject",
+    compare: (a, b) => a.subject.localeCompare(b.subject)
+  }
+];
+
+/**
+ * Legacy's client filters (`data/filters/emails.ts`): the subject and the
+ * recipient ride the search box; the created date is the one control left.
+ * The template filter lists the brand's templates, which a client cannot.
+ */
+const SENT_EMAIL_FILTER_CONTROLS: readonly MockFilterControl[] = [
+  dateRangeFilter("dateCreated", "Sent")
+];
+
+/** Legacy's email history, narrowed by its status tabs. */
+export const sentEmailsCollection = filteredCollection<
+  MockSentEmail,
+  ClientSentEmailsFilters
+>(
+  (data, context, criteria) => {
+    const tab = showingEmailTab(context.status);
+    return filter(
+      data.sentEmails,
+      email =>
+        inEmailTab(email, tab) &&
+        matchesDateRange(email.dateCreated.date ?? "", criteria.dateCreated)
+    );
+  },
+  apply => ({
+    query: value => apply({ query: value }),
+    dateCreated: value => apply({ dateCreated: value })
+  }),
+  context => context.status ?? "",
+  () => ({
+    searchProps: ["subject", "to"],
+    sortOptions: SENT_EMAIL_SORT_OPTIONS,
+    filterControls: SENT_EMAIL_FILTER_CONTROLS
+  })
+);
 
 /** Legacy's dropdown rail, as the verb spells its choices. */
 export const NOTIFICATION_FILTER = {
@@ -1813,6 +1891,7 @@ export const PAGED_COLLECTION_ID = {
   AFFILIATE_REFERRALS: "affiliate-referrals",
   AFFILIATE_LINKS: "affiliate-links",
   LOGIN_ATTEMPTS: "login-attempts",
+  SENT_EMAILS: "sent-emails",
   IP_WHITELIST: "ip-whitelist",
   BILLABLE_ENTITIES: "billable-entities",
   TICKETS: "tickets",
@@ -1850,6 +1929,7 @@ const PAGED_COLLECTIONS: Record<
   [PAGED_COLLECTION_ID.AFFILIATE_REFERRALS]: affiliateReferralsCollection,
   [PAGED_COLLECTION_ID.AFFILIATE_LINKS]: affiliateLinksCollection,
   [PAGED_COLLECTION_ID.LOGIN_ATTEMPTS]: loginAttemptsCollection,
+  [PAGED_COLLECTION_ID.SENT_EMAILS]: sentEmailsCollection,
   [PAGED_COLLECTION_ID.IP_WHITELIST]: ipWhitelistCollection,
   [PAGED_COLLECTION_ID.BILLABLE_ENTITIES]: billableEntitiesCollection,
   [PAGED_COLLECTION_ID.TICKETS]: ticketsCollection,
