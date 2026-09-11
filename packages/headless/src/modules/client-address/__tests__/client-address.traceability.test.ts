@@ -182,7 +182,7 @@ describe("client-address traceability — co-located feature vs proving tests", 
     expect(broken).toEqual([]);
   });
 
-  it("the coverage map names a proving file or a consumer proof for all 40 scenarios", () => {
+  it("the coverage map names a proving file or a consumer proof for all 44 tagged capabilities", () => {
     const tests = provingTests();
     const map = [...featureAcTags(COLOCATED_FEATURE)]
       .sort((a, b) => Number(a.slice(3)) - Number(b.slice(3)))

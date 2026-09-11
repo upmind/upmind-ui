@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a33474d81f8acef8-LIS",
+      "cf-ray": "a38bf8273830bdcc-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Sun, 30 Aug 2026 14:24:00 GMT",
+      "date": "Thu, 10 Sep 2026 05:17:59 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=fIEoAdvpRzD7OV2HhAGob%2Flkhuf3ZVh3Dhy33zWEbHQ6wvkLF%2FliUE5026XCjwqivkpQHWthkC1Cg4XDPq1ZwqcaE9zys5YV6AAM7Wi5ZnGctmp8Hlf0RG39out4%2Fu8M%2BxXTYtu1%2Bw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=c4p27DjAxigyT2cZvJYM6MPg8f1rOonu8eK%2F%2B%2FeYFyqXH5TiDjjGEsmSB%2BY4R9XbElhC03Vb%2F%2BrNhs%2BY4UoZrZK8EMNQ38DNL4E55C5bjQs%2BBGRUQl1ctA%2By9Qt2pmje2n3fKdQWwQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -39,7 +39,7 @@
         "gateway_specific": {
           "key_id": "mock-key_id",
           "customer_id": "cust_RWZ6dQLiNTtvP1",
-          "order_id": "order_TW0rdxQo2VP878",
+          "order_id": "order_TaDRCOOzvJG7Ml",
           "prefill": {
             "name": "Checkout Test",
             "email": "mock-email-1@example.com",
@@ -54,7 +54,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-30T14:24:00.307Z",
+  "captured_at": "2026-09-10T05:17:59.639Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

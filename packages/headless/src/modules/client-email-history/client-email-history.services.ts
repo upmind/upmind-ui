@@ -1,10 +1,11 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
 import { computed } from "vue";
-import { useQuery } from "../query";
+import { RequestSortDirection, useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import {
   mapEmailHistory,
+  mapNotificationToken,
   mapReceivedEmail
 } from "./client-email-history.mappers";
 import { useQuerySchema } from "./client-email-history.schemas";
@@ -15,6 +16,7 @@ import type {
   ClientEmailHistoryServices,
   ReceivedEmailItemQuery,
   ReceivedEmailsListQuery,
+  RecentEmailsReadOptions,
   SentEmail,
   SentEmailQueryModel
 } from "./client-email-history.types";
@@ -179,6 +181,54 @@ function loadOne(
     enabled: () => !!emailId && isAddressable(clientId.value),
     select: mapReceivedEmail,
     staleTime: useTime().DAY
+  });
+}
+
+// -----------------------------------------------------------------------------
+// Imperative one-shot reads
+
+/**
+ * One-shot read of the caller's most recent emails — the imperative peer of
+ * `loadList`, for callers that poll rather than render. `withAccessToken`
+ * carries the active client bearer; `staleTime: 0` refetches on every call.
+ *
+ * The newest-first `order` param is derived by the query layer from `sort`
+ * (`useQuery` deletes a raw `order`), so it is passed as `["-", "created_at"]`.
+ */
+export async function readRecentClientEmails({
+  limit = 2
+}: RecentEmailsReadOptions = {}): Promise<SentEmail[]> {
+  const { get, useUrl } = useQuery();
+
+  return get<ISentEmail[], SentEmail[]>({
+    queryKey: [...queryKey, "recent", { limit }],
+    url: useUrl("self/email_history", {
+      limit,
+      with: ["recipient", "recipient_type", "recipient.image"].join(",")
+    }),
+    withAccessToken: true,
+    sort: [RequestSortDirection.DESC, "created_at"],
+    select: mapEmailHistory,
+    staleTime: 0
+  });
+}
+
+/**
+ * One-shot read of a single email's notification-preferences token — the
+ * imperative peer of `loadOne`, reusing its `emails/{id}?with=data` endpoint so
+ * no URL is duplicated. Resolves `undefined` when the email carries no link.
+ */
+export async function readClientEmailNotificationToken(
+  emailId: SentEmail["id"]
+): Promise<string | undefined> {
+  const { get, useUrl } = useQuery();
+
+  return get<ISentEmail, string | undefined>({
+    queryKey: [...queryKey, "notification-token", emailId],
+    url: useUrl(`emails/${emailId}`, { with: "data" }),
+    withAccessToken: true,
+    select: mapNotificationToken,
+    staleTime: 0
   });
 }
 

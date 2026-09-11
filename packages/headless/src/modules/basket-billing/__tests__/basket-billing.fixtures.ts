@@ -39,10 +39,14 @@
 
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, it } from "vitest";
-import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
 import { ForcedErrorCode } from "@upmind-automation/test-fixtures/types";
-import { BrandConfigKeys, GrantTypes } from "@upmind-automation/types";
+import { BrandConfigKeys } from "@upmind-automation/types";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import {
+  mintClientToken,
+  mintOtherClientToken
+} from "../../auth/__tests__/auth.tokens";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -106,33 +110,6 @@ const NON_CONVERTING_BILLING = {
   phone_id: null
 };
 
-async function mintToken(creds: {
-  username: string;
-  password: string;
-}): Promise<IToken> {
-  const response = await fetch(`${API_URL}/oauth/access_token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      Origin: ORIGIN
-    },
-    body: new URLSearchParams({
-      grant_type: GrantTypes.PASSWORD,
-      ...creds
-    }).toString()
-  });
-  const body = await response.json().catch(() => null);
-  const token = (body?.access_token ? body : body?.data) as IToken | undefined;
-  if (!token?.access_token) {
-    throw new Error(
-      `Could not mint a token for ${creds.username} (${response.status}) — ` +
-        "check tests/fixtures/credentials.ts against the recording brand."
-    );
-  }
-  return token;
-}
-
 // -----------------------------------------------------------------------------
 
 describe("basket-billing fixtures generator", () => {
@@ -148,8 +125,8 @@ describe("basket-billing fixtures generator", () => {
       source: "case",
       name: "basket-billing"
     });
-    clientToken = await mintToken(API_CREDENTIALS.client);
-    otherClientToken = await mintToken(API_CREDENTIALS.otherClient);
+    clientToken = await mintClientToken();
+    otherClientToken = await mintOtherClientToken();
   }, 60000);
 
   afterAll(() => {

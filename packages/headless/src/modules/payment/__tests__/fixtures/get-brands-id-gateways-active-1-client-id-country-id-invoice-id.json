@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/brands/2785d26e-9678-3d16-999f-314502e70439/gateways?limit=0&order=order&active=1&invoice_id=52098d3d-e409-1748-650c-31578626e347&client_id=25d96e76-3ed0-913d-d52c-417482528340&currency_code=GBP&country_id=320e4357-95e7-8d18-484f-31643202d986&with=gateway.gateway_provider%2Cgateway.card_types",
+    "path": "/api/brands/2785d26e-9678-3d16-999f-314502e70439/gateways?limit=0&order=order&active=1&invoice_id=4038696e-5472-1d57-5945-b518d9305e7d&client_id=25d96e76-3ed0-913d-d52c-417482528340&currency_code=GBP&country_id=320e4357-95e7-8d18-484f-31643202d986&with=gateway.gateway_provider%2Cgateway.card_types",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a323d098ad6211e6-LIS",
+      "cf-ray": "a38bf8b6dd23f0e6-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Fri, 28 Aug 2026 13:55:39 GMT",
+      "date": "Thu, 10 Sep 2026 05:18:21 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=BtT8xVawrrCiG2305A0V0jZDp29aQ%2B4da3bscLQ8MvWMaYncB0JPNR4EQljJ%2FKJHbUS5PE2HAxQKyl8gv%2BFVZm7tdirsN8Dz%2BhikXLC1fmEg6R%2BbdIaCtq8xU37vShtwAEzUMorpSw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=dYTtNzyN6%2BDjWFWDoXyIY57g8%2BdoghJxFcq0MrLA3e4YTiqq4uFKwcfsLZmc0L8cAL11F5mxtc%2F2v8MNdP7J%2Fxx1AUkGZ%2B2Beq6JA%2B0yL0Qm%2FeZCHGRn7JcWVMU6XC%2BD083aOZWqKw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -4687,7 +4687,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-28T13:55:39.354Z",
+  "captured_at": "2026-09-10T05:18:21.477Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

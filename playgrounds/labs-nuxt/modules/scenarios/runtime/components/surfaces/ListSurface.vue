@@ -875,6 +875,17 @@ const vueTable = useVueTable({
 
 const pagination = computed(() => tableModel.value.pagination);
 
+/**
+ * True only when the set spans more than one page. `perPage: 0` is the
+ * module's own `limit: 0` reaching the renderer — the whole set arrives in
+ * one request, so there is nothing to page through.
+ */
+const hasMoreThanOnePage = computed(() => {
+  const perPage = pagination.value.perPage ?? 0;
+  const total = pagination.value.total ?? 0;
+  return perPage > 0 && total > perPage;
+});
+
 // The total is the COLLECTION's own claim, so a read that failed has none to
 // make: the last good one would put a size on screen that nothing drawn came
 // from (`S16`/`G13`). How many rows are drawn stays the surface's to say.
@@ -893,9 +904,16 @@ function onPaginate(page: number): void {
 // --- the editor a declared handoff opens, over the list it was opened from
 const manage = ref<ManageDialogProps | undefined>(undefined);
 
-/** One editor instance per RECORD — never one carried across rows. */
+/**
+ * One editor instance per RECORD — never one carried across rows. A
+ * field-scoped handoff (a per-row/per-field edit) names no context, so its
+ * identity is the `fieldScope` it narrows to; without it in the key every such
+ * open shares one `new:undefined` instance and the editor never re-mounts for a
+ * different row.
+ */
 const manageKey = computed(
-  () => `${manage.value?.context?.type ?? "new"}:${manage.value?.context?.id}`
+  () =>
+    `${manage.value?.context?.type ?? "new"}:${manage.value?.context?.id}:${manage.value?.fieldScope ?? ""}`
 );
 
 function openHandoff(action: ScenarioAction, row?: ListRow): void {
@@ -1317,6 +1335,13 @@ const meta = computed(() => ({
   // Nothing to steer with and nothing to say about the collection is no cluster
   // at all — never an empty line of chrome above the records.
   hasControls: !!props.criteria || hasTable.value,
-  hasPagination: !!props.table
+  // A pager is drawn only when there is somewhere to page TO. `perPage: 0`
+  // is `limit: 0` reaching the renderer — the module takes the whole set in
+  // one request, so there is exactly one page and the arrows would call
+  // `nextPage`/`prevPage`, which such a collection never publishes. Drawing
+  // them anyway gives a live control over an absent member: it reads as
+  // capability and does nothing (operator-reported "pagination is showing
+  // 1-6 but it is not working").
+  hasPagination: !!props.table && hasMoreThanOnePage.value
 }));
 </script>

@@ -42,6 +42,10 @@ export type ActionSlotItem = {
   /** Where the scenario placed it. Absent, it falls to the overflow. */
   placement?: ActionPlacementTypes;
   disabled?: boolean;
+  // graphify-out/: re-queried `ActionSlotItem` — still this file's own, a plain
+  // string field added below, no type minted.
+  /** Why the control is disabled, said where the hand lands (a lock reason wins). */
+  disabledReason?: string;
   /** In flight — the control says so itself, in the Button's own treatment. */
   loading?: boolean;
   onSelect: () => void;

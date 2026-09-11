@@ -165,11 +165,11 @@ type SessionEntry = {
 
 // State structure
 type SessionState = {
-  guestSession?: IToken; // Single guest token
+  guestSessions: Record<string, SessionEntry>; // Keyed by session id
   clientSessions: Record<string, SessionEntry>; // Keyed by actor_id
   staffSessions: Record<string, SessionEntry>; // Keyed by actor_id
   activeActor: AccessRoleTypes; // Current active type
-  activeSessionId?: string; // Current active actor_id
+  activeSessionId?: string; // Key of the active session in its own map; absent when guest is the unclaimed floor
   impersonatedSessions: Record<string, string>; // Maps impersonated → parent
 };
 ```
@@ -190,7 +190,9 @@ import { useSessionStore } from "@upmind-automation/headless";
 const { activeActor, activeSessionId } = useSessionStore().useContext();
 
 // activeActor can be: GUEST | CLIENT | STAFF
-// activeSessionId is the actor_id of the active session (undefined for guest)
+// activeSessionId is the active session's key in its own actor's map.
+// Present for a chosen guest, same as client/staff; absent for the guest
+// "floor" (nobody signed in, nothing explicitly chosen).
 ```
 
 ### Impersonation Flow

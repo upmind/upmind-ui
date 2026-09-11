@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-notifications/client-notifications.services.ts
++++ b/packages/headless/src/modules/client-notifications/client-notifications.services.ts
+@@ -434,7 +434,7 @@
+   ): Promise<Partial<NotificationsContext>> => {
+     const parsed = useModelParser<NotificationsModel>(
+       schema,
+-      data?.model ?? data ?? baseModel
++      data?.model ?? data
+     );
+     const { topics = [], channels = [] } =
+       (lookups as NotificationsLookups | undefined) ?? {};

@@ -1,0 +1,28 @@
+# Proven RED pending prover (developer-authored 2026-09-01)
+#
+# Mutates: `toOptOutRequestRows` (`client-notifications.mappers.ts`) — removes
+# the unconditional bulk-toggle-sentinel skip (task 2 step 5). Without it, a
+# topic whose sentinel currently reads `false` (not fully selected) puts a
+# bogus `{ topic_id, channel_id: "__all" }` row on the wire alongside the real
+# opt-out rows.
+#
+# Observed against TODAY's suite (this seat, applied and reverted, checksums
+# clean): reddens 7 pre-existing assertions that already inspect PUT-body/
+# preferences content, incl. `client-notifications.manager.int.test.ts`'s
+# "writes the WHOLE opt-out set" and
+# `client-notifications.manager.opt-outs-projection.int.test.ts`'s "the wire
+# projection — round trip". The PROVER's own targeted assertion — "no wire
+# row anywhere carries `channel_id: '__all'`" — does not exist in the repo
+# yet; this seat has NOT observed RED against that specific assertion. The
+# prover applies this patch blind, confirms its own new assertion reddens,
+# then reverts with `git apply -R`.
+--- a/packages/headless/src/modules/client-notifications/client-notifications.mappers.ts
++++ b/packages/headless/src/modules/client-notifications/client-notifications.mappers.ts
+@@ -232,7 +232,6 @@
+   map(
+     filter(keys(preferences), key => {
+       const { topicId, channelId } = splitPreferenceKey(key);
+-      if (channelId === SELECT_ALL_CHANNEL_ID) return false;
+       if (preferences[key]) return false;
+       if (!lockedTopicIds.has(topicId)) return true;
+       return basePreferences[key] === false;

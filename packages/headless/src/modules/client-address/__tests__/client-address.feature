@@ -103,19 +103,34 @@ Feature: A client manages their own postal addresses
     When I open my saved addresses
     Then the addresses I am shown belong to my account and no other
 
-  @AC-3 @collection @guard
-  Scenario: Signed out, no address of mine is looked up at all
+  @AC-3
+  @AC-11
+  @AC-13
+  @AC-34
+  @collection @scope @guard @not-supported @fix
+  Scenario: Signed out, nothing of mine is read or changed
     Given I am not signed in
     When something tries to open my saved addresses
     Then no lookup of my addresses happens
     And my addresses are reported as unavailable
+    When something tries to delete an address of mine
+    Then no deletion is attempted at all
+    When something tries to change my default address
+    Then no change is attempted at all
+    When a signed-out visitor tries to open an address to manage
+    Then this simply is not something they can ask for
 
-  @AC-4 @collection @readiness @fix
-  Scenario: Waiting for my addresses always ends
+  @AC-4
+  @AC-26
+  @collection @editor @readiness @fix
+  Scenario: Waiting always ends, on my list and on the form
     Given my addresses are slow to load and never arrive
     When I wait for them to be ready
     Then the wait ends within a known limit and tells me they are not ready
     And nothing is left waiting in the background
+    Given the countries and regions never arrive
+    When I wait for the form to be ready
+    Then the wait ends within a known limit and I am told it failed
 
   @AC-5 @collection @default
   Scenario: I can tell which address is my default
@@ -128,13 +143,12 @@ Feature: A client manages their own postal addresses
     When I look up one of my addresses by the one I mean
     Then I get that address back
 
-  @AC-7 @collection @lookup @fix
-  Scenario: I can find an address by part of it
+  @AC-7
+  @AC-8
+  @collection @lookup @filter @fix
+  Scenario: I find an address by typing part of it
     When I search my addresses for the one in a particular town
     Then I get the address in that town back
-
-  @AC-8 @collection @filter
-  Scenario: I can narrow my addresses by typing
     When I search with part of an address
     Then I am shown only the addresses matching my search
 
@@ -156,23 +170,11 @@ Feature: A client manages their own postal addresses
     Then that address is removed from my account
     And my list of addresses no longer shows it
 
-  @AC-11 @collection @remove @guard @fix
-  Scenario: Signed out, nothing of mine is deleted
-    Given I am not signed in
-    When something tries to delete an address of mine
-    Then no deletion is attempted at all
-
   @AC-12 @collection @default
   Scenario: I choose which address is my default
     When I make one of my addresses my default
     Then that address becomes my default
     And my list reflects the change
-
-  @AC-13 @collection @default @guard @fix
-  Scenario: Signed out, my default is not changed
-    Given I am not signed in
-    When something tries to change my default address
-    Then no change is attempted at all
 
   @AC-14 @collection @errors
   Scenario: When a change to my addresses fails, I am told, not interrupted
@@ -191,14 +193,13 @@ Feature: A client manages their own postal addresses
   # The editor — adding and changing an address
   # ---------------------------------------------------------------------------
 
-  @AC-16 @editor @create
-  Scenario: I start a new address from a blank form
+  @AC-16
+  @AC-17
+  @editor @create @edit
+  Scenario: I open an address to change it, or start a blank one
     When I start adding a new address
     Then I get an empty form
     And the country is already set to the one this brand usually serves
-
-  @AC-17 @editor @edit
-  Scenario: I open one of my addresses to change it
     When I open one of my addresses to edit
     Then the form shows that address as it stands
 
@@ -254,12 +255,6 @@ Feature: A client manages their own postal addresses
     Then I am told the postcode is missing
     And nothing is saved
 
-  @AC-26 @editor @readiness @fix
-  Scenario: Waiting for the address form always ends
-    Given the countries and regions never arrive
-    When I wait for the form to be ready
-    Then the wait ends within a known limit and I am told it failed
-
   @AC-27 @editor @schema
   Scenario: The form I am shown is the form that is checked
     When I open the address form
@@ -289,7 +284,7 @@ Feature: A client manages their own postal addresses
   # ---------------------------------------------------------------------------
 
   @AC-31 @display @fix
-  Scenario: My address reads the way it does everywhere else
+  Scenario: My address is written the same way here as everywhere else in the product
     Given my address has a street, a second line, a town, a state, a postcode, a region and a country
     When I see it written out
     Then it reads street, second line, town, state, postcode, region, country — in that order
@@ -306,19 +301,15 @@ Feature: A client manages their own postal addresses
   # What this module deliberately does not do
   # ---------------------------------------------------------------------------
 
-  # AC-33 and AC-34 are enforced at the point of asking for an ADDRESS, not at
-  # the point of naming the actor — see the exact enforcement in the header.
+  # AC-33 is enforced at the point of asking for an ADDRESS, not at the point of
+  # naming the actor — see the exact enforcement in the header. AC-34 carries the
+  # same enforcement and now rides the signed-out guard above.
 
   @AC-33 @scope @drop
   Scenario: Nobody can use this to open someone's address as a member of staff
     When someone tries to open an address to manage as a member of staff
     Then this simply is not something they can ask for
     And the staff capability the legacy portal does have is recorded as owed, not as missing by accident
-
-  @AC-34 @scope @not-supported
-  Scenario: A signed-out visitor has no addresses to manage
-    When a signed-out visitor tries to open an address to manage
-    Then this simply is not something they can ask for
 
   @AC-35 @surface
   Scenario: There is one front door to this module
@@ -369,28 +360,25 @@ Feature: A client manages their own postal addresses
   # The collection — filter-bar and sort infrastructure (FE-3103 gap closure)
   # ---------------------------------------------------------------------------
 
-  @AC-41 @collection @filter @schema
-  Scenario: A filter bar can be built over my address search without hand-authoring one
+  @AC-41
+  @AC-42
+  @AC-44
+  @collection @filter @sort @schema
+  Scenario: I get a filter bar and a sort over my addresses without one being hand-built
     When something wants to render a filter control for searching my addresses
     Then it is offered a ready-made filter-bar description
     And that description points at the same search my addresses are narrowed by
-
-  @AC-42 @collection @sort
-  Scenario: My addresses can be sorted by name or by when they were added
     When something asks how my addresses may be sorted
     Then it is told sorting by name or by date added are the choices on offer
-
-  @AC-43 @collection @criteria
-  Scenario: The starting view of my addresses comes from what is declared as sortable and searchable, not a fixed rule
-    When I open my saved addresses
-    Then the window I see comes from the declared paging rules
-    And nothing about that starting view is a fixed value hidden in code
-
-  @AC-44 @collection @schema
-  Scenario: The filter-bar description and the search rules it is built from travel together
     When something wants to bind a filter bar to my address search
     Then it can read both the search rules and the filter-bar description from the one place
     And it does not need to reach past the module for either
+
+  @AC-43 @collection @criteria
+  Scenario: My address list opens already sorted and searchable the way my account declares
+    When I open my saved addresses
+    Then the window I see comes from the declared paging rules
+    And nothing about that starting view is a fixed value hidden in code
 
   # ---------------------------------------------------------------------------
   # Page-driven scenarios (appended by the factory scenario lane)

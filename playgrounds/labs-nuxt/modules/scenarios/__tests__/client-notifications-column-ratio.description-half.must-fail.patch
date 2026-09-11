@@ -1,0 +1,31 @@
+FE negative control — the declared column shares and the one-twelfth remainder.
+
+Target spec:  modules/scenarios/__tests__/client-notifications-column-ratio.spec.ts
+Target cases: "client-notifications table column shares" >
+              "reserves seven-twelfths of the row for the topic description"
+              "leaves the undeclared row-actions column exactly one twelfth"
+Mutation:     narrows the description column from SEVEN_TWELFTHS to HALF on
+              `tableUischema`'s `#/properties/description` cell — declared
+              shares become SIXTH / HALF / SIXTH, so the three content columns
+              no longer sum to eleven-twelfths.
+Why RED:      the first case asserts the description width is SEVEN_TWELFTHS —
+              now HALF, so it fails. The remainder case maps each width through
+              TWELFTHS, which has no HALF key, so the description maps to
+              undefined; 12 - sum([2, undefined, 2]) is NaN and
+              [2, undefined, 2, NaN] does not equal [2, 7, 2, 1].
+Authored by:  developer seat (mutant only), anchored to 62b851458.
+Verified by:  prover seat, blind — apply, run the two target cases RED, revert.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useClientNotifications/client-notifications.presentation.ts b/playgrounds/labs-nuxt/modules/scenarios/useClientNotifications/client-notifications.presentation.ts
+index 84694742d..2bf0baaac 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/useClientNotifications/client-notifications.presentation.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/useClientNotifications/client-notifications.presentation.ts
+@@ -60,7 +60,7 @@ export const tableUischema: TableUischema = {
+       type: "TableCellText",
+       scope: "#/properties/description",
+       i18n: "text.notification_topic_description",
+-      options: { width: TableColumnWidthTypes.SEVEN_TWELFTHS }
++      options: { width: TableColumnWidthTypes.HALF }
+     },
+     {
+       type: "TableCellBadges",

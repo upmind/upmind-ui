@@ -57,12 +57,22 @@ export function handleIncomingBroadcast(
       const actor = message.session.actor_type as AccessRoleTypes;
       const sessionId = message.session.actor_id;
 
-      if (actor === AccessRoleTypes.GUEST) {
+      if (actor === AccessRoleTypes.GUEST && sessionId) {
+        // The remote tab's guest cookie carries the id (R6), so a remote mint
+        // overlays the entry it names rather than growing a second one. The
+        // receiving tab's own pointer is deliberately untouched: a remote guest
+        // mint must never drag this tab into guest.
         updateSession(state => ({
           ...state,
-          guestSession: message.session
+          guestSessions: {
+            ...state.guestSessions,
+            [sessionId]: {
+              scope: AccessRoleTypes.GUEST,
+              token: message.session
+            }
+          }
         }));
-      } else if (sessionId) {
+      } else if (actor !== AccessRoleTypes.GUEST && sessionId) {
         updateSession(state => {
           if (actor === AccessRoleTypes.CLIENT) {
             return {
@@ -97,7 +107,7 @@ export function handleIncomingBroadcast(
     case "REMOVE_GUEST":
       updateSession(state => ({
         ...state,
-        guestSession: undefined
+        guestSessions: omit(state.guestSessions, message.sessionId)
       }));
       break;
 
@@ -108,6 +118,10 @@ export function handleIncomingBroadcast(
           message.actor === AccessRoleTypes.CLIENT
             ? omit(state.clientSessions, message.sessionId)
             : state.clientSessions,
+        guestSessions:
+          message.actor === AccessRoleTypes.GUEST
+            ? omit(state.guestSessions, message.sessionId)
+            : state.guestSessions,
         staffSessions:
           message.actor === AccessRoleTypes.STAFF
             ? omit(state.staffSessions, message.sessionId)
@@ -130,7 +144,7 @@ export function handleIncomingBroadcast(
     case "CLEAR":
       updateSession(state => ({
         ...state,
-        guestSession: undefined,
+        guestSessions: {},
         clientSessions: {},
         staffSessions: {},
         activeActor: AccessRoleTypes.GUEST,

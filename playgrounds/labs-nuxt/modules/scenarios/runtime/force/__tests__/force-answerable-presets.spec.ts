@@ -424,7 +424,10 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
    * and this gate names them rather than letting the buttons quietly vanish.
    */
   const OWED: Record<string, ForceUrlPreset[]> = {
-    "client-notes": ["error-collection", "error-action"]
+    "client-notes": ["error-collection", "error-action"],
+    // No labs scenario page and no force affordance, so a capture would prove
+    // nothing — single-record reads only, with no absent-record read on file.
+    "session-store": ["empty"]
   };
 
   it("owes a capture only where one is on record as owed", () => {

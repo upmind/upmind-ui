@@ -121,9 +121,9 @@
 
 import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
-import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { GrantTypes } from "@upmind-automation/types";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import { mintClientToken } from "../../auth/__tests__/auth.tokens";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -151,23 +151,6 @@ const recordingsDir = join(import.meta.dirname, "fixtures");
 const WITH_PARAM = "with=recipient,recipient_type,recipient.image";
 
 // -----------------------------------------------------------------------------
-
-async function mintToken(
-  grant: Record<string, string>
-): Promise<IToken | undefined> {
-  const response = await fetch(`${API_URL}/oauth/access_token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      Origin: ORIGIN
-    },
-    body: new URLSearchParams(grant).toString()
-  });
-  const body = await response.json().catch(() => null);
-  const token = (body?.access_token ? body : body?.data) as IToken | undefined;
-  return token?.access_token ? token : undefined;
-}
 
 /**
  * Drop every buffered capture whose recorded path carries the given fragment.
@@ -199,17 +182,7 @@ describe("Client-Email-History API Fixtures Generator", () => {
       name: "client-email-history"
     });
 
-    const token = await mintToken({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS.client.username,
-      password: API_CREDENTIALS.client.password
-    });
-    if (!token) {
-      throw new Error(
-        "Could not mint a client token with the staging credentials — " +
-          "check tests/fixtures/credentials.ts against the recording brand."
-      );
-    }
+    const token = await mintClientToken();
     clientToken = token;
   }, 30000);
 
@@ -335,7 +308,7 @@ describe("Client-Email-History API Fixtures Generator", () => {
     sentEmailId = rows[0]?.id;
   });
 
-  it("captures GET self/email_history filter[error_id]=null — every REAL error-free row, and the proof none is in flight (AC-3)", async () => {
+  it("captures GET self/email_history filter[error_id]=null — every REAL error-free row, including the in-flight SENDING one (AC-3)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status, body } = await generator.get(
       `/api/self/email_history?${WITH_PARAM}&filter[error_id]=null&limit=10`
@@ -360,14 +333,19 @@ describe("Client-Email-History API Fixtures Generator", () => {
           "than shipped as an AC-3 fixture."
       );
     }
+    // AC-3's SENDING branch is now REAL wire evidence, not a stand-in. This
+    // client carries a stuck in-flight row (neither sent nor bounced), stable
+    // across runs, so the recorded page carries the SENDING case itself. The
+    // guard is inverted from its original form: it used to prove the row was
+    // ABSENT and justify a unit-layer toggle standing in for it. If the row
+    // ever clears, this fails loudly rather than quietly reverting to a fake.
     const inFlight = rows.filter(row => !row.sent && !row.bounced);
-    if (inFlight.length) {
+    if (!inFlight.length) {
       throw new Error(
-        `Expected ZERO in-flight rows for this staging client (the ` +
-          `documented capture-limitation basis) but got ${inFlight.length} — ` +
-          "SENDING is capturable from the wire again, so the disclosure and " +
-          "the unit-layer toggle that stands in for it need re-checking, not " +
-          "silent replacement."
+        "The error-free capture recorded no in-flight row, so AC-3's SENDING " +
+          "branch has NO real response to replay. The stuck row this fixture " +
+          "relies on has cleared — re-check whether SENDING is still " +
+          "capturable before falling back to an edited row."
       );
     }
   });

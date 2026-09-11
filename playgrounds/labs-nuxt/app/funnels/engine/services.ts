@@ -10,7 +10,15 @@ import {
 import { ScopeActorTypes, useOperations } from "@upmind-automation/headless";
 import { ROUTE } from "..";
 import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
-import { endsWith, get, isArray, join, startsWith, toString } from "lodash-es";
+import {
+  endsWith,
+  get,
+  includes,
+  isArray,
+  join,
+  startsWith,
+  toString
+} from "lodash-es";
 import type { RouteLocation } from "vue-router";
 import {
   parseScopeSuffix,
@@ -72,10 +80,17 @@ export default {
 
   /**
    * Every scenario route's gate. A scenario boots as SELF unless the url names
-   * an actor (`R6-30b`), and an unauthenticated visitor to either has nothing to
-   * read — so rejecting toward SESSION is what makes the funnel collect auth
-   * over the page (`<route>--session`) instead of leaving it on skeletons that
-   * never settle.
+   * an actor (`R6-30b`), and an unauthenticated visitor to a page that requires
+   * a session has nothing to read — so rejecting toward SESSION is what makes
+   * the funnel collect auth over the page (`<route>--session`).
+   *
+   * It HONOURS the declaration's offered actors: a guest signs into nothing so
+   * is always served, and a page that OFFERS guest at all has a no-credentials
+   * path — it renders without a session, an unaddressable scope settling to its
+   * empty list rather than to skeletons that never leave (this gate's original
+   * justification, now the module's own concern). Such an arrival is served and
+   * picks "continue as guest" from the session store, never sent to the sign-in
+   * overlay first. The gate stands only for a page that offers no such path.
    */
   guardScenario: async ({
     currentRoute,
@@ -91,7 +106,14 @@ export default {
         isArray(rawSuffix) ? join(rawSuffix, "/") : (rawSuffix as string)
       ).actor ?? ScopeActorTypes.SELF;
 
-    if (actor === ScopeActorTypes.GUEST) return { type: FunnelActions.NEXT };
+    const offeredActors = scenario.actors ?? [];
+
+    if (
+      actor === ScopeActorTypes.GUEST ||
+      includes(offeredActors, actor) ||
+      includes(offeredActors, ScopeActorTypes.GUEST)
+    )
+      return { type: FunnelActions.NEXT };
 
     const { isAuthenticated } = useActiveSession().useActions();
     const authenticated = await isAuthenticated()

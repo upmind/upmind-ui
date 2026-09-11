@@ -1,0 +1,35 @@
+FE-3087 negative control — R10 §6 (the auth guest arm reads the SCOPE-FILTERED pool).
+
+Target spec:  auth.guest-session.int.test.ts
+Target case:  the case whose title contains
+              "finds no session for a guest the store's scope filter hides"
+Mutation:     the published `guestSessions` drops its `isScopeAllowed` gate, so the
+              guest pool is visible to an app that bars guest. The guest arm then
+              settles authenticated against a session the store filtered out and the
+              case above MUST go RED. The sibling case ("settles authenticated on
+              the guest session the store pools") stays GREEN — guest is allowed
+              there, so the gate it loses was already open.
+Authored by:  developer seat hand-off, FE-3087 Task 14 (anchored to 92734cdf2).
+Verified by:  prover seat, blind — apply, run the target case RED, revert.
+
+diff --git a/packages/headless/src/modules/session-store/useSessionStore.context.ts b/packages/headless/src/modules/session-store/useSessionStore.context.ts
+index 86437d301..d1c6d5c7a 100644
+--- a/packages/headless/src/modules/session-store/useSessionStore.context.ts
++++ b/packages/headless/src/modules/session-store/useSessionStore.context.ts
+@@ -66,15 +66,13 @@ export function useSessionStoreContext() {
+       ? sessionStore.state.clientSessions
+       : {};
+   });
+ 
+   const guestSessions = computed((): Record<string, SessionEntry> => {
+     void storeTick.value;
+-    return isScopeAllowed(AccessRoleTypes.GUEST)
+-      ? sessionStore.state.guestSessions
+-      : {};
++    return sessionStore.state.guestSessions;
+   });
+ 
+   const staffSessions = computed((): Record<string, SessionEntry> => {
+     void storeTick.value;
+     return isScopeAllowed(AccessRoleTypes.STAFF)
+       ? sessionStore.state.staffSessions
