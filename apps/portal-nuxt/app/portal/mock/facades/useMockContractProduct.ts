@@ -13,6 +13,7 @@
  */
 
 import {
+  BlueprintFieldsTypes,
   CancellationRequestStatusCodes,
   ContractStatusCodes,
   InvoiceStatusGroups,
@@ -21,6 +22,7 @@ import {
   PriceDisplayTypes
 } from "@upmind-automation/types";
 import { CANCEL_OPTION } from "../contracts";
+import { setupFields } from "../contracts/contract-product-provisioning.schemas";
 import { ISO_DATE_LENGTH, today } from "../dates";
 import { grossBreakdown, shareTokenFor, zeroOf } from "../documents";
 import { mockMoney } from "../money";
@@ -37,13 +39,17 @@ import {
   assign,
   compact,
   find,
+  forEach,
+  get,
   includes,
   isEmpty,
+  isFinite,
   isString,
   map,
   omit,
   reject,
   sortBy,
+  toNumber,
   trim,
   values
 } from "lodash-es";
@@ -55,12 +61,14 @@ import type {
   MockCancellationRequest,
   MockClientCustomField,
   MockCustomField,
+  MockCustomFieldValue,
   MockDataset,
   MockMigrationOption,
   MockInvoice,
   MockInvoiceLine,
   MockMoney,
-  MockProduct
+  MockProduct,
+  MockProvisionField
 } from "../types";
 import type { FormModel } from "@upmind/ui";
 
@@ -73,6 +81,32 @@ const MIGRATABLE_STATUSES: readonly ContractStatusCodes[] = [
 /** The tag a product wears only while it awaits its setup blueprint. */
 function isSetupPendingTag(tag: string): boolean {
   return tag === MOCK_PRODUCT_TAG.SETUP_PENDING;
+}
+
+/** An answer the provider would reject: nothing, or only whitespace. */
+function isBlankAnswer(raw: unknown): boolean {
+  if (raw === undefined || raw === null) return true;
+  if (isString(raw)) return trim(raw).length === 0;
+  return false;
+}
+
+/**
+ * One answer in the type the field's schema declares
+ * (`contracts/contract-product-provisioning.schemas.ts`), so a tick box
+ * stores a boolean and a number field a number rather than the text of one.
+ */
+function provisionFieldValue(
+  field: MockProvisionField,
+  raw: unknown
+): MockCustomFieldValue {
+  if (field.type === BlueprintFieldsTypes.CHECKBOX) return raw === true;
+  if (field.type === BlueprintFieldsTypes.INPUT_NUMBER) {
+    const parsed = toNumber(raw);
+    if (isFinite(parsed)) return parsed;
+    return 0;
+  }
+  if (raw === undefined || raw === null) return "";
+  return String(raw);
 }
 
 /** One lifecycle event the product's own dates imply — legacy's `cProdTimeline`. */
@@ -586,9 +620,35 @@ export const useMockContractProduct = defineMockFacade(
       return find(data.products, { id: productId });
     }
 
+    /** Legacy's complete-setup outcome: a product awaiting activation goes live. */
+    function completeSetup(): MockActionReceipt<MockProduct> | undefined {
+      const subject = product();
+      if (subject === undefined) return undefined;
+      if (subject.status !== ContractStatusCodes.AWAITING_ACTIVATION) {
+        return {
+          ok: false,
+          reason: MOCK_RECEIPT_REASON.NOT_AWAITING_SETUP,
+          entity: subject
+        };
+      }
+      // The awaiting-setup tag reports a state the product has just left,
+      // so it goes with it — the billboard prints the tags verbatim.
+      assign(subject, {
+        status: ContractStatusCodes.ACTIVE,
+        tags: reject(subject.tags ?? [], isSetupPendingTag)
+      });
+      return { ok: true, entity: subject };
+    }
+
     return {
-      /** Legacy's complete-setup outcome: a product awaiting activation goes live. */
-      completeSetup: (): MockActionReceipt<MockProduct> | undefined => {
+      completeSetup,
+      /**
+       * Legacy's setup confirm (`cProdProvConfigManageForm`): the blueprint's
+       * answers land on the provider's fields, then the product goes live.
+       */
+      confirmSetup: (
+        model: FormModel
+      ): MockActionReceipt<MockProduct> | undefined => {
         const subject = product();
         if (subject === undefined) return undefined;
         if (subject.status !== ContractStatusCodes.AWAITING_ACTIVATION) {
@@ -598,13 +658,25 @@ export const useMockContractProduct = defineMockFacade(
             entity: subject
           };
         }
-        // The awaiting-setup tag reports a state the product has just left,
-        // so it goes with it — the billboard prints the tags verbatim.
-        assign(subject, {
-          status: ContractStatusCodes.ACTIVE,
-          tags: reject(subject.tags ?? [], isSetupPendingTag)
+        const asked = setupFields(subject.provisioning.fields);
+        const unanswered = find(
+          asked,
+          field =>
+            field.required === true && isBlankAnswer(get(model, field.code))
+        );
+        if (unanswered !== undefined) {
+          return {
+            ok: false,
+            reason: MOCK_RECEIPT_REASON.SETUP_INCOMPLETE,
+            entity: subject
+          };
+        }
+        forEach(asked, field => {
+          assign(field, {
+            value: provisionFieldValue(field, get(model, field.code))
+          });
         });
-        return { ok: true, entity: subject };
+        return completeSetup();
       },
 
       /** Why the trial cannot be ended, or undefined when it can — asked before the confirmation. */

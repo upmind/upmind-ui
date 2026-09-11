@@ -90,7 +90,6 @@ import type { FormModel } from "@upmind/ui";
 import { useListViewPreference } from "~/composables/useListViewPreference";
 
 export const MOCK_ACTION = {
-  COMPLETE_SETUP: "complete-setup",
   VIEW_PRODUCT: "view-product",
   PAY_INVOICE: "pay-invoice",
   /** Puts the document's public link on the clipboard — the token is the dataset's. */
@@ -589,6 +588,8 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
     [MOCK_RECEIPT_REASON.ALREADY_PAID]: "That invoice is not awaiting payment.",
     [MOCK_RECEIPT_REASON.NOT_AWAITING_SETUP]:
       "That product is not waiting on setup.",
+    [MOCK_RECEIPT_REASON.SETUP_INCOMPLETE]:
+      "Answer every required field to complete setup.",
     [MOCK_RECEIPT_REASON.DEFAULT_METHOD]:
       "The default payment method cannot be removed.",
     [MOCK_RECEIPT_REASON.LAST_METHOD]:
@@ -1237,6 +1238,24 @@ export function dispatchMockAction(
         }
       }));
     }
+    case MOCK_ACTION.PRODUCT_SETUP_SAVE: {
+      // Legacy's setup view: the confirmed blueprint sends the product to
+      // its overview and says so.
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockContractProduct(data, submitted.head)
+        .useActions()
+        .confirmSetup(model);
+      return fromFormReceipt(receipt, product => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Setup complete",
+          description: `${product.name} is now active`
+        },
+        to: `/${product.groupSlug}/${product.id}`
+      }));
+    }
     case MOCK_ACTION.PRODUCT_LABEL_SAVE: {
       const submitted = splitAtFirstColon(id);
       const model = parseFormPayload(submitted?.tail);
@@ -1550,20 +1569,6 @@ export function dispatchMockAction(
 
     // --- the logged-out screens (plan F11) -----------------------------------
 
-    case MOCK_ACTION.COMPLETE_SETUP: {
-      const productId = id ?? context.productId;
-      if (productId === undefined) return undefined;
-      const receipt = useMockContractProduct(data, productId)
-        .useActions()
-        .completeSetup();
-      return fromReceipt(receipt, product => ({
-        toast: {
-          intent: MOCK_TOAST_INTENT.SUCCESS,
-          title: `${product.name} is now active`
-        },
-        to: `/${product.groupSlug}/${product.id}`
-      }));
-    }
     case MOCK_ACTION.VIEW_PRODUCT: {
       if (id === undefined) return undefined;
       const product = useMockContractProduct(data, id).useContext().data.value;

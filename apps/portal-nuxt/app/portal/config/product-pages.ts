@@ -41,11 +41,7 @@ import {
 } from "../registry";
 import { GROUP_AXIS, PAGE_KEY } from "../types";
 import { NAV_EMPHASIS } from "../variants";
-import {
-  CLIENT_VUE_STUB_TITLE,
-  clientVueProse,
-  clientVueRow
-} from "./client-vue";
+import { CLIENT_VUE_STUB_TITLE, clientVueProse } from "./client-vue";
 import { brandNoteRow, pagerFooter, panelControls } from "./pager";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
@@ -811,7 +807,22 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
     "product-area/setup": productPage(
       "Setup",
       "A few details stand between this product and going live.",
-      [clientVueRow("UpmProductSetup", "product-setup")]
+      [
+        panelRow(
+          "Setup required",
+          "Your new product is almost ready. We need to confirm a few details before you can get going. Enter the required information and click Confirm to complete setup.",
+          moduleRef(FORM_MODULE_ID, {
+            props: {
+              schema: dataRef(DATA_REF_ID.PRODUCT_SETUP_FORM_SCHEMA),
+              uischema: dataRef(DATA_REF_ID.PRODUCT_SETUP_FORM_UISCHEMA),
+              model: dataRef(DATA_REF_ID.PRODUCT_SETUP_FORM_MODEL),
+              submit: dataRef(DATA_REF_ID.PRODUCT_SETUP_FORM_SUBMIT),
+              submitLabel: "Confirm",
+              resetLabel: "Revert changes"
+            }
+          })
+        )
+      ]
     ),
     "product-area/billing": productPage(
       "Billing",

@@ -466,14 +466,16 @@ describe("P2 — a dashboard product row leads with what its provider highlighte
     for (const row of rows) {
       const isAwaiting =
         productOf(data, row).status === ContractStatusCodes.AWAITING_ACTIVATION;
-      expect([
+      expect([row.id, row.action?.label === COMPLETE_SETUP]).toEqual([
         row.id,
-        row.action?.value ===
-          mockActionValue(MOCK_ACTION.COMPLETE_SETUP, row.id)
-      ]).toEqual([row.id, isAwaiting]);
+        isAwaiting
+      ]);
     }
+    // The way in lands on the Setup tab while setup is owed (`productRootRedirect`).
     for (const row of awaiting) {
-      expect(row.action?.label).toBe(COMPLETE_SETUP);
+      expect(row.action?.value).toBe(
+        mockActionValue(MOCK_ACTION.VIEW_PRODUCT, row.id)
+      );
     }
   });
 

@@ -34,6 +34,8 @@ import type { ComputedRef } from "vue";
 export const MOCK_RECEIPT_REASON = {
   ALREADY_PAID: "already-paid",
   NOT_AWAITING_SETUP: "not-awaiting-setup",
+  /** A required blueprint field was left blank. */
+  SETUP_INCOMPLETE: "setup-incomplete",
   DEFAULT_METHOD: "default-method",
   LAST_METHOD: "last-method",
   NOTHING_UNREAD: "nothing-unread",
