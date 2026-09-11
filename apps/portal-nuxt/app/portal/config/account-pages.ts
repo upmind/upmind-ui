@@ -330,9 +330,45 @@ export function accountPages(options?: {
       [
         PROFILE_FORM_ROW,
         CUSTOM_FIELDS_FORM_ROW,
-        clientVueRow(
-          "UpmBilling · manage/*",
-          "client-address · client-company · client-phone · client-email"
+        // Legacy's three section boxes under the profile form
+        // (`clientEmailsComp`, `clientPhonesComp`, `billableEntitiesComp`).
+        listRow(
+          "Emails",
+          "Here you can manage the different emails linked to your account.",
+          DATA_REF_ID.PROFILE_EMAIL_ITEMS,
+          "No email addresses",
+          { actions: addFormButton("Add new", FORM_ID.EMAIL_CREATE) }
+        ),
+        listRow(
+          "Phones",
+          "Here you can manage the different phone numbers linked to your account.",
+          DATA_REF_ID.PROFILE_PHONE_ITEMS,
+          "No phone numbers",
+          { actions: addFormButton("Add new", FORM_ID.PHONE_CREATE) }
+        ),
+        listRow(
+          "Address and company details",
+          "Here you can manage all address and company records associated with your account. If you have more than one address, you can choose which to use at the time of placing a new order.",
+          DATA_REF_ID.BILLABLE_ENTITY_ITEMS,
+          "No addresses or companies",
+          {
+            // Quiet, like the other panels' "Add new" — legacy's one control
+            // fans out into an address or a company.
+            actions: moduleRef(BUTTON_MODULE_ID, {
+              variant: BUTTON_MODULE_VARIANT.GROUP,
+              props: {
+                label: "Add new",
+                tone: "outline",
+                actions: dataRef(DATA_REF_ID.BILLABLE_ENTITY_ACTIONS),
+                emptyTitle: "No entity controls"
+              }
+            }),
+            controls: panelControls(
+              DATA_REF_ID.BILLABLE_ENTITY_ITEMS,
+              "entities",
+              "Find an address or company"
+            )
+          }
         )
       ]
     ),

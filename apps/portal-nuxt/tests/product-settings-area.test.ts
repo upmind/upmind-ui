@@ -68,9 +68,10 @@ const UNPAID_DESTINATION = mockActionValue(
   "/billing/invoices?status=unpaid"
 );
 
+/** Legacy's "create one from here": the profile's own add-address form. */
 const ADDRESS_BOOK_DESTINATION = mockActionValue(
-  MOCK_ACTION.NAVIGATE,
-  "/account/profile"
+  MOCK_ACTION.OPEN_FORM,
+  FORM_ID.ADDRESS_CREATE
 );
 
 /** The invitation itself, now a form can answer it (plan F12). */

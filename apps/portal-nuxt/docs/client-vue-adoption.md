@@ -22,12 +22,10 @@ Ruled 2026-09-07: "we don't need to mock the client-vue components, as they are 
 | `/verify`, `/verify-email` (+ expired, set-password)                 | verify component — to be added                                                               | `auth` · `useVerifyEmail`                                          | `config/auth-pages.ts`                |
 | `/logout`                                                            | `UpmSessionLogout`                                                                           | `auth`                                                             | `config/auth-pages.ts`                |
 | `/account/logs` (email history section), `/account/logs/emails/[id]` | email history component — to be added (client-vue's `emailHistory/*` was retired in FE-3103) | `client-email-history`                                             | `config/account-pages.ts`             |
-| `/account/profile` — emails, phones, addresses, companies            | `UpmBilling` manage lists (`manage/*`, `billing/*Item`)                                      | `client-email`, `client-phone`, `client-address`, `client-company` | `config/account-pages.ts`             |
 | `/billing/payment-methods`                                           | `PaymentDetails`, `StoredPaymentMethods`                                                     | `payment-details`, `payment-gateways`                              | `config/billing-pages.ts`             |
 | invoice Pay (document control, list row, `?init=pay`)                | `PaymentDetails`, `PaymentAmount`, `AccountCredit`, `PaymentGateways`                        | `payment`, `invoices`                                              | `MOCK_ACTION.PAY_INVOICE` → prose     |
 | product settings — payment method                                    | `StoredPaymentMethods`                                                                       | `payment-details`                                                  | `config/product-pages.ts`             |
 | `/billing/orders`, `/billing/orders/[id]`                            | `UpmOrder` (`Order`, `OrderProducts`)                                                        | `orders`                                                           | `config/billing-pages.ts`             |
-| billing entity — "Add company" door                                  | `UpmBilling` company form                                                                    | `client-company`                                                   | `MOCK_ACTION.CLIENT_VUE_STUB` → prose |
 
 The two token-addressed logged-out pages (`/preferences`, `/preferences/email/opt-ins`)
 and the delegate-invite acceptance page have no client-vue counterpart and stay mocked.
@@ -95,6 +93,15 @@ portal ships the family.
 - Order detail: products, the invoices and credit notes it raised, Pay on the order's
   own open invoice, and cancellation of a cancellable order with confirmation.
 - "Place an order" from an empty ledger, behind the store gate.
+
+### Profile contacts
+
+Mocked since 11 September 2026 (operator ruling: mock where no surface component exists).
+No client-vue view serves the profile page; the manage kit is an editing kit, not a page.
+The four lists — emails, phones, and the addresses and companies legacy draws as one
+"Address and company details" section — run on `mock/facades/useMockContacts.ts`, with
+stand-in forms in `mock/contracts/client-contacts.schemas.ts` (`tests/profile-contacts.test.ts`).
+The product's "Add a new address" and "Add company" doors open the same forms.
 
 ### Product setup
 

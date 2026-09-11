@@ -286,6 +286,53 @@ export const clientEmailsCollection = filteredCollection<
   () => ({ searchProps: ["email", "title"] })
 );
 
+/** Which address-book row a billable entity is — legacy drew both kinds in one section. */
+export const BILLABLE_ENTITY_KIND = {
+  ADDRESS: "address",
+  COMPANY: "company"
+} as const;
+
+export type BillableEntityKind =
+  (typeof BILLABLE_ENTITY_KIND)[keyof typeof BILLABLE_ENTITY_KIND];
+
+/** One card of legacy's "Address and company details" section, either kind. */
+export type MockBillableEntity = {
+  readonly id: string;
+  readonly kind: BillableEntityKind;
+  readonly title: string;
+  readonly description: string;
+  readonly isDefault: boolean;
+};
+
+function billableEntities(data: MockDataset): readonly MockBillableEntity[] {
+  const addresses = map(data.addresses, address => ({
+    id: address.id,
+    kind: BILLABLE_ENTITY_KIND.ADDRESS,
+    title: address.name ?? address.title,
+    description: address.description,
+    isDefault: address.meta.isDefault
+  }));
+  const companies = map(data.companies, company => ({
+    id: company.id,
+    kind: BILLABLE_ENTITY_KIND.COMPANY,
+    title: company.name,
+    description: company.description,
+    isDefault: company.meta.isDefault
+  }));
+  return [...addresses, ...companies];
+}
+
+/** Legacy's `billableEntities` find box searches both kinds by name and address. */
+export const billableEntitiesCollection = filteredCollection<
+  MockBillableEntity,
+  NoFilters
+>(
+  billableEntities,
+  () => ({}),
+  undefined,
+  () => ({ searchProps: ["title", "description"] })
+);
+
 /**
  * The vault, split the way legacy's panels are: notes on one side, secrets on
  * the other, and the account's own rows are those scoped to no product
@@ -1767,6 +1814,7 @@ export const PAGED_COLLECTION_ID = {
   AFFILIATE_LINKS: "affiliate-links",
   LOGIN_ATTEMPTS: "login-attempts",
   IP_WHITELIST: "ip-whitelist",
+  BILLABLE_ENTITIES: "billable-entities",
   TICKETS: "tickets",
   PRODUCT_TICKETS: "product-tickets",
   PRODUCT_INVOICES: "product-invoices",
@@ -1803,6 +1851,7 @@ const PAGED_COLLECTIONS: Record<
   [PAGED_COLLECTION_ID.AFFILIATE_LINKS]: affiliateLinksCollection,
   [PAGED_COLLECTION_ID.LOGIN_ATTEMPTS]: loginAttemptsCollection,
   [PAGED_COLLECTION_ID.IP_WHITELIST]: ipWhitelistCollection,
+  [PAGED_COLLECTION_ID.BILLABLE_ENTITIES]: billableEntitiesCollection,
   [PAGED_COLLECTION_ID.TICKETS]: ticketsCollection,
   [PAGED_COLLECTION_ID.PRODUCT_TICKETS]: productTicketsCollection,
   [PAGED_COLLECTION_ID.PRODUCT_INVOICES]: productInvoicesCollection,

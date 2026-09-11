@@ -9,7 +9,7 @@ controls are out of scope.
 
 Status: **Present** — same capability, wherever it sits. **Partial** — a
 narrower form. **Absent** — nothing offers it. **Stub** — a client-vue
-component the sandbox does not mock. **Dropped** — left out on a recorded
+component the sandbox does not mock yet (`client-vue-placeholder-audit.md`). **Dropped** — left out on a recorded
 decision, cited. **Unverified** — not checked by hand yet.
 
 ## Header and profile dropdown
@@ -44,9 +44,9 @@ decision, cited. **Unverified** — not checked by hand yet.
 | --- | --- | --- |
 | First name, last name, public name, language; save / revert | Same | Present |
 | Custom fields form | "About your account" | Present |
-| Emails: add, copy, edit, set default, per-address topics, resend verification, enter code, delete | client-vue `UpmBilling · manage/*` | Stub |
-| Phones: add, edit, set default, delete | client-vue stub | Stub |
-| Addresses and companies: add, edit, set default, copy, delete | client-vue stub | Stub |
+| Emails: add, copy, edit, set default, per-address topics, resend verification, enter code, delete | Same; the code prompt on the unconfirmed sign-in address | Present |
+| Phones: add, edit, set default, delete | Same | Present |
+| Addresses and companies: add, edit, set default, copy, delete | One "Address and company details" section with a find box, as legacy draws it | Present |
 
 ## Security
 
@@ -141,5 +141,6 @@ decision, cited. **Unverified** — not checked by hand yet.
 2. Remove avatar.
 3. Affiliate: withdrawal message and the ticket it raises; link edit and delete;
    commission rows linking to their invoice.
-4. Emails, phones, addresses, companies and email history are client-vue stubs.
+4. Email history is still a placeholder: no client-vue component serves it
+   (`client-vue-placeholder-audit.md`), so it is mocked next.
 5. Unverified rows above.

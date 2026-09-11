@@ -67,7 +67,12 @@ import {
   whyNotShareable,
   isCodeShaped
 } from "./facades";
-import { useMockClientEmails } from "./facades/useMockContacts";
+import {
+  useMockClientAddresses,
+  useMockClientCompanies,
+  useMockClientEmails,
+  useMockClientPhones
+} from "./facades/useMockContacts";
 import { FORM_ID, isFormId } from "./forms/ids";
 import { assign, find, includes, isPlainObject, values } from "lodash-es";
 import type { NotificationFilter } from "./collection-defs";
@@ -226,6 +231,32 @@ export const MOCK_ACTION = {
   PIN_REGENERATE_CONFIRMED: "pin-regenerate-confirmed",
   /** Asks the registry about a company's tax number — the seed carries its answer. */
   COMPANY_VALIDATE_TAX: "company-validate-tax",
+  // Legacy's profile page: the four contact lists' writes (`clientEmailRow`,
+  // `clientPhoneRow`, `billableAddressEntity`, `billableCompanyEntity`).
+  EMAIL_CREATE: "email-create",
+  EMAIL_SAVE: "email-save",
+  EMAIL_SET_DEFAULT: "email-set-default",
+  /** Legacy's "Resend verification email". */
+  EMAIL_VERIFY: "email-verify",
+  /** The typed code from the verification mail. */
+  EMAIL_VERIFY_CODE: "email-verify-code",
+  EMAIL_REMOVE: "email-remove",
+  EMAIL_REMOVE_CONFIRMED: "email-remove-confirmed",
+  PHONE_CREATE: "phone-create",
+  PHONE_SAVE: "phone-save",
+  PHONE_SET_DEFAULT: "phone-set-default",
+  PHONE_REMOVE: "phone-remove",
+  PHONE_REMOVE_CONFIRMED: "phone-remove-confirmed",
+  ADDRESS_CREATE: "address-create",
+  ADDRESS_SAVE: "address-save",
+  ADDRESS_SET_DEFAULT: "address-set-default",
+  ADDRESS_REMOVE: "address-remove",
+  ADDRESS_REMOVE_CONFIRMED: "address-remove-confirmed",
+  COMPANY_CREATE: "company-create",
+  COMPANY_SAVE: "company-save",
+  COMPANY_SET_DEFAULT: "company-set-default",
+  COMPANY_REMOVE: "company-remove",
+  COMPANY_REMOVE_CONFIRMED: "company-remove-confirmed",
   /** Lifts one sign-in restriction, and the half its confirmation re-dispatches. */
   IP_WHITELIST_REMOVE: "ip-whitelist-remove",
   IP_WHITELIST_REMOVE_CONFIRMED: "ip-whitelist-remove-confirmed",
@@ -802,6 +833,38 @@ function cancellationSummary(product: MockProduct): string {
   return `${product.name} stops on ${request.cancelAt}.`;
 }
 
+/**
+ * A contact row's delete, asked BEFORE the confirmation: a row the account
+ * falls back on is refused outright (plan R4), the rest get the dialog.
+ */
+function contactRemoval<TRow>(
+  refused: MockActionReceipt<TRow> | undefined,
+  subject: string,
+  then: string
+): MockActionResult {
+  if (refused !== undefined) return fromReceipt(refused, () => ({}));
+  return {
+    confirm: {
+      title: `Delete ${subject}?`,
+      description: "It goes from your account straight away.",
+      actionLabel: "Delete",
+      destructive: true,
+      then
+    }
+  };
+}
+
+/** A contact row promoted — the heading names the list, the line names the row. */
+function defaultChanged(list: string, subject: string): MockActionResult {
+  return {
+    toast: {
+      intent: MOCK_TOAST_INTENT.SUCCESS,
+      title: `Default ${list} changed`,
+      description: subject
+    }
+  };
+}
+
 /** What a deleted contact row says back — one wording for all four lists. */
 function removedToast(subject: string): MockActionResult {
   return {
@@ -1170,6 +1233,213 @@ export function dispatchMockAction(
           title: "Two-factor authentication is off"
         }
       }));
+    }
+    // --- the profile page's contact lists ----------------------------------
+    case MOCK_ACTION.EMAIL_CREATE: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockClientEmails(data)
+        .useActions()
+        .writes.update(undefined, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Email added", row.email)
+      );
+    }
+    case MOCK_ACTION.EMAIL_SAVE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientEmails(data)
+        .useActions()
+        .writes.update(submitted.head, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Email saved", row.email)
+      );
+    }
+    case MOCK_ACTION.EMAIL_SET_DEFAULT: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientEmails(data)
+        .useActions()
+        .writes.setDefault(id);
+      return fromReceipt(receipt, row =>
+        defaultChanged("email", row.email ?? "")
+      );
+    }
+    case MOCK_ACTION.EMAIL_VERIFY: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientEmails(data).useActions().writes.verify(id);
+      return fromReceipt(receipt, row => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Verification email sent",
+          description: `${row.email} is now verified.`
+        }
+      }));
+    }
+    case MOCK_ACTION.EMAIL_VERIFY_CODE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientEmails(data)
+        .useActions()
+        .writes.verifyWithCode(submitted.head, submittedText(model, "code"));
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Email verified", row.email)
+      );
+    }
+    case MOCK_ACTION.EMAIL_REMOVE: {
+      if (id === undefined) return undefined;
+      const row = find(data.emails, { id });
+      if (row === undefined) return notFound();
+      const { writes } = useMockClientEmails(data).useActions();
+      return contactRemoval(
+        writes.whyNotRemovable(id),
+        row.email ?? "this email",
+        mockActionValue(MOCK_ACTION.EMAIL_REMOVE_CONFIRMED, id)
+      );
+    }
+    case MOCK_ACTION.EMAIL_REMOVE_CONFIRMED: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientEmails(data).useActions().writes.remove(id);
+      return fromReceipt(receipt, row => removedToast(row.email ?? ""));
+    }
+    case MOCK_ACTION.PHONE_CREATE: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockClientPhones(data)
+        .useActions()
+        .writes.update(undefined, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Phone added", row.title)
+      );
+    }
+    case MOCK_ACTION.PHONE_SAVE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientPhones(data)
+        .useActions()
+        .writes.update(submitted.head, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Phone saved", row.title)
+      );
+    }
+    case MOCK_ACTION.PHONE_SET_DEFAULT: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientPhones(data)
+        .useActions()
+        .writes.setDefault(id);
+      return fromReceipt(receipt, row =>
+        defaultChanged("phone", row.title ?? "")
+      );
+    }
+    case MOCK_ACTION.PHONE_REMOVE: {
+      if (id === undefined) return undefined;
+      const row = find(data.phones, { id });
+      if (row === undefined) return notFound();
+      const { writes } = useMockClientPhones(data).useActions();
+      return contactRemoval(
+        writes.whyNotRemovable(id),
+        row.title ?? "this phone",
+        mockActionValue(MOCK_ACTION.PHONE_REMOVE_CONFIRMED, id)
+      );
+    }
+    case MOCK_ACTION.PHONE_REMOVE_CONFIRMED: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientPhones(data).useActions().writes.remove(id);
+      return fromReceipt(receipt, row => removedToast(row.title ?? ""));
+    }
+    case MOCK_ACTION.ADDRESS_CREATE: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockClientAddresses(data)
+        .useActions()
+        .writes.update(undefined, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Address added", row.title)
+      );
+    }
+    case MOCK_ACTION.ADDRESS_SAVE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientAddresses(data)
+        .useActions()
+        .writes.update(submitted.head, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Address saved", row.title)
+      );
+    }
+    case MOCK_ACTION.ADDRESS_SET_DEFAULT: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientAddresses(data)
+        .useActions()
+        .writes.setDefault(id);
+      return fromReceipt(receipt, row => defaultChanged("address", row.title));
+    }
+    case MOCK_ACTION.ADDRESS_REMOVE: {
+      if (id === undefined) return undefined;
+      const row = find(data.addresses, { id });
+      if (row === undefined) return notFound();
+      const { writes } = useMockClientAddresses(data).useActions();
+      return contactRemoval(
+        writes.whyNotRemovable(id),
+        row.title,
+        mockActionValue(MOCK_ACTION.ADDRESS_REMOVE_CONFIRMED, id)
+      );
+    }
+    case MOCK_ACTION.ADDRESS_REMOVE_CONFIRMED: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientAddresses(data)
+        .useActions()
+        .writes.remove(id);
+      return fromReceipt(receipt, row => removedToast(row.title));
+    }
+    case MOCK_ACTION.COMPANY_CREATE: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockClientCompanies(data)
+        .useActions()
+        .writes.update(undefined, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Company added", row.name)
+      );
+    }
+    case MOCK_ACTION.COMPANY_SAVE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientCompanies(data)
+        .useActions()
+        .writes.update(submitted.head, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Company saved", row.name)
+      );
+    }
+    case MOCK_ACTION.COMPANY_SET_DEFAULT: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientCompanies(data)
+        .useActions()
+        .writes.setDefault(id);
+      return fromReceipt(receipt, row => defaultChanged("company", row.name));
+    }
+    case MOCK_ACTION.COMPANY_REMOVE: {
+      if (id === undefined) return undefined;
+      const row = find(data.companies, { id });
+      if (row === undefined) return notFound();
+      const { writes } = useMockClientCompanies(data).useActions();
+      return contactRemoval(
+        writes.whyNotRemovable(id),
+        row.name,
+        mockActionValue(MOCK_ACTION.COMPANY_REMOVE_CONFIRMED, id)
+      );
+    }
+    case MOCK_ACTION.COMPANY_REMOVE_CONFIRMED: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientCompanies(data)
+        .useActions()
+        .writes.remove(id);
+      return fromReceipt(receipt, row => removedToast(row.name));
     }
     case MOCK_ACTION.IP_WHITELIST_CREATE: {
       const model = parseFormPayload(id);

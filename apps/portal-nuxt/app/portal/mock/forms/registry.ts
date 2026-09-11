@@ -46,6 +46,23 @@ import {
   withdrawalDefaults
 } from "../contracts/client-affiliate.schemas";
 import {
+  addressDefaults,
+  companyDefaults,
+  emailDefaults,
+  phoneDefaults,
+  useAddressSchema,
+  useAddressUischema,
+  useCompanySchema,
+  useCompanyUischema,
+  useEmailSchema,
+  useEmailUischema,
+  usePhoneSchema,
+  usePhoneUischema,
+  useVerificationCodeSchema,
+  useVerificationCodeUischema,
+  verificationCodeDefaults
+} from "../contracts/client-contacts.schemas";
+import {
   useCancellationSchema,
   useCancellationUischema,
   cancellationDefaults,
@@ -123,7 +140,11 @@ import {
   whyNotShareable,
   useMockTicket
 } from "../facades";
-import { useMockClientEmails } from "../facades/useMockContacts";
+import {
+  accountCountryId,
+  companyAddress,
+  useMockClientEmails
+} from "../facades/useMockContacts";
 import { consolidatableInvoices } from "../facades/useMockInvoice";
 import {
   affiliateLinkContext,
@@ -639,6 +660,131 @@ const FORM_BUILDER: Readonly<Record<FormId, MockFormBuilder>> = {
   },
 
   // --- paying a document -------------------------------------------------------
+
+  // --- the profile page's contact lists (legacy's add/edit modals) ------------
+
+  [FORM_ID.EMAIL_CREATE]: () => ({
+    title: "Add email",
+    description:
+      "A new address starts unverified; we email it a link to confirm.",
+    schema: useEmailSchema(),
+    uischema: useEmailUischema(),
+    model: emailDefaults(),
+    submit: MOCK_ACTION.EMAIL_CREATE,
+    submitLabel: "Add email",
+    resetLabel: CANCEL_LABEL
+  }),
+  [FORM_ID.EMAIL_EDIT]: (data, entityId) => {
+    const row = addressableEmail(data, entityId);
+    if (row === undefined) return undefined;
+    return {
+      title: "Edit email",
+      description: "Changing the address sends a new verification link.",
+      schema: useEmailSchema(),
+      uischema: useEmailUischema(),
+      model: emailDefaults(row),
+      submit: `${MOCK_ACTION.EMAIL_SAVE}:${row.id}`,
+      submitLabel: "Save email",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.EMAIL_VERIFY_CODE]: (data, entityId) => {
+    const row = addressableEmail(data, entityId);
+    if (row === undefined || row.meta.isVerified) return undefined;
+    return {
+      title: "Enter verification code",
+      description: `Type the six-digit code we emailed to ${row.email}.`,
+      schema: useVerificationCodeSchema(),
+      uischema: useVerificationCodeUischema(),
+      model: verificationCodeDefaults(),
+      submit: `${MOCK_ACTION.EMAIL_VERIFY_CODE}:${row.id}`,
+      submitLabel: "Verify",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.PHONE_CREATE]: () => ({
+    title: "Add phone",
+    description: "A number we can reach you on.",
+    schema: usePhoneSchema(),
+    uischema: usePhoneUischema(),
+    model: phoneDefaults(),
+    submit: MOCK_ACTION.PHONE_CREATE,
+    submitLabel: "Add phone",
+    resetLabel: CANCEL_LABEL
+  }),
+  [FORM_ID.PHONE_EDIT]: (data, entityId) => {
+    if (entityId === undefined) return undefined;
+    const row = find(data.phones, { id: entityId });
+    if (row === undefined) return undefined;
+    return {
+      title: "Edit phone",
+      description: "A number we can reach you on.",
+      schema: usePhoneSchema(),
+      uischema: usePhoneUischema(),
+      model: phoneDefaults(row),
+      submit: `${MOCK_ACTION.PHONE_SAVE}:${row.id}`,
+      submitLabel: "Save phone",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.ADDRESS_CREATE]: data => {
+    const countryId = accountCountryId(data);
+    return {
+      title: "Add new address",
+      description: "An address you can invoice products to.",
+      schema: useAddressSchema(countryId),
+      uischema: useAddressUischema(),
+      model: addressDefaults(countryId),
+      submit: MOCK_ACTION.ADDRESS_CREATE,
+      submitLabel: "Add address",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.ADDRESS_EDIT]: (data, entityId) => {
+    if (entityId === undefined) return undefined;
+    const row = find(data.addresses, { id: entityId });
+    if (row === undefined) return undefined;
+    return {
+      title: "Edit address",
+      description: "An address you can invoice products to.",
+      schema: useAddressSchema(row.address.countryId),
+      uischema: useAddressUischema(),
+      model: addressDefaults(accountCountryId(data), row),
+      submit: `${MOCK_ACTION.ADDRESS_SAVE}:${row.id}`,
+      submitLabel: "Save address",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.COMPANY_CREATE]: data => {
+    const countryId = accountCountryId(data);
+    return {
+      title: "Add new company details",
+      description: "A business you can invoice products as.",
+      schema: useCompanySchema(countryId),
+      uischema: useCompanyUischema(),
+      model: companyDefaults(countryId),
+      submit: MOCK_ACTION.COMPANY_CREATE,
+      submitLabel: "Add company",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.COMPANY_EDIT]: (data, entityId) => {
+    if (entityId === undefined) return undefined;
+    const row = find(data.companies, { id: entityId });
+    if (row === undefined) return undefined;
+    const address = companyAddress(data, row);
+    const countryId = address?.address.countryId ?? accountCountryId(data);
+    return {
+      title: "Edit company",
+      description: "A business you can invoice products as.",
+      schema: useCompanySchema(countryId),
+      uischema: useCompanyUischema(),
+      model: companyDefaults(countryId, row, address),
+      submit: `${MOCK_ACTION.COMPANY_SAVE}:${row.id}`,
+      submitLabel: "Save company",
+      resetLabel: CANCEL_LABEL
+    };
+  },
 
   [FORM_ID.IP_WHITELIST_CREATE]: () => ({
     title: "Add an IP address",
