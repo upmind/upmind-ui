@@ -1,4 +1,5 @@
 import labs from "./labs";
+import { PAYMENT_OVERLAY_ID, UPGRADE_OVERLAY_ID } from "./labs.constants";
 import { ROUTE } from "./types";
 
 export * from "./types";
@@ -19,7 +20,9 @@ export * from "./types";
  */
 export const LABS_OVERLAYS: Record<string, string> = {
   session: ROUTE.OVERLAY_AUTH,
-  pay: ROUTE.OVERLAY_PAY
+  pay: ROUTE.OVERLAY_PAY,
+  [PAYMENT_OVERLAY_ID]: ROUTE.OVERLAY_PAYMENT,
+  [UPGRADE_OVERLAY_ID]: ROUTE.OVERLAY_UPGRADE
 };
 
 export const registerFunnels = () => {

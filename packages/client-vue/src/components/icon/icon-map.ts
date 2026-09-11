@@ -73,6 +73,7 @@ import {
   Paperclip,
   Phone,
   Plus,
+  Receipt,
   RefreshCw,
   ArrowDown,
   ArrowRightLeft,
@@ -129,6 +130,9 @@ import type { Component } from "vue";
  *   `wallet-01` → Wallet — Untitled numbered or hyphenated what lucide names
  *   once. All three are declared by the labs playground, whose icon gate reds
  *   on any name this map cannot serve.
+ * - `receipt` → Receipt — the labs invoice module's declared name, matching
+ *   that playground's navigation table so one name draws one glyph in the
+ *   sidebar and on the page alike.
  */
 export const ICON_MAP: Record<string, Component> = {
   "alert-octagon": OctagonAlert,
@@ -183,6 +187,7 @@ export const ICON_MAP: Record<string, Component> = {
   "play-circle": CirclePlay,
   plus: Plus,
   "plus-circle": CirclePlus,
+  receipt: Receipt,
   "refresh-cw-01": RefreshCw,
   search: Search,
   "search-lg": Search,
