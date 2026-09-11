@@ -193,18 +193,32 @@ describe("a client who owns exactly one product lands on it", () => {
   afterEach(() => {
     Reflect.deleteProperty(globalThis, "navigateTo");
     Reflect.deleteProperty(globalThis, "useRoute");
+    Reflect.deleteProperty(globalThis, "definePageMeta");
+    Reflect.deleteProperty(globalThis, "defineNuxtRouteMiddleware");
     pageState.datasetId = MOCK_DATASET_ID.HOSTGRID_MINIMAL;
   });
 
   async function openProducts(datasetId: string) {
     pageState.datasetId = datasetId;
     const navigateTo = vi.fn();
-    const useRoute = () => ({
+    const route = {
       params: { slug: ["products"] },
       path: "/products",
       query: {}
+    };
+    const useRoute = () => route;
+    Object.assign(globalThis, {
+      navigateTo,
+      useRoute,
+      // Nuxt's compile-time macros; the page and the middleware call them.
+      definePageMeta: () => undefined,
+      defineNuxtRouteMiddleware: (handler: unknown) => handler
     });
-    Object.assign(globalThis, { navigateTo, useRoute });
+
+    // The redirect is route middleware (`middleware/catch-all-redirect.ts`),
+    // run before the page renders — so it runs here before the mount.
+    const redirect = (await import("~/middleware/catch-all-redirect")).default;
+    await redirect(route, route);
 
     const page = await import("~/pages/[...slug].vue");
     const host = defineComponent({

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import { find, startCase } from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { CatchAllResolution } from "~/portal/routes";
@@ -7,11 +7,6 @@ import type { PageKey } from "~/portal/types";
 import { usePortalConfig } from "~/composables/usePortalConfig";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { routeQueryContext } from "~/portal/mock/injection";
-import {
-  productRootRedirect,
-  setupAreaRedirect,
-  soleProductRedirect
-} from "~/portal/mock/selectors";
 import { isMockDatasetId, useMockData } from "~/portal/mock/store";
 import { resolveCatchAll } from "~/portal/routes";
 import { PAGE_KEY, PORTAL_PILLAR } from "~/portal/types";
@@ -43,37 +38,11 @@ const routeContext = computed(() => catchAllRouteContext(resolution.value));
 
 // A path that names nothing RENDERS the not-found page (gap doc §6): the
 // silent replace-navigation to "/" left a client who mistyped an address on
-// the dashboard with no way to tell what had happened.
-/** The one redirect a resolution asks for, or none — mock/selectors.ts holds each decision. */
-function pendingRedirect(current: CatchAllResolution): string | undefined {
-  if (current.kind === "unmatched") return undefined;
-  // A client who owns exactly one product in the group has no listing to
-  // read; `replace` so Back still leaves the pillar rather than bouncing
-  // off the redirect.
-  const sole = soleProductRedirect(activeData.value, current, queryFilters());
-  if (sole !== undefined) return sole;
-  // Setup is done: the tab is gone from the rail, so its URL goes too.
-  const finished = setupAreaRedirect(activeData.value, current);
-  if (finished !== undefined) return finished;
-  // Setup still owed: the product opens on the tab that finishes it.
-  return productRootRedirect(activeData.value, current);
-}
-
-// First load is awaited HERE, in setup, so the redirect lands before this
-// page renders: a `navigateTo` fired from an immediate watcher during the
-// initial navigation moved the URL but left the first page on screen.
-const initialRedirect = pendingRedirect(resolution.value);
-if (initialRedirect !== undefined) {
-  await navigateTo(initialRedirect, { replace: true });
-}
-
-// The watch covers a client-side navigation between two different catch-all
-// paths, since this one component instance is reused across every
-// unmatched-by-name route.
-watch(resolution, async current => {
-  const target = pendingRedirect(current);
-  if (target !== undefined) await navigateTo(target, { replace: true });
-});
+// the dashboard with no way to tell what had happened. The paths that stand
+// for another are redirected BEFORE this page renders, by route middleware
+// (`middleware/catch-all-redirect.ts`) — a redirect fired from here during
+// the initial navigation moved the URL but left the first page on screen.
+definePageMeta({ middleware: "catch-all-redirect" });
 
 function catchAllHeading(resolution: CatchAllResolution): string {
   switch (resolution.kind) {

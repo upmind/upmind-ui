@@ -1137,6 +1137,24 @@ export function productRootRedirect(
   return `/${resolution.group.slug}/${product.id}/${PRODUCT_AREA_SLUG.SETUP}`;
 }
 
+/**
+ * The one redirect a catch-all path asks for, or none: the sole-product
+ * shortcut, the finished Setup tab, or the setup a product still owes. Pure —
+ * the route middleware holds the navigation, this holds the decision.
+ */
+export function catchAllRedirect(
+  data: MockDataset | undefined,
+  resolution: CatchAllResolution,
+  query: DataRouteContext
+): string | undefined {
+  if (resolution.kind === "unmatched") return undefined;
+  const sole = soleProductRedirect(data, resolution, query);
+  if (sole !== undefined) return sole;
+  const finished = setupAreaRedirect(data, resolution);
+  if (finished !== undefined) return finished;
+  return productRootRedirect(data, resolution);
+}
+
 export function setupAreaRedirect(
   data: MockDataset | undefined,
   resolution: CatchAllResolution

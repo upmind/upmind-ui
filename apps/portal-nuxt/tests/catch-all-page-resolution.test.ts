@@ -40,7 +40,12 @@ async function mountCatchAllAt(slug: readonly string[]) {
   const navigateTo = vi.fn();
   // The real route always carries a path — PortalPageHost reads it (portal/areas.ts).
   const useRoute = () => ({ params: { slug }, path: `/${slug.join("/")}` });
-  Object.assign(globalThis, { navigateTo, useRoute });
+  Object.assign(globalThis, {
+    navigateTo,
+    useRoute,
+    // Nuxt's compile-time macro; the page calls it at setup.
+    definePageMeta: () => undefined
+  });
 
   const page = await import("~/pages/[...slug].vue");
   const host = defineComponent({
@@ -55,6 +60,7 @@ async function mountCatchAllAt(slug: readonly string[]) {
 afterEach(() => {
   Reflect.deleteProperty(globalThis, "navigateTo");
   Reflect.deleteProperty(globalThis, "useRoute");
+  Reflect.deleteProperty(globalThis, "definePageMeta");
 });
 
 describe("catch-all page — a matched product group renders and does not fall back", () => {
