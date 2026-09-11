@@ -7,8 +7,8 @@
       "accept": "application/json",
       "content-type": "application/x-www-form-urlencoded",
       "origin": "null",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
-      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"HeadlessChrome\";v=\"151\", \"Chromium\";v=\"151\"",
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
@@ -30,7 +30,7 @@
       "refresh_token": "mock-refresh_token"
     }
   },
-  "captured_at": "2026-07-11T09:38:12.891Z",
+  "captured_at": "2026-09-10T05:19:57.261Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

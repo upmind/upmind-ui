@@ -43,7 +43,7 @@ import { computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useModulePort } from "../composables/useModulePort";
 import FormFlowSurface from "./surfaces/FormFlowSurface.vue";
-import { get, isFunction, isNil, noop } from "lodash-es";
+import { get, isEmpty, isFunction, isNil, isString, noop } from "lodash-es";
 import type { ManageDialogProps } from "./ManageDialog.types";
 import type { UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
@@ -64,16 +64,17 @@ const isNew = computed(() => isNil(props.context));
 // editor), so it titles as an update while the boot stays context-driven.
 const titlesAsNew = computed(() => isNew.value && isNil(props.fieldScope));
 
-// The shared vocabulary's own add-or-update pair, chosen the way `Manage.vue`
-// chooses it — by whether a record is being edited at all.
-const title = computed(() =>
-  t("action.add_new_or_update", titlesAsNew.value ? 1 : 0)
-);
-
 const port = useModulePort(props.handoff.useMutate, {
   actor: props.handoff.actor,
   context: props.context,
-  fresh: isNew.value
+  // A `?token=` editor is addressed by the token (`.withId`), not by a fresh
+  // session — so it boots keyed by that identity rather than as a new instance.
+  id: props.handoff.id,
+  fresh: isNew.value && isNil(props.handoff.id),
+  // The overlay builds its OWN port, so it must be told the same offered
+  // actors the list was — otherwise the editor refuses an actor the
+  // collection behind it just served.
+  offeredActors: props.handoff.offeredActors
 });
 
 // Derive the override uischema from the cell's context when fieldScope is set.
@@ -91,6 +92,23 @@ const overrideUischema = computed<UISchemaElement | undefined>(() => {
   if (!isFunction(uischemaFor)) return undefined;
   return uischemaFor([props.fieldScope]);
 });
+
+// A field-scoped open edits one topic group, but the generic form path draws
+// no heading for it — so the title names it. The group's label is the first
+// Group element on `overrideUischema` (the topic's server name, set by
+// `useUischema`); absent it, the generic add-or-update title stands.
+const scopeGroupLabel = computed<string | undefined>(() => {
+  const group = get(overrideUischema.value, "elements[0]");
+  if (get(group, "type") !== "Group") return undefined;
+  const label = get(group, "label");
+  return isString(label) && !isEmpty(label) ? label : undefined;
+});
+
+const title = computed(() =>
+  isNil(scopeGroupLabel.value)
+    ? t("action.add_new_or_update", titlesAsNew.value ? 1 : 0)
+    : t("action.update_group", { group: scopeGroupLabel.value })
+);
 
 function onOpen(open: boolean): void {
   if (!open) emit("close");

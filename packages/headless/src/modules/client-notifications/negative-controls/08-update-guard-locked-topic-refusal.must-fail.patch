@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts
++++ b/packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts
+@@ -157,6 +157,7 @@
+   function sanitizeLockedPreferences(
+     preferences: Record<string, boolean>
+   ): Record<string, boolean> {
++    return preferences;
+     const lockedTopicIds = getLockedTopicIds(getLookups()?.topics);
+     if (lockedTopicIds.size === 0) return preferences;
+ 

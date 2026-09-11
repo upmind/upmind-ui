@@ -39,19 +39,23 @@ import type { IToken } from "@upmind-automation/types";
 // These are identical for all scopeActor types
 
 /**
- * Check if there's already an authenticated session for the current scope.
- * Uses the session store as source of truth.
+ * Resolve the session the scoped actor already holds, and reject when it holds
+ * none. Uses the session store as source of truth.
+ *
+ * "Session", not "authenticated session": a guest is a real session here (it
+ * carries a guest grant), so the guest scope resolves the pooled guest and the
+ * probe succeeds without any credentials having been given.
  *
  * When scopeContext is provided (e.g., staff acting for a specific client),
- * checks for a session matching that specific context entity rather than
- * any session for the actor type.
+ * looks for a session matching that specific context entity rather than any
+ * session for the actor type.
  *
  * Without scopeContext:
- * - Staff scope: authenticated if staffSessions has any entries
- * - Client scope: authenticated if clientSessions has any entries
- * - Guest/Self scope: authenticated if ANY authenticated session exists
- *
- * NOTE: Guest sessions are NOT considered authenticated - only client/staff sessions.
+ * - Staff scope: the first pooled staff session
+ * - Client scope: the first pooled client session
+ * - Guest scope: the first pooled guest session — no mint, so a guest asked for
+ *   before one exists rejects and the machine goes on to mint it
+ * - Self / any other scope: staff, then client, then guest
  */
 export async function checkSession(
   context: AuthContext,
@@ -59,7 +63,7 @@ export async function checkSession(
 ): Promise<{ session: IToken }> {
   const { scopeActor, scopeContext } = context;
   const { useContext } = useSessionStore();
-  const { staffSessions, clientSessions } = useContext();
+  const { staffSessions, clientSessions, guestSessions } = useContext();
 
   let session: IToken | null | undefined;
 
@@ -80,13 +84,13 @@ export async function checkSession(
         session = first(values(clientSessions.value))?.token;
         break;
       case ScopeActorTypes.GUEST:
-      // eslint-disable-next-line scope-based/no-self-branch, no-fallthrough -- documented exception: getSession resolves SELF to any authenticated session (code-composables.companion.md clause 4); intentional fallthrough for GUEST/SELF/default
-      case ScopeActorTypes.SELF:
+        session = first(values(guestSessions.value))?.token;
+        break;
       default:
-        // Check for ANY authenticated session (staff first, then client)
         session =
           first(values(staffSessions.value))?.token ??
-          first(values(clientSessions.value))?.token;
+          first(values(clientSessions.value))?.token ??
+          first(values(guestSessions.value))?.token;
         break;
     }
   }

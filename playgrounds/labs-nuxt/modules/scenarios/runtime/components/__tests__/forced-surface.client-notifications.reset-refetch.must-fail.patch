@@ -1,0 +1,44 @@
+FE-3113 negative control — reset clears the cache; refresh only refetches.
+
+Target spec:  modules/scenarios/runtime/components/__tests__/forced-surface.client-notifications.spec.ts
+              (drives the shared forced-surface.harness.ts over the
+              client-notifications scenario)
+Target cases: "client-notifications — every preset the picker offers changes the page" >
+              "armed loading"          — the loading preset must draw skeletons
+              "armed error-collection" — the failed read must replace the rows
+              ("armed empty" stays GREEN under this mutant: the refetched empty
+              read carries no rows, so there is nothing stale to keep.)
+Mutation:     swaps the published `reset` action from `resetQuery()` to
+              `refetch()` on all three reads — reset now behaves as refresh:
+              it re-reads but KEEPS the cached rows instead of removing them.
+Why RED:      the harness boots LIVE, arms a preset over the cached rows, then
+              calls `port.actions.reset` to return the surface to the preset's
+              state. With refetch the stale rows survive, so:
+              - "armed loading" never re-enters isLoading, so no Skeleton draws
+                and the old records stay;
+              - "armed error-collection" draws the error over stale rows
+                (witness != [], rows not < live).
+              Only cache removal returns the surface to the state the preset
+              names, which is exactly what this mutant strips.
+Authored by:  developer seat (mutant only), anchored to 62b851458. The mutated
+              file is headless core; the source was edited only to capture this
+              hunk and immediately reverted.
+Verified by:  prover seat, blind — apply, run the three target cases RED, revert.
+
+diff --git a/packages/headless/src/modules/client-notifications/useClientNotifications.actions.ts b/packages/headless/src/modules/client-notifications/useClientNotifications.actions.ts
+index cf77d6e1b..c277251b8 100644
+--- a/packages/headless/src/modules/client-notifications/useClientNotifications.actions.ts
++++ b/packages/headless/src/modules/client-notifications/useClientNotifications.actions.ts
+@@ -131,9 +131,9 @@ export function createClientNotificationsActions(
+    */
+   async function reset(): Promise<void> {
+     await Promise.all([
+-      topicsQuery.resetQuery(),
+-      channelsQuery.resetQuery(),
+-      optOutsQuery.resetQuery()
++      topicsQuery.refetch(),
++      channelsQuery.refetch(),
++      optOutsQuery.refetch()
+     ]);
+   }
+ 

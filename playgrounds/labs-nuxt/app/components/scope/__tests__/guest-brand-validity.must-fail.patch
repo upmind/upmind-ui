@@ -1,0 +1,42 @@
+FE-3087 negative control — §22 B5 (a guest is never brand-valid).
+
+Target spec:  the labs scope spec carrying the new B5 cases
+Target case:  the case whose title contains
+              "logging out the last brand-valid client redirects org-wide even
+              though a guest is pooled"
+              (also flips "a brand change never activates the pooled guest":
+              the fallback `find` matches the pooled guest and calls
+              `activate(GUEST, id)`)
+Mutation:     removes the GUEST clause from `isSessionValidForBrand`, restoring
+              the `!user => true` fallthrough. A guest carries no `user`, so
+              every pooled guest reads brand-valid again:
+              `some(allSessions, isSessionValidForBrand)` is always true and the
+              FE-2973 org-wide redirect never fires — the target case MUST go
+              RED. Compiles clean (`labs-nuxt type-check` green under it), so a
+              blind apply fails on the assertion, not the compiler.
+Authored by:  developer seat hand-off, Task 16 (anchored to a499d735c);
+              to be filed verbatim by the operator.
+Verified by:  prover seat, blind — apply, run the target case RED, revert.
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+index adcefaefb..8ead4534f 100644
+--- a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
++++ b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+@@ -143,17 +143,12 @@ export function useActorScopeSelector() {
+   function isSessionValidForBrand(
+     entry: (typeof allSessions.value)[string]
+   ): boolean {
+     const brand = currentBrandId.value;
+     if (!brand) return true;
+ 
+-    // `allSessions` carries the guest pool (FE-3087 R10) and a guest has no
+-    // `user`, so without this the `!user` fallthrough below would report every
+-    // guest brand-valid and the org-wide redirect could never fire.
+-    if (entry.scope === AccessRoleTypes.GUEST) return false;
+-
+     const user = entry.user;
+     if (!user) return true;
+ 
+     if (entry.scope === AccessRoleTypes.STAFF) {
+       return some(user.brands, b => b.id === brand);
+     }

@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts
++++ b/packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts
+@@ -228,6 +228,7 @@
+    * handler in the shared machine.
+    */
+   function needsResendToRetry(): boolean {
++    return false;
+     return stateMatches(state, ["available.error", "available.invalid"]);
+   }
+ 

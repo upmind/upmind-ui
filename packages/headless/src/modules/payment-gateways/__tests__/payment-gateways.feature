@@ -53,34 +53,43 @@ Feature: paymentGateways — drive any payment gateway through one contract
       | razorpay    |
       | stripe      |
 
-  @AC-A2 @client @layer-unit
-  Scenario: A gateway that is still loading is not offered as driveable
+  @AC-A2
+  @AC-E2
+  @AC-E3
+  @client @layer-unit
+  Scenario: A gateway that is loading, failed, or absent is never offered as ready to pay with
     Given a client has selected a gateway
     And the gateway has not finished loading
     When the consumer reads the gateway's state
     Then the gateway reports itself as loading
     And the gateway is not reported as available
+    Given a client has selected a gateway whose setup fails
+    When the gateway is opened
+    Then the gateway reports itself unavailable
+    And the client is offered no form to complete
+    Given a consumer holding no gateway at all
+    When the consumer reads the gateway's state
+    Then the gateway is reported as not supported
+    And the gateway is reported as not available
 
-  @AC-A3 @client @layer-unit
-  Scenario: A consumer waiting for a gateway is released once it settles
+  @AC-A3
+  @AC-A4
+  @client @layer-unit
+  Scenario: A client waiting for a gateway is released when it settles, and told when it cannot load
     Given a client has selected a gateway that settles into an available state
     When the consumer waits for the gateway to settle
     Then the consumer is told the gateway is ready
-
-  @AC-A4 @client @layer-unit
-  Scenario: A consumer waiting for a gateway that cannot load is told so
     Given a client has selected a gateway that settles as unavailable
     When the consumer waits for the gateway to settle
     Then the consumer is told the gateway is not ready
 
-  @AC-A5 @client @layer-unit
-  Scenario: A gateway with no captured input is reported as untouched
+  @AC-A5
+  @AC-A6
+  @client @layer-unit
+  Scenario: A gateway reports whether the client has entered anything into it
     Given a client has selected a gateway with an empty form
     When the client enters nothing
     Then the gateway reports itself as not dirty
-
-  @AC-A6 @client @layer-unit
-  Scenario: A gateway holding captured input is reported as touched
     Given a client has selected a gateway with a form
     When the client enters their card details
     Then the gateway reports itself as dirty
@@ -92,15 +101,13 @@ Feature: paymentGateways — drive any payment gateway through one contract
     Then the gateway holds no captured input
     And the gateway reports itself as not dirty
 
-  @AC-A8 @client @layer-unit
-  Scenario: A gateway that passes validation is reported as valid
+  @AC-A8
+  @AC-A9
+  @client @layer-unit
+  Scenario: A gateway that fails validation surfaces the failing fields, and one that passes is offered to pay
     Given a client has selected a gateway with a form
     When the client enters details that satisfy the gateway's schema
     Then the gateway reports itself as valid
-
-  @AC-A9 @client @layer-unit
-  Scenario: A gateway that fails validation surfaces the failing fields
-    Given a client has selected a gateway with a form
     When the client enters details that breach the gateway's schema
     Then the gateway reports the fields that failed
     And the gateway does not report itself as valid
@@ -140,7 +147,7 @@ Feature: paymentGateways — drive any payment gateway through one contract
     Then the client is told the payment could not be completed
 
   @AC-A15 @client @layer-unit
-  Scenario: A gateway working through the provider reports itself as busy
+  Scenario: I can see that my payment is with the provider and still working
     Given a client has submitted a payment through a gateway
     When the provider has not yet answered
     Then the gateway reports itself as processing
@@ -168,14 +175,13 @@ Feature: paymentGateways — drive any payment gateway through one contract
     When the client completes the payment
     Then the payment is recorded against that named order
 
-  @AC-B4 @client @layer-unit
-  Scenario: An amount in a currency with no minor unit is charged whole
+  @AC-B4
+  @AC-B5
+  @client @layer-unit
+  Scenario: An amount is charged in its currency's own units, minor or whole
     Given a client owes 5000 in JPY, a currency with no minor unit
     When a gateway is opened to pay that amount
     Then the provider is asked for 5000, not for 500000
-
-  @AC-B5 @client @layer-unit
-  Scenario: An amount in a currency with minor units is charged in those units
     Given a client owes 50.00 in GBP
     When a gateway is opened to pay that amount
     Then the provider is asked for 5000 minor units
@@ -247,7 +253,7 @@ Feature: paymentGateways — drive any payment gateway through one contract
   # ---------------------------------------------------------------------------
 
   @AC-D1 @client @layer-unit
-  Scenario: A gateway with its own hosted form is given somewhere to draw it
+  Scenario: A gateway that brings its own form is given somewhere on the page to draw it
     Given a client has selected a gateway that draws its own form
     When the consumer offers the gateway a place on the page
     Then the gateway draws its form there
@@ -266,7 +272,7 @@ Feature: paymentGateways — drive any payment gateway through one contract
     Then the gateway is not asked to draw anything
 
   @AC-D4 @client @layer-unit
-  Scenario: A gateway whose every field is read-only needs no form from the consumer
+  Scenario: A gateway with nothing for me to enter asks the page for no form
     Given a client has selected a gateway whose fields are all read-only
     When the gateway is opened
     Then the gateway reports that it needs no form
@@ -301,17 +307,3 @@ Feature: paymentGateways — drive any payment gateway through one contract
     When the gateway is opened
     Then the client is told the gateway is not supported
     And the client is not asked to pay
-
-  @AC-E2 @client @layer-unit
-  Scenario: A gateway that fails to load offers nothing to drive
-    Given a client has selected a gateway whose setup fails
-    When the gateway is opened
-    Then the gateway reports itself unavailable
-    And the client is offered no form to complete
-
-  @AC-E3 @client @layer-unit
-  Scenario: A consumer holding no gateway is told nothing is driveable
-    Given a consumer holding no gateway at all
-    When the consumer reads the gateway's state
-    Then the gateway is reported as not supported
-    And the gateway is reported as not available

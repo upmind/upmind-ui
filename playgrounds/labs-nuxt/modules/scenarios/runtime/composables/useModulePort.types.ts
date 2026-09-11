@@ -42,6 +42,11 @@ import type { ComputedRef } from "vue";
 export type ModulePortScope = {
   actor?: ScopeActorTypes;
   /**
+   * The actors the declaration offers, beyond SELF. An actor listed here is
+   * served even against a `never` cell — see `ScenarioBinding.actors`.
+   */
+  offeredActors?: ScopeActorTypes[];
+  /**
    * The entity being acted FOR, whole — headless's own `ScopeContext`, whose
    * `type` and `id` are both required, so a type without an id cannot be
    * expressed at all (`R6-30d`).

@@ -1,0 +1,34 @@
+# Proven RED pending prover (developer-authored 2026-09-01)
+#
+# Mutates: `parse` (`client-notifications.services.ts`) — deletes the
+# per-topic bulk-toggle-sentinel recomputation (task 2 step 4). Without it,
+# the sentinel freezes at whatever `toPreferencesModel` seeded on open and
+# never again reflects `isTopicFullySelected` once a real channel is toggled.
+#
+# Observed against TODAY's suite (this seat, applied and reverted, checksums
+# clean): applied ALONGSIDE control 11, reddens 7 pre-existing assertions
+# (see 11's own header for the list — both mutations were exercised
+# together). The PROVER's own targeted assertion — "the bulk control's
+# checked state equals `isAllSelected(topicId)` after a per-channel toggle" —
+# does not exist in the repo yet; this seat has NOT observed RED against
+# that specific assertion in isolation. The prover applies this patch blind,
+# confirms its own new assertion reddens, then reverts with `git apply -R`.
+--- a/packages/headless/src/modules/client-notifications/client-notifications.services.ts
++++ b/packages/headless/src/modules/client-notifications/client-notifications.services.ts
+@@ -436,15 +436,7 @@
+       schema,
+       data?.model ?? data ?? baseModel
+     );
+-    const { topics = [], channels = [] } =
+-      (lookups as NotificationsLookups | undefined) ?? {};
+-    const preferences = { ...parsed.preferences };
+-    each(topics, topic => {
+-      preferences[preferenceKey(topic.id, SELECT_ALL_CHANNEL_ID)] =
+-        isTopicFullySelected(preferences, channels, topic.id);
+-    });
+-
+-    return { model: { ...parsed, preferences } };
++    return { model: parsed };
+   },
+ 
+   /**

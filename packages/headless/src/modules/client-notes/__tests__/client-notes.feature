@@ -138,12 +138,16 @@ Feature: A client keeps notes and secrets in their own vault
     And no other client's vault is ever loaded
 
   @AC-2 @collection @jtbd
-  Scenario: Show only my notes, or only my secrets
+  @AC-31 @criteria @proof
+  Scenario: I show only my notes, or only my secrets
     Given my vault holds both notes and secrets
     When I choose to see only my notes
     Then I see exactly my notes and none of my secrets
     And when I choose to see only my secrets I see exactly my secrets and none of my notes
     And the choice between the two is offered to me as part of the vault's own filter controls
+    When only-notes and only-secrets are each asked of the real system
+    Then each is answered with exactly that kind and no other
+    And together they account for everything in my vault
 
   @AC-3 @collection
   Scenario: Narrow my vault by label
@@ -214,27 +218,29 @@ Feature: A client keeps notes and secrets in their own vault
     And asking to see it a second time fetches it again, because its value was never kept
 
   @AC-32 @collection
-  Scenario: Leaving or refreshing my vault clears any secret I had revealed
+  @AC-34 @identity
+  Scenario: A secret I revealed never outlives my session, wherever I revealed it
     Given one of my vault assets is a secret I have revealed
     When I refresh my vault
     Then the secret I revealed is masked again, because a refresh may have changed it
     And when I instead leave my vault entirely, the secret I revealed is masked again there too
-
-  @AC-34 @collection @identity
-  Scenario: A secret I revealed does not outlive my session
-    Given one of my vault assets is a secret I have revealed
     When I log out
     Then the secret I revealed is masked again
     And when another client signs in on the same device, none of my revealed plaintext is readable to them
     And that client sees only their own vault
 
   @AC-12 @collection
-  Scenario: See who wrote and last changed each of my vault assets
+  @AC-40
+  Scenario: I see when each note was written and last changed, written the way I read dates
     Given one of my vault assets was written by a member of staff and another by me
     When I view my vault
     Then each asset tells me who wrote it and when
     And each asset that has been changed tells me who changed it and when
     And each asset attached to a product I bought tells me which product
+    Given my vault holds notes written and edited at different times
+    When I read my vault
+    Then each one tells me when it was written and when it was last changed
+    And those are shown the way dates are shown everywhere else in the product
 
   @AC-13 @collection
   Scenario: See which of my vault assets are hidden from me by staff
@@ -289,14 +295,12 @@ Feature: A client keeps notes and secrets in their own vault
     And opening one of my NOTES for editing asks the server for nothing extra
 
   @AC-19 @editor
-  Scenario: Write a new note
+  @AC-20 @jtbd
+  Scenario: I write a new note, or a new secret
     Given I have something I want to remember about my account
     When I write it as a new note and save it
     Then it is stored in my vault as a note
     And my vault list shows it
-
-  @AC-20 @editor @jtbd
-  Scenario: Write a new secret
     Given I have a value I want stored privately
     When I write it as a new secret with a label and save it
     Then it is stored in my vault as a secret
@@ -310,11 +314,16 @@ Feature: A client keeps notes and secrets in their own vault
     And nothing about the asset that I did not change is altered
 
   @AC-22 @editor
-  Scenario: Attach one of my vault assets to a product I bought, and detach it
+  @AC-41 @manager @jtbd
+  Scenario: I attach one of my notes to a product I bought, and detach it
     Given one of my vault assets is attached to no product
     When I attach it to a product I bought and save
     Then my vault records it as attached to that product
     And detaching it again records it as attached to nothing
+    Given I have products with my provider
+    When I open the editor on a note
+    Then it offers me my own products to choose from, and only mine
+    And choosing one and saving attaches the note to that product
 
   @AC-23 @editor @jtbd
   Scenario: Turn an unlabelled note into a secret by giving it a label
@@ -366,18 +375,11 @@ Feature: A client keeps notes and secrets in their own vault
     And asking for something my vault does not offer is refused, leaves my current view standing, and asks the server nothing
 
   @AC-30 @criteria @proof
-  Scenario: Every order my vault offers me actually works
+  Scenario: Every way I can sort my vault actually sorts it
     Given my vault offers me a set of columns to order by
     When each of those orders is asked of the real system
     Then each one is answered
     And any that is not answered is withdrawn from what my vault offers me
-
-  @AC-31 @criteria @proof @jtbd
-  Scenario: The split between my notes and my secrets actually works against the real system
-    Given my vault holds both notes and secrets
-    When only-notes and only-secrets are each asked of the real system
-    Then each is answered with exactly that kind and no other
-    And together they account for everything in my vault
 
   # === THE 2026-08-31 UPGRADE PASS — ten scenarios ==========================
   # Each closes a verified drift between the plan and the landed module, or a
@@ -391,7 +393,7 @@ Feature: A client keeps notes and secrets in their own vault
     And the note I was editing is left exactly as it was
 
   @AC-36 @manager
-  Scenario: My edit is still there a moment after I make it
+  Scenario: What I wrote is still there when I come back to it
     Given I have changed the body of a note in the editor
     When the editor settles
     Then my change is still what the editor holds
@@ -416,20 +418,6 @@ Feature: A client keeps notes and secrets in their own vault
     When I ask for my vault again
     Then my vault opens and shows me my notes and secrets
 
-  @AC-40 @collection
-  Scenario: I can see when each note was written and last changed, written the way I read dates
-    Given my vault holds notes written and edited at different times
-    When I read my vault
-    Then each one tells me when it was written and when it was last changed
-    And those are shown the way dates are shown everywhere else in the product
-
-  @AC-41 @manager @jtbd
-  Scenario: I can attach a note to one of the products I bought
-    Given I have products with my provider
-    When I open the editor on a note
-    Then it offers me my own products to choose from, and only mine
-    And choosing one and saving attaches the note to that product
-
   @AC-42 @criteria
   Scenario: I can narrow my vault to one of my products
     Given my vault holds notes attached to different products of mine
@@ -445,7 +433,7 @@ Feature: A client keeps notes and secrets in their own vault
     And nothing is asked of the server to reach that state
 
   @AC-44 @jtbd
-  Scenario: Everything the vault says to me is written in words
+  Scenario: Every message my vault shows me is written in my own language
     Given I am using my vault
     When I filter it, order it, edit an item, or am told an item was removed
     Then every label and every message reads as words

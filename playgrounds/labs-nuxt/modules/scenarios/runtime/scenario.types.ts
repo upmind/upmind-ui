@@ -40,6 +40,7 @@ import type {
   ScopeActorTypes,
   ScopeContext
 } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
 // graphify-out/: types consumed as variants; ButtonProps/BadgeProps not exported, use Variants
 
 // -----------------------------------------------------------------------------
@@ -146,6 +147,20 @@ export type ScenarioHandoff = {
 export type ResolvedHandoff = ScenarioHandoff & {
   useMutate: FourLayerComposable;
   actor: ScopeActorTypes;
+  /**
+   * The declaration's own `actors`, relayed so the overlay's port serves the
+   * same actors the list does. The dialog builds its OWN port, so without
+   * this the editor refuses an actor the collection behind it just served.
+   */
+  offeredActors?: ScopeActorTypes[];
+  // graphify-out/: no handoff-token node in the tree; a plain string relay, no
+  // type minted.
+  /**
+   * The `?token=` link token, relayed so a token-only editor boots `.withId`
+   * against the same identity the collection did. Absent, the editor addresses
+   * itself from the active session as before.
+   */
+  id?: string;
 };
 
 /**
@@ -463,6 +478,51 @@ export type ActionsUischema = Layout & {
 };
 
 /**
+ * A labs-side page action's live instance — the reactive half of a {@link
+ * ScenarioPageAction}, driven by a labs composable rather than the booted
+ * cell's own action map. The host offers it only while `isOffered`, disables it
+ * while `isRunning` (or while `isDisabled`, surfacing `disabledReason` where the
+ * hand lands), and calls `run` when it is pressed — the collection's port never
+ * sees it.
+ *
+ * @graphify-citation `graphify query "scenario page action labs orchestration
+ * header action instance"` (2026-09-08, `graphify-out/graph.json`) — no
+ * page-action node exists; this is the labs-behaviour peer of the presentation
+ * `ScenarioAction`, not a re-mint of it.
+ */
+export type ScenarioPageActionInstance = {
+  isOffered: ComputedRef<boolean>;
+  isRunning: ComputedRef<boolean>;
+  /** Offered but not pressable — a precondition the run needs is unmet. */
+  isDisabled?: ComputedRef<boolean>;
+  /** Why the action is disabled, said on the control it disables. */
+  disabledReason?: ComputedRef<string | undefined>;
+  run: () => void | Promise<void>;
+};
+
+/**
+ * A labs-side page action, whole: its own HEADER presentation and the factory
+ * that boots its {@link ScenarioPageActionInstance}. A page action is NOT a
+ * collection action — it never sits in {@link ScenarioPresentation.actions}, so
+ * the list's port never sees it — which is why it carries its own label, icon
+ * and treatment here rather than borrowing a declared action's.
+ *
+ * @graphify-citation `graphify query "scenario page action labs orchestration
+ * header action instance"` (2026-09-08, `graphify-out/graph.json`) — the
+ * declaration peer of {@link ScenarioPageActionInstance}; no page-action node
+ * exists in the tree, and the treatment vocabulary is `@upmind/ui`'s own
+ * `ButtonVariants`, consumed not re-minted.
+ */
+export type ScenarioPageAction = {
+  /** The control's label — an i18n key, never English. */
+  i18n: string;
+  icon?: string;
+  variant?: ButtonVariants["variant"];
+  /** Boots the labs composable that drives the action. */
+  use: () => ScenarioPageActionInstance;
+};
+
+/**
  * Everything a scenario declares about how it is DRAWN, and nothing a
  * composable already owns: no sort (the criteria schema's own enum, `R6-28`)
  * and no form (the mutate composable's own schemas, `R6-29`).
@@ -538,6 +598,35 @@ export type ScenarioBinding = (
    * per-scenario choice and the playground is generic over every key.
    */
   persistCriteria?: boolean;
+
+  /**
+   * The actors this page offers, beyond the implicit SELF every scenario
+   * serves — the `/as/:actor` segments its picker may reach.
+   *
+   * `useModulePort` otherwise refuses an actor the module's matrix marks
+   * `never`, on the grounds that such a module resolves its request target
+   * from the ACTIVE SESSION and so would answer the previous actor's
+   * identity. In this playground that divergence cannot occur: `switchScope`
+   * sets the actor scope, ACTIVATES the matching session in the store, and
+   * pushes the url in one step, so the active session always IS the actor
+   * the url names. The store already holds a guest session with its own
+   * access token — nothing further is needed to identify the caller.
+   *
+   * A module whose matrix marks an actor `never` because that actor genuinely
+   * may not act (a guest managing someone's phone numbers) simply does not
+   * list it, and the refusal stands. Absent, every scenario behaves exactly
+   * as before.
+   */
+  actors?: ScopeActorTypes[];
+
+  /**
+   * Labs-side page actions, keyed by name and rendered in the page header while
+   * offered. Each carries its OWN presentation and the factory that boots its
+   * instance — a page action is not a collection action and never appears in
+   * {@link ScenarioPresentation.actions}, so the list's port never sees it. See
+   * {@link ScenarioPageAction}. graphify-out/: page-action peer, not re-minted.
+   */
+  pageActions?: Record<string, ScenarioPageAction>;
 };
 
 /**

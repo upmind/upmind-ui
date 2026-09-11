@@ -32,7 +32,7 @@ import {
 import { tmpdir } from "node:os";
 import { basename, dirname, join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
-import { filter, flatMap, map, sortBy, uniq } from "lodash-es";
+import { filter, flatMap, map, sortBy, split, uniq } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -87,10 +87,15 @@ export function lands(patch: string): boolean {
   }
 }
 
-/** The spec a control protects: its name up to the first classifying segment. */
+/** The spec a control protects: the longest dotted stem with a sibling spec, else its first segment. */
 export function specFor(patch: string): string {
-  const stem = basename(patch, ".must-fail.patch").split(".")[0];
-  return join(dirname(patch), `${stem}.spec.ts`);
+  const dir = dirname(patch);
+  const segments = split(basename(patch, ".must-fail.patch"), ".");
+  for (let end = segments.length; end > 1; end--) {
+    const candidate = join(dir, `${segments.slice(0, end).join(".")}.spec.ts`);
+    if (existsSync(candidate)) return candidate;
+  }
+  return join(dir, `${segments[0]}.spec.ts`);
 }
 
 // A root that is not there is left to the denominator assertion below rather
@@ -160,6 +165,21 @@ describe("negative controls — the alarm tells a landing mutant from a dead one
         join("x", "__tests__", "client-address-declaration.must-fail.patch")
       )
     ).toBe(join("x", "__tests__", "client-address-declaration.spec.ts"));
+
+    const renderedPresetTests = join(
+      PLAYGROUND_ROOT,
+      "modules/scenarios/runtime/components/__tests__"
+    );
+    expect(
+      specFor(
+        join(
+          renderedPresetTests,
+          "forced-surface.client-notifications.reset-refetch.must-fail.patch"
+        )
+      )
+    ).toBe(
+      join(renderedPresetTests, "forced-surface.client-notifications.spec.ts")
+    );
   });
 
   it("found controls to grade — an empty corpus must never read as a pass", () => {

@@ -81,13 +81,19 @@ Feature: A client reads their own email history
     And that wait always finishes — it never leaves me waiting forever
 
   @AC-5 @collection @guard
-  Scenario: Know whether my email history is mine to read at all
+  @AC-16 @single-email
+  Scenario: Nothing of anyone else's email history is ever readable, in the list or in one email
     Given I am signed in as a client
     When I look at my email history
     Then it tells me the history is available to me
     And before I am signed in it tells me the history is not available, while still telling me it is loading
     And the moment my session goes away it tells me the history is no longer available
     And I never have to inspect the session myself to learn any of this
+    Given I am not signed in as a client
+    When my email is used
+    Then it tells me the email is not available to me
+    And nothing is read from the server on my behalf
+    And once I am signed in, it tells me the email is available and reads it
 
   @AC-6 @collection
   Scenario: Sort my history
@@ -164,14 +170,6 @@ Feature: A client reads their own email history
     And I can wait for it to be ready before reading it
     And that wait always finishes — including when I turn out not to be signed in, where it finishes by telling me it is not ready
 
-  @AC-16 @single-email @guard
-  Scenario: Know whether that email is mine to read at all
-    Given I am not signed in as a client
-    When my email is used
-    Then it tells me the email is not available to me
-    And nothing is read from the server on my behalf
-    And once I am signed in, it tells me the email is available and reads it
-
   @AC-17 @single-email
   Scenario: Refresh one email, and release it when done
     Given I have opened one of my emails
@@ -207,7 +205,7 @@ Feature: A client reads their own email history
     And every dependent module still compiles with no new error
 
   @AC-21 @module
-  Scenario: Problems are reported to me, never announced by the module
+  Scenario: A problem with my history is shown to me where I am reading, not thrown
     Given something goes wrong while I read my history or one of my emails
     When I inspect either surface
     Then I can read what went wrong

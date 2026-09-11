@@ -33,6 +33,12 @@ import { describe, it, beforeAll, afterAll } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
 import { GrantTypes } from "@upmind-automation/types";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import {
+  mintClientToken,
+  mintGuestToken,
+  mintStaffToken
+} from "../../auth/__tests__/auth.tokens";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -89,34 +95,13 @@ const ADMIN_SELF_QUERY =
 
 // -----------------------------------------------------------------------------
 
-/**
- * Mint a REAL (unsanitised) token outside the capture pipeline. The Generator
- * only ever returns sanitised bodies, so credentials for authed captures must
- * come from a plain fetch that never touches disk.
- */
-async function mintToken(
-  grant: Record<string, string>
-): Promise<IToken | undefined> {
-  const response = await fetch(`${API_URL}/oauth/access_token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      Origin: ORIGIN
-    },
-    body: new URLSearchParams(grant).toString()
-  });
-  const body = await response.json().catch(() => null);
-  const token = (body?.access_token ? body : body?.data) as IToken | undefined;
-  return token?.access_token ? token : undefined;
-}
-
 // -----------------------------------------------------------------------------
 
 describe("Session-Store API Fixtures Generator", () => {
   let generator: Generator;
   let clientToken: IToken;
   let staffToken: IToken | undefined;
+  let guestToken: IToken | undefined;
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -126,24 +111,18 @@ describe("Session-Store API Fixtures Generator", () => {
       name: "session-store"
     });
 
-    const token = await mintToken({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS.client.username,
-      password: API_CREDENTIALS.client.password
-    });
-    if (!token) {
-      throw new Error(
-        "Could not mint a client token with the staging credentials — " +
-          "check tests/fixtures/credentials.ts against the recording brand."
+    clientToken = await mintClientToken();
+
+    guestToken = await mintGuestToken();
+    if (!guestToken?.refresh_token) {
+      console.warn(
+        "[session-store.fixtures] OMISSION: could not mint a guest token with " +
+          "a refresh_token; POST /oauth/access_token refresh grant (guest) " +
+          "not captured."
       );
     }
-    clientToken = token;
 
-    staffToken = await mintToken({
-      grant_type: GrantTypes.ADMIN,
-      username: API_CREDENTIALS.staff.username,
-      password: API_CREDENTIALS.staff.password
-    });
+    staffToken = await mintStaffToken().catch(() => undefined);
     if (!staffToken) {
       console.warn(
         "[session-store.fixtures] OMISSION: staff credentials rejected on " +
@@ -181,6 +160,43 @@ describe("Session-Store API Fixtures Generator", () => {
     }
   });
 
+  it("captures POST /oauth/access_token refresh grant (200, guest) — mid-session guest refresh", async () => {
+    // `?case=` keeps this out of the boot-flow guest fixture's identity: both
+    // responses carry actor_type "guest", so without it the filename collides
+    // and the re-record overwrites the boot mint (fixture-naming.mjs).
+    if (!guestToken?.refresh_token) return;
+    const { status } = await generator.post(
+      "/oauth/access_token?case=refresh-guest",
+      {
+        grant_type: GrantTypes.REFRESH_TOKEN,
+        refresh_token: guestToken.refresh_token
+      },
+      { "Content-Type": "application/x-www-form-urlencoded" }
+    );
+    if (status !== 200) {
+      console.warn(
+        `[session-store.fixtures] guest refresh returned ${status}, not 200`
+      );
+    }
+  });
+
+  it("captures POST /oauth/access_token with a rejected grant (4xx)", async () => {
+    const { status } = await generator.post(
+      "/oauth/access_token?case=rejected-grant",
+      {
+        grant_type: GrantTypes.REFRESH_TOKEN,
+        refresh_token: "fixturegen-invalid-refresh-token"
+      },
+      { "Content-Type": "application/x-www-form-urlencoded" }
+    );
+    if (status < 400) {
+      console.warn(
+        `[session-store.fixtures] rejected grant returned ${status}, ` +
+          "expected 4xx — inspect the capture before committing."
+      );
+    }
+  });
+
   it("captures POST /oauth/access_token password grant (200, client)", async () => {
     const { status } = await generator.post(
       "/oauth/access_token",
@@ -194,6 +210,24 @@ describe("Session-Store API Fixtures Generator", () => {
     if (status !== 200) {
       console.warn(
         `[session-store.fixtures] client login mint returned ${status}, not 200`
+      );
+    }
+  });
+
+  it("captures POST /oauth/access_token admin grant (200, staff)", async () => {
+    if (!staffToken?.access_token) return;
+    const { status } = await generator.post(
+      "/oauth/access_token",
+      {
+        grant_type: GrantTypes.ADMIN,
+        username: API_CREDENTIALS.staff.username,
+        password: API_CREDENTIALS.staff.password
+      },
+      { "Content-Type": "application/x-www-form-urlencoded" }
+    );
+    if (status !== 200) {
+      console.warn(
+        `[session-store.fixtures] staff login mint returned ${status}, not 200`
       );
     }
   });

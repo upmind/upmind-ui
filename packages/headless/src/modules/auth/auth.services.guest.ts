@@ -45,7 +45,7 @@ async function authenticate(
   }).then(token => {
     token.actor_type ||= AccessRoleTypes.GUEST;
 
-    persistTokenToStorage(token);
+    persistTokenToStorage(token, { newSession: true });
     return { token };
   });
 }

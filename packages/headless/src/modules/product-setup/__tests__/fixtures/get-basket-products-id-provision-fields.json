@@ -2,14 +2,14 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/basket/products/mock-uuid-261/provision_fields",
+    "path": "/api/basket/products/5d085e69-d562-3719-459a-218e940d4237/provision_fields",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
       "content-type": "application/json",
       "origin": "null",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
-      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"HeadlessChrome\";v=\"151\", \"Chromium\";v=\"151\"",
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
@@ -22,8 +22,8 @@
       "status": "ok",
       "data": [
         {
-          "id": "mock-uuid-66",
-          "blueprint_id": "mock-uuid-60",
+          "id": "78985742-6489-7012-05f2-1e325d0ed369",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "order",
           "store_per": "blueprint",
           "name": "sld",
@@ -57,8 +57,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-56",
-          "blueprint_id": "mock-uuid-60",
+          "id": "78985742-6489-7012-85a2-1e325d0ed369",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_name",
@@ -91,8 +91,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-20",
-          "blueprint_id": "mock-uuid-60",
+          "id": "320e4357-95e7-8d18-08b3-1643202d9860",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_organisation",
@@ -125,8 +125,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-7",
-          "blueprint_id": "mock-uuid-60",
+          "id": "2785d26e-9678-3d16-40f3-14502e70439d",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_email",
@@ -155,8 +155,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-6",
-          "blueprint_id": "mock-uuid-60",
+          "id": "825d96e7-63ed-0913-5dc4-174825283406",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_phone",
@@ -185,8 +185,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-61",
-          "blueprint_id": "mock-uuid-60",
+          "id": "5d085e69-d562-3719-6ea2-18e940d42370",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_address_1",
@@ -215,8 +215,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-28",
-          "blueprint_id": "mock-uuid-60",
+          "id": "4d036794-24d0-e710-74b3-153698d582e8",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_address_city",
@@ -245,8 +245,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-135",
-          "blueprint_id": "mock-uuid-60",
+          "id": "3de78642-de53-9714-32c2-1208469530d0",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_address_state",
@@ -275,8 +275,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-79",
-          "blueprint_id": "mock-uuid-60",
+          "id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_address_postcode",
@@ -305,8 +305,8 @@
           "defer_mode": "none"
         },
         {
-          "id": "mock-uuid-27",
-          "blueprint_id": "mock-uuid-60",
+          "id": "47d73824-8507-9315-96c8-1e642d59e063",
+          "blueprint_id": "24d03679-424d-0e71-04b3-153698d582e8",
           "type": "function",
           "store_per": "blueprint",
           "name": "update_registrant_address_country_code",
@@ -1339,7 +1339,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-07-11T09:38:22.110Z",
+  "captured_at": "2026-09-10T05:20:04.191Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

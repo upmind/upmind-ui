@@ -53,7 +53,7 @@ export function useSessionStoreMeta() {
 
   const hasGuestSession = computed(() => {
     void storeTick.value;
-    return !!sessionStore.state.guestSession;
+    return !isEmpty(sessionStore.state.guestSessions);
   });
 
   const hasStaffSession = computed(() => {

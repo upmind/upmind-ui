@@ -180,10 +180,30 @@ export type LoadedSessionUsers = {
  * Store state for managing multiple actor sessions.
  */
 export type SessionState = {
-  guestSession?: IToken;
+  /**
+   * Guest sessions keyed by session id — the same shape `clientSessions` and
+   * `staffSessions` use, so a guest session is selected by its own key exactly
+   * as client and staff are (FE-3087). Reuses `SessionEntry` rather than
+   * minting a guest-specific type; see graphify-out/ for the `SessionEntry` /
+   * `IToken` provenance confirming it already models this pair.
+   *
+   * At most one entry is cookie-backed at a time: the cookie layer holds a
+   * single `upm_guest_session`.
+   */
+  guestSessions: Record<string, SessionEntry>;
   clientSessions: Record<string, SessionEntry>;
   staffSessions: Record<string, SessionEntry>;
   activeActor: AccessRoleTypes;
+  /**
+   * The active session's key in `activeActor`'s own session map — guest
+   * included. Client/staff key by the server `actor_id`; a guest key is
+   * client-synthesised (the guest grant returns `actor_id: ""`) and carried on
+   * the guest cookie.
+   *
+   * For guest the key's PRESENCE records intent: a key means guest was chosen
+   * via `activate(GUEST)`; no key means guest is the unclaimed floor the
+   * resolver fell back to. Only the floor upgrades on a remote login.
+   */
   activeSessionId?: string;
   /**
    * Impersonation sessions - tracks parent sessions for restoration.
@@ -265,7 +285,7 @@ export type AuthEventType = (typeof AuthEvents)[keyof typeof AuthEvents];
  */
 export type SessionSyncMessage =
   | { type: "SET_SESSION"; session: IToken }
-  | { type: "REMOVE_GUEST" }
+  | { type: "REMOVE_GUEST"; sessionId: string }
   | { type: "REMOVE_SESSION"; actor: AccessRoleTypes; sessionId: string }
   | { type: typeof SessionEvents.UNAUTHENTICATED; actor: AccessRoleTypes }
   | { type: "CLEAR" }

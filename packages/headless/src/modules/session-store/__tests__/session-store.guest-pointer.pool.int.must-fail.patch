@@ -1,0 +1,47 @@
+FE-3087 negative control — R11/R12 (a NEW guest mints beside the pooled one).
+
+Target spec:  session-store.guest-pointer.pool.int.test.ts
+Target case:  the case whose title contains
+              "adds a NEW guest beside the pooled one and leaves the previous switchable"
+              (@AC-G25; an AC-id prefix/suffix is permitted — substring match)
+Mutation:     restores `checking.always` to the single `idle` transition, so a fresh
+              GUEST auth instance lands on the login form instead of the grant. The
+              grant never fires, the fresh mint exhausts its retries, and no second
+              guest is pooled — the target case MUST go RED. Also flips the R12
+              machine case (a fresh GUEST reaches `login.processing`). Every
+              pre-existing auth and session-store case stays GREEN.
+Authored by:  developer seat hand-off, run wf_78b9be5a-992 (anchored to 979b9ddeb);
+              filed verbatim by the operator (review-notes §22). Replaces the earlier
+              pool mutant, which targeted the store-side latch R12 deleted.
+Verified by:  prover seat, blind — apply, run the target case RED, revert.
+
+diff --git a/packages/headless/src/modules/auth/auth.machine.ts b/packages/headless/src/modules/auth/auth.machine.ts
+--- a/packages/headless/src/modules/auth/auth.machine.ts
++++ b/packages/headless/src/modules/auth/auth.machine.ts
+@@ -62,22 +62,16 @@ export const authMachine = createMachine(
+         entry: "setContext",
+         // A fresh instance (.fresh()) bypasses the session probe entirely and
+         // lands where a no-session check lands, so it always shows the login
+         // form even while another session of this scope is active. A fresh
+         // GUEST goes to the grant instead, because the grant IS a guest's
+         // login — there is no form to show it.
+-        always: [
+-          {
+-            target: "login.processing",
+-            cond: "isNewGuestSession"
+-          },
+-          {
+-            target: "idle",
+-            cond: "isNewSession"
+-          }
+-        ],
++        always: {
++          target: "idle",
++          cond: "isNewSession"
++        },
+         invoke: {
+           src: "checkSession",
+           onDone: { target: "authenticated" },
+           onError: [
+             {
+               target: "login.processing",

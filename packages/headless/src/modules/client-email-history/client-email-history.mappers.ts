@@ -71,3 +71,21 @@ export const mapEmailStatus = (email: ISentEmail): SentEmailStatus => {
   else if (email.sent) return SentEmailStatus.SENT;
   else return SentEmailStatus.SENDING;
 };
+
+/**
+ * The notification-preferences token carried by an email read `?with=data`.
+ * `data.unsubscribe_link` holds the clean preferences URL; the rendered body is
+ * a fallback whose `&amp;` entities must be decoded before the URL parses.
+ */
+export const mapNotificationToken = (raw: ISentEmail): string | undefined => {
+  const data = (raw as { data?: { unsubscribe_link?: string; body?: string } })
+    .data;
+  const link =
+    data?.unsubscribe_link ??
+    data?.body
+      ?.match(/href="([^"]*\/preferences\?[^"]*)"/i)?.[1]
+      ?.replace(/&amp;/g, "&");
+  if (!link) return undefined;
+
+  return new URL(link).searchParams.get("token") || undefined;
+};

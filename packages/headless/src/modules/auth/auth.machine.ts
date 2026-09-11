@@ -62,11 +62,19 @@ export const authMachine = createMachine(
         entry: "setContext",
         // A fresh instance (.fresh()) bypasses the session probe entirely and
         // lands where a no-session check lands, so it always shows the login
-        // form even while another session of this scope is active.
-        always: {
-          target: "idle",
-          cond: "isNewSession"
-        },
+        // form even while another session of this scope is active. A fresh
+        // GUEST goes to the grant instead, because the grant IS a guest's
+        // login — there is no form to show it.
+        always: [
+          {
+            target: "login.processing",
+            cond: "isNewGuestSession"
+          },
+          {
+            target: "idle",
+            cond: "isNewSession"
+          }
+        ],
         invoke: {
           src: "checkSession",
           onDone: { target: "authenticated" },
@@ -700,6 +708,10 @@ export const authMachine = createMachine(
 
       /** Guard: This is a fresh instance that must bypass the session probe. */
       isNewSession: ({ newSession }: AuthContext) => newSession === true,
+
+      /** Guard: a fresh instance whose login is the guest grant itself. */
+      isNewGuestSession: ({ newSession, scopeActor }: AuthContext) =>
+        newSession === true && scopeActor === ScopeActorTypes.GUEST,
 
       /** Guard: Has a context entity ID (impersonation/child-client). */
       hasContext: ({ scopeContext }: AuthContext) => !!scopeContext?.id,
