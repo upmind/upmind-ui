@@ -152,8 +152,8 @@ From `RELEASES.md` 1.12.6 → 1.74.0, checked against current legacy code.
 | --- | --- | --- |
 | Product filter on the ticket list | Legacy's listing has the prop; no client screen turns it on | Present |
 | Notification topics per email address | Email topic opt-ins form | Present |
-| Pinned vault assets from the profile card | "Pinned notes and secrets" row on the account card | Present |
-| Emailed code before a username or password change | "Confirm it is you" prompt, then the change | Present |
+| Pinned vault assets from the profile card | Staff-only in legacy; not offered to the client | Present |
+| Current password, then a code where two-factor is on, before a username or password change | "Confirm it is you" prompt, then the change | Present |
 | Brand setting that stops clients scheduling tickets | `canSchedule` gate on the ticket form | Present |
 
 ## Gaps to act on
