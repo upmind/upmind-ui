@@ -17,13 +17,52 @@ import type { IClient } from "@upmind-automation/types";
  * (`@internal/no-cross-module-imports`).
  */
 
+/**
+ * Normalises the wire's SECOND spelling of "unset" onto the one this module
+ * models. `packages/types/src/models/clients.ts:58,60` types both string
+ * consolidation fields `null | <enum>`, and `useSchema` declares them
+ * `{ type: ["string","null"], enum: [...members, null] }` — but the API also
+ * returns a bare `""`.
+ *
+ * Observed live 2026-09-11 (MinistryOfPhotography, self):
+ * `invoice_consolidation_base_rule_day_of_week: ""`. Left verbatim, that `""`
+ * survives `restoreCompactedFields` (`""` is `!== undefined`, so it is
+ * explicitly restored after `useModelParser` compacts it away), reaches
+ * `validate` on the machine's own LOAD path — `data-manager.machine.ts:61-84`
+ * runs `parsing` -> `validating` on entering `available` — and is rejected
+ * with `/dayOfWeek must be equal to one of the allowed values`. The editor
+ * lands in `invalid` and the form never renders at all.
+ *
+ * Normalised HERE, at the one wire -> view-model boundary both halves share,
+ * so the read half never publishes an off-contract `""` either.
+ *
+ * @decision map `""` to `null`, never to `undefined` and never at the schema.
+ * what:    an `""` -> `null` coercion on the two STRING fields only.
+ * why:     `null` is this module's declared "follow the brand" value
+ *          (design.md §4.2), so `""` and `null` are two spellings of one
+ *          state. `undefined` would instead read as "untouched" to
+ *          `mapIBillingSettingsFields`, which diffs key by key — a client
+ *          whose stored day is `""` would then diff against `undefined` and
+ *          write a spurious `null` on the next unrelated save.
+ * rejected: widening the schema's enum with `""` — it would make the editor
+ *          able to SEND `""`, which is not a member of `DaysOfWeekTypes` and
+ *          is not what the oracle writes (`clientInvoiceConsolidationForm.vue`
+ *          submits the picked enum member or `null`).
+ *
+ * Scoped to the two string fields: the numeric pair came back as proper
+ * `null` in the same capture, and `enabled` is non-nullable by design.
+ */
+function emptyToNull<T>(value: T | ""): T | null {
+  return value === "" ? null : (value as T);
+}
+
 /** Maps the raw client record into the read half's own view-model (AC1, AC14). */
 export function mapBillingSettings(raw: IClient): BillingSettingsRecord {
   return {
     id: raw.id,
     enabled: raw.invoice_consolidation_enabled,
-    baseRule: raw.invoice_consolidation_base_rule,
-    dayOfWeek: raw.invoice_consolidation_base_rule_day_of_week,
+    baseRule: emptyToNull(raw.invoice_consolidation_base_rule),
+    dayOfWeek: emptyToNull(raw.invoice_consolidation_base_rule_day_of_week),
     dateOfMonthDay: raw.invoice_consolidation_base_rule_date_of_month_day,
     dueDateDay: raw.invoice_consolidation_due_date_day,
     isStaged: !!raw.staged_import
