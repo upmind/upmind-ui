@@ -1,0 +1,99 @@
+{
+  "$comment": "invoices.* — the scoped invoices module's own strings. The FILENAME is the namespace: the loader parses modules/NAME-en.json as NAME, so every key here resolves as invoices.KEY. The sibling invoice-en.json is a DIFFERENT namespace (invoice.*, the cart's order-outcome copy) — do not merge the two. Filter-option vocabularies are derived from InvoiceStatus / CreditNoteStatus / InvoiceCategoryCode in packages/types, so a new enum member needs its label added here.",
+  "badge": {
+    "child_of_client": "Sub-account",
+    "delegated": "Delegated",
+    "own": "Own",
+    "settleable": "Payable"
+  },
+  "detail": {
+    "address": "Billing address",
+    "amount_to_credit": "Amount to credit",
+    "balance": "Balance",
+    "bundle_groups": "Bundles",
+    "bundle_is_large": "Large bundle",
+    "consolidation_invoice": "Consolidation invoice",
+    "credit_invoice": "Credit invoice",
+    "currency": "Currency",
+    "date_paid": "Date paid",
+    "discount": "Discount",
+    "next_charge_date": "Next charge date",
+    "paid_amount": "Paid",
+    "payment_method": "Payment method",
+    "payments": "Payments",
+    "products": "Products",
+    "subtotal": "Subtotal",
+    "unpaid_amount": "Unpaid"
+  },
+  "filter": {
+    "category": "Category",
+    "client_id": "Client",
+    "contract_id": "Contract",
+    "contracts_product_id": "Product",
+    "create_datetime": "Created",
+    "credit_invoice_id": "Credit invoice",
+    "due_date": "Due",
+    "fraud_status": "Fraud status",
+    "id": "Invoice ID",
+    "is_consolidation": "Consolidation",
+    "net_amount": "Net amount",
+    "number": "Number",
+    "paid_amount": "Paid amount",
+    "proforma": "Proforma",
+    "status": "Status",
+    "total_amount": "Total",
+    "total_discount_amount": "Discount"
+  },
+  "filter_bar": {
+    "category": "Category",
+    "create_datetime": "Created",
+    "due_date": "Due",
+    "is_consolidation": "Consolidation",
+    "net_amount": "Net amount",
+    "number": "Number",
+    "status": "Status",
+    "total_amount": "Total"
+  },
+  "filter_option": {
+    "category": {
+      "additional_service": "Additional service",
+      "consolidation": "Consolidation",
+      "credit_note": "Credit note",
+      "credit_note_for_refund": "Credit note for refund",
+      "migration_pro_rata": "Migration pro rata",
+      "new_contract": "New contract",
+      "one_time_service": "One-time service",
+      "recurrent": "Recurring"
+    },
+    "status": {
+      "invoice_adjusted": "Adjusted",
+      "invoice_allocated": "Allocated",
+      "invoice_cancellation_request": "Cancellation requested",
+      "invoice_cancelled": "Cancelled",
+      "invoice_draft": "Draft",
+      "invoice_overdue": "Overdue",
+      "invoice_paid": "Paid",
+      "invoice_refunded": "Refunded",
+      "invoice_replaced": "Replaced",
+      "invoice_unallocated": "Unallocated",
+      "invoice_unpaid": "Unpaid"
+    }
+  },
+  "notice": {
+    "consolidatable_count": "No invoices can be consolidated | 1 invoice can be consolidated | {count} invoices can be consolidated",
+    "has_unpaid": "You have unpaid invoices"
+  },
+  "sort": "Sort by",
+  "table": {
+    "attribution": "Raised for",
+    "category": "Category",
+    "client": "Client",
+    "date_created": "Created",
+    "date_due": "Due",
+    "locked": "Locked",
+    "number": "Number",
+    "status": "Status",
+    "total": "Total",
+    "unpaid": "Unpaid"
+  }
+}
