@@ -12,10 +12,12 @@
  * written about. Cite it for facts; never copy its shape.
  */
 
+import { resetQueryByKey } from "../query";
 import { remove } from "../scope";
 import { ScopeActorTypes } from "../scope";
 import { useActiveSession } from "../session-store";
 import { useDataLayer } from "../system-analytics";
+import { queryKey } from "./module.services";
 import type {
   ModuleListQuery,
   ModuleModel,
@@ -109,7 +111,15 @@ export function createModuleActions(
     login,
 
     /** Refetches the list from the server. */
-    refresh: query.refetch
+    refresh: query.refetch,
+
+    /**
+     * Drops the module's cache entries so the next read fetches from scratch —
+     * the redial the labs force handle needs (`useForcedState`: "the preset is
+     * only visible because the page asks again"). Not `refresh`: a refetch
+     * keeps the stale rows on screen; a removed entry redraws from nothing.
+     */
+    reset: resetQueryByKey(queryKey)
 
     // The arm merges in HERE, last — a spread overwrites, which is what lets
     // it override a shared member; anything it omits falls through.

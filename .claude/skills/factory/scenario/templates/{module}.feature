@@ -31,6 +31,26 @@
 # The tag is the module's own STORY tag. This lane mints no `@AC-*`: acceptance
 # criteria come from the story, and a page derived from a landed module would
 # be inventing them.
+#
+# A MODULE'S SCENARIOS SPLIT IN TWO, AND ONLY ONE HALF GETS STEPS.
+# ADR-020 Amendment 5, operator ruling 2026-09-12 — "tests are tests, scenarios
+# are scenarios; not every test is a replayable scenario":
+#
+#   PAGE STORIES  — a person doing something on the surface: read it, filter it,
+#                   sort it, page it, add/remove/default a record. Every line
+#                   can be driven by a real step, so the scenario becomes a
+#                   TRACK and its steps live in `{module}.steps.ts`.
+#   CONTRACTS     — everything else the module owes and no page can perform: a
+#                   transport failure, a disabled or staged state, a brand gate,
+#                   a scope refusal, an identity read-back. These stay SPEC.
+#                   They get NO steps, they never become tracks, and a sibling
+#                   `*.int.test.ts` is what proves them.
+#
+# Both halves live in this one file and both stay tagged — coverage never falls.
+# What changes is only whether a step matches. A contract scenario that acquires
+# a step to look driveable is the fake-step defect (`{module}.steps.ts` header;
+# receipt: client-billing-settings 2026-09-12, 26 scenarios, 18 driveable, 8
+# faked with 32 do-nothing steps).
 
   @FE-0000 @layer-e2e @smoke
   Scenario: A client sees their own module collection
@@ -40,19 +60,19 @@
   @FE-0000 @layer-e2e
   # A track that WRITES ends on the collection the user can see, never on the
   # absence of an error — "reports no failure" is green while the surface shows
-  # exactly what it showed before (operator ruling 2026-08-13). Pattern:
+  # exactly what it showed before (operator ruling 2026-08-13), and in a
+  # scenario nothing else drives it IS the whole track, which is the fake-step
+  # defect. There is no such step in the sibling catalog. Pattern:
   #
   #   Scenario: A client adds a module
   #     When the client adds the module "mock-module-9"
-  #     Then the collection reports no failure
-  #     And the collection holds 4 items
+  #     Then the collection holds 4 items
   #     And "mock-module-9" is listed
 
   Scenario: A client refreshes their module collection
     Given the modules playground is generated for the active client
     When the client refreshes the collection
     Then the collection holds 2 items
-    And the collection reports no failure
 
   @FE-0000 @layer-e2e
   Scenario: Staff acting for a client read that client's module collection

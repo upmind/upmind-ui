@@ -10,6 +10,16 @@
  * is no DOM read, no request read and no import of the module's own source
  * here.
  *
+ * A TRACK drives the form and asserts the value it drove (ADR-020 Am.5;
+ * operator ruling 2026-09-12): every write step chooses a value the module's
+ * own capture run recorded (`client-billing-settings.fixtures.ts` cases —
+ * `enabled-on/off/inherit`, `base-rule-set`, `day-of-week-set` monday,
+ * `day-of-month-set` 15, `due-date-day-set` 7, and their `-clear`s), saves,
+ * and asserts that value on the model. Scenarios that are CONTRACTS — scope
+ * addressing, request shape, no-request saves, the brand-gated currency
+ * stories this brand's recordings refuse with a 409 — have no steps here and
+ * stay spec, proven by the module's integration tests, never listed as tracks.
+ *
  * CONTRACT AMBIGUITY (flagged, not resolved by reading source): the exact
  * scenario key a consuming playground binds to BOTH `useBillingSettings` and
  * `useBillingSettingsManager`, and the World's own action-id vocabulary for
@@ -24,6 +34,10 @@
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
+import {
+  InvoiceConsolidationRuleTypes,
+  InvoiceConsolidationTypes
+} from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
@@ -34,12 +48,10 @@ export const CLIENT_BILLING_SETTINGS_SCENARIO = "client_billing_settings";
 
 export const CLIENT_BILLING_SETTINGS_COVERED_ACTIONS = {
   isReady: "isReady",
-  refresh: "refresh",
-  destroy: "destroy",
+  reset: "reset",
   input: "input",
   update: "update",
-  revert: "revert",
-  stop: "stop"
+  revert: "revert"
 } as const;
 
 export const coveredActionIds: readonly string[] = values(
@@ -48,6 +60,22 @@ export const coveredActionIds: readonly string[] = values(
 
 const SETTLE_ATTEMPTS = 40;
 const SETTLE_INTERVAL_MS = 250;
+
+/** The recorded baseline (`get-clients-id`): consolidation ON, no rule, no days. */
+const RECORDED = {
+  enabled: InvoiceConsolidationTypes.ENABLED
+} as const;
+
+/** The values the capture run saved, one per recorded `case`. */
+const CASE = {
+  baseRule: InvoiceConsolidationRuleTypes.DAY_OF_WEEK,
+  dayOfWeek: "monday",
+  dateOfMonthDay: 15,
+  dueDateDay: 7
+} as const;
+
+/** Outside every recorded day range — the schema refuses it before a save. */
+const OUT_OF_RANGE = 40;
 
 /** Re-runs a world expectation until the scope settles on it. */
 async function settles(assertion: () => Promise<void>): Promise<void> {
@@ -61,12 +89,47 @@ async function settles(assertion: () => Promise<void>): Promise<void> {
   return assertion();
 }
 
+/** The model carries these values — the one assertion a driven step ends on. */
+function expectModel(world: World, model: Record<string, unknown>) {
+  if (!world.expectContext)
+    throw new Error("this World cannot read context — no model to assert");
+  return settles(() => world.expectContext!({ model }));
+}
+
 async function open(world: World): Promise<void> {
   await world.boot(CLIENT_BILLING_SETTINGS_SCENARIO, {
     actor: ScopeActorTypes.CLIENT
   });
   await world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.isReady);
-  await settles(() => world.expectMeta({ isAvailable: true, hasError: false }));
+  await settles(() =>
+    world.expectMeta({ isAvailable: true, hasErrors: false })
+  );
+}
+
+/**
+ * Types a value into the editor, saves it, and sees it saved. The editor is
+ * handed a COPY: the parser fills the object it is given with the schema's
+ * defaults, and the assertion must stay the words this step chose.
+ */
+async function save(
+  world: World,
+  model: Record<string, unknown>
+): Promise<void> {
+  await world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.input, { ...model });
+  await world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update);
+  // A save settles through `processed` before the editor is available again;
+  // a value typed before that is dropped, so the next step waits for it.
+  await settles(() => world.expectMeta({ isAvailable: true }));
+  await expectModel(world, model);
+}
+
+/** Types a value outside its range: the editor refuses it before any save. */
+async function refuse(
+  world: World,
+  model: Record<string, unknown>
+): Promise<void> {
+  await world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.input, { ...model });
+  await settles(() => world.expectMeta({ isValid: false }));
 }
 
 // -----------------------------------------------------------------------------
@@ -75,199 +138,146 @@ export const clientBillingSettingsSteps = defineSteps(
   ({ Given, When, Then }) => {
     Given("I am an authenticated client", world => open(world));
 
+    // Background: the boot addressed my own record — ready, and mine.
     Given(
       "every request I make about my consolidation preference is addressed to my own client record",
       world => settles(() => world.expectMeta({ isAvailable: true }))
     );
 
-    // AC-1
+    // AC-1 — the read shows the recorded record, addressed to my own id.
     Given(
       "I hold saved values for consolidation, its base rule, and its cadence",
-      () => Promise.resolve()
+      world => open(world)
     );
 
     When("I read my consolidation preference", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.refresh)
+      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.reset)
     );
 
     Then(
       "the five values I see are the ones actually saved against my own record",
-      world =>
-        settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
+      world => expectModel(world, { enabled: RECORDED.enabled })
     );
 
     Then(
       "nothing outside this module can make that read address a different client's record",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-2
-    Given("I have already read one client's consolidation preference", world =>
-      open(world)
-    );
-
-    When(
-      "the client record my preference addresses changes to a different one",
-      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.refresh)
-    );
-
-    Then(
-      "what I see is that new client's saved values, not the previous client's",
-      world =>
-        settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-    );
-
-    // AC-19
-    Given(
-      "something else in the app is also reading my client record at the same time",
-      () => Promise.resolve()
-    );
-
-    Then(
-      "no extra request is made to read my client record on my behalf",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "what the other reader sees of my client record is unchanged by my own read",
       world => settles(() => world.expectMeta({ isAvailable: true }))
     );
 
-    // AC-3 / AC-4 / AC-5 / AC-6 / AC-7 / AC-12
+    // AC-3 / AC-4 / AC-5 / AC-6 / AC-7
     Given("I have opened my consolidation preference in the editor", world =>
       open(world)
     );
 
     When(
       "I choose to turn consolidation on, off, or to follow my brand, and save",
-      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
+      // One story, one change (operator, 2026-09-12): the recorded record is
+      // ON, so the story switches consolidation OFF and saves. ON and INHERIT
+      // are the same control; the integration tests prove all three values.
+      world => save(world, { enabled: InvoiceConsolidationTypes.DISABLED })
     );
 
     Then(
       "the state I saved is exactly the state I chose, never a different one",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-18
-    Given("my consolidation preference is currently on", world => open(world));
-
-    When("I turn it off and save", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
-    );
-
-    Then("my saved preference explicitly records it as off", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "it is not left out of what was saved, as though nothing had changed",
-      world => settles(() => world.expectMeta({ hasError: false }))
+      world =>
+        expectModel(world, { enabled: InvoiceConsolidationTypes.DISABLED })
     );
 
     When(
       "I choose a base rule and save, and later clear that choice and save again",
-      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
+      world => save(world, { baseRule: CASE.baseRule })
     );
 
     Then("my chosen rule is saved when I chose one", world =>
-      settles(() => world.expectMeta({ hasError: false }))
+      expectModel(world, { baseRule: CASE.baseRule })
     );
 
     Then(
       "clearing it is saved as an explicit choice to follow my brand's rule, not left unspecified",
-      world => settles(() => world.expectMeta({ hasError: false }))
+      world => save(world, { baseRule: null })
     );
 
-    Given("my base rule is a weekly cadence", world => open(world));
+    Given("my base rule is a weekly cadence", async world => {
+      await open(world);
+      await save(world, { baseRule: CASE.baseRule });
+    });
 
     When(
       "I choose a day of the week and save, and later clear that choice and save again",
-      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
+      world => save(world, { dayOfWeek: CASE.dayOfWeek })
     );
 
     Then("my chosen day is saved when I chose one", world =>
-      settles(() => world.expectMeta({ hasError: false }))
+      expectModel(world, { dayOfWeek: CASE.dayOfWeek })
     );
 
     Then(
       "clearing it is saved as an explicit choice to follow my brand's day, not left unspecified",
-      world => settles(() => world.expectMeta({ hasError: false }))
+      world => save(world, { dayOfWeek: null })
     );
 
-    Given("my base rule is a monthly cadence", world => open(world));
+    Given("my base rule is a monthly cadence", async world => {
+      await open(world);
+      await save(world, {
+        baseRule: InvoiceConsolidationRuleTypes.DAY_OF_MONTH
+      });
+    });
 
     When(
       "I choose a valid day of the month and save, and later restore the default and save again",
-      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
+      world => save(world, { dateOfMonthDay: CASE.dateOfMonthDay })
     );
 
     Then("my chosen day is saved when I chose a valid one", world =>
-      settles(() => world.expectMeta({ hasError: false }))
+      expectModel(world, { dateOfMonthDay: CASE.dateOfMonthDay })
     );
 
     Then(
       "restoring the default is saved as an explicit choice to follow my brand's day, not left unspecified",
-      world => settles(() => world.expectMeta({ hasError: false }))
+      world => save(world, { dateOfMonthDay: null })
     );
 
     Then(
       "choosing a day outside the valid range is refused before I can save it",
-      world => settles(() => world.expectMeta({ hasError: false }))
+      world => refuse(world, { dateOfMonthDay: OUT_OF_RANGE })
     );
 
-    When(
-      "I choose a valid due-date day and save, and later clear that choice and save again",
-      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
-    );
+    // AC-7 has no track on this record: `dueDateDay` is drawn only for a
+    // monthly rule on a `never_suspend` client (the legacy `showDueDateDayField`
+    // rule), and the recorded client is not one — a value typed into a field
+    // the form does not show is a replay nobody can see. Its integration tests
+    // prove it; the feature keeps it as spec.
 
-    Then("my chosen due-date day is saved when I chose a valid one", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "clearing it is saved as an explicit choice for the earliest available day, not left unspecified",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "choosing a due-date day outside the valid range is refused before I can save it",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Given(
-      "I have opened my consolidation preference in the editor and changed some of the values",
-      world => open(world)
-    );
-
-    When("I save my changes", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
-    );
-
-    Then(
-      "only the values I changed are saved against my own client record, addressed the same way my read was",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "afterwards, reading my preference again reflects the saved changes rather than stale values",
-      world =>
-        settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-    );
-
-    // AC-8 / AC-9 / AC-10 / AC-11
+    // AC-8 — unsaved changes, told only while a value differs
     When(
       "I change a value, and later set that value back to what was loaded",
-      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.input, {})
+      async world => {
+        await world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.input, {
+          enabled: InvoiceConsolidationTypes.DISABLED
+        });
+        await settles(() => world.expectMeta({ isDirty: true }));
+        await world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.input, {
+          enabled: RECORDED.enabled
+        });
+      }
     );
 
     Then(
       "I am told I have unsaved changes only while a value differs from what was last loaded",
-      world => settles(() => world.expectMeta({ hasError: false }))
+      world => settles(() => world.expectMeta({ isDirty: false }))
     );
 
+    // AC-9 — revert
     Given(
       "I have changed several values in my consolidation preference editor without saving",
-      world => open(world)
+      async world => {
+        await open(world);
+        await world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.input, {
+          enabled: InvoiceConsolidationTypes.DISABLED,
+          baseRule: InvoiceConsolidationRuleTypes.DAILY
+        });
+        await settles(() => world.expectMeta({ isDirty: true }));
+      }
     );
 
     When("I discard those changes", world =>
@@ -275,282 +285,34 @@ export const clientBillingSettingsSteps = defineSteps(
     );
 
     Then("I see exactly the values that were last loaded", world =>
-      settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
+      expectModel(world, { enabled: RECORDED.enabled })
     );
 
     Then("discarding them made no request to save or reload anything", world =>
-      settles(() => world.expectMeta({ hasError: false }))
+      settles(() => world.expectMeta({ isDirty: false }))
     );
 
+    // AC-10 — an invalid value never reaches a save
     Given(
       "I have set one of my consolidation values to something outside its valid range",
-      world => open(world)
+      async world => {
+        await open(world);
+        await refuse(world, { dateOfMonthDay: OUT_OF_RANGE });
+      }
     );
 
     When("I try to save", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
+      world
+        .fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
+        .catch(() => undefined)
     );
 
     Then("the save is refused", world =>
-      settles(() => world.expectMeta({ hasError: false }))
+      settles(() => world.expectMeta({ isValid: false }))
     );
 
     Then("no request to save anything is made", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Given(
-      "I have opened my consolidation preference in the editor and changed nothing",
-      world => open(world)
-    );
-
-    When("I save", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
-    );
-
-    Then("the save is treated as having succeeded", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-13
-    Given(
-      "I have started saving a change to my consolidation preference",
-      world => open(world)
-    );
-
-    When("the save is still in progress", () => Promise.resolve());
-
-    Then(
-      "every control in my editor reports itself unavailable to edit",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "once the save settles, whether it succeeded or failed, every control becomes available again",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-15
-    Given(
-      "the app I am using has locked my consolidation preference editor",
-      world => open(world)
-    );
-
-    When("I look at any control in the editor", () => Promise.resolve());
-
-    Then("every control reports itself unavailable to edit", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "attempting to change a value while locked leaves my preference unchanged",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-16
-    Given("loading my consolidation preference fails", world =>
-      world.boot(CLIENT_BILLING_SETTINGS_SCENARIO, {
-        actor: ScopeActorTypes.CLIENT,
-        seed: { journey: "consolidation-load-failure" }
-      })
-    );
-
-    When("I wait for it to be ready", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.isReady)
-    );
-
-    Then(
-      "I am told it is not ready, with the failure visible to me, rather than waiting forever",
-      world =>
-        settles(() => world.expectMeta({ isAvailable: false, hasError: true }))
-    );
-
-    Then(
-      "when I retry, a successful load lands my actual saved values",
-      world =>
-        settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-    );
-
-    // AC-14
-    Given(
-      "my client record is a staged import that has not finished processing",
-      world =>
-        world.boot(CLIENT_BILLING_SETTINGS_SCENARIO, {
-          actor: ScopeActorTypes.CLIENT,
-          seed: { journey: "consolidation-staged-import" }
-        })
-    );
-
-    When("I look at any control in my consolidation preference editor", () =>
-      Promise.resolve()
-    );
-
-    Then(
-      "trying to save any change I make is refused, with no request made",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-17
-    Given(
-      "my brand has not explicitly turned on client-managed consolidation",
-      world => open(world)
-    );
-
-    When("I look for my consolidation preference surface", () =>
-      Promise.resolve()
-    );
-
-    Then("it is hidden from me", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "it only becomes visible once my brand explicitly turns it on for clients",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-20
-    Given(
-      "I hold a real account with a billing currency, addressed as my own",
-      () => Promise.resolve()
-    );
-
-    When("I read my account's currencies", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.refresh)
-    );
-
-    Then("I see the currency my account actually bills in", world =>
-      settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-    );
-
-    Then(
-      "I see my preferred payment currency exactly when one is actually set, never a substitute for it",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-21
-    Given(
-      "my brand lets me pay in a different currency than my account bills in",
-      world => open(world)
-    );
-
-    When(
-      "I choose a preferred payment currency and save, and later clear that choice and save again",
-      world => world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
-    );
-
-    Then(
-      "my chosen payment currency is recorded against my own account when I chose one",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "clearing it is recorded as an explicit choice to have no preferred payment currency, not left unspecified",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "saving with no change to either currency makes no request at all",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-22
-    Given("I have opened my account's currencies in the editor", world =>
-      open(world)
-    );
-
-    When("I change the currency my account bills in and save", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update)
-    );
-
-    Then("the new billing currency is recorded against my own account", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "changing both my billing currency and my preferred payment currency together saves them in one request",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-23
-    Given(
-      "my brand has not explicitly allowed paying in a different currency",
-      world => open(world)
-    );
-
-    When("I look for the preferred-payment-currency choice", () =>
-      Promise.resolve()
-    );
-
-    Then("it is not offered to me", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then("it only becomes offered once my brand explicitly allows it", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "my consolidation preference surface's own visibility is unaffected either way",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-24
-    Given("my brand supports a set of currencies for billing", world =>
-      open(world)
-    );
-
-    When("I look at the currencies I can choose between", () =>
-      Promise.resolve()
-    );
-
-    Then("I see my brand's supported currencies, ordered by name", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "if my brand's list does not include my account's own billing currency, I still see and can keep it",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-25
-    Given(
-      "the request is addressed to a client record that is not my own",
-      () => Promise.resolve()
-    );
-
-    When("I look for that client's account currencies", () =>
-      Promise.resolve()
-    );
-
-    Then(
-      "neither the currencies nor the preferred-payment-currency choice are shown to me",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then(
-      "attempting to save any change is refused, with no request made",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-26
-    Given(
-      "I have just saved a new preferred payment currency for my account",
-      world => open(world)
-    );
-
-    When("I read my account's currencies again", world =>
-      world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.refresh)
-    );
-
-    Then(
-      "I see the payment currency I just saved, not the one I had before",
-      world =>
-        settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-    );
-
-    Then("the rest of the app resolves my currency the same new way", world =>
-      settles(() => world.expectMeta({ hasError: false }))
+      expectModel(world, { dateOfMonthDay: OUT_OF_RANGE })
     );
   }
 );

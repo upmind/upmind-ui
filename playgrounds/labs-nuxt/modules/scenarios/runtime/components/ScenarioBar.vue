@@ -13,8 +13,9 @@
 
       <ScenarioMenu
         :tracks="tracks"
-        :presets="presets"
+        :states="states"
         :armed="armed"
+        :state="state"
         :preset="preset"
         :disabled="!player.isAvailable"
         @select="choose"
@@ -163,7 +164,7 @@ const props = defineProps<ScenarioBarProps>();
 
 const { t } = useI18n();
 
-const { preset, arm, disarm } = useForcedState();
+const { preset, state, arm, disarm } = useForcedState();
 
 const armed = computed(() => props.player.track.value);
 const status = computed(() => props.player.status.value);
@@ -198,7 +199,7 @@ async function choose(choice: ScenarioChoice): Promise<void> {
   // it arms its own handlers over the same worker.
   if (playing) await props.player.stop();
 
-  if (choice.kind === SCENARIO_CHOICE.FORCE) await arm(choice.preset);
+  if (choice.kind === SCENARIO_CHOICE.FORCE) await arm(choice.state);
   else if (!playing) await disarm();
 }
 </script>

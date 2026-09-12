@@ -39,12 +39,58 @@ Every row is read off the LANDED module, its schemas and its own `__tests__/`. E
 | D14 | The filter bar and its fields | `useContext().schemas.query` — the module's own `{ schema, uischema }` pair. ABSENT = halt to door (M2 regrade), never derived around |
 | D15 | The sort control's options | The criteria schema's own sort member (the module's sortable-properties enum). ABSENT or a raw string literal = halt to door |
 | D16 | The pager | `useContext().pagination` — the reactive descriptor. ABSENT = halt to door |
+| D17 | `presentation.icon` | The module's own subject, named as a **lucide** icon the app's map resolves. The template ships `"icon-name"` as a PLACEHOLDER, and a placeholder is a RED gate |
+| D18 | The error flag every step's `expectMeta` names | The BOOTED composable's own `.meta.ts`: a collection (`useList`) publishes `hasError`, a manager (`useMutate`) publishes `hasErrors`. A manager-only declaration (a single form) says `hasErrors`; the template's `hasError` is the collection's and is a RED gate there — `expectMeta` is a subset match over raw meta and renames nothing (`client-billing-settings.steps.ts`, 2026-09-12: 51 steps mismatched on the first scene) |
+| D19 | The action ids the steps fire (`*_COVERED_ACTIONS`) | Keys of the BOOTED composable's own `useActions()` return, per id. `refresh` is a collection's; a manager re-reads through `reset` and has no `refresh` — a manager-only declaration firing it fails mid-replay with `unknown action` (`client-billing-settings.steps.ts`, 2026-09-12) |
+| D20 | The replay spec that RUNS the catalog — `{module}.replay.int.test.ts` | Lands WITH the step catalog, in the same `__tests__/`, never after it and never only when a page exists: it replays every non-`@todo` scenario of the module's own `.feature` through that catalog against the composable the declaration BOOTS, over the module's own RECORDED corpus (`templates/{module}.replay.int.test.ts`, over `packages/headless/src/testing/replay-feature.ts`). It is a **RED gate**, not a report — D18's wrong flag and D19's wrong action id both TRACE perfectly, so the traceability test cannot see either and only an execution can. The scenario key maps to the composable whose actions the steps actually fire; a catalog whose scenarios need a second composable's action reds here rather than being skipped, which is the derivation defect surfacing, not the replay's gap (`client-billing-settings`, 2026-09-12: two defects landed under the silence of a catalog nothing executed) |
+| D21 | The forced states the page OFFERS, and their names | Not derived by the run — the page reads the module's `.feature` at run time (`labs runtime/force/states.ts`): a sentence's words give the recipe (held: "loading / in progress / still saving / never settles / waits"; refused: "fails / refused / errored"; absent: "empty / no records / absent"; a write verb — save, change, update, delete… — makes it a write, else a read), and the recipe gives the ONE word every page uses (`Loading` · `Empty` · `Errored` · `Saving` · `Refused`, `forcedStateLabel`). `Loading` is offered to every page that reads, named or not. A feature sentence outside that vocabulary offers NO state, silently — so the feature author writes the states in these words, and the `force-states.spec` listing is the receipt |
+| D22 | WHICH scenarios get steps at all | Not every scenario does. ADR-020 Amendment 5 (operator ruling 2026-09-12 — "tests are tests, scenarios are scenarios; not every test is a replayable scenario"): a scenario is a TRACK only when a real step drives EVERY line of it; otherwise it stays SPEC, gets no steps, and the player must not list it. So the feature splits into **page stories** (a person reading, filtering, sorting, paging, adding, removing, defaulting — drivable) and **contracts** (transport failure, staged/disabled state, brand gate, scope refusal, identity read-back — a sibling `*.int.test.ts` proves these, never a track). A step is legitimate ONLY if it fires a real action id off the booted composable or presses a real control; `() => Promise.resolve()`, a `seed: { journey }` boot (no executor honours `WorldScope.seed`), and a flag-only `Then` in a scenario nothing drives are all FAKE. And never half-match: the harness reads a partial match as playable, so a scenario that loses one step loses ALL its own steps. Receipt: `client-billing-settings`, 2026-09-12 — 26 scenarios, **18 driveable, 8 faked** with 32 do-nothing steps between them, every gate green throughout |
 
 **D8's naming is a gate, not a preference.** Before filing the derivation table, check each drawn control's `name` against `useActions()`: a name that is not a live member — and is not itself the reason a handoff exists — is a control no scenario can press. Echo the create control's resolved capability by name in the report.
 
-`presentation.icon` is neither asked nor derived: the template carries the placeholder token and the author names the module's icon after the run.
+**D17 is a Derive-gate field like every other row, never "named after the run".** `modules/scenarios/__tests__/icon-resolution.spec.ts` (`AC-10`) reds on any name that falls back — and a fallback glyph is still an `<svg>`, so every count-based assertion stays green while the row draws the wrong picture. So the run that ships an unreplaced `icon-name` is the run that breaks the gate. Derive it from the module's subject and resolve it against the audit's own oracle: the published `Icon` component, lucide names only (the playground registers no SVG asset pack, so nothing else can resolve).
 
 **D6's derived set and its exclusions are ECHOED for overrule, never silently applied.** The column picker's options are wider than the element list — every field of the mapped record is offerable — so an excluded field is still switchable on; what the list decides is the DEFAULT visible set, the header row, the column order and each cell's renderer.
+
+## Forced states are the feature's, and forcing needs `reset`
+
+A page's forced states are DERIVED from the module's own `.feature` — one per
+transport condition a scenario names, labelled with that scenario's own title
+(operator ruling, 2026-09-12; `runtime/force/states.ts`). This lane therefore:
+
+- **declares no forced states anywhere.** There is no field on the declaration
+  for them, no tag to add to a scenario, and no fixed list of four states. A
+  feature naming no transport condition offers none, and its page is Live-only
+  (`S12`) — a legitimate end state, never a gap to close by writing one down.
+- **augments the `.feature` when a state is missing, never the declaration.**
+  The way to give a page its loading / empty / refused states is the way the
+  module gets any other capability: a scenario in its own `.feature` that says
+  so, under the augmentation law above.
+- **requires the module to publish `reset`.** Arming swaps what the tab's NEXT
+  request is answered with, so a module that never asks again shows nothing:
+  the page warns loudly (`ScenarioPlayground.vue`) and every state reads as a
+  dead control. `reset` ships from the composable lane's own templates
+  (`composable/templates/**`); a module without one is a **HALT back to the
+  door** (M2 regrade), exactly like an absent channel.
+- **owes the rendered proof.** One 3-line spec per scenario the shared
+  playground draws, named for the MODULE its `tracks` field carries and landed
+  beside the harness in
+  `playgrounds/labs-nuxt/modules/scenarios/runtime/components/__tests__/`;
+  `modules/scenarios/__tests__/forced-surface-coverage.spec.ts` reds without it.
+  It is three lines and no more — every claim lives in the shared harness, so a
+  page that hand-writes one is proving the harness, not itself:
+
+  ```ts
+  // @vitest-environment happy-dom
+  import declaration from "../../../useModules/module.scenario";
+  import { proveForcedSurface } from "./forced-surface.harness";
+
+  await proveForcedSurface(declaration);
+  ```
+
+  ONE MODULE PER FILE: each module's replay lifecycle installs its own request
+  interceptor over the same globals, so two in one file leaves the second one's
+  server answering the first one's page.
 
 ## Ownership — every file, one seat
 
@@ -52,10 +98,12 @@ Every row is read off the LANDED module, its schemas and its own `__tests__/`. E
 | --- | --- | --- |
 | `{module}.scenario.ts` (the playground scenario directory) | developer | **AUTHORS** |
 | `{module}.presentation.ts` (same directory) | developer | **AUTHORS** |
-| `{scenario}.must-fail.patch` | developer | **AUTHORS** — it knows the mutated line |
+| `{scenario}.must-fail.patch` | developer | **AUTHORS** — it knows the mutated line, and emits it ONLY beside the spec it protects |
 | `{module}.steps.ts` (the module's `__tests__/`) | prover | **AUTHORS** |
+| `{module}.replay.int.test.ts` (same directory) | prover | **AUTHORS** — lands WITH the catalog, never after it (D20/D22) |
 | `{module}.traceability.test.ts` (same directory) | prover | **AUTHORS** |
 | `{scenario}.spec.ts` | prover | **AUTHORS** |
+| `forced-surface.{module}.spec.ts` (the rendered proof, beside the harness) | prover | **AUTHORS** — 3 lines, the skeleton above; every claim is the shared harness's |
 | `{module}.feature` (same directory) | prover | **AUGMENTS ONLY — lane 1 is its author** |
 
 **The augmentation law, exactly.** Lane 1 authors the module's `.feature` — the capability spec a module owes whether or not a page is ever built. This lane APPENDS the scenarios the page drives, and may REPHRASE a scenario so a step can match it. It never deletes a scenario, never narrows a capability, and never becomes the file's author. Appending is at the end of the file, so it can add no `Background:` and no second `Feature:` — every appended scenario carries its own boot `Given`. Where the module's existing `Background:` governs the appended scenarios, its steps are part of them and the catalog defines those too.
@@ -72,13 +120,15 @@ Seat lanes are `agent-seat-separation`'s, cited not restated — including its c
 | --- | --- | --- | --- |
 | Derive | `upmind-agent:plan` (light route) → the filled derivation table | planner | **undecided-field count = 0** AND every derived row carries a `file:line` in the landed module |
 | Code | `upmind-agent:code` with this lane's `templates/` | developer | **diff file count > 0** AND **hand-off filed** (the declaration's public surface handed to the prover; diff withheld — ADR-029) |
-| Tests | `upmind-agent:test` — the module's step catalog and its one traceability test, plus the feature augmentation; layer routing is that factory's own | prover (contract-fed public surface only; diff and hand-off withheld) | **suite exit code = 0** per layer dispatched AND the module's one traceability test green AND **every new mutant proven RED blind** AND the door's **build gate still exit 0** (full monorepo build) |
+| Tests | `upmind-agent:test` — the module's step catalog, its one replay spec and its one traceability test, plus the feature augmentation; layer routing is that factory's own | prover (contract-fed public surface only; diff and hand-off withheld) | **suite exit code = 0** per layer dispatched AND the module's one traceability test green AND **the module's `{module}.replay.int.test.ts` green** AND **every new mutant proven RED blind** AND the door's **build gate still exit 0** (full monorepo build) |
 | Verify | `upmind-agent:review` (verify lane) | verifier | **verdict = PRESENT** — the page boots and draws at every offered cell; its criteria chrome (filter bar, sort control, pager) renders off the module's own `schemas.query` / `pagination` channels; and every drawn control presses a live member — measured against the module's oracle surface, never the declaration's self-report. A page that draws rows but cannot filter, sort or page what the oracle offers is ABSENT |
 | Review | `upmind-agent:review` (code lane) | reviewer (pre-gate) | **🔴 blocker count = 0** |
 
 **No Docs stage, deliberately.** The declaration is its own documentation surface — the app draws each declaration's source verbatim in the Scenario sheet — and the playground keeps no per-scenario docs. The module doc set is lane 1's.
 
 **Tests are dispatched exclusively through `upmind-agent:test`.** This lane never calls its internal unit / integration / e2e phases directly.
+
+**The replay spec (D20) IS the steps lane's RED gate.** The traceability test grades step TEXT against catalog PATTERNS, so a wrong flag (D18), a wrong action id (D19) and a fake step (D22) all trace perfectly and have never been run. The replay executes them. A SKIP in it is correct — that is a D22 contract scenario, spec-only by design. A RED is a halt, and it is read the same way every other gate is: fix it in the catalog when the catalog is wrong, regrade the module to the door when the capability is absent, never by deleting the scenario or loosening the step.
 
 ## Add-or-update — the upgrade law
 

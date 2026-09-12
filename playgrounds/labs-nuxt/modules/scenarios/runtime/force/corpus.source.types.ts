@@ -27,7 +27,4 @@
  * `captured_at`, `brand_domain`, `source`, `provenance`, response headers) and
  * a resolved source hands those through untouched — nothing reads them here.
  */
-export type RecordedFixture = {
-  request: { method: string; path: string };
-  response: { status: number; body: unknown };
-};
+export type { RecordedFixture } from "@upmind-automation/test-fixtures/corpus-replay";

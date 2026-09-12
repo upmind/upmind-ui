@@ -1,5 +1,3 @@
-import { computed } from "vue";
-import { BrandConfigKeys } from "@upmind-automation/types";
 import { useContext } from "../../utils";
 import type {
   BillingSettingsContext,
@@ -32,39 +30,9 @@ export function createBillingSettingsManagerContext(
 ) {
   const { state } = actor;
 
-  /**
-   * The whole `config` bag, read once via the shared `useContext` utility.
-   * `BrandConfigKeys` values are themselves dotted strings
-   * (`"invoices.consolidation.restrict_to_staff"`) — `useContext`'s
-   * string-path form would split that on `.` into nested segments rather
-   * than treating it as one atomic key, and its array form is a MULTI-PICK,
-   * not a nested path, so neither expresses "one key that happens to
-   * contain dots". Reading the container and indexing directly avoids both.
-   */
-  const config = useContext<Record<BrandConfigKeys, boolean> | undefined>(
-    state,
-    "config"
-  );
-
-  /** `true` only when the brand has explicitly opted clients into this surface (row O8). */
-  const isVisible = computed(
-    () =>
-      config.value?.[
-        BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
-      ] === false
-  );
-
-  /**
-   * `true` only when the brand has explicitly opted clients into paying in a
-   * different currency (row B6). OPPOSITE polarity to `isVisible` above —
-   * consumed as `!!value`, never sharing a helper or default with it.
-   */
-  const hasPaymentCurrencyChoice = computed(
-    () =>
-      !!config.value?.[
-        BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
-      ]
-  );
+  // No state flags here — `isStaged`, `isVisible` and
+  // `hasPaymentCurrencyChoice` are meta (`useBillingSettingsManager.meta.ts`);
+  // context carries data only.
 
   // --- actor-specific context: none earned (arms: none — parity.yaml).
 
@@ -83,15 +51,6 @@ export function createBillingSettingsManagerContext(
 
     /** The base (persisted) model `revert()` restores to. */
     baseModel: useContext<BillingSettingsModel | undefined>(state, "baseModel"),
-
-    /** `true` while the addressed client record is a staged, unprocessed import (row C14). */
-    isStaged: useContext<boolean>(state, "lookups.isStaged.0"),
-
-    /** `true` only when the brand has explicitly opted clients into this surface (row O8). */
-    isVisible,
-
-    /** `true` only when the brand has explicitly opted clients into paying in a different currency (row B6). */
-    hasPaymentCurrencyChoice,
 
     /**
      * The currency options both account-currency controls offer — the

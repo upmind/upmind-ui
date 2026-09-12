@@ -20,7 +20,9 @@ Reds: the answerable-presets spec — bills only a feature that DECLARES the
 refusal, and owes no capture anywhere in the tree today.
 
 Re-armed 2026-08-31: the tag-read moved into hostablePresets; the mutant
-re-adds the deleted prose gate beside it.
+re-adds the deleted prose gate beside it. Re-anchored 2026-09-12: the preset
+vocabulary became the RECIPE vocabulary, so the trailing context line carries
+its new name — the mutated lines are untouched.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/capabilities.ts
 index ef5f96720..c2b52166c 100644
@@ -37,5 +39,5 @@ index ef5f96720..c2b52166c 100644
 +    !isEmpty(intersection(declaredTags(feature), REFUSAL_TAGS)) ||
 +    /refus|reject|error|fail|not-authenticated/i.test(feature);
  
-   const hostable: Record<ForceUrlPreset, boolean> = {
+   const hostable: Record<ForceMeasuredRecipe, boolean> = {
      empty: some(fixtures, isServedRead),

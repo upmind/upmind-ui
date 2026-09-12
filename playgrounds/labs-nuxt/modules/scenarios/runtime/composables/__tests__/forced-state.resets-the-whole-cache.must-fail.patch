@@ -6,6 +6,10 @@ booted once at init by singletons that never re-ask, so the header is left holdi
 an undefined brand for the rest of the tab's life: the broken logo the live drive
 found over every forced page.
 
+Re-anchored 2026-09-12: the retired preset vocabulary left the composable's
+import list, so the inserted import sits beside the ones that remain. The
+mutated line is untouched.
+
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Reds: the forced-state spec — reconciling a preset resets the module's own queries
@@ -17,9 +21,9 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useForc
 @@ -58,6 +58,7 @@ import { computed, effectScope, nextTick, ref, watch } from "vue";
  import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
  import { availableModules } from "../force/corpus.source";
- import { FORCE_URL_PRESETS } from "./useForcedState.types";
+ import { forcedStateAt, forcedStateRecipeId } from "../force/states";
 +import { useQueryClient } from "@tanstack/vue-query";
- import { noop, some } from "lodash-es";
+ import { isString, noop } from "lodash-es";
  import type {
    ForceReset,
 @@ -199,7 +200,7 @@ function create(): ForcedStateHandle {

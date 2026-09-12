@@ -26,9 +26,6 @@ export function createBillingSettingsContext(
   /** The five persisted consolidation fields, mapped off the client record. */
   const data = computed(() => query.data.value);
 
-  /** `true` while the addressed client record is a staged, unprocessed import (row C14). */
-  const isStaged = computed(() => !!query.data.value?.isStaged);
-
   /** The query's own captured error — read, never raised. */
   const error = computed<ResponseError | undefined>(() =>
     query.error.value ? mapToHeadlessError(query.error.value) : undefined
@@ -42,9 +39,6 @@ export function createBillingSettingsContext(
 
     /** The query's own captured error — read, never raised. */
     error,
-
-    /** `true` while the addressed client record is a staged import. */
-    isStaged,
 
     /**
      * The session-resolved account's id (rows B1/X4) — a literal absence,

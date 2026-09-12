@@ -386,7 +386,7 @@ const primaryAlert = computed<
     return {
       title: t("invoice.order_locked"),
       description: t("invoice.order_locked_msg"),
-      icon: "lock-03",
+      icon: "lock-01",
       variant: "neutral",
       dataAttrs: {
         "data-test-key": "confirmation-payment-alert",
@@ -419,7 +419,7 @@ const primaryAlert = computed<
         : t("invoice.payment_required_msg", {
             amount: orderData.value?.summary.unpaidAmountFormatted
           }),
-      icon: "calendar",
+      icon: "clock-stopwatch",
       variant: "warning",
       dataAttrs: {
         "data-test-key": "confirmation-payment-alert",

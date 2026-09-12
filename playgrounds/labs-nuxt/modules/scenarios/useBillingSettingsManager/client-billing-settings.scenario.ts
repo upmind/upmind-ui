@@ -46,6 +46,6 @@ export default {
     // `table` / `card` / `actions` are OMITTED — FORM_FLOW mounts no
     // consumer for any of them (`FormFlowSurface.types.ts:22-25`, R6-29,
     // forbids restating the action pair the live port already exposes).
-    icon: "icon-name"
+    icon: "credit-card-01"
   }
 } satisfies ScenarioDeclaration;

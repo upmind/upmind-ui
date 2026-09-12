@@ -51,8 +51,8 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { FORCE_URL_PRESETS } from "../../composables/useForcedState.types";
 import { answerablePresets, captureGaps } from "../capabilities";
+import { FORCE_RECIPES } from "../states.types";
 import {
   every,
   filter,
@@ -70,8 +70,8 @@ import {
   toUpper,
   values
 } from "lodash-es";
-import type { ForceUrlPreset } from "../../composables/useForcedState.types";
 import type { RecordedFixture } from "../corpus.source.types";
+import type { ForceMeasuredRecipe } from "../states.types";
 
 // -----------------------------------------------------------------------------
 
@@ -151,8 +151,8 @@ const isServableRefusal = (fixture: RecordedFixture) =>
  * there; `error-collection` = a servable recorded refusal; `error-action` = a
  * servable refused NON-GET.
  */
-const measured = (fixtures: RecordedFixture[]): ForceUrlPreset[] =>
-  filter(FORCE_URL_PRESETS, preset => {
+const measured = (fixtures: RecordedFixture[]): ForceMeasuredRecipe[] =>
+  filter(FORCE_RECIPES, preset => {
     if (preset === "loading") return !isEmpty(fixtures);
     if (preset === "empty")
       return some(
@@ -214,8 +214,8 @@ const hasWrite = (fixtures: RecordedFixture[]) =>
 const beforeItsCapture = (bodies: Record<string, RecordedFixture>) =>
   omitBy(bodies, isRefused);
 
-const inVocabulary = (presets: ForceUrlPreset[]) =>
-  filter(FORCE_URL_PRESETS, preset => includes(presets, preset));
+const inVocabulary = (presets: ForceMeasuredRecipe[]) =>
+  filter(FORCE_RECIPES, preset => includes(presets, preset));
 
 // -----------------------------------------------------------------------------
 
@@ -282,7 +282,7 @@ describe("AC2 the offer is measured from recordings, never read out of prose", (
   });
 
   it("client-email answers all four, so it offers all four", () => {
-    expect([...named("client-email").offered]).toEqual([...FORCE_URL_PRESETS]);
+    expect([...named("client-email").offered]).toEqual([...FORCE_RECIPES]);
   });
 
   it("client-personal-details holds no collection, so its empty is the record that is not there", () => {
@@ -340,7 +340,7 @@ describe("AC2 the offer is measured from recordings, never read out of prose", (
       expect(
         [...offered],
         `${module} re-ordered or renamed the vocabulary`
-      ).toEqual(filter(FORCE_URL_PRESETS, preset => offered.includes(preset)));
+      ).toEqual(filter(FORCE_RECIPES, preset => offered.includes(preset)));
     }
   });
 
@@ -394,7 +394,7 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
     for (const entry of RECORDED) {
       for (const gap of gapsOf(entry)) {
         expect(
-          FORCE_URL_PRESETS,
+          FORCE_RECIPES,
           `${entry.module} reported ${gap}, which is not a forcible state`
         ).toContain(gap);
       }
@@ -423,7 +423,7 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
    * load failure than a 404 to a read is. Both error states are owed a capture,
    * and this gate names them rather than letting the buttons quietly vanish.
    */
-  const OWED: Record<string, ForceUrlPreset[]> = {
+  const OWED: Record<string, ForceMeasuredRecipe[]> = {
     "client-notes": ["error-collection", "error-action"],
     // No labs scenario page and no force affordance, so a capture would prove
     // nothing — single-record reads only, with no absent-record read on file.

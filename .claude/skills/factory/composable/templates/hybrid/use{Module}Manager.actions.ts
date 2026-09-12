@@ -13,8 +13,10 @@
  */
 
 import { waitFor } from "xstate/lib/waitFor";
+import { resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useI18n } from "../system-localisation";
+import { queryKey } from "./module.services";
 import {
   DEBOUNCE_DELAY,
   stateValue,
@@ -177,6 +179,20 @@ export function createModuleManagerActions(
     removeFromRegistry(scopeKey);
   }
 
+  /**
+   * Drops the module's cache entries and re-drives the machine through its own
+   * `REFRESH` (`loading` → `loadLookups`), so the editor asks again through
+   * whatever transport answers — the redial the labs force handle needs
+   * (`useForcedState`: "the preset is only visible because the page asks
+   * again"). `revert()` cannot serve this: it restores from memory with no
+   * request. `resetQueryByKey`, not an invalidate: a removed entry redraws
+   * from nothing; an invalidated one keeps stale rows on screen.
+   */
+  async function reset(): Promise<void> {
+    await resetQueryByKey(queryKey)();
+    send({ type: "REFRESH", data: {} });
+  }
+
   // --- actor-specific actions: none earned yet (clause 2 — fresh modules start
   // armless). When a scope earns one, add `useModuleManager.actions.{actor}.ts`
   // following the collection half's own arm template
@@ -203,6 +219,9 @@ export function createModuleManagerActions(
 
     /** Resolves true once a save has completed. */
     onDone,
+
+    /** Drops the cache entries and re-drives the machine — the force handle's redial. */
+    reset,
 
     /** Stops the underlying machine. */
     stop,

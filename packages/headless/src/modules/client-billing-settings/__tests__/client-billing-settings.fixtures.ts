@@ -40,9 +40,10 @@
  * brand to capture against — the integration spec clones the real
  * `get-clients-id` envelope and overrides only `staged_import` to `true`
  * (the same single-flag-override technique as the brand-gate case above,
- * never a fabricated envelope). A `500` (AC16) is fault-injected in the
- * integration spec itself (a generic transport-layer failure, not a captured
- * success body dressed up).
+ * never a fabricated envelope). The `500` (AC16) IS captured, as a forced
+ * fixture (`case=server-error`, generator `forceStatus`): the real request,
+ * its response overridden to the wire error envelope — the playground's
+ * forced `Errored` state is served from it.
  *
  * ## Staging hygiene
  * Every field this run touches is restored to the account's own recorded
@@ -72,6 +73,7 @@ import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
+import { ForcedErrorCode } from "@upmind-automation/test-fixtures/types";
 import { GrantTypes } from "@upmind-automation/types";
 import type { IToken } from "@upmind-automation/types";
 
@@ -313,6 +315,50 @@ describe("Client-Billing-Settings API Fixtures Generator", () => {
       throw new Error(
         `Read capture returned ${status} — refusing to ship a fixture that ` +
           "does not represent a readable client record."
+      );
+    }
+  });
+
+  // The failed READ (AC16) as the module's OWN recording: staging never refuses
+  // a valid read, so the generator's `forceStatus` keeps the REAL request and
+  // stores the wire error envelope in its place — the same technique
+  // `basket-billing.fixtures.ts` uses for its `case=server-error` captures.
+  // This is the recording the playground's forced `Errored` state is served
+  // from; nothing in labs authors a failure.
+  it("captures FORCED 5xx GET /api/clients/{id}?with=custom_fields,custom_fields.field&case=server-error (AC16 — the failed read)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/clients/${clientId}?with=custom_fields,custom_fields.field&case=server-error`,
+      undefined,
+      ForcedErrorCode.Internal_Server_Error
+    );
+    generator.clearBearerToken();
+    if (status !== 500)
+      throw new Error(`forced client read stored ${status}, expected 500`);
+  });
+
+  it("captures GET /api/clients/{absent}?with=custom_fields,custom_fields.field&case=absent — the REAL no-such-record read, the single-record EMPTY state's own evidence", async () => {
+    // A signed-in read of an id that does not exist. Mirrors
+    // `client-personal-details.fixtures.ts`'s own absent capture: the labs
+    // force seam answers a single-record page's `empty` state ONLY from a
+    // recorded absence of its own (`captureGaps` names the debt otherwise),
+    // and the body is never authored by hand.
+    const ABSENT_CLIENT_ID = "00000000-0000-0000-0000-000000000000";
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/clients/${ABSENT_CLIENT_ID}?with=custom_fields,custom_fields.field&case=absent`
+    );
+    generator.clearBearerToken();
+    if (status < 400 || status === 401 || status === 403) {
+      const captures = generator.getCapturedFixtures();
+      for (const [key, { fixture }] of captures) {
+        if (fixture.request.path.includes("case=absent")) captures.delete(key);
+      }
+      throw new Error(
+        `A signed-in read of a client id that does not exist returned ` +
+          `${status} — neither an absent record nor a non-auth refusal, so ` +
+          "the single-record EMPTY state has nothing of its own to serve and " +
+          "the capture was DROPPED rather than shipped under its name."
       );
     }
   });

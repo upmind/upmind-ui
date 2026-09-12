@@ -8,9 +8,9 @@
  * `graphify-out/GRAPH_REPORT.md`.
  *
  * @graphify-citation `graphify-out/graph.json` (2026-08-27, 22914 nodes) —
- * re-checked for FE-3113's `presets` prop: no preset-list / capability node
- * exists in the tree, and the prop mints nothing — it relays
- * `useForcedState`'s own `ForceUrlPreset`.
+ * re-checked for the states prop: no preset-list / capability node exists in
+ * the tree, and the prop mints nothing — it relays `force/states.types.ts`'s
+ * own `ForcedState`.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -21,8 +21,8 @@
  */
 
 import type { FeatureTrack } from "../composables/useFeatureTracks.types";
-import type { ForceUrlPreset } from "../composables/useForcedState.types";
 import type { UseScenarioPlayer } from "../composables/useScenarioPlayer.types";
+import type { ForcedState } from "../force/states.types";
 
 // -----------------------------------------------------------------------------
 
@@ -37,11 +37,12 @@ export type ScenarioBarProps = {
   /** The page's playlist. Empty renders Live and no transport (`S12`, `AC2.3`). */
   tracks: readonly FeatureTrack[];
   /**
-   * The forced states the page's own corpus can answer (FE-3113), relayed whole
-   * to the menu. The bar derives nothing about them; it holds the worker handle,
-   * which is a different job from knowing what the recordings can serve. Mints
-   * nothing — `useForcedState`'s own `ForceUrlPreset`, see this file's head
-   * citation and `graphify-out/GRAPH_REPORT.md`.
+   * The forced states the page's own FEATURE declares and its recordings can
+   * answer, relayed whole to the menu. The bar derives nothing about them; it
+   * holds the worker handle, which is a different job from knowing what a
+   * module declares or what its recordings can serve. Mints nothing —
+   * `force/states.types.ts`'s own `ForcedState`, see this file's head citation
+   * and `graphify-out/GRAPH_REPORT.md`.
    */
-  presets: readonly ForceUrlPreset[];
+  states: readonly ForcedState[];
 };

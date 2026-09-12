@@ -1,6 +1,8 @@
 import { waitFor } from "xstate/lib/waitFor";
+import { resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useI18n } from "../system-localisation";
+import { queryKey } from "./client-billing-settings.services";
 import {
   DEBOUNCE_DELAY,
   contextValue,
@@ -187,6 +189,20 @@ export function createBillingSettingsManagerActions(
     removeFromRegistry(scopeKey);
   }
 
+  /**
+   * Drops the shared client-record cache entry and re-drives the machine
+   * through its own `REFRESH` (`loading` → `loadLookups`), so the form asks
+   * again through whatever transport answers — the redial the labs force
+   * handle needs (`useForcedState`: "the preset is only visible because the
+   * page asks again"). `revert()` cannot serve this: it restores from memory
+   * with no request (AC9). `resetQueryByKey`, not `invalidate`: an entry
+   * removed redraws from scratch; one invalidated keeps stale rows on screen.
+   */
+  async function reset(): Promise<void> {
+    await resetQueryByKey(queryKey)();
+    send({ type: "REFRESH", data: {} });
+  }
+
   // --- actor-specific actions: none earned (arms: none — parity.yaml).
 
   return {
@@ -204,6 +220,9 @@ export function createBillingSettingsManagerActions(
 
     /** Resolves true once a save has completed. */
     onDone,
+
+    /** Drops the cache entry and re-drives the machine — the force handle's redial. */
+    reset,
 
     /** Restores the base model — row C9. */
     revert,

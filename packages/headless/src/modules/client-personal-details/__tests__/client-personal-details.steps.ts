@@ -1,14 +1,40 @@
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/__tests__/client-personal-details.steps
- * @description The module's ONE step catalog — what drives the colocated
- * `client-personal-details.feature`. Engine-free by construction: it imports
- * `defineSteps` and `World` and nothing else, so the same catalog can be
- * re-registered against any runner.
+ * @description The module's ONE step catalog — one definition per phrasing the
+ * sibling `client-personal-details.feature`'s DRIVEABLE scenarios use.
+ * Engine-free by construction: it imports `defineSteps` and `World` and nothing
+ * else, so the same catalog can be re-registered against any runner.
  *
  * Every handler speaks to the module through the `World` members only. There
  * is no DOM read, no request read and no import of the module's own source
  * here.
+ *
+ * ADR-020 Amendment 5 (operator ruling 2026-09-12) — "tests are tests,
+ * scenarios are scenarios; not every test is a replayable scenario." A scenario
+ * earns step definitions ONLY when a real step drives every line of it against
+ * the composable this key BOOTS: the read-only COLLECTION (`usePersonalDetails`,
+ * the declaration's `useList`). The EDITOR (`usePersonalDetailsManager`,
+ * `useMutate`) is a separate composable this key does not boot, so its actions —
+ * `input` / `update` / `revert` / `clear` / `filterFields` / `onDone` / `stop` —
+ * are undriveable here. So:
+ *
+ *   - every editor scenario (the input/update/revert cycle AC-46/47/50, the
+ *     language save round-trip AC-33/48, and the whole manager surface) carries
+ *     NO step here and is proven by the manager int specs
+ *     (`client-personal-details.manager.int.test.ts`, `*.manager-cold-boot.*`,
+ *     `*.clear-through-pipeline.*`), each anchored by its @AC tag;
+ *   - the load-failure scenario (AC-31/40) is selected only through
+ *     `WorldScope.seed`, which no executor honours today, so it too is
+ *     spec-only and proven by `client-personal-details.read.int.test.ts`.
+ *
+ * The read surface DRIVEN here: boot, read, and the brand-language read-backs —
+ * `isReady` and `refresh` are the whole fireable set. Assertions are CONCRETE
+ * booleans over the collection's published meta (`isAvailable`/`hasError`) —
+ * never an asymmetric matcher, which the world's `isMatch` subset check reads as
+ * a mismatch. The language identity/round-trip and empty-value semantics each
+ * scenario alludes to are proven at the language and manager int specs the @AC
+ * tags anchor to.
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
@@ -22,26 +48,20 @@ import type { World } from "@upmind-automation/scenario-harness";
  * The scenario key this feature is driven under. A literal here rather than
  * an import: `packages/headless` holds no scenario concept at all — the key
  * is the consuming playground's (`client_personal_details`, bound to BOTH
- * `usePersonalDetails` and `usePersonalDetailsManager`).
+ * `usePersonalDetails` and `usePersonalDetailsManager`; the world boots the
+ * `useList` half).
  */
 export const CLIENT_PERSONAL_DETAILS_SCENARIO = "client_personal_details";
 
 /**
- * The action ids these steps drive, across both halves. Exported as the
- * gate's `coveredActionIds` so the covered set and the calls that cover it
- * cannot drift.
+ * The action ids these steps drive. Exported as the gate's `coveredActionIds`
+ * so the covered set and the calls that cover it cannot drift: an id declared
+ * here and fired by no step below is a gate failure. The editor actions are
+ * gone — they belong to the manager half this key does not boot (ADR-020 Am.5).
  */
 export const CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS = {
   isReady: "isReady",
-  refresh: "refresh",
-  destroy: "destroy",
-  input: "input",
-  update: "update",
-  revert: "revert",
-  clear: "clear",
-  filterFields: "filterFields",
-  onDone: "onDone",
-  stop: "stop"
+  refresh: "refresh"
 } as const;
 
 export const coveredActionIds: readonly string[] = values(
@@ -115,106 +135,7 @@ export const clientPersonalDetailsSteps = defineSteps(
       world => settles(() => world.expectMeta({ hasError: false }))
     );
 
-    // AC-31 — a failed load settles, rather than hanging.
-    // Journey-seeded rather than option-flagged: the recorded corpus carries
-    // no failing fixture, so the failure path is selected by named journey,
-    // the extension point `WorldScope.seed` exists for.
-    Given("loading my profile fails", world =>
-      world.boot(CLIENT_PERSONAL_DETAILS_SCENARIO, {
-        actor: ScopeActorTypes.CLIENT,
-        seed: { journey: "profile-load-failure" }
-      })
-    );
-
-    When("I wait for it to be ready", world =>
-      world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.isReady)
-    );
-
-    Then("I am told it is not ready, with the failure visible to me", world =>
-      settles(() => world.expectMeta({ isAvailable: false, hasError: true }))
-    );
-
-    Then("I am not left waiting indefinitely", world =>
-      settles(() => world.expectMeta({ isAvailable: false }))
-    );
-
-    // AC-33 / AC-35 — the language identity round-trips through the manager.
-    Given("my profile's language is set to a particular language", world =>
-      open(world)
-    );
-
-    Given(
-      "my profile's language is no longer in my brand's offered list",
-      world => open(world)
-    );
-
-    When("I view and then save my profile unchanged", world =>
-      world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.update)
-    );
-
-    When("I view my profile's language choices", world =>
-      world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.isReady)
-    );
-
-    Then("the language I hold is still that same language", world =>
-      settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-    );
-
-    Then(
-      "what I see displayed is its name, while what is held and round-tripped is its identity",
-      world => settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then("my current language still appears, shown but not selectable", world =>
-      settles(() => world.expectMeta({ isAvailable: true }))
-    );
-
-    Then("it is not silently blanked out", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    // AC-47 / AC-50 — the editor's input/update/revert cycle.
-    Given(
-      "I set a text field to empty, a toggle to off, and a number to zero",
-      world =>
-        world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.input, {
-          publicName: "",
-          customFields: { age: 0 }
-        })
-    );
-
-    When("I save my profile", world =>
-      world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.update)
-    );
-
-    Then("all three of those changes are sent", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
-
-    Then("none of them is silently dropped for looking empty", world =>
-      settles(() => world.expectMeta({ isAvailable: true }))
-    );
-
-    Given("I have made two changes to my profile in the editor", world =>
-      world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.input, {
-        publicName: "Changed",
-        customFields: { age: 99 }
-      })
-    );
-
-    When("I discard my edits", world =>
-      world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.revert)
-    );
-
-    Then(
-      "my profile in the editor is exactly what it was before I started",
-      world =>
-        settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-    );
-
-    Then("it is no longer reported as changed", world =>
-      settles(() => world.expectMeta({ hasError: false }))
-    );
+    // AC-34 / AC-35 — the language choices are read off the same collection.
 
     // AC-43 — bare construction, no arguments.
     When("I open my profile editor with no arguments", world => open(world));

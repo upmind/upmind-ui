@@ -3,6 +3,9 @@
     v-if="descriptor.archetype.archetype === ARCHETYPE.FORM_FLOW"
     :snapshot="descriptor.snapshot"
     :actions="port.actions"
+    :locked="locked"
+    :forced-refusal="forcedRefusal"
+    :forced-state="forcedState"
   />
   <DetailSurface
     v-else-if="descriptor.archetype.archetype === ARCHETYPE.DETAIL"
@@ -53,6 +56,7 @@ const {
   handoffs,
   detail,
   locked,
-  forcedRefusal
+  forcedRefusal,
+  forcedState
 } = defineProps<ModuleRendererProps>();
 </script>

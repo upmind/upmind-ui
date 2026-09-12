@@ -55,7 +55,7 @@ Feature: A client reads and manages their own invoice-consolidation preference
   @AC-19 @read
   Scenario: Reading my preference shares my client record with other readers at no extra cost
     Given something else in the app is also reading my client record at the same time
-    When I read my consolidation preference
+    When I read my consolidation preference alongside them
     Then no extra request is made to read my client record on my behalf
     And what the other reader sees of my client record is unchanged by my own read
 
@@ -98,7 +98,7 @@ Feature: A client reads and manages their own invoice-consolidation preference
 
   @AC-7 @write
   Scenario: I can choose the day my invoice is due, or leave it at the earliest available day
-    Given I have opened my consolidation preference in the editor
+    Given I have opened my consolidation preference in the editor as a client whose services are never suspended
     When I choose a valid due-date day and save, and later clear that choice and save again
     Then my chosen due-date day is saved when I chose a valid one
     And clearing it is saved as an explicit choice for the earliest available day, not left unspecified
@@ -137,7 +137,7 @@ Feature: A client reads and manages their own invoice-consolidation preference
   Scenario: Saving with nothing changed makes no request and still succeeds
     Given I have opened my consolidation preference in the editor and changed nothing
     When I save
-    Then no request to save anything is made
+    Then nothing is sent to be saved
     And the save is treated as having succeeded
 
   @AC-13 @manager

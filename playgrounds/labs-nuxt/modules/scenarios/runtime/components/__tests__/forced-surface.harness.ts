@@ -268,10 +268,13 @@ export async function proveForcedSurface(
     // the page never held the rows the preset had to replace.
     server.use(...createForceHandlers("replay", bodies!, feature));
 
-    const port = useModulePort(declaration.useList as never, {
-      actor: ScopeActorTypes.CLIENT,
-      offeredActors: declaration.actors
-    });
+    const port = useModulePort(
+      (declaration.useList ?? declaration.useMutate) as never,
+      {
+        actor: ScopeActorTypes.CLIENT,
+        offeredActors: declaration.actors
+      }
+    );
 
     // The page hands the refusal down only under the preset it belongs to
     // (`ScenarioPlayground.vue`); relaying it under any other would draw a mark

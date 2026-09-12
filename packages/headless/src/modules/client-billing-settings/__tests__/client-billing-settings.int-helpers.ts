@@ -143,17 +143,18 @@ export const recorded = {
       { recordingsDir }
     ),
   /**
-   * `GET config/brand/values?keys=invoices.consolidation.restrict_to_staff,
-   * billing.payment_currencies.enable_different_currency_payment` — the
-   * WIDENED two-key call `design.md` §15.6 makes in ONE `ensureConfig()`
-   * (T23). Real recorded values on this brand: `restrict_to_staff: false`
-   * (consolidation opted in — AC17 stays green) and
+   * `GET config/brand/values?keys=<the two gate keys>,<the brand's four
+   * consolidation defaults>` — the ONE call `loadBrandGates` makes (T23,
+   * widened again for the schedule show/hide rules: legacy `enabledBV` /
+   * `effectiveBaseRule`). Real recorded values on this brand:
+   * `restrict_to_staff: false` (consolidation opted in — AC17 stays green),
    * `enable_different_currency_payment: false` (the payment-currency choice
-   * is NOT opted in on this brand — AC23's own "false" case IS this brand's
-   * real, unmodified state).
+   * is NOT opted in — AC23's own "false" case IS this brand's real state),
+   * and the defaults `enabled: true`, `base_rule: "daily"`,
+   * `base_rule_day_of_week: "monday"`, `base_rule_date_of_month_day: 1`.
    */
   brandGates: () =>
-    getFixture<BrandGatesEnvelope>("get-config-brand-values-9346eb8e", {
+    getFixture<BrandGatesEnvelope>("get-config-brand-values-780fc126", {
       recordingsDir
     }),
   /** `GET brand/settings` — a REAL `currencies` array (AC24), this module's own capture (T24). */

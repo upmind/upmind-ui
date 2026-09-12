@@ -116,7 +116,7 @@ describe("useBillingSettingsManager — a staged import locks every control (AC-
     const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
     await manager.useActions().isReady();
 
-    expect(manager.useContext().isStaged.value).toBe(true);
+    expect(manager.useMeta().isStaged.value).toBe(true);
     expect(manager.useMeta().isEditable.value).toBe(false);
 
     const observed = observeClientRequests();

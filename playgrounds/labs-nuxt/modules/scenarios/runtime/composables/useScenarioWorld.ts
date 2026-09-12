@@ -33,6 +33,7 @@ import {
 import type { ScenarioBinding, ScenarioKey } from "../scenario.types";
 import type { ModulePort } from "./useModulePort.types";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
+import { matchesExpectation } from "@upmind-automation/scenario-harness";
 import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -194,9 +195,11 @@ export function useScenarioWorld(
         );
     },
 
+    // The harness's one reading of an expectation, shared with the Node
+    // replay: an expected `null` is a CLEARED value (`matchesExpectation`).
     async expectContext(expected) {
       const live = requirePort().snapshot().context;
-      if (!isMatch(live, expected))
+      if (!matchesExpectation(live, expected))
         fail(
           `context mismatch — expected ${JSON.stringify(expected)}, got ${JSON.stringify(pick(live, keys(expected)))}`
         );

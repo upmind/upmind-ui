@@ -167,13 +167,13 @@ Feature: A client reads their own email history
   Scenario: Know whether that email is loading, empty, or errored, and wait for it
     When I open one of my emails
     Then I can see whether it is loading, empty, or errored
-    And I can wait for it to be ready before reading it
+    And I can wait for that email to be ready before reading it
     And that wait always finishes — including when I turn out not to be signed in, where it finishes by telling me it is not ready
 
   @AC-17 @single-email
   Scenario: Refresh one email, and release it when done
     Given I have opened one of my emails
-    When I refresh it
+    When I refresh that email
     Then it is re-read from the server
     And when I destroy it, it is released, and opening that email again gives me a fresh one
 
