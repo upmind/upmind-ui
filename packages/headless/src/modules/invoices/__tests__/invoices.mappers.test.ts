@@ -426,3 +426,57 @@ describe("mapPayments (via mapInvoice) — payment meaning and order", () => {
     expect(mapInvoice(raw).payments).toStrictEqual([]);
   });
 });
+
+describe("invoices — the invoice's OWN assigned payment method (AC-4, read half)", () => {
+  it("carries the assigned method's id and card details off the real recorded row", () => {
+    const assigned = paidRaw.payment_details;
+    // Guards the toggle below against a re-recording that drops the card: an
+    // assertion built on an absent field would pass for the wrong reason.
+    expect(assigned?.card_type).toBeTruthy();
+
+    expect(mapInvoice(paidRaw).paymentMethod).toStrictEqual({
+      id: assigned!.id,
+      cardType: assigned!.card_type,
+      cardLast4: assigned!.card_last4,
+      label: `${assigned!.card_type} ****${assigned!.card_last4}`
+    });
+  });
+
+  it("reads 'None selected' as a first-class state, never a partly-filled method", () => {
+    // The recorded unpaid row carries no assigned method — the real shape of
+    // AC-4's 'None selected', not a constructed one.
+    expect(unpaidRaw.payment_details).toBeFalsy();
+
+    expect(mapInvoice(unpaidRaw).paymentMethod).toStrictEqual({
+      id: null,
+      cardType: null,
+      cardLast4: null,
+      label: ""
+    });
+  });
+
+  it("draws no label for a method carrying no card, rather than a stray '****'", () => {
+    const raw = {
+      ...paidRaw,
+      payment_details: {
+        ...paidRaw.payment_details,
+        card_type: null,
+        card_last4: null
+      }
+    } as IInvoice;
+
+    const method = mapInvoice(raw).paymentMethod;
+    expect(method.id).toBe(paidRaw.payment_details!.id);
+    expect(method.label).toBe("");
+  });
+
+  it("is the INVOICE's assigned method, not the card a payment happens to carry", () => {
+    // Both records are called `payment_details` on the wire and are mapped by
+    // different readers; a reader crossing them would report a payment's card
+    // as the invoice's standing assignment.
+    const raw = { ...paidRaw, payment_details: null } as IInvoice;
+
+    expect(raw.payments?.[0]?.payment_details).toBeTruthy();
+    expect(mapInvoice(raw).paymentMethod.id).toBeNull();
+  });
+});

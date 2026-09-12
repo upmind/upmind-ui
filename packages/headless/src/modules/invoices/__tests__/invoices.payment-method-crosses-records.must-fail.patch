@@ -1,0 +1,27 @@
+Negative control for AC-4's READ half — the invoice's OWN assigned payment
+method (`mapPaymentMethod`, `invoices.mappers.ts:242-254`).
+
+Assertion it attacks: `invoices.mappers.test.ts` ›
+"is the INVOICE's assigned method, not the card a payment happens to carry".
+
+Two different records are both called `payment_details` on the wire: the
+invoice's standing assignment (`raw.payment_details`) and the card one
+payment happened to use (`raw.payments[].payment_details`). They are mapped by
+different readers. This mutation makes the invoice's reader fall back to the
+first payment's card, so an invoice with NO assigned method reports the card
+of a payment already made against it — 'None selected' silently reads as
+assigned, and AC-4's clear would appear not to have worked.
+
+VERIFIED 2026-09-12: applied against the fixed source,
+`invoices.mappers.test.ts` went 1 failed | 1992 passed (1996) — exactly the one
+assertion above, every other mapper assertion still green, which is what makes
+this a control on THIS capability rather than a broad breakage. Reverted
+immediately after; the fixed source re-confirmed GREEN at 1993/1996.
+
+--- a/packages/headless/src/modules/invoices/invoices.mappers.ts
++++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
+@@ -242,7 +242,7 @@
+ function mapPaymentMethod(raw: IInvoice): Invoice["paymentMethod"] {
+-  const details = raw.payment_details;
++  const details = raw.payment_details ?? raw.payments?.[0]?.payment_details;
+   if (!details) return { id: null, cardType: null, cardLast4: null, label: "" };
