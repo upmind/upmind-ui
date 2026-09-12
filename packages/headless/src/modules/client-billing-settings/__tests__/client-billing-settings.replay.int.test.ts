@@ -28,7 +28,6 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { http, HttpResponse } from "msw";
 import { useBillingSettingsManager } from "..";
 import {
   installCorpusReplay,
@@ -36,10 +35,6 @@ import {
 } from "../../../testing/corpus-replay";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
-  installBrandSettingsHandler,
-  installSettingsGetHandler,
-  installSettingsPutEchoHandler,
-  recorded,
   resetClientBillingSettingsScopes,
   seedClientSession
 } from "./client-billing-settings.int-helpers";
@@ -54,9 +49,8 @@ import type { NodeComposable } from "../../../testing";
 
 /**
  * The corpus EVERY scenario starts from: a real authenticated client session,
- * this module's own recorded client record on the read, the real-merge echo on
- * the write, and the brand's REAL recorded currency list. Nothing here is
- * built — every body is a committed capture the kit already serves.
+ * and this module's own recordings behind the shared replay. Nothing here is
+ * built and no module route is hand-wired.
  */
 async function arrangeRecordedCorpus(): Promise<void> {
   await seedClientSession();
