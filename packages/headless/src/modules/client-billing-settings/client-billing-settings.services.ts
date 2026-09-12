@@ -2,6 +2,7 @@
 import { useQuery as vueUseQuery } from "@tanstack/vue-query";
 import { computed, effectScope, getCurrentScope, ref } from "vue";
 import { AccessRoleTypes, BrandConfigKeys } from "@upmind-automation/types";
+import { compactDeep } from "../../utils/isDeepEmpty";
 import { useBrand } from "../brand";
 import { invalidateQueryByKey, useQuery } from "../query";
 import { useActiveSession, useSessionStore } from "../session-store";
@@ -11,6 +12,7 @@ import {
   mapBillingSettings,
   mapIBillingSettingsFields
 } from "./client-billing-settings.mappers";
+import { emptyToNull } from "./client-billing-settings.mappers";
 import { useSchema } from "./client-billing-settings.schemas";
 import { ClientBillingSettingsContextTypes } from "./client-billing-settings.types";
 import {
@@ -31,7 +33,6 @@ import {
   orderBy,
   some
 } from "lodash-es";
-import type { ScopeContext } from "../scope";
 import type {
   BillingSettingsContext,
   BillingSettingsModel,
@@ -40,9 +41,15 @@ import type {
   ClientBillingSettingsRecordQuery,
   ClientBillingSettingsServices
 } from "./client-billing-settings.types";
+import type { BrandConsolidationDefaults } from "./client-billing-settings.types";
 import type { ResponseError } from "../../utils";
+import type { ScopeContext } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { DefaultError, QueryKey } from "@tanstack/vue-query";
+import type {
+  DaysOfWeekTypes,
+  InvoiceConsolidationRuleTypes
+} from "@upmind-automation/types";
 import type { IAccount, ICurrency, IClient } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
@@ -386,19 +393,29 @@ async function fetchSettingsOnce(
 async function loadBrandGates(): Promise<{
   restrictToStaff: boolean | undefined;
   differentCurrencyPayment: boolean | undefined;
+  defaults: BrandConsolidationDefaults;
 }> {
   const { request, useUrl } = useQuery();
   const keys = [
     BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF,
-    BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+    BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED,
+    // The brand's own consolidation defaults — legacy gates its schedule
+    // fields on these (`enabledBV`, `effectiveBaseRule`), so they ride in the
+    // form data as `model.brand` for the uischema rules to read.
+    BrandConfigKeys.INVOICE_CONSOLIDATION_ENABLED,
+    BrandConfigKeys.INVOICE_CONSOLIDATION_BASE_RULE,
+    BrandConfigKeys.INVOICE_CONSOLIDATION_WEEK_DAY,
+    BrandConfigKeys.INVOICE_CONSOLIDATION_DATE
   ];
 
-  const response = await request<Record<BrandConfigKeys, boolean>>({
+  const response = await request<Partial<Record<BrandConfigKeys, unknown>>>({
     url: useUrl("config/brand/values", { keys: keys.join(",") }),
     withAccessToken: true
   });
 
-  const result = response.data as Record<BrandConfigKeys, boolean> | undefined;
+  const result = response.data as
+    | Partial<Record<BrandConfigKeys, unknown>>
+    | undefined;
 
   // Bracket access, never `get()`/`set()` — the wire's own keys ARE the
   // dotted `BrandConfigKeys` strings, flat, not a nested path (verified
@@ -407,13 +424,43 @@ async function loadBrandGates(): Promise<{
   return {
     // Row O8 / AC17 — TRI-STATE PRESERVED. Consumed downstream as
     // `!(value ?? true)`: visible ONLY on an explicit `false`.
-    restrictToStaff:
-      result?.[BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF],
+    restrictToStaff: result?.[
+      BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
+    ] as boolean | undefined,
     // Row B6 / AC23 — OPPOSITE POLARITY. Consumed downstream as `!!value`:
     // offered ONLY on an explicit truthy. Absent means NOT offered. NEVER
     // share a default or a `??` fallback with `restrictToStaff` above.
-    differentCurrencyPayment:
-      result?.[BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED]
+    differentCurrencyPayment: result?.[
+      BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+    ] as boolean | undefined,
+    // Wire types per the recorded captures: `enabled` boolean, the rule and
+    // weekday their enum tokens (`""` for unset, same as the client record —
+    // `emptyToNull`), the date a number.
+    defaults: {
+      // Legacy `enabledBV`: a truthy brand flag is ENABLED, anything else
+      // DISABLED — so a concrete boolean, never absent. Concrete also keeps
+      // `baseModel` equal to the parsed `model` (the parser fills a missing
+      // boolean with `false`), which `isDirty` compares on load.
+      enabled: !!result?.[BrandConfigKeys.INVOICE_CONSOLIDATION_ENABLED],
+      baseRule: emptyToNull(
+        result?.[BrandConfigKeys.INVOICE_CONSOLIDATION_BASE_RULE] as
+          | InvoiceConsolidationRuleTypes
+          | ""
+          | null
+          | undefined
+      ),
+      dayOfWeek: emptyToNull(
+        result?.[BrandConfigKeys.INVOICE_CONSOLIDATION_WEEK_DAY] as
+          | DaysOfWeekTypes
+          | ""
+          | null
+          | undefined
+      ),
+      dateOfMonthDay: result?.[BrandConfigKeys.INVOICE_CONSOLIDATION_DATE] as
+        | number
+        | null
+        | undefined
+    }
   };
 }
 
@@ -446,6 +493,17 @@ async function loadLookups(
     dayOfWeek: record?.dayOfWeek,
     dateOfMonthDay: record?.dateOfMonthDay,
     dueDateDay: record?.dueDateDay,
+    // READ-ONLY, rules-only (legacy `showBasicRuleFields` /
+    // `effectiveBaseRule` / `showDueDateDayField`): the brand's defaults and
+    // the client's own `never_suspend`, in the data so the uischema rules can
+    // read them. Never written — see `BillingSettingsModel`. Compacted HERE
+    // exactly as `useModelParser` compacts the model (`preserveContainers`),
+    // so `isDirty`'s `model` vs `baseModel` comparison stays equal on load —
+    // an uncompacted `{ baseRule: null }` beside a compacted `{}` reads dirty.
+    ...compactDeep(
+      { brand: brandGates.defaults, neverSuspend: !!record?.neverSuspend },
+      { preserveContainers: true }
+    ),
     // Row X7 — absent, never substituted, for a non-self addressed client.
     // Row B5 — always seeded (unconditional; the oracle never `v-if`-gates it).
     ...(account.value?.currencyId !== undefined && {
@@ -463,6 +521,9 @@ async function loadLookups(
     baseModel,
     lookups: {
       ...context.lookups,
+      // The currency pick-lists' source (rows B2/B3) — the schema reads it
+      // off `lookups.currencies`; a genuine collection, so no wrapping.
+      currencies: currencyOptions(scopeContext).value,
       // Array-wrapped — `DataManagerContext.lookups` is typed
       // `Record<string, any[]>` (every other consumer stores a genuine
       // collection there); this is the one scalar this module threads

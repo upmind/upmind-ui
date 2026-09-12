@@ -24,24 +24,28 @@
  * composables share the SAME scope matrix and context enum (design.md §4.2):
  * the entity being addressed is the settings, and a client has exactly one.
  */
+import {
+  DaysOfWeekTypes,
+  InvoiceConsolidationRuleTypes,
+  InvoiceConsolidationTypes
+} from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
+import type { EnumOption, JsonSchema7 } from "@jsonforms/core";
 import type {
   DefaultError,
   QueryKey,
   useQuery as vueUseQuery
 } from "@tanstack/vue-query";
 // See the @graphify-citation block above (graphify-out/graph.json) — IAccount
-// and ICurrency are consumed unchanged, net-new to this file only.
+// and ICurrency are consumed unchanged, net-new to this file only; the three
+// enums above are value imports because the label maps key on their members.
 import type {
-  DaysOfWeekTypes,
   IAccount,
   IClient,
   IClientBillingConsolidationForm,
-  ICurrency,
-  InvoiceConsolidationRuleTypes,
-  InvoiceConsolidationTypes
+  ICurrency
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
@@ -128,6 +132,51 @@ export type ClientBillingSettingsScopeMatrix =
 // -----------------------------------------------------------------------------
 
 /**
+ * Display copy for the three fixed pick-lists, keyed by the CONSUMED enum
+ * members (AC3): a member added in `@upmind-automation/types` is a compile
+ * error here, never a silently unlabelled choice. Module-level labelled
+ * lookups live in the module's types file (`AddressTypes`,
+ * `client-address.types.ts:112`); these are keyed maps rather than
+ * `{ key, value }` arrays because the enum already exists upstream. The
+ * strings are LEGACY's own English (`vue-app/public/languages/en/`:
+ * `_sentence.json` → `invoice.enable_consolidation_label` /
+ * `invoice.disable_consolidation_label`, `_.json` → the rule keys). Legacy
+ * renders no third radio — INHERIT is its "Default" tag plus an un-press
+ * (`URadioSelectorWithDefault.vue`); here it is a segment of its own, named
+ * for what it does.
+ * (graphify-out/graph.json — no existing label map for these enums; net-new.)
+ */
+export const CONSOLIDATION_LABEL: Readonly<
+  Record<InvoiceConsolidationTypes, string>
+> = {
+  [InvoiceConsolidationTypes.DISABLED]: "Do NOT consolidate invoices",
+  [InvoiceConsolidationTypes.ENABLED]: "Consolidate invoices",
+  [InvoiceConsolidationTypes.INHERIT]: "Inherit from brand"
+};
+
+/** When the one consolidated invoice is raised — legacy's `_.json` strings. */
+export const RULE_LABEL: Readonly<
+  Record<InvoiceConsolidationRuleTypes, string>
+> = {
+  [InvoiceConsolidationRuleTypes.DAILY]: "Daily",
+  [InvoiceConsolidationRuleTypes.DAY_OF_WEEK]: "Specific day of the week",
+  [InvoiceConsolidationRuleTypes.DAY_OF_MONTH]: "Specific day of the month",
+  [InvoiceConsolidationRuleTypes.FIRST_DAY_OF_MONTH]: "First day of the month",
+  [InvoiceConsolidationRuleTypes.LAST_DAY_OF_MONTH]: "Last day of the month"
+};
+
+/** The days a weekly consolidation may fall on. */
+export const WEEKDAY_LABEL: Readonly<Record<DaysOfWeekTypes, string>> = {
+  [DaysOfWeekTypes.MONDAY]: "Monday",
+  [DaysOfWeekTypes.TUESDAY]: "Tuesday",
+  [DaysOfWeekTypes.WEDNESDAY]: "Wednesday",
+  [DaysOfWeekTypes.THURSDAY]: "Thursday",
+  [DaysOfWeekTypes.FRIDAY]: "Friday",
+  [DaysOfWeekTypes.SATURDAY]: "Saturday",
+  [DaysOfWeekTypes.SUNDAY]: "Sunday"
+};
+
+/**
  * The client's invoice-consolidation preference as read off the wire — the
  * five persisted fields plus the staged-import flag (row C14) that gates
  * editability.
@@ -141,6 +190,8 @@ export type BillingSettingsRecord = {
   dueDateDay: number | null;
   /** `true` while the client record is a staged, not-yet-processed import (row C14). */
   isStaged: boolean;
+  /** The client's own `never_suspend` flag — legacy's extra gate on the due-date day (`showDueDateDayField`). (graphify-out/graph.json — net-new field.) */
+  neverSuspend: boolean;
 };
 
 /**
@@ -174,6 +225,15 @@ export type BillingSettingsModel = {
    * `restoreCompactedFields`.
    */
   preferredPaymentCurrencyId?: IAccount["preferred_payment_currency_id"];
+  /**
+   * READ-ONLY, rules-only: the brand's consolidation defaults and the client's
+   * `never_suspend` flag ride in the form data so the uischema rules can see
+   * them (legacy gates its schedule fields on both). Never written — the diff
+   * mappers key on the five consolidation fields and the two currencies only.
+   * (graphify-out/graph.json — net-new; see `BrandConsolidationDefaults`.)
+   */
+  brand?: BrandConsolidationDefaults;
+  neverSuspend?: boolean;
 };
 
 /**
@@ -205,6 +265,33 @@ export type BillingSettingsUpdateBody =
  * never widened here, matching `ProfileContext`'s own precedent.
  */
 export type BillingSettingsContext = DataManagerContext<BillingSettingsModel>;
+
+/**
+ * A schema property that also carries the pick-list the enum renderers read
+ * (`EnumRenderer.vue`: `schema.options || control.options`) — `options` is
+ * not a core schema keyword; `text` is the secondary label the tile/toggle
+ * renderers draw beside an option (legacy's "Default" tag).
+ * (graphify-out/graph.json: no headless or types node declares this shape;
+ * the option entry itself is `@jsonforms/core`'s.)
+ */
+export type OptionedSchema = JsonSchema7 & {
+  options?: (EnumOption & { text?: string })[];
+};
+
+/**
+ * The brand's own consolidation defaults, READ-ONLY in the form data so the
+ * uischema rules can read them — legacy gates its schedule fields on the
+ * brand (`showBasicRuleFields`, `effectiveBaseRule`). `enabled` is the
+ * brand's boolean flag as the wire carries it (legacy `enabledBV`: truthy =
+ * ENABLED). (graphify-out/graph.json — net-new; consumed from
+ * `config/brand/values`, never written back.)
+ */
+export type BrandConsolidationDefaults = {
+  enabled?: boolean;
+  baseRule?: InvoiceConsolidationRuleTypes | null;
+  dayOfWeek?: DaysOfWeekTypes | null;
+  dateOfMonthDay?: number | null;
+};
 
 /**
  * The reactive single-record read query, minted ONCE per scope in
@@ -269,6 +356,8 @@ export type ClientBillingSettingsServices = {
   loadBrandGates: () => Promise<{
     restrictToStaff: boolean | undefined;
     differentCurrencyPayment: boolean | undefined;
+    /** The brand's own consolidation defaults, from the SAME call (graphify-out/graph.json — `BrandConsolidationDefaults`). */
+    defaults: BrandConsolidationDefaults;
   }>;
   /** Schema-parses a SET event's incoming data, restoring compacted falsy/null leaves (hazard H5/H5b). */
   parse: (

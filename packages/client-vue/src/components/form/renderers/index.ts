@@ -3,6 +3,8 @@ import AddressRenderer from "./AddressRenderer.vue";
 import { tester as addressTest } from "./AddressRenderer.vue";
 import DomainRenderer from "./DomainRenderer.vue";
 import { tester as domainTest } from "./DomainRenderer.vue";
+import EnumToggleGroupRenderer from "./EnumToggleGroupRenderer.vue";
+import { tester as enumToggleGroupTest } from "./EnumToggleGroupRenderer.vue";
 import FilterBarRenderer from "./FilterBarRenderer.vue";
 import { tester as filterBarTest } from "./FilterBarRenderer.vue";
 import FilterButtonGroupRenderer from "./FilterButtonGroupRenderer.vue";
@@ -46,6 +48,7 @@ export const formRenderers = [
   registerEntry(SubProductRenderer, subProductTest),
   registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
   registerEntry(FilterToggleGroupRenderer, filterToggleGroupTest),
+  registerEntry(EnumToggleGroupRenderer, enumToggleGroupTest),
   registerEntry(FilterSearchRenderer, filterSearchTest),
   registerEntry(FilterRangeRenderer, filterRangeTest),
   registerEntry(FilterBarRenderer, filterBarTest)

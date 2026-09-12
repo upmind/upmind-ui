@@ -5,7 +5,23 @@ import {
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
-import type { BillingSettingsContext } from "./client-billing-settings.types";
+import {
+  CONSOLIDATION_LABEL,
+  RULE_LABEL,
+  WEEKDAY_LABEL
+} from "./client-billing-settings.types";
+import {
+  currencyChoices,
+  enumOptions,
+  whenDueDateApplies,
+  whenEffectiveRule,
+  whenScheduleApplies
+} from "./client-billing-settings.utils";
+import { concat, values } from "lodash-es";
+import type {
+  BillingSettingsContext,
+  OptionedSchema
+} from "./client-billing-settings.types";
 import type { ScopeContext } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type {
@@ -13,6 +29,7 @@ import type {
   JsonSchema7,
   UISchemaElement
 } from "@jsonforms/core";
+import type { ICurrency } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/client-billing-settings.schemas
@@ -31,39 +48,44 @@ import type {
  */
 
 /**
- * TypeScript's numeric enums reverse-map their keys, so `Object.values`
- * yields both the numeric values and their string keys. This filters to the
- * numeric members only — `InvoiceConsolidationTypes`' own `enum-options`
- * seam (design.md §11).
+ * Shared field definitions — every control's schema shape, kept behind
+ * `$ref` rather than inlined in `useSchema`, so an arm overriding one field
+ * can reference the others unchanged (`templates/ARMS.md` "definitions /
+ * $ref is the shape armed or armless"; `client-address.schemas.ts`'s own
+ * `useSchemaDefinitions`). Each pick-list carries its `enum` AND its
+ * labelled `options`, both derived from the ONE member list, so the two can
+ * never disagree. The currency lists come off `lookups.currencies`, which
+ * `loadLookups` seeds from the services' `currencyOptions` (rows B2/B3).
  */
-function numericEnumValues<T extends Record<string, string | number>>(
-  source: T
-): number[] {
-  return Object.values(source).filter(
-    (value): value is number => typeof value === "number"
-  );
-}
+export function useSchemaDefinitions(
+  context: BillingSettingsContext
+): Record<string, OptionedSchema> {
+  const currencies = context.lookups?.currencies as ICurrency[] | undefined;
+  // Legacy's two concrete positions first (`invoiceConsolidationOptions`),
+  // then INHERIT as a segment of its own rather than legacy's un-press.
+  const members = [
+    InvoiceConsolidationTypes.ENABLED,
+    InvoiceConsolidationTypes.DISABLED,
+    InvoiceConsolidationTypes.INHERIT
+  ];
+  const rules = values(InvoiceConsolidationRuleTypes);
+  const weekdays = values(DaysOfWeekTypes);
 
-/**
- * Shared field definitions — the five native controls' schema shapes, kept
- * behind `$ref` rather than inlined in `useSchema`, so an arm overriding one
- * field can reference the other four unchanged (`templates/ARMS.md`
- * "definitions / $ref is the shape armed or armless";
- * `client-address.schemas.ts`'s own `useSchemaDefinitions`).
- */
-export function useSchemaDefinitions(): JsonSchema7["definitions"] {
   return {
     enabled: {
       type: "number",
-      enum: numericEnumValues(InvoiceConsolidationTypes)
+      enum: members,
+      options: enumOptions(members, CONSOLIDATION_LABEL)
     },
     baseRule: {
       type: ["string", "null"],
-      enum: [...Object.values(InvoiceConsolidationRuleTypes), null]
+      enum: concat(rules, null),
+      options: enumOptions(rules, RULE_LABEL)
     },
     dayOfWeek: {
       type: ["string", "null"],
-      enum: [...Object.values(DaysOfWeekTypes), null]
+      enum: concat(weekdays, null),
+      options: enumOptions(weekdays, WEEKDAY_LABEL)
     },
     dateOfMonthDay: {
       type: ["integer", "null"],
@@ -77,29 +99,48 @@ export function useSchemaDefinitions(): JsonSchema7["definitions"] {
     },
     /** The account's own billing currency (row B5) — always required, never nullable. */
     currencyId: {
-      type: "string"
+      type: "string",
+      ...currencyChoices(currencies)
     },
     /** The account's preferred payment currency, or `null` to clear it (row B4; hazard H5b). */
     preferredPaymentCurrencyId: {
-      type: ["string", "null"]
-    }
+      type: ["string", "null"],
+      ...currencyChoices(currencies, true)
+    },
+    /**
+     * READ-ONLY, rules-only — the brand's consolidation defaults and the
+     * client's `never_suspend` (`BillingSettingsModel.brand` / `.neverSuspend`).
+     * Declared so `useModelParser`'s `allowExtraProps: false` keeps them in
+     * the data the rules read; no control ever draws them.
+     */
+    brand: {
+      type: "object",
+      readOnly: true,
+      properties: {
+        enabled: { type: "boolean" },
+        baseRule: { type: ["string", "null"], enum: concat(rules, null) },
+        dayOfWeek: { type: ["string", "null"], enum: concat(weekdays, null) },
+        dateOfMonthDay: { type: ["integer", "null"] }
+      }
+    },
+    neverSuspend: { type: "boolean", readOnly: true }
   };
 }
 
 /**
  * Schema for the editor — the five consolidation controls plus the two
- * account-currency controls. `currencyId` is declared unconditionally
- * (`basicForm:15` is never `v-if`-gated); `preferredPaymentCurrencyId` is
- * ALSO declared unconditionally here so `useModelParser`'s `allowExtraProps:
- * false` never strips a genuine clear — row B6's gate is enforced at the
- * UISCHEMA (below, so the control never renders) and at the WRITE layer
- * (`updateAccountCurrencies` — the field "can never be written", AC23), never
- * by omitting it from validation.
+ * account-currency controls, every pick-list labelled. `currencyId` is
+ * declared unconditionally (`basicForm:15` is never `v-if`-gated);
+ * `preferredPaymentCurrencyId` is ALSO declared unconditionally here so
+ * `useModelParser`'s `allowExtraProps: false` never strips a genuine clear —
+ * row B6's gate is enforced at the UISCHEMA (below, so the control never
+ * renders) and at the WRITE layer (`updateAccountCurrencies` — the field "can
+ * never be written", AC23), never by omitting it from validation.
  */
-export const useSchema = (_context: BillingSettingsContext): JsonSchema7 => ({
+export const useSchema = (context: BillingSettingsContext): JsonSchema7 => ({
   type: "object",
   required: [],
-  definitions: useSchemaDefinitions(),
+  definitions: useSchemaDefinitions(context),
   properties: {
     enabled: { $ref: "#/definitions/enabled" },
     baseRule: { $ref: "#/definitions/baseRule" },
@@ -109,7 +150,9 @@ export const useSchema = (_context: BillingSettingsContext): JsonSchema7 => ({
     currencyId: { $ref: "#/definitions/currencyId" },
     preferredPaymentCurrencyId: {
       $ref: "#/definitions/preferredPaymentCurrencyId"
-    }
+    },
+    brand: { $ref: "#/definitions/brand" },
+    neverSuspend: { $ref: "#/definitions/neverSuspend" }
   }
 });
 
@@ -124,27 +167,40 @@ export function useUischemaDefinitions(): Record<string, ControlElement> {
     enabled: {
       type: "Control",
       scope: "#/properties/enabled",
-      i18n: "form.invoice_consolidation_enabled"
+      i18n: "form.invoice_consolidation_enabled",
+      // A segmented control drawing all three states — "Default" (INHERIT)
+      // as its own segment, the filter bar's `All │ Yes │ No` shape
+      // (`EnumToggleGroupRenderer`); un-pressing also lands on INHERIT.
+      options: {
+        format: "button-group",
+        defaultOptionValue: InvoiceConsolidationTypes.INHERIT,
+        optionalText: ""
+      }
     },
     baseRule: {
       type: "Control",
       scope: "#/properties/baseRule",
-      i18n: "form.invoice_consolidation_base_rule"
+      i18n: "form.invoice_consolidation_base_rule",
+      options: { format: "radio", width: 4 }
     },
     dayOfWeek: {
       type: "Control",
       scope: "#/properties/dayOfWeek",
-      i18n: "form.invoice_consolidation_base_rule_day_of_week"
+      i18n: "form.invoice_consolidation_base_rule_day_of_week",
+      options: { format: "radio", width: 4 },
+      rule: whenEffectiveRule([InvoiceConsolidationRuleTypes.DAY_OF_WEEK])
     },
     dateOfMonthDay: {
       type: "Control",
       scope: "#/properties/dateOfMonthDay",
-      i18n: "form.invoice_consolidation_base_rule_date_of_month_day"
+      i18n: "form.invoice_consolidation_base_rule_date_of_month_day",
+      rule: whenEffectiveRule([InvoiceConsolidationRuleTypes.DAY_OF_MONTH])
     },
     dueDateDay: {
       type: "Control",
       scope: "#/properties/dueDateDay",
-      i18n: "form.invoice_consolidation_due_date_day"
+      i18n: "form.invoice_consolidation_due_date_day",
+      rule: whenDueDateApplies()
     },
     currencyId: {
       type: "Control",
@@ -186,10 +242,18 @@ export const useUischema = (
     type: "VerticalLayout",
     elements: [
       controls.enabled,
-      controls.baseRule,
-      controls.dayOfWeek,
-      controls.dateOfMonthDay,
-      controls.dueDateDay,
+      // Legacy `showBasicRuleFields`: the schedule applies while the client
+      // consolidates, or follows a brand that does (`model.brand.enabled`).
+      {
+        type: "VerticalLayout",
+        rule: whenScheduleApplies(),
+        elements: [
+          controls.baseRule,
+          controls.dayOfWeek,
+          controls.dateOfMonthDay,
+          controls.dueDateDay
+        ]
+      },
       controls.currencyId,
       ...(hasPaymentCurrencyChoice ? [controls.preferredPaymentCurrencyId] : [])
     ]

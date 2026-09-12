@@ -53,6 +53,12 @@ export type BrandValuesEnvelope = Envelope<{
 export type BrandGatesEnvelope = Envelope<{
   "invoices.consolidation.restrict_to_staff"?: boolean;
   "billing.payment_currencies.enable_different_currency_payment"?: boolean;
+  // The brand's own consolidation defaults, carried by the SAME widened call
+  // (legacy `enabledBV` / `effectiveBaseRule`) — wire types per the captures.
+  "invoices.consolidation.enabled"?: boolean;
+  "invoices.consolidation.base_rule"?: string;
+  "invoices.consolidation.base_rule_day_of_week"?: string;
+  "invoices.consolidation.base_rule_date_of_month_day"?: number;
 }>;
 
 export type Currency = { id: string; code: string; name: string };

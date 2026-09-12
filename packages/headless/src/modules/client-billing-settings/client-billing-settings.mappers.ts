@@ -52,7 +52,7 @@ import type { IClient } from "@upmind-automation/types";
  * Scoped to the two string fields: the numeric pair came back as proper
  * `null` in the same capture, and `enabled` is non-nullable by design.
  */
-function emptyToNull<T>(value: T | ""): T | null {
+export function emptyToNull<T>(value: T | ""): T | null {
   return value === "" ? null : (value as T);
 }
 
@@ -65,7 +65,8 @@ export function mapBillingSettings(raw: IClient): BillingSettingsRecord {
     dayOfWeek: emptyToNull(raw.invoice_consolidation_base_rule_day_of_week),
     dateOfMonthDay: raw.invoice_consolidation_base_rule_date_of_month_day,
     dueDateDay: raw.invoice_consolidation_due_date_day,
-    isStaged: !!raw.staged_import
+    isStaged: !!raw.staged_import,
+    neverSuspend: !!raw.never_suspend
   };
 }
 

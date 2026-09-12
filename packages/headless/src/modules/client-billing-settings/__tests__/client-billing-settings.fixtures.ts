@@ -493,6 +493,20 @@ describe("Client-Billing-Settings API Fixtures Generator", () => {
     }
   });
 
+  it("captures GET /api/config/brand/values with the gate keys AND the brand's four consolidation defaults (legacy showBasicRuleFields / effectiveBaseRule)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      "/api/config/brand/values?keys=invoices.consolidation.restrict_to_staff,billing.payment_currencies.enable_different_currency_payment,invoices.consolidation.enabled,invoices.consolidation.base_rule,invoices.consolidation.base_rule_day_of_week,invoices.consolidation.base_rule_date_of_month_day"
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(
+        `Six-key brand-gates capture returned ${status} — the schedule ` +
+          "show/hide rules have no real brand-defaults fixture to replay."
+      );
+    }
+  });
+
   it("captures GET /api/brand/settings (AC24 — a real currencies array)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get("/api/brand/settings");
