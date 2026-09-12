@@ -364,7 +364,14 @@ function loadUnpaidAmount(
         }
         resolve(true);
       }),
-    enabled: () => !!invoiceId && isAddressable(clientId.value),
+    // The currency gates the read as hard as the session does: this endpoint
+    // 422s without an explicit one (the recorded control response
+    // `get-invoices-unpaid-amount-id-case-missing-currency.json`), so firing
+    // before `useInvoice` has seeded the invoice's own currency spends a
+    // request that can only fail. The seed lands when the single read
+    // settles, and re-keying on it is what issues the real call.
+    enabled: () =>
+      !!invoiceId && isAddressable(clientId.value) && !!currency.value,
     select: mapUnpaidAmount,
     staleTime: 0
   });

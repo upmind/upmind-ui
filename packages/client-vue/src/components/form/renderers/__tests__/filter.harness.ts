@@ -32,6 +32,7 @@ import {
 import action from "@upmind-automation/i18n/core/action-en.json";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
+import invoices from "@upmind-automation/i18n/modules/invoices-en.json";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import validation from "@upmind-automation/i18n/core/validation-en.json";
 import { Icon } from "../../../icon";
@@ -63,7 +64,9 @@ export type QueryDeclaration = {
   uischema: UISchemaElement;
 };
 
-export const messages = { en: { action, error, form, text, validation } };
+export const messages = {
+  en: { action, error, form, invoices, text, validation }
+};
 
 // -----------------------------------------------------------------------------
 // The transcribed consumer declarations — see PROVENANCE above.

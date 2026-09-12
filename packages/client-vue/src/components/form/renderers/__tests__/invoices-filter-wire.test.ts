@@ -19,8 +19,15 @@
 
 import { describe, expect, it } from "vitest";
 import { translateQuery, useInvoices } from "@upmind-automation/headless";
-import { invoicesQuery, mountFilters } from "./filter.harness";
-import { get, indexOf, map, uniq } from "lodash-es";
+import {
+  catalogue,
+  invoicesQuery,
+  labelOf,
+  mountFilters,
+  rawKeysIn,
+  renderedStrings
+} from "./filter.harness";
+import { forEach, get, indexOf, map, split, uniq } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
 const declaration = invoicesQuery();
@@ -52,6 +59,12 @@ const CATEGORY_PATH = "filters.category.slug.in";
  * re-split "status.code" into two nested keys that do not exist, which is
  * the exact bug this module's own leaf-name choice exposes elsewhere.
  */
+/** `#/properties/filters/properties/status.code/properties/in` -> `filters.status.code.in`. */
+const pathOf = (element: UISchemaElement): string => {
+  const scope = (element as { scope: string }).scope;
+  return split(scope, "/properties/").slice(1).join(".");
+};
+
 const rawPathFor = (path: string): string[] => {
   if (path === STATUS_PATH) return ["filters", STATUS_COLUMN, "in"];
   if (path === CATEGORY_PATH) return ["filters", CATEGORY_COLUMN, "in"];
@@ -86,6 +99,29 @@ describe("the invoices bar mounts off the module's own published schema", () => 
 
     expect(await mount.openFacet(STATUS_PATH)).toHaveLength(11);
     expect(await mount.openFacet(CATEGORY_PATH)).toHaveLength(8);
+  });
+});
+
+describe("the invoices bar says what each of its filters is about", () => {
+  it("every element draws a real label, and no raw i18n key reaches the surface", async () => {
+    const { wrapper, column } = await mountFilters(declaration);
+
+    const elements = (declaration.uischema as { elements: UISchemaElement[] })
+      .elements;
+
+    // Asserted against the SHIPPED catalogue, never a hand-typed string: a
+    // key-shaped assertion would be green with no translation at all.
+    forEach(elements, element => {
+      const path = pathOf(element);
+      const drawn = labelOf(column(path));
+      expect(drawn, `${path} draws no label`).not.toBe("");
+      expect(
+        catalogue(`${(element as { i18n: string }).i18n}.label`),
+        `${path} has no shipped label`
+      ).toBe(drawn);
+    });
+
+    expect(rawKeysIn(renderedStrings(wrapper))).toEqual([]);
   });
 });
 

@@ -45,14 +45,49 @@
     "total_discount_amount": "Discount"
   },
   "filter_bar": {
-    "category": "Category",
-    "create_datetime": "Created",
-    "due_date": "Due",
-    "is_consolidation": "Consolidation",
-    "net_amount": "Net amount",
-    "number": "Number",
-    "status": "Status",
-    "total_amount": "Total"
+    "category": {
+      "description": null,
+      "label": "Category",
+      "placeholder": null
+    },
+    "create_datetime": {
+      "description": null,
+      "label": "Created",
+      "placeholder": null
+    },
+    "due_date": {
+      "description": null,
+      "label": "Due",
+      "placeholder": null
+    },
+    "is_consolidation": {
+      "description": null,
+      "label": "Consolidation",
+      "placeholder": null,
+      "true": "Consolidated",
+      "false": "Not consolidated",
+      "null": "All"
+    },
+    "net_amount": {
+      "description": null,
+      "label": "Net amount",
+      "placeholder": null
+    },
+    "number": {
+      "description": null,
+      "label": "Invoice number",
+      "placeholder": "Search invoice numbers..."
+    },
+    "status": {
+      "description": null,
+      "label": "Status",
+      "placeholder": null
+    },
+    "total_amount": {
+      "description": null,
+      "label": "Total",
+      "placeholder": null
+    }
   },
   "filter_option": {
     "category": {

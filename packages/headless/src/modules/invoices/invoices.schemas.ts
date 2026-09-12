@@ -280,7 +280,7 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/number/properties/eq",
         i18n: "invoices.filter_bar.number",
-        options: { format: "search", noLabel: true, optionalText: "" }
+        options: { format: "search", optionalText: "" }
       },
       {
         type: "Control",
@@ -303,7 +303,7 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/is_consolidation/properties/eq",
         i18n: "invoices.filter_bar.is_consolidation",
-        options: { format: "button-group", noLabel: true, optionalText: "" }
+        options: { format: "button-group", optionalText: "" }
       },
       {
         type: "Control",
@@ -321,13 +321,13 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/create_datetime",
         i18n: "invoices.filter_bar.create_datetime",
-        options: { format: "range", noLabel: true, optionalText: "" }
+        options: { format: "range", optionalText: "" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/due_date",
         i18n: "invoices.filter_bar.due_date",
-        options: { format: "range", noLabel: true, optionalText: "" }
+        options: { format: "range", optionalText: "" }
       }
     ]
   } as UISchemaElement;

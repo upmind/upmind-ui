@@ -17,6 +17,7 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { map } from "lodash-es";
 import { useInvoice } from "..";
 import {
   installInvoiceHandlers,
@@ -68,6 +69,33 @@ describe("invoices single read — the live unpaid-amount re-read (AC-1)", () =>
       new URL(call.url).searchParams.get("currency_id")
     );
     expect(new Set(currencyParams).size).toBeGreaterThan(1);
+  });
+
+  it("AC-1 the FIRST, unasked re-read already carries the invoice's own currency — it never goes out bare", async () => {
+    await seedClientSession();
+    installInvoiceHandlers();
+    const target = recorded.unpaid();
+
+    const observed = observeInvoiceRequests();
+    // Nobody passes a currency. The query is enabled the moment the scope is
+    // addressable, so this is the request a page issues just by opening an
+    // invoice — and `GET /invoices/unpaid_amount/{id}` 422s without one.
+    const single = useInvoice().withId(target.id);
+    await single.useActions().isReady();
+    await single.useActions().refreshUnpaidAmount?.();
+    observed.stop();
+
+    const unpaidCalls = observed.matching("unpaid_amount");
+    expect(unpaidCalls.length).toBeGreaterThan(0);
+    expect(
+      map(unpaidCalls, call =>
+        new URL(call.url).searchParams.get("currency_id")
+      )
+    ).not.toContain(null);
+    const last = unpaidCalls[unpaidCalls.length - 1];
+    expect(new URL(last.url).searchParams.get("currency_id")).toBe(
+      target.currency_id
+    );
   });
 
   it("AC-1 maps the recorded unpaid-amount body onto the composable's reactive unpaidAmount", async () => {

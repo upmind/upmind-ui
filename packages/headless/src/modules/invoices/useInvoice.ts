@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { createScopedComposable } from "../scope";
 import createInvoicesServices from "./invoices.services";
 import { createInvoiceActions } from "./useInvoice.actions";
@@ -52,6 +52,27 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    * the SAME query rather than re-minting it.
    */
   const currencyId = ref<Currency["id"] | undefined>(undefined);
+
+  /**
+   * The invoice's OWN currency, seeded as the default the moment the read
+   * settles. `GET /invoices/unpaid_amount/{id}` 422s without an explicit
+   * currency (the recorded control response
+   * `get-invoices-unpaid-amount-id-case-missing-currency.json`), and this
+   * query is enabled the moment the scope is addressable — so an unseeded ref
+   * means the FIRST, automatic re-read always goes out bare and always fails.
+   * A caller asking for another currency through
+   * `refreshUnpaidAmount(nextCurrencyId)` still wins: this only fills the
+   * default, and only while nobody has chosen one.
+   */
+  watch(
+    () => query.data.value?.currency?.id,
+    invoiceCurrencyId => {
+      if (invoiceCurrencyId && !currencyId.value)
+        currencyId.value = invoiceCurrencyId;
+    },
+    { immediate: true }
+  );
+
   const unpaidAmountQuery = service.loadUnpaidAmount(config.id, currencyId);
 
   const actions = createInvoiceActions(
