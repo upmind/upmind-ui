@@ -115,7 +115,7 @@
     }
   },
   "notice": {
-    "consolidatable_count": "No invoices can be consolidated | 1 invoice can be consolidated | {count} invoices can be consolidated",
+    "consolidatable_count": "Can be consolidated",
     "has_unpaid": "You have unpaid invoices"
   },
   "sort": "Sort by",
