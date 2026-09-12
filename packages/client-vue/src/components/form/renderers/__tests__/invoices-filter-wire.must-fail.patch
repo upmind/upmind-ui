@@ -1,176 +1,43 @@
-Negative control for the StringsRenderer facet-write SEQUENCE fix (FE-3031,
-cycle 4, operator sign-off 2026-09-09, "Authorise the one-line client-vue
-fix").
+Negative control for the FilterMultiSelectRenderer facet-write SEQUENCE fix
+(FE-3031). Retargeted 2026-09-12: the original attacked
+`form/engine/renderers/array/StringsRenderer.vue`, which the gitlab/develop
+merge deleted when the form engine moved to the ui package. The compact bar
+facet (`FilterMultiSelectRenderer.vue`) is that capability's home now, and
+this patch attacks it at the same seam.
 
 Assertion it attacks: the SEQUENCE on the wire, not a single click — driving
 one status tile (click A), then a second (click B), then de-selecting the
 first (click A again) must leave `translateQuery(schema, model())`'s
 `filter[status.code|in]` carrying ONLY the still-selected value (click B's),
-with no duplicate entries anywhere in the array at any step. A prior version
-of this patch attacked the single-click write landing at all ("wires
-status.code|in and category.slug|in for what was actually clicked"); that
-assertion is too weak for THIS cycle's defect — one click passed clean for
-three prior cycles while the SEQUENCE was broken underneath it, because a
-single click never exercises a diff against prior selection.
+with no duplicate entries anywhere in the array at any step. A single click
+never exercises a diff against prior selection, so an assertion on one click
+passes clean while the sequence is broken underneath it.
+
+The mutation: read the live selection from `control.value.data` instead of
+resolving the leaf's own literal path off the injected core data. For a
+filter column whose name carries a literal dot (`"status.code"`,
+`"category.slug"` — the API's own names), `@jsonforms/core` joins the scope on
+"." and splits it again, so it walks `data.filters.status.code` instead of
+`data.filters["status.code"]` and `control.value.data` is PERMANENTLY
+`undefined`. Every toggle then computes its next selection against an empty
+current: a de-select can never remove, and a re-click can only re-add.
 
 PROVING ASSERTION EXISTS YET: the permanent gate is
 `packages/client-vue/src/components/form/renderers/__tests__/invoices-filter-wire.test.ts`,
-which the prover is extending in parallel with a two-click-plus-de-select
-sequence assertion over the same dotted `status.code` column this file's
-existing single-click test already drives (coordinated by contract, not by
-editing that file here).
+whose two `the facet SEQUENCE never duplicates and de-select removes` cases
+(one per dotted column) are the assertions this mutation must flip.
 
-Mutation: restores the pre-cycle-4 diff-based write — `current` re-read off
-`multiEnumControl.control.value.data` and the next selection replayed as a
-computed `difference(next, current)` / `difference(current, next)` pair
-through `addItem`/`removeItem`, instead of dispatching the whole `next`
-selection as one literal-path `update`. `control.value.data` resolves to
-`undefined` for this column PERMANENTLY (`@jsonforms/core`'s own
-`composeWithUi` re-joins the scope's segments with "." and `Resolve.data`
-splits that string back on "." — a schema property with a literal dot in its
-name, `"status.code"`/`"category.slug"`, is walked as two nested keys that do
-not exist), so `current` is always `[]`: every click re-adds every
-already-selected item (`difference(next, []) === next`) and no click ever
-computes a removal (`difference([], next) === []`). Verified by hand before
-filing this control (developer seat, source-read; the prover verifies the RED
-blind per `agent-seat-separation.companion.md`): applying this mutation to
-the fixed source and driving click A / click B / click A again through
-`filter.harness.ts`'s `mountFilters` reproduces the reported wire VERBATIM —
-`"invoice_adjusted"` → `"invoice_adjusted,invoice_adjusted,invoice_cancelled"`
-→ `"invoice_adjusted,invoice_adjusted,invoice_cancelled,invoice_cancelled"`.
+VERIFIED 2026-09-12: applied against the fixed source, `invoices-filter-wire.test.ts`
+went 2 failed | 159 passed (161) — exactly the two SEQUENCE cases red, every
+other assertion in the file still green, which is what makes this a control on
+THIS capability rather than a broad breakage. Reverted immediately after; the
+fixed source re-confirmed GREEN at 161/161.
 
-Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
-
-Proven RED 2026-09-09 (developer seat, source-read — this mutant reverts a
-line this seat itself just changed, so it is authored WITH knowledge of the
-line per `agent-seat-separation.companion.md`'s must-fail-patch seam; the
-prover's blind verification against its own extended gate runs separately and
-is not this file's authorship step). Confirmed against a throwaway sequence
-probe over the SAME `filter.harness.ts`/`mountFilters` surface the permanent
-gate uses (mounted, never committed): click A → `"invoice_adjusted"`, click B
-→ `"invoice_adjusted,invoice_adjusted,invoice_cancelled"`, click A again →
-`"invoice_adjusted,invoice_adjusted,invoice_cancelled,invoice_cancelled"` —
-the exact duplicating, never-shrinking sequence this story's verifier
-reported, confirming the mutation attacks the sequence write path and not a
-different assertion. Reverted immediately after; the fixed source was
-re-confirmed GREEN on the single-click permanent gate
-(`invoices-filter-wire.test.ts`, 5/5 passed) before and after this
-verification.
-
---- a/packages/client-vue/src/components/form/engine/renderers/array/StringsRenderer.vue
-+++ b/packages/client-vue/src/components/form/engine/renderers/array/StringsRenderer.vue
-@@ -22,85 +22,63 @@
-   schemaMatches,
-   hasType,
-   schemaSubPathMatches,
--  toDataPathSegments,
--  update
-+  toDataPathSegments
- } from "@jsonforms/core";
- import { useJsonFormsMultiEnumControl } from "@jsonforms/vue";
- import { OptionTileGroup, OptionTile } from "@upmind/ui";
--import { computed, inject } from "vue";
-+import { computed } from "vue";
- import FormField from "../../FormField.vue";
- import { useUpmindUIRenderer } from "../utils";
--import type {
--  ControlElement,
--  CoreActions,
--  Dispatch,
--  JsonSchema
--} from "@jsonforms/core";
-+import { difference, forEach } from "lodash-es";
-+import type { ControlElement, JsonSchema } from "@jsonforms/core";
- import type { RendererProps } from "@jsonforms/vue";
- // ----------------------------------------------
- const props = defineProps<RendererProps<ControlElement>>();
-
- const multiEnumControl = useJsonFormsMultiEnumControl(props);
--const dispatch = inject<Dispatch<CoreActions>>("dispatch");
-
- /**
-  * `useJsonFormsMultiEnumControl` dispatches via `addItem`/`removeItem` (one
-  * value at a time) and never returns a `handleChange` — `useUpmindUIRenderer`
-  * requires one, so this replays the tile group's whole-next-selection write
-- * directly, through the same `dispatch(update(path, updater))` primitive
-- * `addItem`/`removeItem` are themselves built on.
-+ * as the add/remove calls JSONForms' multi-enum control actually understands.
-  *
-  * @decision
-- * what: the whole `next` selection is dispatched as ONE literal-path `update`
-- * whose updater returns `next` outright, replacing the per-item add/remove-
-- * by-diff (diffed against `multiEnumControl.control.value.data`) a prior
-- * cycle of this fix used.
-- * why: `control.value.data` is resolved entirely inside `@jsonforms/core`'s
-- * `mapStateToControlProps` via `Resolve.data(rootData, composeWithUi(uischema,
-- * path))` (`@jsonforms/core` `src/mappers/renderer.ts`). `composeWithUi`
-- * re-JOINS the scope's segments with "." (`src/util/uischema.ts`,
-- * `src/util/path.ts`), and `Resolve.data`'s `resolveData` then SPLITS that
-- * joined string back on "." (`src/util/resolvers.ts`) — so a schema property
-- * with a literal dot in its name (`"status.code"`, `"category.slug"` — this
-- * module's own filter-column names, per `invoices.schemas.ts`) is walked as
-- * TWO nested keys that do not exist (`data.filters.status.code` instead of
-- * `data.filters["status.code"]`), and `control.value.data` resolves to
-- * `undefined` — PERMANENTLY, not merely stale. Diffing `next` against a
-- * permanently-empty `current` treats every already-selected item as new on
-- * every write (`difference(next, []) === next`) and never computes a removal
-- * (`difference([], next) === []`) — exactly the "click A / click B / click A
-- * again" duplicate-with-no-removal sequence this cycle reproduces. There is
-- * no literal-path fix for the READ the way `toDataPathSegments` fixed the
-- * WRITE: `control.value.data`'s resolution happens entirely inside
-- * `@jsonforms/core`, not at this renderer's own call site. Dispatching the
-- * whole next selection sidesteps the read altogether: `dispatch(update(path,
-- * updater))` is the same primitive `mapDispatchToMultiEnumProps`'s own
-- * `addItem`/`removeItem` are built on (`@jsonforms/core`
-- * `mapDispatchToMultiEnumProps`, `src/reducers/core.ts`'s `UPDATE_DATA` case),
-- * so supplying an updater that returns `next` outright is faithful to that
-- * same dispatch mechanism, and is immune to the read-side bug because it never
-- * reads `current`. The literal-path array (`toDataPathSegments`, cast to
-- * `string` — `update`'s `path` is typed `string`, but the reducer resolves it
-- * through `lodash/get` + `lodash/fp/set`, both of which treat an array path's
-- * elements as literal keys, no split) is unchanged from the prior cycle's
-- * authorised write fix. Authorised: "Authorise the one-line client-vue fix"
-- * (2026-09-09).
-- * rejected: reading `current` via a hand-rolled `get(coreData,
-- * literalPathSegments)` against the raw injected `jsonforms` state — viable,
-- * but keeping two literal-path resolutions (one for read, one for write) where
-- * a single dispatch call already suffices is the more fragile shape.
-+ * what: `addItem`/`removeItem` are dispatched with the control's SCOPE
-+ * re-split into literal-key segments (`toDataPathSegments`), not with the
-+ * flattened `_path` string `useUpmindUIRenderer.onInput` hands in.
-+ * why: JSONForms' own `composeWithUi` builds that string by computing exactly
-+ * these segments and then `.join(".")`-ing them, which is where a schema
-+ * property with a literal dot in its name (`"status.code"`, `"category.slug"`
-+ * — this module's own filter-column names, per `invoices.schemas.ts`) becomes
-+ * indistinguishable from a real two-level nested path. `dispatch(update(path,
-+ * …))` resolves through `lodash/get` + `lodash/fp/set`, both of which treat an
-+ * ARRAY path's elements as literal keys (no split) — the same mechanism
-+ * `useModelParser`'s `set(result, [key], value)` fix already relies on
-+ * (2026-09-02 sign-off). JSONForms types `addItem`/`removeItem`'s `path` as
-+ * `string`, so the array is cast; the underlying dispatch never inspects the
-+ * type, only the runtime shape. Authorised: "Authorise the one-line client-vue
-+ * fix" (2026-09-09).
-  * rejected: renaming the schema columns to drop the dot — `"status.code"` and
-  * `"category.slug"` are the API's own filter-column names (oracle receipt),
-  * not a naming choice this renderer controls.
-  */
- const handleChange = (_path: string, value: unknown) => {
-   const next = Array.isArray(value) ? value : [];
-+  const current = Array.isArray(multiEnumControl.control.value.data)
-+    ? multiEnumControl.control.value.data
-+    : [];
-
-   const literalPath = toDataPathSegments(
-     multiEnumControl.control.value.uischema.scope
-   ) as unknown as string;
-
--  dispatch?.(update(literalPath, () => next));
-+  forEach(difference(next, current), item =>
-+    multiEnumControl.addItem(literalPath, item)
-+  );
-+  forEach(difference(current, next), item =>
-+    multiEnumControl.removeItem?.(literalPath, item)
-+  );
- };
-
- const { control, appliedOptions, formFieldProps, onInput } =
+--- a/packages/client-vue/src/components/form/renderers/FilterMultiSelectRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterMultiSelectRenderer.vue
+@@ -1,6 +1,6 @@
+ /** Read by literal path: `control.data` never resolves for a dotted column. */
+ const selected = computed<unknown[]>(
+-  () => get(jsonforms?.core?.data, literalPath.value) ?? []
++  () => (control.value.data as unknown[]) ?? []
+ );

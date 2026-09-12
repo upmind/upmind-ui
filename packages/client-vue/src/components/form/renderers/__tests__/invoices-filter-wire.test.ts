@@ -67,7 +67,7 @@ const optionTileFor = async (
 ) => {
   const enumValues = enumValuesOf(schema, column);
   const index = indexOf(enumValues, value);
-  const tiles = mount.column(path).findAll('[data-test-key="option-tile"]');
+  const tiles = await mount.openFacet(path);
   return { tiles, index, enumValues };
 };
 
@@ -82,14 +82,10 @@ describe("the invoices bar mounts off the module's own published schema", () => 
   });
 
   it("the status facet carries 11 options and the category facet carries 8", async () => {
-    const { column } = await mountFilters(declaration);
+    const mount = await mountFilters(declaration);
 
-    expect(
-      column(STATUS_PATH).findAll('[data-test-key="option-tile"]')
-    ).toHaveLength(11);
-    expect(
-      column(CATEGORY_PATH).findAll('[data-test-key="option-tile"]')
-    ).toHaveLength(8);
+    expect(await mount.openFacet(STATUS_PATH)).toHaveLength(11);
+    expect(await mount.openFacet(CATEGORY_PATH)).toHaveLength(8);
   });
 });
 
@@ -186,7 +182,7 @@ const clickValue = async (
   const enumValues = enumValuesOf(schema, column);
   const index = indexOf(enumValues, value);
   expect(index).toBeGreaterThanOrEqual(0);
-  const tiles = mount.column(path).findAll('[data-test-key="option-tile"]');
+  const tiles = await mount.openFacet(path);
   await tiles[index].trigger("click");
   await mount.settle();
 };

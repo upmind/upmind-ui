@@ -286,16 +286,18 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/status.code/properties/in",
         i18n: "invoices.filter_bar.status",
-        // No `format` — the multi-select tile group dispatches on the leaf's
-        // OWN shape (`array` + `uniqueItems` + `items.oneOf`), never a format
-        // string (`StringsRenderer.vue`'s tester).
-        options: { optionalText: "" }
+        // `multi-select` opts this leaf into the bar's COMPACT checkable menu
+        // (`FilterMultiSelectRenderer`). Absent it, the leaf's own shape
+        // (`array` + `uniqueItems` + `items.oneOf`) still matches the ui
+        // package's expanded tile stack, which is taller and wider than the
+        // bar it sits in.
+        options: { format: "multi-select", optionalText: "" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/category.slug/properties/in",
         i18n: "invoices.filter_bar.category",
-        options: { optionalText: "" }
+        options: { format: "multi-select", optionalText: "" }
       },
       {
         type: "Control",
