@@ -156,7 +156,6 @@ describe("invoices declaration — every non-detail action names a live capabili
         "prevPage",
         "refresh",
         "refreshAfterPayment",
-        "reset",
         "setCriteria",
         "sortBy"
       ])

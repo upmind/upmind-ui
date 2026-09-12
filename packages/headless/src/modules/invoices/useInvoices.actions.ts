@@ -1,5 +1,5 @@
 import { nextTick, watch } from "vue";
-import { invalidateQueryByKey, resetQueryByKey } from "../query";
+import { invalidateQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import {
@@ -237,15 +237,6 @@ export function createInvoicesActions(
 
     /** AC3 — the list-side refetch a payment outcome triggers. */
     refreshAfterPayment,
-
-    /**
-     * Drops this collection's cached pages outright, so the next read starts
-     * from the server rather than from what is held. `invalidate` marks the
-     * key stale and keeps the rows on screen; this clears them.
-     *
-     * @scenario-exclude internal cache-key reset, not a user-facing capability
-     */
-    reset: resetQueryByKey(service.queryKey),
 
     /**
      * Applies a criteria INTENT — merges the given `filters` / `sort` /
