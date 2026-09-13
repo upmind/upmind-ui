@@ -1,0 +1,17 @@
+diff --git a/packages/headless/src/modules/session-store/session-store.utils.ts b/packages/headless/src/modules/session-store/session-store.utils.ts
+index d2fcc9a02..9d9b4fb30 100644
+--- a/packages/headless/src/modules/session-store/session-store.utils.ts
++++ b/packages/headless/src/modules/session-store/session-store.utils.ts
+@@ -219,8 +219,11 @@ export function findNextSession(): {
+  * (`cProdProvider.vue:190`, `ticketProvider.ts:161`).
+  */
+ export function isDelegated(record: DelegatableRecord): boolean {
++  // ANTI-COSPLAY MUTANT: applies the child-account exclusion to every record
++  // type, not just the invoice/order arm.
++  if (record.client?.parent_client_config?.parent_client_id) return false;
++
+   if ("delegate_related" in record) {
+-    if (record.client?.parent_client_config?.parent_client_id) return false;
+     return !!record.delegate_related;
+   }
+ 
