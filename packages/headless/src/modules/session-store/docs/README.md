@@ -202,8 +202,8 @@ Another client can share their invoices, products or tickets with the signed-in
 client. The server reports which ones on `/self`, and the session keeps the
 answer.
 
-This is **not** impersonation and **not** `.for()`. Those change *who you act
-as*. Delegated access changes *which records you may see* while still acting as
+This is **not** impersonation and **not** `.for()`. Those change _who you act
+as_. Delegated access changes _which records you may see_ while still acting as
 yourself.
 
 ```typescript
@@ -225,7 +225,10 @@ Two helpers answer the per-record questions, off a record you already hold. They
 issue no request of their own:
 
 ```typescript
-import { isDelegated, getOwnerForDelegatedRecord } from "@upmind-automation/headless";
+import {
+  isDelegated,
+  getOwnerForDelegatedRecord
+} from "@upmind-automation/headless";
 
 isDelegated(invoice); // was this shared with me?
 getOwnerForDelegatedRecord(invoice); // whose is it? → { id, publicName, username, imageUrl }
