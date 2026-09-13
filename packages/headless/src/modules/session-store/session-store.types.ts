@@ -1,13 +1,25 @@
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { DetailedError } from "../../utils";
 import type { Account } from "../client";
-import type { IBrand, IClient, ISelf, IToken } from "@upmind-automation/types";
-import type { AccessRoleTypes } from "@upmind-automation/types";
+import type {
+  AccessRoleTypes,
+  IBrand,
+  IClient,
+  IContractProduct,
+  IInvoice,
+  ISelf,
+  IToken,
+  ITicket,
+  UpmindObjectTypes
+} from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module session-store/types
  * @description Session store type definitions.
- * @see graphify-out/ for IBrand, ISelf type provenance (FE-2973 brand plumbing)
+ * @see graphify-out/ for IBrand, ISelf, UpmindObjectTypes type provenance
+ * (FE-2973 brand plumbing; FE-3036 confirmed via `graphify query "delegated
+ * ids delegatable record owner"` that no `DelegatableRecord`/owner type
+ * already exists in the tree).
  */
 
 /**
@@ -152,6 +164,33 @@ export type SessionUser = {
    * Populated from /admin/self?with=brands for staff sessions.
    */
   brands?: IBrand[];
+  /**
+   * Object ids delegated to this client, keyed by object type
+   * (graphify-out/ — confirmed no prior `delegatedIds` member on this type).
+   * `{}` for staff and guest — `/admin/self` never requests the field and a
+   * guest has no `SessionUser` at all. `null` on the wire (the only recorded
+   * case today) maps to `{}`, never to `undefined`.
+   */
+  delegatedIds: Partial<Record<UpmindObjectTypes, string[]>>;
+};
+
+/**
+ * Record types the server can mark as delegated to the active client — the
+ * three models that declare a delegate flag. `IOrder` is deliberately
+ * excluded: no order model in `@upmind-automation/types` declares
+ * `delegate_related`.
+ */
+export type DelegatableRecord = IInvoice | IContractProduct | ITicket;
+
+/**
+ * The owning client of a delegated record, read off the record's own embedded
+ * `client` relation. Every field optional because every source field is.
+ */
+export type DelegatedRecordOwner = {
+  id?: IClient["id"];
+  publicName?: IClient["public_name"];
+  username?: IClient["username"];
+  imageUrl?: IClient["image_url"];
 };
 
 /**
