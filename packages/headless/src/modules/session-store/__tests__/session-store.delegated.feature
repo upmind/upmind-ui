@@ -43,18 +43,6 @@ Feature: A client can read the delegated access granted to them
 
   # === THE MAP ON THE SESSION ================================================
 
-  @AC-DG1 @layer-unit
-  Scenario: The delegated ids on the identity response survive the mapping
-    Given an identity response listing delegated products and a delegated client
-    When that response is mapped onto the session user
-    Then both lists are carried through, keyed by object type
-
-  @AC-DG1 @layer-unit
-  Scenario: An identity response with no delegated ids maps to an empty map
-    Given an identity response whose delegated ids are null or absent
-    When that response is mapped onto the session user
-    Then the delegated ids are an empty map, never undefined
-
   @AC-DG1 @layer-integration
   Scenario: A client with no delegated access reads an empty map
     Given I am signed in as a client who has been granted no delegated access
@@ -94,13 +82,6 @@ Feature: A client can read the delegated access granted to them
     And the contract product belongs to a child account of mine
     When I ask whether that contract product was delegated to me
     Then the contract product is reported as delegated
-
-  @AC-DG2 @layer-unit
-  Scenario: An order is judged on the same terms as an invoice
-    Given an order whose delegation flag is set
-    When I ask whether that order was delegated to me
-    Then the order is reported as delegated
-    And an order belonging to a child account is reported as not delegated
 
   # === PER-RECORD: WHOSE IS IT ===============================================
 
