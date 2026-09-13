@@ -1,45 +1,63 @@
-import { forEach, get, isMatch, isNil, isPlainObject, set } from "lodash-es";
+import {
+  every,
+  get,
+  isArray,
+  isEqual,
+  isNil,
+  isPlainObject,
+  some,
+  toPairs
+} from "lodash-es";
 // -----------------------------------------------------------------------------
 /**
  * @module world/match
- * @description The ONE subset match every `World` grades `expectMeta` /
- * `expectContext` with, so the in-page playground and the Node replay read an
- * expectation the same way.
+ * @description The ONE reading of an expectation every `World` grades
+ * `expectMeta` / `expectContext` with, so the in-page playground and the Node
+ * replay agree. Expectations are plain data (they cross the Playwright bridge),
+ * never predicates, so the reading itself carries the three meanings a step
+ * needs:
  *
- * An expected `null` means CLEARED. A manager compacts its model, so a value
- * saved as `null` comes back absent, and absent and `null` are the one picture
- * the form draws — an empty field. Lodash's own `isMatch` refuses an absent key
- * before any customizer runs, so the live layer is padded with `null` exactly
- * where the expectation says `null` and the live value is missing. Every other
- * value compares as itself.
+ * - an OBJECT is a subset: every key it names must hold;
+ * - an ARRAY is a membership: every element it names must match SOME live
+ *   element, in any order — a list's order is presentation, and a step saying
+ *   "this row is now the default" is not saying which row is drawn first;
+ * - `null` is CLEARED: a manager compacts its model, so a value saved as
+ *   `null` comes back absent, and both are the one empty field.
+ *
+ * Anything that is not a plain object asserts nothing and is refused: lodash
+ * read zero own keys off a function and answered `true`, which let predicates
+ * passed by mistake pass every scenario (2026-09-12).
  */
 
-function padCleared(live: unknown, expected: unknown): unknown {
-  if (!isPlainObject(expected)) return live;
+function satisfies(live: unknown, wanted: unknown): boolean {
+  if (wanted === null) return isNil(live);
+  if (isArray(wanted))
+    return (
+      isArray(live) &&
+      every(wanted, item => some(live, candidate => satisfies(candidate, item)))
+    );
+  if (isPlainObject(wanted))
+    return (
+      isPlainObject(live) &&
+      every(toPairs(wanted as Record<string, unknown>), ([key, item]) =>
+        satisfies(get(live, key), item)
+      )
+    );
 
-  const padded: Record<string, unknown> = isPlainObject(live)
-    ? { ...(live as Record<string, unknown>) }
-    : {};
-
-  forEach(expected as Record<string, unknown>, (wanted, key) => {
-    if (wanted === null && isNil(get(padded, key))) set(padded, key, null);
-    else if (isPlainObject(wanted))
-      set(padded, key, padCleared(get(padded, key), wanted));
-  });
-
-  return padded;
+  return isEqual(live, wanted);
 }
 
 /**
- * Whether `live` carries every value `expected` names — a deep subset match in
- * which an expected `null` is satisfied by a cleared (absent) value.
+ * Whether `live` carries every value `expected` names, read as above.
  *
  * @param live The unwrapped layer as the module publishes it now.
- * @param expected The values a step asserts.
+ * @param expected The values a step asserts — a plain object, always.
  */
 export function matchesExpectation(
   live: Record<string, unknown>,
   expected: Record<string, unknown>
 ): boolean {
-  return isMatch(padCleared(live, expected) as object, expected);
+  if (!isPlainObject(expected)) return false;
+
+  return satisfies(live, expected);
 }

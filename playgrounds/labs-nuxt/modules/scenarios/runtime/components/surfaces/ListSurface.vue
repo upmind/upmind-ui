@@ -207,6 +207,8 @@
         >
           <template v-for="row in group.rows" :key="row.id">
             <TableRow
+              data-test-key="row"
+              :data-test-value="row.id"
               :aria-invalid="rowFailure(row.original) ? 'true' : undefined"
               :class="
                 dataRow({
@@ -263,8 +265,9 @@
          read-only — never blank. The DECLARATION drives it exactly as it drives
          the table, so the same columns are shown, under the same labels, and a
          property nobody declared is as absent here as it is there (C15). -->
-    <ul v-else :class="listSurface.rowList()">
+    <ul v-else :class="listSurface.rowList()" data-test-key="row-list">
       <li
+        data-test-key="row"
         v-for="(row, index) in rows"
         :key="rowKey(row, index)"
         :aria-invalid="rowFailure(row) ? 'true' : undefined"

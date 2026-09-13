@@ -117,16 +117,16 @@ import {
   clearScenarioStage,
   useScenarioStage
 } from "../../composables/useScenarioStage";
+import {
+  FORCE_RECIPE_KIND,
+  FORCE_RECIPE_TARGET
+} from "../../force/states.types";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
 import { ModuleState } from "../module-state.types";
 import ModuleStateNotice from "../ModuleStateNotice.vue";
 import { useActionFeedback } from "../useActionFeedback";
 import { formFlowSurface } from "./FormFlowSurface.styles";
 import { FormFlowActionTypes } from "./FormFlowSurface.types";
-import {
-  FORCE_RECIPE_KIND,
-  FORCE_RECIPE_TARGET
-} from "../../force/states.types";
 import { find, get, isFunction, isNil, keys, sumBy } from "lodash-es";
 import type { FormFlowSurfaceProps } from "./FormFlowSurface.types";
 import type { UISchemaElement } from "@jsonforms/core";
@@ -311,10 +311,14 @@ const saveFailure = computed(() => {
 // hardcoded English, and `doAction` falls through to submit/reset on type alone,
 // so naming the labels costs no handler.
 const actions = computed<FormProps["actions"]>(() => ({
+  // `needsValid` is the ui Form's own contract for a submit action: it spins
+  // while the form processes (the consumer's `loading` alone is not read by
+  // the action bar) and it cannot fire on an invalid form.
   submit: {
     type: "submit",
     label: t("action.save_details"),
     color: "primary",
+    needsValid: true,
     loading: isSubmitting.value
   },
   reset: {

@@ -137,12 +137,9 @@ export const clientPersonalDetailsSteps = defineSteps(
 
     // AC-34 / AC-35 — the language choices are read off the same collection.
 
-    // AC-43 — bare construction, no arguments.
-    When("I open my profile editor with no arguments", world => open(world));
-
-    Then("it constructs successfully and reaches a settled state", world =>
-      settles(() => world.expectMeta({ isAvailable: true }))
-    );
+    // AC-43 (bare construction) is a CONTRACT — proven by the manager's
+    // integration tests, never a track: a step that boots and reads a flag
+    // shows a watcher nothing (operator, 2026-09-13).
   }
 );
 

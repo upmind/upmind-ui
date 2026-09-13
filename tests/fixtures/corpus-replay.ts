@@ -17,13 +17,16 @@
 
 import { HttpResponse, http, passthrough } from "msw";
 import {
+  compact,
   endsWith,
   every,
   filter,
   find,
   findKey,
   first,
+  fromPairs,
   get,
+  initial,
   isArray,
   isEmpty,
   isEqual,
@@ -32,17 +35,23 @@ import {
   isNumber,
   isPlainObject,
   isUndefined,
+  join,
   keys,
   last,
   map,
+  mapValues,
+  max,
   orderBy,
+  pickBy,
   reject,
   size,
+  some,
   sortBy,
   split,
   startsWith,
   take,
   toLower,
+  toPairs,
   toUpper,
   uniqBy,
   values
@@ -225,7 +234,8 @@ function matching(
  */
 export function corpusRows(
   bodies: CorpusBodies,
-  at?: RecordedFixture
+  at?: RecordedFixture,
+  params: URLSearchParams = at ? requestParams(at) : new URLSearchParams()
 ): WireRecord[] {
   const reads = filter(values(bodies), isCollectionRead);
   const resource = at
@@ -234,8 +244,16 @@ export function corpusRows(
         find(reads, fixture => fixtureShape(fixture) === collectionShape(reads))
       );
 
+  // The pool is every capture of the resource that narrows NOTHING beyond the
+  // question asked — its pages and sorts of the one set, and the captures
+  // sharing the request's own filters. A capture narrowed for another
+  // question answers that question only.
   const captures = sortBy(
-    filter(reads, fixture => collectionOf(fixture) === resource),
+    filter(
+      reads,
+      fixture =>
+        collectionOf(fixture) === resource && !narrowsBeyond(fixture, params)
+    ),
     offsetOf
   );
 
@@ -273,12 +291,6 @@ function recordedPage(
   if (!envelope || !isNumber(total)) return undefined;
 
   return size(envelope.data) < total ? size(envelope.data) : undefined;
-}
-
-function hasOffset(fixture: RecordedFixture): boolean {
-  const [, search = ""] = split(fixture.request.path, "?");
-
-  return new URLSearchParams(search).has("offset");
 }
 
 function concatRows(pages: RecordedFixture[]): WireRecord[] {
@@ -319,12 +331,74 @@ function collectionShape(reads: RecordedFixture[]): string | undefined {
  * @param at The recording whose collection answers this request. See
  *   {@link corpusRows}.
  */
+/**
+ * The size the POOL vouches for: the largest `total` any pooled capture
+ * stated. One capture's own `total` is the authority for its own question; a
+ * question no capture asked is answered out of the pool, and the pool's size
+ * is what its most complete capture saw — `client-email` recorded its first
+ * read at `total: 1` and its pages at `total: 3`, and a plain read clipped to
+ * the first capture's moment showed one address of three.
+ */
+function pooledTotal(
+  bodies: CorpusBodies,
+  at: RecordedFixture | undefined,
+  params: URLSearchParams
+): number | undefined {
+  const stated = compact(
+    map(pooledCaptures(bodies, at, params), recordedTotal)
+  );
+
+  return isEmpty(stated) ? undefined : max(stated);
+}
+
+/** The captures of `at`'s resource that narrow nothing beyond `params`. */
+function pooledCaptures(
+  bodies: CorpusBodies,
+  at: RecordedFixture | undefined,
+  params: URLSearchParams
+): RecordedFixture[] {
+  const reads = filter(values(bodies), isCollectionRead);
+  const resource = at
+    ? collectionOf(at)
+    : collectionOf(
+        find(reads, fixture => fixtureShape(fixture) === collectionShape(reads))
+      );
+
+  return filter(
+    reads,
+    fixture =>
+      collectionOf(fixture) === resource && !narrowsBeyond(fixture, params)
+  );
+}
+
 export function servedRows(
   bodies: CorpusBodies,
   params: URLSearchParams,
   at?: RecordedFixture
 ): WireRecord[] {
-  let rows = corpusRows(bodies, at);
+  return servedCollection(bodies, params, at).rows;
+}
+
+/**
+ * The page a collection read is answered with, and the `total` that answer
+ * states. The total is the pool's where the request narrows nothing beyond
+ * the pool's own question; a request that filters further is answered with
+ * the count its filter left — never a stated total the filter never saw.
+ */
+export function servedCollection(
+  bodies: CorpusBodies,
+  params: URLSearchParams,
+  at?: RecordedFixture
+): { rows: WireRecord[]; total: number } {
+  let rows = corpusRows(bodies, at, params);
+  const narrowsThePool = some(
+    toPairs(narrowingOf(params)),
+    ([key, value]) =>
+      !some(
+        pooledCaptures(bodies, at, params),
+        capture => narrowingOf(requestParams(capture))[key] === value
+      )
+  );
 
   for (const [key, value] of params.entries()) {
     const [, column, operator = "eq"] = FILTER_KEY.exec(key) ?? [];
@@ -333,13 +407,14 @@ export function servedRows(
     rows = applyFilter(rows, column, operator, value);
   }
 
+  // `order=-default,email`: every key, in its stated direction.
   const order = params.get("order") ?? params.get("sort");
   if (order) {
-    const descending = order.startsWith("-");
+    const keys_ = compact(split(order, ","));
     rows = orderBy(
       rows,
-      [descending ? order.slice(1) : order],
-      [descending ? "desc" : "asc"]
+      map(keys_, key => (startsWith(key, "-") ? key.slice(1) : key)),
+      map(keys_, key => (startsWith(key, "-") ? "desc" : "asc"))
     );
   }
 
@@ -347,8 +422,14 @@ export function servedRows(
   // criteria match, and the pool cannot overrule it: a capture that says its
   // whole collection is one row answers with one, however many the module's
   // other captures of that endpoint saw.
-  const total = recordedTotal(at);
-  if (isNumber(total) && total < size(rows)) rows = take(rows, total);
+  const stated = pooledTotal(bodies, at, params);
+  if (!narrowsThePool && isNumber(stated) && stated < size(rows))
+    rows = take(rows, stated);
+
+  const total =
+    !narrowsThePool && isNumber(stated) && stated > size(rows)
+      ? stated
+      : size(rows);
 
   const offset = Number(params.get("offset") ?? 0);
 
@@ -364,7 +445,7 @@ export function servedRows(
   const requested = Number(params.get("limit") ?? 0);
   const limit = requested > 0 ? requested : (recordedPage(at) ?? size(rows));
 
-  return rows.slice(offset, offset + limit);
+  return { rows: rows.slice(offset, offset + limit), total };
 }
 
 function applyFilter(
@@ -430,7 +511,7 @@ export function resolveCorpusRequest(
   const { pathname, searchParams } = url;
 
   const candidates = matching(bodies, method, pathname);
-  const recorded = pickRecording(candidates, searchParams, sent);
+  const recorded = pickRecording(candidates, searchParams, sent, pathname);
 
   if (!recorded) return undefined;
 
@@ -439,32 +520,25 @@ export function resolveCorpusRequest(
   const envelope = envelopeOf(recorded);
   if (!envelope) return recorded.response;
 
+  // A recording that asked this very question answers it with its OWN rows —
+  // verbatim, as staging returned them at its own url, with whatever a session
+  // has since landed on them (`AC3`: every recorded read replays at its own url
+  // as recorded). The pool below is for the question no capture asked, and it
+  // unions only the captures that narrow nothing beyond that question, so a
+  // capture narrowed for another question (secrets beside notes) never lends
+  // a plain read its rows.
+  if (asksTheSame(recorded, searchParams)) return recorded.response;
+
   // The rows come from the collection the MATCHED recording was captured at,
   // not from the module's busiest one. A module reading several collections
   // holds a distinct set per resource, and drawing from the wrong one answers a
   // read of countries with a list of addresses.
-  const rows = servedRows(bodies, searchParams, recorded);
+  const { rows, total } = servedCollection(bodies, searchParams, recorded);
 
   return {
     status: recorded.response.status,
-    body: { ...envelope, data: rows, total: collectionTotal(recorded, rows) }
+    body: { ...envelope, data: rows, total }
   };
-}
-
-/**
- * The `total` a served collection states. The recording's own where it names
- * one LARGER than the rows any capture pooled — `client-email-history` holds 30
- * rows of a 3112-row history, and a `total` of 10 would tell the pager there is
- * no next page — else the rows actually served, which is the whole collection
- * once the pool holds it (and follows a write that added or removed a row).
- */
-function collectionTotal(
-  recorded: RecordedFixture | undefined,
-  rows: WireRecord[]
-): number {
-  const stated = recordedTotal(recorded);
-
-  return isNumber(stated) && stated > size(rows) ? stated : size(rows);
 }
 
 /**
@@ -565,7 +639,8 @@ function labelOf(fixture: RecordedFixture): string | null {
 function pickRecording(
   candidates: RecordedFixture[],
   params: URLSearchParams,
-  sent?: unknown
+  sent?: unknown,
+  pathname = ""
 ): RecordedFixture | undefined {
   const requestedCase = params.get("case");
 
@@ -584,7 +659,7 @@ function pickRecording(
   // whichever of thirteen PUT cases sorted first. Exact first, then the
   // recording the sent body extends (a save may carry more than the case did).
   const written = isPlainObject(sent)
-    ? answersWrite(candidates, sent)
+    ? answersWrite(candidates, sent, pathname)
     : undefined;
   if (written) return written;
 
@@ -627,19 +702,31 @@ function pickRecording(
 
 function answersWrite(
   candidates: RecordedFixture[],
-  sent: unknown
+  sent: unknown,
+  pathname: string
 ): RecordedFixture | undefined {
   const recorded = filter(candidates, fixture =>
     isPlainObject(fixture.request.body)
   );
+  const sameBody = filter(recorded, fixture =>
+    isEqual(fixture.request.body, sent)
+  );
+  const sameRecord = (fixture: RecordedFixture) =>
+    collectionOf(fixture) === pathname;
 
   // The EXACT write takes its own recording whatever staging answered — a
   // refusal included: this brand refused `preferred_payment_currency_id`, and
-  // a page saving it is told so, as staging told the capture run. Only the
-  // looser match is kept to served answers, so a superset save is never
+  // a page saving it is told so, as staging told the capture run. Two
+  // recordings of the same body are told apart by the RECORD they addressed
+  // (`{default: true}` on a verified email was served; on an unverified one
+  // refused), then a served answer stands ahead of a refused one, so a refusal
+  // recorded against another record never answers a write to this one. Only
+  // the looser match is kept to served answers, so a superset save is never
   // answered by a refusal recorded for a different body.
   return (
-    find(recorded, fixture => isEqual(fixture.request.body, sent)) ??
+    find(sameBody, sameRecord) ??
+    find(sameBody, fixture => fixture.response.status < REFUSED_FROM) ??
+    first(sameBody) ??
     find(
       recorded,
       fixture =>
@@ -647,6 +734,61 @@ function answersWrite(
         isMatch(sent as object, fixture.request.body as object)
     )
   );
+}
+
+/** The filters and search a request states — the words that narrow the set. */
+function narrowingOf(params: URLSearchParams): Record<string, string> {
+  return fromPairs(
+    filter(
+      [...params.entries()],
+      ([key]) => startsWith(key, "filter[") || key === "query"
+    )
+  );
+}
+
+function requestParams(fixture: RecordedFixture): URLSearchParams {
+  const [, search = ""] = split(fixture.request.path, "?");
+
+  return new URLSearchParams(search);
+}
+
+/**
+ * Whether a capture narrows the set BEYOND the question `params` ask: it
+ * carries a filter or search the request does not carry, or carries a
+ * different value for one. A filter every capture of a resource states
+ * (`filter[object_type]=client` on every custom-fields read) is that
+ * resource's own question, not a narrowing — it is the request's too.
+ */
+function narrowsBeyond(
+  fixture: RecordedFixture,
+  params: URLSearchParams
+): boolean {
+  const asked = narrowingOf(params);
+
+  return some(
+    toPairs(narrowingOf(requestParams(fixture))),
+    ([key, value]) => asked[key] !== value
+  );
+}
+
+/** A capture that narrows beyond what ANY sibling at its resource asked. */
+function isNarrowed(
+  fixture: RecordedFixture,
+  siblings: RecordedFixture[]
+): boolean {
+  return some(siblings, sibling =>
+    narrowsBeyond(fixture, requestParams(sibling))
+  );
+}
+
+/** Whether a recording asked exactly the question `params` ask (its `case` label aside). */
+function asksTheSame(
+  fixture: RecordedFixture,
+  params: URLSearchParams
+): boolean {
+  const [, search = ""] = split(fixture.request.path, "?");
+
+  return criteriaOf(new URLSearchParams(search)) === criteriaOf(params);
 }
 
 /**
@@ -676,24 +818,6 @@ function criteriaOf(params: URLSearchParams): string {
 }
 
 // -----------------------------------------------------------------------------
-
-/** One paged capture carrying the rows the session holds. */
-function withRows(
-  fixture: RecordedFixture,
-  rows: WireRecord[]
-): RecordedFixture {
-  return {
-    ...fixture,
-    response: {
-      ...fixture.response,
-      body: {
-        ...(fixture.response.body as object),
-        data: rows,
-        total: collectionTotal(fixture, rows)
-      }
-    }
-  };
-}
 
 /** The one served read of a single record — a form's own `GET …/:id`. */
 function withRecord(
@@ -735,31 +859,69 @@ function memberReadName(source: CorpusBodies): string | undefined {
  * @param source The committed recordings this replay starts from.
  */
 export function createCorpusSession(source: CorpusBodies): CorpusSession {
-  let rows: WireRecord[] = corpusRows(source);
-
-  const pages = pagedFixtureNames(source);
-
-  // A single-record module: the write lands on the ONE record its form reads,
-  // so the re-read after a save shows what was saved — a form that saved
-  // "off" and re-read "on" would be the replay contradicting itself.
-  const hasCollection = !!collectionShape(
-    filter(values(source), isCollectionRead)
+  // Every collection capture, as this session has it now. A write lands on
+  // EACH capture that holds the row it touched — the paged first page, the
+  // filtered slice, the unfiltered dump alike — so whichever recording answers
+  // the next read shows what the write did. Landing only on a pooled row set
+  // re-served through paged captures left every unpaged capture serving the
+  // unmutated row (client-notes, client-phone, 2026-09-12).
+  const captures: Record<string, RecordedFixture> = mapValues(
+    pickBy(source, isCollectionRead),
+    fixture => ({ ...fixture })
   );
+
+  const hasCollection = !!collectionShape(values(captures));
   const memberName = hasCollection ? undefined : memberReadName(source);
   let member: WireRecord | undefined = memberName
     ? (source[memberName].response.body as WireEnvelope<WireRecord>).data
     : undefined;
 
-  return {
-    // The resolver's ONE source of rows is the paged captures concatenated,
-    // which it re-slices by the request's own cursor — so the session carries
-    // its whole collection in the first and empties the rest, rather than
-    // inventing a paging it was never recorded with.
-    bodies: () => {
-      const replayed: Record<string, RecordedFixture> = { ...source };
+  /** The captures taken at `resource`, the concrete path a write addressed. */
+  const capturesAt = (resource: string) =>
+    filter(keys(captures), name => collectionOf(captures[name]) === resource);
 
-      for (const [index, name] of pages.entries())
-        replayed[name] = withRows(source[name], index === 0 ? rows : []);
+  /**
+   * Rewrites one capture's rows. Its stated `total` moves by `sizeDelta` — the
+   * change in the COLLECTION's size, which a delete or a creation makes on
+   * every capture of the resource whether or not that capture's own page held
+   * the row; a page that did not hold the deleted row still lists one fewer.
+   */
+  function land(
+    name: string,
+    change: (rows: WireRecord[]) => WireRecord[],
+    sizeDelta = 0
+  ): void {
+    const fixture = captures[name];
+    const envelope = envelopeOf(fixture);
+    if (!envelope) return;
+
+    const rows = change(envelope.data);
+    const delta = sizeDelta;
+    const stated = recordedTotal(fixture);
+
+    captures[name] = {
+      ...fixture,
+      response: {
+        ...fixture.response,
+        body: {
+          ...envelope,
+          data: rows,
+          total: isNumber(stated) ? stated + delta : size(rows)
+        }
+      }
+    };
+  }
+
+  /** A capture whose own request narrowed nothing — where a created row lands. */
+  const isUnfiltered = (name: string) =>
+    !isNarrowed(captures[name], values(captures));
+
+  return {
+    bodies: () => {
+      const replayed: Record<string, RecordedFixture> = {
+        ...source,
+        ...captures
+      };
 
       if (memberName && member)
         replayed[memberName] = withRecord(source[memberName], member);
@@ -767,22 +929,13 @@ export function createCorpusSession(source: CorpusBodies): CorpusSession {
       return replayed;
     },
 
-    // What lands is the WRITE the wire accepted — the addressed row, the
-    // request's own values — never a recording's row verbatim: the recordings
-    // were captured against each other, so their ids collide with the very
-    // rows they would land beside (a POST recording IS one of the committed
-    // rows), and a set-default recording names whichever row was default at
-    // capture time. Served BODIES stay the recordings' own (S13); this is only
-    // the collection the next read is answered from.
     apply(method, url, body, answered) {
       const { pathname } = url;
       const requested = body as Partial<WireRecord> | undefined;
       const verb = toUpper(method);
-
-      const collection = collectionShape(
-        filter(values(source), isCollectionRead)
-      );
+      const collection = collectionShape(values(captures));
       const shape = shapeOf(pathname);
+      const returned: unknown = get(answered, "data");
 
       // The single record a form edits: what lands is the record staging
       // RETURNED for this write (the recording's own `data`), else the request's
@@ -793,8 +946,6 @@ export function createCorpusSession(source: CorpusBodies): CorpusSession {
         shape === fixtureShape(source[memberName]) &&
         (verb === "PUT" || verb === "PATCH")
       ) {
-        const returned: unknown = get(answered, "data");
-
         member = {
           ...member,
           ...(isPlainObject(returned) ? (returned as WireRecord) : requested)
@@ -802,58 +953,75 @@ export function createCorpusSession(source: CorpusBodies): CorpusSession {
         return;
       }
 
-      // A member sits one id segment below the collection it belongs to.
+      // A member sits one id segment below the collection it belongs to: the
+      // write lands on that row in every capture of the collection holding it.
       if (collection && shape === `${collection}/:id`) {
         const id = last(split(pathname, "/"));
+        const resource = join(initial(split(pathname, "/")), "/");
+        // The served record lands only when it IS this row: a recording of the
+        // same write against another record answers the write, but its body
+        // names that other record, and spreading it here would overwrite this
+        // row's identity with it. The request's own values land otherwise.
+        const landed =
+          isPlainObject(returned) && get(returned, "id") === id
+            ? (returned as WireRecord)
+            : (requested ?? {});
+        const held = some(capturesAt(resource), name =>
+          some(envelopeOf(captures[name])?.data, ["id", id])
+        );
 
-        if (verb === "DELETE") rows = reject(rows, ["id", id]);
-        if (verb === "PUT" || verb === "PATCH") {
-          rows = requested?.default
-            ? map(rows, row => ({ ...row, default: row.id === id }))
-            : map(rows, row =>
-                row.id === id ? { ...row, ...requested } : row
-              );
+        for (const name of capturesAt(resource)) {
+          if (verb === "DELETE")
+            land(name, rows => reject(rows, ["id", id]), held ? -1 : 0);
+          // A write to a row no capture holds lands nowhere — flipping every
+          // row's `default` off for an id nobody has would unmake the default.
+          if ((verb === "PUT" || verb === "PATCH") && held)
+            land(name, rows =>
+              requested?.default
+                ? map(rows, row => ({
+                    ...row,
+                    ...(row.id === id ? landed : {}),
+                    default: row.id === id
+                  }))
+                : map(rows, row =>
+                    row.id === id ? { ...row, ...landed } : row
+                  )
+            );
         }
         return;
       }
 
+      // A write to the collection itself: a bulk replace takes the recording's
+      // own rows; a creation appends the recorded created row, as sent, to
+      // every capture that narrowed nothing.
       if (shape === collection && (verb === "PUT" || verb === "PATCH")) {
-        rows = replacedRows(source, verb, pathname) ?? rows;
+        const replaced = replacedRows(source, verb, pathname);
+        if (!replaced) return;
+
+        for (const name of capturesAt(pathname)) land(name, () => replaced);
         return;
       }
       if (shape === collection && verb === "POST") {
         const recorded = createdRow(source, pathname);
         if (!recorded) return;
 
-        rows = [
-          ...rows,
-          {
-            ...recorded,
-            ...requested,
-            // Distinct by construction: the capture created the recorded row,
-            // so its id names a committed row and a verbatim append collides.
-            id: `${recorded.id}:${size(rows)}`
-          }
-        ];
+        const created = {
+          ...recorded,
+          ...requested,
+          // Distinct by construction: the capture created the recorded row,
+          // so its id names a committed row and a verbatim append collides.
+          id: `${recorded.id}:${Date.now()}`
+        };
+
+        for (const name of capturesAt(pathname))
+          land(
+            name,
+            rows => (isUnfiltered(name) ? [...rows, created] : rows),
+            1
+          );
       }
     }
   };
-}
-
-/** The fixture names of the collection's paged captures, in recorded-offset order. */
-function pagedFixtureNames(source: CorpusBodies): string[] {
-  const reads = filter(values(source), isCollectionRead);
-  const collection = collectionShape(reads);
-
-  const named = filter(
-    keys(source),
-    name =>
-      isCollectionRead(source[name]) &&
-      fixtureShape(source[name]) === collection &&
-      hasOffset(source[name])
-  );
-
-  return sortBy(named, name => offsetOf(source[name]));
 }
 
 /** The row the module's own POST recording created, if it carries one. */
