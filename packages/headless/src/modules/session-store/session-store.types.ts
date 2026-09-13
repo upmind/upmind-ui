@@ -175,10 +175,19 @@ export type SessionUser = {
 };
 
 /**
- * Record types the server can mark as delegated to the active client — the
- * three models that declare a delegate flag. `IOrder` is deliberately
- * excluded: no order model in `@upmind-automation/types` declares
- * `delegate_related`.
+ * Record types the server can mark as delegated to the active client
+ * (graphify-out/ — `graphify query "IOrder IInvoice alias delegatable record
+ * order delegate_related"` confirms `IOrder` carries no node of its own).
+ *
+ * ORDERS ARE COVERED, via `IInvoice`. `IOrder` is a straight alias of
+ * `IInvoice` (`types/src/models/orders.ts:3`), so an order both satisfies this
+ * union and takes the invoice arm of `isDelegated` — child-account exclusion
+ * and all. That matches the oracle: the legacy orders module maps
+ * `belongsToDelegate` onto the invoices getter verbatim
+ * (`vue-app src/store/modules/data/orders/index.ts:65-68`, commented "Map to
+ * identical INVOICES getter"), and orders render the same delegated badge
+ * (`orderRowItem.vue:99`). Naming `IOrder` here would be a no-op alias in the
+ * union, not extra coverage.
  */
 export type DelegatableRecord = IInvoice | IContractProduct | ITicket;
 

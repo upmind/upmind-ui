@@ -29,6 +29,22 @@
 #
 # THE JOB: a client who has been granted access to someone else's invoices,
 # products or tickets can tell which records those are, and who owns them.
+#
+# BLOCKED — the populated path is unproven, and must stay that way until a
+# recording exists. Every recorded `/self` fixture in this repo (26 of them)
+# carries `delegated_ids: null` or no key at all. Nothing has ever been
+# recorded from a client that actually holds delegated access, so the wire
+# shape of a POPULATED map is unverified.
+#
+# The scenarios below tagged `@todo` are blocked on exactly that, and on
+# nothing else. They are NOT to be closed by hand-authoring a `/self` payload:
+# test data comes from recordings, and a fabricated fixture certifying a
+# contract no real system has returned is the failure this repo has receipts
+# for. The operator is sourcing a staging client that holds delegated access.
+#
+# When that recording lands: add it to `__tests__/fixtures/`, give each `@todo`
+# scenario a proving test against it, drop the tag, and add the negative
+# control that kills a mapper ignoring the wire.
 
 @module:session-store @cell:client-self @cell:staff-self @cell:guest-self
 Feature: A client can read the delegated access granted to them
@@ -69,14 +85,14 @@ Feature: A client can read the delegated access granted to them
     When I ask whether that invoice was delegated to me
     Then the invoice is reported as delegated
 
-  @AC-DG2 @layer-unit
+  @AC-DG2 @layer-unit @todo
   Scenario: An invoice belonging to a child account is not reported as delegated
     Given an invoice whose delegation flag is set
     And the invoice belongs to a child account of mine
     When I ask whether that invoice was delegated to me
     Then the invoice is reported as not delegated
 
-  @AC-DG2 @layer-unit
+  @AC-DG2 @layer-unit @todo
   Scenario: A delegated contract product belonging to a child account is still delegated
     Given a contract product whose delegation flag is set
     And the contract product belongs to a child account of mine
@@ -91,7 +107,7 @@ Feature: A client can read the delegated access granted to them
     When I ask who owns that invoice
     Then I receive the owning client's display name, username and avatar
 
-  @AC-DG3 @layer-unit
+  @AC-DG3 @layer-unit @todo
   Scenario: A record with no owning client attached resolves to no owner
     Given a delegated contract product with no owning client attached
     When I ask who owns that contract product
@@ -130,18 +146,24 @@ Feature: A client can read the delegated access granted to them
   # === DO I HOLD DELEGATED ACCESS AT ALL =====================================
 
   @AC-DG7 @layer-integration
+  Scenario: A client whose identity carries no delegated ids does not hold delegated access
+    Given I am signed in as a client whose identity response carries no delegated ids
+    When I read whether I hold delegated access
+    Then the delegated-access flag reads false
+
+  @AC-DG7 @layer-integration @todo
   Scenario: A client holding delegated contract products or delegated clients holds delegated access
     Given I am signed in as a client who has been granted access to a contract product or to another client
     When I read whether I hold delegated access
     Then the delegated-access flag reads true
 
-  @AC-DG8 @layer-integration
+  @AC-DG8 @layer-integration @todo
   Scenario: A client holding only a delegated ticket does not hold delegated access
     Given I am signed in as a client who has been granted access to a ticket only
     When I read whether I hold delegated access
     Then the delegated-access flag reads false
 
-  @AC-DG9 @layer-integration
+  @AC-DG9 @layer-integration @todo
   Scenario: A session stored before delegated access existed reads false rather than failing
     Given I am signed in as a client whose stored session profile predates the delegated-ids field
     When I read whether I hold delegated access
