@@ -40,6 +40,11 @@ export const meta = {
       model: "sonnet"
     },
     {
+      title: "Test review",
+      detail: "pseudo-nathan grades the authored tests",
+      model: "opus"
+    },
+    {
       title: "Prove",
       detail: "prover seat — step catalog, replay spec, traceability test",
       model: "sonnet"
@@ -162,6 +167,19 @@ const REVIEW_GATE = {
   required: ["blockerCount", "summary"]
 };
 
+// Test review: the test oracle grades what the prover ACTUALLY authored, before
+// any green cycle is spent on it. Blockers route to the PROVER — test
+// authorship is its lane, never the developer's.
+const TEST_REVIEW_GATE = {
+  type: "object",
+  properties: {
+    pass: { type: "boolean" },
+    summary: { type: "string" },
+    blockers: { type: "array", items: { type: "string" } }
+  },
+  required: ["pass", "summary"]
+};
+
 const results = { id, stopped: null, cycles: {}, surfaced: [] };
 
 // --- Derive -----------------------------------------------------------------------
@@ -251,6 +269,56 @@ const proveGreen = () =>
   results.prove.traceabilityGreen === true &&
   results.prove.mutantsProvenRed !== false;
 
+// --- Test review ------------------------------------------------------------
+// Runs BEFORE the green loop, deliberately: a bad test caught here costs one
+// prover revision; caught after, it costs the developer a wasted repair cycle
+// chasing an assertion that was wrong to begin with. The oracle judges
+// test-layer fit, scenario quality, and whether each test proves CAPABILITY
+// rather than shape. It files findings and emits no approval verdict.
+results.testReviews = [];
+for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+  results.cycles.testReview = cycle;
+
+  const verdict = await agent(
+    `Review the tests authored for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} Inputs: the step catalog, the replay spec, the traceability test and the module's own .feature only — the diff is withheld from you. A step that fires no real action id and presses no real control is FAKE; say so. Judge test-layer fit, scenario quality, and whether each test proves capability rather than shape. Pass = no blocker. File findings; emit no approval verdict.`,
+    {
+      agentType: "upmind-agent:pseudo-nathan",
+      model: "opus",
+      phase: "Test review",
+      schema: TEST_REVIEW_GATE,
+      label: `test-review:${id}#${cycle}`
+    }
+  );
+  results.testReviews.push({ cycle, verdict });
+
+  if (!verdict) {
+    results.stopped = "test-review-failed";
+    return results;
+  }
+  if (verdict.pass) break;
+  if (cycle === MAX_CYCLES) {
+    results.stopped = "test-review-blocked";
+    return results;
+  }
+
+  log(
+    `factory-scenario ${id}: test review cycle ${cycle} blocked — prover revising`
+  );
+  const revised = await agent(
+    `Invoke /upmind-agent:test for story ${id} in REVISE mode. ${FACTS} ${BOUNDS} The tests you authored were graded and blocked. Fix them, then stop. Do not read the diff:\n\n${verdict.summary}`,
+    {
+      agentType: "upmind-agent:prover",
+      model: "sonnet",
+      phase: "Test review",
+      label: `retest:${id}#${cycle}`
+    }
+  );
+  if (revised === null) {
+    results.stopped = "prover-failed";
+    return results;
+  }
+}
+
 for (let cycle = 1; cycle <= MAX_CYCLES && !proveGreen(); cycle++) {
   results.cycles.prove = cycle;
   log(
@@ -302,7 +370,7 @@ for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
   results.cycles.verify = cycle;
 
   const verdict = await agent(
-    `Invoke /upmind-agent:review (verify lane) over the playground page for story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Pass = the page boots and draws at every offered cell, its filter bar, sort control and pager render off the module's own criteria and pagination channels, and every drawn control presses a live member. Grade against the module's oracle surface, never the declaration's self-report.`,
+    `Invoke /upmind-agent:review (verify lane) over the playground page for story ${id}. ${FACTS} Bind to the CURRENT HEAD of the working branch — on a re-verify after a repair, grade the repaired commit, never the one you graded last cycle. ${JTBD} ${INPUTS} ${BOUNDS} Pass = the page boots and draws at every offered cell, its filter bar, sort control and pager render off the module's own criteria and pagination channels, and every drawn control presses a live member. Grade against the module's oracle surface, never the declaration's self-report.`,
     {
       agentType: "upmind-agent:verifier",
       model: "opus",

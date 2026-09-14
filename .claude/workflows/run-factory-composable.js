@@ -67,6 +67,11 @@ export const meta = {
       model: "sonnet"
     },
     {
+      title: "Test review",
+      detail: "pseudo-nathan grades the authored tests",
+      model: "opus"
+    },
+    {
       title: "Prove",
       detail: "prover seat — invokes /test (public surface only)",
       model: "sonnet"
@@ -231,6 +236,19 @@ const DOCS_GATE = {
     missingArtefacts: { type: "number" }
   },
   required: ["pass", "summary", "missingArtefacts"]
+};
+
+// Test review: the test oracle grades what the prover ACTUALLY authored, before
+// any green cycle is spent on it. Blockers route to the PROVER — test
+// authorship is its lane, never the developer's.
+const TEST_REVIEW_GATE = {
+  type: "object",
+  properties: {
+    pass: { type: "boolean" },
+    summary: { type: "string" },
+    blockers: { type: "array", items: { type: "string" } }
+  },
+  required: ["pass", "summary"]
 };
 
 const results = { id, stopped: null, cycles: {}, surfaced: [] };
@@ -398,6 +416,56 @@ if (!results.prove) {
   return results;
 }
 
+// --- Test review ------------------------------------------------------------
+// Runs BEFORE the green loop, deliberately: a bad test caught here costs one
+// prover revision; caught after, it costs the developer a wasted repair cycle
+// chasing an assertion that was wrong to begin with. The oracle judges
+// test-layer fit, scenario quality, and whether each test proves CAPABILITY
+// rather than shape. It files findings and emits no approval verdict.
+results.testReviews = [];
+for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+  results.cycles.testReview = cycle;
+
+  const verdict = await agent(
+    `Review the tests authored for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} Inputs: the authored tests, the module's own .feature, and the public surface only — the diff is withheld from you. Judge test-layer fit, scenario quality, and whether each test proves capability rather than shape. Pass = no blocker. File findings; emit no approval verdict.`,
+    {
+      agentType: "upmind-agent:pseudo-nathan",
+      model: "opus",
+      phase: "Test review",
+      schema: TEST_REVIEW_GATE,
+      label: `test-review:${id}#${cycle}`
+    }
+  );
+  results.testReviews.push({ cycle, verdict });
+
+  if (!verdict) {
+    results.stopped = "test-review-failed";
+    return results;
+  }
+  if (verdict.pass) break;
+  if (cycle === MAX_CYCLES) {
+    results.stopped = "test-review-blocked";
+    return results;
+  }
+
+  log(
+    `factory-composable ${id}: test review cycle ${cycle} blocked — prover revising`
+  );
+  const revised = await agent(
+    `Invoke /upmind-agent:test for story ${id} in REVISE mode. ${FACTS} ${BOUNDS} The tests you authored were graded and blocked. Fix them, then stop. Do not read the diff:\n\n${verdict.summary}`,
+    {
+      agentType: "upmind-agent:prover",
+      model: "sonnet",
+      phase: "Test review",
+      label: `retest:${id}#${cycle}`
+    }
+  );
+  if (revised === null) {
+    results.stopped = "prover-failed";
+    return results;
+  }
+}
+
 for (
   let cycle = 1;
   cycle <= MAX_CYCLES &&
@@ -460,7 +528,7 @@ for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
   results.cycles.verify = cycle;
 
   const verdict = await agent(
-    `Invoke /upmind-agent:review (verify lane) for story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Grade the JTBD's surface against the oracle — for a conversion, every composable surface of the implementation being replaced — never only the parity table's in-scope list. Where the run's diff touches __tests__/fixtures/, re-capture against the real system yourself and compare structurally (keys, shapes, enums — not volatile values); a stored receipt is forgeable and is not evidence, only the live re-capture is. Return verdict PRESENT or ABSENT, and whether every new negative control ran green.`,
+    `Invoke /upmind-agent:review (verify lane) for story ${id}. ${FACTS} Bind to the CURRENT HEAD of the working branch — on a re-verify after a repair, grade the repaired commit, never the one you graded last cycle. ${JTBD} ${INPUTS} ${BOUNDS} Grade the JTBD's surface against the oracle — for a conversion, every composable surface of the implementation being replaced — never only the parity table's in-scope list. Where the run's diff touches __tests__/fixtures/, re-capture against the real system yourself and compare structurally (keys, shapes, enums — not volatile values); a stored receipt is forgeable and is not evidence, only the live re-capture is. Return verdict PRESENT or ABSENT, and whether every new negative control ran green.`,
     {
       agentType: "upmind-agent:verifier",
       model: "opus",
