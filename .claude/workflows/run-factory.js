@@ -37,6 +37,9 @@
 //   playground  — both | page | composable (string, optional, default 'both')
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
 //   arms        — optional operator override of the Plan-stage arms derivation
+//   planApproved — optional boolean, passed straight through to the composable
+//                  lane. The OPERATOR'S plan verdict and the only thing that
+//                  lets Code start; absent, the lane stops at `plan-gate`.
 //   rulings     — optional object of operator answers to earlier halts, e.g.
 //                 { mode: 'conversion', variant: 'hybrid' }. A field present
 //                 here settles that contradiction; the run does not re-raise it.
@@ -210,7 +213,8 @@ if (moduleState === "M3") {
     variant,
     cells,
     constraints,
-    ...(typeof A.arms === "string" ? { arms: A.arms } : {})
+    ...(typeof A.arms === "string" ? { arms: A.arms } : {}),
+    ...(A.planApproved === true ? { planApproved: true } : {})
   });
 
   if (!results.composable || results.composable.stopped) {

@@ -34,6 +34,12 @@
 //   cells       — the ADR-001 actor x context cells in scope
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
 //   arms        — optional operator override of the Plan-stage arms derivation
+//   planApproved — optional boolean. The OPERATOR'S plan verdict, and the only
+//                  thing that lets Code start. Absent or false, the lane stops
+//                  at `plan-gate` with the spec filed and the story handed to a
+//                  human. The operator reads the bundle, runs /sdd-review, and
+//                  re-invokes with planApproved: true and resumeFromRunId set —
+//                  every finished stage replays from cache.
 export const meta = {
   name: "run-factory-composable",
   description:
@@ -91,6 +97,7 @@ const { id, worktree, sddDir, jtbd, module: target, mode, variant, cells } = A;
 const constraints =
   typeof A.constraints === "string" ? A.constraints : "none recorded";
 const armsOverride = typeof A.arms === "string" ? A.arms : null;
+const planApproved = A.planApproved === true;
 
 // The 3-cycle cap (rules/agent-behavior.md §5). Bounded by construction: at most
 // 1 + 1 + 1 + 1 + 3*2 + 3*2 + 3*2 + 1 + 3*2 = 29 agents, no unbounded
@@ -320,6 +327,26 @@ if (!results.plan.armsPresent) {
 // gate FAIL and an operator escalation (receipt: client-email R17, 2026-08-05).
 if (results.plan.jtbdContradictedDrops !== 0) {
   results.stopped = "plan-jtbd-contradicted";
+  return results;
+}
+
+// --- THE PLAN GATE — a human ratifies the spec before any code is written ----
+//
+// The lane's own gate fields say the bundle is COMPLETE. They cannot say it is
+// RIGHT. Every generic-stage table puts a finished plan in front of a human
+// (`actor:Human` + `action:Review`, status Needs Review) and only the operator's
+// `/sdd-review approve` flips it back to the agent for dev. A runner that walks
+// from Plan straight into Code has emitted the plan verdict itself, which no
+// agent seat may do (rules/agent-seat-separation.md, ADR-029).
+//
+// So the lane STOPS here unless the operator has already ratified this bundle.
+// The spec is filed and readable; nothing is thrown away. The operator reads it,
+// runs /sdd-review, and re-invokes with planApproved: true and resumeFromRunId
+// set — research and plan replay from cache, and Code opens on a ratified spec.
+if (!planApproved) {
+  results.stopped = "plan-gate";
+  results.awaiting = "operator plan review";
+  results.spec = sddDir;
   return results;
 }
 
