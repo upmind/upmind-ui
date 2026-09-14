@@ -16,12 +16,8 @@ Ruled 2026-09-07: "we don't need to mock the client-vue components, as they are 
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------- |
 | `/login` (+ two-factor step)                                         | `UpmSessionLogin`                                                                            | `auth`                                                             | `config/auth-pages.ts`                |
 | `/register`                                                          | `UpmSessionRegister`                                                                         | `auth`                                                             | `config/auth-pages.ts`                |
-| `/register-org`                                                      | `UpmSessionRegister` organisation variant — to be added                                      | `auth`                                                             | `config/auth-pages.ts`                |
 | `/forgotten-password`                                                | `UpmSessionRecoverPassword`                                                                  | `auth`                                                             | `config/auth-pages.ts`                |
-| `/reset-password`                                                    | recover component, reset step — to be added                                                  | `auth`                                                             | `config/auth-pages.ts`                |
-| `/verify`, `/verify-email` (+ expired, set-password)                 | verify component — to be added                                                               | `auth` · `useVerifyEmail`                                          | `config/auth-pages.ts`                |
 | `/logout`                                                            | `UpmSessionLogout`                                                                           | `auth`                                                             | `config/auth-pages.ts`                |
-| `/account/logs` (email history section), `/account/logs/emails/[id]` | email history component — to be added (client-vue's `emailHistory/*` was retired in FE-3103) | `client-email-history`                                             | `config/account-pages.ts`             |
 | `/billing/payment-methods`                                           | `PaymentDetails`, `StoredPaymentMethods`                                                     | `payment-details`, `payment-gateways`                              | `config/billing-pages.ts`             |
 | invoice Pay (document control, list row, `?init=pay`)                | `PaymentDetails`, `PaymentAmount`, `AccountCredit`, `PaymentGateways`                        | `payment`, `invoices`                                              | `MOCK_ACTION.PAY_INVOICE` → prose     |
 | product settings — payment method                                    | `StoredPaymentMethods`                                                                       | `payment-details`                                                  | `config/product-pages.ts`             |
@@ -97,11 +93,30 @@ portal ships the family.
 ### Profile contacts
 
 Mocked since 11 September 2026 (operator ruling: mock where no surface component exists).
-No client-vue view serves the profile page; the manage kit is an editing kit, not a page.
+No client-vue view serves the profile page, and no view is reachable for it either: the
+billing tabs draw addresses, phones and companies, but `modules/billing/index.ts` publishes
+only `UpmBilling` and `UpmBillingForm`. Whether the mock stays is the open export decision in
+[`client-vue-placeholder-audit.md`](./client-vue-placeholder-audit.md) 2.1.
 The four lists — emails, phones, and the addresses and companies legacy draws as one
 "Address and company details" section — run on `mock/facades/useMockContacts.ts`, with
 stand-in forms in `mock/contracts/client-contacts.schemas.ts` (`tests/profile-contacts.test.ts`).
 The product's "Add a new address" and "Add company" doors open the same forms.
+
+### Email history
+
+Mocked since 11 September 2026. Client-vue's `emailHistory` module was retired in FE-3103, so
+nothing was coming. The Logs page carries legacy's four status tabs over one list, the
+delivery-delay notice, and the preview as a page under `/account/logs/emails/[id]`
+(`mock/collection-defs.ts` `sentEmailsCollection`, `tests/email-history.test.ts`).
+
+### Logged-out steps
+
+Mocked since 11 September 2026. The reset link's new password (with the second-step code
+while two-factor is on), the verification link's outcomes (activated, first password, expired),
+the email-verification outcomes, and the organisation sign-up under "Get started for free"
+are pages of their own (`config/auth-pages.ts`, `mock/contracts/auth.schemas.{reset,register-org}.ts`,
+`tests/auth-steps.test.ts`). Sign-in, registration and password recovery still mount the real
+client-vue organisms.
 
 ### Product setup
 

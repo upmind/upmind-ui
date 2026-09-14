@@ -18,7 +18,8 @@ import type {
   CustomField,
   Email,
   Phone,
-  ProfileRecord
+  ProfileRecord,
+  SentEmail
 } from "@upmind-automation/headless";
 import type {
   AffiliatePayoutDestinationCode,
@@ -903,6 +904,9 @@ export type MockParentBranding = {
 // go-real swap changes the source, never the templates. Values stay
 // display-ready (`date`/`relative` are authored strings).
 
+/** One email the brand sent this client — the headless `SentEmail` model, as the seed carries it. */
+export type MockSentEmail = SentEmail;
+
 export type MockLoginAttempt = {
   readonly id: string;
   readonly at: string;
@@ -1520,7 +1524,8 @@ export type MockDataset = {
   readonly childAccounts: MockChildAccount[];
   /** The appearance children inherit; null where the brand lends none. */
   readonly parentBranding: MockParentBranding | null;
-  /** Mutable: a resend appends a fresh row, and a retry moves an errored one. */
+  /** Legacy's email history — every email the brand sent this client, newest first. */
+  readonly sentEmails: MockSentEmail[];
   /** The brand's own warning that mail is running behind — legacy's delivery-delay notice. */
   readonly emailDeliveryDelayed: boolean;
   readonly loginAttempts: MockLoginAttempt[];

@@ -38,8 +38,7 @@ import {
 } from "../registry";
 import { PAGE_KEY } from "../types";
 import { NAV_EMPHASIS } from "../variants";
-import { clientVuePage, clientVueRow } from "./client-vue";
-import { brandNoteRow, pagerFooter, panelControls } from "./pager";
+import { brandNoteRow, pagerFooter, panelControls, statusRail } from "./pager";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
 import type { FormId } from "../mock/forms/ids";
@@ -868,7 +867,46 @@ export function accountPages(options?: {
       ]
     ),
     [PAGE_KEY.ACCOUNT_LOGS]: page("Logs", "A record of emails and sign-ins.", [
-      clientVueRow("UpmEmailHistory", "client-email-history"),
+      // Legacy's delivery-delay notice over the email history, shown while
+      // the brand says mail is running behind.
+      {
+        layout: ROW_LAYOUT.FULL,
+        surface: ROW_SURFACE.PANEL,
+        visible: dataRef(DATA_REF_ID.IS_EMAIL_DELIVERY_DELAYED),
+        slots: [
+          moduleRef(BANNER_MODULE_ID, {
+            variant: BANNER_VARIANT.NOTICE,
+            props: {
+              title: "Email history",
+              message:
+                "Please note – it can take up to five minutes for email messages to show in this list.",
+              tone: "info",
+              label: "Delivery notice",
+              dismissLabel: "Dismiss"
+            }
+          })
+        ]
+      },
+      // Legacy's `emailHistoryTable`: All / Sent / Bounced / Failed tabs in
+      // the control band, the subject and recipient per row, the outcome
+      // as its badge, and the row opening the preview.
+      listRow(
+        "Email history",
+        "Every email we have sent you, and how it went.",
+        DATA_REF_ID.SENT_EMAIL_ITEMS,
+        "We found no emails matching the applied filters.",
+        {
+          controls: panelControls(
+            DATA_REF_ID.SENT_EMAIL_ITEMS,
+            "emails",
+            "Search by subject or recipient",
+            statusRail(
+              DATA_REF_ID.SENT_EMAIL_TABS,
+              DATA_REF_ID.SENT_EMAIL_STATUS
+            )
+          )
+        }
+      ),
       listRow(
         "Login attempts",
         "Recent sign-ins to your account.",
@@ -883,11 +921,33 @@ export function accountPages(options?: {
         }
       )
     ]),
-    [PAGE_KEY.ACCOUNT_LOG_EMAIL_DETAIL]: clientVuePage(
+    // Legacy's `viewEmailModal`, as a page: the header facts, then the
+    // message. Its two header controls were staff's (resend, retry).
+    [PAGE_KEY.ACCOUNT_LOG_EMAIL_DETAIL]: page(
       "Email",
       "What we sent, and how it went.",
-      "UpmEmailHistory (Email detail)",
-      "client-email-history"
+      [
+        specRow(
+          "Message",
+          "Who it went to, and how it went.",
+          DATA_REF_ID.SENT_EMAIL_SPEC_ITEMS,
+          "No such email"
+        ),
+        {
+          layout: ROW_LAYOUT.FULL,
+          surface: ROW_SURFACE.PANEL,
+          header: { title: "Body", description: "The message as it was sent." },
+          slots: [
+            moduleRef(PROSE_MODULE_ID, {
+              variant: PROSE_MODULE_VARIANT.MARKDOWN,
+              props: {
+                markdown: dataRef(DATA_REF_ID.SENT_EMAIL_BODY),
+                emptyTitle: "Nothing to read"
+              }
+            })
+          ]
+        }
+      ]
     )
   };
 }

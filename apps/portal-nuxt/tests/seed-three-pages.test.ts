@@ -72,6 +72,7 @@ describe("seed — every results list carries three pages", () => {
   it.each([
     [PAGED_COLLECTION_ID.INVOICES, ["all", "unpaid", "paid", "credited"]],
     [PAGED_COLLECTION_ID.TICKETS, ["open", "closed"]],
+    [PAGED_COLLECTION_ID.SENT_EMAILS, ["all", "sent", "bounced", "error"]],
     [PAGED_COLLECTION_ID.GROUP_PRODUCTS, ["all", "active", "cancelled"]]
   ] as const)("%s pages three deep on every status tab", (collection, tabs) => {
     for (const status of tabs) {

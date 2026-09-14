@@ -119,7 +119,7 @@ decision, cited. **Unverified** — not checked by hand yet.
 
 | Legacy control | Portal | Status |
 | --- | --- | --- |
-| Email history: tabs all / sent / bounced / failed, row preview, filters, pagination | client-vue `UpmEmailHistory` | Stub |
+| Email history: tabs all / sent / bounced / failed, row preview, filters, pagination | Same; the preview is a page. The template filter lists the brand's templates, which a client cannot | Present |
 | Login attempts: list, filter, sort | Same | Present |
 
 ## Template slots and notices
@@ -141,6 +141,4 @@ decision, cited. **Unverified** — not checked by hand yet.
 2. Remove avatar.
 3. Affiliate: withdrawal message and the ticket it raises; link edit and delete;
    commission rows linking to their invoice.
-4. Email history is still a placeholder: no client-vue component serves it
-   (`client-vue-placeholder-audit.md`), so it is mocked next.
 5. Unverified rows above.

@@ -47,6 +47,7 @@ import {
   InvoiceStatus,
   InvoiceStatusGroups,
   NotificationChannelCodes,
+  SentEmailStatus,
   TicketStatusCodes
 } from "@upmind-automation/types";
 import {
@@ -88,6 +89,8 @@ import {
   groupProductsCollection,
   groupCatalogueCollection,
   loginAttemptsCollection,
+  sentEmailsCollection,
+  EMAIL_STATUS_TAB,
   NOTIFICATION_FILTER,
   NOTIFICATION_FILTER_CRITERIA,
   notificationFeedCollection,
@@ -103,6 +106,16 @@ import {
   useVerifyEmailUischemaParser,
   verifyEmailDefaults
 } from "./contracts/account.schemas";
+import {
+  registerOrgDefaults,
+  useRegisterOrgSchema,
+  useRegisterOrgUischema
+} from "./contracts/auth.schemas.register-org";
+import {
+  resetPasswordDefaults,
+  useResetPasswordSchema,
+  useResetPasswordUischema
+} from "./contracts/auth.schemas.reset";
 import {
   useTwoFASchema,
   useTwoFAUischema,
@@ -209,10 +222,10 @@ import { resolveMockForm } from "./forms/registry";
 import { ticketFormContext } from "./forms/support-contexts";
 import { useMockImpersonation } from "./impersonation";
 import {
-  CREDIT_NOTE_STATUS_LABEL,
-  creditNoteState,
-  CREDIT_NOTE_STATUS_TONE,
   COMMISSION_STATUS_TONE,
+  CREDIT_NOTE_STATUS_LABEL,
+  CREDIT_NOTE_STATUS_TONE,
+  creditNoteState,
   INVOICE_STATUS_LABEL,
   INVOICE_STATUS_TONE,
   ORDER_STATUS_LABEL,
@@ -225,6 +238,8 @@ import {
   PRODUCT_STATUS_TONE,
   SCHEDULED_ACTION_STATUS_LABEL,
   SCHEDULED_ACTION_STATUS_TONE,
+  SENT_EMAIL_STATUS_LABEL,
+  SENT_EMAIL_STATUS_TONE,
   TICKET_STATUS_LABEL,
   TICKET_STATUS_TONE
 } from "./status-labels";
@@ -296,6 +311,7 @@ import type {
   MockProduct,
   MockProvisionField,
   MockProvisionFunction,
+  MockSentEmail,
   MockTaxLine,
   MockTicket,
   MockTicketMessage,
@@ -5391,6 +5407,164 @@ export function isEmailDeliveryDelayed(data: MockDataset): boolean {
  */
 export function emailHeaderActions(): ButtonModuleAction[] {
   return [];
+}
+
+// --- the logged-out forms: reset link, verification link, organisation sign-up
+
+/** Legacy's `resetPasswordForm`: the code joins the password only where two-factor is on. */
+export function resetPasswordFormSchema(data: MockDataset): JsonSchema {
+  return useResetPasswordSchema(data.security.twoFactorEnabled);
+}
+
+export function resetPasswordFormUischema(data: MockDataset): UISchemaElement {
+  return useResetPasswordUischema(data.security.twoFactorEnabled);
+}
+
+export function resetPasswordFormModel(data: MockDataset): FormModel {
+  return resetPasswordDefaults(data.security.twoFactorEnabled);
+}
+
+/** The verification link's first password — the same form, code unasked. */
+export function setPasswordFormSchema(): JsonSchema {
+  return useResetPasswordSchema(false);
+}
+
+export function setPasswordFormUischema(): UISchemaElement {
+  return useResetPasswordUischema(false);
+}
+
+export function setPasswordFormModel(): FormModel {
+  return resetPasswordDefaults(false);
+}
+
+export function registerOrgFormSchema(): JsonSchema {
+  return useRegisterOrgSchema();
+}
+
+export function registerOrgFormUischema(): UISchemaElement {
+  return useRegisterOrgUischema();
+}
+
+export function registerOrgFormModel(): FormModel {
+  return registerOrgDefaults();
+}
+
+// --- email history (legacy's emailHistoryTable, emailHistoryStatus, viewEmailModal)
+
+/** All leads; Sent, Bounced and Failed narrow — legacy's four routes. */
+const SENT_EMAIL_TABS = [
+  { value: EMAIL_STATUS_TAB.ALL, label: "All" },
+  {
+    value: EMAIL_STATUS_TAB.SENT,
+    label: SENT_EMAIL_STATUS_LABEL[SentEmailStatus.SENT]
+  },
+  {
+    value: EMAIL_STATUS_TAB.BOUNCED,
+    label: SENT_EMAIL_STATUS_LABEL[SentEmailStatus.BOUNCED]
+  },
+  {
+    value: EMAIL_STATUS_TAB.FAILED,
+    label: SENT_EMAIL_STATUS_LABEL[SentEmailStatus.ERROR]
+  }
+];
+
+/** Legacy's `emailHistoryStatus` badge, word for word. */
+const SENT_EMAIL_BADGE: Readonly<Record<SentEmailStatus, string>> = {
+  [SentEmailStatus.SENT]: "Email sent",
+  [SentEmailStatus.BOUNCED]: "Email bounced",
+  [SentEmailStatus.ERROR]: "Send failed",
+  [SentEmailStatus.SENDING]: "Sending"
+};
+
+const SENT_EMAIL_DETAIL_PATH = "/account/logs/emails";
+
+export function sentEmailTabs(): TabsModuleItem[] {
+  return statusTabs("/account/logs", SENT_EMAIL_TABS);
+}
+
+export function sentEmailStatus(
+  data: MockDataset,
+  context: DataRouteContext
+): string {
+  return showingStatus(
+    context,
+    map(SENT_EMAIL_TABS, "value"),
+    EMAIL_STATUS_TAB.ALL
+  );
+}
+
+/** Legacy's table row: the subject, who it went to, and how it went; the row opens the preview. */
+export function sentEmailItems(
+  data: MockDataset,
+  context: DataRouteContext
+): ListModuleItem[] {
+  const { data: rows } = sentEmailsCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, email => ({
+    id: email.id,
+    title: email.subject,
+    description: `To: ${email.to}`,
+    leadingIcon: Mail,
+    datetime: email.dateCreated.date ?? undefined,
+    trailingText: SENT_EMAIL_BADGE[email.status],
+    trailingTone: SENT_EMAIL_STATUS_TONE[email.status],
+    to: `${SENT_EMAIL_DETAIL_PATH}/${email.id}`
+  }));
+}
+
+/** The email the route names — the preview's own subject. */
+function contextSentEmail(
+  data: MockDataset,
+  context: DataRouteContext
+): MockSentEmail | undefined {
+  return find(data.sentEmails, { id: context.entityId ?? "" });
+}
+
+/** Legacy's `viewEmailModal` header: subject, from, to, cc, the outcome and its date. */
+export function sentEmailSpecItems(
+  data: MockDataset,
+  context: DataRouteContext
+): SpecModuleItem[] {
+  const email = contextSentEmail(data, context);
+  if (email === undefined) return [];
+  const items: SpecModuleItem[] = [
+    { id: "subject", label: "Subject", value: email.subject },
+    { id: "from", label: "From", value: email.from },
+    { id: "to", label: "To", value: email.to }
+  ];
+  if (email.cc !== "") items.push({ id: "cc", label: "CC", value: email.cc });
+  items.push({
+    id: "status",
+    label: "Status",
+    value: SENT_EMAIL_BADGE[email.status]
+  });
+  if (email.dateSent.date !== null && email.dateSent.date !== undefined) {
+    items.push({ id: "sent", label: "Date sent", value: email.dateSent.date });
+  }
+  if (email.dateBounced.date !== null && email.dateBounced.date !== undefined) {
+    items.push({
+      id: "bounced",
+      label: "Date bounced",
+      value: email.dateBounced.date
+    });
+  }
+  if (email.dateErrored.date !== null && email.dateErrored.date !== undefined) {
+    items.push({
+      id: "failed",
+      label: "Send failed",
+      value: email.dateErrored.date
+    });
+  }
+  return items;
+}
+
+/** The message itself — what a client came to read. */
+export function sentEmailBody(
+  data: MockDataset,
+  context: DataRouteContext
+): string {
+  return contextSentEmail(data, context)?.body ?? "";
 }
 
 /** Legacy login attempts. */

@@ -125,6 +125,20 @@ import {
   relationSpecItems,
   relationToggleItems,
   loginAttemptItems,
+  sentEmailItems,
+  resetPasswordFormSchema,
+  resetPasswordFormUischema,
+  resetPasswordFormModel,
+  setPasswordFormSchema,
+  setPasswordFormUischema,
+  setPasswordFormModel,
+  registerOrgFormSchema,
+  registerOrgFormUischema,
+  registerOrgFormModel,
+  sentEmailTabs,
+  sentEmailStatus,
+  sentEmailSpecItems,
+  sentEmailBody,
   notificationItems,
   notificationPageItems,
   brandLogoHref,
@@ -573,6 +587,22 @@ export const DATA_REF_ID = {
   IS_EMAIL_DELIVERY_DELAYED: "is-email-delivery-delayed",
   EMAIL_HEADER_ACTIONS: "email-header-actions",
   LOGIN_ATTEMPT_ITEMS: "login-attempt-items",
+  // --- legacy's email history
+  // --- the logged-out forms
+  RESET_PASSWORD_FORM_SCHEMA: "reset-password-form-schema",
+  RESET_PASSWORD_FORM_UISCHEMA: "reset-password-form-uischema",
+  RESET_PASSWORD_FORM_MODEL: "reset-password-form-model",
+  SET_PASSWORD_FORM_SCHEMA: "set-password-form-schema",
+  SET_PASSWORD_FORM_UISCHEMA: "set-password-form-uischema",
+  SET_PASSWORD_FORM_MODEL: "set-password-form-model",
+  REGISTER_ORG_FORM_SCHEMA: "register-org-form-schema",
+  REGISTER_ORG_FORM_UISCHEMA: "register-org-form-uischema",
+  REGISTER_ORG_FORM_MODEL: "register-org-form-model",
+  SENT_EMAIL_ITEMS: "sent-email-items",
+  SENT_EMAIL_TABS: "sent-email-tabs",
+  SENT_EMAIL_STATUS: "sent-email-status",
+  SENT_EMAIL_SPEC_ITEMS: "sent-email-spec-items",
+  SENT_EMAIL_BODY: "sent-email-body",
   TICKET_ITEMS: "ticket-items",
   TICKET_TABS: "ticket-tabs",
   TICKET_STATUS: "ticket-status",
@@ -654,6 +684,7 @@ export const DATA_REF_ID = {
   AFFILIATE_PAYOUTS_PAGER: "affiliate-payouts-pager",
   AFFILIATE_REFERRALS_PAGER: "affiliate-referrals-pager",
   LOGIN_ATTEMPTS_PAGER: "login-attempts-pager",
+  SENT_EMAILS_PAGER: "sent-emails-pager",
   IP_WHITELIST_PAGER: "ip-whitelist-pager",
   TICKETS_PAGER: "tickets-pager",
   // --- control-state refs: one per SEARCHABLE panel, each feeding the
@@ -667,6 +698,7 @@ export const DATA_REF_ID = {
   AFFILIATE_REFERRALS_CONTROLS: "affiliate-referrals-controls",
   CHILD_ACCOUNTS_CONTROLS: "child-accounts-controls",
   LOGIN_ATTEMPTS_CONTROLS: "login-attempts-controls",
+  SENT_EMAILS_CONTROLS: "sent-emails-controls",
   IP_WHITELIST_CONTROLS: "ip-whitelist-controls",
   PRODUCT_INVOICES_CONTROLS: "product-invoices-controls",
   PRODUCT_CREDIT_NOTES_CONTROLS: "product-credit-notes-controls",
@@ -1100,6 +1132,20 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.IS_EMAIL_DELIVERY_DELAYED]: isEmailDeliveryDelayed,
   [DATA_REF_ID.EMAIL_HEADER_ACTIONS]: emailHeaderActions,
   [DATA_REF_ID.LOGIN_ATTEMPT_ITEMS]: loginAttemptItems,
+  [DATA_REF_ID.RESET_PASSWORD_FORM_SCHEMA]: resetPasswordFormSchema,
+  [DATA_REF_ID.RESET_PASSWORD_FORM_UISCHEMA]: resetPasswordFormUischema,
+  [DATA_REF_ID.RESET_PASSWORD_FORM_MODEL]: resetPasswordFormModel,
+  [DATA_REF_ID.SET_PASSWORD_FORM_SCHEMA]: setPasswordFormSchema,
+  [DATA_REF_ID.SET_PASSWORD_FORM_UISCHEMA]: setPasswordFormUischema,
+  [DATA_REF_ID.SET_PASSWORD_FORM_MODEL]: setPasswordFormModel,
+  [DATA_REF_ID.REGISTER_ORG_FORM_SCHEMA]: registerOrgFormSchema,
+  [DATA_REF_ID.REGISTER_ORG_FORM_UISCHEMA]: registerOrgFormUischema,
+  [DATA_REF_ID.REGISTER_ORG_FORM_MODEL]: registerOrgFormModel,
+  [DATA_REF_ID.SENT_EMAIL_ITEMS]: sentEmailItems,
+  [DATA_REF_ID.SENT_EMAIL_TABS]: sentEmailTabs,
+  [DATA_REF_ID.SENT_EMAIL_STATUS]: sentEmailStatus,
+  [DATA_REF_ID.SENT_EMAIL_SPEC_ITEMS]: sentEmailSpecItems,
+  [DATA_REF_ID.SENT_EMAIL_BODY]: sentEmailBody,
   [DATA_REF_ID.TICKET_ITEMS]: ticketItems,
   [DATA_REF_ID.TICKET_TABS]: ticketTabs,
   [DATA_REF_ID.TICKET_STATUS]: ticketStatus,
@@ -1234,6 +1280,7 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.AFFILIATE_REFERRALS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.AFFILIATE_REFERRALS
   ),
+  [DATA_REF_ID.SENT_EMAILS_PAGER]: pagerState(PAGED_COLLECTION_ID.SENT_EMAILS),
   [DATA_REF_ID.LOGIN_ATTEMPTS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.LOGIN_ATTEMPTS
   ),
@@ -1263,6 +1310,9 @@ const SELECTOR_BY_REF: Readonly<
   ),
   [DATA_REF_ID.CHILD_ACCOUNTS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.CHILD_ACCOUNTS
+  ),
+  [DATA_REF_ID.SENT_EMAILS_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.SENT_EMAILS
   ),
   [DATA_REF_ID.LOGIN_ATTEMPTS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.LOGIN_ATTEMPTS
@@ -1324,6 +1374,7 @@ export const PAGER_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> = {
   [DATA_REF_ID.AFFILIATE_PAYOUT_ITEMS]: DATA_REF_ID.AFFILIATE_PAYOUTS_PAGER,
   [DATA_REF_ID.AFFILIATE_REFERRAL_ITEMS]: DATA_REF_ID.AFFILIATE_REFERRALS_PAGER,
   [DATA_REF_ID.LOGIN_ATTEMPT_ITEMS]: DATA_REF_ID.LOGIN_ATTEMPTS_PAGER,
+  [DATA_REF_ID.SENT_EMAIL_ITEMS]: DATA_REF_ID.SENT_EMAILS_PAGER,
   [DATA_REF_ID.IP_WHITELIST_ITEMS]: DATA_REF_ID.IP_WHITELIST_PAGER,
   [DATA_REF_ID.TICKET_ITEMS]: DATA_REF_ID.TICKETS_PAGER
 };
@@ -1356,6 +1407,7 @@ export const CONTROLS_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> =
       DATA_REF_ID.AFFILIATE_REFERRALS_CONTROLS,
     [DATA_REF_ID.CHILD_ACCOUNT_ITEMS]: DATA_REF_ID.CHILD_ACCOUNTS_CONTROLS,
     [DATA_REF_ID.LOGIN_ATTEMPT_ITEMS]: DATA_REF_ID.LOGIN_ATTEMPTS_CONTROLS,
+    [DATA_REF_ID.SENT_EMAIL_ITEMS]: DATA_REF_ID.SENT_EMAILS_CONTROLS,
     [DATA_REF_ID.IP_WHITELIST_ITEMS]: DATA_REF_ID.IP_WHITELIST_CONTROLS,
     [DATA_REF_ID.BILLABLE_ENTITY_ITEMS]: DATA_REF_ID.BILLABLE_ENTITIES_CONTROLS,
     [DATA_REF_ID.PRODUCT_INVOICE_ITEMS]: DATA_REF_ID.PRODUCT_INVOICES_CONTROLS,
