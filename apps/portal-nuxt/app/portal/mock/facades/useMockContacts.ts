@@ -2,9 +2,12 @@
 /**
  * @module portal/mock/facades/useMockContacts
  * @description The client's four contact lists — emails, phones, addresses and
- * companies — as legacy's profile page manages them. No client-vue component
- * serves that page (`docs/client-vue-placeholder-audit.md`), so every list is
- * mocked here. The email facade is DECLARED with the real module's own
+ * companies — as legacy's profile page manages them. No client-vue component is
+ * REACHABLE for that page: client-vue draws addresses, phones and companies in
+ * its checkout billing tabs, but `modules/billing/index.ts` publishes only
+ * `UpmBilling` and `UpmBillingForm`, and emails have no row component at all.
+ * So every list is mocked here, pending the export decision
+ * (`docs/client-vue-placeholder-audit.md` 2.1). The email facade is DECLARED with the real module's own
  * `Use<X>{Context,Meta,Actions}` types, so a member the real module renames
  * fails to compile here rather than drifting; the other three carry the same
  * receipt-shaped `writes`.

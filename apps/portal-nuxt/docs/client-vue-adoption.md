@@ -93,7 +93,10 @@ portal ships the family.
 ### Profile contacts
 
 Mocked since 11 September 2026 (operator ruling: mock where no surface component exists).
-No client-vue view serves the profile page; the manage kit is an editing kit, not a page.
+No client-vue view serves the profile page, and no view is reachable for it either: the
+billing tabs draw addresses, phones and companies, but `modules/billing/index.ts` publishes
+only `UpmBilling` and `UpmBillingForm`. Whether the mock stays is the open export decision in
+[`client-vue-placeholder-audit.md`](./client-vue-placeholder-audit.md) 2.1.
 The four lists — emails, phones, and the addresses and companies legacy draws as one
 "Address and company details" section — run on `mock/facades/useMockContacts.ts`, with
 stand-in forms in `mock/contracts/client-contacts.schemas.ts` (`tests/profile-contacts.test.ts`).
