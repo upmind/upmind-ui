@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/tickets/departments",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3b247daecda31d9-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 14 Sep 2026 20:53:21 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=75DiCnhbJLx7PrQAg7a1mbL%2B0qMALLlByOjS1ilEPzVgRZkv1s2ZzF0NAHeLz%2BzorhdjCzdfer9jKKrLWJomnGyePA10AQ8V%2BUhJjn5dBNBgOxsNhI3JxA37ZS%2BCEL%2FyuaMQ0leVkA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "8d632507-9806-5d1e-33eb-8174e234e98d",
+          "name": "General",
+          "code": "general",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "username": null,
+          "default": true,
+          "is_public": true,
+          "created_at": "2025-05-07 08:38:43",
+          "updated_at": "2025-05-07 08:38:43",
+          "deleted_at": null,
+          "name_translated": "General",
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-14T20:53:21.897Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

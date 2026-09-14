@@ -1,0 +1,92 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/tickets/20403869-6e54-721d-49eb-518d9305e7d2",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "subject": "Fixture write-cycle ticket (renamed)"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3b247d1dbc831d9-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 14 Sep 2026 20:53:20 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4%2Fv6Ti%2BpQvHDe3pd8pZtqeiqdf3J3J8GTS9YJnaBO%2FoBusFnxe5Ky%2BU8v7J6JAlmFk9VAK1uD%2FsKxi9QLOYUALeiNNH2T8UtZdmn6SxBWIPw8TnNeRaa6rYpNqzmZ3AQ7eX7JoV7HA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "20403869-6e54-721d-49eb-518d9305e7d2",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "reference": "LGX-295-59763",
+        "subject": "Fixture write-cycle ticket (renamed)",
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "lead_id": null,
+        "reseller_account_id": null,
+        "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+        "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+        "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+        "user_id": null,
+        "status_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "created_at": "2026-09-14 20:53:14",
+        "updated_at": "2026-09-14 20:53:17",
+        "replied_at": null,
+        "invoice_id": null,
+        "calculated_notify_close_date": "2026-10-04 00:00:00",
+        "calculated_close_date": "2026-10-14 00:00:00",
+        "ticket_department_id": "8d632507-9806-5d1e-33eb-8174e234e98d",
+        "priority_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "object_type": null,
+        "object_id": null,
+        "template_id": null,
+        "contract_product_id": null,
+        "source_type": "system",
+        "source_ip": "66.234.151.146",
+        "spam": false,
+        "email_file": null,
+        "can_see_ticket_messages": null,
+        "is_delegated_object": false,
+        "status": {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "object_type": "ticket",
+          "code": "ticket_open",
+          "order": 0,
+          "name": "Open"
+        },
+        "lead": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-14T20:53:20.820Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

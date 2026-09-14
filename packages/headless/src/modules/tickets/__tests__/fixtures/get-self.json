@@ -1,0 +1,71 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/self",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3b247dd48f031d9-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 14 Sep 2026 20:53:22 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Xub3sN%2BBa%2FrHeGr9NaDFmovZP2SPrLZDeYG%2BO8Yb2GQORspEmG9kT0bjuHNo32BbeD6DwS6aINkjfwOm2VKv8nr%2Bi1dQhR3UojWyv0hoypy5zp0aRM95AnM7pXF69iySxaGTT1FB8Q%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "role": "client",
+        "actor_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+        "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+        "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+        "impersonator_role": null,
+        "impersonator_id": null,
+        "brand_code": "kn6x1dzbtcgb",
+        "replace_branding": false,
+        "branding": null,
+        "analytics": {
+          "environment": "staging",
+          "version": "staging-0.170.152",
+          "language": "en",
+          "clean_email": "mock-email-1@example.com",
+          "sha_user_id": "b959c3efa8b581beae13fc4035938654ec2099e6f10484609255ad9c3240d437",
+          "salted_sha_user_id": "b959c3efa8b581beae13fc4035938654ec2099e6f10484609255ad9c3240d437",
+          "logged_in": true,
+          "customer_type": "client_active"
+        },
+        "meta": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-14T20:53:22.305Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}
