@@ -1,11 +1,7 @@
 /** @internal */
 import { map } from "lodash-es";
-import type {
-  AcceptedDelegateInvite,
-  Delegate,
-  DelegateInviteModel
-} from "./delegates.types";
-import type { IClientDelegate, IDelegate } from "@upmind-automation/types";
+import type { Delegate, DelegateInviteModel } from "./delegates.types";
+import type { IClientDelegate } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module delegates/delegates.mappers
@@ -28,7 +24,6 @@ export function mapDelegate(raw: IClientDelegate): Delegate {
   return {
     id: raw.id,
     ownerClientId: raw.owner_client_id,
-    clientId: raw.client_id,
     inviteEmail: raw.invite_email,
     publicName: raw.public_name,
     imageUrl: raw.image_url,
@@ -63,22 +58,5 @@ export function mapDelegateInvite(
       ? { contract_product_ids: model.contractProductIds }
       : {}),
     ...(model.ticketIds ? { ticket_ids: model.ticketIds } : {})
-  };
-}
-
-/**
- * Map the accept-invite response.
- *
- * `object_type` is absent for a whole-account grant, which is meaningful rather
- * than missing — it is what tells a consumer the invitee gained the account
- * rather than one named record.
- */
-export function mapAcceptedInvite(raw: IDelegate): AcceptedDelegateInvite {
-  return {
-    id: raw.id,
-    clientId: raw.client_id,
-    objectType: raw.object_type,
-    objectId: raw.object_id,
-    isAccepted: !!raw.active
   };
 }

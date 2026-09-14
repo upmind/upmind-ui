@@ -1,7 +1,6 @@
 /** @internal */
 import { useQuery } from "../query";
 import {
-  mapAcceptedInvite,
   mapDelegate,
   mapDelegateInvite,
   mapDelegates
@@ -12,7 +11,7 @@ import type {
   DelegateInviteModel
 } from "./delegates.types";
 import type { QueryKey } from "@tanstack/vue-query";
-import type { IClientDelegate, IDelegate } from "@upmind-automation/types";
+import type { IClientDelegate } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module delegates/delegates.services
@@ -109,11 +108,11 @@ export async function acceptDelegateInvite(
 ): Promise<AcceptedDelegateInvite> {
   const { patch, useUrl } = useQuery();
 
-  const raw = await patch<IDelegate>({
+  const raw = await patch<IClientDelegate>({
     mutationKey: [...queryKey, "accept"],
     url: useUrl(`delegate_access/accept/${hash}`),
     withAccessToken: true
   });
 
-  return mapAcceptedInvite(raw);
+  return mapDelegate(raw);
 }

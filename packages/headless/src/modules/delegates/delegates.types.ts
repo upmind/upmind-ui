@@ -1,4 +1,4 @@
-import type { IClientDelegate, IDelegate } from "@upmind-automation/types";
+import type { IClientDelegate } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module delegates/types
@@ -25,7 +25,6 @@ import type { IClientDelegate, IDelegate } from "@upmind-automation/types";
 export type Delegate = {
   id: IClientDelegate["id"];
   ownerClientId: IClientDelegate["owner_client_id"];
-  clientId: IClientDelegate["client_id"];
   inviteEmail: IClientDelegate["invite_email"];
   publicName: IClientDelegate["public_name"];
   imageUrl: IClientDelegate["image_url"];
@@ -57,14 +56,17 @@ export type DelegateInviteModel = {
 /**
  * The outcome of accepting an invitation.
  *
- * `objectType` discriminates what was granted — a single contract product, a
- * single ticket, or (when absent) the whole account — which is what drives the
- * confirmation copy and where the invitee is sent next.
+ * The accept endpoint returns the OWNER-SIDE ROW, not a separate acceptance
+ * record — verified against the recorded `PATCH delegate_access/accept/{hash}`
+ * response, which carries `owner_client_id`, `is_full_delegate`, `active` and
+ * the `num_delegated_*` counts. So acceptance is simply the same `Delegate`
+ * with `isAccepted` flipped true.
+ *
+ * An earlier cut of this type declared `clientId`, `objectType` and `objectId`
+ * off `IDelegate`. The wire returns none of them on this path, so all three
+ * were permanently `undefined` — modelled from the type package rather than
+ * from a recording. `objectType` (which named WHAT was granted — a product, a
+ * ticket, or the whole account) has no carrier in this response; surfacing it
+ * needs an endpoint that actually returns it, and that is FE-3041's to find.
  */
-export type AcceptedDelegateInvite = {
-  id: IDelegate["id"];
-  clientId: IDelegate["client_id"];
-  objectType?: IDelegate["object_type"];
-  objectId?: IDelegate["object_id"];
-  isAccepted: IDelegate["active"];
-};
+export type AcceptedDelegateInvite = Delegate;
