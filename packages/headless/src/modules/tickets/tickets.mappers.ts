@@ -36,14 +36,13 @@ export const mapTicketMessages = (
 ): TicketMessage[] => map(isArray(raw) ? raw : [raw], mapTicketMessage);
 
 /**
- * Q5 (STILL OPEN, `research.md` §11) — `isDeleted` is read off `deleted_at`
- * (the typed field) rather than `is_log` (what legacy's renderer reads). If
- * the recorded fixture (T2) proves `is_log` is the real marker, this is the
- * one line to change.
+ * Q5 (`research.md` §11) resolved by the recorded withdrawal fixture (T2):
+ * the wire never populates `deleted_at`; a withdrawal is a separate
+ * `is_log: true` row, so `isDeleted` reads off `is_log`.
  */
 export const mapTicketMessage = (raw: ITicketMessage): TicketMessage => ({
   ...raw,
-  isDeleted: !!raw.deleted_at
+  isDeleted: !!raw.is_log
 });
 
 export const mapHookLogs = (raw: IHookLog | IHookLog[]): TicketStatusLog[] =>

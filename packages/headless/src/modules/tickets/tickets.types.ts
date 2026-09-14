@@ -168,12 +168,12 @@ export type TicketsQuerySchema = JsonSchema7;
 export type Ticket = ITicket;
 
 /**
- * The mapped message row. `can_manage`, `deleted_at` and `client_actor_id`
- * are already the corrected field names (AC-PM). `isDeleted` is a derived
- * convenience boolean read off `deleted_at` — Q5 (STILL OPEN, `research.md`
- * §11) asks whether the wire actually marks a withdrawal there or on
- * `is_log`; resolve from the recorded fixture (T2) and correct this mapping
- * if it disagrees.
+ * The mapped message row (no new type minted — confirmed existing at
+ * graphify-out/ `TicketMessage tickets.types.ts:178`). `can_manage`,
+ * `deleted_at` and `client_actor_id` are already the corrected field names
+ * (AC-PM). `isDeleted` is a derived convenience boolean read off `is_log`
+ * (Q5, `research.md` §11, resolved by the recorded withdrawal fixture T2 —
+ * the wire never populates `deleted_at`).
  */
 export type TicketMessage = ITicketMessage & { isDeleted: boolean };
 
