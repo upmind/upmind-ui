@@ -184,10 +184,13 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     async world => {
       await settles(() =>
         world.expectContext({
-          // The first page, stated as data. `total` is not asserted here:
-          // the matcher carries no "any number", and the server's real total
-          // is already proven on the wire by `invoices.collection.int.test.ts`.
-          pagination: { offset: 0, limit: 10 }
+          // The first page, stated as data. `PaginationInfo` is
+          // `{ limit, total, page, pages, from, to }` (`toPaginationInfo`) —
+          // there is no `offset` on it, so the page index is what names the
+          // first page. `total` is not asserted: the matcher carries no "any
+          // number", and the server's real total is already proven on the wire
+          // by `invoices.collection.int.test.ts`.
+          pagination: { page: 1, limit: 10 }
         })
       );
     }
