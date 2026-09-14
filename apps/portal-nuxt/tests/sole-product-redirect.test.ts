@@ -10,6 +10,7 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { ContractStatusCodes } from "@upmind-automation/types";
 import { assign } from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { MockDataset } from "~/portal/mock/types";
@@ -47,13 +48,16 @@ function withProducts(rows: MockDataset["products"]): MockDataset {
 }
 
 describe("soleProductRedirect — one product means one destination", () => {
+  // Straight to the area the product OPENS on, never its root: the root is
+  // itself a redirect position, so landing there would only navigate again.
   it("sends a client who owns exactly one product straight to it", () => {
     const data = HOSTGRID_MINIMAL_MOCK_DATASET;
     const sole = data.products[0];
 
     expect(data.products).toHaveLength(1);
+    expect(sole?.status).toBe(ContractStatusCodes.ACTIVE);
     expect(soleProductRedirect(data, LISTING, NO_QUERY)).toBe(
-      `/products/${sole?.id}`
+      `/products/${sole?.id}/overview`
     );
   });
 

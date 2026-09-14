@@ -1,15 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { ContractStatusCodes } from "@upmind-automation/types";
-import { every, find, some } from "lodash-es";
+import { compact, every, filter, find, map, some } from "lodash-es";
 import type { MockDataset } from "~/portal/mock/types";
 import { MOCK_ACTION, mockActionValue } from "~/portal/mock/actions";
+import { hostgridConfig } from "~/portal/config/hostgrid";
 import { HOSTGRID_MOCK_DATASET } from "~/portal/mock/hostgrid";
 import {
+  catchAllRedirect,
   groupProductItems,
+  productAreaNavItems,
   productRootRedirect,
   setupAreaRedirect
 } from "~/portal/mock/selectors";
-import { defineProductGroup } from "~/portal/routes";
+import { defineProductGroup, resolveCatchAll } from "~/portal/routes";
 
 /**
  * Legacy's product row is one component wherever the list appears, so the
@@ -97,11 +100,16 @@ describe("a product still owed its setup opens on the Setup tab", () => {
   const rootOf = (id: string) =>
     ({ kind: "product-detail", group: products, id }) as const;
 
-  it("sends the pending product to setup, and leaves the running one on its overview", () => {
+  // The root is a redirect POSITION, never a page (legacy's `ClientCProd`), so
+  // both answer with an area. Overview keeps its own address — pointed at the
+  // root, the area nav's Overview tab was swallowed here and read as dead.
+  it("sends the pending product to setup, and the running one to its overview", () => {
     expect(productRootRedirect(data, rootOf(pending.id))).toBe(
       `/products/${pending.id}/setup`
     );
-    expect(productRootRedirect(data, rootOf(running.id))).toBeUndefined();
+    expect(productRootRedirect(data, rootOf(running.id))).toBe(
+      `/products/${running.id}/overview`
+    );
   });
 });
 
@@ -124,7 +132,7 @@ describe("a finished product's setup URL falls back to its overview", () => {
 
   it("sends a running product back to its overview", () => {
     expect(setupAreaRedirect(data, setupOf(running.id))).toBe(
-      `/products/${running.id}`
+      `/products/${running.id}/overview`
     );
   });
 
@@ -142,5 +150,45 @@ describe("a finished product's setup URL falls back to its overview", () => {
       })
     ).toBeUndefined();
     expect(setupAreaRedirect(data, setupOf("prod-nowhere"))).toBeUndefined();
+  });
+});
+
+/**
+ * The area nav may not offer a destination the catch-all redirect refuses.
+ * Overview used to point at the product ROOT, which `productRootRedirect`
+ * sends straight back to Setup while setup is owed — so on a pending product
+ * the tab moved nowhere and read as broken. Every tab now owns an address.
+ */
+describe("every product area tab reaches the page it names", () => {
+  const data = clone();
+  const pending = find(data.products, {
+    status: ContractStatusCodes.AWAITING_ACTIVATION
+  });
+  const running = find(data.products, { status: ContractStatusCodes.ACTIVE });
+  if (pending === undefined || running === undefined) {
+    throw new Error("seed lacks a pending or a running product");
+  }
+  const settles = (to: string): boolean => {
+    const resolution = resolveCatchAll(hostgridConfig, compact(to.split("/")));
+    return catchAllRedirect(data, resolution, {}) === undefined;
+  };
+
+  it.each([
+    ["a product still owed its setup", () => pending],
+    ["a running product", () => running]
+  ])("leaves no dead tab on %s", (_case, read) => {
+    const tabs = productAreaNavItems(data, {
+      groupSlug: "products",
+      productId: read().id
+    });
+
+    expect(tabs.length).toBeGreaterThan(0);
+    expect(some(tabs, tab => tab.label === "Overview")).toBe(true);
+    // Named, so a failure says WHICH tab goes nowhere.
+    const dead = map(
+      filter(tabs, tab => !settles(tab.to ?? "")),
+      "label"
+    );
+    expect(dead).toEqual([]);
   });
 });

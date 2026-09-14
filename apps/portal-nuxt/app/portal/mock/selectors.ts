@@ -1047,6 +1047,7 @@ export function productBillingSpecItems(
 /** The product's action areas, as the route spells them — named once for the nav and the guards. */
 export const PRODUCT_AREA_SLUG = {
   SETUP: "setup",
+  OVERVIEW: "overview",
   BILLING: "billing",
   TICKETS: "tickets",
   SETTINGS: "settings"
@@ -1068,7 +1069,11 @@ export function productAreaNavItems(
       label: "Setup",
       icon: Wrench
     },
-    { to: base, label: "Overview", icon: LayoutDashboard },
+    {
+      to: `${base}/${PRODUCT_AREA_SLUG.OVERVIEW}`,
+      label: "Overview",
+      icon: LayoutDashboard
+    },
     {
       to: `${base}/${PRODUCT_AREA_SLUG.BILLING}`,
       label: "Billing",
@@ -1086,6 +1091,18 @@ export function productAreaNavItems(
     },
     { to: `${base}/delegates`, label: "Delegates", icon: UsersRound }
   ]);
+}
+
+/**
+ * Where a product page's back link goes — its own group's listing. The route
+ * carries the group, so a second group needs no second composition; the
+ * structural product pages are shared across every group of every brand.
+ */
+export function productBackTo(
+  data: MockDataset,
+  context: DataRouteContext
+): string {
+  return `/${context.groupSlug ?? ""}`;
 }
 
 /** The product's tickets — legacy cProdTickets, filtered to this product. */
@@ -1145,7 +1162,13 @@ function productPath(context: DataRouteContext, product: MockProduct): string {
  * Legacy's setup tab sends a finished product back to its overview — once
  * setup is confirmed the page has nothing left to ask.
  */
-/** Legacy opens a product still waiting on setup at its Setup tab, not its overview. */
+/**
+ * A product's root is a redirect position, never a page — legacy's own
+ * `ClientCProd` shell sent it to setup while setup was owed and to the
+ * overview otherwise. Overview therefore keeps its own address, which is what
+ * lets the area nav link to it: pointed at the root, the tab was swallowed by
+ * this redirect and read as dead.
+ */
 export function productRootRedirect(
   data: MockDataset | undefined,
   resolution: CatchAllResolution
@@ -1154,10 +1177,15 @@ export function productRootRedirect(
   if (resolution.kind !== "product-detail") return undefined;
   const product = find(data.products, { id: resolution.id });
   if (product === undefined) return undefined;
-  if (product.status !== ContractStatusCodes.AWAITING_ACTIVATION) {
-    return undefined;
+  return `/${resolution.group.slug}/${product.id}/${productOpeningArea(product)}`;
+}
+
+/** Which area a product opens on — the setup it still owes, else its overview. */
+function productOpeningArea(product: MockProduct): string {
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return PRODUCT_AREA_SLUG.SETUP;
   }
-  return `/${resolution.group.slug}/${product.id}/${PRODUCT_AREA_SLUG.SETUP}`;
+  return PRODUCT_AREA_SLUG.OVERVIEW;
 }
 
 /**
@@ -1190,7 +1218,7 @@ export function setupAreaRedirect(
   if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
     return undefined;
   }
-  return `/${resolution.group.slug}/${product.id}`;
+  return `/${resolution.group.slug}/${product.id}/${PRODUCT_AREA_SLUG.OVERVIEW}`;
 }
 
 export function soleProductRedirect(
@@ -1210,7 +1238,8 @@ export function soleProductRedirect(
   const inGroup = filter(data.products, { groupSlug: resolution.group.slug });
   const only = inGroup.at(0);
   if (size(inGroup) !== 1 || only === undefined) return undefined;
-  return `/${resolution.group.slug}/${only.id}`;
+  // Straight to the area it opens on: the root would only redirect again.
+  return `/${resolution.group.slug}/${only.id}/${productOpeningArea(only)}`;
 }
 
 /** The group's orderable catalogue — legacy's storefront, scoped to the route's group. */

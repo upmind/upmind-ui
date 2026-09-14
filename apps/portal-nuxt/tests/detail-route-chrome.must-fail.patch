@@ -1,0 +1,23 @@
+# Negative control — drops the detail-route branch from the area resolver, so a
+# page ABOUT one product or one ticket takes its PILLAR's area again and the
+# section rail comes back over it (the FE walkthrough defect 4/5).
+#
+# Intended RED:
+#   a detail route serves no pillar rail > resolves no utility pane on …
+#
+# The back link is untouched, which is the point: the mutant leaves the rail
+# and the link standing together, the duplication this replaced.
+
+--- a/apps/portal-nuxt/app/portal/areas.ts
++++ b/apps/portal-nuxt/app/portal/areas.ts
+@@ -19,10 +19,6 @@
+   config: PortalConfig,
+   path: string
+ ): AreaOverride | undefined {
+-  // Ahead of the shape's own `areas`: a page about ONE product or ticket takes
+-  // a back link over its section's rail, whatever the pillar declares.
+-  if (isDetailRoute(config, path)) return DETAIL_AREA_OVERRIDE;
+-
+   const pillar = pillarForPath(config, path);
+   const declared = pillar === undefined ? undefined : config.areas?.[pillar];
+   if (declared !== undefined) return declared;

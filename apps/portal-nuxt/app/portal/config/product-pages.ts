@@ -42,7 +42,8 @@ import {
 import { GROUP_AXIS, PAGE_KEY } from "../types";
 import { NAV_EMPHASIS } from "../variants";
 import { CLIENT_VUE_STUB_TITLE, clientVueProse } from "./client-vue";
-import { brandNoteRow, pagerFooter, panelControls } from "./pager";
+import { assign } from "lodash-es";
+import { backLink, brandNoteRow, pagerFooter, panelControls } from "./pager";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
 import type { ListModuleHeading } from "../modules/list/types";
@@ -702,7 +703,14 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
     description: string,
     rows: readonly ContentRowConfig[]
   ): ContentConfig =>
-    page(title, description, [...PRODUCT_CHROME_ROWS, ...rows]);
+    assign(page(title, description, [...PRODUCT_CHROME_ROWS, ...rows]), {
+      // A product page serves no pillar rail (`config/areas/detail.ts`), so
+      // this link above the title is the whole way back to the group.
+      breadcrumb: backLink(
+        "All products and services",
+        dataRef(DATA_REF_ID.PRODUCT_BACK_TO)
+      )
+    });
 
   return {
     // Legacy's All / Active / Cancelled listing routes, as a tab rail over ONE

@@ -258,6 +258,7 @@ import {
   isSupportEnabled,
   productAboutMarkdown,
   productAreaNavItems,
+  productBackTo,
   productBillboardItems,
   productBillingSpecItems,
   productConditionAction,
@@ -347,6 +348,7 @@ export const DATA_REF_ID = {
   PRODUCT_SPEC_ITEMS: "product-spec-items",
   PRODUCT_BILLING_SPEC_ITEMS: "product-billing-spec-items",
   PRODUCT_AREA_NAV_ITEMS: "product-area-nav-items",
+  PRODUCT_BACK_TO: "product-back-to",
   PRODUCT_TICKET_ITEMS: "product-ticket-items",
   PRODUCT_DELEGATE_ITEMS: "product-delegate-items",
   // --- the product detail's shared chrome (plan Phase 3)
@@ -902,6 +904,7 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PRODUCT_SPEC_ITEMS]: productSpecItems,
   [DATA_REF_ID.PRODUCT_BILLING_SPEC_ITEMS]: productBillingSpecItems,
   [DATA_REF_ID.PRODUCT_AREA_NAV_ITEMS]: productAreaNavItems,
+  [DATA_REF_ID.PRODUCT_BACK_TO]: productBackTo,
   [DATA_REF_ID.PRODUCT_TICKET_ITEMS]: productTicketItems,
   [DATA_REF_ID.PRODUCT_DELEGATE_ITEMS]: productDelegateItems,
   [DATA_REF_ID.PRODUCT_BILLBOARD_ITEMS]: productBillboardItems,

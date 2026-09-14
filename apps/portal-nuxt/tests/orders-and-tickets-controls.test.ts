@@ -236,8 +236,9 @@ describe("a client who owns exactly one product lands on it", () => {
     const { navigateTo } = await openProducts(MOCK_DATASET_ID.HOSTGRID_MINIMAL);
 
     expect(navigateTo).toHaveBeenCalled();
+    // The area it opens on, not the root — the root only redirects again.
     expect(navigateTo.mock.calls[0]?.[0]).toBe(
-      `/${sole[0]!.groupSlug}/${sole[0]!.id}`
+      `/${sole[0]!.groupSlug}/${sole[0]!.id}/overview`
     );
   });
 

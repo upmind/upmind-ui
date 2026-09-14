@@ -13,7 +13,7 @@ import {
   PRODUCT_GROUP_TAG,
   RESERVED_PILLAR_SEGMENT
 } from "./types";
-import { compact, find, some } from "lodash-es";
+import { compact, find, includes, some } from "lodash-es";
 import type {
   CustomArea,
   PortalPillar,
@@ -125,6 +125,41 @@ export function isNestedProductArea(
   const [head, ...rest] = segments;
   if (head === undefined || rest.length === 0) return false;
   return some(config.groups, group => group.slug === head);
+}
+
+/** The support pillar's thread listing — `/support/tickets/<id>` is one thread of it. */
+const TICKETS_SEGMENT = "tickets";
+
+/** The listing's own compose route, which is a form rather than a thread. */
+const NEW_TICKET_SEGMENT = "new";
+
+/** The resolution kinds that are ABOUT one product rather than about the group. */
+const PRODUCT_DETAIL_KINDS: readonly CatchAllResolution["kind"][] = [
+  "product-detail",
+  "product-action-area"
+];
+
+/**
+ * Whether a path is ABOUT one entity rather than about its section. The pillar
+ * rail navigates the SECTION, so on a page about one product or one ticket it
+ * offers siblings the reader did not ask for and pushes the page into a narrow
+ * track; these routes take a back link instead (`config/areas/detail.ts`).
+ */
+export function isDetailRoute(config: PortalConfig, path: string): boolean {
+  const segments = compact(path.split("/"));
+  if (isTicketDetail(segments)) return true;
+  const { kind } = resolveCatchAll(config, segments);
+  return includes(PRODUCT_DETAIL_KINDS, kind);
+}
+
+/** One thread, never the listing above it and never its compose form. */
+function isTicketDetail(segments: readonly string[]): boolean {
+  const [pillar, section, id, ...rest] = segments;
+  const isThreadPath =
+    pillar === RESERVED_PILLAR_SEGMENT.SUPPORT && section === TICKETS_SEGMENT;
+  const namesOneThread =
+    id !== undefined && id !== NEW_TICKET_SEGMENT && rest.length === 0;
+  return isThreadPath && namesOneThread;
 }
 
 function resolveProductHierarchy(
