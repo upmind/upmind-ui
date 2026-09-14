@@ -13,6 +13,11 @@
 
 import { computed } from "vue";
 import { ScopeActorTypes } from "../scope";
+import {
+  useQuerySchema,
+  useQueryUischema,
+  useSortUischema
+} from "./module.schemas";
 import { useCollection } from "../../utils";
 import { castArray } from "lodash-es";
 import type { ModuleItem, ModuleListQuery } from "./module.types";
@@ -66,8 +71,12 @@ export function createModuleContext(
     /** The reactive list (always an array). */
     data,
 
-    /** The list query's current error state, if any. */
-    error: query.error,
+    /**
+     * The scope's captured error — read, never raised. `criteriaError` comes
+     * FIRST: a filter the schema rejects is the user's own input and must
+     * surface ahead of any transport error.
+     */
+    error: computed(() => query.criteriaError.value ?? query.error.value),
 
     /** Finds a single item by a partial mapping. */
     findOne,
@@ -79,7 +88,28 @@ export function createModuleContext(
     lookups,
 
     /** Reactive pagination descriptor for the list query. */
-    pagination: query.pagination
+    pagination: query.pagination,
+
+    /**
+     * This scope's ACTIVE request state — `{ filters, sort, pagination }`, the
+     * query's own published criteria rather than a copy of it. Read-only: write
+     * through `useActions().filterBy` / `.sortBy` / `.setCriteria`.
+     */
+    query: query.criteria,
+
+    /**
+     * The module's query schema family, plain JSON so it survives the renderer
+     * port's `JSON` round-trip. `useContext()` is the renderer's ONLY door to
+     * it — the playground's filter bar and sort control render off this pair,
+     * and a page cannot filter or sort without it.
+     */
+    schemas: {
+      query: {
+        schema: useQuerySchema(),
+        uischema: useQueryUischema(),
+        sortUischema: useSortUischema()
+      }
+    }
 
     // The arm merges in HERE, last — a spread overwrites, which is what lets
     // it override a shared member; anything it omits falls through.

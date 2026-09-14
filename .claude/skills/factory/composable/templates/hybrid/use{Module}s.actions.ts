@@ -15,6 +15,7 @@
 import { resetQueryByKey } from "../query";
 import { remove } from "../scope";
 import { ScopeActorTypes } from "../scope";
+import type { FilterModel, SortModel } from "./module.types";
 import { useActiveSession } from "../session-store";
 import { useDataLayer } from "../system-analytics";
 import { queryKey } from "./module.services";
@@ -110,8 +111,36 @@ export function createModulesActions(
     /** Domain action — the canonical override candidate (see JSDoc). */
     login,
 
+    /**
+     * Applies a FILTER intent — merges the given filter model into the ONE
+     * query model's `filters` branch; `sort` and `pagination` are untouched by
+     * construction.
+     */
+    filterBy: (intent: FilterModel): void => query.setCriteria({ filters: intent }),
+
+    /** Fetches the next page. */
+    nextPage: async (): Promise<void> => query.fetchNextPage(),
+
+    /** Fetches the previous page. */
+    prevPage: async (): Promise<void> => query.fetchPreviousPage(),
+
     /** Refetches the list from the server. */
     refresh: query.refetch,
+
+    /**
+     * Applies a criteria INTENT — merges the given `filters` / `sort` /
+     * `pagination` branches into the ONE query model; branches left out are
+     * untouched. This is the door a consumer calls to set the page size:
+     * `setCriteria({ pagination: { limit } })`, then drives `nextPage()`.
+     */
+    setCriteria: query.setCriteria,
+
+    /**
+     * Applies a SORT intent — merges into the query model's `sort` branch;
+     * `filters` and `pagination` are untouched. The intent is the module's
+     * sortable-properties ENUM, never a raw string.
+     */
+    sortBy: (intent: SortModel): void => query.setCriteria({ sort: intent }),
 
     /**
      * Drops the module's cache entries so the next read fetches from scratch —
