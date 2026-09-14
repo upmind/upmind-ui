@@ -20,14 +20,22 @@
 # forbids `.as('staff')` and `.for('client', id)` outright. "Tickets delegated in
 # to me" is NOT an on-behalf-of context — it rides the client's own list.
 #
-# THREE CAPABILITIES ARE WRITTEN HERE AS ABSENCES, on purpose. A dropped
+# FOUR CAPABILITIES ARE WRITTEN HERE AS ABSENCES, on purpose. A dropped
 # capability that simply vanishes from the spec is the FE-2824 shape; a dropped
 # capability asserted as absent can never be quietly re-added or quietly missed.
-# They are: message-body search, post-creation rescheduling, and staff reach.
+# They are: message-body search, post-creation rescheduling, moving a ticket to
+# another desk, and staff reach.
 #
-# TWO SCENARIOS ARE BLOCKED ON AN OPERATOR RULING and are tagged @pending-ruling:
-# rescheduling (parity Q2) and the AC30 hole (parity Q3). They are written so the
-# question is legible, and they must not be driven green by guessing the answer.
+# NO SCENARIO IS BLOCKED ON A RULING ANY MORE. Cycle 0 tagged two @pending-ruling:
+# rescheduling (parity Q2) and the AC30 hole (parity Q3). The operator rulings of
+# 2026-09-14 close both — see docs/sdd/FE-3226/review-notes.md "Cycle 1".
+#   R5 DROPS post-creation rescheduling AND moving a ticket to another desk as
+#      ADMIN-ONLY: this module is client x self and ships no admin functionality.
+#      Both are now asserted absences. Create-time scheduling is UNAFFECTED, and so
+#      are close, reopen and change-subject.
+#   R6 rules AC30 a NUMBERING SKIP — no criterion was lost — so its scenario is
+#      retired here and the disposition is carried in parity.yaml with its signoff.
+# The @pending-ruling tag is retired. Do not re-add either dropped capability.
 
 @module:tickets @variant:query @cell:client-self @FE-3226
 Feature: A client runs their own support conversations
@@ -331,23 +339,29 @@ Feature: A client runs their own support conversations
     When I try to change its subject
     Then nothing is sent to the server
 
-  @AC-28 @manager @lifecycle
-  Scenario: Move a ticket to a different desk
+  @AC-28 @manager @lifecycle @dropped
+  Scenario: I cannot move a ticket to a different desk
     Given one of my tickets is with the wrong desk
-    When I move it to another desk
-    Then the ticket is handled by that desk
-    And I am reading the ticket's refreshed state, not the state before the move
+    When I look for a way to hand it to another desk
+    Then this module offers me none
+    And no request is ever made to change which desk handles a ticket
+    # Legacy renders no client entry point for this either: the desk change is
+    # reachable only from the administrative controls. Dropped by operator ruling
+    # R5 as admin-only, and this module is client x self. Written as an absence so
+    # the capability can neither be quietly added nor quietly missed. Changing a
+    # ticket's SUBJECT is unaffected and is asserted above.
 
-  @AC-26 @manager @lifecycle @dropped @pending-ruling
+  @AC-26 @manager @lifecycle @dropped
   Scenario: I cannot reschedule a ticket that already exists
     Given one of my tickets is scheduled to be sent later
     When I look for a way to change that time
     Then this module offers me none
     And no request is ever made to reschedule an existing ticket
     # The legacy client offers no reschedule action either: it is reachable only
-    # from the administrative controls. Written as an absence so the capability
-    # can neither be quietly added nor quietly missed. Blocked on the operator
-    # ruling recorded as Q2 — do not drive this green by assuming the answer.
+    # from the administrative controls. Dropped by operator ruling R5 as
+    # admin-only, and this module is client x self. Written as an absence so the
+    # capability can neither be quietly added nor quietly missed. Setting a
+    # send-later time WHEN RAISING a ticket is unaffected and is asserted above.
 
   @AC-29 @manager @poll
   Scenario: New activity on an open ticket reaches me without my asking
@@ -397,14 +411,12 @@ Feature: A client runs their own support conversations
     Then those choices are saved against my account
     And my other saved support preferences are left exactly as they were
 
-  # === THE HOLE ==============================================================
-
-  @AC-30 @pending-ruling @hole
-  Scenario: A numbered acceptance criterion that nobody can name
-    Given this story's criteria run from the twenty-ninth to the thirty-first
-    When I look for the thirtieth
-    Then there is none to find
-    And this scenario stays undriven until the operator states whether a
-    criterion was lost or a number was skipped
-    # Written as a scenario so the hole is visible in the coverage contract
-    # itself. A numbered criterion that simply vanishes is the FE-2824 shape.
+  # === THE HOLE THAT WAS NOT A HOLE ==========================================
+  #
+  # Cycle 0 carried an undriven @AC-30 scenario here, because this story's
+  # criteria run from the twenty-ninth straight to the thirty-first and nobody
+  # could name the thirtieth. Operator ruling R6 (2026-09-14) settles it: the
+  # number was SKIPPED when the issue was authored and NO criterion was lost.
+  # The scenario is retired rather than left undriven, and the disposition is
+  # carried as a signed numbering artefact in docs/sdd/FE-3226/parity.yaml so the
+  # hole stays machine-visible and closed. AC31-AC33 are NOT renumbered.
