@@ -421,7 +421,13 @@ function loadUnpaidExistence(
         resolve(true);
       }),
     enabled: () => requested.value && isAddressable(clientId.value),
-    select: raw => mapInvoices(raw, clientId.value),
+    // NO `select`: this read answers a COUNT and nothing else — `hasUnpaid` and
+    // `consolidatableCount` read `pagination.total`, never a row. `list()`
+    // applies `select` INSIDE its queryFn, so a mapper that throws on one live
+    // row rejects the whole query: the network shows 200 with the real total,
+    // the handle reports an error, `pagination.total` falls back to 0, and
+    // `useMeta().hasError` folds that into the COLLECTION's error. Mapping rows
+    // nobody reads can only lose.
     staleTime: useTime().DAY
   });
 
@@ -477,7 +483,13 @@ function loadConsolidatableCount(
         resolve(true);
       }),
     enabled: () => requested.value && isAddressable(clientId.value),
-    select: raw => mapInvoices(raw, clientId.value),
+    // NO `select`: this read answers a COUNT and nothing else — `hasUnpaid` and
+    // `consolidatableCount` read `pagination.total`, never a row. `list()`
+    // applies `select` INSIDE its queryFn, so a mapper that throws on one live
+    // row rejects the whole query: the network shows 200 with the real total,
+    // the handle reports an error, `pagination.total` falls back to 0, and
+    // `useMeta().hasError` folds that into the COLLECTION's error. Mapping rows
+    // nobody reads can only lose.
     staleTime: useTime().DAY
   });
 
