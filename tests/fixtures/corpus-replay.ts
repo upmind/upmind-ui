@@ -35,6 +35,7 @@ import {
   isNumber,
   isPlainObject,
   isUndefined,
+  includes,
   join,
   keys,
   last,
@@ -134,6 +135,20 @@ const TRUE_VALUES = ["1", "true"];
  * that never spelt it.
  */
 const CRITERIA_IGNORED = ["case", "with", "keys", "lang"];
+
+/**
+ * Filter COLUMNS that name whose corpus a read is of, rather than which rows
+ * within it. The same distinction {@link CRITERIA_IGNORED} draws for whole
+ * query keys, one level down.
+ *
+ * A capture run is one client's session, so every row it recorded carries that
+ * client's id. A page scoped to a DIFFERENT client is asking the same question
+ * of its own corpus, not narrowing this one — and a module that re-asserts its
+ * scope on every criteria write (a durable `.for(client, id)` retarget) puts
+ * that id on every request it makes, so it cannot be dropped to get a replay
+ * to answer. Filtering rows by it empties every recording a playground owns.
+ */
+const IDENTITY_COLUMNS = ["client_id"];
 
 /** The offset a read asking for none already gets — see {@link servedRows}. */
 const FIRST_PAGE = "0";
@@ -402,7 +417,7 @@ export function servedCollection(
 
   for (const [key, value] of params.entries()) {
     const [, column, operator = "eq"] = FILTER_KEY.exec(key) ?? [];
-    if (!column) continue;
+    if (!column || includes(IDENTITY_COLUMNS, column)) continue;
 
     rows = applyFilter(rows, column, operator, value);
   }
@@ -741,7 +756,10 @@ function narrowingOf(params: URLSearchParams): Record<string, string> {
   return fromPairs(
     filter(
       [...params.entries()],
-      ([key]) => startsWith(key, "filter[") || key === "query"
+      ([key]) =>
+        (startsWith(key, "filter[") &&
+          !includes(IDENTITY_COLUMNS, FILTER_KEY.exec(key)?.[1])) ||
+        key === "query"
     )
   );
 }
