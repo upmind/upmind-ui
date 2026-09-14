@@ -205,6 +205,43 @@ This is not a bug to guard against — it is the existing fallback hierarchy app
 
 ---
 
+## 15. `isDelegated` is deliberately NOT uniform across record types
+
+It looks like a bug. It is not. The child-account exclusion applies to the
+**invoice/order arm only**:
+
+```typescript
+isDelegated(invoiceOfAChildAccount); // false — excluded
+isDelegated(contractProductOfAChildAccount); // true  — NOT excluded
+isDelegated(ticketOfAChildAccount); // true  — NOT excluded
+```
+
+This reproduces the legacy app exactly: invoices apply the exclusion
+(`store/modules/data/invoices/index.ts:143-146`), contract products and tickets
+read the bare flag (`cProdProvider.vue:190`, `ticketProvider.ts:161`).
+
+"Tidying" this into one uniform check hides genuinely delegated contract
+products and tickets from clients entitled to see them. A negative control
+guards it: `session-store.isDelegated-uniform-exclusion.must-fail.patch`.
+
+The same applies to `hasDelegatedProducts`, whose disjunction is
+`CONTRACTS_PRODUCT` **or** `CLIENT` — never `TICKET`. Folding `TICKET` in
+over-grants the delegated-products view.
+
+## 16. `delegatedIds` is read with `?.` although its type says it is required
+
+`SessionUser.delegatedIds` is non-optional, and `mapSessionUser` always
+populates it (`?? {}`). So the optional chain in `hasDelegatedProducts` reads
+like dead defensiveness.
+
+It is not. `buildInitialState()` restores the session user **verbatim** from
+`sessionStorage` without re-running the mapper. A profile persisted by any build
+that predates this field therefore has no `delegatedIds` key at all, and the
+type's guarantee does not hold for that shape. Removing the `?.` throws on every
+authenticated surface for those users, until they clear storage.
+
+Guarded by `session-store.hasDelegatedProducts-drop-optional-chain.must-fail.patch`.
+
 ## Open Questions (for reviewer)
 
 - **Resolved (2026-07-02, product owner ruling):** Gotchas 7 & 8 previously framed the FE-2825 §5.1/§5.2 hardenings as security work the shipped module was missing. The ratified multi-session model reverses this: §5.2 (null token secrets before the sessionStorage write) would break the instant-switch requirement outright and **must not** be implemented as specified; §5.1 (doorbell-only broadcast) is moot against the real gap, which is that switches broadcast at all (they must not) and login/logout broadcasts aren't verified like-for-like. See [FE-2825-note.md](./FE-2825-note.md) for the full reasoning and citations.

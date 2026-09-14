@@ -165,6 +165,24 @@ type IdentityModel = {
 
 Config: an equivalent may restrict which actor scopes an app instance permits (e.g. a storefront allows guest + client only; an admin console allows staff only). Disallowed scopes are never activated even if a token for them exists.
 
+### Delegated access
+
+The identity response reports which objects belonging to **other** customers have been shared with the signed-in customer. An equivalent keeps this alongside the profile, keyed by object type:
+
+```ts
+type DelegatedIds = Partial<Record<ObjectType, string[]>>;
+// e.g. { contracts_product: ["cp-1", "cp-2"], client: ["client-9"] }
+```
+
+Rules an equivalent must reproduce:
+
+- The field is absent or `null` on the wire in the common case. Normalise it to an empty map, never to a missing value — every consumer reads it unconditionally.
+- It is empty for staff and for anonymous visitors. The staff identity request does not ask for it.
+- Two questions are answered from a record the caller already holds, without any further request: whether the record reached this customer by delegation, and which customer owns it. The owner is read from the record's own embedded customer relation — the map carries ids only and holds no owner identity.
+- Whether a record counts as delegated is **per object type, not uniform**. A billing document belonging to a child account is excluded; a subscribed product or a support ticket in the same position is not. Collapsing this into one rule hides records the customer is entitled to see.
+- A "does this customer hold any delegated access at all" flag is the disjunction of the subscribed-product key and the customer key only. A support ticket alone does not qualify.
+- A profile restored from client-side storage may predate this field. Reading it must tolerate the key being absent rather than assuming the normalised shape.
+
 ## Dependencies
 
 ### Dependants — modules that read from this one

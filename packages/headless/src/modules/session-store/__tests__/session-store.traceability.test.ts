@@ -37,7 +37,18 @@ import {
 // -----------------------------------------------------------------------------
 
 const here = import.meta.dirname;
-const FEATURE = join(here, "session-store.feature");
+
+/**
+ * Every feature file the module carries. The module's behaviour is described by
+ * more than one contract — the session/guest capability in `session-store.feature`,
+ * the delegate augment in `session-store.delegated.feature` — and traceability
+ * holds across all of them at once, so a scenario cannot hide from the anchor by
+ * living in the other file.
+ */
+const FEATURES = map(
+  filter(readdirSync(here), name => /\.feature$/.test(name)),
+  name => join(here, name)
+);
 
 /**
  * The specs that prove this feature. The two outside the module are listed by
@@ -132,7 +143,9 @@ function idsNamedBy(path: string): string[] {
   );
 }
 
-const scenarios = parseScenarios(readFileSync(FEATURE, "utf8"));
+const scenarios = flatMap(FEATURES, path =>
+  parseScenarios(readFileSync(path, "utf8"))
+);
 
 const specFiles = [
   ...map(
@@ -151,7 +164,11 @@ const provenIds = uniq([...namedIds, ...keys(STANDING_PROOFS)]);
 
 // -----------------------------------------------------------------------------
 
-describe("session-store.feature traceability", () => {
+describe("session-store feature traceability", () => {
+  it("finds every feature file the module carries", () => {
+    expect(size(FEATURES)).toBeGreaterThan(0);
+  });
+
   it("carries a scenario id on every scenario", () => {
     const untagged = filter(scenarios, scenario => isEmpty(scenario.ids));
     expect(map(untagged, "name")).toEqual([]);

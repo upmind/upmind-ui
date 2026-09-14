@@ -22,29 +22,31 @@ const { logout, onLogout, isReady } = session.useActions();
 
 ### `useContext()`
 
-| Property     | Type                       | Description                                             |
-| ------------ | -------------------------- | ------------------------------------------------------- |
-| `activeUser` | `Ref<SessionUser \| null>` | Display profile for the active session (null for guest) |
-| `actor`      | `Ref<AccessRoleTypes>`     | Active actor: `GUEST` \| `CLIENT` \| `STAFF`            |
-| `session`    | `Ref<IToken \| undefined>` | Active session token                                    |
-| `sessionId`  | `Ref<string \| undefined>` | Active `actor_id` (undefined for guest)                 |
-| `expiresAt`  | `Ref<number \| null>`      | Access-token expiry, Unix epoch ms                      |
+| Property       | Type                                                | Description                                                                                        |
+| -------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `activeUser`   | `Ref<SessionUser \| null>`                          | Display profile for the active session (null for guest)                                            |
+| `actor`        | `Ref<AccessRoleTypes>`                              | Active actor: `GUEST` \| `CLIENT` \| `STAFF`                                                       |
+| `session`      | `Ref<IToken \| undefined>`                          | Active session token                                                                               |
+| `sessionId`    | `Ref<string \| undefined>`                          | Active `actor_id` (undefined for guest)                                                            |
+| `expiresAt`    | `Ref<number \| null>`                               | Access-token expiry, Unix epoch ms                                                                 |
+| `delegatedIds` | `Ref<Partial<Record<UpmindObjectTypes, string[]>>>` | Ids of records another client shared with this one, keyed by object type. `{}` for staff and guest |
 
 ### `useMeta()`
 
-| Flag                   | Description                                                                                   |
-| ---------------------- | --------------------------------------------------------------------------------------------- |
-| `isAuthenticated`      | Active actor is client or staff (not guest)                                                   |
-| `isGuest`              | Active actor is guest                                                                         |
-| `isClient` / `isStaff` | Active actor is client / staff                                                                |
-| `isGuestClient`        | Active session is a client whose `isGuest` flag is set (guest customer, not fully registered) |
-| `isUnverified`         | Client, brand enforces email verification, and the primary email is unverified                |
-| `isImpersonated`       | Active session has a parent (is being impersonated)                                           |
-| `isExpired`            | Access token has passed its expiry                                                            |
-| `isAboutToExpire`      | Access token expires within 5 minutes                                                         |
-| `canRefresh`           | A usable refresh token exists (not past `refresh_expires_in`)                                 |
-| `isAvailable`          | Store has finished initialising                                                               |
-| `isLoading`            | Store is syncing with storage / validating tokens                                             |
+| Flag                   | Description                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| `isAuthenticated`      | Active actor is client or staff (not guest)                                                             |
+| `isGuest`              | Active actor is guest                                                                                   |
+| `isClient` / `isStaff` | Active actor is client / staff                                                                          |
+| `isGuestClient`        | Active session is a client whose `isGuest` flag is set (guest customer, not fully registered)           |
+| `isUnverified`         | Client, brand enforces email verification, and the primary email is unverified                          |
+| `isImpersonated`       | Active session has a parent (is being impersonated)                                                     |
+| `isExpired`            | Access token has passed its expiry                                                                      |
+| `isAboutToExpire`      | Access token expires within 5 minutes                                                                   |
+| `canRefresh`           | A usable refresh token exists (not past `refresh_expires_in`)                                           |
+| `isAvailable`          | Store has finished initialising                                                                         |
+| `isLoading`            | Store is syncing with storage / validating tokens                                                       |
+| `hasDelegatedProducts` | A delegated contract product **or** a delegated client is held. A delegated ticket alone does not count |
 
 ### `useActions()`
 
@@ -230,6 +232,31 @@ const clientToken = getTokenFromStorage(AccessRoleTypes.CLIENT);
 ```
 
 > **🧪 For Testers:** `persistTokenToStorage(token)` writes the `upm_{actor}_session` cookie **and** adds the session to the store — assert both. Passing `{ event: "login" }` invalidates the cached `/self` so a change made elsewhere (e.g. a freshly verified email) is seen, not the stale snapshot (spec: source `add` login-invalidation branch). `persistTokenToStorage` with a token missing `access_token` throws.
+
+---
+
+## Delegated-record helpers
+
+Two pure helpers, exported from the barrel. Both read data already embedded on a record the caller holds, and neither issues a request.
+
+| Export                       | Signature                                                      | Use                                                            |
+| ---------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
+| `isDelegated`                | `(record: DelegatableRecord) => boolean`                       | Did this record reach the active client by delegation?         |
+| `getOwnerForDelegatedRecord` | `(record, delegatedIds?) => DelegatedRecordOwner \| undefined` | Which client owns it? Reads the record's own embedded `client` |
+
+```typescript
+import {
+  isDelegated,
+  getOwnerForDelegatedRecord
+} from "@upmind-automation/headless";
+
+if (isDelegated(invoice)) {
+  const owner = getOwnerForDelegatedRecord(invoice);
+  // → { id, publicName, username, imageUrl }
+}
+```
+
+`isDelegated` is **not uniform across record types**, deliberately. An invoice belonging to a child account is excluded; a contract product or ticket in the same position is not. The second argument to `getOwnerForDelegatedRecord` is accepted but unread — the map carries ids only and holds no owner identity. See [Gotchas §15](./gotchas.md).
 
 ---
 

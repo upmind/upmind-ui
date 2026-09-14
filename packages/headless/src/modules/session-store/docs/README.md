@@ -65,6 +65,7 @@ See [Usage](./usage.md) for complete API reference.
 | Cookie persistence    | ✅     | Auto-hydrates on page load             |
 | User profile storage  | ✅     | Optional user data in `SessionEntry`   |
 | Logout subscription   | ✅     | Subscribe to logout events             |
+| Delegated access      | ✅     | Which records were shared with me      |
 
 \* Multi-session storage is the ratified product model (see [Gotchas §6](./gotchas.md#6-only-one-token-per-actor-type-is-wire-visible-via-cookies--intended-to-survive-a-reload-via-the-store-currently-does-not)) — a second session added via `add()` currently does not survive the store's next write due to an implementation defect in cookie reconciliation, not a doc or spec gap. This is unrelated to, and predates, FE-2825's proposed (and rejected) "metadata-only" hardening — see [FE-2825-note.md](./FE-2825-note.md).
 
@@ -194,6 +195,49 @@ const { activeActor, activeSessionId } = useSessionStore().useContext();
 // Present for a chosen guest, same as client/staff; absent for the guest
 // "floor" (nobody signed in, nothing explicitly chosen).
 ```
+
+### Delegated Access
+
+Another client can share their invoices, products or tickets with the signed-in
+client. The server reports which ones on `/self`, and the session keeps the
+answer.
+
+This is **not** impersonation and **not** `.for()`. Those change _who you act
+as_. Delegated access changes _which records you may see_ while still acting as
+yourself.
+
+```typescript
+import { useActiveSession } from "@upmind-automation/headless";
+
+const { delegatedIds } = useActiveSession().useContext();
+const { hasDelegatedProducts } = useActiveSession().useMeta();
+
+// delegatedIds is keyed by object type:
+//   { contracts_product: ["cp-1"], client: ["client-2"] }
+// It is {} for staff and guest — /admin/self never asks for the field.
+
+// hasDelegatedProducts gates the delegated-products view. It is true when a
+// delegated CONTRACTS_PRODUCT or CLIENT is held. A delegated TICKET alone does
+// NOT count — this mirrors the legacy app deliberately.
+```
+
+Two helpers answer the per-record questions, off a record you already hold. They
+issue no request of their own:
+
+```typescript
+import {
+  isDelegated,
+  getOwnerForDelegatedRecord
+} from "@upmind-automation/headless";
+
+isDelegated(invoice); // was this shared with me?
+getOwnerForDelegatedRecord(invoice); // whose is it? → { id, publicName, username, imageUrl }
+```
+
+`isDelegated` is deliberately not uniform across record types: an invoice
+belonging to a **child account** is never reported as delegated, while a
+contract product or ticket in the same position still is. See
+[Gotchas](./gotchas.md).
 
 ### Impersonation Flow
 

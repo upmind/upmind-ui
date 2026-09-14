@@ -2,6 +2,27 @@
 
 All notable changes to the session-store module.
 
+## [Delegated access] - 2026-09-13
+
+FE-3036 (DG-1): `/self` already returned `delegated_ids` and `mapSessionUser` dropped it. The session now keeps it, so a client can tell which of the records it holds were shared with it by another client, and who owns them.
+
+This is the **delegate side** — "do I hold delegated access?". The owner side ("how many delegates have I granted?") is FE-3041. The `exclude_delegated=1` list gate is FE-3029.
+
+### Added
+
+- **`SessionUser.delegatedIds`** — object ids delegated to this client, keyed by object type (`Partial<Record<UpmindObjectTypes, string[]>>`). Mapped by `mapSessionUser`; the wire's `null` maps to `{}`, never `undefined`. `{}` for staff and guest, since `/admin/self` never requests the field.
+- **`useActiveSession().useContext().delegatedIds`** — the map, reactively.
+- **`useActiveSession().useMeta().hasDelegatedProducts`** — true when a delegated `CONTRACTS_PRODUCT` **or** `CLIENT` is held. `TICKET` is deliberately excluded, mirroring the legacy app. See [Gotchas §15](./gotchas.md).
+- **`isDelegated(record)`** — whether a record reached this client by delegation. Not uniform across record types by design: invoices apply the child-account exclusion, contract products and tickets do not. See [Gotchas §15](./gotchas.md).
+- **`getOwnerForDelegatedRecord(record)`** — the owning client's `id`, `publicName`, `username` and `imageUrl`, read off the record's own embedded `client`. Issues no request.
+- **`DelegatableRecord`** and **`DelegatedRecordOwner`** types.
+
+### Notes
+
+- No consumer moved and no existing surface changed shape. This is an augment.
+- An earlier cut of this story also converted the session into a scope-based composable. That was rejected and is not in this change: the active session IS the scope the scope builder reads to resolve `self`, so the session can never be a consumer of scope.
+- `hasDelegatedProducts` reads `delegatedIds` with an optional chain despite the type declaring it required, because `buildInitialState()` restores a persisted session user verbatim. See [Gotchas §16](./gotchas.md).
+
 ## [Guest sessions] - 2026-09-08
 
 FE-3087: guest is now stored the same way client and staff are — an id-keyed map of sessions, not a single token. This closes the asymmetry that let a chosen guest become indistinguishable from a fallen-back one across a token refresh.
