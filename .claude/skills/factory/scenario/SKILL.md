@@ -19,7 +19,7 @@ This lane **conducts**; it never authors an artefact itself. Every stage below d
 
 ## Derivation contract
 
-Every row is read off the LANDED module, its schemas and its own `__tests__/`. Each carries a `file:line` receipt; the Derive gate is **undecided-field count = 0**.
+Every row is read off the LANDED module, its schemas and its own `__tests__/`, and each carries a `file:line` receipt. **No row is left undecided** — a row the module cannot answer is a module gap and a halt, never a field to guess. The gate's exact field is the runner's.
 
 | # | Fact | Read from |
 | --- | --- | --- |
@@ -114,15 +114,21 @@ The step catalog and the traceability test are the PLAYGROUND's concern; they me
 
 Seat lanes are `agent-seat-separation`'s, cited not restated — including its companion's "Must-fail negative-control patches — who authors them": the developer authors the mutant, the prover applies it blind and verifies RED, never reading src to construct it.
 
-## Stage map
+## Where the chain lives
 
-| Stage | Skill | Seat | Gate (structured field) |
-| --- | --- | --- | --- |
-| Derive | `upmind-agent:plan` (light route) → the filled derivation table | planner | **undecided-field count = 0** AND every derived row carries a `file:line` in the landed module |
-| Code | `upmind-agent:code` with this lane's `templates/` | developer | **diff file count > 0** AND **hand-off filed** (the declaration's public surface handed to the prover; diff withheld — ADR-029) |
-| Tests | `upmind-agent:test` — the module's step catalog, its one replay spec and its one traceability test, plus the feature augmentation; layer routing is that factory's own | prover (contract-fed public surface only; diff and hand-off withheld) | **suite exit code = 0** per layer dispatched AND the module's one traceability test green AND **the module's `{module}.replay.int.test.ts` green** AND **every new mutant proven RED blind** AND the door's **build gate still exit 0** (full monorepo build) |
-| Verify | `upmind-agent:review` (verify lane) | verifier | **verdict = PRESENT** — the page boots and draws at every offered cell; its criteria chrome (filter bar, sort control, pager) renders off the module's own `schemas.query` / `pagination` channels; and every drawn control presses a live member — measured against the module's oracle surface, never the declaration's self-report. A page that draws rows but cannot filter, sort or page what the oracle offers is ABSENT |
-| Review | `upmind-agent:review` (code lane) | reviewer (pre-gate) | **🔴 blocker count = 0** |
+**The lane's conductor is a script: [`.claude/workflows/run-factory-scenario.js`](../../../workflows/run-factory-scenario.js).** It owns the stage order, the seat per stage, the model per seat, every gate field and threshold, the repair loops, the cycle caps and the halt names. The door's runner (`run-factory`) calls it after the ordering gate.
+
+**This file owns the doctrine that script implements** — above all the derivation contract (D1–D22), which is the whole substance of this lane. It carries no gate thresholds and no model pins, because those live in the script and a rule written twice drifts. Where the script and this file disagree, the script is the defect: fix the script. Never hand-run the chain from this file.
+
+The stage ORDER is doctrine, so it is stated once here: **Derive → Code → Tests → Verify → Review.**
+
+## What each stage is FOR
+
+- **Derive** fills the derivation table above off the **landed** module — every row cited with a `file:line` in that module, none invented. A row the module cannot answer is a module gap, not a field to guess.
+- **Code** authors the scenario directory from this lane's templates against the filled table, and authors its own negative-control mutants — the developer knows the mutated line. It files the declaration's public surface as the prover's hand-off; the diff is withheld from the prover (ADR-029).
+- **Tests** authors the step catalog, its one replay spec and its one traceability test **together**, over the module's own recorded corpus through the ONE shared replay. The prover applies each mutant blind, confirms RED, reverts.
+- **Verify** grades the page against the **module's oracle surface**, never the declaration's self-report: the page boots and draws at every offered cell, its filter bar, sort control and pager render off the module's own `schemas.query` / `pagination` channels, and every drawn control presses a live member. **A page that draws rows but cannot filter, sort or page what the oracle offers is ABSENT.**
+- **Review** is the pre-gate. It may block; it never emits the approval verdict.
 
 **No Docs stage, deliberately.** The declaration is its own documentation surface — the app draws each declaration's source verbatim in the Scenario sheet — and the playground keeps no per-scenario docs. The module doc set is lane 1's.
 
@@ -156,7 +162,6 @@ A page's scenario data is reached by importing headless's ONE published test ent
 
 Everything in the composable lane's "Dispatch contract" holds here unchanged and is cited, not restated: dispatch-only conduction, a gate resolving only on a field a dispatched seat returned, the JTBD in every seat brief, names resolved from the session registry in the `upmind-agent:<name>` form (never a filesystem hunt), rules cited by name and never by constructed path, and the craft executing inside the seat rather than in the conductor's context.
 
-- **Models:** this lane pins none. Derive dispatches the plugin's `plan-story` team map; Code / Tests / Verify / Review dispatch `dev-story`. A change to either map's pins is inherited, not forked.
 - **Lifecycle marker:** `UPMIND_LIFECYCLE=factory` — one run, one marker, for every stage of both lanes.
 - Absent an explicit model, a stamped `UPMIND_SEAT` and a stamped `UPMIND_LIFECYCLE` on every dispatch, a seat silently inherits the session's model and loses its write-lane enforcement.
 
@@ -166,7 +171,7 @@ Everything in the composable lane's "Dispatch contract" holds here unchanged and
 - **A derived row with no `file:line`** → halt with that row named. A derivation over a promised module is a guess.
 - **An absent consumed channel (any D-row, D14–D16 above all)** → halt to the DOOR, module regraded M2, composable lane first. Never a derivation around it, never a pass-and-surface absorption — surfaced decisions cover vocabulary lag only, never absent capability.
 - **Verify returns ABSENT** → the run does not advance to Review; the missing part named in the verifier's own filing routes back to the developer seat.
-- **A legitimately-red test is not a halt** — the repair loop is the composable lane's, cited: the failure routes back to a FRESH developer dispatch, up to three cycles on the same failure, then an operator escalation.
+- **A legitimately-red test is not a halt** — the repair loop is the composable lane's, cited: the failure routes back to a FRESH developer dispatch, never the authoring one. The cycle cap and the escalation are the script's.
 - **Doctrine-vs-template disagreement** — the doctrine wins and the disagreement is surfaced as a finding, never silently resolved toward the template or toward the one built page it cites as a reference.
 - **Template-versus-contract lag** — a template naming a shape the tree does not carry yet surfaces at the Verify gate, which reads the LANDED page. It is a red gate and a report, never a template quietly edited back to the old shape.
 

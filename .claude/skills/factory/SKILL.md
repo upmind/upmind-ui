@@ -11,12 +11,26 @@ description: The factory door for scoped composables and their playground pages 
 
 **The JTBD is the run's BINDING termination condition — set at intake, never merely suggested** (operator ruling 2026-08-14: prose in a seat brief is a suggestion an agent can ignore; the goal is a gate). A run has exactly two legal endings: the terminal readback proves the goal met, or a halt naming the unmet gap. "Done" with an unmet goal is not a reportable state.
 
-This file owns the **intake, the Stage-0 audit, the template contract, the derived routes, the ordering + build + terminal gates and the run's one lifecycle marker** — nothing else. Each lane owns its own stage map, gates, dispatch contract and failure states, cited here and restated nowhere:
+This file owns the **intake, the Stage-0 audit, the template contract, the derived routes, the ordering + build + terminal gates and the run's one lifecycle marker** — as DOCTRINE. The chain that executes it is `.claude/workflows/run-factory.js`. Each lane owns its own doctrine, and its own script; both are cited here and restated nowhere:
 
 - **composable lane** — [`composable/SKILL.md`](./composable/SKILL.md) (`factory-composable`): Research → Plan → Code → Tests → Verify → Review → Docs. Modes: `net-new`, `conversion`, `upgrade` (gap-closure over an already-scoped module).
 - **scenario lane** — [`scenario/SKILL.md`](./scenario/SKILL.md) (`factory-scenario`): Derive → Code → Tests → Verify → Review.
 
 Neither lane is separately invocable. The door is the only entry point.
+
+## The one law — invoke the runner, never hand-run the chain
+
+**This file is the SPEC the runner implements, not a script you execute stage by stage.** The door settles intake, then **invokes** the deterministic Workflow runner — `run-factory` (`.claude/workflows/run-factory.js`), which dispatches `run-factory-composable` and `run-factory-scenario`. It does **not** read the doctrine below and spawn seats by hand in the main loop.
+
+The main loop plays **operator** at the gates, never **runner** between them. Everything the door owns in conversation — the intake echo, the one blocking question, an operator ruling — happens before or between dispatches. Everything mechanical — the audit, the route, the seat chain, the repair loops, the ordering gate, the readback — is the runner's, because a gate written as prose is a suggestion an agent can skip and a gate written as code is not.
+
+`Workflow({ name: "run-factory", args: { id, worktree, sddDir, jtbd, module, cells, mode?, variant?, playground?, constraints?, arms?, rulings? } })`
+
+**The ruling loop.** A workflow cannot hold a conversation, so a contradiction the runner cannot settle comes back as `stopped: "ruling-required"` with the question named and both determinations shown. The door puts it to the operator, then re-invokes with the answer in `rulings` and `resumeFromRunId` set — every finished stage replays from cache, so a settled run is never re-paid for. Same idiom as `run-staged`'s `approvedThrough`.
+
+**Persist the `runId`** into the story's handoff record, so `/resume` re-enters the same run rather than starting fresh.
+
+Interpreting this door instead of dispatching its runner is the exact failure it exists to prevent — the same law `/start` carries (`rules/agent-orchestration.md` §1, Incident 2026-08-04; and this session, 2026-09-14, where the door was hand-run for an entire story and a lost session orphaned the work).
 
 ## Trigger
 
@@ -120,15 +134,15 @@ The run's report names what changed (elements added or dropped, renderer types c
 
 ## The chain, its ordering gate, and the terminal JTBD readback
 
-When both lanes run, they run in order with **one gate between them**: the composable lane's **Docs gate green** AND a **conformance re-grade returning drift count = 0** over the landed module — the scenario lane reads the LANDED module's mapper, schemas, criteria surface and matrix, so a derivation over a promised module (or a still-partial one) is a guess. On a legitimate `page` route that gate is satisfied by the audit's M3 grade, and the run opens at the scenario lane's Derive stage with the same gates it always carries.
+When both lanes run, they run in order with **one gate between them**: the scenario lane never opens over a module the composable lane has not finished, and that a FRESH re-grade has not found conformant. The scenario lane reads the LANDED module's mapper, schemas, criteria surface and matrix, so a derivation over a promised module — or a still-partial one — is a guess. The gate's exact fields are the runner's (`run-factory`); the law is that a re-grade of what the module HAS, not of what the run reported, stands between the lanes. On a legitimate `page` route that gate is satisfied by the audit's M3 grade, and the run opens at the scenario lane's Derive stage with the same gates it always carries.
 
-Each lane's stage map names its own skill, seat and structured gate field; both are cited above and neither is restated here. A lane gate that fails halts the run and surfaces the failing structured field verbatim, per that lane's own failure states — the door adds no retry, no alternate path and no partial landing.
+Each lane's script owns its stage order, seats, gate fields and thresholds; each lane's SKILL.md owns the doctrine that script implements. Neither is restated here. A lane gate that fails halts the run and surfaces the failing structured field verbatim — the door adds no retry, no alternate path and no partial landing.
 
 **The terminal gate is the JTBD readback — the binding goal's only exit.** After the last lane clears, the door dispatches the verifier once more to file a two-column capability table — written to `jtbd-readback.md` in the story's SDD directory, beside the verifier's own `verify.md`, before the verdict is returned: the ORACLE's surface (what the legacy/e2e oracle lets a consumer do — filter, sort, page, search, open, act) beside the LANDED PAGE's driveable surface, row for row. Any oracle capability a hand cannot drive on the page = the run **FAILED the JTBD**, surfaced verbatim, regardless of every lane gate being green (`verify-cosplay`, `verify-parity-oracle` — cited, not restated). Green gates are evidence toward the goal, never the goal: this is the gate the 2026-08-14 run lacked — five green gates, and nobody was required to ask "can a hand actually do the job?"
 
 ## Seats, models, marker
 
-- **Seats and dispatch** — the composable lane's dispatch contract governs both lanes: every stage spawns a named seat with an explicit model and a stamped `UPMIND_SEAT` + `UPMIND_LIFECYCLE` pair, and every gate resolves on a field a dispatched seat returned. Cited from that lane, restated nowhere.
+- **Seats and dispatch** — the runner scripts own this now: `run-factory` dispatches the audit and the readback seats and calls the two lane workflows; `run-factory-composable` and `run-factory-scenario` own their own seat chains. Each `agent()` call carries its `agentType`, its explicit model, and its structured gate schema as code — the harness stamps the seat identity into every `PreToolUse` payload, and `hooks/seat-guard.sh` keys its lanes on it. Each lane's SKILL.md remains the doctrine those scripts implement; a divergence between a lane's doctrine and its script is a defect in the script, not licence to hand-run the lane.
 - **Models** — neither the door nor either lane pins a model of its own. Both dispatch the plugin's existing `plan-story` (planner) and `dev-story` (the rest) team maps and inherit their pins, per `agent-orchestration` §3: model is the dispatching map's, never the session's.
 - **Lifecycle marker** — `UPMIND_LIFECYCLE=factory` for **every stage of both lanes**. One run, one marker: the door is a single orchestration context, so a lane does not mint its own.
 
