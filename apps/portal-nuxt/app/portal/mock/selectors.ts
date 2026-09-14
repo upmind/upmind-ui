@@ -67,6 +67,9 @@ import {
 } from "./actions";
 import {
   accountDelegatesCollection,
+  productDelegateAccessCollection,
+  productDelegatesCollection,
+  ticketDelegatesCollection,
   accountNotesCollection,
   accountSecretsCollection,
   affiliateCommissionsCollection,
@@ -1131,8 +1134,14 @@ function describedBy(parts: readonly (string | undefined)[]): string {
 }
 
 /** The product delegates area — legacy cProdDelegates (account delegates, mocked account-wide). */
-export function productDelegateItems(data: MockDataset): ListModuleItem[] {
-  return map(data.delegates, delegate => ({
+export function productDelegateItems(
+  data: MockDataset,
+  context: DataRouteContext
+): ListModuleItem[] {
+  const { data: rows } = productDelegatesCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => ({
     id: delegate.id,
     title: delegate.name,
     description: describedBy([delegate.email, permissionList(delegate)])
@@ -2638,7 +2647,10 @@ export function productDelegateAccessItems(
 ): ListModuleItem[] {
   const product = contextProduct(data, context);
   if (product === undefined) return [];
-  return map(data.delegates, delegate => {
+  const { data: rows } = productDelegateAccessCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => {
     const row: ListModuleItem = {
       id: delegate.id,
       title: delegate.name,
@@ -3846,11 +3858,7 @@ export function accountCardItems(data: MockDataset): ListModuleItem[] {
     leadingIcon: UserRound,
     leadingImageSrc: persona.avatarSrc,
     leadingImageAlt: name,
-    tags: map(persona.tags ?? [], label => ({ label })),
-    action: {
-      value: openFormValue(FORM_ID.AVATAR_SAVE),
-      label: "Change photo"
-    }
+    tags: map(persona.tags ?? [], label => ({ label }))
   };
   return [row];
 }
@@ -5935,7 +5943,10 @@ export function ticketDelegateItems(
 ): ListModuleItem[] {
   const ticket = contextTicket(data, context);
   if (ticket === undefined) return [];
-  return map(data.delegates, delegate => ({
+  const { data: rows } = ticketDelegatesCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => ({
     id: delegate.id,
     title: delegate.name,
     description: delegate.email,

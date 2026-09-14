@@ -74,19 +74,6 @@ export const useMockAccount = defineMockFacade(
       return replacePersona(data, { activeAccountId: accountId });
     },
 
-    /** Points the account's picture somewhere else; clearing it is a refusal, not a blank. */
-    saveAvatar: (model: FormModel): MockActionReceipt<MockPersona> => {
-      const avatarSrc = submittedText(model, "avatarSrc");
-      if (avatarSrc === "") {
-        return {
-          ok: false,
-          reason: MOCK_RECEIPT_REASON.EMPTY_IMAGE,
-          entity: data.persona
-        };
-      }
-      return replacePersona(data, { avatarSrc });
-    },
-
     /**
      * Saves the appearance this account lends to the ones it manages —
      * legacy's `parentBrandAppearanceForm`, whose save posted the name, the

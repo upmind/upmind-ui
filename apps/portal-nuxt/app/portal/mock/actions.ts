@@ -353,7 +353,6 @@ export const MOCK_ACTION = {
   /** Which account this sign-in works on: `switch-account:<json>`. */
   SWITCH_ACCOUNT: "switch-account",
   /** Where the account's picture lives: `avatar-save:<json>`. */
-  AVATAR_SAVE: "avatar-save",
   /** The sign-out page's own verb — no payload; the ribbon, if one is up, comes down with it. */
   AUTH_LOGOUT: "auth-logout",
   /** A config-authored destination — the dispatcher just names it as the next step. */
@@ -702,8 +701,6 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
       "This brand has no support desk to raise a ticket with.",
     [MOCK_RECEIPT_REASON.ALREADY_ACTIVE]:
       "You are already working on that account.",
-    [MOCK_RECEIPT_REASON.EMPTY_IMAGE]:
-      "Give the web address of an image to use.",
     [MOCK_RECEIPT_REASON.UNKNOWN_EMAIL]:
       "That address is not one this account holds.",
     [MOCK_RECEIPT_REASON.NOTHING_TO_CONSOLIDATE]:
@@ -1869,14 +1866,6 @@ export function dispatchMockAction(
           title: "Account switched",
           description: activePersonaAccount(persona)?.name
         }
-      }));
-    }
-    case MOCK_ACTION.AVATAR_SAVE: {
-      const model = parseFormPayload(id);
-      if (model === undefined) return undefined;
-      const receipt = useMockAccount(data).useActions().saveAvatar(model);
-      return fromFormReceipt(receipt, () => ({
-        toast: { intent: MOCK_TOAST_INTENT.SUCCESS, title: "Photo updated" }
       }));
     }
 

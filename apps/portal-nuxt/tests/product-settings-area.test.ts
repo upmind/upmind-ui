@@ -19,7 +19,16 @@ import {
   InvoiceStatusGroups
 } from "@upmind-automation/types";
 import { boundRefId, rowBinding, stringsIn } from "./support/page-config";
-import { assign, filter, find, map, reject, some } from "lodash-es";
+import {
+  assign,
+  every,
+  filter,
+  find,
+  map,
+  reject,
+  size,
+  some
+} from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type {
   MockDataset,
@@ -306,7 +315,12 @@ describe("delegate access — who else may reach this one product", () => {
 
     const rows = productDelegateAccessItems(data, contextFor(product));
 
-    expect(map(rows, "id")).toEqual(map(data.delegates, "id"));
+    // ONE PAGE of the account's delegates, not all of them — the panel used to
+    // render every row in one column, 24 deep on this seed.
+    expect(size(rows)).toBeLessThan(size(data.delegates));
+    expect(
+      every(rows, row => find(data.delegates, { id: row.id }) !== undefined)
+    ).toBe(true);
     for (const row of rows) {
       const delegate = delegateOf(data, row.id);
       if (delegate.isFullDelegate === true) {

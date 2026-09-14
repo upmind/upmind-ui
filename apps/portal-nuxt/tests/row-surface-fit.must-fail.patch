@@ -1,0 +1,26 @@
+# Negative control — wraps the email-history notice back in a PANEL, so the
+# Logs page draws a bordered card around one alert and nothing else. The FE
+# walkthrough defect 10, found on `/account/logs`.
+#
+# Intended RED:
+#   an alert stands on its own > is never wrapped in a panel, on any page of
+#   the shape
+#
+# The assertion is a SWEEP, so it names the offending page rather than pinning
+# this one row: the same shape appeared twice, here and on the delegate-
+# invitation landing.
+
+--- a/apps/portal-nuxt/app/portal/config/account-pages.ts
++++ b/apps/portal-nuxt/app/portal/config/account-pages.ts
+@@ -868,10 +868,9 @@
+     [PAGE_KEY.ACCOUNT_LOGS]: page("Logs", "A record of emails and sign-ins.", [
+       // Legacy's delivery-delay notice over the email history, shown while
+       // the brand says mail is running behind.
+-      // No surface: an alert already carries its own tone and border, so a
+-      // panel around one draws a second box holding nothing else.
+       {
+         layout: ROW_LAYOUT.FULL,
++        surface: ROW_SURFACE.PANEL,
+         visible: dataRef(DATA_REF_ID.IS_EMAIL_DELIVERY_DELAYED),
+         slots: [
+           moduleRef(BANNER_MODULE_ID, {

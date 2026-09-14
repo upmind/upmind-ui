@@ -233,7 +233,14 @@ export function supportPages(options?: {
           visible: dataRef(DATA_REF_ID.TICKET_CAN_DELEGATE),
           header: {
             title: "Delegate access",
-            description: "Let somebody else read and reply to this ticket."
+            description: "Let somebody else read and reply to this ticket.",
+            // An account's whole delegate list, on a thread page: 24 rows deep
+            // on the Host·Grid seed, with nothing to narrow or page it.
+            controls: panelControls(
+              DATA_REF_ID.TICKET_DELEGATE_ITEMS,
+              "delegates",
+              "Search by name or email"
+            )
           },
           slots: [
             moduleRef(LIST_MODULE_ID, {
@@ -243,7 +250,8 @@ export function supportPages(options?: {
                 emptyTitle: "Nobody to delegate to"
               }
             })
-          ]
+          ],
+          footer: pagerFooter("Delegates", DATA_REF_ID.TICKET_DELEGATE_ITEMS)
         },
         {
           layout: ROW_LAYOUT.FULL,

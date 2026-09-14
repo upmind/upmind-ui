@@ -620,6 +620,15 @@ const SETTINGS_ROWS: readonly ContentRowConfig[] = [
       }
     }),
     {
+      controls: panelControls(
+        DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_ITEMS,
+        "delegates",
+        "Search by name or email"
+      ),
+      footer: pagerFooter(
+        "Delegates",
+        DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_ITEMS
+      ),
       // Legacy's own control, wired to the invitation itself now the form
       // can answer it (plan F12) — it used to point at the delegates page.
       actions: moduleRef(BUTTON_MODULE_ID, {
@@ -994,7 +1003,12 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
           surface: ROW_SURFACE.PANEL,
           header: {
             title: "Delegates",
-            description: "People with access to this product."
+            description: "People with access to this product.",
+            controls: panelControls(
+              DATA_REF_ID.PRODUCT_DELEGATE_ITEMS,
+              "delegates",
+              "Search by name or email"
+            )
           },
           slots: [
             moduleRef(LIST_MODULE_ID, {
@@ -1004,7 +1018,8 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
                 emptyTitle: "No delegates"
               }
             })
-          ]
+          ],
+          footer: pagerFooter("Delegates", DATA_REF_ID.PRODUCT_DELEGATE_ITEMS)
         }
       ]
     )

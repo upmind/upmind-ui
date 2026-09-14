@@ -30,10 +30,7 @@ import {
   brandingDefaults
 } from "../contracts/client-account.branding.schemas";
 import {
-  avatarDefaults,
   switchAccountDefaults,
-  useAvatarSchema,
-  useAvatarUischema,
   useSwitchAccountSchema,
   useSwitchAccountUischema
 } from "../contracts/client-account.schemas";
@@ -610,17 +607,6 @@ const FORM_BUILDER: Readonly<Record<FormId, MockFormBuilder>> = {
       resetLabel: CANCEL_LABEL
     };
   },
-  [FORM_ID.AVATAR_SAVE]: data => ({
-    title: "Change photo",
-    description: "Point us at a picture and we will show it on your account.",
-    schema: useAvatarSchema(),
-    uischema: useAvatarUischema(),
-    model: avatarDefaults(data.persona.avatarSrc),
-    submit: MOCK_ACTION.AVATAR_SAVE,
-    submitLabel: SAVE_LABEL,
-    resetLabel: CANCEL_LABEL
-  }),
-
   // --- one address's own notifications and confirmation ------------------------
 
   [FORM_ID.EMAIL_TOPIC_OPT_INS]: (data, entityId) => {

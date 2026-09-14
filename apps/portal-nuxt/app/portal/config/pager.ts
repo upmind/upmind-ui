@@ -9,7 +9,7 @@
  * pager also self-hides while its collection fits one page.
  */
 
-import { ROW_LAYOUT } from "../content/types";
+import { ROW_LAYOUT, ROW_SURFACE } from "../content/types";
 import {
   PAGER_REF_BY_ITEMS_REF,
   CONTROLS_REF_BY_ITEMS_REF,
@@ -46,6 +46,9 @@ export function brandNoteRow(
 ): ContentRowConfig {
   return {
     layout: ROW_LAYOUT.FULL,
+    // A muted surface, so the brand's words read as a note ABOUT the page
+    // rather than as the page's own opening copy.
+    surface: ROW_SURFACE.MUTED,
     visible: dataRef(presenceRef),
     slots: [
       moduleRef(PROSE_MODULE_ID, {
