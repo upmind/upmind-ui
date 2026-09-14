@@ -53,8 +53,8 @@ export const meta = {
   phases: [
     {
       title: "Research",
-      detail: "planner seat — oracle sweep, files research.md",
-      model: "opus"
+      detail:
+        "run-research — planner sweeps the references, reviewer pre-gates the sweep"
     },
     {
       title: "Plan",
@@ -152,25 +152,6 @@ const GATE = {
 // composable shapes. A mismatch against an operator `variant=` is a halt with
 // both shown (receipt: 2026-08-05 client-email — `variant=query` against an
 // oracle shipping a manager amputated the entire manager surface).
-const RESEARCH_GATE = {
-  type: "object",
-  properties: {
-    pass: { type: "boolean" },
-    summary: { type: "string" },
-    genericCitations: { type: "number" },
-    oracleCitations: { type: "number" },
-    researchFiled: { type: "boolean" },
-    derivedVariant: { type: "string" }
-  },
-  required: [
-    "pass",
-    "summary",
-    "genericCitations",
-    "oracleCitations",
-    "researchFiled"
-  ]
-};
-
 // Code: the developer re-derives the arms determination independently from the
 // landed parity table, never by trusting the recorded block. A mismatch is a
 // gate failure surfaced with BOTH determinations shown, never a silent pick
@@ -258,34 +239,56 @@ const results = { id, stopped: null, cycles: {}, surfaced: [] };
 // record, and a session lost between Research and Plan used to lose the whole
 // oracle sweep.
 phase("Research");
-results.research = await agent(
-  `Run the Research stage for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} ${DOCTRINE} Sweep the knowledge graph and the docs corpus (glossary + docs/reference/), then the ${mode} oracle — for a conversion, wherever the existing implementation lives, the current headless module and/or the legacy surface being ported; for net-new, the closest legacy-parity analogue. Inventory the oracle's composable shapes (query collection / dataManager-machine manager / bespoke machine) and derive the variant from them. If ${sddDir}/research.md ALREADY EXISTS, read it and VALIDATE it against reality rather than re-deriving it — correct what is wrong, extend what is thin, and say which. Otherwise write it fresh. Either way it must end up carrying, BEFORE you return: the oracle capability inventory with file:line receipts, the composable-shape inventory and the variant it derives, the criteria surface, the precedent modules, and every question you cannot close. Then return your gate fields.`,
-  {
-    agentType: "upmind-agent:planner",
-    model: "opus",
-    phase: "Research",
-    schema: RESEARCH_GATE,
-    label: `research:${id}`
-  }
-);
-if (!results.research) {
-  results.stopped = "research-failed";
+// The plugin's `run-research` workflow OWNS this stage: a planner sweeps the
+// references and FILES research.md, then a reviewer PRE-GATES the sweep — is
+// every capability claim cited, is every asserted absence evidenced, was every
+// question answered or reported unanswered — and the planner revises on a
+// blocker up to its own 3-cycle cap.
+//
+// That pre-gate is the guard against the failure this whole lane exists to
+// prevent: a capability the reference has and the sweep missed is dropped by
+// everything downstream, with every gate green.
+//
+// The references and the questions are the factory's; the chain is not. The
+// variant derivation is asked as a KEYED question so this lane can gate on the
+// answer rather than read it out of prose.
+results.research = await workflow("upmind-agent:run-research", {
+  id,
+  worktree,
+  outDir: sddDir,
+  subject: `the ${target} module — every composable it ships or owes`,
+  references: [
+    mode === "conversion"
+      ? "the implementation being ported — wherever it lives, named in the run constraints; follow a capability out of it when it is implemented elsewhere"
+      : "the closest legacy-parity analogue to this subject",
+    "the knowledge graph and the docs corpus (glossary + docs/reference/) for existing constructs this module must consume rather than re-mint",
+    "the landed sibling modules under packages/headless/src/modules/ as the current shape of the art"
+  ],
+  questions: [
+    "variant: which composable shapes does the reference actually ship — a query-backed collection, a dataManager-machine manager, a bespoke machine, or a combination? Derive the variant from the shapes you find, never from what you were told.",
+    "owed: how many composables does this module owe in total, and what is each one's shape?",
+    "criteria: which filters, which sort fields and what pagination must this module's query criteria schema own? Name each with its wire key.",
+    "types: which existing types, enums and constructs must this module CONSUME rather than re-declare? Give each a file:line.",
+    "precedent: which landed module is the closest pattern to copy, and for which part?"
+  ],
+  jtbd,
+  scope: constraints
+});
+if (!results.research || results.research.stopped) {
+  results.stopped = `research-blocked:${(results.research && results.research.stopped) || "research-failed"}`;
   return results;
 }
+const sweep = results.research.sweep || {};
+
+// Derivation vs operator override: halt with BOTH shown, never a silent pick
+// (receipt: 2026-08-05 client-email — `variant=query` against a reference
+// shipping a manager amputated the entire manager surface).
+const derivedVariant = (sweep.answers || {}).variant;
 if (
-  !(results.research.genericCitations > 0) ||
-  !(results.research.oracleCitations > 0)
+  typeof derivedVariant === "string" &&
+  derivedVariant &&
+  !derivedVariant.toLowerCase().includes(variant.toLowerCase())
 ) {
-  results.stopped = "research-citations";
-  return results;
-}
-if (!results.research.researchFiled) {
-  results.stopped = "research-unfiled";
-  return results;
-}
-// Derivation vs operator override: halt with BOTH shown, never a silent pick.
-const derivedVariant = results.research.derivedVariant;
-if (derivedVariant && derivedVariant !== variant) {
   results.stopped = "variant-mismatch";
   results.determinations = { override: variant, derived: derivedVariant };
   return results;
