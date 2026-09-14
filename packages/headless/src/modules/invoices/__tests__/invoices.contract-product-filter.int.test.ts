@@ -9,7 +9,7 @@
  * `products.contracts_product_id` column survives `translateQuery` — the
  * MODEL, one step before the request is built. This file proves the same
  * capability on the WIRE: that a criteria write on the declared column puts
- * `filter[products.contracts_product_id|eq]=<id>` on the OUTBOUND
+ * `filter[products.contracts_product_id]=<id>` on the OUTBOUND
  * `GET /api/invoices` query string, decoded from the observed request URL —
  * never read off the criteria model and never off the schema declaration,
  * which the module's own `setCriteria` silent-strip incident
@@ -54,7 +54,7 @@ const PRODUCT_ID = "aaaa1111-bbbb-2222-cccc-3333dddd4444";
 const OTHER_CLIENT_ID = "11111111-2222-3333-4444-555555555555";
 
 describe("invoices collection — narrows by contract product on the wire (AC-18)", () => {
-  it("AC-18 setCriteria({ filters: { 'products.contracts_product_id' } }) puts filter[products.contracts_product_id|eq]=<id> on the outbound GET /api/invoices query string", async () => {
+  it("AC-18 setCriteria({ filters: { 'products.contracts_product_id' } }) puts filter[products.contracts_product_id]=<id> on the outbound GET /api/invoices query string", async () => {
     const { accessToken } = await seedClientSession();
     installInvoiceHandlers();
 
@@ -65,7 +65,7 @@ describe("invoices collection — narrows by contract product on the wire (AC-18
 
     const observed = observeInvoiceRequests();
     invoices.useActions().setCriteria({
-      filters: { "products.contracts_product_id": { eq: PRODUCT_ID } }
+      filters: { "products.contracts_product_id": PRODUCT_ID }
     });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
@@ -73,7 +73,7 @@ describe("invoices collection — narrows by contract product on the wire (AC-18
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toContain(
-      `filter[products.contracts_product_id|eq]=${PRODUCT_ID}`
+      `filter[products.contracts_product_id]=${PRODUCT_ID}`
     );
     assertClientIdentityTransport(request, accessToken);
   });
@@ -90,7 +90,7 @@ describe("invoices collection — narrows by contract product on the wire (AC-18
     const observed = observeInvoiceRequests();
     invoices.useActions().setCriteria({
       filters: {
-        contract_product_id: { eq: "refused-bare-spelling-001" }
+        contract_product_id: "refused-bare-spelling-001"
       } as never
     });
     await new Promise(resolve => setTimeout(resolve, 1200));
@@ -122,7 +122,7 @@ describe("invoices collection — narrows by contract product on the wire (AC-18
 
     const observed = observeInvoiceRequests();
     invoices.useActions().setCriteria({
-      filters: { "products.contracts_product_id": { eq: PRODUCT_ID } }
+      filters: { "products.contracts_product_id": PRODUCT_ID }
     });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
@@ -130,9 +130,9 @@ describe("invoices collection — narrows by contract product on the wire (AC-18
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toContain(
-      `filter[products.contracts_product_id|eq]=${PRODUCT_ID}`
+      `filter[products.contracts_product_id]=${PRODUCT_ID}`
     );
-    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
     assertClientIdentityTransport(request, accessToken);
   });
 });

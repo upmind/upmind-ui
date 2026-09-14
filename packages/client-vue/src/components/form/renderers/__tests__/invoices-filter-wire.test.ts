@@ -38,8 +38,6 @@ const enumValuesOf = (schema: JsonSchema7, column: string): string[] => {
     "filters",
     "properties",
     column,
-    "properties",
-    "in",
     "items",
     "oneOf"
   ]) as { const: string }[];
@@ -48,8 +46,8 @@ const enumValuesOf = (schema: JsonSchema7, column: string): string[] => {
 
 const STATUS_COLUMN = "status.code";
 const CATEGORY_COLUMN = "category.slug";
-const STATUS_PATH = "filters.status.code.in";
-const CATEGORY_PATH = "filters.category.slug.in";
+const STATUS_PATH = "filters.status.code";
+const CATEGORY_PATH = "filters.category.slug";
 
 /**
  * The literal-key segments for a dotted multi-select leaf's raw model
@@ -59,15 +57,15 @@ const CATEGORY_PATH = "filters.category.slug.in";
  * re-split "status.code" into two nested keys that do not exist, which is
  * the exact bug this module's own leaf-name choice exposes elsewhere.
  */
-/** `#/properties/filters/properties/status.code/properties/in` -> `filters.status.code.in`. */
+/** `#/properties/filters/properties/status.code` -> `filters.status.code`. */
 const pathOf = (element: UISchemaElement): string => {
   const scope = (element as { scope: string }).scope;
   return split(scope, "/properties/").slice(1).join(".");
 };
 
 const rawPathFor = (path: string): string[] => {
-  if (path === STATUS_PATH) return ["filters", STATUS_COLUMN, "in"];
-  if (path === CATEGORY_PATH) return ["filters", CATEGORY_COLUMN, "in"];
+  if (path === STATUS_PATH) return ["filters", STATUS_COLUMN];
+  if (path === CATEGORY_PATH) return ["filters", CATEGORY_COLUMN];
   throw new Error(`No literal raw path mapped for "${path}"`);
 };
 
@@ -126,7 +124,7 @@ describe("the invoices bar says what each of its filters is about", () => {
 });
 
 describe("driving a facet reaches the wire under its declared dotted column", () => {
-  it("wires status.code|in and category.slug|in for what was actually clicked", async () => {
+  it("wires status.code and category.slug for what was actually clicked", async () => {
     const mount = await mountFilters(declaration);
     const schema = declaration.schema;
 
@@ -156,15 +154,15 @@ describe("driving a facet reaches the wire under its declared dotted column", ()
       | Record<string, string>
       | undefined;
 
-    expect(wire?.["filter[status.code|in]"]).toBe("invoice_unpaid");
-    expect(wire?.["filter[category.slug|in]"]).toBe("recurrent");
+    expect(wire?.["filter[status.code]"]).toBe("invoice_unpaid");
+    expect(wire?.["filter[category.slug]"]).toBe("recurrent");
   });
 
   it("FAIRNESS CONTROL — a non-dotted column reaches the wire the same way", async () => {
     const mount = await mountFilters(declaration);
 
     await mount
-      .column("filters.number.eq")
+      .column("filters.number")
       .find("input")
       .setValue("INV-2026-100");
     await mount.settle();
@@ -174,7 +172,7 @@ describe("driving a facet reaches the wire under its declared dotted column", ()
       "filters"
     ) as Record<string, string> | undefined;
 
-    expect(wire?.["filter[number|eq]"]).toBe("INV-2026-100");
+    expect(wire?.["filter[number]"]).toBe("INV-2026-100");
   });
 });
 
@@ -287,25 +285,25 @@ const runFacetSequence = async (
 };
 
 describe("the facet SEQUENCE never duplicates and de-select removes", () => {
-  it("status.code|in: click A, click B, de-select A, clear to empty", async () => {
+  it("status.code: click A, click B, de-select A, clear to empty", async () => {
     const mount = await mountFilters(declaration);
     await runFacetSequence(
       mount,
       declaration.schema,
       STATUS_PATH,
       STATUS_COLUMN,
-      "filter[status.code|in]"
+      "filter[status.code]"
     );
   });
 
-  it("category.slug|in: click A, click B, de-select A, clear to empty", async () => {
+  it("category.slug: click A, click B, de-select A, clear to empty", async () => {
     const mount = await mountFilters(declaration);
     await runFacetSequence(
       mount,
       declaration.schema,
       CATEGORY_PATH,
       CATEGORY_COLUMN,
-      "filter[category.slug|in]"
+      "filter[category.slug]"
     );
   });
 
@@ -316,8 +314,6 @@ describe("the facet SEQUENCE never duplicates and de-select removes", () => {
         "filters",
         "properties",
         column,
-        "properties",
-        "in",
         "uniqueItems"
       ]);
 

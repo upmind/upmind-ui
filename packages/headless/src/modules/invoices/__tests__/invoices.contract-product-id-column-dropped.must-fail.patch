@@ -8,7 +8,7 @@ it mutates; the prover applies this blind and reverts, never reading
 
 Assertion it attacks: the declared `products.contracts_product_id` filter
 column reaching the wire under the API's own accepted key
-(`filter[products.contracts_product_id|eq]`), post-`translateQuery` — the
+(`filter[products.contracts_product_id]`), post-`translateQuery` — the
 exact class of defect this story's own `setCriteria` silent-strip incident
 established: a declared column can look correct on the model and still be
 stripped with no ajv error by `additionalProperties: false`, so the
@@ -45,7 +45,7 @@ Proven RED 2026-09-09
       -> AssertionError: expected undefined to be defined
   x scoping by product reaches the wire under the API's own key (AC B) >
     setting products.contracts_product_id|eq on the model reaches the wire
-    as filter[products.contracts_product_id|eq], post-translateQuery
+    as filter[products.contracts_product_id], post-translateQuery
       -> AssertionError: expected undefined to be 'product-scope-001'
   x scoping by product reaches the wire under the API's own key (AC B) >
     FAIRNESS CONTROL — an unset products.contracts_product_id reaches the

@@ -9,7 +9,7 @@
  * story already fixed once for `setCriteria` — so it gets the full A7
  * read-back (`verify-reality-check.companion.md`): the outbound request after
  * a `.for('client', X)`-scoped `filterBy()` call still carries the target's
- * `filter[client_id|eq]`, as the *reading* client's own session bearer, same
+ * `filter[client_id]`, as the *reading* client's own session bearer, same
  * shape as `invoices.scope-identity.int.test.ts`'s durability block.
  * `nextPage`/`prevPage` get a paging read-back: the outbound request's page
  * window (`limit`/`offset`, bare query params — not a `filter[...]` column)
@@ -56,14 +56,14 @@ describe("invoices — filterBy() carries the retarget through the filters branc
     );
 
     const observed = observeInvoiceRequests();
-    invoices.useActions().filterBy({ number: { eq: "filterby-a7-001" } });
+    invoices.useActions().filterBy({ number: "filterby-a7-001" });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
 
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
-    expect(decoded).toContain("filter[number|eq]=filterby-a7-001");
-    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toContain("filter[number]=filterby-a7-001");
+    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -77,13 +77,13 @@ describe("invoices — filterBy() carries the retarget through the filters branc
     );
 
     const observed = observeInvoiceRequests();
-    invoices.useActions().filterBy({ number: { eq: "filterby-self-001" } });
+    invoices.useActions().filterBy({ number: "filterby-self-001" });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
 
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
-    expect(decoded).toContain(`filter[client_id|eq]=${clientId}`);
+    expect(decoded).toContain(`filter[client_id]=${clientId}`);
     expect(decoded).not.toContain(OTHER_CLIENT_ID);
   });
 });

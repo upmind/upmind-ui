@@ -208,7 +208,7 @@ describe("invoices collection — reads my own invoices (AC-2)", () => {
     const observed = observeInvoiceRequests();
     invoices
       .useActions()
-      .setCriteria({ filters: { "status.code": { in: ["invoice_unpaid"] } } });
+      .setCriteria({ filters: { "status.code": ["invoice_unpaid"] } });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
 

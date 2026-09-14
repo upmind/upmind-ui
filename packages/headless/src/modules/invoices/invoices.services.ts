@@ -151,7 +151,7 @@ function trackClientIdFilter(
       handle.setCriteria({
         filters: {
           ...handle.criteria.value.filters,
-          ...(value ? { client_id: { eq: value } } : {})
+          ...(value ? { client_id: value } : {})
         }
       }),
     { immediate: true }
@@ -213,19 +213,18 @@ function withDurableClientId(
     if (
       !has(next, "filters") ||
       !clientId.value ||
-      // Array path, not a dotted string: this module's filter keys ("status.code",
-      // "contracts.id") are literal, dot-bearing property names, and lodash's
-      // string form reads a dot as a nested-path separator. Truthiness, not
-      // presence, on `.eq` — a declared-but-undefined `client_id` (e.g.
-      // `consolidatableCriteria(undefined)`) is not a caller retarget.
-      !!next.filters?.client_id?.eq
+      // Truthiness, not presence — a declared-but-undefined `client_id` (e.g.
+      // `consolidatableCriteria(undefined)`) is not a caller retarget. The
+      // column is a BARE value now, not an operator bag, so there is no `.eq`
+      // to reach through.
+      !!next.filters?.client_id
     ) {
       handle.setCriteria(next);
       return;
     }
     handle.setCriteria({
       ...next,
-      filters: { ...next.filters, client_id: { eq: clientId.value } }
+      filters: { ...next.filters, client_id: clientId.value }
     });
   };
 

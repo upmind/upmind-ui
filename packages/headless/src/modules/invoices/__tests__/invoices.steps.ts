@@ -104,8 +104,8 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     async world => {
       await world.fire(INVOICES_COVERED_ACTIONS.setCriteria, {
         filters: {
-          "status.code": { in: ["overdue"] },
-          "category.slug": { in: ["recurrent"] }
+          "status.code": ["overdue"],
+          "category.slug": ["recurrent"]
         }
       });
     }

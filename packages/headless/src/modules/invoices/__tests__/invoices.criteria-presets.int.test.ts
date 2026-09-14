@@ -25,7 +25,7 @@
  * `with_count=products` include also contains, so it could pass for the wrong
  * reason without ever proving the dedicated read fired or that the boolean
  * tracked anything real. The AC-10 tests below are rewritten to identify the
- * dedicated read by its own declared shape (`filter[status.code|in]` +
+ * dedicated read by its own declared shape (`filter[status.code]` +
  * `limit=1`, never `with_count`) — that half IS now confirmed: the dedicated
  * request genuinely fires, on-demand, only once `hasUnpaid` is read.
  *
@@ -102,7 +102,7 @@ describe("invoices — read my credit notes as a filtered view (AC-7)", () => {
 });
 
 describe("invoices — find out whether I owe anything at all (AC-10)", () => {
-  it("AC-10 reading hasUnpaid issues a dedicated request carrying filter[status.code|in] and limit=1 — never satisfied by the list request or its with_count include", async () => {
+  it("AC-10 reading hasUnpaid issues a dedicated request carrying filter[status.code] and limit=1 — never satisfied by the list request or its with_count include", async () => {
     await seedClientSession();
     installInvoiceHandlers();
 
@@ -134,7 +134,7 @@ describe("invoices — find out whether I owe anything at all (AC-10)", () => {
     const dedicated = observed.all().find(request => isDedicated(request.url));
     expect(dedicated).toBeDefined();
     const decoded = decodeURIComponent(dedicated!.url);
-    expect(decoded).toContain("filter[status.code|in]");
+    expect(decoded).toContain("filter[status.code]");
     // The list request's with_count=products include is precisely what the
     // prior, weaker assertion (a bare substring match on "count") could be
     // satisfied by. The dedicated read never carries it.

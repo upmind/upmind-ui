@@ -8,7 +8,7 @@
  * for this module is a declared `client_id` FILTER COLUMN, never a path
  * segment (design D-notes — the client lane has no
  * `api/clients/{id}/invoices` route). Proves the outbound request carries the
- * target client's id as `filter[client_id|eq]`, that the READING client's own
+ * target client's id as `filter[client_id]`, that the READING client's own
  * session bearer token is the credential sent (no impersonation header, no
  * token swap), and that the same call WITHOUT a target resolves to the
  * reading client's own id. Also proves the criteria law: an undeclared filter
@@ -84,13 +84,13 @@ describe("invoices — retarget my reading at an entitled client (AC-12, the A7 
     const observed = observeInvoiceRequests();
     invoices
       .useActions()
-      .setCriteria({ filters: { client_id: { eq: OTHER_CLIENT_ID } } });
+      .setCriteria({ filters: { client_id: OTHER_CLIENT_ID } });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
 
     const request = observed.last();
     expect(decodeURIComponent(request.url)).toContain(
-      `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+      `filter[client_id]=${OTHER_CLIENT_ID}`
     );
     assertClientIdentityTransport(request, accessToken);
   });
@@ -133,7 +133,7 @@ describe("invoices — retarget my reading at an entitled client (AC-12, the A7 
       http.get("*/invoices", ({ request }) => {
         if (
           decodeURIComponent(request.url).includes(
-            `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+            `filter[client_id]=${OTHER_CLIENT_ID}`
           )
         ) {
           return HttpResponse.json({
@@ -160,7 +160,7 @@ describe("invoices — retarget my reading at an entitled client (AC-12, the A7 
 
     const request = observed.first();
     expect(decodeURIComponent(request.url)).toContain(
-      `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+      `filter[client_id]=${OTHER_CLIENT_ID}`
     );
     assertClientIdentityTransport(request, accessToken);
 
@@ -190,7 +190,7 @@ describe("invoices — hasUnpaid answers for the .for() TARGET, not the reader (
           return HttpResponse.json(listFixture);
         }
         const forTarget = decodeURIComponent(request.url).includes(
-          `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+          `filter[client_id]=${OTHER_CLIENT_ID}`
         );
         return HttpResponse.json(
           {
@@ -227,7 +227,7 @@ describe("invoices — hasUnpaid answers for the .for() TARGET, not the reader (
       .find(request => isDedicatedUnpaidRead(request.url));
     expect(dedicated).toBeDefined();
     expect(decodeURIComponent(dedicated!.url)).toContain(
-      `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+      `filter[client_id]=${OTHER_CLIENT_ID}`
     );
     assertClientIdentityTransport(dedicated!, accessToken);
 
@@ -283,7 +283,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toMatch(/credit_note/);
-    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -301,14 +301,14 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const observed = observeInvoiceRequests();
     invoices
       .useActions()
-      .setCriteria({ filters: { number: { eq: "durability-check-001" } } });
+      .setCriteria({ filters: { number: "durability-check-001" } });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
 
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
-    expect(decoded).toContain("filter[number|eq]=durability-check-001");
-    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toContain("filter[number]=durability-check-001");
+    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -325,16 +325,16 @@ describe("invoices — the retarget survives every published criteria write (AC-
 
     const observed = observeInvoiceRequests();
     invoices.useActions().setCriteria({
-      filters: { client_id: { eq: MANUAL_RETARGET_CLIENT_ID } }
+      filters: { client_id: MANUAL_RETARGET_CLIENT_ID }
     });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
     observed.stop();
 
     const decoded = decodeURIComponent(observed.last().url);
     expect(decoded).toContain(
-      `filter[client_id|eq]=${MANUAL_RETARGET_CLIENT_ID}`
+      `filter[client_id]=${MANUAL_RETARGET_CLIENT_ID}`
     );
-    expect(decoded).not.toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    expect(decoded).not.toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
   });
 
   it("AC-12 a caller-declared client_id that is FALSY (eq: undefined) is not a manual override — the durable retarget is re-asserted", async () => {
@@ -351,8 +351,8 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const observed = observeInvoiceRequests();
     invoices.useActions().setCriteria({
       filters: {
-        number: { eq: "durability-falsy-client-id-001" },
-        client_id: { eq: undefined }
+        number: "durability-falsy-client-id-001",
+        client_id: undefined
       }
     });
     await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
@@ -361,9 +361,9 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toContain(
-      "filter[number|eq]=durability-falsy-client-id-001"
+      "filter[number]=durability-falsy-client-id-001"
     );
-    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -392,7 +392,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toContain("order=-due_date");
-    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -414,7 +414,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
 
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
-    expect(decoded).toContain(`filter[client_id|eq]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
     assertClientIdentityTransport(request, accessToken);
   });
 });

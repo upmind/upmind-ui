@@ -84,91 +84,99 @@ export function useQuerySchema(): InvoiceQuerySchema {
         additionalProperties: false,
         properties: {
           id: {
-            type: "object",
+            type: ["string", "null"],
             title: "invoices.filter.id",
-            additionalProperties: false,
-            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[id]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           number: {
-            type: "object",
+            type: ["string", "null"],
             title: "invoices.filter.number",
-            additionalProperties: false,
-            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[number]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           "status.code": {
-            type: "object",
+            type: ["string", "array", "null"],
             title: "invoices.filter.status",
-            additionalProperties: false,
-            properties: {
-              // `eq` beside `in`, both over the SAME vocabulary: one status is
-              // a legitimate narrowing and `additionalProperties: false` makes
-              // an undeclared operator unspellable, so without this a caller
-              // asking for exactly one status has to spell a one-member `in`.
-              eq: { type: ["string", "null"], oneOf: STATUS_VOCABULARY },
-              in: {
-                type: ["array", "null"],
-                items: { type: "string", oneOf: STATUS_VOCABULARY },
-                uniqueItems: true
-              }
-            }
+            items: { type: "string", oneOf: STATUS_VOCABULARY },
+            // Kept on the bare column: the bar's multi-select tester matches on it.
+            uniqueItems: true,
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[status.code]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           client_id: {
-            type: "object",
+            type: ["string", "null"],
             title: "invoices.filter.client_id",
-            additionalProperties: false,
-            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[client_id]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           is_consolidation: {
-            type: "object",
+            type: ["boolean", "null"],
             title: "invoices.filter.is_consolidation",
-            additionalProperties: false,
-            properties: {
-              eq: { type: ["boolean", "null"], enum: [true, false, null] }
-            }
+            enum: [true, false, null],
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[is_consolidation]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           "category.slug": {
-            type: "object",
+            type: ["string", "array", "null"],
             title: "invoices.filter.category",
-            additionalProperties: false,
-            properties: {
-              // Same pairing as `status.code` above.
-              eq: { type: ["string", "null"], oneOf: CATEGORY_VOCABULARY },
-              in: {
-                type: ["array", "null"],
-                items: { type: "string", oneOf: CATEGORY_VOCABULARY },
-                uniqueItems: true
-              }
-            }
+            items: { type: "string", oneOf: CATEGORY_VOCABULARY },
+            // Kept on the bare column: the bar's multi-select tester matches on it.
+            uniqueItems: true,
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[category.slug]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           credit_invoice_id: {
-            type: "object",
+            type: ["string", "null"],
             title: "invoices.filter.credit_invoice_id",
-            additionalProperties: false,
-            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[credit_invoice_id]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           paid_amount: {
-            type: "object",
+            type: ["number", "null"],
             title: "invoices.filter.paid_amount",
-            additionalProperties: false,
-            properties: { eq: { type: ["number", "null"] } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[paid_amount]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           total_amount: {
-            type: "object",
+            type: ["number", "null"],
             title: "invoices.filter.total_amount",
-            additionalProperties: false,
-            properties: { eq: { type: ["number", "null"] } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[total_amount]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           net_amount: {
-            type: "object",
+            type: ["number", "null"],
             title: "invoices.filter.net_amount",
-            additionalProperties: false,
-            properties: { eq: { type: ["number", "null"] } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[net_amount]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           total_discount_amount: {
-            type: "object",
+            type: ["number", "null"],
             title: "invoices.filter.total_discount_amount",
-            additionalProperties: false,
-            properties: { eq: { type: ["number", "null"] } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[total_discount_amount]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           create_datetime: {
             type: "object",
@@ -191,35 +199,42 @@ export function useQuerySchema(): InvoiceQuerySchema {
             }
           },
           proforma: {
-            type: "object",
+            type: ["boolean", "null"],
             title: "invoices.filter.proforma",
-            additionalProperties: false,
-            properties: {
-              eq: { type: ["boolean", "null"], enum: [true, false, null] }
-            }
+            enum: [true, false, null],
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[proforma]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           // Declared for parity, deliberately undrawn for a client bar — a
           // declared-but-undrawn column is filterable by URL and absent from
           // the bar (design.md "Filter columns").
           fraud_status: {
-            type: "object",
+            type: ["number", "array", "null"],
             title: "invoices.filter.fraud_status",
-            additionalProperties: false,
-            properties: {
-              in: { type: ["array", "null"], items: { type: "number" } }
-            }
+            items: { type: "number" },
+            uniqueItems: true,
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[fraud_status]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           "contracts.id": {
-            type: "object",
+            type: ["string", "null"],
             title: "invoices.filter.contract_id",
-            additionalProperties: false,
-            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[contracts.id]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           },
           "products.contracts_product_id": {
-            type: "object",
+            type: ["string", "null"],
             title: "invoices.filter.contracts_product_id",
-            additionalProperties: false,
-            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+            // No `properties`: a branch with no operator sub-schema reaches the
+            // wire as a BARE `filter[products.contracts_product_id]`, which the API defaults to
+            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+            // would spell `filter[...|eq]`, which the platform rejects 422.
           }
         }
       },
@@ -285,13 +300,13 @@ export function useQueryUischema(): UISchemaElement {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/filters/properties/number/properties/eq",
+        scope: "#/properties/filters/properties/number",
         i18n: "invoices.filter_bar.number",
         options: { format: "search", optionalText: "" }
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/status.code/properties/in",
+        scope: "#/properties/filters/properties/status.code",
         i18n: "invoices.filter_bar.status",
         // `multi-select` opts this leaf into the bar's COMPACT checkable menu
         // (`FilterMultiSelectRenderer`). Absent it, the leaf's own shape
@@ -302,25 +317,25 @@ export function useQueryUischema(): UISchemaElement {
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/category.slug/properties/in",
+        scope: "#/properties/filters/properties/category.slug",
         i18n: "invoices.filter_bar.category",
         options: { format: "multi-select", optionalText: "" }
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/is_consolidation/properties/eq",
+        scope: "#/properties/filters/properties/is_consolidation",
         i18n: "invoices.filter_bar.is_consolidation",
         options: { format: "button-group", optionalText: "" }
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/total_amount/properties/eq",
+        scope: "#/properties/filters/properties/total_amount",
         i18n: "invoices.filter_bar.total_amount",
         options: { optionalText: "" }
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/net_amount/properties/eq",
+        scope: "#/properties/filters/properties/net_amount",
         i18n: "invoices.filter_bar.net_amount",
         options: { optionalText: "" }
       },
@@ -385,7 +400,7 @@ export function useSortUischema(): ControlElement {
  * query-core fix the 2026-09-08 ruling withdraws.
  */
 export const UNPAID_EXISTENCE_CRITERIA: InvoiceQueryModel = {
-  filters: { "status.code": { in: InvoiceStatusGroups.UNPAID } },
+  filters: { "status.code": InvoiceStatusGroups.UNPAID },
   pagination: { limit: 1 }
 };
 
@@ -401,11 +416,11 @@ export const UNPAID_EXISTENCE_CRITERIA: InvoiceQueryModel = {
 export function consolidatableCriteria(clientId?: string): InvoiceQueryModel {
   return {
     filters: {
-      "status.code": { in: InvoiceStatusGroups.UNPAID },
-      is_consolidation: { eq: false },
-      "category.slug": { in: [InvoiceCategoryCode.RECURRENT] },
-      client_id: { eq: clientId },
-      paid_amount: { eq: 0 }
+      "status.code": InvoiceStatusGroups.UNPAID,
+      is_consolidation: false,
+      "category.slug": [InvoiceCategoryCode.RECURRENT],
+      client_id: clientId,
+      paid_amount: 0
     }
   };
 }
@@ -436,13 +451,11 @@ export function consolidatableCountCriteria(
 export function creditNotesCriteria(invoiceId?: string): InvoiceQueryModel {
   return {
     filters: {
-      "category.slug": {
-        in: [
-          InvoiceCategoryCode.CREDIT_NOTE,
-          InvoiceCategoryCode.CREDIT_NOTE_FOR_REFUND
-        ]
-      },
-      ...(invoiceId ? { credit_invoice_id: { eq: invoiceId } } : {})
+      "category.slug": [
+        InvoiceCategoryCode.CREDIT_NOTE,
+        InvoiceCategoryCode.CREDIT_NOTE_FOR_REFUND
+      ],
+      ...(invoiceId ? { credit_invoice_id: invoiceId } : {})
     }
   };
 }

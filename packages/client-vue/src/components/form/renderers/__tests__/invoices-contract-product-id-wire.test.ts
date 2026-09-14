@@ -2,7 +2,7 @@
  * @module form/renderers/__tests__/invoices-contract-product-id-wire
  * @description Pins FE-3031's mid-run AC B: the invoices module's declared
  * `products.contracts_product_id` filter column reaches the wire under the
- * EXACT key the API accepts — `filter[products.contracts_product_id|eq]` —
+ * EXACT key the API accepts — `filter[products.contracts_product_id]` —
  * confirmed against the oracle's own filter usage
  * (`creditNotesTable.vue:222-225`, corrected 2026-09-09 by the planner seat;
  * cited at `docs/sdd/FE-3031/design.md:490`, corrected from the same pass),
@@ -47,7 +47,7 @@ import { get } from "lodash-es";
 const declaration = invoicesQuery();
 
 const COLUMN = "products.contracts_product_id";
-const WIRE_KEY = "filter[products.contracts_product_id|eq]";
+const WIRE_KEY = "filter[products.contracts_product_id]";
 
 describe("the invoices module's published schema declares products.contracts_product_id", () => {
   it("the column is declared under filters, so additionalProperties:false cannot silently strip it", () => {
@@ -62,8 +62,8 @@ describe("the invoices module's published schema declares products.contracts_pro
 });
 
 describe("scoping by product reaches the wire under the API's own key (AC B)", () => {
-  it("setting products.contracts_product_id|eq on the model reaches the wire as filter[products.contracts_product_id|eq], post-translateQuery", () => {
-    const model = { filters: { [COLUMN]: { eq: "product-scope-001" } } };
+  it("setting products.contracts_product_id on the model reaches the wire as filter[products.contracts_product_id], post-translateQuery", () => {
+    const model = { filters: { [COLUMN]: "product-scope-001" } };
 
     const wire = get(translateQuery(declaration.schema, model), "filters") as
       | Record<string, string>

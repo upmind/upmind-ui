@@ -167,7 +167,7 @@ describe("invoices — consolidatableCount coexists with the client's own list (
       .find(request => isDedicatedCount(request.url));
     expect(dedicated).toBeDefined();
     expect(decodeURIComponent(dedicated!.url)).toContain(
-      `filter[client_id|eq]=${OTHER_CLIENT_ID}`
+      `filter[client_id]=${OTHER_CLIENT_ID}`
     );
     assertClientIdentityTransport(dedicated!, accessToken);
 

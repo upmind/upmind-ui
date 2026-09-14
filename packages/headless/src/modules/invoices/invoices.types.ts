@@ -193,45 +193,45 @@ export const INVOICE_DEFAULT_SORT: InvoiceSortEntry[] = [
 export type InvoiceQueryModel = {
   filters?: {
     /** URL-only: no bar control. */
-    id?: { eq?: string };
+    id?: string;
     /** Drawn as a search-shaped control. */
-    number?: { eq?: string };
+    number?: string;
     /**
      * Widened to admit {@link CreditNoteStatus} for AC7 (`design.md` "Filter
      * columns"). Reuses `InvoiceStatusGroups` triples — never re-declared
      * here.
      */
-    "status.code"?: {
-      eq?: InvoiceStatus | CreditNoteStatus;
-      in?: (InvoiceStatus | CreditNoteStatus)[];
-    };
+    "status.code"?:
+      | InvoiceStatus
+      | CreditNoteStatus
+      | (InvoiceStatus | CreditNoteStatus)[];
     /** Set by the scope context (AC12), not drawn in the bar. */
-    client_id?: { eq?: string };
+    client_id?: string;
     /** Tri-state — `null` is a member, not an absence. */
-    is_consolidation?: { eq?: boolean | null };
+    is_consolidation?: boolean | null;
     /** The credit-notes preset filters on this (AC7). */
-    "category.slug"?: { eq?: InvoiceCategoryCode; in?: InvoiceCategoryCode[] };
+    "category.slug"?: InvoiceCategoryCode | InvoiceCategoryCode[];
     /** Set when scoping to one invoice's credit notes (AC7); not drawn. */
-    credit_invoice_id?: { eq?: string };
+    credit_invoice_id?: string;
     /** Used by the consolidatable preset (AC2); not drawn. */
-    paid_amount?: { eq?: number };
-    total_amount?: { eq?: number };
-    net_amount?: { eq?: number };
+    paid_amount?: number;
+    total_amount?: number;
+    net_amount?: number;
     /** URL-only: no bar control. */
-    total_discount_amount?: { eq?: number };
+    total_discount_amount?: number;
     create_datetime?: { eq?: string; gte?: string; lte?: string };
     due_date?: { eq?: string; gte?: string; lte?: string };
     /** Tri-state; URL-only. */
-    proforma?: { eq?: boolean | null };
+    proforma?: boolean | null;
     /**
      * Declared for parity, deliberately undrawn for a client bar — filterable
      * by URL and absent from the bar (`design.md` "Filter columns").
      */
-    fraud_status?: { in?: number[] };
+    fraud_status?: number | number[];
     /** Set when scoping to one contract; not drawn. */
-    "contracts.id"?: { eq?: string };
+    "contracts.id"?: string;
     /** Set when scoping to one product; not drawn. */
-    "products.contracts_product_id"?: { eq?: string };
+    "products.contracts_product_id"?: string;
   };
   sort?: InvoiceSortEntry[];
   /**

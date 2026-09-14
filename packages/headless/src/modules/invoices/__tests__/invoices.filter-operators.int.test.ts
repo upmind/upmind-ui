@@ -1,29 +1,32 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview invoices collection — the vocabulary columns admit `eq`, not
- * only `in` (AC-2, the criteria law)
+ * @fileoverview invoices collection — filters reach the wire as BARE keys
+ * (AC-2, the criteria law)
  *
  * ## Job To Be Done
- * Prove `status.code` and `category.slug` reach the wire under BOTH declared
- * operators. The query schema carries `additionalProperties: false` at every
- * level, so an operator the schema does not name is unspellable and
- * `setCriteria` strips it SILENTLY — no ajv error, no rejected promise. A
- * caller narrowing to one status therefore had to spell a one-member `in`,
- * and a plain `eq` disappeared between the model and the request.
+ * Pin the wire SPELLING of this module's filter columns: `filter[status.code]`,
+ * not `filter[status.code|in]`. The platform rejects the suffixed form with a
+ * 422, and the legacy app (`invoicesProvider.vue`, `getConsolidatableTotal`)
+ * has always sent the bare form — one value or a comma-separated list, both
+ * under the same key.
+ *
+ * `translateQuery` decides this off the SCHEMA, not the model: a filter branch
+ * declaring operator sub-properties emits `filter[column|operator]`, and one
+ * declaring none emits `filter[column]`. So these cases guard a schema shape,
+ * and they fail the moment a column re-grows an operator bag.
  *
  * Asserted post-`translateQuery`, on the OUTBOUND request — the discipline
  * `review-notes.md` records for this module after three cycles of gates that
  * graded the model and passed over a broken capability.
  *
  * ## What Breaks If These Fail
- * A single-status or single-category narrowing silently returns the unfiltered
- * collection: the request goes out without the filter and the page draws every
- * invoice as though the caller had asked for them.
+ * Every list read 422s. The page draws no invoices at all, and the dedicated
+ * count reads behind the unpaid and consolidatable notices silently report 0.
  */
 
 import { describe, expect, it } from "vitest";
-import { InvoiceStatus, InvoiceCategoryCode } from "@upmind-automation/types";
-import { filter, includes, map } from "lodash-es";
+import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
+import { filter, includes, map, some } from "lodash-es";
 import { useInvoices } from "..";
 import {
   installInvoiceHandlers,
@@ -36,68 +39,77 @@ import "./setup.integration";
 
 const settle = () => new Promise(resolve => setTimeout(resolve, 1200));
 
-describe("invoices collection — vocabulary columns admit eq as well as in", () => {
-  it("AC-2 a single status narrows the wire under filter[status.code|eq]", async () => {
-    await seedClientSession();
-    installInvoiceHandlers();
-    const list = useInvoices().as("self");
-    await list.useActions().isReady();
+/** Every outbound invoices URL, decoded, since the observer was opened. */
+async function wireAfter(write: () => void): Promise<string[]> {
+  await seedClientSession();
+  installInvoiceHandlers();
+  const list = useInvoices().as("self");
+  await list.useActions().isReady();
 
-    const observed = observeInvoiceRequests();
-    list.useActions().filterBy({ "status.code": { eq: InvoiceStatus.PAID } });
-    await settle();
-    observed.stop();
+  const observed = observeInvoiceRequests();
+  write.call(list);
+  await settle();
+  observed.stop();
 
-    const urls = map(observed.all(), request => decodeURIComponent(request.url));
-    expect(
-      filter(urls, url =>
-        includes(url, `filter[status.code|eq]=${InvoiceStatus.PAID}`)
-      )
-    ).not.toHaveLength(0);
-  });
+  return map(observed.all(), request => decodeURIComponent(request.url));
+}
 
-  it("AC-2 a single category narrows the wire under filter[category.slug|eq]", async () => {
-    await seedClientSession();
-    installInvoiceHandlers();
-    const list = useInvoices().as("self");
-    await list.useActions().isReady();
-
-    const observed = observeInvoiceRequests();
-    list
-      .useActions()
-      .filterBy({ "category.slug": { eq: InvoiceCategoryCode.RECURRENT } });
-    await settle();
-    observed.stop();
-
-    const urls = map(observed.all(), request => decodeURIComponent(request.url));
-    expect(
-      filter(urls, url =>
-        includes(url, `filter[category.slug|eq]=${InvoiceCategoryCode.RECURRENT}`)
-      )
-    ).not.toHaveLength(0);
-  });
-
-  it("AC-2 `in` still reaches the wire — `eq` is an addition, not a replacement", async () => {
-    await seedClientSession();
-    installInvoiceHandlers();
-    const list = useInvoices().as("self");
-    await list.useActions().isReady();
-
-    const observed = observeInvoiceRequests();
-    list.useActions().filterBy({
-      "status.code": { in: [InvoiceStatus.UNPAID, InvoiceStatus.OVERDUE] }
+describe("invoices collection — filters reach the wire as bare keys", () => {
+  it("AC-2 one status spells filter[status.code], never filter[status.code|eq]", async () => {
+    const urls = await wireAfter(function (this: ReturnType<typeof useInvoices>) {
+      this.useActions().filterBy({ "status.code": InvoiceStatus.PAID });
     });
-    await settle();
-    observed.stop();
 
-    const urls = map(observed.all(), request => decodeURIComponent(request.url));
+    expect(
+      filter(urls, url =>
+        includes(url, `filter[status.code]=${InvoiceStatus.PAID}`)
+      )
+    ).not.toHaveLength(0);
+    expect(some(urls, url => includes(url, "filter[status.code|"))).toBe(false);
+  });
+
+  it("AC-2 several statuses ride ONE bare key as a comma list, never filter[status.code|in]", async () => {
+    const urls = await wireAfter(function (this: ReturnType<typeof useInvoices>) {
+      this.useActions().filterBy({
+        "status.code": [InvoiceStatus.UNPAID, InvoiceStatus.OVERDUE]
+      });
+    });
+
     expect(
       filter(urls, url =>
         includes(
           url,
-          `filter[status.code|in]=${InvoiceStatus.UNPAID},${InvoiceStatus.OVERDUE}`
+          `filter[status.code]=${InvoiceStatus.UNPAID},${InvoiceStatus.OVERDUE}`
         )
       )
     ).not.toHaveLength(0);
+    expect(some(urls, url => includes(url, "filter[status.code|"))).toBe(false);
+  });
+
+  it("AC-2 the category column spells the same way", async () => {
+    const urls = await wireAfter(function (this: ReturnType<typeof useInvoices>) {
+      this.useActions().filterBy({
+        "category.slug": InvoiceCategoryCode.RECURRENT
+      });
+    });
+
+    expect(
+      filter(urls, url =>
+        includes(url, `filter[category.slug]=${InvoiceCategoryCode.RECURRENT}`)
+      )
+    ).not.toHaveLength(0);
+    expect(some(urls, url => includes(url, "filter[category.slug|"))).toBe(
+      false
+    );
+  });
+
+  it("AC-2 NO invoices request carries a suffixed filter key at all", async () => {
+    // The whole-request sweep the per-column cases cannot make: a column this
+    // file does not name re-growing an operator bag is the same 422.
+    const urls = await wireAfter(function (this: ReturnType<typeof useInvoices>) {
+      this.useActions().filterConsolidatable();
+    });
+
+    expect(filter(urls, url => /filter\[[^\]]+\|/.test(url))).toEqual([]);
   });
 });
