@@ -314,3 +314,135 @@ Feature: Guest is a session like any other
     When that session signs out
     Then I am taken off that brand
     And the guest that remains does not count as belonging to it
+
+  # ===========================================================================
+  # DELEGATED ACCESS (FE-3036)
+  #
+  # Reading what ANOTHER client has shared with this one. The granting side —
+  # invite, accept, revoke — is NOT here: it belongs to the `delegates` module
+  # and its own feature. This section covers only what the session reports about
+  # access it already holds.
+  #
+  # BLOCKED scenarios below are tagged `@todo` and are blocked on ONE thing: a
+  # recorded `/self` carrying a populated `delegated_ids` for the relevant key.
+  # The `client` key now HAS such a recording (`delegates` module fixtures,
+  # captured through the real invite/accept cycle). The `contracts_product` and
+  # `ticket` keys still do not — those grants need the owner to hold a product
+  # or ticket to delegate, which rides FE-3041 (DG-2).
+  #
+  # They are NOT to be closed by hand-authoring a payload. Test data comes from
+  # recordings.
+  # ===========================================================================
+
+  # === THE MAP ON THE SESSION ================================================
+
+  @AC-DG1 @layer-integration
+  Scenario: A client with no delegated access reads an empty map
+    Given I am signed in as a client who has been granted no delegated access
+    When I read my delegated ids
+    Then the delegated ids are an empty map
+
+  @AC-DG1 @layer-integration @todo
+  Scenario: A client granted access to another client reads that id under the client key
+    Given I am signed in as a client who has been granted access to another client
+    When I read my delegated ids
+    Then the other client's id appears under the client key
+
+  @AC-DG1 @layer-integration @todo
+  Scenario: A client granted a delegated product reads that id under the contract-product key
+    Given I am signed in as a client who has been granted access to one contract product
+    When I read my delegated ids
+    Then the product's id appears under the contract-product key
+
+  # === PER-RECORD: WAS THIS DELEGATED TO ME ==================================
+
+  @AC-DG2 @layer-integration @todo
+  Scenario: A record the server flagged as delegated is reported as delegated
+    Given an invoice the server has flagged as reaching me by delegation
+    When I ask whether that invoice was delegated to me
+    Then the invoice is reported as delegated
+
+  @AC-DG2 @layer-unit @todo
+  Scenario: An invoice belonging to a child account is not reported as delegated
+    Given an invoice whose delegation flag is set
+    And the invoice belongs to a child account of mine
+    When I ask whether that invoice was delegated to me
+    Then the invoice is reported as not delegated
+
+  @AC-DG2 @layer-unit @todo
+  Scenario: A delegated contract product belonging to a child account is still delegated
+    Given a contract product whose delegation flag is set
+    And the contract product belongs to a child account of mine
+    When I ask whether that contract product was delegated to me
+    Then the contract product is reported as delegated
+
+  # === PER-RECORD: WHOSE IS IT ===============================================
+
+  @AC-DG3 @layer-integration @todo
+  Scenario: The owning client of a delegated record is resolved from the record
+    Given an invoice that reached me by delegation
+    When I ask who owns that invoice
+    Then I receive the owning client's display name, username and avatar
+
+  @AC-DG3 @layer-unit @todo
+  Scenario: A record with no owning client attached resolves to no owner
+    Given a delegated contract product with no owning client attached
+    When I ask who owns that contract product
+    Then no owner is reported
+
+  # === REFRESH ===============================================================
+
+  @AC-DG4 @layer-integration
+  Scenario: Refreshing the session re-reads the identity profile rather than the day-old cache
+    Given I am signed in as a client whose identity profile has been read once
+    When I refresh my session
+    Then a second identity-profile request is made as that same client
+
+  @AC-DG4 @layer-integration @todo
+  Scenario: Refreshing after a new grant surfaces the newly delegated id
+    Given I am signed in as a client who has just been granted access to another client
+    When I refresh my session
+    Then the newly granted client id appears under the client key
+
+  # === THE OTHER ACTORS ======================================================
+
+  @AC-DG5 @layer-integration
+  Scenario: A staff session neither asks for nor exposes delegated access
+    Given I am signed in as a member of staff
+    When the staff session reads its identity profile
+    Then the identity-profile request does not ask for delegated access
+    And the staff session's delegated ids are an empty map
+
+  @AC-DG6 @layer-integration
+  Scenario: A guest boots unaffected by the delegate surface
+    Given I have not signed in
+    When the store settles on the guest floor
+    Then the guest has no session user
+    And the guest's delegated ids are an empty map
+
+  # === DO I HOLD DELEGATED ACCESS AT ALL =====================================
+
+  @AC-DG7 @layer-integration
+  Scenario: A client whose identity carries no delegated ids does not hold delegated access
+    Given I am signed in as a client whose identity response carries no delegated ids
+    When I read whether I hold delegated access
+    Then the delegated-access flag reads false
+
+  @AC-DG7 @layer-integration @todo
+  Scenario: A client holding delegated contract products or delegated clients holds delegated access
+    Given I am signed in as a client who has been granted access to a contract product or to another client
+    When I read whether I hold delegated access
+    Then the delegated-access flag reads true
+
+  @AC-DG8 @layer-integration @todo
+  Scenario: A client holding only a delegated ticket does not hold delegated access
+    Given I am signed in as a client who has been granted access to a ticket only
+    When I read whether I hold delegated access
+    Then the delegated-access flag reads false
+
+  @AC-DG9 @layer-integration @todo
+  Scenario: A session stored before delegated access existed reads false rather than failing
+    Given I am signed in as a client whose stored session profile predates the delegated-ids field
+    When I read whether I hold delegated access
+    Then the delegated-access flag reads false
+    And no read of the flag fails

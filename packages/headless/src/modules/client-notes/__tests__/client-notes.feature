@@ -173,7 +173,7 @@ Feature: A client keeps notes and secrets in their own vault
   @AC-6 @collection
   Scenario: Read my vault a page at a time
     Given my vault holds more assets than fit on one page
-    When I open my vault
+    When I open my vault a page at a time
     Then I am given the first page of my assets and told how many I have in total
     And I can move to the next page and back again
     And I can ask for a larger or smaller page

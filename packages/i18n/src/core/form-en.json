@@ -407,5 +407,40 @@
     "true": "Secrets",
     "false": "Notes",
     "null": "All"
+  },
+  "invoice_consolidation_enabled": {
+    "description": "Here you can control whether or not you'd like to consolidate renewal invoices for your recurring services. If enabled, we'll group your renewals into one invoice where possible, reducing the number of payments you'll need to make.",
+    "label": "Invoice consolidation",
+    "placeholder": null
+  },
+  "invoice_consolidation_base_rule": {
+    "description": null,
+    "label": "Consolidate on",
+    "placeholder": null
+  },
+  "invoice_consolidation_base_rule_day_of_week": {
+    "description": null,
+    "label": "Specific day of the week",
+    "placeholder": null
+  },
+  "invoice_consolidation_base_rule_date_of_month_day": {
+    "description": null,
+    "label": "Specific day of the month",
+    "placeholder": null
+  },
+  "invoice_consolidation_due_date_day": {
+    "description": "By default, consolidated invoices are due on the earliest due date within the batch.",
+    "label": "Consolidation invoice due date day",
+    "placeholder": null
+  },
+  "currency_id": {
+    "description": null,
+    "label": "Preferred currency",
+    "placeholder": null
+  },
+  "preferred_payment_currency_id": {
+    "description": null,
+    "label": "Preferred payment currency",
+    "placeholder": null
   }
 }

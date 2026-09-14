@@ -18,6 +18,7 @@
 import { computed } from "vue";
 import { useQuery, invalidateQueryByKey } from "../query";
 import { ScopeActorTypes } from "../scope";
+import { useQuerySchema } from "./module.schemas";
 import { useActiveSession } from "../session-store";
 import {
   mapModuleItem,
@@ -40,6 +41,7 @@ import {
 import { isEmpty, omitBy } from "lodash-es";
 import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
+import type { QueryModel } from "./module.types";
 import type {
   ModuleContext,
   ModuleItem,
@@ -123,8 +125,15 @@ function loadList(
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<ModuleWireItem[], ModuleItem[]>({
+  return list<ModuleWireItem[], ModuleItem[], QueryModel>({
     ...params,
+    // THE criteria channel. The module's query schema owns ALL request state —
+    // filters, sort, pagination, limit — and `list()` builds the wire params
+    // from it. Nothing else may reach the wire: a hand-rolled filter ref, a
+    // `filter[...]` string or a raw sort/limit literal beside this line is the
+    // criteria-subversion defect (door SKILL.md). Deleting this line strips the
+    // module's whole filter/sort/page surface and the page that renders off it.
+    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId.value }],
     url: useUrl(`clients/${clientId.value}/module-items`),
     // `enabled:` below only stops the query starting; this rejects a `refetch()`

@@ -1,0 +1,27 @@
+# Negative-control mutant — delegates accept
+#
+# AC it must flip:   AC-DL9
+# Test that goes red: delegates.accept.int.test.ts >
+#   "AC-DL9 turns the outstanding grant on the owner's account into an active one"
+# Mutation: mapDelegate stops mapping the wire `active` flag onto `isAccepted`
+#   (hardcoded false), so an ACCEPTED grant reads as not accepted — acceptance
+#   never lands. Note: hardcoding `true` would flip AC-DL4 (pending reads accepted),
+#   NOT AC-DL9; AC-DL9 asserts the accepted case, so the mutant drops `active` to false.
+# Collateral: AC-DL1 (delegates.read.int.test.ts) also anchors to this same
+#   `active -> isAccepted` line and goes red too — both tests guard one mapping.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/delegates/delegates.mappers.ts b/packages/headless/src/modules/delegates/delegates.mappers.ts
+index 6dfdc7cad..6975d9e9d 100644
+--- a/packages/headless/src/modules/delegates/delegates.mappers.ts
++++ b/packages/headless/src/modules/delegates/delegates.mappers.ts
+@@ -28,7 +28,7 @@ export function mapDelegate(raw: IClientDelegate): Delegate {
+     publicName: raw.public_name,
+     imageUrl: raw.image_url,
+     isFullDelegate: !!raw.is_full_delegate,
+-    isAccepted: !!raw.active,
++    isAccepted: false,
+     delegatedProductCount: raw.num_delegated_cps,
+     delegatedTicketCount: raw.num_delegated_tickets
+   };

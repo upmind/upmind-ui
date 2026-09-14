@@ -33,9 +33,12 @@ import {
 } from "lodash-es";
 import type {
   AuthEventType,
+  DelegatableRecord,
+  DelegatedRecordOwner,
   PersistedSessionState,
   SessionEntry,
   SessionState,
+  SessionUser,
   Token
 } from "./session-store.types";
 import type { ScopeContext } from "../scope/scope.types";
@@ -202,6 +205,57 @@ export function findNextSession(): {
   }
 
   return { actor: AccessRoleTypes.GUEST };
+}
+
+// -----------------------------------------------------------------------------
+// Delegate Helpers
+
+/**
+ * Whether a record is currently delegated to the active client.
+ *
+ * Per-object-type, oracle-faithful: invoices/orders apply the child-account
+ * exclusion first (`vue-app src/store/modules/data/invoices/index.ts:143-146`),
+ * contract products and tickets read the bare flag with no exclusion
+ * (`cProdProvider.vue:190`, `ticketProvider.ts:161`).
+ */
+export function isDelegated(record: DelegatableRecord): boolean {
+  if ("delegate_related" in record) {
+    if (record.client?.parent_client_config?.parent_client_id) return false;
+    return !!record.delegate_related;
+  }
+
+  return !!record.is_delegated_object;
+}
+
+/**
+ * @decision
+ * what:     `getOwnerForDelegatedRecord` keeps a `_delegatedIds` parameter it
+ *           never reads.
+ * why:      The story's AC names the two-argument signature, and the operator
+ *           settled on keeping it (factory Plan dispatch, clause 5) so
+ *           consumers written against the AC text compile. The map holds
+ *           object-type → object-id and carries no owner identity, so the
+ *           parameter cannot contribute to the answer; the oracle reads the
+ *           record's own embedded client at every owner site
+ *           (`invoiceDelegateTooltip.vue:4-8,48-50`).
+ * rejected: Dropping the parameter (departs from the AC's named signature and
+ *           the operator's settled decision). Deriving the owner from the map
+ *           (impossible — no owner identity is in it). Returning the client
+ *           id only (the oracle displays name, username and avatar too).
+ */
+export function getOwnerForDelegatedRecord(
+  record: DelegatableRecord,
+  _delegatedIds?: SessionUser["delegatedIds"]
+): DelegatedRecordOwner | undefined {
+  const client = record.client;
+  if (!client) return undefined;
+
+  return {
+    id: client.id,
+    publicName: client.public_name,
+    username: client.username,
+    imageUrl: client.image_url
+  };
 }
 
 export function getTokenFromStorage(actor_type?: Token["actor_type"]) {

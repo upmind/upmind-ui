@@ -93,7 +93,7 @@ Feature: A client reads and manages their invoices
   given row actually is.
 
   Background:
-    Given I am an authenticated client
+    Given I am an authenticated client reading my invoices
 
   # === THE COLLECTION — READING MY OWN INVOICES (client×self) ===============
 

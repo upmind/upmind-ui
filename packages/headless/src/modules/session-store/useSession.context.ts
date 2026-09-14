@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import { useSessionStore } from ".";
 // -----------------------------------------------------------------------------
 /**
@@ -22,6 +23,13 @@ export function createSessionContext(_sessionId?: string) {
 
     /** The resolved actor type for this scope. */
     actor: storeCtx.activeActor,
+
+    /**
+     * Object ids delegated to this session's client, keyed by object type.
+     * `{}` for staff and guest, and for a session persisted before the field
+     * existed (see the `@decision` on `hasDelegatedProducts`).
+     */
+    delegatedIds: computed(() => storeCtx.activeUser.value?.delegatedIds ?? {}),
 
     /** Computed expiration timestamp for this scope's session (Unix epoch in ms). */
     expiresAt: storeCtx.expiresAt,

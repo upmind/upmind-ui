@@ -1,0 +1,25 @@
+# Negative-control mutant — delegates delegated-access
+#
+# AC it must flip:   AC-DL11
+# Test that goes red: delegates.delegated-access.int.test.ts >
+#   "AC-DL11 carries delegated access to the account whose invitation was accepted"
+# Mutation: mapSessionUser (session-store) drops the `delegated_ids` mapping and
+#   always returns `{}`, so a delegated client's identity reports no delegated
+#   access — the granted access is invisible from the invitee's side.
+# Note: AC-DL12 (no delegated access) stays green — its recorded `delegated_ids`
+#   is null, which maps to `{}` either way.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/session-store/session-store.mappers.ts b/packages/headless/src/modules/session-store/session-store.mappers.ts
+index da8c9a3b9..9c75aa77f 100644
+--- a/packages/headless/src/modules/session-store/session-store.mappers.ts
++++ b/packages/headless/src/modules/session-store/session-store.mappers.ts
+@@ -95,6 +95,6 @@ export function mapSessionUser(
+     brands: self.brands,
+     // ?? {} defends against the wire's only recorded case (`null`), even
+     // though ISelf.delegated_ids is typed non-nullable — never remove this.
+-    delegatedIds: self.delegated_ids ?? {}
++    delegatedIds: {}
+   };
+ }

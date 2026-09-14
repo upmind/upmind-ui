@@ -1,0 +1,37 @@
+# Negative-control mutant — delegates read (FE-2824 shape)
+#
+# AC it must flip:   AC-DL5
+# Test that goes red: delegates.read.int.test.ts >
+#   "AC-DL5 reads the account it was NAMED, not the account the caller is signed in as"
+# Mutation: readClientDelegates ignores its `clientId` argument and hardwires the
+#   session's own client id (activeUser.id) into the query key and request URL —
+#   the FE-2824 defect: a service that silently reads "me" instead of the named target.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/delegates/delegates.services.ts b/packages/headless/src/modules/delegates/delegates.services.ts
+index 8a19a5c39..8479da326 100644
+--- a/packages/headless/src/modules/delegates/delegates.services.ts
++++ b/packages/headless/src/modules/delegates/delegates.services.ts
+@@ -1,5 +1,6 @@
+ /** @internal */
+ import { useQuery } from "../query";
++import { useActiveSession } from "../session-store";
+ import {
+   mapDelegate,
+   mapDelegateInvite,
+@@ -51,10 +52,12 @@ export async function readClientDelegates(
+   clientId: string
+ ): Promise<Delegate[]> {
+   const { get, useUrl } = useQuery();
++  const { activeUser } = useActiveSession().useContext();
++  const sessionClientId = activeUser.value?.id ?? clientId;
+ 
+   return get<IClientDelegate[], Delegate[]>({
+-    queryKey: [...queryKey, clientId],
+-    url: useUrl(`clients/${clientId}/delegates`),
++    queryKey: [...queryKey, sessionClientId],
++    url: useUrl(`clients/${sessionClientId}/delegates`),
+     withAccessToken: true,
+     select: mapDelegates,
+     staleTime: 0

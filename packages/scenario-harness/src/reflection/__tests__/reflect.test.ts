@@ -218,3 +218,71 @@ describe("@AC-2 reflect — pure, stateless reflection", () => {
     expect(roundTripped).toStrictEqual(descriptor);
   });
 });
+
+// -----------------------------------------------------------------------------
+/**
+ * The alias case — distinct from the self-reference case above, and the
+ * defect that made a live Form-Flow module render as an Action-panel.
+ *
+ * A `dataManagerMachine`-backed four-layer context publishes the SAME object
+ * twice: the whole machine context as `context`, and its `model` / `schema`
+ * members as siblings. That is an alias, not a cycle; dropping the siblings
+ * loses exactly the two signals `classify` reads.
+ */
+describe("reflect — aliased references are kept, cycles are still dropped", () => {
+  const aliasedSchema = {
+    type: OBJECT_SCHEMA_TYPE,
+    properties: { enabled: { type: "number" } }
+  };
+  const aliasedModel = { enabled: 1 };
+
+  /** The exact shape a data-manager context layer publishes. */
+  function aliasedContext(): Record<string, unknown> {
+    return {
+      // Declared FIRST, as every module's context layer declares it.
+      context: { schema: aliasedSchema, model: aliasedModel, title: "Editor" },
+      schema: aliasedSchema,
+      model: aliasedModel
+    };
+  }
+
+  it("keeps a sibling that aliases an object already reached under an earlier key", () => {
+    const { port } = buildGuardedPort({
+      actions: [],
+      context: aliasedContext(),
+      meta: {}
+    });
+
+    const { snapshot } = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
+
+    expect(snapshot.context.schema).toStrictEqual(aliasedSchema);
+    expect(snapshot.context.model).toStrictEqual(aliasedModel);
+  });
+
+  it("classifies such a context as Form-Flow, never the Action-panel fallback", () => {
+    const { port } = buildGuardedPort({
+      actions: [],
+      context: aliasedContext(),
+      meta: {}
+    });
+
+    const { archetype } = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
+
+    expect(archetype.signals.hasRealSchema).toBe(true);
+    expect(archetype.signals.hasModel).toBe(true);
+    expect(archetype.archetype).toBe(ARCHETYPE.FORM_FLOW);
+  });
+
+  it("keeps the same reference repeated across two array entries", () => {
+    const shared = { id: "shared" };
+    const { port } = buildGuardedPort({
+      actions: [],
+      context: { rows: [shared, shared] },
+      meta: {}
+    });
+
+    const { snapshot } = reflect(FIXTURE_KEY.SWITCH, SCOPE_ACTOR.CLIENT, port);
+
+    expect(snapshot.context.rows).toStrictEqual([shared, shared]);
+  });
+});

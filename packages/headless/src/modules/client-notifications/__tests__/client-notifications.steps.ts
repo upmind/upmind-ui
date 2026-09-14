@@ -8,48 +8,43 @@
  *
  * WHAT THIS CATALOG DRIVES: the COLLECTION, read through the port. `boot` boots
  * the declaration's `useList` (the read-only grid), so every handler fires a
- * live collection action and asserts the collection's own published meta
- * (`isAvailable`/`hasError`/`isServed`) or context (`topics`/`channels`) — the
+ * live collection action (`isReady`) and asserts the collection's own published
+ * meta (`isAvailable`/`hasError`) or context (`topics`/`channels`) — the
  * members `collection.int.test.ts` reads back. Assertions are pinned to the
  * corpus's STRUCTURE (the six topics, the two client channels, the one locked
  * topic `System`), never to a specific opt-out row: the QA account's live
  * opt-outs drift, so a structural read-back is the fact that holds under both
  * the recorded replay and a live session.
  *
- * WHY THE EDITOR IS ABSENT FROM THIS CATALOG — the seam offers no write door.
- * The playground world boots ONE port (`entry.useList ?? entry.useMutate`), and
- * this module's `useList` is the read-only collection, so the only fireable
- * action ids are the collection's own. Verified in the browser against the live
- * page (2026-09-10): `fire("refresh")` advances the scene, while
- * `fire("manage")` and `fire("editRow")` each fail it with
- * `scenario world: unknown action "<id>"` — the declaration's handoff ids are
- * NOT addressable through `World.fire`, and `World` (`world.types.ts`) exposes
- * no other way to reach them. The archetype `client-email` drives its writes
- * because `ensure`/`remove`/`verify`/`setDefault` are members of the collection
- * it boots; this module's equivalent verbs live on the manager, which the world
- * never boots.
+ * ADR-020 Amendment 5 (operator ruling 2026-09-12) — "tests are tests,
+ * scenarios are scenarios; not every test is a replayable scenario." A scenario
+ * earns step definitions ONLY when a real step drives every line of it against
+ * the composable this key BOOTS. The seam offers no write door — the world
+ * boots ONE port (`entry.useList ?? entry.useMutate`), and this module's
+ * `useList` is the read-only collection, so the only fireable action id is the
+ * collection's own `isReady`. `manage` / `editRow` are the declaration's STAGE
+ * handoff ids, NOT `World.fire`-addressable actions (a `fire("manage")` fails
+ * with `unknown action`), and `isServed` is the playground PORT's own
+ * `UNSERVED_META`, NOT a member of the composable's `useMeta()`. So:
  *
- * So every editor capability — the per-pair edit and save (`AC-3`), the
- * locked-topic refusal on all five of its doors (`AC-6`/`AC-14`), the
- * whole-topic bulk toggle and its sentinel (`AC-4`), the dirty/clean flags and
- * pointless-save refusal (`AC-5`), the swallowed-failure and retry paths
- * (`AC-7`), `revert`, the emailed-link write and transport (`AC-8`/`AC-18`) and
- * the late-session sequencing (`AC-16`) — is proven at the manager's own
- * integration layer (`client-notifications.manager.*.int.test.ts`,
- * `*.token*.int.test.ts`) and is deliberately left unmatched here. Matching one
- * of those sentences with a read-only probe would be a lying step; matching it
- * with a handoff id the world does not know produces a track that reads as
- * playable in the menu and dies on play.
+ *   - the whole EDITOR (AC-3/4/5/6-guard/7/8/14/16 and every post-save family)
+ *     is proven at the manager's own integration layer
+ *     (`client-notifications.manager.*.int.test.ts`, `*.token*.int.test.ts`)
+ *     and carries NO step here — matching one of those sentences with a
+ *     read-only probe would be a lying step, and matching it with a handoff id
+ *     the world cannot reach produces a track that reads as playable and dies
+ *     on play;
+ *   - the denial cells (AC-13) are proven off the port's `isServed`, which the
+ *     collection does not publish, so they carry no step here either.
  *
- * THE MATCHED SET IS THE PLAYLIST, so this catalog is deliberately CLOSED. The
- * playground derives its scenario menu from this feature by matching step TEXT
- * against this catalog with no per-scenario scoping: a scenario with no
- * matching step leaves the menu, and one with only some becomes a greyed-out,
- * unplayable track. The catalog is therefore exactly the union of the SIX
- * capability scenarios this seam drives end to end, and nothing more. Defining
- * one more step — even a harmless-looking shared precondition — resurrects
- * every variant family that shares it as a greyed-out track, which is why
- * those families' preconditions are worded uniquely in the feature.
+ * THE MATCHED SET IS THE PLAYLIST, so this catalog is deliberately CLOSED to
+ * the read scenarios the collection drives end to end. The playground derives
+ * its scenario menu from this feature by matching step TEXT against this catalog
+ * with no per-scenario scoping: a scenario with no matching step leaves the
+ * menu. Defining one more step — even a harmless-looking shared precondition —
+ * resurrects every variant family that shares it as a greyed-out, half-matched
+ * track, which is why those families' preconditions are worded uniquely in the
+ * feature.
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
@@ -72,11 +67,10 @@ export const CLIENT_NOTIFICATIONS_SCENARIO = "client_notifications";
  * collection's own read, and it is the whole set: the account-wide `manage` and
  * per-row `editRow` handoffs are not addressable through `World.fire` (see the
  * seam note in this file's header), so listing them here would declare a dead
- * step rather than a covered action.
+ * step rather than a covered action (ADR-020 Am.5).
  */
 export const CLIENT_NOTIFICATIONS_COVERED_ACTIONS = {
-  isReady: "isReady",
-  manage: "manage"
+  isReady: "isReady"
 } as const;
 
 export const coveredActionIds: readonly string[] = values(
@@ -96,30 +90,6 @@ const RECORDED = {
   lockedTopic: "System",
   optOutableTopic: "Billing"
 } as const;
-
-/**
- * The recorded ids of the ONE pair the edit track drives, and the draft key
- * that addresses it. The manager's draft is a flat boolean record keyed
- * `"<topicId>::<channelId>"`, `true` meaning enabled, so turning a channel off
- * is that key set to `false`.
- *
- * @see fixtures/get-notifications-topics.json — `Billing` is opt-outable.
- * @see fixtures/get-notifications-channels-filter-recipient-types-code-client.json
- */
-const RECORDED_PAIR = {
-  topicId: "85d085e6-9d56-2371-9ea2-18e940d42370",
-  channelId: "3825d96e-763e-d091-3dc4-174825283406"
-} as const;
-
-const RECORDED_PAIR_KEY = `${RECORDED_PAIR.topicId}::${RECORDED_PAIR.channelId}`;
-
-/**
- * The opt-outs the account already held when the edit track opened. AC-3's
- * whole-set write means a save carries EVERY prior opt-out plus the new one,
- * never a diff — so the baseline is what that assertion is made against. The
- * QA account's rows drift, so it is read live rather than named.
- */
-let priorOptOuts: { topicId: string; channelId: string }[] = [];
 
 /** Every topic the recorded grid carries, in server order — the whole set. */
 const ALL_TOPICS = [
@@ -165,7 +135,7 @@ function seesWholeGrid(world: World): Promise<void> {
 // -----------------------------------------------------------------------------
 
 export const clientNotificationsSteps = defineSteps(({ Given, When, Then }) => {
-  // --- Boots -----------------------------------------------------------------
+  // --- Boot ------------------------------------------------------------------
 
   Given(
     "I am an authenticated client managing my own notification preferences",
@@ -173,18 +143,6 @@ export const clientNotificationsSteps = defineSteps(({ Given, When, Then }) => {
       world.boot(CLIENT_NOTIFICATIONS_SCENARIO, {
         actor: ScopeActorTypes.SELF
       })
-  );
-
-  Given("I am staff", world =>
-    world.boot(CLIENT_NOTIFICATIONS_SCENARIO, {
-      actor: ScopeActorTypes.STAFF
-    })
-  );
-
-  Given("any actor reaches this module", world =>
-    world.boot(CLIENT_NOTIFICATIONS_SCENARIO, {
-      actor: ScopeActorTypes.SELF
-    })
   );
 
   // --- Read preconditions: all open the live grid ----------------------------
@@ -207,14 +165,6 @@ export const clientNotificationsSteps = defineSteps(({ Given, When, Then }) => {
   When("I wait for my notification preferences to be ready", world =>
     open(world)
   );
-
-  When(
-    "I look for a way to manage a named client's notification preferences",
-    // Staff get no cell at all; the Then reads that refusal back off the port.
-    async () => {}
-  );
-
-  When("that actor looks for an account to act on behalf of", async () => {});
 
   When("I look for a way to filter or sort the grid", async () => {});
 
@@ -284,33 +234,6 @@ export const clientNotificationsSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // --- AC-13 staff denial (isServed:false) -----------------------------------
-
-  Then("this module offers me none", world =>
-    settles(() => world.expectMeta({ isServed: false }))
-  );
-
-  Then("there is no account I can name to act on behalf of", world =>
-    settles(() => world.expectMeta({ isServed: false }))
-  );
-
-  Then(
-    "nothing in this module reads or writes preferences for anyone but the acting identity",
-    world => settles(() => world.expectMeta({ isServed: false }))
-  );
-
-  // --- AC-13 self is served; no `.for()` context is offered ------------------
-
-  Then("none is offered, on either the collection or the editor", world =>
-    settles(() => world.expectMeta({ isAvailable: true }))
-  );
-
-  Then(
-    "the only preferences reachable are those of the acting identity itself",
-    world =>
-      settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-  );
-
   // --- AC-12 nothing to filter or sort ---------------------------------------
 
   Then("the module offers me none, because the server offers none", world =>
@@ -320,66 +243,6 @@ export const clientNotificationsSteps = defineSteps(({ Given, When, Then }) => {
   Then(
     "the whole grid is always present, so there is nothing a filter would reveal",
     world => seesWholeGrid(world)
-  );
-
-  // --- AC-3 the edit door: one pair off, saved, read back off the grid -------
-  //
-  // Driven through the declaration's own `manage` handoff — the same control a
-  // hand presses ("Manage preferences"), which opens the real draft editor over
-  // the grid and submits it. The read-back is on the COLLECTION, never on the
-  // editor that made the change, so what is asserted is what a consumer reads
-  // after the save settles.
-
-  Given(
-    "my notification preferences are ready to edit and save",
-    async world => {
-      await open(world);
-      await world.expectContext(ctx => {
-        priorOptOuts = [...ctx.optOuts];
-        return true;
-      });
-    }
-  );
-
-  When("I turn one channel off for one topic and save", world =>
-    world.fire(CLIENT_NOTIFICATIONS_COVERED_ACTIONS.manage, {
-      [RECORDED_PAIR_KEY]: false
-    })
-  );
-
-  Then("that pair is off for me from then on", world =>
-    settles(() =>
-      world.expectContext(ctx =>
-        ctx.optOuts.some(
-          (row: { topicId: string; channelId: string }) =>
-            row.topicId === RECORDED_PAIR.topicId &&
-            row.channelId === RECORDED_PAIR.channelId
-        )
-      )
-    )
-  );
-
-  Then("every other opt-out I already had is still recorded", world =>
-    settles(() =>
-      world.expectContext(ctx =>
-        priorOptOuts.every(prior =>
-          ctx.optOuts.some(
-            (row: { topicId: string; channelId: string }) =>
-              row.topicId === prior.topicId && row.channelId === prior.channelId
-          )
-        )
-      )
-    )
-  );
-
-  Then("the grid I read reflects the change without my reopening it", world =>
-    settles(() =>
-      world.expectContext(
-        ctx =>
-          ctx.isEnabled(RECORDED_PAIR.topicId, RECORDED_PAIR.channelId) ===
-          false
-      )
-    )
   );
 });
 

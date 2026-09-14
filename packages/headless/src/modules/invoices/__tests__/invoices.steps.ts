@@ -93,7 +93,7 @@ async function openCollection(
 export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   // === BACKGROUND ============================================================
 
-  Given("I am an authenticated client", async world =>
+  Given("I am an authenticated client reading my invoices", async world =>
     openCollection(world, { actor: ScopeActorTypes.CLIENT })
   );
 

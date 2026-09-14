@@ -37,8 +37,11 @@ import type { ScenarioDeclaration } from "../runtime/scenario.types";
  * composable's own schemas). `CHANNELS.md`'s "Not channels" table is the whole
  * list and where each fact actually lives.
  *
- * `presentation.icon` is the ONE field neither asked nor derived: the token
- * below is a placeholder the author replaces with this module's icon name.
+ * `presentation.icon` is DERIVED like every other field (D17): a lucide name
+ * the icon map actually resolves, picked for the module's own subject. The
+ * token below is a PLACEHOLDER and a red gate — `AC-10`'s icon-resolution
+ * audit reds on it, because an unresolved name draws the fallback glyph while
+ * every count-based assertion still passes.
  *
  * @reference `playgrounds/labs-nuxt/modules/scenarios/` — the one built page,
  * read while authoring this skeleton, never a match target.
@@ -82,6 +85,8 @@ export default {
   },
   tracks: "module",
   presentation: {
+    // D17: a lucide name that RESOLVES, derived from the module's subject —
+    // never shipped as this placeholder (`AC-10` reds on it).
     icon: "icon-name",
     table: tableUischema,
     card: cardUischema,

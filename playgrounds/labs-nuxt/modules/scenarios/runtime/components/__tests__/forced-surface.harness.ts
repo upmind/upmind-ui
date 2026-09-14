@@ -54,14 +54,15 @@ import text from "@upmind-automation/i18n/core/text-en.json";
 import { reflect, SCOPE_ACTOR } from "@upmind-automation/scenario-harness";
 import { CATALOGUES } from "../../../testing/rendered";
 import { useModulePort } from "../../composables/useModulePort";
-import { answerablePresets } from "../../force/capabilities";
 import {
   armCorpusModule,
   runtimeCorpus,
   runtimeFeature
 } from "../../force/corpus";
 import { createForceHandlers } from "../../force/handlers";
+import { offeredForcedStates } from "../../force/offer";
 import { presetRefusal } from "../../force/presets";
+import { forcedStateRecipeId } from "../../force/states";
 import { ActionPlacementTypes } from "../../scenario.types";
 import { ModuleRenderer } from "../index";
 import {
@@ -76,6 +77,7 @@ import {
   isString,
   kebabCase,
   keys,
+  map,
   reject,
   toUpper,
   uniq,
@@ -87,6 +89,7 @@ import type {
   CorpusBodies,
   RecordedFixture
 } from "../../force/corpus.source.types";
+import type { ForcedState } from "../../force/states.types";
 import type { ScenarioAction, ScenarioDeclaration } from "../../scenario.types";
 import type { VueWrapper } from "@vue/test-utils";
 
@@ -246,8 +249,10 @@ const isDisabled = (control: { attributes: (name: string) => unknown }) =>
 // -----------------------------------------------------------------------------
 
 /**
- * Registers one scenario's whole preset matrix as claims about the rendered
- * page — one named test per preset the module's own recordings can answer.
+ * Registers one scenario's whole forced offer as claims about the rendered
+ * page — one named test per state the module's feature names and its own
+ * recordings answer (the picker's offer, `offeredForcedStates`), graded on the
+ * archetype it draws: rows for a list, fields and its own controls for a form.
  *
  * @param declaration the scenario the playground routes: its own composable,
  * its presentation and the `tracks` module whose recordings arm it.
@@ -276,7 +281,21 @@ export async function proveForcedSurface(
       `${module}: force loaded no corpus, so no preset can be proven on its page`
     );
 
-  const offered = answerablePresets(bodies);
+  // The offer is the PICKER's own (`offeredForcedStates`): the states the
+  // module's feature names, answerable from its recordings — never the corpus
+  // measured on its own, which offers a form an `empty` its feature never
+  // claimed (client-billing-settings, 2026-09-12).
+  const states = offeredForcedStates(feature, bodies);
+  const offered = uniq(
+    map(states, state => forcedStateRecipeId(state.recipe))
+  ) as ForcePreset[];
+  const stateFor = (preset: ForcePreset): ForcedState | undefined =>
+    find(states, state => forcedStateRecipeId(state.recipe) === preset);
+
+  // A FORM draws one record as fields, not rows: every row-count claim below
+  // is the list's, and the form is graded on what it shows and on its own
+  // controls instead.
+  const isForm = !declaration.useList && !!declaration.useMutate;
   const recorded = recordedValues(bodies);
   const refusals = writeRefusalSentences(bodies);
   const resetScopes = kit[
@@ -295,16 +314,20 @@ export async function proveForcedSurface(
     // the page never held the rows the preset had to replace.
     server.use(...createForceHandlers("replay", bodies!, feature));
 
-    const port = useModulePort(declaration.useList as never, {
-      actor: ScopeActorTypes.CLIENT,
-      offeredActors: declaration.actors
-    });
+    const port = useModulePort(
+      (declaration.useList ?? declaration.useMutate) as never,
+      {
+        actor: ScopeActorTypes.CLIENT,
+        offeredActors: declaration.actors
+      }
+    );
 
     // The page hands the refusal down only under the preset it belongs to
     // (`ScenarioPlayground.vue`); relaying it under any other would draw a mark
     // this preset never promised.
     const forcedRefusal =
       preset === "error-action" ? presetRefusal(bodies!) : undefined;
+    const forcedState = preset === "replay" ? undefined : stateFor(preset);
 
     // Re-reflected on every dependency change: a descriptor built once at mount
     // freezes the page in its boot state, so every preset renders the same
@@ -320,7 +343,8 @@ export async function proveForcedSurface(
             descriptor: descriptor.value,
             port,
             presentation: declaration.presentation,
-            forcedRefusal
+            forcedRefusal,
+            forcedState
           });
       }
     });
@@ -346,15 +370,10 @@ export async function proveForcedSurface(
       ]);
     }
 
-    // The design-system Table draws its own "no results" placeholder as a
-    // `<tr data-slot="table-empty">` INSIDE `tbody` — a real record row
-    // carries `data-slot="table-row"` — so a bare `tbody tr` count reports 1
-    // for a table showing NOTHING, exactly the sentinel this measurement
-    // must never mistake for a record.
-    const rows = () =>
-      wrapper.find("table").exists()
-        ? wrapper.findAll('tbody tr[data-slot="table-row"]').length
-        : wrapper.findAll("li").length;
+    // Rows are the RECORDS drawn — the table's data rows or the card list's
+    // items, each marked `row` — never the empty-state row the table body
+    // draws in their place, nor any `<li>` the chrome around them draws.
+    const rows = () => wrapper.findAll('[data-test-key="row"]').length;
 
     return {
       port,
@@ -402,9 +421,7 @@ export async function proveForcedSurface(
    */
   async function fireARowControl(mounted: Mounted): Promise<string[]> {
     const rowAt = (index: number) =>
-      mounted.wrapper.find("table").exists()
-        ? mounted.wrapper.findAll("tbody tr")[index]
-        : mounted.wrapper.findAll("li")[index];
+      mounted.wrapper.findAll('[data-test-key="row"]')[index];
 
     const tried: string[] = [];
 
@@ -465,10 +482,11 @@ export async function proveForcedSurface(
         armed.witness(),
         `${module} keeps recorded records on screen under an armed empty`
       ).toEqual([]);
-      expect(
-        armed.rows(),
-        `${module} draws as many rows armed empty as it does on Live`
-      ).toBeLessThan(live.rows);
+      if (!isForm)
+        expect(
+          armed.rows(),
+          `${module} draws as many rows armed empty as it does on Live`
+        ).toBeLessThan(live.rows);
       expect(
         armed.wrapper.text(),
         `${module} reports a FAILURE under an armed empty — a state with nothing in it is not a state that went wrong`
@@ -501,14 +519,45 @@ export async function proveForcedSurface(
         armed.witness(),
         `${module} draws its stale rows beside its own load error`
       ).toEqual([]);
-      expect(
-        armed.rows(),
-        `${module} keeps a full table under a read that failed`
-      ).toBeLessThan(live.rows);
+      if (!isForm)
+        expect(
+          armed.rows(),
+          `${module} keeps a full table under a read that failed`
+        ).toBeLessThan(live.rows);
       expect(
         filter(EXPLANATIONS, sentence => includes(onScreen, sentence)),
         `${module} stacks more than one explanation on one failed read — one error, one message`
       ).toHaveLength(1);
+    },
+
+    // A save held in flight: the form is on screen with its own save spinning
+    // and every field taken out of reach — the state the feature means by
+    // "while my save is in progress". A list has no save of its own to hold.
+    "loading-action": (armed, live) => {
+      expect(
+        armed.witness(),
+        `${module} lost its record while its save is held`
+      ).toEqual(live.witness);
+
+      const submit = armed.wrapper.find('button[type="submit"]');
+
+      expect(submit.exists(), `${module} draws no save control to hold`).toBe(
+        true
+      );
+      expect(
+        submit.attributes("aria-busy"),
+        `${module} holds a save and its save control does not spin`
+      ).toBe("true");
+      expect(
+        map(
+          filter(
+            armed.wrapper.findAll("input, select, textarea"),
+            field => !isDisabled(field)
+          ),
+          field => field.html()
+        ),
+        `${module} holds a save and still lets a field be edited`
+      ).toEqual([]);
     },
 
     "error-action": async armed => {
@@ -580,7 +629,10 @@ export async function proveForcedSurface(
         live.witness,
         `${module} draws none of its recorded values on Live — every armed claim below would pass against a page that was already blank`
       ).not.toEqual([]);
-      expect(live.rows, `${module} draws no record on Live`).toBeGreaterThan(0);
+      if (!isForm)
+        expect(live.rows, `${module} draws no record on Live`).toBeGreaterThan(
+          0
+        );
     });
 
     it.each(offered)(

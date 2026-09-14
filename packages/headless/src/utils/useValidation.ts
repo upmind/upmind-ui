@@ -503,6 +503,22 @@ export const useModelParser = <
   if (!schema?.properties) return values as TModel;
 
   /**
+   * Dereferences a `$ref` against the schema root before its caller reads any
+   * other keyword off it. A field left at `{ $ref }` (its domain moved to
+   * `schema.definitions.<field>`) has no own `.type`/`.properties`/`.const`,
+   * so every keyword read below would silently see `undefined` without this.
+   */
+  function resolveSchemaRef(
+    field: JsonSchema | undefined,
+    root: JsonSchema | undefined
+  ): JsonSchema | undefined {
+    if (!field?.$ref || !root) return field;
+    return get(root, field.$ref.replace(/^#\//, "").split("/")) as
+      | JsonSchema
+      | undefined;
+  }
+
+  /**
    * Recursively retrieves a value from the schema based on the field type.
    * If the field is an object or has properties, it recursively processes its properties.
    * If the field has a const value, it returns that; otherwise, it checks the
@@ -515,6 +531,8 @@ export const useModelParser = <
    * @returns
    */
   function safeValue(field: JsonSchema, values: any, key: string): any {
+    field = resolveSchemaRef(field, schema) ?? field;
+
     // Only recurse into objects with explicit named properties
     // NB: schemas using additionalProperties (e.g. subproduct categories)
     // should fall through to default handling below

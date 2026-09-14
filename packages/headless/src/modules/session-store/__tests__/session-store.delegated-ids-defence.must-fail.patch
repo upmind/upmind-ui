@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/session-store/session-store.mappers.ts b/packages/headless/src/modules/session-store/session-store.mappers.ts
+index da8c9a3b9..65349653c 100644
+--- a/packages/headless/src/modules/session-store/session-store.mappers.ts
++++ b/packages/headless/src/modules/session-store/session-store.mappers.ts
+@@ -95,6 +95,6 @@ export function mapSessionUser(
+     brands: self.brands,
+     // ?? {} defends against the wire's only recorded case (`null`), even
+     // though ISelf.delegated_ids is typed non-nullable — never remove this.
+-    delegatedIds: self.delegated_ids ?? {}
++    delegatedIds: self.delegated_ids
+   };
+ }

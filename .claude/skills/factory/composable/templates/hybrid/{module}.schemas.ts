@@ -16,7 +16,7 @@ import { ScopeActorTypes } from "../scope";
 import { PAGINATION, SortDirection } from "../query";
 // import { createClientModuleSchemas } from "./module.schemas.client";
 import type { ModuleModel, ModuleSchemas } from "./module.types";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type { ControlElement, JsonSchema7, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module module/module.schemas
@@ -306,6 +306,19 @@ export function useQueryUischema(): UISchemaElement {
       // TOKEN — replace it; never ship it.
     ]
   } as UISchemaElement;
+}
+
+/**
+ * The SORT control's own uischema — the playground's sort control renders off
+ * THIS, separately from the filter bar's `useQueryUischema()`. Without it the
+ * page draws no sort control at all, whatever the schema declares.
+ */
+export function useSortUischema(): ControlElement {
+  return {
+    type: "Control",
+    scope: "#/properties/sort",
+    i18n: "form.module_sort"
+  };
 }
 
 // -----------------------------------------------------------------------------
