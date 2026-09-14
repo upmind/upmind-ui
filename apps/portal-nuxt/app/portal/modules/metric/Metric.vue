@@ -18,8 +18,7 @@
       v-for="item in props.items"
       :key="item.label"
       :to="item.to"
-      :color="tileLinkColor(item)"
-      :class="TILE_CLASS"
+      :class="tileClass(item.to !== undefined)"
       v-bind="useTestAttrs({ key: 'portal-metric-tile', value: item.label })"
     >
       <span class="flex flex-col gap-1">
@@ -51,26 +50,26 @@
  * ledger style is not the tile's sentence-case one — ui-gaps.md). Items are
  * config-owned data (`ModuleRef.props`), never hardcoded here.
  */
-import { EmptyState, Link, StatGroup, useTestAttrs } from "@upmind/ui";
+import { EmptyState, StatGroup, useTestAttrs } from "@upmind/ui";
 import { computed } from "vue";
 import { METRIC_MODULE_VARIANT } from "./types";
-import { TILE_CLASS, tileGridClass } from "./variants";
+import { tileClass, tileGridClass } from "./variants";
 import type { MetricModuleItem, MetricModuleProps } from "./types";
+import { NuxtLink } from "#components";
 
 defineOptions({ name: "PortalMetric" });
 
 const props = defineProps<MetricModuleProps>();
 
-/** A tile that names a destination IS the link; one that does not is a plain block. */
-function tileTag(item: MetricModuleItem): typeof Link | "div" {
+/**
+ * A tile that names a destination IS the link; one that does not is a plain
+ * block. A PLAIN link, never the DS `Link`: its base carries `rounded-xs`,
+ * which `cn()` could not merge away from the tile's `rounded-card`
+ * (variants.ts), so a linked tile rendered square against the panels beside it.
+ */
+function tileTag(item: MetricModuleItem): typeof NuxtLink | "div" {
   if (item.to === undefined) return "div";
-  return Link;
-}
-
-/** The tile owns its own colours, so the link must not repaint them. */
-function tileLinkColor(item: MetricModuleItem): "inherit" | undefined {
-  if (item.to === undefined) return undefined;
-  return "inherit";
+  return NuxtLink;
 }
 
 const meta = computed(() => {

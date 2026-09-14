@@ -82,24 +82,39 @@ watch(
 
 const meta = computed(() => ({
   hasHeading: props.title !== undefined || props.description !== undefined,
-  actions: assign(
-    {
-      reset: {
-        type: "reset" as const,
-        label: props.resetLabel,
-        variant: "ghost" as const
-      }
-    },
-    extraActions(),
-    {
-      submit: {
-        type: "submit" as const,
-        label: props.submitLabel,
-        needsValid: true
-      }
+  actions: assign(dismissAction(), extraActions(), {
+    submit: {
+      type: "submit" as const,
+      label: props.submitLabel,
+      needsValid: true
     }
-  )
+  })
 }));
+
+/**
+ * The control that takes the client back out of the form. In a dialog that
+ * means CLOSING it, so the host is asked; on a page it means restoring what
+ * the form opened with, which the engine's own reset does.
+ */
+function dismissAction(): Record<string, FormActionProps> {
+  if (props.cancelLabel === undefined) {
+    return {
+      reset: {
+        type: "reset",
+        label: props.resetLabel,
+        variant: "ghost"
+      }
+    };
+  }
+  return {
+    cancel: {
+      type: "button",
+      label: props.cancelLabel,
+      variant: "ghost",
+      handler: () => emits("cancel")
+    }
+  };
+}
 
 /**
  * The config's own controls, as the engine's action map. They act on the

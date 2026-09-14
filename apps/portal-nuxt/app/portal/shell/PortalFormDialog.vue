@@ -14,7 +14,9 @@
       :submit="meta.entry.submit"
       :submit-label="meta.entry.submitLabel"
       :reset-label="meta.entry.resetLabel"
+      :cancel-label="meta.entry.resetLabel"
       :extra-actions="meta.entry.extraActions"
+      @cancel="close"
       @select="onSelect"
     />
   </Dialog>
@@ -33,6 +35,11 @@
  * the emitted verb is dispatched by the runner, which closes this dialog when
  * the receipt comes back good (composables/useMockActionRunner.ts). The
  * dialog decides nothing about the outcome.
+ *
+ * The registry's `resetLabel` rides in as the CANCEL label: in a dialog that
+ * control has to dismiss, not empty the fields. It used to be the engine's
+ * reset, so pressing "Cancel" cleared what had been typed and left the dialog
+ * standing — only the X ever closed it.
  */
 import { Dialog } from "@upmind/ui";
 import { computed } from "vue";
