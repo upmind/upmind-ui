@@ -34,7 +34,13 @@ export function createClientTicketInternals(
 
   function tick(): void {
     if (typeof document !== "undefined" && document.hidden) return;
-    void query.refetch();
+    // Fire-and-forget: nothing awaits this call, and a genuine fetch failure
+    // is already tracked reactively via `query.error` (read by context/meta).
+    // Left as a bare `void`, a refetch cancelled mid-flight by a cache clear
+    // (queryClient.clear() rejects in-flight fetches with CancelledError —
+    // e.g. a scope evicted from the registry without destroy() running first)
+    // surfaces as an unhandled promise rejection instead.
+    query.refetch().catch(() => undefined);
   }
 
   function disarmPoll(): void {

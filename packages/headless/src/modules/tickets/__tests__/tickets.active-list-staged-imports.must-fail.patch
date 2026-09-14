@@ -1,0 +1,15 @@
+# must-fail: 01-list-with-staged-imports
+# Target assertion: AC1 "active ticket list" — asserts the request carries with_staged_imports=1
+diff --git a/packages/headless/src/modules/tickets/tickets.services.ts b/packages/headless/src/modules/tickets/tickets.services.ts
+index 5418e6e3c..1ec5b864b 100644
+--- a/packages/headless/src/modules/tickets/tickets.services.ts
++++ b/packages/headless/src/modules/tickets/tickets.services.ts
+@@ -151,7 +151,7 @@ function loadList(scopeContext?: ScopeContext): TicketsListQuery {
+   return list<ITicket[], Ticket[], TicketsQueryModel>({
+     criteria: { schema: useQuerySchema() },
+     queryKey: [...queryKey, { client: clientId }],
+-    url: useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 }),
++    url: useUrl("tickets", { with: LIST_WITH, with_staged_imports: 0 }),
+     withAccessToken: true,
+     withSplitCount: true,
+     guard: async () => {
