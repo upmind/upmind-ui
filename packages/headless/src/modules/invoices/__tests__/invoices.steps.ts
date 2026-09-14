@@ -29,6 +29,7 @@
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
+import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { InvoicesContextTypes } from "../invoices.types";
 import { values } from "lodash-es";
@@ -104,7 +105,7 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     async world => {
       await world.fire(INVOICES_COVERED_ACTIONS.setCriteria, {
         filters: {
-          "status.code": ["overdue"],
+          "status.code": [InvoiceStatus.OVERDUE],
           "category.slug": ["recurrent"]
         }
       });
@@ -117,12 +118,16 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       await settles(() => world.expectMeta({ hasError: false }));
       await settles(() =>
         world.expectContext({
-          query: expect.objectContaining({
-            filters: expect.objectContaining({
-              "status.code": expect.objectContaining({ in: ["overdue"] }),
-              "category.slug": expect.objectContaining({ in: ["recurrent"] })
-            })
-          })
+          // Plain data: the harness's own `matchesExpectation` reads an
+          // object as a SUBSET already, so a matcher adds nothing — and it
+          // refuses anything that is not a plain object, while `expect` does
+          // not exist at all in the browser the playground runs these in.
+          query: {
+            filters: {
+              "status.code": [InvoiceStatus.OVERDUE],
+              "category.slug": [InvoiceCategoryCode.RECURRENT]
+            }
+          }
         })
       );
     }
@@ -152,9 +157,7 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       await settles(() => world.expectMeta({ hasError: false }));
       await settles(() =>
         world.expectContext({
-          query: expect.objectContaining({
-            sort: [{ field: "due_date", dir: "desc" }]
-          })
+          query: { sort: [{ field: "due_date", dir: "desc" }] }
         })
       );
     }
@@ -181,11 +184,10 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     async world => {
       await settles(() =>
         world.expectContext({
-          pagination: expect.objectContaining({
-            offset: expect.any(Number),
-            limit: expect.any(Number),
-            total: expect.any(Number)
-          })
+          // The first page, stated as data. `total` is not asserted here:
+          // the matcher carries no "any number", and the server's real total
+          // is already proven on the wire by `invoices.collection.int.test.ts`.
+          pagination: { offset: 0, limit: 10 }
         })
       );
     }

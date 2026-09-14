@@ -44,9 +44,11 @@ import {
   difference,
   filter,
   flatMap,
+  includes,
   isFunction,
   map,
   reject,
+  split,
   uniq
 } from "lodash-es";
 
@@ -55,6 +57,12 @@ import {
 const TEST_DIR = import.meta.dirname;
 
 const featureText = readFileSync(join(TEST_DIR, "invoices.feature"), "utf-8");
+
+/** The step catalog's own source — read for the browser-runtime guard below. */
+const catalogSource = readFileSync(
+  join(TEST_DIR, "invoices.steps.ts"),
+  "utf-8"
+);
 
 const {
   scenarios,
@@ -152,6 +160,18 @@ describe("invoices — the module's AC-link traceability gate", () => {
     expect(
       duplicatedPatterns,
       "Patterns another catalog already claims"
+    ).toEqual([]);
+
+    // The catalog runs in TWO runtimes: vitest (the node replay) and the
+    // BROWSER (the labs playground drives the same steps). `expect` is a
+    // vitest global — in the browser a step touching it dies with
+    // "expect is not defined" and the scene reports failed. The harness's own
+    // `matchesExpectation` already reads an object as a subset, and since
+    // 2026-09-12 refuses anything that is not plain data, so a matcher is
+    // both unnecessary here and silently inert.
+    expect(
+      filter(split(catalogSource, "\n"), line => includes(line, "expect.")),
+      "Step catalog uses a vitest matcher — it cannot run in the browser"
     ).toEqual([]);
 
     // W3 repair: this used to be `includes(catalogSource, \`fire(...\`)\`)` —
