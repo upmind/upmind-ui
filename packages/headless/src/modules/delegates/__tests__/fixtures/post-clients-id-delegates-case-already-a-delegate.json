@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/63250798-065d-1ed5-685c-8174e234e98d/delegates?case=already-a-delegate",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "delegate_email": "mock-email-2@example.com",
+      "full_delegate": true
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3adae1f5e307078-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 14 Sep 2026 07:29:22 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=b38h%2FNwFSx0TkujdZR68XLKIdWJqFZR3CxHyMQcVROxND8KGUw8qUg6PqtofY3lgRdqZYNcdjLoj3ohLs%2F8nhvuFEyEuRlCRJcjmcmw9q4%2BrRfzZx5QjJtfo544nKPb7sTt2bnZhtg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "8c3f0f93df08c72f06f8917235163fb5f6f72e83",
+        "type": 0,
+        "code": 409,
+        "message": "Client is already a delegate of the given resource owner",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-14T07:29:22.178Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "delegates"
+  }
+}
