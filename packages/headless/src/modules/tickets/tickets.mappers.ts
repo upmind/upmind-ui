@@ -1,0 +1,103 @@
+/** @internal */
+import { isArray, map, orderBy } from "lodash-es";
+import type {
+  Ticket,
+  TicketDepartmentOption,
+  TicketFeedEntry,
+  TicketMessage,
+  TicketStatusLog
+} from "./tickets.types";
+import type {
+  IBrandTicketDepartment,
+  IHookLog,
+  ITicket,
+  ITicketDepartment,
+  ITicketMessage
+} from "@upmind-automation/types";
+
+// -----------------------------------------------------------------------------
+/**
+ * @module tickets/tickets.mappers
+ * @description Ticket, message, hook-log and department mappers. Every
+ * mapper is TOTAL (hazard Z3): a throwing `select` masks the error as a 200
+ * with zero rows, so an unrecognised value passes through rather than
+ * throwing.
+ */
+// -----------------------------------------------------------------------------
+
+export const mapTickets = (raw: ITicket | ITicket[]): Ticket[] =>
+  map(isArray(raw) ? raw : [raw], mapTicket);
+
+/** Passthrough — `ITicket` already carries the corrected field names (AC-PM). */
+export const mapTicket = (raw: ITicket): Ticket => raw;
+
+export const mapTicketMessages = (
+  raw: ITicketMessage | ITicketMessage[]
+): TicketMessage[] => map(isArray(raw) ? raw : [raw], mapTicketMessage);
+
+/**
+ * Q5 (STILL OPEN, `research.md` §11) — `isDeleted` is read off `deleted_at`
+ * (the typed field) rather than `is_log` (what legacy's renderer reads). If
+ * the recorded fixture (T2) proves `is_log` is the real marker, this is the
+ * one line to change.
+ */
+export const mapTicketMessage = (raw: ITicketMessage): TicketMessage => ({
+  ...raw,
+  isDeleted: !!raw.deleted_at
+});
+
+export const mapHookLogs = (raw: IHookLog | IHookLog[]): TicketStatusLog[] =>
+  map(isArray(raw) ? raw : [raw], mapHookLog);
+
+export const mapHookLog = (raw: IHookLog): TicketStatusLog => raw;
+
+/**
+ * AC22 — merges messages and status-log rows into ONE feed ordered by
+ * created date, newest first. Neither source is required to already be
+ * sorted; the merge is total over whatever each source returns.
+ */
+export const mergeFeed = (
+  messages: TicketMessage[],
+  logs: TicketStatusLog[]
+): TicketFeedEntry[] =>
+  orderBy(
+    [
+      ...map(
+        messages,
+        (message): TicketFeedEntry => ({
+          kind: "message",
+          message
+        })
+      ),
+      ...map(logs, (log): TicketFeedEntry => ({ kind: "log", log }))
+    ],
+    entry =>
+      entry.kind === "message"
+        ? entry.message.created_at
+        : entry.log.created_at,
+    "desc"
+  );
+
+export const mapBrandDepartmentOptions = (
+  rows: IBrandTicketDepartment[]
+): TicketDepartmentOption[] =>
+  map(rows, row => ({
+    value: row.ticket_department_id,
+    label:
+      row.name_translated ||
+      row.name ||
+      row.department?.name_translated ||
+      row.department?.name ||
+      "",
+    isDefault: !!row.default
+  }));
+
+export const mapDepartmentName = (
+  brandDepartment?: IBrandTicketDepartment,
+  department?: ITicketDepartment
+): string =>
+  brandDepartment?.name_translated ||
+  brandDepartment?.name ||
+  department?.name_translated ||
+  department?.name ||
+  "";

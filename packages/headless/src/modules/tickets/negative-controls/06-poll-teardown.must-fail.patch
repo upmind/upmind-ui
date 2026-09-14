@@ -1,0 +1,15 @@
+# must-fail: 06-poll-teardown
+# Target assertion: AC29 "ticket poll" — asserts destroy() leaves no interval behind
+diff --git a/packages/headless/src/modules/tickets/useClientTicket.internals.ts b/packages/headless/src/modules/tickets/useClientTicket.internals.ts
+index adf909ce0..00ee9f9e2 100644
+--- a/packages/headless/src/modules/tickets/useClientTicket.internals.ts
++++ b/packages/headless/src/modules/tickets/useClientTicket.internals.ts
+@@ -66,7 +66,7 @@ export function createClientTicketInternals(
+ 
+   /** `destroy()` disarms first, then tears the rest down (task 12). */
+   function teardown(): void {
+-    disarmPoll();
++    // disarmPoll();
+     stopWatch();
+     if (typeof document !== "undefined") {
+       document.removeEventListener("visibilitychange", onVisibilityChange);
