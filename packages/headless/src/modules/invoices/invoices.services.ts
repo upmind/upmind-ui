@@ -406,9 +406,15 @@ function loadUnpaidExistence(
     queryKey: [...queryKey, "unpaid_existence", { client: clientId }],
     url: useUrl("invoices"),
     withAccessToken: true,
+    // `requested` is NOT part of the guard: "nobody has asked for this count
+    // yet" is not an authentication failure, and manufacturing one here put a
+    // `NotAuthenticatedError` on the handle that `useMeta().hasError` folds
+    // into the COLLECTION's error — so an unasked notice read presented as
+    // "Something went wrong" over the whole list. `enabled` below owns that
+    // gate; the guard answers only whether the read is addressable at all.
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (!requested.value || !isAddressable(clientId.value)) {
+        if (!isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
           return;
         }
@@ -456,9 +462,15 @@ function loadConsolidatableCount(
     queryKey: [...queryKey, "consolidatable_count", { client: clientId }],
     url: useUrl("invoices"),
     withAccessToken: true,
+    // `requested` is NOT part of the guard: "nobody has asked for this count
+    // yet" is not an authentication failure, and manufacturing one here put a
+    // `NotAuthenticatedError` on the handle that `useMeta().hasError` folds
+    // into the COLLECTION's error — so an unasked notice read presented as
+    // "Something went wrong" over the whole list. `enabled` below owns that
+    // gate; the guard answers only whether the read is addressable at all.
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (!requested.value || !isAddressable(clientId.value)) {
+        if (!isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
           return;
         }
