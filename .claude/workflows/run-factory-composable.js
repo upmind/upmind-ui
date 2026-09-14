@@ -33,7 +33,13 @@
 //   variant     — machine | query | hybrid (settled by the door)
 //   cells       — the ADR-001 actor x context cells in scope
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
-//   arms        — optional operator override of the Plan-stage arms derivation
+//   arms        — accepted for interface compatibility, and deliberately NOT
+//                  threaded into the Plan dispatch: run-plan carries fixed args,
+//                  and an arms override is an operator RULING. It reaches the
+//                  planner the way every other ruling does — recorded in
+//                  review-notes.md in sddDir, which the planner reads first. The
+//                  Code stage still re-derives arms independently and reports a
+//                  mismatch either way.
 //   planApproved — optional boolean. The OPERATOR'S plan verdict, and the only
 //                  thing that lets Code start. Absent or false, the lane stops
 //                  at `plan-gate` with the spec filed and the story handed to a
@@ -50,7 +56,11 @@ export const meta = {
       detail: "planner seat — oracle sweep, files research.md",
       model: "opus"
     },
-    { title: "Plan", detail: "planner seat — invokes /plan", model: "opus" },
+    {
+      title: "Plan",
+      detail:
+        "run-plan — planner authors, reviewer + pseudo-nathan pre-gate, operator ratifies"
+    },
     {
       title: "Code",
       detail: "developer seat — invokes /code",
@@ -96,7 +106,6 @@ for (const k of [
 const { id, worktree, sddDir, jtbd, module: target, mode, variant, cells } = A;
 const constraints =
   typeof A.constraints === "string" ? A.constraints : "none recorded";
-const armsOverride = typeof A.arms === "string" ? A.arms : null;
 const planApproved = A.planApproved === true;
 
 // The 3-cycle cap (rules/agent-behavior.md §5). Bounded by construction: at most
@@ -154,26 +163,6 @@ const RESEARCH_GATE = {
     "genericCitations",
     "oracleCitations",
     "researchFiled"
-  ]
-};
-
-const PLAN_GATE = {
-  type: "object",
-  properties: {
-    pass: { type: "boolean" },
-    summary: { type: "string" },
-    sddSetComplete: { type: "boolean" },
-    undispositionedCells: { type: "number" },
-    armsPresent: { type: "boolean" },
-    jtbdContradictedDrops: { type: "number" }
-  },
-  required: [
-    "pass",
-    "summary",
-    "sddSetComplete",
-    "undispositionedCells",
-    "armsPresent",
-    "jtbdContradictedDrops"
   ]
 };
 
@@ -290,59 +279,52 @@ if (derivedVariant && derivedVariant !== variant) {
 // /plan BARE and inherits whatever depth that door picks for the drift — the
 // factory does not second-guess it.
 phase("Plan");
-const PLAN_DEPTH =
-  mode === "upgrade"
-    ? "Invoke it BARE — that door owns the light-vs-full depth decision for a gap-closure. Scope the work to exactly the audited drift; the gates are unchanged, because a gap-closure over a landed module is precisely where silent capability drops hide."
-    : "Run its FULL-depth SDD route (requirements -> design -> BDD -> tasks). The depth is already derived; do not re-derive it and do not run the light route. A lone design.md is not acceptable output.";
-const ARMS = armsOverride
-  ? ` Operator arms override, in force over your own derivation: ${armsOverride}.`
-  : " Derive the arms determination per layer — services, actions, context, meta, schemas — from the parity table and the research oracle; it is never asked. Each layer is `none` or its earning actors, and every earned arm cites the parity row that earns it.";
-results.plan = await agent(
-  `Invoke /upmind-agent:plan for story ${id}. ${PLAN_DEPTH} ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} ${DOCTRINE}${ARMS} The co-located <module>.feature belongs in the module's __tests__/ at capability altitude — one scenario per actor x context behaviour the parity table carries, in actor/business language, never a per-mapper unit and never a vague "it works". It is the coverage contract for both the developer and the prover. Write only under ${sddDir} and the module's __tests__/; write no module source.`,
-  {
-    agentType: "upmind-agent:planner",
-    model: "opus",
-    phase: "Plan",
-    schema: PLAN_GATE,
-    label: `plan:${id}`
-  }
-);
+// The plugin's `run-plan` workflow OWNS this stage's chain — planner authors,
+// then a reviewer and pseudo-nathan pre-gate the spec IN PARALLEL, then the
+// planner revises on any blocker, up to its own 3-cycle cap, and it stops at
+// the operator gate. Dispatching a lone planner seat here instead would
+// re-implement that badly: it drops both pre-gates, drops the revise loop, and
+// hands the operator an ungraded spec.
+//
+// Depth: `conversion` and `net-new` are never trivial, so they take the FULL
+// SDD route. `upgrade` takes the light route — the factory does not second-
+// guess a gap-closure's shape.
+//
+// The factory's own intake does not ride run-plan's fixed args; it reaches the
+// planner through the files already on disk in sddDir — review-notes.md (the
+// operator rulings, ADR-tier) and research.md (the filed oracle sweep). That is
+// what those files are for.
+results.plan = await workflow("upmind-agent:run-plan", {
+  id,
+  worktree,
+  depth: mode === "upgrade" ? "plan" : "sdd",
+  size: "unset"
+});
 if (!results.plan) {
   results.stopped = "plan-failed";
   return results;
 }
-if (!results.plan.sddSetComplete) {
-  results.stopped = "plan-set-incomplete";
-  return results;
-}
-if (results.plan.undispositionedCells !== 0) {
-  results.stopped = "plan-cells-undispositioned";
-  return results;
-}
-if (!results.plan.armsPresent) {
-  results.stopped = "plan-arms-absent";
-  return results;
-}
-// A disposition row is paperwork, not permission: a drop the JTBD forbids is a
-// gate FAIL and an operator escalation (receipt: client-email R17, 2026-08-05).
-if (results.plan.jtbdContradictedDrops !== 0) {
-  results.stopped = "plan-jtbd-contradicted";
+// run-plan stops at `plan-gate` when BOTH pre-gates come back clean — that is
+// the operator's turn, and the verdict is theirs alone (ADR-029). Any other
+// stop is a pre-gate that blocked or a seat that died; surface it verbatim.
+if (results.plan.stopped && results.plan.stopped !== "plan-gate") {
+  results.stopped = `plan-blocked:${results.plan.stopped}`;
   return results;
 }
 
 // --- THE PLAN GATE — a human ratifies the spec before any code is written ----
 //
-// The lane's own gate fields say the bundle is COMPLETE. They cannot say it is
-// RIGHT. Every generic-stage table puts a finished plan in front of a human
-// (`actor:Human` + `action:Review`, status Needs Review) and only the operator's
-// `/sdd-review approve` flips it back to the agent for dev. A runner that walks
-// from Plan straight into Code has emitted the plan verdict itself, which no
-// agent seat may do (rules/agent-seat-separation.md, ADR-029).
+// The pre-gates say the spec carries no blocker. They cannot say it is RIGHT.
+// Every lifecycle table puts a finished plan in front of a human (actor:Human +
+// action:Review, status Needs Review) and only the operator's `/sdd-review
+// approve` flips it back to the agent for dev. A runner that walks from Plan
+// into Code has emitted the plan verdict itself, which no agent seat may do
+// (rules/agent-seat-separation.md, ADR-029).
 //
-// So the lane STOPS here unless the operator has already ratified this bundle.
-// The spec is filed and readable; nothing is thrown away. The operator reads it,
+// The spec is filed and readable; nothing is discarded. The operator reads it,
 // runs /sdd-review, and re-invokes with planApproved: true and resumeFromRunId
-// set — research and plan replay from cache, and Code opens on a ratified spec.
+// set — every finished stage replays from cache, and Code opens on a ratified
+// spec.
 if (!planApproved) {
   results.stopped = "plan-gate";
   results.awaiting = "operator plan review";
