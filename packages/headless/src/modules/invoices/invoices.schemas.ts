@@ -100,6 +100,11 @@ export function useQuerySchema(): InvoiceQuerySchema {
             title: "invoices.filter.status",
             additionalProperties: false,
             properties: {
+              // `eq` beside `in`, both over the SAME vocabulary: one status is
+              // a legitimate narrowing and `additionalProperties: false` makes
+              // an undeclared operator unspellable, so without this a caller
+              // asking for exactly one status has to spell a one-member `in`.
+              eq: { type: ["string", "null"], oneOf: STATUS_VOCABULARY },
               in: {
                 type: ["array", "null"],
                 items: { type: "string", oneOf: STATUS_VOCABULARY },
@@ -126,6 +131,8 @@ export function useQuerySchema(): InvoiceQuerySchema {
             title: "invoices.filter.category",
             additionalProperties: false,
             properties: {
+              // Same pairing as `status.code` above.
+              eq: { type: ["string", "null"], oneOf: CATEGORY_VOCABULARY },
               in: {
                 type: ["array", "null"],
                 items: { type: "string", oneOf: CATEGORY_VOCABULARY },

@@ -201,13 +201,16 @@ export type InvoiceQueryModel = {
      * columns"). Reuses `InvoiceStatusGroups` triples — never re-declared
      * here.
      */
-    "status.code"?: { in?: (InvoiceStatus | CreditNoteStatus)[] };
+    "status.code"?: {
+      eq?: InvoiceStatus | CreditNoteStatus;
+      in?: (InvoiceStatus | CreditNoteStatus)[];
+    };
     /** Set by the scope context (AC12), not drawn in the bar. */
     client_id?: { eq?: string };
     /** Tri-state — `null` is a member, not an absence. */
     is_consolidation?: { eq?: boolean | null };
     /** The credit-notes preset filters on this (AC7). */
-    "category.slug"?: { in?: InvoiceCategoryCode[] };
+    "category.slug"?: { eq?: InvoiceCategoryCode; in?: InvoiceCategoryCode[] };
     /** Set when scoping to one invoice's credit notes (AC7); not drawn. */
     credit_invoice_id?: { eq?: string };
     /** Used by the consolidatable preset (AC2); not drawn. */
