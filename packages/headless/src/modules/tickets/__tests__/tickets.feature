@@ -37,19 +37,27 @@
 #      retired here and the disposition is carried in parity.yaml with its signoff.
 # The @pending-ruling tag is retired. Do not re-add either dropped capability.
 #
-# SIX SCENARIOS ARE PROMISED BUT NOT YET PROVABLE — operator ruling R10, 2026-09-14.
+# SIX SCENARIOS ARE PROMISED BUT NOT YET PROVEN — ruling R12, 2026-09-15 (tier 1).
+# R10 (2026-09-14) IS REFUTED AND WITHDRAWN: its premise, that these six were blocked
+# on a richer staging account, is WRONG, disproven by a live probe. All six are
+# CAPTURABLE TODAY on the existing accounts, wholly on the client path. Do not quote
+# R10's "blocked" framing forward.
 # AC-7 (product-scoped list), AC-10 (delegated-in), AC-13 (product link/unlink),
 # AC-20 (attachment download), AC-21 (attachment delete) and AC-23 (attachment upload)
-# have NO recorded fixture, because the staging account this story captured from holds
-# no product-scoped ticket, no delegated-in ticket and no message attachment.
+# simply have NO RECORDED FIXTURE YET. Live, the capturing client holds 17 tickets and
+# 993 contract products, and POST api/ticket_messages/files returns 200. The earlier
+# mis-read had a cause worth remembering: GET api/self returns the client id on
+# actor_id, NOT on id (id is undefined), so comparing a contract product's client_id
+# against self.id silently yields "belongs to nobody".
 #   THEY STAY. They are NOT dispositioned, NOT tagged @todo, NOT dropped, and NOT
 #   removed from this file. tickets.traceability.test.ts stays RED and honest, returning
-#   exactly [AC-7, AC-10, AC-13, AC-20, AC-21, AC-23]. Do not green it, do not tag
-#   around it, do not weaken or skip the traceability test, do not delete its failing
-#   assertions. Hand-authoring any of these six fixtures — or presenting a hand-authored
-#   one as recorded — is a RUN DEFECT (verify-cosplay data-provenance, 2026-08-05),
-#   never a shortcut. The blocker is a RICHER STAGING ACCOUNT, which the operator is
-#   sourcing. A suite red ONLY because of these six is the EXPECTED end state.
+#   exactly [AC-7, AC-10, AC-13, AC-20, AC-21, AC-23] UNTIL THE CAPTURE LANDS. Do not
+#   green it, do not tag around it, do not weaken or skip the traceability test, do not
+#   delete its failing assertions. Hand-authoring any of these six fixtures — or
+#   presenting a hand-authored one as recorded — is a RUN DEFECT (verify-cosplay
+#   data-provenance, 2026-08-05), never a shortcut. If a capture genuinely fails, HALT
+#   and report the exact HTTP status and error body. A suite red because of these six is
+#   now an OPEN CAPTURE BACKLOG (tasks.md T32-T39), no longer an accepted end state.
 #
 # R9 AND R11 CHANGED NOTHING IN THIS FILE, and that is a finding, not an oversight.
 # R9 moves a criteria KEY SPELLING (status.code -> an undotted key, translated back to
@@ -63,8 +71,11 @@
 # ONE GREEN SCENARIO IS VACUOUS, disclosed rather than papered over. "List my open
 # support tickets" (AC-1) replays a fixture whose body is {"data":[],"total":0}, so its
 # row assertion compares [] to [] — true by construction, unable to go red on the data
-# path. That is a CAPTURE defect, not a code defect, and it is NOT one of R10's six.
-# Remedy: re-capture from the same staging account, or leave the vacuity on the record.
+# path. That is a CAPTURE defect, not a code defect, and it is NOT one of the six.
+# [R12] Remedy is now mandatory, not optional: the client holds 17 tickets live, so
+# re-capture a genuinely non-empty active list — AT the true active shape
+# filter[status.code|neq]=ticket_closed, which NO fixture holds today. Never
+# hand-author the body.
 
 @module:tickets @variant:query @cell:client-self @FE-3226
 Feature: A client runs their own support conversations
@@ -142,6 +153,17 @@ Feature: A client runs their own support conversations
     And a term of only two characters searches nothing at all
     And a term revised several times in quick succession searches once, for the term I settled on
 
+  # [R12, 2026-09-15] PREMISE UNPROVEN — read before trusting this scenario.
+  # The @dropped tag is consistent with parity.yaml's signed NOT-SUPPORTED disposition
+  # for message-body-search, so it is NOT removed here. But that disposition rests on a
+  # CLIENT-CODE reading, not a server receipt: the one recorded probe returns two rows
+  # that BOTH match on subject, so reference coverage is unproven and body coverage is
+  # NOT ruled out. R12 orders two probes (tasks.md T37) — a reference-fragment probe and
+  # a body-only probe. IF THE BODY-ONLY PROBE RETURNS ROWS this scenario is FALSE and
+  # the disposition is refuted: correct the scenario and re-escalate the drop to the
+  # operator (T39). Do not assert it in the meantime. NOTE the gate's limit: @dropped
+  # excludes this scenario from tickets.traceability.test.ts, and the gate is AC-granular
+  # anyway, so nothing mechanical can catch this claim — only the probe can.
   @AC-6 @collection @search @dropped
   Scenario: Searching does not reach inside message bodies
     Given one of my tickets contains a word only in the body of a message
