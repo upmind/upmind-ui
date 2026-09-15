@@ -210,8 +210,26 @@ export type TicketFeedEntry =
   | { kind: "message"; message: TicketMessage }
   | { kind: "log"; log: TicketStatusLog };
 
-/** The upload → create/reply handoff shape (`ITicketMessagePayload.files`). */
-export type TicketAttachmentRef = { id: string; hash: string };
+/**
+ * The `POST api/ticket_messages/files` upload-response row (FE-3226 R12
+ * capture receipt, `tickets.services.ts:603`) — recorded RICHER than the
+ * legacy `{id,hash}` reduction, and `hash` is NOT among its proven members.
+ * `graphify query "TicketAttachmentRef"` against `graphify-out/graph.json`
+ * (2026-09-15) confirms this is the sole existing declaration (`L214`), so
+ * this is a correction, not a new type. `packages/types`' `ITicketMessagePayload.files`
+ * stays the separate request-side `{id,hash}` shape (`research.md` Q10) —
+ * this type is the response only, never forced into that request shape or
+ * the reverse.
+ */
+export type TicketAttachmentRef = {
+  id: string;
+  type: string;
+  mime_type: string;
+  object_type: string;
+  object_class: string;
+  object_id: string | null;
+  name: string;
+};
 
 /** One selectable desk option for the create form (Z7 — keyed on `ticket_department_id`, never `id`). */
 export type TicketDepartmentOption = {
