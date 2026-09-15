@@ -14,28 +14,43 @@
  * credentials — excluded from `*.test.ts` / `*.int.test.ts` by the
  * `*.fixtures.ts` suffix. `save()` in `afterAll` writes every capture once.
  *
- * ## Real staging state, disclosed (Q7)
- * At capture time the staging client (`API_CREDENTIALS.client`) holds exactly
- * TWO pre-existing tickets, both in the same public department, neither
- * product-scoped, neither delegated-in. The delegate pair
- * (`delegateOwner`/`delegateMember`, FE-3036) carries an ACCOUNT-level grant
- * only — `delegateMember`'s ticket list returns `total: 0` — so a
- * ticket-level delegated-in ticket does not exist on staging today; that
- * grant rides FE-3041 (DG-2), not yet built. Neither account holds a
- * `contract_product` to link. These are REAL, checked absences, not an
- * oversight:
+ * ## Real staging state, MEASURED — the earlier record here was WRONG (R12(c))
  *
- *   - AC-7 (product-scoped list) and AC-13's link/change/unlink product body
- *     cannot be captured against a REAL contract product on this brand.
- *   - AC-10 (delegated-in co-mingling) cannot be captured: no ticket-level
- *     delegation exists on staging to co-mingle.
- *   - AC-3's "more tickets than fit on one page" needs more real tickets than
- *     existed before this run: this generator raises that number itself by
- *     creating three additional REAL throwaway tickets (see below) so a real
- *     `limit=2` walk has a genuine second page — never a fabricated one.
+ * This block previously asserted that the staging client held "exactly TWO
+ * pre-existing tickets", that "neither account holds a `contract_product` to
+ * link", and that AC-7 / AC-10 / AC-13 "cannot be captured". ALL OF THAT IS
+ * FALSE. It is corrected here rather than deleted, because the mis-read is the
+ * lesson.
  *
- * All three gaps are escalated in the prover's hand-off rather than papered
- * over with a hand-authored body (`no-hand-rolled-int-fixture`'s target).
+ * MEASURED LIVE against `api.staging.upmind.io` (2026-09-15):
+ *
+ *   - **25 tickets** on the capturing client, not two.
+ *   - **993 contract products**, every sampled row's `client_id` being this
+ *     client — so AC-13's link/change/unlink and AC-7's product-scoped list are
+ *     both capturable, and were captured.
+ *   - `POST api/ticket_messages/files` returns **200** — AC-23 is capturable.
+ *   - The delegated-in list returns **total 25** with `is_delegated_object` on
+ *     co-mingled rows, reached on the ORDINARY client path (invite ->
+ *     email-history poll -> hash parse -> PATCH accept -> `/self` re-read),
+ *     reusing the delegates module's own flow. No admin path was used.
+ *
+ * All six formerly-"impossible" captures now sit in `fixtures/` as real
+ * recordings (47 files). Nothing was hand-authored.
+ *
+ * ## THE ROOT CAUSE — record it so it is never repeated
+ *
+ * `GET api/self` returns the client id on **`actor_id`**, NOT on `id`; `id` is
+ * **undefined** on that payload. So code that compares a contract product's
+ * `client_id` against `self.id` compares against `undefined` and silently
+ * concludes the product "belongs to nobody". That single field mis-read is how
+ * 993 contract products and 25 tickets were once written down as no products
+ * and two tickets — and how three real capabilities were nearly recorded as
+ * un-capturable absences, which is the FE-2824 shape arriving through a data
+ * bug rather than a scope decision.
+ *
+ * Read the client id from `actor_id`. A "checked absence" that rests on an
+ * undefined comparand is not a checked absence; re-probe before writing one
+ * down.
  *
  * ## The write cycle (one real throwaway ticket, ADR 025 whole-cycle capture)
  * Unlike a read-only module, several ACs (create, reply, edit, delete, close,

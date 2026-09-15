@@ -37,33 +37,36 @@
 #      retired here and the disposition is carried in parity.yaml with its signoff.
 # The @pending-ruling tag is retired. Do not re-add either dropped capability.
 #
-# SIX SCENARIOS ARE PROMISED BUT NOT YET PROVEN — ruling R12, 2026-09-15 (tier 1).
-# R10 (2026-09-14) IS REFUTED AND WITHDRAWN: its premise, that these six were blocked
-# on a richer staging account, is WRONG, disproven by a live probe. All six are
-# CAPTURABLE TODAY on the existing accounts, wholly on the client path. Do not quote
-# R10's "blocked" framing forward.
+# THE SIX FORMERLY-UNPROVEN SCENARIOS ARE NOW PROVEN — capture landed 2026-09-15.
+# This block previously read "SIX SCENARIOS ARE PROMISED BUT NOT YET PROVEN" and told
+# the reader the traceability gate STAYS RED until the capture lands. BOTH CLAIMS ARE
+# NOW FALSE. They are corrected here rather than deleted, so the history of the
+# drop-that-never-happened stays legible.
 # AC-7 (product-scoped list), AC-10 (delegated-in), AC-13 (product link/unlink),
 # AC-20 (attachment download), AC-21 (attachment delete) and AC-23 (attachment upload)
-# simply have NO RECORDED FIXTURE YET. Live, the capturing client holds 17 tickets and
-# 993 contract products, and POST api/ticket_messages/files returns 200. The earlier
-# mis-read had a cause worth remembering: GET api/self returns the client id on
-# actor_id, NOT on id (id is undefined), so comparing a contract product's client_id
-# against self.id silently yields "belongs to nobody".
-#   THEY STAY. They are NOT dispositioned, NOT tagged @todo, NOT dropped, and NOT
-#   removed from this file. tickets.traceability.test.ts stays RED and honest, returning
-#   exactly [AC-7, AC-10, AC-13, AC-20, AC-21, AC-23] UNTIL THE CAPTURE LANDS. Do not
-#   green it, do not tag around it, do not weaken or skip the traceability test, do not
-#   delete its failing assertions. Hand-authoring any of these six fixtures — or
-#   presenting a hand-authored one as recorded — is a RUN DEFECT (verify-cosplay
-#   data-provenance, 2026-08-05), never a shortcut. If a capture genuinely fails, HALT
-#   and report the exact HTTP status and error body. A suite red because of these six is
-#   now an OPEN CAPTURE BACKLOG (tasks.md T32-T39), no longer an accepted end state.
-#   [R13(b), 2026-09-15, tier 1] SETTLED AT THE PLAN GATE: "not yet captured, with a
-#   proven client-path route and a scheduled task" is NOT a JTBD-contradicting drop —
-#   only a capability the story REFUSES to deliver is one. The plan gate must not block
-#   the capture that would settle it, and this backlog is reported through the suite and
-#   the traceability gate, both already red and honest. Do not re-open the spec set to
-#   re-litigate these six.
+# each now have a REAL RECORDED FIXTURE, captured live against api.staging.upmind.io and
+# independently re-captured by a verifier: the product-scoped list returns 1 row, the
+# delegated-in list 10 rows of 25 carrying is_delegated_object, the link/change/unlink
+# cycle three 200s with their reads, the download real bytes, the delete a 200, and the
+# upload a 200 whose row carries 26 keys. 47 fixtures are present.
+#   THE TRACEABILITY GATE IS NOW GREEN, and it closed WITHOUT A SINGLE EDIT to
+#   tickets.traceability.test.ts — unchanged since 20837673a. That is what makes the
+#   green honest: the gate was never weakened, never skipped, never tagged around, and
+#   nothing here was hand-authored. R10's "blocked on a richer staging account" framing
+#   was refuted by R12 and stays withdrawn; R12's capture backlog is CLOSED.
+# The earlier mis-read had a cause worth remembering, recorded so it is never repeated:
+# GET api/self returns the client id on `actor_id`, NOT on `id` (`id` is undefined), so
+# comparing a contract product's client_id against self.id silently yields "belongs to
+# nobody" — which is how 993 contract products and 25 tickets were once written down as
+# two tickets and no product.
+#   ONE HOLE REMAINS INSIDE AC-23, disclosed rather than papered over: `uploadAttachment`
+#   and `uploadFile` appear in ZERO files under `__tests__/`. The AC-23 spec builds the
+#   attachment ref off the fixture and never calls the composable, so the title-matched
+#   gate cannot see the hole, and both rejection guards (max 25 MiB / 26214399, and the
+#   brand ALLOWED_UPLOAD_FILE_TYPES list) are UNPROVEN. The fixture is real; the public
+#   surface that consumes it is untested. Owed: tasks.md T44 (prover authors the spec
+#   that actually calls the composable) + T45 (developer authors the must-fail control).
+#   Do not read AC-23's green as proof of its entry point.
 #
 # R9 AND R11 CHANGED NOTHING IN THIS FILE, and that is a finding, not an oversight.
 # R9 moves a criteria KEY SPELLING (status.code -> an undotted key, translated back to
@@ -74,14 +77,15 @@
 # CAPABILITY altitude: it says WHAT must be true and never HOW it is checked. A ruling
 # that changed a scenario here would be a ruling that changed a CAPABILITY. Neither did.
 #
-# ONE GREEN SCENARIO IS VACUOUS, disclosed rather than papered over. "List my open
-# support tickets" (AC-1) replays a fixture whose body is {"data":[],"total":0}, so its
-# row assertion compares [] to [] — true by construction, unable to go red on the data
-# path. That is a CAPTURE defect, not a code defect, and it is NOT one of the six.
-# [R12] Remedy is now mandatory, not optional: the client holds 17 tickets live, so
-# re-capture a genuinely non-empty active list — AT the true active shape
-# filter[status.code|neq]=ticket_closed, which NO fixture holds today. Never
-# hand-author the body.
+# THE AC-1 VACUITY IS FIXED — this block previously read "ONE GREEN SCENARIO IS
+# VACUOUS". That claim is NOW FALSE, and is corrected here rather than deleted.
+# "List my open support tickets" (AC-1) once replayed a fixture whose body was
+# {"data":[],"total":0}, so its row assertion compared [] to [] — true by construction,
+# unable to go red on the data path. R12 made the remedy mandatory. It landed: the active
+# list is now recorded AT the true active shape
+# filter[status.code|neq]=ticket_closed&with_staged_imports=1, returning HTTP 200 with 10
+# rows and total 16. The assertion can now genuinely go red on the data path, and the
+# fixture body was RECORDED, never hand-authored.
 
 @module:tickets @variant:query @cell:client-self @FE-3226
 Feature: A client runs their own support conversations
