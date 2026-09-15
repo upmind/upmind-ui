@@ -569,10 +569,18 @@ async function loadStatusLogs(ticketId: string): Promise<TicketStatusLog[]> {
  * AC23 — checked BEFORE any request: size ceiling and the brand's
  * `ALLOWED_UPLOAD_FILE_TYPES`. Ships one tickets-local
  * `POST api/ticket_messages/files`; `system-upload` is not touched (R2).
+ *
+ * `brand_id` is read off the active session's own user
+ * (`ISelf.brand_id`, session-store FE-2973), not `useBrand().brandId` — the
+ * latter is the global brand-settings singleton, resolved independently of
+ * the caller's session and not guaranteed settled by the time an upload
+ * fires (the same class of race `client-custom-fields.services.ts` moved
+ * off of; see its `loadClientBrandId` comment).
  */
 async function uploadFile(file: File): Promise<TicketAttachmentRef> {
   const { post, useUrl } = useQuery();
-  const { ensureConfig, brandId } = useBrand();
+  const { ensureConfig } = useBrand();
+  const { activeUser } = useActiveSession().useContext();
 
   if (file.size > TICKET_ATTACHMENT_MAX_BYTES) {
     throw new DetailedError(
@@ -598,7 +606,8 @@ async function uploadFile(file: File): Promise<TicketAttachmentRef> {
 
   const body = new FormData();
   body.append("file", file);
-  if (brandId.value) body.append("brand_id", brandId.value);
+  const brandId = activeUser.value?.brandId;
+  if (brandId) body.append("brand_id", brandId);
 
   const result = await post<TicketAttachmentRef[]>({
     mutationKey: [...queryKey, "upload"],
