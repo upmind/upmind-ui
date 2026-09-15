@@ -102,24 +102,6 @@ export function authPages(): Partial<Record<PageKey, ContentConfig>> {
     rows: readonly ContentRowConfig[]
   ): ContentConfig => ({ title, description, rows, footer: false });
 
-  const login = clientVuePage(
-    "Sign in",
-    "Your products, invoices and tickets in one place.",
-    "UpmSessionLogin",
-    SESSION_MODULE
-  );
-  const register = clientVuePage(
-    "Create your account",
-    "One account for every product and invoice.",
-    "UpmSessionRegister",
-    SESSION_MODULE
-  );
-  const recover = clientVuePage(
-    "Forgotten password",
-    "We will email you a link to choose a new one.",
-    "UpmSessionRecoverPassword",
-    SESSION_MODULE
-  );
   // The logged-out screens no client-vue component serves, mocked as legacy
   // drew them (`views/client/auth/{resetPassword,verify,verifyEmail,registerOrg}`).
   const signIn = linkRow({
@@ -205,11 +187,7 @@ export function authPages(): Partial<Record<PageKey, ContentConfig>> {
   );
 
   return {
-    [PAGE_KEY.AUTH_LOGIN]: login,
-    [PAGE_KEY.AUTH_LOGIN_TWOFA]: login,
-    [PAGE_KEY.AUTH_REGISTER]: register,
     [PAGE_KEY.AUTH_REGISTER_ORG]: registerOrg,
-    [PAGE_KEY.AUTH_FORGOTTEN_PASSWORD]: recover,
     [PAGE_KEY.AUTH_RESET_PASSWORD]: reset,
     [PAGE_KEY.AUTH_VERIFY]: verified,
     [PAGE_KEY.AUTH_VERIFY_SET_PASSWORD]: setPassword,
