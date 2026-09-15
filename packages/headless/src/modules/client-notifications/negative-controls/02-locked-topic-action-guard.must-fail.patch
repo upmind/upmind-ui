@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts
++++ b/packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts
+@@ -72,8 +72,6 @@
+ 
+   /** Turns one channel on/off for one topic (AC-3). Refused for a locked topic (AC-6). */
+   function toggle(topicId: string, channelId: string): void {
+-    if (isTopicLocked(topicId)) return;
+-
+     const key = preferenceKey(topicId, channelId);
+     const preferences = { ...(getModel()?.preferences ?? {}) };
+     preferences[key] = !(preferences[key] ?? true);

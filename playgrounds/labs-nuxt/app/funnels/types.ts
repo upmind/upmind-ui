@@ -34,10 +34,35 @@ export enum ROUTE {
   OVERLAY_PAY = "overlay-pay",
 
   /**
+   * The pay-INIT overlay — the live pay control an `?init=pay` deep link opens
+   * over the order page, injected as `<order>--payment`. Distinct from
+   * `OVERLAY_PAY`, which resumes an off-site return and does no work.
+   */
+  OVERLAY_PAYMENT = "overlay-payment",
+
+  /**
    * The stored-payment-method ADD page. Needs a session: a method is stored
    * against a client, so a visitor without one has nothing to add it to.
    */
   PAYMENT_DETAIL_ADD = "usePaymentDetailAdd",
+
+  /**
+   * The single-invoice READ page — the `useInvoice` scenario module. The name is
+   * its declaring directory's, which is also its url segment.
+   */
+  INVOICE = "useInvoice",
+
+  /**
+   * The contract-product page — the `useContractProduct` scenario module, and
+   * the screen `?init=upgrade` opens the migrations surface over.
+   */
+  CONTRACT_PRODUCT = "useContractProduct",
+
+  /**
+   * The upgrade OVERLAY — legacy's available-migrations modal, injected as
+   * `<parent>--upgrade`. STUB until CT-1 (FE-3029) + CT-2 (FE-3206).
+   */
+  OVERLAY_UPGRADE = "overlay-upgrade",
 
   // --- SESSION/AUTH ROUTES ---------------------------------------------------
   /**

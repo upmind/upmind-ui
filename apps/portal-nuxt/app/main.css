@@ -2,5 +2,18 @@
    global base. */
 @import "@upmind/ui/styles";
 
+/* The library's Markdown component styles its output with `prose-*` classes,
+   which only exist once the typography plugin is loaded by the app that
+   builds the stylesheet. Without it a numbered list renders as bare lines. */
+@plugin "@tailwindcss/typography";
+
+/* The plugin's own `prose` wraps inline code in literal backticks. The
+   Markdown component already sets code off as a chip, so the marks read as
+   typos. Unlayered, so it wins over the plugin's layered rule. */
+.prose :where(code)::before,
+.prose :where(code)::after {
+  content: none;
+}
+
 /* Scan the portal app for utility classes. */
 @source './**/*.{html,vue,js,tsx,ts}';

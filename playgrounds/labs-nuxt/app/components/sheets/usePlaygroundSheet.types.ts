@@ -42,8 +42,9 @@ export enum PlaygroundSheetTypes {
  * @graphify-citation `graphify-out/graph.json` (2026-08-13, 7394 nodes) — no
  * sheet-label / sheet-title catalogue node exists anywhere in the tree; the
  * `SHEET_TITLES` this replaces was a local const inside `SheetHost.vue`. The
- * shape is NOT minted: it is `ForcedCanvas.types.ts`'s `FORCE_PRESET_LABELS`
- * — one i18n key per member of an existing enum — applied to the enum above.
+ * shape is NOT minted: one i18n key per member of an existing enum, the shape
+ * `ForcedCanvas.types.ts` carried as `FORCE_PRESET_LABELS` until a forced state
+ * took its name from its own feature (2026-09-12) and left only the replay key.
  * See `graphify-out/GRAPH_REPORT.md`.
  */
 export const SHEET_LABELS: Record<PlaygroundSheetTypes, string> = {

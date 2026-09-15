@@ -1,0 +1,27 @@
+# Negative control — puts the ticket's delegate picker back on `data.delegates`
+# raw, with no collection behind it. Every delegate on the account renders in
+# one column on a thread page, 24 rows deep on the Host·Grid seed, with no
+# search, no filter and no pager: the FE walkthrough defect 11.
+#
+# Intended RED:
+#   every delegate panel shows a page, not the whole account >
+#     caps the ticket thread's picker at one page
+#
+# The two PRODUCT panels stay green, which is the point of grading all three:
+# the walkthrough found this on a ticket, and a fix aimed only there would
+# leave the product panels exactly as they were.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -5943,10 +5943,7 @@
+ ): ListModuleItem[] {
+   const ticket = contextTicket(data, context);
+   if (ticket === undefined) return [];
+-  const { data: rows } = ticketDelegatesCollection
+-    .resolve(data, context)
+-    .useContext();
+-  return map(rows.value, delegate => ({
++  return map(data.delegates, delegate => ({
+     id: delegate.id,
+     title: delegate.name,
+     description: delegate.email,

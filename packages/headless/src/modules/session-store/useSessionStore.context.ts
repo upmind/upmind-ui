@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { sessionStore, storeTick, isScopeAllowed } from "./session-store.store";
-import { getExpiresAt } from "./session-store.utils";
+import { getExpiresAt, getLiveGuestToken } from "./session-store.utils";
 import { get } from "lodash-es";
 import type {
   Impersonations,
@@ -48,10 +48,13 @@ export function useSessionStoreContext() {
     return sessionStore.state.activeSessionId;
   });
 
+  // Guest storage became an id-keyed map in FE-3087; this member deliberately
+  // keeps its single-token contract, so consumers outside the module are
+  // untouched. With several guests pooled it names the LIVE one (R8).
   const guestSession = computed((): IToken | undefined => {
     void storeTick.value;
     return isScopeAllowed(AccessRoleTypes.GUEST)
-      ? sessionStore.state.guestSession
+      ? getLiveGuestToken(sessionStore.state)
       : undefined;
   });
 
@@ -61,6 +64,13 @@ export function useSessionStoreContext() {
     void storeTick.value;
     return isScopeAllowed(AccessRoleTypes.CLIENT)
       ? sessionStore.state.clientSessions
+      : {};
+  });
+
+  const guestSessions = computed((): Record<string, SessionEntry> => {
+    void storeTick.value;
+    return isScopeAllowed(AccessRoleTypes.GUEST)
+      ? sessionStore.state.guestSessions
       : {};
   });
 
@@ -74,7 +84,8 @@ export function useSessionStoreContext() {
   const allSessions = computed(
     (): Record<string, SessionEntry> => ({
       ...clientSessions.value,
-      ...staffSessions.value
+      ...staffSessions.value,
+      ...guestSessions.value
     })
   );
 
@@ -140,13 +151,16 @@ export function useSessionStoreContext() {
     /** Session token for the currently active actor. */
     activeSession,
 
-    /** Currently active session ID (actor_id). Null for guest. */
+    /**
+     * Currently active session ID — the active actor's key in its own session
+     * map. Present for a chosen guest, absent for the guest floor.
+     */
     activeSessionId,
 
     /** User profile for the currently active session. */
     activeUser,
 
-    /** All authenticated sessions (client + staff) for dropdown display. */
+    /** Every pooled session — client, staff and guest — for dropdown display. */
     allSessions,
 
     /** Client sessions keyed by actor_id. */
@@ -155,8 +169,11 @@ export function useSessionStoreContext() {
     /** Computed expiration timestamp for the active session (Unix epoch in ms). */
     expiresAt,
 
-    /** Guest session (only one at a time). */
+    /** The live guest session's token — the chosen guest, else the cookie-backed one. */
     guestSession,
+
+    /** Guest sessions keyed by session id. */
+    guestSessions,
 
     /** Active impersonation info (impersonatedId + impersonatorId), or null. */
     impersonatedSession,

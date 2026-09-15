@@ -730,10 +730,13 @@ export const accountNeedsActive: UseClientAccountContext = omit(
   "activeAccount"
 );
 
-// The two writes are OMITTED for the same reason the security ones are: the
-// contract declares them `Promise`-returning, as the real module will, while
-// the facade answers with a receipt the dispatcher renders. `destroy` is the
-// REAL `UseAccountActions` member, so it stays asserted.
+// `switchAccount` is OMITTED for the same reason the security ones are: the
+// contract declares it `Promise`-returning, as the real module will, while the
+// facade answers with a receipt the dispatcher renders. `saveAvatar` is
+// omitted because the facade no longer carries one — legacy served no
+// client-facing change-photo, and the platform takes an uploaded image
+// relation rather than an address the client types. `destroy` is the REAL
+// `UseAccountActions` member, so it stays asserted.
 declare const accountActions: Omit<
   UseClientAccountActions,
   "switchAccount" | "saveAvatar"

@@ -53,7 +53,9 @@ export function mapToken(data: string | Token): Token | undefined {
  */
 export function mapSessionUser(
   self: Pick<ISelf, "actor"> &
-    Partial<Pick<ISelf, "analytics" | "accounts" | "brand_id">> & {
+    Partial<
+      Pick<ISelf, "analytics" | "accounts" | "brand_id" | "delegated_ids">
+    > & {
       brands?: IBrand[];
     }
 ): SessionUser {
@@ -90,6 +92,9 @@ export function mapSessionUser(
     publicName: actor.public_name,
     username: actor.username,
     brandId: self.brand_id,
-    brands: self.brands
+    brands: self.brands,
+    // ?? {} defends against the wire's only recorded case (`null`), even
+    // though ISelf.delegated_ids is typed non-nullable — never remove this.
+    delegatedIds: self.delegated_ids ?? {}
   };
 }

@@ -1,0 +1,37 @@
+# Negative control — puts the design system's `Link` back as the tile tag. Its
+# cva base carries `rounded-xs`, and `cn()` calls bare `twMerge` with no custom
+# token config, so `rounded-card` and `rounded-xs` BOTH survive the merge and
+# the emitted CSS order decides. The linked tile renders at 2px against the
+# panels' 12px — the FE walkthrough defect 2.
+#
+# Intended RED:
+#   Metric — a stat tile wears one radius, linked or not >
+#     gives a tile that links somewhere the card radius and no competing one
+#     wears the same radius whether it links or not
+#
+# The UNLINKED tile stays green: it was never the `Link`, which is why the two
+# forms disagreed with each other and why the pair is asserted together.
+
+--- a/apps/portal-nuxt/app/portal/modules/metric/Metric.vue
++++ b/apps/portal-nuxt/app/portal/modules/metric/Metric.vue
+@@ -50,7 +50,7 @@
+  * ledger style is not the tile's sentence-case one — ui-gaps.md). Items are
+  * config-owned data (`ModuleRef.props`), never hardcoded here.
+  */
+-import { EmptyState, StatGroup, useTestAttrs } from "@upmind/ui";
++import { EmptyState, Link, StatGroup, useTestAttrs } from "@upmind/ui";
+ import { computed } from "vue";
+ import { METRIC_MODULE_VARIANT } from "./types";
+ import { tileClass, tileGridClass } from "./variants";
+@@ -67,9 +67,9 @@
+  * which `cn()` could not merge away from the tile's `rounded-card`
+  * (variants.ts), so a linked tile rendered square against the panels beside it.
+  */
+-function tileTag(item: MetricModuleItem): typeof NuxtLink | "div" {
++function tileTag(item: MetricModuleItem): typeof Link | "div" {
+   if (item.to === undefined) return "div";
+-  return NuxtLink;
++  return Link;
+ }
+ 
+ const meta = computed(() => {

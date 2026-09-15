@@ -2,14 +2,14 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/orders/mock-uuid-288/products/mock-uuid-291/provision_fields/values?case=related-host",
+    "path": "/api/orders/85d26e96-783d-1670-7d53-c314502e7043/products/5d96e763-ed09-1340-e07a-417482528340/provision_fields/values?case=related-host",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
       "content-type": "application/json",
       "origin": "null",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
-      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"HeadlessChrome\";v=\"151\", \"Chromium\";v=\"151\"",
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
@@ -30,7 +30,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-07-11T18:57:11.555Z",
+  "captured_at": "2026-09-10T05:20:20.642Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

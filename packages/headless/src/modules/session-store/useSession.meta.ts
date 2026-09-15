@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import { AccessRoleTypes } from "@upmind-automation/types";
+import { AccessRoleTypes, UpmindObjectTypes } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { getExpiresAt } from "./session-store.utils";
 import { useSessionStore } from ".";
@@ -44,6 +44,29 @@ export function createSessionMeta(_sessionId?: string) {
 
   const isGuestClient = computed(() => !!activeUser.value?.isGuest);
 
+  // Oracle disjunction is CLIENT + CONTRACTS_PRODUCT only (vue-app
+  // auth/client/index.ts:98-103); TICKET is deliberately excluded, do not add
+  // it. Staff/guest fall to false from the data (no delegatedIds/activeUser),
+  // never from an actor branch.
+  //
+  // @decision
+  // what: `delegatedIds` is read with `?.` even though `SessionUser.delegatedIds`
+  //   is typed non-optional.
+  // why: `buildInitialState()` restores `user` verbatim from sessionStorage
+  //   without going through `mapSessionUser`, so a user persisted by any build
+  //   predating this field has no `delegatedIds` key at all — the type's
+  //   guarantee does not hold for that legacy-persisted shape.
+  // rejected: widening `SessionUser.delegatedIds` to optional — the mapper
+  //   genuinely always populates it (`?? {}`); the hole is persisted legacy
+  //   data, not the mapper's contract, so defend at this read site instead of
+  //   pushing `?.` onto every future consumer of the type.
+  const hasDelegatedProducts = computed(
+    () =>
+      !!activeUser.value?.delegatedIds?.[UpmindObjectTypes.CONTRACTS_PRODUCT]
+        ?.length ||
+      !!activeUser.value?.delegatedIds?.[UpmindObjectTypes.CLIENT]?.length
+  );
+
   const isUnverified = computed(() => {
     if (!isClient.value || isGuestClient.value) return false;
     const { enforceEmailVerification } = useBrand();
@@ -85,6 +108,9 @@ export function createSessionMeta(_sessionId?: string) {
   return {
     /** True if refresh token can be used to get a new access token. */
     canRefresh,
+
+    /** True if this session's client holds delegated contract-products or delegated clients. */
+    hasDelegatedProducts,
 
     /** True if access token will expire within 5 minutes. */
     isAboutToExpire,

@@ -36,13 +36,13 @@ Feature: Invoices — load and read a single billing document
     Then the invoice is re-read from the platform
 
   @INV-invalidate @client
-  Scenario: Invalidate drops the cached invoice
+  Scenario: Reopening my invoice after it changed shows me the change
     Given a client has a cached invoice
     When the client invalidates the invoice
     Then the cached invoice is dropped so the next read re-fetches it
 
   @INV-ready @client
-  Scenario: Readiness resolves once the session and the invoice fetch settle
+  Scenario: I see my invoice once it and my session are both ready
     Given a client is authenticating while an invoice fetch is in flight
     When the session settles and the fetch completes
     Then the readiness signal resolves for the caller
@@ -50,19 +50,19 @@ Feature: Invoices — load and read a single billing document
   # --- Mapping (unit: pure transform of the raw record) --------------------
 
   @INV-map-shape @client
-  Scenario: The raw record is mapped to the customer-facing invoice shape
+  Scenario: My invoice shows me what I was billed, in the words I was billed in
     Given a raw invoice record from the platform
     When the record is mapped
     Then the result carries the id, number, status, currency, line items, payments, and money summary
 
   @INV-map-frozen @client
-  Scenario: The mapped client snapshot is the one frozen at conversion
+  Scenario: My invoice shows my details as they were when it was raised, not as they are now
     Given a raw invoice whose embedded client differs from the live client
     When the record is mapped
     Then the mapped invoice shows the client details embedded on the record
 
   @INV-map-optional-address @client
-  Scenario: An invoice with no address maps without one
+  Scenario: An invoice raised without an address still reads correctly
     Given a raw invoice that carries no billing address
     When the record is mapped
     Then the mapped invoice has no address rather than an empty one

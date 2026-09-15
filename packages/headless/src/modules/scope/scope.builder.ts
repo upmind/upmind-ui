@@ -197,6 +197,22 @@ export type ScopeBuilderActorWithContexts<T, TContexts extends string> = T &
   };
 
 /**
+ * Builder for any non-staff actor when they have NO valid contexts in the
+ * matrix. Nothing narrows the scope further, so only the actor-agnostic steps
+ * remain — the counterpart of `ScopeBuilderStaffNoContexts`.
+ */
+export type ScopeBuilderActorNoContexts<T> = T &
+  ScopeBuilderWithId<T> & {
+    /**
+     * Spawns a fresh instance that starts a new session instead of reusing an
+     * active one of this scope.
+     *
+     * @returns Finalized composable
+     */
+    fresh: () => T;
+  };
+
+/**
  * Result type for any actor based on actor type.
  * Maps each actor to the appropriate return type.
  *
@@ -204,7 +220,9 @@ export type ScopeBuilderActorWithContexts<T, TContexts extends string> = T &
  * - All others: Gets .for() only when matrix defines contexts for that actor
  *
  * Every branch also gets .withId() — a single-record read marks its record
- * regardless of actor, and the matrix constrains contexts, not record ids.
+ * regardless of actor, and the matrix constrains contexts, not record ids — and
+ * .fresh(), which asks for a NEW session of the named actor and is no more
+ * matrix-dependent than the id is.
  */
 export type ScopeBuilderResult<
   T,
@@ -213,7 +231,7 @@ export type ScopeBuilderResult<
 > = TActor extends ScopeActorTypes.STAFF
   ? ScopeBuilderStaffResult<T, TMatrix>
   : [ContextsForActor<TMatrix, TActor>] extends [never]
-    ? T & ScopeBuilderWithId<T>
+    ? ScopeBuilderActorNoContexts<T>
     : ScopeBuilderActorWithContexts<T, ContextsForActor<TMatrix, TActor>>;
 
 /**

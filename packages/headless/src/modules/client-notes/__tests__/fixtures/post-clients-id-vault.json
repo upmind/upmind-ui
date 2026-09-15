@@ -13,7 +13,7 @@
       "encrypted": false,
       "pinned": false,
       "contract_product_id": null,
-      "note": "prover fixture capture note 6433716",
+      "note": "prover fixture capture note 7383146",
       "visible_for_client": true
     }
   },
@@ -23,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a34bf94958146d4f-WAW",
+      "cf-ray": "a38bf5f54a2ebe37-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 02 Sep 2026 10:53:56 GMT",
+      "date": "Thu, 10 Sep 2026 05:16:28 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=K2i7EV6VOZgHk26xIEymEZw%2Fs3PtFj4J5N23jsbrbE5F7LQaU1cwfsfm9JV5jvzC6F9Aj%2FroWKgI1FcWlstU3OskocvdBbgbfoi1EMzX8A0HWMv52z%2FOPNI%2BEJBsbjh9x3T%2B2Lbx%2Fg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=mns264Z53owShEUFUkFjliEPradCd7f4WEzrZfi5Q0cW8T0KQZ2Pb8%2B5xuJMr1rmXl23hGf9Y8jibs5fqnX6ovjmwwE02aOsul0mj%2FR6vtk5D9jGSnq05Ka0%2BjEE79%2Bgpu8GLCSJrg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -39,7 +39,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "5952098d-3de4-0917-ed5a-31578626e347",
+        "id": "78985742-6489-7012-0e4c-21e325d0ed36",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -48,13 +48,13 @@
         "user_id": "none",
         "label": null,
         "code": null,
-        "note": "prover fixture capture note 6433716",
+        "note": "prover fixture capture note 7383146",
         "pinned": false,
         "visible_for_client": true,
         "encrypted": false,
         "contract_product_id": null,
-        "created_at": "2026-09-02 10:53:56",
-        "updated_at": "2026-09-02 10:53:56",
+        "created_at": "2026-09-10 05:16:28",
+        "updated_at": "2026-09-10 05:16:28",
         "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
         "author_user_id": null,
         "editor_client_id": null,
@@ -68,7 +68,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-02T10:53:56.514Z",
+  "captured_at": "2026-09-10T05:16:28.741Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

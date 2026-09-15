@@ -34,12 +34,20 @@ import type { ComputedRef } from "vue";
 export const MOCK_RECEIPT_REASON = {
   ALREADY_PAID: "already-paid",
   NOT_AWAITING_SETUP: "not-awaiting-setup",
+  /** A required blueprint field was left blank. */
+  SETUP_INCOMPLETE: "setup-incomplete",
   DEFAULT_METHOD: "default-method",
   LAST_METHOD: "last-method",
   NOTHING_UNREAD: "nothing-unread",
   IMPERSONATION_REFUSED: "impersonation-refused",
   /** An order that has moved past the point a client may call it off. */
   NOT_CANCELLABLE: "not-cancellable",
+  /** A product with an invoice past its due date — settle first, then cancel. */
+  OVERDUE_INVOICES: "overdue-invoices",
+  /** A product the brand does not let clients cancel. */
+  CANCELLATION_FORBIDDEN: "cancellation-forbidden",
+  /** The current password typed before a sensitive change did not match. */
+  WRONG_PASSWORD: "wrong-password",
   /** The card the account already charges first. */
   ALREADY_DEFAULT: "already-default",
   /** A provider function that goes somewhere, with nowhere named. */
@@ -112,8 +120,6 @@ export const MOCK_RECEIPT_REASON = {
   NO_DEPARTMENT: "no-department",
   /** The account the client is already acting for — switching to it moves nothing. */
   ALREADY_ACTIVE: "already-active",
-  /** An avatar address the client cleared — a picture with no address is not a picture. */
-  EMPTY_IMAGE: "empty-image",
   /** A token page reached with no address, or one this account does not hold. */
   UNKNOWN_EMAIL: "unknown-email",
   /** Fewer than two invoices the brand would gather — one document is already one. */

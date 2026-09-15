@@ -9,7 +9,8 @@
  * The schema and uischema are FUNCTIONS of the dataset and the addressed
  * entity, called with the REAL module's own parameter where one exists
  * (`ProfileContext`, `AddressContext`, `CompanyContext`), so the go-real swap
- * is one import line and the form itself never changes (plan F3, F4).
+ * is one
+import line and the form itself never changes (plan F3, F4).
  *
  * A CREATE opens on the schema module's own `defaults()`; an EDIT opens on the
  * row, and answers `undefined` when the dataset holds no such row — which the
@@ -29,10 +30,7 @@ import {
   brandingDefaults
 } from "../contracts/client-account.branding.schemas";
 import {
-  avatarDefaults,
   switchAccountDefaults,
-  useAvatarSchema,
-  useAvatarUischema,
   useSwitchAccountSchema,
   useSwitchAccountUischema
 } from "../contracts/client-account.schemas";
@@ -44,6 +42,23 @@ import {
   useWithdrawalUischema,
   withdrawalDefaults
 } from "../contracts/client-affiliate.schemas";
+import {
+  addressDefaults,
+  companyDefaults,
+  emailDefaults,
+  phoneDefaults,
+  useAddressSchema,
+  useAddressUischema,
+  useCompanySchema,
+  useCompanyUischema,
+  useEmailSchema,
+  useEmailUischema,
+  usePhoneSchema,
+  usePhoneUischema,
+  useVerificationCodeSchema,
+  useVerificationCodeUischema,
+  verificationCodeDefaults
+} from "../contracts/client-contacts.schemas";
 import {
   useCancellationSchema,
   useCancellationUischema,
@@ -57,6 +72,12 @@ import {
   useUischema as useDelegateInviteUischema,
   delegateInviteDefaults
 } from "../contracts/client-delegates.schemas";
+import {
+  CONSOLIDATION_PICK_MIN,
+  consolidationPickDefaults,
+  useConsolidationPickSchema,
+  useConsolidationPickUischema
+} from "../contracts/client-invoices.consolidation.schemas";
 import {
   invoiceShareDefaults,
   useSchema as useShareSchema,
@@ -72,6 +93,11 @@ import {
   useSchema as usePersonalDetailsSchema,
   useUischema as usePersonalDetailsUischema
 } from "../contracts/client-personal-details.schemas";
+import {
+  sensitiveDefaults,
+  useSensitiveSchema,
+  useSensitiveUischema
+} from "../contracts/client-security.sensitive.schemas";
 import {
   messageDefaults,
   relatedProductDefaults,
@@ -111,7 +137,12 @@ import {
   whyNotShareable,
   useMockTicket
 } from "../facades";
-import { useMockClientEmails } from "../facades/useMockContacts";
+import {
+  accountCountryId,
+  companyAddress,
+  useMockClientEmails
+} from "../facades/useMockContacts";
+import { consolidatableInvoices } from "../facades/useMockInvoice";
 import {
   affiliateLinkContext,
   delegateInviteContext,
@@ -323,6 +354,40 @@ const FORM_BUILDER: Readonly<Record<FormId, MockFormBuilder>> = {
       model: walletTopUpDefaults(context),
       submit: MOCK_ACTION.WALLET_TOPUP,
       submitLabel: "Add credit",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.CONSOLIDATE_INVOICES]: data => {
+    const gathered = consolidatableInvoices(data);
+    if (size(gathered) < CONSOLIDATION_PICK_MIN) return undefined;
+    return {
+      title: "Bring these invoices together",
+      description:
+        "Tick the unpaid invoices to close into one document. It falls due on your due day, or with the soonest of them.",
+      schema: useConsolidationPickSchema(gathered),
+      uischema: useConsolidationPickUischema(),
+      model: consolidationPickDefaults(gathered),
+      submit: MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED,
+      submitLabel: "Consolidate invoices",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.SENSITIVE_CODE]: (data, entityId) => {
+    if (entityId === undefined) return undefined;
+    const asksCode = data.security.twoFactorEnabled;
+    let description = "Type your current password to finish the change.";
+    if (asksCode) {
+      description =
+        "Type your current password and the code from your authenticator to finish the change.";
+    }
+    return {
+      title: "Confirm it is you",
+      description,
+      schema: useSensitiveSchema(asksCode),
+      uischema: useSensitiveUischema(asksCode),
+      model: sensitiveDefaults(asksCode),
+      submit: `${MOCK_ACTION.SENSITIVE_CODE_CONFIRM}:${entityId}`,
+      submitLabel: "Confirm",
       resetLabel: CANCEL_LABEL
     };
   },
@@ -542,17 +607,6 @@ const FORM_BUILDER: Readonly<Record<FormId, MockFormBuilder>> = {
       resetLabel: CANCEL_LABEL
     };
   },
-  [FORM_ID.AVATAR_SAVE]: data => ({
-    title: "Change photo",
-    description: "Point us at a picture and we will show it on your account.",
-    schema: useAvatarSchema(),
-    uischema: useAvatarUischema(),
-    model: avatarDefaults(data.persona.avatarSrc),
-    submit: MOCK_ACTION.AVATAR_SAVE,
-    submitLabel: SAVE_LABEL,
-    resetLabel: CANCEL_LABEL
-  }),
-
   // --- one address's own notifications and confirmation ------------------------
 
   [FORM_ID.EMAIL_TOPIC_OPT_INS]: (data, entityId) => {
@@ -592,6 +646,131 @@ const FORM_BUILDER: Readonly<Record<FormId, MockFormBuilder>> = {
   },
 
   // --- paying a document -------------------------------------------------------
+
+  // --- the profile page's contact lists (legacy's add/edit modals) ------------
+
+  [FORM_ID.EMAIL_CREATE]: () => ({
+    title: "Add email",
+    description:
+      "A new address starts unverified; we email it a link to confirm.",
+    schema: useEmailSchema(),
+    uischema: useEmailUischema(),
+    model: emailDefaults(),
+    submit: MOCK_ACTION.EMAIL_CREATE,
+    submitLabel: "Add email",
+    resetLabel: CANCEL_LABEL
+  }),
+  [FORM_ID.EMAIL_EDIT]: (data, entityId) => {
+    const row = addressableEmail(data, entityId);
+    if (row === undefined) return undefined;
+    return {
+      title: "Edit email",
+      description: "Changing the address sends a new verification link.",
+      schema: useEmailSchema(),
+      uischema: useEmailUischema(),
+      model: emailDefaults(row),
+      submit: `${MOCK_ACTION.EMAIL_SAVE}:${row.id}`,
+      submitLabel: "Save email",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.EMAIL_VERIFY_CODE]: (data, entityId) => {
+    const row = addressableEmail(data, entityId);
+    if (row === undefined || row.meta.isVerified) return undefined;
+    return {
+      title: "Enter verification code",
+      description: `Type the six-digit code we emailed to ${row.email}.`,
+      schema: useVerificationCodeSchema(),
+      uischema: useVerificationCodeUischema(),
+      model: verificationCodeDefaults(),
+      submit: `${MOCK_ACTION.EMAIL_VERIFY_CODE}:${row.id}`,
+      submitLabel: "Verify",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.PHONE_CREATE]: () => ({
+    title: "Add phone",
+    description: "A number we can reach you on.",
+    schema: usePhoneSchema(),
+    uischema: usePhoneUischema(),
+    model: phoneDefaults(),
+    submit: MOCK_ACTION.PHONE_CREATE,
+    submitLabel: "Add phone",
+    resetLabel: CANCEL_LABEL
+  }),
+  [FORM_ID.PHONE_EDIT]: (data, entityId) => {
+    if (entityId === undefined) return undefined;
+    const row = find(data.phones, { id: entityId });
+    if (row === undefined) return undefined;
+    return {
+      title: "Edit phone",
+      description: "A number we can reach you on.",
+      schema: usePhoneSchema(),
+      uischema: usePhoneUischema(),
+      model: phoneDefaults(row),
+      submit: `${MOCK_ACTION.PHONE_SAVE}:${row.id}`,
+      submitLabel: "Save phone",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.ADDRESS_CREATE]: data => {
+    const countryId = accountCountryId(data);
+    return {
+      title: "Add new address",
+      description: "An address you can invoice products to.",
+      schema: useAddressSchema(countryId),
+      uischema: useAddressUischema(),
+      model: addressDefaults(countryId),
+      submit: MOCK_ACTION.ADDRESS_CREATE,
+      submitLabel: "Add address",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.ADDRESS_EDIT]: (data, entityId) => {
+    if (entityId === undefined) return undefined;
+    const row = find(data.addresses, { id: entityId });
+    if (row === undefined) return undefined;
+    return {
+      title: "Edit address",
+      description: "An address you can invoice products to.",
+      schema: useAddressSchema(row.address.countryId),
+      uischema: useAddressUischema(),
+      model: addressDefaults(accountCountryId(data), row),
+      submit: `${MOCK_ACTION.ADDRESS_SAVE}:${row.id}`,
+      submitLabel: "Save address",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.COMPANY_CREATE]: data => {
+    const countryId = accountCountryId(data);
+    return {
+      title: "Add new company details",
+      description: "A business you can invoice products as.",
+      schema: useCompanySchema(countryId),
+      uischema: useCompanyUischema(),
+      model: companyDefaults(countryId),
+      submit: MOCK_ACTION.COMPANY_CREATE,
+      submitLabel: "Add company",
+      resetLabel: CANCEL_LABEL
+    };
+  },
+  [FORM_ID.COMPANY_EDIT]: (data, entityId) => {
+    if (entityId === undefined) return undefined;
+    const row = find(data.companies, { id: entityId });
+    if (row === undefined) return undefined;
+    const address = companyAddress(data, row);
+    const countryId = address?.address.countryId ?? accountCountryId(data);
+    return {
+      title: "Edit company",
+      description: "A business you can invoice products as.",
+      schema: useCompanySchema(countryId),
+      uischema: useCompanyUischema(),
+      model: companyDefaults(countryId, row, address),
+      submit: `${MOCK_ACTION.COMPANY_SAVE}:${row.id}`,
+      submitLabel: "Save company",
+      resetLabel: CANCEL_LABEL
+    };
+  },
 
   [FORM_ID.IP_WHITELIST_CREATE]: () => ({
     title: "Add an IP address",

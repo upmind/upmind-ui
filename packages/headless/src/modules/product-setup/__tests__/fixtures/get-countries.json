@@ -8,8 +8,8 @@
       "authorization": "Bearer <REDACTED>",
       "content-type": "application/json",
       "origin": "null",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
-      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"HeadlessChrome\";v=\"151\", \"Chromium\";v=\"151\"",
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
@@ -22,7 +22,7 @@
       "status": "ok",
       "data": [
         {
-          "id": "mock-uuid-3",
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
           "name": "Afghanistan",
           "code": "AF",
           "code3": "",
@@ -34,7 +34,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-83",
+          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
           "name": "Aland Islands",
           "code": "AX",
           "code3": "",
@@ -46,7 +46,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-60",
+          "id": "24d03679-424d-0e71-04b3-153698d582e8",
           "name": "Albania",
           "code": "AL",
           "code3": "",
@@ -58,7 +58,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-25",
+          "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
           "name": "Algeria",
           "code": "DZ",
           "code3": "",
@@ -70,7 +70,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-78",
+          "id": "e47d7382-4850-7931-56c8-1e642d59e063",
           "name": "American Samoa",
           "code": "AS",
           "code3": "",
@@ -82,7 +82,7 @@
           "post_code_regex": "^\\d{5}(-{1}\\d{4,6})$"
         },
         {
-          "id": "mock-uuid-9",
+          "id": "45952098-d3de-4091-76a3-1578626e347e",
           "name": "Andorra",
           "code": "AD",
           "code3": "",
@@ -94,7 +94,7 @@
           "post_code_regex": "^[Aa][Dd]\\d{3}$"
         },
         {
-          "id": "mock-uuid-14",
+          "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
           "name": "Angola",
           "code": "AO",
           "code3": "",
@@ -106,7 +106,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-16",
+          "id": "73de7864-2de5-3971-4ef2-1208469530d0",
           "name": "Anguilla",
           "code": "AI",
           "code3": "",
@@ -118,7 +118,7 @@
           "post_code_regex": "^[Aa][I][-][2][6][4][0]$"
         },
         {
-          "id": "mock-uuid-24",
+          "id": "57898574-2648-9701-25c2-1e325d0ed369",
           "name": "Antarctica",
           "code": "AQ",
           "code3": "",
@@ -130,7 +130,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-34",
+          "id": "9320e435-795e-78d1-88a3-1643202d9860",
           "name": "Antigua And Barbuda",
           "code": "AG",
           "code3": "",
@@ -142,7 +142,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-35",
+          "id": "2785d26e-9678-3d16-70b3-14502e70439d",
           "name": "Argentina",
           "code": "AR",
           "code3": "",
@@ -154,7 +154,7 @@
           "post_code_regex": "^\\d{4}|[A-Za-z]\\d{4}[a-zA-Z]{3}$"
         },
         {
-          "id": "mock-uuid-37",
+          "id": "825d96e7-63ed-0913-ddf4-174825283406",
           "name": "Armenia",
           "code": "AM",
           "code3": "",
@@ -166,7 +166,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-40",
+          "id": "5d085e69-d562-3719-7ec2-18e940d42370",
           "name": "Aruba",
           "code": "AW",
           "code3": "",
@@ -178,7 +178,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-41",
+          "id": "4d036794-24d0-e710-94a3-153698d582e8",
           "name": "Australia",
           "code": "AU",
           "code3": "",
@@ -190,19 +190,19 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-43",
+          "id": "8d632507-9806-5d1e-36b8-174e234e98d2",
           "name": "Austria",
           "code": "AT",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:27",
           "vat": "20.00",
           "eea": 1,
           "phone_code": "+43",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-46",
+          "id": "47d73824-8507-9315-36f8-1e642d59e063",
           "name": "Azerbaijan",
           "code": "AZ",
           "code3": "",
@@ -214,7 +214,7 @@
           "post_code_regex": "^[Aa][Zz]\\d{4}$"
         },
         {
-          "id": "mock-uuid-51",
+          "id": "5952098d-3de4-0917-e6c3-1578626e347e",
           "name": "Bahamas",
           "code": "BS",
           "code3": "",
@@ -226,7 +226,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-54",
+          "id": "20403869-6e54-721d-59a5-18d9305e7d23",
           "name": "Bahrain",
           "code": "BH",
           "code3": "",
@@ -238,7 +238,7 @@
           "post_code_regex": "^\\d{3,4}$"
         },
         {
-          "id": "mock-uuid-62",
+          "id": "3de78642-de53-9714-5eb2-1208469530d0",
           "name": "Bangladesh",
           "code": "BD",
           "code3": "",
@@ -250,7 +250,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-66",
+          "id": "78985742-6489-7012-05f2-1e325d0ed369",
           "name": "Barbados",
           "code": "BB",
           "code3": "",
@@ -262,7 +262,7 @@
           "post_code_regex": "^[Aa][Zz]\\d{5}$"
         },
         {
-          "id": "mock-uuid-69",
+          "id": "320e4357-95e7-8d18-48c3-1643202d9860",
           "name": "Belarus",
           "code": "BY",
           "code3": "",
@@ -274,19 +274,19 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-70",
+          "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
           "name": "Belgium",
           "code": "BE",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:27",
           "vat": "21.00",
           "eea": 1,
           "phone_code": "+32",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-72",
+          "id": "825d96e7-63ed-0913-6db4-174825283406",
           "name": "Belize",
           "code": "BZ",
           "code3": "",
@@ -298,7 +298,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-19",
+          "id": "5d085e69-d562-3719-eef2-18e940d42370",
           "name": "Benin",
           "code": "BJ",
           "code3": "",
@@ -310,7 +310,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-47",
+          "id": "4d036794-24d0-e710-24c3-153698d582e8",
           "name": "Bermuda",
           "code": "BM",
           "code3": "",
@@ -322,7 +322,7 @@
           "post_code_regex": "^[A-Za-z]{2}\\s([A-Za-z]{2}|\\d{2})$"
         },
         {
-          "id": "mock-uuid-77",
+          "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
           "name": "Bhutan",
           "code": "BT",
           "code3": "",
@@ -334,7 +334,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-11",
+          "id": "47d73824-8507-9315-e6b8-1e642d59e063",
           "name": "Bolivia",
           "code": "BO",
           "code3": "",
@@ -346,7 +346,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-38",
+          "id": "5952098d-3de4-0917-96f3-1578626e347e",
           "name": "Bosnia And Herzegovina",
           "code": "BA",
           "code3": "",
@@ -358,7 +358,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-49",
+          "id": "20403869-6e54-721d-69c5-18d9305e7d23",
           "name": "Botswana",
           "code": "BW",
           "code3": "",
@@ -370,7 +370,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-44",
+          "id": "3de78642-de53-9714-6ea2-1208469530d0",
           "name": "Bouvet Island",
           "code": "BV",
           "code3": "",
@@ -382,7 +382,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-67",
+          "id": "78985742-6489-7012-25b2-1e325d0ed369",
           "name": "Brazil",
           "code": "BR",
           "code3": "",
@@ -394,7 +394,7 @@
           "post_code_regex": "^\\d{5}-\\d{3}$"
         },
         {
-          "id": "mock-uuid-29",
+          "id": "320e4357-95e7-8d18-78f3-1643202d9860",
           "name": "British Indian Ocean Territory",
           "code": "IO",
           "code3": "",
@@ -406,7 +406,7 @@
           "post_code_regex": "^[Bb]{2}[Nn][Dd]\\s{0,1}[1][Zz]{2}$"
         },
         {
-          "id": "mock-uuid-53",
+          "id": "2785d26e-9678-3d16-90c3-14502e70439d",
           "name": "Brunei Darussalam",
           "code": "BN",
           "code3": "",
@@ -418,19 +418,19 @@
           "post_code_regex": "^[A-Za-z]{2}\\d{4}$"
         },
         {
-          "id": "mock-uuid-50",
+          "id": "825d96e7-63ed-0913-7da4-174825283406",
           "name": "Bulgaria",
           "code": "BG",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:27",
           "vat": "20.00",
           "eea": 1,
           "phone_code": "+359",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-58",
+          "id": "5d085e69-d562-3719-4eb2-18e940d42370",
           "name": "Burkina Faso",
           "code": "BF",
           "code3": "",
@@ -442,7 +442,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-22",
+          "id": "4d036794-24d0-e710-44f3-153698d582e8",
           "name": "Burundi",
           "code": "BI",
           "code3": "",
@@ -454,7 +454,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-31",
+          "id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
           "name": "Cambodia",
           "code": "KH",
           "code3": "",
@@ -466,7 +466,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-42",
+          "id": "47d73824-8507-9315-76a8-1e642d59e063",
           "name": "Cameroon",
           "code": "CM",
           "code3": "",
@@ -478,7 +478,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-63",
+          "id": "5952098d-3de4-0917-76b3-1578626e347e",
           "name": "Canada",
           "code": "CA",
           "code3": "",
@@ -490,7 +490,7 @@
           "post_code_regex": "/^[^d,f,i,o,q,u,w,z]\\d[^d,f,i,o,q,u,w,z]\\s?\\d[^d,f,i,o,q,u,w,z]\\d$/i"
         },
         {
-          "id": "mock-uuid-71",
+          "id": "20403869-6e54-721d-29f5-18d9305e7d23",
           "name": "Cape Verde",
           "code": "CV",
           "code3": "",
@@ -502,7 +502,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-76",
+          "id": "3de78642-de53-9714-7ec2-1208469530d0",
           "name": "Cayman Islands",
           "code": "KY",
           "code3": "",
@@ -514,7 +514,7 @@
           "post_code_regex": "^[Kk][Yy]\\d[-\\s]{0,1}\\d{4}$"
         },
         {
-          "id": "mock-uuid-56",
+          "id": "78985742-6489-7012-85a2-1e325d0ed369",
           "name": "Central African Republic",
           "code": "CF",
           "code3": "",
@@ -526,7 +526,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-20",
+          "id": "320e4357-95e7-8d18-08b3-1643202d9860",
           "name": "Chad",
           "code": "TD",
           "code3": "",
@@ -538,7 +538,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-7",
+          "id": "2785d26e-9678-3d16-40f3-14502e70439d",
           "name": "Chile",
           "code": "CL",
           "code3": "",
@@ -550,7 +550,7 @@
           "post_code_regex": "^\\d{7}\\s\\(\\d{3}-\\d{4}\\)$"
         },
         {
-          "id": "mock-uuid-6",
+          "id": "825d96e7-63ed-0913-5dc4-174825283406",
           "name": "China",
           "code": "CN",
           "code3": "",
@@ -562,7 +562,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-61",
+          "id": "5d085e69-d562-3719-6ea2-18e940d42370",
           "name": "Christmas Island",
           "code": "CX",
           "code3": "",
@@ -574,7 +574,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-28",
+          "id": "4d036794-24d0-e710-74b3-153698d582e8",
           "name": "Cocos (Keeling) Islands",
           "code": "CC",
           "code3": "",
@@ -586,7 +586,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-79",
+          "id": "8d632507-9806-5d1e-66f8-174e234e98d2",
           "name": "Colombia",
           "code": "CO",
           "code3": "",
@@ -598,7 +598,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-27",
+          "id": "47d73824-8507-9315-96c8-1e642d59e063",
           "name": "Comoros",
           "code": "KM",
           "code3": "",
@@ -610,7 +610,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-36",
+          "id": "5952098d-3de4-0917-26f3-1578626e347e",
           "name": "Congo",
           "code": "CG",
           "code3": "",
@@ -622,7 +622,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-15",
+          "id": "20403869-6e54-721d-89b5-18d9305e7d23",
           "name": "Congo, Democratic Republic",
           "code": "CD",
           "code3": "",
@@ -634,7 +634,7 @@
           "post_code_regex": "^[Cc][Dd]$"
         },
         {
-          "id": "mock-uuid-73",
+          "id": "3de78642-de53-9714-9ef2-1208469530d0",
           "name": "Cook Islands",
           "code": "CK",
           "code3": "",
@@ -646,7 +646,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-59",
+          "id": "78985742-6489-7012-75c2-1e325d0ed369",
           "name": "Costa Rica",
           "code": "CR",
           "code3": "",
@@ -658,7 +658,7 @@
           "post_code_regex": "^\\d{4,5}$"
         },
         {
-          "id": "mock-uuid-75",
+          "id": "320e4357-95e7-8d18-d8a3-1643202d9860",
           "name": "Cote D'Ivoire",
           "code": "CI",
           "code3": "",
@@ -670,19 +670,19 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-48",
+          "id": "2785d26e-9678-3d16-30f3-14502e70439d",
           "name": "Croatia",
           "code": "HR",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:27",
           "vat": "25.00",
           "eea": 1,
           "phone_code": "+385",
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-74",
+          "id": "825d96e7-63ed-0913-2da4-174825283406",
           "name": "Cuba",
           "code": "CU",
           "code3": "",
@@ -694,7 +694,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-65",
+          "id": "5d085e69-d562-3719-8ec2-18e940d42370",
           "name": "Curacao",
           "code": "CW",
           "code3": "",
@@ -706,43 +706,43 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-18",
+          "id": "4d036794-24d0-e710-54c3-153698d582e8",
           "name": "Cyprus",
           "code": "CY",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:27",
           "vat": "19.00",
           "eea": 1,
           "phone_code": "+357",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-55",
+          "id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
           "name": "Czech Republic",
           "code": "CZ",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "21.00",
           "eea": 1,
           "phone_code": "+420",
           "post_code_regex": "^\\d{3}\\s\\d{2}$"
         },
         {
-          "id": "mock-uuid-17",
+          "id": "47d73824-8507-9315-66a8-1e642d59e063",
           "name": "Denmark",
           "code": "DK",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "25.00",
           "eea": 1,
           "phone_code": "+45",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-68",
+          "id": "5952098d-3de4-0917-d6c3-1578626e347e",
           "name": "Djibouti",
           "code": "DJ",
           "code3": "",
@@ -754,7 +754,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-80",
+          "id": "20403869-6e54-721d-09a5-18d9305e7d23",
           "name": "Dominica",
           "code": "DM",
           "code3": "",
@@ -766,7 +766,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-57",
+          "id": "3de78642-de53-9714-8eb2-1208469530d0",
           "name": "Dominican Republic",
           "code": "DO",
           "code3": "",
@@ -778,7 +778,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-10",
+          "id": "78985742-6489-7012-d5f2-1e325d0ed369",
           "name": "Ecuador",
           "code": "EC",
           "code3": "",
@@ -790,7 +790,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-8",
+          "id": "320e4357-95e7-8d18-28b3-1643202d9860",
           "name": "Egypt",
           "code": "EG",
           "code3": "",
@@ -802,7 +802,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-13",
+          "id": "2785d26e-9678-3d16-80a3-14502e70439d",
           "name": "El Salvador",
           "code": "SV",
           "code3": "",
@@ -814,7 +814,7 @@
           "post_code_regex": "^1101$"
         },
         {
-          "id": "mock-uuid-21",
+          "id": "825d96e7-63ed-0913-edb4-174825283406",
           "name": "Equatorial Guinea",
           "code": "GQ",
           "code3": "",
@@ -826,7 +826,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-23",
+          "id": "5d085e69-d562-3719-9eb2-18e940d42370",
           "name": "Eritrea",
           "code": "ER",
           "code3": "",
@@ -838,19 +838,19 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-26",
+          "id": "4d036794-24d0-e710-e4c3-153698d582e8",
           "name": "Estonia",
           "code": "EE",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "20.00",
           "eea": 1,
           "phone_code": "+372",
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-32",
+          "id": "8d632507-9806-5d1e-26f8-174e234e98d2",
           "name": "Ethiopia",
           "code": "ET",
           "code3": "",
@@ -862,7 +862,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-33",
+          "id": "47d73824-8507-9315-26c8-1e642d59e063",
           "name": "Falkland Islands(Malvinas)",
           "code": "FK",
           "code3": "",
@@ -874,7 +874,7 @@
           "post_code_regex": "^[Ff][Ii][Qq]{2}\\s{0,1}[1][Zz]{2}$"
         },
         {
-          "id": "mock-uuid-52",
+          "id": "5952098d-3de4-0917-66a3-1578626e347e",
           "name": "Faroe Islands",
           "code": "FO",
           "code3": "",
@@ -886,7 +886,7 @@
           "post_code_regex": "^\\d{3}$"
         },
         {
-          "id": "mock-uuid-81",
+          "id": "20403869-6e54-721d-d9c5-18d9305e7d23",
           "name": "Fiji",
           "code": "FJ",
           "code3": "",
@@ -898,31 +898,31 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-82",
+          "id": "3de78642-de53-9714-4ea2-1208469530d0",
           "name": "Finland",
           "code": "FI",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "24.00",
           "eea": 1,
           "phone_code": "+358",
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-45",
+          "id": "78985742-6489-7012-e5b2-1e325d0ed369",
           "name": "France",
           "code": "FR",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "20.00",
           "eea": 1,
           "phone_code": "+33",
           "post_code_regex": " /^\\d{2}[ ]?\\d{3}$/"
         },
         {
-          "id": "mock-uuid-64",
+          "id": "320e4357-95e7-8d18-38c3-1643202d9860",
           "name": "French Guiana",
           "code": "GF",
           "code3": "",
@@ -934,7 +934,7 @@
           "post_code_regex": "^973\\d{2}$"
         },
         {
-          "id": "mock-uuid-12",
+          "id": "2785d26e-9678-3d16-d0c3-14502e70439d",
           "name": "French Polynesia",
           "code": "PF",
           "code3": "",
@@ -946,7 +946,7 @@
           "post_code_regex": "^987\\d{2}$"
         },
         {
-          "id": "mock-uuid-30",
+          "id": "825d96e7-63ed-0913-9dc4-174825283406",
           "name": "French Southern Territories",
           "code": "TF",
           "code3": "",
@@ -958,7 +958,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-39",
+          "id": "5d085e69-d562-3719-5ea2-18e940d42370",
           "name": "Gabon",
           "code": "GA",
           "code3": "",
@@ -970,7 +970,7 @@
           "post_code_regex": "^\\d{2}\\s[a-zA-Z-_ ]\\s\\d{2}$"
         },
         {
-          "id": "mock-uuid-84",
+          "id": "4d036794-24d0-e710-84f3-153698d582e8",
           "name": "Gambia",
           "code": "GM",
           "code3": "",
@@ -982,7 +982,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-96",
+          "id": "8d632507-9806-5d1e-06c8-174e234e98d2",
           "name": "Georgia",
           "code": "GE",
           "code3": "",
@@ -994,19 +994,19 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-97",
+          "id": "47d73824-8507-9315-56c8-1e642d59e063",
           "name": "Germany",
           "code": "DE",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "19.00",
           "eea": 1,
           "phone_code": "+49",
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-98",
+          "id": "5952098d-3de4-0917-56a3-1578626e347e",
           "name": "Ghana",
           "code": "GH",
           "code3": "",
@@ -1018,7 +1018,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-99",
+          "id": "20403869-6e54-721d-99b5-18d9305e7d23",
           "name": "Gibraltar",
           "code": "GI",
           "code3": "",
@@ -1030,19 +1030,19 @@
           "post_code_regex": "^[Gg][Xx][1]{2}\\s{0,1}[1][Aa]{2}$"
         },
         {
-          "id": "mock-uuid-100",
+          "id": "3de78642-de53-9714-0ec2-1208469530d0",
           "name": "Greece",
           "code": "GR",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "24.00",
           "eea": 1,
           "phone_code": "+30",
           "post_code_regex": "^\\d{3}\\s{0,1}\\d{2}$"
         },
         {
-          "id": "mock-uuid-101",
+          "id": "78985742-6489-7012-35b2-1e325d0ed369",
           "name": "Greenland",
           "code": "GL",
           "code3": "",
@@ -1054,7 +1054,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-102",
+          "id": "320e4357-95e7-8d18-58a3-1643202d9860",
           "name": "Grenada",
           "code": "GD",
           "code3": "",
@@ -1066,7 +1066,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-103",
+          "id": "2785d26e-9678-3d16-20a3-14502e70439d",
           "name": "Guadeloupe",
           "code": "GP",
           "code3": "",
@@ -1078,7 +1078,7 @@
           "post_code_regex": "^971\\d{2}$"
         },
         {
-          "id": "mock-uuid-104",
+          "id": "825d96e7-63ed-0913-0dc4-174825283406",
           "name": "Guam",
           "code": "GU",
           "code3": "",
@@ -1090,7 +1090,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-105",
+          "id": "5d085e69-d562-3719-dea2-18e940d42370",
           "name": "Guatemala",
           "code": "GT",
           "code3": "",
@@ -1102,7 +1102,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-106",
+          "id": "4d036794-24d0-e710-64c3-153698d582e8",
           "name": "Guernsey",
           "code": "GG",
           "code3": "",
@@ -1114,7 +1114,7 @@
           "post_code_regex": "^[A-Za-z]{2}\\d\\s{0,1}\\d[A-Za-z]{2}$"
         },
         {
-          "id": "mock-uuid-107",
+          "id": "8d632507-9806-5d1e-46f8-174e234e98d2",
           "name": "Guinea",
           "code": "GN",
           "code3": "",
@@ -1126,7 +1126,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-108",
+          "id": "47d73824-8507-9315-46c8-1e642d59e063",
           "name": "Guinea - Bissau",
           "code": "GW",
           "code3": "",
@@ -1138,7 +1138,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-109",
+          "id": "5952098d-3de4-0917-86a3-1578626e347e",
           "name": "Guyana",
           "code": "GY",
           "code3": "",
@@ -1150,7 +1150,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-110",
+          "id": "20403869-6e54-721d-e9b5-18d9305e7d23",
           "name": "Haiti",
           "code": "HT",
           "code3": "",
@@ -1162,7 +1162,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-111",
+          "id": "3de78642-de53-9714-eef2-1208469530d0",
           "name": "Heard Island & Mcdonald Islands",
           "code": "HM",
           "code3": "",
@@ -1174,7 +1174,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-112",
+          "id": "78985742-6489-7012-95f2-1e325d0ed369",
           "name": "Holy See(Vatican City State)",
           "code": "VA",
           "code3": "",
@@ -1186,7 +1186,7 @@
           "post_code_regex": "^120$"
         },
         {
-          "id": "mock-uuid-113",
+          "id": "320e4357-95e7-8d18-68f3-1643202d9860",
           "name": "Honduras",
           "code": "HN",
           "code3": "",
@@ -1198,7 +1198,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-114",
+          "id": "2785d26e-9678-3d16-60c3-14502e70439d",
           "name": "Hong Kong",
           "code": "HK",
           "code3": "",
@@ -1210,31 +1210,31 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-115",
+          "id": "2785d26e-9678-3d16-67a3-14502e70439d",
           "name": "Hungary",
           "code": "HU",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "27.00",
           "eea": 1,
           "phone_code": "+36",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-116",
+          "id": "825d96e7-63ed-0913-46c4-174825283406",
           "name": "Iceland",
           "code": "IS",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "7.50",
           "eea": 1,
           "phone_code": "+354",
           "post_code_regex": "^\\d{3}$"
         },
         {
-          "id": "mock-uuid-117",
+          "id": "5d085e69-d562-3719-04a2-18e940d42370",
           "name": "India",
           "code": "IN",
           "code3": "",
@@ -1246,7 +1246,7 @@
           "post_code_regex": "/^(?!0{1})\\d{6}$/"
         },
         {
-          "id": "mock-uuid-118",
+          "id": "4d036794-24d0-e710-d7b3-153698d582e8",
           "name": "Indonesia",
           "code": "ID",
           "code3": "",
@@ -1258,7 +1258,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-119",
+          "id": "8d632507-9806-5d1e-9eb8-174e234e98d2",
           "name": "Iran, Islamic Republic Of",
           "code": "IR",
           "code3": "",
@@ -1270,7 +1270,7 @@
           "post_code_regex": "^\\d{5}-\\d{5}$"
         },
         {
-          "id": "mock-uuid-120",
+          "id": "47d73824-8507-9315-82c8-1e642d59e063",
           "name": "Iraq",
           "code": "IQ",
           "code3": "",
@@ -1282,19 +1282,19 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-121",
+          "id": "5952098d-3de4-0917-35f3-1578626e347e",
           "name": "Ireland",
           "code": "IE",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "23.00",
           "eea": 1,
           "phone_code": "+353",
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-122",
+          "id": "20403869-6e54-721d-3ec5-18d9305e7d23",
           "name": "Isle Of Man",
           "code": "IM",
           "code3": "",
@@ -1306,7 +1306,7 @@
           "post_code_regex": "^[Ii[Mm]\\d{1,2}\\s\\d\\[A-Z]{2}$"
         },
         {
-          "id": "mock-uuid-123",
+          "id": "3de78642-de53-9714-22f2-1208469530d0",
           "name": "Israel",
           "code": "IL",
           "code3": "",
@@ -1318,19 +1318,19 @@
           "post_code_regex": "^\\b\\d{5}(\\d{2})?$"
         },
         {
-          "id": "mock-uuid-124",
+          "id": "78985742-6489-7012-54b2-1e325d0ed369",
           "name": "Italy",
           "code": "IT",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "22.00",
           "eea": 1,
           "phone_code": "+39",
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-125",
+          "id": "320e4357-95e7-8d18-8ea3-1643202d9860",
           "name": "Jamaica",
           "code": "JM",
           "code3": "",
@@ -1342,7 +1342,7 @@
           "post_code_regex": "^\\d{2}$"
         },
         {
-          "id": "mock-uuid-126",
+          "id": "2785d26e-9678-3d16-57c3-14502e70439d",
           "name": "Japan",
           "code": "JP",
           "code3": "",
@@ -1354,7 +1354,7 @@
           "post_code_regex": "^\\d{7}\\s\\(\\d{3}-\\d{4}\\)$"
         },
         {
-          "id": "mock-uuid-127",
+          "id": "825d96e7-63ed-0913-86f4-174825283406",
           "name": "Jersey",
           "code": "JE",
           "code3": "",
@@ -1366,7 +1366,7 @@
           "post_code_regex": "^[Jj][Ee]\\d\\s{0,1}\\d[A-Za-z]{2}$"
         },
         {
-          "id": "mock-uuid-128",
+          "id": "5d085e69-d562-3719-34b2-18e940d42370",
           "name": "Jordan",
           "code": "JO",
           "code3": "",
@@ -1378,7 +1378,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-129",
+          "id": "4d036794-24d0-e710-07a3-153698d582e8",
           "name": "Kazakhstan",
           "code": "KZ",
           "code3": "",
@@ -1390,7 +1390,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-130",
+          "id": "8d632507-9806-5d1e-8eb8-174e234e98d2",
           "name": "Kenya",
           "code": "KE",
           "code3": "",
@@ -1402,7 +1402,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-131",
+          "id": "47d73824-8507-9315-02f8-1e642d59e063",
           "name": "Kiribati",
           "code": "KI",
           "code3": "",
@@ -1414,7 +1414,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-132",
+          "id": "5952098d-3de4-0917-45c3-1578626e347e",
           "name": "Korea",
           "code": "KR",
           "code3": "",
@@ -1426,7 +1426,7 @@
           "post_code_regex": "^\\d{6}\\s\\(\\d{3}-\\d{3}\\)$"
         },
         {
-          "id": "mock-uuid-133",
+          "id": "47d73824-8507-9315-ed5b-81e642d59e06",
           "name": "Kosovo",
           "code": "XK",
           "code3": "",
@@ -1438,7 +1438,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-134",
+          "id": "20403869-6e54-721d-4ea5-18d9305e7d23",
           "name": "Kuwait",
           "code": "KW",
           "code3": "",
@@ -1450,7 +1450,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-135",
+          "id": "3de78642-de53-9714-32c2-1208469530d0",
           "name": "Kyrgyzstan",
           "code": "KG",
           "code3": "",
@@ -1462,7 +1462,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-136",
+          "id": "78985742-6489-7012-44f2-1e325d0ed369",
           "name": "Lao People's Democratic Republic",
           "code": "LA",
           "code3": "",
@@ -1474,19 +1474,19 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-137",
+          "id": "320e4357-95e7-8d18-4eec-31643202d986",
           "name": "Latvia",
           "code": "LV",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "21.00",
           "eea": 1,
           "phone_code": "+371",
           "post_code_regex": "^[Ll][Vv][- ]{0,1}\\d{4}$"
         },
         {
-          "id": "mock-uuid-138",
+          "id": "2785d26e-9678-3d16-707f-314502e70439",
           "name": "Lebanon",
           "code": "LB",
           "code3": "",
@@ -1498,7 +1498,7 @@
           "post_code_regex": "^\\d{4}\\s{0,1}\\d{4}$"
         },
         {
-          "id": "mock-uuid-139",
+          "id": "825d96e7-63ed-0913-d36b-417482528340",
           "name": "Lesotho",
           "code": "LS",
           "code3": "",
@@ -1510,7 +1510,7 @@
           "post_code_regex": "^\\d{3}$"
         },
         {
-          "id": "mock-uuid-140",
+          "id": "5d085e69-d562-3719-724a-218e940d4237",
           "name": "Liberia",
           "code": "LR",
           "code3": "",
@@ -1522,7 +1522,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-141",
+          "id": "4d036794-24d0-e710-937b-3153698d582e",
           "name": "Libyan Arab Jamahiriya",
           "code": "LY",
           "code3": "",
@@ -1534,43 +1534,43 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-142",
+          "id": "8d632507-9806-5d1e-37ef-8174e234e98d",
           "name": "Liechtenstein",
           "code": "LI",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "8.00",
           "eea": 1,
           "phone_code": "+423",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-143",
+          "id": "47d73824-8507-9315-3d2c-81e642d59e06",
           "name": "Lithuania",
           "code": "LT",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "21.00",
           "eea": 1,
           "phone_code": "+370",
           "post_code_regex": "^[Ll][Tt][- ]{0,1}\\d{5}$"
         },
         {
-          "id": "mock-uuid-144",
+          "id": "5952098d-3de4-0917-e05b-31578626e347",
           "name": "Luxembourg",
           "code": "LU",
           "code3": "",
           "created_at": "2017-10-18 14:16:21",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "17.00",
           "eea": 1,
           "phone_code": "+352",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-145",
+          "id": "20403869-6e54-721d-57eb-518d9305e7d2",
           "name": "Macao",
           "code": "MO",
           "code3": "",
@@ -1582,7 +1582,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-146",
+          "id": "3de78642-de53-9714-5d2f-21208469530d",
           "name": "Macedonia",
           "code": "MK",
           "code3": "",
@@ -1594,7 +1594,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-147",
+          "id": "78985742-6489-7012-064b-21e325d0ed36",
           "name": "Madagascar",
           "code": "MG",
           "code3": "",
@@ -1606,7 +1606,7 @@
           "post_code_regex": "^\\d{3}$"
         },
         {
-          "id": "mock-uuid-148",
+          "id": "320e4357-95e7-8d18-44ef-31643202d986",
           "name": "Malawi",
           "code": "MW",
           "code3": "",
@@ -1618,7 +1618,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-149",
+          "id": "2785d26e-9678-3d16-777b-314502e70439",
           "name": "Malaysia",
           "code": "MY",
           "code3": "",
@@ -1630,7 +1630,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-150",
+          "id": "825d96e7-63ed-0913-dd6a-417482528340",
           "name": "Maldives",
           "code": "MV",
           "code3": "",
@@ -1642,7 +1642,7 @@
           "post_code_regex": "^\\d{4,5}$"
         },
         {
-          "id": "mock-uuid-151",
+          "id": "5d085e69-d562-3719-774c-218e940d4237",
           "name": "Mali",
           "code": "ML",
           "code3": "",
@@ -1654,19 +1654,19 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-152",
+          "id": "4d036794-24d0-e710-997a-3153698d582e",
           "name": "Malta",
           "code": "MT",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "18.00",
           "eea": 1,
           "phone_code": "+356",
           "post_code_regex": "^[A-Za-z]{3}\\s{0,1}\\d{4}$"
         },
         {
-          "id": "mock-uuid-153",
+          "id": "8d632507-9806-5d1e-33eb-8174e234e98d",
           "name": "Marshall Islands",
           "code": "MH",
           "code3": "",
@@ -1678,7 +1678,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-154",
+          "id": "47d73824-8507-9315-332f-81e642d59e06",
           "name": "Martinique",
           "code": "MQ",
           "code3": "",
@@ -1690,7 +1690,7 @@
           "post_code_regex": "^972\\d{2}$"
         },
         {
-          "id": "mock-uuid-155",
+          "id": "5952098d-3de4-0917-ee5a-31578626e347",
           "name": "Mauritania",
           "code": "MR",
           "code3": "",
@@ -1702,7 +1702,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-156",
+          "id": "20403869-6e54-721d-55ea-518d9305e7d2",
           "name": "Mauritius",
           "code": "MU",
           "code3": "",
@@ -1714,7 +1714,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-157",
+          "id": "3de78642-de53-9714-552b-21208469530d",
           "name": "Mayotte",
           "code": "YT",
           "code3": "",
@@ -1726,7 +1726,7 @@
           "post_code_regex": "^976\\d{2}$"
         },
         {
-          "id": "mock-uuid-158",
+          "id": "78985742-6489-7012-004a-21e325d0ed36",
           "name": "Mexico",
           "code": "MX",
           "code3": "",
@@ -1738,7 +1738,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-159",
+          "id": "320e4357-95e7-8d18-47eb-31643202d986",
           "name": "Micronesia, Federated States Of",
           "code": "FM",
           "code3": "",
@@ -1750,7 +1750,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-160",
+          "id": "2785d26e-9678-3d16-7e7a-314502e70439",
           "name": "Moldova",
           "code": "MD",
           "code3": "",
@@ -1762,7 +1762,7 @@
           "post_code_regex": "^[Mm][Dd][- ]{0,1}\\d{4}$"
         },
         {
-          "id": "mock-uuid-5",
+          "id": "825d96e7-63ed-0913-d66c-417482528340",
           "name": "Monaco",
           "code": "MC",
           "code3": "",
@@ -1774,7 +1774,7 @@
           "post_code_regex": "^980\\d{2}$"
         },
         {
-          "id": "mock-uuid-161",
+          "id": "5d085e69-d562-3719-7e4f-218e940d4237",
           "name": "Mongolia",
           "code": "MN",
           "code3": "",
@@ -1786,7 +1786,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-162",
+          "id": "4d036794-24d0-e710-927c-3153698d582e",
           "name": "Montenegro",
           "code": "ME",
           "code3": "",
@@ -1798,7 +1798,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-163",
+          "id": "8d632507-9806-5d1e-35ea-8174e234e98d",
           "name": "Montserrat",
           "code": "MS",
           "code3": "",
@@ -1810,7 +1810,7 @@
           "post_code_regex": "^[Mm][Ss][Rr]\\s{0,1}\\d{4}$"
         },
         {
-          "id": "mock-uuid-164",
+          "id": "47d73824-8507-9315-3e2b-81e642d59e06",
           "name": "Morocco",
           "code": "MA",
           "code3": "",
@@ -1822,7 +1822,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-165",
+          "id": "5952098d-3de4-0917-e95c-31578626e347",
           "name": "Mozambique",
           "code": "MZ",
           "code3": "",
@@ -1834,7 +1834,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-166",
+          "id": "20403869-6e54-721d-56ec-518d9305e7d2",
           "name": "Myanmar",
           "code": "MM",
           "code3": "",
@@ -1846,7 +1846,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-167",
+          "id": "3de78642-de53-9714-562a-21208469530d",
           "name": "Namibia",
           "code": "NA",
           "code3": "",
@@ -1858,7 +1858,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-168",
+          "id": "78985742-6489-7012-024c-21e325d0ed36",
           "name": "Nauru",
           "code": "NR",
           "code3": "",
@@ -1870,7 +1870,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-169",
+          "id": "320e4357-95e7-8d18-40ea-31643202d986",
           "name": "Nepal",
           "code": "NP",
           "code3": "",
@@ -1882,19 +1882,19 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-170",
+          "id": "2785d26e-9678-3d16-797c-314502e70439",
           "name": "Netherlands",
           "code": "NL",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "21.00",
           "eea": 1,
           "phone_code": "+31",
           "post_code_regex": "^\\d{4}\\s{0,1}[A-Za-z]{2}$"
         },
         {
-          "id": "mock-uuid-171",
+          "id": "825d96e7-63ed-0913-d76f-417482528340",
           "name": "Netherlands Antilles",
           "code": "AN",
           "code3": "",
@@ -1906,7 +1906,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-172",
+          "id": "5d085e69-d562-3719-744b-218e940d4237",
           "name": "New Caledonia",
           "code": "NC",
           "code3": "",
@@ -1918,7 +1918,7 @@
           "post_code_regex": "^988\\d{2}$"
         },
         {
-          "id": "mock-uuid-173",
+          "id": "4d036794-24d0-e710-947f-3153698d582e",
           "name": "New Zealand",
           "code": "NZ",
           "code3": "",
@@ -1930,7 +1930,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-174",
+          "id": "8d632507-9806-5d1e-3dea-8174e234e98d",
           "name": "Nicaragua",
           "code": "NI",
           "code3": "",
@@ -1942,7 +1942,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-175",
+          "id": "47d73824-8507-9315-372b-81e642d59e06",
           "name": "Niger",
           "code": "NE",
           "code3": "",
@@ -1954,7 +1954,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-176",
+          "id": "5952098d-3de4-0917-e75f-31578626e347",
           "name": "Nigeria",
           "code": "NG",
           "code3": "",
@@ -1966,7 +1966,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-177",
+          "id": "20403869-6e54-721d-52eb-518d9305e7d2",
           "name": "Niue",
           "code": "NU",
           "code3": "",
@@ -1978,7 +1978,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-178",
+          "id": "3de78642-de53-9714-572f-21208469530d",
           "name": "Norfolk Island",
           "code": "NF",
           "code3": "",
@@ -1990,7 +1990,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-89",
+          "id": "78985742-6489-7012-084f-21e325d0ed36",
           "name": "Northern Mariana Islands",
           "code": "MP",
           "code3": "",
@@ -2002,19 +2002,19 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-179",
+          "id": "320e4357-95e7-8d18-4dec-31643202d986",
           "name": "Norway",
           "code": "NO",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "25.00",
           "eea": 1,
           "phone_code": "+47",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-180",
+          "id": "2785d26e-9678-3d16-747c-314502e70439",
           "name": "Oman",
           "code": "OM",
           "code3": "",
@@ -2026,7 +2026,7 @@
           "post_code_regex": "^\\d{3}$"
         },
         {
-          "id": "mock-uuid-181",
+          "id": "825d96e7-63ed-0913-d56b-417482528340",
           "name": "Pakistan",
           "code": "PK",
           "code3": "",
@@ -2038,7 +2038,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-182",
+          "id": "5d085e69-d562-3719-764b-218e940d4237",
           "name": "Palau",
           "code": "PW",
           "code3": "",
@@ -2050,7 +2050,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-183",
+          "id": "4d036794-24d0-e710-977b-3153698d582e",
           "name": "Palestine, State of",
           "code": "PS",
           "code3": "",
@@ -2062,7 +2062,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-184",
+          "id": "8d632507-9806-5d1e-36ec-8174e234e98d",
           "name": "Panama",
           "code": "PA",
           "code3": "",
@@ -2074,7 +2074,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-185",
+          "id": "47d73824-8507-9315-392a-81e642d59e06",
           "name": "Papua New Guinea",
           "code": "PG",
           "code3": "",
@@ -2086,7 +2086,7 @@
           "post_code_regex": "^\\d{3}$"
         },
         {
-          "id": "mock-uuid-186",
+          "id": "5952098d-3de4-0917-e25b-31578626e347",
           "name": "Paraguay",
           "code": "PY",
           "code3": "",
@@ -2098,7 +2098,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-187",
+          "id": "20403869-6e54-721d-58ea-518d9305e7d2",
           "name": "Peru",
           "code": "PE",
           "code3": "",
@@ -2110,7 +2110,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-188",
+          "id": "3de78642-de53-9714-592b-21208469530d",
           "name": "Philippines",
           "code": "PH",
           "code3": "",
@@ -2122,7 +2122,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-189",
+          "id": "78985742-6489-7012-074b-21e325d0ed36",
           "name": "Pitcairn",
           "code": "PN",
           "code3": "",
@@ -2134,31 +2134,31 @@
           "post_code_regex": "^[Pp][Cc][Rr][Nn]\\s{0,1}[1][Zz]{2}$"
         },
         {
-          "id": "mock-uuid-91",
+          "id": "320e4357-95e7-8d18-42ef-31643202d986",
           "name": "Poland",
           "code": "PL",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "23.00",
           "eea": 1,
           "phone_code": "+48",
           "post_code_regex": "^\\d{2}[- ]{0,1}\\d{3}$"
         },
         {
-          "id": "mock-uuid-190",
+          "id": "2785d26e-9678-3d16-737f-314502e70439",
           "name": "Portugal",
           "code": "PT",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "23.00",
           "eea": 1,
           "phone_code": "+351",
           "post_code_regex": "^\\d{4}[- ]{0,1}\\d{3}$"
         },
         {
-          "id": "mock-uuid-191",
+          "id": "825d96e7-63ed-0913-d26a-417482528340",
           "name": "Puerto Rico",
           "code": "PR",
           "code3": "",
@@ -2170,7 +2170,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-192",
+          "id": "5d085e69-d562-3719-784a-218e940d4237",
           "name": "Qatar",
           "code": "QA",
           "code3": "",
@@ -2182,7 +2182,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-193",
+          "id": "4d036794-24d0-e710-957c-3153698d582e",
           "name": "Reunion",
           "code": "RE",
           "code3": "",
@@ -2194,19 +2194,19 @@
           "post_code_regex": "^974\\d{2}$"
         },
         {
-          "id": "mock-uuid-194",
+          "id": "8d632507-9806-5d1e-3eef-8174e234e98d",
           "name": "Romania",
           "code": "RO",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "19.00",
           "eea": 1,
           "phone_code": "+40",
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-195",
+          "id": "47d73824-8507-9315-362c-81e642d59e06",
           "name": "Russian Federation",
           "code": "RU",
           "code3": "",
@@ -2218,7 +2218,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-196",
+          "id": "5952098d-3de4-0917-ed5a-31578626e347",
           "name": "Rwanda",
           "code": "RW",
           "code3": "",
@@ -2230,7 +2230,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-197",
+          "id": "20403869-6e54-721d-50ec-518d9305e7d2",
           "name": "Saint Barthelemy",
           "code": "BL",
           "code3": "",
@@ -2242,7 +2242,7 @@
           "post_code_regex": "^97133$"
         },
         {
-          "id": "mock-uuid-198",
+          "id": "3de78642-de53-9714-582a-21208469530d",
           "name": "Saint Helena",
           "code": "SH",
           "code3": "",
@@ -2254,7 +2254,7 @@
           "post_code_regex": "^[Tt][Dd][Cc][Uu]\\s{0,1}[1][Zz]{2}$"
         },
         {
-          "id": "mock-uuid-199",
+          "id": "78985742-6489-7012-0d4a-21e325d0ed36",
           "name": "Saint Kitts And Nevis",
           "code": "KN",
           "code3": "",
@@ -2266,7 +2266,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-200",
+          "id": "320e4357-95e7-8d18-43eb-31643202d986",
           "name": "Saint Lucia",
           "code": "LC",
           "code3": "",
@@ -2278,7 +2278,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-201",
+          "id": "2785d26e-9678-3d16-787b-314502e70439",
           "name": "Saint Martin",
           "code": "MF",
           "code3": "",
@@ -2290,7 +2290,7 @@
           "post_code_regex": "^97150$"
         },
         {
-          "id": "mock-uuid-202",
+          "id": "825d96e7-63ed-0913-de6c-417482528340",
           "name": "Saint Pierre And Miquelon",
           "code": "PM",
           "code3": "",
@@ -2302,7 +2302,7 @@
           "post_code_regex": "^97500$"
         },
         {
-          "id": "mock-uuid-203",
+          "id": "5d085e69-d562-3719-794c-218e940d4237",
           "name": "Saint Vincent And Grenadines",
           "code": "VC",
           "code3": "",
@@ -2314,7 +2314,7 @@
           "post_code_regex": "^[Vv][Cc]\\d{4}$"
         },
         {
-          "id": "mock-uuid-204",
+          "id": "4d036794-24d0-e710-9e7f-3153698d582e",
           "name": "Samoa",
           "code": "WS",
           "code3": "",
@@ -2326,7 +2326,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-205",
+          "id": "8d632507-9806-5d1e-32eb-8174e234e98d",
           "name": "San Marino",
           "code": "SM",
           "code3": "",
@@ -2338,7 +2338,7 @@
           "post_code_regex": "^4789\\d$"
         },
         {
-          "id": "mock-uuid-206",
+          "id": "47d73824-8507-9315-322f-81e642d59e06",
           "name": "Sao Tome And Principe",
           "code": "ST",
           "code3": "",
@@ -2350,7 +2350,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-207",
+          "id": "5952098d-3de4-0917-e65c-31578626e347",
           "name": "Saudi Arabia",
           "code": "SA",
           "code3": "",
@@ -2362,7 +2362,7 @@
           "post_code_regex": "^\\d{5}(-{1}\\d{4})?$"
         },
         {
-          "id": "mock-uuid-208",
+          "id": "20403869-6e54-721d-5def-518d9305e7d2",
           "name": "Senegal",
           "code": "SN",
           "code3": "",
@@ -2374,7 +2374,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-209",
+          "id": "3de78642-de53-9714-542c-21208469530d",
           "name": "Serbia",
           "code": "RS",
           "code3": "",
@@ -2386,7 +2386,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-210",
+          "id": "78985742-6489-7012-0e4c-21e325d0ed36",
           "name": "Seychelles",
           "code": "SC",
           "code3": "",
@@ -2398,7 +2398,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-211",
+          "id": "320e4357-95e7-8d18-45ea-31643202d986",
           "name": "Sierra Leone",
           "code": "SL",
           "code3": "",
@@ -2410,7 +2410,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-212",
+          "id": "2785d26e-9678-3d16-7d7a-314502e70439",
           "name": "Singapore",
           "code": "SG",
           "code3": "",
@@ -2422,31 +2422,31 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-213",
+          "id": "2785d26e-9678-3d16-7deb-314502e70439",
           "name": "Slovakia",
           "code": "SK",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "20.00",
           "eea": 1,
           "phone_code": "+421",
           "post_code_regex": "^\\d{5}\\s\\(\\d{3}\\s\\d{2}\\)$"
         },
         {
-          "id": "mock-uuid-214",
+          "id": "825d96e7-63ed-0913-d97c-417482528340",
           "name": "Slovenia",
           "code": "SI",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "22.00",
           "eea": 1,
           "phone_code": "+386",
           "post_code_regex": "^([Ss][Ii][- ]{0,1}){0,1}\\d{4}$"
         },
         {
-          "id": "mock-uuid-215",
+          "id": "5d085e69-d562-3719-756c-218e940d4237",
           "name": "Solomon Islands",
           "code": "SB",
           "code3": "",
@@ -2458,7 +2458,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-216",
+          "id": "4d036794-24d0-e710-985f-3153698d582e",
           "name": "Somalia",
           "code": "SO",
           "code3": "",
@@ -2470,7 +2470,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-217",
+          "id": "8d632507-9806-5d1e-302f-8174e234e98d",
           "name": "South Africa",
           "code": "ZA",
           "code3": "",
@@ -2482,7 +2482,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-218",
+          "id": "47d73824-8507-9315-355c-81e642d59e06",
           "name": "South Georgia And Sandwich Isl.",
           "code": "GS",
           "code3": "",
@@ -2494,7 +2494,7 @@
           "post_code_regex": "^[Ss][Ii][Qq]{2}\\s{0,1}[1][Zz]{2}$"
         },
         {
-          "id": "mock-uuid-219",
+          "id": "4d036794-24d0-e710-235b-3153698d582e",
           "name": "South Sudan",
           "code": "SS",
           "code3": "",
@@ -2506,19 +2506,19 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-220",
+          "id": "5952098d-3de4-0917-e58f-31578626e347",
           "name": "Spain",
           "code": "ES",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "21.00",
           "eea": 1,
           "phone_code": "+34",
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-221",
+          "id": "20403869-6e54-721d-593f-518d9305e7d2",
           "name": "Sri Lanka",
           "code": "LK",
           "code3": "",
@@ -2530,7 +2530,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-222",
+          "id": "3de78642-de53-9714-503c-21208469530d",
           "name": "Sudan",
           "code": "SD",
           "code3": "",
@@ -2542,7 +2542,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-223",
+          "id": "78985742-6489-7012-096c-21e325d0ed36",
           "name": "Suriname",
           "code": "SR",
           "code3": "",
@@ -2554,7 +2554,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-224",
+          "id": "320e4357-95e7-8d18-464a-31643202d986",
           "name": "Svalbard And Jan Mayen",
           "code": "SJ",
           "code3": "",
@@ -2566,7 +2566,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-225",
+          "id": "2785d26e-9678-3d16-72ea-314502e70439",
           "name": "Swaziland",
           "code": "SZ",
           "code3": "",
@@ -2578,31 +2578,31 @@
           "post_code_regex": "^[A-Za-z]\\d{3}$"
         },
         {
-          "id": "mock-uuid-226",
+          "id": "825d96e7-63ed-0913-d07f-417482528340",
           "name": "Sweden",
           "code": "SE",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "25.00",
           "eea": 1,
           "phone_code": "+46",
           "post_code_regex": "^\\d{3}\\s*\\d{2}$"
         },
         {
-          "id": "mock-uuid-227",
+          "id": "5d085e69-d562-3719-7d6f-218e940d4237",
           "name": "Switzerland",
           "code": "CH",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:18",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "8.00",
           "eea": 1,
           "phone_code": "+41",
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-228",
+          "id": "4d036794-24d0-e710-965b-3153698d582e",
           "name": "Syrian Arab Republic",
           "code": "SY",
           "code3": "",
@@ -2614,7 +2614,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-229",
+          "id": "8d632507-9806-5d1e-342b-8174e234e98d",
           "name": "Taiwan",
           "code": "TW",
           "code3": "",
@@ -2626,7 +2626,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-230",
+          "id": "47d73824-8507-9315-345f-81e642d59e06",
           "name": "Tajikistan",
           "code": "TJ",
           "code3": "",
@@ -2638,7 +2638,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-231",
+          "id": "5952098d-3de4-0917-e88b-31578626e347",
           "name": "Tanzania",
           "code": "TZ",
           "code3": "",
@@ -2650,7 +2650,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-232",
+          "id": "20403869-6e54-721d-5e3a-518d9305e7d2",
           "name": "Thailand",
           "code": "TH",
           "code3": "",
@@ -2662,7 +2662,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-233",
+          "id": "3de78642-de53-9714-5e3b-21208469530d",
           "name": "Timor-Leste",
           "code": "TL",
           "code3": "",
@@ -2674,7 +2674,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-234",
+          "id": "78985742-6489-7012-056f-21e325d0ed36",
           "name": "Togo",
           "code": "TG",
           "code3": "",
@@ -2686,7 +2686,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-235",
+          "id": "320e4357-95e7-8d18-494c-31643202d986",
           "name": "Tokelau",
           "code": "TK",
           "code3": "",
@@ -2698,7 +2698,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-236",
+          "id": "2785d26e-9678-3d16-76ea-314502e70439",
           "name": "Tonga",
           "code": "TO",
           "code3": "",
@@ -2710,7 +2710,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-237",
+          "id": "825d96e7-63ed-0913-d47b-417482528340",
           "name": "Trinidad And Tobago",
           "code": "TT",
           "code3": "",
@@ -2722,7 +2722,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-238",
+          "id": "5d085e69-d562-3719-706f-218e940d4237",
           "name": "Tunisia",
           "code": "TN",
           "code3": "",
@@ -2734,7 +2734,7 @@
           "post_code_regex": "^\\d{4}$"
         },
         {
-          "id": "mock-uuid-239",
+          "id": "4d036794-24d0-e710-9d5a-3153698d582e",
           "name": "Turkey",
           "code": "TR",
           "code3": "",
@@ -2746,7 +2746,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-240",
+          "id": "8d632507-9806-5d1e-392a-8174e234e98d",
           "name": "Turkmenistan",
           "code": "TM",
           "code3": "",
@@ -2758,7 +2758,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-241",
+          "id": "47d73824-8507-9315-385b-81e642d59e06",
           "name": "Turks And Caicos Islands",
           "code": "TC",
           "code3": "",
@@ -2770,7 +2770,7 @@
           "post_code_regex": "^[Tt][Kk][Cc][Aa]\\s{0,1}[1][Zz]{2}$"
         },
         {
-          "id": "mock-uuid-242",
+          "id": "5952098d-3de4-0917-e38a-31578626e347",
           "name": "Tuvalu",
           "code": "TV",
           "code3": "",
@@ -2782,7 +2782,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-243",
+          "id": "20403869-6e54-721d-533c-518d9305e7d2",
           "name": "Uganda",
           "code": "UG",
           "code3": "",
@@ -2794,7 +2794,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-244",
+          "id": "3de78642-de53-9714-523a-21208469530d",
           "name": "Ukraine",
           "code": "UA",
           "code3": "",
@@ -2806,7 +2806,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-245",
+          "id": "78985742-6489-7012-046b-21e325d0ed36",
           "name": "United Arab Emirates",
           "code": "AE",
           "code3": "",
@@ -2818,19 +2818,19 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-4",
+          "id": "320e4357-95e7-8d18-484f-31643202d986",
           "name": "United Kingdom",
           "code": "GB",
           "code3": "",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-07 14:05:17",
+          "updated_at": "2026-07-23 13:41:28",
           "vat": "20.00",
           "eea": 1,
           "phone_code": "+44",
           "post_code_regex": "/^[a-zA-Z]{1,2}[0-9][a-zA-Z0-9]? ?[0-9][a-zA-Z]{2}$/"
         },
         {
-          "id": "mock-uuid-246",
+          "id": "2785d26e-9678-3d16-75ec-314502e70439",
           "name": "United States",
           "code": "US",
           "code3": "",
@@ -2842,7 +2842,7 @@
           "post_code_regex": "^\\b\\d{5}\\b(?:[- ]{1}\\d{4})?$"
         },
         {
-          "id": "mock-uuid-247",
+          "id": "825d96e7-63ed-0913-d87a-417482528340",
           "name": "United States Outlying Islands",
           "code": "UM",
           "code3": "",
@@ -2854,7 +2854,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-248",
+          "id": "5d085e69-d562-3719-736b-218e940d4237",
           "name": "Uruguay",
           "code": "UY",
           "code3": "",
@@ -2866,7 +2866,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-249",
+          "id": "4d036794-24d0-e710-905f-3153698d582e",
           "name": "Uzbekistan",
           "code": "UZ",
           "code3": "",
@@ -2878,7 +2878,7 @@
           "post_code_regex": "^\\d{3} \\d{3}$"
         },
         {
-          "id": "mock-uuid-250",
+          "id": "8d632507-9806-5d1e-382c-8174e234e98d",
           "name": "Vanuatu",
           "code": "VU",
           "code3": "",
@@ -2890,7 +2890,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-251",
+          "id": "47d73824-8507-9315-305a-81e642d59e06",
           "name": "Venezuela",
           "code": "VE",
           "code3": "",
@@ -2902,7 +2902,7 @@
           "post_code_regex": "^\\d{4}(\\s[a-zA-Z]{1})?$"
         },
         {
-          "id": "mock-uuid-252",
+          "id": "5952098d-3de4-0917-e48c-31578626e347",
           "name": "Viet Nam",
           "code": "VN",
           "code3": "",
@@ -2914,7 +2914,7 @@
           "post_code_regex": "^\\d{6}$"
         },
         {
-          "id": "mock-uuid-253",
+          "id": "20403869-6e54-721d-543f-518d9305e7d2",
           "name": "Virgin Islands, British",
           "code": "VG",
           "code3": "",
@@ -2926,7 +2926,7 @@
           "post_code_regex": "^[Vv][Gg]\\d{4}$"
         },
         {
-          "id": "mock-uuid-254",
+          "id": "3de78642-de53-9714-533c-21208469530d",
           "name": "Virgin Islands, U.S.",
           "code": "VI",
           "code3": "",
@@ -2938,7 +2938,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-255",
+          "id": "78985742-6489-7012-266a-21e325d0ed36",
           "name": "Wallis And Futuna",
           "code": "WF",
           "code3": "",
@@ -2950,7 +2950,7 @@
           "post_code_regex": "^986\\d{2}$"
         },
         {
-          "id": "mock-uuid-256",
+          "id": "320e4357-95e7-8d18-7e4b-31643202d986",
           "name": "Western Sahara",
           "code": "EH",
           "code3": "",
@@ -2962,7 +2962,7 @@
           "post_code_regex": null
         },
         {
-          "id": "mock-uuid-257",
+          "id": "2785d26e-9678-3d16-e0ea-314502e70439",
           "name": "Yemen",
           "code": "YE",
           "code3": "",
@@ -2974,7 +2974,7 @@
           "post_code_regex": ""
         },
         {
-          "id": "mock-uuid-258",
+          "id": "825d96e7-63ed-0913-637c-417482528340",
           "name": "Zambia",
           "code": "ZM",
           "code3": "",
@@ -2986,7 +2986,7 @@
           "post_code_regex": "^\\d{5}$"
         },
         {
-          "id": "mock-uuid-259",
+          "id": "5d085e69-d562-3719-e26f-218e940d4237",
           "name": "Zimbabwe",
           "code": "ZW",
           "code3": "",
@@ -3005,7 +3005,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-07-11T09:38:15.362Z",
+  "captured_at": "2026-09-10T05:19:59.854Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

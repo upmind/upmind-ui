@@ -27,7 +27,18 @@ import { createRouter, createWebHistory } from "vue-router";
 import labsEn from "@upmind-automation/i18n/modules/labs-en.json";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ROUTE } from "../../../funnels/types";
-import { find, forEach, get, keys, map, omit, pickBy, some } from "lodash-es";
+import {
+  find,
+  first,
+  forEach,
+  get,
+  keys,
+  map,
+  omit,
+  pickBy,
+  some,
+  values
+} from "lodash-es";
 import type { SessionEntry } from "@upmind-automation/headless";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
@@ -58,14 +69,16 @@ export type SessionSeed = {
   expiresIn?: number;
   /** Session id of the staff session that impersonated this one. */
   impersonatedBy?: string;
+  /** The brand this session's client belongs to; staff carry none. */
+  brandId?: string;
 };
 
 type Sessions = Record<string, SessionEntry>;
 
 const clientSessions = ref<Sessions>({});
 const staffSessions = ref<Sessions>({});
+const guestSessions = ref<Sessions>({});
 const impersonatedSessions = ref<Record<string, string>>({});
-const guestSession = ref<unknown>(undefined);
 const activeActor = ref<AccessRoleTypes>(AccessRoleTypes.GUEST);
 const activeSessionId = ref<string | undefined>(undefined);
 const storeAvailable = ref(true);
@@ -86,7 +99,8 @@ function entry(seed: SessionSeed): SessionEntry {
       publicName: seed.publicName,
       fullName: seed.fullName,
       email: seed.email,
-      username: seed.email
+      username: seed.email,
+      brandId: seed.brandId
     }),
     ...(seed.avatar
       ? { avatar: { caption: seed.publicName ?? seed.id, src: seed.avatar } }
@@ -97,16 +111,26 @@ function entry(seed: SessionSeed): SessionEntry {
     scope: seed.actor,
     token: {
       access_token: `token-${seed.id}`,
+      actor_id: seed.id,
       created_at: Date.now(),
       expires_in: (seed.expiresIn ?? HOUR_MS) / 1000
     },
-    user
+    // A guest has no `/self` profile, so its entry carries no user.
+    ...(seed.actor === AccessRoleTypes.GUEST ? {} : { user })
   } as unknown as SessionEntry;
+}
+
+/** The pool a seed belongs in — guest keys by session id like the other two. */
+function bagFor(actor: AccessRoleTypes) {
+  if (actor === AccessRoleTypes.STAFF) return staffSessions;
+  if (actor === AccessRoleTypes.GUEST) return guestSessions;
+  return clientSessions;
 }
 
 /**
  * Put the pool in a known state. `active` names the session the store reports
- * as active; without one the store reads as a bare guest.
+ * as active; without one the store reads as a bare guest. `guest: true` adds
+ * the single cookie-backed guest a boot leaves behind.
  */
 export function seedPool(
   seeds: SessionSeed[],
@@ -114,10 +138,8 @@ export function seedPool(
 ): void {
   clientSessions.value = {};
   staffSessions.value = {};
+  guestSessions.value = {};
   impersonatedSessions.value = {};
-  guestSession.value = options.guest
-    ? { access_token: "token-guest", created_at: Date.now(), expires_in: 3600 }
-    : undefined;
   storeAvailable.value = options.available ?? true;
   allowedScopes.value = [
     AccessRoleTypes.GUEST,
@@ -125,9 +147,12 @@ export function seedPool(
     AccessRoleTypes.STAFF
   ];
 
-  forEach(seeds, seed => {
-    const bag =
-      seed.actor === AccessRoleTypes.STAFF ? staffSessions : clientSessions;
+  const pooled = options.guest
+    ? [...seeds, { id: "guest-live", actor: AccessRoleTypes.GUEST }]
+    : seeds;
+
+  forEach(pooled, seed => {
+    const bag = bagFor(seed.actor);
     bag.value = { ...bag.value, [seed.id]: entry(seed) };
     if (seed.impersonatedBy)
       impersonatedSessions.value = {
@@ -136,7 +161,7 @@ export function seedPool(
       };
   });
 
-  const activeSeed = find(seeds, { id: options.active });
+  const activeSeed = find(pooled, { id: options.active });
   activeSessionId.value = activeSeed?.id;
   activeActor.value = activeSeed?.actor ?? AccessRoleTypes.GUEST;
 }
@@ -145,21 +170,51 @@ export function seedPool(
 function sessionStoreDouble() {
   const allSessions = computed(() => ({
     ...clientSessions.value,
-    ...staffSessions.value
+    ...staffSessions.value,
+    ...guestSessions.value
   }));
 
   const activeSession = computed(() =>
     activeSessionId.value ? allSessions.value[activeSessionId.value] : undefined
   );
 
-  function bagFor(actor: AccessRoleTypes) {
-    return actor === AccessRoleTypes.STAFF ? staffSessions : clientSessions;
-  }
+  // The singular member is the LIVE guest — the one the pointer names when it
+  // names a guest at all, else the first pooled.
+  const guestSession = computed(() => {
+    const live =
+      activeActor.value === AccessRoleTypes.GUEST && activeSessionId.value
+        ? guestSessions.value[activeSessionId.value]
+        : undefined;
+    return (live ?? first(values(guestSessions.value)))?.token;
+  });
 
   function activate(actor: AccessRoleTypes, sessionId?: string): void {
     if (!some(allowedScopes.value, allowed => allowed === actor)) return;
+
+    // Both arms of the real store return early when their actor is already
+    // active on a named session, so a scope-level `activate(actor)` carrying no
+    // id never stomps that session back to the pool's first entry.
+    const activeIsNamed =
+      activeActor.value === actor &&
+      !!activeSessionId.value &&
+      !!bagFor(actor).value[activeSessionId.value];
+    if (activeIsNamed && (!sessionId || sessionId === activeSessionId.value))
+      return;
+
     activeActor.value = actor;
     activeSessionId.value = sessionId ?? keys(bagFor(actor).value)[0];
+  }
+
+  /** A NEW guest beside the pooled ones, active; the previous stays switchable. */
+  function addGuest(): Promise<void> {
+    const id = `guest-added-${keys(guestSessions.value).length + 1}`;
+    guestSessions.value = {
+      ...guestSessions.value,
+      [id]: entry({ id, actor: AccessRoleTypes.GUEST })
+    };
+    activeActor.value = AccessRoleTypes.GUEST;
+    activeSessionId.value = id;
+    return Promise.resolve();
   }
 
   function remove(actor: AccessRoleTypes, sessionId?: string): void {
@@ -186,6 +241,7 @@ function sessionStoreDouble() {
     useActions: () => ({
       activate,
       add: () => Promise.resolve(),
+      addGuest,
       clear: () => seedPool([]),
       get: (id: string) => allSessions.value[id],
       getExpiresAt: (token?: { created_at?: number; expires_in?: number }) =>
@@ -220,6 +276,7 @@ function sessionStoreDouble() {
       clientSessions,
       expiresAt: computed(() => null),
       guestSession,
+      guestSessions,
       impersonatedSession: computed(() => {
         const id = activeSessionId.value;
         const impersonatorId = id ? impersonatedSessions.value[id] : undefined;
@@ -231,7 +288,7 @@ function sessionStoreDouble() {
     useInternals: () => ({}),
     useMeta: () => ({
       hasClientSession: computed(() => !!keys(clientSessions.value).length),
-      hasGuestSession: computed(() => !!guestSession.value),
+      hasGuestSession: computed(() => !!keys(guestSessions.value).length),
       hasImpersonatedSessions: computed(
         () => !!keys(impersonatedSessions.value).length
       ),

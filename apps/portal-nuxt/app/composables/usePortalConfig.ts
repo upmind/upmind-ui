@@ -26,6 +26,7 @@
  */
 import { useLocalStorage } from "@vueuse/core";
 import { computed } from "vue";
+import type { RouteLocationNormalizedLoaded } from "vue-router";
 import type { PortalConfigId } from "~/portal/config";
 import type { MockDatasetId } from "~/portal/mock/store";
 import type { PortalConfig } from "~/portal/types";
@@ -104,9 +105,9 @@ function runtimeDefaultConfigId(): PortalConfigId | undefined {
   return undefined;
 }
 
-export function usePortalConfig() {
-  const route = useRoute();
-
+export function usePortalConfig(
+  route: Pick<RouteLocationNormalizedLoaded, "query"> = useRoute()
+) {
   const activeConfigId = computed<PortalConfigId>(() => {
     const queryConfig = route.query?.["config"];
     if (queryConfig !== undefined) {

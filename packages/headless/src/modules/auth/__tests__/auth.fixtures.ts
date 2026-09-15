@@ -32,6 +32,7 @@ import { describe, it, beforeAll, afterAll } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
 import { GrantTypes } from "@upmind-automation/types";
+import { mintClientToken, mintGuestToken } from "./auth.tokens";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -83,24 +84,6 @@ const SELF_QUERY =
 
 // -----------------------------------------------------------------------------
 
-/**
- * Mint a REAL (unsanitised) token outside the capture pipeline. The Generator
- * only ever returns sanitised bodies, so credentials for authed captures and
- * the refresh grant must come from a plain fetch that never touches disk.
- */
-async function mintToken(
-  grant: Record<string, string>
-): Promise<IToken | undefined> {
-  const response = await fetch(`${API_URL}/oauth/access_token`, {
-    method: "POST",
-    headers: { ...FORM_URLENCODED, Accept: "application/json", Origin: ORIGIN },
-    body: new URLSearchParams(grant).toString()
-  });
-  const body = await response.json().catch(() => null);
-  const token = (body?.access_token ? body : body?.data) as IToken | undefined;
-  return token?.access_token ? token : undefined;
-}
-
 /** Drop a buffered capture whose recorded path carries the given case tag. */
 function dropCapture(generator: Generator, caseTag: string): void {
   const captures = generator.getCapturedFixtures();
@@ -127,19 +110,8 @@ describe("Auth API Fixtures Generator", () => {
       name: "auth"
     });
 
-    clientToken = await mintToken({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS.client.username,
-      password: API_CREDENTIALS.client.password
-    });
-    if (!clientToken) {
-      throw new Error(
-        "Could not mint a client token with the staging credentials — " +
-          "check tests/fixtures/credentials.ts against the recording brand."
-      );
-    }
-
-    guestToken = await mintToken({ grant_type: GrantTypes.GUEST });
+    clientToken = await mintClientToken();
+    guestToken = await mintGuestToken();
   }, 30000);
 
   afterAll(() => {
@@ -285,11 +257,7 @@ describe("Auth API Fixtures Generator", () => {
   it("captures GET /api/clients_fields (200, client)", async () => {
     // The password-grant capture above re-mints for the same user, which
     // revokes the beforeAll bearer — the authed GETs need a fresh mint.
-    clientToken = await mintToken({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS.client.username,
-      password: API_CREDENTIALS.client.password
-    });
+    clientToken = await mintClientToken();
     if (clientToken?.access_token) {
       generator.setBearerToken(clientToken.access_token);
     }

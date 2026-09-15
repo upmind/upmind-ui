@@ -43,7 +43,7 @@ import {
   useContextScope
 } from "../../../../app/composables/scope";
 import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
-import { SCENARIO_ROUTE_META_KEY } from "../scenario.constants";
+import { scenarioRouteOf } from "../registry";
 import { useForcedState } from "./useForcedState";
 import {
   SCENARIO_PLAYER_STATUS,
@@ -113,7 +113,7 @@ function routeNavigator(
 
   return async scope => {
     const path = buildScopePath({
-      page: get(route.meta, SCENARIO_ROUTE_META_KEY, "") as string,
+      page: scenarioRouteOf(route),
       brandId: get(route.params, "brandIdOrOrg") as string | undefined,
       actor: scope.actor as ScopeActorTypes,
       context: scope.context

@@ -25,5 +25,31 @@ export const API_CREDENTIALS = {
   otherClient: {
     username: "nathan.robinson+english@upmind.com",
     password: "Password1"
+  },
+  /**
+   * A delegate PAIR on the same staging brand, registered for FE-3036.
+   *
+   * `delegateOwner` has granted `delegateMember` full account access, so
+   * `delegateMember`'s `/self` returns a POPULATED `delegated_ids` — the only
+   * account on staging that does. Every other recorded `/self` in this repo
+   * carries `null`, which is why the populated path had no fixture.
+   *
+   * The grant was made through the ORDINARY client-portal path: owner invites
+   * by email, the invite lands in the member's own email history, the member
+   * accepts via `/delegate_access/accept/{hash}`. No admin, no `skip_invite`.
+   * `tests/fixtures/record-delegates.ts` reproduces it end-to-end.
+   *
+   * Today the grant is account-level only, so `delegated_ids` carries the
+   * `client` key alone. The `contracts_product` and `ticket` keys need the
+   * owner to hold a product / ticket to delegate — that rides FE-3041 (DG-2),
+   * which owns per-product and per-ticket grants.
+   */
+  delegateOwner: {
+    username: "nathan.robinson+delegateowner@upmind.com",
+    password: "Password1"
+  },
+  delegateMember: {
+    username: "nathan.robinson+delegatemember@upmind.com",
+    password: "Password1"
   }
 };

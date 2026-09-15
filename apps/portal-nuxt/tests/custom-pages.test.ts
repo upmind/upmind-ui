@@ -101,7 +101,12 @@ function withHostilePages(): MockDataset {
 async function mountCatchAllAt(slug: readonly string[]) {
   const navigateTo = vi.fn();
   const useRoute = () => ({ params: { slug }, path: `/${slug.join("/")}` });
-  Object.assign(globalThis, { navigateTo, useRoute });
+  Object.assign(globalThis, {
+    navigateTo,
+    useRoute,
+    // Nuxt's compile-time macro; the page calls it at setup.
+    definePageMeta: () => undefined
+  });
 
   const page = await import("~/pages/[...slug].vue");
   const host = defineComponent({
@@ -221,6 +226,7 @@ describe("a path that names nothing", () => {
   afterEach(() => {
     Reflect.deleteProperty(globalThis, "navigateTo");
     Reflect.deleteProperty(globalThis, "useRoute");
+    Reflect.deleteProperty(globalThis, "definePageMeta");
   });
 
   it("resolves to nothing the config declares", () => {

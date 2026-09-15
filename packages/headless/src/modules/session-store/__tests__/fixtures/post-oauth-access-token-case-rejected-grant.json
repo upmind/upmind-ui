@@ -1,0 +1,57 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/oauth/access_token?case=rejected-grant",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": {
+      "grant_type": "refresh_token",
+      "refresh_token": "mock-refresh_token"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a38bf3bc0e6b21fc-DUB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 10 Sep 2026 05:14:57 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=FeGHyxB7oBhguN9lqQ5XFLAU8sLx0MHvyV%2Bx%2FTxm%2FOgYShh4QQ8AFhtx%2FYGBfgZxfD1VTKja6sjXNr6egKmRzLBC2KAraizJfcioCio6A2i8lyQ4tXwX81wiRNxp%2BITTJfwhSrc3cg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "d2f2a1fa3e0baba11ef5b0f4efba69e9d652d950",
+        "type": 8,
+        "code": 401,
+        "message": "The refresh token is invalid.",
+        "data": null
+      },
+      "messages": {
+        "hint": "Cannot decrypt the refresh token"
+      },
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-10T05:14:57.293Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "session-store"
+  }
+}

@@ -25,15 +25,15 @@ guard satisfies them perfectly. That asymmetry is the control's whole point: a
 suite carrying only the negative cases would grade this mutant as a pass.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/index.ts b/playgrounds/labs-nuxt/modules/scenarios/index.ts
-index 6efb64b30..4ddfee5bf 100644
+index 74bb2787e..db91c3613 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/index.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/index.ts
-@@ -43,7 +43,7 @@ const MODULE_NAME = "scenarios";
-
+@@ -56,7 +56,7 @@ const MODULE_NAME = "scenarios";
+ 
  /** Every duplicate in a list of route names or paths, as a readable clause. */
  function duplicatesOf(values: string[]): string[] {
 -  return keys(pickBy(countBy(values), count => count > 1));
 +  return keys(pickBy(countBy(values), count => count > 2));
  }
-
- export default defineNuxtModule({
+ 
+ /**

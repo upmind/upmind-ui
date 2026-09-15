@@ -11,22 +11,26 @@
 
 import {
   Bell,
+  Building2,
   CircleUserRound,
-  Coins,
-  House,
-  MessagesSquare,
-  NotebookPen,
-  Receipt,
-  Package,
   ClipboardList,
-  FolderTree,
+  Coins,
   CreditCard,
   FileClock,
   FileText,
+  FolderTree,
+  House,
   KeyRound,
   LayoutDashboard,
   LifeBuoy,
   Link2,
+  Mail,
+  MapPin,
+  MessagesSquare,
+  NotebookPen,
+  Package,
+  Phone,
+  Receipt,
   Repeat,
   Settings,
   ShieldCheck,
@@ -43,6 +47,7 @@ import {
   InvoiceStatus,
   InvoiceStatusGroups,
   NotificationChannelCodes,
+  SentEmailStatus,
   TicketStatusCodes
 } from "@upmind-automation/types";
 import {
@@ -62,6 +67,9 @@ import {
 } from "./actions";
 import {
   accountDelegatesCollection,
+  productDelegateAccessCollection,
+  productDelegatesCollection,
+  ticketDelegatesCollection,
   accountNotesCollection,
   accountSecretsCollection,
   affiliateCommissionsCollection,
@@ -78,10 +86,14 @@ import {
   TICKET_STATUS_TAB,
   invoicesCollection,
   ipWhitelistCollection,
+  billableEntitiesCollection,
+  BILLABLE_ENTITY_KIND,
   ticketsCollection,
   groupProductsCollection,
   groupCatalogueCollection,
   loginAttemptsCollection,
+  sentEmailsCollection,
+  EMAIL_STATUS_TAB,
   NOTIFICATION_FILTER,
   NOTIFICATION_FILTER_CRITERIA,
   notificationFeedCollection,
@@ -97,6 +109,16 @@ import {
   useVerifyEmailUischemaParser,
   verifyEmailDefaults
 } from "./contracts/account.schemas";
+import {
+  registerOrgDefaults,
+  useRegisterOrgSchema,
+  useRegisterOrgUischema
+} from "./contracts/auth.schemas.register-org";
+import {
+  resetPasswordDefaults,
+  useResetPasswordSchema,
+  useResetPasswordUischema
+} from "./contracts/auth.schemas.reset";
 import {
   useTwoFASchema,
   useTwoFAUischema,
@@ -133,6 +155,11 @@ import {
   useUischema as useNewTicketUischema,
   newTicketDefaults
 } from "./contracts/client-tickets.schemas";
+import {
+  setupDefaults,
+  useSetupSchema,
+  useSetupUischema
+} from "./contracts/contract-product-provisioning.schemas";
 import {
   useSchema as usePreferencesSchema,
   useUischema as usePreferencesUischema,
@@ -175,6 +202,7 @@ import {
   migrationPriceLabel,
   orderedMigrationOptions,
   productLifecycleEvents,
+  PRODUCT_EVENT_ID,
   migrationRefusal,
   MOCK_RECEIPT_REASON,
   templateSlotBody,
@@ -197,10 +225,10 @@ import { resolveMockForm } from "./forms/registry";
 import { ticketFormContext } from "./forms/support-contexts";
 import { useMockImpersonation } from "./impersonation";
 import {
-  CREDIT_NOTE_STATUS_LABEL,
-  creditNoteState,
-  CREDIT_NOTE_STATUS_TONE,
   COMMISSION_STATUS_TONE,
+  CREDIT_NOTE_STATUS_LABEL,
+  CREDIT_NOTE_STATUS_TONE,
+  creditNoteState,
   INVOICE_STATUS_LABEL,
   INVOICE_STATUS_TONE,
   ORDER_STATUS_LABEL,
@@ -213,6 +241,8 @@ import {
   PRODUCT_STATUS_TONE,
   SCHEDULED_ACTION_STATUS_LABEL,
   SCHEDULED_ACTION_STATUS_TONE,
+  SENT_EMAIL_STATUS_LABEL,
+  SENT_EMAIL_STATUS_TONE,
   TICKET_STATUS_LABEL,
   TICKET_STATUS_TONE
 } from "./status-labels";
@@ -271,6 +301,7 @@ import type {
   MockChildAccount,
   MockCompany,
   MockCreditNote,
+  MockCustomPage,
   MockDataset,
   MockDelegate,
   MockDocumentPayment,
@@ -279,10 +310,11 @@ import type {
   MockMoney,
   MockOrder,
   MockParty,
+  MockPhone,
   MockProduct,
-  MockCustomPage,
   MockProvisionField,
   MockProvisionFunction,
+  MockSentEmail,
   MockTaxLine,
   MockTicket,
   MockTicketMessage,
@@ -387,7 +419,17 @@ export function productTrialAction(
  */
 function productTags(product: MockProduct): ListModuleItem["tags"] {
   const labelForm = openFormValue(FORM_ID.PRODUCT_LABEL, product.id);
+  const openRequests = product.provisioning.unresolvedRequests ?? 0;
   return compact([
+    // Legacy's danger marker: the provider still owes this product something.
+    openRequests > 0 && {
+      label: `${countedNoun(openRequests, "open request")} with the provider`,
+      tone: "danger" as const,
+      action: {
+        value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
+        label: "Open the product"
+      }
+    },
     isTrialAhead(product) && {
       label: `Free trial · ends in ${countedNoun(trialDaysRemaining(product), "day")} on ${product.trialEndsAt}`,
       tone: "info"
@@ -428,7 +470,8 @@ export function activeProductItems(data: MockDataset): ListModuleItem[] {
     leadingIcon: Package,
     tags: productTags(product),
     action: productRowAction(product),
-    moreActions: productRowMoreActions(product)
+    moreActions: productRowMoreActions(product),
+    isInactive: isProductInactive(product)
   }));
 }
 
@@ -506,10 +549,26 @@ function productSummaryLine(product: MockProduct): string {
 }
 
 /** What a product IS reads first — its hostname, then what kind of thing it is. */
-function productLine(product: MockProduct): string {
-  const lead = compact([product.serviceIdentifier, product.category]).join(
-    " · "
+/** Legacy's `cProdOriginalName`: the name the brand replaced, kept in view. */
+function formerlyLine(product: MockProduct): string | undefined {
+  if (product.originalName === undefined) return undefined;
+  return `formerly ${product.originalName}`;
+}
+
+/** Cancelled and closed products read as past — legacy dims them and strikes the name. */
+function isProductInactive(product: MockProduct): boolean {
+  return (
+    product.status === ContractStatusCodes.CANCELLED ||
+    product.status === ContractStatusCodes.CLOSED
   );
+}
+
+function productLine(product: MockProduct): string {
+  const lead = compact([
+    product.serviceIdentifier,
+    product.category,
+    formerlyLine(product)
+  ]).join(" · ");
   if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
     return `${lead} · Action Needed`;
   }
@@ -551,18 +610,32 @@ function productFunctionAction(
 /**
  * A product row's own button — legacy's `cProdRowWithFuncs`: the provider's
  * featured function where it published one, and the way in to the product
- * where it did not. A product still waiting on its setup keeps the control
- * that finishes it, whatever its provider offers.
+ * where it did not. A product still waiting on its setup leads to the Setup
+ * tab instead, whatever its provider offers — the product root lands there.
  */
 function productRowAction(product: MockProduct): ListModuleItem["action"] {
   if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
     return {
-      value: mockActionValue(MOCK_ACTION.COMPLETE_SETUP, product.id),
+      value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
       label: "Complete setup"
     };
   }
   const featured = highlightedFunction(product);
   if (featured !== undefined) return productFunctionAction(product, featured);
+  return {
+    value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
+    label: MANAGE_PRODUCT_LABEL
+  };
+}
+
+/** Legacy's list item CTA (`cProdGridItem` `_action.manage_entity`), with setup taking its place while it is owed. */
+function listingRowAction(product: MockProduct): ListModuleItem["action"] {
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return {
+      value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
+      label: "Complete setup"
+    };
+  }
   return {
     value: mockActionValue(MOCK_ACTION.VIEW_PRODUCT, product.id),
     label: MANAGE_PRODUCT_LABEL
@@ -814,7 +887,12 @@ export function groupProductItems(
       { value: product.price?.formatted ?? "—", numeric: true }
     ],
     tags: productTags(product),
-    status: productBadge(product)
+    status: productBadge(product),
+    isInactive: isProductInactive(product),
+    // Legacy's list item carries one CTA and no overflow: "Manage", or the
+    // way into setup while that is still owed. The function button and the
+    // menu belong to the dashboard rows only (`cProdRowWithFuncs`).
+    action: listingRowAction(product)
   }));
 }
 
@@ -969,6 +1047,15 @@ export function productBillingSpecItems(
  * is a subscription to set anything on, and never on a product managed for
  * someone else; Tickets only where the brand runs a support desk.
  */
+/** The product's action areas, as the route spells them — named once for the nav and the guards. */
+export const PRODUCT_AREA_SLUG = {
+  SETUP: "setup",
+  OVERVIEW: "overview",
+  BILLING: "billing",
+  TICKETS: "tickets",
+  SETTINGS: "settings"
+} as const;
+
 export function productAreaNavItems(
   data: MockDataset,
   context: DataRouteContext
@@ -981,24 +1068,44 @@ export function productAreaNavItems(
     product.isDelegated !== true;
   return compact([
     product.status === ContractStatusCodes.AWAITING_ACTIVATION && {
-      to: `${base}/setup`,
+      to: `${base}/${PRODUCT_AREA_SLUG.SETUP}`,
       label: "Setup",
       icon: Wrench
     },
-    { to: base, label: "Overview", icon: LayoutDashboard },
-    { to: `${base}/billing`, label: "Billing", icon: CreditCard },
+    {
+      to: `${base}/${PRODUCT_AREA_SLUG.OVERVIEW}`,
+      label: "Overview",
+      icon: LayoutDashboard
+    },
+    {
+      to: `${base}/${PRODUCT_AREA_SLUG.BILLING}`,
+      label: "Billing",
+      icon: CreditCard
+    },
     isSupportEnabled(data) && {
-      to: `${base}/tickets`,
+      to: `${base}/${PRODUCT_AREA_SLUG.TICKETS}`,
       label: "Tickets",
       icon: LifeBuoy
     },
     hasSettings && {
-      to: `${base}/settings`,
+      to: `${base}/${PRODUCT_AREA_SLUG.SETTINGS}`,
       label: "Settings",
       icon: Settings
     },
     { to: `${base}/delegates`, label: "Delegates", icon: UsersRound }
   ]);
+}
+
+/**
+ * Where a product page's back link goes — its own group's listing. The route
+ * carries the group, so a second group needs no second composition; the
+ * structural product pages are shared across every group of every brand.
+ */
+export function productBackTo(
+  data: MockDataset,
+  context: DataRouteContext
+): string {
+  return `/${context.groupSlug ?? ""}`;
 }
 
 /** The product's tickets — legacy cProdTickets, filtered to this product. */
@@ -1027,8 +1134,14 @@ function describedBy(parts: readonly (string | undefined)[]): string {
 }
 
 /** The product delegates area — legacy cProdDelegates (account delegates, mocked account-wide). */
-export function productDelegateItems(data: MockDataset): ListModuleItem[] {
-  return map(data.delegates, delegate => ({
+export function productDelegateItems(
+  data: MockDataset,
+  context: DataRouteContext
+): ListModuleItem[] {
+  const { data: rows } = productDelegatesCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => ({
     id: delegate.id,
     title: delegate.name,
     description: describedBy([delegate.email, permissionList(delegate)])
@@ -1054,6 +1167,69 @@ function productPath(context: DataRouteContext, product: MockProduct): string {
  * for the LIST, so the redirect stands down. Pure: the catch-all page holds
  * the navigation, this holds the decision.
  */
+/**
+ * Legacy's setup tab sends a finished product back to its overview — once
+ * setup is confirmed the page has nothing left to ask.
+ */
+/**
+ * A product's root is a redirect position, never a page — legacy's own
+ * `ClientCProd` shell sent it to setup while setup was owed and to the
+ * overview otherwise. Overview therefore keeps its own address, which is what
+ * lets the area nav link to it: pointed at the root, the tab was swallowed by
+ * this redirect and read as dead.
+ */
+export function productRootRedirect(
+  data: MockDataset | undefined,
+  resolution: CatchAllResolution
+): string | undefined {
+  if (data === undefined) return undefined;
+  if (resolution.kind !== "product-detail") return undefined;
+  const product = find(data.products, { id: resolution.id });
+  if (product === undefined) return undefined;
+  return `/${resolution.group.slug}/${product.id}/${productOpeningArea(product)}`;
+}
+
+/** Which area a product opens on — the setup it still owes, else its overview. */
+function productOpeningArea(product: MockProduct): string {
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return PRODUCT_AREA_SLUG.SETUP;
+  }
+  return PRODUCT_AREA_SLUG.OVERVIEW;
+}
+
+/**
+ * The one redirect a catch-all path asks for, or none: the sole-product
+ * shortcut, the finished Setup tab, or the setup a product still owes. Pure —
+ * the route middleware holds the navigation, this holds the decision.
+ */
+export function catchAllRedirect(
+  data: MockDataset | undefined,
+  resolution: CatchAllResolution,
+  query: DataRouteContext
+): string | undefined {
+  if (resolution.kind === "unmatched") return undefined;
+  const sole = soleProductRedirect(data, resolution, query);
+  if (sole !== undefined) return sole;
+  const finished = setupAreaRedirect(data, resolution);
+  if (finished !== undefined) return finished;
+  return productRootRedirect(data, resolution);
+}
+
+export function setupAreaRedirect(
+  data: MockDataset | undefined,
+  resolution: CatchAllResolution
+): string | undefined {
+  if (data === undefined) return undefined;
+  if (resolution.kind !== "product-action-area") return undefined;
+  if (resolution.area !== PRODUCT_AREA_SLUG.SETUP) return undefined;
+  const product = find(data.products, { id: resolution.id });
+  if (product === undefined) return undefined;
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return undefined;
+  }
+  return `/${resolution.group.slug}/${product.id}/${PRODUCT_AREA_SLUG.OVERVIEW}`;
+}
+
 export function soleProductRedirect(
   data: MockDataset | undefined,
   resolution: CatchAllResolution,
@@ -1071,7 +1247,8 @@ export function soleProductRedirect(
   const inGroup = filter(data.products, { groupSlug: resolution.group.slug });
   const only = inGroup.at(0);
   if (size(inGroup) !== 1 || only === undefined) return undefined;
-  return `/${resolution.group.slug}/${only.id}`;
+  // Straight to the area it opens on: the root would only redirect again.
+  return `/${resolution.group.slug}/${only.id}/${productOpeningArea(only)}`;
 }
 
 /** The group's orderable catalogue — legacy's storefront, scoped to the route's group. */
@@ -1116,7 +1293,10 @@ export function productBillboardItems(
       id: product.id,
       title: product.customLabel ?? product.name,
       category: product.category,
-      description: product.serviceIdentifier,
+      description: compact([
+        product.serviceIdentifier,
+        formerlyLine(product)
+      ]).join(" · "),
       leadingImageSrc: product.imageSrc,
       leadingIcon: Package,
       status: productBadge(product),
@@ -1183,7 +1363,10 @@ function productCondition(
       message: "We need a few details before this product can go live.",
       tone: "warning",
       action: {
-        value: mockActionValue(MOCK_ACTION.NAVIGATE, `${base}/setup`),
+        value: mockActionValue(
+          MOCK_ACTION.NAVIGATE,
+          `${base}/${PRODUCT_AREA_SLUG.SETUP}`
+        ),
         label: "Complete setup"
       }
     };
@@ -1340,7 +1523,10 @@ function productStandingCondition(
       message: `This product renews automatically. The next invoice is raised on ${product.nextDueDate}.`,
       tone: "success",
       action: {
-        value: mockActionValue(MOCK_ACTION.NAVIGATE, `${base}/billing`),
+        value: mockActionValue(
+          MOCK_ACTION.NAVIGATE,
+          `${base}/${PRODUCT_AREA_SLUG.BILLING}`
+        ),
         label: "View billing"
       }
     };
@@ -1830,7 +2016,7 @@ export function productManageActions(
         `${FORM_ID.PRODUCT_CANCEL_REQUEST}:${product.id}`
       ),
       label: "Cancellation options",
-      disabledReason: cancellationDisabledReason(product)
+      disabledReason: cancellationDisabledReason(data, product)
     }
   ]);
 }
@@ -1847,9 +2033,31 @@ function canAskToCancel(product: MockProduct): boolean {
 }
 
 /** Why the cancellation control is not live, in the same words its refusal would use. */
-function cancellationDisabledReason(product: MockProduct): string | undefined {
-  if (!product.pendingProRata) return undefined;
-  return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.PRO_RATA_PENDING];
+/** Legacy's three reasons the cancellation control is dead, in the words its refusal would use. */
+function cancellationDisabledReason(
+  data: MockDataset,
+  product: MockProduct
+): string | undefined {
+  if (product.canCancel === false) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.CANCELLATION_FORBIDDEN];
+  }
+  if (product.pendingProRata) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.PRO_RATA_PENDING];
+  }
+  if (hasOverdueInvoice(data, product)) {
+    return MOCK_REFUSAL_MESSAGE[MOCK_RECEIPT_REASON.OVERDUE_INVOICES];
+  }
+  return undefined;
+}
+
+function hasOverdueInvoice(data: MockDataset, product: MockProduct): boolean {
+  return some(
+    data.invoices,
+    invoice =>
+      invoice.productId === product.id &&
+      includes(InvoiceStatusGroups.UNPAID, invoice.status) &&
+      invoice.dueDate < today()
+  );
 }
 
 /** Why the change control is not live, in the same words its refusal would use. */
@@ -1964,6 +2172,36 @@ export function productHasPendingProRata(
 }
 
 /** An event that has PASSED reads as a warning; one still coming reads as information. */
+/**
+ * Legacy's timeline links, one per event that the client can still change:
+ * raise the renewal invoice yourself, turn automatic renewal back on, or call
+ * off a scheduled termination.
+ */
+function lifecycleAction(
+  product: MockProduct,
+  event: MockProductEvent
+): TimelineModuleItem["action"] {
+  switch (event.id) {
+    case PRODUCT_EVENT_ID.NEXT_INVOICE:
+      return {
+        value: mockActionValue(MOCK_ACTION.CREATE_RENEWAL_INVOICE, product.id),
+        label: renewalInvoiceLabel(product)
+      };
+    case PRODUCT_EVENT_ID.AUTO_RENEW_OFF:
+      return {
+        value: mockActionValue(MOCK_ACTION.TOGGLE_AUTO_RENEW, product.id),
+        label: "Turn on auto-renew"
+      };
+    case PRODUCT_EVENT_ID.TERMINATED:
+      return {
+        value: mockActionValue(MOCK_ACTION.ABORT_CANCELLATION, product.id),
+        label: "Don't cancel"
+      };
+    default:
+      return undefined;
+  }
+}
+
 function lifecycleTone(event: MockProductEvent): TimelineTone {
   if (event.isPast) return "warning";
   return "info";
@@ -1993,7 +2231,8 @@ export function productTimelineItems(
     to: event.to,
     // What has already happened reads as a warning; what is coming reads as
     // information — legacy's own future-vs-overdue split.
-    tone: lifecycleTone(event)
+    tone: lifecycleTone(event),
+    action: lifecycleAction(product, event)
   }));
   const rail: TimelineModuleItem[] = [...lifecycle, ...scheduled];
   // Two passes, one fact each: the dated events take their place on the rail,
@@ -2073,11 +2312,43 @@ function productFormSubmit(
   return mockActionValue(action, product.id);
 }
 
+/**
+ * The setup blueprint as a form — legacy's `cProdProvConfigManageForm`:
+ * one control per field the provider asks for, confirmed in one step.
+ */
+export function productSetupFormSchema(
+  data: MockDataset,
+  context: DataRouteContext
+): JsonSchema {
+  return useSetupSchema(contextProvisionFields(data, context));
+}
+
+export function productSetupFormUischema(
+  data: MockDataset,
+  context: DataRouteContext
+): UISchemaElement {
+  return useSetupUischema(contextProvisionFields(data, context));
+}
+
+export function productSetupFormModel(
+  data: MockDataset,
+  context: DataRouteContext
+): FormModel {
+  return setupDefaults(contextProvisionFields(data, context));
+}
+
 export function productSetupFormSubmit(
   data: MockDataset,
   context: DataRouteContext
 ): string {
   return productFormSubmit(MOCK_ACTION.PRODUCT_SETUP_SAVE, data, context);
+}
+
+function contextProvisionFields(
+  data: MockDataset,
+  context: DataRouteContext
+): MockProduct["provisioning"]["fields"] {
+  return contextProduct(data, context)?.provisioning.fields ?? [];
 }
 
 /**
@@ -2348,21 +2619,19 @@ const ADD_COMPANY_ROW: ListModuleItem = {
   title: "Add new company details",
   description: "Invoice this product as another business.",
   action: {
-    value: mockActionValue(
-      MOCK_ACTION.CLIENT_VUE_STUB,
-      "UpmBilling|client-company"
-    ),
+    value: openFormValue(FORM_ID.COMPANY_CREATE),
     label: "Add company"
   }
 };
 
 /** The address book itself lives on the profile — adding one is form work there. */
+// Legacy's "create one from here": the profile's own add-address modal.
 const ADD_ADDRESS_ROW: ListModuleItem = {
   id: "add-address",
   title: "Add a new address",
-  description: "Your address book lives on your profile.",
+  description: "It joins the address book on your profile.",
   action: {
-    value: mockActionValue(MOCK_ACTION.NAVIGATE, "/account/profile"),
+    value: openFormValue(FORM_ID.ADDRESS_CREATE),
     label: "Add a new address"
   }
 };
@@ -2378,7 +2647,10 @@ export function productDelegateAccessItems(
 ): ListModuleItem[] {
   const product = contextProduct(data, context);
   if (product === undefined) return [];
-  return map(data.delegates, delegate => {
+  const { data: rows } = productDelegateAccessCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => {
     const row: ListModuleItem = {
       id: delegate.id,
       title: delegate.name,
@@ -3586,11 +3858,7 @@ export function accountCardItems(data: MockDataset): ListModuleItem[] {
     leadingIcon: UserRound,
     leadingImageSrc: persona.avatarSrc,
     leadingImageAlt: name,
-    tags: map(persona.tags ?? [], label => ({ label })),
-    action: {
-      value: openFormValue(FORM_ID.AVATAR_SAVE),
-      label: "Change photo"
-    }
+    tags: map(persona.tags ?? [], label => ({ label }))
   };
   return [row];
 }
@@ -3911,6 +4179,179 @@ export function securityTwoFactorActions(
 }
 
 /** A company reads by its numbers — the registration one, then the tax one. */
+// --- the profile page's contact lists (legacy's clientEmailRow, clientPhoneRow,
+// billableAddressEntity, billableCompanyEntity) ---------------------------------
+
+type ListTag = NonNullable<ListModuleItem["tags"]>[number];
+
+/** A row the wire has already keyed — the seed's rows all are. */
+function hasId<TRow extends { readonly id?: string }>(
+  row: TRow
+): row is TRow & { readonly id: string } {
+  return row.id !== undefined;
+}
+
+/** How legacy printed a number — its formatted title, else the raw number. */
+function phoneLabel(row: MockPhone): string {
+  if (row.title !== undefined) return row.title;
+  return row.phone.number ?? "";
+}
+
+const DEFAULT_TAG: ListTag = { label: "Default", tone: "neutral" };
+const UNVERIFIED_TAG: ListTag = { label: "Unverified", tone: "warning" };
+const BOUNCED_TAG: ListTag = { label: "Bounced", tone: "danger" };
+
+function defaultTagFor(noun: string): ListTag {
+  return { label: `Default ${noun}`, tone: "neutral" };
+}
+
+/** Legacy's `clientEmailRow`: the address, its standing, and the row menu. */
+export function profileEmailItems(data: MockDataset): ListModuleItem[] {
+  const canManageOptIns = size(data.emailTopics) > 0;
+  return map(filter(data.emails, hasId), row => {
+    const { isDefault, isVerified, isBounced } = row.meta;
+    return {
+      id: row.id,
+      title: row.email ?? "",
+      description: row.description,
+      leadingIcon: Mail,
+      tags: compact([
+        isDefault && DEFAULT_TAG,
+        !isVerified && UNVERIFIED_TAG,
+        isBounced && BOUNCED_TAG
+      ]),
+      action: {
+        value: openFormValue(FORM_ID.EMAIL_EDIT, row.id),
+        label: "Edit"
+      },
+      moreActions: compact([
+        {
+          value: mockActionValue(MOCK_ACTION.COPY, row.email ?? ""),
+          label: "Copy to clipboard"
+        },
+        !isDefault && {
+          value: mockActionValue(MOCK_ACTION.EMAIL_SET_DEFAULT, row.id),
+          label: "Set as default email"
+        },
+        !isVerified && {
+          value: mockActionValue(MOCK_ACTION.EMAIL_VERIFY, row.id),
+          label: "Resend verification email"
+        },
+        // Offered on the address the account signs in with, while unconfirmed.
+        !isVerified &&
+          isDefault && {
+            value: openFormValue(FORM_ID.EMAIL_VERIFY_CODE, row.id),
+            label: "Enter verification code"
+          },
+        // Legacy's `canManageOptIns`: a verified address, on a brand with topics.
+        isVerified &&
+          canManageOptIns && {
+            value: openFormValue(FORM_ID.EMAIL_TOPIC_OPT_INS, row.id),
+            label: "Manage notifications"
+          },
+        {
+          value: mockActionValue(MOCK_ACTION.EMAIL_REMOVE, row.id),
+          label: "Delete email"
+        }
+      ])
+    };
+  });
+}
+
+/** Legacy's `clientPhoneRow`: the number, its type, and the row menu. */
+export function profilePhoneItems(data: MockDataset): ListModuleItem[] {
+  return map(data.phones, row => ({
+    id: row.id,
+    title: phoneLabel(row),
+    description: row.description,
+    leadingIcon: Phone,
+    tags: compact([row.meta.isDefault && DEFAULT_TAG]),
+    action: {
+      value: openFormValue(FORM_ID.PHONE_EDIT, row.id),
+      label: "Edit"
+    },
+    moreActions: compact([
+      !row.meta.isDefault && {
+        value: mockActionValue(MOCK_ACTION.PHONE_SET_DEFAULT, row.id),
+        label: "Set as default phone"
+      },
+      {
+        value: mockActionValue(MOCK_ACTION.PHONE_REMOVE, row.id),
+        label: "Delete phone"
+      }
+    ])
+  }));
+}
+
+/** The two "Add new" controls legacy's `billableEntitiesControl` offers. */
+export function billableEntityActions(): ButtonModuleAction[] {
+  return [
+    {
+      value: openFormValue(FORM_ID.ADDRESS_CREATE),
+      label: "Add new address"
+    },
+    {
+      value: openFormValue(FORM_ID.COMPANY_CREATE),
+      label: "Add new company details"
+    }
+  ];
+}
+
+/**
+ * Legacy's "Address and company details" section: both kinds of billable
+ * entity in one searchable list, each card with its own menu
+ * (`billableAddressEntity`, `billableCompanyEntity`). "Validate tax number"
+ * was staff-only and is not offered.
+ */
+export function billableEntityItems(
+  data: MockDataset,
+  context: DataRouteContext
+): ListModuleItem[] {
+  const { data: rows } = billableEntitiesCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, entity => {
+    const isAddress = entity.kind === BILLABLE_ENTITY_KIND.ADDRESS;
+    let editForm: FormId = FORM_ID.COMPANY_EDIT;
+    let setDefault: MockAction = MOCK_ACTION.COMPANY_SET_DEFAULT;
+    let removeVerb: MockAction = MOCK_ACTION.COMPANY_REMOVE;
+    let noun = "company";
+    let icon = Building2;
+    if (isAddress) {
+      editForm = FORM_ID.ADDRESS_EDIT;
+      setDefault = MOCK_ACTION.ADDRESS_SET_DEFAULT;
+      removeVerb = MOCK_ACTION.ADDRESS_REMOVE;
+      noun = "address";
+      icon = MapPin;
+    }
+    return {
+      id: entity.id,
+      title: entity.title,
+      description: entity.description,
+      leadingIcon: icon,
+      tags: compact([entity.isDefault && defaultTagFor(noun)]),
+      action: {
+        value: openFormValue(editForm, entity.id),
+        label: "Edit"
+      },
+      moreActions: compact([
+        {
+          value: mockActionValue(MOCK_ACTION.COPY, entity.description),
+          label: "Copy to clipboard"
+        },
+        !entity.isDefault && {
+          value: mockActionValue(setDefault, entity.id),
+          label: `Set as default ${noun}`
+        },
+        {
+          value: mockActionValue(removeVerb, entity.id),
+          label: `Delete ${noun}`
+        }
+      ])
+    };
+  });
+}
+
 function companyDescription(entry: MockCompany): string {
   return compact([
     entry.regNumber !== null && `Reg. ${entry.regNumber}`,
@@ -5005,6 +5446,164 @@ export function emailHeaderActions(): ButtonModuleAction[] {
   return [];
 }
 
+// --- the logged-out forms: reset link, verification link, organisation sign-up
+
+/** Legacy's `resetPasswordForm`: the code joins the password only where two-factor is on. */
+export function resetPasswordFormSchema(data: MockDataset): JsonSchema {
+  return useResetPasswordSchema(data.security.twoFactorEnabled);
+}
+
+export function resetPasswordFormUischema(data: MockDataset): UISchemaElement {
+  return useResetPasswordUischema(data.security.twoFactorEnabled);
+}
+
+export function resetPasswordFormModel(data: MockDataset): FormModel {
+  return resetPasswordDefaults(data.security.twoFactorEnabled);
+}
+
+/** The verification link's first password — the same form, code unasked. */
+export function setPasswordFormSchema(): JsonSchema {
+  return useResetPasswordSchema(false);
+}
+
+export function setPasswordFormUischema(): UISchemaElement {
+  return useResetPasswordUischema(false);
+}
+
+export function setPasswordFormModel(): FormModel {
+  return resetPasswordDefaults(false);
+}
+
+export function registerOrgFormSchema(): JsonSchema {
+  return useRegisterOrgSchema();
+}
+
+export function registerOrgFormUischema(): UISchemaElement {
+  return useRegisterOrgUischema();
+}
+
+export function registerOrgFormModel(): FormModel {
+  return registerOrgDefaults();
+}
+
+// --- email history (legacy's emailHistoryTable, emailHistoryStatus, viewEmailModal)
+
+/** All leads; Sent, Bounced and Failed narrow — legacy's four routes. */
+const SENT_EMAIL_TABS = [
+  { value: EMAIL_STATUS_TAB.ALL, label: "All" },
+  {
+    value: EMAIL_STATUS_TAB.SENT,
+    label: SENT_EMAIL_STATUS_LABEL[SentEmailStatus.SENT]
+  },
+  {
+    value: EMAIL_STATUS_TAB.BOUNCED,
+    label: SENT_EMAIL_STATUS_LABEL[SentEmailStatus.BOUNCED]
+  },
+  {
+    value: EMAIL_STATUS_TAB.FAILED,
+    label: SENT_EMAIL_STATUS_LABEL[SentEmailStatus.ERROR]
+  }
+];
+
+/** Legacy's `emailHistoryStatus` badge, word for word. */
+const SENT_EMAIL_BADGE: Readonly<Record<SentEmailStatus, string>> = {
+  [SentEmailStatus.SENT]: "Email sent",
+  [SentEmailStatus.BOUNCED]: "Email bounced",
+  [SentEmailStatus.ERROR]: "Send failed",
+  [SentEmailStatus.SENDING]: "Sending"
+};
+
+const SENT_EMAIL_DETAIL_PATH = "/account/logs/emails";
+
+export function sentEmailTabs(): TabsModuleItem[] {
+  return statusTabs("/account/logs", SENT_EMAIL_TABS);
+}
+
+export function sentEmailStatus(
+  data: MockDataset,
+  context: DataRouteContext
+): string {
+  return showingStatus(
+    context,
+    map(SENT_EMAIL_TABS, "value"),
+    EMAIL_STATUS_TAB.ALL
+  );
+}
+
+/** Legacy's table row: the subject, who it went to, and how it went; the row opens the preview. */
+export function sentEmailItems(
+  data: MockDataset,
+  context: DataRouteContext
+): ListModuleItem[] {
+  const { data: rows } = sentEmailsCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, email => ({
+    id: email.id,
+    title: email.subject,
+    description: `To: ${email.to}`,
+    leadingIcon: Mail,
+    datetime: email.dateCreated.date ?? undefined,
+    trailingText: SENT_EMAIL_BADGE[email.status],
+    trailingTone: SENT_EMAIL_STATUS_TONE[email.status],
+    to: `${SENT_EMAIL_DETAIL_PATH}/${email.id}`
+  }));
+}
+
+/** The email the route names — the preview's own subject. */
+function contextSentEmail(
+  data: MockDataset,
+  context: DataRouteContext
+): MockSentEmail | undefined {
+  return find(data.sentEmails, { id: context.entityId ?? "" });
+}
+
+/** Legacy's `viewEmailModal` header: subject, from, to, cc, the outcome and its date. */
+export function sentEmailSpecItems(
+  data: MockDataset,
+  context: DataRouteContext
+): SpecModuleItem[] {
+  const email = contextSentEmail(data, context);
+  if (email === undefined) return [];
+  const items: SpecModuleItem[] = [
+    { id: "subject", label: "Subject", value: email.subject },
+    { id: "from", label: "From", value: email.from },
+    { id: "to", label: "To", value: email.to }
+  ];
+  if (email.cc !== "") items.push({ id: "cc", label: "CC", value: email.cc });
+  items.push({
+    id: "status",
+    label: "Status",
+    value: SENT_EMAIL_BADGE[email.status]
+  });
+  if (email.dateSent.date !== null && email.dateSent.date !== undefined) {
+    items.push({ id: "sent", label: "Date sent", value: email.dateSent.date });
+  }
+  if (email.dateBounced.date !== null && email.dateBounced.date !== undefined) {
+    items.push({
+      id: "bounced",
+      label: "Date bounced",
+      value: email.dateBounced.date
+    });
+  }
+  if (email.dateErrored.date !== null && email.dateErrored.date !== undefined) {
+    items.push({
+      id: "failed",
+      label: "Send failed",
+      value: email.dateErrored.date
+    });
+  }
+  return items;
+}
+
+/** The message itself — what a client came to read. */
+export function sentEmailBody(
+  data: MockDataset,
+  context: DataRouteContext
+): string {
+  return contextSentEmail(data, context)?.body ?? "";
+}
+
 /** Legacy login attempts. */
 export function loginAttemptItems(data: MockDataset): ListModuleItem[] {
   const { data: rows } = loginAttemptsCollection.resolve(data).useContext();
@@ -5344,7 +5943,10 @@ export function ticketDelegateItems(
 ): ListModuleItem[] {
   const ticket = contextTicket(data, context);
   if (ticket === undefined) return [];
-  return map(data.delegates, delegate => ({
+  const { data: rows } = ticketDelegatesCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => ({
     id: delegate.id,
     title: delegate.name,
     description: delegate.email,
@@ -5795,10 +6397,6 @@ export function accountMenuItems(data: MockDataset): AccountMenuItem[] {
       value: mockActionValue(MOCK_ACTION.NAVIGATE, "/account/profile"),
       label: "My account"
     },
-    {
-      value: mockActionValue(MOCK_ACTION.NAVIGATE, "/account/security"),
-      label: "Security"
-    },
     // The sign-out route owns what happens next (plan F11): it ends any
     // impersonation, says so, and lands on the sign-in screen.
     {
@@ -5878,6 +6476,14 @@ export function pillarSubmenuItems(
     default:
       return [];
   }
+}
+
+/** Whether the pillar serves a side menu at all — a custom page and the logged-out screens do not, and a pane slot showing an empty menu is a bordered blank. */
+export function hasPillarSubmenu(
+  data: MockDataset,
+  context: DataRouteContext
+): boolean {
+  return pillarSubmenuItems(data, context).length > 0;
 }
 
 /** Legacy's account-menu `if:` predicates, by the item's own destination. */

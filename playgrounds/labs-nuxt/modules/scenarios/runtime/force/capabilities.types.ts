@@ -4,9 +4,10 @@
  * (`capabilities.ts` L75) are THIS module's own pair; no competing
  * corpus-capability contract exists in the tree (the only other `capability`
  * hits are `list-surface-capability-gate.spec` wrappers, an unrelated surface
- * concern). Nothing new is minted here — the preset vocabulary stays
- * `useForcedState`'s `ForceUrlPreset` (L38) and a recording stays
- * `corpus.source.types`' `RecordedFixture` (L30), both consumed whole.
+ * concern). Nothing new is minted here — the recipe vocabulary stays
+ * `states.types`' own `FORCE_RECIPES` / `ForceMeasuredRecipe` (which replaced
+ * `useForcedState`'s retired `ForceUrlPreset` on 2026-09-12) and a recording
+ * stays `corpus.source.types`' `RecordedFixture` (L30), both consumed whole.
  * See `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------

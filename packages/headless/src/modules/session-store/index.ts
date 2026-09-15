@@ -12,7 +12,9 @@ export {
   getTokenFromStorage,
   dumpTokenFromStorage,
   persistTokenToStorage,
-  resolveClientId
+  resolveClientId,
+  isDelegated,
+  getOwnerForDelegatedRecord
 } from "./session-store.utils";
 
 // --- Mappers (curated re-export for cross-module consumers)

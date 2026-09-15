@@ -5,48 +5,48 @@ Feature: Brand module
   So that I can configure the storefront correctly
 
   @AC-1 @layer-integration
-  Scenario: Read brand settings returns identity bundle
+  Scenario: I see the shop's own name, logo and colours
     Given an initialised storefront
     When I read brand settings
     Then I receive the brand identity with currencies and languages
 
   @AC-2 @layer-integration
-  Scenario: Read keyed brand config sends filter[keys|eq] on wire
+  Scenario: Only the settings the page asked for are fetched
     Given an initialised storefront
     And config keys to fetch
     When I fetch brand config for those keys
-    Then the request contains filter[keys|eq] with the keys
+    Then no settings beyond the ones asked for come back
     And the response contains values for the requested keys
 
   @AC-3 @layer-integration
-  Scenario: Read organisation feature flags
+  Scenario: The shop offers only the features it has turned on
     Given an initialised storefront
     When I read organisation config
     Then I receive the feature flags record
 
   @AC-4 @layer-integration
-  Scenario: Check module entitlement
+  Scenario: A feature the shop is not entitled to is not offered
     Given an initialised storefront
     And a module code
     When I check module entitlement
     Then I receive a boolean indicating whether the module is enabled
 
   @AC-5 @layer-unit
-  Scenario: Validate currency returns matched or brand default
+  Scenario: I am shown prices in a currency the shop accepts, or in its default
     Given a brand currencies list
     And a currency input
     When I validate the currency
     Then I receive the matched currency or the brand default
 
   @AC-6 @layer-unit
-  Scenario: Validate language returns matched or brand default
+  Scenario: I am shown the shop in a language it offers, or in its default
     Given a brand languages list
     And a language input
     When I validate the language
     Then I receive the matched language or the brand default
 
   @AC-7 @layer-unit
-  Scenario: mapBrandConfig merges template with fetched values
+  Scenario: A setting the shop has not changed keeps its default
     Given a config template with null defaults for requested keys
     And fetched config values from the API
     When mapBrandConfig is called

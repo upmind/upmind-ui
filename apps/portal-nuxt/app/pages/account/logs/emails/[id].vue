@@ -4,7 +4,7 @@ import type { DataRouteContext } from "~/portal/mock/injection";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { PAGE_KEY } from "~/portal/types";
 
-// The email itself is client-vue's to fetch; the route only carries the id.
+// The route carries the id; the page's data refs read the email it names.
 const route = useRoute();
 const routeContext = computed<DataRouteContext>(() => ({
   entityId: String(route.params.id)

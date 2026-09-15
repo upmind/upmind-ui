@@ -21,24 +21,30 @@ import type {
 // -----------------------------------------------------------------------------
 
 /**
- * Impersonate is a GATE choice, never an actor: it runs the STAFF journey, and
- * the client being acted for is picked from `SessionSwitcher` after staff login.
+ * Guest Customer is a GATE choice, never an actor: it runs the client machine's
+ * `registerAsGuest()` to mint a `guest_customer` grant, which stores a normal
+ * client session — so it resolves to a CLIENT session, not to an actor the
+ * chooser can bind a journey to.
+ *
+ * @graphify-citation `graphify-out/graph.json` (2026-09-09) — queried
+ * `auth gate choice guest customer register as guest`: the only `choice` /
+ * `AuthGateChoice` node is this vocabulary's own declaration in
+ * `pages/overlays/auth.vue`; no guest-customer gate-choice type exists to
+ * consume, so it is minted here beside the choice it belongs to.
  */
-export const AUTH_GATE_IMPERSONATE = "impersonate";
+export const AUTH_GATE_GUEST_CUSTOMER = "guest_customer";
 
 /**
- * What the gate's chooser holds — the three journeys `R9` offers. It is the
- * CHOICE, not the actor it resolves to: Impersonate and Staff run the same
- * journey, so a group bound to the actor draws Staff pressed when Impersonate
- * was taken, and Impersonate can never read as chosen at all.
- *
- * Guest is absent by design — it collects no session, so it is a scope
- * route-out rather than a journey (see `pages/overlays/auth.vue`).
+ * What the gate's chooser holds — the four ways in the gate offers. Client and
+ * Staff run their journeys; Guest is a scope route-out that collects no session;
+ * Guest Customer runs `registerAsGuest()` and continues as the new client
+ * session (see `pages/overlays/auth.vue`).
  */
 export type AuthGateChoice =
   | ScopeActorTypes.CLIENT
   | ScopeActorTypes.STAFF
-  | typeof AUTH_GATE_IMPERSONATE;
+  | ScopeActorTypes.GUEST
+  | typeof AUTH_GATE_GUEST_CUSTOMER;
 
 export type AuthJourneyProps = {
   /** The actor a session is collected for — the `/as/<actor>` segment's value. */
@@ -61,4 +67,15 @@ export type AuthJourneyProps = {
    * @see graphify-out/ for brand plumbing provenance
    */
   brandId?: string;
+
+  /**
+   * Show a cancel control in the action row that emits `cancel` — the host's
+   * back-to-list (the gate). Default off, so the standalone page shows none.
+   *
+   * @graphify-citation `graphify-out/graph.json` (2026-09-09) — queried
+   * `cancellable cancel prop form actions button emit`: no shared journey/form
+   * `cancellable` prop type exists (only a portal test local and the form's own
+   * `reset` action config), so this boolean is minted on this component's props.
+   */
+  cancellable?: boolean;
 };

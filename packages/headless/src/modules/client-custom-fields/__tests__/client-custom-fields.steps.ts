@@ -12,6 +12,21 @@
  * VIEW-ONLY module: `useClientCustomFields` is a definitions/values collection
  * with no manager — no create/update/delete actions, so no mutation steps. The
  * covered actions are `isReady` and `refresh` only.
+ *
+ * ADR-020 Amendment 5 (operator ruling 2026-09-12): tests are tests, scenarios
+ * are scenarios. A scenario is a playable TRACK only when a real step drives
+ * every line of it — a `world.fire(<real action id>)` plus assertions the
+ * recorded corpus actually reaches; otherwise it stays spec and gets NO steps
+ * at all. Only AC-7 (asking for a fresh copy) survives as driven: it fires the
+ * real `refresh` and reads readiness back. Every "open my definitions" scenario
+ * (AC-1..AC-5, AC-9) is spec-only — each shares the one `When I open my custom
+ * field definitions` phrasing with the others, and at least AC-2 (a brand
+ * switch), AC-5 (read-only vs disabled on specific rows) and AC-9 (an EMPTY
+ * catalogue, a state the recorded corpus never reaches) assert states no happy
+ * capture exhibits, so the whole "open" group collapses to spec-only together
+ * rather than half-matching. Their proof lives at the module's own unit and
+ * integration layers, anchored to the same @AC tags. `count` on this module is
+ * a NUMBER, never an `expectMeta` boolean, so no step claims it.
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
@@ -68,20 +83,23 @@ async function open(world: World, scope: Parameters<World["boot"]>[1]) {
 // -----------------------------------------------------------------------------
 
 export const clientCustomFieldsSteps = defineSteps(({ Given, When, Then }) => {
-  // === BOOT STEPS (client x self — the only resolving cell) ===================
+  // === BACKGROUND (client x self — the only resolving cell) ===================
 
   Given("I am an authenticated client with my own custom field values", world =>
     open(world, { actor: ScopeActorTypes.CLIENT })
   );
 
+  // Identity-transport claim — the URL retarget is proven at the module's own
+  // integration layer; here it reads back only that the value set the Background
+  // booted is mine and available.
   Given(
     "every request I make about my custom fields is addressed to my own value set",
-    () => Promise.resolve()
+    world => settles(() => world.expectMeta({ isAvailable: true }))
   );
 
-  // === COLLECTION READ/REFRESH ================================================
+  // === AC-7: refresh re-reads the definitions ================================
 
-  When("I open my custom field definitions", world =>
+  Given("I have already loaded my custom field definitions", world =>
     world.fire(CLIENT_CUSTOM_FIELDS_COVERED_ACTIONS.isReady)
   );
 
@@ -89,82 +107,15 @@ export const clientCustomFieldsSteps = defineSteps(({ Given, When, Then }) => {
     world.fire(CLIENT_CUSTOM_FIELDS_COVERED_ACTIONS.refresh)
   );
 
-  // === DEFINITIONS VISIBILITY (AC-1 through AC-9) =============================
-
-  Then("I see the definitions my own brand has configured", world =>
-    settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
-  );
-
-  Then("no other brand's definitions are ever loaded", () => Promise.resolve());
-
-  Then("the definitions I see are my own brand's", world =>
-    settles(() => world.expectMeta({ isAvailable: true }))
-  );
-
-  Then(
-    "a later change to my resolved brand re-reads the definitions for the new brand",
-    () => Promise.resolve()
-  );
-
-  Then("I see them in exactly that order", world =>
-    settles(() => world.expectMeta({ isAvailable: true }))
-  );
-
-  Then(
-    "that definition's full configuration is visible to me, with nothing left unmapped",
-    world => settles(() => world.expectMeta({ isAvailable: true }))
-  );
-
-  Then("the first is disabled but not read-only, and the second is both", () =>
-    Promise.resolve()
-  );
-
-  Then("the two states never collapse into the same flag", () =>
-    Promise.resolve()
-  );
-
   Then("my definitions are re-read", world =>
     settles(() => world.expectMeta({ isAvailable: true }))
   );
 
-  Then("nothing unrelated to my definitions is re-read as a result", () =>
-    Promise.resolve()
+  // The wire-level "only my definitions re-read" is proven at the integration
+  // layer; the `World` seam reads back only that the refresh completed clean.
+  Then("nothing unrelated to my definitions is re-read as a result", world =>
+    settles(() => world.expectMeta({ hasError: false }))
   );
-
-  Then("I am told the list is empty, with a count of zero", world =>
-    settles(() => world.expectContext?.({ pagination: { total: 0 } }))
-  );
-
-  Then("when my brand does define some, I am told exactly how many", () =>
-    Promise.resolve()
-  );
-
-  // === SCENARIO SETUP GIVENS ==================================================
-
-  Given(
-    "my own brand differs from whatever brand the app currently has selected",
-    () => Promise.resolve()
-  );
-
-  Given("my brand's definitions were configured in a specific order", () =>
-    Promise.resolve()
-  );
-
-  Given(
-    "one of my brand's definitions is hidden, staff-only, non-editable, and ordered",
-    () => Promise.resolve()
-  );
-
-  Given(
-    "one definition is not editable but is not marked read-only, and another is both",
-    () => Promise.resolve()
-  );
-
-  Given("I have already loaded my custom field definitions", world =>
-    world.fire(CLIENT_CUSTOM_FIELDS_COVERED_ACTIONS.isReady)
-  );
-
-  Given("my brand defines no custom fields", () => Promise.resolve());
 });
 
 export default clientCustomFieldsSteps;

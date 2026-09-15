@@ -32,7 +32,6 @@ import {
   intersection,
   map,
   sortBy,
-  times,
   trim,
   uniq
 } from "lodash-es";
@@ -68,7 +67,20 @@ type DeclaredScenario = {
   line: number;
   /** One per Examples row for an Outline; one for a plain Scenario. */
   expansions: number;
+  /** Each Examples row's FIRST cell — the value that names the row's track. */
+  rows: string[];
 };
+
+/**
+ * The names the parser owes one declaration: a plain scenario's own; for an
+ * Outline whose title carries no placeholder, the title suffixed with each
+ * row's first value, so five rows never share one name.
+ */
+function expandedNames(declared: DeclaredScenario): string[] {
+  return declared.rows.length
+    ? map(declared.rows, value => `${declared.name} — ${value}`)
+    : [declared.name];
+}
 
 /**
  * The feature read as its own author wrote it — an oracle taken off the source
@@ -113,7 +125,8 @@ function readDeclarations(text: string): {
         name: scenario[1],
         tags: pendingTags,
         line: index + 1,
-        expansions: 1
+        expansions: 1,
+        rows: []
       });
       pendingTags = [];
       return;
@@ -150,7 +163,10 @@ function readDeclarations(text: string): {
     }
 
     if (inExamples && TABLE_ROW.test(source)) {
-      if (headerSeen) current.expansions += 1;
+      if (headerSeen) {
+        current.expansions += 1;
+        current.rows.push((source.split("|")[1] ?? "").trim());
+      }
       headerSeen = true;
     }
   });
@@ -161,12 +177,12 @@ function readDeclarations(text: string): {
 const clientEmail = readDeclarations(clientEmailFeatureText);
 const clientEmailLines = clientEmailFeatureText.split("\n");
 
-const expectedTrackNames = flatMap(clientEmail.scenarios, declared =>
-  times(declared.expansions, () => declared.name)
-);
+const expectedTrackNames = flatMap(clientEmail.scenarios, expandedNames);
 
 const tagsByScenarioName = new Map(
-  map(clientEmail.scenarios, declared => [declared.name, declared.tags])
+  flatMap(clientEmail.scenarios, declared =>
+    map(expandedNames(declared), name => [name, declared.tags] as const)
+  )
 );
 
 const OUTLINE_FEATURE = `
@@ -271,7 +287,7 @@ describe("T1.7 parseFeatureScenarios — a feature is a playlist of tracks", () 
     const tracks = parseFeatureScenarios(fixtureText);
 
     expect(map(tracks, "name")).toStrictEqual(
-      map(readDeclarations(fixtureText).scenarios, "name")
+      flatMap(readDeclarations(fixtureText).scenarios, expandedNames)
     );
     expect(map(tracks[2].steps, "kind")).toStrictEqual([
       STEP_KIND.GIVEN,

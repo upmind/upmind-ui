@@ -1,0 +1,26 @@
+# Negative control — puts the "Change photo" control back on the account card.
+# Legacy's client area served no change-photo at all, and the platform derives
+# the picture from an uploaded image relation rather than an address a client
+# types, so the control was an invention (ruled 2026-09-14, FE walkthrough
+# defect 7).
+#
+# Intended RED:
+#   the account photo is shown, and is not the client's to change >
+#     offers no control to change it
+#
+# "shows the picture the account carries" stays GREEN: the avatar is still
+# displayed, and a fix that removed the picture along with the control would
+# be wrong in the other direction.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -3858,7 +3858,8 @@
+     leadingIcon: UserRound,
+     leadingImageSrc: persona.avatarSrc,
+     leadingImageAlt: name,
+-    tags: map(persona.tags ?? [], label => ({ label }))
++    tags: map(persona.tags ?? [], label => ({ label })),
++    action: { value: "open-form:avatar-save", label: "Change photo" }
+   };
+   return [row];
+ }

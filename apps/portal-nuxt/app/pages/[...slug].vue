@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import { find, startCase } from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { CatchAllResolution } from "~/portal/routes";
@@ -7,7 +7,6 @@ import type { PageKey } from "~/portal/types";
 import { usePortalConfig } from "~/composables/usePortalConfig";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { routeQueryContext } from "~/portal/mock/injection";
-import { soleProductRedirect } from "~/portal/mock/selectors";
 import { isMockDatasetId, useMockData } from "~/portal/mock/store";
 import { resolveCatchAll } from "~/portal/routes";
 import { PAGE_KEY, PORTAL_PILLAR } from "~/portal/types";
@@ -39,22 +38,11 @@ const routeContext = computed(() => catchAllRouteContext(resolution.value));
 
 // A path that names nothing RENDERS the not-found page (gap doc §6): the
 // silent replace-navigation to "/" left a client who mistyped an address on
-// the dashboard with no way to tell what had happened. `immediate` covers
-// first load; the watch covers a client-side navigation between two different
-// catch-all paths, since this one component instance is reused across every
-// unmatched-by-name route.
-watch(
-  resolution,
-  async current => {
-    if (current.kind === "unmatched") return;
-    // A client who owns exactly one product in the group has no listing to
-    // read; `replace` so Back still leaves the pillar rather than bouncing
-    // off the redirect (mock/selectors.ts holds the decision).
-    const sole = soleProductRedirect(activeData.value, current, queryFilters());
-    if (sole !== undefined) await navigateTo(sole, { replace: true });
-  },
-  { immediate: true }
-);
+// the dashboard with no way to tell what had happened. The paths that stand
+// for another are redirected BEFORE this page renders, by route middleware
+// (`middleware/catch-all-redirect.ts`) — a redirect fired from here during
+// the initial navigation moved the URL but left the first page on screen.
+definePageMeta({ middleware: "catch-all-redirect" });
 
 function catchAllHeading(resolution: CatchAllResolution): string {
   switch (resolution.kind) {

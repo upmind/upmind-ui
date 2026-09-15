@@ -365,6 +365,25 @@ export function pendingInstruction(
  * the product of a consolidation. Narrowed to ONE currency (the first
  * candidate's), because a total across two of them is not a total.
  */
+/**
+ * Legacy's consolidated document falls due on the client's chosen day of the
+ * month where one is set; otherwise with the SOONEST of the documents it
+ * replaced — gathering them buys no extra time.
+ */
+function consolidatedDueDate(
+  dueDay: number | undefined,
+  gathered: readonly MockInvoice[],
+  raised: string
+): string {
+  if (dueDay === undefined) return min(map(gathered, "dueDate")) ?? raised;
+  const on = new Date(`${raised}T00:00:00Z`);
+  const candidate = new Date(
+    Date.UTC(on.getUTCFullYear(), on.getUTCMonth(), dueDay)
+  );
+  if (candidate < on) candidate.setUTCMonth(candidate.getUTCMonth() + 1);
+  return candidate.toISOString().slice(0, raised.length);
+}
+
 export function consolidatableInvoices(data: MockDataset): MockInvoice[] {
   const candidates = filter(data.invoices, invoice => {
     const isOwed = isInvoiceOwed(invoice);
@@ -447,12 +466,18 @@ export const useMockInvoices = defineMockFacade(
      * against the document that replaced them, and the money is worked out
      * here, where the mock's writes live (plan R6).
      */
-    consolidate: (): MockActionReceipt<MockInvoice> => {
-      const gathered = consolidatableInvoices(data);
+    consolidate: (
+      picked?: readonly string[]
+    ): MockActionReceipt<MockInvoice> => {
+      const gathered = filter(
+        consolidatableInvoices(data),
+        invoice => picked === undefined || includes(picked, invoice.id)
+      );
       const opening = first(gathered);
       const refusal = whyNotConsolidatable(data);
       if (refusal !== undefined) return refusal;
-      if (opening === undefined) {
+      // Legacy's modal will not fire below two ticks: one invoice is already one document.
+      if (opening === undefined || gathered.length < 2) {
         return {
           ok: false,
           reason: MOCK_RECEIPT_REASON.NOTHING_TO_CONSOLIDATE
@@ -476,9 +501,11 @@ export const useMockInvoices = defineMockFacade(
         id,
         number: nextInvoiceNumber(data),
         issuedDate: raised,
-        // Legacy's consolidated document falls due when the SOONEST of the
-        // documents it replaced did: gathering them buys no extra time.
-        dueDate: min(map(gathered, "dueDate")) ?? raised,
+        dueDate: consolidatedDueDate(
+          data.billingSettings.dueDateDay,
+          gathered,
+          raised
+        ),
         subtotal: mockMoney(subtotal.amount + discounted, currency),
         discount,
         taxes,

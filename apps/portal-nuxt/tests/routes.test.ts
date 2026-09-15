@@ -117,7 +117,12 @@ describe("catch-all page — an unknown path says so, and offers the way back", 
   async function mountCatchAll(slug: readonly string[] = UNMATCHED_SLUG) {
     const navigateTo = vi.fn();
     const useRoute = () => ({ params: { slug }, path: `/${slug.join("/")}` });
-    Object.assign(globalThis, { navigateTo, useRoute });
+    Object.assign(globalThis, {
+      navigateTo,
+      useRoute,
+      // Nuxt's compile-time macro; the page calls it at setup.
+      definePageMeta: () => undefined
+    });
 
     const page = await import("~/pages/[...slug].vue");
     const host = defineComponent({
@@ -132,6 +137,7 @@ describe("catch-all page — an unknown path says so, and offers the way back", 
   afterEach(() => {
     Reflect.deleteProperty(globalThis, "navigateTo");
     Reflect.deleteProperty(globalThis, "useRoute");
+    Reflect.deleteProperty(globalThis, "definePageMeta");
   });
 
   it("renders the not-found page on setup", async () => {

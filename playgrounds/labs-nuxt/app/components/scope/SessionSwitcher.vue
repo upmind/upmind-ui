@@ -9,10 +9,13 @@
         :data-attrs="{ 'data-test-key': 'session-switcher' }"
       >
         <Avatar
+          :key="activeSession?.id ?? actorScope"
           size="sm"
           :src="activeSession?.avatar?.src"
           :alt="activeSession?.avatar?.caption"
-          :force-caption="activeSession?.avatar?.forceCaption"
+          :force-caption="
+            activeSession?.avatar?.forceCaption ?? !activeSession?.avatar?.src
+          "
         >
           <template #fallback>
             <Icon
@@ -226,10 +229,7 @@
           :data-attrs="{ 'data-test-key': getAddSessionTestKey(scope) }"
           @click="addSession(scope)"
         >
-          <Icon
-            :icon="scope === ScopeActorTypes.CLIENT ? 'log-in-01' : 'log-in-02'"
-            size="xs"
-          />
+          <Icon :icon="getAddSessionIcon(scope)" size="xs" />
           {{ t(getAddSessionLabel(scope)) }}
         </Button>
       </template>
@@ -240,7 +240,7 @@
         size="sm"
         block
         class="justify-start"
-        :data-attrs="{ 'data-test-key': 'actor-scope-add-guest' }"
+        :data-attrs="{ 'data-test-key': 'actor-scope-continue-guest' }"
         @click="switchScope(ScopeActorTypes.GUEST)"
       >
         <Icon icon="user-circle" size="xs" />
@@ -435,9 +435,11 @@ const {
   addSession,
   canUseGuestMode,
   directClientItems,
+  getAddSessionIcon,
   getAddSessionLabel,
   getAddSessionTestKey,
   getScopeIcon,
+  guestItems,
   logoutSession,
   sessionItems,
   staffSessionNodes,
@@ -552,7 +554,8 @@ const groups = computed<PoolGroup[]>(() =>
   reject(
     [
       { label: "labs.session_staff", nodes: staffSessionNodes.value },
-      { label: "labs.session_clients", nodes: directClientItems.value }
+      { label: "labs.session_clients", nodes: directClientItems.value },
+      { label: "labs.session_guests", nodes: guestItems.value }
     ],
     group => isEmpty(group.nodes)
   )

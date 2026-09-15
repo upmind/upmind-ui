@@ -46,11 +46,21 @@ export function createModulesMeta(
   // block adjacent to the spread the day an arm overrides a shared member.
 
   return {
-    /** True if the list query resolved with an error. */
+    /** True if the list query resolved with an error, criteria errors included. */
     hasError,
+
+    /** True while pagination applies to this list at all. */
+    hasPages: computed(() => query.meta.value.hasPages),
 
     /** True if the collection has no items. */
     isEmpty: isEmptyList,
+
+    /**
+     * True while ANY filter is applied — read through from the query's own
+     * published criteria, so an empty list that is empty BECAUSE of a filter is
+     * distinguishable from one that is genuinely empty.
+     */
+    isFiltered: query.isFiltered,
 
     /** True while the list is loading or has not completed its first fetch. */
     isLoading

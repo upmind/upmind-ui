@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts b/packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts
+index 52e073738..b88601a91 100644
+--- a/packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts
++++ b/packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts
+@@ -39,7 +39,7 @@ export function createBillingSettingsMeta(
+    * separately via `hasVisibilityError`, not conflated with an explicit
+    * brand opt-out.
+    */
+-  const isVisible = computed(() => restrictToStaff.value === false);
++  const isVisible = computed(() => restrictToStaff.value !== true);
+ 
+   /**
+    * Row B6 — offered ONLY when the brand has explicitly opted clients into

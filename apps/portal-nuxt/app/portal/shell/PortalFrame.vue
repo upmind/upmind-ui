@@ -95,7 +95,7 @@
           v-if="sidebarMeta.renders"
           :class="sidebarMeta.topbarTriggerClass"
         />
-        <div class="flex min-w-0 shrink-0 items-center gap-3">
+        <div class="flex min-w-0 items-center gap-3">
           <PortalSlotContent :resolved-slot="topbarMeta.left" />
         </div>
         <div class="flex min-w-0 flex-1 items-center justify-center gap-3">
@@ -135,7 +135,7 @@
       ]"
     >
       <div :class="measureClass">
-        <div class="flex min-w-0 shrink-0 items-center gap-3">
+        <div class="flex min-w-0 items-center gap-3">
           <PortalSlotContent :resolved-slot="secondaryMeta.left" />
         </div>
         <div class="flex min-w-0 flex-1 items-center justify-center gap-3">
@@ -159,7 +159,7 @@
       ]"
     >
       <div :class="measureClass">
-        <div class="flex min-w-0 shrink-0 items-center gap-3">
+        <div class="flex min-w-0 items-center gap-3">
           <PortalSlotContent :resolved-slot="tertiaryMeta.left" />
         </div>
         <div class="flex min-w-0 flex-1 items-center justify-center gap-3">

@@ -12,13 +12,13 @@ import type { AccessRoleTypes, IToken } from "@upmind-automation/types";
 
 type SessionState = {
   // Sessions
-  guestSession?: IToken; // Single guest token
+  guestSessions: Record<string, SessionEntry>; // Guest sessions keyed by session id
   clientSessions: Record<string, SessionEntry>; // Multiple client sessions by actor_id
   staffSessions: Record<string, SessionEntry>; // Multiple staff sessions by actor_id
 
   // Active session tracking
   activeActor: AccessRoleTypes; // GUEST | CLIENT | STAFF
-  activeSessionId?: string; // actor_id of active session (undefined for guest)
+  activeSessionId?: string; // key of the active session in activeActor's own map; absent when a guest is the unclaimed floor
 
   // Impersonation tracking
   impersonatedSessions: Record<string, string>; // impersonatedId → parentId
@@ -57,11 +57,11 @@ type SessionEntry = {
 - Faster lookups (don't need to filter by `actor_type`)
 - Clear separation in UI (client dropdown vs staff dropdown)
 
-**Why single `guestSession`?**
+**Why is `guestSessions` a map, not a single token?**
 
-- Guests are anonymous - no `actor_id` to key by
-- Only one guest session makes sense (no multi-guest scenarios)
-- Simpler logic (no need for keyed lookup)
+- Guest is keyed exactly like client and staff: one `SessionEntry` per pooled guest session, selected by its own key, rather than a special-cased singular field.
+- A guest still has no server-assigned `actor_id` — the guest grant always returns `actor_id: ""` — so its key has to be synthesised client-side (a UUID) instead of read off the token. That is the one respect in which a guest key differs from a client/staff key in _origin_, not in _shape_.
+- The cookie layer still carries at most one guest session at a time (one `upm_guest_session`, carrying that guest's synthesised id in its `actor_id` field): reading the cookie overlays that one entry onto the pool and leaves every other pooled guest session untouched, exactly like the client and staff cookies do for their own maps. The store itself is not capped at one — an additional guest session can be requested explicitly, and the previous one stays pooled rather than being discarded.
 
 ## Data Flow
 
@@ -73,14 +73,19 @@ add(token, shouldActivate=true, user?)
   ├─▶ Determine actor type from token.actor_type
   │
   ├─▶ Update appropriate session record:
-  │    - GUEST → guestSession = token
+  │    - GUEST → guestSessions[token.actor_id] = { token }
   │    - CLIENT → clientSessions[token.actor_id] = { token, user }
   │    - STAFF → staffSessions[token.actor_id] = { token, user }
   │
-  ├─▶ Optionally activate (set activeActor and activeSessionId)
+  ├─▶ Optionally activate:
+  │    - CLIENT/STAFF → set activeActor AND activeSessionId
+  │    - GUEST → set activeActor only; activeSessionId (the pointer) is left
+  │      exactly as it was
   │
   └─▶ Broadcast to other tabs (SET_SESSION message)
 ```
+
+> **Why `add()` never writes the guest pointer.** A background token refresh reaches `add()` through the exact same path an explicit guest activation's mint does. If `add()` wrote `activeSessionId` for guest, a refresh would silently turn an unclaimed (fallen-back) guest into a chosen one. Only `activate()` (and the new-guest action below) ever records the choice — see [Gotchas §12](./gotchas.md#12-add-never-claims-the-guest-pointer-only-activate-does).
 
 ### Removing a Session
 
@@ -276,7 +281,7 @@ sequenceDiagram
         API-->>Auth: guest token
         Auth->>Cookies: Store guest token
         Cookies-->>Store: Retrieve minted token
-        Store->>Store: Update guestSession
+        Store->>Store: Add entry to guestSessions
     end
 
     Note over Store,API: 4. Load User Profiles
@@ -298,6 +303,7 @@ sequenceDiagram
 3. **Guest token minting** - Only if NO sessions exist (delegates to auth module)
 4. **User data loading** - Parallel fetch for all sessions (non-blocking)
 5. **Guaranteed completion** - `useSessionStore().useActions().isReady()` resolves `true` when ready (there is **no** `storeInitialized` export)
+6. **Minting isn't boot-only** - The same mint also runs when guest is the session being activated and the pool is empty, and a separate action mints an additional guest session on demand at any time (see [Gotchas §2](./gotchas.md#2-guest-minting-happens-at-boot-and-at-activation-not-on-re-hydration-sync-or-navigation))
 
 ### Hydration Flow
 
@@ -315,10 +321,12 @@ sessionStore created
        │    └─▶ If exists → staffSessions[token.actor_id] = { token }
        │
        ├─▶ Read upm_guest_session cookie
-       │    └─▶ If exists → guestSession = token
+       │    └─▶ If exists → guestSessions[cookie's session id] = { token }
        │
        └─▶ If NO sessions exist (and guest allowed) → mintGuestToken() via auth module
 ```
+
+**Guest minting is not boot-only.** The same `mintGuestToken()` also runs when guest is the session being switched to and the guest pool is empty. A separate action mints an additional guest session on demand, independent of whether the pool is already non-empty.
 
 **Active session selection:**
 

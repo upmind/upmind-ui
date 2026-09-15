@@ -27,6 +27,7 @@ import {
   FraudStatus,
   InvoiceConsolidationTypes,
   InvoiceStatus,
+  SentEmailStatus,
   TicketStatusCodes,
   WalletTransactionTypes
 } from "@upmind-automation/types";
@@ -75,6 +76,7 @@ import type {
   MockPaymentMethod,
   MockPaymentStatus,
   MockProduct,
+  MockSentEmail,
   MockTicket,
   MockVaultAsset,
   MockWalletTransaction
@@ -1067,6 +1069,97 @@ export function fillerIpAddress(index: number): MockIpAddress {
     created_at: stamped,
     updated_at: stamped
   };
+}
+
+/** The facts one sent email is authored from; everything else the model carries follows. */
+export type SentEmailFacts = {
+  readonly id: string;
+  readonly subject: string;
+  readonly to: string;
+  readonly status: SentEmailStatus;
+  /** When the brand sent it, ISO. */
+  readonly at: string;
+  readonly body: string;
+  readonly cc?: string;
+  readonly recipientName?: string;
+};
+
+const SENT_EMAIL_FROM = "Host-Grid <hello@hostgrid.example>";
+
+/** A minute after the send — when the receiving server answered. */
+function minuteAfter(iso: string): string {
+  return new Date(new Date(iso).getTime() + 60_000).toISOString();
+}
+
+/**
+ * One row of legacy's email history in the headless `SentEmail` shape. The
+ * dates follow the status: a sent mail has a send date, a bounced one a
+ * bounce after it, a failed one an error stamp and no send at all.
+ */
+export function sentEmailRow(facts: SentEmailFacts): MockSentEmail {
+  const none: MockSentEmail["dateSent"] = { date: null, relative: null };
+  const isSent = facts.status === SentEmailStatus.SENT;
+  const isBounced = facts.status === SentEmailStatus.BOUNCED;
+  const isError = facts.status === SentEmailStatus.ERROR;
+  let dateSent = none;
+  if (isSent || isBounced) dateSent = { date: facts.at, relative: null };
+  let dateBounced = none;
+  if (isBounced) dateBounced = { date: minuteAfter(facts.at), relative: null };
+  let dateErrored = none;
+  if (isError) dateErrored = { date: facts.at, relative: null };
+  return {
+    id: facts.id,
+    body: facts.body,
+    from: SENT_EMAIL_FROM,
+    subject: facts.subject,
+    to: facts.to,
+    cc: facts.cc ?? "",
+    dateBounced,
+    dateErrored,
+    dateSent,
+    date: { date: facts.at, relative: null },
+    dateCreated: { date: facts.at, relative: null },
+    status: facts.status,
+    recipient: {
+      name: facts.recipientName ?? "Jonah Reyes",
+      email: facts.to,
+      imageUrl: ""
+    },
+    meta: { isBounced, isError, isSent }
+  };
+}
+
+const SENT_EMAIL_SUBJECTS = [
+  "Your invoice is ready",
+  "Payment received",
+  "Your product renews soon",
+  "A reply to your ticket",
+  "Your monthly usage report"
+] as const;
+
+/** Each outcome's filler starts elsewhere in the cycle, so three tabs never share a row. */
+const SENT_EMAIL_OFFSET: Readonly<Record<SentEmailStatus, number>> = {
+  [SentEmailStatus.SENT]: 0,
+  [SentEmailStatus.BOUNCED]: 7,
+  [SentEmailStatus.ERROR]: 13,
+  [SentEmailStatus.SENDING]: 20
+};
+
+/** Filler for one status tab of the email history — dated behind the hero rows. */
+export function fillerSentEmail(
+  status: SentEmailStatus,
+  index: number
+): MockSentEmail {
+  const slot = index + SENT_EMAIL_OFFSET[status];
+  const subject = cycle(SENT_EMAIL_SUBJECTS, slot);
+  return sentEmailRow({
+    id: `mail-f-${kebabCase(status)}-${index + 1}`,
+    subject: `${subject} (${slot + 1})`,
+    to: "jonah@fieldnotes.app",
+    status,
+    at: seedStamp(slot + 30),
+    body: `Hi Jonah,\n\n${subject}. Nothing to do unless we say otherwise.\n\nHost-Grid`
+  });
 }
 
 export function fillerLoginAttempt(index: number): MockLoginAttempt {

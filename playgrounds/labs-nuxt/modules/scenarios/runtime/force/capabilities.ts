@@ -26,12 +26,18 @@
  * refusal the app's session machinery acts on is measured out
  * ({@link isServableRefusal}) rather than served and signing the operator out.
  *
- * `FORCE_URL_PRESETS` stays the master vocabulary. Every function here FILTERS
+ * `FORCE_RECIPES` stays the master vocabulary. Every function here FILTERS
  * it and none re-spells it, so a preset added to the vocabulary is one this file
  * must be taught to measure rather than one it silently drops.
  */
 
-import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
+import {
+  isAbsentRecordRead,
+  isServableRefusal,
+  isServedRead
+} from "@upmind-automation/test-fixtures/corpus-replay";
+import { forcedStateRecipeId } from "./states";
+import { FORCE_RECIPE_PENDING_WRITE, FORCE_RECIPES } from "./states.types";
 import {
   compact,
   filter,
@@ -40,7 +46,6 @@ import {
   intersection,
   isArray,
   isEmpty,
-  isNil,
   get,
   map,
   some,
@@ -52,7 +57,15 @@ import {
 } from "lodash-es";
 import type { CorpusCapabilities } from "./capabilities.types";
 import type { RecordedFixture } from "./corpus.source.types";
-import type { ForceUrlPreset } from "../composables/useForcedState.types";
+import type { ForceMeasuredRecipe, ForceRecipe } from "./states.types";
+
+// The corpus predicates are the shared replay's own; re-exported so the force
+// layer keeps one vocabulary for "servable", "served" and "absent".
+export { isAbsentRecordRead, isServableRefusal, isServedRead };
+
+function isRead(fixture: RecordedFixture): boolean {
+  return toUpper(fixture.request.method) === "GET";
+}
 
 // -----------------------------------------------------------------------------
 
@@ -65,10 +78,8 @@ const REFUSED_FROM = 400;
  * down and the operator is signed out of a page they only asked for a picture of
  * (FE-3113 P, browser-verified).
  */
-const UNAUTHENTICATED = 401;
 
 /** The refusal a read for a record that is not there comes back at. */
-const NOT_FOUND = 404;
 
 /** A Gherkin tag line: `@tag` tokens and nothing else. */
 const TAG_LINE = /^@[\w:.-]+(\s+@[\w:.-]+)*$/;
@@ -99,70 +110,6 @@ function declaredTags(feature: string): string[] {
   );
 }
 
-function isRead(fixture: RecordedFixture): boolean {
-  return toUpper(fixture.request.method) === "GET";
-}
-
-function isRefusal(fixture: RecordedFixture): boolean {
-  return fixture.response.status >= REFUSED_FROM;
-}
-
-/** A read the server answered — the recordings a state can be drawn from. */
-export function isServedRead(fixture: RecordedFixture): boolean {
-  return isRead(fixture) && !isRefusal(fixture);
-}
-
-/**
- * A refusal FORCING may serve. A forced state is a picture of a state, never
- * the event itself, so it may never have real consequences (operator ruling,
- * 2026-08-28): an unauthenticated refusal served to a read is indistinguishable
- * from an expired token, and the app signs the operator out of the very page
- * they armed.
- *
- * The recording is not deleted and keeps answering the guard scenario it was
- * captured for. It is only unreachable as an ANSWER a preset gives — which
- * leaves the state a capture gap, named loudly, rather than a button that logs
- * you out.
- *
- * An ABSENCE is measured out of this pool for the same reason it is drawn apart
- * on screen: a record that is not there is not a record that failed to load
- * (operator ruling, 2026-08-29 · `Y2`). Left in, it becomes the failure
- * `error-collection` serves, and `empty` and `error-collection` draw one picture
- * between them — the conflation this story exists to end.
- */
-export function isServableRefusal(fixture: RecordedFixture): boolean {
-  return (
-    isRefusal(fixture) &&
-    fixture.response.status !== UNAUTHENTICATED &&
-    fixture.response.status !== NOT_FOUND
-  );
-}
-
-/**
- * A read that came back carrying no RECORD — what a real API answers for a
- * record that is not there, at whatever status the module's own API says it
- * with. It is the recording `empty` serves a single-record surface from: an
- * object with its record taken out is a shape no capture returned, the module's
- * own mapper threw on it, and writing one here would be authoring a body
- * (operator ruling, 2026-08-28 · S1).
- *
- * A refusal is not an absence — only the one status that NAMES a missing record
- * qualifies, so a 401 carrying a null payload stays an auth refusal.
- *
- * The absence reading is the STATUS's, not the method's: a 404 to a delete says
- * the record was already gone, which is no more a load failure than a 404 to a
- * read is. {@link isServableRefusal} excludes both.
- */
-export function isAbsentRecordRead(fixture: RecordedFixture): boolean {
-  const { status } = fixture.response;
-
-  return (
-    isRead(fixture) &&
-    isNil(get(fixture.response, ["body", "data"])) &&
-    (status < REFUSED_FROM || status === NOT_FOUND)
-  );
-}
-
 /** A read carrying ROWS — the collection `empty` subtracts them from. */
 function isRowsRead(fixture: RecordedFixture): boolean {
   return (
@@ -181,7 +128,10 @@ function isRowsRead(fixture: RecordedFixture): boolean {
  * and a body staging actually sent, minus the one the session machinery acts on
  * ({@link isServableRefusal}). Nothing is authored to stand in for one (`S13`),
  * so a module holding no such refusal is offered no forced failure and
- * {@link captureGaps} reports the absence.
+ * {@link captureGaps} reports the absence. A read staging never refuses is
+ * recorded through the generator's own `forceStatus` (`tests/fixtures/generator.ts`,
+ * precedent `basket-billing.fixtures.ts`) — a real request, its response
+ * overridden to the wire error envelope — never authored here.
  *
  * @param bodies One module's recordings, keyed by fixture name.
  */
@@ -216,17 +166,40 @@ export function corpusCapabilities(
  */
 export function answerablePresets(
   bodies: Record<string, RecordedFixture>
-): readonly ForceUrlPreset[] {
+): readonly ForceMeasuredRecipe[] {
   const caps = corpusCapabilities(bodies);
 
-  const answerable: Record<ForceUrlPreset, boolean> = {
+  const answerable: Record<ForceMeasuredRecipe, boolean> = {
     empty: caps.canEmpty,
     loading: caps.canLoading,
     "error-action": caps.canErrorAction,
     "error-collection": caps.canErrorCollection
   };
 
-  return filter(FORCE_URL_PRESETS, preset => answerable[preset]);
+  return filter(FORCE_RECIPES, preset => answerable[preset]);
+}
+
+/**
+ * Whether `bodies` can answer ONE feature-derived state's recipe — the question
+ * the offer asks per state now that the offer is the feature's (operator
+ * ruling, 2026-09-12). It is {@link answerablePresets} asked about one recipe,
+ * plus the one recipe that vocabulary does not measure: a held WRITE has no
+ * body to serve, so the only evidence it needs is the module having recorded a
+ * write at all — without one there is no route to hold a request on.
+ *
+ * @param recipe The recipe one derived state is answered by.
+ * @param bodies That module's own recordings, keyed by fixture name.
+ */
+export function answersRecipe(
+  recipe: ForceRecipe,
+  bodies: Record<string, RecordedFixture>
+): boolean {
+  const answer = forcedStateRecipeId(recipe);
+
+  if (answer === FORCE_RECIPE_PENDING_WRITE)
+    return some(values(bodies), fixture => !isRead(fixture));
+
+  return some(answerablePresets(bodies), offered => offered === answer);
 }
 
 /**
@@ -256,7 +229,7 @@ export function answerablePresets(
 function hostablePresets(
   feature: string,
   bodies: Record<string, RecordedFixture>
-): readonly ForceUrlPreset[] {
+): readonly ForceMeasuredRecipe[] {
   if (isEmpty(trim(feature))) return [];
 
   const fixtures = values(bodies);
@@ -265,7 +238,7 @@ function hostablePresets(
     intersection(declaredTags(feature), REFUSAL_TAGS)
   );
 
-  const hostable: Record<ForceUrlPreset, boolean> = {
+  const hostable: Record<ForceMeasuredRecipe, boolean> = {
     empty: some(fixtures, isServedRead),
     loading: !isEmpty(fixtures),
     // Read off the DECLARATION, never off what happens to be recorded: a
@@ -276,7 +249,7 @@ function hostablePresets(
       declaresRefusal && some(fixtures, fixture => !isRead(fixture))
   };
 
-  return filter(FORCE_URL_PRESETS, preset => hostable[preset]);
+  return filter(FORCE_RECIPES, preset => hostable[preset]);
 }
 
 /**
@@ -298,7 +271,7 @@ function hostablePresets(
 export function captureGaps(
   feature: string,
   bodies: Record<string, RecordedFixture>
-): readonly ForceUrlPreset[] {
+): readonly ForceMeasuredRecipe[] {
   const answerable = answerablePresets(bodies);
 
   return filter(

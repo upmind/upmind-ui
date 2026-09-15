@@ -18,24 +18,28 @@
       <PortalSlotContent :resolved-slot="props.header.actions" />
     </template>
 
-    <!-- The `controls` band: full measure, under the description and above the
-         row's own slots. Its two positions are laid apart on ONE line here
-         rather than through a module group — the group axes are shared by every
-         other call site, and the vertical one shrink-wraps its members. -->
-    <div
-      v-if="meta.hasControls"
-      data-slot="portal-row-controls"
-      :class="ROW_CONTROLS_BAND_CLASS"
-    >
-      <div class="min-w-0">
-        <PortalSlotContent :resolved-slot="props.header?.controls?.start" />
+    <!-- A header-only row hands the card no body at all: an empty body still
+         pads. -->
+    <template v-if="meta.hasControls || $slots.default" #default>
+      <!-- The `controls` band: full measure, under the description and above the
+           row's own slots. Its two positions are laid apart on ONE line here
+           rather than through a module group — the group axes are shared by every
+           other call site, and the vertical one shrink-wraps its members. -->
+      <div
+        v-if="meta.hasControls"
+        data-slot="portal-row-controls"
+        :class="ROW_CONTROLS_BAND_CLASS"
+      >
+        <div class="min-w-0">
+          <PortalSlotContent :resolved-slot="props.header?.controls?.start" />
+        </div>
+        <div class="min-w-0">
+          <PortalSlotContent :resolved-slot="props.header?.controls?.end" />
+        </div>
       </div>
-      <div class="min-w-0">
-        <PortalSlotContent :resolved-slot="props.header?.controls?.end" />
-      </div>
-    </div>
 
-    <slot />
+      <slot />
+    </template>
 
     <template v-if="props.footer" #footer>
       <PortalSlotContent :resolved-slot="props.footer" />

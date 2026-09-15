@@ -32,7 +32,11 @@ import { assign, filter, find, get, map, some, values } from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { MockDataset, MockProduct } from "~/portal/mock/types";
 import { productPages } from "~/portal/config/product-pages";
-import { MOCK_ACTION, dispatchMockAction } from "~/portal/mock/actions";
+import {
+  MOCK_ACTION,
+  dispatchMockAction,
+  mockActionValue
+} from "~/portal/mock/actions";
 import { useConsolidationSchema } from "~/portal/mock/contracts/client-contract-product.schemas";
 import { DATA_REF_ID, resolveDataRef } from "~/portal/mock/data-refs";
 import { FORM_ID } from "~/portal/mock/forms/ids";
@@ -237,6 +241,27 @@ describe("the automation timeline is the product's own scheduled actions", () =>
       map(statuses, status => SCHEDULED_ACTION_STATUS_TONE[status])
     );
     expect(new Set(tones).size).toBe(statuses.length);
+  });
+
+  it("hands the client legacy's timeline links as actions", () => {
+    const data = clone();
+    const product = withTimeline(data);
+    assign(product, { autoRenew: false, autoExpireAt: "2999-01-01" });
+    const items = productTimelineItems(data, contextFor(product));
+    const actionOf = (id: string) => get(find(items, { id }), "action");
+    expect(actionOf("next-invoice")).toEqual({
+      value: mockActionValue(MOCK_ACTION.CREATE_RENEWAL_INVOICE, product.id),
+      label: expect.stringMatching(/invoice/)
+    });
+    expect(actionOf("auto-renew-off")).toEqual({
+      value: mockActionValue(MOCK_ACTION.TOGGLE_AUTO_RENEW, product.id),
+      label: "Turn on auto-renew"
+    });
+    expect(actionOf("terminated")).toEqual({
+      value: mockActionValue(MOCK_ACTION.ABORT_CANCELLATION, product.id),
+      label: "Don't cancel"
+    });
+    expect(actionOf("renewal")).toBeUndefined();
   });
 
   it("stays off a one-time purchase even when events stand against it", () => {

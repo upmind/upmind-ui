@@ -1,0 +1,15 @@
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
+@@ -95,11 +95,7 @@
+ function resolveClientId(scopeContext?: ScopeContext) {
+   const { activeUser } = useActiveSession().useContext();
+
+-  return computed(() =>
+-    scopeContext?.type === ClientBillingSettingsContextTypes.SETTINGS
+-      ? scopeContext.id
+-      : activeUser.value?.id
+-  );
++  return computed(() => activeUser.value?.id);
+ }
+
+ /**

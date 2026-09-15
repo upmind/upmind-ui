@@ -1,13 +1,25 @@
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { DetailedError } from "../../utils";
 import type { Account } from "../client";
-import type { IBrand, IClient, ISelf, IToken } from "@upmind-automation/types";
-import type { AccessRoleTypes } from "@upmind-automation/types";
+import type {
+  AccessRoleTypes,
+  IBrand,
+  IClient,
+  IContractProduct,
+  IInvoice,
+  ISelf,
+  IToken,
+  ITicket,
+  UpmindObjectTypes
+} from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module session-store/types
  * @description Session store type definitions.
- * @see graphify-out/ for IBrand, ISelf type provenance (FE-2973 brand plumbing)
+ * @see graphify-out/ for IBrand, ISelf, UpmindObjectTypes type provenance
+ * (FE-2973 brand plumbing; FE-3036 confirmed via `graphify query "delegated
+ * ids delegatable record owner"` that no `DelegatableRecord`/owner type
+ * already exists in the tree).
  */
 
 /**
@@ -152,6 +164,42 @@ export type SessionUser = {
    * Populated from /admin/self?with=brands for staff sessions.
    */
   brands?: IBrand[];
+  /**
+   * Object ids delegated to this client, keyed by object type
+   * (graphify-out/ — confirmed no prior `delegatedIds` member on this type).
+   * `{}` for staff and guest — `/admin/self` never requests the field and a
+   * guest has no `SessionUser` at all. `null` on the wire (the only recorded
+   * case today) maps to `{}`, never to `undefined`.
+   */
+  delegatedIds: Partial<Record<UpmindObjectTypes, string[]>>;
+};
+
+/**
+ * Record types the server can mark as delegated to the active client
+ * (graphify-out/ — `graphify query "IOrder IInvoice alias delegatable record
+ * order delegate_related"` confirms `IOrder` carries no node of its own).
+ *
+ * ORDERS ARE COVERED, via `IInvoice`. `IOrder` is a straight alias of
+ * `IInvoice` (`types/src/models/orders.ts:3`), so an order both satisfies this
+ * union and takes the invoice arm of `isDelegated` — child-account exclusion
+ * and all. That matches the oracle: the legacy orders module maps
+ * `belongsToDelegate` onto the invoices getter verbatim
+ * (`vue-app src/store/modules/data/orders/index.ts:65-68`, commented "Map to
+ * identical INVOICES getter"), and orders render the same delegated badge
+ * (`orderRowItem.vue:99`). Naming `IOrder` here would be a no-op alias in the
+ * union, not extra coverage.
+ */
+export type DelegatableRecord = IInvoice | IContractProduct | ITicket;
+
+/**
+ * The owning client of a delegated record, read off the record's own embedded
+ * `client` relation. Every field optional because every source field is.
+ */
+export type DelegatedRecordOwner = {
+  id?: IClient["id"];
+  publicName?: IClient["public_name"];
+  username?: IClient["username"];
+  imageUrl?: IClient["image_url"];
 };
 
 /**
@@ -180,10 +228,30 @@ export type LoadedSessionUsers = {
  * Store state for managing multiple actor sessions.
  */
 export type SessionState = {
-  guestSession?: IToken;
+  /**
+   * Guest sessions keyed by session id — the same shape `clientSessions` and
+   * `staffSessions` use, so a guest session is selected by its own key exactly
+   * as client and staff are (FE-3087). Reuses `SessionEntry` rather than
+   * minting a guest-specific type; see graphify-out/ for the `SessionEntry` /
+   * `IToken` provenance confirming it already models this pair.
+   *
+   * At most one entry is cookie-backed at a time: the cookie layer holds a
+   * single `upm_guest_session`.
+   */
+  guestSessions: Record<string, SessionEntry>;
   clientSessions: Record<string, SessionEntry>;
   staffSessions: Record<string, SessionEntry>;
   activeActor: AccessRoleTypes;
+  /**
+   * The active session's key in `activeActor`'s own session map — guest
+   * included. Client/staff key by the server `actor_id`; a guest key is
+   * client-synthesised (the guest grant returns `actor_id: ""`) and carried on
+   * the guest cookie.
+   *
+   * For guest the key's PRESENCE records intent: a key means guest was chosen
+   * via `activate(GUEST)`; no key means guest is the unclaimed floor the
+   * resolver fell back to. Only the floor upgrades on a remote login.
+   */
   activeSessionId?: string;
   /**
    * Impersonation sessions - tracks parent sessions for restoration.
@@ -265,7 +333,7 @@ export type AuthEventType = (typeof AuthEvents)[keyof typeof AuthEvents];
  */
 export type SessionSyncMessage =
   | { type: "SET_SESSION"; session: IToken }
-  | { type: "REMOVE_GUEST" }
+  | { type: "REMOVE_GUEST"; sessionId: string }
   | { type: "REMOVE_SESSION"; actor: AccessRoleTypes; sessionId: string }
   | { type: typeof SessionEvents.UNAUTHENTICATED; actor: AccessRoleTypes }
   | { type: "CLEAR" }
