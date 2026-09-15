@@ -15,6 +15,7 @@
 
 // `ResolvedDetail` added below is minted once in `runtime/scenario.types.ts`
 // and consumed here — see its `graphify-out/graph.json` (2026-08-14) citation.
+import type { ForcedState } from "../force/states.types";
 import type { ModulePort } from "../composables/useModulePort.types";
 import type {
   ResolvedDetail,
@@ -54,9 +55,11 @@ export type ModuleRendererProps<K extends string = string> = {
    */
   locked?: boolean;
   /**
-   * The module's own recorded refusal sentence while the page is forced into
-   * `error-action` — relayed to the List surface, which draws its first
-   * actionable row already refused with it. A forced state is the state and
+   * The module's own recorded refusal sentence while the page is forced into a
+   * refused WRITE — relayed to the List surface, which draws its first
+   * actionable row already refused with it, and to the Form-Flow surface, which
+   * draws its save refused with the same sentence. A form that could not draw
+   * one was a page offering a state it could never show (`S14`). A forced state is the state and
    * renders on arming, with no interaction at all (operator ruling,
    * 2026-08-28).
    *
@@ -68,4 +71,10 @@ export type ModuleRendererProps<K extends string = string> = {
    * `graphify-out/GRAPH_REPORT.md`.
    */
   forcedRefusal?: string;
+  /**
+   * The forced state armed on this page, when one is — relayed to the
+   * Form-Flow surface, whose own module state cannot show a held save or a
+   * failed read once the form has drawn. A forced state IS the state.
+   */
+  forcedState?: ForcedState;
 };

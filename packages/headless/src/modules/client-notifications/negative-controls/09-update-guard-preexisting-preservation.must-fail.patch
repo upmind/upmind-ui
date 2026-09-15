@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts
++++ b/packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts
+@@ -165,7 +165,7 @@
+     each(keys(sanitized), key => {
+       const { topicId } = splitPreferenceKey(key);
+       if (lockedTopicIds.has(topicId)) {
+-        sanitized[key] = basePreferences[key] ?? true;
++        sanitized[key] = true;
+       }
+     });
+     return sanitized;

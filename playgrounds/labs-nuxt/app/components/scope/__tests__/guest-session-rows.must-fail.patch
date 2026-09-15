@@ -1,0 +1,30 @@
+FE-3087 negative control — R10 (the guest pool is a row in the switcher).
+
+Target spec:  guest-session-rows.spec.ts
+Target case:  the R10 case whose title contains
+              "lists one row per pooled guest, beside the client rows"
+Mutation:     the selector draws only the guest that is ACTIVE, restoring the
+              single-guest row the pool replaced. The seeded pool has a client
+              active, so no guest row is drawn at all and the case above MUST go
+              RED. The @AC-G19 sibling reads isActive per row and goes RED too.
+Authored by:  developer lane, filed by the operator (re-anchored to 177ec3966).
+Verified by:  prover seat, blind — apply, run the target case RED, revert.
+
+Run with:     pnpm --filter labs-nuxt test:component app/components/scope/__tests__/guest-session-rows.spec.ts
+
+diff --git a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+index 4c944f8c4..e31014a06 100644
+--- a/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
++++ b/playgrounds/labs-nuxt/app/components/scope/useActorScopeSelector.ts
+@@ -285,7 +285,10 @@ export function useActorScopeSelector() {
+ 
+   // --- Guest sessions as pool rows, one per pooled guest (FE-3087)
+   const guestItems = computed<SessionItem[]>(() =>
+-    map(guestSessions.value, (entry, id) => buildSessionItem(id, entry))
++    filter(
++      map(guestSessions.value, (entry, id) => buildSessionItem(id, entry)),
++      item => item.isActive
++    )
+   );
+ 
+   // --- Flat list of all session items (kept for backward compat)

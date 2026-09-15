@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-notifications/client-notifications.services.ts
++++ b/packages/headless/src/modules/client-notifications/client-notifications.services.ts
+@@ -154,7 +154,7 @@
+       if (!isAddressable.value) throw new NotAuthenticatedError();
+       return true;
+     },
+-    withAccessToken: !token,
++    withAccessToken: true,
+     select: mapOptOuts,
+     staleTime: useTime().DAY,
+     retryDelay: DEBOUNCE_DELAY,

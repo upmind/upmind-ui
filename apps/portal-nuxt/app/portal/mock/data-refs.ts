@@ -57,6 +57,10 @@ import {
   delegateInviteTitle,
   delegateInviteTone,
   ipWhitelistItems,
+  profileEmailItems,
+  profilePhoneItems,
+  billableEntityItems,
+  billableEntityActions,
   isSupportPinEnabled,
   notificationFilterValue,
   notificationFilters,
@@ -121,9 +125,24 @@ import {
   relationSpecItems,
   relationToggleItems,
   loginAttemptItems,
+  sentEmailItems,
+  resetPasswordFormSchema,
+  resetPasswordFormUischema,
+  resetPasswordFormModel,
+  setPasswordFormSchema,
+  setPasswordFormUischema,
+  setPasswordFormModel,
+  registerOrgFormSchema,
+  registerOrgFormUischema,
+  registerOrgFormModel,
+  sentEmailTabs,
+  sentEmailStatus,
+  sentEmailSpecItems,
+  sentEmailBody,
   notificationItems,
   notificationPageItems,
   brandLogoHref,
+  hasPillarSubmenu,
   pillarNavItems,
   pillarSubmenuItems,
   placeOrderAction,
@@ -199,6 +218,9 @@ import {
   productLineItemSpecItems,
   productManageActions,
   productMigrationItems,
+  productSetupFormSchema,
+  productSetupFormUischema,
+  productSetupFormModel,
   productSetupFormSubmit,
   productConsolidationFormSchema,
   productConsolidationFormUischema,
@@ -236,6 +258,7 @@ import {
   isSupportEnabled,
   productAboutMarkdown,
   productAreaNavItems,
+  productBackTo,
   productBillboardItems,
   productBillingSpecItems,
   productConditionAction,
@@ -325,6 +348,7 @@ export const DATA_REF_ID = {
   PRODUCT_SPEC_ITEMS: "product-spec-items",
   PRODUCT_BILLING_SPEC_ITEMS: "product-billing-spec-items",
   PRODUCT_AREA_NAV_ITEMS: "product-area-nav-items",
+  PRODUCT_BACK_TO: "product-back-to",
   PRODUCT_TICKET_ITEMS: "product-ticket-items",
   PRODUCT_DELEGATE_ITEMS: "product-delegate-items",
   // --- the product detail's shared chrome (plan Phase 3)
@@ -369,6 +393,9 @@ export const DATA_REF_ID = {
   PRODUCT_HAS_PENDING_PRO_RATA: "product-has-pending-pro-rata",
   PRODUCT_TIMELINE_ITEMS: "product-timeline-items",
   PRODUCT_HAS_TIMELINE: "product-has-timeline",
+  PRODUCT_SETUP_FORM_SCHEMA: "product-setup-form-schema",
+  PRODUCT_SETUP_FORM_UISCHEMA: "product-setup-form-uischema",
+  PRODUCT_SETUP_FORM_MODEL: "product-setup-form-model",
   PRODUCT_SETUP_FORM_SUBMIT: "product-setup-form-submit",
   // --- the billing area's consolidation form
   PRODUCT_CONSOLIDATION_FORM_SCHEMA: "product-consolidation-form-schema",
@@ -493,6 +520,12 @@ export const DATA_REF_ID = {
   DELEGATE_INVITE_TONE: "delegate-invite-tone",
   DELEGATE_INVITE_ACTION: "delegate-invite-action",
   IP_WHITELIST_ITEMS: "ip-whitelist-items",
+  // --- the profile page's contact lists
+  PROFILE_EMAIL_ITEMS: "profile-email-items",
+  PROFILE_PHONE_ITEMS: "profile-phone-items",
+  BILLABLE_ENTITY_ITEMS: "billable-entity-items",
+  BILLABLE_ENTITY_ACTIONS: "billable-entity-actions",
+  BILLABLE_ENTITIES_CONTROLS: "billable-entities-controls",
   NOTIFICATION_ITEMS: "notification-items",
   NOTIFICATION_FILTERS: "notification-filters",
   NOTIFICATION_FILTER_VALUE: "notification-filter-value",
@@ -556,6 +589,22 @@ export const DATA_REF_ID = {
   IS_EMAIL_DELIVERY_DELAYED: "is-email-delivery-delayed",
   EMAIL_HEADER_ACTIONS: "email-header-actions",
   LOGIN_ATTEMPT_ITEMS: "login-attempt-items",
+  // --- legacy's email history
+  // --- the logged-out forms
+  RESET_PASSWORD_FORM_SCHEMA: "reset-password-form-schema",
+  RESET_PASSWORD_FORM_UISCHEMA: "reset-password-form-uischema",
+  RESET_PASSWORD_FORM_MODEL: "reset-password-form-model",
+  SET_PASSWORD_FORM_SCHEMA: "set-password-form-schema",
+  SET_PASSWORD_FORM_UISCHEMA: "set-password-form-uischema",
+  SET_PASSWORD_FORM_MODEL: "set-password-form-model",
+  REGISTER_ORG_FORM_SCHEMA: "register-org-form-schema",
+  REGISTER_ORG_FORM_UISCHEMA: "register-org-form-uischema",
+  REGISTER_ORG_FORM_MODEL: "register-org-form-model",
+  SENT_EMAIL_ITEMS: "sent-email-items",
+  SENT_EMAIL_TABS: "sent-email-tabs",
+  SENT_EMAIL_STATUS: "sent-email-status",
+  SENT_EMAIL_SPEC_ITEMS: "sent-email-spec-items",
+  SENT_EMAIL_BODY: "sent-email-body",
   TICKET_ITEMS: "ticket-items",
   TICKET_TABS: "ticket-tabs",
   TICKET_STATUS: "ticket-status",
@@ -589,6 +638,7 @@ export const DATA_REF_ID = {
   PILLAR_NAV_ITEMS: "pillar-nav-items",
   BRAND_LOGO_HREF: "brand-logo-href",
   PILLAR_SUBMENU_ITEMS: "pillar-submenu-items",
+  HAS_PILLAR_SUBMENU: "has-pillar-submenu",
   // --- the profile dropdown (gap doc §6)
   ACCOUNT_MENU_HEADING: "account-menu-heading",
   ACCOUNT_MENU_ITEMS: "account-menu-items",
@@ -614,6 +664,12 @@ export const DATA_REF_ID = {
   GROUP_PRODUCTS_PAGER: "group-products-pager",
   GROUP_CATALOGUE_PAGER: "group-catalogue-pager",
   PRODUCT_TICKETS_PAGER: "product-tickets-pager",
+  TICKET_DELEGATES_PAGER: "ticket-delegates-pager",
+  TICKET_DELEGATES_CONTROLS: "ticket-delegates-controls",
+  PRODUCT_DELEGATE_ACCESS_PAGER: "product-delegate-access-pager",
+  PRODUCT_DELEGATE_ACCESS_CONTROLS: "product-delegate-access-controls",
+  PRODUCT_DELEGATES_PAGER: "product-delegates-pager",
+  PRODUCT_DELEGATES_CONTROLS: "product-delegates-controls",
   DELEGATE_PRODUCTS_PAGER: "delegate-products-pager",
   DELEGATE_TICKETS_PAGER: "delegate-tickets-pager",
   DELEGATE_PRODUCTS_CONTROLS: "delegate-products-controls",
@@ -636,6 +692,7 @@ export const DATA_REF_ID = {
   AFFILIATE_PAYOUTS_PAGER: "affiliate-payouts-pager",
   AFFILIATE_REFERRALS_PAGER: "affiliate-referrals-pager",
   LOGIN_ATTEMPTS_PAGER: "login-attempts-pager",
+  SENT_EMAILS_PAGER: "sent-emails-pager",
   IP_WHITELIST_PAGER: "ip-whitelist-pager",
   TICKETS_PAGER: "tickets-pager",
   // --- control-state refs: one per SEARCHABLE panel, each feeding the
@@ -649,6 +706,7 @@ export const DATA_REF_ID = {
   AFFILIATE_REFERRALS_CONTROLS: "affiliate-referrals-controls",
   CHILD_ACCOUNTS_CONTROLS: "child-accounts-controls",
   LOGIN_ATTEMPTS_CONTROLS: "login-attempts-controls",
+  SENT_EMAILS_CONTROLS: "sent-emails-controls",
   IP_WHITELIST_CONTROLS: "ip-whitelist-controls",
   PRODUCT_INVOICES_CONTROLS: "product-invoices-controls",
   PRODUCT_CREDIT_NOTES_CONTROLS: "product-credit-notes-controls",
@@ -852,6 +910,7 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PRODUCT_SPEC_ITEMS]: productSpecItems,
   [DATA_REF_ID.PRODUCT_BILLING_SPEC_ITEMS]: productBillingSpecItems,
   [DATA_REF_ID.PRODUCT_AREA_NAV_ITEMS]: productAreaNavItems,
+  [DATA_REF_ID.PRODUCT_BACK_TO]: productBackTo,
   [DATA_REF_ID.PRODUCT_TICKET_ITEMS]: productTicketItems,
   [DATA_REF_ID.PRODUCT_DELEGATE_ITEMS]: productDelegateItems,
   [DATA_REF_ID.PRODUCT_BILLBOARD_ITEMS]: productBillboardItems,
@@ -893,6 +952,9 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PRODUCT_HAS_PENDING_PRO_RATA]: productHasPendingProRata,
   [DATA_REF_ID.PRODUCT_TIMELINE_ITEMS]: productTimelineItems,
   [DATA_REF_ID.PRODUCT_HAS_TIMELINE]: productHasTimeline,
+  [DATA_REF_ID.PRODUCT_SETUP_FORM_SCHEMA]: productSetupFormSchema,
+  [DATA_REF_ID.PRODUCT_SETUP_FORM_UISCHEMA]: productSetupFormUischema,
+  [DATA_REF_ID.PRODUCT_SETUP_FORM_MODEL]: productSetupFormModel,
   [DATA_REF_ID.PRODUCT_SETUP_FORM_SUBMIT]: productSetupFormSubmit,
   [DATA_REF_ID.PRODUCT_CONSOLIDATION_FORM_SCHEMA]:
     productConsolidationFormSchema,
@@ -1012,6 +1074,10 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.DELEGATE_INVITE_TONE]: delegateInviteTone,
   [DATA_REF_ID.DELEGATE_INVITE_ACTION]: delegateInviteAction,
   [DATA_REF_ID.IP_WHITELIST_ITEMS]: ipWhitelistItems,
+  [DATA_REF_ID.PROFILE_EMAIL_ITEMS]: profileEmailItems,
+  [DATA_REF_ID.PROFILE_PHONE_ITEMS]: profilePhoneItems,
+  [DATA_REF_ID.BILLABLE_ENTITY_ITEMS]: billableEntityItems,
+  [DATA_REF_ID.BILLABLE_ENTITY_ACTIONS]: billableEntityActions,
   [DATA_REF_ID.NOTIFICATION_ITEMS]: notificationItems,
   [DATA_REF_ID.NOTIFICATION_FILTERS]: notificationFilters,
   [DATA_REF_ID.NOTIFICATION_FILTER_VALUE]: notificationFilterValue,
@@ -1075,6 +1141,20 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.IS_EMAIL_DELIVERY_DELAYED]: isEmailDeliveryDelayed,
   [DATA_REF_ID.EMAIL_HEADER_ACTIONS]: emailHeaderActions,
   [DATA_REF_ID.LOGIN_ATTEMPT_ITEMS]: loginAttemptItems,
+  [DATA_REF_ID.RESET_PASSWORD_FORM_SCHEMA]: resetPasswordFormSchema,
+  [DATA_REF_ID.RESET_PASSWORD_FORM_UISCHEMA]: resetPasswordFormUischema,
+  [DATA_REF_ID.RESET_PASSWORD_FORM_MODEL]: resetPasswordFormModel,
+  [DATA_REF_ID.SET_PASSWORD_FORM_SCHEMA]: setPasswordFormSchema,
+  [DATA_REF_ID.SET_PASSWORD_FORM_UISCHEMA]: setPasswordFormUischema,
+  [DATA_REF_ID.SET_PASSWORD_FORM_MODEL]: setPasswordFormModel,
+  [DATA_REF_ID.REGISTER_ORG_FORM_SCHEMA]: registerOrgFormSchema,
+  [DATA_REF_ID.REGISTER_ORG_FORM_UISCHEMA]: registerOrgFormUischema,
+  [DATA_REF_ID.REGISTER_ORG_FORM_MODEL]: registerOrgFormModel,
+  [DATA_REF_ID.SENT_EMAIL_ITEMS]: sentEmailItems,
+  [DATA_REF_ID.SENT_EMAIL_TABS]: sentEmailTabs,
+  [DATA_REF_ID.SENT_EMAIL_STATUS]: sentEmailStatus,
+  [DATA_REF_ID.SENT_EMAIL_SPEC_ITEMS]: sentEmailSpecItems,
+  [DATA_REF_ID.SENT_EMAIL_BODY]: sentEmailBody,
   [DATA_REF_ID.TICKET_ITEMS]: ticketItems,
   [DATA_REF_ID.TICKET_TABS]: ticketTabs,
   [DATA_REF_ID.TICKET_STATUS]: ticketStatus,
@@ -1144,6 +1224,7 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PILLAR_NAV_ITEMS]: pillarNavItems,
   [DATA_REF_ID.BRAND_LOGO_HREF]: brandLogoHref,
   [DATA_REF_ID.PILLAR_SUBMENU_ITEMS]: pillarSubmenuItems,
+  [DATA_REF_ID.HAS_PILLAR_SUBMENU]: hasPillarSubmenu,
   [DATA_REF_ID.GROUP_PRODUCTS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.GROUP_PRODUCTS
   ),
@@ -1152,6 +1233,15 @@ const SELECTOR_BY_REF: Readonly<
   ),
   [DATA_REF_ID.PRODUCT_TICKETS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.PRODUCT_TICKETS
+  ),
+  [DATA_REF_ID.TICKET_DELEGATES_PAGER]: pagerState(
+    PAGED_COLLECTION_ID.TICKET_DELEGATES
+  ),
+  [DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_PAGER]: pagerState(
+    PAGED_COLLECTION_ID.PRODUCT_DELEGATE_ACCESS
+  ),
+  [DATA_REF_ID.PRODUCT_DELEGATES_PAGER]: pagerState(
+    PAGED_COLLECTION_ID.PRODUCT_DELEGATES
   ),
   [DATA_REF_ID.DELEGATE_PRODUCTS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.DELEGATE_PRODUCTS
@@ -1208,6 +1298,7 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.AFFILIATE_REFERRALS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.AFFILIATE_REFERRALS
   ),
+  [DATA_REF_ID.SENT_EMAILS_PAGER]: pagerState(PAGED_COLLECTION_ID.SENT_EMAILS),
   [DATA_REF_ID.LOGIN_ATTEMPTS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.LOGIN_ATTEMPTS
   ),
@@ -1238,8 +1329,14 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.CHILD_ACCOUNTS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.CHILD_ACCOUNTS
   ),
+  [DATA_REF_ID.SENT_EMAILS_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.SENT_EMAILS
+  ),
   [DATA_REF_ID.LOGIN_ATTEMPTS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.LOGIN_ATTEMPTS
+  ),
+  [DATA_REF_ID.BILLABLE_ENTITIES_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.BILLABLE_ENTITIES
   ),
   [DATA_REF_ID.IP_WHITELIST_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.IP_WHITELIST
@@ -1252,6 +1349,15 @@ const SELECTOR_BY_REF: Readonly<
   ),
   [DATA_REF_ID.PRODUCT_TICKETS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.PRODUCT_TICKETS
+  ),
+  [DATA_REF_ID.TICKET_DELEGATES_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.TICKET_DELEGATES
+  ),
+  [DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.PRODUCT_DELEGATE_ACCESS
+  ),
+  [DATA_REF_ID.PRODUCT_DELEGATES_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.PRODUCT_DELEGATES
   ),
   [DATA_REF_ID.DELEGATE_PRODUCTS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.DELEGATE_PRODUCTS
@@ -1275,6 +1381,10 @@ export const PAGER_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> = {
   [DATA_REF_ID.GROUP_PRODUCT_ITEMS]: DATA_REF_ID.GROUP_PRODUCTS_PAGER,
   [DATA_REF_ID.GROUP_CATALOGUE_ITEMS]: DATA_REF_ID.GROUP_CATALOGUE_PAGER,
   [DATA_REF_ID.PRODUCT_TICKET_ITEMS]: DATA_REF_ID.PRODUCT_TICKETS_PAGER,
+  [DATA_REF_ID.TICKET_DELEGATE_ITEMS]: DATA_REF_ID.TICKET_DELEGATES_PAGER,
+  [DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_ITEMS]:
+    DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_PAGER,
+  [DATA_REF_ID.PRODUCT_DELEGATE_ITEMS]: DATA_REF_ID.PRODUCT_DELEGATES_PAGER,
   [DATA_REF_ID.DELEGATE_PRODUCT_ITEMS]: DATA_REF_ID.DELEGATE_PRODUCTS_PAGER,
   [DATA_REF_ID.DELEGATE_TICKET_ITEMS]: DATA_REF_ID.DELEGATE_TICKETS_PAGER,
   [DATA_REF_ID.INVOICE_ITEMS]: DATA_REF_ID.INVOICES_PAGER,
@@ -1295,6 +1405,7 @@ export const PAGER_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> = {
   [DATA_REF_ID.AFFILIATE_PAYOUT_ITEMS]: DATA_REF_ID.AFFILIATE_PAYOUTS_PAGER,
   [DATA_REF_ID.AFFILIATE_REFERRAL_ITEMS]: DATA_REF_ID.AFFILIATE_REFERRALS_PAGER,
   [DATA_REF_ID.LOGIN_ATTEMPT_ITEMS]: DATA_REF_ID.LOGIN_ATTEMPTS_PAGER,
+  [DATA_REF_ID.SENT_EMAIL_ITEMS]: DATA_REF_ID.SENT_EMAILS_PAGER,
   [DATA_REF_ID.IP_WHITELIST_ITEMS]: DATA_REF_ID.IP_WHITELIST_PAGER,
   [DATA_REF_ID.TICKET_ITEMS]: DATA_REF_ID.TICKETS_PAGER
 };
@@ -1311,6 +1422,11 @@ export const CONTROLS_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> =
     [DATA_REF_ID.TICKET_ITEMS]: DATA_REF_ID.TICKETS_CONTROLS,
     [DATA_REF_ID.CREDIT_NOTE_LIST_ITEMS]: DATA_REF_ID.CREDIT_NOTES_CONTROLS,
     [DATA_REF_ID.PRODUCT_TICKET_ITEMS]: DATA_REF_ID.PRODUCT_TICKETS_CONTROLS,
+    [DATA_REF_ID.TICKET_DELEGATE_ITEMS]: DATA_REF_ID.TICKET_DELEGATES_CONTROLS,
+    [DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_ITEMS]:
+      DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_CONTROLS,
+    [DATA_REF_ID.PRODUCT_DELEGATE_ITEMS]:
+      DATA_REF_ID.PRODUCT_DELEGATES_CONTROLS,
     [DATA_REF_ID.DELEGATE_PRODUCT_ITEMS]:
       DATA_REF_ID.DELEGATE_PRODUCTS_CONTROLS,
     [DATA_REF_ID.DELEGATE_TICKET_ITEMS]: DATA_REF_ID.DELEGATE_TICKETS_CONTROLS,
@@ -1327,7 +1443,9 @@ export const CONTROLS_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> =
       DATA_REF_ID.AFFILIATE_REFERRALS_CONTROLS,
     [DATA_REF_ID.CHILD_ACCOUNT_ITEMS]: DATA_REF_ID.CHILD_ACCOUNTS_CONTROLS,
     [DATA_REF_ID.LOGIN_ATTEMPT_ITEMS]: DATA_REF_ID.LOGIN_ATTEMPTS_CONTROLS,
+    [DATA_REF_ID.SENT_EMAIL_ITEMS]: DATA_REF_ID.SENT_EMAILS_CONTROLS,
     [DATA_REF_ID.IP_WHITELIST_ITEMS]: DATA_REF_ID.IP_WHITELIST_CONTROLS,
+    [DATA_REF_ID.BILLABLE_ENTITY_ITEMS]: DATA_REF_ID.BILLABLE_ENTITIES_CONTROLS,
     [DATA_REF_ID.PRODUCT_INVOICE_ITEMS]: DATA_REF_ID.PRODUCT_INVOICES_CONTROLS,
     [DATA_REF_ID.PRODUCT_CREDIT_NOTE_ITEMS]:
       DATA_REF_ID.PRODUCT_CREDIT_NOTES_CONTROLS

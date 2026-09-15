@@ -56,9 +56,12 @@ export const coveredActionIds: readonly string[] = values(
  * the deletable unverified address, and the second unverified address.
  */
 const RECORDED = {
-  deletableId: "d7382485-0793-15e5-770b-81e642d59e06",
-  unverifiedId: "d7382485-0793-15e5-770b-81e642d59e06",
-  nonDefaultId: "4038696e-5472-1d69-285b-518d9305e7d2"
+  // The RECORDED rows (`__tests__/fixtures`): the one the capture run deleted
+  // and re-verified (`mock-email-3`), and the non-default it never touched
+  // (`mock-email-4`) — an id no recording holds lands nowhere on replay.
+  deletableId: "0e435795-e78d-1804-02df-31643202d986",
+  unverifiedId: "0e435795-e78d-1804-02df-31643202d986",
+  nonDefaultId: "85d26e96-783d-1697-933f-314502e70439"
 } as const;
 
 const SETTLE_ATTEMPTS = 40;

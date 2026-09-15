@@ -48,7 +48,9 @@ export const coveredActionIds: readonly string[] = values(
  */
 const RECORDED = {
   defaultId: "20e43579-5e78-d184-78db-31643202d986",
-  nonDefaultId: "d0367942-4d0e-7109-44da-3153698d582e"
+  nonDefaultId: "d0367942-4d0e-7109-44da-3153698d582e",
+  /** The unfiltered collection's recorded `total`. */
+  total: 98
 } as const;
 
 const SETTLE_ATTEMPTS = 40;
@@ -109,25 +111,19 @@ export const clientAddressesSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
+  // Absence is asserted as the COUNT the collection now states — an
+  // expectation is data, never a predicate (`matchesExpectation`).
   Then("the collection shows the address I removed is gone", world =>
     settles(() =>
-      world.expectContext(
-        ctx =>
-          !ctx.data.some(
-            (addr: { id: string }) => addr.id === RECORDED.nonDefaultId
-          )
-      )
+      world.expectContext({ pagination: { total: RECORDED.total - 1 } })
     )
   );
 
   Then("the newly defaulted address is now the default", world =>
     settles(() =>
-      world.expectContext(ctx =>
-        ctx.data.some(
-          (addr: { id: string; meta: { isDefault: boolean } }) =>
-            addr.id === RECORDED.nonDefaultId && addr.meta.isDefault
-        )
-      )
+      world.expectContext({
+        data: [{ id: RECORDED.nonDefaultId, meta: { isDefault: true } }]
+      })
     )
   );
 

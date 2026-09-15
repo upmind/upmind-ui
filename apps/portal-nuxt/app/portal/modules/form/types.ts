@@ -27,6 +27,13 @@ export interface FormModuleProps {
   readonly submitLabel: string;
   /** The reset control's label. No English default (CC22). */
   readonly resetLabel: string;
+  /**
+   * Present where the form is hosted in something DISMISSABLE. It replaces the
+   * reset control, because "Cancel" in a dialog means leave, not empty the
+   * fields — pressed, the form emits `cancel` and the host closes. A form on a
+   * page keeps reset: there, cancelling IS undoing what was typed.
+   */
+  readonly cancelLabel?: string;
   /** Renders every control read-only — a form shown for reference, not for editing. */
   readonly readonly?: boolean;
   /** Submits on every valid change rather than on the button — legacy's settings panels. */
@@ -49,4 +56,6 @@ export interface FormModuleProps {
 
 export type FormModuleEmits = {
   select: [value: string];
+  /** The dismiss control was pressed; the HOST decides what closing means. */
+  cancel: [];
 };

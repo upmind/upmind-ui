@@ -6,15 +6,26 @@
  * `defineSteps` and `World` and nothing else, so the same catalog can be
  * re-registered against any runner.
  *
- * Drives the Background, the search capability (@AC-7) and the appended
- * criteria-channel scenarios (@AC-31, @AC-34, @AC-35, @AC-36, @AC-40) — the
- * JTBD's filter/sort/page + read-back capabilities. The remaining scenarios
- * (@AC-1..@AC-6, @AC-8..@AC-29 minus @AC-7) are `notYet` — a capability
- * written down and not yet driven, a legitimate state
- * (`@upmind-automation/scenario-harness`'s own traceability semantics) —
- * proven instead at the integration layer
- * (`client-company.collection.int.test.ts`, `client-company.criteria-
- * defaults.int.test.ts`, `client-company.filters.int.test.ts`).
+ * ADR-020 Amendment 5 (operator ruling 2026-09-12): tests are tests, scenarios
+ * are scenarios — not every scenario is a replayable TRACK. A scenario is a
+ * playable track only when a real step drives every one of its lines; a
+ * `() => Promise.resolve()` / do-nothing handler, a `seed`-journey boot, an
+ * assert-only scenario no step of which fires a real action, or one whose
+ * outcome needs a recording that does not exist is FAKE and earns NO catalog
+ * entry — deleted wholesale, so the harness reads it as `notYet` (skipped),
+ * never `partial`.
+ *
+ * DRIVEN here: the Background, the search capability (@AC-7), the sort
+ * (@AC-34) and the schema-rejection negative control (@AC-40 — client-side
+ * ajv rejection, no request, proven by `client-company.criteria.int.test.ts`).
+ * SWEPT to spec-only under Amendment 5: @AC-31 (its `When` was a do-nothing
+ * observer — the boot-default window is read by the criteria int test, not
+ * driven here), @AC-35 (Then-only, no `When` fires an action), and @AC-36
+ * (its "empty because I filtered" outcome needs an empty `filter[name|like]`
+ * recording this module's corpus does not hold — parked, not faked). Every
+ * remaining capability is `notYet` and proven at the integration layer
+ * (`client-company.collection.int.test.ts`, `client-company.criteria.int.test.ts`,
+ * `client-company.filters.int.test.ts`).
  *
  * Every handler speaks to the module through the five `World` members. There
  * is no DOM read, no request read and no import of the module's own source
@@ -98,26 +109,6 @@ export const clientCompaniesSteps = defineSteps(({ Given, When, Then }) => {
     await settles(() => world.expectMeta({ isFiltered: false }));
   });
 
-  // --- AC-31: the declared window on open, unprompted --------------------
-
-  When("I open my companies for the first time this session", async () => {
-    // Already opened by the Background's own boot; this step observes,
-    // it does not re-boot.
-  });
-
-  Then(
-    "they arrive unpaged, and ordered oldest first, exactly as my account declares",
-    world =>
-      settles(() =>
-        world.expectContext({
-          query: {
-            pagination: { limit: 0 },
-            sort: [{ field: "created_at", dir: "asc" }]
-          }
-        })
-      )
-  );
-
   // --- AC-34: narrow by name, and clear it back ---------------------------
 
   When("I search my companies for {string}", (world, term) =>
@@ -154,43 +145,6 @@ export const clientCompaniesSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // --- AC-35: read the request and what it may ask -------------------------
-
-  Then(
-    "I can read the request my companies collection is currently making",
-    world =>
-      settles(() =>
-        world.expectContext({ query: { pagination: { limit: 0 } } })
-      )
-  );
-
-  Then(
-    "I can read what a search or a sort on my companies is allowed to name",
-    world =>
-      settles(() =>
-        world.expectContext({
-          schemas: { query: { schema: { type: "object" } } }
-        })
-      )
-  );
-
-  // --- AC-36: empty-because-filtered ---------------------------------------
-
-  When("I search my companies for something none of them are called", world =>
-    world.fire(CLIENT_COMPANIES_COVERED_ACTIONS.filterBy, {
-      name: { like: "zzz-no-such-company-zzz" }
-    })
-  );
-
-  Then("my companies list is empty", world =>
-    settles(() => world.expectMeta({ isEmpty: true }))
-  );
-
-  Then(
-    "it tells me plainly that it is empty because of my search, not because I have none",
-    world => settles(() => world.expectMeta({ isFiltered: true }))
-  );
-
   // --- AC-40: a rejected write leaves the live list standing ---------------
 
   When("I search my companies for a value the field cannot hold", world =>
@@ -213,6 +167,22 @@ export const clientCompaniesSteps = defineSteps(({ Given, When, Then }) => {
   Then(
     "letting a rejected request silently through turns this scenario red",
     async () => {}
+  );
+  // --- AC-36: empty-because-filtered ---------------------------------------
+
+  When("I search my companies for something none of them are called", world =>
+    world.fire(CLIENT_COMPANIES_COVERED_ACTIONS.filterBy, {
+      name: { like: "zzz-no-such-company-zzz" }
+    })
+  );
+
+  Then("my companies list is empty", world =>
+    settles(() => world.expectMeta({ isEmpty: true }))
+  );
+
+  Then(
+    "it tells me plainly that it is empty because of my search, not because I have none",
+    world => settles(() => world.expectMeta({ isFiltered: true }))
   );
 });
 

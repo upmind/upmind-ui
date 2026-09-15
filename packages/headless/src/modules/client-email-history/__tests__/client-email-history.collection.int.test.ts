@@ -12,19 +12,21 @@
  * wait that settles (AC-4); real two-page pagination (AC-9); refresh and
  * invalidate (AC-11).
  *
- * Two of AC-3's states are NOT proven here, and neither is unproven. The real
- * staging client this module's fixtures were captured against holds neither a
- * BOUNCED row nor a SENDING one, and two whole-history captures say so rather
- * than a page sample: `filter[bounced]=true` records `total: 0`, and
- * `filter[error_id]=null` records `total: 1` with that single row already
- * `sent` (`client-email-history.fixtures.ts` fileoverview). No replayable row
- * reaches either branch without hand-authoring the very body
- * `no-hand-rolled-int-fixture` exists to catch. Both are branches of the pure
- * `mapEmailStatus`, so both are proven at the unit layer instead, from a real
+ * ONE of AC-3's states is not proven here, and it is not unproven. The real
+ * staging client this module's fixtures were captured against holds no BOUNCED
+ * row, and a whole-history capture says so rather than a page sample:
+ * `filter[bounced]=true` records `total: 0`
+ * (`client-email-history.fixtures.ts` fileoverview). No replayable row reaches
+ * that branch without hand-authoring the very body
+ * `no-hand-rolled-int-fixture` exists to catch, and it is a branch of the pure
+ * `mapEmailStatus`, so it is proven at the unit layer instead, from a real
  * recorded row with ONE field toggled —
- * `client-email-history.mappers.test.ts` (AC-3). The states the recorded rows
- * DO reach — ERROR and SENT — are proven below, alongside the replayed proof
- * that the error-free page holds no in-flight row.
+ * `client-email-history.mappers.test.ts` (AC-3).
+ *
+ * SENDING used to be in that same category and no longer is. The account now
+ * carries at least one stuck in-flight row, stable across recording runs, so the
+ * `filter[error_id]=null` capture holds a real SENDING row and the case below
+ * replays it. ERROR, SENT and SENDING are all proven here on recorded rows.
  */
 
 import { describe, expect, it, vi } from "vitest";
@@ -39,6 +41,7 @@ import {
   resetClientEmailHistoryScopes,
   seedClientSession
 } from "./client-email-history.int-helpers";
+import { filter } from "lodash-es";
 import type { WireEmail } from "./client-email-history.int-helpers";
 import "./setup.integration";
 
@@ -167,11 +170,10 @@ describe("client-email-history collection — each email's delivery status (AC-3
     expect(rows[0].meta.isSent).toBe(true);
   });
 
-  it("AC-3 has no SENDING row to replay — the recorded error-free page is entirely SENT", async () => {
+  it("AC-3 resolves SENDING through the replay — the recorded error-free page carries a REAL in-flight row", async () => {
     await seedClientSession();
     const handlers = installEmailHistoryHandlers();
-    const fixture = recorded.noErrorRows();
-    handlers.setListBody(fixture);
+    handlers.setListBody(recorded.noErrorRows());
 
     const emails = useClientReceivedEmails().as(ScopeActorTypes.CLIENT);
     await vi.waitFor(() =>
@@ -180,23 +182,36 @@ describe("client-email-history collection — each email's delivery status (AC-3
 
     const rows = emails.useContext().data.value;
     expect(rows.length).toBeGreaterThan(0);
+
+    // The page is filtered to error-free rows, so nothing on it errored or
+    // bounced — every row is either already SENT or still in flight.
     for (const row of rows) {
-      expect(row.status).toBe(SentEmailStatus.SENT);
-      expect(row.meta.isSent).toBe(true);
+      expect(row.meta.isError).toBe(false);
+      expect(row.meta.isBounced).toBe(false);
     }
-    expect(rows.filter(row => row.status === SentEmailStatus.SENDING)).toEqual(
-      []
-    );
+
+    // The in-flight row is RECORDED, not toggled: this account holds a stuck
+    // sending email, so SENDING is now proven on the replay path too.
+    // How MANY rows are stuck is staging weather, not a contract. Assert the
+    // branch is reached, and that every row reaching it reports itself unsent.
+    const sending = filter(rows, row => row.status === SentEmailStatus.SENDING);
+    expect(sending.length).toBeGreaterThan(0);
+    for (const row of sending) {
+      expect(row.meta.isSent).toBe(false);
+    }
+
+    expect(
+      filter(rows, row => row.status === SentEmailStatus.SENT).length
+    ).toBeGreaterThan(0);
   });
 
-  // AC-3's SENDING and ERROR-over-BOUNCED branches are proven in
-  // `client-email-history.mappers.test.ts`, not here. Staging's whole-history
-  // captures say why: `filter[bounced]=true` is `total: 0`, and the
-  // `filter[error_id]=null` read replayed just above is `total: 1` with that
-  // one row already sent. No replayable row reaches either branch, and both
-  // are branches of the pure `mapEmailStatus`, so the unit layer proves them
-  // from a real recorded row with one field toggled rather than inventing a
-  // wire body. See this file's fileoverview.
+  // AC-3's ERROR-over-BOUNCED branch is proven in
+  // `client-email-history.mappers.test.ts`, not here: staging's whole-history
+  // `filter[bounced]=true` capture is `total: 0`, so no bounced row exists to
+  // replay, and the branch belongs to the pure `mapEmailStatus`. SENDING is no
+  // longer in that category — the `filter[error_id]=null` capture now carries a
+  // real in-flight row, replayed by the case just above. See this file's
+  // fileoverview.
 });
 
 describe("client-email-history collection — loading / empty / error, and isReady() (AC-4)", () => {

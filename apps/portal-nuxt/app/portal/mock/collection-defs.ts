@@ -95,6 +95,7 @@ import type {
   MockNotification,
   MockNotificationPreference,
   MockProduct,
+  MockSentEmail,
   MockTicket,
   MockVaultAsset
 } from "./types";
@@ -188,6 +189,83 @@ export const EMAIL_STATUS_TAB = {
   FAILED: SentEmailStatus.ERROR,
   BOUNCED: SentEmailStatus.BOUNCED
 } as const;
+
+export type EmailStatusTab =
+  (typeof EMAIL_STATUS_TAB)[keyof typeof EMAIL_STATUS_TAB];
+
+/** Which tab is showing — All unless the route names one of the other three. */
+export function showingEmailTab(status: string | undefined): EmailStatusTab {
+  if (status === EMAIL_STATUS_TAB.SENT) return EMAIL_STATUS_TAB.SENT;
+  if (status === EMAIL_STATUS_TAB.BOUNCED) return EMAIL_STATUS_TAB.BOUNCED;
+  if (status === EMAIL_STATUS_TAB.FAILED) return EMAIL_STATUS_TAB.FAILED;
+  return EMAIL_STATUS_TAB.ALL;
+}
+
+function inEmailTab(email: MockSentEmail, tab: EmailStatusTab): boolean {
+  if (tab === EMAIL_STATUS_TAB.ALL) return true;
+  return email.status === tab;
+}
+
+type ClientSentEmailsFilters = {
+  query: (value: string) => void;
+  dateCreated: (value: string) => void;
+};
+
+/** Legacy's email sorters (`data/sorters/emails.ts`): date, then subject. */
+const SENT_EMAIL_SORT_OPTIONS: readonly MockSortOption<MockSentEmail>[] = [
+  {
+    value: "newest",
+    label: "Newest first",
+    compare: (a, b) =>
+      (b.dateCreated.date ?? "").localeCompare(a.dateCreated.date ?? "")
+  },
+  {
+    value: "oldest",
+    label: "Oldest first",
+    compare: (a, b) =>
+      (a.dateCreated.date ?? "").localeCompare(b.dateCreated.date ?? "")
+  },
+  {
+    value: "subject",
+    label: "By subject",
+    compare: (a, b) => a.subject.localeCompare(b.subject)
+  }
+];
+
+/**
+ * Legacy's client filters (`data/filters/emails.ts`): the subject and the
+ * recipient ride the search box; the created date is the one control left.
+ * The template filter lists the brand's templates, which a client cannot.
+ */
+const SENT_EMAIL_FILTER_CONTROLS: readonly MockFilterControl[] = [
+  dateRangeFilter("dateCreated", "Sent")
+];
+
+/** Legacy's email history, narrowed by its status tabs. */
+export const sentEmailsCollection = filteredCollection<
+  MockSentEmail,
+  ClientSentEmailsFilters
+>(
+  (data, context, criteria) => {
+    const tab = showingEmailTab(context.status);
+    return filter(
+      data.sentEmails,
+      email =>
+        inEmailTab(email, tab) &&
+        matchesDateRange(email.dateCreated.date ?? "", criteria.dateCreated)
+    );
+  },
+  apply => ({
+    query: value => apply({ query: value }),
+    dateCreated: value => apply({ dateCreated: value })
+  }),
+  context => context.status ?? "",
+  () => ({
+    searchProps: ["subject", "to"],
+    sortOptions: SENT_EMAIL_SORT_OPTIONS,
+    filterControls: SENT_EMAIL_FILTER_CONTROLS
+  })
+);
 
 /** Legacy's dropdown rail, as the verb spells its choices. */
 export const NOTIFICATION_FILTER = {
@@ -286,6 +364,53 @@ export const clientEmailsCollection = filteredCollection<
   () => ({ searchProps: ["email", "title"] })
 );
 
+/** Which address-book row a billable entity is — legacy drew both kinds in one section. */
+export const BILLABLE_ENTITY_KIND = {
+  ADDRESS: "address",
+  COMPANY: "company"
+} as const;
+
+export type BillableEntityKind =
+  (typeof BILLABLE_ENTITY_KIND)[keyof typeof BILLABLE_ENTITY_KIND];
+
+/** One card of legacy's "Address and company details" section, either kind. */
+export type MockBillableEntity = {
+  readonly id: string;
+  readonly kind: BillableEntityKind;
+  readonly title: string;
+  readonly description: string;
+  readonly isDefault: boolean;
+};
+
+function billableEntities(data: MockDataset): readonly MockBillableEntity[] {
+  const addresses = map(data.addresses, address => ({
+    id: address.id,
+    kind: BILLABLE_ENTITY_KIND.ADDRESS,
+    title: address.name ?? address.title,
+    description: address.description,
+    isDefault: address.meta.isDefault
+  }));
+  const companies = map(data.companies, company => ({
+    id: company.id,
+    kind: BILLABLE_ENTITY_KIND.COMPANY,
+    title: company.name,
+    description: company.description,
+    isDefault: company.meta.isDefault
+  }));
+  return [...addresses, ...companies];
+}
+
+/** Legacy's `billableEntities` find box searches both kinds by name and address. */
+export const billableEntitiesCollection = filteredCollection<
+  MockBillableEntity,
+  NoFilters
+>(
+  billableEntities,
+  () => ({}),
+  undefined,
+  () => ({ searchProps: ["title", "description"] })
+);
+
 /**
  * The vault, split the way legacy's panels are: notes on one side, secrets on
  * the other, and the account's own rows are those scoped to no product
@@ -361,35 +486,89 @@ function delegateAccessType(delegate: MockDelegate): string {
   return MOCK_ACCESS_TYPE.SPECIFIC;
 }
 
+/** The delegates a criteria set admits — legacy's three controls, in one place. */
+function delegatesMatching(
+  data: MockDataset,
+  criteria: MockFilterCriteria
+): MockDelegate[] {
+  return filter(
+    data.delegates,
+    delegate =>
+      matchesExact(delegateAccessType(delegate), criteria.accessType) &&
+      matchesFlag(
+        delegate.status === MOCK_DELEGATE_STATUS.ACCEPTED,
+        criteria.active
+      ) &&
+      matchesFlag(delegate.isFullDelegate === true, criteria.isFullDelegate)
+  );
+}
+
+const delegateFilters = (
+  apply: (patch: MockFilterCriteria) => void
+): ClientDelegatesFilters => ({
+  query: value => apply({ query: value }),
+  active: value => apply({ active: value }),
+  isFullDelegate: value => apply({ isFullDelegate: value })
+});
+
+const delegatePanel = () => ({
+  // Legacy's `invite_email` CONTAINS filter is the band's own search here,
+  // as every other listing spells free text; the name goes with it, since
+  // the row states both.
+  searchProps: ["email", "name"],
+  sortOptions: DELEGATE_SORT_OPTIONS,
+  filterControls: DELEGATE_FILTER_CONTROLS
+});
+
 export const accountDelegatesCollection = filteredCollection<
   MockDelegate,
   ClientDelegatesFilters
 >(
-  (data, context, criteria) =>
-    filter(
-      data.delegates,
-      delegate =>
-        matchesExact(delegateAccessType(delegate), criteria.accessType) &&
-        matchesFlag(
-          delegate.status === MOCK_DELEGATE_STATUS.ACCEPTED,
-          criteria.active
-        ) &&
-        matchesFlag(delegate.isFullDelegate === true, criteria.isFullDelegate)
-    ),
-  apply => ({
-    query: value => apply({ query: value }),
-    active: value => apply({ active: value }),
-    isFullDelegate: value => apply({ isFullDelegate: value })
-  }),
+  (data, context, criteria) => delegatesMatching(data, criteria),
+  delegateFilters,
   undefined,
-  () => ({
-    // Legacy's `invite_email` CONTAINS filter is the band's own search here,
-    // as every other listing spells free text; the name goes with it, since
-    // the row states both.
-    searchProps: ["email", "name"],
-    sortOptions: DELEGATE_SORT_OPTIONS,
-    filterControls: DELEGATE_FILTER_CONTROLS
-  })
+  delegatePanel
+);
+
+/**
+ * The same delegates, listed from a page ABOUT one ticket or one product.
+ * Each panel is its own definition keyed on the route's entity — a shared
+ * instance would move the account page's page and filters whenever a panel
+ * moved its own, and move every product's together (`collections.ts`
+ * `contextKey`).
+ *
+ * They exist because these panels had NO paging at all: the ticket's
+ * delegate-access list rendered every delegate on the account in one column,
+ * 24 rows deep on the Host·Grid seed.
+ */
+export const ticketDelegatesCollection = filteredCollection<
+  MockDelegate,
+  ClientDelegatesFilters
+>(
+  (data, context, criteria) => delegatesMatching(data, criteria),
+  delegateFilters,
+  context => context.entityId ?? "",
+  delegatePanel
+);
+
+export const productDelegateAccessCollection = filteredCollection<
+  MockDelegate,
+  ClientDelegatesFilters
+>(
+  (data, context, criteria) => delegatesMatching(data, criteria),
+  delegateFilters,
+  context => context.productId ?? "",
+  delegatePanel
+);
+
+export const productDelegatesCollection = filteredCollection<
+  MockDelegate,
+  ClientDelegatesFilters
+>(
+  (data, context, criteria) => delegatesMatching(data, criteria),
+  delegateFilters,
+  context => context.productId ?? "",
+  delegatePanel
 );
 
 /**
@@ -1240,13 +1419,9 @@ function ticketFilterControls(
     data.tickets,
     ticket => ticketStatusTab(ticket.status) === wanted
   );
+  // Legacy's client filters (`data/filters/tickets.ts`): reference and subject
+  // ride the search box, then status and the created date — no department.
   return presentControls([
-    selectFilter(
-      "department",
-      "Department",
-      "Any department",
-      optionsPresent(map(showing, "department"), department => department)
-    ),
     selectFilter(
       "status",
       "Status",
@@ -1262,6 +1437,30 @@ function ticketFilterControls(
     dateRangeFilter("dateCreated", "Raised")
   ]);
 }
+
+/** Legacy's ticket sorters (`data/sorters/tickets.ts`): created date, reference, subject. */
+const TICKET_SORT_OPTIONS: readonly MockSortOption<MockTicket>[] = [
+  {
+    value: "newest",
+    label: "Newest first",
+    compare: (a, b) => b.createdAt.localeCompare(a.createdAt)
+  },
+  {
+    value: "oldest",
+    label: "Oldest first",
+    compare: (a, b) => a.createdAt.localeCompare(b.createdAt)
+  },
+  {
+    value: "reference",
+    label: "By reference",
+    compare: (a, b) => (a.reference ?? "").localeCompare(b.reference ?? "")
+  },
+  {
+    value: "subject",
+    label: "By subject",
+    compare: (a, b) => a.subject.localeCompare(b.subject)
+  }
+];
 
 export const ticketsCollection = filteredCollection<
   MockTicket,
@@ -1279,6 +1478,7 @@ export const ticketsCollection = filteredCollection<
   apply => ticketFilterMap(apply),
   context => context.status ?? "",
   (data, context) => ({
+    sortOptions: TICKET_SORT_OPTIONS,
     // Legacy filtered the reference and the subject through the same box the
     // search is here, so both are searchable props rather than controls.
     searchProps: ["reference", "subject", "department"],
@@ -1319,13 +1519,9 @@ function productTicketFilterControls(
   context: DataRouteContext
 ): MockFilterControl[] {
   const showing = filter(data.tickets, { productId: context.productId ?? "" });
+  // Legacy's client filters (`data/filters/tickets.ts`): reference and subject
+  // ride the search box, then status and the created date — no department.
   return presentControls([
-    selectFilter(
-      "department",
-      "Department",
-      "Any department",
-      optionsPresent(map(showing, "department"), department => department)
-    ),
     selectFilter(
       "status",
       "Status",
@@ -1741,6 +1937,9 @@ export const PAGED_COLLECTION_ID = {
   ACCOUNT_NOTES: "account-notes",
   ACCOUNT_SECRETS: "account-secrets",
   ACCOUNT_DELEGATES: "account-delegates",
+  TICKET_DELEGATES: "ticket-delegates",
+  PRODUCT_DELEGATE_ACCESS: "product-delegate-access",
+  PRODUCT_DELEGATES: "product-delegates",
   DELEGATE_PRODUCTS: "delegate-products",
   DELEGATE_TICKETS: "delegate-tickets",
   CHILD_ACCOUNTS: "child-accounts",
@@ -1749,7 +1948,9 @@ export const PAGED_COLLECTION_ID = {
   AFFILIATE_REFERRALS: "affiliate-referrals",
   AFFILIATE_LINKS: "affiliate-links",
   LOGIN_ATTEMPTS: "login-attempts",
+  SENT_EMAILS: "sent-emails",
   IP_WHITELIST: "ip-whitelist",
+  BILLABLE_ENTITIES: "billable-entities",
   TICKETS: "tickets",
   PRODUCT_TICKETS: "product-tickets",
   PRODUCT_INVOICES: "product-invoices",
@@ -1777,6 +1978,10 @@ const PAGED_COLLECTIONS: Record<
   [PAGED_COLLECTION_ID.ACCOUNT_NOTES]: accountNotesCollection,
   [PAGED_COLLECTION_ID.ACCOUNT_SECRETS]: accountSecretsCollection,
   [PAGED_COLLECTION_ID.ACCOUNT_DELEGATES]: accountDelegatesCollection,
+  [PAGED_COLLECTION_ID.TICKET_DELEGATES]: ticketDelegatesCollection,
+  [PAGED_COLLECTION_ID.PRODUCT_DELEGATE_ACCESS]:
+    productDelegateAccessCollection,
+  [PAGED_COLLECTION_ID.PRODUCT_DELEGATES]: productDelegatesCollection,
   [PAGED_COLLECTION_ID.DELEGATE_PRODUCTS]: delegateProductsCollection,
   [PAGED_COLLECTION_ID.DELEGATE_TICKETS]: delegateTicketsCollection,
   [PAGED_COLLECTION_ID.CHILD_ACCOUNTS]: childAccountsCollection,
@@ -1785,7 +1990,9 @@ const PAGED_COLLECTIONS: Record<
   [PAGED_COLLECTION_ID.AFFILIATE_REFERRALS]: affiliateReferralsCollection,
   [PAGED_COLLECTION_ID.AFFILIATE_LINKS]: affiliateLinksCollection,
   [PAGED_COLLECTION_ID.LOGIN_ATTEMPTS]: loginAttemptsCollection,
+  [PAGED_COLLECTION_ID.SENT_EMAILS]: sentEmailsCollection,
   [PAGED_COLLECTION_ID.IP_WHITELIST]: ipWhitelistCollection,
+  [PAGED_COLLECTION_ID.BILLABLE_ENTITIES]: billableEntitiesCollection,
   [PAGED_COLLECTION_ID.TICKETS]: ticketsCollection,
   [PAGED_COLLECTION_ID.PRODUCT_TICKETS]: productTicketsCollection,
   [PAGED_COLLECTION_ID.PRODUCT_INVOICES]: productInvoicesCollection,

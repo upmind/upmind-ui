@@ -19,4 +19,6 @@ export type DiscoveredScenario = {
   route: string;
   /** Its declaration file, absolute. */
   file: string;
+  /** Route params the declaration declares (`params: ["oid"]`), as `/:param` segments. */
+  params: string[];
 };

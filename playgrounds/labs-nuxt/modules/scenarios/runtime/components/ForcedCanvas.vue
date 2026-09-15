@@ -48,7 +48,7 @@ import { Badge } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { forcedCanvas } from "./ForcedCanvas.styles";
-import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
+import { FORCE_REPLAY_LABEL } from "./ForcedCanvas.types";
 import type { ForcedCanvasProps } from "./ForcedCanvas.types";
 // -----------------------------------------------------------------------------
 
@@ -56,11 +56,16 @@ const props = defineProps<ForcedCanvasProps>();
 
 const { t } = useI18n();
 
-const label = computed(() =>
-  props.preset
-    ? t("labs.forced_preset", { preset: t(FORCE_PRESET_LABELS[props.preset]) })
-    : ""
-);
+// The state's OWN name, as its feature wrote it — never a word this app chose
+// for it (operator ruling, 2026-09-12). Only `replay` has no scenario behind
+// it, so only `replay` is named from a key here.
+const label = computed(() => {
+  if (!props.preset) return "";
+
+  return t("labs.forced_preset", {
+    preset: props.label || t(FORCE_REPLAY_LABEL)
+  });
+});
 
 const isForced = computed(() => !!props.preset);
 </script>

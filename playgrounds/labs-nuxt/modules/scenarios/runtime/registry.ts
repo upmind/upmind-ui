@@ -13,13 +13,24 @@
  * the build if two ever collide.
  */
 
-import { filter, fromPairs, get, keyBy, keys, map, values } from "lodash-es";
+import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
+import {
+  filter,
+  find,
+  fromPairs,
+  get,
+  keyBy,
+  keys,
+  map,
+  values
+} from "lodash-es";
 import type {
   RegisteredScenario,
   ScenarioDeclaration,
   ScenarioKey
 } from "./scenario.types";
 import type { ScenarioRegistry } from "@upmind-automation/scenario-harness";
+import type { RouteLocationNormalized } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -67,6 +78,29 @@ export const scenarioRoutes: Record<string, RegisteredScenario> = keyBy(
   values(registry),
   "route"
 );
+
+/**
+ * The url segment a route location's own PAGE record was registered under.
+ *
+ * Never `route.meta[SCENARIO_ROUTE_META_KEY]`: vue-router merges `meta` down
+ * the matched chain and the deeper record wins, so an overlay child injected
+ * over a scenario page shadows the page's key with its own — an overlay that is
+ * itself a scenario module (`overlay-payment`, `overlay-upgrade`) would make
+ * the page beneath it draw the overlay's declaration. The FIRST matched record
+ * carrying the key is the page; every deeper one is an overlay over it.
+ *
+ * @param route - The route location to read, or nothing before one resolves.
+ * @returns The page's url segment, or `""` when no matched record declares one.
+ */
+export function scenarioRouteOf(
+  route?: Pick<RouteLocationNormalized, "matched">
+): string {
+  const page = find(route?.matched, record =>
+    get(record, ["meta", SCENARIO_ROUTE_META_KEY])
+  );
+
+  return get(page, ["meta", SCENARIO_ROUTE_META_KEY], "") as string;
+}
 
 /**
  * Each declaration's own `ts` source, addressed by the same url segment — what

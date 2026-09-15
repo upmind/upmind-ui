@@ -27,7 +27,16 @@ export interface TimelineModuleItem {
    * as a link when set; the module renders it, it does not decide it.
    */
   readonly to?: string;
+  /** Something the client can still change about this event, offered inline after its description. */
+  readonly action?: {
+    readonly value: string;
+    readonly label: string;
+  };
 }
+
+export type TimelineModuleEmits = {
+  select: [value: string];
+};
 
 export interface TimelineModuleProps {
   readonly items: readonly TimelineModuleItem[];

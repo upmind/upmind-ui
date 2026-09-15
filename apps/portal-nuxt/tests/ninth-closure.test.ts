@@ -352,11 +352,7 @@ describe("F13.2 — the product's Tickets tab carries the listing's toolbar", ()
       ANALYTICS
     );
     expect(state.searchAction).toBeTruthy();
-    expect(map(state.filters ?? [], "key")).toEqual([
-      "department",
-      "status",
-      "dateCreated"
-    ]);
+    expect(map(state.filters ?? [], "key")).toEqual(["status", "dateCreated"]);
     // The pillar's own toolbar asks the same questions of the same rows.
     expect(intersection(controlKeys(tab), controlKeys(pillar))).toEqual(
       controlKeys(pillar)

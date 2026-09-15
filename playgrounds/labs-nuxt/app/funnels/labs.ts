@@ -1,4 +1,5 @@
 import {
+  type AnyEventObject,
   assign,
   type FunnelContext,
   type FunnelProps,
@@ -15,7 +16,7 @@ import guards from "./engine/guards";
 import services from "./engine/services";
 import { ACTOR_PARAM, ADD_SESSION_PARAM, MODE_PARAM } from "./labs.constants";
 import { ROUTE } from "./types";
-import { get, isArray, join, mapValues, toString } from "lodash-es";
+import { get, isArray, join, mapValues, omit, toString } from "lodash-es";
 import type { LocationQuery, RouteLocation } from "vue-router";
 import { parseScopeSuffix } from "~/composables/scope/scope-mapper";
 
@@ -113,9 +114,16 @@ function overlayParent(route?: Pick<RouteLocation, "name">) {
  * The `fresh` value is a remount nonce read for presence only — the contract the
  * `useAuth` page already reads the marker under, and the reason a second
  * add-session re-opens the overlay rather than resolving to the same location.
+ *
+ * An arriving `?init` intent rides along BY NAME. It is the email's instruction
+ * to the page underneath, and the signed-out arrival is the one leg that would
+ * otherwise lose it: this target builds a FRESH query, so nothing the url held
+ * survives unless it is carried. Once carried the return leg is already correct
+ * — `resolveToParent` spreads the route while stripping the `--session` suffix,
+ * so the parent regains the page with the intent still on it.
  */
 export function authOverlayTarget(
-  route?: Pick<RouteLocation, "name" | "params">,
+  route?: Pick<RouteLocation, "name" | "params" | "query">,
   { actor, fresh }: { actor?: ScopeActorTypes; fresh?: boolean } = {}
 ) {
   // Strip an overlay suffix as `resolveToParent` does: add-session is offered
@@ -125,15 +133,25 @@ export function authOverlayTarget(
 
   const named = actor ?? routeActor(route?.params);
 
+  // Never `...route.query`: a spread would drag `fresh` and `mode` onto a target
+  // that means to set them itself, re-opening the ADD-SESSION journey the `H5`
+  // split exists to separate.
+  const intent = get(route, ["query", QUERY_PARAMS.INIT]);
+  const carried = intent
+    ? { [QUERY_PARAMS.INIT]: toString(intent) }
+    : undefined;
+
   // Annotated, so the two arms are ONE query type: an inferred union carries the
   // other arm's keys as `undefined`, which is neither a `FunnelTarget` the assign
   // accepts nor a location `router.push` takes.
   const query: LocationQuery = fresh
     ? {
+        ...carried,
         [ACTOR_PARAM]: toString(authCollectActor(named)),
         [ADD_SESSION_PARAM]: Date.now().toString()
       }
     : {
+        ...carried,
         ...(authNamedActor(named)
           ? { [ACTOR_PARAM]: toString(named) }
           : undefined),
@@ -164,6 +182,33 @@ export function payOverlayTarget(
     name: `${parent}--${PAY_OVERLAY_ID}`,
     params: route?.params,
     query: route?.query
+  };
+}
+
+/**
+ * The location an admitted `?init` intent opens — the `<page>--<overlay>` child
+ * the overlay registry injects, carrying the page's own params and its query
+ * MINUS the spent intent.
+ *
+ * The OMISSION is the point. `payOverlayTarget` above carries `route.query`
+ * verbatim and the middleware navigates that object
+ * (`app/middleware/routing.global.ts:32`), so a target built straight off the
+ * route writes the param the guard has just acted on back into the url. Nothing
+ * else clears it either: no clear mutates `router.currentRoute`, so this guard
+ * must stay idempotent, and it is the omission that makes it so.
+ *
+ * Scoped to the intent's own re-target. The AUTH leg is the opposite
+ * requirement and is untouched — `resolveToParent` spreads the route, so the
+ * parent regains `init` after sign-in, which is what fires it there.
+ */
+export function intentOverlayTarget(
+  route: Pick<RouteLocation, "name" | "params" | "query"> | undefined,
+  overlayId: string
+) {
+  return {
+    name: `${overlayParent(route)}--${overlayId}`,
+    params: route?.params,
+    query: omit(route?.query, [QUERY_PARAMS.INIT])
   };
 }
 
@@ -218,7 +263,11 @@ export function authRequestActor(route?: Pick<RouteLocation, "query">) {
  */
 const scenarioStates = mapValues(scenarioRoutes, () => ({
   invoke: {
-    src: "guardScenario",
+    // Session gate THEN `?init` intent — so a `?init=pay` deep link (or the
+    // invoice page's Pay button) opens the pay overlay over the scenario, the
+    // same way `[ROUTE.ORDER]` does. `guardScenarioIntent` resolves when there
+    // is no intent; on an admitted intent it rejects carrying the overlay child.
+    src: "guardScenarioIntent",
     onDone: { actions: ["setResolved"] },
     onError: [
       {
@@ -232,7 +281,17 @@ const scenarioStates = mapValues(scenarioRoutes, () => ({
         ],
         cond: "isSession"
       },
-      { actions: ["setResolved"] }
+      {
+        actions: [
+          assign({
+            targetRoute: (
+              { currentRoute }: FunnelContext,
+              { data }: AnyEventObject
+            ) => get(data, "target") ?? currentRoute
+          }),
+          "setResolved"
+        ]
+      }
     ]
   }
 }));
@@ -259,6 +318,11 @@ export default <FunnelProps>{
      * `?operation_id`; `guardOrderReturn` rejects on that reference so the funnel
      * re-targets the `<order>--pay` overlay child (the auth overlay-target
      * pattern). A plain visit resolves with no redirect (FE-3133).
+     *
+     * `?init=pay` is one more reason the SAME guard rejects — the order page is
+     * the invoice pay page, so the intent needs no state of its own. A rejection
+     * that names its own target takes it; one that names none is the off-site
+     * return, which the pay overlay answers.
      */
     [ROUTE.ORDER]: {
       invoke: {
@@ -267,12 +331,56 @@ export default <FunnelProps>{
         onError: {
           actions: [
             assign({
-              targetRoute: ({ currentRoute }: FunnelContext) =>
-                payOverlayTarget(currentRoute)
+              targetRoute: (
+                { currentRoute }: FunnelContext,
+                { data }: AnyEventObject
+              ) => get(data, "target") ?? payOverlayTarget(currentRoute)
             }),
             "setResolved"
           ]
         }
+      }
+    },
+
+    /**
+     * 🎯 ROUTE.CONTRACT_PRODUCT
+     * The contract-product page, and the only route `?init=upgrade` is read on.
+     * Declared AFTER the `...scenarioStates` spread so it overrides the
+     * generated session-only state for the same scenario — the
+     * `[ROUTE.PAYMENT_DETAIL_ADD]` mechanism.
+     *
+     * `guardScenarioIntent` runs the scenario's own session gate FIRST and the
+     * intent second, so no intent fires for a visitor the gate is about to bounce
+     * to auth. The two rejections are told apart by the target each carries.
+     */
+    [ROUTE.CONTRACT_PRODUCT]: {
+      invoke: {
+        src: "guardScenarioIntent",
+        onDone: { actions: ["setResolved"] },
+        onError: [
+          {
+            target: ROUTE.SESSION_LOGIN,
+            actions: [
+              "setUnresolved",
+              assign({
+                targetRoute: ({ currentRoute }: FunnelContext) =>
+                  authOverlayTarget(currentRoute)
+              })
+            ],
+            cond: "isSession"
+          },
+          {
+            actions: [
+              assign({
+                targetRoute: (
+                  { targetRoute }: FunnelContext,
+                  { data }: AnyEventObject
+                ) => get(data, "target") ?? targetRoute
+              }),
+              "setResolved"
+            ]
+          }
+        ]
       }
     },
 

@@ -1,0 +1,48 @@
+FE negative control — the gate's add rows keep their fixed order.
+
+Target spec:  app/pages/overlays/__tests__/auth.spec.ts
+Behaviour:    "the four add rows appear in order guest, guest customer, client,
+              staff" — the gate offers exactly these four ways in, in that one
+              fixed order. Anchored to the behaviour, NOT to a line/case title:
+              a prover is re-basing auth.spec.ts right now, so its current
+              row-order assertion and test id may move under it.
+Mutation:     reorders `addChoices` in auth.vue so Guest Customer moves from
+              second to LAST — the rows now read guest, client, staff, guest
+              customer.
+Why RED:      the spec asserts the add rows render in order guest, guest
+              customer, client, staff; with Guest Customer demoted to the tail
+              the ordered read no longer matches and the row-order assertion
+              fails.
+Authored by:  developer seat (mutant only), anchored to 62b851458.
+Verified by:  prover seat, blind — apply, run the row-order case RED, revert.
+
+diff --git a/playgrounds/labs-nuxt/app/pages/overlays/auth.vue b/playgrounds/labs-nuxt/app/pages/overlays/auth.vue
+index 15847896f..3ba034cc8 100644
+--- a/playgrounds/labs-nuxt/app/pages/overlays/auth.vue
++++ b/playgrounds/labs-nuxt/app/pages/overlays/auth.vue
+@@ -270,12 +270,6 @@ const addChoices = computed(
+         icon: getAddSessionIcon(ScopeActorTypes.GUEST),
+         label: getAddSessionLabel(ScopeActorTypes.GUEST)
+       },
+-      {
+-        value: AUTH_GATE_GUEST_CUSTOMER,
+-        testKey: "actor-scope-add-guest-customer",
+-        icon: "user-plus-01",
+-        label: "labs.auth_add_guest_customer"
+-      },
+       {
+         value: ScopeActorTypes.CLIENT,
+         testKey: getAddSessionTestKey(ScopeActorTypes.CLIENT),
+@@ -287,6 +281,12 @@ const addChoices = computed(
+         testKey: getAddSessionTestKey(ScopeActorTypes.STAFF),
+         icon: getAddSessionIcon(ScopeActorTypes.STAFF),
+         label: getAddSessionLabel(ScopeActorTypes.STAFF)
++      },
++      {
++        value: AUTH_GATE_GUEST_CUSTOMER,
++        testKey: "actor-scope-add-guest-customer",
++        icon: "user-plus-01",
++        label: "labs.auth_add_guest_customer"
+       }
+     ] satisfies {
+       value: AuthGateChoice;

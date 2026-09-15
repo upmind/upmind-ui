@@ -42,12 +42,19 @@ function presetResolver(
 ): HttpResponseResolver {
   return async ({ request }) => {
     const url = new URL(request.url);
+    // What the page sent, read once: it picks the recording of the same write
+    // and, once served, is what lands on the collection or the record.
+    const sent = await request
+      .clone()
+      .json()
+      .catch(() => undefined);
     const answer = presetAnswer(
       preset,
       session.bodies(),
       request.method,
       url,
-      failure
+      failure,
+      sent
     );
 
     // Never settles, so the request stays in flight and the surface holds the
@@ -62,14 +69,7 @@ function presetResolver(
     // nothing — `error-action` forces exactly that. The request's own body
     // rides along so what lands is the write the wire accepted.
     if (answer.status < REFUSED_FROM)
-      session.apply(
-        request.method,
-        url,
-        await request
-          .clone()
-          .json()
-          .catch(() => undefined)
-      );
+      session.apply(request.method, url, sent, answer.body);
 
     // A recording served with its sentence withheld carries no body at all, so
     // the status is the whole answer — `json(undefined)` would put the string

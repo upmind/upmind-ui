@@ -30,11 +30,6 @@ import {
 
 const PROFILE_ITEM = mockActionValue(MOCK_ACTION.NAVIGATE, "/account/profile");
 
-const SECURITY_ITEM = mockActionValue(
-  MOCK_ACTION.NAVIGATE,
-  "/account/security"
-);
-
 const SIGN_OUT_ITEM = mockActionValue(MOCK_ACTION.NAVIGATE, "/logout");
 
 const NO_CONTEXT = {};
@@ -122,14 +117,9 @@ describe("the menu's destinations", () => {
   it("offers the account, the security page and the way out, in that order", () => {
     const values = map(accountMenuItems(hostgrid()), "value");
 
-    expect(values.slice(-3)).toEqual([
+    expect(values.slice(-2)).toEqual([PROFILE_ITEM, SIGN_OUT_ITEM]);
+    expect(map(accountMenuItems(minimal()), "value").slice(-2)).toEqual([
       PROFILE_ITEM,
-      SECURITY_ITEM,
-      SIGN_OUT_ITEM
-    ]);
-    expect(map(accountMenuItems(minimal()), "value").slice(-3)).toEqual([
-      PROFILE_ITEM,
-      SECURITY_ITEM,
       SIGN_OUT_ITEM
     ]);
   });
@@ -138,7 +128,6 @@ describe("the menu's destinations", () => {
     const items = accountMenuItems(hostgrid());
 
     expect(find(items, { value: PROFILE_ITEM })?.label).toBe("My account");
-    expect(find(items, { value: SECURITY_ITEM })?.label).toBe("Security");
     expect(find(items, { value: SIGN_OUT_ITEM })?.label).toBe("Sign out");
   });
 });

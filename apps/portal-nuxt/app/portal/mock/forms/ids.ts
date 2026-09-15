@@ -62,8 +62,6 @@ export const FORM_ID = {
   AFFILIATE_WITHDRAWAL_REQUEST: "affiliate-withdrawal-request",
   /** Legacy's `tenancy/selectAccountModal` — which account this sign-in works on. */
   SWITCH_ACCOUNT: "switch-account",
-  /** The account card's "Change photo" — one field, where the picture lives. */
-  AVATAR_SAVE: "avatar-save",
   /** Legacy's `manageEmailTopicOptInsModal` — what ONE address receives. */
   EMAIL_TOPIC_OPT_INS: "email-topic-opt-ins",
   /**
@@ -75,7 +73,25 @@ export const FORM_ID = {
    * Legacy's `parentBrandAppearanceForm` — the name, colour and font a parent
    * account lends to the accounts it manages.
    */
-  PARENT_BRANDING: "parent-branding"
+  PARENT_BRANDING: "parent-branding",
+  /** The code the brand emails before a username or password change lands (legacy's sensitive-action chain). */
+  SENSITIVE_CODE: "sensitive-code",
+  /** Which unpaid invoices to close into one document. */
+  CONSOLIDATE_INVOICES: "consolidate-invoices",
+  /** Legacy's `addEditClientEmailsModal`, either way round. */
+  EMAIL_CREATE: "email-create",
+  EMAIL_EDIT: "email-edit",
+  /** Legacy's `enter_verification_code` prompt on the unconfirmed sign-in address. */
+  EMAIL_VERIFY_CODE: "email-verify-code",
+  /** Legacy's `addEditClientPhoneModal`, either way round. */
+  PHONE_CREATE: "phone-create",
+  PHONE_EDIT: "phone-edit",
+  /** Legacy's `addEditClientAddressModal`, either way round. */
+  ADDRESS_CREATE: "address-create",
+  ADDRESS_EDIT: "address-edit",
+  /** Legacy's `addEditClientCompanyModal`, either way round. */
+  COMPANY_CREATE: "company-create",
+  COMPANY_EDIT: "company-edit"
 } as const;
 
 export type FormId = (typeof FORM_ID)[keyof typeof FORM_ID];

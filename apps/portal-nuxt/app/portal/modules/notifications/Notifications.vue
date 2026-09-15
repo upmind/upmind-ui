@@ -36,60 +36,60 @@
       </ToggleGroup>
 
       <EmptyState v-if="meta.isEmpty" :title="props.emptyTitle" />
-      <ListRoot v-else layout="stack">
-        <ListItem
-          v-for="item in props.items"
-          :key="item.id"
-          v-bind="useTestAttrs({ key: 'portal-notification', value: item.id })"
-        >
-          <ListItemTitle>{{ item.title }}</ListItemTitle>
-          <ListItemDescription v-if="item.description">{{
-            item.description
-          }}</ListItemDescription>
-          <!-- A cut body carries the control that opens the whole of it;
+      <!-- The rows scroll; the rail above and the controls below do not, so
+           both stay reachable however far down the feed the reader is. -->
+      <div v-else ref="feed" :class="FEED_CLASS">
+        <ListRoot layout="stack">
+          <ListItem
+            v-for="item in props.items"
+            :key="item.id"
+            v-bind="
+              useTestAttrs({ key: 'portal-notification', value: item.id })
+            "
+          >
+            <ListItemTitle>{{ item.title }}</ListItemTitle>
+            <ListItemDescription v-if="item.description">{{
+              item.description
+            }}</ListItemDescription>
+            <!-- A cut body carries the control that opens the whole of it;
                one that reads whole carries none. -->
-          <PortalButton
-            v-if="item.action"
-            size="xs"
-            variant="link"
-            class="self-start px-0"
-            @click="emits('select', item.action.value)"
-            >{{ item.action.label }}</PortalButton
-          >
-          <!-- Without this the dropdown cannot distinguish today's alert from
-               last month's: the selector dates every notification. -->
-          <time
-            v-if="item.time"
-            :datetime="item.datetime"
-            class="text-muted text-xs"
-            >{{ item.time }}</time
-          >
-          <template v-if="item.trailingText || item.secondaryAction" #trailing>
-            <StatusBadge v-if="item.trailingText" :dot="false">{{
-              item.trailingText
-            }}</StatusBadge>
             <PortalButton
-              v-if="item.secondaryAction"
+              v-if="item.action"
               size="xs"
-              variant="ghost"
-              icon-only
-              :aria-label="props.dismissLabel"
-              @click="emits('select', item.secondaryAction.value)"
+              variant="link"
+              class="self-start px-0"
+              @click="emits('select', item.action.value)"
+              >{{ item.action.label }}</PortalButton
             >
-              <X />
-            </PortalButton>
-          </template>
-        </ListItem>
-      </ListRoot>
-
-      <PortalButton
-        v-if="props.loadMore"
-        size="sm"
-        variant="ghost"
-        @click="emits('select', props.loadMore.value)"
-      >
-        {{ props.loadMore.label }}
-      </PortalButton>
+            <!-- Without this the dropdown cannot distinguish today's alert from
+               last month's: the selector dates every notification. -->
+            <time
+              v-if="item.time"
+              :datetime="item.datetime"
+              class="text-muted text-xs"
+              >{{ item.time }}</time
+            >
+            <template
+              v-if="item.trailingText || item.secondaryAction"
+              #trailing
+            >
+              <StatusBadge v-if="item.trailingText" :dot="false">{{
+                item.trailingText
+              }}</StatusBadge>
+              <PortalButton
+                v-if="item.secondaryAction"
+                size="xs"
+                variant="ghost"
+                icon-only
+                :aria-label="props.dismissLabel"
+                @click="emits('select', item.secondaryAction.value)"
+              >
+                <X />
+              </PortalButton>
+            </template>
+          </ListItem>
+        </ListRoot>
+      </div>
 
       <div class="flex items-center justify-between gap-2">
         <PortalButton
@@ -128,9 +128,15 @@ import {
   ToggleGroupItem,
   useTestAttrs
 } from "@upmind/ui";
+import { useInfiniteScroll } from "@vueuse/core";
 import { Bell, X } from "lucide-vue-next";
-import { computed } from "vue";
-import { FILTER_RAIL_SIZE, PANEL_CLASS } from "./variants";
+import { computed, ref } from "vue";
+import {
+  FEED_CLASS,
+  FEED_PAGE_DISTANCE,
+  FILTER_RAIL_SIZE,
+  PANEL_CLASS
+} from "./variants";
 import type {
   NotificationsModuleEmits,
   NotificationsModuleProps
@@ -148,6 +154,27 @@ const meta = computed(() => ({
   hasFilters:
     (props.filters?.length ?? 0) > 0 && props.filterAction !== undefined
 }));
+
+const feed = ref<HTMLElement | null>(null);
+
+/**
+ * The feed pages on reaching its own end, never on a control. Legacy's
+ * dropdown ACCUMULATED rows, so a "load more" button under a scroll region was
+ * a second thing to find; the scroll is the affordance. `canLoadMore` reads
+ * the SAME signal the button did — a feed with nothing further asks for
+ * nothing — and the composable's own interval keeps one page in flight.
+ */
+useInfiniteScroll(
+  feed,
+  () => {
+    if (props.loadMore === undefined) return;
+    emits("select", props.loadMore.value);
+  },
+  {
+    distance: FEED_PAGE_DISTANCE,
+    canLoadMore: () => props.loadMore !== undefined
+  }
+);
 
 /** A rail that clears itself reports the empty value; the seam reads that as "all". */
 function onFilter(value: unknown): void {

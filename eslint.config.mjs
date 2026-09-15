@@ -1102,7 +1102,8 @@ export default [
       "scope-based/no-cosplay-arm": "error",
       "scope-based/complete-layer-set": "error",
       "scope-based/actor-scope-first": "error",
-      "scope-based/arm-in-matrix": "error"
+      "scope-based/arm-in-matrix": "error",
+      "scope-based/no-private-instance-axis": "error"
     }
   },
 

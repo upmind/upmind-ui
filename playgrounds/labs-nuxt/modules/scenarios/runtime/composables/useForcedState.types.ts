@@ -13,32 +13,26 @@
  * affordance and the scenario player drive it through.
  */
 
-import type { ComputedRef } from "vue";
+import type { ForceRecipeId, ForcedState } from "../force/states.types";
+import type { ComputedRef, Ref } from "vue";
 
 // -----------------------------------------------------------------------------
 
 /**
- * The presets a url carries (design §3.4's whitelist). `replay` is deliberately
- * absent: the player arms it and `track=` is already the link that reproduces
- * it, so a second param would be a second spelling of the same state.
+ * Every answer the worker can be armed with — one module's RECIPES, plus
+ * replay.
  *
- * The two failures are named apart because they are different states of the
- * surface, and one preset serving both is what made a row's refusal read as the
- * collection vanishing (`R6-19`): `error-action` leaves the list loaded and
- * fails the row's own write, `error-collection` fails the READ so the surface
- * draws its error state with no rows at all.
+ * RETIRED here (operator ruling, 2026-09-12): `FORCE_URL_PRESETS`, the fixed
+ * four a url used to carry. It was three things at once — the url's vocabulary,
+ * the picker's labels, and the offer itself — so every page was offered the
+ * same four states whatever its feature said, and a single-record FORM was
+ * offered a collection's failure because its recordings held one. What a page
+ * offers is now its own feature's (`force/states.ts`), what a url carries is
+ * that state's SLUG, and what is left here is the recipe a fake network
+ * performs: `force/states.types.ts`'s own vocabulary, consumed rather than
+ * re-spelt (that file carries the `graphify-out/graph.json` citation for it).
  */
-export const FORCE_URL_PRESETS = [
-  "empty",
-  "loading",
-  "error-action",
-  "error-collection"
-] as const;
-
-export type ForceUrlPreset = (typeof FORCE_URL_PRESETS)[number];
-
-/** Every answer the worker can be armed with — the three url presets, plus replay. */
-export type ForcePreset = ForceUrlPreset | "replay";
+export type ForcePreset = ForceRecipeId | "replay";
 
 export type ForceWorkerStartOptions = {
   /** Whatever the handlers do not name reaches staging untouched (`AC8.3`). */
@@ -115,6 +109,16 @@ export type ForceReset = () => unknown;
 export type ForcedStateSource = {
   /** The module whose recordings the page's presets are measured off. */
   module?: string;
+  /**
+   * The states that module's own FEATURE declares and its recordings can
+   * answer, filled in by the page once its corpus lands (`force/offer.ts`).
+   * A url carries a state's SLUG, so this is what one is resolved against: a
+   * slug no offered state answers to arms nothing, which is the only honest
+   * reading of a link naming a state this page does not have. Mints nothing —
+   * `ForcedState` is `force/states.types.ts`'s own (see its
+   * `graphify-out/graph.json` citation).
+   */
+  states?: Ref<readonly ForcedState[]>;
   /** That module's own published cache clear. */
   reset?: ForceReset;
   /**
@@ -131,6 +135,21 @@ export type UseForcedState = {
    * still carrying `force=` intercepts nothing.
    */
   preset: ComputedRef<ForcePreset | undefined>;
+  /**
+   * The feature STATE actually armed — the scenario the page is being held in,
+   * carrying its own title for whatever names it on screen. Absent on Live,
+   * and absent under `replay`: the player arms that one and no scenario of the
+   * module's feature declares it (`graphify-out/graph.json` — `ForcedState` is
+   * `force/states.types.ts`'s, consumed here).
+   */
+  state: ComputedRef<ForcedState | undefined>;
+  /**
+   * The slug the url is CARRYING, armed or not. A page measures its own offer
+   * asynchronously, so a pasted link naming a state this page does not offer
+   * can only be told from one that has not been measured yet by asking both:
+   * this, and whether {@link UseForcedState.state} resolved.
+   */
+  requested: ComputedRef<string | undefined>;
   /**
    * Whether a preset has anything to answer with. False while the recorded
    * corpus cannot reach app runtime (`ESC6`), which leaves the page Live-only.
@@ -154,11 +173,13 @@ export type UseForcedState = {
    */
   isSettling: ComputedRef<boolean>;
   /**
-   * Arms `preset`, writing it to the url when the url can carry it — always
-   * from the RECORDING, so re-arming a preset already armed returns the corpus
-   * to it rather than continuing on the collection the last pass moved.
+   * Arms a forced STATE — writing its slug to the url — or `replay`, the one
+   * the url cannot carry. Always from the RECORDING, so re-arming a state
+   * already armed returns the corpus to it rather than continuing on the
+   * collection the last pass moved. (`ForcedState` is consumed from
+   * `force/states.types.ts`; see `graphify-out/GRAPH_REPORT.md`.)
    */
-  arm: (preset: ForcePreset) => Promise<void>;
+  arm: (next: ForcedState | "replay") => Promise<void>;
   /** Returns to Live: the worker is stopped AND its registration unregistered. */
   disarm: () => Promise<void>;
   /** Resolves once the worker matches the url, including an arm still queued. */

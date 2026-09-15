@@ -1,0 +1,57 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/oauth/access_token",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": {
+      "grant_type": "admin",
+      "username": "mock-email-3@example.com",
+      "password": "mock-password"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Origin, X-Requested-With, Content-Type, Accept, Token-Type",
+      "cache-control": "no-store, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a38bf3c41bf921fc-DUB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json; charset=UTF-8",
+      "date": "Thu, 10 Sep 2026 05:14:59 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "pragma": "no-cache",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=UwB4l%2FX77ETekhU1tOnJWOprBNrmtUzv0CZaOg5KZ9krBJGd6BUrk9x6Y73O%2BJisnNy5NeaH8KWoGw4qt9Y0Bi35g4FR06L6nQrp3f%2BEfs4YZteen5LWJi06UhqtED5eYSMOshursQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "token-type": "mock-token-type",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding, Origin",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "second_factor_required": false,
+      "password_change_required": false,
+      "refresh_expires_in": 36000,
+      "actor_id": "825d96e7-63ed-0913-de6c-417482528340",
+      "actor_type": "user",
+      "twofa_provider": "Email",
+      "token_type": "mock-token_type",
+      "expires_in": 3599,
+      "access_token": "mock-access_token",
+      "refresh_token": "mock-refresh_token"
+    }
+  },
+  "captured_at": "2026-09-10T05:14:59.567Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "session-store"
+  }
+}

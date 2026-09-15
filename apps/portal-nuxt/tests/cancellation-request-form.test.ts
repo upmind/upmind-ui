@@ -16,7 +16,7 @@ import {
   CancellationRequestStatusCodes,
   ContractStatusCodes
 } from "@upmind-automation/types";
-import { filter, find, get, includes, map, omit } from "lodash-es";
+import { filter, find, get, includes, map, omit, some } from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { MockDataset, MockProduct } from "~/portal/mock/types";
 import {
@@ -87,7 +87,13 @@ function cancellable(data: MockDataset): MockProduct {
       product.cancellationRequest === undefined &&
       product.cancelledAt === undefined &&
       !product.pendingProRata &&
-      product.autoExpireAt === undefined
+      product.autoExpireAt === undefined &&
+      product.canCancel !== false &&
+      !some(
+        data.invoices,
+        invoice =>
+          invoice.productId === product.id && invoice.unpaidAmount.amount > 0
+      )
   );
 }
 
@@ -141,6 +147,33 @@ describe("who is offered the cancellation options, and who is not", () => {
 
     expect(offer(data, product)?.label).toBeTruthy();
     expect(offer(data, product)?.disabledReason).toBeUndefined();
+  });
+
+  it("keeps it dead, with the reason, where the brand forbids it or an invoice is overdue", () => {
+    const data = hostgrid();
+    const forbidden = seeded(
+      data,
+      "product the brand will not release",
+      product => product.canCancel === false
+    );
+    expect(offer(data, forbidden)?.disabledReason).toMatch(
+      /cannot be cancelled/
+    );
+
+    const today = new Date().toISOString().slice(0, 10);
+    const overdue = find(
+      data.invoices,
+      invoice =>
+        invoice.unpaidAmount.amount > 0 &&
+        invoice.dueDate < today &&
+        invoice.productId !== undefined
+    );
+    if (overdue?.productId === undefined)
+      throw new Error("seed has no overdue invoice on a product");
+    const owing = find(data.products, { id: overdue.productId });
+    if (owing === undefined)
+      throw new Error("overdue invoice names no product");
+    expect(offer(data, owing)?.disabledReason).toMatch(/overdue/);
   });
 
   it("takes it away once a request is lodged, and from a product already stopped", () => {

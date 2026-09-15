@@ -1,0 +1,25 @@
+diff --git a/packages/headless/src/modules/client-billing-settings/client-billing-settings.mappers.ts b/packages/headless/src/modules/client-billing-settings/client-billing-settings.mappers.ts
+index ccbb9a464..77a83f750 100644
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.mappers.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.mappers.ts
+@@ -113,16 +113,10 @@ export function mapIAccountCurrencyFields(
+   model: BillingSettingsModel,
+   baseModel: BillingSettingsModel = {}
+ ): AccountCurrencyUpdateBody | undefined {
+-  const diff: AccountCurrencyUpdateBody = {};
+-
+-  if (model.currencyId !== baseModel.currencyId) {
+-    diff.currency_id = model.currencyId;
+-  }
+-  if (
+-    model.preferredPaymentCurrencyId !== baseModel.preferredPaymentCurrencyId
+-  ) {
+-    diff.preferred_payment_currency_id = model.preferredPaymentCurrencyId;
+-  }
++  const diff: AccountCurrencyUpdateBody = {
++    currency_id: model.currencyId,
++    preferred_payment_currency_id: model.preferredPaymentCurrencyId
++  };
+ 
+   return Object.keys(diff).length ? diff : undefined;
+ }

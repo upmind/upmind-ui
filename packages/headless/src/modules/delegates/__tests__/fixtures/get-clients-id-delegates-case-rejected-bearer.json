@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/63250798-065d-1ed5-685c-8174e234e98d/delegates?case=rejected-bearer",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3adae27dd0c7078-LIS",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 14 Sep 2026 07:29:23 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xuBaQyILoPi%2FZU9PvBVM5%2BeWl5YOgUQ4D9jIrpj%2B2AYimyyCPWwtpe%2Bzmees%2Br%2FWuliv%2FngrvhJCUfMIUHtjlGbGjrLSiOuaUK1WDZHGacbIMS4cbp56sexGj5wKXRidn62ZlY0JgQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "4adeb88ac7d036daa703d275a33e1f2ba8556076",
+        "type": 9,
+        "code": 401,
+        "message": "The resource owner or authorization server denied the request.",
+        "data": null
+      },
+      "messages": {
+        "hint": "The JWT string must have two dots"
+      },
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-14T07:29:23.033Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "delegates"
+  }
+}

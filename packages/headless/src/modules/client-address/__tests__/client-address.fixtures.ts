@@ -65,9 +65,10 @@
 
 import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
-import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { BrandConfigKeys, GrantTypes } from "@upmind-automation/types";
+import { BrandConfigKeys } from "@upmind-automation/types";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import { mintClientToken } from "../../auth/__tests__/auth.tokens";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -118,28 +119,6 @@ type WireAddress = {
 };
 
 // -----------------------------------------------------------------------------
-
-/**
- * Mint a REAL (unsanitised) token outside the capture pipeline. The Generator
- * only ever returns sanitised bodies, so credentials for authed captures must
- * come from a plain fetch that never touches disk.
- */
-async function mintToken(
-  grant: Record<string, string>
-): Promise<IToken | undefined> {
-  const response = await fetch(`${API_URL}/oauth/access_token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      Origin: ORIGIN
-    },
-    body: new URLSearchParams(grant).toString()
-  });
-  const body = await response.json().catch(() => null);
-  const token = (body?.access_token ? body : body?.data) as IToken | undefined;
-  return token?.access_token ? token : undefined;
-}
 
 /** Plain, UNCAPTURED authed call — used for id lookup and staging restore. */
 async function call(
@@ -212,17 +191,7 @@ describe("Client-Address API Fixtures Generator", () => {
       name: "client-address"
     });
 
-    const token = await mintToken({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS.client.username,
-      password: API_CREDENTIALS.client.password
-    });
-    if (!token) {
-      throw new Error(
-        "Could not mint a client token with the staging credentials — " +
-          "check tests/fixtures/credentials.ts against the recording brand."
-      );
-    }
+    const token = await mintClientToken();
     clientToken = token;
 
     const id = await fetchClientId(clientToken.access_token);

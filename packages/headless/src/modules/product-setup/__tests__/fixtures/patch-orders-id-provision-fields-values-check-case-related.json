@@ -2,14 +2,14 @@
   "version": 3,
   "request": {
     "method": "PATCH",
-    "path": "/api/orders/mock-uuid-288/provision_fields/values/check?case=related",
+    "path": "/api/orders/85d26e96-783d-1670-7d53-c314502e7043/provision_fields/values/check?case=related",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
       "content-type": "application/json",
       "origin": "null",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36",
-      "sec-ch-ua": "\"HeadlessChrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"HeadlessChrome\";v=\"151\", \"Chromium\";v=\"151\"",
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
@@ -85,7 +85,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-07-11T18:57:10.294Z",
+  "captured_at": "2026-09-10T05:20:19.184Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

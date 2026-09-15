@@ -45,6 +45,7 @@
     "@fontsource/gilda-display": "^5.2.8",
     "@fontsource/instrument-serif": "^5.2.8",
     "@jsonforms/core": "catalog:",
+    "@tailwindcss/typography": "^0.5.16",
     "@upmind-automation/auth": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",

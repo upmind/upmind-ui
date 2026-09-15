@@ -6,6 +6,7 @@
  * (`R6-15b`).
  */
 
+export { default as AuthGuestCustomer } from "./AuthGuestCustomer.vue";
 export { default as AuthJourney } from "./AuthJourney.vue";
-export { AUTH_GATE_IMPERSONATE } from "./AuthJourney.types";
+export { AUTH_GATE_GUEST_CUSTOMER } from "./AuthJourney.types";
 export type * from "./AuthJourney.types";

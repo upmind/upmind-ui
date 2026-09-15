@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/d6325079-8065-d1e2-d78c-8174e234e98d?with=region,country",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/7d738248-5079-3152-576c-81e642d59e06?with=region,country",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a2fa26a77eaf94ad-LIS",
+      "cf-ray": "a38bf461ce86c1fa-DUB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Sun, 23 Aug 2026 12:34:22 GMT",
+      "date": "Thu, 10 Sep 2026 05:15:24 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=olLVIZkaSrm7s0LGRht73XSI7KPqWEooWYJFOdFkUx5tc3%2B4c%2FAiU1EwY6vDIjI%2F1XylSJPFWnSJxyqGkRhT5lRQyGLj%2FWEon%2BOhekcSS7Q7wQulWglcr3viVcrROMAYajskog%2FEMw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Yj%2Ftc48yMDTjEst9KYw0vhqdLFY0RLAqu%2FtTa8DkXRN7G1jRAGcLcJ9nYY6q6kJn0UJ2cfINRPR1%2BPZ1mSaZ6jdbjQaiN%2B%2B3MA8XTQSRUdnoD3vYcutfERkuNx0FEX5hnmIHgL9PwA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -33,7 +33,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "d6325079-8065-d1e2-d78c-8174e234e98d",
+        "id": "7d738248-5079-3152-576c-81e642d59e06",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -41,7 +41,7 @@
         "user_id": "sys",
         "default": false,
         "type": 3,
-        "name": "client-address-fixture-1787488449081",
+        "name": "client-address-fixture-1789017313474",
         "address_1": "1 Prover Street",
         "address_2": "Flat 2",
         "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
@@ -49,8 +49,8 @@
         "city": "Guildford",
         "county": null,
         "postcode": "GU4 8PH",
-        "created_at": "2026-08-23 12:34:21",
-        "updated_at": "2026-08-23 12:34:21",
+        "created_at": "2026-09-10 05:15:23",
+        "updated_at": "2026-09-10 05:15:23",
         "deleted_at": null,
         "verified": 2,
         "can_delete": true
@@ -62,7 +62,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-08-23T12:34:22.070Z",
+  "captured_at": "2026-09-10T05:15:23.904Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

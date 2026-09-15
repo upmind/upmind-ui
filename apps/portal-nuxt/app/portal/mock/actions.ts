@@ -35,7 +35,6 @@ import { parseAttachmentNames } from "./contracts/client-tickets.schemas";
 import { shareLinkFor } from "./documents";
 import {
   activePersonaAccount,
-  consolidatableInvoices,
   hasDelegateObject,
   invoicePaymentMethod,
   isInvoicePayable,
@@ -65,11 +64,17 @@ import {
   useMockVault,
   useMockWallet,
   trialEndConfirmation,
-  whyNotShareable
+  whyNotShareable,
+  isCodeShaped
 } from "./facades";
-import { useMockClientEmails } from "./facades/useMockContacts";
+import {
+  useMockClientAddresses,
+  useMockClientCompanies,
+  useMockClientEmails,
+  useMockClientPhones
+} from "./facades/useMockContacts";
 import { FORM_ID, isFormId } from "./forms/ids";
-import { assign, find, includes, isPlainObject, size, values } from "lodash-es";
+import { assign, find, includes, isPlainObject, values } from "lodash-es";
 import type { NotificationFilter } from "./collection-defs";
 import type { VaultAssetScope } from "./contracts";
 import type { NewLineKey } from "./contracts/client-tickets";
@@ -90,7 +95,6 @@ import type { FormModel } from "@upmind/ui";
 import { useListViewPreference } from "~/composables/useListViewPreference";
 
 export const MOCK_ACTION = {
-  COMPLETE_SETUP: "complete-setup",
   VIEW_PRODUCT: "view-product",
   PAY_INVOICE: "pay-invoice",
   /** Puts the document's public link on the clipboard — the token is the dataset's. */
@@ -227,6 +231,32 @@ export const MOCK_ACTION = {
   PIN_REGENERATE_CONFIRMED: "pin-regenerate-confirmed",
   /** Asks the registry about a company's tax number — the seed carries its answer. */
   COMPANY_VALIDATE_TAX: "company-validate-tax",
+  // Legacy's profile page: the four contact lists' writes (`clientEmailRow`,
+  // `clientPhoneRow`, `billableAddressEntity`, `billableCompanyEntity`).
+  EMAIL_CREATE: "email-create",
+  EMAIL_SAVE: "email-save",
+  EMAIL_SET_DEFAULT: "email-set-default",
+  /** Legacy's "Resend verification email". */
+  EMAIL_VERIFY: "email-verify",
+  /** The typed code from the verification mail. */
+  EMAIL_VERIFY_CODE: "email-verify-code",
+  EMAIL_REMOVE: "email-remove",
+  EMAIL_REMOVE_CONFIRMED: "email-remove-confirmed",
+  PHONE_CREATE: "phone-create",
+  PHONE_SAVE: "phone-save",
+  PHONE_SET_DEFAULT: "phone-set-default",
+  PHONE_REMOVE: "phone-remove",
+  PHONE_REMOVE_CONFIRMED: "phone-remove-confirmed",
+  ADDRESS_CREATE: "address-create",
+  ADDRESS_SAVE: "address-save",
+  ADDRESS_SET_DEFAULT: "address-set-default",
+  ADDRESS_REMOVE: "address-remove",
+  ADDRESS_REMOVE_CONFIRMED: "address-remove-confirmed",
+  COMPANY_CREATE: "company-create",
+  COMPANY_SAVE: "company-save",
+  COMPANY_SET_DEFAULT: "company-set-default",
+  COMPANY_REMOVE: "company-remove",
+  COMPANY_REMOVE_CONFIRMED: "company-remove-confirmed",
   /** Lifts one sign-in restriction, and the half its confirmation re-dispatches. */
   IP_WHITELIST_REMOVE: "ip-whitelist-remove",
   IP_WHITELIST_REMOVE_CONFIRMED: "ip-whitelist-remove-confirmed",
@@ -245,6 +275,12 @@ export const MOCK_ACTION = {
   /** The security page's own three forms. */
   USERNAME_CHANGE: "username-change",
   PASSWORD_CHANGE: "password-change",
+  /** Legacy's reset link, verification link, and organisation sign-up — the logged-out forms. */
+  RESET_PASSWORD: "reset-password",
+  VERIFY_SET_PASSWORD: "verify-set-password",
+  REGISTER_ORG: "register-org",
+  /** The emailed code confirms a pending username or password change: `sensitive-code-confirm:<change>:<json>:<code json>`. */
+  SENSITIVE_CODE_CONFIRM: "sensitive-code-confirm",
   TWOFA_ENABLE: "twofa-enable",
   TWOFA_DISABLE: "twofa-disable",
   /** One more address sign-in is allowed from: `ip-whitelist-create:<json>`. */
@@ -317,7 +353,6 @@ export const MOCK_ACTION = {
   /** Which account this sign-in works on: `switch-account:<json>`. */
   SWITCH_ACCOUNT: "switch-account",
   /** Where the account's picture lives: `avatar-save:<json>`. */
-  AVATAR_SAVE: "avatar-save",
   /** The sign-out page's own verb — no payload; the ribbon, if one is up, comes down with it. */
   AUTH_LOGOUT: "auth-logout",
   /** A config-authored destination — the dispatcher just names it as the next step. */
@@ -587,6 +622,8 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
     [MOCK_RECEIPT_REASON.ALREADY_PAID]: "That invoice is not awaiting payment.",
     [MOCK_RECEIPT_REASON.NOT_AWAITING_SETUP]:
       "That product is not waiting on setup.",
+    [MOCK_RECEIPT_REASON.SETUP_INCOMPLETE]:
+      "Answer every required field to complete setup.",
     [MOCK_RECEIPT_REASON.DEFAULT_METHOD]:
       "The default payment method cannot be removed.",
     [MOCK_RECEIPT_REASON.LAST_METHOD]:
@@ -596,6 +633,11 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
       "That account has not allowed you to log in as it.",
     [MOCK_RECEIPT_REASON.NOT_CANCELLABLE]:
       "That order can no longer be cancelled.",
+    [MOCK_RECEIPT_REASON.OVERDUE_INVOICES]:
+      "Settle the overdue invoice on this product before cancelling it.",
+    [MOCK_RECEIPT_REASON.WRONG_PASSWORD]: "That is not your current password.",
+    [MOCK_RECEIPT_REASON.CANCELLATION_FORBIDDEN]:
+      "This product cannot be cancelled from here — open a ticket and we will help.",
     [MOCK_RECEIPT_REASON.ALREADY_DEFAULT]:
       "That card is already charged first.",
     [MOCK_RECEIPT_REASON.NO_PROVISION_TARGET]:
@@ -659,8 +701,6 @@ export const MOCK_REFUSAL_MESSAGE: Readonly<Record<MockReceiptReason, string>> =
       "This brand has no support desk to raise a ticket with.",
     [MOCK_RECEIPT_REASON.ALREADY_ACTIVE]:
       "You are already working on that account.",
-    [MOCK_RECEIPT_REASON.EMPTY_IMAGE]:
-      "Give the web address of an image to use.",
     [MOCK_RECEIPT_REASON.UNKNOWN_EMAIL]:
       "That address is not one this account holds.",
     [MOCK_RECEIPT_REASON.NOTHING_TO_CONSOLIDATE]:
@@ -794,6 +834,38 @@ function cancellationSummary(product: MockProduct): string {
   return `${product.name} stops on ${request.cancelAt}.`;
 }
 
+/**
+ * A contact row's delete, asked BEFORE the confirmation: a row the account
+ * falls back on is refused outright (plan R4), the rest get the dialog.
+ */
+function contactRemoval<TRow>(
+  refused: MockActionReceipt<TRow> | undefined,
+  subject: string,
+  then: string
+): MockActionResult {
+  if (refused !== undefined) return fromReceipt(refused, () => ({}));
+  return {
+    confirm: {
+      title: `Delete ${subject}?`,
+      description: "It goes from your account straight away.",
+      actionLabel: "Delete",
+      destructive: true,
+      then
+    }
+  };
+}
+
+/** A contact row promoted — the heading names the list, the line names the row. */
+function defaultChanged(list: string, subject: string): MockActionResult {
+  return {
+    toast: {
+      intent: MOCK_TOAST_INTENT.SUCCESS,
+      title: `Default ${list} changed`,
+      description: subject
+    }
+  };
+}
+
 /** What a deleted contact row says back — one wording for all four lists. */
 function removedToast(subject: string): MockActionResult {
   return {
@@ -874,6 +946,59 @@ const TOPIC_SWITCH_MESSAGE: Readonly<Record<TopicSwitch, string>> = {
  * is the standing QUIET no-op tier: nobody authored it, and there is nothing
  * to answer with.
  */
+/** `<change>:<change json>:<code json>` — the pending change, then the code typed against it. */
+function splitSensitivePayload(
+  tail: string | undefined
+): { change: string; model: FormModel; code: FormModel } | undefined {
+  if (tail === undefined) return undefined;
+  const asked = splitAtFirstColon(tail);
+  if (asked === undefined) return undefined;
+  const boundary = asked.tail.lastIndexOf(":{");
+  if (boundary < 0) return undefined;
+  const model = parseFormPayload(asked.tail.slice(0, boundary));
+  const code = parseFormPayload(asked.tail.slice(boundary + 1));
+  if (model === undefined || code === undefined) return undefined;
+  return { change: asked.head, model, code };
+}
+
+/** The change itself, once the code has cleared it. */
+function applySensitiveChange(
+  data: MockDataset,
+  change: string,
+  model: FormModel
+): MockActionResult | undefined {
+  if (change === MOCK_ACTION.USERNAME_CHANGE) {
+    const receipt = useMockPersonalDetails(data)
+      .useActions()
+      .changeUsername(model);
+    return fromFormReceipt(receipt, persona =>
+      contactSaved("Username changed", persona.username)
+    );
+  }
+  if (change === MOCK_ACTION.PASSWORD_CHANGE) {
+    const receipt = useMockSecurity(data).useActions().changePassword(model);
+    return fromFormReceipt(receipt, () => ({
+      toast: {
+        intent: MOCK_TOAST_INTENT.SUCCESS,
+        title: "Password changed",
+        description: "Use the new one next time you sign in."
+      }
+    }));
+  }
+  return undefined;
+}
+
+/** The invoices ticked in the consolidation form; absent means every one that qualifies. */
+function pickedInvoiceIds(
+  tail: string | undefined
+): readonly string[] | undefined {
+  const model = parseFormPayload(tail);
+  if (model === undefined) return undefined;
+  const ids = model["invoiceIds"];
+  if (!Array.isArray(ids)) return undefined;
+  return ids.filter((value): value is string => typeof value === "string");
+}
+
 function parseFormPayload(tail: string | undefined): FormModel | undefined {
   if (tail === undefined) return undefined;
   try {
@@ -1052,27 +1177,38 @@ export function dispatchMockAction(
         toast: { intent: MOCK_TOAST_INTENT.SUCCESS, title: "Answers saved" }
       }));
     }
-    case MOCK_ACTION.USERNAME_CHANGE: {
-      const model = parseFormPayload(id);
-      if (model === undefined) return undefined;
-      const receipt = useMockPersonalDetails(data)
-        .useActions()
-        .changeUsername(model);
-      return fromFormReceipt(receipt, persona =>
-        contactSaved("Username changed", persona.username)
-      );
-    }
+    case MOCK_ACTION.USERNAME_CHANGE:
     case MOCK_ACTION.PASSWORD_CHANGE: {
-      const model = parseFormPayload(id);
-      if (model === undefined) return undefined;
-      const receipt = useMockSecurity(data).useActions().changePassword(model);
-      return fromFormReceipt(receipt, () => ({
-        toast: {
-          intent: MOCK_TOAST_INTENT.SUCCESS,
-          title: "Password changed",
-          description: "Use the new one next time you sign in."
-        }
-      }));
+      // Legacy's sensitive-action chain: the change waits on the code the
+      // brand emails, so the first submit only opens that prompt.
+      if (parseFormPayload(id) === undefined) return undefined;
+      return {
+        form: { id: FORM_ID.SENSITIVE_CODE, entityId: `${verb}:${id}` }
+      };
+    }
+    case MOCK_ACTION.SENSITIVE_CODE_CONFIRM: {
+      const pending = splitSensitivePayload(id);
+      if (pending === undefined) return undefined;
+      // Legacy's chain: the current password first, then the second-step
+      // code only where two-factor is on.
+      const typed = submittedText(pending.code, "password");
+      const expected = data.persona.password;
+      const isWrongPassword =
+        typed.length === 0 || (expected !== undefined && typed !== expected);
+      if (isWrongPassword) {
+        return fromReceipt(
+          { ok: false, reason: MOCK_RECEIPT_REASON.WRONG_PASSWORD },
+          () => ({})
+        );
+      }
+      const needsCode = data.security.twoFactorEnabled;
+      if (needsCode && !isCodeShaped(submittedText(pending.code, "token"))) {
+        return fromReceipt(
+          { ok: false, reason: MOCK_RECEIPT_REASON.INVALID_TWO_FACTOR_CODE },
+          () => ({})
+        );
+      }
+      return applySensitiveChange(data, pending.change, pending.model);
     }
     case MOCK_ACTION.TWOFA_ENABLE: {
       const model = parseFormPayload(id);
@@ -1098,6 +1234,213 @@ export function dispatchMockAction(
           title: "Two-factor authentication is off"
         }
       }));
+    }
+    // --- the profile page's contact lists ----------------------------------
+    case MOCK_ACTION.EMAIL_CREATE: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockClientEmails(data)
+        .useActions()
+        .writes.update(undefined, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Email added", row.email)
+      );
+    }
+    case MOCK_ACTION.EMAIL_SAVE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientEmails(data)
+        .useActions()
+        .writes.update(submitted.head, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Email saved", row.email)
+      );
+    }
+    case MOCK_ACTION.EMAIL_SET_DEFAULT: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientEmails(data)
+        .useActions()
+        .writes.setDefault(id);
+      return fromReceipt(receipt, row =>
+        defaultChanged("email", row.email ?? "")
+      );
+    }
+    case MOCK_ACTION.EMAIL_VERIFY: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientEmails(data).useActions().writes.verify(id);
+      return fromReceipt(receipt, row => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Verification email sent",
+          description: `${row.email} is now verified.`
+        }
+      }));
+    }
+    case MOCK_ACTION.EMAIL_VERIFY_CODE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientEmails(data)
+        .useActions()
+        .writes.verifyWithCode(submitted.head, submittedText(model, "code"));
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Email verified", row.email)
+      );
+    }
+    case MOCK_ACTION.EMAIL_REMOVE: {
+      if (id === undefined) return undefined;
+      const row = find(data.emails, { id });
+      if (row === undefined) return notFound();
+      const { writes } = useMockClientEmails(data).useActions();
+      return contactRemoval(
+        writes.whyNotRemovable(id),
+        row.email ?? "this email",
+        mockActionValue(MOCK_ACTION.EMAIL_REMOVE_CONFIRMED, id)
+      );
+    }
+    case MOCK_ACTION.EMAIL_REMOVE_CONFIRMED: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientEmails(data).useActions().writes.remove(id);
+      return fromReceipt(receipt, row => removedToast(row.email ?? ""));
+    }
+    case MOCK_ACTION.PHONE_CREATE: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockClientPhones(data)
+        .useActions()
+        .writes.update(undefined, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Phone added", row.title)
+      );
+    }
+    case MOCK_ACTION.PHONE_SAVE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientPhones(data)
+        .useActions()
+        .writes.update(submitted.head, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Phone saved", row.title)
+      );
+    }
+    case MOCK_ACTION.PHONE_SET_DEFAULT: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientPhones(data)
+        .useActions()
+        .writes.setDefault(id);
+      return fromReceipt(receipt, row =>
+        defaultChanged("phone", row.title ?? "")
+      );
+    }
+    case MOCK_ACTION.PHONE_REMOVE: {
+      if (id === undefined) return undefined;
+      const row = find(data.phones, { id });
+      if (row === undefined) return notFound();
+      const { writes } = useMockClientPhones(data).useActions();
+      return contactRemoval(
+        writes.whyNotRemovable(id),
+        row.title ?? "this phone",
+        mockActionValue(MOCK_ACTION.PHONE_REMOVE_CONFIRMED, id)
+      );
+    }
+    case MOCK_ACTION.PHONE_REMOVE_CONFIRMED: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientPhones(data).useActions().writes.remove(id);
+      return fromReceipt(receipt, row => removedToast(row.title ?? ""));
+    }
+    case MOCK_ACTION.ADDRESS_CREATE: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockClientAddresses(data)
+        .useActions()
+        .writes.update(undefined, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Address added", row.title)
+      );
+    }
+    case MOCK_ACTION.ADDRESS_SAVE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientAddresses(data)
+        .useActions()
+        .writes.update(submitted.head, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Address saved", row.title)
+      );
+    }
+    case MOCK_ACTION.ADDRESS_SET_DEFAULT: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientAddresses(data)
+        .useActions()
+        .writes.setDefault(id);
+      return fromReceipt(receipt, row => defaultChanged("address", row.title));
+    }
+    case MOCK_ACTION.ADDRESS_REMOVE: {
+      if (id === undefined) return undefined;
+      const row = find(data.addresses, { id });
+      if (row === undefined) return notFound();
+      const { writes } = useMockClientAddresses(data).useActions();
+      return contactRemoval(
+        writes.whyNotRemovable(id),
+        row.title,
+        mockActionValue(MOCK_ACTION.ADDRESS_REMOVE_CONFIRMED, id)
+      );
+    }
+    case MOCK_ACTION.ADDRESS_REMOVE_CONFIRMED: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientAddresses(data)
+        .useActions()
+        .writes.remove(id);
+      return fromReceipt(receipt, row => removedToast(row.title));
+    }
+    case MOCK_ACTION.COMPANY_CREATE: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockClientCompanies(data)
+        .useActions()
+        .writes.update(undefined, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Company added", row.name)
+      );
+    }
+    case MOCK_ACTION.COMPANY_SAVE: {
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockClientCompanies(data)
+        .useActions()
+        .writes.update(submitted.head, model);
+      return fromFormReceipt(receipt, row =>
+        contactSaved("Company saved", row.name)
+      );
+    }
+    case MOCK_ACTION.COMPANY_SET_DEFAULT: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientCompanies(data)
+        .useActions()
+        .writes.setDefault(id);
+      return fromReceipt(receipt, row => defaultChanged("company", row.name));
+    }
+    case MOCK_ACTION.COMPANY_REMOVE: {
+      if (id === undefined) return undefined;
+      const row = find(data.companies, { id });
+      if (row === undefined) return notFound();
+      const { writes } = useMockClientCompanies(data).useActions();
+      return contactRemoval(
+        writes.whyNotRemovable(id),
+        row.name,
+        mockActionValue(MOCK_ACTION.COMPANY_REMOVE_CONFIRMED, id)
+      );
+    }
+    case MOCK_ACTION.COMPANY_REMOVE_CONFIRMED: {
+      if (id === undefined) return undefined;
+      const receipt = useMockClientCompanies(data)
+        .useActions()
+        .writes.remove(id);
+      return fromReceipt(receipt, row => removedToast(row.name));
     }
     case MOCK_ACTION.IP_WHITELIST_CREATE: {
       const model = parseFormPayload(id);
@@ -1164,6 +1507,24 @@ export function dispatchMockAction(
           intent: MOCK_TOAST_INTENT.SUCCESS,
           title: "Invoice consolidation saved"
         }
+      }));
+    }
+    case MOCK_ACTION.PRODUCT_SETUP_SAVE: {
+      // Legacy's setup view: the confirmed blueprint sends the product to
+      // its overview and says so.
+      const submitted = splitAtFirstColon(id);
+      const model = parseFormPayload(submitted?.tail);
+      if (submitted === undefined || model === undefined) return undefined;
+      const receipt = useMockContractProduct(data, submitted.head)
+        .useActions()
+        .confirmSetup(model);
+      return fromFormReceipt(receipt, product => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Setup complete",
+          description: `${product.name} is now active`
+        },
+        to: `/${product.groupSlug}/${product.id}`
       }));
     }
     case MOCK_ACTION.PRODUCT_LABEL_SAVE: {
@@ -1392,6 +1753,45 @@ export function dispatchMockAction(
      * signed-in one: a link that reached here stands in for the session, and
      * the rows it moves are the same rows.
      */
+    case MOCK_ACTION.RESET_PASSWORD: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockSecurity(data).useActions().resetPassword(model);
+      return fromFormReceipt(receipt, () => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Password changed."
+        },
+        to: "/login"
+      }));
+    }
+    case MOCK_ACTION.VERIFY_SET_PASSWORD: {
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      const receipt = useMockSecurity(data).useActions().setPassword(model);
+      return fromFormReceipt(receipt, () => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Account activation was successful."
+        },
+        to: "/login"
+      }));
+    }
+    case MOCK_ACTION.REGISTER_ORG: {
+      // A new organisation is a new tenant — nothing in this dataset to write
+      // to. Legacy's own reply, then the sign-in door it points at.
+      const model = parseFormPayload(id);
+      if (model === undefined) return undefined;
+      return fromFormReceipt({ ok: true, entity: model }, () => ({
+        toast: {
+          intent: MOCK_TOAST_INTENT.SUCCESS,
+          title: "Registration successful!",
+          description:
+            "Your organisation has been created. Please check your mailbox for a verification email and details on how to login."
+        },
+        to: "/login"
+      }));
+    }
     case MOCK_ACTION.PREFERENCES_SAVE: {
       const model = parseFormPayload(id);
       if (model === undefined) return undefined;
@@ -1428,17 +1828,13 @@ export function dispatchMockAction(
       // to gather is refused outright rather than behind a question.
       const refused = useMockInvoices(data).useActions().whyNotConsolidatable();
       if (refused?.reason !== undefined) return refusal(refused.reason);
-      return {
-        confirm: {
-          title: "Bring these invoices together?",
-          description: `${size(consolidatableInvoices(data))} unpaid invoices will be closed, and one document raised in their place.`,
-          actionLabel: "Consolidate invoices",
-          then: MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED
-        }
-      };
+      // Legacy asks WHICH invoices: a tick per document, in the shell's form dialog.
+      return { form: { id: FORM_ID.CONSOLIDATE_INVOICES } };
     }
     case MOCK_ACTION.CONSOLIDATE_INVOICES_CONFIRMED: {
-      const receipt = useMockInvoices(data).useActions().consolidate();
+      const receipt = useMockInvoices(data)
+        .useActions()
+        .consolidate(pickedInvoiceIds(id));
       return fromReceipt(receipt, invoice => ({
         toast: {
           intent: MOCK_TOAST_INTENT.SUCCESS,
@@ -1472,31 +1868,9 @@ export function dispatchMockAction(
         }
       }));
     }
-    case MOCK_ACTION.AVATAR_SAVE: {
-      const model = parseFormPayload(id);
-      if (model === undefined) return undefined;
-      const receipt = useMockAccount(data).useActions().saveAvatar(model);
-      return fromFormReceipt(receipt, () => ({
-        toast: { intent: MOCK_TOAST_INTENT.SUCCESS, title: "Photo updated" }
-      }));
-    }
 
     // --- the logged-out screens (plan F11) -----------------------------------
 
-    case MOCK_ACTION.COMPLETE_SETUP: {
-      const productId = id ?? context.productId;
-      if (productId === undefined) return undefined;
-      const receipt = useMockContractProduct(data, productId)
-        .useActions()
-        .completeSetup();
-      return fromReceipt(receipt, product => ({
-        toast: {
-          intent: MOCK_TOAST_INTENT.SUCCESS,
-          title: `${product.name} is now active`
-        },
-        to: `/${product.groupSlug}/${product.id}`
-      }));
-    }
     case MOCK_ACTION.VIEW_PRODUCT: {
       if (id === undefined) return undefined;
       const product = useMockContractProduct(data, id).useContext().data.value;

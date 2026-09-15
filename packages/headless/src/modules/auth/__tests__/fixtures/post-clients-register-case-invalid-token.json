@@ -1,0 +1,61 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/register?case=invalid-token",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "email": "mock-email-3@example.com",
+      "username": "mock-email-3@example.com",
+      "firstname": "Fixture",
+      "lastname": "Generator",
+      "password": "mock-password"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a38bf37ecd94f4d6-DUB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 10 Sep 2026 05:14:47 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Cr29TTumRc%2FAST%2FT0bKG6mutcYckxKJ3XPT2wGYOwfGPBasYc%2Bilxjx%2BLe3H3UVdQgm2rOf%2BdQcJueAgqoVxU6eljJkccuzYqoTyqhJdiUdbb2nxj9rHrVtXz%2BLTuwS1fxKd9hexvA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "4adeb88ac7d036daa703d275a33e1f2ba8556076",
+        "type": 9,
+        "code": 401,
+        "message": "The resource owner or authorization server denied the request.",
+        "data": null
+      },
+      "messages": {
+        "hint": "The JWT string must have two dots"
+      },
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-10T05:14:47.514Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "auth"
+  }
+}

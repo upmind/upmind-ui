@@ -1,0 +1,23 @@
+# Negative-control mutant — delegates invite
+#
+# AC it must flip:   AC-DL3
+# Test that goes red: delegates.invite.int.test.ts >
+#   "AC-DL3 addresses the invitation to the party named and records it awaiting acceptance"
+# Mutation: mapDelegateInvite renames the `delegate_email` wire key to `email`, so the
+#   POST body no longer names who is being invited — the invitation is addressed to no one.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/delegates/delegates.mappers.ts b/packages/headless/src/modules/delegates/delegates.mappers.ts
+index 6dfdc7cad..5b2b83990 100644
+--- a/packages/headless/src/modules/delegates/delegates.mappers.ts
++++ b/packages/headless/src/modules/delegates/delegates.mappers.ts
+@@ -50,7 +50,7 @@ export function mapDelegateInvite(
+   model: DelegateInviteModel
+ ): Record<string, unknown> {
+   return {
+-    delegate_email: model.email,
++    email: model.email,
+     ...(model.fullDelegate === undefined
+       ? {}
+       : { full_delegate: model.fullDelegate }),

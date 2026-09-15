@@ -1,22 +1,26 @@
 // -----------------------------------------------------------------------------
 /**
  * @module portal/config/pager
- * @description The builders every paged panel shares: the pager footer (plan
- * §2 pager wiring), fed by the collection's pager-state ref, and the control
- * band under the panel's description — search left, filters and order right.
- * A ref with no mapping (detail sub-lists, dashboard recents) gets neither;
- * the pager also self-hides while its collection fits one page.
+ * @description The builders the page compositions share: the pager footer
+ * (plan §2 pager wiring), fed by the collection's pager-state ref; the control
+ * band under a panel's description — search left, filters and order right; the
+ * brand's own note above a page; and a detail page's way back. A ref with no
+ * mapping (detail sub-lists, dashboard recents) gets no pager and no band; the
+ * pager also self-hides while its collection fits one page.
  */
 
-import { ROW_LAYOUT } from "../content/types";
+import { ROW_LAYOUT, ROW_SURFACE } from "../content/types";
 import {
   PAGER_REF_BY_ITEMS_REF,
   CONTROLS_REF_BY_ITEMS_REF,
   dataRef
 } from "../mock/data-refs";
+import { BUTTON_MODULE_VARIANT } from "../modules/button/types";
 import { LIST_CONTROLS_CONCERN } from "../modules/list-controls/types";
 import { PROSE_MODULE_VARIANT } from "../modules/prose/types";
+import { ArrowLeft } from "lucide-vue-next";
 import {
+  BUTTON_MODULE_ID,
   PAGINATION_MODULE_ID,
   PROSE_MODULE_ID,
   TABS_MODULE_ID,
@@ -42,6 +46,9 @@ export function brandNoteRow(
 ): ContentRowConfig {
   return {
     layout: ROW_LAYOUT.FULL,
+    // A muted surface, so the brand's words read as a note ABOUT the page
+    // rather than as the page's own opening copy.
+    surface: ROW_SURFACE.MUTED,
     visible: dataRef(presenceRef),
     slots: [
       moduleRef(PROSE_MODULE_ID, {
@@ -56,6 +63,22 @@ export function brandNoteRow(
       })
     ]
   };
+}
+
+/**
+ * The way back from a page ABOUT one entity, for the page's `breadcrumb` slot.
+ * A detail route serves no pillar rail (`config/areas/detail.ts`), so this one
+ * link is the whole navigation out — an arrow before the label, never after,
+ * because it leads the reader backwards rather than onwards.
+ *
+ * `to` takes a data ref where the destination is the ROUTE's (a product's own
+ * group), and a literal where the section is fixed.
+ */
+export function backLink(label: string, to: unknown): SlotAssignment {
+  return moduleRef(BUTTON_MODULE_ID, {
+    variant: BUTTON_MODULE_VARIANT.SINGLE,
+    props: { label, tone: "link", size: "xs", icon: ArrowLeft, to }
+  });
 }
 
 export function pagerFooter(

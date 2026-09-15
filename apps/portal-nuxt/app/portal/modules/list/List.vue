@@ -46,6 +46,7 @@
       </ListItem>
       <ListItem
         v-if="showsRow(item)"
+        :class="[STACK_ITEM_CLASS, inactiveClass(item)]"
         v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
       >
         <template v-if="item.leadingIcon || item.leadingImageSrc" #leading>
@@ -58,21 +59,27 @@
             :alt="item.leadingImageAlt ?? ''"
           />
         </template>
-        <ListItemTitle>
-          <StatusBadge
-            v-if="item.category && !props.grouped"
-            variant="secondary"
-            :dot="false"
-            class="me-2"
-            >{{ item.category }}</StatusBadge
-          >
+        <!-- Above the title, not inside it: the title truncates, and a
+             category the length of "Jonah Reyes · 2026-07-11" would leave it
+             two letters on a phone. -->
+        <StatusBadge
+          v-if="item.category && !props.grouped"
+          variant="secondary"
+          :dot="false"
+          :class="STACK_CATEGORY_CLASS"
+          >{{ item.category }}</StatusBadge
+        >
+        <ListItemTitle :class="inactiveTitleClass(item)">
           <NuxtLink v-if="item.to" :to="item.to" class="hover:underline">{{
             item.title
           }}</NuxtLink>
           <template v-else>{{ item.title }}</template>
         </ListItemTitle>
-        <ListItemDescription v-if="item.description">
-          <span :class="secretValueClass(item)">{{
+        <ListItemDescription
+          v-if="item.description"
+          :class="item.secret ? SECRET_DESCRIPTION_CLASS : undefined"
+        >
+          <span :class="['truncate', secretValueClass(item)]">{{
             descriptionFor(item)
           }}</span>
           <span v-if="item.secret" :class="ROW_CONTROLS_CLASS">
@@ -98,7 +105,7 @@
           </span>
         </ListItemDescription>
         <template v-if="hasTrailing(item)" #trailing>
-          <div class="flex items-center gap-2">
+          <div :class="STACK_TRAILING_CLASS">
             <component
               :is="tag.action ? 'button' : 'span'"
               v-for="tag in item.tags"
@@ -157,13 +164,13 @@
 
   <div
     v-else-if="meta.isRowCards"
-    class="flex flex-col gap-3"
+    :class="ROW_CARDS_ROOT_CLASS"
     v-bind="useTestAttrs({ key: 'portal-list' })"
   >
     <div
       v-for="item in visibleItems"
       :key="item.id"
-      class="rounded-card border-stroke bg-surface flex items-center gap-4 border p-4"
+      :class="[ROW_CARD_CLASS, inactiveClass(item)]"
       v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
     >
       <span
@@ -215,7 +222,7 @@
           </span>
         </p>
       </div>
-      <div class="flex shrink-0 items-center gap-2">
+      <div :class="ROW_CARD_TRAILING_CLASS">
         <component
           :is="tag.action ? 'button' : 'span'"
           v-for="tag in item.tags"
@@ -272,7 +279,7 @@
     <CardRoot
       v-for="item in visibleItems"
       :key="item.id"
-      class="flex flex-col overflow-hidden"
+      :class="['flex flex-col overflow-hidden', inactiveClass(item)]"
       v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
     >
       <!-- Media above the header. The composed `Card` renders its header
@@ -295,22 +302,45 @@
       </div>
 
       <CardHeader class="p-4 pb-2">
-        <StatusBadge
-          v-if="item.category"
-          variant="secondary"
-          :dot="false"
-          class="mb-1 w-fit"
-          >{{ item.category }}</StatusBadge
+        <!-- One line above the title for both badges, not the header's action
+             corner: a corner badge as long as "£19.00 · Monthly" takes its
+             column off the title, which then breaks one word to a line. -->
+        <div
+          v-if="item.category || item.tags?.length || badgeFor(item)"
+          :class="CARD_BADGE_ROW_CLASS"
         >
-        <CardTitle class="text-sm">{{ item.title }}</CardTitle>
+          <StatusBadge v-if="item.category" variant="secondary" :dot="false">{{
+            item.category
+          }}</StatusBadge>
+          <component
+            :is="tag.action ? 'button' : 'span'"
+            v-for="tag in item.tags"
+            :key="tag.label"
+            :type="tag.action ? 'button' : undefined"
+            :aria-label="tag.action?.label"
+            @click="tag.action && onAction(tag.action.value)"
+          >
+            <StatusBadge :tone="tag.tone" :dot="false">{{
+              tag.label
+            }}</StatusBadge>
+          </component>
+          <StatusBadge
+            v-if="badgeFor(item)"
+            class="ms-auto"
+            :tone="badgeFor(item)?.tone"
+            :dot="false"
+            >{{ badgeFor(item)?.label }}</StatusBadge
+          >
+        </div>
+        <CardTitle :class="['text-sm', inactiveTitleClass(item)]">
+          <NuxtLink v-if="item.to" :to="item.to" class="hover:underline">{{
+            item.title
+          }}</NuxtLink>
+          <template v-else>{{ item.title }}</template>
+        </CardTitle>
         <CardDescription v-if="item.description" class="text-xs">{{
           item.description
         }}</CardDescription>
-        <CardAction v-if="badgeFor(item)">
-          <StatusBadge :tone="badgeFor(item)?.tone" :dot="false">{{
-            badgeFor(item)?.label
-          }}</StatusBadge>
-        </CardAction>
       </CardHeader>
 
       <CardFooter v-if="item.action" class="mt-auto gap-2 p-4 pt-2">
@@ -332,100 +362,108 @@
     </CardRoot>
   </div>
 
-  <Table v-else-if="meta.isTable">
-    <TableHeader v-if="meta.hasHeadings">
-      <TableRow>
-        <TableHead
-          v-for="heading in props.headings"
-          :key="heading.label"
-          :numeric="heading.numeric"
-          >{{ heading.label }}</TableHead
+  <div v-else-if="meta.isTable" :class="TABLE_ROOT_CLASS">
+    <Table>
+      <TableHeader v-if="meta.hasHeadings">
+        <TableRow>
+          <TableHead
+            v-for="heading in props.headings"
+            :key="heading.label"
+            :numeric="heading.numeric"
+            >{{ heading.label }}</TableHead
+          >
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow
+          v-for="item in visibleItems"
+          :key="item.id"
+          :class="inactiveClass(item)"
+          v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
         >
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      <TableRow
-        v-for="item in visibleItems"
-        :key="item.id"
-        v-bind="useTestAttrs({ key: 'portal-list-item', value: item.id })"
-      >
-        <TableCell>
-          <div class="flex items-center gap-3">
-            <IconTile v-if="item.leadingIcon" size="sm"
-              ><component :is="item.leadingIcon"
-            /></IconTile>
-            <Avatar
-              v-else-if="item.leadingImageSrc"
-              size="sm"
-              :src="item.leadingImageSrc"
-              :alt="item.leadingImageAlt ?? ''"
-            />
-            <span class="text-display font-medium">
-              <NuxtLink v-if="item.to" :to="item.to" class="hover:underline">{{
-                item.title
-              }}</NuxtLink>
-              <template v-else>{{ item.title }}</template>
-            </span>
-          </div>
-        </TableCell>
-        <TableCell
-          v-for="(cell, index) in rowCells(item)"
-          :key="index"
-          :numeric="cell.numeric"
-          class="text-muted"
-          >{{ cell.value }}</TableCell
-        >
-        <TableCell v-if="meta.hasTrailing" class="text-right">
-          <span class="inline-flex items-center gap-1">
-            <component
-              :is="tag.action ? 'button' : 'span'"
-              v-for="tag in item.tags"
-              :key="tag.label"
-              :type="tag.action ? 'button' : undefined"
-              :aria-label="tag.action?.label"
-              @click="tag.action && onAction(tag.action.value)"
-            >
-              <StatusBadge :tone="tag.tone" :dot="false">{{
-                tag.label
-              }}</StatusBadge>
-            </component>
-            <StatusBadge
-              v-if="badgeFor(item)"
-              :tone="badgeFor(item)?.tone"
-              :dot="false"
-              >{{ badgeFor(item)?.label }}</StatusBadge
-            >
-          </span>
-        </TableCell>
-        <TableCell v-if="meta.hasRowActions" class="text-right">
-          <span class="inline-flex items-center gap-1">
-            <PortalButton
-              v-if="item.action"
-              variant="outline"
-              size="sm"
-              @click="onAction(item.action.value)"
-              >{{ item.action.label }}</PortalButton
-            >
-            <DropdownMenu
-              v-if="item.moreActions?.length"
-              :items="moreMenuItems(item.moreActions)"
-            >
-              <template #trigger>
-                <PortalButton
-                  size="sm"
-                  variant="ghost"
-                  icon-only
-                  :aria-label="props.moreLabel"
+          <TableCell :class="TABLE_CELL_CLASS">
+            <div class="flex items-center gap-3">
+              <IconTile v-if="item.leadingIcon" size="sm"
+                ><component :is="item.leadingIcon"
+              /></IconTile>
+              <Avatar
+                v-else-if="item.leadingImageSrc"
+                size="sm"
+                :src="item.leadingImageSrc"
+                :alt="item.leadingImageAlt ?? ''"
+              />
+              <span
+                :class="['text-display font-medium', inactiveTitleClass(item)]"
+              >
+                <NuxtLink
+                  v-if="item.to"
+                  :to="item.to"
+                  class="hover:underline"
+                  >{{ item.title }}</NuxtLink
                 >
-                  <Ellipsis />
-                </PortalButton>
-              </template>
-            </DropdownMenu>
-          </span>
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>
+                <template v-else>{{ item.title }}</template>
+              </span>
+            </div>
+          </TableCell>
+          <TableCell
+            v-for="(cell, index) in rowCells(item)"
+            :key="index"
+            :numeric="cell.numeric"
+            :class="['text-muted', TABLE_CELL_CLASS]"
+            >{{ cell.value }}</TableCell
+          >
+          <TableCell v-if="meta.hasTrailing" class="text-right">
+            <span class="inline-flex items-center gap-1">
+              <component
+                :is="tag.action ? 'button' : 'span'"
+                v-for="tag in item.tags"
+                :key="tag.label"
+                :type="tag.action ? 'button' : undefined"
+                :aria-label="tag.action?.label"
+                @click="tag.action && onAction(tag.action.value)"
+              >
+                <StatusBadge :tone="tag.tone" :dot="false">{{
+                  tag.label
+                }}</StatusBadge>
+              </component>
+              <StatusBadge
+                v-if="badgeFor(item)"
+                :tone="badgeFor(item)?.tone"
+                :dot="false"
+                >{{ badgeFor(item)?.label }}</StatusBadge
+              >
+            </span>
+          </TableCell>
+          <TableCell v-if="meta.hasRowActions" class="text-right">
+            <span class="inline-flex items-center gap-1">
+              <PortalButton
+                v-if="item.action"
+                variant="outline"
+                size="sm"
+                @click="onAction(item.action.value)"
+                >{{ item.action.label }}</PortalButton
+              >
+              <DropdownMenu
+                v-if="item.moreActions?.length"
+                :items="moreMenuItems(item.moreActions)"
+              >
+                <template #trigger>
+                  <PortalButton
+                    size="sm"
+                    variant="ghost"
+                    icon-only
+                    :aria-label="props.moreLabel"
+                  >
+                    <Ellipsis />
+                  </PortalButton>
+                </template>
+              </DropdownMenu>
+            </span>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  </div>
 
   <Timeline v-else :items="timelineEvents">
     <template #marker="{ event }">
@@ -505,7 +543,6 @@ import {
   Avatar,
   Button as PortalButton,
   Switch,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -546,12 +583,25 @@ import { MOCK_ACTION, mockActionValue } from "../../mock/actions";
 import { EMPTY_STATE_UI } from "../../variants";
 import { LIST_MODULE_VARIANT } from "./types";
 import {
+  CARD_BADGE_ROW_CLASS,
+  INACTIVE_ITEM_CLASS,
+  INACTIVE_TITLE_CLASS,
   CARD_CAROUSEL_CLASS,
   GROUP_HEADER_CLASS,
   GROUP_TOGGLE_CLASS,
+  ROW_CARDS_ROOT_CLASS,
+  ROW_CARD_CLASS,
+  ROW_CARD_TRAILING_CLASS,
   ROW_CONTROLS_CLASS,
+  SECRET_DESCRIPTION_CLASS,
   SECRET_MASK,
   SECRET_VALUE_CLASS,
+  STACK_CATEGORY_CLASS,
+  STACK_ITEM_CLASS,
+  STACK_ROOT_CLASS,
+  STACK_TRAILING_CLASS,
+  TABLE_CELL_CLASS,
+  TABLE_ROOT_CLASS,
   TIMELINE_EVENT_HEAD_CLASS,
   cardGridClass,
   cardMediaClass,
@@ -679,6 +729,17 @@ function moreMenuItems(
 }
 
 /** Whether a stacked row has anything at all to put after its text. */
+/** Legacy dims a cancelled or lapsed product and strikes its name, wherever the row appears. */
+function inactiveClass(item: ListModuleItem): string | undefined {
+  if (!item.isInactive) return undefined;
+  return INACTIVE_ITEM_CLASS;
+}
+
+function inactiveTitleClass(item: ListModuleItem): string | undefined {
+  if (!item.isInactive) return undefined;
+  return INACTIVE_TITLE_CLASS;
+}
+
 function hasTrailing(item: ListModuleItem): boolean {
   return (
     badgeFor(item) !== undefined ||
@@ -701,13 +762,13 @@ const visibleItems = computed(() => {
   return take(props.items, props.maxItems);
 });
 
-/** `compact` renders the ruled stack; only `masonry` takes the column flow. */
-function masonryRootClass(
+/** `compact` renders the ruled stack; only `masonry` takes the column flow. Both are the query root their rows measure against. */
+function stackRootClass(
   columns: ListModuleProps["columns"],
   isMasonry: boolean
-): string | undefined {
-  if (!isMasonry) return undefined;
-  return masonryClass(columns);
+): string {
+  if (!isMasonry) return STACK_ROOT_CLASS;
+  return `${STACK_ROOT_CLASS} ${masonryClass(columns)}`;
 }
 
 const meta = computed(() => {
@@ -742,7 +803,7 @@ const meta = computed(() => {
     // A stacked list rules between its rows; a masonry one flows them into
     // columns, where a divider would draw across the gutter.
     isDivided: !isMasonry,
-    rootClass: masonryRootClass(props.columns, isMasonry),
+    rootClass: stackRootClass(props.columns, isMasonry),
     showMoreLabel: showAllLabel()
   } as const;
 });

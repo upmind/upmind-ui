@@ -38,4 +38,9 @@ export type ScenarioStage = {
   submit: StageEditor["submit"];
   /** Wait for an editor to open and boot, up to `timeout` ms. */
   whenEditor: (timeout?: number) => Promise<StageEditor>;
+  /**
+   * Resolves true once a collection surface is on the stage, false if none
+   * arrives inside the timeout. Lets a caller tell "late" from "absent".
+   */
+  whenStaged: (timeout?: number) => Promise<boolean>;
 };

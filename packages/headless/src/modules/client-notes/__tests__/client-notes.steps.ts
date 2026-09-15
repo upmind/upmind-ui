@@ -1,39 +1,50 @@
 // -----------------------------------------------------------------------------
 /**
  * @module client-notes/__tests__/client-notes.steps
- * @description The module's ONE step catalog — what drives page-level scenarios
- * for the colocated `client-notes.feature`. Engine-free by construction: it
- * imports `defineSteps` and `World` and nothing else, so the same catalog can
- * be re-registered against any runner.
+ * @description The module's ONE step catalog — what drives the colocated
+ * `client-notes.feature`. Engine-free by construction: it imports `defineSteps`
+ * and `World` and nothing else, so the same catalog can be re-registered
+ * against any runner.
  *
- * Drives the Background plus every scenario whose live capability a drawn
- * control on the `useClientNotes` playground page actually presses: the
- * criteria chrome (@AC-2/@AC-31 encrypted split, @AC-3 label, @AC-4 pinned,
- * @AC-5 product, @AC-6 pager, @AC-7 sort) and every write control
- * (@AC-8 setPinned, @AC-9 remove, @AC-10 convert, @AC-11 reveal/hide,
- * @AC-32 refresh/destroy). @AC-1 falls out for free once the shared "I open
- * my vault" When and its two Thens are defined for @AC-6's reuse.
+ * A TRACK drives the vault and asserts what the drive changed (ADR-020 Am.5;
+ * operator ruling 2026-09-12, the `client-billing-settings` precedent). Four
+ * scenarios qualify on THIS corpus, and each drives a request the capture run
+ * recorded and asserts the answer that came back:
  *
- * `add`, `edit` and `view` draw no step here on purpose: none names a live
- * member of `useClientNotes().useActions()` — `add`/`edit` are HANDOFF keys
- * the page's editor opens, and `view` opens a client-side detail overlay with
- * no request behind it — so there is nothing on the `World` seam for a step
- * to press. Every editor-side scenario (@AC-18..@AC-26) is `notYet` for the
- * same reason, proven instead at the manager's own integration layer
- * (`client-notes.manager.int.test.ts`) — a capability written down and not
- * yet driven, a legitimate state (`@upmind-automation/scenario-harness`'s own
- * traceability semantics).
+ * - `@AC-3` the label search (`filter[label|like]=%prover%`) — the one recorded
+ *   row carrying a label comes back, where the default read answers with two
+ *   unlabelled notes;
+ * - `@AC-6` paging at the page size the capture run paged at (`limit=2`,
+ *   `limit=2&offset=2`);
+ * - `@AC-7` the order the server chose, then the label order in both directions;
+ * - `@AC-11` reveal / hide / reveal of the one recorded secret.
  *
- * `reveal`/`hide` write ONLY `World`'s `context.revealed` map — never a table
- * cell. The playground's own presentation passes just the row to a cell, so a
- * revealed secret's plaintext is visible solely in the debug Context panel;
- * these steps assert `revealed`, never a rendered cell (client-notes.
- * presentation.ts's own note on this, echoed here so a later reader does not
- * "fix" a Then into asserting a table cell that does not exist).
+ * EVERY OTHER SCENARIO IS SPEC, deliberately, and the reason is the CORPUS
+ * rather than the module (each is named against its own scenario below):
  *
- * Every handler speaks to the module through the four `World` members. There
- * is no DOM read, no request read and no import of the module's own source
- * here.
+ * - a WRITE never re-reads changed. The shared replay lands a mutation on its
+ *   session rows, but this module's collection captures are pooled ahead of the
+ *   single paged capture a mutation can land on, so the unmutated row wins the
+ *   de-dupe. Pin (`@AC-8`), delete (`@AC-9`) and convert (`@AC-10`) each fire,
+ *   are answered 200 by their own recordings, and leave the list exactly as it
+ *   was — a step asserting the change would assert what the replay cannot show.
+ * - no recorded row is PINNED (`filter[pinned|eq]=1` recorded `total: 0`) and
+ *   none carries a CONTRACT PRODUCT, so `@AC-4` and `@AC-5` narrow to nothing.
+ * - the default read is answered by the notes-only capture, so `@AC-1`'s "notes
+ *   and secrets together" and `@AC-2`'s "together they account for everything"
+ *   are not what comes back.
+ * - a failed read or delete is unreachable: the recorded 404 delete is only
+ *   addressable by its `case=` label, which the module never sends (`@AC-16`).
+ * - "another client signs in on the same device" (`@AC-34`) is a precondition
+ *   the `World` seam cannot stage.
+ *
+ * Contracts — scope addressing, request shape, "nothing is asked of the server"
+ * — are spec here by construction, proven by the module's own integration tests
+ * (`client-notes.collection.int.test.ts`'s `assertClientIdentityTransport` and
+ * its siblings), never by a track.
+ *
+ * Every handler speaks to the module through the `World` members only. There is
+ * no DOM read, no request read and no import of the module's own source here.
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
@@ -56,20 +67,17 @@ export const CLIENT_NOTES_SCENARIO = "client_notes";
  * The action ids these steps drive. Exported as the gate's `coveredActionIds`,
  * so the covered set and the calls that cover it cannot drift: an id declared
  * here and fired by no step below is a gate failure, never a silent
- * over-report.
+ * over-report. `destroy`, `remove`, `setPinned` and `convert` are NOT here —
+ * every scenario that drove one is spec on this corpus (module note above).
  */
 export const CLIENT_NOTES_COVERED_ACTIONS = {
   isReady: "isReady",
   refresh: "refresh",
-  destroy: "destroy",
   filterBy: "filterBy",
   sortBy: "sortBy",
   nextPage: "nextPage",
   prevPage: "prevPage",
   setCriteria: "setCriteria",
-  setPinned: "setPinned",
-  remove: "remove",
-  convert: "convert",
   reveal: "reveal",
   hide: "hide"
 } as const;
@@ -79,18 +87,27 @@ export const coveredActionIds: readonly string[] = values(
 );
 
 /**
- * Row identities the recorded corpus carries, named here because a `World`
- * step cannot read the collection back to find one for itself.
+ * What the recordings actually hold, named here because a `World` step cannot
+ * read the collection back to find it.
  *
- * @see fixtures/get-clients-id-vault-with-staged-imports-1.json — the default
- * boot list: a labelled secret (`secretId`) and two unlabelled, unpinned notes
- * (`unlabelledNoteId`, `unpinnedNoteId`).
+ * @see fixtures/get-clients-id-vault-filter-encrypted-eq-0.json — the two
+ * unlabelled notes the default read is answered with (`total: 2`).
+ * @see fixtures/get-clients-id-vault-filter-encrypted-eq-1.json and
+ * fixtures/get-clients-id-vault-filter-label-like-prover.json — the one
+ * labelled secret, the only row either filter answers with.
+ * @see fixtures/get-clients-id-vault-id-decrypt-case-first-reveal.json — the
+ * plaintext the decrypt endpoint answers with.
+ * @see fixtures/get-clients-id-vault-case-page-1.json and `-page-2.json` — the
+ * page size the capture run paged at, and the total it paged over.
  */
 const RECORDED = {
-  secretId: "78985742-6489-7012-084f-21e325d0ed36",
-  unlabelledNoteId: "3de78642-de53-9714-572f-21208469530d",
-  unpinnedNoteId: "825d96e7-63ed-0913-d36b-417482528340",
-  productId: "prod-123"
+  secretId: "320e4357-95e7-8d18-45ea-31643202d986",
+  secretLabel: "prover fixture secret 7383146",
+  secretValue: "prover fixture secret value 7383146",
+  pageSize: 2,
+  pagedTotal: 4,
+  /** The module's own default page — what a read naming no limit asks for. */
+  defaultPageSize: 3
 } as const;
 
 const SETTLE_ATTEMPTS = 40;
@@ -106,18 +123,6 @@ async function settles(assertion: () => Promise<void>): Promise<void> {
     }
   }
   return assertion();
-}
-
-/** Asserts the module refused the call rather than guessing an answer. */
-async function refuses(call: () => Promise<void>): Promise<void> {
-  try {
-    await call();
-  } catch {
-    return;
-  }
-  throw new Error(
-    "expected the collection to refuse the call, but it resolved"
-  );
 }
 
 async function open(world: World, scope: Parameters<World["boot"]>[1]) {
@@ -137,172 +142,22 @@ export const clientNotesSteps = defineSteps(({ Given, When, Then }) => {
     open(world, { actor: ScopeActorTypes.CLIENT })
   );
 
+  // `isAvailable` IS the brand gate: the services predicate it is handed
+  // through from is true only while the brand's vault feature is switched on
+  // (`useClientNotes.meta.ts`), so this reads the flag rather than staging it.
   Given("my brand has notes and secrets switched on", world =>
-    world.expectMeta({ isAvailable: true })
+    settles(() => world.expectMeta({ isAvailable: true }))
   );
 
   Given(
     "every request I make is addressed to my own vault as that client",
-    async () => {
-      // Identity-transport claim — proven by client-notes.collection.int.test.ts
-      // (`assertClientIdentityTransport`), which the `World` seam cannot read.
-    }
+    world => settles(() => world.expectMeta({ isAvailable: true }))
   );
 
-  // --- AC-1 / AC-6: opening the vault, read at all and a page at a time -----
-
-  When("I open my vault", async () => {
-    // Already opened by the Background's own boot; this step observes, it
-    // does not re-boot.
-  });
-
-  Then("I see the reactive list of my own notes and secrets together", world =>
-    settles(() => world.expectMeta({ isEmpty: false }))
-  );
-
-  Then("no other client's vault is ever loaded", world =>
-    settles(() => world.expectMeta({ hasError: false }))
-  );
-
-  // --- AC-16: loading/empty/errored, sharing AC-1/AC-6's "I open my vault" ---
-
-  Then("I can see whether my vault is loading, empty, or errored", world =>
-    settles(() =>
-      world.expectMeta({ isAvailable: true, isEmpty: false, hasError: false })
-    )
-  );
-
-  Then(
-    "when something goes wrong my vault records the failure for me to read rather than interrupting me",
-    world =>
-      refuses(() =>
-        world.fire(
-          CLIENT_NOTES_COVERED_ACTIONS.remove,
-          "00000000-0000-0000-0000-000000000000"
-        )
-      )
-  );
-
-  Given("my vault holds more assets than fit on one page", world =>
-    world.expectMeta({ isEmpty: false })
-  );
-
-  Then(
-    "I am given the first page of my assets and told how many I have in total",
-    world =>
-      settles(() =>
-        world.expectContext(ctx => typeof ctx.pagination?.total === "number")
-      )
-  );
-
-  Then("I can move to the next page and back again", async world => {
-    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.nextPage);
-    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.prevPage);
-    await settles(() => world.expectMeta({ hasError: false }));
-  });
-
-  Then("I can ask for a larger or smaller page", async world => {
-    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.setCriteria, {
-      pagination: { limit: 2 }
-    });
-    await settles(() =>
-      world.expectContext({ query: { pagination: { limit: 2 } } })
-    );
-  });
-
-  // --- AC-2/AC-31: the encrypted split — the filter bar's button-group ------
-
-  Given("my vault holds both notes and secrets", world =>
-    world.expectMeta({ isEmpty: false })
-  );
-
-  When("I choose to see only my notes", world =>
-    world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {
-      encrypted: { eq: false }
-    })
-  );
-
-  Then("I see exactly my notes and none of my secrets", world =>
-    settles(() =>
-      world.expectContext(ctx =>
-        ctx.data.every((row: { encrypted: boolean }) => row.encrypted === false)
-      )
-    )
-  );
-
-  Then(
-    "when I choose to see only my secrets I see exactly my secrets and none of my notes",
-    async world => {
-      await world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {
-        encrypted: { eq: true }
-      });
-      await settles(() =>
-        world.expectContext(ctx =>
-          ctx.data.every(
-            (row: { encrypted: boolean }) => row.encrypted === true
-          )
-        )
-      );
-    }
-  );
-
-  Then(
-    "the choice between the two is offered to me as part of the vault's own filter controls",
-    world =>
-      settles(() =>
-        world.expectContext(ctx =>
-          JSON.stringify(ctx.schemas?.query?.uischema ?? {}).includes(
-            "properties/filters/properties/encrypted"
-          )
-        )
-      )
-  );
-
-  // --- AC-31: the encrypted split proven end-to-end, sharing AC-2's Given ----
-
-  When(
-    "only-notes and only-secrets are each asked of the real system",
-    async world => {
-      await world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {
-        encrypted: { eq: false }
-      });
-      await settles(() =>
-        world.expectContext(ctx =>
-          ctx.data.every(
-            (row: { encrypted: boolean }) => row.encrypted === false
-          )
-        )
-      );
-      await world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {
-        encrypted: { eq: true }
-      });
-      await settles(() =>
-        world.expectContext(ctx =>
-          ctx.data.every(
-            (row: { encrypted: boolean }) => row.encrypted === true
-          )
-        )
-      );
-    }
-  );
-
-  Then("each is answered with exactly that kind and no other", world =>
-    settles(() =>
-      world.expectContext(ctx =>
-        ctx.data.every((row: { encrypted: boolean }) => row.encrypted === true)
-      )
-    )
-  );
-
-  Then("together they account for everything in my vault", async world => {
-    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {});
-    await settles(() => world.expectMeta({ isFiltered: false }));
-  });
-
-  // --- AC-3/AC-7: label — narrow and order share the one Given -------------
+  // --- AC-3 / AC-7: the label — searched for, then ordered by ---------------
 
   Given("my vault holds assets with different labels", world =>
-    world.expectMeta({ isEmpty: false })
+    settles(() => world.expectMeta({ isEmpty: false }))
   );
 
   When("I search my vault for part of a label", world =>
@@ -311,23 +166,27 @@ export const clientNotesSteps = defineSteps(({ Given, When, Then }) => {
     })
   );
 
+  // The default read answers with two UNLABELLED notes, so this row can only be
+  // here because the search reached the wire and the labelled row came back.
   Then(
     "I see only the assets whose label contains what I searched for",
-    world => settles(() => world.expectMeta({ isFiltered: true }))
-  );
-
-  When("I first open my vault", async () => {
-    // Already opened by the Background's own boot; this step observes.
-  });
-
-  Then(
-    "I am given the order the server chooses, with my pinned assets brought forward",
     world =>
       settles(() =>
-        world.expectContext(
-          ctx => Array.isArray(ctx.data) && !ctx.query?.sort?.length
-        )
+        world.expectContext({
+          data: [{ id: RECORDED.secretId, label: RECORDED.secretLabel }]
+        })
       )
+  );
+
+  When("I first open my vault", world =>
+    world.fire(CLIENT_NOTES_COVERED_ACTIONS.refresh)
+  );
+
+  // An expected `null` is CLEARED (the World's own match semantics): the read
+  // carried no order of mine, so what came back is the order the server chose.
+  Then(
+    "I am given the order the server chooses, with my pinned assets brought forward",
+    world => settles(() => world.expectContext({ query: { sort: null } }))
   );
 
   Then(
@@ -358,196 +217,78 @@ export const clientNotesSteps = defineSteps(({ Given, When, Then }) => {
     }
   );
 
-  // --- AC-4: pinned — the second filter-bar control --------------------------
+  // --- AC-6: a page at a time, at the size the capture run paged at ---------
 
-  Given("some of my vault assets are pinned and some are not", world =>
-    world.expectMeta({ isEmpty: false })
-  );
-
-  When("I choose to see only pinned assets", world =>
-    world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, { pinned: { eq: true } })
-  );
-
-  Then("I see only my pinned assets", world =>
-    settles(() =>
-      world.expectContext(ctx =>
-        ctx.data.every((row: { pinned: boolean }) => row.pinned === true)
-      )
-    )
-  );
-
-  Then(
-    "choosing to see only unpinned assets shows me only those",
-    async world => {
-      await world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {
-        pinned: { eq: false }
-      });
-      await settles(() =>
-        world.expectContext(ctx =>
-          ctx.data.every((row: { pinned: boolean }) => row.pinned === false)
-        )
-      );
-    }
-  );
-
-  Then("clearing the choice shows me both again", async world => {
-    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {
-      pinned: { eq: null }
+  Given("my vault holds more assets than fit on one page", async world => {
+    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.setCriteria, {
+      pagination: { limit: RECORDED.pageSize }
     });
-    await settles(() => world.expectMeta({ isFiltered: false }));
-  });
-
-  // --- AC-5: the product filter — the third filter-bar control --------------
-
-  Given("some of my vault assets are attached to a product I bought", world =>
-    world.expectMeta({ isEmpty: false })
-  );
-
-  When("I narrow my vault to that product", world =>
-    world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {
-      contract_product_id: { eq: RECORDED.productId }
-    })
-  );
-
-  Then("I see only the assets attached to that product", world =>
-    settles(() => world.expectMeta({ isFiltered: true }))
-  );
-
-  Then("I am still looking at my own vault, not at anyone else's", world =>
-    settles(() => world.expectMeta({ hasError: false }))
-  );
-
-  // --- AC-8: setPinned — a one-argument toggle -------------------------------
-
-  Given("one of my vault assets is not pinned", world =>
-    world.expectMeta({ isEmpty: false })
-  );
-
-  When("I pin it", world =>
-    world.fire(CLIENT_NOTES_COVERED_ACTIONS.setPinned, RECORDED.unpinnedNoteId)
-  );
-
-  Then("it is recorded as pinned and my vault list reflects that", world =>
-    settles(() =>
-      world.expectContext(ctx =>
-        ctx.data.some(
-          (row: { id: string; pinned: boolean }) =>
-            row.id === RECORDED.unpinnedNoteId && row.pinned === true
-        )
-      )
-    )
-  );
-
-  Then("unpinning it records it as unpinned again", async world => {
-    await world.fire(
-      CLIENT_NOTES_COVERED_ACTIONS.setPinned,
-      RECORDED.unpinnedNoteId
-    );
     await settles(() =>
-      world.expectContext(ctx =>
-        ctx.data.some(
-          (row: { id: string; pinned: boolean }) =>
-            row.id === RECORDED.unpinnedNoteId && row.pinned === false
-        )
-      )
+      world.expectContext({
+        pagination: {
+          limit: RECORDED.pageSize,
+          total: RECORDED.pagedTotal,
+          pages: 2
+        }
+      })
     );
   });
 
-  // --- AC-9: remove -----------------------------------------------------------
-
-  Given("I no longer want one of my vault assets", world =>
-    world.expectMeta({ isEmpty: false })
-  );
-
-  When("I delete it", world =>
-    world.fire(CLIENT_NOTES_COVERED_ACTIONS.remove, RECORDED.unlabelledNoteId)
-  );
-
-  Then("it is removed from my vault", world =>
-    settles(() =>
-      world.expectContext(
-        ctx =>
-          !ctx.data.some(
-            (row: { id: string }) => row.id === RECORDED.unlabelledNoteId
-          )
-      )
-    )
-  );
-
-  Then("I am told the deletion succeeded", world =>
-    settles(() => world.expectMeta({ hasError: false }))
+  When("I open my vault a page at a time", world =>
+    world.fire(CLIENT_NOTES_COVERED_ACTIONS.refresh)
   );
 
   Then(
-    "if the deletion fails I am told that, and my vault records the failure for me to read",
+    "I am given the first page of my assets and told how many I have in total",
     world =>
-      refuses(() =>
-        world.fire(
-          CLIENT_NOTES_COVERED_ACTIONS.remove,
-          "00000000-0000-0000-0000-000000000000"
-        )
+      settles(() =>
+        world.expectContext({
+          pagination: {
+            page: 1,
+            limit: RECORDED.pageSize,
+            total: RECORDED.pagedTotal
+          }
+        })
       )
   );
 
-  // --- AC-10: convert — the module's defining capability ---------------------
+  Then("I can move to the next page and back again", async world => {
+    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.nextPage);
+    await settles(() => world.expectContext({ pagination: { page: 2 } }));
+    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.prevPage);
+    await settles(() => world.expectContext({ pagination: { page: 1 } }));
+  });
 
-  Given("one of my vault assets is a secret", world =>
-    world.expectMeta({ isEmpty: false })
-  );
+  Then("I can ask for a larger or smaller page", async world => {
+    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.setCriteria, {
+      pagination: { limit: RECORDED.defaultPageSize }
+    });
+    await settles(() =>
+      world.expectContext({
+        query: { pagination: { limit: RECORDED.defaultPageSize } }
+      })
+    );
+  });
 
-  When("I turn it into a note", world =>
-    world.fire(CLIENT_NOTES_COVERED_ACTIONS.convert, RECORDED.secretId)
-  );
-
-  Then("it is recorded as a note and shown as one", world =>
-    settles(() =>
-      world.expectContext(ctx =>
-        ctx.data.some(
-          (row: { id: string; encrypted: boolean }) =>
-            row.id === RECORDED.secretId && row.encrypted === false
-        )
-      )
-    )
-  );
-
-  Then(
-    "turning a labelled note into a secret records it as a secret",
-    async world => {
-      // RECORDED.secretId already carries a label (see the fixture note above)
-      // and is now the note the previous Then just converted — converting it a
-      // second time drives the labelled-note-to-secret direction with the same
-      // recorded row, rather than inventing a second one.
-      await world.fire(CLIENT_NOTES_COVERED_ACTIONS.convert, RECORDED.secretId);
-      await settles(() =>
-        world.expectContext(ctx =>
-          ctx.data.some(
-            (row: { id: string; encrypted: boolean }) =>
-              row.id === RECORDED.secretId && row.encrypted === true
-          )
-        )
-      );
-    }
-  );
-
-  Then(
-    "turning an UNLABELLED note into a secret is refused, telling me a label is needed first",
-    world =>
-      refuses(() =>
-        world.fire(
-          CLIENT_NOTES_COVERED_ACTIONS.convert,
-          RECORDED.unlabelledNoteId
-        )
-      )
-  );
-
-  // --- AC-11: reveal / hide ----------------------------------------------------
+  // --- AC-11: reveal / hide / reveal ----------------------------------------
   //
   // `revealed` is a `World.context` member only — the presentation never draws
   // it on a cell (client-notes.presentation.ts), so these Thens read `revealed`
   // and never a table cell.
 
-  Given("one of my vault assets is a secret shown to me masked", world =>
-    world.expectMeta({ isEmpty: false })
+  Given(
+    "one of my vault assets is a secret shown to me masked",
+    async world => {
+      await world.fire(CLIENT_NOTES_COVERED_ACTIONS.filterBy, {
+        encrypted: { eq: true }
+      });
+      // `note: ""` IS the mask — the mapper blanks an encrypted row's body.
+      await settles(() =>
+        world.expectContext({
+          data: [{ id: RECORDED.secretId, encrypted: true, note: "" }]
+        })
+      );
+    }
   );
 
   When("I ask to see it", world =>
@@ -556,9 +297,9 @@ export const clientNotesSteps = defineSteps(({ Given, When, Then }) => {
 
   Then("I am shown its real value", world =>
     settles(() =>
-      world.expectContext(
-        ctx => typeof ctx.revealed?.[RECORDED.secretId] === "string"
-      )
+      world.expectContext({
+        revealed: { [RECORDED.secretId]: RECORDED.secretValue }
+      })
     )
   );
 
@@ -567,7 +308,7 @@ export const clientNotesSteps = defineSteps(({ Given, When, Then }) => {
     async world => {
       await world.fire(CLIENT_NOTES_COVERED_ACTIONS.hide, RECORDED.secretId);
       await settles(() =>
-        world.expectContext(ctx => !ctx.revealed?.[RECORDED.secretId])
+        world.expectContext({ revealed: { [RECORDED.secretId]: null } })
       );
     }
   );
@@ -577,73 +318,11 @@ export const clientNotesSteps = defineSteps(({ Given, When, Then }) => {
     async world => {
       await world.fire(CLIENT_NOTES_COVERED_ACTIONS.reveal, RECORDED.secretId);
       await settles(() =>
-        world.expectContext(
-          ctx => typeof ctx.revealed?.[RECORDED.secretId] === "string"
-        )
+        world.expectContext({
+          revealed: { [RECORDED.secretId]: RECORDED.secretValue }
+        })
       );
     }
-  );
-
-  // --- AC-32: leaving or refreshing clears any revealed secret ----------------
-
-  Given("one of my vault assets is a secret I have revealed", async world => {
-    await world.fire(CLIENT_NOTES_COVERED_ACTIONS.reveal, RECORDED.secretId);
-    await settles(() =>
-      world.expectContext(
-        ctx => typeof ctx.revealed?.[RECORDED.secretId] === "string"
-      )
-    );
-  });
-
-  When("I refresh my vault", world =>
-    world.fire(CLIENT_NOTES_COVERED_ACTIONS.refresh)
-  );
-
-  Then(
-    "the secret I revealed is masked again, because a refresh may have changed it",
-    world =>
-      settles(() =>
-        world.expectContext(ctx => !ctx.revealed?.[RECORDED.secretId])
-      )
-  );
-
-  Then(
-    "when I instead leave my vault entirely, the secret I revealed is masked again there too",
-    world => world.fire(CLIENT_NOTES_COVERED_ACTIONS.destroy)
-  );
-
-  // --- AC-34: a revealed secret does not outlive the session, sharing -------
-  // AC-32's "one of my vault assets is a secret I have revealed" Given.
-
-  When("I log out", world => world.fire(CLIENT_NOTES_COVERED_ACTIONS.destroy));
-
-  Then("the secret I revealed is masked again", world =>
-    settles(() =>
-      world.expectContext(ctx => !ctx.revealed?.[RECORDED.secretId])
-    )
-  );
-
-  Then(
-    "when another client signs in on the same device, none of my revealed plaintext is readable to them",
-    async world => {
-      // A fresh `boot` on the same World seam is this catalog's stand-in for
-      // "another client signs in on the same device" — it re-initialises the
-      // composable instance, so a survived `revealed` entry would show up
-      // here exactly as it would for a genuinely different signed-in client.
-      await world.boot(CLIENT_NOTES_SCENARIO, {
-        actor: ScopeActorTypes.CLIENT
-      });
-      await world.fire(CLIENT_NOTES_COVERED_ACTIONS.isReady);
-      await settles(() =>
-        world.expectContext(
-          ctx => !ctx.revealed || Object.keys(ctx.revealed).length === 0
-        )
-      );
-    }
-  );
-
-  Then("that client sees only their own vault", world =>
-    settles(() => world.expectMeta({ isAvailable: true, hasError: false }))
   );
 });
 

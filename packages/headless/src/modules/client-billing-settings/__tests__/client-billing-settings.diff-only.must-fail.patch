@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
+@@ -432,7 +432,6 @@
+   }
+
+   const diff = mapIBillingSettingsFields(model, baseModel);
+-  if (diff === undefined) return {} as IClient;
+
+   return put<IClient>({
+     mutationKey: recordQueryKey(clientId.value),

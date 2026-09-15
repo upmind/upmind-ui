@@ -1,0 +1,53 @@
+FE-3087 negative control — §22 W4 (a pooled guest survives its sibling's logout).
+
+Target spec:  session-store.guest-pointer.pool.int.test.ts
+Target case:  the case whose title contains
+              "a write taken while the guest pointer is unclaimed leaves the pooled guest standing"
+Mutation:     restores `first(keys(guestSessions))` as the active-scope drop's
+              fallback in `reconcileToCookies`. Logging out the cookie-backed
+              guest leaves the pointer unclaimed (the floor), so the next
+              unrelated write drops the pool's FIRST guest — the surviving
+              sibling — and the target case MUST go RED. Every pre-existing
+              session-store case stays GREEN (143 files / 1025 tests verified
+              green at a499d735c). Compiles clean under `headless type-check`.
+Authored by:  developer seat hand-off, Task 16 (anchored to a499d735c);
+              to be filed verbatim by the operator.
+Verified by:  prover seat, blind — apply, run the target case RED, revert.
+
+diff --git a/packages/headless/src/modules/session-store/session-store.store.ts b/packages/headless/src/modules/session-store/session-store.store.ts
+index 5e2113964..9dcb5ae09 100644
+--- a/packages/headless/src/modules/session-store/session-store.store.ts
++++ b/packages/headless/src/modules/session-store/session-store.store.ts
+@@ -195,24 +195,20 @@ export function reconcileToCookies(s: SessionState): SessionState {
+             scope: AccessRoleTypes.GUEST,
+             token: guestCookie,
+             user: s.guestSessions[guestCookie.actor_id]?.user
+           }
+         }
+       : s.guestSessions;
+-  // The active-scope drop, on exactly the client/staff terms: the entry the
+-  // vanished cookie backed is the one the POINTER names, never the pool's
+-  // first. An unclaimed guest pointer (the floor) names none, so the pool
+-  // survives — a guest pooled beside the one that logged out is a sibling, not
+-  // a stale copy of it (R8).
+-  if (
+-    s.activeActor === AccessRoleTypes.GUEST &&
+-    s.activeSessionId &&
+-    guestSessions[s.activeSessionId] &&
+-    !guestCookie?.access_token
+-  )
+-    guestSessions = omit(guestSessions, s.activeSessionId);
++  // The active-scope drop, as for client and staff. Guest is the one actor
++  // whose active pointer can be unclaimed (the floor), and the floor stands on
++  // the pool's live entry, so that is the entry the rule names.
++  if (s.activeActor === AccessRoleTypes.GUEST && !guestCookie?.access_token) {
++    const activeGuestId = s.activeSessionId ?? first(keys(guestSessions));
++    if (activeGuestId && guestSessions[activeGuestId])
++      guestSessions = omit(guestSessions, activeGuestId);
++  }
+ 
+   return {
+     ...s,
+     clientSessions,
+     staffSessions,
+     guestSessions

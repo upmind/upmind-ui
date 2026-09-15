@@ -5,48 +5,87 @@ import type { ModuleDescriptor } from "../archetype/archetype.types";
 import type { CompositionPort } from "../port/port.types";
 import type { ScopeActor } from "../world/scope-actor";
 
-// `seen` guards against a self-referential (or repeatedly-aliased) object
-// graph: the second time the same reference is reached, that occurrence is
-// dropped rather than re-descended — stack-safe, never throws.
-function isRevisitedRef(entry: unknown, seen: WeakSet<object>): boolean {
-  if (typeof entry !== "object" || entry === null) return false;
-  if (seen.has(entry)) return true;
-  seen.add(entry);
-  return false;
+/**
+ * True only for a genuine CYCLE — a reference that is an ANCESTOR of the node
+ * being walked, i.e. already on the current descent path.
+ *
+ * @decision guard the descent PATH, never every reference ever seen.
+ * what:    `ancestors` holds only the containers between the root and the
+ *          current node. A container is added before its children are walked
+ *          and removed after, so two SIBLING positions holding the same
+ *          reference are each walked in full.
+ * why:     a cycle and an ALIAS are different things, and only the cycle is
+ *          dangerous. A four-layer context legitimately publishes the same
+ *          object twice — `useBillingSettingsManager`'s context layer exposes
+ *          the whole machine context as `context` AND its `model` / `baseModel`
+ *          / `schema` / `uischema` members as siblings, the same references at
+ *          two depths (`usePersonalDetailsManager` and every other
+ *          `dataManagerMachine`-backed module do the same). An ever-seen guard
+ *          walks `context` first, marks those four, and then DROPS every
+ *          sibling — so `snapshot.context.schema` and `.model` come back
+ *          `undefined`, `classify` reads `hasRealSchema: false` /
+ *          `hasModel: false`, and a Form-Flow module silently renders as
+ *          Action-panel with no form at all. Observed live 2026-09-11 on
+ *          `/useBillingSettingsManager`.
+ * rejected: (1) reordering the module's own context members so `context` comes
+ *          last — it only moves which alias is lost, and it makes every
+ *          module's key order load-bearing. (2) dropping the `context` member
+ *          from the composables — it is part of the four-layer contract and
+ *          consumers read it.
+ *
+ * Still stack-safe: a self-referential graph terminates, because the repeat
+ * IS an ancestor. An aliased DAG is emitted once per position, which is what
+ * a point-in-time snapshot means.
+ */
+function isCycle(entry: unknown, ancestors: WeakSet<object>): boolean {
+  return (
+    typeof entry === "object" &&
+    entry !== null &&
+    ancestors.has(entry as object)
+  );
 }
 
 function deepOmitUndefined<T>(
   value: T,
-  seen: WeakSet<object> = new WeakSet()
+  ancestors: WeakSet<object> = new WeakSet()
 ): T {
-  if (isArray(value)) {
-    const result: unknown[] = [];
-    for (const entry of value) {
-      if (entry === undefined || isRevisitedRef(entry, seen)) continue;
-      result.push(deepOmitUndefined(entry, seen));
-    }
-    return result as unknown as T;
-  }
-  if (isPlainObject(value)) {
-    return transform(
-      value as Record<string, unknown>,
-      (result: Record<string, unknown>, entry, key) => {
-        if (entry === undefined || isRevisitedRef(entry, seen)) return;
-        // `Object.defineProperty`, never `result[key] = …`: an own
-        // `__proto__` key in `value` becomes a normal own data property on
-        // `result` instead of tripping `Object.prototype`'s `__proto__`
-        // setter and replacing `result`'s own prototype.
-        Object.defineProperty(result, key, {
-          value: deepOmitUndefined(entry, seen),
-          enumerable: true,
-          writable: true,
-          configurable: true
-        });
-      },
-      {}
-    ) as unknown as T;
-  }
-  return value;
+  if (!isArray(value) && !isPlainObject(value)) return value;
+
+  const container = value as unknown as object;
+  ancestors.add(container);
+
+  const result = isArray(value)
+    ? (() => {
+        const out: unknown[] = [];
+        for (const entry of value) {
+          if (entry === undefined || isCycle(entry, ancestors)) continue;
+          out.push(deepOmitUndefined(entry, ancestors));
+        }
+        return out;
+      })()
+    : transform(
+        value as Record<string, unknown>,
+        (acc: Record<string, unknown>, entry, key) => {
+          if (entry === undefined || isCycle(entry, ancestors)) return;
+          // `Object.defineProperty`, never `acc[key] = …`: an own
+          // `__proto__` key in `value` becomes a normal own data property on
+          // `acc` instead of tripping `Object.prototype`'s `__proto__`
+          // setter and replacing `acc`'s own prototype.
+          Object.defineProperty(acc, key, {
+            value: deepOmitUndefined(entry, ancestors),
+            enumerable: true,
+            writable: true,
+            configurable: true
+          });
+        },
+        {}
+      );
+
+  // Ascend: this container is no longer on the path, so a SIBLING holding the
+  // same reference is an alias, not a cycle, and is walked in full.
+  ancestors.delete(container);
+
+  return result as unknown as T;
 }
 
 /**

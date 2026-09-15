@@ -66,8 +66,16 @@ export function createSessionActions(_sessionId?: string) {
       // re-evaluate outside an effect scope.
       return new Promise<SessionUser>((resolve, reject) => {
         let unsubscribe = (): void => {};
-        // eslint-disable-next-line prefer-const -- timer must be let: done() closure references it before assignment
-        let timer: ReturnType<typeof setTimeout>;
+        const timer = setTimeout(() => {
+          unsubscribe();
+          reject(
+            new DetailedError(
+              t("error.401_title_md"),
+              responseCodes.Unauthorized,
+              ErrorOrigin.Headless
+            )
+          );
+        }, 60_000);
         const done = (): void => {
           unsubscribe();
           clearTimeout(timer);
@@ -86,16 +94,6 @@ export function createSessionActions(_sessionId?: string) {
           }
         };
         unsubscribe = sessionStore.subscribe(check);
-        timer = setTimeout(() => {
-          done();
-          reject(
-            new DetailedError(
-              t("error.401_title_md"),
-              responseCodes.Unauthorized,
-              ErrorOrigin.Headless
-            )
-          );
-        }, 60_000);
         check();
       });
     },

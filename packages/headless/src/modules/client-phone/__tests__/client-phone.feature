@@ -109,10 +109,13 @@ Feature: A client manages their own phone numbers
   # Two scenarios, one AC: the state of the list itself, and whether the list
   # is mine to read at all.
 
-  @AC-3 @collection
-  Scenario: Know whether my list is loading, empty, or errored
+  @AC-3 @AC-4 @collection
+  Scenario: I see my list load, or be told it failed, and I am never left waiting
     When I open my phone numbers
     Then I can see whether the list is loading, empty, or errored
+    Given my session has settled with no client for me to address
+    When I wait for my phone collection to be ready
+    Then I am told it will never become ready, rather than waiting forever
 
   @AC-3 @collection @guard
   Scenario: Know whether my phone collection is mine to read at all
@@ -121,12 +124,6 @@ Feature: A client manages their own phone numbers
     Then it tells me the collection is available to me
     And before I am signed in it tells me the collection is not available
     And the moment my session goes away it tells me the collection is no longer available
-
-  @AC-4 @collection
-  Scenario: Wait for the collection to become ready without hanging
-    Given my session has settled with no client for me to address
-    When I wait for my phone collection to be ready
-    Then I am told it will never become ready, rather than waiting forever
 
   @AC-5 @collection
   Scenario: Read my default phone number
@@ -165,23 +162,24 @@ Feature: A client manages their own phone numbers
     And my previous default is no longer the default
     And I am given confirmation that it is now my default
 
-  @AC-9 @collection
-  Scenario: A failed row change is reported to me as state, not just announced
+  @AC-9 @AC-42 @collection
+  Scenario: A failed change shows up where every other failure does
     Given one of my attempts to delete or set-as-default fails
     When I inspect my phone collection afterwards
     Then the collection tells me it is now in an error state
     And I am also given a message describing what went wrong
     And both of those are true together, not just one of them
+    Given I am a client viewing my phone numbers
+    When a request state is refused by the schema
+    Then the rejection appears in the collection's captured error
+    And I read failure from one place
 
   @AC-10 @collection
-  Scenario: Force a fresh read of my phone numbers from the server
+  Scenario: I get my phone numbers fresh from the server when I ask
     Given my phone collection cannot currently be addressed
     When I force a fresh read
     Then that fresh read is refused rather than silently returning nothing
     And when my phone collection can be addressed, the same fresh read succeeds
-
-  @AC-10 @collection
-  Scenario: Mark my cached phone numbers as stale
     Given I have already read my phone numbers once
     When I mark that read as stale
     Then the next time I read my phone numbers, they are fetched again
@@ -206,8 +204,8 @@ Feature: A client manages their own phone numbers
     When I clear my filter
     Then the list returns to all my phones
 
-  @AC-36 @collection
-  Scenario: Order my phone numbers
+  @AC-36 @AC-38 @collection
+  Scenario: My list comes in the order I choose, starting from its declared one
     Given I am a client viewing my phone numbers
     And I have multiple phones created at different times
     When I order my phone list by created_at descending
@@ -216,6 +214,10 @@ Feature: A client manages their own phone numbers
     Then the oldest phone appears first
     When I clear my order
     Then the list returns to its boot order
+    Given I have not applied any filter
+    And I have not chosen any order
+    Then the list is unpaged
+    And the list is ordered oldest first
 
   @AC-37 @collection
   Scenario: A new filter sends me back to the first page
@@ -226,14 +228,6 @@ Feature: A client manages their own phone numbers
     Then I am returned to the first page
     And my page size survives
 
-  @AC-38 @collection
-  Scenario: My phone list starts in its declared order
-    Given I am a client viewing my phone numbers
-    And I have not applied any filter
-    And I have not chosen any order
-    Then the list is unpaged
-    And the list is ordered oldest first
-
   @AC-39 @collection
   Scenario: A filter I cannot spell reaches no wire and leaves my list alone
     Given I am a client viewing my phone numbers
@@ -243,7 +237,7 @@ Feature: A client manages their own phone numbers
     And my standing list and my published filters are unchanged
 
   @AC-40 @collection
-  Scenario: Read what my phone list is currently asking for
+  Scenario: I can see what my list is currently showing me, and why
     Given I am a client viewing my phone numbers
     And I have applied a filter and an order
     When I read the collection's published request state
@@ -252,20 +246,13 @@ Feature: A client manages their own phone numbers
     And I see the page window that is on the wire
 
   @AC-41 @collection
-  Scenario: Draw a filter bar and an order control for my phone list
+  Scenario: I get a filter bar and an order control over my phone list
     Given I am a client viewing my phone numbers
     When I ask the collection for its schema family
     Then I receive the query schema as plain JSON
     And I receive the filter-bar presentation as plain JSON
     And I receive the order-control presentation as plain JSON
     And a renderer can draw controls without knowing this module
-
-  @AC-42 @collection
-  Scenario: A refused request state appears where every other failure does
-    Given I am a client viewing my phone numbers
-    When a request state is refused by the schema
-    Then the rejection appears in the collection's captured error
-    And I read failure from one place
 
   @AC-13 @collection
   Scenario: Adding a phone number I already have does not duplicate it
@@ -274,12 +261,16 @@ Feature: A client manages their own phone numbers
     Then I get back my existing phone number
     And no new phone number is created
 
-  @AC-14 @collection
-  Scenario: Discarding my phone collection releases it
+  @AC-14 @AC-27 @collection @manager
+  Scenario: I leave the phone list or the editor, and it lets go of what it held
     Given I have opened my phone collection
     When I destroy that collection
     Then it is released
     And opening my phone numbers again gives me a fresh collection
+    Given I have opened the editor
+    When I stop it, it stops working but is still there
+    And when I destroy it, it is released and opening that phone number again gives me a fresh editor
+    And I can wait for a save that is in flight to finish before moving on
 
   @AC-15 @collection @guard
   Scenario: Nothing touches my phone numbers without an authenticated client session
@@ -294,19 +285,24 @@ Feature: A client manages their own phone numbers
   # variant artifacts, and this module ships every one of them.
 
   @AC-16 @manager @fe-2824 @negative-control
-  Scenario: The per-phone editor exists at all, alongside the collection
+  Scenario: I can open a single phone number, not only the whole list
     Given a consumer depends on both my phone collection and my per-phone editor
     When the module is built
     Then the editor is offered exactly as the collection is
     And removing the editor from what the module offers turns this red
 
-  @AC-17 @manager
-  Scenario: Open one of my phone numbers for editing, or start a fresh one
+  @AC-17 @AC-28 @manager @guard
+  Scenario: I open a phone number to edit, or start a fresh one, and it waits for my account first
     When I open one of my existing phone numbers in the editor
     Then the form is populated with that phone number
     And the editor knows which of my phone numbers it is editing
     When I instead start a fresh phone number
     Then the form opens empty, ready for a brand-new entry
+    Given the editor is opened before my client identity has resolved
+    When it is used before that identity resolves
+    Then it holds without sending any request
+    And it becomes usable the moment my identity resolves
+    And a later, unrelated identity refresh never overwrites an identity it already resolved
 
   @AC-17 @manager
   Scenario: Two fresh drafts do not interfere with each other
@@ -340,14 +336,14 @@ Feature: A client manages their own phone numbers
       | GB               | +14155552671 | +14155552671  | 1           |
 
   @AC-20 @manager
-  Scenario: Typing into the editor is debounced, not fired on every keystroke
+  Scenario: I enter a number and it is checked once I stop, not on every keystroke
     Given I am typing a phone number into the editor
     When I enter several characters in quick succession
     Then only the settled result of my typing is parsed
     And saving right after typing uses what I actually typed, never a stale value
 
   @AC-21 @manager
-  Scenario: Invalid input is reported as field-level state, not thrown at me
+  Scenario: A number I mistype is flagged beside the field, and nothing is sent
     Given I have opened the editor
     When I enter a phone number that cannot be parsed
     Then the editor tells me my input is invalid
@@ -380,7 +376,7 @@ Feature: A client manages their own phone numbers
     And whether the phone number I am editing is a brand-new one
 
   @AC-26 @manager
-  Scenario: Read the model, its identity, its display strings and its errors
+  Scenario: The number I am editing reads back to me as I entered it, with any problem beside it
     Given I have opened one of my phone numbers in the editor
     Then I can read its current value, which phone number it is
     And a title and description for it
@@ -392,21 +388,6 @@ Feature: A client manages their own phone numbers
     When I clear the form
     Then the form returns exactly to its starting state
     And it is no longer reported as changed
-
-  @AC-27 @manager
-  Scenario: Stop, discard, and await completion of the editor
-    Given I have opened the editor
-    When I stop it, it stops working but is still there
-    And when I destroy it, it is released and opening that phone number again gives me a fresh editor
-    And I can wait for a save that is in flight to finish before moving on
-
-  @AC-28 @manager @guard
-  Scenario: The editor waits for an addressable client instead of firing early
-    Given the editor is opened before my client identity has resolved
-    When it is used before that identity resolves
-    Then it holds without sending any request
-    And it becomes usable the moment my identity resolves
-    And a later, unrelated identity refresh never overwrites an identity it already resolved
 
   @AC-35 @manager @session
   Scenario: The editor stays responsive across a sustained single session

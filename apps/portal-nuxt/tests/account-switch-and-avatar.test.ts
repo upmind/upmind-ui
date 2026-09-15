@@ -1,11 +1,15 @@
 // -----------------------------------------------------------------------------
 /**
  * @module tests/account-switch-and-avatar
- * @description Plan F5 O1 and O6 — legacy's `tenancy/selectAccountModal` and
- * the profile card's "Change photo". One sign-in may act for more than one
- * account, so the control appears only where there is a choice to make; the
- * account being acted for is what the card and the menu then say about the
- * client; and the photo is a field the account owns rather than a fixture.
+ * @description Plan F5 O1 — legacy's `tenancy/selectAccountModal`. One sign-in
+ * may act for more than one account, so the control appears only where there
+ * is a choice to make, and the account being acted for is what the card and
+ * the menu then say about the client.
+ *
+ * The card's photo is covered here too, but only as something SHOWN: the
+ * "Change photo" control was removed (ruled 2026-09-14) because legacy served
+ * no client-facing change-photo at all, and the platform derives the picture
+ * from an uploaded image relation rather than an address a client types.
  *
  * Both sides of the "more than one account" gate are graded against a dataset
  * standing on the other side of it (plan R9) — a control proven only on the
@@ -13,7 +17,7 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
-import { assign, find, includes, join, map, size } from "lodash-es";
+import { assign, every, find, join, map, size } from "lodash-es";
 import type { DataRefId } from "~/portal/mock/data-refs";
 import type { MockDataset, MockPersonaAccount } from "~/portal/mock/types";
 import type { AccountMenuItem } from "~/portal/modules/account-menu/types";
@@ -30,7 +34,6 @@ import {
   resolveDataRefProps
 } from "~/portal/mock/data-refs";
 import { personaAccounts } from "~/portal/mock/facades";
-import { usePortalAjv } from "~/portal/mock/forms/ajv";
 import { FORM_ID } from "~/portal/mock/forms/ids";
 import { resolveMockForm } from "~/portal/mock/forms/registry";
 import { HOSTGRID_MOCK_DATASET } from "~/portal/mock/hostgrid";
@@ -47,8 +50,6 @@ const SWITCH_CONTROL = mockActionValue(
   MOCK_ACTION.OPEN_FORM,
   FORM_ID.SWITCH_ACCOUNT
 );
-
-const NEW_PHOTO = "https://static.example.test/portraits/jonah-2026.jpg";
 
 function ref<T>(data: MockDataset, id: DataRefId): T {
   return resolveDataRefProps({ value: dataRef(id) }, data, NO_CONTEXT)
@@ -225,45 +226,25 @@ describe("switching account — what the client is then looking at", () => {
   });
 });
 
-describe("the account photo — a field the account owns", () => {
+describe("the account photo is shown, and is not the client's to change", () => {
   beforeEach(() => {
     resetMockData(MOCK_DATASET_ID.HOSTGRID);
   });
 
-  it("opens on the picture the account already shows", () => {
+  it("shows the picture the account carries", () => {
     const data = hostgrid();
-
-    const entry = resolveMockForm(data, FORM_ID.AVATAR_SAVE, undefined);
 
     expect(data.persona.avatarSrc).toBeTruthy();
-    expect(entry?.model).toEqual({ avatarSrc: data.persona.avatarSrc });
-    expect(entry?.submit).toBe(MOCK_ACTION.AVATAR_SAVE);
+    expect(cardImages(data)).toContain(data.persona.avatarSrc);
   });
 
-  it("saving a new one moves it, says so, and the card follows", () => {
-    const data = hostgrid();
-    const before = data.persona.avatarSrc;
-
-    const result = dispatchMockAction(
-      data,
-      NO_CONTEXT,
-      `${MOCK_ACTION.AVATAR_SAVE}:${JSON.stringify({ avatarSrc: NEW_PHOTO })}`
+  it("offers no control to change it", () => {
+    const rows = ref<ListModuleItem[]>(
+      hostgrid(),
+      DATA_REF_ID.ACCOUNT_CARD_ITEMS
     );
 
-    expect(data.persona.avatarSrc).toBe(NEW_PHOTO);
-    expect(data.persona.avatarSrc).not.toBe(before);
-    expect(result?.toast?.intent).toBe(MOCK_TOAST_INTENT.SUCCESS);
-    expect(cardImages(data)).toContain(NEW_PHOTO);
-    expect(includes(cardImages(data), before)).toBe(false);
-  });
-
-  it("anything that is not a web address is refused by the form's own rules", () => {
-    const data = hostgrid();
-    const entry = resolveMockForm(data, FORM_ID.AVATAR_SAVE, undefined);
-    const validate = usePortalAjv().compile(entry?.schema ?? {});
-
-    expect(validate({ avatarSrc: NEW_PHOTO })).toBe(true);
-    expect(validate({ avatarSrc: "my desktop photo" })).toBe(false);
-    expect(validate({})).toBe(false);
+    expect(size(rows)).toBeGreaterThan(0);
+    expect(every(rows, row => row.action === undefined)).toBe(true);
   });
 });

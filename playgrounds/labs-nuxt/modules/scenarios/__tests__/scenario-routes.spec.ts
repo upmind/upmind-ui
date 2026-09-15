@@ -23,7 +23,7 @@
  * — or two scenarios answer to one name and one of them is unreachable.
  */
 
-import { readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -64,6 +64,26 @@ const declaredDirectories = filter(
       file.endsWith(".scenario.ts")
     )
 );
+
+/**
+ * The route params a directory's declaration carries (`params: ["oid"]`),
+ * scanned off its source exactly as the registrar scans it — the registrar
+ * runs where the declaration cannot be imported, and this spec must read the
+ * same literal, not a resolved module.
+ */
+function declaredParamsOf(name: string): string[] {
+  const file = find(readdirSync(join(MODULE_DIR, name)), entry =>
+    entry.endsWith(".scenario.ts")
+  );
+  const match = file
+    ? readFileSync(join(MODULE_DIR, name, file), "utf-8").match(
+        /params\s*:\s*\[([^\]]*)\]/
+      )
+    : null;
+  return match
+    ? map([...match[1]!.matchAll(/["']([^"']+)["']/g)], hit => hit[1]!)
+    : [];
+}
 
 /**
  * The page a module draws itself with, when it ships one — the same file the
@@ -146,9 +166,23 @@ describe("@G3d the directory IS the route — nothing else names one", () => {
   // The catch-all is spelled out rather than read off `SCOPE_SUFFIX_SEGMENT`:
   // an assertion against the constant the registrar builds the path from
   // cannot fail, whatever that constant is narrowed to.
-  it("ends every scenario path in the scope catch-all", () => {
+  it("ends every scenario path in the scope catch-all, after any params the declaration carries", () => {
     for (const page of scenarioPages()) {
-      expect(page.path).toBe(`/${page.name}/:scopeSuffix(.*)*`);
+      // `params: ["oid"]` puts `/:oid` between the directory and the catch-all
+      // (`/useInvoice/:oid/:scopeSuffix(.*)*`) — an emailed link carries the id
+      // in the path. A declaration with none keeps the bare shape.
+      const params = joinAll(
+        map(declaredParamsOf(page.name as string), p => `/:${p}`),
+        ""
+      );
+      expect(page.path).toBe(`/${page.name}${params}/:scopeSuffix(.*)*`);
+    }
+  });
+
+  it("only a declaration that names params gets an id segment", () => {
+    for (const page of scenarioPages()) {
+      const hasParams = declaredParamsOf(page.name as string).length > 0;
+      expect(page.path.includes("/:oid")).toBe(hasParams);
     }
   });
 });

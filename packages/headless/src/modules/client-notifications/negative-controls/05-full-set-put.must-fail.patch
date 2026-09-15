@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-notifications/client-notifications.services.ts
++++ b/packages/headless/src/modules/client-notifications/client-notifications.services.ts
+@@ -319,7 +319,7 @@
+       model.preferences,
+       lockedTopicIds,
+       baseModel?.preferences
+-    )
++    ).slice(0, -1)
+   );
+   await service.refresh();
+   return model;

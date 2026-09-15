@@ -23,11 +23,19 @@ import {
   COMPOSER_MODULE_ID,
   FORM_MODULE_ID,
   LIST_MODULE_ID,
-  SPEC_MODULE_ID,
-  moduleRef
+  moduleGroup,
+  moduleRef,
+  SPEC_MODULE_ID
 } from "../registry";
-import { PAGE_KEY } from "../types";
-import { brandNoteRow, pagerFooter, panelControls, statusRail } from "./pager";
+import { GROUP_AXIS, PAGE_KEY } from "../types";
+import { assign } from "lodash-es";
+import {
+  backLink,
+  brandNoteRow,
+  pagerFooter,
+  panelControls,
+  statusRail
+} from "./pager";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { ContentConfig, PageKey, SlotAssignment } from "../types";
 
@@ -75,19 +83,40 @@ export function supportPages(options?: {
     rows: readonly ContentRowConfig[]
   ): ContentConfig => ({ title, description, rows, footer: false });
 
+  const ticketPage = (
+    title: string,
+    description: string,
+    rows: readonly ContentRowConfig[]
+  ): ContentConfig =>
+    assign(page(title, description, rows), {
+      breadcrumb: backLink("My tickets", "/support/tickets")
+    });
+
   const pinRows: readonly ContentRowConfig[] = options?.pinRow
     ? [
         {
           layout: ROW_LAYOUT.FULL,
           surface: ROW_SURFACE.MUTED,
           slots: [
-            moduleRef(SPEC_MODULE_ID, {
-              variant: "micro",
-              props: {
-                items: dataRef(DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS),
-                emptyTitle: "No support PIN"
-              }
-            })
+            // Legacy's support-menu PIN panel: the masked PIN with show and
+            // copy, and "Generate new" beneath it.
+            moduleGroup(GROUP_AXIS.STACKED, [
+              moduleRef(SPEC_MODULE_ID, {
+                variant: "micro",
+                props: {
+                  items: dataRef(DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS),
+                  emptyTitle: "No support PIN"
+                }
+              }),
+              moduleRef(BUTTON_MODULE_ID, {
+                variant: BUTTON_MODULE_VARIANT.GROUP,
+                props: {
+                  label: "Support PIN",
+                  actions: dataRef(DATA_REF_ID.SUPPORT_PIN_ACTIONS),
+                  emptyTitle: "No PIN controls"
+                }
+              })
+            ])
           ]
         }
       ]
@@ -119,7 +148,9 @@ export function supportPages(options?: {
         )
       ]
     ),
-    [PAGE_KEY.SUPPORT_TICKET_DETAIL]: page(
+    // A thread serves no pillar rail (`config/areas/detail.ts`), so the link
+    // above the title is the whole way back to the listing.
+    [PAGE_KEY.SUPPORT_TICKET_DETAIL]: ticketPage(
       "Ticket",
       "The conversation and its status.",
       [
@@ -202,7 +233,14 @@ export function supportPages(options?: {
           visible: dataRef(DATA_REF_ID.TICKET_CAN_DELEGATE),
           header: {
             title: "Delegate access",
-            description: "Let somebody else read and reply to this ticket."
+            description: "Let somebody else read and reply to this ticket.",
+            // An account's whole delegate list, on a thread page: 24 rows deep
+            // on the Host·Grid seed, with nothing to narrow or page it.
+            controls: panelControls(
+              DATA_REF_ID.TICKET_DELEGATE_ITEMS,
+              "delegates",
+              "Search by name or email"
+            )
           },
           slots: [
             moduleRef(LIST_MODULE_ID, {
@@ -212,7 +250,8 @@ export function supportPages(options?: {
                 emptyTitle: "Nobody to delegate to"
               }
             })
-          ]
+          ],
+          footer: pagerFooter("Delegates", DATA_REF_ID.TICKET_DELEGATE_ITEMS)
         },
         {
           layout: ROW_LAYOUT.FULL,

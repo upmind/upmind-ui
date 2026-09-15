@@ -97,7 +97,7 @@ async function fetchBasket(context: BasketContext): Promise<IBasket> {
 // against the guest's products and downstream actors (billing, paymentDetail)
 // never spawn.
 async function claimBasket(): Promise<void> {
-  const { get, remove } = useSessionStore().useActions();
+  const { get } = useSessionStore().useActions();
 
   const client_token = get(AccessRoleTypes.CLIENT);
   const guest_token = get(AccessRoleTypes.GUEST);
@@ -106,16 +106,16 @@ async function claimBasket(): Promise<void> {
 
   const { patch, useUrl } = useQuery();
 
-  return patch({
+  // The claim moves the basket, not the identity: the guest stays a pooled,
+  // switchable session. Removing it here deleted an arbitrary guest on every
+  // switch to a client.
+  await patch({
     mutationKey: ["basket", "claim"],
     url: useUrl("orders/claim"),
     withAccessToken: true,
     data: {
       guest_token: guest_token.access_token
     }
-  }).then(() => {
-    // Only dump the guest session/token on success so we can retry the claim if it fails.
-    remove(AccessRoleTypes.GUEST);
   });
 }
 
