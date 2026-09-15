@@ -1,8 +1,8 @@
 {
   "version": 3,
   "request": {
-    "method": "PUT",
-    "path": "/api/tickets/4d036794-24d0-e710-065b-3153698d582e/replies/de78642d-e539-7145-949a-21208469530d",
+    "method": "POST",
+    "path": "/api/tickets/4d036794-24d0-e710-065b-3153698d582e/replies?case=with-file",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -10,7 +10,12 @@
       "Authorization": "mock-Authorization"
     },
     "body": {
-      "body": "Recorded reply for FE-3226, corrected."
+      "body": "Recorded reply with an attachment for FE-3226.",
+      "files": [
+        {
+          "id": "5d085e69-d562-3719-8ec2-18e940d42370"
+        }
+      ]
     }
   },
   "response": {
@@ -19,14 +24,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a3b7d96c88cd7203-LHR",
+      "cf-ray": "a3b7d957c9087203-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 15 Sep 2026 13:06:33 GMT",
+      "date": "Tue, 15 Sep 2026 13:06:30 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=NtbXaiSRlQ%2FDsxbizpYvNtw1eUNu%2BaOrFFRmJ8NZHiPyBFtbkfbPEcIb1n3oNvlQkrCck%2BCZjoGBiSXLox%2FYSwBBObpI9TNeImfFU5nfv5wid5WjUkAzbQZsmAkpGpzKYE1sYHI9Ew%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=n1%2FedxI7fEtYnS%2BLYdZAYijlsEPCdbX%2BAOD510jx51D%2FieRE%2BvCRZjp6sYYwabeqsrPqXqaEU%2B9UI1lpL92skLqlsRP0r3%2F8oRqL%2Ba%2Bp6KDzGvnkwSRn2ch4gq1tQPIPrnIcOrbgmQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -35,7 +40,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "de78642d-e539-7145-949a-21208469530d",
+        "id": "952098d3-de40-917e-269c-31578626e347",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -44,9 +49,9 @@
         "lead_id": null,
         "user_id": null,
         "is_private": false,
-        "body": "Recorded reply for FE-3226, corrected.",
-        "created_at": "2026-09-15 13:06:32",
-        "updated_at": "2026-09-15 13:06:33",
+        "body": "Recorded reply with an attachment for FE-3226.",
+        "created_at": "2026-09-15 13:06:29",
+        "updated_at": "2026-09-15 13:06:29",
         "deleted_at": null,
         "template_id": null,
         "object_type": null,
@@ -85,7 +90,7 @@
           "user_id": null,
           "status_id": "3825d96e-763e-d091-3dc4-174825283406",
           "created_at": "2026-09-15 13:06:24",
-          "updated_at": "2026-09-15 13:06:32",
+          "updated_at": "2026-09-15 13:06:29",
           "replied_at": null,
           "invoice_id": null,
           "calculated_notify_close_date": "2026-10-05 00:00:00",
@@ -103,7 +108,36 @@
           "can_see_ticket_messages": null,
           "is_delegated_object": false
         },
-        "files": []
+        "files": [
+          {
+            "id": "5d085e69-d562-3719-8ec2-18e940d42370",
+            "type": "text",
+            "mime_type": "text/plain",
+            "object_type": "ticket_message",
+            "object_class": "App\\Models\\TicketMessage",
+            "object_id": "952098d3-de40-917e-269c-31578626e347",
+            "name": "temp_57.txt",
+            "original_name": "fe-3226-fixture-attachment.txt",
+            "size": 36,
+            "scan_status": "new",
+            "failed_scanning_attempts": null,
+            "scan_status_reason": null,
+            "hash": "o6dJEtFbddk4xVZLWfJ7Z2L3lGjUlJ6z",
+            "default": false,
+            "image_category_id": null,
+            "resized": false,
+            "order": 1,
+            "created_at": "2026-09-15 13:06:29",
+            "updated_at": "2026-09-15 13:06:29",
+            "deleted_at": null,
+            "temp_token_id": "mock-temp_token_id",
+            "system": "s3",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "url": "https://api.staging.upmind.io/api/ticket_message/files/o6dJEtFbddk4xVZLWfJ7Z2L3lGjUlJ6z/view",
+            "print_url": "https://api.staging.upmind.io/api/ticket_message/files/o6dJEtFbddk4xVZLWfJ7Z2L3lGjUlJ6z/download",
+            "size_formatted": "36.00 B"
+          }
+        ]
       },
       "related": null,
       "total": null,
@@ -112,7 +146,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-15T13:06:33.674Z",
+  "captured_at": "2026-09-15T13:06:30.254Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

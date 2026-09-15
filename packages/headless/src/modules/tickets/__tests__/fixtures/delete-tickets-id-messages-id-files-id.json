@@ -1,17 +1,15 @@
 {
   "version": 3,
   "request": {
-    "method": "PUT",
-    "path": "/api/tickets/4d036794-24d0-e710-065b-3153698d582e/status?case=reopen",
+    "method": "DELETE",
+    "path": "/api/tickets/4d036794-24d0-e710-065b-3153698d582e/messages/952098d3-de40-917e-269c-31578626e347/files/5d085e69-d562-3719-8ec2-18e940d42370",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
       "Origin": "http://qa-automation.local:5173",
       "Authorization": "mock-Authorization"
     },
-    "body": {
-      "status_code": "ticket_open"
-    }
+    "body": null
   },
   "response": {
     "status": 200,
@@ -19,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a3b7d980ccad7203-LHR",
+      "cf-ray": "a3b7d95f79547203-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 15 Sep 2026 13:06:36 GMT",
+      "date": "Tue, 15 Sep 2026 13:06:31 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=34EBRmVfo%2F7L7FjK1Xsqx4kRKQgn3FNtwQ%2BZq%2FN4sX9lHpbxMmwARqnwMffuX3noyXVL9NHNqun8i1679J8n1ANVGufyPPM8t9KDt5SvpOvcXuL52xncrRhyDpIeq7iL4MfCPB%2BPIA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GnKsYz40qXqbo0vBuRHMTJHeBubsSWq7vSi%2FLb6kbhrNFoeo8MXnxENzjTFrZURsvFd8S1G832cTPs13746WUtGu85fCYMR%2B3wLVVOlDJQH0Ag4xFAw8wt84fEq62ngVsZ4rZNzkvQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -42,7 +40,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-15T13:06:36.691Z",
+  "captured_at": "2026-09-15T13:06:31.425Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

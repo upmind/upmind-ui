@@ -80,12 +80,37 @@
 
 import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
+import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
 import { GrantTypes } from "@upmind-automation/types";
-import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 // eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
 import { mintClientToken, mintToken } from "../../auth/__tests__/auth.tokens";
 import type { IToken } from "@upmind-automation/types";
+
+const ACCEPT_LINK = /delegate_access\/accept\/([A-Za-z0-9]+)/;
+const INVITATION_SUBJECT = "New Customer Access Invitation";
+
+type Envelope<T> = { data: T; total: number | null };
+type WireEmailRow = { id: string; subject: string };
+
+/** A control call OUTSIDE the capture pipeline — it moves staging state, it is never recorded. Mirrors delegates.fixtures.ts. */
+async function control(
+  apiUrl: string,
+  origin: string,
+  method: string,
+  path: string,
+  token?: string
+): Promise<unknown> {
+  const response = await fetch(`${apiUrl}${path}`, {
+    method,
+    headers: {
+      Accept: "application/json",
+      Origin: origin,
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
+  });
+  return response.json().catch(() => null);
+}
 
 // -----------------------------------------------------------------------------
 
@@ -117,8 +142,15 @@ describe("Tickets API Fixtures Generator", () => {
   let clientToken: IToken;
   let clientId: string;
   let throwawayTicketId: string;
+  let throwawayReference: string;
   let throwawayReplyId: string;
   let withdrawReplyId: string;
+  let contractProductId1: string;
+  let contractProductId2: string;
+  let brandId: string;
+  let uploadedFileId: string;
+  let fileReplyMessageId: string;
+  let liveDepartmentId: string;
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -128,6 +160,28 @@ describe("Tickets API Fixtures Generator", () => {
       name: "tickets"
     });
     clientToken = await mintClientToken();
+
+    // A live brand-public department id, read fresh every run. Z7 (design.md):
+    // GET api/brand/tickets/departments rows are keyed on the JUNCTION row's
+    // own `id` — the real department to create against is the nested
+    // `ticket_department_id` field, never the row `id` itself. Prefer the
+    // `default: true` row.
+    const departments = (await control(
+      API_URL,
+      ORIGIN,
+      "GET",
+      "/api/brand/tickets/departments",
+      clientToken.access_token
+    )) as Envelope<Array<{ ticket_department_id: string; default: boolean }>>;
+    const defaultDepartment =
+      departments?.data?.find(row => row.default) ?? departments?.data?.[0];
+    if (!defaultDepartment?.ticket_department_id) {
+      throw new Error(
+        "Could not resolve a live brand-public department id from " +
+          "GET api/brand/tickets/departments — cannot create a real ticket."
+      );
+    }
+    liveDepartmentId = defaultDepartment.ticket_department_id;
   }, 30000);
 
   afterAll(() => {
@@ -140,7 +194,8 @@ describe("Tickets API Fixtures Generator", () => {
       "/api/tickets?with=client,contract_product,department&with_staged_imports=1&order=-updated_at&limit=10"
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Active list capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Active list capture returned ${status}.`);
   });
 
   it("captures GET tickets filter[status.code]=ticket_closed (closed list, AC-2)", async () => {
@@ -149,7 +204,26 @@ describe("Tickets API Fixtures Generator", () => {
       "/api/tickets?with=client,contract_product,department&filter[status.code]=ticket_closed&order=-updated_at&limit=10&case=closed"
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Closed list capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Closed list capture returned ${status}.`);
+  });
+
+  it("re-captures GET tickets at the TRUE active shape filter[status.code|neq]=ticket_closed (R12 remedy — the earlier fixture was vacuous [])", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.get(
+      "/api/tickets?with=client,contract_product,department&with_staged_imports=1&filter[status.code|neq]=ticket_closed&order=-updated_at&limit=10&case=active-neq-closed"
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(`Active-shape re-capture returned ${status}.`);
+    }
+    const total = (body as { total?: number })?.total ?? 0;
+    if (total < 1) {
+      throw new Error(
+        `Active-shape re-capture returned total=${total} — still vacuous; the ` +
+          "client's real ticket count did not cover this shape."
+      );
+    }
   });
 
   it("creates three real throwaway tickets so a real page-2 walk exists (AC-3)", async () => {
@@ -158,7 +232,7 @@ describe("Tickets API Fixtures Generator", () => {
       const { status, body } = await generator.post("/api/tickets", {
         subject: `Fixture recon padding ${i}`,
         body: "Recorded for FE-3226 AC-3 pagination capture.",
-        ticket_department_id: "8d632507-9806-5d1e-33eb-8174e234e98d"
+        ticket_department_id: liveDepartmentId
       });
       if (status !== 200 && status !== 201) {
         throw new Error(
@@ -202,7 +276,8 @@ describe("Tickets API Fixtures Generator", () => {
       "/api/tickets?with=client,contract_product,department&filter[reference]=XGD-235-12434&limit=10&case=filter-reference"
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Reference-filter capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Reference-filter capture returned ${status}.`);
   });
 
   it("captures GET tickets query=test (min-length search, AC-6)", async () => {
@@ -220,7 +295,8 @@ describe("Tickets API Fixtures Generator", () => {
       "/api/tickets?order=-updated_at&limit=3&case=recent"
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Recent-list capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Recent-list capture returned ${status}.`);
   });
 
   it("attempts a real send-later schedule at create (AC-9) — disclosed brand-level capture gap if refused", async () => {
@@ -233,7 +309,7 @@ describe("Tickets API Fixtures Generator", () => {
     const { status, body } = await generator.post("/api/tickets", {
       subject: "Fixture schedule-capture ticket",
       body: "Recorded for FE-3226's AC-9 scheduling capture.",
-      ticket_department_id: "8d632507-9806-5d1e-33eb-8174e234e98d",
+      ticket_department_id: liveDepartmentId,
       settings: { scheduled_datetime: future },
       case: "schedule-attempt"
     });
@@ -252,7 +328,7 @@ describe("Tickets API Fixtures Generator", () => {
     const { status, body } = await generator.post("/api/tickets", {
       subject: "Fixture write-cycle ticket",
       body: "Recorded for FE-3226's write-cycle capture.",
-      ticket_department_id: "8d632507-9806-5d1e-33eb-8174e234e98d"
+      ticket_department_id: liveDepartmentId
     });
     generator.clearBearerToken();
     if (status !== 200 && status !== 201) {
@@ -264,6 +340,7 @@ describe("Tickets API Fixtures Generator", () => {
       throw new Error("Create capture returned no ticket id.");
     }
     throwawayTicketId = data.id;
+    throwawayReference = data.reference;
   });
 
   it("captures GET tickets/{id} (rich `with`, AC-11/12)", async () => {
@@ -272,7 +349,236 @@ describe("Tickets API Fixtures Generator", () => {
       `/api/tickets/${throwawayTicketId}?with=client,contract_product,department`
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Single-ticket capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Single-ticket capture returned ${status}.`);
+  });
+
+  it("reads live contract_product ids for the client (AC-13/AC-7 route)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.get(
+      "/api/contract_products?limit=5&case=lookup"
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(`Contract-product lookup returned ${status}.`);
+    }
+    const rows = (body as { data?: Array<{ id: string }> })?.data ?? [];
+    if (rows.length < 2) {
+      throw new Error(
+        `Contract-product lookup returned ${rows.length} row(s) — need at ` +
+          "least 2 real contract products to prove link + change."
+      );
+    }
+    contractProductId1 = rows[0].id;
+    contractProductId2 = rows[1].id;
+  });
+
+  it("captures PUT tickets/{id} {contract_product_id} — LINK the first product (AC-13)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.put(
+      `/api/tickets/${throwawayTicketId}?case=link-product`,
+      { contract_product_id: contractProductId1 }
+    );
+    generator.clearBearerToken();
+    if (status !== 200)
+      throw new Error(`Link-product capture returned ${status}.`);
+  });
+
+  it("captures GET tickets/{id}?with=contract_product while LINKED (AC-13)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/tickets/${throwawayTicketId}?with=contract_product&case=linked`
+    );
+    generator.clearBearerToken();
+    if (status !== 200) throw new Error(`Linked read-back returned ${status}.`);
+  });
+
+  it("captures GET tickets?filter[contract_product_id]=<id> (product-scoped list, AC-7)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.get(
+      `/api/tickets?filter[contract_product_id]=${contractProductId1}&with_staged_imports=1&with=client,contract_product,department&case=product-scoped`
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(`Product-scoped list capture returned ${status}.`);
+    }
+    const total = (body as { total?: number })?.total ?? 0;
+    if (total < 1) {
+      throw new Error(
+        `Product-scoped list returned total=${total} — the link did not take ` +
+          "effect before this read."
+      );
+    }
+  });
+
+  it("captures PUT tickets/{id} {contract_product_id} — CHANGE to the second product (AC-13)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.put(
+      `/api/tickets/${throwawayTicketId}?case=change-product`,
+      { contract_product_id: contractProductId2 }
+    );
+    generator.clearBearerToken();
+    if (status !== 200)
+      throw new Error(`Change-product capture returned ${status}.`);
+  });
+
+  it("captures GET tickets/{id}?with=contract_product after CHANGE (AC-13)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/tickets/${throwawayTicketId}?with=contract_product&case=changed`
+    );
+    generator.clearBearerToken();
+    if (status !== 200)
+      throw new Error(`Changed read-back returned ${status}.`);
+  });
+
+  it("captures PUT tickets/{id} {contract_product_id: null} — UNLINK (AC-13)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.put(
+      `/api/tickets/${throwawayTicketId}?case=unlink-product`,
+      { contract_product_id: null }
+    );
+    generator.clearBearerToken();
+    if (status !== 200)
+      throw new Error(`Unlink-product capture returned ${status}.`);
+  });
+
+  it("captures GET tickets/{id}?with=contract_product after UNLINK (AC-13)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/tickets/${throwawayTicketId}?with=contract_product&case=unlinked`
+    );
+    generator.clearBearerToken();
+    if (status !== 200)
+      throw new Error(`Unlinked read-back returned ${status}.`);
+  });
+
+  it("resolves the live brand_id for the upload capture (AC-23 route)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.get(
+      "/api/self?with=actor.brand&case=brand-lookup"
+    );
+    generator.clearBearerToken();
+    if (status !== 200)
+      throw new Error(`Self/brand lookup returned ${status}.`);
+    const data = (
+      body as {
+        data?: { brand_id?: string; actor?: { brand?: { id?: string } } };
+      }
+    )?.data;
+    const id = data?.brand_id ?? data?.actor?.brand?.id;
+    if (!id)
+      throw new Error("Could not resolve a live brand_id from /api/self.");
+    brandId = id;
+  });
+
+  it("captures POST ticket_messages/files — multipart upload (AC-23)", async () => {
+    const form = new FormData();
+    form.append(
+      "file",
+      new Blob(["FE-3226 fixture capture attachment.\n"], {
+        type: "text/plain"
+      }),
+      "fe-3226-fixture-attachment.txt"
+    );
+    form.append("brand_id", brandId);
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.post(
+      "/api/ticket_messages/files?case=upload",
+      form
+    );
+    generator.clearBearerToken();
+    if (status !== 200 && status !== 201) {
+      throw new Error(
+        `Upload capture returned ${status} — ${JSON.stringify(body)}`
+      );
+    }
+    // The real response wraps the uploaded row in an array — [{id, ...}] —
+    // never a bare object.
+    const data = (body as { data?: Array<{ id?: string }> })?.data?.[0];
+    if (!data?.id) throw new Error("Upload capture returned no file id.");
+    uploadedFileId = data.id;
+  });
+
+  it("captures POST tickets/{id}/replies carrying the uploaded file (AC-23 handoff into AC-17)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.post(
+      `/api/tickets/${throwawayTicketId}/replies?case=with-file`,
+      {
+        body: "Recorded reply with an attachment for FE-3226.",
+        files: [{ id: uploadedFileId }]
+      }
+    );
+    generator.clearBearerToken();
+    if (status !== 200 && status !== 201) {
+      throw new Error(
+        `File-bearing reply capture returned ${status} — ${JSON.stringify(body)}`
+      );
+    }
+    const data = (body as { data?: { id?: string } })?.data;
+    if (!data?.id)
+      throw new Error("File-bearing reply capture returned no message id.");
+    fileReplyMessageId = data.id;
+  });
+
+  it("captures GET ticket_messages/files/{fileId}/download (AC-20)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/ticket_messages/files/${uploadedFileId}/download`,
+      undefined,
+      undefined,
+      "binary"
+    );
+    generator.clearBearerToken();
+    if (status !== 200) throw new Error(`Download capture returned ${status}.`);
+  });
+
+  it("captures DELETE tickets/{id}/messages/{messageId}/files/{fileId} (AC-21)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.delete(
+      `/api/tickets/${throwawayTicketId}/messages/${fileReplyMessageId}/files/${uploadedFileId}`
+    );
+    generator.clearBearerToken();
+    if (status !== 200)
+      throw new Error(`Delete-attachment capture returned ${status}.`);
+  });
+
+  it("captures GET tickets query=<real reference fragment> (Q6/R13(a) probe 1 — reference coverage, BINDING)", async () => {
+    if (!throwawayReference) {
+      throw new Error(
+        "No real ticket reference to probe with — the create capture must run first."
+      );
+    }
+    const fragment = throwawayReference.slice(
+      0,
+      Math.max(4, Math.floor(throwawayReference.length / 2))
+    );
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/tickets?with=client,contract_product,department&with_staged_imports=1&query=${encodeURIComponent(fragment)}&limit=10&case=search-reference-fragment`
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(`Q6 reference-fragment probe returned ${status}.`);
+    }
+  });
+
+  it("captures GET tickets query=<real message-body-only term> (Q6/R13(a) probe 2 — the BINDING body-coverage probe)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.get(
+      "/api/tickets?with=client,contract_product,department&with_staged_imports=1&query=Recorded%20reply%20for%20FE-3226&limit=10&case=search-body-only"
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(`Q6 body-only probe returned ${status}.`);
+    }
+    const total = (body as { total?: number })?.total ?? 0;
+    console.log(
+      `Q6/R13(a) BINDING RESULT: body-only probe total=${total} — ` +
+        (total === 0
+          ? "0 rows: the AC-6 message-body-search drop's premise is CONFIRMED; the drop may become final on this server receipt."
+          : "ROWS RETURNED: the AC-6 message-body-search drop's premise is REFUTED. The signed drop (op:FE-3226#AC6-ruling-2026-09-14) does not cover a disproven premise — do NOT treat AC-6 as settled; escalate per R13(a) before any re-signing.")
+    );
   });
 
   it("captures GET tickets/{id}/messages (limit+1 probe, AC-14/15)", async () => {
@@ -305,7 +611,8 @@ describe("Tickets API Fixtures Generator", () => {
       `/api/tickets/${throwawayTicketId}/messages/${throwawayReplyId}?with=files`
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Single-message capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Single-message capture returned ${status}.`);
   });
 
   it("captures PUT tickets/{id}/replies/{replyId} (edit own message, AC-18)", async () => {
@@ -315,7 +622,8 @@ describe("Tickets API Fixtures Generator", () => {
       { body: "Recorded reply for FE-3226, corrected." }
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Edit-reply capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Edit-reply capture returned ${status}.`);
   });
 
   it("captures a second real reply to withdraw (AC-19 needs its own subject, distinct from AC-18's edited one)", async () => {
@@ -329,7 +637,8 @@ describe("Tickets API Fixtures Generator", () => {
       throw new Error(`Second reply capture returned ${status}.`);
     }
     const data = (body as { data?: { id?: string } })?.data;
-    if (!data?.id) throw new Error("Second reply capture returned no message id.");
+    if (!data?.id)
+      throw new Error("Second reply capture returned no message id.");
     withdrawReplyId = data.id;
   });
 
@@ -339,7 +648,8 @@ describe("Tickets API Fixtures Generator", () => {
       `/api/tickets/${throwawayTicketId}/messages/${withdrawReplyId}?reason=${encodeURIComponent("Recorded withdrawal for FE-3226.")}`
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Delete-message capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Delete-message capture returned ${status}.`);
   });
 
   it("captures GET tickets/{id}/messages after withdrawal (Q5 — the real deleted_at value)", async () => {
@@ -348,7 +658,8 @@ describe("Tickets API Fixtures Generator", () => {
       `/api/tickets/${throwawayTicketId}/messages?with=files&filter[is_log]=0&order=-created_at&limit=11&case=after-withdraw`
     );
     generator.clearBearerToken();
-    if (status !== 200) throw new Error(`Post-withdraw thread capture returned ${status}.`);
+    if (status !== 200)
+      throw new Error(`Post-withdraw thread capture returned ${status}.`);
   });
 
   it("captures GET hooks/logs/client/{clientId} (status-log feed, AC-22)", async () => {
@@ -448,9 +759,20 @@ describe("Tickets API Fixtures Generator", () => {
     });
     generator.clearBearerToken();
     if (read.status !== 200 || write.status !== 200) {
-      console.log("PREFS before-body", JSON.stringify(before.body).slice(0, 500));
-      console.log("PREFS read-body", read.status, JSON.stringify(read.body).slice(0, 500));
-      console.log("PREFS write-body", write.status, JSON.stringify(write.body).slice(0, 500));
+      console.log(
+        "PREFS before-body",
+        JSON.stringify(before.body).slice(0, 500)
+      );
+      console.log(
+        "PREFS read-body",
+        read.status,
+        JSON.stringify(read.body).slice(0, 500)
+      );
+      console.log(
+        "PREFS write-body",
+        write.status,
+        JSON.stringify(write.body).slice(0, 500)
+      );
       throw new Error(
         `Prefs read/write capture returned ${read.status}/${write.status}.`
       );
@@ -482,4 +804,144 @@ describe("Tickets API Fixtures Generator", () => {
           : "NO ticket-level delegation exists on staging today (FE-3041/DG-2 not yet built) — disclosed capture gap, not fabricated.")
     );
   });
+
+  it("invites a real delegate over the ORDINARY client path so a co-mingled ticket list can be captured (AC-10, R12/R13(c))", async () => {
+    const memberToken = await mintToken({
+      grant_type: GrantTypes.PASSWORD,
+      username: API_CREDENTIALS.delegateMember.username,
+      password: API_CREDENTIALS.delegateMember.password
+    });
+    if (!memberToken) {
+      console.log(
+        "AC-10 reuse: could not mint the delegate-member token — treat as an unresolved capture gap, not a green fixture."
+      );
+      return;
+    }
+
+    // Revoke any standing grant from an earlier run first — this run must
+    // perform a REAL invite -> accept cycle, not re-read a stale outcome.
+    // Control calls, mirroring delegates.fixtures.ts; never recorded.
+    const existing = (await control(
+      API_URL,
+      ORIGIN,
+      "GET",
+      `/api/clients/${clientId}/delegates`,
+      clientToken.access_token
+    )) as Envelope<Array<{ id: string; invite_email: string }>>;
+    for (const row of existing?.data ?? []) {
+      if (row.invite_email !== API_CREDENTIALS.delegateMember.username)
+        continue;
+      await control(
+        API_URL,
+        ORIGIN,
+        "DELETE",
+        `/api/clients/${clientId}/delegates/${row.id}`,
+        clientToken.access_token
+      );
+    }
+
+    const knownEmailIds = new Set(
+      (
+        (await control(
+          API_URL,
+          ORIGIN,
+          "GET",
+          "/api/self/email_history?order=-created_at&limit=25",
+          memberToken.access_token
+        )) as Envelope<WireEmailRow[]>
+      )?.data?.map(row => row.id) ?? []
+    );
+
+    generator.setBearerToken(clientToken.access_token);
+    const invite = await generator.post(
+      `/api/clients/${clientId}/delegates?case=ticket-comingle-invite`,
+      {
+        delegate_email: API_CREDENTIALS.delegateMember.username,
+        full_delegate: true
+      }
+    );
+    generator.clearBearerToken();
+    if (invite.status !== 200) {
+      throw new Error(`Delegate invite capture returned ${invite.status}.`);
+    }
+
+    let invitationEmailId: string | undefined;
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      const rows = (await control(
+        API_URL,
+        ORIGIN,
+        "GET",
+        "/api/self/email_history?order=-created_at&limit=25",
+        memberToken.access_token
+      )) as Envelope<WireEmailRow[]>;
+      const fresh = (rows?.data ?? []).find(
+        row => !knownEmailIds.has(row.id) && row.subject === INVITATION_SUBJECT
+      );
+      if (fresh) {
+        invitationEmailId = fresh.id;
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    if (!invitationEmailId) {
+      throw new Error(
+        `No "${INVITATION_SUBJECT}" reached the invitee's email history within 60s of the invite.`
+      );
+    }
+
+    const email = (await control(
+      API_URL,
+      ORIGIN,
+      "GET",
+      `/api/emails/${invitationEmailId}?with=data`,
+      memberToken.access_token
+    )) as Envelope<{ data?: { body?: string } }>;
+    const match = ACCEPT_LINK.exec(email?.data?.data?.body ?? "");
+    if (!match) {
+      throw new Error(
+        "The invitation email carries no /delegate_access/accept/{hash} link."
+      );
+    }
+
+    generator.setBearerToken(memberToken.access_token);
+    const accept = await generator.patch(
+      `/api/delegate_access/accept/${match[1]}?case=ticket-comingle-accept`
+    );
+    generator.clearBearerToken();
+    if (accept.status !== 200) {
+      throw new Error(`Delegate accept capture returned ${accept.status}.`);
+    }
+
+    generator.setBearerToken(memberToken.access_token);
+    const list = await generator.get(
+      "/api/tickets?with=delegates,delegates.client&with_staged_imports=1&limit=10&case=delegated-in"
+    );
+    generator.clearBearerToken();
+    if (list.status !== 200) {
+      throw new Error(`Delegated-in list capture returned ${list.status}.`);
+    }
+    const rows =
+      (
+        list.body as {
+          data?: Array<{ id: string; is_delegated_object?: boolean }>;
+        }
+      )?.data ?? [];
+    if (!rows.some(row => row.is_delegated_object)) {
+      throw new Error(
+        "Delegated-in list capture returned no row with is_delegated_object — " +
+          "the accept may not have taken effect before this read."
+      );
+    }
+
+    generator.setBearerToken(memberToken.access_token);
+    const single = await generator.get(
+      `/api/tickets/${throwawayTicketId}?with=delegates,delegates.client&case=delegated-in`
+    );
+    generator.clearBearerToken();
+    if (single.status !== 200) {
+      throw new Error(
+        `Delegated-in single-ticket capture returned ${single.status}.`
+      );
+    }
+  }, 90000);
 });
