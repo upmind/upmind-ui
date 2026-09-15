@@ -76,12 +76,31 @@ const { resolve } = account.useActions();
 
 ### Which methods are available?
 
-| Actor    |          `.for(type, id)`          | `.inBrand(id)` |         `.fresh()`         | `.withId(id)` |
-| -------- | :--------------------------------: | :------------: | :------------------------: | :-----------: |
-| `self`   |                 —                  |       —        |             —              |      ✅       |
-| `guest`  | if matrix defines a guest context  |       —        | if matrix gives it context |      ✅       |
+| Actor    |            `.for(…)`             | `.inBrand(id)` |         `.fresh()`         | `.withId(id)` |
+| -------- | :------------------------------: | :------------: | :------------------------: | :-----------: |
+| `self`   |                —                 |       —        |             —              |      ✅       |
+| `guest`  | if matrix defines a guest context |       —        | if matrix gives it context |      ✅       |
 | `client` | if matrix defines a client context |       —        | if matrix gives it context |      ✅       |
-| `staff`  | if matrix defines a staff context  |  ✅ (always)   |        ✅ (always)         |      ✅       |
+| `staff`  | if matrix defines a staff context |  ✅ (always)   |        ✅ (always)         |      ✅       |
+
+### `.for()` has two shapes, and a context member declares which one it is
+
+A context answers *what the actor is scoped to*. Sometimes that answer names an
+entity, and sometimes the type IS the whole answer:
+
+| Pattern      | Call shape        | The id means                        | Example                              |
+| ------------ | ----------------- | ----------------------------------- | ------------------------------------ |
+| **Retarget** | `.for(type, id)`  | the entity the actor acts upon      | `.as(STAFF).for(CLIENT, clientId)`   |
+| **Selector** | `.for(type)`      | *nothing — there is no entity*      | `.as(CLIENT).for(CANCEL_REQUEST)`    |
+
+The two are **mutually exclusive per member**, declared in the matrix and enforced
+at compile time. Passing an id to a selector is a type error; omitting one on a
+retarget is a type error. A bare string cell stays a retarget, so every matrix
+written before this existed keeps its meaning unchanged.
+
+The id is never the channel for "which record this instance reads" — that is
+`.withId(id)`, and an id has no business riding in `.for()` (ADR-001 amendment,
+2026-09-15).
 
 Availability is enforced at **compile time**. Calling `.for()` with a context type
 the matrix does not map to that actor is a type error, not a runtime failure — and

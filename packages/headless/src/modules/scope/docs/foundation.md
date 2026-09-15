@@ -85,7 +85,7 @@ type DisposableEffectScope = { stop: () => void };
 // Who acts, and (optionally) on what.
 type ScopeConfig = {
   actor: "self" | "guest" | "client" | "staff"; // resolved to a concrete actor pre-key
-  context?: { type: string; id: string }; // matrix-constrained
+  context?: { type: string; id?: string }; // matrix-constrained; `id` only on a RETARGET member
   id?: string; // the ONE record being read; no matrix constraint, any actor may set it
   brandId?: string; // a filter, not a context
   newSession?: boolean; // set by "force fresh"; spawns a new instance

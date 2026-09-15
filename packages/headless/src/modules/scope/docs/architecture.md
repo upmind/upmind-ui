@@ -144,6 +144,13 @@ actor is offered. [scope.types.ts](../scope.types.ts) derives, from the module's
 | `client` / `guest` | `.for()`                          | only if matrix maps that actor → a context type          |
 | `self`             | neither                           | resolves at runtime; no compile-time context is knowable |
 
+`.for()` is **overloaded** on the matrix's per-member pattern. A RETARGET member
+admits `.for(type, id)` only; a SELECTOR member admits `.for(type)` only. Each
+member yields exactly one legal call shape, including within a single cell that
+declares both — `IdContextsForActor` and `BareContextsForActor` split what the
+cell yields, and the unused overload's parameter resolves to `never`, so it
+cannot be called.
+
 The matrix is passed to `createScopedComposable` **twice**: as the type parameter
 `TMatrix` (which drives the table above) and as an `as const` value, which is stored on
 `composable.scopeMatrix` so runtime consumers can read which actors a module serves. Type
