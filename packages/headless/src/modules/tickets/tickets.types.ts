@@ -220,13 +220,16 @@ export type TicketFeedEntry =
 /**
  * The `POST api/ticket_messages/files` upload-response row (FE-3226 R12
  * capture receipt, `tickets.services.ts:603`) — recorded RICHER than the
- * legacy `{id,hash}` reduction, and `hash` is NOT among its proven members.
- * `graphify query "TicketAttachmentRef"` against `graphify-out/graph.json`
- * (2026-09-15) confirms this is the sole existing declaration (`L214`), so
- * this is a correction, not a new type. `packages/types`' `ITicketMessagePayload.files`
- * stays the separate request-side `{id,hash}` shape (`research.md` Q10) —
- * this type is the response only, never forced into that request shape or
- * the reverse.
+ * legacy `{id,hash}` reduction: the live row carries 26 fields, `hash`
+ * included (R14 — corrects R12's truncated-probe misreading; `hash` was
+ * never absent, only unmodeled). This type models the subset the module
+ * consumes; it is a deliberate narrowing, not a claim that the wire row
+ * has only these members. `graphify query "TicketAttachmentRef"` against
+ * `graphify-out/graph.json` (2026-09-15) confirms this is the sole existing
+ * declaration (`L214`), so this is a correction, not a new type.
+ * `packages/types`' `ITicketMessagePayload.files` stays the separate
+ * request-side `{id,hash}` shape (`research.md` Q10) — this type is the
+ * response only, never forced into that request shape or the reverse.
  */
 export type TicketAttachmentRef = {
   id: string;
