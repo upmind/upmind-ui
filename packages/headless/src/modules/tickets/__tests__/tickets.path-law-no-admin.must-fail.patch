@@ -1,15 +1,15 @@
 # must-fail: 08-path-law-no-admin
 # Target assertion: the path-law guard spec — asserts no api/admin/ string is ever issued from the client path
 diff --git a/packages/headless/src/modules/tickets/tickets.services.ts b/packages/headless/src/modules/tickets/tickets.services.ts
-index 5418e6e3c..427a47085 100644
+index 006566f81..e82123f12 100644
 --- a/packages/headless/src/modules/tickets/tickets.services.ts
 +++ b/packages/headless/src/modules/tickets/tickets.services.ts
-@@ -151,7 +151,7 @@ function loadList(scopeContext?: ScopeContext): TicketsListQuery {
-   return list<ITicket[], Ticket[], TicketsQueryModel>({
-     criteria: { schema: useQuerySchema() },
-     queryKey: [...queryKey, { client: clientId }],
--    url: useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 }),
-+    url: useUrl("admin/tickets", { with: LIST_WITH, with_staged_imports: 1 }),
-     withAccessToken: true,
-     withSplitCount: true,
-     guard: async () => {
+@@ -227,7 +227,7 @@ function loadList(
+ ): TicketsListQuery {
+   const { list, useUrl } = useQuery();
+   const clientId = resolveClientId(scopeContext);
+-  const url = useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 });
++  const url = useUrl("admin/tickets", { with: LIST_WITH, with_staged_imports: 1 });
+   const schema = useQuerySchema();
+ 
+   const ticketsList = list<ITicket[], Ticket[], TicketsQueryModel>({
