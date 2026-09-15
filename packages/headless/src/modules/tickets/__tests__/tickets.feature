@@ -58,6 +58,12 @@
 #   data-provenance, 2026-08-05), never a shortcut. If a capture genuinely fails, HALT
 #   and report the exact HTTP status and error body. A suite red because of these six is
 #   now an OPEN CAPTURE BACKLOG (tasks.md T32-T39), no longer an accepted end state.
+#   [R13(b), 2026-09-15, tier 1] SETTLED AT THE PLAN GATE: "not yet captured, with a
+#   proven client-path route and a scheduled task" is NOT a JTBD-contradicting drop —
+#   only a capability the story REFUSES to deliver is one. The plan gate must not block
+#   the capture that would settle it, and this backlog is reported through the suite and
+#   the traceability gate, both already red and honest. Do not re-open the spec set to
+#   re-litigate these six.
 #
 # R9 AND R11 CHANGED NOTHING IN THIS FILE, and that is a finding, not an oversight.
 # R9 moves a criteria KEY SPELLING (status.code -> an undotted key, translated back to
@@ -153,17 +159,28 @@ Feature: A client runs their own support conversations
     And a term of only two characters searches nothing at all
     And a term revised several times in quick succession searches once, for the term I settled on
 
-  # [R12, 2026-09-15] PREMISE UNPROVEN — read before trusting this scenario.
+  # [R13(a), 2026-09-15, tier 1 — the ruling that SETTLES this scenario; the finding was
+  # first recorded under R12 and is RATIFIED AS A CONDITIONAL by R13(a)] THE DROP IS
+  # PROVISIONAL, NOT FINAL — read before trusting this scenario.
   # The @dropped tag is consistent with parity.yaml's signed NOT-SUPPORTED disposition
-  # for message-body-search, so it is NOT removed here. But that disposition rests on a
+  # for message-body-search, so it is NOT removed here: R13(a) rules the drop STANDS for
+  # now, because the operator's standing intent is match-legacy and nothing yet
+  # contradicts it. It is not re-scoped on suspicion. But that disposition rests on a
   # CLIENT-CODE reading, not a server receipt: the one recorded probe returns two rows
   # that BOTH match on subject, so reference coverage is unproven and body coverage is
-  # NOT ruled out. R12 orders two probes (tasks.md T37) — a reference-fragment probe and
-  # a body-only probe. IF THE BODY-ONLY PROBE RETURNS ROWS this scenario is FALSE and
-  # the disposition is refuted: correct the scenario and re-escalate the drop to the
-  # operator (T39). Do not assert it in the meantime. NOTE the gate's limit: @dropped
-  # excludes this scenario from tickets.traceability.test.ts, and the gate is AC-granular
-  # anyway, so nothing mechanical can catch this claim — only the probe can.
+  # NOT ruled out. R13(a) makes tasks.md T37's two probes BINDING, not optional — a
+  # reference-fragment probe and a body-only probe — and they bind BOTH ways:
+  #   body-only probe returns 0 ROWS  -> premise CONFIRMED; parity.yaml's
+  #     premise_unproven is cleared and the drop becomes final on a server receipt.
+  #   body-only probe returns ROWS    -> premise REFUTED; THE SIGNED DROP IS VOID (the
+  #     token op:FE-3226#AC6-ruling-2026-09-14 does not cover a disproven premise).
+  #     Remove @dropped from this scenario, re-scope AC-6 to whatever query= actually
+  #     covers, and T39 RE-ESCALATES to the operator before anything is re-signed.
+  # Until T37 runs this is a RECORDED CONDITIONAL, not an unresolved contradiction — do
+  # not assert the claim in the meantime, and do not re-open the spec set to re-litigate
+  # it. NOTE the gate's limit: @dropped excludes this scenario from
+  # tickets.traceability.test.ts, and the gate is AC-granular anyway, so nothing
+  # mechanical can catch this claim — only the probe can.
   @AC-6 @collection @search @dropped
   Scenario: Searching does not reach inside message bodies
     Given one of my tickets contains a word only in the body of a message
