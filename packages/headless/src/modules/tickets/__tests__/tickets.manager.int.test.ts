@@ -45,17 +45,8 @@ import "./setup.integration";
 // -----------------------------------------------------------------------------
 
 function manager(id: string = RECORDED_TICKET_ID) {
-  return (
-    useClientTicket() as unknown as {
-      as: (actor: ScopeActorTypes) => {
-        for: (
-          context: TicketContextTypes,
-          contextId: string
-        ) => ReturnType<typeof useClientTicket>;
-      };
-    }
-  )
-    .as(ScopeActorTypes.SELF)
+  return useClientTicket()
+    .as(ScopeActorTypes.CLIENT)
     .for(TicketContextTypes.TICKET, id);
 }
 
@@ -66,11 +57,15 @@ describe("tickets manager — one ticket's detail (AC-11)", () => {
     const observed = observeTicketsRequests();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     observed.stop();
     assertNoAdminPath(observed.all());
 
-    const fixture = recorded.one() as { data: { id: string; reference: string } };
+    const fixture = recorded.one() as {
+      data: { id: string; reference: string };
+    };
     expect(ticket.useContext().data.value?.id).toBe(fixture.data.id);
     expect(ticket.useContext().data.value?.reference).toBe(
       fixture.data.reference
@@ -84,7 +79,9 @@ describe("tickets manager — lifecycle state derivation (AC-12)", () => {
     installTicketsHandlers();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
 
     const fixture = recorded.one() as { data: { settings?: unknown } };
     expect(fixture.data.settings).toBeUndefined();
@@ -103,10 +100,15 @@ describe("tickets manager — the conversation, newest first, no log rows (AC-14
     const observed = observeTicketsRequests();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     await ticket.useActions().loadOlder();
     await vi.waitFor(
-      () => expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(0),
+      () =>
+        expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(
+          0
+        ),
       { timeout: 2000 }
     );
     observed.stop();
@@ -120,9 +122,9 @@ describe("tickets manager — the conversation, newest first, no log rows (AC-14
     // (10, 20, 25, 50, ...) — an even/round limit means the probe was lost.
     expect(Number(limitParam)).not.toBe(0);
     expect([10, 20, 25, 50, 100]).not.toContain(Number(limitParam));
-    expect(Number(limitParam) - 1 > 0 && (Number(limitParam) - 1) % 5 === 0).toBe(
-      true
-    );
+    expect(
+      Number(limitParam) - 1 > 0 && (Number(limitParam) - 1) % 5 === 0
+    ).toBe(true);
 
     const fixture = recorded.messages() as {
       data: Array<{ id: string; is_log: boolean }>;
@@ -147,7 +149,9 @@ describe("tickets manager — thread cursor direction (AC-15)", () => {
     installTicketsHandlers();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     await ticket.useActions().loadOlder();
     await vi.waitFor(() =>
       expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(0)
@@ -178,32 +182,32 @@ describe("tickets manager — reply when an agent has replied first (AC-17)", ()
     await seedClientSession();
     installTicketsHandlers();
     server?.use(
-      http.post(
-        "*/api/tickets/:id/replies",
-        () =>
-          HttpResponse.json(
-            {
-              status: "error",
-              data: null,
-              related: null,
-              total: null,
-              error: {
-                id: "conflict",
-                type: 0,
-                code: "ticket_has_more_recent_reply",
-                message: "A more recent reply exists.",
-                data: null
-              },
-              messages: [],
-              meta: null
+      http.post("*/api/tickets/:id/replies", () =>
+        HttpResponse.json(
+          {
+            status: "error",
+            data: null,
+            related: null,
+            total: null,
+            error: {
+              id: "conflict",
+              type: 0,
+              code: "ticket_has_more_recent_reply",
+              message: "A more recent reply exists.",
+              data: null
             },
-            { status: 409 }
-          )
+            messages: [],
+            meta: null
+          },
+          { status: 409 }
+        )
       )
     );
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
 
     await expect(
       ticket.useActions().reply("Racing reply")
@@ -217,7 +221,9 @@ describe("tickets manager — re-reading one message (AC-16)", () => {
     installTicketsHandlers();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     await ticket.useActions().loadOlder();
     await vi.waitFor(() =>
       expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(0)
@@ -249,7 +255,8 @@ describe("tickets manager — re-reading one message (AC-16)", () => {
       .all()
       .find(
         request =>
-          request.method === "GET" && request.url.includes(`/messages/${target.id}`)
+          request.method === "GET" &&
+          request.url.includes(`/messages/${target.id}`)
       );
     expect(getRequest).toBeDefined();
     expect(refreshed.id).toBe(target.id);
@@ -274,7 +281,9 @@ describe("tickets manager — correcting a message I own (AC-18)", () => {
     const observed = observeTicketsRequests();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     await ticket.useActions().loadOlder();
     await vi.waitFor(() =>
       expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(0)
@@ -292,8 +301,7 @@ describe("tickets manager — correcting a message I own (AC-18)", () => {
     const editRequest = observed
       .all()
       .find(
-        request =>
-          request.method === "PUT" && request.url.includes("/replies/")
+        request => request.method === "PUT" && request.url.includes("/replies/")
       );
     expect(editRequest).toBeDefined();
   });
@@ -311,7 +319,9 @@ describe("tickets manager — correcting a message I own (AC-18)", () => {
     });
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     await ticket.useActions().loadOlder();
     await vi.waitFor(() =>
       expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(0)
@@ -319,12 +329,19 @@ describe("tickets manager — correcting a message I own (AC-18)", () => {
 
     const observed = observeTicketsRequests();
     await expect(
-      ticket.useActions().editMessage(notMine.id as string, "Not mine to correct")
+      ticket
+        .useActions()
+        .editMessage(notMine.id as string, "Not mine to correct")
     ).rejects.toThrow();
     observed.stop();
 
     expect(
-      observed.all().some(request => request.method === "PUT" && request.url.includes("/replies/"))
+      observed
+        .all()
+        .some(
+          request =>
+            request.method === "PUT" && request.url.includes("/replies/")
+        )
     ).toBe(false);
   });
 });
@@ -343,7 +360,9 @@ describe("tickets manager — withdrawing a message I own (AC-19)", () => {
     const observed = observeTicketsRequests();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
 
     await ticket
       .useActions()
@@ -378,7 +397,9 @@ describe("tickets manager — withdrawing a message I own (AC-19)", () => {
     });
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     await ticket.useActions().loadOlder();
     await vi.waitFor(() =>
       expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(0)
@@ -386,7 +407,9 @@ describe("tickets manager — withdrawing a message I own (AC-19)", () => {
 
     const observed = observeTicketsRequests();
     await expect(
-      ticket.useActions().deleteMessage(notMine.id as string, "Not mine to withdraw")
+      ticket
+        .useActions()
+        .deleteMessage(notMine.id as string, "Not mine to withdraw")
     ).rejects.toThrow();
     observed.stop();
 
@@ -402,7 +425,9 @@ describe("tickets manager — reopen a closed ticket (AC-25)", () => {
     installTicketsHandlers();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     expect(ticket.useMeta().canReopen.value).toBe(false);
 
     const observed = observeTicketsRequests();
@@ -412,7 +437,9 @@ describe("tickets manager — reopen a closed ticket (AC-25)", () => {
     expect(
       observed
         .all()
-        .some(request => request.method === "PUT" && request.url.includes("/status"))
+        .some(
+          request => request.method === "PUT" && request.url.includes("/status")
+        )
     ).toBe(false);
   });
 
@@ -431,7 +458,9 @@ describe("tickets manager — reopen a closed ticket (AC-25)", () => {
     );
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     expect(ticket.useMeta().canReopen.value).toBe(true);
 
     const observed = observeTicketsRequests();
@@ -441,8 +470,7 @@ describe("tickets manager — reopen a closed ticket (AC-25)", () => {
     const reopenRequest = observed
       .all()
       .find(
-        request =>
-          request.method === "PUT" && request.url.includes("/status")
+        request => request.method === "PUT" && request.url.includes("/status")
       );
     expect(reopenRequest).toBeDefined();
   });
@@ -455,7 +483,9 @@ describe("tickets manager — close a locked ticket (AC-24)", () => {
     const observed = observeTicketsRequests();
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     expect(ticket.useMeta().isLocked.value).toBe(false);
 
     await ticket.useActions().close();
@@ -464,8 +494,7 @@ describe("tickets manager — close a locked ticket (AC-24)", () => {
     const closeRequest = observed
       .all()
       .find(
-        request =>
-          request.method === "PUT" && request.url.includes("/status")
+        request => request.method === "PUT" && request.url.includes("/status")
       );
     expect(closeRequest).toBeDefined();
   });
@@ -482,7 +511,9 @@ describe("tickets manager — close a locked ticket (AC-24)", () => {
     });
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     expect(ticket.useMeta().isLocked.value).toBe(true);
 
     const observed = observeTicketsRequests();
@@ -493,8 +524,7 @@ describe("tickets manager — close a locked ticket (AC-24)", () => {
       observed
         .all()
         .some(
-          request =>
-            request.method === "PUT" && request.url.includes("/status")
+          request => request.method === "PUT" && request.url.includes("/status")
         )
     ).toBe(false);
   });
@@ -514,10 +544,15 @@ describe("tickets manager — status-log entries merge into the feed (AC-22)", (
     server?.events.on("request:start", listener);
 
     const ticket = manager();
-    await vi.waitFor(() => expect(!!ticket.useContext().data.value?.id).toBe(true));
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
     await ticket.useActions().loadOlder();
     await vi.waitFor(
-      () => expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(0),
+      () =>
+        expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(
+          0
+        ),
       { timeout: 2000 }
     );
 
@@ -565,5 +600,3 @@ describe("tickets manager — leaving the ticket stops watching it (AC-29)", () 
     }
   });
 });
-
-

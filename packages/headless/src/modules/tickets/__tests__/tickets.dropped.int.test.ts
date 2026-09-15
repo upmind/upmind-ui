@@ -42,17 +42,8 @@ describe("tickets — AC-26/AC-28 dropped capabilities are absent, not silently 
   it("the manager exposes no reschedule / change-department member", async () => {
     await seedClientSession();
     installTicketsHandlers();
-    const ticket = (
-      useClientTicket() as unknown as {
-        as: (actor: ScopeActorTypes) => {
-          for: (
-            context: TicketContextTypes,
-            contextId: string
-          ) => ReturnType<typeof useClientTicket>;
-        };
-      }
-    )
-      .as(ScopeActorTypes.SELF)
+    const ticket = useClientTicket()
+      .as(ScopeActorTypes.CLIENT)
       .for(TicketContextTypes.TICKET, RECORDED_TICKET_ID);
     const actionKeys = Object.keys(ticket.useActions() as object);
     expect(actionKeys).not.toContain("reschedule");
@@ -68,17 +59,8 @@ describe("tickets — AC-26/AC-28 dropped capabilities are absent, not silently 
     await vi.waitFor(() =>
       expect(tickets.useMeta().isLoading.value).toBe(false)
     );
-    const ticket = (
-      useClientTicket() as unknown as {
-        as: (actor: ScopeActorTypes) => {
-          for: (
-            context: TicketContextTypes,
-            contextId: string
-          ) => ReturnType<typeof useClientTicket>;
-        };
-      }
-    )
-      .as(ScopeActorTypes.SELF)
+    const ticket = useClientTicket()
+      .as(ScopeActorTypes.CLIENT)
       .for(TicketContextTypes.TICKET, RECORDED_TICKET_ID);
     await vi.waitFor(() =>
       expect(!!ticket.useContext().data.value?.id).toBe(true)

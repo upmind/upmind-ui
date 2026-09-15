@@ -36,6 +36,35 @@
 #   R6 rules AC30 a NUMBERING SKIP — no criterion was lost — so its scenario is
 #      retired here and the disposition is carried in parity.yaml with its signoff.
 # The @pending-ruling tag is retired. Do not re-add either dropped capability.
+#
+# SIX SCENARIOS ARE PROMISED BUT NOT YET PROVABLE — operator ruling R10, 2026-09-14.
+# AC-7 (product-scoped list), AC-10 (delegated-in), AC-13 (product link/unlink),
+# AC-20 (attachment download), AC-21 (attachment delete) and AC-23 (attachment upload)
+# have NO recorded fixture, because the staging account this story captured from holds
+# no product-scoped ticket, no delegated-in ticket and no message attachment.
+#   THEY STAY. They are NOT dispositioned, NOT tagged @todo, NOT dropped, and NOT
+#   removed from this file. tickets.traceability.test.ts stays RED and honest, returning
+#   exactly [AC-7, AC-10, AC-13, AC-20, AC-21, AC-23]. Do not green it, do not tag
+#   around it, do not weaken or skip the traceability test, do not delete its failing
+#   assertions. Hand-authoring any of these six fixtures — or presenting a hand-authored
+#   one as recorded — is a RUN DEFECT (verify-cosplay data-provenance, 2026-08-05),
+#   never a shortcut. The blocker is a RICHER STAGING ACCOUNT, which the operator is
+#   sourcing. A suite red ONLY because of these six is the EXPECTED end state.
+#
+# R9 AND R11 CHANGED NOTHING IN THIS FILE, and that is a finding, not an oversight.
+# R9 moves a criteria KEY SPELLING (status.code -> an undotted key, translated back to
+# the dotted wire key at the tickets service's own edge — the wire is unchanged). R11
+# corrects a SCOPE-BUILDER SPELLING (.as('self') -> .as(ScopeActorTypes.CLIENT), and
+# deletes a type-erasing cast; .as(CLIENT) IS the client x self cell and is NOT
+# .for('client', id), which stays forbidden). Both are wire-/type-level. This file is at
+# CAPABILITY altitude: it says WHAT must be true and never HOW it is checked. A ruling
+# that changed a scenario here would be a ruling that changed a CAPABILITY. Neither did.
+#
+# ONE GREEN SCENARIO IS VACUOUS, disclosed rather than papered over. "List my open
+# support tickets" (AC-1) replays a fixture whose body is {"data":[],"total":0}, so its
+# row assertion compares [] to [] — true by construction, unable to go red on the data
+# path. That is a CAPTURE defect, not a code defect, and it is NOT one of R10's six.
+# Remedy: re-capture from the same staging account, or leave the vacuity on the record.
 
 @module:tickets @variant:query @cell:client-self @FE-3226
 Feature: A client runs their own support conversations

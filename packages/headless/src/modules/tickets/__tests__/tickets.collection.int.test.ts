@@ -23,7 +23,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { useClientTickets } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
-import { TICKETS_DEFAULT_SORT, TicketsSortableProperties } from "../tickets.types";
+import {
+  TICKETS_DEFAULT_SORT,
+  TicketsSortableProperties
+} from "../tickets.types";
 import {
   assertNoAdminPath,
   installTicketsHandlers,
@@ -47,7 +50,7 @@ describe("tickets collection — my active tickets (AC-1)", () => {
 
     const observed = observeTicketsRequests();
     await tickets.useActions().setCriteria({
-      filters: { "status.code": { neq: "ticket_closed" } }
+      filters: { statusCode: { neq: "ticket_closed" } }
     });
     await vi.waitFor(() =>
       expect(tickets.useMeta().isLoading.value).toBe(false)
@@ -56,7 +59,9 @@ describe("tickets collection — my active tickets (AC-1)", () => {
 
     const request = observed
       .all()
-      .find(r => decodeURIComponent(r.url).includes("filter[status.code|neq]="));
+      .find(r =>
+        decodeURIComponent(r.url).includes("filter[status.code|neq]=")
+      );
     expect(request).toBeDefined();
     expect(request!.url).toContain("with_staged_imports=1");
     expect(decodeURIComponent(request!.url)).toContain(
@@ -86,7 +91,7 @@ describe("tickets collection — my closed tickets (AC-2)", () => {
     handlers.setListBody(recorded.closedList());
     const observed = observeTicketsRequests();
     await tickets.useActions().setCriteria({
-      filters: { "status.code": { eq: "ticket_closed" } }
+      filters: { statusCode: { eq: "ticket_closed" } }
     });
     await vi.waitFor(() =>
       expect(tickets.useMeta().isLoading.value).toBe(false)
@@ -155,9 +160,9 @@ describe("tickets collection — default sort and the reference filter's wire sh
 
     const filterRequest = observed.matching("filter%5Breference%5D=");
     expect(filterRequest.length).toBeGreaterThan(0);
-    expect(
-      observed.all().some(request => request.url.includes("|like"))
-    ).toBe(false);
+    expect(observed.all().some(request => request.url.includes("|like"))).toBe(
+      false
+    );
   });
 });
 
@@ -187,10 +192,16 @@ describe("tickets collection — default sort and explicit ordering (AC-4)", () 
 
     const sortRequest = observed
       .all()
-      .find(request => decodeURIComponent(request.url).includes("order=") && request.url.includes("subject"));
+      .find(
+        request =>
+          decodeURIComponent(request.url).includes("order=") &&
+          request.url.includes("subject")
+      );
     expect(sortRequest).toBeDefined();
 
-    const fixture = recorded.sortedBySubject() as { data: Array<{ id: string }> };
+    const fixture = recorded.sortedBySubject() as {
+      data: Array<{ id: string }>;
+    };
     expect(tickets.useContext().data.value.map(row => row.id)).toEqual(
       fixture.data.map(row => row.id)
     );
@@ -313,5 +324,29 @@ describe("tickets collection — desk + status lookups (AC-31/AC-32)", () => {
     expect((statuses as Array<{ code: string }>).map(row => row.code)).toEqual(
       statusesFixture.data.map(row => row.code)
     );
+  });
+});
+
+describe("tickets collection — a rejected setCriteria surfaces on hasError (R9 fold-in, AC-CE)", () => {
+  it("a criteria validation rejection populates useMeta().hasError, not only useContext().error", async () => {
+    await seedClientSession();
+    installTicketsHandlers();
+
+    const tickets = useClientTickets().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+    expect(tickets.useMeta().hasError.value).toBe(false);
+
+    const observed = observeTicketsRequests();
+    await tickets.useActions().setCriteria({
+      filters: { unrecognisedFilterKey: { eq: "ticket_closed" } } as never
+    });
+    await new Promise(resolve => setTimeout(resolve, 350));
+    observed.stop();
+
+    expect(observed.all().length).toBe(0);
+    expect(tickets.useContext().error.value).toBeTruthy();
+    expect(tickets.useMeta().hasError.value).toBe(true);
   });
 });
