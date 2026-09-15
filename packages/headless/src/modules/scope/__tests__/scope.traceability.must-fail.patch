@@ -1,0 +1,34 @@
+FE-3239 negative control — the scope module's traceability gate (T18).
+
+Target spec:  scope.traceability.test.ts
+Target case:  "carries a scenario for every capability id a spec claims"
+Mutation:     strips `@AC-5` from the inspector scenario in `scope.feature`.
+              `scope.devtools.test.ts` still anchors `AC-5`, so the pair has
+              drifted: the gate MUST name `AC-5` as an id no scenario declares.
+Kind:         RUNTIME. It mutates the artefact the gate reads at run time, so
+              the unit lane sees it.
+Authored by:  prover seat. This mutant touches NO production source — it
+              mutates a `.feature`, which is the prover's own artefact, so the
+              developer-authors-the-mutant routing in
+              `.claude/rules/agent-seat-separation.companion.md` does not bind
+              it. Precedent: `client-email.traceability.must-fail.patch`.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-09-15 at 499334314
+(`pnpm --filter @upmind-automation/headless test:unit --run scope.traceability`):
+  x carries a scenario for every capability id a spec claims
+      -> expected [] to deeply equal [ 'AC-5' ]
+  1 failed | 5 passed, exit 1. Reverted; tree clean.
+
+--- a/packages/headless/src/modules/scope/__tests__/scope.feature
++++ b/packages/headless/src/modules/scope/__tests__/scope.feature
+@@ -68,7 +68,7 @@
+     Then the request addresses the actor's own account
+     And no other account's records are addressed
+ 
+-  @AC-5 @layer-unit
++  @layer-unit
+   Scenario: The inspector reports a catalogue read without inventing an entity
+     # Protects against: the brand filter being reported as the entity being
+     # acted upon, sending an operator to debug a scope that does not exist.

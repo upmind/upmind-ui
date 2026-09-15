@@ -1,0 +1,57 @@
+FE-3239 negative control — AC-2 (the two context patterns are mutually exclusive).
+
+Target spec:  scope.surface.test.ts
+Target case:  "@AC-2 refuses a catalogue read handed an entity id, while the
+              one-argument control stays clean"
+Mutation:     the retarget overload's first argument widens to include the
+              cell's SELECTOR members, collapsing the split that makes each
+              member admit exactly one call shape. `.for("invoice", "c-9")`
+              then compiles, the probe reports no diagnostic, and the case
+              above MUST go RED (expected [7], received []). The one-argument
+              control on line 6 stays clean either way, so a probe that merely
+              failed to resolve cannot be mistaken for this mutation.
+Blast radius: this case ONLY. The other two cases stay green under the
+              mutation — verified, not assumed (see the receipt below). An
+              earlier draft of this header claimed the third case went RED with
+              it; it does not.
+Kind:         TYPE-ONLY. It is inert against every runtime assertion in this
+              module — `packages/headless/vitest.config.ts` declares no
+              `typecheck` block and both tsconfigs exclude `**/__tests__/**`,
+              so the ONLY lane that sees it is this file's `compileProbe`
+              (design.md §6.1). Do not apply it against a runtime case and
+              read the green as a pass.
+Authored by:  prover seat, from `scope.types.ts` — the exported type surface
+              the seat registry grants this seat
+              (`.claude/rules/agent-seat-separation.md` § The seat registry:
+              "public surface (exported types/signatures)").
+              This is a STAND-IN, not the planned control. `tasks.md` T1 and T2
+              own the two TYPE-ONLY mutants this story actually plans
+              (`selector-literal-widening.must-fail.patch`,
+              `for-overload.must-fail.patch`); both are the developer lane's
+              per `.claude/rules/agent-seat-separation.companion.md`, and both
+              are still OWED. See `docs/sdd/FE-3239/evidence/negative-control.md`.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Proven RED 2026-09-15 at 499334314
+(`pnpm --filter @upmind-automation/headless exec vitest run --project unit
+src/modules/scope/__tests__/scope.surface.test.ts`):
+  x @AC-2 refuses a catalogue read handed an entity id, while the one-argument
+    control stays clean
+      -> AssertionError: expected [] to deeply equal [ 7 ]
+  1 failed | 2 passed, exit 1. Reverted; tree clean.
+
+diff --git a/packages/headless/src/modules/scope/scope.types.ts b/packages/headless/src/modules/scope/scope.types.ts
+--- a/packages/headless/src/modules/scope/scope.types.ts
++++ b/packages/headless/src/modules/scope/scope.types.ts
+@@ -223,7 +223,9 @@
+ export type IdContextsForActor<
+   TMatrix extends ActorContextMatrix,
+   TActor extends ScopeActorTypes
+-> = Extract<DeclarationsInCell<ContextsForActor<TMatrix, TActor>>, string>;
++> =
++  | Extract<DeclarationsInCell<ContextsForActor<TMatrix, TActor>>, string>
++  | BareContextsForActor<TMatrix, TActor>;
+
+ /**
+  * The SELECTOR members of an actor's cell, unwrapped to their context type —

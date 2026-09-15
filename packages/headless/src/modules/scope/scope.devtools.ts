@@ -1,6 +1,6 @@
 import { setupDevToolsPlugin } from "@vue/devtools-api";
 import { ScopeActorTypes } from "./scope.types";
-import { forEach, isObject, keys, map, split, startsWith } from "lodash-es";
+import { includes, isObject, keys, map, slice, split } from "lodash-es";
 import type { RegistryEntry } from "./scope.registry";
 import type { ScopeKey } from "./scope.types";
 // -----------------------------------------------------------------------------
@@ -11,10 +11,13 @@ import type { ScopeKey } from "./scope.types";
 // --- constants
 const INSPECTOR_ID = "upmind-scope-registry";
 const PLUGIN_ID = "upmind.scope";
-// The prefixes `generateScopeKey` stamps on every non-context segment.
-const BRAND_PREFIX = "brand:";
-const FRESH_PREFIX = "fresh:";
-const RECORD_PREFIX = "id:";
+// The markers `generateScopeKey` stamps on every non-context segment. Written
+// into the key as `<marker>:<value>`, so after `split(key, ":")` the marker and
+// its value are two ADJACENT segments — never one segment with a prefix.
+const BRAND_MARKER = "brand";
+const FRESH_MARKER = "fresh";
+const RECORD_MARKER = "id";
+const MARKERS = [RECORD_MARKER, BRAND_MARKER, FRESH_MARKER];
 // --- state
 let devtoolsApi:
   | Parameters<Parameters<typeof setupDevToolsPlugin>[1]>[0]
@@ -84,30 +87,35 @@ export function setupScopeDevtools(
 
         const instance = entry.instance;
 
-        // Prefix-aware, never positional: a SELECTOR context contributes ONE
-        // unprefixed segment and a RETARGET two, so a fixed position would
-        // report a `brand:` or `id:` segment as the context id.
+        // Marker-aware, never positional: a SELECTOR context contributes ONE
+        // unmarked segment and a RETARGET two, so a fixed position would report
+        // a `brand:` or `id:` value as the context id.
+        //
+        // `generateScopeKey` joins on ":" and writes each reserved segment as
+        // `<marker>:<value>`, so splitting the whole key on ":" has ALREADY
+        // separated every marker from its value. Matching a segment against a
+        // colon-terminated prefix therefore never fires — no segment can still
+        // contain a colon. The reserved segments are read as [marker, value]
+        // PAIRS instead.
+        //
+        // Read from the RIGHT: `generateScopeKey` appends the reserved pairs
+        // last, so a right-to-left walk stops where the context begins, and a
+        // context type that happens to be spelled "brand" or "id" is never
+        // mistaken for a marker.
         const [name, actor, ...rest] = split(key, ":");
-        const contextParts: string[] = [];
         let recordId: string | undefined;
         let brandId: string | undefined;
-        let seenPrefixed = false;
 
-        forEach(rest, segment => {
-          if (startsWith(segment, RECORD_PREFIX)) {
-            seenPrefixed = true;
-            recordId = segment.slice(RECORD_PREFIX.length);
-          } else if (startsWith(segment, BRAND_PREFIX)) {
-            seenPrefixed = true;
-            brandId = segment.slice(BRAND_PREFIX.length);
-          } else if (startsWith(segment, FRESH_PREFIX)) {
-            seenPrefixed = true;
-          } else if (!seenPrefixed) {
-            contextParts.push(segment);
-          }
-        });
+        let contextEnd = rest.length;
+        while (contextEnd >= 2 && includes(MARKERS, rest[contextEnd - 2])) {
+          const marker = rest[contextEnd - 2];
+          const value = rest[contextEnd - 1];
+          if (marker === RECORD_MARKER) recordId = value;
+          if (marker === BRAND_MARKER) brandId = value;
+          contextEnd -= 2;
+        }
 
-        const [contextType, contextId] = contextParts;
+        const [contextType, contextId] = slice(rest, 0, contextEnd);
 
         payload.state = {
           "Scope Config": [

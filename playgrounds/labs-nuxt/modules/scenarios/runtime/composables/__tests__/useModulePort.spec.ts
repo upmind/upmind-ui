@@ -10,11 +10,13 @@
 
 import { describe, expect, it } from "vitest";
 import { computed, ref } from "vue";
+import { ScopeActorTypes } from "@upmind-automation/headless";
 import { ownsQueryState, useModulePort } from "../useModulePort";
 import type {
   ScenarioScopedCell,
   FourLayerComposable
 } from "../../scenario.types";
+import type { ModulePort } from "../useModulePort.types";
 
 /**
  * A cell that OWNS query state: context carries `query` (the live model) and
@@ -132,5 +134,118 @@ describe("@R3 useModulePort debug chain", () => {
 
     const snapshot = port.snapshot();
     expect(snapshot.debug).toBeUndefined();
+  });
+});
+
+const SCOPED_SCHEMA = {
+  type: "object",
+  properties: { catalogue: { type: "string" } }
+};
+
+/**
+ * A cell that records the arguments every `.for()` call reaches it with, and
+ * hands back a DIFFERENT, fully-layered cell than the one it was reached
+ * through. Two behaviours ride on it: the arity (a catalogue context has no
+ * entity to pass, and a second argument of `undefined` keys a different
+ * instance from no argument), and WHICH cell comes back — the scoped one the
+ * `.for()` produced, never the unscoped one the chain started at.
+ */
+function createForRecordingComposable() {
+  const calls: unknown[][] = [];
+  const queryModel = ref<Record<string, unknown>>({ catalogue: "invoice" });
+
+  const scoped: ScenarioScopedCell = {
+    useActions: () => ({ retire: () => undefined }),
+    useContext: () => ({
+      query: computed(() => queryModel.value),
+      schemas: {
+        query: {
+          schema: SCOPED_SCHEMA,
+          uischema: { type: "VerticalLayout", elements: [] }
+        }
+      }
+    }),
+    useMeta: () => ({ isScoped: true }),
+    useInternals: () => ({
+      query: {
+        setCriteria: (next: Record<string, unknown>) => {
+          queryModel.value = { ...queryModel.value, ...next };
+        }
+      }
+    })
+  };
+
+  const unscoped: ScenarioScopedCell = {
+    useActions: () => ({ open: () => undefined }),
+    useContext: () => ({ label: ref("unscoped") }),
+    useMeta: () => ({ isScoped: false })
+  };
+
+  unscoped.for = ((...args: unknown[]) => {
+    calls.push(args);
+    return scoped;
+  }) as ScenarioScopedCell["for"];
+
+  return {
+    composable: (() => ({ as: () => unscoped })) as FourLayerComposable,
+    calls
+  };
+}
+
+/**
+ * Reads all four layers of the cell `.for()` returned back off the port. The
+ * unscoped cell carries a different value in every one of them, so a port that
+ * handed back the cell it was reached through fails here rather than passing on
+ * a call it never made.
+ *
+ * @param port - The port under test.
+ */
+function expectScopedCellReturned(port: ModulePort): void {
+  expect(port.snapshot().actions).toContain("retire");
+  expect(port.snapshot().meta.isScoped).toBe(true);
+  expect(port.criteria?.schema).toEqual(SCOPED_SCHEMA);
+
+  port.criteria?.set({ catalogue: "cancel_request" });
+  expect(port.snapshot().debug?.model).toEqual({
+    catalogue: "cancel_request"
+  });
+}
+
+describe("@R3 useModulePort context arity (FE-3239)", () => {
+  it("calls .for() with the type alone for a catalogue context, and returns that cell", () => {
+    const { composable, calls } = createForRecordingComposable();
+
+    const port = useModulePort(composable, {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "invoice" }
+    });
+
+    expect(calls).toEqual([["invoice"]]);
+    expectScopedCellReturned(port);
+  });
+
+  it("calls .for() with the type AND the entity for a retargeted context, and returns that cell", () => {
+    const { composable, calls } = createForRecordingComposable();
+
+    const port = useModulePort(composable, {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "client", id: "c-9" }
+    });
+
+    expect(calls).toEqual([["client", "c-9"]]);
+    expectScopedCellReturned(port);
+  });
+
+  it("calls .for() at all only when the url named a context", () => {
+    const { composable, calls } = createForRecordingComposable();
+
+    const port = useModulePort(composable, { actor: ScopeActorTypes.CLIENT });
+
+    expect(calls).toEqual([]);
+    // The control for the two cases above: with no context named, the unscoped
+    // cell IS the answer — so "the scoped cell came back" is a decision the
+    // port made, not a shape both paths share.
+    expect(port.snapshot().meta.isScoped).toBe(false);
+    expect(port.criteria).toBeUndefined();
   });
 });
