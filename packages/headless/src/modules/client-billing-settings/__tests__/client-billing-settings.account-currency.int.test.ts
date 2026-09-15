@@ -58,10 +58,10 @@
 
 import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { useBillingSettings, useBillingSettingsManager } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useActiveSession } from "../../session-store";
-import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import {
   assertAccountIdentityTransport,
   brandSettingsOmittingAccountCurrency,
@@ -458,7 +458,6 @@ describe("useBillingSettings — the account-currency capability is withheld for
     };
     server?.use(
       http.get(`*/clients/${OTHER_CLIENT_ID}`, () =>
-        // eslint-disable-next-line scope-based/no-hand-rolled-int-fixture
         HttpResponse.json(otherClientEnvelope, { status: 200 })
       )
     );

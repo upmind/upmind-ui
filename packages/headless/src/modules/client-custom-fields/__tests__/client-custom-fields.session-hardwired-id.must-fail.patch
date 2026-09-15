@@ -1,12 +1,38 @@
+# client-custom-fields.session-hardwired-id.must-fail.patch
+#
+# Targets: AC-2 retarget (the identity seam) — the collection reads the client
+# named by `.withId(id)`, never a hardwired session id. Re-authored for FE-3240:
+# the id rides in `.withId()`/`config.id` through `resolveClientId(id?)`, not a
+# `.for()` context (ADR-001 amendment 2026-09-15).
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-custom-fields.services.ts resolveClientId — drops the `id ??`
+# retarget arm so every request hardwires the session's own client (the FE-2824
+# defect shape).
+#
+# Expected RED: client-custom-fields.collection.int.test.ts —
+# "AC-2 retargeting another client's record via .withId() addresses that
+# client's own resource, on the session's own token" — the retarget URL no
+# longer names the target client.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless test client-custom-fields.collection.int   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+index e658e1cfb..850c31da2 100644
 --- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
 +++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
-@@ -76,8 +76,6 @@
+@@ -81,7 +81,7 @@ export const queryKey: QueryKey = ["client", "customFields"];
+ function resolveClientId(id?: string) {
    const { activeUser } = useActiveSession().useContext();
-
-   return computed(() =>
--    scopeContext?.type === ClientCustomFieldsContextTypes.VALUES
--      ? scopeContext.id
--      : activeUser.value?.id
-+    activeUser.value?.id
-   );
+ 
+-  return computed(() => id ?? activeUser.value?.id);
++  return computed(() => activeUser.value?.id);
  }
+ 
+ /**

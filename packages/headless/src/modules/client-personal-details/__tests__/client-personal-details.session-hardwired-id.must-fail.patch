@@ -1,14 +1,36 @@
+# client-personal-details.session-hardwired-id.must-fail.patch
+#
+# Targets: AC-30 retarget (the identity seam) — read AND write resolve the
+# client named by `.withId(id)`, never a hardwired session id. Re-authored for
+# FE-3240: the id rides in `.withId()`/`config.id` through `resolveClientId(id?)`,
+# not a `.for()` context (ADR-001 amendment 2026-09-15).
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-personal-details.services.ts resolveClientId — drops the
+# `id ??` retarget arm so every request hardwires the session's own client
+# (the FE-2824 defect shape).
+#
+# Expected RED: client-personal-details.read.int.test.ts —
+# "AC-30 reads AND writes clients/{id} for an EXPLICITLY NAMED profile" — the
+# `.withId(OTHER_CLIENT_ID)` read/write no longer addresses the named client.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless test client-personal-details.read.int   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-personal-details/client-personal-details.services.ts b/packages/headless/src/modules/client-personal-details/client-personal-details.services.ts
+index aa76374a4..5688fd5f5 100644
 --- a/packages/headless/src/modules/client-personal-details/client-personal-details.services.ts
 +++ b/packages/headless/src/modules/client-personal-details/client-personal-details.services.ts
-@@ -88,11 +88,7 @@
- function resolveClientId(scopeContext?: ScopeContext) {
+@@ -89,7 +89,7 @@ function recordQueryKey(clientId?: string): QueryKey {
+ function resolveClientId(id?: string) {
    const { activeUser } = useActiveSession().useContext();
  
--  return computed(() =>
--    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE
--      ? scopeContext.id
--      : activeUser.value?.id
--  );
+-  return computed(() => id ?? activeUser.value?.id);
 +  return computed(() => activeUser.value?.id);
  }
  

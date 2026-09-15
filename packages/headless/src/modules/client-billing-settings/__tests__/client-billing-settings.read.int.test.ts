@@ -33,12 +33,12 @@ import { describe, expect, it } from "vitest";
 // load-order landmine `client-personal-details.read.int.test.ts` documents.
 // Import the helpers (which import `session-store`) before the module under
 // test; sorting this block alphabetically regresses the whole suite.
+import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { useBillingSettings } from "..";
 import { usePersonalDetails } from "../../client-personal-details";
 import { resetClientPersonalDetailsScopes } from "../../client-personal-details/__tests__/client-personal-details.int-helpers";
 import { queryClient } from "../../query/client";
 import { ScopeActorTypes } from "../../scope/scope.types";
-import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import {
   assertClientIdentityTransport,
   observeClientRequests,
@@ -47,8 +47,8 @@ import {
   seedClientSession
 } from "./client-billing-settings.int-helpers";
 import { recordingsDir, server } from "./setup.integration";
-import type { IClient } from "@upmind-automation/types";
 import type { Envelope } from "./client-billing-settings.int-helpers";
+import type { IClient } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -121,7 +121,6 @@ describe("useBillingSettings — re-seeding on a changed client (AC-2)", () => {
         HttpResponse.json(recorded.settings(), { status: 200 })
       ),
       http.get(`*/clients/${OTHER_CLIENT_ID}`, () =>
-        // eslint-disable-next-line scope-based/no-hand-rolled-int-fixture
         HttpResponse.json(otherClientEnvelope, { status: 200 })
       )
     );
