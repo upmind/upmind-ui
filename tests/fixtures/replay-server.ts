@@ -2,15 +2,16 @@
 /**
  * @module tests/fixtures/replay-server
  * @description Stands up an MSW server seeded from the recorded fixture pool and
- * fails loudly on any unmatched request, so a test can never silently hit the
- * real network or a missing fixture. Generic — any package's vitest setup can
- * call {@link startReplayServer}. A no-op outside `replay` mode.
+ * fails loudly on any request no fixture answers, so a test can never silently
+ * hit the real network or a missing fixture. Generic — any package's vitest
+ * setup can call {@link startReplayServer}. A no-op outside `replay` mode.
  */
 
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { buildHandlers } from "./msw-handlers";
+import type { HttpHandler } from "msw";
 import type { SetupServer } from "msw/node";
 
 // -----------------------------------------------------------------------------
@@ -55,6 +56,51 @@ export function overrideRoute(
 // -----------------------------------------------------------------------------
 
 /**
+ * How a request no fixture answers reads in the log: the verb and the path, so
+ * the gap names the recording somebody has to capture.
+ */
+function unansweredMessage(request: Request): string {
+  const url = new URL(request.url);
+  return `[MSW] No fixture for ${request.method} ${url.pathname}${url.search}`;
+}
+
+/**
+ * The LAST handler on the server, after every recorded one: a request that
+ * reached the bottom of the stack unanswered is a CAPTURE GAP, and this ends it
+ * here rather than letting msw perform it as-is.
+ *
+ * It exists because `onUnhandledRequest` cannot carry this promise on its own.
+ * That hook fires only when NO handler's ROUTE matched, and a replay legitimately
+ * arms a catch-all over the whole API — what `createCorpusReplayHandlers` does
+ * by default — so every `/api` request is "matched" and the hook is
+ * structurally dead. msw then
+ * takes a handler that matched but returned no response as an implicit
+ * passthrough and sends it to the REAL API. That is how ~53 requests per run of
+ * the headless replay lane reached production `https://api.upmind.io`, six of
+ * them surfacing as `write ECANCELED Canceled because of SSL destruction` when
+ * the suite tore the sockets down mid-flight.
+ *
+ * A handler cannot be shadowed the way a hook can: msw runs handlers in order
+ * and stops at the first RESPONSE, so this one answers only what nothing above
+ * it did, and `resetHandlers()` — which restores the initial list and drops
+ * runtime `use()` handlers — keeps it last for the whole run.
+ *
+ * The answer is a NETWORK ERROR, not a status. A 5xx would be retried three
+ * times by the query client's retry policy (`modules/query/client.ts` retries
+ * only numeric statuses >= 500), turning one capture gap into four failures.
+ */
+function unansweredRequestWall(): HttpHandler[] {
+  return [
+    http.all("*", ({ request }) => {
+      console.error(unansweredMessage(request));
+      return HttpResponse.error();
+    })
+  ];
+}
+
+// -----------------------------------------------------------------------------
+
+/**
  * Register MSW fixture replay for the current vitest project. Call once from a
  * project's `setupFiles`. Skips entirely unless `FIXTURE_MODE` is `replay`
  * (the default), letting record/live runs reach the real network.
@@ -69,14 +115,22 @@ export function startReplayServer(opts?: {
 }): SetupServer | undefined {
   if ((process.env.FIXTURE_MODE ?? "replay") !== "replay") return undefined;
 
-  const server = setupServer(...buildHandlers(opts));
+  // The wall goes LAST, behind every recorded handler: it answers only a
+  // request nothing above it did. Both live in the INITIAL handler list, so
+  // `resetHandlers()` restores them and a runtime `use()` override still sits
+  // in front of both.
+  const server = setupServer(
+    ...buildHandlers(opts),
+    ...unansweredRequestWall()
+  );
 
   beforeAll(() => {
     server.listen({
+      // Kept for the requests the wall's own route cannot reach; the wall is
+      // what actually ends an unanswered `/api` request. One message between
+      // them, so a gap reads the same whichever of the two names it.
       onUnhandledRequest: req => {
-        throw new Error(
-          `[MSW] No fixture for ${req.method} ${new URL(req.url).pathname}`
-        );
+        throw new Error(unansweredMessage(req));
       }
     });
   });
