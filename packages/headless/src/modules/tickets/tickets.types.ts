@@ -48,9 +48,16 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 /**
+ * @graphify-citation `graphify query "TICKETS_SCOPE_MATRIX"` against
+ * `graphify-out/graph.json` (2026-09-15) confirms this is the sole existing
+ * declaration (`L57`) — this is a doc-comment-only correction (R11), no new
+ * type is minted.
+ *
  * The COLLECTION's scope matrix. Every actor refuses `.for()` — the
- * collection is read `.as('self')` only, and the run constraint forbids
- * `.for('client', id)` outright (R1). Mirrors the all-`never` construction
+ * collection is read `.as(ScopeActorTypes.SELF)` only, and the run
+ * constraint forbids `.for('client', id)` outright (R1, confirmed unchanged
+ * by R11 — the collection stays `.as(ScopeActorTypes.SELF)` with the
+ * all-`never` matrix and no cast). Mirrors the all-`never` construction
  * `client-email-history`'s single read uses for the same reason: no context
  * enum is minted, so nothing is spellable.
  */
