@@ -62,7 +62,6 @@ import { useBillingSettings, useBillingSettingsManager } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useActiveSession } from "../../session-store";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
-import { ClientBillingSettingsContextTypes } from "../client-billing-settings.types";
 import {
   assertAccountIdentityTransport,
   brandSettingsOmittingAccountCurrency,
@@ -466,10 +465,10 @@ describe("useBillingSettings — the account-currency capability is withheld for
 
     const retargetedSettings = useBillingSettings()
       .as(ScopeActorTypes.CLIENT)
-      .for(ClientBillingSettingsContextTypes.SETTINGS, OTHER_CLIENT_ID);
+      .withId(OTHER_CLIENT_ID);
     const retargetedManager = useBillingSettingsManager()
       .as(ScopeActorTypes.CLIENT)
-      .for(ClientBillingSettingsContextTypes.SETTINGS, OTHER_CLIENT_ID);
+      .withId(OTHER_CLIENT_ID);
     await Promise.all([
       retargetedSettings.useActions().isReady(),
       retargetedManager.useActions().isReady()

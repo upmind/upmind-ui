@@ -26,13 +26,20 @@
  * an `@internal` file leaks past the barrel.
  */
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import "./mocks";
 import * as clientPersonalDetails from "..";
-import { PERSONAL_DETAILS_SCOPE_MATRIX } from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
+import { last, sortBy, split, trim, uniq } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -40,14 +47,55 @@ const MODULE_DIR = join(import.meta.dirname, "..");
 
 /** Every value (non-type) export the barrel is curated to offer. */
 const EXPECTED_RUNTIME_EXPORTS = [
-  "ClientPersonalDetailsContextTypes",
-  "PERSONAL_DETAILS_SCOPE_MATRIX",
   "usePersonalDetails",
   "usePersonalDetailsManager"
 ];
 
+/**
+ * The FE-3240 removed value symbols — the scope matrix and its context enum.
+ * The client whose profile is read/edited is marked with `.withId(clientId)`,
+ * so this module names no context and re-exports neither (ADR-001 amendment
+ * 2026-09-15).
+ */
+const REMOVED_VALUE_SYMBOLS = [
+  "ClientPersonalDetailsContextTypes",
+  "PERSONAL_DETAILS_SCOPE_MATRIX"
+];
+
 const barrelSource = (): string =>
   readFileSync(join(MODULE_DIR, "index.ts"), "utf-8");
+
+/**
+ * Type-check `lines` as a real program against this module's real barrel and
+ * return the 1-based line numbers that carry a diagnostic — the executable
+ * form of the type-level contract this module's own build excludes
+ * (`__tests__/**`), mirroring `client-address.surface.test.ts`'s own probe.
+ */
+function compileProbe(lines: string[]): number[] {
+  const dir = mkdtempSync(join(tmpdir(), "cpd-probe-"));
+  const file = join(dir, "probe.ts");
+  writeFileSync(file, `${lines.join("\n")}\n`);
+
+  const script = `
+    const ts = require(${JSON.stringify(require.resolve("typescript"))});
+    const file = ${JSON.stringify(file)};
+    const program = ts.createProgram([file], {
+      noEmit: true, strict: true, skipLibCheck: true,
+      target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      jsx: ts.JsxEmit.Preserve, types: []
+    });
+    const found = ts.getPreEmitDiagnostics(program)
+      .filter(d => d.file && d.file.fileName === file && typeof d.start === "number")
+      .map(d => d.file.getLineAndCharacterOfPosition(d.start).line + 1);
+    console.log(JSON.stringify([...new Set(found)]));
+  `;
+
+  const stdout = execFileSync(process.execPath, ["-e", script], {
+    encoding: "utf-8"
+  });
+  return sortBy(uniq(JSON.parse(last(split(trim(stdout), "\n")) as string)));
+}
 
 /** Every `.ts` source file directly under the module (not `__tests__/`). */
 function moduleSourceFiles(): string[] {
@@ -73,14 +121,30 @@ describe("client-personal-details public surface", () => {
     );
   });
 
-  it("AC-57 keeps the scope matrix's only live cell on CLIENT — self, staff and guest are dropped", () => {
-    expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
-      "profile"
-    );
-    expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.SELF]).toBeNull();
-    expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.STAFF]).toBeNull();
-    expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
+  it("AC-57 the removed scope-matrix and context-enum value symbols are absent from the barrel", () => {
+    for (const symbol of REMOVED_VALUE_SYMBOLS) {
+      expect(
+        clientPersonalDetails,
+        `${symbol} must not be re-exported from the barrel (FE-3240)`
+      ).not.toHaveProperty(symbol);
+    }
   });
+
+  it("AC-57 refuses to import the removed value/type symbols or spell `.for()`, while the `.withId()` control stays clean", () => {
+    const diagnostics = compileProbe([
+      `import { usePersonalDetails } from ${JSON.stringify(MODULE_DIR)};`,
+      `import { ScopeActorTypes } from ${JSON.stringify(join(MODULE_DIR, "../scope/scope.types"))};`,
+      `import { PERSONAL_DETAILS_SCOPE_MATRIX } from ${JSON.stringify(MODULE_DIR)};`,
+      `import { ClientPersonalDetailsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
+      `import type { PersonalDetailsScopeMatrix } from ${JSON.stringify(MODULE_DIR)};`,
+      // 6 — the control: the owner id rides in `.withId()`, which must resolve.
+      `usePersonalDetails().as(ScopeActorTypes.SELF).withId("x");`,
+      // 7 — `.for()` is unspellable: the matrix is all-`never`, no context member.
+      `usePersonalDetails().as(ScopeActorTypes.CLIENT).for("profile", "x");`
+    ]);
+
+    expect(diagnostics).toEqual([3, 4, 5, 7]);
+  }, 60000);
 
   it("AC-57 no longer ships the empty client-personal-details.utils.ts stub", () => {
     expect(

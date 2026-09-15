@@ -227,7 +227,7 @@ describe("usePersonalDetailsManager — invalidation is scoped to this module's 
 
     const unrelated = usePersonalDetails()
       .as(ScopeActorTypes.SELF)
-      .for("profile", UNRELATED_ID);
+      .withId(UNRELATED_ID);
     await unrelated.useActions().isReady();
     const details = usePersonalDetails().as(ScopeActorTypes.SELF);
     await details.useActions().isReady();

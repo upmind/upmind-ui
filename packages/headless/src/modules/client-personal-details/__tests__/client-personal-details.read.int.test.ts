@@ -25,8 +25,9 @@
  * `parity.yaml` identifies as unavailable at single-cell scope for MODULE A's
  * `custom_field_values` context, but which the `resolveClientId` seam in
  * THIS module's design (`design.md` §3.4) makes observable here because the
- * profile id is taken from the caller's `.for('profile', id)` argument, not
- * hardwired.
+ * profile id is taken from the caller's `.withId(id)` argument, not
+ * hardwired (ADR-001 amendment 2026-09-15: the owner id rides in `.withId()`,
+ * never a `.for()` context).
  *
  * ## What Breaks If These Fail
  * The FE-2824 shape: a read and a write that can silently address different
@@ -164,7 +165,7 @@ describe("usePersonalDetails — the identity seam (AC-30 retarget)", () => {
 
     const details = usePersonalDetails()
       .as(ScopeActorTypes.SELF)
-      .for("profile", OTHER_CLIENT_ID);
+      .withId(OTHER_CLIENT_ID);
     await details.useActions().isReady();
     await details.useActions().refresh();
 

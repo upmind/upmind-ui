@@ -39,7 +39,6 @@ import { resetClientPersonalDetailsScopes } from "../../client-personal-details/
 import { queryClient } from "../../query/client";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
-import { ClientBillingSettingsContextTypes } from "../client-billing-settings.types";
 import {
   assertClientIdentityTransport,
   observeClientRequests,
@@ -133,7 +132,7 @@ describe("useBillingSettings — re-seeding on a changed client (AC-2)", () => {
 
     const retargeted = useBillingSettings()
       .as(ScopeActorTypes.CLIENT)
-      .for(ClientBillingSettingsContextTypes.SETTINGS, OTHER_CLIENT_ID);
+      .withId(OTHER_CLIENT_ID);
     await retargeted.useActions().isReady();
 
     observed.stop();
@@ -268,4 +267,61 @@ describe("useBillingSettings — settling on error and retrying (AC-16)", () => 
       fixture.invoice_consolidation_enabled
     );
   }, 25000);
+});
+
+describe("useBillingSettings — the query key is the resolved id, not the scope key (AC-2, FE-3240 behaviour-preserving)", () => {
+  it("AC2 two instances resolving the same client id via different scope keys share ONE ['client', id, 'record'] fetch", async () => {
+    const { clientId } = await seedClientSession();
+    let reads = 0;
+    server?.use(
+      http.get(`*/clients/${clientId}`, () => {
+        reads += 1;
+        return HttpResponse.json(recorded.settings(), { status: 200 });
+      })
+    );
+
+    // The same resolved client id, reached two ways: the session's own arm,
+    // and an explicit `.withId(clientId)`. Their SCOPE keys differ (one carries
+    // an id segment, one does not), so they are distinct registry instances —
+    // but the query key is built from the RESOLVED id, so both mint the
+    // identical `["client", clientId, "record"]` and share one fetch.
+    const sessionOwn = useBillingSettings().as(ScopeActorTypes.CLIENT);
+    const explicitId = useBillingSettings()
+      .as(ScopeActorTypes.CLIENT)
+      .withId(clientId);
+    await Promise.all([
+      sessionOwn.useActions().isReady(),
+      explicitId.useActions().isReady()
+    ]);
+
+    const fixture = recorded.settings().data;
+    expect(sessionOwn.useContext().data.value.enabled).toBe(
+      fixture.invoice_consolidation_enabled
+    );
+    expect(explicitId.useContext().data.value.enabled).toBe(
+      fixture.invoice_consolidation_enabled
+    );
+
+    // The discriminator: a scope-keyed query key would have produced TWO
+    // distinct `["client", id, "record"]` entries; a resolved-id key produces
+    // exactly ONE, shared by both instances. `dataUpdateCount` of 1 confirms
+    // the shared entry settled from a single fetch. The raw `/clients/` read
+    // count is NOT the instrument (AC-19's own docblock, this file) — two
+    // observers can each touch the wire while the shared key stays one entry —
+    // so it is asserted only as "a real read happened", never `=== 1`.
+    const recordEntries = queryClient
+      .getQueryCache()
+      .getAll()
+      .filter(
+        query =>
+          JSON.stringify(query.queryKey) ===
+          JSON.stringify(["client", clientId, "record"])
+      );
+    expect(recordEntries).toHaveLength(1);
+    expect(ownRecordQueryDataUpdateCount(clientId)).toBe(1);
+    expect(reads).toBeGreaterThanOrEqual(1);
+
+    sessionOwn.useActions().destroy();
+    explicitId.useActions().destroy();
+  });
 });
