@@ -167,13 +167,19 @@ export function useSortUischema(): ControlElement {
 // FORM SCHEMAS (R8) — the module exports these; FE-1930 renders + validates.
 // -----------------------------------------------------------------------------
 
-/** AC9 — the create-ticket form. */
+/**
+ * AC9 — the create-ticket form. `body` is required only when `files` is
+ * absent (R17(b)) — mirrors the server's own conditional (measured 422:
+ * "The body field is required when files is not present."), never a
+ * stricter client-side rule.
+ */
 export function useCreateSchema(): JsonSchema7 {
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
     additionalProperties: false,
-    required: ["subject", "body"],
+    required: ["subject"],
+    anyOf: [{ required: ["body"] }, { required: ["files"] }],
     properties: {
       subject: { type: "string", title: "Subject", minLength: 1 },
       body: { type: "string", title: "Message", minLength: 1 },
@@ -183,7 +189,8 @@ export function useCreateSchema(): JsonSchema7 {
         type: ["string", "null"],
         title: "Send later",
         format: "date-time"
-      }
+      },
+      files: { type: "array", minItems: 1 }
     }
   } satisfies JsonSchema7;
 }

@@ -258,10 +258,16 @@ export type TicketDepartmentLookups = {
 // FORM MODELS (R8 — the module exports model/schema/uischema; the page validates)
 // -----------------------------------------------------------------------------
 
-/** AC9 — the create-ticket form model. */
+/**
+ * AC9 — the create-ticket form model. `body` is optional (R17(b)) — the
+ * server requires it only when `files` is absent; `useCreateSchema()`
+ * enforces the same conditional. `graphify query "TicketCreateModel"`
+ * against `graphify-out/graph.json` (2026-09-15) confirms this is the
+ * sole existing declaration — a correction, not a new type.
+ */
 export type TicketCreateModel = {
   subject: string;
-  body: string;
+  body?: string;
   ticketDepartmentId?: string | null;
   contractProductId?: string | null;
   scheduledAt?: string | null;
