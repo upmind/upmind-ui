@@ -1,6 +1,6 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { BrandConfigKeys, HookCodes } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { RequestSortDirection, useQuery } from "../query";
@@ -144,14 +144,45 @@ function isAddressable(clientId?: string): boolean {
 // -----------------------------------------------------------------------------
 // COLLECTION
 
+/**
+ * `useQuerySchema()` declares the status filter as the undotted `statusCode`
+ * (R9) so `useModelParser` never sees a dotted property name. That leaves the
+ * criteria-driven wire output mis-spelled (`filter[statusCode|neq]=…`); this
+ * re-spells the SAME committed value onto the real wire column `status.code`
+ * directly on the request's own `url` (a shared, mutable instance `request()`
+ * also writes to). Run via a `sync`-flush `watch` in `loadList` rather than
+ * `list()`'s own `guard` hook: `useQuery.ts`'s `hasGuard = isPromise(guard)`
+ * tests the GUARD FUNCTION ITSELF for thenability, which a plain function
+ * never satisfies, so `guard` never actually runs (a pre-existing `query/**`
+ * defect, out of scope here). The value and the decision of what's active
+ * still come from `setCriteria`/the schema channel; only the key spelling is
+ * corrected here.
+ */
+function applyStatusCodeFilter(
+  url: URL,
+  statusCode: { eq?: string; neq?: string } | undefined
+): void {
+  if (statusCode?.neq) {
+    url.searchParams.set("filter[status.code|neq]", statusCode.neq);
+    url.searchParams.delete("filter[status.code]");
+  } else if (statusCode?.eq) {
+    url.searchParams.set("filter[status.code]", statusCode.eq);
+    url.searchParams.delete("filter[status.code|neq]");
+  } else {
+    url.searchParams.delete("filter[status.code|neq]");
+    url.searchParams.delete("filter[status.code]");
+  }
+}
+
 function loadList(scopeContext?: ScopeContext): TicketsListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
+  const url = useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 });
 
-  return list<ITicket[], Ticket[], TicketsQueryModel>({
+  const ticketsList = list<ITicket[], Ticket[], TicketsQueryModel>({
     criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
-    url: useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 }),
+    url,
     withAccessToken: true,
     withSplitCount: true,
     guard: async () => {
@@ -164,6 +195,14 @@ function loadList(scopeContext?: ScopeContext): TicketsListQuery {
     staleTime: useTime().MINUTE,
     placeholderData: keepPreviousData
   });
+
+  watch(
+    () => ticketsList.criteria.value.filters?.statusCode,
+    statusCode => applyStatusCodeFilter(url, statusCode),
+    { immediate: true, flush: "sync" }
+  );
+
+  return ticketsList;
 }
 
 /** AC8 — the narrower dashboard/recent list. A one-shot imperative read. */

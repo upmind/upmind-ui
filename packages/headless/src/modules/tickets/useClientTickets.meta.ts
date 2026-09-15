@@ -13,7 +13,17 @@ export function createClientTicketsMeta(
   service: TicketsServices,
   query: TicketsListQuery
 ) {
-  const hasError = computed(() => !!service.error.value || !!query.error.value);
+  /**
+   * AC-CE (R9 fold-in) — a rejected `setCriteria` populates `query.criteriaError`
+   * without touching `query.error`; folding it in here is what makes a
+   * rejected criteria write visible to a consumer watching `hasError`.
+   */
+  const hasError = computed(
+    () =>
+      !!service.error.value ||
+      !!query.error.value ||
+      !!query.criteriaError.value
+  );
 
   const isEmptyList = computed(
     () => isEmpty(query.data?.value) || query.pagination.value.total === 0

@@ -58,7 +58,7 @@ function createClientTicketsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  * const tickets = useClientTickets().as('client')
  * const { data, schemas } = tickets.useContext()
  * await tickets.useActions().isReady()
- * tickets.useActions().setCriteria({ filters: { "status.code": { neq: "ticket_closed" } } })
+ * tickets.useActions().setCriteria({ filters: { statusCode: { neq: "ticket_closed" } } })
  * ```
  */
 export const useClientTickets = createScopedComposable<

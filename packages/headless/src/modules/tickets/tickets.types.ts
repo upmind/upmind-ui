@@ -75,12 +75,20 @@ export enum TicketContextTypes {
 }
 
 /**
- * Scope matrix for `useClientTicket` — RULED R1. `ADR-001:117,133` names
+ * @graphify-citation see this file's head citation (`graphify-out/graph.json`,
+ * 2026-09-14) — no duplicate `TICKET_SCOPE_MATRIX` node exists; this is a
+ * doc-comment-only correction (R11), no new type is minted.
+ *
+ * Scope matrix for `useClientTicket` — RULED R11 (R1's substance stands, its
+ * `.as('self')` actor spelling was corrected). `ADR-001:117,133` names
  * `ticket` a context a client may act for; `SINGLE-READ.md`'s `.withId(id)`
  * is overruled for this module because a ticket owns its own records
  * (messages) and is not a leaf. Only `client` resolves; `self`, `staff` and
  * `guest` stay `null as never`, so `.for('ticket', id)` is unspellable for
- * every other actor.
+ * every other actor. `.as(ScopeActorTypes.CLIENT)` is the client actor on
+ * their own session — this IS the client×self cell — and is never
+ * `.for('client', id)`, which stays forbidden; actor and context are
+ * independent axes.
  */
 export const TICKET_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
@@ -119,23 +127,37 @@ export type TicketSortEntry = {
  * 2026-09-14) — no prior tickets query-model construct exists; this is new
  * ground, not a duplicate.
  *
+ * @graphify-citation `graphify query "TicketsQueryModel statusCode status.code
+ * filter translation useModelParser"` against `graphify-out/graph.json`
+ * (2026-09-15) confirms `TicketsQueryModel` (`tickets.types.ts:133`) as the
+ * only node of its kind — this edit renames an existing field, it mints no
+ * new type.
+ *
  * The collection's whole request state as one model. `query` is the
  * free-text term (AC6). `reference` / `subject` / `contract_product_id` are
  * BARE leaf branches — the translator's own rule is that a branch with no
  * nested operator schema emits the bare EQUAL wire key (`filter[reference]=`,
- * D19 — never CONTAINS, never a `|eq` suffix). `status.code` and `created_at`
+ * D19 — never CONTAINS, never a `|eq` suffix). `statusCode` and `created_at`
  * declare their operators explicitly because AC1/AC2 need both `eq` (closed
  * tab) and `neq` (active tab) live on the same property, and only the one
  * actually set reaches the wire (empty values are dropped before the
- * request). The `"status.code"` key is a literal dot — it is what makes the
- * translator emit `filter[status.code|neq]=` verbatim (D4-shaped, AC1/AC2).
+ * request). `statusCode` is deliberately UNDOTTED (R9): `useModelParser`
+ * (`utils/useValidation.ts`) walks the schema's own declared property names
+ * and writes each one through a plain lodash `set(result, key, value)` — a
+ * literal `"status.code"` key is read by `set` as the PATH `status.code`, not
+ * the key `"status.code"`, corrupting every commit regardless of the value
+ * supplied (proven by instrumented run, `research.md`/`review-notes.md`
+ * cycle 6). `tickets.services.ts`'s `loadList` re-spells the committed value
+ * onto the real wire column `status.code` at its own edge (inside `guard`,
+ * before the request fires) — the schema and the wire deliberately diverge
+ * here, and only here.
  */
 export type TicketsQueryModel = {
   query?: string;
   filters?: {
     reference?: string;
     subject?: string;
-    "status.code"?: { eq?: string; neq?: string };
+    statusCode?: { eq?: string; neq?: string };
     created_at?: { gte?: string; lte?: string };
     contract_product_id?: string;
   };

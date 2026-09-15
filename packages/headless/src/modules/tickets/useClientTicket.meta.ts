@@ -15,7 +15,17 @@ export function createClientTicketMeta(
   service: TicketsServices,
   query: TicketItemQuery
 ) {
-  const hasError = computed(() => !!service.error.value || !!query.error.value);
+  /**
+   * AC-CE (R9 fold-in) — `loadOne` declares no schema, so `query.criteriaError`
+   * stays inert here in practice (nothing ever calls `setCriteria` on the
+   * manager); folded in for consistency with `useClientTickets.meta.ts`.
+   */
+  const hasError = computed(
+    () =>
+      !!service.error.value ||
+      !!query.error.value ||
+      !!query.criteriaError.value
+  );
   const isLoading = computed(
     () => query.isLoading.value || !query.isFetched.value
   );

@@ -26,8 +26,12 @@ import type {
 
 /**
  * `reference` / `subject` / `contract_product_id` are bare leaf branches
- * (EQUAL, D19). `status.code` carries both `eq` (closed tab) and `neq`
- * (active tab) so only the tab in effect reaches the wire.
+ * (EQUAL, D19). `statusCode` carries both `eq` (closed tab) and `neq`
+ * (active tab) so only the tab in effect reaches the wire. `statusCode` is
+ * deliberately UNDOTTED (R9) — `tickets.types.ts`'s `TicketsQueryModel`
+ * doc-comment carries the full root-cause citation; `tickets.services.ts`'s
+ * `loadList` re-spells the committed value onto the real wire column
+ * `status.code` at its own edge.
  */
 export function useQuerySchema(): TicketsQuerySchema {
   return {
@@ -49,7 +53,7 @@ export function useQuerySchema(): TicketsQuerySchema {
             title: "Subject",
             minLength: 1
           },
-          "status.code": {
+          statusCode: {
             type: "object",
             title: "Status",
             additionalProperties: false,
