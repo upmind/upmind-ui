@@ -101,10 +101,21 @@ Unlike the sibling custom-fields module (which defers its scope-registry registr
 ```ts
 import {
   createScopedComposable,
-  type PersonalDetailsScopeMatrix,
+  ScopeActorTypes,
   type ScopeConfig,
   type ScopeKey
 } from "@upmind-automation/headless";
+
+// All-`never` — this module's real shape. It names no context for any actor;
+// the profile's owning client is marked with `.withId(id)` instead (gotcha 8).
+const SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+type Matrix = typeof SCOPE_MATRIX;
 
 /** Stand-in for this module's real per-scope factory. */
 function createPersonalDetailsForScope(
@@ -123,7 +134,7 @@ function createPersonalDetailsForScope(
 // custom-fields module's deferred registration.
 export const usePersonalDetails = createScopedComposable<
   ReturnType<typeof createPersonalDetailsForScope>,
-  PersonalDetailsScopeMatrix
+  Matrix
 >("client-personal-details", createPersonalDetailsForScope);
 ```
 
@@ -133,15 +144,14 @@ export const usePersonalDetails = createScopedComposable<
 
 > **🧪 For Testers:** There is no test that can prove this module will _stay_ safe — only that it is safe on the _current_ import graph. Treat "this module registers eagerly and nothing has crashed" as a fact about today's dependency graph, not a guarantee.
 
-## 6. `.as()` and `.for()` take enum members, never string literals
+## 6. `.as()` takes an enum member, never a string literal
 
-Both scoping methods on both composables are typed against the actual enum, not against the string a member happens to resolve to. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut.
+Both composables type `.as()` against the actual enum, not against the string a member happens to resolve to. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut.
 
 ```ts
 import {
   usePersonalDetailsManager,
-  ScopeActorTypes,
-  ClientPersonalDetailsContextTypes
+  ScopeActorTypes
 } from "@upmind-automation/headless";
 
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
@@ -150,23 +160,19 @@ const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 // @ts-expect-error
 usePersonalDetailsManager().as("client");
 
-// ❌ Wrong — TS2345 on the context type, for the same reason
-// @ts-expect-error
-usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).for("profile", clientId);
-
-// ✅ Right — both arguments are enum members
+// ✅ Right — the actor is an enum member; the id is a plain string via .withId()
 const manager = usePersonalDetailsManager()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientPersonalDetailsContextTypes.PROFILE, clientId);
+  .withId(clientId);
 ```
 
 Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real.
 
-**This bites hardest in specs and playground files**, because `__tests__/**` and the labs playground both sit outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug. See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#2-as-and-for-take-enum-members-never-string-literals) for the fuller account — the same rule applies here.
+**This bites hardest in specs and playground files**, because `__tests__/**` and the labs playground both sit outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug. See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#2-as-and-the-image-editors-for-take-enum-members-never-string-literals) for the fuller account — the same rule applies here.
 
-## 7. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.for()`/`.fresh()`
+## 7. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.withId()`/`.fresh()`
 
-Both composables in this module share one scope matrix, which maps `self` to `null as never` (the same shape the sibling custom-fields module uses). `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but the type it produces cannot chain a further `.for()` or `.fresh()` — this is a distinct issue from gotcha 6 above: the code here typechecks fine, it just doesn't have the method you might reach for next.
+Both composables in this module share one scope matrix, which maps `self` to `null as never` (the same shape the sibling custom-fields module uses). `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but the type it produces cannot chain a further `.withId()` or `.fresh()` — this is a distinct issue from gotcha 6 above: the code here typechecks fine, it just doesn't have the method you might reach for next.
 
 ```ts
 import {
@@ -181,25 +187,51 @@ const selfScoped = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
 // @ts-expect-error — no .fresh() on the SELF branch's type
 usePersonalDetailsManager().as(ScopeActorTypes.SELF).fresh();
 
-// ✅ Right: name the concrete actor when you need .for()/.fresh()
+// ✅ Right: name a concrete actor (any of them — see gotcha 8) when you need
+// .withId()/.fresh()
 const manager = usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).fresh();
 ```
 
-This module's own composables don't strictly need `.for()`/`.fresh()` for the everyday case — a client's profile has only one context to address — but the real playground consumer still names `.as(ScopeActorTypes.CLIENT)` rather than `SELF`, specifically to reach `.fresh()` (minting an independent editor instance per mount). See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#3-asscopeactortypesself-compiles-and-works-but-the-result-carries-no-forfresh) for the full explanation — the same rule applies here.
+This module's own composables don't strictly need `.withId()`/`.fresh()` for the everyday case — a client's profile has only one record to address — but the real playground consumer still names `.as(ScopeActorTypes.CLIENT)` rather than `SELF`, specifically to reach `.fresh()` (minting an independent editor instance per mount). See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#3-asscopeactortypesself-compiles-and-works-but-the-result-carries-no-forwithidfresh) for the full explanation — the same rule applies here.
 
-> **🧪 For Testers:** A reader who hits gotcha 6 (a bare string rejected) and "fixes" it by dropping the `.for()`/`.fresh()` call entirely has changed the wrong thing — that only compiles because the chained call is gone, not because the string-literal problem was addressed.
+> **🧪 For Testers:** A reader who hits gotcha 6 (a bare string rejected) and "fixes" it by dropping the `.withId()`/`.fresh()` call entirely has changed the wrong thing — that only compiles because the chained call is gone, not because the string-literal problem was addressed.
 
-## 8. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
+## 8. `.withId()` carries no per-actor gate — unlike this module's former `.for(PROFILE, id)` shape
+
+This module used to name a single-member context (`ClientPersonalDetailsContextTypes.PROFILE`) purely to carry the owning client's id through `.for(PROFILE, id)` — spellable only for the `client` actor, since that context lived only on the matrix's `client` row; `staff` and `guest` got `.as(ScopeActorTypes.STAFF).for(...)`/`.as(ScopeActorTypes.GUEST).for(...)` as compile-time errors. Per ADR-001's 2026-09-15 amendment (`.for()` carries the context, `.withId()` carries the id), that context is gone: **both composables'** shared matrix now maps every actor to `null as never`, and the profile's owning client is named with `.withId(id)` instead.
+
+The trap: `.withId(id)` is a platform-wide seam offered to every actor at every builder position, with **no matrix gate at all** (ADR-001's 2026-08-19 amendment) — the matrix constrains `.for()` contexts, never record ids. So where `.as(ScopeActorTypes.STAFF).for(ClientPersonalDetailsContextTypes.PROFILE, id)` used to be a compile-time error, `.as(ScopeActorTypes.STAFF).withId(id)` **compiles**, on both composables in this module. And this module's own client-resolution seam (`resolveClientId`) reads whichever id `.withId()` supplies with no check against the calling actor — it resolves the named id for `staff` and `guest` exactly as it does for `client`.
+
+```ts
+import { usePersonalDetails, ScopeActorTypes } from "@upmind-automation/headless";
+
+const otherClientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Before this module dropped ClientPersonalDetailsContextTypes:
+// only `client` could spell a retarget — `.as(STAFF).for(...)` was TS2345.
+
+// Today: every actor can spell one, because .withId() isn't matrix-gated.
+const asStaff = usePersonalDetails().as(ScopeActorTypes.STAFF).withId(otherClientId);
+const asClient = usePersonalDetails().as(ScopeActorTypes.CLIENT).withId(otherClientId);
+// Both compile, and both resolve this module's own addressability check the
+// same way — nothing in this module's own code distinguishes them by actor.
+```
+
+> **🧪 For Testers:** No test in this module's own suite currently exercises `.as(ScopeActorTypes.STAFF).withId(id)` or `.as(ScopeActorTypes.GUEST).withId(id)` end-to-end. This module's own code compiles the call and forwards the named id with no local actor check — whether a real staff-issued request of this shape is honoured is a server-side authorization question this module neither settles nor advertises an answer to. See [dropped-capabilities.md](./dropped-capabilities.md) for the staff-facing profile-editing surface that remains unbuilt regardless of this id-channel change.
+
+## 9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
 
 `pnpm lint` at the repo root aborts inside a shared types submodule before it ever reaches this module, and its `--fix` flag mutates that submodule as a side effect. `pnpm install` at the repo root is unsafe in a sparse worktree missing one or more app-level `package.json` files — it silently drops those apps' entries from the shared lockfile. Neither is a safe verification step for a change scoped to this module; use the module's own targeted test commands instead.
 
 ## Common Mistakes
 
-### Assuming a client id resolved into `.for(...)` is validated against the caller
+### Assuming a client id resolved into `.withId(...)` is validated against the caller — or against the actor
 
-The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.PROFILE, someOtherId)` compiles and addresses that other id's profile, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. Be precise about where that boundary is enforced, because it splits in two. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** on both composables — the shared matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead: with no context naming a target, every request resolves its client id from the active session itself and is gated by this module's own addressability check. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error. Only the entity id being named is caller-controlled, not the identity making the call.
+The id this module's `.withId(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).withId(someOtherId)` compiles and addresses that other id's profile, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises.
 
-### Assuming the editor needs a `.for()` argument
+Unlike this module's former `.for(PROFILE, id)` shape — spellable only for `client`, since the context lived only on that matrix row — `.withId()` carries no per-actor gate at all (see gotcha 8 above): `.as(ScopeActorTypes.STAFF).withId(someOtherId)` and `.as(ScopeActorTypes.GUEST).withId(someOtherId)` compile too, and this module's own client-resolution seam resolves the named id the same way regardless of actor. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` — no id — still falls back to the active session's own id and is refused by this module's own addressability check at runtime; that half is unchanged. Only the entity id being named is caller-controlled at this module's own layer — not, any longer, which actor is naming it.
+
+### Assuming the editor needs a `.withId()` argument
 
 It doesn't — `usePersonalDetailsManager().as(ScopeActorTypes.SELF)` alone constructs and settles. A client has exactly one profile; there is nothing to select between.
 

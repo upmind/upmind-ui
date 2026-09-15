@@ -40,50 +40,54 @@ This is not a temporary rough edge to be tightened later by this module alone �
 
 > **🧪 For Testers:** Drive an upload to completion and assert exactly two observed values in sequence — `0` then `100` — never anything in between. A test asserting an intermediate value is asserting behaviour this module cannot produce.
 
-## 2. `.as()` and `.for()` take enum members, never string literals
+## 2. `.as()` and the image editor's `.for()` take enum members, never string literals
 
-Both scoping methods on both composables are typed against the actual enum, not against the string a member happens to resolve to. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut — TypeScript enums are not structurally interchangeable with their own literal values.
+Both composables type `.as()` against the actual enum, not against the string a member happens to resolve to; the image editor's `.for()` does the same for its own context type. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut — TypeScript enums are not structurally interchangeable with their own literal values.
 
 ```ts
 import {
   useClientCustomFields,
+  useClientCustomFieldImage,
   ScopeActorTypes,
-  ClientCustomFieldsContextTypes
+  ClientCustomFieldContextTypes
 } from "@upmind-automation/headless";
 
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
 
 // ❌ Wrong — TS2345 on the actor: a bare string is not the enum member
 // @ts-expect-error
 useClientCustomFields().as("client");
 
 // ❌ Wrong — TS2345 on the context type, for the same reason
-useClientCustomFields()
+useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   // @ts-expect-error
-  .for("custom_field_values", clientId);
+  .for("field", fieldId);
 
-// ✅ Right — both arguments are enum members
-const fields = useClientCustomFields()
+// ✅ Right — the collection takes a plain string id via .withId(), no enum involved
+const fields = useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(clientId);
+
+// ✅ Right — the image editor's context type is an enum member
+const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldContextTypes.FIELD, fieldId);
 ```
 
-Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real.
+Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real. The collection has no context type left to get wrong this way — `.withId(id)` takes a plain string, not an enum member, because it names a record, not a context (see gotcha 6 below).
 
 **This bites hardest in specs and playground files**, because `__tests__/**` and the labs playground both sit outside this package's own build type-check (`tsconfig.build.json`). A string-literal call can sit in a spec or a playground page for a long time, looking like it works, because nothing in the normal build path ever type-checks it — it only surfaces under a standalone `tsc` run against those directories, or if the file is ever pulled into the checked build set. Seeing the string-literal form anywhere — including in another module's own example code — is not evidence that it typechecks; it may simply never have been checked.
 
 > **🧪 For Testers:** If a spec or playground file uses `.as("client")` or `.for("...")` with a bare string, that is a latent type error, not a precedent to copy. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is purely a compile-time gap in coverage, not a functional bug.
 
-## 3. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.for()`/`.fresh()`
+## 3. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.for()`/`.withId()`/`.fresh()`
 
-`.as(ScopeActorTypes.SELF)` resolves to the calling client — the actor-scoping builder resolves `self` to a concrete actor before either composable's matrix is even consulted. But **`.for()` and `.fresh()` are not available on the result**, on either composable in this module, because both matrices declare `self` as `null as never`. The type this produces has no way to carry a `.for()` method — this is a distinct issue from gotcha 2 above: the code here typechecks fine, it just doesn't have the method you might reach for next.
+`.as(ScopeActorTypes.SELF)` resolves to the calling client — the actor-scoping builder resolves `self` to a concrete actor, and returns the plain, unscoped instance directly, before either composable's matrix is even consulted. **No further chaining is available on the result** — not `.for()`, not `.withId()`, not `.fresh()` — on either composable in this module. This is a distinct issue from gotcha 2 above: the code here typechecks fine, it just doesn't have the method you might reach for next.
 
 ```ts
 import {
   useClientCustomFields,
-  ScopeActorTypes,
-  ClientCustomFieldsContextTypes
+  ScopeActorTypes
 } from "@upmind-automation/headless";
 
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
@@ -91,21 +95,20 @@ const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 // ✅ Right: .as(ScopeActorTypes.SELF) alone
 const selfScoped = useClientCustomFields().as(ScopeActorTypes.SELF);
 
-// ❌ Wrong: chaining .for() off SELF does not typecheck on this module
+// ❌ Wrong: chaining .withId() off SELF does not typecheck on this module
 useClientCustomFields()
   .as(ScopeActorTypes.SELF)
-  // @ts-expect-error — no .for() on the SELF branch's type
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  // @ts-expect-error — no .withId() on the SELF branch's type
+  .withId(clientId);
 
-// ✅ Right: name the concrete actor when you need .for()
-const fields = useClientCustomFields()
-  .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+// ✅ Right: name a concrete actor (any of them — .withId() is not actor-gated,
+// see gotcha 6) when you need to chain further
+const fields = useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(clientId);
 ```
 
-This is unrelated to whether the _runtime_ actor resolution behaves correctly — it resolves fine either way. It is purely that the _type_ the builder exposes for the `self` branch collapses to a plain, unscoped value with no further chaining, regardless of which composable in the tree you're looking at. Every composable with a matrix that maps `self` to `never` has the identical shape.
+This is unrelated to whether the _runtime_ actor resolution behaves correctly — it resolves fine either way. It is purely that `.as(self)` returns the bare instance type with no further chaining at all, regardless of which composable in the tree you're looking at. Every scoped composable in this codebase has the identical shape for `self` — it is not specific to this module's matrix.
 
-> **🧪 For Testers:** This is a compile-time gotcha, not a runtime one. A reader who hits gotcha 2 (a bare string rejected) and "fixes" it by switching from `.as(ScopeActorTypes.CLIENT).for(...)` to `.as(ScopeActorTypes.SELF)` alone has changed the wrong thing — that swap only happens to compile because it drops the `.for()` call entirely, not because it addressed the string-literal problem.
+> **🧪 For Testers:** This is a compile-time gotcha, not a runtime one. A reader who hits gotcha 2 (a bare string rejected) and "fixes" it by switching from `.as(ScopeActorTypes.CLIENT).withId(...)` to `.as(ScopeActorTypes.SELF)` alone has changed the wrong thing — that swap only happens to compile because it drops the `.withId()` call entirely, not because it addressed the string-literal problem.
 
 ## 4. Both composables register lazily — this is load-bearing, not a style choice
 
@@ -115,16 +118,17 @@ Most scoped composables in this codebase register with the scope system **eagerl
 import {
   createScopedComposable,
   ScopeActorTypes,
-  ClientCustomFieldsContextTypes,
   type ScopeBuilder,
   type ScopeConfig,
   type ScopeKey
 } from "@upmind-automation/headless";
 
+// All-`never` — this module's real shape. It names no context for any actor;
+// the collection's own client is marked with `.withId(id)` instead (gotcha 6).
 const SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientCustomFieldsContextTypes.VALUES,
+  [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
@@ -198,7 +202,33 @@ The risk is not in this module's own code — it branches correctly — but in t
 
 > **🧪 For Testers:** If you're testing a DATE or PASSWORD-typed field's schema or form-definition output and it doesn't look date-shaped or password-shaped, check whether the fixture's `type_code` string actually matches what the shared helper expects — this module's own coercion will still be correct even when the shared helper's output isn't.
 
-## 6. The definitions read targets the CLIENT's brand, never the session's own
+## 6. `.withId()` carries no per-actor gate — unlike this module's former `.for(VALUES, id)` shape
+
+This module used to name a single-member context (`ClientCustomFieldsContextTypes.VALUES`) purely to carry the owning client's id through `.for(VALUES, id)` — spellable only for the `client` actor, since that context lived only on the matrix's `client` row. Per ADR-001's 2026-09-15 amendment (`.for()` carries the context, `.withId()` carries the id), that context is gone: the collection's matrix now maps **every** actor to `null as never`, and the client is named with `.withId(id)` instead.
+
+The trap: `.withId(id)` is a platform-wide seam offered to every actor at every builder position, with **no matrix gate at all** (ADR-001's 2026-08-19 amendment) — the matrix constrains `.for()` contexts, never record ids. So where `.as(ScopeActorTypes.STAFF).for(ClientCustomFieldsContextTypes.VALUES, id)` used to be a compile-time error, `.as(ScopeActorTypes.STAFF).withId(id)` **compiles**, on this module as on any other. And this module's own client-resolution seam (`resolveClientId`) reads whichever id `.withId()` supplies with no check against the calling actor — it resolves the named id for `staff` and `guest` exactly as it does for `client`.
+
+```ts
+import {
+  useClientCustomFields,
+  ScopeActorTypes
+} from "@upmind-automation/headless";
+
+const otherClientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Before this module dropped ClientCustomFieldsContextTypes:
+// only `client` could spell a retarget — `.as(STAFF).for(...)` was TS2345.
+
+// Today: every actor can spell one, because .withId() isn't matrix-gated.
+const asStaff = useClientCustomFields().as(ScopeActorTypes.STAFF).withId(otherClientId);
+const asClient = useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(otherClientId);
+// Both compile, and both resolve this module's own addressability check the
+// same way — nothing in this module's own code distinguishes them by actor.
+```
+
+> **🧪 For Testers:** No test in this module's own suite currently exercises `.as(ScopeActorTypes.STAFF).withId(id)` or `.as(ScopeActorTypes.GUEST).withId(id)` end-to-end. This module's own code compiles the call and forwards the named id with no local actor check — whether a real staff-issued request of this shape is honoured is a server-side authorization question this module neither settles nor advertises an answer to.
+
+## 7. The definitions read targets the CLIENT's brand, never the session's own
 
 The brand used to scope the definitions request is the **target client's** brand, resolved through the same identity seam every other request in this module uses — never the calling session's own brand from the ambient brand context.
 
@@ -206,21 +236,21 @@ In a multi-brand organisation, the calling session's own brand and a targeted en
 
 > **🧪 For Testers:** Seed a target client whose brand differs from the ambient session brand and assert the outbound definitions request carries the **client's** brand id, not the session's.
 
-## 7. This module's own brand-id read and the profile module's read are two cache entries, not one
+## 8. This module's own brand-id read and the profile module's read are two cache entries, not one
 
 Both this module and the client's own profile module read the identical underlying client record. Each is built to key against it as closely to the other as its own transport allows, but a small asymmetry in how each side forms its own key leaves them as two separate cache entries rather than one shared one — and that gap is left alone deliberately, not fixed by force, because forcing a shared entry risks one side's selected shape silently overwriting the other's.
 
 **Do not quote a specific per-boot request count anywhere downstream of this doc.** See the profile module's own [gotchas.md](../../client-personal-details/docs/gotchas.md#3-two-independently-keyed-reads-of-the-same-profile-resource) for the full account.
 
-## 8. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
+## 9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
 
 `pnpm lint` at the repo root aborts inside the `packages/types` submodule before it ever reaches this module, and its `--fix` flag mutates that submodule as a side effect. `pnpm install` at the repo root is unsafe in a sparse worktree that is missing one or more app-level `package.json` files — it silently drops those apps' entries from the shared lockfile. Neither is a safe verification step for a change scoped to this module; use the module's own targeted test commands instead.
 
 ## Common Mistakes
 
-### Assuming a client id resolved into `.for(...)` is validated against the caller
+### Assuming a client id resolved into `.withId(...)` is validated against the caller — or against the actor
 
-The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.VALUES, someOtherId)` compiles and addresses that other id's resource, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. Be precise about where that boundary is enforced, because it splits in two. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** on both composables — each matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead: with no context naming a target, every request resolves its client id from the active session itself and is gated by this module's own addressability check. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error. Only the entity id being named is caller-controlled, not the identity making the call.
+The id `.withId(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).withId(someOtherId)` compiles and addresses that other id's resource, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. Unlike this module's former `.for(VALUES, id)` shape, that is no longer narrower than an on-behalf-of capability — see gotcha 6 above: `.withId()` carries no per-actor gate, so `.as(ScopeActorTypes.STAFF).withId(someOtherId)` compiles and resolves the named id too, with only the id itself caller-controlled, not which actor named it.
 
 ### Serialising a value set before the aggregate image flush has run
 
@@ -236,16 +266,13 @@ import {
   useClientCustomFields,
   useClientCustomFieldImage,
   ScopeActorTypes,
-  ClientCustomFieldsContextTypes,
   ClientCustomFieldContextTypes
 } from "@upmind-automation/headless";
 
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
 
-const fields = useClientCustomFields()
-  .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+const fields = useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(clientId);
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientCustomFieldContextTypes.FIELD, fieldId);
@@ -263,16 +290,12 @@ import {
   useClientCustomFields,
   useClientCustomFieldImage,
   ScopeActorTypes,
-  ClientCustomFieldsContextTypes,
   ClientCustomFieldContextTypes
 } from "@upmind-automation/headless";
 
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(
-    ClientCustomFieldsContextTypes.VALUES,
-    "825d96e7-63ed-0913-46c4-174825283406"
-  );
+  .withId("825d96e7-63ed-0913-46c4-174825283406");
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(

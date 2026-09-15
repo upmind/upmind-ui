@@ -16,14 +16,22 @@ import {
   ScopeActorTypes
 } from "@upmind-automation/headless";
 
+const someClientId = "825d96e7-63ed-0913-46c4-174825283406";
+
 // The read view
 const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
 
 // The editor — callable bare; a client has exactly one preference
 const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
+
+// Either composable can instead address a NAMED entity id — via .withId(),
+// never a .for() context (this module names none)
+const otherSettings = useBillingSettings()
+  .as(ScopeActorTypes.CLIENT)
+  .withId(someClientId);
 ```
 
-> **🧪 For Testers:** The only actor that resolves on either composable is `client`. `staff` and `guest` are compile-time errors, not runtime failures — there is nothing in this module for a staff member or a guest to act at all.
+> **🧪 For Testers:** With no id supplied, only `client` addresses a real client's preference on either composable — a bare `.as(ScopeActorTypes.STAFF)`/`.as(ScopeActorTypes.GUEST)` type-checks but falls back to the active session's own id and is refused by this module's own addressability check at runtime. Naming an id changes that: `.withId(id)` compiles and resolves for **any** actor — `staff`/`guest` included, since `.withId()` carries no per-actor matrix gate. See [gotchas.md](./gotchas.md#10-withid-carries-no-per-actor-gate--unlike-this-modules-former-forsettings-id-shape).
 
 Both composables return the same four sub-composables:
 
@@ -301,9 +309,6 @@ await manager.useActions().onDone();
 import {
   useBillingSettings,
   useBillingSettingsManager,
-  CLIENT_BILLING_SETTINGS_SCOPE_MATRIX,
-  ClientBillingSettingsContextTypes,
-  type ClientBillingSettingsScopeMatrix,
   type BillingSettingsContext,
   type BillingSettingsModel,
   type BillingSettingsRecord,

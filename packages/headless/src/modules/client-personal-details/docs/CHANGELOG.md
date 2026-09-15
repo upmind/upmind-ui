@@ -24,6 +24,7 @@ All notable changes to the `client-personal-details` module are documented here.
 
 - **Custom field value semantics (definitions, per-type coercion, schema/form generation, and the image-flush step) are consumed from the sibling `client-custom-fields` module rather than re-implemented here.**
 - **The two composables are registered under two distinct internal names**, despite sharing one scope matrix — a deliberate departure from some other converted modules in this codebase, required because this module's single-member context makes the "no `.for()` supplied" call identical for both halves.
+- **The owning client's id now travels through `.withId(clientId)`, not `.for(...)`.** `ClientPersonalDetailsContextTypes` and `PERSONAL_DETAILS_SCOPE_MATRIX` are removed from the module's public surface entirely. Both composables' shared scope matrix now maps every actor to `null as never` — it names no context at all. This follows the platform-wide rule that `.for(type)` carries the context and `.withId(id)` carries the id (an owner id never rides in `.for()`). See [gotchas.md](./gotchas.md#8-withid-carries-no-per-actor-gate--unlike-this-modules-former-forprofile-id-shape).
 - **Documentation refreshed against the shipped surface**, including a correction to a sibling module's own foundation doc, which previously described this pair's update-request shape for custom field values as an array of `{field_id, value}` pairs — it is, and always was, an object keyed by field code.
 
 ### Removed
@@ -33,7 +34,7 @@ All notable changes to the `client-personal-details` module are documented here.
 
 ### Known limitations
 
-- **A staff-acting-for-a-client surface for reading or writing another client's profile is not built.** The shared matrix pins `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error while the bare `.as(ScopeActorTypes.STAFF)` still type-checks and is refused at runtime — a designed boundary. A number of admin-only capabilities that exist in the legacy application (an aggregate save/revert across multiple panels, several admin-only fields, permission-gated read/write, a staged-import lock, an unverified-client banner, a cross-brand redirect guard, and a per-client brand-settings language list for a multi-brand staff context) are all out of scope for this module — none of them are client-surface capabilities to begin with. Recorded as out-of-scope, with follow-up issues pending filing.
+- **A staff-acting-for-a-client surface for reading or writing another client's profile is not built.** The shared matrix pins `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error while the bare `.as(ScopeActorTypes.STAFF)` still type-checks and is refused at runtime — a designed boundary. Naming a client id via `.withId()` compiles for `staff`/`guest` too, since `.withId()` carries no per-actor gate — see [gotchas.md](./gotchas.md#8-withid-carries-no-per-actor-gate--unlike-this-modules-former-forprofile-id-shape) and [dropped-capabilities.md](./dropped-capabilities.md#the-refusal-and-where-it-is-enforced). A number of admin-only capabilities that exist in the legacy application (an aggregate save/revert across multiple panels, several admin-only fields, permission-gated read/write, a staged-import lock, an unverified-client banner, a cross-brand redirect guard, and a per-client brand-settings language list for a multi-brand staff context) are all out of scope for this module — none of them are client-surface capabilities to begin with. Recorded as out-of-scope, with follow-up issues pending filing.
 - **How many times the underlying profile resource is actually fetched on a real page load is not settled**, though the mechanism is: this module's own read and the sibling custom-fields module's own read end up under two separate cache keys rather than one shared one, and closing that gap by force is unsafe rather than merely unfinished — see [gotchas.md](./gotchas.md#3-two-independently-keyed-reads-of-the-same-profile-resource).
 - **The "unknown current language survives as a disabled option" capability is proven against a labelled CONSTRUCTED language id**, not a recorded one — this staging environment's own brand language list is exhaustive, so an id genuinely absent from it cannot be recorded by definition. The constructed id is validated against the real recorded list (confirmed absent from it) rather than invented freely. This mirrors the sibling custom-fields module's own disclosure: a real environment with only a NUMBER and an IMAGE definition means several of that module's value-semantics proofs also rest on constructed inputs layered over real recorded shapes, never on a fresh hand-authored fixture — see that module's own [CHANGELOG.md](../../client-custom-fields/docs/CHANGELOG.md) for the full account.
 
@@ -57,6 +58,23 @@ Six request/response pairs captured against a live environment back the document
 ---
 
 ## Migration Guide
+
+### Addressing a named client's profile
+
+**Breaking change:** the client id travels through `.withId(id)`, not `.for(...)`. `ClientPersonalDetailsContextTypes` and `PERSONAL_DETAILS_SCOPE_MATRIX` no longer exist.
+
+```ts
+import { usePersonalDetails, ScopeActorTypes } from "@upmind-automation/headless";
+
+const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Before
+// import { ClientPersonalDetailsContextTypes } from "@upmind-automation/headless";
+// usePersonalDetails().as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.PROFILE, clientId);
+
+// After
+const profile = usePersonalDetails().as(ScopeActorTypes.CLIENT).withId(clientId);
+```
 
 ### Reading a client's custom field values
 

@@ -109,13 +109,40 @@ const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 
 `pnpm lint` at the repo root aborts inside a shared types submodule before it ever reaches this module, and its `--fix` flag mutates that submodule as a side effect. `pnpm install` at the repo root is unsafe in a sparse worktree missing one or more app-level `package.json` files — it silently drops those apps' entries from the shared lockfile. Neither is a safe verification step for a change scoped to this module; use the module's own targeted test commands instead.
 
+## 10. `.withId()` carries no per-actor gate — unlike this module's former `.for(SETTINGS, id)` shape
+
+This module used to name a single-member context (`ClientBillingSettingsContextTypes.SETTINGS`) purely to carry the owning client's id through `.for(SETTINGS, id)` — spellable only for the `client` actor, since that context lived only on the matrix's `client` row; `staff` and `guest` got `.as(ScopeActorTypes.STAFF).for(...)`/`.as(ScopeActorTypes.GUEST).for(...)` as compile-time errors. Per ADR-001's 2026-09-15 amendment (`.for()` carries the context, `.withId()` carries the id), that context is gone: both composables' shared matrix now maps every actor to `null as never`, and the preference's owning client is named with `.withId(id)` instead.
+
+The trap: `.withId(id)` is a platform-wide seam offered to every actor at every builder position, with **no matrix gate at all** (ADR-001's 2026-08-19 amendment) — the matrix constrains `.for()` contexts, never record ids. So where `.as(ScopeActorTypes.STAFF).for(ClientBillingSettingsContextTypes.SETTINGS, id)` used to be a compile-time error, `.as(ScopeActorTypes.STAFF).withId(id)` **compiles**, on both composables in this module. And this module's own client-resolution seam (`resolveClientId`) reads whichever id `.withId()` supplies with no check against the calling actor — it resolves the named id for `staff` and `guest` exactly as it does for `client`.
+
+```ts
+import { useBillingSettings, ScopeActorTypes } from "@upmind-automation/headless";
+
+const otherClientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Before this module dropped ClientBillingSettingsContextTypes:
+// only `client` could spell a retarget — `.as(STAFF).for(...)` was TS2345.
+
+// Today: every actor can spell one, because .withId() isn't matrix-gated.
+const asStaff = useBillingSettings().as(ScopeActorTypes.STAFF).withId(otherClientId);
+const asClient = useBillingSettings().as(ScopeActorTypes.CLIENT).withId(otherClientId);
+// Both compile, and both resolve this module's own addressability check the
+// same way — nothing in this module's own code distinguishes them by actor.
+```
+
+> **🧪 For Testers:** No test in this module's own suite currently exercises `.as(ScopeActorTypes.STAFF).withId(id)` or `.as(ScopeActorTypes.GUEST).withId(id)` end-to-end. This module's own code compiles the call and forwards the named id with no local actor check — whether a real staff-issued request of this shape is honoured is a server-side authorization question this module neither settles nor advertises an answer to. See [dropped-capabilities.md](./dropped-capabilities.md) for the staff-administration surface that remains unbuilt regardless of this id-channel change.
+
 ## Common Mistakes
 
 ### Assuming a diff is computed by "does this field look set" rather than "did this field change"
 
 A hand-rolled diff that filters out falsy-looking values before comparing against the base model will drop an explicit off (`0`) the same way it drops "never touched". The only correct diff test is an identity comparison (`!==`) against the base model, field by field — never a value-emptiness check applied afterward.
 
-### Assuming the editor needs a `.for()` argument
+### Assuming a client id resolved into `.withId(...)` is validated against the caller — or against the actor
+
+The id this module's `.withId(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).withId(someOtherId)` compiles and addresses that other id's preference, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. `.withId()` carries no per-actor gate at all (see gotcha 10 above) — `.as(ScopeActorTypes.STAFF).withId(someOtherId)` compiles too, resolved the same way regardless of actor.
+
+### Assuming the editor needs a `.withId()` argument
 
 It doesn't — `useBillingSettingsManager().as(ScopeActorTypes.CLIENT)` alone constructs and settles. A client has exactly one preference; there is nothing to select between.
 

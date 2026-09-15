@@ -13,8 +13,7 @@ Both usually act on the calling client's own profile — the target is always an
 import {
   usePersonalDetails,
   usePersonalDetailsManager,
-  ScopeActorTypes,
-  ClientPersonalDetailsContextTypes
+  ScopeActorTypes
 } from "@upmind-automation/headless";
 
 const someClientId = "825d96e7-63ed-0913-46c4-174825283406";
@@ -25,13 +24,14 @@ const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
 // The editor — callable bare; a client has exactly one profile
 const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
 
-// Either composable can instead address a NAMED entity id — see below
+// Either composable can instead address a NAMED entity id — via .withId(),
+// never a .for() context (this module names none)
 const otherProfile = usePersonalDetails()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientPersonalDetailsContextTypes.PROFILE, someClientId);
+  .withId(someClientId);
 ```
 
-> **🧪 For Testers:** The only actor that resolves on either composable is `client` — `.as(ScopeActorTypes.SELF)` resolves to it too, via the scope builder, before either matrix is even consulted. There is nothing in this module for a staff member or a guest to act at all, but the refusal is not all compile-time: `.as(ScopeActorTypes.STAFF).for(...)` fails to compile, while a bare `.as(ScopeActorTypes.STAFF)` type-checks and is refused at runtime. That is narrower than "no other profile is ever reachable": naming a different client's id in `.for(...)` compiles and addresses that client's own resource, on the caller's own session bearer, with no local check that the id matches the caller. See [gotchas.md](./gotchas.md).
+> **🧪 For Testers:** With no id supplied, only `client` (and `self`, which resolves to the calling client via the scope builder, before either matrix is even consulted) address a real profile. Naming an id changes that: `.withId(id)` compiles and resolves for **any** actor — `staff` and `guest` included, because `.withId()` carries no per-actor matrix gate (unlike this module's former `.for(PROFILE, id)` shape, which only `client` could spell). A bare `.as(ScopeActorTypes.STAFF)`/`.as(ScopeActorTypes.GUEST)` — no id — falls back to the active session's own id and is refused by this module's own addressability check at runtime. Naming a different client's id in `.withId(...)` compiles and addresses that client's own resource, on the caller's own session bearer, with no local check that the id matches the caller, or that the actor naming it is `client`. See [gotchas.md](./gotchas.md).
 
 Both composables return the same four sub-composables:
 
@@ -378,8 +378,6 @@ await manager.useActions().onDone();
 import {
   usePersonalDetails,
   usePersonalDetailsManager,
-  PERSONAL_DETAILS_SCOPE_MATRIX,
-  ClientPersonalDetailsContextTypes,
   type UsePersonalDetails,
   type UsePersonalDetailsActions,
   type UsePersonalDetailsContext,
@@ -390,7 +388,6 @@ import {
   type UsePersonalDetailsManagerContext,
   type UsePersonalDetailsManagerMeta,
   type UsePersonalDetailsManagerInternals,
-  type PersonalDetailsScopeMatrix,
   type ProfileContext,
   type ProfileField,
   type ProfileModel,
