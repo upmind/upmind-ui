@@ -49,8 +49,8 @@ useAuth()
   .for(AuthContextTypes.CLIENT, clientId)
   .inBrand(brandId); // same instance
 
-// Force a brand-new instance + new session. Offered at the root, and on any
-// actor whose matrix row carries a context — never on a context-less actor.
+// Force a brand-new instance + new session. Offered at the root, and on every
+// actor regardless of whether the matrix gives that actor a context.
 useClientEmailManager().fresh();
 
 // Single-record read — mark the ONE record by id, not by a synthesised context.
@@ -76,12 +76,12 @@ const { resolve } = account.useActions();
 
 ### Which methods are available?
 
-| Actor    |            `.for(…)`             | `.inBrand(id)` |         `.fresh()`         | `.withId(id)` |
-| -------- | :------------------------------: | :------------: | :------------------------: | :-----------: |
-| `self`   |                —                 |       —        |             —              |      ✅       |
-| `guest`  | if matrix defines a guest context |       —        | if matrix gives it context |      ✅       |
-| `client` | if matrix defines a client context |       —        | if matrix gives it context |      ✅       |
-| `staff`  | if matrix defines a staff context |  ✅ (always)   |        ✅ (always)         |      ✅       |
+| Actor    |            `.for(…)`             | `.inBrand(id)` |  `.fresh()`  | `.withId(id)` |
+| -------- | :------------------------------: | :------------: | :----------: | :-----------: |
+| `self`   |                —                 |       —        | ✅ (always)  |      ✅       |
+| `guest`  | if matrix defines a guest context |       —        | ✅ (always)  |      ✅       |
+| `client` | if matrix defines a client context |       —        | ✅ (always)  |      ✅       |
+| `staff`  | if matrix defines a staff context |  ✅ (always)   | ✅ (always)  |      ✅       |
 
 ### `.for()` has two shapes, and a context member declares which one it is
 
@@ -105,11 +105,11 @@ The id is never the channel for "which record this instance reads" — that is
 Availability is enforced at **compile time**. Calling `.for()` with a context type
 the matrix does not map to that actor is a type error, not a runtime failure — and
 because the matrix carries the module's own enum members, a context the module never
-declared cannot even be named. `.fresh()` is gated on the same matrix cell after `.as()`, so a
-context-less actor — `self` always among them — is not offered it; `.fresh()` **is** always offered at the root,
-before any `.as()`, which is how `useClientEmailManager().fresh()` reads.
-`.withId(id)` carries no matrix constraint — every actor gets it, and it is offered
-before `.as()` too: a caller that never names an actor resolves to `self`.
+declared cannot even be named. `.fresh()` carries no matrix constraint of its own — it
+is offered to every actor, with or without a context, and at the root before any
+`.as()` too, which is how `useClientEmailManager().fresh()` reads.
+`.withId(id)` carries no matrix constraint either — every actor gets it, and it is
+offered before `.as()` too: a caller that never names an actor resolves to `self`.
 
 ## Authoring a scoped composable
 
@@ -197,6 +197,50 @@ useAuth().as(ScopeActorTypes.STAFF).for(AuthContextTypes.CLIENT, "client-id");
   caller's `.withId(id)`) — read it directly. Do not mint a context type to carry a
   leaf record; a context names an entity the actor acts upon, not the record itself.
 
+### 3. Declaring a selector context (when the type IS the answer)
+
+Most matrix cells are retarget-only and need no wrapper — a bare string stays a
+retarget declaration, unchanged. A cell that needs the *other* pattern — no entity to
+name, the type is the whole answer — wraps the type in `selector()`. A cell can also
+hold **several** declarations for one actor, as a `readonly` array; each member keeps
+its own pattern independently:
+
+```ts
+import { selector, ScopeActorTypes } from "@upmind-automation/headless";
+
+enum CustomFieldsContextTypes {
+  VALUES = "values",
+  INVOICE = "invoice",
+  CANCEL_REQUEST = "cancel_request"
+}
+
+// One retarget member (an id is required) and two selector members (an id is
+// forbidden) offered to the SAME actor. Illustrative — no shipped module wires
+// this matrix today; the mixed-cell shape is exercised by this module's own
+// test suite.
+const CUSTOM_FIELDS_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: [
+    CustomFieldsContextTypes.VALUES, // retarget: .for(VALUES, id)
+    selector(CustomFieldsContextTypes.INVOICE), // selector: .for(INVOICE)
+    selector(CustomFieldsContextTypes.CANCEL_REQUEST) // selector: .for(CANCEL_REQUEST)
+  ],
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+// Two independent selector reads of the SAME module — different keys, different
+// instances, neither one taking an id:
+useCustomFields().as(ScopeActorTypes.CLIENT).for(CustomFieldsContextTypes.INVOICE);
+useCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(CustomFieldsContextTypes.CANCEL_REQUEST);
+```
+
+`selector()` only marks the declaration in the matrix; nothing about calling, reading,
+or authoring a scoped composable otherwise changes. The `.for()` overload the caller
+sees is derived from the matrix, per member, exactly as it is for a retarget-only cell.
+
 ### Reading which actors a module serves
 
 ```ts
@@ -276,6 +320,12 @@ generateScopeKey("client-email-history", {
 });
 // → "client-email-history:self:id:42"  (set via the builder's .withId('42'))
 
+generateScopeKey("custom-fields", {
+  actor: ScopeActorTypes.CLIENT,
+  context: { type: "invoice" } // no `id` — a SELECTOR context
+});
+// → "custom-fields:client:invoice"  (one unprefixed segment, never an id)
+
 resolveSelfActor(ScopeActorTypes.SELF); // → the active session actor, or "guest"
 resolveSelfActor(ScopeActorTypes.CLIENT); // → "client" (pass-through)
 ```
@@ -300,8 +350,8 @@ call it yourself.
 
 `index.ts` re-exports everything from the five files:
 
-- **builder** — `createScopedComposable`; the `Scope*` builder/result types, `ScopedFactory`, `ScopedComposable`.
-- **types** — `ScopeActorTypes`, `ConcreteActorTypes`, `ScopeActor`, `ScopeContext`, `ScopeConfig`, `ScopeKey`, `ActorContextMatrix`, `ContextsForActor`, `AllContextsFromMatrix`, `HasContexts`, `MatrixHasAnyContexts`.
+- **builder** — `createScopedComposable`; the `Scope*` builder/result types (including `ScopeForStep`, the overloaded `.for()` step type), `ScopedFactory`, `ScopedComposable`.
+- **types** — `ScopeActorTypes`, `ConcreteActorTypes`, `ScopeActor`, `ScopeContext`, `ScopeConfig`, `ScopeKey`, `ActorContextMatrix`, `ScopeContextPatterns`, `SelectorContext`, `ScopeContextDeclaration`, `DeclarationsInCell`, `ContextsForActor`, `IdContextsForActor`, `BareContextsForActor`, `AllContextsFromMatrix`, `HasContexts`, `MatrixHasAnyContexts`.
 - **registry** — `ensure`, `remove`, `clearAll`, `size`, `getRegistry`, `RegistryEntry`.
-- **utils** — `generateScopeKey`, `resolveSelfActor`.
+- **utils** — `generateScopeKey`, `resolveSelfActor`, `selector`, `resolveContextDeclarations`, `resolveContextDeclaration`.
 - **devtools** — `setupScopeDevtools`, `refreshDevtools`.

@@ -21,7 +21,7 @@ Architecture](../../../../../../docs/adr/001-scope-based-composables.md).
 | File                                      | Role                                                                                                                 |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | [scope.builder.ts](../scope.builder.ts)   | `createScopedComposable` — the fluent builder factory and all builder result types.                                  |
-| [scope.utils.ts](../scope.utils.ts)       | `generateScopeKey`, `resolveSelfActor`.                                                                              |
+| [scope.utils.ts](../scope.utils.ts)       | `generateScopeKey`, `resolveSelfActor`, `selector`, `resolveContextDeclarations`/`resolveContextDeclaration` (the one reading of a matrix cell). |
 | [scope.registry.ts](../scope.registry.ts) | `ensure`, `remove`, `clearAll`, `size`, `getRegistry` — the singleton map + effect-scope lifecycle.                  |
 | [scope.devtools.ts](../scope.devtools.ts) | `setupScopeDevtools`, `refreshDevtools` — Vue DevTools inspector.                                                    |
 | [scope.types.ts](../scope.types.ts)       | `ScopeActorTypes`, `ScopeConfig`, `ScopeKey`, `ActorContextMatrix`, and the conditional types that gate the builder. |
@@ -156,6 +156,30 @@ The matrix is passed to `createScopedComposable` **twice**: as the type paramete
 `composable.scopeMatrix` so runtime consumers can read which actors a module serves. Type
 and value cannot drift because the value is type-checked against `TMatrix`.
 
+## DevTools key parsing — marker pairs, read right-to-left
+
+The inspector state panel reads a live scope key back apart into its fields
+([scope.devtools.ts](../scope.devtools.ts)). A fixed-position read cannot do this
+correctly once a selector context (one unprefixed segment) and a retarget context (two)
+can both appear: the same position means different things depending on which shape
+produced the key.
+
+`generateScopeKey` writes every reserved segment — `id`, `brand`, `fresh` — as an
+adjacent `<marker>:<value>` pair, appended **after** the context. The reader exploits
+both facts: it splits the key on `:` (so a marker and its value are always two adjacent
+array elements, never one segment with an embedded colon), then walks the remaining
+segments from the **right**, peeling off `[marker, value]` pairs while the
+second-to-last remaining segment is a known marker. What is left when that stops is the
+context — one segment for a selector, two for a retarget, zero for no context at all.
+Reading from the right, rather than matching a `brand:` / `id:` prefix, is what keeps a
+**selector** context type spelled `brand` or `id` from being mistaken for a marker: its
+one unpaired segment never lines up with a `[marker, value]` pair, so it is left alone
+regardless of its name. A **retarget** context type spelled exactly `id`, `brand`, or
+`fresh` is not protected the same way — its own two segments (`type`, `id`) sit exactly
+where a real marker pair would, and the reader peels them off as one. No shipped module
+declares a context type named after a reserved marker, so the gap is real but
+unreached.
+
 ## Dependencies
 
 ### Scope depends on
@@ -164,18 +188,21 @@ and value cannot drift because the value is type-checked against `TMatrix`.
 | -------------------------- | ------------------------------------------------------------------------- |
 | `vue`                      | `effectScope` / `EffectScope` — the detached reactive scope per instance. |
 | `@vue/devtools-api`        | `setupDevToolsPlugin` — the DevTools inspector.                           |
-| `lodash-es`                | `map` / `keys` / `isObject` in the DevTools tree/state builders.          |
+| `lodash-es`                | `map` / `keys` / `isObject` / `includes` / `slice` / `split` in the DevTools tree/state builders; `flatMap` / `head` / `isArray` / `isPlainObject` / `isString` in the matrix-declaration reader. |
 | `@upmind-automation/types` | `AccessRoleTypes` — the source of the concrete actor values.              |
 | `../session-store`         | `useSessionStore` — read the active actor to resolve `self`.              |
 
 ### Modules that depend on scope
 
-Every scoped composable: `auth`, `account`, `client-address`, `client-company`,
-`client-custom-fields`, `client-email`, `client-email-history`,
+Every scoped composable: `auth`, `account`, `basket-billing`, `client-address`,
+`client-billing-settings`, `client-company`, `client-custom-fields`, `client-email`,
+`client-email-history`, `client-notes`, `client-notifications`,
 `client-personal-details`, `client-phone`. `auth` is the canonical worked example — read
-`../auth/` before writing or reviewing any scoped module. Some managers
-(`client-custom-fields`, `client-personal-details`) also call `generateScopeKey`
-directly to derive keys for nested instances.
+`../auth/` before writing or reviewing any scoped module. `basket-billing` only reads
+the actor enum, to call `.as()` on other scoped composables it composes — it declares no
+matrix of its own. Some managers (`client-billing-settings`, `client-custom-fields`,
+`client-notes`, `client-personal-details`) also call `generateScopeKey` directly to
+derive keys for nested instances.
 
 ## Integration points
 
