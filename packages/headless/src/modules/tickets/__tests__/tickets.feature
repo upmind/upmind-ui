@@ -74,10 +74,21 @@
 #   correctly treats the recorded brand as UNRESTRICTED (empty/unset means no restriction
 #   — the contract design.md and system-upload both state) and permits the file. The
 #   assertion demands a refusal THE RECORDED BRAND CANNOT PRODUCE.
-#   Owed: tasks.md T46 (capture a brand config that genuinely restricts, through the
-#   module's OWN generator) — operator-ruling-gated; then T45 (the thirteenth must-fail
-#   control), which is gated behind it because a control is graded on flipping its OWN
-#   target assertion. Do not read AC-23's green as proof of the brand-restriction guard.
+#   RULING R17(a) SETTLES IT (2026-09-15, tier 1). The earlier "Owed" line read
+#   "tasks.md T46 (capture a brand config that genuinely restricts, through the module's
+#   OWN generator)". THAT ROUTE IS NOT AVAILABLE and the line is WITHDRAWN here rather
+#   than deleted, so the history stays legible. Probed live: GET api/brand/settings
+#   returns 200 with NO upload keys at all — ALLOWED_UPLOAD_FILE_TYPES is not exposed on
+#   this brand, and api/brand/config and api/brand both 404. A restricted-brand config
+#   cannot be recorded without a brand-side configuration change — the same shape as the
+#   staging contract_request catalogue gap.
+#   WHAT THIS FILE NOW PROMISES INSTEAD, because it is true and provable: an ABSENT or
+#   EMPTY allowed-types list means UNRESTRICTED, so a file of any kind is PERMITTED and
+#   nothing is refused on type grounds. The SIZE refusal (25 MiB / 26214399) is provable,
+#   stays, and is NOT weakened. The type-rejection branch stays CODED in the module and is
+#   recorded here as UNPROVEN ON THIS BRAND — never deleted, never asserted as proven,
+#   never tagged @todo. T45 (the thirteenth must-fail control) is gated behind the re-aim,
+#   because a control is graded on flipping its OWN target assertion.
 #
 # R9 AND R11 CHANGED NOTHING IN THIS FILE, and that is a finding, not an oversight.
 # R9 moves a criteria KEY SPELLING (status.code -> an undotted key, translated back to
@@ -238,9 +249,21 @@ Feature: A client runs their own support conversations
 
   @AC-9 @collection @create @absorbed
   Scenario: I am told what a new ticket needs before it is sent
-    When I try to raise a ticket without a subject or without a message
+    When I try to raise a ticket without a subject, or with neither a message nor a file
     Then nothing is sent to the server
     And the rules that decide what is missing are published by this module for the page that renders the form
+
+  # [R17(b), 2026-09-15, tier 1] The server requires a message body ONLY when no file is
+  # attached — verbatim, 422: "The body field is required when files is not present."
+  # The scenario above previously read "without a subject or without a message", which
+  # promised a refusal the server does not make. It is corrected rather than deleted. A
+  # client guard stricter than the server narrows a capability the server grants — the
+  # FE-2824 silhouette — so this file promises the acceptance explicitly.
+  @AC-9 @collection @create @guard
+  Scenario: A ticket carrying a file but no message is accepted
+    When I raise a ticket carrying a subject and an attached file but no message
+    Then it is not refused for having no message
+    And the ticket is created against my account
 
   @AC-10 @collection @delegated
   Scenario: Tickets shared with me sit alongside my own
@@ -376,10 +399,23 @@ Feature: A client runs their own support conversations
     Then the file is uploaded first and referenced by what I send
 
   @AC-23 @manager @files @guard
-  Scenario: Files that are too large or of the wrong kind are refused before upload
-    When I attach a file larger than the permitted size, or of a kind my brand does not allow
+  Scenario: A file larger than the permitted size is refused before upload
+    When I attach a file larger than the size my brand permits
     Then I am told it is refused
     And nothing is uploaded
+
+  # [R17(a), 2026-09-15, tier 1] This scenario replaces the "or of a kind my brand does
+  # not allow" half of the scenario above, which promised a refusal THE RECORDED BRAND
+  # CANNOT PRODUCE. It is re-aimed, not dropped: what follows is what the brand on record
+  # actually does. The restricted-brand journey is NOT promised by this file — see the
+  # header block for why it cannot be recorded, and the module docs for the standing
+  # unproven-on-this-brand disclosure.
+  @AC-23 @manager @files @guard
+  Scenario: A brand that names no permitted kinds permits every kind
+    Given my brand publishes no list of permitted file kinds
+    When I attach a file of any kind
+    Then it is not refused on the grounds of its kind
+    And it is uploaded like any other file
 
   @AC-23 @manager @files
   Scenario: An expired session does not lose my upload
