@@ -112,12 +112,18 @@ const MODEL_KEYS = [
  * resolve the SAME id) executable, and is the guard against the FE-2824
  * defect shape (a services file that hardwires the session id and drops
  * `.for('client', id)`).
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ClientBillingSettingsContextTypes.SETTINGS
+    scopeContext?.type === ClientBillingSettingsContextTypes.SETTINGS &&
+    scopeContext.id
       ? scopeContext.id
       : activeUser.value?.id
   );

@@ -111,12 +111,17 @@ export const queryKey: QueryKey = ["client", "notes"];
  * currently unreachable from any live matrix cell and is kept anyway: it is
  * the single point every request gate reads, so restoring a staff cell
  * (rows S1-S6) becomes a matrix edit rather than a rewrite of this seam.
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ClientNotesContextTypes.CLIENT
+    scopeContext?.type === ClientNotesContextTypes.CLIENT && scopeContext.id
       ? scopeContext.id
       : activeUser.value?.id
   );

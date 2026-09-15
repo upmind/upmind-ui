@@ -77,12 +77,18 @@ export const queryKey: QueryKey = ["client", "customFields"];
  * session too — a field context names the entity, not its owner. This
  * compares the CONTEXT the scope builder resolved, never the actor, so it is
  * not a branch on `ScopeActorTypes.SELF`.
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ClientCustomFieldsContextTypes.VALUES
+    scopeContext?.type === ClientCustomFieldsContextTypes.VALUES &&
+    scopeContext.id
       ? scopeContext.id
       : activeUser.value?.id
   );

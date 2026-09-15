@@ -1,6 +1,6 @@
 import { setupDevToolsPlugin } from "@vue/devtools-api";
 import { ScopeActorTypes } from "./scope.types";
-import { isObject, keys, map } from "lodash-es";
+import { forEach, isObject, keys, map, startsWith } from "lodash-es";
 import type { RegistryEntry } from "./scope.registry";
 import type { ScopeKey } from "./scope.types";
 // -----------------------------------------------------------------------------
@@ -11,6 +11,10 @@ import type { ScopeKey } from "./scope.types";
 // --- constants
 const INSPECTOR_ID = "upmind-scope-registry";
 const PLUGIN_ID = "upmind.scope";
+// The prefixes `generateScopeKey` stamps on every non-context segment.
+const BRAND_PREFIX = "brand:";
+const FRESH_PREFIX = "fresh:";
+const RECORD_PREFIX = "id:";
 // --- state
 let devtoolsApi:
   | Parameters<Parameters<typeof setupDevToolsPlugin>[1]>[0]
@@ -80,12 +84,30 @@ export function setupScopeDevtools(
 
         const instance = entry.instance;
 
-        const parts = key.split(":");
-        const [name, actor, contextType, contextId, ...brandParts] = parts;
-        const brandId =
-          brandParts.length > 0
-            ? brandParts.join(":").replace("brand:", "")
-            : undefined;
+        // Prefix-aware, never positional: a SELECTOR context contributes ONE
+        // unprefixed segment and a RETARGET two, so a fixed position would
+        // report a `brand:` or `id:` segment as the context id.
+        const [name, actor, ...rest] = key.split(":");
+        const contextParts: string[] = [];
+        let recordId: string | undefined;
+        let brandId: string | undefined;
+        let seenPrefixed = false;
+
+        forEach(rest, segment => {
+          if (startsWith(segment, RECORD_PREFIX)) {
+            seenPrefixed = true;
+            recordId = segment.slice(RECORD_PREFIX.length);
+          } else if (startsWith(segment, BRAND_PREFIX)) {
+            seenPrefixed = true;
+            brandId = segment.slice(BRAND_PREFIX.length);
+          } else if (startsWith(segment, FRESH_PREFIX)) {
+            seenPrefixed = true;
+          } else if (!seenPrefixed) {
+            contextParts.push(segment);
+          }
+        });
+
+        const [contextType, contextId] = contextParts;
 
         payload.state = {
           "Scope Config": [
@@ -95,6 +117,7 @@ export function setupScopeDevtools(
               ? [{ key: "contextType", value: contextType }]
               : []),
             ...(contextId ? [{ key: "contextId", value: contextId }] : []),
+            ...(recordId ? [{ key: "recordId", value: recordId }] : []),
             ...(brandId ? [{ key: "brandId", value: brandId }] : [])
           ],
           Instance: [

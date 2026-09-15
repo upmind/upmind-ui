@@ -86,12 +86,18 @@ function recordQueryKey(clientId?: string): QueryKey {
  * falls back to the active session's own client (the self case). Both halves
  * share this one seam, which is what makes AC-30's read-back (read and write
  * resolve the SAME id) executable.
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE
+    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE &&
+    scopeContext.id
       ? scopeContext.id
       : activeUser.value?.id
   );
