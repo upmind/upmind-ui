@@ -17,19 +17,20 @@ import {
   CancellationRequestStatusCodes,
   ClientTemplateSlotCodes,
   ContractStatusCodes,
-  CustomFieldsTypes,
-  GatewayTypes,
-  NotificationChannelCodes,
   CreditNoteStatus,
+  CustomFieldsTypes,
   DelegateObjectTypes,
   FraudStatus,
+  GatewayTypes,
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes,
   InvoiceStatus,
+  NotificationChannelCodes,
   PriceDisplayTypes,
   ProvisionRequestActionTypes,
   ScheduledActionStatusTypes,
   ScheduledActionTypes,
+  SentEmailStatus,
   TicketStatusCodes,
   WalletTransactionTypes
 } from "@upmind-automation/types";
@@ -65,13 +66,15 @@ import {
   fillerProduct,
   fillerProductCreditNote,
   fillerProductInvoice,
+  fillerSentEmail,
   fillerTicket,
   fillerVaultEntry,
   fillerWalletTransaction,
   money,
   padByStatus,
   padTo,
-  seedPayment
+  seedPayment,
+  sentEmailRow
 } from "./hostgrid.filler";
 import {
   MOCK_ADDRESS_TYPE,
@@ -1539,6 +1542,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
         // On a free trial that simply RUNS OUT rather than renewing — the
         // end-trial branch, and the auto-expire banner beside it.
         id: "prod-seats",
+        originalName: "Seat Bundle",
         groupSlug: "products",
         serviceIdentifier: "seats.fieldnotes.app",
         createdAt: "2026-08-20",
@@ -1606,6 +1610,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
         // && !isPendingContract`): stopping a contract that never began takes
         // nothing away, so it is not warned about.
         id: "prod-vault",
+        canCancel: false,
         groupSlug: "products",
         serviceIdentifier: "vault.fieldnotes.app",
         createdAt: "2026-08-09",
@@ -3334,15 +3339,65 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
     name: "Fieldnotes",
     colour: "#1F5EFF",
     font: "Inter",
-    logoSrc: "https://placehold.co/160x40/1F5EFF/FFFFFF?text=Fieldnotes"
+    logoSrc: "https://placehold.co/160x160/1F5EFF/FFFFFF?text=F"
   },
   // The brand is running behind on mail, which is what raises legacy's
   // delivery-delay notice over the email history.
   emailDeliveryDelayed: true,
   // Rows carry the headless `SentEmail` model (plan R2), newest first — the
   // seed order stands in for the module's default `created_at` DESC sort
-  // (plan R5). TWELVE rows so the email-history pager has a real second page
-  // (plan §3 — the in-repo receipt: legacy pages this list at 10).
+  // (plan R5). One row per outcome legacy's tabs and badges tell apart.
+  sentEmails: [
+    sentEmailRow({
+      id: "mail-1",
+      subject: "Your Site Analytics report is ready",
+      to: "jonah@fieldnotes.app",
+      status: SentEmailStatus.SENDING,
+      at: "2026-09-10T07:30:00Z",
+      body: "Hi Jonah,\n\nYour August report for **Site Analytics** is ready to read in the portal.\n\nHost-Grid"
+    }),
+    sentEmailRow({
+      id: "mail-2",
+      subject: "Your invoice INV-0091 is ready",
+      to: "jonah@fieldnotes.app",
+      status: SentEmailStatus.SENT,
+      at: "2026-09-08T09:05:00Z",
+      body: "Hi Jonah,\n\nInvoice **INV-0091** for £49.00 is ready. It falls due on 12 September.\n\nHost-Grid"
+    }),
+    sentEmailRow({
+      id: "mail-3",
+      subject: "Team Plan renews on 12 September",
+      to: "jonah@fieldnotes.app",
+      status: SentEmailStatus.SENT,
+      at: "2026-09-05T08:00:00Z",
+      body: "Hi Jonah,\n\nYour **Team Plan** renews on 12 September. Nothing to do unless you want to change it.\n\nHost-Grid"
+    }),
+    sentEmailRow({
+      id: "mail-4",
+      subject: "Ticket #48211 has a reply",
+      to: "billing@fieldnotes.app",
+      cc: "jonah@fieldnotes.app",
+      status: SentEmailStatus.BOUNCED,
+      at: "2026-09-02T14:20:00Z",
+      body: "Hi,\n\nOur team replied to **Renewal date question**. Read it in the portal.\n\nHost-Grid"
+    }),
+    sentEmailRow({
+      id: "mail-5",
+      subject: "Verify your email address",
+      to: "ops@fieldnotes.app",
+      status: SentEmailStatus.ERROR,
+      at: "2026-08-30T10:10:00Z",
+      body: "Hi,\n\nClick the link to confirm this address belongs to your Host-Grid account.\n\nHost-Grid"
+    }),
+    sentEmailRow({
+      id: "mail-6",
+      subject: "Payment received for INV-0087",
+      to: "jonah@fieldnotes.app",
+      status: SentEmailStatus.SENT,
+      at: "2026-08-26T16:42:00Z",
+      body: "Hi Jonah,\n\nThank you — we received £120.00 against **INV-0087**.\n\nHost-Grid"
+    })
+  ],
   loginAttempts: [
     {
       id: "log-1",
@@ -3432,12 +3487,9 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
     }
   ],
   // The brand's own words on the pages that carry a slot (plan R12). Short by
-  // design: a slot is a note above the page, never a second page.
+  // design: a slot is a note above the page, never a second page. The dashboard
+  // slot stays blank: that page opens on the client's own data.
   templates: [
-    {
-      code: ClientTemplateSlotCodes.DASHBOARD_OVERVIEW,
-      body: "### Welcome back\n\nEverything you run with us is below. Our team answers tickets from **09:00 to 18:00 UK time**, Monday to Friday."
-    },
     {
       code: ClientTemplateSlotCodes.INVOICES_OVERVIEW,
       body: "Invoices are raised **14 days before** the due date and settled automatically where you have told us to. Anything unpaid can be paid from its own page."
@@ -3474,7 +3526,7 @@ const HOSTGRID_HERO_DATASET: MockDataset = {
       slug: "getting-started",
       title: "Getting started",
       showOnMenu: true,
-      body: "## Getting started\n\n1. Point your domain at `ns1.hostgrid.example`\n2. Add the mailboxes you need\n3. Turn on automatic backups\n\nNeed a hand? Open a ticket and we will walk you through it."
+      body: "Three steps stand between you and a working setup.\n\n1. **Point your domain** at `ns1.hostgrid.example`. Changes take up to an hour to reach everyone.\n2. **Add the mailboxes you need** from the Mail Relay page.\n3. **Turn on automatic backups**, so a bad day costs you nothing.\n\nNeed a hand? [Open a ticket](/support/tickets/new) and we will walk you through it."
     },
     {
       slug: "network-status",
@@ -3566,6 +3618,12 @@ export const HOSTGRID_MOCK_DATASET: MockDataset = assign(
     childAccounts: HOSTGRID_HERO_DATASET.childAccounts,
     // Padded PER STATUS: each of legacy's four tabs narrows this one list,
     // so each needs its own three pages.
+    sentEmails: padByStatus(
+      HOSTGRID_HERO_DATASET.sentEmails,
+      email => email.status,
+      [SentEmailStatus.SENT, SentEmailStatus.BOUNCED, SentEmailStatus.ERROR],
+      fillerSentEmail
+    ),
     loginAttempts: padTo(
       HOSTGRID_HERO_DATASET.loginAttempts,
       fillerLoginAttempt

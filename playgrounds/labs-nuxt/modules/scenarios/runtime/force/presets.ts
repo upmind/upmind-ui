@@ -6,8 +6,9 @@
  * read is of one RECORD — the module's own recorded read for a record that is
  * not there, `error-action` and `error-collection` are the
  * recording that FAILED aimed at the write and at the read respectively,
- * `loading` is no answer at all, and `replay` is the answer the resolver already
- * picks. Same corpus, a different answer: the only thing a preset may change
+ * `loading` is no answer at all, `loading-action` is no answer to the WRITE
+ * alone — the read served as recorded, so a form is on screen with its own save
+ * in flight — and `replay` is the answer the resolver already picks. Same corpus, a different answer: the only thing a preset may change
  * about a recording is which of them is served, so nothing here authors a body
  * and no response literal appears in this file (`S13` · `AC8.5`).
  *
@@ -56,6 +57,7 @@ import {
   resolveCorpusRefusal,
   resolveCorpusRequest
 } from "./corpus";
+import { FORCE_RECIPE_PENDING_WRITE } from "./states.types";
 import { get, isArray, isString, toUpper } from "lodash-es";
 import type { CorpusBodies, CorpusResponse } from "./corpus";
 import type { RecordedFixture } from "./corpus.source.types";
@@ -147,9 +149,19 @@ export function presetAnswer(
   bodies: CorpusBodies,
   method: string,
   url: URL,
-  recordedFailure?: RecordedFixture
+  recordedFailure?: RecordedFixture,
+  sent?: unknown
 ): PresetAnswer {
-  const served = resolveCorpusRequest(bodies, method, url);
+  const served = resolveCorpusRequest(bodies, method, url, sent);
+
+  // A save IN FLIGHT, and nothing else held: the read answers as recorded, so
+  // the form is on screen with its own save spinning — the state a feature
+  // scenario means by "while my save is in progress". `loading` holds the read
+  // too, which is a boot, and a form drawn as a boot skeleton is not a form
+  // mid-save. Above the `!served` guard for the same reason the refused write
+  // is: the acted-on record carries an id no capture run addressed.
+  if (preset === FORCE_RECIPE_PENDING_WRITE)
+    return isRead(method) ? served : PENDING;
 
   // ABOVE the `!served` guard deliberately: the acted-on row carries an id no
   // capture run addressed, so a write that had to resolve first was answered by

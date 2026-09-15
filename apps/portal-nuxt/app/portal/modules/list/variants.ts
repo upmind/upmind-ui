@@ -72,6 +72,47 @@ export function cardMediaClass(media: ListModuleMedia | undefined): string {
   return CARD_MEDIA_CLASS[media ?? "video"];
 }
 
+/**
+ * The ruled stack is a container query root: its rows key off the width the
+ * list actually has (a 20rem rail, a phone), not the viewport's.
+ */
+export const STACK_ROOT_CLASS = "@container";
+
+/**
+ * A row's trailing cluster — badges, the action, the menu — drops onto its own
+ * line under the text where the list is narrower than 24rem. On one line it
+ * would take the width it needs and leave the title nothing to truncate into.
+ */
+export const STACK_ITEM_CLASS =
+  "flex-wrap @max-sm:[&>[data-slot=list-item-trailing]]:basis-full @max-sm:[&>[data-slot=list-item-trailing]]:justify-end";
+
+/** A row's category, on its own line over the title it qualifies. `block`, so a long one truncates inside the row instead of pushing past it — a flex badge cannot ellipsise. */
+export const STACK_CATEGORY_CLASS = "mb-1 block max-w-full truncate";
+
+/** A card's badge line: the category at the start, the status pushed to the end. */
+export const CARD_BADGE_ROW_CLASS = "mb-1 flex flex-wrap items-center gap-2";
+
+/** The cluster itself wraps too — two tags and an action rarely share one narrow line. */
+export const STACK_TRAILING_CLASS =
+  "flex flex-wrap items-center justify-end gap-2";
+
+/** `row-cards` — the same container query, on the column of cards. */
+export const ROW_CARDS_ROOT_CLASS = "@container flex flex-col gap-3";
+
+export const ROW_CARD_CLASS =
+  "rounded-card border-stroke bg-surface flex flex-wrap items-center gap-4 border p-4";
+
+/** A card's trailing cluster, on its own line under 24rem for the same reason as a row's. */
+export const ROW_CARD_TRAILING_CLASS =
+  "flex shrink-0 flex-wrap items-center justify-end gap-2 @max-sm:basis-full";
+
+/** A table cell never breaks a date or an amount across lines — the table scrolls sideways inside its container instead. */
+export const TABLE_CELL_CLASS = "whitespace-nowrap";
+
+/** A wide table scrolls inside the library's container; overlay scrollbars hide that, so the bar is drawn thin and always. */
+export const TABLE_ROOT_CLASS =
+  "[&_[data-slot=table-container]::-webkit-scrollbar]:h-1.5 [&_[data-slot=table-container]::-webkit-scrollbar-thumb]:rounded-full [&_[data-slot=table-container]::-webkit-scrollbar-thumb]:bg-stroke";
+
 /** A group's header row: quieter and tighter than the rows it heads, since it is a label, not an entry. */
 export const GROUP_HEADER_CLASS = "bg-neutral-muted/40 py-1.5";
 
@@ -85,9 +126,16 @@ export const SECRET_MASK = "••••••••";
 /** The row-level control cluster a secret or a toggle adds beside the text. */
 export const ROW_CONTROLS_CLASS = "flex shrink-0 items-center gap-1";
 
+/** A secret's description line lays the masked value and its controls side by side — a block would drop the controls under it. */
+export const SECRET_DESCRIPTION_CLASS = "flex items-center gap-1";
+
 /** A timeline event's top line — its time, and its own menu pushed to the end. */
 export const TIMELINE_EVENT_HEAD_CLASS =
   "flex items-start justify-between gap-2";
 
 /** A revealed secret is a value to read exactly, so it wears the tabular face amounts and ids do. */
 export const SECRET_VALUE_CLASS = "type-data";
+
+/** A row whose subject is over reads as past — dimmed as a whole, and its title struck through. */
+export const INACTIVE_ITEM_CLASS = "opacity-60";
+export const INACTIVE_TITLE_CLASS = "line-through";

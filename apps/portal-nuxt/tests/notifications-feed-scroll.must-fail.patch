@@ -1,0 +1,22 @@
+# Negative control — uncaps the feed region, so the dropdown grows with its own
+# rows again. Ten accumulated rows measured ~950px on a 1000px viewport and
+# filled the screen: the FE walkthrough defect 1.
+#
+# `contents` rather than an empty string: the region must still be FOUND, so
+# the failure is "it does not cap", never "the region vanished".
+#
+# Intended RED:
+#   the notifications feed is capped and scrolls >
+#     puts the rows in a region that caps its own height
+
+--- a/apps/portal-nuxt/app/portal/modules/notifications/variants.ts
++++ b/apps/portal-nuxt/app/portal/modules/notifications/variants.ts
+@@ -18,7 +18,7 @@
+  * The filter rail above it and the two controls below stay outside, so they
+  * are reachable however far down the feed the reader is.
+  */
+-export const FEED_CLASS = "max-h-96 overflow-y-auto";
++export const FEED_CLASS = "contents";
+ 
+ /** How near the end counts as the end — one row's worth of runway. */
+ export const FEED_PAGE_DISTANCE = 64;

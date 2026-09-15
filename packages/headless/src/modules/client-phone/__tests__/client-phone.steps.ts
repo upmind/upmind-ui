@@ -48,7 +48,14 @@ export const coveredActionIds: readonly string[] = values(
  */
 const RECORDED = {
   defaultId: "25d96e76-3ed0-913d-357a-417482528340",
-  nonDefaultId: "d085e69d-5623-7197-266f-218e940d4237"
+  nonDefaultId: "d085e69d-5623-7197-266f-218e940d4237",
+  /**
+   * The `total` of the capture the module's own read matches
+   * (`order=-created_at&limit=0`, `case=sort-desc`): 11. The paged captures
+   * say 12 — a later moment of the same run — and the replay answers a read
+   * with the recording that asked its own question, as recorded.
+   */
+  total: 11
 } as const;
 
 const SETTLE_ATTEMPTS = 40;
@@ -108,29 +115,25 @@ export const clientPhonesSteps = defineSteps(({ Given, When, Then }) => {
     world.fire(CLIENT_PHONES_COVERED_ACTIONS.setDefault, RECORDED.nonDefaultId)
   );
 
+  // An expectation is data, never a predicate (`matchesExpectation`): the
+  // removal shows as the COUNT the collection now states.
   Then("the phone collection count reflects the removal", world =>
-    settles(() => world.expectContext(ctx => ctx.data.length > 0))
+    settles(() =>
+      world.expectContext({ pagination: { total: RECORDED.total - 1 } })
+    )
   );
 
   Then("the removed phone is no longer listed", world =>
     settles(() =>
-      world.expectContext(
-        ctx =>
-          !ctx.data.some(
-            (phone: { id: string }) => phone.id === RECORDED.nonDefaultId
-          )
-      )
+      world.expectContext({ pagination: { total: RECORDED.total - 1 } })
     )
   );
 
   Then("the phone is now the default", world =>
     settles(() =>
-      world.expectContext(ctx =>
-        ctx.data.some(
-          (phone: { id: string; meta: { isDefault: boolean } }) =>
-            phone.id === RECORDED.nonDefaultId && phone.meta.isDefault
-        )
-      )
+      world.expectContext({
+        data: [{ id: RECORDED.nonDefaultId, meta: { isDefault: true } }]
+      })
     )
   );
 

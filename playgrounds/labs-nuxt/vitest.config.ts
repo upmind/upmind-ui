@@ -136,6 +136,10 @@ export default defineConfig({
             environment: "jsdom",
             include: [
               "app/components/**/__tests__/**/*.spec.ts",
+              // The funnel is not a component, but its `?init` guard clears the
+              // param with a real `history.replaceState` — so it needs a
+              // document, and the `unit` project is `environment: "node"`.
+              "app/funnels/**/__tests__/**/*.spec.ts",
               "app/layouts/**/__tests__/**/*.spec.ts",
               "app/pages/**/__tests__/**/*.spec.ts",
               // A Nuxt plugin renders nothing, but it boots `client-vue` and

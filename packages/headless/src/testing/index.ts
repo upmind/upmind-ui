@@ -166,3 +166,21 @@ export const integrationSetups: Record<
  * existing consumers are unchanged.
  */
 export { recordedBodies } from "./fixtures";
+
+/**
+ * The in-process `World` a module's own `*.replay.int.test.ts` boots its
+ * composables through — the third executor of the one BDD seam, beside the
+ * harness's fixture world and the playground's in-page one.
+ *
+ * A static export, not a glob: it is ONE shared implementation rather than a
+ * per-module artefact, so the one-artefact-per-kind rule `keyByModule` enforces
+ * does not apply to it, and nothing here changes what that helper collects.
+ */
+export {
+  createNodeWorld,
+  type NodeComposable,
+  type NodeScopedCell,
+  type NodeWorldJourneys,
+  type NodeWorldSource
+} from "./node-world";
+export { installCorpusReplay, loadModuleCorpus } from "./corpus-replay";

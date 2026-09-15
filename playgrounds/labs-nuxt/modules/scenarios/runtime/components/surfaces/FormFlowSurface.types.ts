@@ -13,6 +13,7 @@
  * control. See `graphify-out/GRAPH_REPORT.md`.
  */
 
+import type { ForcedState } from "../../force/states.types";
 import type { SurfaceProps } from "./surface.types";
 import type { ScenarioHandoff } from "../../scenario.types";
 
@@ -64,4 +65,29 @@ export type FormFlowSurfaceProps = SurfaceProps & {
    * errors can pull additional fields into the view.
    */
   uischema?: import("@jsonforms/core").UISchemaElement;
+  /**
+   * The module's own recorded refusal sentence while the page is forced into a
+   * refused WRITE — the same string the List surface marks a row with, relayed
+   * by `ModuleRenderer`. A forced state IS the state, so the save draws refused
+   * with nothing pressed (operator ruling, 2026-08-28); the surface authors no
+   * sentence of its own and shows none when this is absent.
+   */
+  forcedRefusal?: string;
+  /**
+   * The page is not the operator's to drive — a scenario is replaying, a forced
+   * state is armed, or the transport is mid-swap (`R6-23`). The form keeps its
+   * LIVE picture — nothing is restyled as disabled — and the region goes
+   * `inert`, so no field or action answers the pointer or the keyboard; the
+   * region says why. The replay still fills and submits through the stage's
+   * own closures, which `inert` does not gate: the lock is on the operator's
+   * hand, not the world's.
+   */
+  locked?: boolean;
+  /**
+   * The forced state armed on the page. A held SAVE (`pending/write`) draws the
+   * form submitting with nothing pressed; a refused READ (`refused/read`) draws
+   * the module's error state even after the form has presented — the one case
+   * a presented form does not keep its fields, because the state IS the point.
+   */
+  forcedState?: ForcedState;
 };

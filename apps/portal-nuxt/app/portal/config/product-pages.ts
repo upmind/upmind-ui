@@ -41,12 +41,9 @@ import {
 } from "../registry";
 import { GROUP_AXIS, PAGE_KEY } from "../types";
 import { NAV_EMPHASIS } from "../variants";
-import {
-  CLIENT_VUE_STUB_TITLE,
-  clientVueProse,
-  clientVueRow
-} from "./client-vue";
-import { brandNoteRow, pagerFooter, panelControls } from "./pager";
+import { CLIENT_VUE_STUB_TITLE, clientVueProse } from "./client-vue";
+import { assign } from "lodash-es";
+import { backLink, brandNoteRow, pagerFooter, panelControls } from "./pager";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
 import type { ListModuleHeading } from "../modules/list/types";
@@ -138,6 +135,37 @@ function panelRow(
     slots: [slot]
   };
 }
+
+/** How many needs-setup products show before "Show more" — the dashboard's own cap. */
+const NEEDS_ATTENTION_SHOWN = 2;
+
+/**
+ * The products still waiting on the client's setup — legacy's needs-confirmation
+ * billboard, which heads BOTH the dashboard and the products list. One row, so
+ * the two pages cannot drift.
+ */
+export const NEEDS_SETUP_ROW: ContentRowConfig = {
+  layout: ROW_LAYOUT.FULL,
+  surface: ROW_SURFACE.PANEL,
+  visible: dataRef(DATA_REF_ID.HAS_PRODUCTS_AWAITING_SETUP),
+  header: {
+    title: "Almost ready",
+    description: "We just need a few more details in order to complete setup."
+  },
+  slots: [
+    moduleRef(LIST_MODULE_ID, {
+      variant: LIST_MODULE_VARIANT.ROW_CARDS,
+      props: {
+        items: dataRef(DATA_REF_ID.NEEDS_ATTENTION_PRODUCT_ITEMS),
+        maxItems: NEEDS_ATTENTION_SHOWN,
+        showMoreLabel: "Show more",
+        showLessLabel: "Show fewer",
+        emptyTitle: "Nothing waiting on you",
+        moreLabel: "Product actions"
+      }
+    })
+  ]
+};
 
 /**
  * The product's billboard — what it IS: its image or glyph, the category over
@@ -592,6 +620,15 @@ const SETTINGS_ROWS: readonly ContentRowConfig[] = [
       }
     }),
     {
+      controls: panelControls(
+        DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_ITEMS,
+        "delegates",
+        "Search by name or email"
+      ),
+      footer: pagerFooter(
+        "Delegates",
+        DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_ITEMS
+      ),
       // Legacy's own control, wired to the invitation itself now the form
       // can answer it (plan F12) — it used to point at the delegates page.
       actions: moduleRef(BUTTON_MODULE_ID, {
@@ -675,7 +712,14 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
     description: string,
     rows: readonly ContentRowConfig[]
   ): ContentConfig =>
-    page(title, description, [...PRODUCT_CHROME_ROWS, ...rows]);
+    assign(page(title, description, [...PRODUCT_CHROME_ROWS, ...rows]), {
+      // A product page serves no pillar rail (`config/areas/detail.ts`), so
+      // this link above the title is the whole way back to the group.
+      breadcrumb: backLink(
+        "All products and services",
+        dataRef(DATA_REF_ID.PRODUCT_BACK_TO)
+      )
+    });
 
   return {
     // Legacy's All / Active / Cancelled listing routes, as a tab rail over ONE
@@ -686,6 +730,7 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
       "Everything in this group, running and past.",
       [
         ORDER_COMPLETE_ROW,
+        NEEDS_SETUP_ROW,
         {
           layout: ROW_LAYOUT.FULL,
           surface: ROW_SURFACE.PANEL,
@@ -779,7 +824,22 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
     "product-area/setup": productPage(
       "Setup",
       "A few details stand between this product and going live.",
-      [clientVueRow("UpmProductSetup", "product-setup")]
+      [
+        panelRow(
+          "Setup required",
+          "Your new product is almost ready. We need to confirm a few details before you can get going. Enter the required information and click Confirm to complete setup.",
+          moduleRef(FORM_MODULE_ID, {
+            props: {
+              schema: dataRef(DATA_REF_ID.PRODUCT_SETUP_FORM_SCHEMA),
+              uischema: dataRef(DATA_REF_ID.PRODUCT_SETUP_FORM_UISCHEMA),
+              model: dataRef(DATA_REF_ID.PRODUCT_SETUP_FORM_MODEL),
+              submit: dataRef(DATA_REF_ID.PRODUCT_SETUP_FORM_SUBMIT),
+              submitLabel: "Confirm",
+              resetLabel: "Revert changes"
+            }
+          })
+        )
+      ]
     ),
     "product-area/billing": productPage(
       "Billing",
@@ -943,7 +1003,12 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
           surface: ROW_SURFACE.PANEL,
           header: {
             title: "Delegates",
-            description: "People with access to this product."
+            description: "People with access to this product.",
+            controls: panelControls(
+              DATA_REF_ID.PRODUCT_DELEGATE_ITEMS,
+              "delegates",
+              "Search by name or email"
+            )
           },
           slots: [
             moduleRef(LIST_MODULE_ID, {
@@ -953,7 +1018,8 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
                 emptyTitle: "No delegates"
               }
             })
-          ]
+          ],
+          footer: pagerFooter("Delegates", DATA_REF_ID.PRODUCT_DELEGATE_ITEMS)
         }
       ]
     )

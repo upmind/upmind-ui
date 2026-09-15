@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 // -----------------------------------------------------------------------------
 /**
- * @module pages/overlays/pay
+ * @module scenarios/overlay-pay/overlay-pay.page
  * @description The pay OVERLAY — MECHANICAL. It is the surface the funnel parks
  * the payer on while the off-site return is dealt with, injected as the
  * `<order>--pay` child and reached by navigation, never by an imperative mount

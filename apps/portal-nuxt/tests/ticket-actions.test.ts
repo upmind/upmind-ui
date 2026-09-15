@@ -18,7 +18,7 @@ import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import { TicketStatusCodes } from "@upmind-automation/types";
 import { rowBinding } from "./support/page-config";
-import { filter, find, flatMap, map, size, sortBy } from "lodash-es";
+import { every, filter, find, flatMap, map, size, sortBy } from "lodash-es";
 import type { ConfigNode } from "./support/page-config";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { MockDataset, MockTicket } from "~/portal/mock/types";
@@ -484,7 +484,12 @@ describe("delegate access — somebody else may read this thread", () => {
     const chosen = picker[0];
     if (chosen?.action === undefined) throw new Error("no delegate to offer");
 
-    expect(map(picker, "id")).toEqual(map(data.delegates, "id"));
+    // ONE PAGE of the account's delegates, not all of them — the picker used
+    // to render every row in one column, 24 deep on this seed.
+    expect(size(picker)).toBeLessThan(size(data.delegates));
+    expect(
+      every(picker, row => find(data.delegates, { id: row.id }) !== undefined)
+    ).toBe(true);
 
     const asked = dispatchMockAction(
       data,

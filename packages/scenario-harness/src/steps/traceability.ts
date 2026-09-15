@@ -100,9 +100,17 @@ function expandScenario(scenario: Scenario): FeatureScenario[] {
 
     return map(examples.tableBody, row => {
       const values = map(row.cells, cell => cell.value);
+      const named = substitutePlaceholders(scenario.name, columns, values);
 
       return {
-        name: substitutePlaceholders(scenario.name, columns, values),
+        // A row whose outline title carries no placeholder would repeat that
+        // title five times over: it takes the row's own first value as its
+        // distinguishing suffix, so a picker, a slug and a test title each name
+        // the row and never the outline alone.
+        name:
+          named === scenario.name && !isEmpty(values)
+            ? `${scenario.name} — ${first(values)}`
+            : named,
         tags,
         line: row.location.line,
         steps: map(steps, step => ({

@@ -2,7 +2,7 @@
 
 **Date:** January 19, 2026
 **Updated:** January 21, 2026
-**Status:** Proposed
+**Status:** Accepted 2026-09-15 (operator ruling; the architecture has shipped across 18+ composables and two amendments) — Amended 2026-08-19 (`.withId(id)`, self-default actor) and 2026-09-15 (`.for()` / `.withId()` split, instance keying as a platform seam). An amendment supersedes the original text where the two conflict.
 **Authors:** Dom da Costa, Chris Garner, Dominik Piska, Rhodri Jones
 
 ---
@@ -123,6 +123,11 @@ interface Context {
 }
 ```
 
+> ⚠️ **`Context.id` SUPERSEDED by Amendment (2026-09-15)** — an id is no longer
+> universal. It is required for a *retarget* context and forbidden for a
+> *selector* context, per that context member's declaration in the matrix. See
+> [Amendment (2026-09-15)](#amendment-2026-09-15-for-carries-the-context-withid-carries-the-id).
+
 ### 4. Actor → Context Availability Matrix
 
 Each actor has specific contexts they can operate on:
@@ -134,6 +139,59 @@ Each actor has specific contexts they can operate on:
 | `staff` | Org-wide (no specific entity) | All contexts: `client`, `lead`, `contract`, `product`, `invoice`, `order`, `ticket`, etc. |
 
 > **Note:** There are **no nested contexts**. Each `.for()` call specifies a single, flat context.
+
+#### Amendment (2026-09-15): `.for()` carries the context, `.withId()` carries the id
+
+`.withId(id)` shipped in the 2026-08-19 amendment below to hold the ONE record a
+single-record read opens. That left `.for(type, id)` still taking an id it no
+longer owns. This amendment closes the split:
+
+1. **`.for(type)` carries the CONTEXT. `.withId(id)` carries the ID.** An id
+   never rides in `.for()`. A single-member context type that exists only to
+   smuggle an owner id is a misuse, not a context.
+2. **Two context patterns, declared per context member in the matrix, mutually
+   exclusive:**
+
+   | Pattern | Shape | The id means | Example |
+   | --- | --- | --- | --- |
+   | **Retarget** | `.for(type, id)` — id REQUIRED | the entity the actor acts upon | `.as(STAFF).for(CLIENT, clientId)` |
+   | **Selector** | `.for(type)` — id FORBIDDEN | *(none — the type IS the whole answer)* | `.as(CLIENT).for(CANCEL_REQUEST)` |
+
+   The matrix declares which pattern each context member is, and `.for()`
+   overloads on that declaration. Passing an id to a selector, or omitting one
+   on a retarget, is a compile-time error.
+
+   **Rejected: an optional id.** It lets both shapes compile everywhere, so it
+   enforces neither. The two patterns are mutually exclusive by design.
+
+3. **Instance keying is a platform seam, not a module concern.**
+   `createScopedComposable` owns registration; `generateScopeKey` owns the key.
+   A module never mints its own instance axis beside them — no registration name
+   computed per variant, no module-local registration cache, no hand-derived key
+   that re-encodes what the scope key already carries. A module needing a second
+   instance axis declares it as a context member.
+4. **Where the platform blocks the native shape, STOP and escalate to the
+   operator** — never route around it. State what is missing and why, in plain
+   language the operator can rule on without the author's context. A framing only
+   the author follows makes the operator default to the recommendation, and that
+   is not a decision.
+
+**Forcing incident — FE-3034 (2026-09-15).** Asked to read a second
+custom-fields catalogue, the story shipped a `client-custom-fields@<objectType>`
+registration name, a module-local registration `Map`, and a hand-rolled
+`catalogueQueryKey` — all duplicating the registry. The scope-native answer was a
+context member, unreachable only because `.for(type, id)` demanded an id. Every
+gate stayed green throughout.
+
+**Second receipt — FE-3111.** Closed as done while `client-personal-details`
+still passes a client id through `.for(PROFILE, id)`, with `PROFILE` still in its
+matrix. Half its named scope never shipped, and nothing caught it.
+
+Enforcement and follow-ups (cited, not restated): the rule amendment and the
+`scope-based/no-private-instance-axis` ESLint rule live in
+`.claude/rules/code-composables.companion.md`; **FE-3239** carries the `.for()`
+signature change; **FE-3240** carries the three modules still smuggling an owner
+id. Audit: `docs/sdd/FE-3034/review-scope-axis.md`.
 
 ### 5. Session Lookup Behavior
 

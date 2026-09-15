@@ -1,0 +1,26 @@
+# Negative control — makes every form take the engine's `reset` control,
+# whatever its host. A dialog's "Cancel" then renders `type="reset"` again:
+# pressing it empties the fields and leaves the dialog standing, with only the
+# X to close it. The FE walkthrough defect 8, found on "Add new address" and
+# true of all 36 of the registry's dialog forms.
+#
+# Intended RED:
+#   a form in a dialog dismisses instead of resetting >
+#     renders Cancel as a plain button, so it cannot empty the fields
+#     emits cancel when pressed, and carries no verb with it
+#
+# The PAGE case stays green, which is the half that must not regress: the
+# billing-settings form needs reset, so a fix that dismissed everywhere would
+# be just as wrong.
+
+--- a/apps/portal-nuxt/app/portal/modules/form/Form.vue
++++ b/apps/portal-nuxt/app/portal/modules/form/Form.vue
+@@ -101,7 +101,7 @@
+  * the form opened with, which the engine's own reset does.
+  */
+ function dismissAction(): Record<string, FormActionProps> {
+-  if (props.cancelLabel === undefined) {
++  if (true) {
+     return {
+       reset: {
+         type: "reset",

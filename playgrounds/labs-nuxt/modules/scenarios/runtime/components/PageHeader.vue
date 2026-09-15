@@ -9,8 +9,8 @@
     <Tooltip
       v-for="action in actions"
       :key="action.name"
-      :label="t('labs.replay_locked')"
-      :active="!!locked"
+      :label="locked ? t('labs.replay_locked') : (action.disabledReason ?? '')"
+      :active="!!locked || !!action.disabledReason"
     >
       <Button
         :variant="action.variant ?? 'primary'"

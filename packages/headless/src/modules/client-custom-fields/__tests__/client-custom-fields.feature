@@ -65,14 +65,11 @@ Feature: A client reads their brand's custom field definitions and manages their
     And the two states never collapse into the same flag
 
   @AC-6 @definitions
-  Scenario: Waiting to know whether my definitions are ready never hangs, even when something goes wrong
+  Scenario: Waiting to know whether my fields are ready always ends, whichever part failed
     Given loading my custom field definitions can fail, or my session can fail to sign in
     When I wait for my definitions to be ready
     Then I am told they are not ready rather than waiting forever
     And nothing is left running once I have that answer
-
-  @AC-6 @definitions
-  Scenario: Waiting to know whether my definitions are ready never hangs when the failure is in resolving my own brand, not just the definitions themselves
     Given resolving my own brand fails, separately from the definitions request itself
     When I wait for my definitions to be ready
     Then I am told they are not ready rather than waiting forever
@@ -86,7 +83,7 @@ Feature: A client reads their brand's custom field definitions and manages their
     And nothing unrelated to my definitions is re-read as a result
 
   @AC-8 @definitions
-  Scenario: I can filter my definitions without a new request
+  Scenario: I narrow the fields already in front of me, without waiting for a new list
     Given I have loaded my custom field definitions
     When I filter them by a property
     Then I see only the matching definitions
@@ -100,7 +97,7 @@ Feature: A client reads their brand's custom field definitions and manages their
     And when my brand does define some, I am told exactly how many
 
   @AC-10 @definitions
-  Scenario: My values round-trip through the model without losing any of them
+  Scenario: Every value I set is still there when I read my fields back
     Given I hold values against several of my custom fields
     When those values are loaded into my model and then prepared for saving unchanged
     Then every one of those values is still present, keyed to its own field
@@ -164,13 +161,11 @@ Feature: A client reads their brand's custom field definitions and manages their
   # === THE IMAGE VALUE FLOW ===================================================
 
   @AC-18 @image
-  Scenario: Uploading an image for a field shows me its progress
+  @AC-19
+  Scenario: I see my image upload progress, and any problem with it beside the field
     When I upload an image for one of my custom fields
     Then I can see that it is uploading and how far it has got
     And once it settles I am told it is no longer uploading
-
-  @AC-19 @image
-  Scenario: An image upload problem is reported against the field, not a generic image error
     Given uploading an image for one of my custom fields is rejected
     When I inspect what went wrong
     Then the problem is reported against that specific field
@@ -200,7 +195,7 @@ Feature: A client reads their brand's custom field definitions and manages their
   # === REQUEST SHAPE, IDENTITY, SURFACE ========================================
 
   @AC-23 @module
-  Scenario: My changed values are sent as a set keyed by their own field, never as a list
+  Scenario: Each value I change is saved against its own field, and never against the wrong one
     Given I have changed one or more of my custom field values
     When I save my changes
     Then what is sent is a set of values keyed by field, not a list of entries
@@ -221,18 +216,30 @@ Feature: A client reads their brand's custom field definitions and manages their
     And forcing a read or a change is refused as not-signed-in, rather than being sent anyway
 
   @AC-27 @module @public-surface @negative-control
-  Scenario: Only what this module curates is reachable, and only for a client acting on their own values
+  @AC-37 @scope @playground
+  Scenario: Only my own custom field values are reachable, and only as me
     Given the module's published surface is the only way anything outside it can act
     When something outside the module tries to reach its internal machinery directly, act as staff or as a guest, or act on behalf of a different client
     Then none of those are offered by the module — the internal machinery is not reachable, and no affordance exists to become another actor or to name another client
     And the client acting on their own value set continues to work exactly as before
+    Given the module serves a client acting on their own brand's catalogue, and no one else
+    When something asks which actors and targets the module offers
+    Then a client acting on their own catalogue is offered
+    And staff, guest and self are not offered — at run time, not only when the code is compiled
+    And a page driving this module can offer the client's own catalogue as a target to act on
 
   @AC-28 @definitions @criteria
-  Scenario: What the client asks the catalogue for is exactly what the client declared
+  @AC-36 @public-surface
+  Scenario: What is asked of my fields is exactly what I declared, and I can see it
     Given the client has declared how they want the catalogue read
     When the catalogue is read
     Then the request carries only the ordering, narrowing and page the client declared
     And nothing outside that declaration can be smuggled into the request
+    Given the catalogue is in use
+    When the client inspects how it is being read
+    Then the ordering, the search and the page in force are all readable
+    And the choices offered for search and ordering are exactly the ones the catalogue supports
+    And the only way to change any of them is to state a new intent, never to reach past it
 
   @AC-29 @definitions @criteria
   Scenario: The catalogue arrives in its own display order by default
@@ -249,7 +256,7 @@ Feature: A client reads their brand's custom field definitions and manages their
     And no ordering the catalogue does not offer can be asked for at all
 
   @AC-31 @definitions @criteria
-  Scenario: The client searches the catalogue at the source
+  Scenario: I search all my fields, not only the ones already loaded
     Given the catalogue has been read
     When the client searches for fields whose name contains a term
     Then only the matching fields are fetched, rather than the whole catalogue being fetched and then narrowed
@@ -263,37 +270,20 @@ Feature: A client reads their brand's custom field definitions and manages their
     And the client's own narrowing choices contain no way to address a different one
 
   @AC-33 @definitions @criteria
-  Scenario: The client receives the whole catalogue unless they ask to page it
+  @AC-34
+  Scenario: I get all my fields unless I ask for them a page at a time
     Given the client has not asked for a page
     When the catalogue is read
     Then every field in the catalogue arrives, not a first page of ten
     And any other part of the product that reads this catalogue receives all of it too
-
-  @AC-34 @definitions @criteria
-  Scenario: The client walks the catalogue a page at a time
     Given the client has asked for the catalogue a page at a time
     When the client asks for the next page
     Then the following page of fields is fetched and shown
     And asking for the previous page returns to the page before it
 
   @AC-35 @definitions @criteria @cache
-  Scenario: Asking twice for the same thing costs one read
+  Scenario: Reopening my fields does not fetch them again
     Given the client has already read the catalogue a particular way
     When the client returns to exactly that ordering, search and page
     Then the catalogue is shown again without a further read being made
 
-  @AC-36 @definitions @criteria @public-surface
-  Scenario: The client can see, and drive, how the catalogue is being read
-    Given the catalogue is in use
-    When the client inspects how it is being read
-    Then the ordering, the search and the page in force are all readable
-    And the choices offered for search and ordering are exactly the ones the catalogue supports
-    And the only way to change any of them is to state a new intent, never to reach past it
-
-  @AC-37 @module @scope @playground
-  Scenario: Only the actors and targets this module actually serves are offered
-    Given the module serves a client acting on their own brand's catalogue, and no one else
-    When something asks which actors and targets the module offers
-    Then a client acting on their own catalogue is offered
-    And staff, guest and self are not offered — at run time, not only when the code is compiled
-    And a page driving this module can offer the client's own catalogue as a target to act on

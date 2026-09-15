@@ -21,6 +21,9 @@
  */
 
 import { AccessRoleTypes } from "@upmind-automation/types";
+// `SortDirection` is read at MODULE scope below (`DEFAULT_SORT`), so it comes
+// in as a VALUE import, never `import type`.
+import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ListQuery, QueryParams, SimpleQuery } from "../query";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
@@ -233,6 +236,59 @@ export type ModuleSchemas = {
   useUischema: () => UISchemaElement;
   useModuleModelParser: (model?: ModuleModel) => ModuleModel;
 };
+
+// --- The criteria models — the module's ONE request-state type -------------
+//
+// The queryCriteria schema owns ALL request state: filters, sort, pagination,
+// limit. These types are the shape `useQuerySchema()` validates, and the ONLY
+// legal route to the wire is `list({ criteria: { schema: useQuerySchema() } })`
+// in `module.services.ts`. A hand-rolled filter ref beside that channel, or a
+// raw sort string where `SortEntry["field"]` belongs, is the
+// criteria-subversion defect the door names.
+//
+// CONCRETISE all three for the real module: one property per filter the oracle
+// supports, and `SortEntry["field"]` narrowed to this module's OWN sortable
+// enum — the same list `useQuerySchema()`'s `sort.items.properties.field.enum`
+// declares. A bare `string` lets an unschematised field compile and reach ajv
+// only to be discarded silently on write.
+
+/**
+ * The module's ONE request-state model — the instance validated against
+ * `useQuerySchema()`. The query layer's translator maps it to the wire params.
+ */
+export type QueryModel = {
+  filters?: {
+    name?: { like?: string };
+  };
+  sort?: SortEntry[];
+  // `offset` alone is unspellable: an offset with no known page size cannot be
+  // resolved against a `limit: 0` (unpaged) collection without producing a NaN
+  // page index. `limit` alone stays legal — it is the module's documented
+  // page-size door, `setCriteria({ pagination: { limit } })`.
+  pagination?:
+    | { limit?: number; offset?: never }
+    | { limit: number; offset?: number };
+};
+
+/** The nested filter model — the `filters` branch of {@link QueryModel}. */
+export type FilterModel = NonNullable<QueryModel["filters"]>;
+
+/**
+ * One sort entry. Precedence is position — the first entry sorts first.
+ * NARROW `field` to this module's own sortable enum; never leave it `string`.
+ */
+export type SortEntry = { field: "name" | "created_at"; dir: SortDirection };
+
+/** The ordered sort model — the `sort` branch of {@link QueryModel}. */
+export type SortModel = NonNullable<QueryModel["sort"]>;
+
+/**
+ * The order the list starts in. Declared as the query schema's `sort` default,
+ * so an emptied sort refills itself on the next parse.
+ */
+export const DEFAULT_SORT: SortModel = [
+  { field: "created_at", dir: SortDirection.ASC }
+];
 
 /**
  * The reactive list query. Minted ONCE per scope in `useModule.ts` and passed

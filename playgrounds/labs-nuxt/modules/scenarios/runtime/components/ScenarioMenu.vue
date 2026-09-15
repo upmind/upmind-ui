@@ -51,10 +51,12 @@
  * state it did not reach by itself — so the one menu is where a page's non-live
  * state is chosen, and the sheet toggle beside it stays about the sheets.
  *
- * WHICH forced states is not this component's to know (FE-3113). The presets are
- * handed in, derived from the page's own recordings, and a group with nothing in
- * it is not rendered at all: a read-only module's corpus cannot refuse a write,
- * so `error-action` is absent rather than present-and-dead (`S14`).
+ * WHICH forced states is not this component's to know. They are handed in,
+ * derived from the page's own FEATURE and filtered by what its recordings can
+ * answer (operator ruling, 2026-09-12), and a group with nothing in it is not
+ * rendered at all: a module whose feature never names a refused write offers no
+ * such state, absent rather than present-and-dead (`S14`). Each is NAMED by the
+ * scenario it came from, so the menu translates nothing.
  *
  * Both groups are ONE `Select` because at most one non-live
  * state can ever be on: the armed track and the armed preset are alternatives,
@@ -71,16 +73,14 @@
 import { Select, ToggleGroup, ToggleGroupItem } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
-import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
 import { scenarioMenu } from "./ScenarioMenu.styles";
 import { SCENARIO_CHOICE, TRACK_LIVE } from "./ScenarioMenu.types";
-import { compact, filter, find, map, size, union } from "lodash-es";
+import { compact, filter, find, map, size, unionBy } from "lodash-es";
 import type {
   ScenarioMenuEmits,
   ScenarioMenuProps
 } from "./ScenarioMenu.types";
-import type { ForceUrlPreset } from "../composables/useForcedState.types";
+import type { ForcedState } from "../force/states.types";
 import type { SelectOptionGroup } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
@@ -89,35 +89,27 @@ const emit = defineEmits<ScenarioMenuEmits>();
 
 const { t } = useI18n();
 
-// Namespaced because the two groups share one selection: a slug and a preset are
-// both free-form words, and one select cannot hold two options answering to
-// the same value.
+// Namespaced because the two groups share one selection: a track's slug and a
+// forced state's are both free-form words, and one select cannot hold two
+// options answering to the same value.
 const trackValue = (slug: string): string => `track:${slug}`;
-const forceValue = (preset: ForceUrlPreset): string => `force:${preset}`;
+const forceValue = (state: ForcedState): string => `force:${state.slug}`;
 
 const isLive = computed(() => !props.armed && !props.preset);
 
-// What is ARMED is a fact about the page, never a menu option to be validated
-// against the offered list: that list is derived from the corpus and resolves
-// asynchronously, so a page armed from a pasted url reports its placeholder
-// until the corpus lands unless the armed preset is read straight off the prop.
-const armedPreset = computed(() =>
-  find(FORCE_URL_PRESETS, entry => entry === props.preset)
-);
-
-// The armed preset rides in the group so the trigger can NAME it — the select
+// The armed state rides in the group so the trigger can NAME it — the select
 // takes its label from the mounted option, so a value with no option shows the
 // placeholder. The offered list still governs what may be CHOSEN: an armed
-// preset the corpus has not offered is already active, so picking it is a no-op.
+// state the corpus has not offered is already active, so picking it is a no-op.
 const offered = computed(() =>
-  union(props.presets, compact([armedPreset.value]))
+  unionBy(props.states, compact([props.state]), "slug")
 );
 
 // Live is the ABSENT value, so the trigger falls back to its placeholder (the count).
 const active = computed(() => {
   if (props.armed) return trackValue(props.armed.slug);
 
-  return armedPreset.value ? forceValue(armedPreset.value) : undefined;
+  return props.state ? forceValue(props.state) : undefined;
 });
 
 const items = computed<SelectOptionGroup[]>(() =>
@@ -125,13 +117,14 @@ const items = computed<SelectOptionGroup[]>(() =>
     [
       {
         label: t("labs.force_preset"),
-        options: map(offered.value, preset => ({
-          value: forceValue(preset),
-          label: t(FORCE_PRESET_LABELS[preset]),
+        // One word per recipe, the same on every page (`forcedStateLabel`).
+        options: map(offered.value, state => ({
+          value: forceValue(state),
+          label: t(state.label),
           disabled: !!props.disabled,
           dataAttrs: {
             "data-test-key": "force-preset-option",
-            "data-test-value": preset
+            "data-test-value": state.slug
           }
         }))
       },
@@ -159,7 +152,7 @@ function pick(value: unknown): void {
   const track = find(props.tracks, entry => trackValue(entry.slug) === value);
   if (track) return emit("select", { kind: SCENARIO_CHOICE.TRACK, track });
 
-  const preset = find(props.presets, entry => forceValue(entry) === value);
-  if (preset) emit("select", { kind: SCENARIO_CHOICE.FORCE, preset });
+  const state = find(props.states, entry => forceValue(entry) === value);
+  if (state) emit("select", { kind: SCENARIO_CHOICE.FORCE, state });
 }
 </script>

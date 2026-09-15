@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-notifications/client-notifications.schemas.ts
++++ b/packages/headless/src/modules/client-notifications/client-notifications.schemas.ts
+@@ -59,7 +59,7 @@
+       pagination: {
+         type: "object",
+         additionalProperties: false,
+-        properties: { limit: { type: "number", default: 0 } }
++        properties: { limit: { type: "number", default: 25 } }
+       }
+     }
+   } satisfies JsonSchema7;

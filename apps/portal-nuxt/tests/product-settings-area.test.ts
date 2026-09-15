@@ -19,7 +19,16 @@ import {
   InvoiceStatusGroups
 } from "@upmind-automation/types";
 import { boundRefId, rowBinding, stringsIn } from "./support/page-config";
-import { assign, filter, find, map, reject, some } from "lodash-es";
+import {
+  assign,
+  every,
+  filter,
+  find,
+  map,
+  reject,
+  size,
+  some
+} from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type {
   MockDataset,
@@ -68,9 +77,10 @@ const UNPAID_DESTINATION = mockActionValue(
   "/billing/invoices?status=unpaid"
 );
 
+/** Legacy's "create one from here": the profile's own add-address form. */
 const ADDRESS_BOOK_DESTINATION = mockActionValue(
-  MOCK_ACTION.NAVIGATE,
-  "/account/profile"
+  MOCK_ACTION.OPEN_FORM,
+  FORM_ID.ADDRESS_CREATE
 );
 
 /** The invitation itself, now a form can answer it (plan F12). */
@@ -305,7 +315,12 @@ describe("delegate access — who else may reach this one product", () => {
 
     const rows = productDelegateAccessItems(data, contextFor(product));
 
-    expect(map(rows, "id")).toEqual(map(data.delegates, "id"));
+    // ONE PAGE of the account's delegates, not all of them — the panel used to
+    // render every row in one column, 24 deep on this seed.
+    expect(size(rows)).toBeLessThan(size(data.delegates));
+    expect(
+      every(rows, row => find(data.delegates, { id: row.id }) !== undefined)
+    ).toBe(true);
     for (const row of rows) {
       const delegate = delegateOf(data, row.id);
       if (delegate.isFullDelegate === true) {

@@ -1,0 +1,29 @@
+# Negative control — points the area nav's Overview tab back at the product
+# ROOT, which `productRootRedirect` answers with an area of its own. On a
+# product still owed its setup the tab then moves nowhere at all: the whole
+# FE walkthrough defect 3, "product tabs do not work, only setup".
+#
+# Intended RED (both cases):
+#   every product area tab reaches the page it names >
+#     leaves no dead tab on a product still owed its setup
+#     leaves no dead tab on a running product
+#
+# The PENDING case is the reported defect — Overview bounced back to Setup. The
+# running one reds too because the root is a redirect POSITION for every
+# product, so a tab aimed at it is dead whatever the status.
+
+--- a/apps/portal-nuxt/app/portal/mock/selectors.ts
++++ b/apps/portal-nuxt/app/portal/mock/selectors.ts
+@@ -1069,11 +1069,7 @@
+       label: "Setup",
+       icon: Wrench
+     },
+-    {
+-      to: `${base}/${PRODUCT_AREA_SLUG.OVERVIEW}`,
+-      label: "Overview",
+-      icon: LayoutDashboard
+-    },
++    { to: base, label: "Overview", icon: LayoutDashboard },
+     {
+       to: `${base}/${PRODUCT_AREA_SLUG.BILLING}`,
+       label: "Billing",

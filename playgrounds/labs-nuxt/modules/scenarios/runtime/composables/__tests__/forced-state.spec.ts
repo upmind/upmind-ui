@@ -8,11 +8,16 @@
  *      is never even EVALUATED — the observable is the module graph, not a call
  *      count, because a composable that imports the worker statically has
  *      already lost whether or not it goes on to start it;
- *   2. arming starts that worker with the preset, and lets everything the
- *      handlers do not name reach staging (`AC8.3`'s `bypass`);
+ *   2. arming starts that worker with the state's recipe, and lets everything
+ *      the handlers do not name reach staging (`AC8.3`'s `bypass`);
  *   3. disarming stops the worker AND unregisters its registration, so the
  *      no-worker read-back holds in the same tab rather than only a fresh one;
- *   4. a pasted `force=empty` arms that preset directly — the link IS the state.
+ *   4. a pasted `force=<slug>` arms that state directly — the link IS the state.
+ *
+ * The url carries a SLUG, and a slug is resolved against the states the page
+ * OFFERS (operator ruling, 2026-09-12): the states here are derived from a real
+ * module's own committed `.feature`, so a link this spec arms is one the running
+ * app would arm.
  *
  * `ESC6` is RULED (route (a), 2026-08-12): the seam reaches the recorded corpus,
  * so the arming cases run unconditionally. A `runIf` on the seam's own state
@@ -20,9 +25,11 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { isModuleResolved } from "../../force/corpus.source";
+import { ref } from "vue";
+import { featureTextFor, isModuleResolved } from "../../force/corpus.source";
+import { featureForcedStates, forcedStateRecipeId } from "../../force/states";
+import type { ForcedState } from "../../force/states.types";
 import type {
-  ForcePreset,
   ForcedStateSource,
   UseForcedState
 } from "../useForcedState.types";
@@ -60,9 +67,24 @@ vi.mock("msw/browser", () => {
   };
 });
 
+const MODULE = "client-email";
+
 const BOOT_PATH = "/useClientEmails/";
 
-const EMPTY: ForcePreset = "empty";
+/** The states this module's OWN feature declares — the page's whole offer. */
+const STATES: ForcedState[] = featureForcedStates(featureTextFor(MODULE));
+
+/** One of them, whatever its feature happens to name first. */
+const ARMED: ForcedState = STATES[0]!;
+
+/** What the worker is actually armed with for that state. */
+const RECIPE = forcedStateRecipeId(ARMED.recipe);
+
+/** A page that has measured its offer, as `ScenarioPlayground` registers one. */
+const offering = (): ForcedStateSource => ({
+  module: MODULE,
+  states: ref(STATES)
+});
 
 /**
  * A fresh page load at a given url. The composable's state is module-scoped —
@@ -87,6 +109,14 @@ beforeEach(() => {
 });
 
 // -----------------------------------------------------------------------------
+
+describe("T3.12 the feature declares what can be armed at all", () => {
+  it("derives at least one state off the module's own committed feature", () => {
+    expect(STATES.length).toBeGreaterThan(0);
+    expect(ARMED.slug).toMatch(/^[a-z0-9-]+$/);
+    expect(ARMED.title.length).toBeGreaterThan(0);
+  });
+});
 
 describe("T3.12 live is the default — the worker is not there until asked (AC8.1)", () => {
   it("never pulls msw into a bare load's module graph", async () => {
@@ -115,7 +145,7 @@ describe("T3.12 the seam decides whether forcing is offered at all (ESC6)", () =
   it("reports itself available exactly when the recorded corpus can reach it", async () => {
     const forced = await boot();
 
-    expect(forced.isAvailable).toBe(isModuleResolved("client-email"));
+    expect(forced.isAvailable).toBe(isModuleResolved(MODULE));
   });
 
   it("offers forcing at all — ESC6 ruled, so the corpus reaches the page", async () => {
@@ -127,28 +157,40 @@ describe("T3.12 the seam decides whether forcing is offered at all (ESC6)", () =
 
 describe("T3.12 arming and disarming, over the corpus the seam reaches", () => {
   it("starts the worker on the first arm, letting everything else through (AC8.3)", async () => {
-    const forced = await boot();
+    const forced = await boot("", offering());
 
-    await forced.arm(EMPTY);
+    await forced.arm(ARMED);
 
     expect(worker.evaluated).toBe(1);
     expect(worker.start).toHaveBeenCalledWith({
       onUnhandledRequest: "bypass"
     });
-    expect(forced.preset.value).toBe(EMPTY);
+    expect(forced.preset.value).toBe(RECIPE);
+    expect(forced.state.value?.slug).toBe(ARMED.slug);
   });
 
   it("renders a pasted force= directly, with no click (AC8.2)", async () => {
-    const forced = await boot(`?force=${EMPTY}`);
+    const forced = await boot(`?force=${ARMED.slug}`, offering());
     await forced.whenReady();
 
-    expect(forced.preset.value).toBe(EMPTY);
+    expect(forced.preset.value).toBe(RECIPE);
+    expect(forced.state.value?.title).toBe(ARMED.title);
     expect(worker.start).toHaveBeenCalledTimes(1);
   });
 
+  it("arms nothing at all for a slug this page does not offer", async () => {
+    const forced = await boot("?force=a-state-no-feature-declares", offering());
+    await forced.whenReady();
+
+    expect(forced.preset.value).toBeUndefined();
+    expect(forced.state.value).toBeUndefined();
+    expect(forced.requested.value).toBe("a-state-no-feature-declares");
+    expect(worker.start).not.toHaveBeenCalled();
+  });
+
   it("stops AND unregisters on disarm, so the same tab is live again (AC8.1)", async () => {
-    const forced = await boot();
-    await forced.arm(EMPTY);
+    const forced = await boot("", offering());
+    await forced.arm(ARMED);
 
     await forced.disarm();
 
@@ -161,14 +203,14 @@ describe("T3.12 arming and disarming, over the corpus the seam reaches", () => {
 describe("FE-3113 K1 the swap ends on the page's own cache being CLEARED", () => {
   const registering = () => {
     const reset = vi.fn();
-    return { reset, source: { module: "client-email", reset } };
+    return { reset, source: { ...offering(), reset } };
   };
 
-  it("clears the booted module's cache on arming, so the rows the preset contradicts are gone", async () => {
+  it("clears the booted module's cache on arming, so the rows the state contradicts are gone", async () => {
     const { reset, source } = registering();
     const forced = await boot("", source);
 
-    await forced.arm(EMPTY);
+    await forced.arm(ARMED);
 
     expect(reset).toHaveBeenCalledTimes(1);
   });
@@ -177,7 +219,7 @@ describe("FE-3113 K1 the swap ends on the page's own cache being CLEARED", () =>
     const { reset, source } = registering();
     const forced = await boot("", source);
 
-    await forced.arm(EMPTY);
+    await forced.arm(ARMED);
 
     expect(worker.start.mock.invocationCallOrder[0]).toBeLessThan(
       reset.mock.invocationCallOrder[0]
@@ -187,20 +229,20 @@ describe("FE-3113 K1 the swap ends on the page's own cache being CLEARED", () =>
   it("clears again on disarm, so Live does not redraw the forced answers", async () => {
     const { reset, source } = registering();
     const forced = await boot("", source);
-    await forced.arm(EMPTY);
+    await forced.arm(ARMED);
+    const clearsWhileArmed = reset.mock.calls.length;
 
     await forced.disarm();
 
-    expect(reset).toHaveBeenCalledTimes(2);
-    expect(worker.stop.mock.invocationCallOrder[0]).toBeLessThan(
-      reset.mock.invocationCallOrder[1]
-    );
+    expect(reset.mock.calls.length).toBeGreaterThan(clearsWhileArmed);
+    const lastClear = reset.mock.invocationCallOrder.at(-1)!;
+    expect(worker.stop.mock.invocationCallOrder[0]).toBeLessThan(lastClear);
   });
 
   it("arms without a registered page, keeping the answers that page already holds", async () => {
     const forced = await boot();
 
-    await expect(forced.arm(EMPTY)).resolves.toBeUndefined();
-    expect(forced.preset.value).toBe(EMPTY);
+    await expect(forced.arm(ARMED)).resolves.toBeUndefined();
+    expect(forced.preset.value).toBe(RECIPE);
   });
 });

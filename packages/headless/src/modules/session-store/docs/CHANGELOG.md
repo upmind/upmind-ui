@@ -2,6 +2,52 @@
 
 All notable changes to the session-store module.
 
+## [Delegated access] - 2026-09-13
+
+FE-3036 (DG-1): `/self` already returned `delegated_ids` and `mapSessionUser` dropped it. The session now keeps it, so a client can tell which of the records it holds were shared with it by another client, and who owns them.
+
+This is the **delegate side** — "do I hold delegated access?". The owner side ("how many delegates have I granted?") is FE-3041. The `exclude_delegated=1` list gate is FE-3029.
+
+### Added
+
+- **`SessionUser.delegatedIds`** — object ids delegated to this client, keyed by object type (`Partial<Record<UpmindObjectTypes, string[]>>`). Mapped by `mapSessionUser`; the wire's `null` maps to `{}`, never `undefined`. `{}` for staff and guest, since `/admin/self` never requests the field.
+- **`useActiveSession().useContext().delegatedIds`** — the map, reactively.
+- **`useActiveSession().useMeta().hasDelegatedProducts`** — true when a delegated `CONTRACTS_PRODUCT` **or** `CLIENT` is held. `TICKET` is deliberately excluded, mirroring the legacy app. See [Gotchas §15](./gotchas.md).
+- **`isDelegated(record)`** — whether a record reached this client by delegation. Not uniform across record types by design: invoices apply the child-account exclusion, contract products and tickets do not. See [Gotchas §15](./gotchas.md).
+- **`getOwnerForDelegatedRecord(record)`** — the owning client's `id`, `publicName`, `username` and `imageUrl`, read off the record's own embedded `client`. Issues no request.
+- **`DelegatableRecord`** and **`DelegatedRecordOwner`** types.
+
+### Notes
+
+- No consumer moved and no existing surface changed shape. This is an augment.
+- An earlier cut of this story also converted the session into a scope-based composable. That was rejected and is not in this change: the active session IS the scope the scope builder reads to resolve `self`, so the session can never be a consumer of scope.
+- `hasDelegatedProducts` reads `delegatedIds` with an optional chain despite the type declaring it required, because `buildInitialState()` restores a persisted session user verbatim. See [Gotchas §16](./gotchas.md).
+
+## [Guest sessions] - 2026-09-08
+
+FE-3087: guest is now stored the same way client and staff are — an id-keyed map of sessions, not a single token. This closes the asymmetry that let a chosen guest become indistinguishable from a fallen-back one across a token refresh.
+
+### Changed
+
+- **`SessionState.guestSession?: IToken` → `SessionState.guestSessions: Record<string, SessionEntry>`.** A guest session is now selected by its own key, exactly like a client or staff session. The key is a client-synthesised id (the guest grant's `actor_id` is always `""`), carried on the guest cookie so it survives a token refresh.
+- **`activeSessionId` now applies to guest on the same terms as client/staff.** A guest that was explicitly activated carries its session's key on the pointer; a guest reached only as the fallback (the "floor") carries no key. This is now the sole signal that tells the two apart — there is no separate flag.
+- **`useSessionStore().useActions().activate()` now returns `Promise<void>`** (was `void`). Activating `GUEST` with no id and nothing pooled mints a guest session first; the call resolves once the switch has settled and never rejects — a failed mint is logged and leaves the pointer where it was. This is a caller-compatible widening: existing call sites that do not `await` it are unaffected.
+- **Guest minting is no longer boot-only.** It also runs when guest is the session being switched to and the pool is empty. See [Gotchas §2](./gotchas.md#2-guest-minting-happens-at-boot-and-at-activation-not-on-re-hydration-sync-or-navigation).
+
+### Added
+
+- **`useSessionStore().useActions().addGuest()`** — mints a NEW guest session and makes it active; a previously-active guest session stays pooled and reachable again via `activate(GUEST, id)`. The guest counterpart of adding another client session.
+- **`guestSessions` on `useSessionStore().useContext()`** — every pooled guest session, keyed by session id, on the same terms `clientSessions`/`staffSessions` already publish. `allSessions` now merges guest entries in too.
+- The singular `guestSession` context member is unchanged — it still returns `IToken | undefined` for the live guest (the chosen one if any, else the cookie-backed one), so existing consumers of it need no change.
+
+### Fixed
+
+- A background token refresh can no longer silently turn a fallen-back guest into a chosen one — see [Gotchas §12](./gotchas.md#12-add-never-claims-the-guest-pointer-only-activate-does).
+
+### Migration
+
+Sessions persisted under the pre-existing `guestSession` shape are migrated automatically on the next boot into one `guestSessions` entry — no action needed. Direct reads of the public `guestSession` context member or `get(GUEST)` are unaffected; only code that read `SessionState.guestSession` (the internal store field, not the public context member) needs to move to `guestSessions`.
+
 ## [Doc correction] - 2026-07-02
 
 Product owner ratified the multi-session model (see `docs/sdd/session-store-functional-requirements.md` if present, or the FE-2825-note): at most 3 cookies (one per scope), the store holds unlimited sessions per scope, and `activate(scope, id)` regenerates that scope's cookie **from** the store. This corrects several docs that had previously stated the reverse authority direction ("cookie is the single source of truth, store maps are a cache") and framed the multi-session sessionStorage cache as a security gap. See `foundation.md` Lessons, `gotchas.md` §6–§8, `architecture.md` Security Considerations, and `FE-2825-note.md` for the corrected framing.

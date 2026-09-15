@@ -7,6 +7,7 @@
  */
 
 import { computed, onUnmounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import {
   getTokenFromStorage,
@@ -14,6 +15,7 @@ import {
   useSessionStore
 } from "@upmind-automation/headless";
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
 import {
   useActorScope,
   useBrandScope,
@@ -103,6 +105,7 @@ let hasInitializedFromRoute = false;
 export function useActorScopeSelector() {
   const route = useRoute();
   const router = useRouter();
+  const { t } = useI18n();
 
   // Get actor scope from URL (via scope composable)
   const actorScope = useActorScope();
@@ -119,21 +122,25 @@ export function useActorScopeSelector() {
 
   // Session store for activating sessions on scope switch
   const store = useSessionStore();
-  const { activate, getExpiresAt, logout, remove } = store.useActions();
+  const { activate, addGuest, getExpiresAt, logout, remove } =
+    store.useActions();
   const {
     activeActor,
     activeSessionId,
     allSessions,
     clientSessions,
+    guestSessions,
     impersonatedSessions,
     staffSessions
   } = store.useContext();
-  const { hasClientSession, hasStaffSession, isScopeAllowed } = store.useMeta();
+  const { hasClientSession, hasGuestSession, hasStaffSession, isScopeAllowed } =
+    store.useMeta();
 
   /**
    * Check if a session is valid for the current brand (FE-2973).
    * - No brand filter (org mode): all sessions valid
-   * - Client/Guest: valid iff session.user.brandId === currentBrand
+   * - Guest: never valid — a guest holds no brand membership to check
+   * - Client: valid iff session.user.brandId === currentBrand
    * - Staff: valid iff currentBrand is in session.user.brands
    */
   function isSessionValidForBrand(
@@ -141,6 +148,11 @@ export function useActorScopeSelector() {
   ): boolean {
     const brand = currentBrandId.value;
     if (!brand) return true;
+
+    // `allSessions` carries the guest pool (FE-3087 R10) and a guest has no
+    // `user`, so without this the `!user` fallthrough below would report every
+    // guest brand-valid and the org-wide redirect could never fire.
+    if (entry.scope === AccessRoleTypes.GUEST) return false;
 
     const user = entry.user;
     if (!user) return true;
@@ -151,44 +163,72 @@ export function useActorScopeSelector() {
     return user.brandId === brand;
   }
 
+  /**
+   * Whether a session belongs in the switcher's rows under the current brand.
+   *
+   * Brand membership is a client/staff question, so it decides who the tab may
+   * be handed to — never who is drawn. A guest holds no membership either way,
+   * and hiding one in brand mode would offer "add another guest" beside a pool
+   * the user can never see (FE-3087 R13).
+   */
+  function isSessionListable(
+    entry: (typeof allSessions.value)[string]
+  ): boolean {
+    return (
+      entry.scope === AccessRoleTypes.GUEST || isSessionValidForBrand(entry)
+    );
+  }
+
   // --- Helper to activate session store for a given scope
-  function activateSessionForScope(scope: ScopeActorTypes) {
+  async function activateSessionForScope(
+    scope: ScopeActorTypes
+  ): Promise<void> {
     // The store owns the active pointer (persisted + restored across reloads).
     // `activate(scope)` is a no-op when the scope is already active and falls to
     // the scope's first session otherwise, so a same-scope load never stomps a
     // restored/switched pointer. SELF leaves the pointer untouched.
+    //
+    // Awaited because activating GUEST mints a session when the pool holds none
+    // — so a switch settles over a network call, and the store supersedes it if
+    // another activation lands first.
     if (scope === ScopeActorTypes.SELF) return;
-    activate(scope as unknown as AccessRoleTypes);
+    await activate(scope as unknown as AccessRoleTypes);
   }
 
   // --- Sync scope from URL on initial load
-  const initFromRoute = () => {
+  const initFromRoute = async (): Promise<void> => {
     const scope = actorScope.value;
     globalActorScope.value = scope;
 
     // Only activate session on first initialization (not on every composable call)
     if (!hasInitializedFromRoute) {
       hasInitializedFromRoute = true;
-      activateSessionForScope(scope);
+      await activateSessionForScope(scope);
     }
   };
 
   // Initialize from route
-  initFromRoute();
+  void initFromRoute();
 
   // --- Watch actor scope changes from URL
-  watch(actorScope, newActor => {
+  watch(actorScope, async newActor => {
     globalActorScope.value = newActor;
-    activateSessionForScope(newActor);
+    await activateSessionForScope(newActor);
   });
 
   // --- Watch brand changes: fall back if active session becomes invalid (FE-2973)
-  watch(currentBrandId, () => {
+  watch(currentBrandId, async () => {
     const currentId = activeSessionId.value;
     if (!currentId) return;
 
     const currentEntry = allSessions.value[currentId];
     if (!currentEntry) return;
+
+    // A brand change re-activates client/staff sessions only. Guest is reached
+    // by explicit choice alone: switching a chosen guest away would discard that
+    // choice, and activating a pooled one would turn the unclaimed guest FLOOR
+    // into a chosen guest, opting the tab out of its upgrade on a remote login.
+    if (currentEntry.scope === AccessRoleTypes.GUEST) return;
 
     if (isSessionValidForBrand(currentEntry)) return;
 
@@ -198,12 +238,8 @@ export function useActorScopeSelector() {
       (entry, id) => id !== currentId && isSessionValidForBrand(entry)
     );
 
-    if (validEntry) {
-      activate(validEntry.scope, validEntry.token.actor_id ?? undefined);
-    } else {
-      // No valid session — fall back to guest
-      activate(AccessRoleTypes.GUEST);
-    }
+    if (validEntry)
+      await activate(validEntry.scope, validEntry.token.actor_id ?? undefined);
   });
 
   // --- Helper to build a SessionItem from a session entry
@@ -214,7 +250,12 @@ export function useActorScopeSelector() {
     const actor = entry.scope;
 
     const label =
-      entry.user?.publicName ?? entry.user?.fullName ?? entry.user?.email ?? id;
+      entry.user?.publicName ??
+      entry.user?.fullName ??
+      entry.user?.email ??
+      (actor === AccessRoleTypes.GUEST
+        ? t("labs.session_guest_row", { id: id.slice(0, 8) })
+        : id);
 
     const initials =
       map(label.split(" "), n => n[0])
@@ -242,36 +283,38 @@ export function useActorScopeSelector() {
     };
   }
 
+  // --- Guest sessions as pool rows, one per pooled guest (FE-3087)
+  const guestItems = computed<SessionItem[]>(() =>
+    map(guestSessions.value, (entry, id) => buildSessionItem(id, entry))
+  );
+
   // --- Flat list of all session items (kept for backward compat)
-  // Filtered by brand validity (FE-2973)
-  const sessionItems = computed<SessionItem[]>(() => {
-    return filter(
+  const sessionItems = computed<SessionItem[]>(() =>
+    filter(
       map(allSessions.value, (entry, id) => buildSessionItem(id, entry)),
       item => {
         const entry = allSessions.value[item.id];
-        return entry ? isSessionValidForBrand(entry) : false;
+        return entry ? isSessionListable(entry) : false;
       }
-    );
-  });
+    )
+  );
 
   // --- Staff sessions with nested impersonated clients
-  // Filtered by brand validity (FE-2973)
   const staffSessionNodes = computed<StaffSessionNode[]>(() => {
     const impersonations = impersonatedSessions.value;
 
     const nodes: StaffSessionNode[] = [];
     for (const [staffId, entry] of toPairs(staffSessions.value)) {
-      if (!isSessionValidForBrand(entry)) continue;
+      if (!isSessionListable(entry)) continue;
 
       const item = buildSessionItem(staffId, entry);
 
       // Find client sessions whose impersonator is this staff session
-      // Also filter impersonated clients by brand validity
       const children: SessionItem[] = [];
       for (const [clientId, parentId] of toPairs(impersonations)) {
         if (parentId === staffId) {
           const clientEntry = clientSessions.value[clientId];
-          if (clientEntry && isSessionValidForBrand(clientEntry)) {
+          if (clientEntry && isSessionListable(clientEntry)) {
             children.push(buildSessionItem(clientId, clientEntry));
           }
         }
@@ -287,7 +330,6 @@ export function useActorScopeSelector() {
   });
 
   // --- Client sessions NOT impersonated by any staff session
-  // Filtered by brand validity (FE-2973)
   const directClientItems = computed<SessionItem[]>(() => {
     const impersonations = impersonatedSessions.value;
 
@@ -296,18 +338,22 @@ export function useActorScopeSelector() {
       item => {
         if (has(impersonations, item.id)) return false;
         const entry = clientSessions.value[item.id];
-        return entry ? isSessionValidForBrand(entry) : false;
+        return entry ? isSessionListable(entry) : false;
       }
     );
   });
 
-  // --- Auth scopes that can add new sessions
+  // --- Scopes that can add new sessions
   //     Driven by app-level allowedScopes (not page-level availableScopes)
   //     so login buttons always appear when the app supports a scope.
-  const AUTH_SCOPES = [ScopeActorTypes.CLIENT, ScopeActorTypes.STAFF];
+  const ADDABLE_SCOPES = [
+    ScopeActorTypes.CLIENT,
+    ScopeActorTypes.STAFF,
+    ScopeActorTypes.GUEST
+  ];
 
   const addableScopes = computed<ScopeActorTypes[]>(() => {
-    return filter(AUTH_SCOPES, scope => {
+    return filter(ADDABLE_SCOPES, scope => {
       return isScopeAllowed(scope as unknown as AccessRoleTypes);
     });
   });
@@ -331,15 +377,36 @@ export function useActorScopeSelector() {
     () => globalActorScope.value === ScopeActorTypes.SELF
   );
 
+  /**
+   * The actor a session switch encodes in the url. A guest always rides its
+   * `/as/guest` suffix; a client or staff switch keeps the page acting as self
+   * unless the current scenario explicitly offers that actor. Encoding an actor
+   * the page serves as self makes `useModulePort` refuse the scope (FE-3087).
+   */
+  function urlActorFor(scope: ScopeActorTypes): ScopeActorTypes {
+    if (scope === ScopeActorTypes.GUEST) return scope;
+
+    const key = route.meta?.scenario as string | undefined;
+    const offered = key ? get(scenarioRoutes, [key, "actors"]) : undefined;
+
+    return some(offered, actor => actor === scope)
+      ? scope
+      : ScopeActorTypes.SELF;
+  }
+
   // --- Actions
   /**
    * Switch to a new actor scope, update the route, and activate the session.
    */
-  function switchScope(scope: ScopeActorTypes) {
+  async function switchScope(scope: ScopeActorTypes): Promise<void> {
     globalActorScope.value = scope;
 
     // Activate the corresponding session in the session store
-    activateSessionForScope(scope);
+    await activateSessionForScope(scope);
+
+    // The homepage and the auth pages have no scoped variant, so there the
+    // switch lives in the store alone and the url stays put.
+    if (route.params.scopeSuffix === undefined) return;
 
     // Update scope in URL path while preserving current route and brand
     const currentBrand = route.params.brandIdOrOrg as string | undefined;
@@ -356,7 +423,7 @@ export function useActorScopeSelector() {
         buildScopePath({
           page,
           brandId: currentBrand,
-          actor: scope,
+          actor: urlActorFor(scope),
           context: currentContext
         })
       )
@@ -366,8 +433,11 @@ export function useActorScopeSelector() {
   /**
    * Activate a specific session by ID and actor type.
    */
-  function switchSession(actor: AccessRoleTypes, sessionId: string) {
-    activate(actor, sessionId);
+  async function switchSession(
+    actor: AccessRoleTypes,
+    sessionId: string
+  ): Promise<void> {
+    await activate(actor, sessionId);
 
     // Map AccessRoleTypes to ScopeActorTypes for the global scope
     const scopeType = findKey(
@@ -391,7 +461,7 @@ export function useActorScopeSelector() {
       buildScopePath({
         page,
         brandId: currentBrand,
-        actor: scopeType,
+        actor: urlActorFor(scopeType),
         context: currentContext
       })
     );
@@ -420,8 +490,13 @@ export function useActorScopeSelector() {
    * the client one, the same `/as/<actor>` pick the `useAuth` page collects a
    * session under. So it is carried, not asked for a second time.
    */
-  function addSession(scope: ScopeActorTypes) {
-    router.push(authOverlayTarget(route, { actor: scope, fresh: true }));
+  async function addSession(scope: ScopeActorTypes): Promise<void> {
+    // Guest has no credentials to collect, so the overlay would offer a form
+    // nobody can fill. `addGuest` is the store's own fresh-session seam, and it
+    // mints a NEW guest beside the ones already pooled (FE-3087 ruling R11).
+    if (scope === ScopeActorTypes.GUEST) return addGuest();
+
+    await router.push(authOverlayTarget(route, { actor: scope, fresh: true }));
   }
 
   /**
@@ -473,6 +548,12 @@ export function useActorScopeSelector() {
    * so the affordance is unambiguous while a user is already logged in.
    */
   function getAddSessionLabel(scope: ScopeActorTypes): string {
+    if (scope === ScopeActorTypes.GUEST) {
+      return hasGuestSession.value
+        ? "labs.session_add_guest_another"
+        : "labs.session_add_guest";
+    }
+
     if (scope === ScopeActorTypes.STAFF) {
       return hasStaffSession.value
         ? "labs.session_add_staff_another"
@@ -487,9 +568,28 @@ export function useActorScopeSelector() {
    * Stable test hook for the "add session" control of a given scope.
    */
   function getAddSessionTestKey(scope: ScopeActorTypes): string {
-    return scope === ScopeActorTypes.STAFF
-      ? "actor-scope-add-staff"
-      : "actor-scope-add-client";
+    switch (scope) {
+      case ScopeActorTypes.GUEST:
+        return "actor-scope-add-guest";
+      case ScopeActorTypes.STAFF:
+        return "actor-scope-add-staff";
+      default:
+        return "actor-scope-add-client";
+    }
+  }
+
+  /**
+   * Icon for the "add a new session" action of a given scope.
+   */
+  function getAddSessionIcon(scope: ScopeActorTypes): string {
+    switch (scope) {
+      case ScopeActorTypes.GUEST:
+        return "user-circle";
+      case ScopeActorTypes.CLIENT:
+        return "log-in-01";
+      default:
+        return "log-in-02";
+    }
   }
 
   /**
@@ -563,7 +663,10 @@ export function useActorScopeSelector() {
     /** Scopes that can add new sessions (no existing session, scope allowed). */
     addableScopes,
 
-    /** Add a session for a scope — opens the auth overlay on its chooser. */
+    /**
+     * Add a session for a scope — opens the auth overlay on its chooser, or
+     * mints a new guest session when the scope is guest.
+     */
     addSession,
 
     /** Available scopes for the scope switcher. */
@@ -578,6 +681,9 @@ export function useActorScopeSelector() {
     /** Client sessions not impersonated by any staff session. */
     directClientItems,
 
+    /** Icon for the "add a new session" action of a scope. */
+    getAddSessionIcon,
+
     /** i18n key for the "add a new session" action of a scope. */
     getAddSessionLabel,
 
@@ -589,6 +695,9 @@ export function useActorScopeSelector() {
 
     /** Get display label for a scope. */
     getScopeLabel,
+
+    /** Guest sessions in the pool; the chosen one reads as active. */
+    guestItems,
 
     /** True if current scope is client. */
     isClient,

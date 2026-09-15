@@ -1,0 +1,72 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/notifications/opt-outs?limit=0&case=after-save",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a38bf693cdacbe39-DUB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 10 Sep 2026 05:16:53 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=smuDvRurRqV5iU86%2FQRU1ZyuvoCHv1A92QwoTtk%2Bq2KVStxMHL2gmxcPDRSiCzUlh1qYswkcWODmtWoyVVg9K5iEMG8jASKkXdz7kw2uejoBSMYehnDLfCWTG7qynOfbHR%2BDhrn3Cg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "3"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "topic_id": "45952098-d3de-4091-76a3-1578626e347e",
+          "channel_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "created_at": "2026-04-08 07:24:11",
+          "updated_at": "2026-04-08 07:24:11"
+        },
+        {
+          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+          "topic_id": "45952098-d3de-4091-76a3-1578626e347e",
+          "channel_id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "created_at": "2026-04-08 07:24:11",
+          "updated_at": "2026-04-08 07:24:11"
+        },
+        {
+          "id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+          "topic_id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "channel_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "created_at": "2026-09-10 05:16:53",
+          "updated_at": "2026-09-10 05:16:53"
+        }
+      ],
+      "related": null,
+      "total": 3,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-10T05:16:53.795Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-notifications"
+  }
+}

@@ -3,7 +3,7 @@
  * `ScenarioMenu` / `ScenarioChoice` node exists anywhere in the tree, so the
  * choice union is minted. What it does NOT mint: a scenario IS
  * `useFeatureTracks`' own `FeatureTrack` (T4.1) and a forced state IS
- * `useForcedState`'s own `ForceUrlPreset`, both passed through whole rather than
+ * `force/states.types.ts`'s own `ForcedState`, both passed through whole rather than
  * re-shaped into a menu-item type; the entries themselves are
  * `@upmind/ui`'s `MenuItem`.
  * See `graphify-out/GRAPH_REPORT.md`.
@@ -11,8 +11,8 @@
  * @graphify-citation `graphify-out/graph.json` (2026-08-27, 22914 nodes) —
  * re-checked for FE-3113's `presets` prop: no preset-list / capability node
  * exists in the tree, and the prop MINTS nothing — it carries
- * `useForcedState`'s own `ForceUrlPreset[]`, derived by
- * `force/capabilities.ts`. See `graphify-out/GRAPH_REPORT.md`.
+ * `force/states.types.ts`'s own `ForcedState[]`, derived by `force/offer.ts`
+ * off the module's own `.feature`. See `graphify-out/GRAPH_REPORT.md`.
  */
 // -----------------------------------------------------------------------------
 /**
@@ -23,10 +23,8 @@
  */
 
 import type { FeatureTrack } from "../composables/useFeatureTracks.types";
-import type {
-  ForcePreset,
-  ForceUrlPreset
-} from "../composables/useForcedState.types";
+import type { ForcePreset } from "../composables/useForcedState.types";
+import type { ForcedState } from "../force/states.types";
 
 // -----------------------------------------------------------------------------
 
@@ -49,31 +47,38 @@ export const SCENARIO_CHOICE = {
 export type ScenarioChoice =
   | { kind: typeof SCENARIO_CHOICE.LIVE }
   | { kind: typeof SCENARIO_CHOICE.TRACK; track: FeatureTrack }
-  | { kind: typeof SCENARIO_CHOICE.FORCE; preset: ForceUrlPreset };
+  | { kind: typeof SCENARIO_CHOICE.FORCE; state: ForcedState };
 
 export type ScenarioMenuProps = {
   /** The page's whole playlist. Empty is Live alone — the correct degraded state (`S12`). */
   tracks: readonly FeatureTrack[];
   /**
-   * The forced states this page's OWN corpus can answer, derived from its
-   * recordings (FE-3113). What may be CHOSEN, and nothing more: a read-only
-   * module's recordings cannot refuse a write, so `error-action` is simply not
-   * among them — never offered-and-disabled, which is the dead-alive control
-   * `S14` forbids.
+   * The forced states this page's own FEATURE declares and its own recordings
+   * can answer (operator ruling, 2026-09-12). What may be CHOSEN, and nothing
+   * more: a module whose feature never names a refused write offers no such
+   * state — never offered-and-disabled, which is the dead-alive control `S14`
+   * forbids.
    *
-   * Empty is a module whose corpus can answer nothing, which leaves the group
-   * absent and the page Live (`S12`). Mints nothing — this is
-   * `useForcedState`'s own `ForceUrlPreset`, per this file's head citation and
+   * Empty is a module whose feature names no transport condition, or whose
+   * corpus can answer none of them: the group is absent and the page is Live
+   * (`S12`). Mints nothing — this is `force/states.types.ts`'s own
+   * `ForcedState`, per this file's head citation and
    * `graphify-out/GRAPH_REPORT.md`.
    */
-  presets: readonly ForceUrlPreset[];
+  states: readonly ForcedState[];
   /** The armed track, if one is playing. */
   armed?: FeatureTrack;
   /**
    * The forced state actually being served, if one is armed. What is REPORTED,
-   * and `presets` never gates it: that list resolves from the corpus
+   * and `states` never gates it: that list resolves from the corpus
    * asynchronously, so a page armed from a pasted url would otherwise show its
    * placeholder until the corpus landed.
+   */
+  state?: ForcedState;
+  /**
+   * The RECIPE being served, for the one armed state no feature declares:
+   * `replay` is the player's, so the menu reports it as non-live without ever
+   * offering it.
    */
   preset?: ForcePreset;
   /**

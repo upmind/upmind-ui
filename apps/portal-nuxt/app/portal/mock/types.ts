@@ -18,7 +18,8 @@ import type {
   CustomField,
   Email,
   Phone,
-  ProfileRecord
+  ProfileRecord,
+  SentEmail
 } from "@upmind-automation/headless";
 import type {
   AffiliatePayoutDestinationCode,
@@ -395,6 +396,10 @@ export type MockProduct = {
   readonly promotionCodes?: readonly string[];
   /** Managed on someone else's behalf — legacy's delegated-object marker. */
   readonly isDelegated?: boolean;
+  /** The name the product carried before the brand renamed it — legacy shows it beside the new one. */
+  readonly originalName?: string;
+  /** Whether the brand lets the client cancel this product at all; absent reads as yes. */
+  readonly canCancel?: boolean;
   /** Closed and replaced — the product that took this one's place. */
   readonly movedTo?: MockProductMove;
   /** The price waiting on the next renewal invoice; absent means the price stands. */
@@ -898,6 +903,9 @@ export type MockParentBranding = {
 // collection that proves the mock layer carries the factory contract, so the
 // go-real swap changes the source, never the templates. Values stay
 // display-ready (`date`/`relative` are authored strings).
+
+/** One email the brand sent this client — the headless `SentEmail` model, as the seed carries it. */
+export type MockSentEmail = SentEmail;
 
 export type MockLoginAttempt = {
   readonly id: string;
@@ -1516,7 +1524,8 @@ export type MockDataset = {
   readonly childAccounts: MockChildAccount[];
   /** The appearance children inherit; null where the brand lends none. */
   readonly parentBranding: MockParentBranding | null;
-  /** Mutable: a resend appends a fresh row, and a retry moves an errored one. */
+  /** Legacy's email history — every email the brand sent this client, newest first. */
+  readonly sentEmails: MockSentEmail[];
   /** The brand's own warning that mail is running behind — legacy's delivery-delay notice. */
   readonly emailDeliveryDelayed: boolean;
   readonly loginAttempts: MockLoginAttempt[];

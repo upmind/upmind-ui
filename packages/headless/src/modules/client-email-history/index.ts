@@ -24,8 +24,18 @@ export {
 } from "./client-email-history.types";
 export type { ReceivedEmailsScopeMatrix } from "./client-email-history.types";
 
+// --- Imperative one-shot reads — for callers that poll rather than render.
+export {
+  readClientEmailNotificationToken,
+  readRecentClientEmails
+} from "./client-email-history.services";
+
 // --- Public model types
-export type { SentEmail, SentEmailModel } from "./client-email-history.types";
+export type {
+  RecentEmailsReadOptions,
+  SentEmail,
+  SentEmailModel
+} from "./client-email-history.types";
 // Re-exported so a consumer can read `SentEmail.status` (a `SentEmailStatus`)
 // without taking a direct dependency on `@upmind-automation/types`.
 export { SentEmailStatus } from "@upmind-automation/types";

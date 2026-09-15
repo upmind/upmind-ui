@@ -33,13 +33,26 @@ makeApiCall(activeSession.value!.access_token);
 
 ---
 
-## 2. Guest minting happens only at boot
+## 2. Guest minting happens at boot and at activation, not on re-hydration, sync, or navigation
 
-**Problem:** A guest token is minted **only during initialisation**, when no client/staff session and no guest cookie exist. It is **not** minted on cookie re-hydration, cross-tab sync, or navigation. If you expect a fresh guest after clearing the guest cookie mid-session, you will not get one until the next full boot.
+**Problem:** A guest token is minted in two situations: during initialisation, when no client/staff session and no guest cookie exist; and when guest is the session being switched to while the guest pool is currently empty. Outside those two triggers it is **not** minted — not on cookie re-hydration, cross-tab sync, or navigation. If you expect a fresh guest after clearing the guest cookie mid-session without activating guest, you will not get one until the next boot or the next guest activation.
 
-> **🧪 For Testers (Verify Guest Token Minting):** Clear all cookies, reload → after init, `activeActor` is `guest` and `activeSession.value.access_token` exists; a guest API call succeeds. (Spec: README Test 1; FE-2825 §6.)
+```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
 
-> **🧪 For Testers (guest-mint failure is fatal):** If the guest grant fails every retry, boot resolves into an **error state** — the store does not proceed guestless and does not hang. `error` is populated; the app must surface it. (Spec: source `mintGuestToken` throws after 3 attempts → `initialise` catch sets `error`.)
+const { activate } = useSessionStore().useActions();
+
+// Pool empty, no id given → mints a guest token, then activates it.
+// Never rejects: a failed mint leaves the pointer where it was and logs a warning.
+await activate(AccessRoleTypes.GUEST);
+```
+
+> **🧪 For Testers (minting at boot):** Clear all cookies, reload → after init, `activeActor` is `guest` and `activeSession.value.access_token` exists; a guest API call succeeds. (Spec: README Test 1.)
+
+> **🧪 For Testers (minting at activation):** With a client signed in and no guest session pooled, `await activate(AccessRoleTypes.GUEST)` mints a guest token and switches to it — one outbound guest-grant request, then `activeActor` becomes `guest`.
+
+> **🧪 For Testers (mint failure, boot vs activation):** A guest-grant failure that exhausts every retry **during boot** resolves into an **error state** — the store does not proceed guestless and does not hang; `error` is populated and the app must surface it. (Source: `mintGuestToken` throws after 3 attempts → `initialise` catch sets `error`.) The same failure **during activation** is a soft degrade instead: the active pointer is left exactly where it was and the failure is only logged — `activate()` never rejects.
 
 ---
 
@@ -144,6 +157,90 @@ useSessionStore().useActions().logout(AccessRoleTypes.CLIENT);
 > **🧪 For Testers:** With `allowedScopes: [CLIENT, GUEST]`, `activate(STAFF, id)` leaves `activeActor` unchanged, and `add(staffToken)` stores it without activating. `isScopeAllowed(STAFF)` returns false. (Source: `activate` / `add` scope guards, `useSessionStore.actions.ts`.)
 
 ---
+
+## 12. `add` never claims the guest pointer, only `activate` does
+
+**Problem:** `add(token)` stores a guest token in `guestSessions` but never touches `activeSessionId` for guest — only `activeActor` is set, and the standing pointer is left for the write gate to re-validate. This looks like an inconsistency next to client/staff, where `add(token)` sets both `activeActor` and `activeSessionId` — it is deliberate.
+
+The reason: a background token refresh reaches `add()` through the exact same path an explicit guest activation's mint does (`persistTokenToStorage` → `add(token, true)`). `add()` has no way to tell those two calls apart. If it wrote the guest pointer, a refresh of a _fallen-back_ (unclaimed) guest's token would silently turn it into a _chosen_ guest — and a chosen guest is not supposed to be replaced by a signed-in identity showing up elsewhere, so that tab would stop upgrading when it should. Only `activate()` ever records the choice.
+
+```typescript
+import { useSessionStore } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
+import type { IToken } from "@upmind-automation/types";
+
+const guestToken = {} as IToken;
+const { add, activate } = useSessionStore().useActions();
+
+// ⚠️ Storing a guest token directly does NOT choose it — the pointer is untouched
+await add(guestToken);
+
+// ✅ Choosing a guest is activate()'s job
+await activate(AccessRoleTypes.GUEST, guestToken.actor_id || undefined);
+```
+
+> **🧪 For Testers:** Boot to a fallen-back guest (do not activate it explicitly), then drive a token refresh for it. `activeSessionId` stays exactly as it was before the refresh — `add()` did not claim it. Only a direct `activate(GUEST, id)` call changes the pointer.
+
+---
+
+## 13. The guest floor never claims the pointer either
+
+**Problem:** When no client or staff session is available and resolution falls back to guest, `activeSessionId` is left **absent** even though a real guest session sits in the pool. This is the one place guest resolution differs from client/staff: a client or staff session reached by priority fallback DOES get its id written onto the pointer.
+
+The reason: the fallen-back (floor) guest has to stay upgradeable. If the floor claimed the pointer, a later sign-in happening elsewhere (e.g. another tab) would find the guest pointer already "chosen" and would not promote this tab to that identity. Leaving the pointer unclaimed is what lets a plain, defaulted guest tab pick up a login happening elsewhere — an explicitly chosen guest (its id IS on the pointer) does not get replaced this way, by design.
+
+This is also the entire discriminator between a _chosen_ guest and a _defaulted_ one: both have a live entry in `guestSessions`, so "does a guest session exist?" cannot tell them apart. Only the pointer's presence can — no separate flag exists for it.
+
+> **🧪 For Testers:** With no client/staff session, boot lands on guest with `activeSessionId` **undefined**, even though `guestSessions` is non-empty. Explicitly `await activate(AccessRoleTypes.GUEST)` the same guest → `activeSessionId` now names its key. Both states show the same guest token on the public surface; only the pointer differs.
+
+---
+
+## 14. A failed guest token falls back to the previous session, by design
+
+**Problem:** If a _chosen_ guest's own token stops being valid (its cookie is no longer live — e.g. its refresh failed), the active identity does not stay stranded on guest. It falls back through the same priority order everything else uses: staff, then client, then the guest floor. In practice this means a chosen guest whose token fails while a client session is also held lands back on that client.
+
+This is not a bug to guard against — it is the existing fallback hierarchy applying to guest like any other actor: a scope with no live backing cookie is not honoured as the active pointer, so resolution falls through to the next real session. "Survives any subsequent write" (see the guest-activation examples above) means survives any write that does not itself invalidate the guest token.
+
+> **🧪 For Testers:** Activate a guest session explicitly, then force its token to fail (e.g. an expired/invalid refresh) while a client session is also held. The active identity falls back to the client — this is expected, not a regression.
+
+---
+
+## 15. `isDelegated` is deliberately NOT uniform across record types
+
+It looks like a bug. It is not. The child-account exclusion applies to the
+**invoice/order arm only**:
+
+```typescript
+isDelegated(invoiceOfAChildAccount); // false — excluded
+isDelegated(contractProductOfAChildAccount); // true  — NOT excluded
+isDelegated(ticketOfAChildAccount); // true  — NOT excluded
+```
+
+This reproduces the legacy app exactly: invoices apply the exclusion
+(`store/modules/data/invoices/index.ts:143-146`), contract products and tickets
+read the bare flag (`cProdProvider.vue:190`, `ticketProvider.ts:161`).
+
+"Tidying" this into one uniform check hides genuinely delegated contract
+products and tickets from clients entitled to see them. A negative control
+guards it: `session-store.isDelegated-uniform-exclusion.must-fail.patch`.
+
+The same applies to `hasDelegatedProducts`, whose disjunction is
+`CONTRACTS_PRODUCT` **or** `CLIENT` — never `TICKET`. Folding `TICKET` in
+over-grants the delegated-products view.
+
+## 16. `delegatedIds` is read with `?.` although its type says it is required
+
+`SessionUser.delegatedIds` is non-optional, and `mapSessionUser` always
+populates it (`?? {}`). So the optional chain in `hasDelegatedProducts` reads
+like dead defensiveness.
+
+It is not. `buildInitialState()` restores the session user **verbatim** from
+`sessionStorage` without re-running the mapper. A profile persisted by any build
+that predates this field therefore has no `delegatedIds` key at all, and the
+type's guarantee does not hold for that shape. Removing the `?.` throws on every
+authenticated surface for those users, until they clear storage.
+
+Guarded by `session-store.hasDelegatedProducts-drop-optional-chain.must-fail.patch`.
 
 ## Open Questions (for reviewer)
 

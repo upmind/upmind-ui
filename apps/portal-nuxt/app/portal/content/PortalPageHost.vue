@@ -10,7 +10,10 @@ import { areaForPath } from "~/portal/areas";
 import PortalContent from "~/portal/content/PortalContent.vue";
 import PortalRail from "~/portal/content/PortalRail.vue";
 import { CONTENT_GUTTER, CONTENT_MEASURE } from "~/portal/content/types";
-import { PAGE_FOOTER_CLASS } from "~/portal/content/variants";
+import {
+  PAGE_BREADCRUMB_CLASS,
+  PAGE_FOOTER_CLASS
+} from "~/portal/content/variants";
 import {
   injectActiveMockData,
   injectRouteContext,
@@ -129,7 +132,9 @@ const meta = computed(() => ({
   <Page :width="meta.pageWidth" :class="meta.pageTrackClass">
     <!-- Suppressed while the shape declares a hero — the band carries the h1 (PortalHero). -->
     <PageHeader v-if="!resolvedContent.hero">
-      <PortalSlotContent :resolved-slot="resolvedContent.breadcrumb" />
+      <div v-if="resolvedContent.breadcrumb" :class="PAGE_BREADCRUMB_CLASS">
+        <PortalSlotContent :resolved-slot="resolvedContent.breadcrumb" />
+      </div>
       <PageTitle>{{ meta.title }}</PageTitle>
       <PageDescription v-if="resolvedContent.description">{{
         resolvedContent.description

@@ -57,16 +57,16 @@
 import { computed, effectScope, nextTick, ref, watch } from "vue";
 import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
 import { availableModules } from "../force/corpus.source";
-import { FORCE_URL_PRESETS } from "./useForcedState.types";
-import { noop, some } from "lodash-es";
+import { forcedStateAt, forcedStateRecipeId } from "../force/states";
+import { isString, noop } from "lodash-es";
 import type {
   ForceReset,
   ForcedStateSource,
   ForcePreset,
-  ForceUrlPreset,
   ForceWorker,
   UseForcedState
 } from "./useForcedState.types";
+import type { ForcedState } from "../force/states.types";
 
 // -----------------------------------------------------------------------------
 
@@ -77,14 +77,13 @@ type ForcedStateHandle = {
   serves: (source: ForcedStateSource) => void;
 };
 
+/** The one armed state no feature declares: the player's, and no url carries it. */
+const REPLAY = "replay" as const;
+
 let handle: ForcedStateHandle | undefined;
 
 /** The pathname the handle last answered on — the page `reset` scopes to. */
 let page: string | undefined;
-
-function isUrlPreset(value: unknown): value is ForceUrlPreset {
-  return some(FORCE_URL_PRESETS, preset => preset === value);
-}
 
 function create(): ForcedStateHandle {
   const url = usePlaygroundUrlState();
@@ -93,16 +92,33 @@ function create(): ForcedStateHandle {
   // The preset the url cannot carry, so it cannot be read back off one either.
   const transient = ref<ForcePreset | undefined>();
 
-  const preset = computed<ForcePreset | undefined>(() => {
+  // The states the page has OFFERED — what a url slug is resolved against.
+  // Empty until the page's corpus lands, so a pasted link arms nothing until
+  // the offer it names has been measured (`AC8.2`).
+  const offered = ref<readonly ForcedState[]>([]);
+
+  const requested = computed(() =>
+    isString(url.force.value) ? url.force.value : undefined
+  );
+
+  const state = computed<ForcedState | undefined>(() => {
     // Nothing is armed while the corpus is unreachable (`ESC6`), so nothing may
     // READ as armed either: the page is Live, and a chip over live rows naming
-    // a preset nobody is serving is the lie `S14` forbids — inventing a body to
+    // a state nobody is serving is the lie `S14` forbids — inventing a body to
     // make it true is the one `S13` does.
     if (availableModules.length === 0) return undefined;
 
+    return forcedStateAt(offered.value, requested.value);
+  });
+
+  const preset = computed<ForcePreset | undefined>(() => {
+    if (availableModules.length === 0) return undefined;
+
+    // The recipe, never the state: what the worker serves is the one thing a
+    // fake network can do, and the sentence naming it is the picker's.
     return (
       transient.value ??
-      (isUrlPreset(url.force.value) ? url.force.value : undefined)
+      (state.value ? forcedStateRecipeId(state.value.recipe) : undefined)
     );
   });
 
@@ -260,14 +276,28 @@ function create(): ForcedStateHandle {
     clear();
   }
 
-  async function arm(next: ForcePreset): Promise<void> {
-    // Read BEFORE the write: a preset already armed leaves the watcher nothing
+  async function arm(next: ForcedState | "replay"): Promise<void> {
+    const armed = next === "replay" ? undefined : next;
+
+    // Read BEFORE the write: a state already armed leaves the watcher nothing
     // to reconcile, so the session that has been REPLAYED INTO would carry the
     // last pass's writes into this one (`R7-4`).
-    const rearmed = preset.value === next;
+    const rearmed = armed
+      ? state.value?.slug === armed.slug
+      : transient.value === REPLAY;
 
-    url.force.value = isUrlPreset(next) ? next : undefined;
-    transient.value = isUrlPreset(next) ? undefined : next;
+    // The url carries the STATE's slug — the scenario, not the recipe. Two
+    // scenarios of one feature can name the same transport condition, and a
+    // link naming the recipe could not tell the operator which of them they
+    // were sent to look at.
+    url.force.value = armed?.slug;
+    transient.value = armed ? undefined : REPLAY;
+
+    // A state armed from the picker is offered by definition, but the offer is
+    // what a pasted slug resolves against — so an arm registers it too, and a
+    // page that armed before its own measurement landed still reads as armed.
+    if (armed && !forcedStateAt(offered.value, armed.slug))
+      offered.value = [...offered.value, armed];
 
     if (rearmed) queue(restart);
 
@@ -334,11 +364,20 @@ function create(): ForcedStateHandle {
     if (isMoved && servedModule) {
       transient.value = undefined;
       url.force.value = undefined;
+      offered.value = [];
     }
 
     if (source.module) servedModule = source.module;
     if (isMoved || source.reset) clearCache = source.reset;
     if (isMoved || source.whenArmed) armed = source.whenArmed;
+
+    // The page's own offer, followed rather than copied: it is measured after
+    // the corpus loads, and a pasted `force=` link must arm the moment the
+    // state it names is offered — not on whatever the list held at boot.
+    if (source.states) {
+      const states = source.states;
+      watch(states, next => (offered.value = next), { immediate: true });
+    }
   }
 
   return {
@@ -346,6 +385,8 @@ function create(): ForcedStateHandle {
     serves,
     state: {
       preset,
+      state,
+      requested,
       isAvailable: availableModules.length > 0,
       isSettling: computed(() => unsettled.value > 0),
       arm,

@@ -41,21 +41,20 @@
 
 import { describe, expect, it } from "vitest";
 import { recordedBodies } from "@upmind-automation/headless/fixtures";
-import {
-  FORCE_URL_PRESETS,
-  type ForceUrlPreset
-} from "../../composables/useForcedState.types";
 import { answerablePresets } from "../capabilities";
 import { armCorpusModule, runtimeCorpus, runtimeFeature } from "../corpus";
 import { createForceHandlers } from "../handlers";
 import { PENDING, presetAnswer } from "../presets";
 import { armsForceableSurface, moduleRoutes } from "../routes";
+import { FORCE_RECIPES, type ForceMeasuredRecipe } from "../states.types";
 import {
   filter,
+  find,
   flatMap,
   get,
   isArray,
   isEmpty,
+  isNil,
   keys,
   map,
   reject,
@@ -144,7 +143,7 @@ const pathShape = (path: string) =>
  * derivation would pass on any derivation at all.
  */
 const EVIDENCE: Record<
-  ForceUrlPreset,
+  ForceMeasuredRecipe,
   (fixtures: RecordedFixture[]) => boolean
 > = {
   empty: fixtures =>
@@ -165,7 +164,7 @@ type Loaded = {
   bodies: CorpusBodies;
   feature: string;
   fixtures: RecordedFixture[];
-  offered: readonly ForceUrlPreset[];
+  offered: readonly ForceMeasuredRecipe[];
 };
 
 const LOADED: Loaded[] = [];
@@ -237,6 +236,19 @@ const collectionReadOf = (entry: Loaded) => {
     f => -(get(f, ["response", "body", "data"], []) as unknown[]).length
   )[0];
 };
+
+/**
+ * The served read a refused WRITE stands beside: the collection where the module
+ * lists, else the one record a single-record surface (`clients/:id`) reads —
+ * a form's refused save is drawn over the record it was saving.
+ */
+const readBesideWriteOf = (entry: Loaded) =>
+  collectionReadOf(entry) ??
+  find(
+    entry.fixtures,
+    f =>
+      isRead(f) && !isRefused(f) && !isNil(get(f, ["response", "body", "data"]))
+  );
 
 /** The module's recorded answer for a record that is not there. */
 const absentReadOf = (entry: Loaded) => entry.fixtures.find(isAbsentRecord);
@@ -339,7 +351,7 @@ const foreignPathsFor = (entry: Loaded) => {
 
 // -----------------------------------------------------------------------------
 
-function proveAnswered(entry: Loaded, preset: ForceUrlPreset) {
+function proveAnswered(entry: Loaded, preset: ForceMeasuredRecipe) {
   const write = writeOf(entry);
   const collection = collectionReadOf(entry);
 
@@ -466,22 +478,25 @@ function proveAnswered(entry: Loaded, preset: ForceUrlPreset) {
     `${entry.module} refused its write with a response no recording of its own carries`
   ).toContainEqual(refused);
 
+  const held = readBesideWriteOf(entry);
+
   expect(
-    collection,
-    `${entry.module} offers error-action with no collection read to hold up beside the refused write`
+    held,
+    `${entry.module} offers error-action with no served read to hold up beside the refused write`
   ).toBeDefined();
 
   expect(
-    answer(entry, "error-action", collection!),
-    `${entry.module} lost its collection under error-action`
-  ).toEqual(answer(entry, "replay", collection!));
-  expect(
-    rowsIn(answer(entry, "error-action", collection!))?.length,
-    `${entry.module} emptied its list under error-action`
-  ).toBeGreaterThan(0);
+    answer(entry, "error-action", held!),
+    `${entry.module} lost its read under error-action`
+  ).toEqual(answer(entry, "replay", held!));
+  if (hasRows(held!))
+    expect(
+      rowsIn(answer(entry, "error-action", held!))?.length,
+      `${entry.module} emptied its list under error-action`
+    ).toBeGreaterThan(0);
 }
 
-function proveUnanswerable(entry: Loaded, preset: ForceUrlPreset) {
+function proveUnanswerable(entry: Loaded, preset: ForceMeasuredRecipe) {
   if (preset === "loading") {
     expect(
       entry.fixtures,
@@ -584,7 +599,7 @@ describe("AC1 force reaches every module that publishes recordings", () => {
 });
 
 describe.each(LOADED)("AC3 · AC4 $module", (entry: Loaded) => {
-  it.each([...FORCE_URL_PRESETS])(
+  it.each([...FORCE_RECIPES])(
     "× %s — answers from its own recordings when offered, invents nothing when not",
     preset => {
       const offered = entry.offered.includes(preset);

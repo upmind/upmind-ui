@@ -74,7 +74,10 @@ function linkRow(options: {
   };
 }
 
-function statementRow(markdown: DataRef, visible?: DataRef): ContentRowConfig {
+function statementRow(
+  markdown: DataRef | string,
+  visible?: DataRef
+): ContentRowConfig {
   return {
     layout: ROW_LAYOUT.FULL,
     visible,
@@ -117,25 +120,88 @@ export function authPages(): Partial<Record<PageKey, ContentConfig>> {
     "UpmSessionRecoverPassword",
     SESSION_MODULE
   );
-  // Reset-with-token, verification and org registration have no client-vue
-  // component yet; they ride the same headless module when one is added.
-  const reset = clientVuePage(
-    "Choose a new password",
-    "Your reset link brought you here.",
-    "UpmSessionRecoverPassword (reset step, to be added)",
-    SESSION_MODULE
+  // The logged-out screens no client-vue component serves, mocked as legacy
+  // drew them (`views/client/auth/{resetPassword,verify,verifyEmail,registerOrg}`).
+  const signIn = linkRow({
+    label: "Sign in",
+    value: mockActionValue(MOCK_ACTION.NAVIGATE, "/login")
+  });
+  // Legacy's `resetPasswordForm`: the new password, with the second-step code
+  // where two-factor is on; "Change password" lands it and returns to sign in.
+  const reset = page(
+    "Reset password",
+    "Choose a new password for your account.",
+    [
+      formRow({
+        schema: dataRef(DATA_REF_ID.RESET_PASSWORD_FORM_SCHEMA),
+        uischema: dataRef(DATA_REF_ID.RESET_PASSWORD_FORM_UISCHEMA),
+        model: dataRef(DATA_REF_ID.RESET_PASSWORD_FORM_MODEL),
+        submit: MOCK_ACTION.RESET_PASSWORD,
+        submitLabel: "Change password"
+      }),
+      signIn
+    ]
   );
-  const verify = clientVuePage(
-    "Verify your account",
-    "The link in your email finishes here.",
-    "UpmSessionVerify (to be added)",
-    "auth · useVerifyEmail"
+  // Legacy's verify view, one screen per outcome: activated, or still
+  // wanting its first password. Expired is the shared dead end below.
+  const verified = page(
+    "Account verification",
+    "Account activation was successful.",
+    [signIn]
   );
-  const registerOrg = clientVuePage(
-    "Register your organisation",
-    "An account for the whole team.",
-    "UpmSessionRegister (organisation variant, to be added)",
-    SESSION_MODULE
+  const setPassword = page(
+    "Set account password",
+    "Choose the password you will sign in with.",
+    [
+      formRow({
+        schema: dataRef(DATA_REF_ID.SET_PASSWORD_FORM_SCHEMA),
+        uischema: dataRef(DATA_REF_ID.SET_PASSWORD_FORM_UISCHEMA),
+        model: dataRef(DATA_REF_ID.SET_PASSWORD_FORM_MODEL),
+        submit: MOCK_ACTION.VERIFY_SET_PASSWORD,
+        submitLabel: "Continue"
+      })
+    ]
+  );
+  const verifiedEmail = page(
+    "Email verification",
+    "Thanks, your email has been verified.",
+    [signIn]
+  );
+  // Every token link's past-using position — legacy's
+  // `verify_link_expired_or_invalid` and `password_reset_link_expired` arms,
+  // which each pointed at one door; this page keeps both.
+  const expired = page(
+    "This link has expired",
+    "Links like this one work once, and for a while. This one is past using.",
+    [
+      statementRow(
+        "Sign in again, or request a new link if you were resetting your password."
+      ),
+      signIn,
+      linkRow({
+        label: "Request a new link",
+        value: mockActionValue(MOCK_ACTION.NAVIGATE, "/forgotten-password")
+      })
+    ]
+  );
+  // Legacy's `orgRegistrationForm` under "Get started for free".
+  const registerOrg = page(
+    "Get started for free",
+    "Register your organisation.",
+    [
+      statementRow("Already have an account?"),
+      linkRow({
+        label: "Login here",
+        value: mockActionValue(MOCK_ACTION.NAVIGATE, "/login")
+      }),
+      formRow({
+        schema: dataRef(DATA_REF_ID.REGISTER_ORG_FORM_SCHEMA),
+        uischema: dataRef(DATA_REF_ID.REGISTER_ORG_FORM_UISCHEMA),
+        model: dataRef(DATA_REF_ID.REGISTER_ORG_FORM_MODEL),
+        submit: MOCK_ACTION.REGISTER_ORG,
+        submitLabel: "Complete registration"
+      })
+    ]
   );
 
   return {
@@ -145,11 +211,11 @@ export function authPages(): Partial<Record<PageKey, ContentConfig>> {
     [PAGE_KEY.AUTH_REGISTER_ORG]: registerOrg,
     [PAGE_KEY.AUTH_FORGOTTEN_PASSWORD]: recover,
     [PAGE_KEY.AUTH_RESET_PASSWORD]: reset,
-    [PAGE_KEY.AUTH_VERIFY]: verify,
-    [PAGE_KEY.AUTH_VERIFY_SET_PASSWORD]: verify,
-    [PAGE_KEY.AUTH_VERIFY_EXPIRED]: verify,
-    [PAGE_KEY.AUTH_VERIFY_EMAIL]: verify,
-    [PAGE_KEY.AUTH_VERIFY_EMAIL_EXPIRED]: verify,
+    [PAGE_KEY.AUTH_VERIFY]: verified,
+    [PAGE_KEY.AUTH_VERIFY_SET_PASSWORD]: setPassword,
+    [PAGE_KEY.AUTH_VERIFY_EXPIRED]: expired,
+    [PAGE_KEY.AUTH_VERIFY_EMAIL]: verifiedEmail,
+    [PAGE_KEY.AUTH_VERIFY_EMAIL_EXPIRED]: expired,
     [PAGE_KEY.AUTH_PREFERENCES]: page(
       "Notification preferences",
       "Choose what we send you, and where it arrives.",

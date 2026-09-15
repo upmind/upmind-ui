@@ -3,36 +3,52 @@
     <!-- The mocking glow is the WHOLE page's, not a box around the table
          (`R6-18`): what is faked is the page, and the outline it is drawn with
          reserves no space, so nothing below moves when a preset arms. -->
-    <ForcedCanvas :preset="preset">
+    <ForcedCanvas
+      :preset="preset"
+      :label="forcedState ? t(forcedState.label) : undefined"
+    >
       <div class="flex flex-col gap-4">
         <!-- A replay is not interactive (`R6-23`): with a track armed the page's
              own controls are the SCRIPT's, so both halves that own one are told
              so, and picking Live releases them in the same tick. -->
         <PageHeader
           :name="scenario.route"
-          :actions="collectionActions"
+          :actions="headerActions"
           :locked="isLocked"
         />
 
-        <ScenarioBar :player="player" :tracks="tracks" :presets="presets" />
+        <ScenarioBar :player="player" :tracks="tracks" :states="states" />
 
         <!-- The collection's own actions reach the header through the surface
              that owns the editor they open (G4). `ModuleRenderer` declares no
              emits, so the listener rides its attribute fallthrough onto the
              archetype surface it renders — which is what keeps the dispatcher
              free of any one surface's channels. -->
-        <Card size="sm">
-          <ModuleRenderer
-            :descriptor="descriptor"
-            :port="port"
-            :presentation="scenario.presentation"
-            :handoffs="handoffs"
-            :detail="detail"
-            :locked="isLocked"
-            :forced-refusal="forcedRefusal"
-            @update:collection-actions="onCollectionActions"
+        <div :class="scenarioPlayground.stage()">
+          <Card size="sm">
+            <ModuleRenderer
+              :descriptor="descriptor"
+              :port="port"
+              :presentation="scenario.presentation"
+              :handoffs="handoffs"
+              :detail="detail"
+              :locked="isLocked"
+              :forced-refusal="forcedRefusal"
+              :forced-state="forcedState"
+              @update:collection-actions="onCollectionActions"
+            />
+          </Card>
+          <!-- While a scenario plays or a forced state is armed, the page content
+               is the SCRIPT's: a transparent scrim takes every click off it, the
+               bar above stays the operator's, and Live lifts it (`R6-23`). -->
+          <div
+            v-if="isLocked"
+            :class="scenarioPlayground.scrim()"
+            :title="t('labs.replay_locked')"
+            aria-hidden="true"
+            data-test-key="replay-scrim"
           />
-        </Card>
+        </div>
       </div>
     </ForcedCanvas>
   </Page>
@@ -76,7 +92,9 @@
  */
 
 import { Card, Page } from "@upmind/ui";
-import { createHarness } from "@upmind-automation/scenario-harness";
+import { useI18n } from "vue-i18n";
+import { ScopeActorTypes } from "@upmind-automation/headless";
+import { ARCHETYPE, createHarness } from "@upmind-automation/scenario-harness";
 import { ModuleRenderer } from "./components";
 import ForcedCanvas from "./components/ForcedCanvas.vue";
 import PageHeader from "./components/PageHeader.vue";
@@ -84,30 +102,42 @@ import ScenarioBar from "./components/ScenarioBar.vue";
 import { useCriteriaUrlSync } from "./composables/useCriteriaUrlSync";
 import { useFeatureTracks } from "./composables/useFeatureTracks";
 import { useForcedState } from "./composables/useForcedState";
-import { FORCE_URL_PRESETS } from "./composables/useForcedState.types";
 import { useModulePort } from "./composables/useModulePort";
 import { useScenarioPlayer } from "./composables/useScenarioPlayer";
-import { answerablePresets, captureGaps } from "./force/capabilities";
 import { armCorpusModule, runtimeCorpus } from "./force/corpus";
 import { featureTextFor, featureTracksFor } from "./force/corpus.source";
+import { forcedStateGaps, offeredForcedStates } from "./force/offer";
 import { presetRefusal } from "./force/presets";
-import { scenarioRegistry, scenarioRoutes, scenarioSources } from "./registry";
-import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
-import { DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
-import { get, includes, isEmpty, mapValues } from "lodash-es";
+import {
+  scenarioRegistry,
+  scenarioRouteOf,
+  scenarioRoutes,
+  scenarioSources
+} from "./registry";
+import { ActionPlacementTypes, DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
+import { scenarioPlayground } from "./ScenarioPlayground.styles";
+import {
+  get,
+  isArray,
+  isEmpty,
+  map,
+  mapValues,
+  reduce,
+  toPairs
+} from "lodash-es";
 import type { ActionSlotItem } from "./components";
-import type {
-  ForceReset,
-  ForceUrlPreset
-} from "./composables/useForcedState.types";
+import type { ForceReset } from "./composables/useForcedState.types";
+import type { ForcedState } from "./force/states.types";
 import type {
   FourLayerComposable,
   RegisteredScenario,
   ResolvedDetail,
   ResolvedHandoff
 } from "./scenario.types";
-import type { ScopeActorTypes } from "@upmind-automation/headless";
-import type { ScopeActor } from "@upmind-automation/scenario-harness";
+import type {
+  Archetype,
+  ScopeActor
+} from "@upmind-automation/scenario-harness";
 import { useContextScopeSelector } from "~/components/scope";
 import { usePlaygroundSheet } from "~/components/sheets/usePlaygroundSheet";
 import { PlaygroundSheetTypes } from "~/components/sheets/usePlaygroundSheet.types";
@@ -124,7 +154,12 @@ definePageMeta({
   // `/for/:type/:id`) are what the port is built from, so they must remount and
   // rebuild it — while the criteria, which task 58 persists into the QUERY
   // string, must not. A `fullPath` key ties a teardown to every filter write.
-  key: route => route.path
+  //
+  // `token` is the one query param that DOES rebuild: it is the guest link
+  // identity the cell boots on (`.withId(token)`), so a change of token must
+  // remount to re-address — the criteria params, which the rest of the query
+  // carries, never do.
+  key: route => `${route.path}::token=${route.query.token ?? ""}`
   // NO `name`/`path` here: `augmentPages` assigns an extracted macro name onto
   // every route sharing this file, so one declared here would collapse all
   // sixty scenario routes onto a single name.
@@ -132,7 +167,7 @@ definePageMeta({
 
 const route = useRoute();
 
-const scenarioRoute = get(route.meta, SCENARIO_ROUTE_META_KEY) as string;
+const scenarioRoute = scenarioRouteOf(route);
 const scenario: RegisteredScenario | undefined = get(
   scenarioRoutes,
   scenarioRoute
@@ -149,6 +184,16 @@ const scenarioKey = scenario.key;
 const actorScope = useActorScope();
 const contextScope = useContextScope();
 
+// An emailed link token rides the query (`?token=`), read the way the client
+// area reads it (vue-app `to.query.token`). It is the client cell's own identity
+// when it carries no session — `.withId(token)` is the addressability the
+// opt-outs read boots on — so it is threaded as the single-record id ONLY for a
+// client url, leaving every other actor's id channel untouched. Absent, the
+// client cell falls back to the active session, or boots unaddressable and
+// settles to its empty list.
+const rawToken = route.query.token;
+const linkToken = (isArray(rawToken) ? rawToken[0] : rawToken) || undefined;
+
 // A handoff is the module's OWN editor, declared inline (`R6-27`): the
 // composable it boots is this declaration's `useMutate`, so a module publishing
 // none offers no editor control at all rather than one that opens nothing.
@@ -157,7 +202,9 @@ const handoffs = computed<Record<string, ResolvedHandoff>>(() =>
     ? mapValues(scenario.handoff ?? {}, handoff => ({
         ...handoff,
         useMutate: scenario.useMutate as FourLayerComposable,
-        actor: actorScope.value
+        actor: actorScope.value,
+        offeredActors: scenario.actors,
+        id: actorScope.value === ScopeActorTypes.CLIENT ? linkToken : undefined
       }))
     : {}
 );
@@ -180,16 +227,47 @@ const detail = computed<ResolvedDetail | undefined>(() =>
 // binding's own union guarantees at least one of.
 const port = useModulePort((scenario.useList ?? scenario.useMutate)!, {
   actor: actorScope.value,
-  context: contextScope.value
+  context: contextScope.value,
+  id: actorScope.value === ScopeActorTypes.CLIENT ? linkToken : undefined,
+  // The actors this declaration offers beyond SELF. Identity comes from the
+  // session store — `switchScope` activates the matching session as it pushes
+  // the url — so nothing else is needed to serve them.
+  offeredActors: scenario.actors
 });
 
 // --- Request state ⇄ url, when the scenario opts in
 useCriteriaUrlSync(port.criteria, { enabled: scenario.persistCriteria });
 
 const harness = createHarness(scenarioRegistry);
-const descriptor = computed(() =>
+const reflected = computed(() =>
   harness.reflect(scenarioKey, actorScope.value as ScopeActor, port)
 );
+
+// The archetype is read off the LIVE snapshot, and a snapshot mid-load — the
+// boot, the cache a forced state has just cleared — carries no schema and no
+// rows, so `classify()` falls to ACTION_PANEL and the page changes SURFACE for
+// the duration: a "Loading" notice standing where the form was, not the form's
+// own skeleton (C8). So the page keeps the archetype it last classified to
+// while the fresh reading is the fallback; a manager-only declaration is a
+// form by construction and starts as one before its first schema lands.
+const latchedArchetype = ref<Archetype | undefined>(
+  scenario.useMutate && !scenario.useList ? ARCHETYPE.FORM_FLOW : undefined
+);
+watch(
+  () => reflected.value.archetype.archetype,
+  archetype => {
+    if (archetype !== ARCHETYPE.ACTION_PANEL)
+      latchedArchetype.value = archetype;
+  },
+  { immediate: true }
+);
+const descriptor = computed(() => {
+  const fresh = reflected.value;
+  const kept = latchedArchetype.value;
+  return kept && fresh.archetype.archetype !== kept
+    ? { ...fresh, archetype: { ...fresh.archetype, archetype: kept } }
+    : fresh;
+});
 
 // --- The page's own header, drawn from the surface's already-bound controls
 const collectionActions = ref<ActionSlotItem[]>([]);
@@ -213,11 +291,13 @@ const trackSource = trackedModule ? featureTracksFor(trackedModule) : undefined;
 
 const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
 
-// The forced states THIS module's own recordings can answer (FE-3113), so a
-// state with no evidence behind it is never offered and never served from
-// something authored (`S13`). Empty until the corpus lands, which leaves the
-// page Live in the meantime — the state it boots into anyway (`S12`).
-const presets = ref<ForceUrlPreset[]>([]);
+// The forced states THIS page offers: the ones its module's own `.feature`
+// declares (operator ruling, 2026-09-12), kept to those its own recordings can
+// answer — so a state with no evidence behind it is never offered and never
+// served from something authored (`S13`). Empty until the corpus lands, which
+// leaves the page Live in the meantime — the state it boots into anyway
+// (`S12`).
+const states = ref<ForcedState[]>([]);
 
 // Whether that offer has been MADE yet. Empty means "not measured" until this
 // turns, and disarming on a list nobody has filled in would drop a pasted link
@@ -238,15 +318,22 @@ const whenArmed = trackedModule
       const bodies = armed ? runtimeCorpus(trackedModule) : undefined;
       if (!bodies) return;
 
-      presets.value = [...answerablePresets(bodies)];
+      const feature = featureTextFor(trackedModule);
+
+      states.value = offeredForcedStates(feature, bodies);
       refusal.value = presetRefusal(bodies);
       isOffered.value = true;
 
-      const gaps = captureGaps(featureTextFor(trackedModule), bodies);
+      const gaps = forcedStateGaps(feature, bodies);
 
       if (!isEmpty(gaps))
         console.warn(
-          `[force] ${trackedModule} has no recorded refusal to serve ${gaps.join(", ")} from — a capture gap, not a missing capability.`
+          `[force] ${trackedModule} declares states its own recordings cannot answer — a capture gap, not a missing capability:\n` +
+            map(
+              gaps,
+              gap =>
+                `  - ${gap.title} [${gap.recipe.kind}/${gap.recipe.target}]`
+            ).join("\n")
         );
     })
   : undefined;
@@ -273,22 +360,41 @@ const isReplaying = computed(() => !!player.track.value);
 //
 // The module's NAME rides with them so leaving it disarms (FE-3113 R): the two
 // are one module's, and so is the preset.
-const { disarm, preset, isSettling } = useForcedState({
+const moduleReset = get(port.actions, "reset") as ForceReset | undefined;
+
+// Surfaced, never silent (`S14`): forcing swaps what the tab's NEXT request is
+// answered with, and a module that publishes no `reset` never asks again — so
+// every state this page offers would arm a worker nobody could see. The page
+// still offers them (the transport does change, and a manual refresh shows it),
+// but the reason the screen may not move is said out loud rather than left as a
+// dead control.
+if (trackedModule && !moduleReset)
+  console.warn(
+    `[force] ${trackedModule} publishes no \`reset\` action, so arming a forced state swaps the transport but the page keeps the answers it already holds — the state may not appear until the page is reloaded. Ship \`reset\` on the module's actions layer.`
+  );
+
+const {
+  disarm,
+  preset,
+  state: forcedState,
+  requested,
+  isSettling
+} = useForcedState({
   module: trackedModule,
-  reset: get(port.actions, "reset") as ForceReset | undefined,
+  states,
+  reset: moduleReset,
   whenArmed
 });
 
-// A preset is a fact about THIS module's own corpus (FE-3113 R). One reached by
-// a pasted url — or by a sidebar navigation that carried the query across —
-// names a state this module never offered and nothing here can honestly answer,
-// so the page lands Live rather than armed on nothing. `replay` is exempt: the
-// player arms it and the url cannot carry it, so the offered list never holds
-// it.
-watch([preset, presets, isOffered], ([armed, offered, measured]) => {
-  if (!measured || !armed) return;
-  if (!includes(FORCE_URL_PRESETS, armed)) return;
-  if (!includes(offered, armed)) void disarm();
+// A forced state is a fact about THIS module's own feature and corpus. A slug
+// reached by a pasted url — or by a sidebar navigation that carried the query
+// across — names a state this page does not offer and nothing here can honestly
+// answer, so the page lands Live rather than armed on nothing. It is read after
+// the offer has been MEASURED: before that, an unresolved slug is a link whose
+// corpus has simply not landed yet (`AC8.2`).
+watch([requested, isOffered, forcedState], ([slug, measured, armed]) => {
+  if (!measured || !slug || armed) return;
+  void disarm();
 });
 
 // Gated on the preset: a row marked under any other is a failure nobody armed.
@@ -298,8 +404,52 @@ const forcedRefusal = computed(() =>
 
 // A page mid-arm is no more the operator's to drive than one mid-replay, and
 // for the same reason (`R6-23`): the transport a write would answer through is
-// not yet the one the rows on screen came from.
-const isLocked = computed(() => isReplaying.value || isSettling.value);
+// not yet the one the rows on screen came from. An ARMED forced state is a
+// replay too — the page is showing a state, not taking input — so it locks for
+// as long as it is armed; `Live` hands the page back.
+const isLocked = computed(
+  () => isReplaying.value || isSettling.value || !!forcedState.value
+);
+
+// --- Labs page actions: HEADER actions the declaration backs with its own
+// composables rather than the cell's port (`pageActions`). Each factory is
+// booted once here; the offered ones render in the header beside the
+// collection's own controls, presented from the matching declared action.
+const { t } = useI18n();
+
+const pageActions = mapValues(scenario.pageActions ?? {}, ({ use }) => use());
+
+const pageActionItems = computed<ActionSlotItem[]>(() =>
+  reduce(
+    toPairs(pageActions),
+    (items: ActionSlotItem[], [name, instance]) => {
+      const declared = scenario.pageActions?.[name];
+      if (!declared || !instance.isOffered.value) return items;
+
+      items.push({
+        name,
+        label: t(declared.i18n),
+        icon: declared.icon,
+        variant: declared.variant,
+        placement: ActionPlacementTypes.HEADER,
+        disabled:
+          isLocked.value ||
+          instance.isRunning.value ||
+          !!instance.isDisabled?.value,
+        disabledReason: instance.disabledReason?.value,
+        loading: instance.isRunning.value,
+        onSelect: () => void instance.run()
+      });
+      return items;
+    },
+    []
+  )
+);
+
+const headerActions = computed<ActionSlotItem[]>(() => [
+  ...pageActionItems.value,
+  ...collectionActions.value
+]);
 
 // --- The page's three sheet providers, all page-scoped
 const { register, registerPane } = usePlaygroundSheet();

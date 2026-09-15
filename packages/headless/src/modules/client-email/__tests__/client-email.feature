@@ -115,32 +115,32 @@ Feature: A client manages their own email addresses
     Then I get back my existing address
     And no new address is created
 
-  # Two scenarios, one AC: fetching all of them is the DEFAULT, and paging is
+  # One scenario, one AC: fetching all of them is the DEFAULT, and paging is
   # what I get only when I ask for it (operator ruling 2026-08-05, D-14).
 
   @AC-8 @collection
-  Scenario: Refresh and filter my addresses, and get all of them at once
+  Scenario: I refresh, filter and page my addresses, and get all of them when I ask
     Given I have not asked for my addresses a page at a time
     When I open my email addresses
     Then I am given all of my addresses at once, as a single page
     And asking for a next or a previous page tells me there is no other page to go to
     And refreshing or filtering the list re-reads it and reflects what I asked for
     And invalidating the list makes the next read fetch it again
-
-  @AC-8 @collection
-  Scenario: Page through my addresses when I ask for them a page at a time
     Given I ask for my addresses a page at a time
     And I have more addresses than fit one page
     When I ask for the next page
     Then I am given the next page of my addresses
     And asking for the previous page brings me back to the first
 
-  @AC-9 @collection
-  Scenario: Discarding a collection releases it
+  @AC-9 @AC-21 @collection @manager
+  Scenario: I leave the list or the editor, and it lets go of what it held
     Given I have opened my email collection
     When I destroy that collection
     Then it is released
     And opening my email addresses again gives me a fresh collection
+    Given I have opened the editor
+    When I stop it, it stops working but is still there
+    And when I destroy it, it is released and opening that address again gives me a fresh editor
 
   @AC-10 @collection @guard
   Scenario: Nothing touches a client's emails without an authenticated client session
@@ -160,11 +160,14 @@ Feature: A client manages their own email addresses
     Then the form is populated with that address
     And the editor knows which of my addresses it is editing
 
-  @AC-12 @manager
-  Scenario: Wait for the editor to be ready
+  @AC-12 @AC-19 @manager
+  Scenario: I see the editor come ready, and what it is doing while I work
     When I open the editor
     Then I can wait until it is ready to accept my input
     And it never sends a request before it knows whose address it is editing
+    When I open the editor and change the address in it
+    Then I can see whether it is loading, ready, changed, valid, saving, or finished
+    And whether the address I am editing is a brand-new one
 
   @AC-13 @manager
   Scenario Outline: Give the editor an address and see whether it is acceptable
@@ -178,15 +181,12 @@ Feature: A client manages their own email addresses
       | not-an-email | rejected |
       | a@b.com      | accepted |
 
-  @AC-14 @manager
-  Scenario: Save a change to one of my addresses
+  @AC-14 @AC-15 @manager
+  Scenario: I save an address, new or changed
     Given I have opened one of my addresses in the editor
     When I change it to a new address and save
     Then my address reflects the new value
     And changing the address re-marks it as unverified
-
-  @AC-15 @manager
-  Scenario: Save a brand-new address
     Given I have started a new email address in the editor
     When I enter an address and save
     Then the new address is created on my own collection
@@ -211,28 +211,16 @@ Feature: A client manages their own email addresses
     When I change the address in the first
     Then the second is untouched
 
-  @AC-19 @manager
-  Scenario: See the editor's state while I work
-    When I open the editor and change the address in it
-    Then I can see whether it is loading, ready, changed, valid, saving, or finished
-    And whether the address I am editing is a brand-new one
-
   @AC-20 @manager @collection
   Scenario: Saving in the editor updates my list
     Given my email addresses are open in one place and the editor in another
     When I save a change in the editor
     Then my list of addresses shows the saved value
 
-  @AC-21 @manager
-  Scenario: Discarding an editor releases it
-    Given I have opened the editor
-    When I stop it, it stops working but is still there
-    And when I destroy it, it is released and opening that address again gives me a fresh editor
-
   # === WHOLE-MODULE GUARANTEES ==============================================
 
   @AC-22 @module
-  Scenario: Problems are reported to me, never announced by the module
+  Scenario: A problem with my addresses is shown to me where I am working, not thrown
     Given something goes wrong while I read or save an address
     When I inspect the collection or the editor
     Then I can read what went wrong, and which field caused it

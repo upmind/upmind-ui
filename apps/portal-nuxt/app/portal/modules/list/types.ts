@@ -158,6 +158,8 @@ export interface ListModuleItem {
    * as GROUPED by that chip (the dashboard's products by service identifier).
    */
   readonly category?: string;
+  /** A row whose subject is over — cancelled, closed — reads dimmed, its title struck through. */
+  readonly isInactive?: boolean;
   /** `compact`/`table`/`row-cards` — the row's overflow menu, behind an icon-only trigger. */
   readonly moreActions?: readonly {
     readonly value: string;

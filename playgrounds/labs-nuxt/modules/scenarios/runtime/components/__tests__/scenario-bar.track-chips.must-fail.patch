@@ -7,6 +7,9 @@ bar carries Live and ONE menu, and a scenario's name is never rendered as a
 fragment beside them. A chip capped at `max-w-40` shows "A client sees their …",
 which is the illegible bar the operator screenshotted.
 
+Re-armed 2026-09-12: the retired preset vocabulary took two imports out of the
+menu's context, so the lodash hunk is re-anchored on the lines that remain.
+
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Reds: the scenario-bar entry case — the bar draws exactly one `track` entry, and
@@ -33,12 +36,12 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/Scenario
      </ToggleGroup>
  
      <Select
-@@ -75,7 +86,7 @@ import { FORCE_URL_PRESETS } from "../composables/useForcedState.types";
- import { FORCE_PRESET_LABELS } from "./ForcedCanvas.types";
+@@ -75,7 +86,7 @@
+ import { useI18n } from "vue-i18n";
  import { scenarioMenu } from "./ScenarioMenu.styles";
  import { SCENARIO_CHOICE, TRACK_LIVE } from "./ScenarioMenu.types";
--import { compact, filter, find, map, size, union } from "lodash-es";
-+import { compact, filter, find, map, size, take, union } from "lodash-es";
+-import { compact, filter, find, map, size, unionBy } from "lodash-es";
++import { compact, filter, find, map, size, take, unionBy } from "lodash-es";
  import type {
    ScenarioMenuEmits,
    ScenarioMenuProps

@@ -38,8 +38,7 @@ import {
 } from "../registry";
 import { PAGE_KEY } from "../types";
 import { NAV_EMPHASIS } from "../variants";
-import { clientVuePage, clientVueRow } from "./client-vue";
-import { brandNoteRow, pagerFooter, panelControls } from "./pager";
+import { brandNoteRow, pagerFooter, panelControls, statusRail } from "./pager";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
 import type { FormId } from "../mock/forms/ids";
@@ -330,9 +329,45 @@ export function accountPages(options?: {
       [
         PROFILE_FORM_ROW,
         CUSTOM_FIELDS_FORM_ROW,
-        clientVueRow(
-          "UpmBilling · manage/*",
-          "client-address · client-company · client-phone · client-email"
+        // Legacy's three section boxes under the profile form
+        // (`clientEmailsComp`, `clientPhonesComp`, `billableEntitiesComp`).
+        listRow(
+          "Emails",
+          "Here you can manage the different emails linked to your account.",
+          DATA_REF_ID.PROFILE_EMAIL_ITEMS,
+          "No email addresses",
+          { actions: addFormButton("Add new", FORM_ID.EMAIL_CREATE) }
+        ),
+        listRow(
+          "Phones",
+          "Here you can manage the different phone numbers linked to your account.",
+          DATA_REF_ID.PROFILE_PHONE_ITEMS,
+          "No phone numbers",
+          { actions: addFormButton("Add new", FORM_ID.PHONE_CREATE) }
+        ),
+        listRow(
+          "Address and company details",
+          "Here you can manage all address and company records associated with your account. If you have more than one address, you can choose which to use at the time of placing a new order.",
+          DATA_REF_ID.BILLABLE_ENTITY_ITEMS,
+          "No addresses or companies",
+          {
+            // Quiet, like the other panels' "Add new" — legacy's one control
+            // fans out into an address or a company.
+            actions: moduleRef(BUTTON_MODULE_ID, {
+              variant: BUTTON_MODULE_VARIANT.GROUP,
+              props: {
+                label: "Add new",
+                tone: "outline",
+                actions: dataRef(DATA_REF_ID.BILLABLE_ENTITY_ACTIONS),
+                emptyTitle: "No entity controls"
+              }
+            }),
+            controls: panelControls(
+              DATA_REF_ID.BILLABLE_ENTITY_ITEMS,
+              "entities",
+              "Find an address or company"
+            )
+          }
         )
       ]
     ),
@@ -440,17 +475,21 @@ export function accountPages(options?: {
             description: "Which updates reach you, and where.",
             // Legacy's per-row select-all/clear-all link. The form engine has
             // no group-action renderer, so the one control per topic rides on
-            // the panel that holds the groups (plan §10 O-3).
-            actions: moduleRef(BUTTON_MODULE_ID, {
-              variant: BUTTON_MODULE_VARIANT.GROUP,
-              props: {
-                label: "Set a whole topic",
-                tone: "outline",
-                size: "sm",
-                actions: dataRef(DATA_REF_ID.NOTIFICATION_TOPIC_ACTIONS),
-                emptyTitle: "Nothing to set"
-              }
-            })
+            // the panel that holds the groups (plan §10 O-3). In the controls
+            // band, not the header's action corner: three sentence-long
+            // buttons there squeeze the title into a column a word wide.
+            controls: {
+              start: moduleRef(BUTTON_MODULE_ID, {
+                variant: BUTTON_MODULE_VARIANT.GROUP,
+                props: {
+                  label: "Set a whole topic",
+                  tone: "outline",
+                  size: "sm",
+                  actions: dataRef(DATA_REF_ID.NOTIFICATION_TOPIC_ACTIONS),
+                  emptyTitle: "Nothing to set"
+                }
+              })
+            }
           },
           slots: [
             moduleRef(FORM_MODULE_ID, {
@@ -555,7 +594,6 @@ export function accountPages(options?: {
       [
         {
           layout: ROW_LAYOUT.FULL,
-          surface: ROW_SURFACE.PANEL,
           slots: [
             moduleRef(BANNER_MODULE_ID, {
               variant: BANNER_VARIANT.NOTICE,
@@ -828,7 +866,47 @@ export function accountPages(options?: {
       ]
     ),
     [PAGE_KEY.ACCOUNT_LOGS]: page("Logs", "A record of emails and sign-ins.", [
-      clientVueRow("UpmEmailHistory", "client-email-history"),
+      // Legacy's delivery-delay notice over the email history, shown while
+      // the brand says mail is running behind.
+      // No surface: an alert already carries its own tone and border, so a
+      // panel around one draws a second box holding nothing else.
+      {
+        layout: ROW_LAYOUT.FULL,
+        visible: dataRef(DATA_REF_ID.IS_EMAIL_DELIVERY_DELAYED),
+        slots: [
+          moduleRef(BANNER_MODULE_ID, {
+            variant: BANNER_VARIANT.NOTICE,
+            props: {
+              title: "Email history",
+              message:
+                "Please note – it can take up to five minutes for email messages to show in this list.",
+              tone: "info",
+              label: "Delivery notice",
+              dismissLabel: "Dismiss"
+            }
+          })
+        ]
+      },
+      // Legacy's `emailHistoryTable`: All / Sent / Bounced / Failed tabs in
+      // the control band, the subject and recipient per row, the outcome
+      // as its badge, and the row opening the preview.
+      listRow(
+        "Email history",
+        "Every email we have sent you, and how it went.",
+        DATA_REF_ID.SENT_EMAIL_ITEMS,
+        "We found no emails matching the applied filters.",
+        {
+          controls: panelControls(
+            DATA_REF_ID.SENT_EMAIL_ITEMS,
+            "emails",
+            "Search by subject or recipient",
+            statusRail(
+              DATA_REF_ID.SENT_EMAIL_TABS,
+              DATA_REF_ID.SENT_EMAIL_STATUS
+            )
+          )
+        }
+      ),
       listRow(
         "Login attempts",
         "Recent sign-ins to your account.",
@@ -843,11 +921,33 @@ export function accountPages(options?: {
         }
       )
     ]),
-    [PAGE_KEY.ACCOUNT_LOG_EMAIL_DETAIL]: clientVuePage(
+    // Legacy's `viewEmailModal`, as a page: the header facts, then the
+    // message. Its two header controls were staff's (resend, retry).
+    [PAGE_KEY.ACCOUNT_LOG_EMAIL_DETAIL]: page(
       "Email",
       "What we sent, and how it went.",
-      "UpmEmailHistory (Email detail)",
-      "client-email-history"
+      [
+        specRow(
+          "Message",
+          "Who it went to, and how it went.",
+          DATA_REF_ID.SENT_EMAIL_SPEC_ITEMS,
+          "No such email"
+        ),
+        {
+          layout: ROW_LAYOUT.FULL,
+          surface: ROW_SURFACE.PANEL,
+          header: { title: "Body", description: "The message as it was sent." },
+          slots: [
+            moduleRef(PROSE_MODULE_ID, {
+              variant: PROSE_MODULE_VARIANT.MARKDOWN,
+              props: {
+                markdown: dataRef(DATA_REF_ID.SENT_EMAIL_BODY),
+                emptyTitle: "Nothing to read"
+              }
+            })
+          ]
+        }
+      ]
     )
   };
 }

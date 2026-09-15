@@ -6,6 +6,8 @@
 # system-operations.traceability.test.ts fails on either side of that link
 # breaking.
 #
+# Voice: system voice is intentional here — this broker has no human actor.
+#
 # Matrix cells. This module is NOT actor-scoped — it has no scope matrix and no
 # per-actor arms. Its sole actor is the SYSTEM itself: any module registers a
 # handler, and a funnel guard dispatches on return. The axis of variation is the
@@ -27,10 +29,10 @@ Feature: systemOperations — a generic return-path operation registry
   # ---------------------------------------------------------------------------
 
   @AC-1 @system @layer-unit
-  Scenario: The system stores an operation and returns a ten-character identifier
+  Scenario: The system stores an operation and returns an identifier the caller can carry through a redirect
     Given a module has a payload it must resume after an off-site return
     When the module stores that operation under a handler key
-    Then it receives a ten-character url-safe identifier for the operation
+    Then it receives a url-safe identifier it can carry through the redirect
     And the stored operation carries the key and payload it was given
 
   @AC-6 @system @layer-unit

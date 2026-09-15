@@ -102,12 +102,18 @@ Feature: A client pays an order of their own
     Then I am given what I need in order to confirm it with my bank
     And my payment waits for me instead of failing
 
-  @AC-6 @client @self @challenge
-  Scenario: I confirm with my bank and the payment completes
+  @AC-6
+  @AC-8
+  @client @self @challenge @provider
+  Scenario: However my bank asks me to confirm, I can see it through and the payment completes
     Given my payment is waiting on my bank's confirmation
     When I confirm it with my bank
     Then my payment counts as paid only once the provider agrees it was
     And what I owe on that order goes down by what I paid
+    Given my brand uses a provider that runs its confirmation step in its own way
+    When my payment needs confirming
+    Then I am taken through that provider's own confirmation step
+    And a provider with no step of its own still confirms me in the ordinary way
 
   @AC-7 @client @self @challenge @cancel
   Scenario: I back out at my bank and nothing is taken
@@ -115,13 +121,6 @@ Feature: A client pays an order of their own
     When I back out instead of confirming
     Then no money is taken from me
     And the order is left with the same amount still to pay
-
-  @AC-8 @client @self @challenge @provider
-  Scenario: However my provider asks me to confirm, I can see it through
-    Given my brand uses a provider that runs its confirmation step in its own way
-    When my payment needs confirming
-    Then I am taken through that provider's own confirmation step
-    And a provider with no step of its own still confirms me in the ordinary way
 
 
   # ---------------------------------------------------------------------------
@@ -170,16 +169,14 @@ Feature: A client pays an order of their own
   # Who cannot use this — one scenario per denied cell (see G2 and G3 above)
   # ---------------------------------------------------------------------------
 
-  @AC-14 @guest @self @denied
-  Scenario: Signed out, I cannot pay an order of mine
+  @AC-14
+  @AC-15
+  @guest @self @for-client @denied
+  Scenario: Signed out, no order can be paid — mine or anyone else's
     Given I am not signed in
     When something tries to pay an order of mine
     Then no payment is attempted at all
     And I am told I must be signed in
-
-  @AC-15 @guest @for-client @denied
-  Scenario: Signed out, no one else's order can be paid either
-    Given I am not signed in
     When something tries to pay an order belonging to somebody else
     Then no payment is attempted at all
 

@@ -192,11 +192,12 @@ const _isAuthRoute = computed(() =>
 // --- side effects
 // set up automatic redirects when the user logs in or out
 isReady().then(() => {
-  const { isAuthenticated } = useActiveSession().useMeta();
-  watch(isAuthenticated, (isAuth, wasAuth) => {
+  // Switching the active actor (client -> guest) is not a logout; only the
+  // store's logout signal is, so the redirect listens to that alone.
+  const { onLogout } = useSessionStore().useActions();
+  onLogout(() => {
     if (!routingMeta.value.isResolved) return;
-
-    if (!isAuth && wasAuth && route.name !== ROUTE.SESSION_END) {
+    if (route.name !== ROUTE.SESSION_END) {
       router.push({ name: ROUTE.SESSION_END });
     }
   });

@@ -21,17 +21,18 @@ import type { ForcePreset } from "../composables/useForcedState.types";
 // -----------------------------------------------------------------------------
 
 /**
- * One i18n key per preset (`S21` — a rendered name is a key, never a literal).
- * `replay` is keyed like the rest even though the picker never offers it: the
- * player arms it, and the frame still has to name what it is showing.
+ * The ONE name this app still owns (`S21` — a rendered name is a key, never a
+ * literal): `replay` is the state no scenario of a module's feature declares,
+ * because the PLAYER arms it, so there is no title to carry and the frame still
+ * has to name what it is showing.
+ *
+ * The four keys beside it are retired (operator ruling, 2026-09-12). A forced
+ * state is a scenario of the module's own feature and is named by that
+ * scenario's own title, so a catalogue of four names could only ever say
+ * something other than what the picker offered. Nothing is minted in their
+ * place — see this file's head citation and `graphify-out/GRAPH_REPORT.md`.
  */
-export const FORCE_PRESET_LABELS: Record<ForcePreset, string> = {
-  empty: "labs.force_preset_empty",
-  "error-action": "labs.force_preset_error_action",
-  "error-collection": "labs.force_preset_error_collection",
-  loading: "labs.force_preset_loading",
-  replay: "labs.force_preset_replay"
-};
+export const FORCE_REPLAY_LABEL = "labs.force_preset_replay";
 
 export type ForcedCanvasProps = {
   /**
@@ -42,4 +43,10 @@ export type ForcedCanvasProps = {
    * while the corpus seam is unresolved (`ESC6`).
    */
   preset?: ForcePreset;
+  /**
+   * What the armed state is CALLED — the scenario's own title, handed down by
+   * the page. Absent under `replay`, which no feature declares and which the
+   * frame names from {@link FORCE_REPLAY_LABEL}.
+   */
+  label?: string;
 };

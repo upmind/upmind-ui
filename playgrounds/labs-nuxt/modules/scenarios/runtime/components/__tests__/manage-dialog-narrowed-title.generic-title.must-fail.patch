@@ -1,0 +1,29 @@
+FE negative control — the narrowed editor's title names the clicked topic.
+
+Target spec:  modules/scenarios/runtime/components/__tests__/manage-dialog-narrowed-title.spec.ts
+Target case:  "the narrowed editor's title" >
+              "names the clicked topic, and tracks it from one row to the next"
+Mutation:     collapses the narrowed branch of `title` onto the generic
+              `action.add_new_or_update` string, dropping the group-named
+              `action.update_group` ("Update {group}"). A field-scoped open now
+              titles itself "Update" (count 0), never "Update <topic name>".
+Why RED:      the case opens two topic rows and asserts each title equals
+              `Update ${topic}`; the generic title carries no group
+              interpolation, so both rows read "Update" and the toBe fails on
+              the first editor — the narrowed title no longer tracks the row.
+Authored by:  developer seat (mutant only), anchored to 62b851458.
+Verified by:  prover seat, blind — apply, run the target case RED, revert.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ManageDialog.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ManageDialog.vue
+index 0fdd90660..799ac4ecf 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ManageDialog.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/ManageDialog.vue
+@@ -107,7 +107,7 @@ const scopeGroupLabel = computed<string | undefined>(() => {
+ const title = computed(() =>
+   isNil(scopeGroupLabel.value)
+     ? t("action.add_new_or_update", titlesAsNew.value ? 1 : 0)
+-    : t("action.update_group", { group: scopeGroupLabel.value })
++    : t("action.add_new_or_update", titlesAsNew.value ? 1 : 0)
+ );
+ 
+ function onOpen(open: boolean): void {

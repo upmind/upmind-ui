@@ -343,6 +343,19 @@ export type ReceivedEmailsListQuery = ListQuery<
 export type ReceivedEmailItemQuery = SimpleQuery<ISentEmail, SentEmail>;
 
 /**
+ * Options for the imperative {@link readRecentClientEmails} one-shot read.
+ *
+ * @graphify-citation `graphify query "client email history single email read
+ * service with data footer token"` (2026-09-08, `graphify-out/graph.json`) — no
+ * recent-emails read-options node exists; this is the imperative peer of the
+ * reactive `SentEmailQueryModel`, not a re-mint of it. Newest-first order is the
+ * service's own fixed `sort`, so no `order` member is carried here.
+ */
+export type RecentEmailsReadOptions = {
+  limit?: number;
+};
+
+/**
  * The contract `createClientEmailHistoryServices` resolves to — consumed by
  * BOTH halves, so the collection and the single read address the same client
  * through the same seam.

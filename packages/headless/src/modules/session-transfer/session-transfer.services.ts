@@ -3,12 +3,12 @@ import {
   type IBrandSettings,
   type IToken
 } from "@upmind-automation/types";
-import { compact, map, reject } from "lodash-es";
 import { useQuery } from "../query";
 import { persistTokenToStorage } from "../session-store/session-store.utils";
 import { useSessionStoreActions } from "../session-store/useSessionStore.actions";
 import { useI18n } from "../system-localisation";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
+import { compact, map, reject } from "lodash-es";
 import type { IAuthTransfer, TransferContext } from "./session-transfer.types";
 // -----------------------------------------------------------------------------
 /**

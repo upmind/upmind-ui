@@ -14,6 +14,8 @@
  *   arm-in-matrix           — an arm's actor must be declared in the scope matrix
  *   no-hand-rolled-int-fixture — *.int.test.ts response bodies must replay recorded
  *                                fixtures, never a hand-rolled local builder
+ *   no-private-instance-axis   — instance keying is the scope registry's, not the
+ *                                module's: no computed registration name, no local memo
  *
  * @module packages/eslint-plugin-scope-based
  */
@@ -25,6 +27,7 @@ import completeLayerSet from "./rules/complete-layer-set.mjs";
 import actorScopeFirst from "./rules/actor-scope-first.mjs";
 import armInMatrix from "./rules/arm-in-matrix.mjs";
 import noHandRolledIntFixture from "./rules/no-hand-rolled-int-fixture.mjs";
+import noPrivateInstanceAxis from "./rules/no-private-instance-axis.mjs";
 
 const plugin = {
   meta: { name: "scope-based", version: "1.0.0" },
@@ -35,7 +38,8 @@ const plugin = {
     "complete-layer-set": completeLayerSet,
     "actor-scope-first": actorScopeFirst,
     "arm-in-matrix": armInMatrix,
-    "no-hand-rolled-int-fixture": noHandRolledIntFixture
+    "no-hand-rolled-int-fixture": noHandRolledIntFixture,
+    "no-private-instance-axis": noPrivateInstanceAxis
   }
 };
 

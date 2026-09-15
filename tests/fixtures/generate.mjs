@@ -9,6 +9,10 @@
  * Usage:
  *   pnpm fixtures:generate <unit>      # e.g. pnpm fixtures:generate query
  *
+ * <unit> is the unit's path under `src/modules`. It is a bare name for a flat
+ * module (`query`), and a path for one nested below a parent module
+ * (`basket-billing/unified`).
+ *
  * Requires VITE_API_URL + staging credentials. A module unit's `.env.recording`
  * (e.g. packages/headless/.env.recording) is loaded before the run; we fail
  * loud if VITE_API_URL is still unset.
@@ -36,19 +40,30 @@ const unit = process.argv[2];
 if (!unit) {
   console.error("[fixtures:generate] Usage: pnpm fixtures:generate <unit>");
   console.error("  e.g. pnpm fixtures:generate query");
+  console.error("  nested: pnpm fixtures:generate basket-billing/unified");
   process.exit(1);
 }
 
 // --- locate the unit's generator file (module units only for mode (a)).
+//
+// A unit name IS its path under `src/modules`, so a unit nested below a parent
+// module is named by that path: `basket-billing/unified`. The generator file is
+// always named for the LAST segment, which leaves every flat unit (`query`,
+// `auth`, …) spelled exactly as before. Resolving by path rather than by search
+// keeps the lookup deterministic: two modules may hold a generator of the same
+// filename without the name becoming ambiguous.
 
-const fixtureFile = join(
-  HEADLESS,
+const segments = unit.split("/").filter(Boolean);
+const leaf = segments[segments.length - 1];
+const relFixtureFile = [
   "src",
   "modules",
-  unit,
+  ...segments,
   "__tests__",
-  `${unit}.fixtures.ts`
-);
+  `${leaf}.fixtures.ts`
+].join("/");
+
+const fixtureFile = join(HEADLESS, relFixtureFile);
 
 if (!existsSync(fixtureFile)) {
   console.error(`[fixtures:generate] No generator for unit "${unit}".`);
@@ -91,7 +106,7 @@ const run = spawnSync(
     "run",
     "--config",
     "vitest.fixtures.config.ts",
-    `src/modules/${unit}/__tests__/${unit}.fixtures.ts`
+    relFixtureFile
   ],
   { cwd: HEADLESS, env, stdio: "inherit" }
 );

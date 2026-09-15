@@ -33,11 +33,9 @@
 import { Page } from "@upmind/ui";
 import { computed } from "vue";
 import { AUTH_SCOPE_MATRIX } from "@upmind-automation/headless";
+import { ScopeActorTypes } from "@upmind-automation/headless";
 import { keys } from "lodash-es";
-import type {
-  AuthContextTypes,
-  ScopeActorTypes
-} from "@upmind-automation/headless";
+import type { AuthContextTypes } from "@upmind-automation/headless";
 // --- internal (local)
 import { AuthJourney } from "~/components/auth";
 import {
@@ -49,7 +47,7 @@ import {
   useBrandScope,
   useContextScope
 } from "~/composables/scope";
-import { isAddSessionRequest } from "~/funnels/labs";
+import { authRequestActor, isAddSessionRequest } from "~/funnels/labs";
 
 // ------------------------------------------------------------------------------
 
@@ -76,8 +74,13 @@ const brandId = computed(() =>
 );
 
 // --- Add-session request: spawn a fresh instance showing the login form even
-//     when a session of this scope is already active (never for guest).
-const isFreshRequest = isAddSessionRequest(route);
+//     when a session of this scope is already active. Only when the request is
+//     for THIS page's actor — the overlay collects the others — and never for
+//     guest, whose fresh instance is a mint, not a form.
+const isFreshRequest =
+  isAddSessionRequest(route) &&
+  authRequestActor(route) === actorScope.value &&
+  actorScope.value !== ScopeActorTypes.GUEST;
 
 // --- What the chrome offers while this page is on screen. It is the PAGE that
 //     declares its composable's scopes, never the journey — the same journey

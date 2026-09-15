@@ -23,16 +23,10 @@
     :variant="props.tone"
     :title="props.title"
     :description="props.message"
-  >
-    <template v-if="props.action" #action>
-      <Button
-        size="xs"
-        variant="outline"
-        @click="emits('select', props.action.value)"
-        >{{ props.action.label }}</Button
-      >
-    </template>
-  </Alert>
+    :action="props.action"
+    :ui="ALERT_UI"
+    @click="onAction"
+  />
 </template>
 
 <script setup lang="ts">
@@ -47,6 +41,7 @@
 import { Alert, AnnouncementBar, Button } from "@upmind/ui";
 import { computed } from "vue";
 import { BANNER_VARIANT } from "./types";
+import { ALERT_UI } from "./variants";
 import { isEmpty, trim } from "lodash-es";
 import type { BannerModuleEmits, BannerModuleProps } from "./types";
 
@@ -54,6 +49,12 @@ defineOptions({ name: "PortalBanner" });
 
 const props = defineProps<BannerModuleProps>();
 const emits = defineEmits<BannerModuleEmits>();
+
+/** The library lays its own action Link inline after the body; a slotted Button would butt against the text. */
+function onAction(): void {
+  if (props.action === undefined) return;
+  emits("select", props.action.value);
+}
 
 function onDismiss(): void {
   if (props.dismissValue === undefined) return;

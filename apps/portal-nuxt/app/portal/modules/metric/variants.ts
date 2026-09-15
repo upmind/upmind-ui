@@ -23,10 +23,22 @@ export function tileGridClass(
 }
 
 /**
- * One tile. `block no-underline` is carried for the LINKED form: the DS
- * `Link`'s own base is an underlined `inline-flex` chip, and tailwind-merge
- * keeps the later display and decoration — the focus ring and hover fade
- * stay. Both forms wear the same class, so a linked tile is pixel-identical.
+ * One tile's own look, worn by both forms.
+ *
+ * The linked form used to be the DS `Link`, whose base carries `rounded-xs`.
+ * `cn()` calls bare `twMerge`, which does not know the custom `rounded-card`
+ * token, so BOTH radii survived the merge and the emitted CSS order decided —
+ * a linked tile rendered at 2px against the panels' 12px. The tile is a plain
+ * link now, so nothing competes.
  */
-export const TILE_CLASS =
-  "rounded-card bg-neutral-muted block p-6 no-underline";
+const TILE_CLASS = "rounded-card bg-neutral-muted block p-6 no-underline";
+
+/** What a tile that GOES somewhere adds — the chrome the DS `Link` used to bring. */
+const TILE_LINK_CLASS =
+  "cursor-pointer transition-colors hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring/40";
+
+/** A tile that names no destination stays inert: no pointer, no hover fade. */
+export function tileClass(isLinked: boolean): string {
+  if (!isLinked) return TILE_CLASS;
+  return `${TILE_CLASS} ${TILE_LINK_CLASS}`;
+}
