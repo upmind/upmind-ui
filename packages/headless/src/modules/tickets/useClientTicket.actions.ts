@@ -281,6 +281,11 @@ export function createClientTicketActions(
     return service.downloadFile(fileId);
   }
 
+  /** AC23 — uploads a file, returning the ref `reply`'s `files` option consumes. */
+  async function uploadAttachment(file: File): Promise<TicketAttachmentRef> {
+    return service.uploadFile(file);
+  }
+
   /** AC24 — refused (no request) when `settings.lock` is true. */
   async function close(): Promise<Ticket> {
     if (ticket()?.settings?.lock) {
@@ -404,7 +409,10 @@ export function createClientTicketActions(
     setRelatedProduct,
 
     /** AC27 — renames the subject, refused when locked. */
-    setSubject
+    setSubject,
+
+    /** AC23 — uploads a file, returning the ref `reply`'s `files` option consumes. */
+    uploadAttachment
   };
 }
 

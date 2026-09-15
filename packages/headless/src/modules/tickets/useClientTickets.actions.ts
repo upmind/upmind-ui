@@ -7,6 +7,7 @@ import { NotAuthenticatedError } from "../../utils";
 import { omitBy, isNil } from "lodash-es";
 import type {
   Ticket,
+  TicketAttachmentRef,
   TicketCreateModel,
   TicketDepartmentOption,
   TicketsListQuery,
@@ -116,6 +117,11 @@ export function createClientTicketsActions(
     removeFromRegistry(scopeKey);
   }
 
+  /** AC23 — uploads a file, returning the ref `create`'s `model.files` consumes. */
+  async function uploadAttachment(file: File): Promise<TicketAttachmentRef> {
+    return service.uploadFile(file);
+  }
+
   /**
    * AC31 — the create-form desk options (brand-public only), keyed on
    * `ticket_department_id` (Z7), with `isDefault` pre-selecting the brand's
@@ -192,7 +198,10 @@ export function createClientTicketsActions(
     setCriteria: query.setCriteria,
 
     /** AC3 — persists the chosen page size via the same read-modify-write. */
-    setPageSize
+    setPageSize,
+
+    /** AC23 — uploads a file, returning the ref `create`'s `model.files` consumes. */
+    uploadAttachment
   };
 }
 
