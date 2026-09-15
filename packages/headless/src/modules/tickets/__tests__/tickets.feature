@@ -59,14 +59,25 @@
 # comparing a contract product's client_id against self.id silently yields "belongs to
 # nobody" — which is how 993 contract products and 25 tickets were once written down as
 # two tickets and no product.
-#   ONE HOLE REMAINS INSIDE AC-23, disclosed rather than papered over: `uploadAttachment`
-#   and `uploadFile` appear in ZERO files under `__tests__/`. The AC-23 spec builds the
-#   attachment ref off the fixture and never calls the composable, so the title-matched
-#   gate cannot see the hole, and both rejection guards (max 25 MiB / 26214399, and the
-#   brand ALLOWED_UPLOAD_FILE_TYPES list) are UNPROVEN. The fixture is real; the public
-#   surface that consumes it is untested. Owed: tasks.md T44 (prover authors the spec
-#   that actually calls the composable) + T45 (developer authors the must-fail control).
-#   Do not read AC-23's green as proof of its entry point.
+#   THE AC-23 ENTRY-POINT HOLE IS NOW THREE-QUARTERS CLOSED, and the last quarter is
+#   disclosed rather than papered over. This block previously read "`uploadAttachment`
+#   and `uploadFile` appear in ZERO files under `__tests__/`". THAT CLAIM IS NOW FALSE,
+#   and is corrected here rather than deleted, so the history stays legible.
+#   tickets.upload-attachment.int.test.ts (landed e0442b92a) calls uploadAttachment
+#   through the PUBLIC composable surface. MEASURED 2026-09-15: 3 passed / 1 FAILED.
+#   PROVEN — the manager-arm multipart POST, the collection-arm multipart POST before any
+#   ticket exists, and the 25 MiB / 26214399 size refusal with NO request sent.
+#   STILL RED — "refuses a file of a kind the brand does not allow, with NO request sent".
+#   The cause is a MISSING PRECONDITION, not a guard defect and NOT cross-file state
+#   leakage: the test fails DETERMINISTICALLY IN ISOLATION (1 failed / 3 passed alone),
+#   and ZERO of the 47 recorded fixtures carry allowed_upload_file_types, so the guard
+#   correctly treats the recorded brand as UNRESTRICTED (empty/unset means no restriction
+#   — the contract design.md and system-upload both state) and permits the file. The
+#   assertion demands a refusal THE RECORDED BRAND CANNOT PRODUCE.
+#   Owed: tasks.md T46 (capture a brand config that genuinely restricts, through the
+#   module's OWN generator) — operator-ruling-gated; then T45 (the thirteenth must-fail
+#   control), which is gated behind it because a control is graded on flipping its OWN
+#   target assertion. Do not read AC-23's green as proof of the brand-restriction guard.
 #
 # R9 AND R11 CHANGED NOTHING IN THIS FILE, and that is a finding, not an oversight.
 # R9 moves a criteria KEY SPELLING (status.code -> an undotted key, translated back to
