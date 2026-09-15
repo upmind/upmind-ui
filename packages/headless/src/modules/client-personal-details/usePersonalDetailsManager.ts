@@ -23,7 +23,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 /**
  * @module client-personal-details/usePersonalDetailsManager
  * @description Scoped `dataManagerMachine`-backed editor for a client's own
- * profile. One interpreter per concrete `(actor, context)` scope.
+ * profile. One interpreter per concrete `(actor, id)` scope.
  *
  * @decision registered under its OWN registry name, not the read half's.
  * what:    this composable's `createScopedComposable` call names
@@ -32,27 +32,26 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  *          `useClientEmailManager`'s literal precedent (same name as
  *          `useClientEmails`).
  * why:     `generateScopeKey(name, config)` is `name:actor[:context.type:
- *          context.id][:brand][:fresh]` (`scope.utils.ts`) — NOTHING else
- *          differentiates two composables sharing one name. `client-email`
- *          gets away with sharing a name only because its manager is NEVER
- *          called bare: every call site supplies either `.withId(id)`
- *          (an existing address) or `.fresh()` (a new draft), both of which
- *          add a segment the collection's own `.as('client')` (no `.for()`)
- *          never has. This module's shared single-member `PROFILE` context
- *          has no such guarantee — `.as('client')` with NO `.for()` is the
- *          NORMAL call for BOTH halves (a client has exactly one profile, so
- *          there is nothing to pick), which would make the read half's and
- *          the manager's scope keys IDENTICAL under a shared name — the
- *          registry would hand one consumer the other's instance. A modules
- *          two DISTINCT registry names is the fix; the SHARED scope MATRIX
- *          (design.md §3.2) still holds — both use the same
- *          `ClientPersonalDetailsContextTypes.PROFILE` context and the same
- *          identity seam, only the registry key's `name:` segment differs.
+ *          context.id][:id:<value>][:brand][:fresh]` (`scope.utils.ts`) —
+ *          NOTHING else differentiates two composables sharing one name.
+ *          `client-email` gets away with sharing a name only because its
+ *          manager is NEVER called bare: every call site supplies either
+ *          `.withId(id)` (an existing address) or `.fresh()` (a new draft),
+ *          both of which add a segment the collection's own `.as('client')`
+ *          never has. This module names no context, and `.as('client')` with
+ *          NO `.withId()` is the NORMAL call for BOTH halves (a client has
+ *          exactly one profile, so there is nothing to mark), which would make
+ *          the read half's and the manager's scope keys IDENTICAL under a
+ *          shared name — the registry would hand one consumer the other's
+ *          instance. A module's two DISTINCT registry names is the fix; the
+ *          SHARED all-`never` scope MATRIX (design.md §3.2) still holds — both
+ *          resolve the client through the same `.withId()`/`config.id` identity
+ *          seam, only the registry key's `name:` segment differs.
  * rejected: keeping one shared name and requiring every manager call site to
- *          add `.for('profile', clientId)` — rejected: it forces every
- *          caller to know and re-supply the client's own id just to avoid a
- *          collision, for an entity that already has exactly one profile;
- *          brittle and easy to forget.
+ *          add `.withId(clientId)` — rejected: it forces every caller to know
+ *          and re-supply the client's own id just to avoid a collision, for an
+ *          entity that already has exactly one profile; brittle and easy to
+ *          forget.
  *
  * @doctrine clause 1 (uniform four-layer default) — identical return shape
  * to the read half.
@@ -69,21 +68,18 @@ function createPersonalDetailsManagerForScope(
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
-   * `config.context` goes in here and nowhere else — every request the
-   * manager issues, directly or through the machine, inherits the same
-   * resolved client.
+   * `config.id` (the `.withId(clientId)` value) goes in here and nowhere else —
+   * every request the manager issues, directly or through the machine, inherits
+   * the same resolved client.
    */
-  const service = createClientPersonalDetailsServices(
-    actorScope,
-    config.context
-  );
+  const service = createClientPersonalDetailsServices(actorScope, config.id);
 
   const machineService = interpret(
     dataManagerMachine
       .withConfig(createPersonalDetailsManagerMachineConfig(service))
       .withContext({
-        // The PROFILE entity's id IS the owning client's id (design.md
-        // §3.4) — both fields seed from the ONE resolved seam.
+        // The record id IS the owning client's id (design.md §3.4) — both
+        // fields seed from the ONE resolved seam (`.withId()`/session).
         id: service.clientId.value,
         clientId: service.clientId.value,
         lookups: { fields: [], filterFields: [], languages: [] },

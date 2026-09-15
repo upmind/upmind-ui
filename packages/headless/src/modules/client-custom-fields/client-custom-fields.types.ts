@@ -19,9 +19,12 @@
  * @description Types for a client's own custom field definitions and values —
  * the query-backed definitions collection (`useClientCustomFields`) and the
  * per-field IMAGE value editor (`useClientCustomFieldImage`, wrapping
- * `system-upload`). Each composable owns its own context enum and scope
- * matrix; the definition model, the services contract and the mappers are
- * shared, which is what keeps ONE identity seam for both halves.
+ * `system-upload`). The collection names NO context (its client is marked with
+ * `.withId(clientId)`, ADR-001 amendment 2026-09-15); the image editor owns its
+ * own `ClientCustomFieldContextTypes` context and matrix. The definition model,
+ * the services contract and the mappers are shared, which is what keeps ONE
+ * identity seam for both halves. (`graphify-out/graph.json` — the
+ * `ClientCustomFieldsContextTypes` enum is removed, no node minted.)
  */
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
@@ -44,36 +47,26 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 /**
- * Context types for the definitions/values COLLECTION — WHICH client's
- * custom-field value set is being addressed. The context names the ENTITY
- * (the value set), not its owner: there is no `client` context type here, so
- * `.for('client', id)` does not exist (parity.yaml A-client-onbehalf).
- */
-export enum ClientCustomFieldsContextTypes {
-  /** Acting on a client's own custom field value set. */
-  VALUES = "custom_field_values"
-}
-
-/**
- * Scope matrix for `useClientCustomFields`. `client` is the only actor that
- * resolves; `staff` and `guest` are `null as never`.
- *
- * WHAT THE TYPE SYSTEM ACTUALLY ENFORCES. `ScopeBuilderResult` accepts EVERY
- * `ScopeActorTypes` and reads the matrix row only to decide whether `.for()`
- * exists, so a `null as never` row removes `.for(...)` and nothing else:
- * `.as('staff')` and `.as('guest')` COMPILE, resolving to an instance with no
- * `.for()`, and are refused at RUNTIME — with no context to name a target,
- * `resolveClientId` falls back to the active session's own id and
- * `isAddressable` gates the request. The compile-time errors are
- * `.as('staff' | 'guest' | 'self').for(...)`, while `.as('client').for(...)`
- * type-checks. A designed boundary rather than an advertised-but-absent
- * capability. Same correction as `client-address.types.ts`, whose note carries
- * the `ts.createProgram` probe this rests on.
+ * Scope matrix for `useClientCustomFields` — the definitions/values
+ * COLLECTION. Every actor is `null as never`: this collection names NO
+ * context. A client's own value set is addressed by marking its owning client
+ * with `.withId(clientId)` — not a `.for()` context (ADR-001 amendment
+ * 2026-09-15: `.for()` carries the CONTEXT, `.withId()` carries the ID; an
+ * owner id never rides in `.for()`). The all-`never` matrix is the ONLY
+ * construction that makes `.for(type, id)` unspellable for every actor — it
+ * mirrors `client-email-history`'s single-read `RECEIVED_EMAIL_SCOPE_MATRIX`,
+ * and its TYPE is still passed as `createScopedComposable`'s `TMatrix`: the
+ * wide `ActorContextMatrix` default would otherwise re-open `.for()` once the
+ * context enum is gone. `.as('staff' | 'guest')` still COMPILE but resolve to
+ * an instance with no addressable client — `resolveClientId` falls back to the
+ * session's own id and `isAddressable` gates the request. (`graphify-out/graph.json`
+ * — no new node; the `ClientCustomFieldsContextTypes` enum is removed, the
+ * matrix widened in place.)
  */
 export const CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientCustomFieldsContextTypes.VALUES,
+  [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 

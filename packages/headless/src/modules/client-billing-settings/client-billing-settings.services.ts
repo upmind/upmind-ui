@@ -14,7 +14,6 @@ import {
 } from "./client-billing-settings.mappers";
 import { emptyToNull } from "./client-billing-settings.mappers";
 import { useSchema } from "./client-billing-settings.schemas";
-import { ClientBillingSettingsContextTypes } from "./client-billing-settings.types";
 import {
   ErrorOrigin,
   useTime,
@@ -43,7 +42,6 @@ import type {
 } from "./client-billing-settings.types";
 import type { BrandConsolidationDefaults } from "./client-billing-settings.types";
 import type { ResponseError } from "../../utils";
-import type { ScopeContext } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { DefaultError, QueryKey } from "@tanstack/vue-query";
 import type {
@@ -105,28 +103,19 @@ const MODEL_KEYS = [
 
 /**
  * Derives the target client id from the RESOLVED scope — the ONE seam every
- * request-issuing function in this file shares. A `SETTINGS` context names
- * the settings being addressed, which IS the owning client's id; with none it
- * falls back to the active session's own client (the self case). Both halves
- * share this one seam, which is what makes AC1's read-back (read and write
- * resolve the SAME id) executable, and is the guard against the FE-2824
- * defect shape (a services file that hardwires the session id and drops
- * `.for('client', id)`).
- *
- * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
- * FE-3239, so an id-less context of this type would otherwise resolve
- * `undefined` AS the identity instead of falling through. The guard now holds
- * what the type used to hold.
+ * request-issuing function in this file shares. The client is marked with
+ * `.withId(clientId)`, which the scope builder folds into `config.id` and this
+ * factory forwards here; with none it falls back to the active session's own
+ * client (the self case). Both halves share this one seam, which is what makes
+ * AC1's read-back (read and write resolve the SAME id) executable, and is the
+ * guard against the FE-2824 defect shape (a services file that hardwires the
+ * session id and drops the retarget). ADR-001 amendment 2026-09-15: the client
+ * id rides in `.withId()`, never a `.for()` context.
  */
-function resolveClientId(scopeContext?: ScopeContext) {
+function resolveClientId(id?: string) {
   const { activeUser } = useActiveSession().useContext();
 
-  return computed(() =>
-    scopeContext?.type === ClientBillingSettingsContextTypes.SETTINGS &&
-    scopeContext.id
-      ? scopeContext.id
-      : activeUser.value?.id
-  );
+  return computed(() => id ?? activeUser.value?.id);
 }
 
 /**
@@ -175,9 +164,9 @@ function isAddressable(clientId?: string): boolean {
  *          `accounts[0]` — the FE-2824 defect verbatim: the right surface
  *          addressing the wrong entity, silently.
  */
-function resolveAccount(scopeContext?: ScopeContext) {
+function resolveAccount(id?: string) {
   const { activeUser } = useActiveSession().useContext();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   return computed(() =>
     clientId.value && clientId.value === activeUser.value?.id
@@ -211,8 +200,8 @@ function resolveAccount(scopeContext?: ScopeContext) {
  *          unchanged — it sorts by CODE, not name, and does not append the
  *          account's own currency; both are oracle behaviours (row B3).
  */
-function currencyOptions(scopeContext?: ScopeContext) {
-  const account = resolveAccount(scopeContext);
+function currencyOptions(id?: string) {
+  const account = resolveAccount(id);
 
   return computed(() => {
     const brandCurrencies = useBrand().currencies.value;
@@ -277,11 +266,9 @@ function currencyOptions(scopeContext?: ScopeContext) {
  *
  * Hard rule: `useQuery().get()` must never be called on this key.
  */
-function loadSettings(
-  scopeContext?: ScopeContext
-): ClientBillingSettingsRecordQuery {
+function loadSettings(id?: string): ClientBillingSettingsRecordQuery {
   const { request, useUrl, queryClient } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   const targetUrl = () =>
     useUrl(`clients/${clientId.value}`, {
@@ -478,15 +465,15 @@ async function loadBrandGates(): Promise<{
  */
 async function loadLookups(
   context: BillingSettingsContext,
-  scopeContext?: ScopeContext
+  id?: string
 ): Promise<Partial<BillingSettingsContext>> {
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const account = resolveAccount(scopeContext);
+  const account = resolveAccount(id);
 
   const [record, brandGates] = await Promise.all([
     fetchSettingsOnce(clientId.value),
@@ -529,7 +516,7 @@ async function loadLookups(
       ...context.lookups,
       // The currency pick-lists' source (rows B2/B3) — the schema reads it
       // off `lookups.currencies`; a genuine collection, so no wrapping.
-      currencies: currencyOptions(scopeContext).value,
+      currencies: currencyOptions(id).value,
       // Array-wrapped — `DataManagerContext.lookups` is typed
       // `Record<string, any[]>` (every other consumer stores a genuine
       // collection there); this is the one scalar this module threads
@@ -669,10 +656,10 @@ async function validate(
 async function update(
   model: BillingSettingsModel,
   baseModel: BillingSettingsModel = {},
-  scopeContext?: ScopeContext
+  id?: string
 ): Promise<IClient> {
   const { put, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
@@ -769,16 +756,16 @@ function reconcileSessionAccount(
 async function updateAccountCurrencies(
   model: BillingSettingsModel,
   baseModel: BillingSettingsModel = {},
-  scopeContext?: ScopeContext
+  id?: string
 ): Promise<IAccount> {
   const { put, useUrl, queryClient } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const account = resolveAccount(scopeContext).value;
+  const account = resolveAccount(id).value;
   if (!account) {
     return Promise.reject(new NotAuthenticatedError());
   }
@@ -825,8 +812,8 @@ async function updateAccountCurrencies(
 }
 
 /** Invalidates this scope's own cache key so the read refetches. */
-async function refresh(scopeContext?: ScopeContext): Promise<void> {
-  const clientId = resolveClientId(scopeContext);
+async function refresh(id?: string): Promise<void> {
+  const clientId = resolveClientId(id);
   await invalidateQueryByKey(recordQueryKey(clientId.value), {
     exact: false
   })(undefined);
@@ -845,7 +832,7 @@ async function refresh(scopeContext?: ScopeContext): Promise<void> {
  */
 function scopedServices(
   scopeActor: ScopeActorTypes,
-  _scopeContext?: ScopeContext
+  _id?: string
 ): Partial<ClientBillingSettingsServices> {
   switch (scopeActor) {
     default:
@@ -863,11 +850,11 @@ function scopedServices(
  */
 export const createClientBillingSettingsServices = (
   scopeActor: ScopeActorTypes,
-  scopeContext?: ScopeContext
+  id?: string
 ): ClientBillingSettingsServices => {
   const mutationError = ref<ResponseError | undefined>(undefined);
-  const clientId = resolveClientId(scopeContext);
-  const account = resolveAccount(scopeContext);
+  const clientId = resolveClientId(id);
+  const account = resolveAccount(id);
 
   return {
     queryKey,
@@ -879,17 +866,17 @@ export const createClientBillingSettingsServices = (
     preferredPaymentCurrencyId: computed(
       () => account.value?.preferredPaymentCurrencyId
     ),
-    currencyOptions: currencyOptions(scopeContext),
-    loadSettings: () => loadSettings(scopeContext),
-    loadLookups: context => loadLookups(context, scopeContext),
+    currencyOptions: currencyOptions(id),
+    loadSettings: () => loadSettings(id),
+    loadLookups: context => loadLookups(context, id),
     loadBrandGates,
     parse: (context, data) => parse(context, data),
     validate,
-    update: (model, baseModel) => update(model, baseModel, scopeContext),
+    update: (model, baseModel) => update(model, baseModel, id),
     updateAccountCurrencies: (model, baseModel) =>
-      updateAccountCurrencies(model, baseModel, scopeContext),
-    refresh: () => refresh(scopeContext),
-    ...scopedServices(scopeActor, scopeContext)
+      updateAccountCurrencies(model, baseModel, id),
+    refresh: () => refresh(id),
+    ...scopedServices(scopeActor, id)
   };
 };
 

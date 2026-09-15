@@ -2,23 +2,18 @@ import { watch } from "vue";
 // A's own collection (AC-63) — this scope's readiness must fold in A's, or
 // `isReady()` resolves before the joined custom-field rows have settled
 // (`usePersonalDetails.context.ts`'s own `@decision` for WHY a bare vs
-// `.for('profile', id)` scope is chosen — mirrored here verbatim, never
+// `.withId(clientId)` scope is chosen — mirrored here verbatim, never
 // re-derived).
-import {
-  ClientCustomFieldsContextTypes,
-  useClientCustomFields
-} from "../client-custom-fields";
+import { useClientCustomFields } from "../client-custom-fields";
 import { resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { useActiveSession } from "../session-store";
-import { ClientPersonalDetailsContextTypes } from "./client-personal-details.types";
 import { NotAuthenticatedError } from "../../utils";
 import type {
   ClientPersonalDetailsRecordQuery,
   ClientPersonalDetailsServices
 } from "./client-personal-details.types";
-import type { ScopeContext } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/usePersonalDetails.actions
@@ -34,7 +29,7 @@ export function createPersonalDetailsActions(
   service: ClientPersonalDetailsServices,
   query: ClientPersonalDetailsRecordQuery,
   scopeKey: string,
-  scopeContext?: ScopeContext
+  id?: string
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
@@ -42,17 +37,13 @@ export function createPersonalDetailsActions(
   /**
    * A's own collection scope for THIS profile — identical resolution to
    * `usePersonalDetails.context.ts`'s own `customFieldsScope` (see that
-   * file's `@decision`): `.for('profile', id)` only when THIS module's own
+   * file's `@decision`): `.withId(clientId)` only when THIS module's own
    * scope was explicitly retargeted, otherwise a bare `.as(CLIENT)` that
    * falls through to A's own session-client fallback.
    */
-  const customFieldsScope =
-    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE &&
-    scopeContext.id
-      ? useClientCustomFields()
-          .as(ScopeActorTypes.CLIENT)
-          .for(ClientCustomFieldsContextTypes.VALUES, scopeContext.id)
-      : useClientCustomFields().as(ScopeActorTypes.CLIENT);
+  const customFieldsScope = id
+    ? useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(id)
+    : useClientCustomFields().as(ScopeActorTypes.CLIENT);
   const { isReady: isCustomFieldsReady } = customFieldsScope.useActions();
 
   /**

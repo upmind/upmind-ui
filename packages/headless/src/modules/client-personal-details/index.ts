@@ -22,13 +22,6 @@ export {
   type UsePersonalDetailsManager
 } from "./usePersonalDetailsManager";
 
-// --- Scope matrix — shared by both composables, public
-export {
-  PERSONAL_DETAILS_SCOPE_MATRIX,
-  ClientPersonalDetailsContextTypes
-} from "./client-personal-details.types";
-export type { PersonalDetailsScopeMatrix } from "./client-personal-details.types";
-
 // --- Public model types
 export type {
   ProfileContext,

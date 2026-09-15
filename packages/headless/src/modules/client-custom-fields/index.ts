@@ -22,17 +22,12 @@ export {
   type UseClientCustomFieldImage
 } from "./useClientCustomFieldImage";
 
-// --- Scope matrices — one per composable, both public
+// --- Scope matrix — the image editor's context, public (the collection names none)
 export {
-  CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX,
-  ClientCustomFieldsContextTypes,
   CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX,
   ClientCustomFieldContextTypes
 } from "./client-custom-fields.types";
-export type {
-  ClientCustomFieldsScopeMatrix,
-  ClientCustomFieldImageScopeMatrix
-} from "./client-custom-fields.types";
+export type { ClientCustomFieldImageScopeMatrix } from "./client-custom-fields.types";
 
 // --- Public model types (shared by both composables — seam A-1/A-2)
 export type {

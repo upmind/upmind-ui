@@ -23,13 +23,6 @@ export {
   type UseBillingSettingsManager
 } from "./useBillingSettingsManager";
 
-// --- Scope matrix — shared by both composables, public
-export {
-  CLIENT_BILLING_SETTINGS_SCOPE_MATRIX,
-  ClientBillingSettingsContextTypes
-} from "./client-billing-settings.types";
-export type { ClientBillingSettingsScopeMatrix } from "./client-billing-settings.types";
-
 // --- Public model types
 export type {
   AccountCurrencyUpdateBody,

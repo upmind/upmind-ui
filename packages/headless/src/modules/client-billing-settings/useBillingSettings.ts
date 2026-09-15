@@ -12,7 +12,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 /**
  * @module client-billing-settings/useBillingSettings
  * @description Scoped, query-backed read of a client's own invoice-consolidation
- * preference: one reactive record query per concrete `(actor, context)` scope,
+ * preference: one reactive record query per concrete `(actor, id)` scope,
  * minted once at construction so it survives component lifecycles. Its
  * sibling is `useBillingSettingsManager` — a second scoped composable in the
  * same module, sharing the SAME scope matrix (design.md §4.2) but registered
@@ -30,14 +30,11 @@ function createBillingSettingsForScope(
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * ONE services instance for this scope. `config.context` goes in here and
-   * nowhere else, so every request the read half issues resolves the same
-   * target client.
+   * ONE services instance for this scope. `config.id` (the `.withId(clientId)`
+   * value) goes in here and nowhere else, so every request the read half issues
+   * resolves the same target client.
    */
-  const service = createClientBillingSettingsServices(
-    actorScope,
-    config.context
-  );
+  const service = createClientBillingSettingsServices(actorScope, config.id);
 
   /**
    * The reactive settings query, minted ONCE per scope — a

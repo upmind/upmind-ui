@@ -1,7 +1,6 @@
 import { ref } from "vue";
 import { createScopedComposable } from "../scope";
 import { createClientCustomFieldsServices } from "./client-custom-fields.services";
-import { CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX } from "./client-custom-fields.types";
 import { createClientCustomFieldsActions } from "./useClientCustomFields.actions";
 import { createClientCustomFieldsContext } from "./useClientCustomFields.context";
 import { createClientCustomFieldsInternals } from "./useClientCustomFields.internals";
@@ -10,36 +9,29 @@ import type {
   ClientCustomFieldsScopeMatrix,
   CustomField
 } from "./client-custom-fields.types";
-import type {
-  ScopeBuilder,
-  ScopeConfig,
-  ScopeKey,
-  ScopedComposable
-} from "../scope";
+import type { ScopeBuilder, ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-custom-fields/useClientCustomFields
  * @description Scoped, query-backed collection of a client's brand's custom
- * field definitions: one TanStack list query per concrete `(actor, context)`
+ * field definitions: one TanStack list query per concrete `(actor, id)`
  * scope, minted once at construction so it survives component lifecycles.
  * Its sibling is `useClientCustomFieldImage` — a second scoped composable
  * registered under the SAME `name` string (`"client-custom-fields"`, passed
  * to `createScopedComposable` by BOTH files below). `generateScopeKey`
- * (`scope.utils.ts`) builds `name:actor[:context.type:context.id][:brand]
- * [:fresh]` from that `name` — the CALLING COMPOSABLE's own function name is
- * not part of the key at all, so it carries no differentiation between the
- * two. What keeps their registry entries apart in practice is that each
- * composable's OWN context-type enum differs
- * (`ClientCustomFieldsContextTypes.VALUES` here vs
- * `ClientCustomFieldContextTypes.FIELD` in the image editor) and lands in
- * the key ONLY when a context is supplied via `.for()`. This is latent, not
- * structurally guaranteed: a bare `.as(actor)` call with NO `.for()` on
- * either composable produces the identical key for that actor (no context
- * segment on either side) — safe here only because `useClientCustomFieldImage`
- * has no consumer that calls it bare (it addresses a single field and is
- * meaningless without `.for('field', id)`), never because the platform
- * enforces it.
+ * (`scope.utils.ts`) builds `name:actor[:context.type:context.id][:id:<value>]
+ * [:brand][:fresh]` from that `name` — the CALLING COMPOSABLE's own function
+ * name is not part of the key at all, so it carries no differentiation between
+ * the two. What keeps their registry entries apart in practice is that the
+ * collection marks its client with `.withId(clientId)` (an `id:<value>`
+ * segment) while the image editor names a `ClientCustomFieldContextTypes.FIELD`
+ * context via `.for('field', id)` (a `field:<id>` segment). This is latent, not
+ * structurally guaranteed: a bare `.as(actor)` call with NO `.withId()` on the
+ * collection produces the same key as a bare image call for that actor — safe
+ * here only because `useClientCustomFieldImage` has no consumer that calls it
+ * bare (it addresses a single field and is meaningless without
+ * `.for('field', id)`), never because the platform enforces it.
  *
  * @doctrine clause 1 (uniform four-layer default).
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
@@ -52,11 +44,11 @@ function createClientCustomFieldsForScope(
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * ONE services instance for this scope. `config.context` goes in here and
-   * nowhere else, so every request the collection issues resolves the same
-   * target client.
+   * ONE services instance for this scope. `config.id` (the `.withId(clientId)`
+   * value) goes in here and nowhere else, so every request the collection
+   * issues resolves the same target client.
    */
-  const service = createClientCustomFieldsServices(actorScope, config.context);
+  const service = createClientCustomFieldsServices(actorScope, config.id);
 
   // Mint the list query ONCE per scope — a `service.loadList()` inside a
   // layer factory mints a second query, with its own refs, key and effect
@@ -163,42 +155,18 @@ export function useClientCustomFields(): ScopeBuilder<
     registeredUseClientCustomFields = createScopedComposable<
       ReturnType<typeof createClientCustomFieldsForScope>,
       ClientCustomFieldsScopeMatrix
-    >(
-      "client-custom-fields",
-      createClientCustomFieldsForScope,
-      CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX
-    );
+    >("client-custom-fields", createClientCustomFieldsForScope);
   }
   return registeredUseClientCustomFields();
 }
 
-/**
- * @decision publish `scopeMatrix` on the EXPORTED wrapper, not only on the
- * deferred inner registration.
- * what: assigns `.scopeMatrix` onto `useClientCustomFields` itself, reading
- *   the already-imported `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX` constant — no
- *   `createScopedComposable` call, so none of the import-cycle risk the
- *   deferral above exists to avoid.
- * why: `createScopedComposable` attaches `.scopeMatrix` to the composable IT
- *   returns (`scope.builder.ts` — `composable.scopeMatrix = scopeMatrix`),
- *   but that composable is the deferred `registeredUseClientCustomFields`,
- *   never the exported symbol consumers hold. `useModulePort.ts` reads
- *   `composable.scopeMatrix` off the EXPORTED reference a page declaration
- *   names, BEFORE ever invoking it (`servesActor(composable.scopeMatrix,
- *   actor)` runs ahead of `composable()`), so without this line the
- *   property is `undefined` there — and `servesActor` (`scope-utils.ts`)
- *   treats an absent matrix as "no refusal", so the playground offers every
- *   actor regardless of the matrix's `never` pins (AC-37).
- * rejected: setting `.scopeMatrix` inside the `if (!registered...)` branch,
- *   copied off `registeredUseClientCustomFields` — still `undefined` until
- *   the first call, and `useModulePort` reads it before any call happens.
- */
-(
-  useClientCustomFields as ScopedComposable<
-    ReturnType<typeof createClientCustomFieldsForScope>,
-    ClientCustomFieldsScopeMatrix
-  >
-).scopeMatrix = CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX;
+// No runtime scope matrix is registered and none is published on the exported
+// wrapper: the collection names NO context (its client rides in `.withId()`),
+// so its all-`never` matrix serves only as `createScopedComposable`'s `TMatrix`
+// to keep `.for()` unspellable. `servesActor` (`scope-utils.ts`) reads an
+// absent matrix as "no refusal", so the playground offers every actor and the
+// composable refuses the unaddressable ones at runtime — the same shape
+// `client-email-history`'s single read uses.
 
 // Type export for consumers
 export type UseClientCustomFields = ReturnType<typeof useClientCustomFields>;

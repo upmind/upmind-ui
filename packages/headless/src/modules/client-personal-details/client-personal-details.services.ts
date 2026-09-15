@@ -4,7 +4,6 @@ import { computed, effectScope, getCurrentScope, ref } from "vue";
 import { useBrand } from "../brand";
 // A's contract (A-8/A-9, R2) — consumed here, never re-derived locally (AC-59).
 import {
-  ClientCustomFieldsContextTypes,
   mapCustomFieldValues,
   useClientCustomFields
 } from "../client-custom-fields";
@@ -17,7 +16,6 @@ import {
   mapProfile
 } from "./client-personal-details.mappers";
 import { useSchema } from "./client-personal-details.schemas";
-import { ClientPersonalDetailsContextTypes } from "./client-personal-details.types";
 import {
   ErrorOrigin,
   useTime,
@@ -30,7 +28,6 @@ import {
   NotAuthenticatedError
 } from "../../utils";
 import { get, isEmpty } from "lodash-es";
-import type { ScopeContext } from "../scope";
 import type {
   ClientPersonalDetailsManagerMachineServices,
   ClientPersonalDetailsRecordQuery,
@@ -81,26 +78,18 @@ function recordQueryKey(clientId?: string): QueryKey {
 
 /**
  * Derives the target client id from the RESOLVED scope — the ONE seam every
- * request-issuing function in this file shares. A `PROFILE` context names
- * the profile being addressed, which IS the owning client's id; with none it
- * falls back to the active session's own client (the self case). Both halves
- * share this one seam, which is what makes AC-30's read-back (read and write
- * resolve the SAME id) executable.
- *
- * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
- * FE-3239, so an id-less context of this type would otherwise resolve
- * `undefined` AS the identity instead of falling through. The guard now holds
- * what the type used to hold.
+ * request-issuing function in this file shares. The client is marked with
+ * `.withId(clientId)`, which the scope builder folds into `config.id` and this
+ * factory forwards here; with none it falls back to the active session's own
+ * client (the self case). Both halves share this one seam, which is what makes
+ * AC-30's read-back (read and write resolve the SAME id) executable. ADR-001
+ * amendment 2026-09-15: the client id rides in `.withId()`, never a `.for()`
+ * context.
  */
-function resolveClientId(scopeContext?: ScopeContext) {
+function resolveClientId(id?: string) {
   const { activeUser } = useActiveSession().useContext();
 
-  return computed(() =>
-    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE &&
-    scopeContext.id
-      ? scopeContext.id
-      : activeUser.value?.id
-  );
+  return computed(() => id ?? activeUser.value?.id);
 }
 
 /**
@@ -137,11 +126,9 @@ function isAddressable(clientId?: string): boolean {
  *          rejected outright, it defeats the one-request goal this key
  *          exists for.
  */
-function loadProfile(
-  scopeContext?: ScopeContext
-): ClientPersonalDetailsRecordQuery {
+function loadProfile(id?: string): ClientPersonalDetailsRecordQuery {
   const { request, useUrl, queryClient } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   const targetUrl = () =>
     useUrl(`clients/${clientId.value}`, {
@@ -262,21 +249,21 @@ async function fetchProfileOnce(
  */
 async function loadLookups(
   context: ProfileContext,
-  scopeContext?: ScopeContext
+  id?: string
 ): Promise<Partial<ProfileContext>> {
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
   const { languages } = useBrand();
-  // Threaded from THIS seam's own resolved id, not left to fall back to the
-  // session client — every other call in this file derives its target the
-  // same way; this is the one that didn't (review finding #6).
+  // Marked with THIS seam's own resolved id via `.withId()`, not left to fall
+  // back to the session client — every other call in this file derives its
+  // target the same way; this is the one that didn't (review finding #6).
   const customFieldsScope = useClientCustomFields()
     .as(ScopeActorTypes.CLIENT)
-    .for(ClientCustomFieldsContextTypes.VALUES, clientId.value as string);
+    .withId(clientId.value as string);
   const { isReady } = customFieldsScope.useActions();
   const { data: definitions } = customFieldsScope.useContext();
 
@@ -514,10 +501,10 @@ async function validate(
 async function update(
   model: ProfileModel,
   baseModel: ProfileModel = {},
-  scopeContext?: ScopeContext
+  id?: string
 ): Promise<IClient> {
   const { put, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
@@ -555,8 +542,8 @@ async function update(
 }
 
 /** Invalidates this scope's own cache key so the read refetches (AC-52). */
-async function refresh(scopeContext?: ScopeContext): Promise<void> {
-  const clientId = resolveClientId(scopeContext);
+async function refresh(id?: string): Promise<void> {
+  const clientId = resolveClientId(id);
   await invalidateQueryByKey(recordQueryKey(clientId.value), {
     exact: false
   })(undefined);
@@ -572,7 +559,7 @@ async function refresh(scopeContext?: ScopeContext): Promise<void> {
  */
 function scopedServices(
   scopeActor: ScopeActorTypes,
-  _scopeContext?: ScopeContext
+  _id?: string
 ): Partial<ClientPersonalDetailsServices> {
   switch (scopeActor) {
     default:
@@ -590,23 +577,23 @@ function scopedServices(
  */
 export const createClientPersonalDetailsServices = (
   scopeActor: ScopeActorTypes,
-  scopeContext?: ScopeContext
+  id?: string
 ): ClientPersonalDetailsServices => {
   const mutationError = ref<ResponseError | undefined>(undefined);
-  const clientId = resolveClientId(scopeContext);
+  const clientId = resolveClientId(id);
 
   return {
     queryKey,
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
-    loadProfile: () => loadProfile(scopeContext),
-    loadLookups: context => loadLookups(context, scopeContext),
+    loadProfile: () => loadProfile(id),
+    loadLookups: context => loadLookups(context, id),
     parse: (context, data) => parse(context, data),
     validate,
-    update: (model, baseModel) => update(model, baseModel, scopeContext),
-    refresh: () => refresh(scopeContext),
-    ...scopedServices(scopeActor, scopeContext)
+    update: (model, baseModel) => update(model, baseModel, id),
+    refresh: () => refresh(id),
+    ...scopedServices(scopeActor, id)
   };
 };
 

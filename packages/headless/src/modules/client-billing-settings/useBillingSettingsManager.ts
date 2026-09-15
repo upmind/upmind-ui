@@ -23,31 +23,30 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 /**
  * @module client-billing-settings/useBillingSettingsManager
  * @description Scoped `dataManagerMachine`-backed editor for a client's own
- * invoice-consolidation preference. One interpreter per concrete
- * `(actor, context)` scope.
+ * invoice-consolidation preference. One interpreter per concrete `(actor, id)`
+ * scope.
  *
  * @decision registered under its OWN registry name, not the read half's.
  * what:    this composable's `createScopedComposable` call names
  *          "client-billing-settings-manager", not "client-billing-settings".
  * why:     `generateScopeKey(name, config)` is `name:actor[:context.type:
- *          context.id][:brand][:fresh]` (`scope.utils.ts`) — NOTHING else
- *          differentiates two composables sharing one name. This module's
- *          shared single-member `SETTINGS` context has no `.for()`/`.withId()`
- *          segment to differentiate on — `.as('client')` with no `.for()` is
+ *          context.id][:id:<value>][:brand][:fresh]` (`scope.utils.ts`) —
+ *          NOTHING else differentiates two composables sharing one name. This
+ *          module names no context, and `.as('client')` with no `.withId()` is
  *          the NORMAL call for BOTH halves (a client has exactly one
- *          consolidation preference), which would make the read half's and
- *          the manager's scope keys IDENTICAL under a shared name — the
- *          registry would hand one consumer the other's instance. Two
- *          DISTINCT registry names is the fix; the SHARED scope MATRIX
- *          (design.md §4.2) still holds — both use the same
- *          `ClientBillingSettingsContextTypes.SETTINGS` context and the same
- *          identity seam, only the registry key's `name:` segment differs.
- *          Mirrors `usePersonalDetailsManager.ts`'s own `@decision`.
+ *          consolidation preference, so there is nothing to mark), which would
+ *          make the read half's and the manager's scope keys IDENTICAL under a
+ *          shared name — the registry would hand one consumer the other's
+ *          instance. Two DISTINCT registry names is the fix; the SHARED
+ *          all-`never` scope MATRIX (design.md §4.2) still holds — both resolve
+ *          the client through the same `.withId()`/`config.id` identity seam,
+ *          only the registry key's `name:` segment differs. Mirrors
+ *          `usePersonalDetailsManager.ts`'s own `@decision`.
  * rejected: keeping one shared name and requiring every manager call site to
- *          add `.for('settings', clientId)` — rejected: it forces every
- *          caller to know and re-supply the client's own id just to avoid a
- *          collision, for an entity that already has exactly one preference;
- *          brittle and easy to forget.
+ *          add `.withId(clientId)` — rejected: it forces every caller to know
+ *          and re-supply the client's own id just to avoid a collision, for an
+ *          entity that already has exactly one preference; brittle and easy to
+ *          forget.
  *
  * @doctrine clause 1 (uniform four-layer default) — identical return shape
  * to the read half.
@@ -64,14 +63,11 @@ function createBillingSettingsManagerForScope(
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
-   * `config.context` goes in here and nowhere else — every request the
-   * manager issues, directly or through the machine, inherits the same
-   * resolved client.
+   * `config.id` (the `.withId(clientId)` value) goes in here and nowhere else —
+   * every request the manager issues, directly or through the machine, inherits
+   * the same resolved client.
    */
-  const service = createClientBillingSettingsServices(
-    actorScope,
-    config.context
-  );
+  const service = createClientBillingSettingsServices(actorScope, config.id);
 
   const machineService = interpret(
     dataManagerMachine

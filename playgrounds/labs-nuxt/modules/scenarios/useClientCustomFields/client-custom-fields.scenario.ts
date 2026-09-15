@@ -11,9 +11,11 @@
  *
  * The DIRECTORY is the url segment and the route name
  * (`/useClientCustomFields`), so nothing here declares a route. Nor a scope:
- * the page boots as self with no context, and only the url's `/as/:actor` and
- * `/for/:type/:id` segments move it — offering only what the module's own
- * scope matrix serves (`client` x `custom_field_values`).
+ * the page boots as self with no context, and only the url's `/as/:actor`
+ * segment moves it. The collection names NO context (its client rides in
+ * `.withId(clientId)`, ADR-001 amendment 2026-09-15), so its all-`never`
+ * matrix is not registered — the scope bar offers every actor and the
+ * composable refuses the unaddressable ones at runtime.
  */
 
 import { useClientCustomFields } from "@upmind-automation/headless";

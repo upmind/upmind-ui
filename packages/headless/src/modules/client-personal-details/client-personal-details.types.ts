@@ -13,9 +13,11 @@
  * @module client-personal-details/client-personal-details.types
  * @description Types for a client's own profile — the query-backed read half
  * (`usePersonalDetails`) and the `dataManagerMachine`-backed editor half
- * (`usePersonalDetailsManager`). Both composables share the SAME scope
- * matrix and context enum (design.md §3.2): the entity being addressed is
- * the profile, and a client has exactly one.
+ * (`usePersonalDetailsManager`). Both composables share the SAME all-`never`
+ * scope matrix (design.md §3.2): the client whose profile is read/edited is
+ * marked with `.withId(clientId)`, never a `.for()` context (ADR-001
+ * amendment 2026-09-15; `graphify-out/graph.json` — the
+ * `ClientPersonalDetailsContextTypes` enum is removed, no node minted).
  */
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
@@ -30,44 +32,30 @@ import type { IClient, ICustomFieldValue } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
-// SCOPE — ONE matrix, shared by both composables
+// SCOPE — ONE all-`never` matrix, shared by both composables
 // -----------------------------------------------------------------------------
 
 /**
- * Context type for BOTH halves — WHICH profile is being read/edited. The
- * context names the ENTITY (the profile), not its owner: there is no
- * `client` context type here, so `.for('client', id)` does not exist —
- * see `docs/dropped-capabilities.md` for the staff-acting-for-a-client
- * retarget this drops, and its tracked disposition. (`graphify-out/graph.json`
- * — comment-only citation retarget, no new node; FE-3103 T4.)
- */
-export enum ClientPersonalDetailsContextTypes {
-  /** A client's own profile. Single-member — a client has exactly one. */
-  PROFILE = "profile"
-}
-
-/**
  * Scope matrix shared by `usePersonalDetails` and `usePersonalDetailsManager`
- * (design.md §3.2 — a deliberate divergence from `client-email`'s two
- * matrices, since both composables here scope on the same entity). `client`
- * is the only actor that resolves; `staff` and `guest` are `null as never`.
- *
- * WHAT THE TYPE SYSTEM ACTUALLY ENFORCES. `ScopeBuilderResult` accepts EVERY
- * `ScopeActorTypes` and reads the matrix row only to decide whether `.for()`
- * exists, so a `null as never` row removes `.for(...)` and nothing else:
- * `.as('staff')` and `.as('guest')` COMPILE, resolving to an instance with no
- * `.for()`, and are refused at RUNTIME — with no context to name a target,
- * `resolveClientId` falls back to the active session's own id and
- * `isAddressable` gates the request. The compile-time errors are
- * `.as('staff' | 'guest' | 'self').for(...)`, while `.as('client').for(...)`
- * type-checks. A designed boundary rather than an advertised-but-absent
- * capability. Same correction as `client-address.types.ts`, whose note carries
- * the `ts.createProgram` probe this rests on.
+ * (design.md §3.2). Every actor is `null as never`: this module names NO
+ * context. A client's own profile is the ONE record a client has, marked with
+ * `.withId(clientId)` — not a `.for()` context (ADR-001 amendment 2026-09-15:
+ * `.for()` carries the CONTEXT, `.withId()` carries the ID; an owner id never
+ * rides in `.for()`). The all-`never` matrix is the ONLY construction that
+ * makes `.for(type, id)` unspellable for every actor — it mirrors
+ * `client-email-history`'s single-read `RECEIVED_EMAIL_SCOPE_MATRIX`, and its
+ * TYPE is still passed as `createScopedComposable`'s `TMatrix`: the wide
+ * `ActorContextMatrix` default would otherwise re-open `.for()` once the
+ * context enum is gone. `.as('staff' | 'guest')` still COMPILE but resolve to
+ * an instance with no addressable client — `resolveClientId` falls back to the
+ * session's own id and `isAddressable` gates the request. (`graphify-out/graph.json`
+ * — no new node; the `ClientPersonalDetailsContextTypes` enum is removed, the
+ * matrix widened in place.)
  */
 export const PERSONAL_DETAILS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientPersonalDetailsContextTypes.PROFILE,
+  [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
