@@ -1,0 +1,24 @@
+Negative control for scope-based/no-private-instance-axis.
+
+Incident: FE-3034 (2026-09-15) shipped a computed registration name
+(client-custom-fields@<objectType>) plus a module-local registration Map,
+minting a private instance axis beside the scope registry. Rule home:
+.claude/rules/code-composables.companion.md, the platform-seams list.
+
+The mutation guts the string-literal discriminator, so a computed
+registration name stops being reported and the three computedName specs go
+RED. Audit: docs/sdd/FE-3034/review-scope-axis.md
+
+diff --git a/packages/eslint-plugin-scope-based/rules/no-private-instance-axis.mjs b/packages/eslint-plugin-scope-based/rules/no-private-instance-axis.mjs
+index b84fbeee5..a27f4b08b 100644
+--- a/packages/eslint-plugin-scope-based/rules/no-private-instance-axis.mjs
++++ b/packages/eslint-plugin-scope-based/rules/no-private-instance-axis.mjs
+@@ -56,7 +56,7 @@ function calleeName(node) {
+ 
+ /** True for a bare string literal — the one valid registration-name shape. */
+ function isStringLiteral(node) {
+-  return node?.type === "Literal" && typeof node.value === "string";
++  return true;
+ }
+ 
+ /**

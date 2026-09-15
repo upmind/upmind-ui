@@ -38,10 +38,13 @@ The data-fetching lifecycle variant is exemplified by the **auth / product-catal
 
 ## Platform seams every composable consumes (never re-derives)
 
-Two platform surfaces touch EVERY composable; consuming them is mandatory, re-deriving them is a defect:
+Three platform surfaces touch EVERY composable; consuming them is mandatory, re-deriving them is a defect:
 
 - **Query types** — `modules/query/query.types.ts` exports **`ListQuery<TQueryFnData, TData>`** and **`MutationResult<TData, …>`** precisely so a module never derives `ReturnType<typeof localServiceFn>` from its own instantiated service (the `ListQuery` docblock states this ban verbatim). A module-local `type XQuery = ReturnType<...>` alias over a query/mutation result is the tell.
 - **Identity/target resolution** — the scope builder owns ACTOR resolution (clause 4 above; `resolveSelfActor`, `scope/scope.utils.ts`); the request TARGET id follows the live convention (client-phone / client-address): **scope-context id wins when a `.for()` context is present; the session's `activeUser` id supplies the self case** (`const { activeUser } = useActiveSession().useContext()`). The FE-2824 defect is a services file that **ignores the scope context** and hardwires the session id for every call — dropping `.for('client', id)` retargeting — not the session read itself. Tell: a request URL built from `activeUser` with no scope-context check upstream.
+- **Instance keying** — `createScopedComposable` owns registration; `generateScopeKey` (`scope/scope.utils.ts`) owns the key, built from actor + context + `.withId()` id + brand. A module never mints its own instance axis beside it. Tells: a registration NAME computed per variant (`"module@<variant>"`), a module-local `Map` of registrations, or a hand-derived cache key re-encoding what the scope key already carries. Where the platform blocks the native shape, STOP and escalate to the operator — never mint a private axis. State what is missing and why, in plain language the operator can rule on without the author's context. A framing only the author follows makes the operator default to the recommendation, and that is not a decision.
+
+  *Incident (2026-09-15, FE-3034):* asked for a second custom-fields catalogue, the story built all three tells — `client-custom-fields@<objectType>`, a registration `Map`, and a hand-rolled `catalogueQueryKey`. The scope-native answer was a context member, unreachable only because `.for(type, id)` still demanded an id (now FE-3239). Every gate stayed green: the graphify gate checks for a filed citation, not for actual reuse, and a name is not a type. Audit: `docs/sdd/FE-3034/review-scope-axis.md`.
 
 ## Machine-node sweep receipt
 
