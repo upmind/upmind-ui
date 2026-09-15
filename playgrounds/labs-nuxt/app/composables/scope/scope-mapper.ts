@@ -83,20 +83,20 @@ export function parseScopeSuffix(suffix: string | undefined): ParsedScope {
     const contextType = parts[3];
     const contextId = parts[4];
 
-    if (!contextType || !contextId) {
+    // A SELECTOR context is the type alone, so only a missing TYPE is invalid.
+    if (!contextType) {
       return {
         valid: false,
-        error: "Context requires both type and ID: as/staff/for/:type/:id"
+        error: "Context requires a type: as/staff/for/:type[/:id]"
       };
     }
 
     return {
       valid: true,
       actor,
-      context: {
-        type: contextType,
-        id: contextId
-      }
+      context: contextId
+        ? { type: contextType, id: contextId }
+        : { type: contextType }
     };
   }
 
@@ -119,5 +119,5 @@ export function parseScopeSuffix(suffix: string | undefined): ParsedScope {
  * // => "/org/useAuth"
  */
 export function stripScopeSuffix(path: string): string {
-  return path.replace(/\/as\/[^/]+(?:\/for\/[^/]+\/[^/]+)?$/, "");
+  return path.replace(/\/as\/[^/]+(?:\/for\/[^/]+(?:\/[^/]+)?)?$/, "");
 }

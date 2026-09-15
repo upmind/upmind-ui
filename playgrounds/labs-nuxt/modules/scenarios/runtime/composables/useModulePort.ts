@@ -146,7 +146,9 @@ export function useModulePort(
       ? identified.fresh()
       : identified
     : scope.context && isFunction(identified.for)
-      ? identified.for(scope.context.type, scope.context.id)
+      ? scope.context.id === undefined
+        ? identified.for(scope.context.type)
+        : identified.for(scope.context.type, scope.context.id)
       : identified;
 
   // `LiveContext` is deliberately opaque (`Record<string, unknown>`), so the

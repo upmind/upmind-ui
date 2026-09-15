@@ -14,11 +14,15 @@
  */
 
 import { useRouter, useRoute } from "vue-router";
-import { ScopeActorTypes } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  resolveContextDeclarations
+} from "@upmind-automation/headless";
 import { filter, get } from "lodash-es";
 import type {
   ActorContextMatrix,
-  ScopeContext
+  ScopeContext,
+  ScopeContextPatterns
 } from "@upmind-automation/headless";
 
 /**
@@ -26,9 +30,28 @@ import type {
  * actor `never`. This is the app's ONE reading of a scope matrix: a cell naming
  * no type is an actor the module does not serve — the row the acting-for picker
  * greys (`AC1.4`) and the scope the port refuses to boot (`R7-14`).
+ *
+ * A cell may declare several members; this returns the FIRST, which is what
+ * every existing caller reads. Use `resolveMatrixContexts` for the whole cell.
  */
 export function resolveMatrixContext(contextType: unknown): string | null {
-  return contextType && contextType !== "never" ? String(contextType) : null;
+  return resolveMatrixContexts(contextType)[0]?.type ?? null;
+}
+
+/**
+ * Every member a matrix cell declares, each with the pattern the module
+ * declared it under — the plural form a multi-member cell needs. Delegates to
+ * headless so the app never learns a second way to read a cell.
+ */
+export function resolveMatrixContexts(
+  contextType: unknown
+): { type: string; pattern: ScopeContextPatterns }[] {
+  // `"never"` is the string form of the `null as never` a module marks an
+  // unserved actor with; headless reads it as a legitimate context type.
+  return filter(
+    resolveContextDeclarations(contextType),
+    ({ type }) => type !== "never"
+  );
 }
 
 /**
@@ -112,9 +135,13 @@ export function buildScopePath(config: ScopePathConfig): string {
   if (actor && actor !== ScopeActorTypes.SELF) {
     path += `/as/${actor}`;
 
-    // Add context if specified
+    // Add context if specified. A SELECTOR context carries no id, and the
+    // suffix omits the segment rather than writing `/undefined`.
     if (context) {
-      path += `/for/${context.type}/${context.id}`;
+      path +=
+        context.id === undefined
+          ? `/for/${context.type}`
+          : `/for/${context.type}/${context.id}`;
     }
   }
 
