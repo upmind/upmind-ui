@@ -31,9 +31,15 @@
 # knows the exact source line a mutant must break.
 #
 # SCOPE — ONE ADR-001 cell: client x self (review-notes.md C3). STAFF and GUEST
-# are `null as never` in all five scope matrices, so no staff or guest scenario
+# are `null as never` in all FOUR scope matrices, so no staff or guest scenario
 # exists here to imply an advertised-but-absent capability. SELF is a matrix
 # key, always present, resolved at runtime (C2) — it is not a scenario.
+#
+# FOUR SURFACES, NOT FIVE (ruling R10, 2026-09-15). The scheduled-actions
+# collection is folded into the contract-product manager: it cannot be fetched,
+# cannot be filtered at the wire and cannot be addressed on its own, so it is a
+# member of its parent's surface rather than a composable. @AC-15 is unchanged
+# in scope and keeps its mutant.
 #
 # TRACEABILITY. Every @AC-n tag resolves 1:1 to an acceptance criterion in
 # docs/sdd/FE-3029/requirements.md. No tag is dropped, renamed or renumbered.
@@ -43,12 +49,34 @@
 # applies it blind, confirms RED, and reverts.
 #
 # The mutant surface spans TWO modules, because one capability's write does.
-# Six patches mutate this module's source and sit beside this file. The seventh
-# mutates the module that owns the client record the remembered-preference write
-# rides on, and sits beside ITS assertion, in ITS own __tests__ folder. A
-# scenario here names the mutation in domain language either way; which module's
-# source carries the line is a plan fact, not a scenario fact, and it lives in
-# docs/sdd/FE-3029/tasks.md (T28).
+# EIGHT patches in all. Six mutate this module's source and sit beside this file.
+# TWO mutate the module that owns the client record the remembered-preference
+# write rides on, and sit beside THEIR assertions, in ITS own __tests__ folder:
+# one drops the merge, one drops .fresh() from the seam. SEVEN of the eight are
+# 1:1 with the seven @negative-control scenarios below; the eighth guards a
+# CONTROL rather than a scenario, which is why the counts are 7 and 8 rather than
+# 8 and 8. A scenario here names the mutation in domain language either way;
+# which module's source carries the line is a plan fact, not a scenario fact, and
+# it lives in docs/sdd/FE-3029/tasks.md (T28).
+# (Corrected at cycle 9. This block read "six... the seventh" and totalled seven,
+# while tasks.md:35 and bdd.md:274 both recorded eight from cycle 7 onward. The
+# block was edited this pass for R10 and the stale paragraph directly beneath was
+# not swept.)
+#
+# RULING R16 (2026-09-15) CHANGED WHAT A CLIENT CAN DO, and it is the only ruling
+# in this story's history that has. The state model was derived from the cancel
+# MODAL's internals rather than from the gate that decides whether a client is
+# ever SHOWN the control (cancelOption, cProdProvider.vue:248, consumed :574). A
+# SUSPENDED subscription was filed as read-only; legacy lets a client stop it
+# renewing, ask for it to be cancelled, change how it is paid for and change how
+# it is invoiced. Four capabilities, dropped, every gate green — the FE-2824
+# shape. The scenarios below now say so, and the staged-gate mutant carries an
+# OVER-REFUSAL direction so a module that withholds them again goes red.
+#
+# RULING R15 (2026-09-15) closed this bundle's last open question: the
+# provisioning submit belongs to FE-3234, which is related and not blocking. No
+# scenario here advertises it, and none should — an unreachable capability reads
+# as a promise.
 #
 # ORACLE. vue-app is the parity oracle (R1). Every scenario below states what
 # the legacy client area actually does for a client acting on their own
@@ -60,7 +88,7 @@ Feature: A client manages the contracts and products on their own account
   A client's contract products are the subscriptions and one-off purchases on
   their account — what they bought, what state it is in, when it next bills,
   what it costs and how it is paid for. The contract is the agreement those
-  products sit under. Five surfaces serve them: three COLLECTIONS the client
+  products sit under. Four surfaces serve them: two COLLECTIONS the client
   browses and pages, and two per-entity MANAGERS through which the client
   changes one contract or one product at a time. All of them act on that
   client's own account, under that client's own identity, and never another
@@ -119,7 +147,7 @@ Feature: A client manages the contracts and products on their own account
     When I ask to see delegated products
     Then the products delegated to me are included alongside my own
     And when I ask to hide them, only my own products come back
-    And that choice travels as part of what I asked for, never as something bolted on afterwards
+    And that choice is which set of products I asked for, not a filter over one set
 
   @AC-2 @collection @delegation
   Scenario: Never be shown delegated products I do not have
@@ -239,6 +267,10 @@ Feature: A client manages the contracts and products on their own account
   # one dispatch site sends the chosen method and nothing else, and the submit
   # is refused unless a method is actually selected. The removal half is OUT
   # (design.md D1 row C5b, signoff R7), so no scenario advertises it.
+  # My account area only offers this change on a SUBSCRIPTION I own. A one-off
+  # purchase has no settings for me to change at all, and neither does a product
+  # someone else has delegated to me — I can read it, ask for it to be cancelled
+  # and change how it is invoiced, but how it is paid for is not mine to move.
   @AC-8 @manager @mutation
   Scenario: Point a contract at a different stored payment method
     Given a contract on my account paying by one of my stored methods
@@ -246,6 +278,9 @@ Feature: A client manages the contracts and products on their own account
     Then that contract bills against the method I chose
     And nothing is sent when I have picked no method, or picked the one it already uses
     And the change is addressed to my own contract, under my own identity
+    And the change is not offered at all on a one-off purchase, nor on a product delegated to me — and nothing is sent in either case
+    And on a product delegated to me I can still ask for cancellation and still change how it is invoiced — only the payment method is withheld
+    And a suspended subscription is offered the change normally
 
   # === CHANGING ONE PRODUCT ==================================================
 
@@ -298,6 +333,7 @@ Feature: A client manages the contracts and products on their own account
     Then I am told the change is not available to me
     And no request is made at all — not one that is sent and refused
     And removing that protection turns this scenario red
+    And so does withholding those same four changes from a merely suspended subscription — my account area offers all four on one of those, and a surface that refuses them has taken something away from me rather than protected me
 
   # Legacy refuses the consolidation change on THREE lasting conditions —
   # cancelled, lapsed, or still being imported — of which "still being
@@ -317,7 +353,13 @@ Feature: A client manages the contracts and products on their own account
     Then I am told the change is not available to me
     And no request is made at all
     And I can still read everything about that product — only the change is refused
+    And a product that is merely suspended is not one I have finished with — on that one I can still stop it renewing, ask for it to be cancelled, change how it is paid for and change how it is invoiced, exactly as my account area lets me today
 
+  # A one-off purchase is not a smaller subscription: my account area offers it a
+  # smaller set of changes altogether. And once I have already asked a
+  # subscription to stop at the end of its term, asking for it to be cancelled
+  # outright is no longer something my account area offers me — only carrying on
+  # is.
   @AC-11 @manager @guard
   Scenario: A one-off purchase is never offered a consolidation choice
     Given one of my products is a one-off purchase rather than a subscription
@@ -325,21 +367,26 @@ Feature: A client manages the contracts and products on their own account
     Then the consolidation choice is not offered to me at all
     And forcing it anyway makes no request and is refused
     And the same product on a subscription is offered that choice normally
+    And stopping it renewing and changing how it is paid for are not offered to me either — those belong to my subscriptions
+    And asking for it to be cancelled is offered only while it is still pending, never once it is live
+    And a subscription I have already asked to stop at the end of its term is not offered outright cancellation at all — only carrying on is
 
   @AC-13 @manager @mutation
   Scenario: A change I make shows up everywhere without me reloading
-    Given I am looking at one of my products, at my products list, and at its contract at the same time
+    Given I am looking at one of my products, at my products list, at its contract, and at my dashboard's count of them, all at the same time
     When I make any of the changes this surface offers me
-    Then all three show me the change without my asking them to
+    Then every one of them shows me the change without my asking them to
     And each of them re-reads from the server rather than guessing
 
-  # === SCHEDULED ACTIONS =====================================================
+  # === SCHEDULED ACTIONS (part of the product manager's surface) =============
 
-  @AC-15 @collection @negative-control
+  # These belong to the product I opened, not to a surface of their own: the only
+  # route a client is entitled to read them by is the product itself (R10).
+  @AC-15 @manager @negative-control
   Scenario: See what is scheduled to happen to one of my products
     Given one of my products has billing actions scheduled against it
     When I open that product's scheduled actions
-    Then I see them, ordered and paged
+    Then I see them
     And they come from the product I already loaded, because that is the only place a client is entitled to read them
     And an empty result tells me whether it is empty because there are none, or because the product was loaded without them
     And refreshing them re-reads that product
@@ -350,16 +397,16 @@ Feature: A client manages the contracts and products on their own account
   @AC-16 @module @guard @negative-control
   Scenario: Nothing is read or changed without an authenticated client session
     Given there is no authenticated client session
-    When any of the five surfaces is used, forced or not
+    When any of the four surfaces is used, forced or not
     Then no request is made against any contract or product resource
     And any forced read or write is refused as not-authenticated
-    And removing that protection from any one of the five surfaces turns this scenario red
+    And removing that protection from any one of the four surfaces turns this scenario red
 
   @AC-16 @module @fe-2824 @negative-control
   Scenario: The account I act on is the one my scope resolved
     Given every request resolves whose contracts it is acting on from the scope I opened
     When a caller tries to name a different account through an option
-    Then none of the five surfaces offers a "clientId" option, or any alias of it, to a caller
+    Then none of the four surfaces offers a "clientId" option, or any alias of it, to a caller — every account id comes from the scope I opened
     And every request and every cached result still belongs to my own account
     And no request URL that is ever observed anywhere contains the literal text "clients/undefined/"
     And re-introducing that option, even for internal use only, turns this scenario red
