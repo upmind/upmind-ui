@@ -55,7 +55,7 @@ function createClientTicketsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  *
  * @example
  * ```ts
- * const tickets = useClientTickets().as('client')
+ * const tickets = useClientTickets().as(ScopeActorTypes.SELF)
  * const { data, schemas } = tickets.useContext()
  * await tickets.useActions().isReady()
  * tickets.useActions().setCriteria({ filters: { statusCode: { neq: "ticket_closed" } } })
