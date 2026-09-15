@@ -47,7 +47,8 @@ export function createPersonalDetailsActions(
    * falls through to A's own session-client fallback.
    */
   const customFieldsScope =
-    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE
+    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE &&
+    scopeContext.id
       ? useClientCustomFields()
           .as(ScopeActorTypes.CLIENT)
           .for(ClientCustomFieldsContextTypes.VALUES, scopeContext.id)

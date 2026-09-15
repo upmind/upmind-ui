@@ -78,7 +78,8 @@ export function createPersonalDetailsContext(
   // `loadLookups` is the precedent for hardcoding rather than threading the
   // (always-CLIENT) param through.
   const customFieldsScope =
-    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE
+    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE &&
+    scopeContext.id
       ? useClientCustomFields()
           .as(ScopeActorTypes.CLIENT)
           .for(ClientCustomFieldsContextTypes.VALUES, scopeContext.id)
