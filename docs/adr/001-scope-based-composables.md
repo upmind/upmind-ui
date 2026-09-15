@@ -2,7 +2,7 @@
 
 **Date:** January 19, 2026
 **Updated:** January 21, 2026
-**Status:** Proposed — Amended 2026-08-19 (`.withId(id)`, self-default actor) and 2026-09-15 (`.for()` / `.withId()` split, instance keying as a platform seam). An amendment supersedes the original text where the two conflict.
+**Status:** Accepted 2026-09-15 (operator ruling; the architecture has shipped across 18+ composables and two amendments) — Amended 2026-08-19 (`.withId(id)`, self-default actor) and 2026-09-15 (`.for()` / `.withId()` split, instance keying as a platform seam). An amendment supersedes the original text where the two conflict.
 **Authors:** Dom da Costa, Chris Garner, Dominik Piska, Rhodri Jones
 
 ---
