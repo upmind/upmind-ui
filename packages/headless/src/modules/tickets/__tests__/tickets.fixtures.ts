@@ -213,6 +213,21 @@ describe("Tickets API Fixtures Generator", () => {
       throw new Error(`Active list capture returned ${status}.`);
   });
 
+  it("captures GET tickets filter[status.code|bogusop]=ticket_closed — a genuine 422 refusal, no write, no force (R16 error-collection)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.get(
+      "/api/tickets?filter[status.code|bogusop]=ticket_closed&case=error-collection"
+    );
+    generator.clearBearerToken();
+    if (status !== 422) {
+      throw new Error(
+        `Expected a genuine 422 for a bogus filter operator, got ${status} — ` +
+          `${JSON.stringify(body)}. Refusing to ship a fixture that does not ` +
+          "represent the real refusal."
+      );
+    }
+  });
+
   it("captures GET tickets filter[status.code]=ticket_closed (closed list, AC-2)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(
@@ -334,6 +349,23 @@ describe("Tickets API Fixtures Generator", () => {
         "AC-9 schedule recon: refused by real staging —",
         JSON.stringify((body as { error?: unknown })?.error),
         "— this brand disables send-later scheduling; disclosed capture gap, not fabricated."
+      );
+    }
+  });
+
+  it("captures POST tickets {} — a genuine 422 refusal, no ticket created (R16 error-action)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.post(
+      "/api/tickets?case=error-action",
+      {}
+    );
+    generator.clearBearerToken();
+    if (status !== 422) {
+      throw new Error(
+        `Expected a genuine 422 for an empty create body, got ${status} — ` +
+          `${JSON.stringify(body)}. Refusing to ship a fixture that does not ` +
+          "represent the real refusal, and refusing to treat it as a created " +
+          "ticket."
       );
     }
   });
