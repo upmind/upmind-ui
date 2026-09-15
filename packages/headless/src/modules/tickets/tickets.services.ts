@@ -1,10 +1,11 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
-import { computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { BrandConfigKeys, HookCodes } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { RequestSortDirection, useQuery } from "../query";
 import { resolveClientId, useActiveSession } from "../session-store";
+import { useI18n } from "../system-localisation";
 import {
   mapHookLogs,
   mapTicket,
@@ -20,11 +21,13 @@ import {
 import {
   DetailedError,
   ErrorOrigin,
+  mapToHeadlessError,
   NotAuthenticatedError,
   responseCodes,
-  useTime
+  useTime,
+  useValidation
 } from "../../utils";
-import { get, includes, isEmpty } from "lodash-es";
+import { assign, get, includes, isEmpty } from "lodash-es";
 import type {
   Ticket,
   TicketAttachmentRef,
@@ -32,6 +35,7 @@ import type {
   TicketMessage,
   TicketsListQuery,
   TicketsQueryModel,
+  TicketsQuerySchema,
   TicketsServices,
   TicketStatusLog,
   TicketSupportPrefs
@@ -49,6 +53,7 @@ import type {
   ITicketMessage,
   TicketStatusCodes
 } from "@upmind-automation/types";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module tickets/tickets.services
@@ -174,13 +179,59 @@ function applyStatusCodeFilter(
   }
 }
 
-function loadList(scopeContext?: ScopeContext): TicketsListQuery {
+/**
+ * @decision
+ * what:     Re-validates a `setCriteria` candidate, merged onto the live
+ *           model, against the RAW schema via `useValidation()` directly —
+ *           never through `useModelParser` — before forwarding it.
+ * why:      `useQueryCriteria.commit()` validates the candidate only AFTER
+ *           `useModelParser` reshapes it, and that parser BUILDS its output
+ *           by walking `schema.properties` — a key the schema never
+ *           declared (e.g. a typo'd filter name) is never visited, so it is
+ *           silently absent from the parsed candidate ajv checks, ajv sees
+ *           nothing wrong, and the write is committed as if it were valid:
+ *           `criteria.error` never fires and the caller has no way to know
+ *           its write was ignored. Validating the RAW merged candidate here
+ *           catches exactly the additional-property class `useModelParser`
+ *           hides, without altering `query/**`'s parsing/commit pipeline.
+ * rejected: Editing `useModelParser`/`useQueryCriteria` (`query/**`) to stop
+ *           it silently dropping undeclared keys — a headless-core file
+ *           shared by every schema-governed collection in the tree, off
+ *           limits to this story (R9 precedent: route around at the
+ *           module's own edge, never edit `query/**`).
+ */
+function guardCriteriaWrite(
+  schema: TicketsQuerySchema,
+  currentModel: TicketsQueryModel,
+  candidate: Partial<TicketsQueryModel>
+): ResponseError | undefined {
+  const violations = useValidation().validate(
+    schema,
+    assign({}, currentModel, candidate)
+  );
+  if (isEmpty(violations)) return undefined;
+
+  return mapToHeadlessError(
+    new DetailedError(
+      useI18n().t("error.query_validation_failed"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      violations
+    )
+  );
+}
+
+function loadList(
+  scopeContext: ScopeContext | undefined,
+  criteriaGuardError: Ref<ResponseError | undefined>
+): TicketsListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
   const url = useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 });
+  const schema = useQuerySchema();
 
   const ticketsList = list<ITicket[], Ticket[], TicketsQueryModel>({
-    criteria: { schema: useQuerySchema() },
+    criteria: { schema },
     queryKey: [...queryKey, { client: clientId }],
     url,
     withAccessToken: true,
@@ -202,7 +253,18 @@ function loadList(scopeContext?: ScopeContext): TicketsListQuery {
     { immediate: true, flush: "sync" }
   );
 
-  return ticketsList;
+  return {
+    ...ticketsList,
+    setCriteria: candidate => {
+      const rejection = guardCriteriaWrite(
+        schema,
+        ticketsList.criteria.value,
+        candidate
+      );
+      criteriaGuardError.value = rejection;
+      if (!rejection) ticketsList.setCriteria(candidate);
+    }
+  };
 }
 
 /** AC8 — the narrower dashboard/recent list. A one-shot imperative read. */
@@ -667,14 +729,17 @@ export const createTicketsServices = (
       ? scopeContext.id
       : undefined;
 
+  /** AC-CE (R9 fold-in) — the last REJECTED `setCriteria` write, per scope. */
+  const criteriaGuardError = ref<ResponseError | undefined>(undefined);
+
   return {
     queryKey,
     clientId,
     brandId,
     isAvailable: computed(() => isAddressable(clientId.value)),
-    error: computed<ResponseError | undefined>(() => undefined),
+    error: computed(() => criteriaGuardError.value),
 
-    loadList: () => loadList(scopeContext),
+    loadList: () => loadList(scopeContext, criteriaGuardError),
     loadOne: (id = ticketId) => loadOne(id, scopeContext),
     createTicket,
     updateTicket,
