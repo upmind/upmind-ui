@@ -9,15 +9,20 @@
  * AC-23"). This file closes that hole: it drives `uploadAttachment` through
  * the PUBLIC surface, on both the manager arm (attaching to a reply) and the
  * collection arm (attaching to a new ticket, per the Gherkin's "a new ticket
- * or a reply"), and proves both rejection guards named in the parity table
- * (the size ceiling and the brand's allowed-file-type list) refuse before any
- * request is issued.
+ * or a reply"), and proves the size-ceiling guard named in the parity table
+ * refuses before any request is issued. [R17(a), 2026-09-15, tier 1] The
+ * allowed-file-type guard is proven the OTHER way on this recorded brand:
+ * none of the 47 fixtures carry `allowed_upload_file_types`, and an absent
+ * or empty list means UNRESTRICTED per the system-upload contract, so the
+ * guard correctly PERMITS a file of any kind here. The restricted-brand
+ * rejection path is coded but unproven on this brand — see the module docs.
  *
  * ## What Breaks If These Fail
  * A client's upload silently sends nothing to the server (a green suite
  * proving only that the FIXTURE has the right shape, never that the caller's
- * own composable action does), or an oversized/disallowed file reaches the
- * network instead of being refused client-side.
+ * own composable action does), an oversized file reaches the network instead
+ * of being refused client-side, or an unrestricted brand's upload is wrongly
+ * blocked client-side on type grounds it was never told to enforce.
  */
 
 import { http, HttpResponse } from "msw";
@@ -194,29 +199,40 @@ describe("tickets manager — an oversized or disallowed attachment is refused b
     expect(observed.all()).toEqual([]);
   });
 
-  it("refuses a file of a kind the brand does not allow, with NO request sent", async () => {
+  // [R17(a), 2026-09-15, tier 1] Re-aimed from "refuses a file of a kind the
+  // brand does not allow" — the.feature's replacement scenario, "A brand
+  // that names no permitted kinds permits every kind". None of the recorded
+  // fixtures carry `allowed_upload_file_types` on this brand, and an absent
+  // or empty list means UNRESTRICTED per the system-upload contract, so the
+  // guard correctly PERMITS a file of any kind rather than refusing it. The
+  // restricted-brand journey is not promised by this file — see the module
+  // docs for the standing unproven-on-this-brand disclosure.
+  it("permits a file of any kind when the brand names no permitted kinds, and the upload proceeds", async () => {
     await seedClientSession();
     installTicketsHandlers();
-    installUploadHandler();
+    const upload = installUploadHandler();
 
     const ticket = manager();
     await vi.waitFor(() =>
       expect(!!ticket.useContext().data.value?.id).toBe(true)
     );
 
-    // An executable is refused by every brand's allowed-upload-type list a
-    // support-ticket attachment guard could plausibly configure — chosen to
-    // exercise the guard without depending on one brand's exact list content.
-    const disallowed = new File(["MZ"], "invoice.exe", {
+    const anyKind = new File(["MZ"], "invoice.exe", {
       type: "application/x-msdownload"
     });
 
     const observed = observeUploadRequests();
-    await expect(
-      ticket.useActions().uploadAttachment(disallowed)
-    ).rejects.toThrow();
+    const ref = await ticket.useActions().uploadAttachment(anyKind);
     observed.stop();
 
-    expect(observed.all()).toEqual([]);
+    expect(observed.all().some(request => request.method === "POST")).toBe(
+      true
+    );
+    expect(upload.capturedForm()?.get("file")).toBeInstanceOf(File);
+
+    const recordedRow = (
+      recorded.uploadedFile() as { data: Array<{ id: string }> }
+    ).data[0]!;
+    expect(ref).toMatchObject({ id: recordedRow.id });
   });
 });

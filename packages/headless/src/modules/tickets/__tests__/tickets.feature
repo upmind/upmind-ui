@@ -89,6 +89,15 @@
 #   recorded here as UNPROVEN ON THIS BRAND — never deleted, never asserted as proven,
 #   never tagged @todo. T45 (the thirteenth must-fail control) is gated behind the re-aim,
 #   because a control is graded on flipping its OWN target assertion.
+#   THE RE-AIM LANDED (prover, 2026-09-15). The two paragraphs above previously read
+#   "STILL RED" and "MEASURED 2026-09-15: 3 passed / 1 FAILED" — THAT IS NOW FALSE and is
+#   corrected here rather than deleted. tickets.upload-attachment.int.test.ts now reads
+#   4 passed / 0 failed: the former "refuses a file of a kind the brand does not allow"
+#   assertion is replaced by "permits a file of any kind when the brand names no
+#   permitted kinds, and the upload proceeds" — the scenario this file promises above.
+#   T45 (the thirteenth must-fail control) remains OWED: it needs a developer-authored
+#   mutant against the guard's own line, which the prover seat may apply blind and
+#   confirm RED, but may never hand-author from reading implementation source.
 #
 # R9 AND R11 CHANGED NOTHING IN THIS FILE, and that is a finding, not an oversight.
 # R9 moves a criteria KEY SPELLING (status.code -> an undotted key, translated back to
