@@ -42,7 +42,7 @@
         </DropdownMenuItem>
 
         <p
-          v-if="!availableSelectorContexts.length"
+          v-if="isEmpty(availableSelectorContexts)"
           class="text-muted py-4 text-center text-sm"
         >
           {{ t("labs.acting_for_no_contexts") }}

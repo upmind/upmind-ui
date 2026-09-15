@@ -1,6 +1,6 @@
 import { setupDevToolsPlugin } from "@vue/devtools-api";
 import { ScopeActorTypes } from "./scope.types";
-import { forEach, isObject, keys, map, startsWith } from "lodash-es";
+import { forEach, isObject, keys, map, split, startsWith } from "lodash-es";
 import type { RegistryEntry } from "./scope.registry";
 import type { ScopeKey } from "./scope.types";
 // -----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ export function setupScopeDevtools(
         // Prefix-aware, never positional: a SELECTOR context contributes ONE
         // unprefixed segment and a RETARGET two, so a fixed position would
         // report a `brand:` or `id:` segment as the context id.
-        const [name, actor, ...rest] = key.split(":");
+        const [name, actor, ...rest] = split(key, ":");
         const contextParts: string[] = [];
         let recordId: string | undefined;
         let brandId: string | undefined;

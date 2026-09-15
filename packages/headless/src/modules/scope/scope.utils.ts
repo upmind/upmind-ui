@@ -1,7 +1,7 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { flatMap, isArray, isPlainObject, isString } from "lodash-es";
 import { useSessionStore } from "../session-store";
 import { ScopeActorTypes, ScopeContextPatterns } from "./scope.types";
+import { flatMap, head, isArray, isPlainObject, isString } from "lodash-es";
 import type {
   ScopeActor,
   ScopeConfig,
@@ -75,7 +75,7 @@ export function resolveContextDeclarations(
 export function resolveContextDeclaration(
   cell: unknown
 ): { type: string; pattern: ScopeContextPatterns } | null {
-  return resolveContextDeclarations(cell)[0] ?? null;
+  return head(resolveContextDeclarations(cell)) ?? null;
 }
 
 /**

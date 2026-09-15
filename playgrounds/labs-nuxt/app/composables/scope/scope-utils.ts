@@ -18,7 +18,7 @@ import {
   ScopeActorTypes,
   resolveContextDeclarations
 } from "@upmind-automation/headless";
-import { filter, get } from "lodash-es";
+import { filter, get, head } from "lodash-es";
 import type {
   ActorContextMatrix,
   ScopeContext,
@@ -35,7 +35,7 @@ import type {
  * every existing caller reads. Use `resolveMatrixContexts` for the whole cell.
  */
 export function resolveMatrixContext(contextType: unknown): string | null {
-  return resolveMatrixContexts(contextType)[0]?.type ?? null;
+  return head(resolveMatrixContexts(contextType))?.type ?? null;
 }
 
 /**
