@@ -16,6 +16,7 @@
 
 import { http, HttpResponse } from "msw";
 import { expect } from "vitest";
+import { vi } from "vitest";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { queryClient } from "../../query/client";
 import { getRegistry, remove } from "../../scope/scope.registry";
@@ -25,7 +26,6 @@ import {
   useSessionStore
 } from "../../session-store";
 import { server, recordingsDir } from "./setup.integration";
-import { vi } from "vitest";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -42,7 +42,8 @@ export type Envelope<T> = {
 
 /** The recorded bodies, by capture — every file `tickets.fixtures.ts` wrote. */
 export const recorded = {
-  activeList: () => getFixtureBody("get-tickets-with-staged-imports-1", { recordingsDir }),
+  activeList: () =>
+    getFixtureBody("get-tickets-with-staged-imports-1", { recordingsDir }),
   closedList: () =>
     getFixtureBody("get-tickets-case-closed-filter-status-code-ticket-closed", {
       recordingsDir
@@ -65,10 +66,9 @@ export const recorded = {
       { recordingsDir }
     ),
   searched: () =>
-    getFixtureBody(
-      "get-tickets-case-search-query-test-with-staged-imports-1",
-      { recordingsDir }
-    ),
+    getFixtureBody("get-tickets-case-search-query-test-with-staged-imports-1", {
+      recordingsDir
+    }),
   recent: () => getFixtureBody("get-tickets-case-recent", { recordingsDir }),
   one: () => getFixtureBody("get-tickets-id", { recordingsDir }),
   messages: () =>
@@ -76,10 +76,14 @@ export const recorded = {
       recordingsDir
     }),
   messagesAfterWithdraw: () =>
-    getFixtureBody("get-tickets-id-messages-case-after-withdraw-filter-is-log-0", {
-      recordingsDir
-    }),
-  oneMessage: () => getFixtureBody("get-tickets-id-messages-id", { recordingsDir }),
+    getFixtureBody(
+      "get-tickets-id-messages-case-after-withdraw-filter-is-log-0",
+      {
+        recordingsDir
+      }
+    ),
+  oneMessage: () =>
+    getFixtureBody("get-tickets-id-messages-id", { recordingsDir }),
   created: () => getFixtureBody("post-tickets", { recordingsDir }),
   reply: () => getFixtureBody("post-tickets-id-replies", { recordingsDir }),
   editedReply: () =>
@@ -96,11 +100,45 @@ export const recorded = {
   renamed: () => getFixtureBody("put-tickets-id", { recordingsDir }),
   brandDepartments: () =>
     getFixtureBody("get-brand-tickets-departments", { recordingsDir }),
-  departments: () => getFixtureBody("get-tickets-departments", { recordingsDir }),
+  departments: () =>
+    getFixtureBody("get-tickets-departments", { recordingsDir }),
   statuses: () =>
     getFixtureBody("get-statuses-filter-object-type-ticket", { recordingsDir }),
   clientPrefsBefore: () => getFixtureBody("get-clients-id", { recordingsDir }),
-  clientPrefsAfter: () => getFixtureBody("put-clients-id", { recordingsDir })
+  clientPrefsAfter: () => getFixtureBody("put-clients-id", { recordingsDir }),
+  contractProductsLookup: () =>
+    getFixtureBody("get-contract-products-case-lookup", { recordingsDir }),
+  linkedProduct: () =>
+    getFixtureBody("put-tickets-id-case-link-product", { recordingsDir }),
+  oneLinked: () =>
+    getFixtureBody("get-tickets-id-case-linked", { recordingsDir }),
+  changedProduct: () =>
+    getFixtureBody("put-tickets-id-case-change-product", { recordingsDir }),
+  oneChanged: () =>
+    getFixtureBody("get-tickets-id-case-changed", { recordingsDir }),
+  unlinkedProduct: () =>
+    getFixtureBody("put-tickets-id-case-unlink-product", { recordingsDir }),
+  oneUnlinked: () =>
+    getFixtureBody("get-tickets-id-case-unlinked", { recordingsDir }),
+  productScopedList: () =>
+    getFixtureBody(
+      "get-tickets-case-product-scoped-filter-contract-product-id-with-staged-imports-1",
+      { recordingsDir }
+    ),
+  delegatedInList: () =>
+    getFixtureBody("get-tickets-case-delegated-in-with-staged-imports-1", {
+      recordingsDir
+    }),
+  delegatedInOne: () =>
+    getFixtureBody("get-tickets-id-case-delegated-in", { recordingsDir }),
+  uploadedFile: () =>
+    getFixtureBody("post-ticket-messages-files-case-upload", { recordingsDir }),
+  replyWithFile: () =>
+    getFixtureBody("post-tickets-id-replies-case-with-file", { recordingsDir }),
+  downloadedFile: () =>
+    getFixtureBody("get-ticket-messages-files-id-download", { recordingsDir }),
+  deletedAttachment: () =>
+    getFixtureBody("delete-tickets-id-messages-id-files-id", { recordingsDir })
 };
 
 /**
@@ -108,9 +146,8 @@ export const recorded = {
  * against (`tickets.fixtures.ts`'s throwaway ticket). Real values, read off
  * the fixture bodies — never invented.
  */
-export const RECORDED_TICKET_ID = (
-  recorded.one() as Envelope<{ id: string }>
-).data.id;
+export const RECORDED_TICKET_ID = (recorded.one() as Envelope<{ id: string }>)
+  .data.id;
 
 // -----------------------------------------------------------------------------
 
@@ -217,8 +254,7 @@ export const SCOPE_NAMESPACE = "tickets";
 /** Every live scope key this module currently holds in the registry. */
 export function ticketsScopeKeys(): string[] {
   return [...getRegistry().keys()].filter(
-    key =>
-      key.startsWith(`${SCOPE_NAMESPACE}:`) || key.includes(":tickets:")
+    key => key.startsWith(`${SCOPE_NAMESPACE}:`) || key.includes(":tickets:")
   );
 }
 

@@ -300,6 +300,85 @@ describe("tickets collection — raise a new ticket (AC-9)", () => {
   });
 });
 
+describe("tickets collection — tickets about one of my products (AC-7)", () => {
+  it("AC-7 narrowing by contract_product_id issues the real filter and returns only that product's tickets", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    handlers.setListBody(recorded.productScopedList());
+    const observed = observeTicketsRequests();
+
+    const tickets = useClientTickets().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+
+    const lookup = recorded.contractProductsLookup() as {
+      data: Array<{ id: string }>;
+    };
+    const targetId = lookup.data[0]!.id;
+    await tickets.useActions().setCriteria({
+      filters: { contract_product_id: targetId }
+    });
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+    observed.stop();
+
+    const request = observed
+      .all()
+      .find(r =>
+        decodeURIComponent(r.url).includes(
+          `filter[contract_product_id]=${targetId}`
+        )
+      );
+    expect(request).toBeDefined();
+
+    const fixture = recorded.productScopedList() as {
+      data: Array<{ id: string; contract_product_id: string }>;
+    };
+    expect(
+      fixture.data.every(row => row.contract_product_id === targetId)
+    ).toBe(true);
+    expect(tickets.useContext().data.value.map(row => row.id)).toEqual(
+      fixture.data.map(row => row.id)
+    );
+  });
+});
+
+describe("tickets collection — tickets delegated to me sit alongside my own (AC-10)", () => {
+  it("AC-10 the list is never narrowed to my own tickets — a co-mingled row carries is_delegated_object", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    handlers.setListBody(recorded.delegatedInList());
+    const observed = observeTicketsRequests();
+
+    const tickets = useClientTickets().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+    observed.stop();
+
+    expect(
+      observed
+        .all()
+        .some(request =>
+          decodeURIComponent(request.url).includes("filter[client_id]")
+        )
+    ).toBe(false);
+
+    const fixture = recorded.delegatedInList() as {
+      data: Array<{ id: string; is_delegated_object: boolean }>;
+    };
+    expect(fixture.data.some(row => row.is_delegated_object)).toBe(true);
+    const rows = tickets.useContext().data.value as unknown as Array<{
+      id: string;
+      is_delegated_object?: boolean;
+    }>;
+    expect(rows.map(row => row.id)).toEqual(fixture.data.map(row => row.id));
+    expect(rows.every(row => row.is_delegated_object === true)).toBe(true);
+  });
+});
+
 describe("tickets collection — desk + status lookups (AC-31/AC-32)", () => {
   it("AC-31 loadDepartmentOptions() and AC-32 loadTicketStatuses() read from the brand-public + statuses endpoints", async () => {
     await seedClientSession();

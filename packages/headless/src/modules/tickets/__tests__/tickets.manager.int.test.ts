@@ -25,12 +25,13 @@
  * torn-down manager keeps polling after the user has left the page.
  */
 
-import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
+import { describe, expect, it, vi } from "vitest";
+import { TicketStatusCodes } from "@upmind-automation/types";
 import { useClientTicket } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { TicketContextTypes } from "../tickets.types";
-import { TicketStatusCodes } from "@upmind-automation/types";
+import { server } from "./setup.integration";
 import {
   RECORDED_TICKET_ID,
   assertNoAdminPath,
@@ -39,7 +40,6 @@ import {
   recorded,
   seedClientSession
 } from "./tickets.int-helpers";
-import { server } from "./setup.integration";
 import "./setup.integration";
 
 // -----------------------------------------------------------------------------
@@ -572,6 +572,256 @@ describe("tickets manager — status-log entries merge into the feed (AC-22)", (
     // ticket-scoped log row taking its place in the ordered feed) without a
     // fixture re-recorded against a ticket that has produced a genuine
     // lifecycle hook log. Escalated, not fabricated — see hand-off.
+  });
+});
+
+describe("tickets manager — link, change and unlink the related product (AC-13)", () => {
+  it("AC-13 setRelatedProduct() issues a real PUT contract_product_id and the ticket carries the linked product", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    const observed = observeTicketsRequests();
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+
+    const lookup = recorded.contractProductsLookup() as {
+      data: Array<{ id: string }>;
+    };
+    const targetId = lookup.data[0]!.id;
+    handlers.setOneBody(recorded.oneLinked());
+    server?.use(
+      http.put("*/api/tickets/:id", () =>
+        HttpResponse.json(recorded.linkedProduct())
+      )
+    );
+    const linked = await ticket.useActions().setRelatedProduct(targetId);
+    observed.stop();
+
+    const linkedFixture = recorded.linkedProduct() as {
+      data: { contract_product_id: string };
+    };
+    expect(linked.contract_product_id).toBe(
+      linkedFixture.data.contract_product_id
+    );
+    const putRequest = observed
+      .all()
+      .find(
+        request =>
+          request.method === "PUT" && request.url.includes(RECORDED_TICKET_ID)
+      );
+    expect(putRequest).toBeDefined();
+
+    await vi.waitFor(() =>
+      expect(ticket.useContext().relatedProduct.value?.id).toBe(
+        linkedFixture.data.contract_product_id
+      )
+    );
+  });
+
+  it("AC-13 setRelatedProduct() called again CHANGES the product rather than adding a second", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    handlers.setOneBody(recorded.oneChanged());
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+
+    const lookup = recorded.contractProductsLookup() as {
+      data: Array<{ id: string }>;
+    };
+    const secondId = lookup.data[1]!.id;
+    server?.use(
+      http.put("*/api/tickets/:id", () =>
+        HttpResponse.json(recorded.changedProduct())
+      )
+    );
+    const changed = await ticket.useActions().setRelatedProduct(secondId);
+
+    const changedFixture = recorded.changedProduct() as {
+      data: { contract_product_id: string };
+    };
+    expect(changed.contract_product_id).toBe(
+      changedFixture.data.contract_product_id
+    );
+    await vi.waitFor(() =>
+      expect(ticket.useContext().relatedProduct.value?.id).toBe(
+        changedFixture.data.contract_product_id
+      )
+    );
+  });
+
+  it("AC-13 removeRelatedProduct() issues an explicit null and clears the product entirely", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    handlers.setOneBody(recorded.oneUnlinked());
+    const observed = observeTicketsRequests();
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+
+    server?.use(
+      http.put("*/api/tickets/:id", () =>
+        HttpResponse.json(recorded.unlinkedProduct())
+      )
+    );
+    const unlinked = await ticket.useActions().removeRelatedProduct();
+    observed.stop();
+
+    expect(unlinked.contract_product_id ?? null).toBeNull();
+    const putRequest = observed
+      .all()
+      .find(
+        request =>
+          request.method === "PUT" && request.url.includes(RECORDED_TICKET_ID)
+      );
+    expect(putRequest).toBeDefined();
+    await vi.waitFor(() =>
+      expect(ticket.useContext().relatedProduct.value ?? null).toBeNull()
+    );
+  });
+});
+
+describe("tickets manager — attachments: download and remove (AC-20/AC-21)", () => {
+  it("AC-20 downloadAttachment() returns the file's own bytes, unaltered", async () => {
+    await seedClientSession();
+    installTicketsHandlers();
+    const uploaded = recorded.uploadedFile() as {
+      data: Array<{ id: string }>;
+    };
+    const recordedDownload = recorded.downloadedFile() as {
+      byteLength?: number;
+    };
+    const realBytes = new TextEncoder().encode(
+      "FE-3226 fixture capture attachment.\n"
+    );
+    server?.use(
+      http.get("*/api/ticket_messages/files/:fileId/download", () =>
+        HttpResponse.arrayBuffer(realBytes.buffer as ArrayBuffer, {
+          headers: { "Content-Type": "text/plain; charset=UTF-8" }
+        })
+      )
+    );
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+
+    const downloadUrls: string[] = [];
+    const listener = ({ request }: { request: Request }): void => {
+      if (request.url.includes("/download")) downloadUrls.push(request.url);
+    };
+    server?.events.on("request:start", listener);
+    const bytes = await ticket
+      .useActions()
+      .downloadAttachment(uploaded.data[0]!.id);
+    server?.events.removeListener("request:start", listener);
+
+    expect(bytes.byteLength).toBe(
+      recordedDownload.byteLength ?? realBytes.byteLength
+    );
+    expect(new TextDecoder().decode(bytes)).toBe(
+      "FE-3226 fixture capture attachment.\n"
+    );
+    expect(downloadUrls.length).toBeGreaterThan(0);
+    expect(downloadUrls[0]).toContain(uploaded.data[0]!.id);
+  });
+
+  it("AC-21 deleteAttachment() issues the real DELETE against the message's file", async () => {
+    await seedClientSession();
+    installTicketsHandlers();
+    server?.use(
+      http.delete("*/api/tickets/:id/messages/:messageId/files/:fileId", () =>
+        HttpResponse.json(recorded.deletedAttachment())
+      )
+    );
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+
+    const reply = recorded.replyWithFile() as {
+      data: { id: string; files: Array<{ id: string }> };
+    };
+    const observed = observeTicketsRequests();
+    await ticket
+      .useActions()
+      .deleteAttachment(reply.data.id, reply.data.files[0]!.id);
+    observed.stop();
+
+    const deleteRequest = observed
+      .all()
+      .find(
+        request =>
+          request.method === "DELETE" && request.url.includes("/files/")
+      );
+    expect(deleteRequest).toBeDefined();
+    expect(deleteRequest!.url).toContain(reply.data.files[0]!.id);
+  });
+});
+
+describe("tickets manager — a reply carries a pre-uploaded attachment (AC-23)", () => {
+  it("AC-23 reply() sends the caller's attachment ref on the wire, in the real recorded shape (never {id,hash})", async () => {
+    await seedClientSession();
+    installTicketsHandlers();
+    let capturedBody: { files?: unknown } = {};
+    server?.use(
+      http.post("*/api/tickets/:id/replies", async ({ request }) => {
+        capturedBody = (await request.json()) as { files?: unknown };
+        return HttpResponse.json(recorded.replyWithFile());
+      })
+    );
+
+    const uploaded = recorded.uploadedFile() as {
+      data: Array<{
+        id: string;
+        type: string;
+        mime_type: string;
+        object_type: string;
+        object_class: string;
+        object_id: string | null;
+        name: string;
+      }>;
+    };
+    const ref = uploaded.data[0]!;
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+
+    const sent = await ticket
+      .useActions()
+      .reply("Recorded reply with an attachment for FE-3226.", {
+        files: [
+          {
+            id: ref.id,
+            type: ref.type,
+            mime_type: ref.mime_type,
+            object_type: ref.object_type,
+            object_class: ref.object_class,
+            object_id: ref.object_id,
+            name: ref.name
+          }
+        ]
+      });
+
+    expect(Array.isArray(capturedBody.files)).toBe(true);
+    expect((capturedBody.files as Array<{ id: string }>)[0]!.id).toBe(ref.id);
+    expect(capturedBody.files).not.toEqual([
+      { id: ref.id, hash: expect.anything() }
+    ]);
+    expect(sent?.files?.[0]?.id).toBe(
+      (recorded.replyWithFile() as { data: { files: Array<{ id: string }> } })
+        .data.files[0]!.id
+    );
   });
 });
 
