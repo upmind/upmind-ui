@@ -19,7 +19,7 @@ The module ships **two composables**:
 | **The definitions collection** | `useClientCustomFields`     | You need the brand's field definitions — to render a form, resolve a value's type/options, or coerce/diff a value set |
 | **The image editor**           | `useClientCustomFieldImage` | You are uploading, clearing, or previewing the stored image for one specific field                                    |
 
-> **🧪 For Testers:** With no id supplied, only `client` (and `self`) address a real client on either composable — a bare `.as(ScopeActorTypes.STAFF)` type-checks but is refused at runtime. Naming an id changes that: the collection's `.withId(id)` and the image editor's `.for(FIELD, id)` both compile for **any** actor, because neither is gated by which actor named it — see [gotchas.md](./gotchas.md) before assuming the id is always the caller's own.
+> **🧪 For Testers:** The only actor that resolves on either composable is `client`. There is nothing in this module for a staff member or a guest to act at all — but split the assertion the way the refusal splits: `.as(ScopeActorTypes.STAFF).for(...)` is a compile failure, so assert it at type level, while a bare `.as(ScopeActorTypes.STAFF)` compiles and must be asserted at runtime. That is narrower than "no other entity is ever reachable": both composables address whichever client (or, for the image editor, field) id they are given, on the caller's own session bearer — see [gotchas.md](./gotchas.md) before assuming the id is always the caller's own.
 
 ## Quick Start
 
@@ -28,6 +28,7 @@ import {
   useClientCustomFields,
   useClientCustomFieldImage,
   ScopeActorTypes,
+  ClientCustomFieldsContextTypes,
   ClientCustomFieldContextTypes
 } from "@upmind-automation/headless";
 
@@ -35,9 +36,10 @@ const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
 const file = new File([], "avatar.png", { type: "image/png" });
 
-// --- The collection: read the brand's definitions (names no context — the
-// owning client is marked with .withId(), not a .for() context)
-const fields = useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(clientId);
+// --- The collection: read the brand's definitions
+const fields = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 const { data } = fields.useContext();
 await fields.useActions().isReady();
 
@@ -81,22 +83,29 @@ The module uses the scoped composable pattern with `.as()`, and every method tak
 ```ts
 import {
   useClientCustomFields,
-  ScopeActorTypes
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes
 } from "@upmind-automation/headless";
 
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 
-// The everyday call — the same on both composables
-const fields = useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(clientId);
+// The only actor that resolves — the same on both composables
+const fields = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 
-// Staff and guest can still name an id: .withId() carries no per-actor gate
-// (unlike a .for() context) — this compiles too, resolved the same way.
-useClientCustomFields().as(ScopeActorTypes.STAFF).withId(clientId);
+// Staff and guest reach nothing here — the matrix pins both to `never`, so
+// neither branch's type carries a `.for()`. The `@ts-expect-error` is the
+// proof: remove the directive and this snippet stops compiling.
+useClientCustomFields()
+  .as(ScopeActorTypes.STAFF)
+  // @ts-expect-error — TS2339: no `.for()` on the staff branch's type
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 ```
 
-Naming a client's id here is addressing an **entity**, not adopting an **actor**: the caller's own credentials travel with the request regardless of which id was named, and this contract does not validate locally that the id matches the caller — nor, since `.withId()` is not actor-gated, that the actor naming it is `client`. There is no capability anywhere in this module for one client to act _as_ another — see [foundation.md](./foundation.md#core-concepts) for the full statement, and [gotchas.md](./gotchas.md#6-withid-carries-no-per-actor-gate--unlike-this-modules-former-forvalues-id-shape) for what `.withId()` does and does not gate.
+Naming a client's id here is addressing an **entity**, not adopting an **actor**: the caller's own credentials travel with the request regardless of which id was named, and this contract does not validate locally that the id matches the caller. There is no capability anywhere in this module for one client to act _as_ another — see [foundation.md](./foundation.md#core-concepts) for the full statement.
 
-> **🧪 For Testers:** `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, with no chaining available at all — every composable in this codebase returns the bare instance type for `self`, with no `.withId()`/`.for()`/`.fresh()`. Name a concrete actor when you need to chain further. See [gotchas.md](./gotchas.md).
+> **🧪 For Testers:** `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, with no chaining available — every matrix in this module maps `self` to a type with no `.for()`/`.fresh()`. Name `.as(ScopeActorTypes.CLIENT)` when you need to chain `.for()`. See [gotchas.md](./gotchas.md).
 
 ## Documentation
 

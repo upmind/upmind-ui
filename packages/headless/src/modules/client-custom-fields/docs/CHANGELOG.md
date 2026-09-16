@@ -28,15 +28,15 @@ All notable changes to the `client-custom-fields` module are documented here. Fo
 - **The definitions request now targets the target client's OWN brand**, resolved through the same identity seam every request in this module uses — never the calling session's own brand.
 - **Definitions are sorted client-side** by display order, regardless of what order the server returns them in.
 - **Client-side filtering matches the reference conversion's own pattern** — a partial-match predicate over the already-loaded list, issuing no new request.
-- **The collection's client id now travels through `.withId(clientId)`, not `.for(...)`.** `ClientCustomFieldsContextTypes`, `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX`, and `ClientCustomFieldsScopeMatrix` are removed from the module's public surface. The collection's scope matrix now maps every actor to `null as never` — it names no context at all. This follows the platform-wide rule that `.for(type)` carries the context and `.withId(id)` carries the id (an owner id never rides in `.for()`). The image editor's own `ClientCustomFieldContextTypes.FIELD` context is unaffected — it names a real entity (which field), not an owner, and keeps its `.for(FIELD, id)` shape. See [gotchas.md](./gotchas.md#6-withid-carries-no-per-actor-gate--unlike-this-modules-former-forvalues-id-shape).
-- **`useClientCustomFields`'s scope matrix is no longer registered at runtime.** It stays all-`never` only to keep `.for()` unspellable in the type system; it carries no other meaning, so it is not published as a runtime scope matrix.
+- **The collection's context member is renamed from `VALUES` to `CLIENT`**, matching every sibling client module. The former name described the RESOURCE being addressed (the value set) while the id it carried was the CLIENT's own — a mismatch a since-reversed change misread as `.for()` itself being wrong, briefly dropping the context entirely in favour of a bare `.withId()`. `ClientCustomFieldsContextTypes`, `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX`, and `ClientCustomFieldsScopeMatrix` are exported from the module barrel (and the package root) as before. The image editor's own `ClientCustomFieldContextTypes.FIELD` context is unaffected — it names a real entity (which field), not an owner, and keeps its `.for(FIELD, id)` shape. See [gotchas.md](./gotchas.md#6-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
+- **`useClientCustomFields`'s scope matrix is registered at runtime again** (`.scopeMatrix` is re-attached on the exported wrapper, read by `useModulePort.ts` before the composable is ever invoked) — the earlier all-`never` drop no longer applies.
 - **Documentation refreshed against the shipped surface.**
 
 ### Known limitations
 
 - **Upload progress is binary (`0`/`100`), not incremental.** Legacy reports real byte-level progress; this module cannot, because the transport it uploads through has no upload-progress hook, the shared upload capability's progress event is never dispatched anywhere in the tree, and the upload composable's own return value does not expose a progress field. See [gotchas.md](./gotchas.md#1-image-upload-progress-is-binary-0100-not-incremental). Recorded as out-of-scope for this module; a follow-up issue is pending filing once those barriers are addressed elsewhere.
 - **Two of the eight field-type string labels are confirmed against real recorded data; the rest are inferred from naming convention.** This module's own coercion is unaffected (it keys on the numeric discriminator); a shared, re-exported form-generation helper keys on the string label instead. See [gotchas.md](./gotchas.md#5-the-numeric-type-is-the-only-safe-discriminator--the-string-label-can-silently-fall-through).
-- **Staff and guest surfaces are not built.** Both composables' matrices pin `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error while the bare `.as(ScopeActorTypes.STAFF)` still type-checks and is refused at runtime — a designed boundary rather than an advertised-but-absent capability. Naming a client id via the collection's `.withId()` compiles for `staff`/`guest` too, since `.withId()` carries no per-actor gate — see [gotchas.md](./gotchas.md#6-withid-carries-no-per-actor-gate--unlike-this-modules-former-forvalues-id-shape). A staff-acting-for-a-client surface for reading/writing another client's definitions and images, and brand-level authoring of the definitions catalogue itself, are both out of scope for this module — recorded as out-of-scope, with follow-up issues pending filing.
+- **Staff and guest surfaces are not built.** Both composables' matrices pin `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error while the bare `.as(ScopeActorTypes.STAFF)` still type-checks and is refused at runtime — a designed boundary rather than an advertised-but-absent capability. A staff-acting-for-a-client surface for reading/writing another client's definitions and images, and brand-level authoring of the definitions catalogue itself, are both out of scope for this module — recorded as out-of-scope, with follow-up issues pending filing.
 
 ### Recorded fixtures
 
@@ -63,19 +63,24 @@ A large share of this module's value-semantics proofs (schema generation, displa
 
 ### Addressing the collection's owning client
 
-**Breaking change:** the client id travels through `.withId(id)`, not `.for(...)`. `ClientCustomFieldsContextTypes` and `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX` no longer exist.
+**Breaking change:** the context member is named `CLIENT`, not `VALUES`.
 
 ```ts
-import { useClientCustomFields, ScopeActorTypes } from "@upmind-automation/headless";
+import {
+  useClientCustomFields,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes
+} from "@upmind-automation/headless";
 
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 
 // Before
-// import { ClientCustomFieldsContextTypes } from "@upmind-automation/headless";
 // useClientCustomFields().as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.VALUES, clientId);
 
 // After
-const fields = useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(clientId);
+const fields = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 ```
 
 The image editor's own `.for(ClientCustomFieldContextTypes.FIELD, fieldId)` is unchanged — see "Uploading an image value" below.

@@ -14,22 +14,25 @@ import {
   useClientCustomFields,
   useClientCustomFieldImage,
   ScopeActorTypes,
+  ClientCustomFieldsContextTypes,
   ClientCustomFieldContextTypes
 } from "@upmind-automation/headless";
 
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
 
-// The collection — names no context; the owning client is marked with .withId()
-const fields = useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(clientId);
+// The collection — the calling client's own brand's definitions
+const fields = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 
-// The image editor — one field, by id (a real context: WHICH field, not an owner)
+// The image editor — one field, by id (its own, distinct context: WHICH field, not an owner)
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientCustomFieldContextTypes.FIELD, fieldId);
 ```
 
-> **🧪 For Testers:** With no id supplied, only `client` (and `self`, which resolves to the calling client) address a real client — a bare `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` type-checks on both composables but falls back to the active session's own id and is refused by this module's own addressability check at runtime. Naming an id changes that: the collection's `.withId(id)` and the image editor's `.for(ClientCustomFieldContextTypes.FIELD, id)` both compile for **any** actor — `staff`/`guest` included — because neither is gated by which actor named it, only by whether the id is present. `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but the result carries no further chaining on either composable — name a concrete actor to reach `.withId()`/`.for()`. `.as()` and the image editor's `.for()` take enum members only — a bare string is a type error, not a shortcut. See [gotchas.md](./gotchas.md#2-as-and-the-image-editors-for-take-enum-members-never-string-literals), [gotchas.md](./gotchas.md#3-asscopeactortypesself-compiles-and-works-but-the-result-carries-no-forwithidfresh), and [gotchas.md](./gotchas.md#6-withid-carries-no-per-actor-gate--unlike-this-modules-former-forvalues-id-shape) for what changed when the collection moved from `.for()` to `.withId()`.
+> **🧪 For Testers:** The only actor that resolves on either composable is `client`. There is nothing in this module for a staff member or a guest to act at all, but the refusal is not all compile-time: `.as(ScopeActorTypes.STAFF).for(...)` fails to compile, while a bare `.as(ScopeActorTypes.STAFF)` type-checks and is refused at runtime. `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but chaining `.for()` off it does not typecheck on either composable — name `.as(ScopeActorTypes.CLIENT)` to reach `.for()`. Both `.as()` and `.for()` take enum members only — a bare string is a type error, not a shortcut. See [gotchas.md](./gotchas.md#2-as-and-for-take-enum-members-never-string-literals) and [gotchas.md](./gotchas.md#3-asscopeactortypesself-compiles-and-works-but-the-result-carries-no-forfresh).
 
 Both composables return the same four sub-composables:
 
@@ -270,12 +273,13 @@ import {
   useClientCustomFields,
   useClientCustomFieldImage,
   ScopeActorTypes,
+  ClientCustomFieldsContextTypes,
   ClientCustomFieldContextTypes
 } from "@upmind-automation/headless";
 
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .withId("825d96e7-63ed-0913-46c4-174825283406");
+  .for(ClientCustomFieldsContextTypes.CLIENT, "825d96e7-63ed-0913-46c4-174825283406");
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(
@@ -298,6 +302,8 @@ const { hasError: imageHasError } = image.useMeta();
 import {
   useClientCustomFields,
   useClientCustomFieldImage,
+  CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX,
+  ClientCustomFieldsContextTypes,
   CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX,
   ClientCustomFieldContextTypes,
   useCustomFieldsSchema,
@@ -319,6 +325,7 @@ import {
   type UseClientCustomFieldImageContext,
   type UseClientCustomFieldImageMeta,
   type UseClientCustomFieldImageInternals,
+  type ClientCustomFieldsScopeMatrix,
   type ClientCustomFieldImageScopeMatrix,
   type CustomField,
   type CustomFieldModel,

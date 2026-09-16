@@ -7,7 +7,7 @@ The module ships **two** scoped composables over one shared services factory:
 - **`useClientCustomFields`** — the definitions collection. Query-backed, no state machine. One list query is minted per resolved `(actor, context)` scope, at construction, so it survives component lifecycles.
 - **`useClientCustomFieldImage`** — the per-field image editor. Wraps the platform's existing upload interpreter (`useUpload`, from `system-upload`) rather than owning a machine of its own — this module adds no machine file at all.
 
-Both are registered under the **same** module name (`"client-custom-fields"`); what keeps their registry entries apart in practice is that the collection marks its client with `.withId(clientId)` (an `id:<value>` scope-key segment) while the image editor names a `ClientCustomFieldContextTypes.FIELD` context via `.for(FIELD, id)` (a `field:<id>` segment) — not any name-level guarantee. This is latent, not structurally guaranteed: a bare `.as(actor)` call with **no** `.withId()` on the collection would produce the same key as a bare image-editor call for that actor, and the image editor is simply never called that way (it is meaningless without a field id). The collection used to name its own `VALUES` context the same way the image editor names `FIELD`; per ADR-001's 2026-09-15 amendment (`.for()` carries the context, `.withId()` carries the id), an owner id has no business riding in a context, so the collection's `VALUES` context was dropped and its client now travels through `.withId()` instead.
+Both are registered under the **same** module name (`"client-custom-fields"`); the composable's own context-type enum (`CLIENT` for the collection, `FIELD` for the image editor) is what keeps their registry entries apart in practice, not any name-level guarantee — a bare `.as(actor)` call with no `.for()` on either composable would produce the identical registry key, and the image editor is simply never called that way (it is meaningless without a field id). The collection's context member was briefly named `VALUES` — describing the RESOURCE (the value set) while the id it carried was the CLIENT's own — and was, for a short period, dropped entirely by a since-reversed change that misread that mismatch as `.for()` itself being the defect. ADR-001's 2026-09-15 amendment restores it under the corrected name: `ClientCustomFieldsContextTypes.CLIENT`, matching the image editor's own `ClientCustomFieldContextTypes.FIELD` in shape, not name.
 
 The single most important property of this module is that **every request resolves its target client from the scope**, never from a direct session read — one `resolveClientId` function, consumed by every request-issuing path in the services file.
 
@@ -17,7 +17,7 @@ The single most important property of this module is that **every request resolv
 
 ```mermaid
 flowchart TD
-  call["useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(clientId)"] --> resolve["resolveClientId derives the target client from the .withId() value, falling back to the session's own id"]
+  call["useClientCustomFields().as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.CLIENT, clientId)"] --> resolve["resolveClientId derives the target client from the scope context, falling back to the session's own id"]
   resolve --> brand["one-shot read of the target client's OWN brand id, under this module's own cache key"]
   brand --> mint["mint the definitions list query ONCE for this scope, gated on the client AND the brand having resolved"]
   mint --> ready["return the four sub-composable factories, all closed over the same query"]
@@ -69,7 +69,7 @@ One services file serves both composables, split into two factories that share t
 
 | Concern                             | Where it lives                                                                                                                                                                                   |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Target-client resolution            | one function, reading the `.withId()` value with a fallback to the active session's own id, consumed by every request-issuing path                                                               |
+| Target-client resolution            | one function, branching on the resolved scope context, consumed by every request-issuing path                                                                                                    |
 | Addressability predicate            | one function; its reactive form is what `isAvailable` exposes on both composables                                                                                                                |
 | The target client's own brand id    | resolved once per scope, under this module's own cache key — never the calling session's brand                                                                                                   |
 | Definitions read + client-side sort | one function, gated on the client **and** the brand having settled (success or failure) — not merely having succeeded, which is what previously left readiness unbounded on a brand-read failure |

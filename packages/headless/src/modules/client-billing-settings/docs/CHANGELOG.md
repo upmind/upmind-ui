@@ -19,11 +19,11 @@ All notable changes to the `client-billing-settings` module are documented here.
 
 ### Changed
 
-- **The owning client's id now travels through `.withId(clientId)`, not `.for(...)`.** `ClientBillingSettingsContextTypes` and `CLIENT_BILLING_SETTINGS_SCOPE_MATRIX` are removed from the module's public surface; they were never released. Both composables' shared scope matrix now maps every actor to `null as never` — it names no context at all. This follows the platform-wide rule that `.for(type)` carries the context and `.withId(id)` carries the id (an owner id never rides in `.for()`). See [gotchas.md](./gotchas.md#10-withid-carries-no-per-actor-gate--unlike-this-modules-former-forsettings-id-shape).
+- **The shared context member is named `CLIENT`**, matching every sibling client module. It briefly carried the resource-flavoured name `SETTINGS` (the id it carried was the CLIENT's own, not the settings record's), and was for a short period dropped entirely by a since-reversed change that misread that mismatch as `.for()` itself being wrong. `ClientBillingSettingsContextTypes` and `CLIENT_BILLING_SETTINGS_SCOPE_MATRIX` are exported from the module barrel (and the package root); they were not released under the `SETTINGS` name, so this rename ships with no migration burden. `client` is the only actor the matrix grants the context to; `self`, `staff` and `guest` remain `null as never`. See [gotchas.md](./gotchas.md#10-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
 
 ### Known limitations
 
-- **A staff-administration surface for reading or writing another client's preference is not built.** The scope matrix refuses `staff` and `guest` a `.for()` context at compile time; naming a client id via `.withId()` compiles for either actor too, since `.withId()` carries no per-actor gate — see [dropped-capabilities.md](./dropped-capabilities.md#the-refusal-and-where-it-is-enforced). A legacy administrative surface over this same preference exists and is recorded, capability by capability, with its own tracked issue — see [dropped-capabilities.md](./dropped-capabilities.md).
+- **A staff-administration surface for reading or writing another client's preference is not built.** The scope matrix refuses `staff` and `guest` a `.for()` context at compile time — see [dropped-capabilities.md](./dropped-capabilities.md#the-refusal-and-where-it-is-enforced). A legacy administrative surface over this same preference exists and is recorded, capability by capability, with its own tracked issue — see [dropped-capabilities.md](./dropped-capabilities.md).
 - **A wider client-billing-settings surface this module is named for is not built here.** Resolving what a `null` field displays as (the brand's own default), deciding which fields are visible for a given cadence-rule selection, and coordinating a combined save/revert across other billing panels on the same page are all a separate, not-yet-built capability. This module writes the preference and reports its own persisted values only.
 - **`clear()` still carries a debounce race that `revert()` was fixed against.** A pending, still-debounced form input can fire after `clear()` has already reset the model, silently repopulating the field `clear()` just emptied. This is a known, open, one-line gap — see [gotchas.md](./gotchas.md#5-clear-still-races-a-pending-debounced-input--revert-does-not).
 - **No playground page exists yet.** One is expected once the wider billing-settings surface this module forwards to lands.
@@ -54,23 +54,28 @@ Fifteen request/response pairs, captured live against a staging environment, bac
 
 ## Migration Guide
 
-This module is newly introduced — there is no prior shape to migrate from. The one exception: an in-flight consumer that imported `ClientBillingSettingsContextTypes` or `CLIENT_BILLING_SETTINGS_SCOPE_MATRIX` (both since removed, before this module ever shipped) hits a compile error — see "Addressing a named client's preference" below.
+This module is newly introduced — there is no prior shape to migrate from. The one exception: an in-flight consumer that imported the context member under its former name (`ClientBillingSettingsContextTypes.SETTINGS`, since renamed) hits a compile error — see "Addressing a named client's preference" below.
 
 ### Addressing a named client's preference
 
-**Breaking change (pre-release):** the client id travels through `.withId(id)`, not `.for(...)`. `ClientBillingSettingsContextTypes` and `CLIENT_BILLING_SETTINGS_SCOPE_MATRIX` no longer exist.
+**Breaking change (pre-release):** the context member is named `CLIENT`, not `SETTINGS`.
 
 ```ts
-import { useBillingSettings, ScopeActorTypes } from "@upmind-automation/headless";
+import {
+  useBillingSettings,
+  ScopeActorTypes,
+  ClientBillingSettingsContextTypes
+} from "@upmind-automation/headless";
 
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 
 // Before
-// import { ClientBillingSettingsContextTypes } from "@upmind-automation/headless";
 // useBillingSettings().as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.SETTINGS, clientId);
 
 // After
-const settings = useBillingSettings().as(ScopeActorTypes.CLIENT).withId(clientId);
+const settings = useBillingSettings()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientBillingSettingsContextTypes.CLIENT, clientId);
 ```
 
 ### Reading a client's own consolidation preference

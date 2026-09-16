@@ -13,7 +13,8 @@ Both act on the calling client's own preference. Every capability below carries 
 import {
   useBillingSettings,
   useBillingSettingsManager,
-  ScopeActorTypes
+  ScopeActorTypes,
+  ClientBillingSettingsContextTypes
 } from "@upmind-automation/headless";
 
 const someClientId = "825d96e7-63ed-0913-46c4-174825283406";
@@ -24,14 +25,14 @@ const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
 // The editor — callable bare; a client has exactly one preference
 const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 
-// Either composable can instead address a NAMED entity id — via .withId(),
-// never a .for() context (this module names none)
+// Either composable can instead retarget to a NAMED client via a matrix-gated
+// .for() context — only the `client` actor may spell it
 const otherSettings = useBillingSettings()
   .as(ScopeActorTypes.CLIENT)
-  .withId(someClientId);
+  .for(ClientBillingSettingsContextTypes.CLIENT, someClientId);
 ```
 
-> **🧪 For Testers:** With no id supplied, only `client` addresses a real client's preference on either composable — a bare `.as(ScopeActorTypes.STAFF)`/`.as(ScopeActorTypes.GUEST)` type-checks but falls back to the active session's own id and is refused by this module's own addressability check at runtime. Naming an id changes that: `.withId(id)` compiles and resolves for **any** actor — `staff`/`guest` included, since `.withId()` carries no per-actor matrix gate. See [gotchas.md](./gotchas.md#10-withid-carries-no-per-actor-gate--unlike-this-modules-former-forsettings-id-shape).
+> **🧪 For Testers:** Only `client` addresses a real client's preference on either composable — a bare `.as(ScopeActorTypes.STAFF)`/`.as(ScopeActorTypes.GUEST)` type-checks but falls back to the active session's own id and is refused by this module's own addressability check at runtime. `.for(ClientBillingSettingsContextTypes.CLIENT, id)` retargets to a named client and is spellable only for the `client` actor — the matrix pins `self`, `staff` and `guest` to `null as never`. See [gotchas.md](./gotchas.md#10-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
 
 Both composables return the same four sub-composables:
 
@@ -309,6 +310,9 @@ await manager.useActions().onDone();
 import {
   useBillingSettings,
   useBillingSettingsManager,
+  CLIENT_BILLING_SETTINGS_SCOPE_MATRIX,
+  ClientBillingSettingsContextTypes,
+  type ClientBillingSettingsScopeMatrix,
   type BillingSettingsContext,
   type BillingSettingsModel,
   type BillingSettingsRecord,

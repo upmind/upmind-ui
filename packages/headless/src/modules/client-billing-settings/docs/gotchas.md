@@ -109,28 +109,34 @@ const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 
 `pnpm lint` at the repo root aborts inside a shared types submodule before it ever reaches this module, and its `--fix` flag mutates that submodule as a side effect. `pnpm install` at the repo root is unsafe in a sparse worktree missing one or more app-level `package.json` files — it silently drops those apps' entries from the shared lockfile. Neither is a safe verification step for a change scoped to this module; use the module's own targeted test commands instead.
 
-## 10. `.withId()` carries no per-actor gate — unlike this module's former `.for(SETTINGS, id)` shape
+## 10. The trap was the context's NAME, not `.for()` itself — a resource-named member carrying the client's own id
 
-This module used to name a single-member context (`ClientBillingSettingsContextTypes.SETTINGS`) purely to carry the owning client's id through `.for(SETTINGS, id)` — spellable only for the `client` actor, since that context lived only on the matrix's `client` row; `staff` and `guest` got `.as(ScopeActorTypes.STAFF).for(...)`/`.as(ScopeActorTypes.GUEST).for(...)` as compile-time errors. Per ADR-001's 2026-09-15 amendment (`.for()` carries the context, `.withId()` carries the id), that context is gone: both composables' shared matrix now maps every actor to `null as never`, and the preference's owning client is named with `.withId(id)` instead.
+This module used to name its shared context `ClientBillingSettingsContextTypes.SETTINGS` — the context member named the RESOURCE being edited (the settings) while the id it actually carried was the CLIENT's own id. The type and the id it carried disagreed about which entity was named. A short-lived correction (since reversed) misdiagnosed that as `.for()` itself being wrong and dropped the context entirely in favour of a bare `.withId(id)` — which erased the compile-time gate: `resolveClientId` fell back to `id ?? activeUser.value?.id` with no actor check at all, so `staff`/`guest` could name any client id too.
 
-The trap: `.withId(id)` is a platform-wide seam offered to every actor at every builder position, with **no matrix gate at all** (ADR-001's 2026-08-19 amendment) — the matrix constrains `.for()` contexts, never record ids. So where `.as(ScopeActorTypes.STAFF).for(ClientBillingSettingsContextTypes.SETTINGS, id)` used to be a compile-time error, `.as(ScopeActorTypes.STAFF).withId(id)` **compiles**, on both composables in this module. And this module's own client-resolution seam (`resolveClientId`) reads whichever id `.withId()` supplies with no check against the calling actor — it resolves the named id for `staff` and `guest` exactly as it does for `client`.
+The actual fix (ADR-001 amendment 2026-09-15) is a rename, not a removal: the member is now `ClientBillingSettingsContextTypes.CLIENT = AccessRoleTypes.CLIENT`, matching every sibling client module. The matrix gate is real again — `.for(CLIENT, id)` is spellable **only** for the `client` actor; `self`, `staff` and `guest` are `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error exactly as it was before the context was ever dropped.
 
 ```ts
-import { useBillingSettings, ScopeActorTypes } from "@upmind-automation/headless";
+import {
+  useBillingSettings,
+  ScopeActorTypes,
+  ClientBillingSettingsContextTypes
+} from "@upmind-automation/headless";
 
 const otherClientId = "825d96e7-63ed-0913-46c4-174825283406";
 
-// Before this module dropped ClientBillingSettingsContextTypes:
-// only `client` could spell a retarget — `.as(STAFF).for(...)` was TS2345.
+// ✅ Right — only `client` may spell a retarget
+const asClient = useBillingSettings()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientBillingSettingsContextTypes.CLIENT, otherClientId);
 
-// Today: every actor can spell one, because .withId() isn't matrix-gated.
-const asStaff = useBillingSettings().as(ScopeActorTypes.STAFF).withId(otherClientId);
-const asClient = useBillingSettings().as(ScopeActorTypes.CLIENT).withId(otherClientId);
-// Both compile, and both resolve this module's own addressability check the
-// same way — nothing in this module's own code distinguishes them by actor.
+// ⚠️ Does not compile — the matrix pins `staff` to `null as never`
+useBillingSettings()
+  .as(ScopeActorTypes.STAFF)
+  // @ts-expect-error — staff resolves no context in this module's matrix
+  .for(ClientBillingSettingsContextTypes.CLIENT, otherClientId);
 ```
 
-> **🧪 For Testers:** No test in this module's own suite currently exercises `.as(ScopeActorTypes.STAFF).withId(id)` or `.as(ScopeActorTypes.GUEST).withId(id)` end-to-end. This module's own code compiles the call and forwards the named id with no local actor check — whether a real staff-issued request of this shape is honoured is a server-side authorization question this module neither settles nor advertises an answer to. See [dropped-capabilities.md](./dropped-capabilities.md) for the staff-administration surface that remains unbuilt regardless of this id-channel change.
+> **🧪 For Testers:** `.for(ClientBillingSettingsContextTypes.CLIENT, id)` is a compile-time refusal for `staff` and `guest`, not a runtime one — write a type-level check (an `@ts-expect-error`), not a runtime assertion. See [dropped-capabilities.md](./dropped-capabilities.md) for the staff-administration surface that remains unbuilt regardless of this context's name.
 
 ## Common Mistakes
 
@@ -138,11 +144,11 @@ const asClient = useBillingSettings().as(ScopeActorTypes.CLIENT).withId(otherCli
 
 A hand-rolled diff that filters out falsy-looking values before comparing against the base model will drop an explicit off (`0`) the same way it drops "never touched". The only correct diff test is an identity comparison (`!==`) against the base model, field by field — never a value-emptiness check applied afterward.
 
-### Assuming a client id resolved into `.withId(...)` is validated against the caller — or against the actor
+### Assuming a client id resolved into `.for(...)` is validated against the caller
 
-The id this module's `.withId(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).withId(someOtherId)` compiles and addresses that other id's preference, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. `.withId()` carries no per-actor gate at all (see gotcha 10 above) — `.as(ScopeActorTypes.STAFF).withId(someOtherId)` compiles too, resolved the same way regardless of actor.
+The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.CLIENT, someOtherId)` compiles and addresses that other id's preference, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** — the shared matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error.
 
-### Assuming the editor needs a `.withId()` argument
+### Assuming the editor needs a `.for()` argument
 
 It doesn't — `useBillingSettingsManager().as(ScopeActorTypes.CLIENT)` alone constructs and settles. A client has exactly one preference; there is nothing to select between.
 
