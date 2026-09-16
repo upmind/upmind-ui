@@ -37,8 +37,6 @@ import {
 } from "../../../testing/corpus-replay";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
-  installDefinitionsHandler,
-  recordedDefinitions,
   resetClientCustomFieldsScopes,
   seedClientSession
 } from "./client-custom-fields.int-helpers";

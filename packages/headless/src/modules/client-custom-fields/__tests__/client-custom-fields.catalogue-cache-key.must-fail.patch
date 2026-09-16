@@ -15,19 +15,25 @@
 # default consumer's key is unaffected (the segment was already omitted there),
 # so this control fires only on the collision it exists to catch.
 #
-# Expected RED: client-custom-fields.catalogue.int.test.ts — the assertion that
-# two catalogues resolved on the same client and brand hold SEPARATE rows (the
-# invoice scope is not served the client scope's collection), plus the
-# assertion that the client-default key still omits `objectType`.
+# This control covers ONE half of that AC — the per-catalogue half. The
+# default half (the segment stays OMITTED at the client default) is covered by
+# its own mutant, client-custom-fields.collection.must-fail.patch, which adds
+# the segment where this one removes it. Neither alone covers both halves.
 #
-# NOTE FOR THE PROVER: that spec does not exist on the branch this mutant ships
-# with. Author it from the AC first (plan `docs/plans/FE-3034.md`, Testing
-# Requirements: "the list key omits `object_type` at default and carries it per
-# catalogue (no collision)"), then apply this blind.
+# Expected RED: client-custom-fields.catalogue-cache-key.int.test.ts — the two
+# AC-35 collision assertions, that two catalogues resolved on the same client
+# and brand each keep their own rows and each is read exactly once (the
+# cancellation-request scope is not served the client scope's collection).
+#
+# Expected GREEN under this mutant, by design: the same file's repeat-read
+# cache-hit assertion, and every client-default assertion on the branch — this
+# mutation leaves the default key untouched, which is what makes it a targeted
+# control rather than a blunt one.
 #
 # Apply / verify / revert:
 #   git apply <this file>
-#   pnpm --filter @upmind-automation/headless test client-custom-fields.catalogue.int   # must go RED
+#   pnpm --filter @upmind-automation/headless exec vitest run --project integration \
+#     client-custom-fields.catalogue-cache-key   # must go RED
 #   git apply -R <this file>
 #
 diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts

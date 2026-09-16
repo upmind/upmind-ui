@@ -1,4 +1,9 @@
-# client-custom-fields.catalogue-default-url.must-fail.patch
+# client-custom-fields.criteria-defaults.must-fail.patch
+#
+# Named for the spec it primarily flips — client-custom-fields.criteria-
+# defaults.int.test.ts, the default consumer's wire contract (AC-32). Was
+# `client-custom-fields.catalogue-default-url.must-fail.patch`, which carried
+# no colocated sibling spec by basename.
 #
 # Targets: FE-3034 AC "Existing CLIENT-scoped consumers unchanged" — a scope
 # that names no catalogue still sends `filter[object_type]=client`. The plan's
@@ -16,14 +21,15 @@
 # exists to prevent: omitting the param rather than defaulting it.
 #
 # Expected RED, both already on the branch:
-#   - client-custom-fields.collection.int.test.ts — "AC-1 reads the exact
-#     brand-scoped catalogue URL and every recorded row lands"
 #   - client-custom-fields.criteria-defaults.int.test.ts — "AC-32 every request
 #     carries filter[object_type]=client and a non-empty brand_id"
+#   - client-custom-fields.collection.int.test.ts — "AC-1 reads the exact
+#     brand-scoped catalogue URL and every recorded row lands"
 #
 # Apply / verify / revert:
 #   git apply <this file>
-#   pnpm --filter @upmind-automation/headless test:integration   # must go RED
+#   pnpm --filter @upmind-automation/headless exec vitest run --project integration \
+#     client-custom-fields.criteria-defaults client-custom-fields.collection   # must go RED
 #   git apply -R <this file>
 #
 diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts

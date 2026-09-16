@@ -16,17 +16,14 @@
 # (`loadList` still calls it), so this mutant compiles and the failure is
 # behavioural, never a type error.
 #
-# Expected RED: client-custom-fields.catalogue.int.test.ts — the assertion that
-# invalidating one catalogue leaves a sibling catalogue's loaded collection
-# untouched.
-#
-# NOTE FOR THE PROVER: that spec does not exist on the branch this mutant ships
-# with. Author it from the AC first (plan `docs/plans/FE-3034.md`, Testing
-# Requirements: "verb isolation holds per catalogue"), then apply this blind.
+# Expected RED: client-custom-fields.catalogue-verb-isolation.int.test.ts — the
+# two AC-7 assertions that invalidating one catalogue re-reads it and leaves the
+# sibling catalogue's warm rows untouched.
 #
 # Apply / verify / revert:
 #   git apply <this file>
-#   pnpm --filter @upmind-automation/headless test client-custom-fields.catalogue.int   # must go RED
+#   pnpm --filter @upmind-automation/headless exec vitest run --project integration \
+#     client-custom-fields.catalogue-verb-isolation   # must go RED
 #   git apply -R <this file>
 #
 diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts

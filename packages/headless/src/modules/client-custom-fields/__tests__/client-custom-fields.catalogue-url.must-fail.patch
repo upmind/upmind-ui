@@ -15,21 +15,17 @@
 # purest form: the axis is declared, the picker offers it, and the loader
 # silently ignores it.
 #
-# Expected RED: client-custom-fields.catalogue.int.test.ts — the assertion that
-# `.for(ClientCustomFieldsContextTypes.INVOICE)` puts
-# `filter[object_type]=invoice` on the outbound request. The client-default
-# specs (collection AC-1, criteria-defaults AC-32) stay GREEN under this
-# mutant by design — the default wire is untouched, which is what makes this a
-# targeted control rather than a blunt one.
-#
-# NOTE FOR THE PROVER: that spec does not exist on the branch this mutant ships
-# with. Author it from the AC first (plan `docs/plans/FE-3034.md`, Testing
-# Requirements: "the URL param is ... the selector's value for `.for(INVOICE)`"),
-# then apply this blind.
+# Expected RED: client-custom-fields.catalogue-url.int.test.ts — the AC-32
+# assertions that `.for(INVOICE)` and `.for(CANCEL_REQUEST)` each put their own
+# `filter[object_type]` on the outbound request, never the client one. The
+# client-default specs (collection AC-1, criteria-defaults AC-32) stay GREEN
+# under this mutant by design — the default wire is untouched, which is what
+# makes this a targeted control rather than a blunt one.
 #
 # Apply / verify / revert:
 #   git apply <this file>
-#   pnpm --filter @upmind-automation/headless test client-custom-fields.catalogue.int   # must go RED
+#   pnpm --filter @upmind-automation/headless exec vitest run --project integration \
+#     client-custom-fields.catalogue-url   # must go RED
 #   git apply -R <this file>
 #
 diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
