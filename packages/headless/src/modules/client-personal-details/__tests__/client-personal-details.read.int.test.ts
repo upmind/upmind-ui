@@ -20,14 +20,11 @@
  * staging client, so a second real profile is not obtainable. The read-back
  * this AC needs is about the REQUEST this module issues (URL + identity
  * transport), not about a second account's real data, so a constructed
- * target id with its own installed handler proves exactly the property named
- * — the same technique the AC-2 negative-control-gap analysis in
- * `parity.yaml` identifies as unavailable at single-cell scope for MODULE A's
- * `custom_field_values` context, but which the `resolveClientId` seam in
- * THIS module's design (`design.md` §3.4) makes observable here because the
- * profile id is taken from the caller's `.withId(id)` argument, not
- * hardwired (ADR-001 amendment 2026-09-15: the owner id rides in `.withId()`,
- * never a `.for()` context).
+ * target id with its own installed handler proves exactly the property named.
+ * The `resolveClientId` seam makes it observable because the profile id is
+ * taken from the caller's `.for(ClientPersonalDetailsContextTypes.CLIENT, id)`
+ * scope context, not hardwired — the client-identity channel every sibling
+ * client module carries, gated to the CLIENT actor alone.
  *
  * ## What Breaks If These Fail
  * The FE-2824 shape: a read and a write that can silently address different
@@ -47,7 +44,8 @@ import { describe, expect, it } from "vitest";
 // precedent: import the helpers (which import `session-store`) before the
 // module under test. Sorting this block alphabetically regresses the whole
 // suite (module A's prover lost a cycle to exactly this).
-import { usePersonalDetails } from "..";
+import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { ClientPersonalDetailsContextTypes, usePersonalDetails } from "..";
 import { queryClient } from "../../query/client";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -58,7 +56,8 @@ import {
   seedAuthenticatedSessionWithoutClientId,
   seedClientSession
 } from "./client-personal-details.int-helpers";
-import { server } from "./setup.integration";
+import { recordingsDir, server } from "./setup.integration";
+import type { Envelope } from "./client-personal-details.int-helpers";
 import type { IClient } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -86,21 +85,19 @@ function bOwnRecordQueryDataUpdateCount(clientId: string): number {
   return entry?.state.dataUpdateCount ?? 0;
 }
 
-/** The recorded profile envelope, re-addressed to the constructed other id. */
-function otherClientEnvelope(): {
-  status: string;
-  data: IClient;
-  total: number;
-  error: null;
-  messages: unknown[];
-  meta: null;
-} {
-  const recordedProfile = recorded.profile();
-  return {
-    ...recordedProfile,
-    data: { ...recordedProfile.data, id: OTHER_CLIENT_ID }
-  };
-}
+/**
+ * The recorded profile envelope, re-addressed to the constructed other id — a
+ * plain fixture-derived value (never a function wrapper) so its ONE field
+ * override stays visibly sourced from `getFixtureBody`, not manufactured.
+ */
+const otherClientProfileFixture = getFixtureBody<Envelope<IClient>>(
+  "get-clients-id",
+  { recordingsDir }
+);
+const otherClientEnvelope: Envelope<IClient> = {
+  ...otherClientProfileFixture,
+  data: { ...otherClientProfileFixture.data, id: OTHER_CLIENT_ID }
+};
 
 // -----------------------------------------------------------------------------
 
@@ -153,19 +150,17 @@ describe("usePersonalDetails — the identity seam (AC-30 retarget)", () => {
     // recorded body.
     server?.use(
       http.get(`*/clients/${OTHER_CLIENT_ID}`, () =>
-        // eslint-disable-next-line scope-based/no-hand-rolled-int-fixture
-        HttpResponse.json(otherClientEnvelope(), { status: 200 })
+        HttpResponse.json(otherClientEnvelope, { status: 200 })
       ),
       http.put(`*/clients/${OTHER_CLIENT_ID}`, () =>
-        // eslint-disable-next-line scope-based/no-hand-rolled-int-fixture
-        HttpResponse.json(otherClientEnvelope(), { status: 200 })
+        HttpResponse.json(otherClientEnvelope, { status: 200 })
       )
     );
     const observed = observeClientRequests();
 
     const details = usePersonalDetails()
-      .as(ScopeActorTypes.SELF)
-      .withId(OTHER_CLIENT_ID);
+      .as(ScopeActorTypes.CLIENT)
+      .for(ClientPersonalDetailsContextTypes.CLIENT, OTHER_CLIENT_ID);
     await details.useActions().isReady();
     await details.useActions().refresh();
 

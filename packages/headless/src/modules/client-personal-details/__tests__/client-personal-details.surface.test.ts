@@ -1,7 +1,8 @@
 // -----------------------------------------------------------------------------
 /**
  * @fileoverview client-personal-details public surface — curated barrel,
- * type names, docstrings, and the ADR-028 i18n straggler (unit)
+ * restored scope matrix + context enum, type names, docstrings, and the
+ * ADR-028 i18n straggler (unit)
  *
  * ## Job To Be Done
  * Prove AC-55 (no name collision/shadowing — `UsePersonalDetails` /
@@ -12,18 +13,27 @@
  * `client-personal-details.utils.ts` stub is gone) and AC-44's grep-shaped
  * half (no `from "vue-i18n"` import remains under this module).
  *
- * `client-personal-details.utils.ts` and `actions.ts` were slated for
- * deletion by `tasks.md` T-B7 — this suite asserts their ABSENCE rather than
- * their content, so it holds whichever way the developer satisfied AC-57.
+ * The FE-3240 identity channel is the same one EVERY sibling client module
+ * carries (`client-company`, `client-phone`, `client-address`): the client is
+ * named by `.for(ClientPersonalDetailsContextTypes.CLIENT, id)`, gated by a
+ * scope matrix that grants that context to `ScopeActorTypes.CLIENT` alone.
+ * The enum, matrix const and matrix type are on the barrel again; the matrix
+ * gate is proven by an EXECUTABLE compile probe (`__tests__/**` is excluded
+ * from the package build, so a `@ts-expect-error` here would check nothing).
  *
- * This is also the amputation guard the `seam-bypass` and
- * `session-hardwired-id` negative controls need something to bite: a barrel
- * that offers both composables and both layers.
+ * ## Divergence from the contract, recorded not papered over
+ * The bare `.as(STAFF)` / `.as(GUEST)` / `.as(SELF)` builders are NOT
+ * themselves compile errors — `ScopeBuilderResult` accepts every
+ * `ScopeActorTypes` and reads the matrix row only to decide whether `.for()`
+ * exists, so a `null as never` row removes `.for(...)` and nothing else. What
+ * the `null as never` rows buy — and what {@link compileProbe} asserts below —
+ * is that `.for(CLIENT, id)` compiles for `.as(CLIENT)` and for no other actor.
  *
  * ## What Breaks If These Fail
  * A consumer collides two type names across modules (basket-fields), a
- * docstring describes a different module's capability to a future reader, or
- * an `@internal` file leaks past the barrel.
+ * docstring describes a different module's capability to a future reader, an
+ * `@internal` file leaks past the barrel, or the client-identity channel every
+ * sibling exposes is silently absent here (the FE-2824 amputation archetype).
  */
 
 import { execFileSync } from "node:child_process";
@@ -39,6 +49,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import "./mocks";
 import * as clientPersonalDetails from "..";
+import {
+  ClientPersonalDetailsContextTypes,
+  PERSONAL_DETAILS_SCOPE_MATRIX
+} from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import { last, sortBy, split, trim, uniq } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -47,19 +62,10 @@ const MODULE_DIR = join(import.meta.dirname, "..");
 
 /** Every value (non-type) export the barrel is curated to offer. */
 const EXPECTED_RUNTIME_EXPORTS = [
+  "ClientPersonalDetailsContextTypes",
+  "PERSONAL_DETAILS_SCOPE_MATRIX",
   "usePersonalDetails",
   "usePersonalDetailsManager"
-];
-
-/**
- * The FE-3240 removed value symbols — the scope matrix and its context enum.
- * The client whose profile is read/edited is marked with `.withId(clientId)`,
- * so this module names no context and re-exports neither (ADR-001 amendment
- * 2026-09-15).
- */
-const REMOVED_VALUE_SYMBOLS = [
-  "ClientPersonalDetailsContextTypes",
-  "PERSONAL_DETAILS_SCOPE_MATRIX"
 ];
 
 const barrelSource = (): string =>
@@ -121,29 +127,37 @@ describe("client-personal-details public surface", () => {
     );
   });
 
-  it("AC-57 the removed scope-matrix and context-enum value symbols are absent from the barrel", () => {
-    for (const symbol of REMOVED_VALUE_SYMBOLS) {
-      expect(
-        clientPersonalDetails,
-        `${symbol} must not be re-exported from the barrel (FE-3240)`
-      ).not.toHaveProperty(symbol);
-    }
+  it("AC-57 re-exports the scope matrix and its context enum from the barrel", () => {
+    expect(PERSONAL_DETAILS_SCOPE_MATRIX).toBeDefined();
+    expect(ClientPersonalDetailsContextTypes.CLIENT).toBe("client");
   });
 
-  it("AC-57 refuses to import the removed value/type symbols or spell `.for()`, while the `.withId()` control stays clean", () => {
+  it("AC-57 keeps the matrix's only live cell on CLIENT — self, staff and guest are null", () => {
+    expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
+      ClientPersonalDetailsContextTypes.CLIENT
+    );
+    expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.SELF]).toBeNull();
+    expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.STAFF]).toBeNull();
+    expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
+  });
+
+  it("AC-57 compiles `.for(CLIENT, id)` for both composables as the CLIENT actor, and for no other actor", () => {
     const diagnostics = compileProbe([
-      `import { usePersonalDetails } from ${JSON.stringify(MODULE_DIR)};`,
+      `import { usePersonalDetails, usePersonalDetailsManager, ClientPersonalDetailsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
       `import { ScopeActorTypes } from ${JSON.stringify(join(MODULE_DIR, "../scope/scope.types"))};`,
       `import { PERSONAL_DETAILS_SCOPE_MATRIX } from ${JSON.stringify(MODULE_DIR)};`,
-      `import { ClientPersonalDetailsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
       `import type { PersonalDetailsScopeMatrix } from ${JSON.stringify(MODULE_DIR)};`,
-      // 6 — the control: the owner id rides in `.withId()`, which must resolve.
-      `usePersonalDetails().as(ScopeActorTypes.SELF).withId("x");`,
-      // 7 — `.for()` is unspellable: the matrix is all-`never`, no context member.
-      `usePersonalDetails().as(ScopeActorTypes.CLIENT).for("profile", "x");`
+      // 5-6 — controls: `.for(CLIENT, id)` is the sanctioned channel on both
+      // composables, so a probe that merely fails to resolve cannot pass.
+      `usePersonalDetails().as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`,
+      `usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`,
+      // 7-9 — the gate: `.for()` is unspellable for every non-CLIENT actor.
+      `usePersonalDetails().as(ScopeActorTypes.STAFF).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`,
+      `usePersonalDetails().as(ScopeActorTypes.GUEST).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`,
+      `usePersonalDetails().as(ScopeActorTypes.SELF).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`
     ]);
 
-    expect(diagnostics).toEqual([3, 4, 5, 7]);
+    expect(diagnostics).toEqual([7, 8, 9]);
   }, 60000);
 
   it("AC-57 no longer ships the empty client-personal-details.utils.ts stub", () => {
@@ -190,10 +204,7 @@ describe("client-personal-details public surface", () => {
     // capability STATEMENT ("@description A client's own phone numbers…"),
     // not any appearance of the word anywhere in a docblock. Citations and
     // comparative rationale further down a docblock legitimately name a
-    // sibling module (e.g. `usePersonalDetailsManager.ts`'s own @decision
-    // citing client-email's "existing address" call site, and this file's
-    // own @graphify-citation naming `basket-fields.types.ts` as collision
-    // evidence, design.md §0) without describing THIS module's capability.
+    // sibling module without describing THIS module's capability.
     const forbidden = /\b(phone|address|basket)\b/i;
     for (const file of moduleSourceFiles()) {
       const content = readFileSync(join(MODULE_DIR, file), "utf-8");

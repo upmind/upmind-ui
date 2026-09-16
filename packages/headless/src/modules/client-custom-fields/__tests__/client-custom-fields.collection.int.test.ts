@@ -35,7 +35,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 // `session-store` ahead of the module under test for the same reason.
 // `import/order`'s parent-before-sibling default would undo this, so it is
 // disabled for the two lines it would otherwise reorder ahead.
-import { resolveFieldByValue, useClientCustomFields } from "..";
+import {
+  ClientCustomFieldsContextTypes,
+  resolveFieldByValue,
+  useClientCustomFields
+} from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertRetargetIdentityTransport,
@@ -138,14 +142,14 @@ describe("client-custom-fields collection — AC-1/AC-2 brand-scoped read", () =
 
   /**
    * The AC-2 retarget read-back (A7, verify-reality-check.companion.md).
-   * Every OTHER spec in this suite calls `.as(SELF)` with no id, for which
+   * Every OTHER spec in this suite calls `.as(SELF)` with no context, for which
    * `resolveClientId` takes the session arm — identical to what
    * `session-hardwired-id.must-fail.patch` hardwires. The collection's matrix
-   * is all-`never`, so `.for()` is unspellable; the ONE record to address is
-   * marked with `.withId(targetId)` (ADR-001 amendment 2026-09-15: the owner
-   * id rides in `.withId()`, never a `.for()` context), which genuinely
-   * retargets. This spec is what exercises that path instead of leaving it
-   * dormant.
+   * grants its CLIENT context to `ScopeActorTypes.CLIENT` alone, so the client
+   * to address is named by `.for(ClientCustomFieldsContextTypes.CLIENT, id)` —
+   * the same client-identity channel every sibling client module carries —
+   * which genuinely retargets. This spec is what exercises that path instead of
+   * leaving it dormant.
    *
    * Confirmed empirically (not asserted on the fixture's OWN response body,
    * per A7 — only the outbound wire): retargeting changes the OUTBOUND
@@ -156,7 +160,7 @@ describe("client-custom-fields collection — AC-1/AC-2 brand-scoped read", () =
    * read would be a perfectly good capture; the assertion is on the request
    * that went out, never a response payload.
    */
-  it("AC-2 retargeting another client's record via .withId() addresses that client's own resource, on the session's own token", async () => {
+  it("AC-2 retargeting another client's record via .for(CLIENT, id) addresses that client's own resource, on the session's own token", async () => {
     const { accessToken } = await seedClientSession();
     const { clientId: sessionClientId, brandId: realBrandId } = recordedIds();
     const targetId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
@@ -164,8 +168,8 @@ describe("client-custom-fields collection — AC-1/AC-2 brand-scoped read", () =
     const observed = observeRequests("/clients/");
 
     const fields = useClientCustomFields()
-      .as(ScopeActorTypes.SELF)
-      .withId(targetId);
+      .as(ScopeActorTypes.CLIENT)
+      .for(ClientCustomFieldsContextTypes.CLIENT, targetId);
     await fields.useActions().isReady();
     observed.stop();
 

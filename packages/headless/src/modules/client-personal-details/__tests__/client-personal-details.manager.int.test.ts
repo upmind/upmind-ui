@@ -38,7 +38,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 // mid-evaluation at `client-email/useClientEmails.ts:80`. Sorting this
 // block alphabetically regresses the whole suite (module A's prover lost a
 // cycle to exactly this).
-import { usePersonalDetails, usePersonalDetailsManager } from "..";
+import {
+  ClientPersonalDetailsContextTypes,
+  usePersonalDetails,
+  usePersonalDetailsManager
+} from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installCustomFieldDefinitionsHandler,
@@ -226,8 +230,8 @@ describe("usePersonalDetailsManager — invalidation is scoped to this module's 
     );
 
     const unrelated = usePersonalDetails()
-      .as(ScopeActorTypes.SELF)
-      .withId(UNRELATED_ID);
+      .as(ScopeActorTypes.CLIENT)
+      .for(ClientPersonalDetailsContextTypes.CLIENT, UNRELATED_ID);
     await unrelated.useActions().isReady();
     const details = usePersonalDetails().as(ScopeActorTypes.SELF);
     await details.useActions().isReady();

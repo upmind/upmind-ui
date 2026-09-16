@@ -34,7 +34,7 @@ import { describe, expect, it } from "vitest";
 // Import the helpers (which import `session-store`) before the module under
 // test; sorting this block alphabetically regresses the whole suite.
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
-import { useBillingSettings } from "..";
+import { ClientBillingSettingsContextTypes, useBillingSettings } from "..";
 import { usePersonalDetails } from "../../client-personal-details";
 import { resetClientPersonalDetailsScopes } from "../../client-personal-details/__tests__/client-personal-details.int-helpers";
 import { queryClient } from "../../query/client";
@@ -131,7 +131,7 @@ describe("useBillingSettings — re-seeding on a changed client (AC-2)", () => {
 
     const retargeted = useBillingSettings()
       .as(ScopeActorTypes.CLIENT)
-      .withId(OTHER_CLIENT_ID);
+      .for(ClientBillingSettingsContextTypes.CLIENT, OTHER_CLIENT_ID);
     await retargeted.useActions().isReady();
 
     observed.stop();
@@ -280,14 +280,14 @@ describe("useBillingSettings — the query key is the resolved id, not the scope
     );
 
     // The same resolved client id, reached two ways: the session's own arm,
-    // and an explicit `.withId(clientId)`. Their SCOPE keys differ (one carries
-    // an id segment, one does not), so they are distinct registry instances —
-    // but the query key is built from the RESOLVED id, so both mint the
-    // identical `["client", clientId, "record"]` and share one fetch.
+    // and an explicit `.for(CLIENT, clientId)` context. Their SCOPE keys differ
+    // (one carries a context+id segment, one does not), so they are distinct
+    // registry instances — but the query key is built from the RESOLVED id, so
+    // both mint the identical `["client", clientId, "record"]` and share one fetch.
     const sessionOwn = useBillingSettings().as(ScopeActorTypes.CLIENT);
     const explicitId = useBillingSettings()
       .as(ScopeActorTypes.CLIENT)
-      .withId(clientId);
+      .for(ClientBillingSettingsContextTypes.CLIENT, clientId);
     await Promise.all([
       sessionOwn.useActions().isReady(),
       explicitId.useActions().isReady()

@@ -1,26 +1,33 @@
 // -----------------------------------------------------------------------------
 /**
  * @fileoverview client-billing-settings public surface — the curated barrel and
- * the FE-3240 identity-seam conversion (unit)
+ * the FE-3240 client-identity channel (unit)
  *
  * ## Job To Be Done
- * Pin the barrel's RUNTIME export set exactly — both composables and nothing
- * else — and prove the FE-3240 contract at the type level: the scope matrix and
- * its context enum are removed from the surface, `.for()` is unspellable on
- * both composables (the client whose settings are read/edited rides in
- * `.withId(clientId)`, not a `.for()` context — ADR-001 amendment 2026-09-15),
- * and the `.withId()` control stays clean.
+ * Pin the barrel's RUNTIME export set exactly — both composables, the scope
+ * matrix and its context enum, and nothing else — and prove the FE-3240
+ * contract at the type level: the client whose settings are read/edited is
+ * named by `.for(ClientBillingSettingsContextTypes.CLIENT, id)`, the same
+ * identity channel every sibling client module carries; the matrix grants that
+ * context to `ScopeActorTypes.CLIENT` alone, so `.for()` is spellable as the
+ * CLIENT actor and unspellable for staff, guest and self.
  *
  * The type-level half runs through {@link compileProbe} — the same executable
  * compiler probe `client-address.surface.test.ts` and `scope.surface.test.ts`
  * use, because `packages/headless/tsconfig.json` excludes `**\/__tests__/**`,
  * so a `@ts-expect-error` written here would be checked by nothing.
  *
+ * ## Divergence from the contract, recorded not papered over
+ * The bare `.as(STAFF)` / `.as(GUEST)` / `.as(SELF)` builders are NOT
+ * themselves compile errors — `ScopeBuilderResult` accepts every
+ * `ScopeActorTypes` and reads the matrix row only to decide whether `.for()`
+ * exists. A `null as never` row removes `.for(...)` and nothing else, so the
+ * probe asserts `.for(CLIENT, id)` for `.as(CLIENT)` and for no other actor.
+ *
  * ## What Breaks If These Fail
- * The FE-2824 shape one altitude up: a removed context channel silently
- * returns, so an owner id can ride in through `.for()` again — the private
- * keying axis ADR-001's amendment exists to forbid — or the barrel re-exposes
- * a symbol the conversion retired.
+ * The FE-2824 shape one altitude up: the client-identity channel every sibling
+ * exposes is silently absent here, or the barrel drops a symbol the conversion
+ * curates.
  */
 
 import { execFileSync } from "node:child_process";
@@ -29,6 +36,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as clientBillingSettings from "..";
+import {
+  CLIENT_BILLING_SETTINGS_SCOPE_MATRIX,
+  ClientBillingSettingsContextTypes
+} from "..";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import { last, sortBy, split, trim, uniq } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -37,18 +49,10 @@ const MODULE_DIR = join(import.meta.dirname, "..");
 
 /** Every value (non-type) export the barrel is curated to offer. */
 const EXPECTED_RUNTIME_EXPORTS = [
+  "CLIENT_BILLING_SETTINGS_SCOPE_MATRIX",
+  "ClientBillingSettingsContextTypes",
   "useBillingSettings",
   "useBillingSettingsManager"
-];
-
-/**
- * The FE-3240 removed value symbols — the scope matrix and its context enum.
- * A client's own settings are the ONE record they have, marked with
- * `.withId(clientId)`, so this module names no context and re-exports neither.
- */
-const REMOVED_VALUE_SYMBOLS = [
-  "CLIENT_BILLING_SETTINGS_SCOPE_MATRIX",
-  "ClientBillingSettingsContextTypes"
 ];
 
 const barrelSource = (): string =>
@@ -104,30 +108,42 @@ describe("client-billing-settings public surface", () => {
     expect(barrelSource()).not.toMatch(/^\s*export\s+\*/m);
   });
 
-  it("AC-1 the removed scope-matrix and context-enum value symbols are absent from the barrel", () => {
-    for (const symbol of REMOVED_VALUE_SYMBOLS) {
-      expect(
-        clientBillingSettings,
-        `${symbol} must not be re-exported from the barrel (FE-3240)`
-      ).not.toHaveProperty(symbol);
-    }
+  it("AC-1 re-exports the scope matrix and its context enum from the barrel", () => {
+    expect(CLIENT_BILLING_SETTINGS_SCOPE_MATRIX).toBeDefined();
+    expect(ClientBillingSettingsContextTypes.CLIENT).toBe("client");
   });
 
-  it("AC-1 refuses to import the removed value/type symbols or spell `.for()` on either composable, while the `.withId()` control stays clean", () => {
+  it("AC-1 keeps the matrix's only live cell on CLIENT — self, staff and guest are null", () => {
+    expect(CLIENT_BILLING_SETTINGS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
+      ClientBillingSettingsContextTypes.CLIENT
+    );
+    expect(
+      CLIENT_BILLING_SETTINGS_SCOPE_MATRIX[ScopeActorTypes.SELF]
+    ).toBeNull();
+    expect(
+      CLIENT_BILLING_SETTINGS_SCOPE_MATRIX[ScopeActorTypes.STAFF]
+    ).toBeNull();
+    expect(
+      CLIENT_BILLING_SETTINGS_SCOPE_MATRIX[ScopeActorTypes.GUEST]
+    ).toBeNull();
+  });
+
+  it("AC-1 compiles `.for(CLIENT, id)` for both composables as the CLIENT actor, and for no other actor", () => {
     const diagnostics = compileProbe([
-      `import { useBillingSettings, useBillingSettingsManager } from ${JSON.stringify(MODULE_DIR)};`,
+      `import { useBillingSettings, useBillingSettingsManager, ClientBillingSettingsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
       `import { ScopeActorTypes } from ${JSON.stringify(join(MODULE_DIR, "../scope/scope.types"))};`,
       `import { CLIENT_BILLING_SETTINGS_SCOPE_MATRIX } from ${JSON.stringify(MODULE_DIR)};`,
-      `import { ClientBillingSettingsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
       `import type { ClientBillingSettingsScopeMatrix } from ${JSON.stringify(MODULE_DIR)};`,
-      // 6-7 — controls: the client id rides in `.withId()` on both composables.
-      `useBillingSettings().as(ScopeActorTypes.CLIENT).withId("x");`,
-      `useBillingSettingsManager().as(ScopeActorTypes.CLIENT).withId("x");`,
-      // 8-9 — `.for()` is unspellable on both: the matrix is all-`never`.
-      `useBillingSettings().as(ScopeActorTypes.CLIENT).for("settings", "x");`,
-      `useBillingSettingsManager().as(ScopeActorTypes.CLIENT).for("settings", "x");`
+      // 5-6 — controls: `.for(CLIENT, id)` is the sanctioned channel on both
+      // composables, so a probe that merely fails to resolve cannot pass.
+      `useBillingSettings().as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.CLIENT, "x");`,
+      `useBillingSettingsManager().as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.CLIENT, "x");`,
+      // 7-9 — the gate: `.for()` is unspellable for every non-CLIENT actor.
+      `useBillingSettings().as(ScopeActorTypes.STAFF).for(ClientBillingSettingsContextTypes.CLIENT, "x");`,
+      `useBillingSettings().as(ScopeActorTypes.GUEST).for(ClientBillingSettingsContextTypes.CLIENT, "x");`,
+      `useBillingSettings().as(ScopeActorTypes.SELF).for(ClientBillingSettingsContextTypes.CLIENT, "x");`
     ]);
 
-    expect(diagnostics).toEqual([3, 4, 5, 8, 9]);
+    expect(diagnostics).toEqual([7, 8, 9]);
   }, 60000);
 });
