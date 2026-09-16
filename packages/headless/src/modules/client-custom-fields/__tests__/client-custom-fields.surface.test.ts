@@ -44,7 +44,7 @@ import {
   useClientCustomFieldImage,
   useClientCustomFields
 } from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
+import { ScopeActorTypes, ScopeContextPatterns } from "../../scope/scope.types";
 import { last, sortBy, split, trim, uniq } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -137,10 +137,18 @@ describe("client-custom-fields public surface (AC-27)", () => {
     expect(ClientCustomFieldContextTypes.FIELD).toBe("field");
   });
 
-  it("AC-27 keeps the collection matrix's only live cell on CLIENT → CLIENT — self, staff and guest are null", () => {
-    expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
-      ClientCustomFieldsContextTypes.CLIENT
-    );
+  it("AC-27 keeps the collection matrix's only live cell on CLIENT — the CLIENT retarget plus the INVOICE and CANCEL_REQUEST selectors; self, staff and guest are null", () => {
+    expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toEqual([
+      ClientCustomFieldsContextTypes.CLIENT,
+      {
+        pattern: ScopeContextPatterns.SELECTOR,
+        type: ClientCustomFieldsContextTypes.INVOICE
+      },
+      {
+        pattern: ScopeContextPatterns.SELECTOR,
+        type: ClientCustomFieldsContextTypes.CANCEL_REQUEST
+      }
+    ]);
     expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.SELF]).toBeNull();
     expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.STAFF]).toBeNull();
     expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
