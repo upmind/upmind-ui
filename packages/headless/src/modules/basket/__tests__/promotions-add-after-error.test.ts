@@ -16,7 +16,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
-import machine from "../../basket-promotions/promotions.machine";
+import { promotionsMachine as machine } from "../../basket-promotions";
 import { isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------

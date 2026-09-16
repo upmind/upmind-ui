@@ -24,7 +24,9 @@ import {
   useUischema as razorpayUischema
 } from "../razorpay/schemas";
 import type { GatewayContext } from "../payment-gateways.types";
-import type { JsonSchema, Layout, UISchemaElement } from "@jsonforms/core";
+// `JsonSchema` leaves this import with the two commented-out helpers below;
+// add it back when they return.
+import type { Layout, UISchemaElement } from "@jsonforms/core";
 
 function ctx(
   client: unknown,
@@ -41,13 +43,15 @@ function ctx(
   } as unknown as GatewayContext;
 }
 
-const pma = (schema: JsonSchema) =>
-  schema?.properties?.payment_method_addition as JsonSchema | undefined;
-
-const fieldKeys = (schema: JsonSchema): string[] | null => {
-  const addition = pma(schema);
-  return addition?.properties ? Object.keys(addition.properties).sort() : null;
-};
+// Helpers with no caller yet. Kept for the field-keys assertion that will use
+// them.
+// const pma = (schema: JsonSchema) =>
+//   schema?.properties?.payment_method_addition as JsonSchema | undefined;
+//
+// const fieldKeys = (schema: JsonSchema): string[] | null => {
+//   const addition = pma(schema);
+//   return addition?.properties ? Object.keys(addition.properties).sort() : null;
+// };
 
 const scopes = (uischema: Layout): string[] =>
   (uischema?.elements

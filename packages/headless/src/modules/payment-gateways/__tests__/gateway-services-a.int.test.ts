@@ -36,10 +36,12 @@ const BEGIN_STRIPE =
   "post-gateway-frontend-tokenize-begin-id-case-begin-stripe";
 const BEGIN_BRAINTREE =
   "post-gateway-frontend-tokenize-begin-id-case-begin-braintree";
-const END_REFUSED_STRIPE =
-  "post-gateway-frontend-tokenize-end-id-case-end-refused-stripe";
-const END_REFUSED_BRAINTREE =
-  "post-gateway-frontend-tokenize-end-id-case-end-refused-braintree";
+// Recorded fixtures, no test replays them yet. Kept as pointers to the
+// recordings for the refused-end test that will.
+// const END_REFUSED_STRIPE =
+//   "post-gateway-frontend-tokenize-end-id-case-end-refused-stripe";
+// const END_REFUSED_BRAINTREE =
+//   "post-gateway-frontend-tokenize-end-id-case-end-refused-braintree";
 const GATEWAYS_STRIPE =
   "get-brands-id-gateways-active-1-case-list-stripe-client-id-country-id";
 const GATEWAYS_BRAINTREE =

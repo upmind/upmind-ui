@@ -24,10 +24,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
-import mercadoPagoServices from "../mercadoPago/services";
-import openPayServices from "../openPay/services";
-import razorpayServices from "../razorpay/services";
+/* eslint-disable import/order -- load order, not style. The payment-gateways
+   module graph has an import-time cycle: entering it through
+   mercadoPago/services evaluates braintree/services before
+   payment-gateways.services has finished, and `sharedServices.parse` reads
+   undefined at module load (TypeError, whole file fails to collect).
+   razorpay/services first is the entry order that resolves. The alphabetical
+   order the fixer wrote broke this file on 2026-09-16. The cycle itself is a
+   src defect to fix in its own story. */
 import { server } from "./setup.integration";
+import razorpayServices from "../razorpay/services";
+import openPayServices from "../openPay/services";
+import mercadoPagoServices from "../mercadoPago/services";
+/* eslint-enable import/order */
 import type { MercadoPagoContext } from "../mercadoPago/types";
 import type { OpenPayContext, OpenPay } from "../openPay/types";
 import type { RazorpayContext, RazorpayInstance } from "../razorpay/types";
@@ -52,10 +61,12 @@ const BEGIN_MERCADOPAGO =
 
 const END_REFUSED_RAZORPAY =
   "post-gateway-frontend-tokenize-end-id-case-end-refused-razorpay";
-const END_REFUSED_OPENPAY =
-  "post-gateway-frontend-tokenize-end-id-case-end-refused-openpay";
-const END_REFUSED_MERCADOPAGO =
-  "post-gateway-frontend-tokenize-end-id-case-end-refused-mercadopago";
+// Recorded fixtures, no test replays them yet. Kept as pointers to the
+// recordings for the refused-end tests that will.
+// const END_REFUSED_OPENPAY =
+//   "post-gateway-frontend-tokenize-end-id-case-end-refused-openpay";
+// const END_REFUSED_MERCADOPAGO =
+//   "post-gateway-frontend-tokenize-end-id-case-end-refused-mercadopago";
 
 const GATEWAYS_RAZORPAY =
   "get-brands-id-gateways-active-1-case-list-razorpay-client-id-country-id";
@@ -65,8 +76,10 @@ const GATEWAYS_MERCADOPAGO =
   "get-brands-id-gateways-active-1-case-list-mercadopago-client-id-country-id";
 
 const DETAILS_RAZORPAY = "get-gateway-frontend-id-case-details-razorpay";
-const DETAILS_OPENPAY = "get-gateway-frontend-id-case-details-openpay";
-const DETAILS_MERCADOPAGO = "get-gateway-frontend-id-case-details-mercadopago";
+// Recorded fixtures, no test replays them yet. Kept as pointers to the
+// recordings for the details tests that will.
+// const DETAILS_OPENPAY = "get-gateway-frontend-id-case-details-openpay";
+// const DETAILS_MERCADOPAGO = "get-gateway-frontend-id-case-details-mercadopago";
 
 function recordedGatewayId(key: string): string {
   const fixture = getFixture(key, { recordingsDir });
@@ -97,19 +110,21 @@ function recordedClientId(key: string): string {
   return id;
 }
 
-function recordedPaymentDetailsId(key: string): string {
-  const body = getFixtureBody<{
-    data?: { client_payment_details?: { id?: string } };
-  }>(key, { recordingsDir });
-  const id = body?.data?.client_payment_details?.id;
-  if (!id) {
-    throw new Error(
-      `The recorded fixture ${key} carries no client_payment_details.id. ` +
-        "Re-run `pnpm fixtures:generate payment-gateways`."
-    );
-  }
-  return id;
-}
+// Recorded-fixture helper, no test calls it yet. Kept beside its siblings for
+// the payment-details test that will.
+// function recordedPaymentDetailsId(key: string): string {
+//   const body = getFixtureBody<{
+//     data?: { client_payment_details?: { id?: string } };
+//   }>(key, { recordingsDir });
+//   const id = body?.data?.client_payment_details?.id;
+//   if (!id) {
+//     throw new Error(
+//       `The recorded fixture ${key} carries no client_payment_details.id. ` +
+//         "Re-run `pnpm fixtures:generate payment-gateways`."
+//     );
+//   }
+//   return id;
+// }
 
 const razorpayGatewayId = recordedGatewayId(BEGIN_RAZORPAY);
 const openpayGatewayId = recordedGatewayId(BEGIN_OPENPAY);

@@ -22,14 +22,10 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-
 // -----------------------------------------------------------------------------
-
 import { hasProductChanges, preserveProvisionFields } from "../basket.utils";
-
 // --- utils
 import { cloneDeep } from "lodash-es";
-
 // --- types
 import type { IBasket } from "@upmind-automation/types";
 
