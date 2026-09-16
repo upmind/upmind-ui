@@ -7,11 +7,11 @@
 // route. This app provides no shell components, so the organism renders its
 // bare template inside the logged-out layout's card.
 import { UpmSessionLogin } from "@upmind-automation/auth";
-import { AUTH_ROUTES } from "~/portal/auth-routes";
+import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 
 definePageMeta({ layout: "logged-out" });
 </script>
 
 <template>
-  <UpmSessionLogin v-bind="AUTH_ROUTES" />
+  <UpmSessionLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
 </template>

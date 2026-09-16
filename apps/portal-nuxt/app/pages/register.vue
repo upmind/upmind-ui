@@ -9,7 +9,7 @@
 // a page that exists elsewhere.
 import { toast } from "@upmind/ui";
 import { UpmSessionRegister } from "@upmind-automation/auth";
-import { AUTH_ROUTES } from "~/portal/auth-routes";
+import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 import { useMockBrandGates } from "~/portal/mock/gates";
 
 definePageMeta({ layout: "logged-out" });
@@ -25,5 +25,5 @@ if (!isRegistrationEnabled.value) {
 </script>
 
 <template>
-  <UpmSessionRegister v-bind="AUTH_ROUTES" />
+  <UpmSessionRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
 </template>
