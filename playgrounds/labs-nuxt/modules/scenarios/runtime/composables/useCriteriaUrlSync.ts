@@ -21,6 +21,7 @@ import { watch } from "vue";
 import { usePlaygroundUrlState } from "../../../../app/composables/usePlaygroundUrlState";
 import {
   PAGINATION_PARAMS,
+  QUERY_PARAM,
   SORT_PARAM,
   criteriaToParams,
   declaredPairs,
@@ -67,6 +68,7 @@ export function useCriteriaUrlSync(
     ...map(declaredPairs(criteria.schema), ([column, operator]) =>
       filterParam(column, operator)
     ),
+    ...(has(criteria.schema, ["properties", QUERY_PARAM]) ? [QUERY_PARAM] : []),
     SORT_PARAM,
     ...PAGINATION_PARAMS
   ];
