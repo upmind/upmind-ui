@@ -1919,43 +1919,90 @@ describe("openPay/services — onSuccess/onError callback paths", () => {
   });
 });
 
-describe("razorpay/services — onSuccess/onError callback paths", () => {
-  beforeEach(async () => {
-    outbound = [];
-    clearSessionCookies();
-    const { queryClient } = await import("../../query");
-    queryClient.clear();
-    await seedClientSession();
-    replay("get", "*/api/brands/:brandId/gateways", GATEWAYS_RAZORPAY);
-    replay("get", "*/api/gateway/frontend/*", DETAILS_RAZORPAY);
-    replay("post", "*/api/gateway/frontend/tokenize-begin/*", BEGIN_RAZORPAY);
-  });
-
-  afterEach(() => {
-    cleanupSdkGlobals();
-    server.resetHandlers();
-  });
-
-  it("AC-A13 razorpay add exercises onError via payment.failed handler", async () => {
-    let paymentFailedHandler: ((response: unknown) => void) | null = null;
-    const instanceWithCapture: RazorpayInstance = {
-      open: vi.fn(),
-      on: vi.fn((event: string, handler: (response: unknown) => void) => {
-        if (event === "payment.failed") {
-          paymentFailedHandler = handler;
-        }
-      })
-    };
-    const constructor = vi.fn(() => instanceWithCapture);
-    (globalThis as { Razorpay?: unknown }).Razorpay = constructor;
-
-    const ctx = razorpayContext();
-    ctx.sdk = { razorpay: () => instanceWithCapture };
-    const event = { type: "ADD", data: {} };
-
-    await expect(razorpayServices.add(ctx, event)).rejects.toThrow();
-  });
-});
+// Commented out 2026-09-16 — not runnable with the recordings on disk.
+//
+// The only recorded `GET gateway/frontend/:id` fixture for razorpay
+// (DETAILS_RAZORPAY) is a 422 refusal. `add` rejects on that response before
+// it ever opens the Razorpay modal, so the `payment.failed` handler this test
+// names is never registered. The original test passed on that early 422 (its
+// mock also had no `set`, so `add` threw a TypeError in its executor) and was
+// a misnamed duplicate of "AC-A13 razorpay add surfaces API 422 refusal".
+//
+// The body below drives the handler the way the modal does and asserts the
+// DetailedError it produces. It needs a recorded 200 details response for
+// razorpay: record one with `pnpm fixtures:generate payment-gateways`, replay
+// it here instead of DETAILS_RAZORPAY, add `RazorpayErrorResponse` back to the
+// type import, and uncomment.
+//
+// describe("razorpay/services — onSuccess/onError callback paths", () => {
+//   beforeEach(async () => {
+//     outbound = [];
+//     clearSessionCookies();
+//     const { queryClient } = await import("../../query");
+//     queryClient.clear();
+//     await seedClientSession();
+//     replay("get", "*/api/brands/:brandId/gateways", GATEWAYS_RAZORPAY);
+//     replay("get", "*/api/gateway/frontend/*", DETAILS_RAZORPAY);
+//     replay("post", "*/api/gateway/frontend/tokenize-begin/*", BEGIN_RAZORPAY);
+//   });
+//
+//   afterEach(() => {
+//     cleanupSdkGlobals();
+//     server.resetHandlers();
+//   });
+//
+//   it("AC-A13 razorpay add rejects with the payment.failed error on dismiss", async () => {
+//     // The instance records the two callbacks `add` registers, so the test can
+//     // drive the failure the way the Razorpay modal does: `payment.failed`
+//     // fires with the error, then the modal is dismissed.
+//     const captured: {
+//       failed?: (response: RazorpayErrorResponse) => void;
+//       dismiss?: () => void;
+//     } = {};
+//     const instanceWithCapture: RazorpayInstance = {
+//       open: vi.fn(),
+//       on: vi.fn(
+//         (event: string, handler: (response: RazorpayErrorResponse) => void) => {
+//           if (event === "payment.failed") captured.failed = handler;
+//         }
+//       ),
+//       set: vi.fn((key: string, value: unknown) => {
+//         if (key === "modal.ondismiss") captured.dismiss = value as () => void;
+//       })
+//     };
+//     const constructor = vi.fn(() => instanceWithCapture);
+//     (globalThis as { Razorpay?: unknown }).Razorpay = constructor;
+//
+//     const ctx = razorpayContext();
+//     ctx.sdk = { razorpay: () => instanceWithCapture };
+//     const event = { type: "ADD", data: {} };
+//
+//     const pending = razorpayServices.add(ctx, event);
+//     // `add` registers the callbacks only after its two awaited requests.
+//     await vi.waitFor(() => {
+//       expect(captured.failed).toBeDefined();
+//       expect(captured.dismiss).toBeDefined();
+//     });
+//     if (!captured.failed || !captured.dismiss) {
+//       throw new Error("add registered no payment.failed / modal.ondismiss");
+//     }
+//
+//     captured.failed({
+//       error: {
+//         code: 402,
+//         description: "Payment declined by the bank",
+//         source: "bank",
+//         step: "payment_authorization",
+//         reason: "payment_failed",
+//         metadata: { order_id: "order_test", payment_id: "pay_test" }
+//       }
+//     });
+//     captured.dismiss();
+//
+//     await expect(pending).rejects.toThrow("Payment declined by the bank");
+//     expect(instanceWithCapture.open).toHaveBeenCalled();
+//   });
+// });
 
 describe("mercadoPago/services — sdk.sdk callback path", () => {
   beforeEach(async () => {
