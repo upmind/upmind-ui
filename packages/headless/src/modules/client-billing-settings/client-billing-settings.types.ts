@@ -21,12 +21,14 @@
  * @description Types for a client's own invoice-consolidation preference —
  * the query-backed read half (`useBillingSettings`) and the
  * `dataManagerMachine`-backed editor half (`useBillingSettingsManager`). Both
- * composables share the SAME all-`never` scope matrix (design.md §4.2): the
- * client whose settings are read/edited is marked with `.withId(clientId)`,
- * never a `.for()` context (ADR-001 amendment 2026-09-15). `graphify-out/graph.json`
- * — no node minted here; the `ClientBillingSettingsContextTypes` enum is removed.
+ * composables share the SAME scope matrix and `CLIENT` context enum
+ * (design.md §4.2): the client whose settings are read/edited is named by a
+ * matrix-gated `.for('client', id)` retarget, or falls back to the active
+ * session — mirroring every sibling client module. (`graphify-out/graph.json`
+ * — no new node; the context member is renamed, not minted.)
  */
 import {
+  AccessRoleTypes,
   DaysOfWeekTypes,
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes
@@ -94,27 +96,34 @@ import type { AnyEventObject } from "xstate";
  */
 
 // -----------------------------------------------------------------------------
-// SCOPE — ONE all-`never` matrix, shared by both composables
+// SCOPE — ONE matrix, shared by both composables
 // -----------------------------------------------------------------------------
 
 /**
- * Scope matrix shared by `useBillingSettings` and `useBillingSettingsManager`.
- * Every actor is `null as never`: this module names NO context. A client's own
- * settings are the ONE record a client has, marked with `.withId(clientId)` —
- * not a `.for()` context (ADR-001 amendment 2026-09-15: `.for()` carries the
- * CONTEXT, `.withId()` carries the ID; an owner id never rides in `.for()`).
- * The all-`never` matrix is the ONLY construction that makes `.for(type, id)`
- * unspellable for every actor — it mirrors `client-email-history`'s single-read
- * `RECEIVED_EMAIL_SCOPE_MATRIX`, and its TYPE is still passed as
- * `createScopedComposable`'s `TMatrix`: the wide `ActorContextMatrix` default
- * would otherwise re-open `.for()` once the context enum is gone.
- * (`graphify-out/graph.json` — no new node; the context enum is removed, the
- * matrix widened in place.)
+ * Context type for BOTH halves — WHICH client's settings are being
+ * read/edited. `.for('client', id)` names the client being addressed; with
+ * none, the seam falls back to the active session's own client. The member and
+ * wire value match every sibling client module (`ClientPhonesContextTypes.CLIENT`
+ * = `AccessRoleTypes.CLIENT`). (`graphify-out/graph.json` — no new node; the
+ * member is renamed, not minted.)
+ */
+export enum ClientBillingSettingsContextTypes {
+  /** Acting on a client's own billing settings. */
+  CLIENT = AccessRoleTypes.CLIENT
+}
+
+/**
+ * Scope matrix shared by `useBillingSettings` and `useBillingSettingsManager`
+ * — both composables scope on the same entity. `client` is the only actor
+ * that resolves; `self`, `staff` and `guest` are `null as never`, which makes
+ * `.as('staff')` / `.as('guest')` / `.as('self')` compile-time errors rather
+ * than advertised-but-absent capabilities. Mirrors
+ * `PERSONAL_DETAILS_SCOPE_MATRIX`.
  */
 export const CLIENT_BILLING_SETTINGS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.CLIENT]: ClientBillingSettingsContextTypes.CLIENT,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 

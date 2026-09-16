@@ -4,15 +4,20 @@ import { useBrand } from "../brand";
 // enumerate the brand's DEFINITIONS, not just the client's answered values
 // (the FE-2824-shaped defect this threading fixes: a client with zero
 // values learned about zero definitions and rendered zero rows).
-import { useClientCustomFields } from "../client-custom-fields";
+import {
+  ClientCustomFieldsContextTypes,
+  useClientCustomFields
+} from "../client-custom-fields";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { mapProfileFields } from "./client-personal-details.mappers";
+import { ClientPersonalDetailsContextTypes } from "./client-personal-details.types";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import type {
   ClientPersonalDetailsRecordQuery,
   ProfileField
 } from "./client-personal-details.types";
 import type { ResponseError } from "../../utils";
+import type { ScopeContext } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/usePersonalDetails.context
@@ -27,7 +32,7 @@ import type { ResponseError } from "../../utils";
 export function createPersonalDetailsContext(
   _actorScope: ScopeActorTypes,
   query: ClientPersonalDetailsRecordQuery,
-  id?: string
+  scopeContext?: ScopeContext
 ) {
   // Resolves the language row's DISPLAY name in `mapProfileFields` — the
   // same brand languages list the manager's schema enum is built from
@@ -36,34 +41,34 @@ export function createPersonalDetailsContext(
   const { languages } = useBrand();
 
   /**
-   * @decision mark A's own scope with THIS module's own resolved id ONLY when
-   * this module's own scope was explicitly retargeted (a `.withId(clientId)`);
-   * a bare `.as(actor)` call is left UNMARKED on A's side too.
-   * what:    `.withId(id)` only fires when this module received a `.withId()`
-   *          id (`config.id`, forwarded here) — the SAME id `resolveClientId`
-   *          (`client-personal-details.services.ts`) forwards for its own
-   *          requests. Otherwise this calls
-   *          `useClientCustomFields().as(ScopeActorTypes.CLIENT)` with no id at
-   *          all, letting A's OWN `resolveClientId` fall back to the session's
-   *          `activeUser` id — reactively, resolving late exactly like this
-   *          module's own query does for the SAME self case.
-   * why:     a bare self scope has no id to give A YET on a cold boot (AC-41 —
-   *          the session resolves its client id LATE), and A's own `.withId()`
-   *          id is a STATIC snapshot, captured once and never revisited —
-   *          marking it to `undefined` here would freeze A's collection
-   *          unaddressable for this scope's whole lifetime, even after the
-   *          session resolves. A `.withId(clientId)` retarget is different:
-   *          that id is caller-supplied and already known synchronously
-   *          (design.md/AC-30's retarget), so marking A immediately is both
-   *          safe and required — A's brand/definitions must resolve for the
-   *          SAME named client B's own read/write seam addresses, never
-   *          silently the session's own client.
-   * rejected: always calling `.withId(id)` with `resolveClientId`'s resolved
-   *          id — rejected: the manager's `loadLookups` can do this safely
-   *          because it runs inside an async XState service invoked only once
-   *          the machine already knows the scope is addressable; this factory
-   *          runs eagerly, at `.useContext()` call time, with no such guard,
-   *          and `resolveClientId` itself is `@internal` to
+   * @decision retarget A's own scope ONLY when THIS module's own scope was
+   * explicitly retargeted (an explicit `.for('client', id)`); a bare
+   * `.as(actor)` call is left UNPINNED on A's side too.
+   * what:    `.for(CLIENT, scopeContext.id)` only fires when `scopeContext`
+   *          names a `CLIENT` context — the SAME check `resolveClientId`
+   *          (`client-personal-details.services.ts`) makes to decide between
+   *          the given id and the session's own. Otherwise this calls
+   *          `useClientCustomFields().as(ScopeActorTypes.CLIENT)` with no
+   *          `.for()` at all, letting A's OWN `resolveClientId` fall back to the
+   *          session's `activeUser` id — reactively, resolving late exactly
+   *          like this module's own query does for the SAME self case.
+   * why:     a bare self scope has no id to give A YET on a cold boot
+   *          (AC-41 — the session resolves its client id LATE), and A's own
+   *          `.for()` context id is a STATIC snapshot, captured once and
+   *          never revisited — pinning it to `undefined` here would freeze
+   *          A's collection unaddressable for this scope's whole lifetime,
+   *          even after the session resolves. `.for('client', id)` is
+   *          different: that id is caller-supplied and already known
+   *          synchronously (design.md/AC-30's retarget), so pinning it
+   *          immediately is both safe and required — A's brand/definitions
+   *          must resolve for the SAME named profile B's own read/write
+   *          seam addresses, never silently the session's own client.
+   * rejected: always calling `.for(CLIENT, id)` with `resolveClientId`'s
+   *          resolved id — rejected: the manager's `loadLookups` can do this
+   *          safely because it runs inside an async XState service invoked
+   *          only once the machine already knows the scope is addressable;
+   *          this factory runs eagerly, at `.useContext()` call time, with
+   *          no such guard, and `resolveClientId` itself is `@internal` to
    *          `client-personal-details.services.ts` — not reachable from here
    *          without exporting it past its own module boundary.
    */
@@ -72,9 +77,13 @@ export function createPersonalDetailsContext(
   // A's own matrix likewise resolves ONLY `CLIENT`; `client-personal-details.services.ts`'s
   // `loadLookups` is the precedent for hardcoding rather than threading the
   // (always-CLIENT) param through.
-  const customFieldsScope = id
-    ? useClientCustomFields().as(ScopeActorTypes.CLIENT).withId(id)
-    : useClientCustomFields().as(ScopeActorTypes.CLIENT);
+  const customFieldsScope =
+    scopeContext?.type === ClientPersonalDetailsContextTypes.CLIENT &&
+    scopeContext.id
+      ? useClientCustomFields()
+          .as(ScopeActorTypes.CLIENT)
+          .for(ClientCustomFieldsContextTypes.CLIENT, scopeContext.id)
+      : useClientCustomFields().as(ScopeActorTypes.CLIENT);
   const { data: definitions, error: definitionsError } =
     customFieldsScope.useContext();
 

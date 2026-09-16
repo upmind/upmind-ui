@@ -18,6 +18,7 @@
  * settings (stub)".
  */
 
+import { AccessRoleTypes } from "@upmind-automation/types";
 import { NO_ACTOR_CONTEXT, SCOPE_ACTOR } from "./scope";
 import type { ContractInternals } from "./scope";
 import type {
@@ -96,17 +97,23 @@ export type BillingSettingsContext = {
 // SCOPE
 // -----------------------------------------------------------------------------
 
+/** Context types for the settings read — whose billing preferences are addressed. */
+export const ClientBillingSettingsContextTypes = {
+  /** Acting on a client's own billing preferences. */
+  CLIENT: AccessRoleTypes.CLIENT
+} as const;
+
+export type ClientBillingSettingsContextTypes =
+  (typeof ClientBillingSettingsContextTypes)[keyof typeof ClientBillingSettingsContextTypes];
+
 /**
- * Scope matrix for `useClientBillingSettings`. Every actor is `NO_ACTOR_CONTEXT`:
- * this module names NO context. A client's own billing preferences are marked
- * with `.withId(clientId)`, never a `.for()` context — mirroring the headless
- * module (ADR-001 amendment 2026-09-15). The portal mock has no staff or guest
- * surface (plan §6).
+ * Scope matrix for `useClientBillingSettings`. `client` is the only actor that
+ * resolves; the portal mock has no staff or guest surface (plan §6).
  */
 export const CLIENT_BILLING_SETTINGS_SCOPE_MATRIX = {
   [SCOPE_ACTOR.SELF]: NO_ACTOR_CONTEXT,
   [SCOPE_ACTOR.STAFF]: NO_ACTOR_CONTEXT,
-  [SCOPE_ACTOR.CLIENT]: NO_ACTOR_CONTEXT,
+  [SCOPE_ACTOR.CLIENT]: ClientBillingSettingsContextTypes.CLIENT,
   [SCOPE_ACTOR.GUEST]: NO_ACTOR_CONTEXT
 } as const satisfies ActorContextMatrix;
 

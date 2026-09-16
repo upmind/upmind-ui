@@ -11,7 +11,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 /**
  * @module client-personal-details/usePersonalDetails
  * @description Scoped, query-backed read of a client's own profile: one
- * reactive record query per concrete `(actor, id)` scope, minted once
+ * reactive record query per concrete `(actor, context)` scope, minted once
  * at construction so it survives component lifecycles. Its sibling is
  * `usePersonalDetailsManager` — a second scoped composable in the same
  * module, sharing the SAME scope matrix (design.md §3.2) but registered
@@ -30,11 +30,14 @@ function createPersonalDetailsForScope(
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * ONE services instance for this scope. `config.id` (the `.withId(clientId)`
-   * value) goes in here and nowhere else, so every request the read half issues
-   * resolves the same target client.
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request the read half issues resolves the same
+   * target client.
    */
-  const service = createClientPersonalDetailsServices(actorScope, config.id);
+  const service = createClientPersonalDetailsServices(
+    actorScope,
+    config.context
+  );
 
   /**
    * The reactive profile query, minted ONCE per scope — a `service.loadProfile()`
@@ -52,12 +55,12 @@ function createPersonalDetailsForScope(
         service,
         query,
         scopeKey,
-        config.id
+        config.context
       ),
 
     /** Sub-composable for read context (the profile, its custom fields, lookups). */
     useContext: () =>
-      createPersonalDetailsContext(actorScope, query, config.id),
+      createPersonalDetailsContext(actorScope, query, config.context),
 
     /** Sub-composable for advanced debugging and internal access. */
     useInternals: () => createPersonalDetailsInternals(actorScope, query),

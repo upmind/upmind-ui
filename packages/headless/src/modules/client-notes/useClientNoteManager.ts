@@ -194,12 +194,10 @@ export const useClientNoteManager = createScopedComposable<
 
 /**
  * @decision B3 — publish `scopeMatrix` on the EXPORTED composable, reading
- * the module's own `CLIENT_NOTE_SCOPE_MATRIX` constant. Unlike a `.withId()`-
- * only module (whose all-`never` matrix names no context and is deliberately
- * NOT published, so the playground offers every actor — the shape
- * `useClientCustomFields` moved to), this module names a real
- * `.for('client-note', id)` context and must refuse the STAFF/GUEST cells its
- * matrix pins `never`.
+ * the module's own `CLIENT_NOTE_SCOPE_MATRIX` constant, following the
+ * `client-custom-fields` AC-37 precedent
+ * (`useClientCustomFields.ts` — "publish `scopeMatrix` on the EXPORTED
+ * wrapper").
  * what: this composable passes NO third runtime argument to
  *   `createScopedComposable` (the deliberate collection/manager asymmetry,
  *   design.md §7); `composable.scopeMatrix = scopeMatrix` inside

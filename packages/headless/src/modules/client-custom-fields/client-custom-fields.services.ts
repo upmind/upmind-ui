@@ -18,6 +18,7 @@ import {
 } from "./client-custom-fields.schemas";
 import {
   ClientCustomFieldContextTypes,
+  ClientCustomFieldsContextTypes,
   CUSTOM_FIELD_DEFAULT_SORT
 } from "./client-custom-fields.types";
 import {
@@ -70,23 +71,33 @@ export const queryKey: QueryKey = ["client", "customFields"];
  * request-issuing function in this file shares, and the fix for a services
  * layer that hardwires the session's client for every call.
  *
- * The COLLECTION marks its client with `.withId(clientId)`, which the scope
- * builder folds into `config.id` and the collection factory forwards here;
- * with none it falls back to the active session's own client (the self case).
- * The IMAGE half never marks a client — a `FIELD` context names the entity,
- * not its owner — so it forwards no id and resolves the session's own client.
- * ADR-001 amendment 2026-09-15: the client id rides in `.withId()`, never a
- * `.for()` context.
+ * A `.for('client', id)` context names the client being addressed; with none
+ * it falls back to the active session's own client (the self case). A `FIELD`
+ * context (the image half) deliberately falls through to the session too — a
+ * field context names the entity, not its owner. This compares the CONTEXT the
+ * scope builder resolved, never the actor, so it is not a branch on
+ * `ScopeActorTypes.SELF`. ADR-001 amendment 2026-09-15: the client retarget
+ * rides in a `.for()` context; `.withId()` carries a record id, never the owner.
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
-function resolveClientId(id?: string) {
+function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
-  return computed(() => id ?? activeUser.value?.id);
+  return computed(() =>
+    scopeContext?.type === ClientCustomFieldsContextTypes.CLIENT &&
+    scopeContext.id
+      ? scopeContext.id
+      : activeUser.value?.id
+  );
 }
 
 /**
  * Resolves the field id out of a `FIELD`-context scope; `undefined` for the
- * collection's own `VALUES` scope, which has none.
+ * collection's own `CLIENT` scope, which has none.
  */
 function resolveFieldId(scopeContext?: ScopeContext): string | undefined {
   return scopeContext?.type === ClientCustomFieldContextTypes.FIELD
@@ -178,8 +189,8 @@ function isAddressable(clientId?: string): boolean {
  */
 const CLIENT_RECORD_QUERY_KEY_SEGMENT = "record" as const;
 
-function loadClientBrandId(id?: string) {
-  const clientId = resolveClientId(id);
+function loadClientBrandId(scopeContext?: ScopeContext) {
+  const clientId = resolveClientId(scopeContext);
   const brandId = ref<string | undefined>(undefined);
   const error = ref<unknown>(undefined);
   const isSettled = ref(false);
@@ -255,10 +266,10 @@ function loadClientBrandId(id?: string) {
  * re-derives the options into a DIFFERENT cache entry (AC-1, AC-2). `enabled`
  * and `guard` hold the unaddressable-or-brand-unresolved entry shut.
  */
-function loadList(id?: string): ClientCustomFieldsListQuery {
+function loadList(scopeContext?: ScopeContext): ClientCustomFieldsListQuery {
   const { list, useUrl } = useQuery();
-  const clientId = resolveClientId(id);
-  const brand = loadClientBrandId(id);
+  const clientId = resolveClientId(scopeContext);
+  const brand = loadClientBrandId(scopeContext);
 
   // URL SCOPING, not criteria: these two say WHICH catalogue is being read.
   // They are not filters a consumer may change, so they never enter the query
@@ -339,11 +350,11 @@ function loadList(id?: string): ClientCustomFieldsListQuery {
 /** Resolves a single definition by id from the (awaited) collection. */
 async function resolveFieldById(
   id: CustomField["id"] | undefined,
-  clientId?: string
+  scopeContext?: ScopeContext
 ): Promise<CustomField | undefined> {
   if (!id) return undefined;
 
-  const query = loadList(clientId);
+  const query = loadList(scopeContext);
   await query.promise.value.finally();
 
   const { getOne } = useCollection<CustomField>(
@@ -392,7 +403,7 @@ async function uploadFieldImage(
  */
 async function flushImages(
   model: CustomFieldModel = {},
-  id?: string
+  scopeContext?: ScopeContext
 ): Promise<CustomFieldModel> {
   const dirty = Object.entries(model).filter(([, value]) =>
     isPendingImageUpload(value)
@@ -400,12 +411,12 @@ async function flushImages(
 
   if (isEmpty(dirty)) return model;
 
-  const clientId = resolveClientId(id);
+  const clientId = resolveClientId(scopeContext);
   if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const query = loadList(id);
+  const query = loadList(scopeContext);
   await query.promise.value.finally();
 
   const { findOne } = useCollection<CustomField>(
@@ -466,7 +477,8 @@ async function refresh(): Promise<void> {
  * `default:` case.
  */
 function scopedServices(
-  scopeActor: ScopeActorTypes
+  scopeActor: ScopeActorTypes,
+  _scopeContext?: ScopeContext
 ): Partial<ClientCustomFieldsServices> {
   switch (scopeActor) {
     default:
@@ -479,28 +491,27 @@ function scopedServices(
 
 /**
  * Services factory for the definitions COLLECTION — the concrete actor and
- * the client it acts upon (`config.id`, the `.withId(clientId)` value) arrive
- * first, at construction.
+ * the context it acts upon arrive first, at construction.
  */
 export const createClientCustomFieldsServices = (
   scopeActor: ScopeActorTypes,
-  id?: string
+  scopeContext?: ScopeContext
 ): ClientCustomFieldsServices => {
   const mutationError = ref<ResponseError | undefined>(undefined);
-  const clientId = resolveClientId(id);
+  const clientId = resolveClientId(scopeContext);
 
   return {
     queryKey,
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
-    loadList: () => loadList(id),
-    resolveFieldById: fieldId => resolveFieldById(fieldId, id),
+    loadList: () => loadList(scopeContext),
+    resolveFieldById: id => resolveFieldById(id, scopeContext),
     uploadFieldImage,
-    flushImages: model => flushImages(model, id),
+    flushImages: model => flushImages(model, scopeContext),
     validate,
     refresh,
-    ...scopedServices(scopeActor)
+    ...scopedServices(scopeActor, scopeContext)
   };
 };
 
@@ -516,13 +527,13 @@ export const createClientCustomFieldImageServices = (
   _scopeActor: ScopeActorTypes,
   scopeContext?: ScopeContext
 ): ClientCustomFieldImageServices => {
-  const clientId = resolveClientId();
+  const clientId = resolveClientId(scopeContext);
   const fieldId = resolveFieldId(scopeContext);
   const field = ref<CustomField | undefined>(undefined);
   const mutationError = ref<ResponseError | undefined>(undefined);
 
   if (fieldId) {
-    resolveFieldById(fieldId).then(resolved => {
+    resolveFieldById(fieldId, scopeContext).then(resolved => {
       field.value = resolved;
     });
   }
@@ -545,7 +556,9 @@ export const createClientCustomFieldImageServices = (
   async function resolveFieldCode(): Promise<string | undefined> {
     if (field.value) return field.value.code;
 
-    const resolved = await resolveFieldById(fieldId).catch(() => undefined);
+    const resolved = await resolveFieldById(fieldId, scopeContext).catch(
+      () => undefined
+    );
     if (resolved) field.value = resolved;
     return resolved?.code;
   }
