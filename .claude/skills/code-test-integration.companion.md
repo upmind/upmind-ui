@@ -32,7 +32,7 @@
   **`tests/fixtures/index`** (from a deep module test the relative import is
   `../../../../../../tests/fixtures/index`).
 - The e2e journey feature (base Hard Rules) lives at **`tests/features/<flow>/*.feature`**.
-- **Module business-logic feature — bindings for the base *Anchor every test to the feature (TDD)* rule.** Feature location: co-located at **`packages/headless/src/modules/<name>/__tests__/<name>.feature`** or in the SDD dir (**`docs/sdd/<story>/*.feature`**). Scenario-id scheme: **`@AC-<cell><n>`** (the `design.md` §6 ids). Enforcement: the co-located **`<name>.traceability.test.ts`** (Vitest, rides the module suite). NOTE: the `/code-test-bdd` skill that authored this feature was retired in the skill-doors restructure with no direct replacement door — its home post-restructure is an open operator decision (see `sdd-bdd.companion.md`).
+- **Module business-logic feature** (base *Anchor every test to the feature*): co-located at **`packages/headless/src/modules/<name>/__tests__/<name>.feature`** or in the SDD dir (**`docs/sdd/<story>/*.feature`**), authored by `/code-test-bdd`. Scenario ids **`@AC-<cell><n>`** (`design.md` §6). Enforced by the co-located **`<name>.traceability.test.ts`**.
 
 ## Capture path (base "Step One — Record, Then Write")
 
@@ -43,7 +43,7 @@ The plugin law is cited, not restated: recording is step one, and fabricated fix
 3. **Recording env**: `packages/headless/.env.recording` (`VITE_API_URL`, `RECORDING_BRAND_ORIGIN`).
 4. **Credentials**: `tests/fixtures/credentials.ts` (`API_CREDENTIALS`, imported as `@upmind-automation/test-fixtures/credentials`).
 
-A failure of ANY link (network, creds, env) **escalates with the failed command's verbatim output**; hand-authored fixture JSON is never a fallback, and a disclosed placeholder is still a violation (receipt: 2026-08-05 client-email — see `the seat laws (agents/*.md, Laws section)`).
+A failure of ANY link (network, creds, env) **escalates with the failed command's verbatim output**; hand-authored fixture JSON is never a fallback, and a disclosed placeholder is still a violation.
 
 ## Governance + reference (base "governing decision record" + reference-doc pointer)
 

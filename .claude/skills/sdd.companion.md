@@ -16,7 +16,7 @@ Bind the generic reference-repo placeholders in `/sdd`:
 
 ## Issue tracker
 
-- The tracker is **Linear**; ticket ids are `FE-xxxx` (e.g. `FE-2243`).
+- Linear (`.claude/rules/linear-lifecycle.md`).
 - **Step 1b:** `review-notes.md` must ALSO be posted as a **Linear comment** on the issue so it is visible to agents and reviewers.
 - **Step 1c:** on re-run, check **Linear comments** for prior review notes.
 

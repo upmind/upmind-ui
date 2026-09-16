@@ -10,9 +10,10 @@ Binds the base skill's generic placeholders to this repo's concrete systems. The
 
 ## Gate commands (Step 3, Worktree Auto-Detection)
 
-- `<typecheck-cmd>` = `pnpm typecheck`
-- `<lint-cmd>` = `pnpm lint`
-- `<test-cmd>` = `pnpm test`
+- The gate is **`pnpm ci:check`**: the exact set of blocking merge-request CI jobs — typecheck, every package build, `lint:verify`, `lint:features`, `lint:quarantine`, `test:unit`, `test:integration`, the design-system `tokens` and `ui` tests. Green here means the MR pipeline is green, except the browser suite.
+- `pnpm ci:check:full` adds `test:bdd`, the Playwright BDD suite that CI also blocks on. Run it only when the diff touches e2e features, specs or support.
+- `pnpm lint` (`pnpm -r lint`) is `allow_failure` in CI: run it, fix what you touched, but it does not block.
+- Never root `pnpm test`: it is the full serial suite plus the browser suite in one command.
 
 ## Module path glob (Step 1b)
 
