@@ -11,8 +11,7 @@ mechanics the base skill defers to the working repo.
 
 ## Issue tracker (step 2)
 
-The issue tracker is **Linear**. Read the story's Linear ticket to determine the
-source/target branch.
+Linear — bindings in `.claude/rules/linear-lifecycle.md`. Read the story's ticket for the source/target branch.
 
 ## Branches (steps 2 & 10)
 

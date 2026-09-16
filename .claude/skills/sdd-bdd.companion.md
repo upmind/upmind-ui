@@ -4,16 +4,7 @@ Repo-specific bindings for the base doctrine. The base wording is generic; these
 
 ## Scope — e2e journeys only
 
-`/sdd-bdd` (the base skill `sdd-bdd` at `plan/sdd/bdd`, invoked by `/plan`) owns **cross-module
-e2e journey** features (`@layer-e2e`, in the e2e features tree). It does **not** author a module's
-co-located business-logic feature (`<module>/__tests__/<module>.feature` at capability altitude with
-`@AC-*` anchor tags).
-
-> **Restructure note (skill-doors):** the separate `/code-test-bdd` skill that used to own the
-> module business-logic feature class was **retired with no direct replacement door** — `sdd-bdd`
-> is now the plugin's only BDD skill and remains e2e-only. Where the module `.feature` is authored
-> post-restructure is unresolved (operator decision). Its path/`@AC` bindings still live in
-> `code-test-integration.companion.md` and `code-test-unit.companion.md`.
+`/sdd-bdd` (invoked by `/plan`) owns **cross-module e2e journey** features (`@layer-e2e`, in the e2e features tree). It does **not** author a module's co-located business-logic feature (`<module>/__tests__/<module>.feature` with `@AC-*` anchor tags) — that is `/code-test-bdd`, bound in `code-test-integration.companion.md` and `code-test-unit.companion.md`.
 
 ## Path bindings
 
@@ -28,11 +19,10 @@ co-located business-logic feature (`<module>/__tests__/<module>.feature` at capa
 
 - The Gherkin test-planning ADR is `docs/adr/020-gherkin-test-planning.md` (**ADR-020**).
 - It grounds two base rules: **"name a capability, not a structure"** and **"name the production bug or delete it"** — cite ADR-020 when applying them.
-- Tautology-sweep precedent: FE-2824 (the tautological test that could never go red) is the canonical example the sweep guards against.
 
 ## Issue tracker binding
 
-- The issue tracker is **Linear**. Fetch the ticket with the Linear MCP.
+- Linear (`.claude/rules/linear-lifecycle.md`). Fetch the ticket with the Linear MCP.
 - Look for Given/When/Then AC in the Description, an Acceptance Criteria section, and comments tagged as AC.
 - `@<story-id>` tags trace back to the Linear issue id (e.g. `@FE-2243`).
 

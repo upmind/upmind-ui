@@ -13,12 +13,4 @@ The git host is **GitLab** (git.upmind.io). Change requests are **MRs**. Branche
 
 ## Tracker status → bucket mapping (replan invariants)
 
-The base invariants speak in buckets; in Linear they map as:
-
-| Base bucket | Linear status column values |
-| --- | --- |
-| completed | `Done`, `Deployed` |
-| in progress | `In Progress` |
-| pending (not yet started) | `Backlog`, `Needs Refinement`, `Todo` |
-
-Label semantics behind the status column are governed by `${CLAUDE_PLUGIN_ROOT}/rules/agent-labels.md` (authoritative; cite, do not restate).
+Columns and labels: `.claude/rules/linear-lifecycle.md`. Base buckets: completed = the done column; in progress = `In Progress`; pending = `Backlog`, `Needs Refinement`, `Todo`.
