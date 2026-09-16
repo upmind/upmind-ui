@@ -69,9 +69,16 @@ export type SessionRoutes = {
   recoverRoute: RouteLocationAsRelativeGeneric;
 };
 
-/** What the three session screens take: the cross-links, plus where they end. */
-export type SessionViewProps = SessionRoutes & {
+/**
+ * What the recovery screen takes. It names no landing: recovery ends on its own
+ * screen with the email-sent message, so no host has one to name.
+ */
+export type SessionRecoverViewProps = SessionRoutes & {
   template?: SESSION_TEMPLATE;
+};
+
+/** What the two sign-in screens take: recovery's contract, plus a landing. */
+export type SessionViewProps = SessionRecoverViewProps & {
   /**
    * Where an accepted sign-in lands in a host that drives no funnel. A host
    * with a funnel leaves it unset and keeps the step the funnel resolves.

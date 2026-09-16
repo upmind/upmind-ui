@@ -94,14 +94,14 @@ import { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthLoading } from "../shell";
 import AuthBareTemplate from "../templates/AuthBare.template.vue";
 import {
   type SessionProps,
-  type SessionViewProps,
+  type SessionRecoverViewProps,
   SESSION_TEMPLATE
 } from "../types";
 import { sessionFormWidthVariants } from "../variants";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<SessionViewProps>();
+const props = defineProps<SessionRecoverViewProps>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -110,7 +110,11 @@ const themeEngine = useThemeEngine();
 const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
 const { navigate } = useRoutingEngine();
-const { navigateRejected, navigateResolved } = useSessionResolve(props, {
+const {
+  meta: resolveMeta,
+  navigateRejected,
+  navigateResolved
+} = useSessionResolve(props, {
   rejectRoute: () => props.loginRoute
 });
 
@@ -171,6 +175,7 @@ function doReject() {
 }
 
 function doResolve() {
+  if (!resolveMeta.value.hasResolve) return;
   isResolving.value = true;
   navigateResolved().catch(() => {
     isResolving.value = false;

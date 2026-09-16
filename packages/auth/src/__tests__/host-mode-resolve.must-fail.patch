@@ -1,7 +1,7 @@
-# Negative control — the host mode stops deciding. The `!routingMeta.hasFunnels`
-# term is dropped from both directions of `useSessionResolve`, so a host that
-# DRIVES funnels takes the funnel-free route path: the cart's own sign-in leaves
-# the funnel behind and lands on whatever route the screen happens to name.
+# Negative control — the host mode stops deciding FIRST. Both directions consult
+# the route the screen named before they consult the mode, so a host that DRIVES
+# funnels takes the funnel-free path: the cart's own sign-in leaves the funnel
+# behind and lands on whatever route the screen happens to name.
 #
 # This is the drop the mode exists to prevent, and it is invisible to a suite
 # that only covers the funnel-free side — that suite passes against the broken
@@ -21,24 +21,41 @@
 # two specs above are what grade it.
 
 diff --git a/packages/auth/src/session.utils.ts b/packages/auth/src/session.utils.ts
-index 8dd43c0cdf..02fb139565 100644
 --- a/packages/auth/src/session.utils.ts
 +++ b/packages/auth/src/session.utils.ts
-@@ -43,7 +43,7 @@ export function useSessionResolve(
+@@ -42,13 +42,12 @@
+    * with neither ends on itself, so the view holds its own step (`hasResolve`).
+    */
    function navigateResolved() {
+-    if (routingMeta.value.hasFunnels) return navigateNext();
+-
      const landing = props.landingRoute;
+-    // No funnel to ask and no landing named: this screen is the destination.
+-    if (!landing) return Promise.resolve();
++    if (landing) return router.push(landing);
  
--    if (landing && !routingMeta.value.hasFunnels) return router.push(landing);
-+    if (landing && true) return router.push(landing);
- 
-     return navigateNext();
+-    return router.push(landing);
++    if (routingMeta.value.hasFunnels) return navigateNext();
++
++    return Promise.resolve();
    }
-@@ -57,7 +57,7 @@ export function useSessionResolve(
+ 
+   /**
+@@ -57,13 +56,12 @@
+    * renders no back control there (`hasReject`): its back is the basket.
+    */
    function navigateRejected() {
+-    if (routingMeta.value.hasFunnels) return navigateBack();
+-
      const reject = toValue(options.rejectRoute);
+-    // No funnel to ask and no back target: the control is not offered here.
+-    if (!reject) return Promise.resolve();
++    if (reject) return router.push(reject);
  
--    if (reject && !routingMeta.value.hasFunnels) return router.push(reject);
-+    if (reject && true) return router.push(reject);
- 
-     return navigateBack();
+-    return router.push(reject);
++    if (routingMeta.value.hasFunnels) return navigateBack();
++
++    return Promise.resolve();
    }
+ 
+   return { meta, navigateResolved, navigateRejected };

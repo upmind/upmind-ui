@@ -209,6 +209,7 @@ function doReject() {
 }
 
 function doResolve() {
+  if (!resolveMeta.value.hasResolve) return;
   isResolving.value = true;
   navigateResolved().catch(() => {
     isResolving.value = false;

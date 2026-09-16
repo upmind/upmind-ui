@@ -32,34 +32,38 @@ export function useSessionResolve(
   const { navigateNext, navigateBack, meta: routingMeta } = useRoutingEngine();
 
   const meta = computed(() => ({
+    hasResolve: routingMeta.value.hasFunnels || !!props.landingRoute,
     hasReject: routingMeta.value.hasFunnels || !!toValue(options.rejectRoute)
   }));
 
   /**
-   * A funnel host asks the engine for the step after this one. A host with no
-   * funnel has no step to resolve — asking would leave the visitor on the form
-   * that just accepted them — so it takes the landing that host named.
+   * The host mode decides first: a funnel host asks the engine for the step
+   * after this one, and a funnel-free host takes the landing it named. A screen
+   * with neither ends on itself, so the view holds its own step (`hasResolve`).
    */
   function navigateResolved() {
+    if (routingMeta.value.hasFunnels) return navigateNext();
+
     const landing = props.landingRoute;
+    // No funnel to ask and no landing named: this screen is the destination.
+    if (!landing) return Promise.resolve();
 
-    if (landing && !routingMeta.value.hasFunnels) return router.push(landing);
-
-    return navigateNext();
+    return router.push(landing);
   }
 
   /**
    * The same seam backwards: a funnel host takes the step before this one, and
-   * a host with no funnel takes the screen's own back target. A screen naming
-   * none renders no back control at all (`meta.hasReject`), because the step it
-   * would return to is the basket, and a funnel-free host has no basket.
+   * a funnel-free host takes the screen's own back target. A screen naming none
+   * renders no back control there (`hasReject`): its back is the basket.
    */
   function navigateRejected() {
+    if (routingMeta.value.hasFunnels) return navigateBack();
+
     const reject = toValue(options.rejectRoute);
+    // No funnel to ask and no back target: the control is not offered here.
+    if (!reject) return Promise.resolve();
 
-    if (reject && !routingMeta.value.hasFunnels) return router.push(reject);
-
-    return navigateBack();
+    return router.push(reject);
   }
 
   return { meta, navigateResolved, navigateRejected };
