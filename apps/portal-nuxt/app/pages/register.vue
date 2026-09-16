@@ -12,7 +12,10 @@ import { UpmSessionRegister } from "@upmind-automation/auth";
 import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 import { useMockBrandGates } from "~/portal/mock/gates";
 
-definePageMeta({ layout: "logged-out" });
+definePageMeta({
+  layout: "logged-out",
+  middleware: "signed-in-redirect"
+});
 
 const { isRegistrationEnabled } = useMockBrandGates();
 
