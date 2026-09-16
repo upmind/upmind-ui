@@ -1,16 +1,16 @@
 # client-billing-settings.identity-seam-default.must-fail.patch
 #
-# Targets: AC-1 (the SELF arm of the identity seam) — with no `.withId()`, the
-# read must fall back to the active session's OWN client. Re-authored for
-# FE-3240: the fallback now lives in `resolveClientId(id?)`'s `?? activeUser`
-# arm, not a `.for()`-context default (ADR-001 amendment 2026-09-15).
+# Targets: AC-1 (the SELF arm of the identity seam) — with no .for('client', id)
+# context, the read must fall back to the active session's OWN client. The self
+# fallback lives in resolveClientId(scopeContext?)'s `: activeUser.value?.id`
+# arm, reached when the scope carries no CLIENT context (ADR-001).
 #
 # Authored by: developer seat (agent-seat-separation.companion.md — the seat
 # that knows the exact line it changed authors the mutant; the prover applies
 # it blind, confirms RED, then reverts — never reading src to construct it).
 #
 # Mutates: client-billing-settings.services.ts resolveClientId — drops the
-# `activeUser.value?.id` fallback so the SELF case resolves `undefined`,
+# `: activeUser.value?.id` fallback so the SELF case resolves `undefined`,
 # leaving the session's own read unaddressable (isAddressable gates it off).
 #
 # Expected RED: client-billing-settings.read.int.test.ts —
@@ -26,15 +26,15 @@
 #   git apply -R <this file>
 #
 diff --git a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
-index a6d87e006..92a7557fc 100644
+index 62a6172a3..64495dc32 100644
 --- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
 +++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
-@@ -115,7 +115,7 @@ const MODEL_KEYS = [
- function resolveClientId(id?: string) {
-   const { activeUser } = useActiveSession().useContext();
- 
--  return computed(() => id ?? activeUser.value?.id);
-+  return computed(() => id ?? undefined);
+@@ -128,7 +128,7 @@ function resolveClientId(scopeContext?: ScopeContext) {
+     scopeContext?.type === ClientBillingSettingsContextTypes.CLIENT &&
+     scopeContext.id
+       ? scopeContext.id
+-      : activeUser.value?.id
++      : undefined
+   );
  }
  
- /**
