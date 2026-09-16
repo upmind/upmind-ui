@@ -181,12 +181,12 @@ export const detailUischema: DetailUischema = {
 /**
  * The controls this module offers, each named for the live member it presses.
  * `view` opens the record READ-ONLY (no fetch — the row's data fills it).
- * `refresh`, `invalidate` and `reset` each press the matching member on
- * `useClientCustomFields().useActions()`, HEADER-placed as collection-level
- * controls fired with no row. `destroy` presses the composable's own teardown
- * member, OVERFLOW-placed as the one control that ends the page's instance
- * rather than refreshing it. No control carries a `rule`: the module has no
- * mutation surface, so nothing here is capability-gated.
+ * `refresh`, `invalidate`, `reset` and `destroy` each press the matching member
+ * on `useClientCustomFields().useActions()`, all HEADER-placed: every one is
+ * fired with no row. `destroy` included — it ends the page's own INSTANCE, so a
+ * row placement would draw one teardown control per row and pass it a row id it
+ * has no use for. No control carries a `rule`: the module has no mutation
+ * surface, so nothing here is capability-gated.
  */
 export const actionsUischema: ActionsUischema = {
   type: "ActionsLayout",
@@ -230,7 +230,7 @@ export const actionsUischema: ActionsUischema = {
       i18n: "action.destroy",
       icon: "trash-01",
       variant: "outline",
-      placement: ActionPlacementTypes.OVERFLOW
+      placement: ActionPlacementTypes.HEADER
     }
   ]
 };
