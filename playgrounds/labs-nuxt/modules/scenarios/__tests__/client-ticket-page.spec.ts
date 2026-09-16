@@ -27,12 +27,13 @@
  * own recorded-reality oracle (`tickets.manager.int.test.ts`, AC-24/AC-25) —
  * staging captured no standalone locked/closed single-ticket read.
  *
- * ## NOT driven here — named page gaps, not defects
- * The page's own docblock names nine manager members it deliberately does not
- * draw (`editMessage`, `deleteMessage`, `deleteAttachment`, `downloadAttachment`,
- * `getMessage`, `uploadAttachment`, `loadAttachments`, `setRelatedProduct`,
- * `removeRelatedProduct`) — each needs a message- or file-level control the page
- * does not yet offer. They are out of scope here by design, not asserted absent.
+ * ## NOT driven here — proven next door, not absent
+ * The nine members this file once recorded as undrawn (`editMessage`,
+ * `deleteMessage`, `deleteAttachment`, `downloadAttachment`, `getMessage`,
+ * `uploadAttachment`, `loadAttachments`, `setRelatedProduct`,
+ * `removeRelatedProduct`) are now drawn, and each is driven to its own wire
+ * outcome in `client-ticket-controls.spec.ts`. This file keeps the
+ * read/reply/lifecycle/subject remit; that one keeps the rest.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
