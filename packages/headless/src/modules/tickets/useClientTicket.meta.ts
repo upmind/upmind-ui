@@ -68,8 +68,21 @@ export function createClientTicketMeta(
     /** True while the ticket is loading or has not completed its first fetch. */
     isLoading,
 
-    /** AC17 — true unless the write is refused (mirrors `isLocked` today). */
-    canReply: computed(() => !isLocked.value),
+    /**
+     * AC17 — true unless the composer is refused. The oracle gates it on
+     * `isStaged` ALONE for a client: `ticketFeed.vue:8` disables on
+     * `isStaged || (!canReplyToTicket && !canAddInternalNote)`, and
+     * `canReplyToTicket` (`ticketProvider.ts:210-212`) is
+     * `canManageTicket && $userCan(...)` where `canManageTicket`
+     * (`ticketProvider.ts:172-173`) returns TRUE immediately for a non-admin —
+     * so the second clause can never fire for client×self.
+     *
+     * The LOCK does not gate a reply. It gates the action-list writes only
+     * (`ticketProvider.ts:244,:268,:283,:299` — close, subject, related
+     * product), which is what `isLocked` above is for. Gating a reply on the
+     * lock refused a reply legacy allows.
+     */
+    canReply: computed(() => !isStaged.value),
 
     /** AC25 — true only when the ticket is closed. */
     canReopen: isClosed

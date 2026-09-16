@@ -530,6 +530,48 @@ describe("tickets manager — close a locked ticket (AC-24)", () => {
   });
 });
 
+describe("tickets manager — who may reply (AC-17)", () => {
+  it("AC-17 a LOCKED ticket still permits a reply — the lock gates close/subject, never the composer", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    const lockedFixture = recorded.one() as {
+      data: Record<string, unknown>;
+    };
+    handlers.setOneBody({
+      ...lockedFixture,
+      data: { ...lockedFixture.data, settings: { lock: true } }
+    });
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+
+    expect(ticket.useMeta().isLocked.value).toBe(true);
+    expect(ticket.useMeta().canReply.value).toBe(true);
+  });
+
+  it("AC-17 a STAGED ticket refuses a reply — the oracle's only composer gate", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    const stagedFixture = recorded.one() as {
+      data: Record<string, unknown>;
+    };
+    handlers.setOneBody({
+      ...stagedFixture,
+      data: { ...stagedFixture.data, staged_import: { id: "staged" } }
+    });
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+
+    expect(ticket.useMeta().isStaged.value).toBe(true);
+    expect(ticket.useMeta().canReply.value).toBe(false);
+  });
+});
+
 describe("tickets manager — status-log entries merge into the feed (AC-22)", () => {
   it("AC-22 requests the status-log feed scoped to this ticket by object type, object id, and the ticket-lifecycle hook codes", async () => {
     await seedClientSession();
