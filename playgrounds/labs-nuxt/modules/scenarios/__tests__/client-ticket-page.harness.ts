@@ -29,18 +29,21 @@ import { mount } from "@vue/test-utils";
 import { http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
+import { map } from "lodash-es";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { startReplayServer } from "@upmind-automation/test-fixtures/replay-server";
 import { TicketStatusCodes } from "@upmind-automation/types";
 import {
-  ScopeActorTypes,
-  TicketContextTypes,
   clearAll,
   mapSessionUser,
   queryClient,
   useActiveSession,
   useSessionStore
 } from "@upmind-automation/headless";
+import routerOptions from "../../../app/router.options";
+import { registerScenarioRoutes } from "./nuxt-build-context";
+import type { NuxtPage } from "@nuxt/schema";
+import type { RouteLocationRaw, RouteRecordRaw } from "vue-router";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
 
@@ -58,7 +61,9 @@ const sessionRecordingsDir = join(
   "packages/headless/src/modules/session-store/__tests__/fixtures"
 );
 
-export const server = startReplayServer({ recordingsDir: ticketsRecordingsDir });
+export const server = startReplayServer({
+  recordingsDir: ticketsRecordingsDir
+});
 
 // -----------------------------------------------------------------------------
 
@@ -95,7 +100,10 @@ export const RECORDED_TICKET_ID = (
 export function ticketBodyClosed(): Record<string, unknown> {
   const body = recorded.one();
   const data = body.data as Record<string, unknown>;
-  return { ...body, data: { ...data, status: { code: TicketStatusCodes.CLOSED } } };
+  return {
+    ...body,
+    data: { ...data, status: { code: TicketStatusCodes.CLOSED } }
+  };
 }
 
 /** The recorded body with its lock setting toggled on (oracle AC-24). */
@@ -271,45 +279,111 @@ export function observeRequests(): {
 // -----------------------------------------------------------------------------
 
 let mounted: VueWrapper | undefined;
+let registeredPages: NuxtPage[] | undefined;
 
 /**
- * Mounts the manager page behind a real router whose route carries the scope
- * suffix the page reads (`.as(CLIENT).for(TICKET, id)`), over the handlers
- * already installed.
+ * The scenario routes exactly as the shipped Nuxt registrar pushes them — so
+ * `useClientTicket` carries its real `/:scopeSuffix(.*)*` catch-all under the
+ * `/:brandIdOrOrg?` prefix, never a route hand-spelled by the bench. Cached
+ * once: the registrar's directory scan is the same on every mount.
+ */
+async function scenarioRoutes(page: Component): Promise<RouteRecordRaw[]> {
+  if (!registeredPages)
+    ({ pages: registeredPages } = await registerScenarioRoutes());
+  return routerOptions.routes(
+    map(registeredPages, entry => ({
+      ...entry,
+      component:
+        entry.name === "useClientTicket" ? page : { render: () => null }
+    }))
+  ) as RouteRecordRaw[];
+}
+
+/**
+ * Mounts the manager page behind the REAL boot path a browser drives: the
+ * registrar's catch-all route resolves the deep link to `params.scopeSuffix`,
+ * and the shipped `scope.global` middleware runs `parseScopeSuffix` over it to
+ * write `route.meta.scopeConfig` — the value the page reads to target
+ * `.as(CLIENT).for(TICKET, id)`. A dropped catch-all or a failed parse leaves
+ * `scopeConfig` unset, so the page never boots and the read-back fails, which
+ * is the point: the bench asserts the wiring a browser depends on, not a
+ * pre-baked stand-in for it.
  */
 export async function mountTicketPage(
   id: string = RECORDED_TICKET_ID
 ): Promise<VueWrapper> {
+  const { wrapper } = await mountManagerAt(
+    `/useClientTicket/as/client/for/ticket/${id}`
+  );
+  return wrapper;
+}
+
+/** Every route the manager page pushes while mounted, in order. */
+export type ManagerMount = { wrapper: VueWrapper; pushes: string[] };
+
+/**
+ * Mounts the manager page at any deep link over the REAL registrar route +
+ * `scope.global` middleware, and captures every route the page pushes — the
+ * seam the row-link and the reference-loader both drive (a paste resolves to an
+ * id, then the page navigates to its manager url). The base link
+ * (`/useClientTicket`, no suffix) leaves `scopeConfig` unset, which is the
+ * page's "no ticket named" openTicket entry.
+ */
+export async function mountManagerAt(url: string): Promise<ManagerMount> {
   const page = (await import("../useClientTicket/client-ticket.page.vue"))
     .default as Component;
 
+  (globalThis as Record<string, unknown>).defineNuxtRouteMiddleware ??= (
+    fn: unknown
+  ) => fn;
+  const scopeMiddleware = (await import("../../../app/middleware/scope.global"))
+    .default as (to: unknown, from: unknown) => unknown;
+
   const router = createRouter({
     history: createWebHistory(),
-    routes: [
-      {
-        path: "/useClientTicket/as/client/for/ticket/:id",
-        name: "useClientTicket",
-        component: page,
-        meta: {
-          scopeConfig: {
-            actor: ScopeActorTypes.CLIENT,
-            context: { type: TicketContextTypes.TICKET, id }
-          }
-        }
-      }
-    ]
+    routes: await scenarioRoutes(page)
   });
+  (globalThis as Record<string, unknown>).navigateTo ??= (
+    loc: RouteLocationRaw
+  ) => loc;
+  router.beforeEach(to => scopeMiddleware(to, to) as never);
 
-  const url = `/useClientTicket/as/client/for/ticket/${id}`;
+  const pushes: string[] = [];
+  const push = router.push.bind(router);
+  router.push = (to: RouteLocationRaw) => {
+    pushes.push(typeof to === "string" ? to : JSON.stringify(to));
+    return push(to);
+  };
+
   window.history.replaceState({}, "", url);
   await router.push(url);
   await router.isReady();
+  pushes.length = 0;
 
   mounted = mount(page, {
     attachTo: document.body,
     global: { plugins: [router] }
   });
-  return mounted;
+  return { wrapper: mounted, pushes };
+}
+
+/**
+ * Serves the collection list read the reference-loader resolves through
+ * (`useClientTickets` filtered by reference), from a RECORDED body, and reports
+ * every list url it saw so a test can assert the bare-EQUAL reference filter
+ * went out. `installTicketsHandlers` serves only the manager's `/:id` reads.
+ */
+export function installTicketsListBody(body: unknown): {
+  seen: () => string[];
+} {
+  const seen: string[] = [];
+  server?.use(
+    http.get("*/api/tickets", ({ request }) => {
+      seen.push(request.url);
+      return HttpResponse.json(body as object);
+    })
+  );
+  return { seen: () => seen };
 }
 
 /** Unmounts the page before the session is dropped (order matters). */

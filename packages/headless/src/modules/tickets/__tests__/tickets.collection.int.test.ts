@@ -429,3 +429,69 @@ describe("tickets collection — a rejected setCriteria surfaces on hasError (R9
     expect(tickets.useMeta().hasError.value).toBe(true);
   });
 });
+
+describe("tickets collection — the pager survives past page 1 (FE-3226 regression)", () => {
+  it("a list read sends no skip_count side-channel to the wire — total arrives inline", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    handlers.setListBody(recorded.pageOne());
+    const observed = observeTicketsRequests();
+
+    const tickets = useClientTickets().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+    observed.stop();
+
+    const listReads = observed
+      .all()
+      .filter(request => /\/api\/tickets(\?|$)/.test(request.url));
+    expect(listReads.length).toBeGreaterThan(0);
+    for (const request of listReads) {
+      expect(request.url).not.toContain("skip_count");
+    }
+  });
+
+  it("walking to page 2 keeps the real total, more pages, next-page and a non-empty list — and never sends skip_count", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    handlers.setListBody(recorded.pageOne());
+    const observed = observeTicketsRequests();
+
+    const tickets = useClientTickets().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+
+    await tickets.useActions().setCriteria({ pagination: { limit: 2 } });
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+
+    const recordedTotal = (recorded.pageOne() as { total: number }).total;
+    expect(tickets.useContext().pagination.value.total).toBe(recordedTotal);
+    expect(tickets.useContext().pagination.value.pages).toBeGreaterThan(1);
+    expect(tickets.useMeta().hasNextPage.value).toBe(true);
+    expect(tickets.useMeta().isEmpty.value).toBe(false);
+
+    handlers.setListBody(recorded.pageTwo());
+    await tickets.useActions().nextPage();
+    await vi.waitFor(() =>
+      expect(tickets.useContext().pagination.value.page).toBe(2)
+    );
+    observed.stop();
+
+    expect(tickets.useContext().pagination.value.total).toBe(recordedTotal);
+    expect(tickets.useContext().pagination.value.pages).toBeGreaterThan(1);
+    expect(tickets.useMeta().hasNextPage.value).toBe(true);
+    expect(tickets.useMeta().isEmpty.value).toBe(false);
+
+    const listReads = observed
+      .all()
+      .filter(request => /\/api\/tickets(\?|$)/.test(request.url));
+    expect(listReads.length).toBeGreaterThan(0);
+    for (const request of listReads) {
+      expect(request.url).not.toContain("skip_count");
+    }
+  });
+});
