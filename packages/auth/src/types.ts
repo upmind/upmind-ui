@@ -69,6 +69,16 @@ export type SessionRoutes = {
   recoverRoute: RouteLocationAsRelativeGeneric;
 };
 
+/** What the three session screens take: the cross-links, plus where they end. */
+export type SessionViewProps = SessionRoutes & {
+  template?: SESSION_TEMPLATE;
+  /**
+   * Where an accepted sign-in lands in a host that drives no funnel. A host
+   * with a funnel leaves it unset and keeps the step the funnel resolves.
+   */
+  landingRoute?: RouteLocationAsRelativeGeneric;
+};
+
 export type AuthActionProps = SessionRoutes & {
   shape?: string;
 };

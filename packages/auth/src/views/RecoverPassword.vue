@@ -89,22 +89,19 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import Auth from "../components/Auth.vue";
+import { useSessionResolve } from "../session.utils";
 import { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthLoading } from "../shell";
 import AuthBareTemplate from "../templates/AuthBare.template.vue";
 import {
   type SessionProps,
-  type SessionRoutes,
+  type SessionViewProps,
   SESSION_TEMPLATE
 } from "../types";
 import { sessionFormWidthVariants } from "../variants";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<
-  SessionRoutes & {
-    template?: SESSION_TEMPLATE;
-  }
->();
+const props = defineProps<SessionViewProps>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -112,7 +109,8 @@ const themeEngine = useThemeEngine();
 
 const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
-const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+const { navigateBack, navigate } = useRoutingEngine();
+const { navigateResolved } = useSessionResolve(props);
 
 const { ui } = useConfig({
   // The key must be PRESENT to opt out: useConfig calls useBasket() unless it
@@ -172,7 +170,7 @@ function doReject() {
 
 function doResolve() {
   isResolving.value = true;
-  navigateNext().catch(() => {
+  navigateResolved().catch(() => {
     isResolving.value = false;
   });
 }
