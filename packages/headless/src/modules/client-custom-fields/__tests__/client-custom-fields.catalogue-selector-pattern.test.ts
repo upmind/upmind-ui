@@ -1,15 +1,14 @@
 // -----------------------------------------------------------------------------
 /**
  * @fileoverview client-custom-fields — a catalogue is a SELECTOR, a client is a
- * RETARGET (AC-27/AC-37, unit)
+ * RETARGET (AC-41, unit)
  *
  * ## Job To Be Done
  * The two context patterns are mutually exclusive (`scope.types.ts`,
  * `ScopeContextPatterns`): a RETARGET member names an entity and DEMANDS an id,
- * a SELECTOR member is the whole answer and FORBIDS one. AC-27 grades what the
- * module offers at run time, not only when the code is compiled — this file
- * grades the other half, that each catalogue member is declared as the pattern
- * it actually is, by type-checking real call sites against the real barrel.
+ * a SELECTOR member is the whole answer and FORBIDS one. Naming a catalogue is
+ * enough, and naming a client without saying which one is refused (AC-41) —
+ * graded by type-checking real call sites against the real barrel.
  *
  * A catalogue declared bare would compile as a retarget: the picker and every
  * consumer would be asked for an id the catalogue has no entity to supply.
@@ -71,8 +70,8 @@ const PREAMBLE = [
 
 // -----------------------------------------------------------------------------
 
-describe("client-custom-fields — the catalogue members are SELECTOR, the client member is RETARGET (AC-27/AC-37)", () => {
-  it("AC-27 every declared catalogue is reachable with no id, and the client member still demands one", () => {
+describe("client-custom-fields — the catalogue members are SELECTOR, the client member is RETARGET (AC-41)", () => {
+  it("AC-41 every declared catalogue is reachable with no id, and the client member still demands one", () => {
     const diagnostics = compileProbe([
       ...PREAMBLE,
       `collection().for(ClientCustomFieldsContextTypes.INVOICE);`,
@@ -84,7 +83,7 @@ describe("client-custom-fields — the catalogue members are SELECTOR, the clien
     expect(diagnostics).toEqual([7]);
   }, 60000);
 
-  it("AC-37 a catalogue refuses an id — neither catalogue can be spelled as a retarget", () => {
+  it("AC-41 a catalogue refuses an id — neither catalogue can be spelled as a retarget", () => {
     const diagnostics = compileProbe([
       ...PREAMBLE,
       `collection().for(ClientCustomFieldsContextTypes.INVOICE, "x");`,

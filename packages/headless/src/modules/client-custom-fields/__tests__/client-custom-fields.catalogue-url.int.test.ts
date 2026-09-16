@@ -1,15 +1,15 @@
 // -----------------------------------------------------------------------------
 /**
  * @fileoverview client-custom-fields — the declared catalogue reaches the wire
- * (AC-32, integration)
+ * (AC-38/AC-39/AC-32, integration)
  *
  * ## Job To Be Done
  * A catalogue context names WHICH catalogue is read, and the type IS the whole
  * answer (`client-custom-fields.types.ts`, `ClientCustomFieldsContextTypes`).
- * Prove that each catalogue a consumer declares with `.for(...)` leaves as that
- * catalogue's own `filter[object_type]`, that a consumer declaring nothing still
- * reads the client catalogue, and that no catalogue can be reached through the
- * criteria model instead.
+ * Prove that each catalogue a consumer names leaves as that catalogue's own
+ * `filter[object_type]` (AC-38), that a consumer naming none still reads the
+ * client catalogue (AC-39), and that no catalogue can be reached through the
+ * criteria model instead (AC-32).
  *
  * Only the OUTBOUND request is read back here: the recording brand carries no
  * `contract_request` field, so that catalogue's response rows are an open
@@ -68,8 +68,8 @@ async function catalogueParamOf(boot: () => void): Promise<(string | null)[]> {
 
 // -----------------------------------------------------------------------------
 
-describe("client-custom-fields — the declared catalogue is what the wire asks for (AC-32)", () => {
-  it("AC-32 a consumer declaring no catalogue reads the client catalogue", async () => {
+describe("client-custom-fields — the named catalogue is what the wire asks for (AC-38/AC-39/AC-32)", () => {
+  it("AC-39 a consumer naming no catalogue reads the client catalogue", async () => {
     await seedCorpusSession();
 
     const observedTypes = await catalogueParamOf(() => {
@@ -84,7 +84,7 @@ describe("client-custom-fields — the declared catalogue is what the wire asks 
     expect(observedTypes).not.toContain("");
   });
 
-  it("AC-32 .for(INVOICE) reads the invoice catalogue, never the client one", async () => {
+  it("AC-38 .for(INVOICE) reads the invoice catalogue, never the client one", async () => {
     await seedCorpusSession();
 
     const observedTypes = await catalogueParamOf(() => {
@@ -99,7 +99,7 @@ describe("client-custom-fields — the declared catalogue is what the wire asks 
     expect(observedTypes).not.toContain(CATALOGUE_WIRE.client);
   });
 
-  it("AC-32 .for(CANCEL_REQUEST) reads the cancellation-request catalogue, never the client one", async () => {
+  it("AC-38 .for(CANCEL_REQUEST) reads the cancellation-request catalogue, never the client one", async () => {
     await seedCorpusSession();
 
     const observedTypes = await catalogueParamOf(() => {
@@ -114,7 +114,7 @@ describe("client-custom-fields — the declared catalogue is what the wire asks 
     expect(observedTypes).not.toContain(CATALOGUE_WIRE.client);
   });
 
-  it("AC-32 a catalogue scope still carries the client's own brand, and offers no way to name a catalogue through the criteria", async () => {
+  it("AC-38/AC-32 a catalogue scope still carries the client's own brand, and offers no way to name a catalogue through the criteria", async () => {
     await seedCorpusSession();
     const { brandId: corpusBrandId } = recordedIds();
 

@@ -287,3 +287,39 @@ Feature: A client reads their brand's custom field definitions and manages their
     When the client returns to exactly that ordering, search and page
     Then the catalogue is shown again without a further read being made
 
+  # === WHICH CATALOGUE ========================================================
+  #
+  # AC-32 says the client cannot reach a different catalogue through their own
+  # narrowing choices. These four say WHICH catalogue is read is nonetheless a
+  # choice — made by naming the catalogue, never smuggled through the criteria.
+
+  @AC-38 @definitions @catalogue
+  Scenario: I read a catalogue of my brand's fields other than my own
+    Given my brand keeps a separate catalogue of fields for invoices, and another for cancellation requests
+    When I open one of those catalogues by name
+    Then the fields I am shown are the ones that catalogue holds
+    And my own client fields are not served to me in their place
+    And the catalogue I named is still read against my own brand, never another's
+
+  @AC-39 @definitions @catalogue @cache
+  Scenario: Naming no catalogue leaves my own fields read exactly as they always were
+    Given I name no catalogue at all
+    When I open my custom field definitions
+    Then I am shown my own client fields
+    And they are read, and remembered, exactly as they were before any other catalogue could be named
+
+  @AC-40 @definitions @catalogue @cache
+  Scenario: Each catalogue I open keeps its own copy of what it holds
+    Given I have already read my own client fields
+    When I open a second catalogue in the same sitting
+    Then the second catalogue is read for itself rather than answered from the first
+    And what the first catalogue holds is still in front of me afterwards
+
+  @AC-41 @definitions @catalogue @public-surface
+  Scenario: Naming a catalogue is enough; naming a client never is
+    Given a catalogue names what is being read, while a client names whose fields are being read
+    When I say which catalogue I want
+    Then saying its name alone is enough to read it
+    And a catalogue can never be spelled as though it identified somebody
+    And naming a client without saying which client remains refused
+
