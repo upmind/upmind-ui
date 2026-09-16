@@ -24,12 +24,12 @@
 
 import { beforeEach, describe, expect, it } from "vitest";
 import "./mocks";
+import { resolveSelfActor } from "../scope.builder";
 import { ScopeActorTypes, ScopeContextPatterns } from "../scope.types";
 import {
   generateScopeKey,
   resolveContextDeclaration,
   resolveContextDeclarations,
-  resolveSelfActor,
   selector
 } from "../scope.utils";
 import { sessionState } from "./mocks";

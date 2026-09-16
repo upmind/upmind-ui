@@ -40,7 +40,11 @@ import {
   CustomFieldsMajorTypes
 } from "@upmind-automation/types";
 import { SortDirection } from "../query/query.types";
-import { ScopeActorTypes, ScopeContextPatterns } from "../scope/scope.types";
+import { ScopeActorTypes } from "../scope/scope.types";
+// `selector()` is the platform's EXISTING declaration helper
+// (graphify-out/graph.json, 2026-09-16: `selector` in scope/scope.utils.ts) —
+// consumed here, never re-minted.
+import { selector } from "../scope/scope.utils";
 // graphify-out/graph.json (2026-08-10): `useUpload`'s return type is consumed
 // below (`ClientCustomFieldImageServices.uploader`), never re-minted.
 import type { ResponseError } from "../../utils";
@@ -111,41 +115,18 @@ export enum ClientCustomFieldsContextTypes {
  * bar reads the same cell through `resolveContextDeclarations`, so the
  * catalogue picker offers exactly what is declared here.
  *
- * @decision declare each SELECTOR member as a `SelectorContext` literal rather
- * than by calling the platform's `selector()` helper.
- * what:     `{ pattern: ScopeContextPatterns.SELECTOR, type }` written out, with
- *           `ScopeContextPatterns` imported from `scope/scope.types` — the same
- *           leaf module `ScopeActorTypes` (used for the keys below) comes from.
- *           The VALUE is byte-identical to `selector(type)`'s return, and
- *           `resolveContextDeclarations` reads it through the one platform path.
- * why:      `selector()` lives in `scope/scope.utils`, which imports
- *           `session-store`, and a matrix is evaluated at MODULE LOAD. Calling
- *           it here put a cross-module call on this file's evaluation path and
- *           re-entered `scope.utils` mid-initialisation through that chain —
- *           `ReferenceError: Cannot access '__vite_ssr_import_2__' before
- *           initialization` at `scope.utils.ts:29`, which took out 134 suites,
- *           including every consumer that merely imports this module's schemas.
- *           A type-only dependency cannot have that failure mode.
- * rejected: importing `selector` from the `../scope` barrel — the barrel pulls
- *           MORE of the cycle, not less. Moving `selector()` into
- *           `scope.types.ts` would fix it at the platform and is the better
- *           long-term shape, but that is a shared-core edit across 18+
- *           composables and is not this module's call to make — raised for the
- *           operator instead.
+ * The SELECTOR members call the platform's `selector()` (graphify-out/graph.json,
+ * same citation), imported from `scope/scope.utils` directly rather than the
+ * `../scope` barrel: a matrix is evaluated at MODULE LOAD, and the utils file is
+ * kept pure — no store imports — precisely so a matrix can call it on that path.
  */
 export const CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
   [ScopeActorTypes.CLIENT]: [
     ClientCustomFieldsContextTypes.CLIENT,
-    {
-      pattern: ScopeContextPatterns.SELECTOR,
-      type: ClientCustomFieldsContextTypes.INVOICE
-    },
-    {
-      pattern: ScopeContextPatterns.SELECTOR,
-      type: ClientCustomFieldsContextTypes.CANCEL_REQUEST
-    }
+    selector(ClientCustomFieldsContextTypes.INVOICE),
+    selector(ClientCustomFieldsContextTypes.CANCEL_REQUEST)
   ],
   [ScopeActorTypes.GUEST]: null as never
 } as const;

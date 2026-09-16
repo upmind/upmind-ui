@@ -20,8 +20,8 @@ Architecture](../../../../../../docs/adr/001-scope-based-composables.md).
 
 | File                                      | Role                                                                                                                 |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| [scope.builder.ts](../scope.builder.ts)   | `createScopedComposable` — the fluent builder factory and all builder result types.                                  |
-| [scope.utils.ts](../scope.utils.ts)       | `generateScopeKey`, `resolveSelfActor`, `selector`, `resolveContextDeclarations`/`resolveContextDeclaration` (the one reading of a matrix cell). |
+| [scope.builder.ts](../scope.builder.ts)   | `createScopedComposable` — the fluent builder factory and all builder result types; `resolveSelfActor`, the one scope function that reads the session store. |
+| [scope.utils.ts](../scope.utils.ts)       | `generateScopeKey`, `selector`, `resolveContextDeclarations`/`resolveContextDeclaration` (the one reading of a matrix cell). Pure — no store imports — so a matrix can call `selector()` at module load. |
 | [scope.registry.ts](../scope.registry.ts) | `ensure`, `remove`, `clearAll`, `size`, `getRegistry` — the singleton map + effect-scope lifecycle.                  |
 | [scope.devtools.ts](../scope.devtools.ts) | `setupScopeDevtools`, `refreshDevtools` — Vue DevTools inspector.                                                    |
 | [scope.types.ts](../scope.types.ts)       | `ScopeActorTypes`, `ScopeConfig`, `ScopeKey`, `ActorContextMatrix`, and the conditional types that gate the builder. |
@@ -82,7 +82,7 @@ module's general "always name an actor" convention, scoped to the single-record 
 ```
 
 Resolution lives entirely in the builder ([scope.builder.ts](../scope.builder.ts),
-`finalize`) calling [scope.utils.ts](../scope.utils.ts) `resolveSelfActor`. **A module
+`finalize`) calling its own `resolveSelfActor`. **A module
 factory receives an already-resolved, concrete actor and must never branch on `self`.**
 That is ADR-001 clause 4 and the variance law in
 `.claude/rules/code-composables.companion.md`; the `scope-based/no-self-branch` ESLint

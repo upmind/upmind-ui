@@ -1,18 +1,14 @@
-import { AccessRoleTypes } from "@upmind-automation/types";
-import { useSessionStore } from "../session-store";
-import { ScopeActorTypes, ScopeContextPatterns } from "./scope.types";
+import { ScopeContextPatterns } from "./scope.types";
 import { flatMap, head, isArray, isPlainObject, isString } from "lodash-es";
-import type {
-  ScopeActor,
-  ScopeConfig,
-  ScopeKey,
-  SelectorContext
-} from "./scope.types";
+import type { ScopeConfig, ScopeKey, SelectorContext } from "./scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module scope/utils
- * @description Utility functions for scope key generation, matrix declaration
- * reading and actor resolution.
+ * @description Pure utility functions for scope key generation and matrix
+ * declaration reading. Nothing here reaches a store: a scope matrix is evaluated
+ * at MODULE LOAD, and this file must stay safe to call from one — `self`
+ * resolution, which reads the session store, lives in `scope.builder` beside its
+ * one caller.
  */
 
 /**
@@ -136,24 +132,4 @@ export function generateScopeKey(name: string, config: ScopeConfig): ScopeKey {
   }
 
   return parts.join(":");
-}
-
-/**
- * Resolves ScopeActorTypes.SELF to the actual actor type from the current session.
- * Returns the active actor from session store, or GUEST if no session.
- *
- * @param actor - The actor to resolve
- * @returns The resolved actor type (never SELF)
- */
-export function resolveSelfActor(
-  actor: ScopeActor
-): Exclude<ScopeActor, `${ScopeActorTypes.SELF}`> {
-  if (actor !== ScopeActorTypes.SELF) {
-    return actor;
-  }
-
-  const session = useSessionStore();
-  const { activeActor } = session.useContext();
-
-  return activeActor.value ?? AccessRoleTypes.GUEST;
 }
