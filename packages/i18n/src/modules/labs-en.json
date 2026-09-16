@@ -172,6 +172,8 @@
   "client_ticket_open": "Open ticket",
   "client_ticket_unavailable": "Ticket unavailable",
   "client_ticket_unavailable_text": "The ticket the url names could not be read for this session. Open it as the client (/as/client).",
+  "client_ticket_not_found": "No ticket with that reference",
+  "client_ticket_not_found_text": "No ticket matches the reference {reference}. Check it, or paste the ticket id instead.",
   "client_ticket_department": "Department",
   "client_ticket_product": "Linked product",
   "client_ticket_subject_label": "Subject",

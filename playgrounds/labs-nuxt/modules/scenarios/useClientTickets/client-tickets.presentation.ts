@@ -191,19 +191,35 @@ export const detailUischema: DetailUischema = {
 };
 
 /**
- * The two controls this scenario can actually drive: opening the record
- * READ-ONLY, and forcing a re-read of the list. Every write member
- * (`reply`/`close`/`reopen`/`setSubject`/attachments) lives on the MANAGER's
- * action map (`useClientTicket().useActions()`), which the runtime never
- * binds a row action to — only `useList`'s own action map is (per
- * `ListSurface.vue`'s `props.actions`), and `useClientTickets` carries none
- * of those names. Declaring them here would draw a control the runtime can
- * never fire; this module docblock names the gap rather than faking the
- * wiring.
+ * The controls this scenario can actually drive: OPENING the record's own
+ * manager page (a surface-owned `navigate`, not a module action), opening the
+ * record READ-ONLY in the detail overlay, and forcing a re-read of the list.
+ * Every write member (`reply`/`close`/`reopen`/`setSubject`/attachments) lives
+ * on the MANAGER's action map (`useClientTicket().useActions()`), which the
+ * runtime never binds a row action to — only `useList`'s own action map is
+ * (per `ListSurface.vue`'s `props.actions`), and `useClientTickets` carries
+ * none of those names. So no MODULE write is declared here. The `open` control
+ * is a different thing: a `navigate` the surface fires itself (like `detail`),
+ * routing to `/useClientTicket/as/client/for/ticket/<row id>` — never a
+ * composable member, so it draws no control the runtime cannot fire.
  */
 export const actionsUischema: ActionsUischema = {
   type: "ActionsLayout",
   elements: [
+    {
+      // R6/AC1 — a hand reads only the REFERENCE on the row (never the uuid the
+      // manager loads by), so this control carries the id itself and navigates
+      // to the manager route: no copy-paste, no 404 from pasting a reference.
+      // NOT a module action (the runtime binds none for `useClientTickets`) — a
+      // surface-owned `navigate`, the twin of the read-only `view` below.
+      type: "Action",
+      name: "open",
+      navigate: "/useClientTicket/as/client/for/ticket/:id",
+      i18n: "action.open_ticket",
+      icon: "link-external-01",
+      variant: "outline",
+      placement: ActionPlacementTypes.VISIBLE
+    },
     {
       type: "Action",
       name: "view",

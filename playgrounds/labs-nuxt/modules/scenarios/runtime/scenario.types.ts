@@ -448,6 +448,20 @@ export type ScenarioAction = {
    * `ScenarioAction`, the read peer of its `handoff` member.
    */
   detail?: boolean;
+  /**
+   * This control NAVIGATES to another route instead of calling an action or
+   * opening an overlay — a route-path template where the `:id` placeholder is
+   * replaced with the row's own id. The surface owns the push (it never reaches
+   * the module), so it is the navigation twin of {@link ScenarioAction.detail}:
+   * a control the page handles itself, not a member bound off `useList`'s
+   * action map.
+   *
+   * @graphify-citation `graphify-out/graph.json` (query "ScenarioAction navigate
+   * row action router push") — no per-row navigation node exists in the tree;
+   * page-level navigation lives only on {@link ScenarioPageAction}
+   * (`usePreferencesLink`). This member extends the existing `ScenarioAction`.
+   */
+  navigate?: string;
   /** The control's label — an i18n key, never English. */
   i18n: string;
   icon?: string;

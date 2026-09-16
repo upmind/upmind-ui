@@ -24,13 +24,29 @@
             @keyup.enter="openTicket"
           />
           <Button
-            :disabled="!idInput.trim()"
+            :disabled="!idInput.trim() || resolving"
+            :loading="resolving"
             :data-attrs="{ 'data-test-key': 'ticket-open' }"
             @click="openTicket"
           >
             {{ t("labs.client_ticket_open") }}
           </Button>
         </div>
+
+        <!-- A pasted reference that matches no ticket — distinct from the
+             url-addressed read failure below (`ticket-unavailable`). -->
+        <Alert
+          v-if="notFoundReference"
+          variant="warning"
+          appearance="outline"
+          :title="t('labs.client_ticket_not_found')"
+          :description="
+            t('labs.client_ticket_not_found_text', {
+              reference: notFoundReference
+            })
+          "
+          :data-attrs="{ 'data-test-key': 'ticket-not-found' }"
+        />
       </Card>
 
       <!-- Booting the addressed ticket. -->
@@ -331,7 +347,8 @@ import {
   Icon,
   ScopeActorTypes,
   TicketContextTypes,
-  useClientTicket
+  useClientTicket,
+  useClientTickets
 } from "@upmind-automation/client-vue";
 import { useContextScope } from "~/composables/scope";
 
@@ -393,10 +410,60 @@ watch(
   }
 );
 
-function openTicket(): void {
-  const id = idInput.value.trim();
-  if (!id) return;
-  router.push(`/useClientTicket/as/client/for/ticket/${id}`);
+// A ticket id is a bare 8-4-4-4-12 hex string; a reference (e.g. `LHG-275-42348`)
+// carries non-hex letters, so it never matches. Loose hex, not RFC-4122: the
+// real ids carry non-standard version/variant nibbles.
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const resolving = ref(false);
+const notFoundReference = ref<string>();
+
+// A stale not-found notice clears the moment the input changes.
+watch(idInput, () => {
+  notFoundReference.value = undefined;
+});
+
+// A hand only ever sees a ticket's REFERENCE on the listing; the manager loads
+// by id. Resolve a pasted reference through the module's OWN public surface —
+// `useClientTickets` filtering by the bare-leaf EQUAL `reference` column (AC-5)
+// — on a `.fresh()` instance so it never disturbs a live collection scope.
+async function resolveReferenceToId(
+  reference: string
+): Promise<string | undefined> {
+  const tickets = useClientTickets().as(ScopeActorTypes.SELF).fresh();
+  const collection = tickets.useActions();
+  try {
+    collection.setCriteria({ filters: { reference } });
+    await collection.isReady();
+    return tickets.useContext().data.value[0]?.id;
+  } finally {
+    collection.destroy();
+  }
+}
+
+async function openTicket(): Promise<void> {
+  const input = idInput.value.trim();
+  if (!input || resolving.value) return;
+
+  // A typed id navigates unchanged — the behaviour this page always had.
+  if (UUID_PATTERN.test(input)) {
+    router.push(`/useClientTicket/as/client/for/ticket/${input}`);
+    return;
+  }
+
+  resolving.value = true;
+  notFoundReference.value = undefined;
+  try {
+    const id = await resolveReferenceToId(input);
+    if (!id) {
+      notFoundReference.value = input;
+      return;
+    }
+    router.push(`/useClientTicket/as/client/for/ticket/${id}`);
+  } finally {
+    resolving.value = false;
+  }
 }
 
 function report(error: unknown): void {

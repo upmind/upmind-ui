@@ -416,6 +416,7 @@ import {
 } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { useFormI18n } from "@upmind-automation/client-vue";
 import { SortDirection } from "@upmind-automation/headless";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
@@ -654,6 +655,10 @@ const hasCardView = computed(
 // way — the rows in hand are simply drawn from the scenario's other
 // declaration, and the writer never touches the router (AC9.3).
 const url = usePlaygroundUrlState();
+
+// A navigate row action pushes a route the surface owns (never the module) —
+// resolved lazily so a mount without an installed router still sets up.
+const router = useRouter();
 
 const view = computed<ListViewTypes>(() =>
   url.view.value === ListViewTypes.CARD
@@ -1007,6 +1012,10 @@ function isActionAvailable(action: ScenarioAction): boolean {
   // enriches what is shown, never gates whether it can be.
   if (action.detail) return true;
 
+  // A navigate control pushes a route the surface owns, keyed by the row's own
+  // id — it calls no module action, so it is available like a detail control.
+  if (action.navigate) return true;
+
   // A handoff control calls no action: what it needs is the target it opens,
   // and without one it would be a button that does nothing (C2).
   if (action.handoff) return !!get(props.handoffs, action.handoff);
@@ -1078,6 +1087,16 @@ function pressRowAction(action: ScenarioAction, row: ListRow): Promise<void> {
 
   if (action.handoff) {
     openHandoff(action, row);
+    return Promise.resolve();
+  }
+
+  if (action.navigate) {
+    router?.push(
+      action.navigate.replace(
+        ":id",
+        encodeURIComponent(toString(get(row, "id")))
+      )
+    );
     return Promise.resolve();
   }
 
