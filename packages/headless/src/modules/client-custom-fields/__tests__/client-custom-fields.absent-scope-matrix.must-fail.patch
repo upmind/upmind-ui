@@ -11,15 +11,15 @@
 #
 # RE-TARGETED (developer seat, FE-3240 second pass): the prior hunk deleted the
 # COLLECTION's (`useClientCustomFields.ts`) explicit `.scopeMatrix` assignment.
-# FE-3240 removed that assignment BY DESIGN — the collection names NO context
-# (all-`never` matrix, client rides in `.withId()`), so it intentionally
-# publishes no matrix and `servesActor(undefined)` reads as "serve every actor,
-# gate at runtime". AC-37's collection case now tolerates an absent matrix
-# (`values(collMatrix ?? {})`), so no collection mutation can flip it. The live
-# matrix-presence invariant now lives on the IMAGE editor, which DOES declare a
-# meaningful cell (CLIENT->FIELD) and MUST publish it. Same capability under
-# test ("a module publishes its declared scope matrix as a value"), moved to the
-# composable that still carries one.
+# That earlier re-target rationale — that the shipped collection names NO context
+# and publishes no matrix — was WRONG. The shipped collection DOES name a CLIENT
+# context and DOES publish its CLIENT->CLIENT matrix (`useClientCustomFields.ts`
+# `.scopeMatrix = CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX`), and AC-37's collection case
+# asserts that published value — so a collection mutation WOULD flip it too. Both
+# composables therefore carry a live matrix-presence invariant; this control
+# targets the IMAGE editor, which declares its own meaningful cell (CLIENT->FIELD)
+# and MUST publish it. Same capability under test ("a module publishes its
+# declared scope matrix as a value"), on the composable this hunk mutates.
 #
 # Mutates: useClientCustomFieldImage.ts — deletes the explicit
 # `(useClientCustomFieldImage as ScopedComposable<...>).scopeMatrix =

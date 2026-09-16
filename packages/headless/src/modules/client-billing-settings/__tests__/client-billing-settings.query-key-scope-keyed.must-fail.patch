@@ -2,7 +2,7 @@
 #
 # Targets: the FE-3240 behaviour-preserving invariant — the record query key is
 # the RESOLVED client id, never the scope key. Two scopes that resolve the SAME
-# client (the session's own arm, and an explicit `.withId(clientId)`) have
+# client (the session's own arm, and an explicit `.for(CLIENT, clientId)`) have
 # DIFFERENT scope keys but must share ONE `["client", id, "record"]` cache
 # entry and one fetch.
 #
@@ -10,11 +10,12 @@
 # that knows the exact line it changed authors the mutant; the prover applies
 # it blind, confirms RED, then reverts — never reading src to construct it).
 #
-# Mutates: client-billing-settings.services.ts loadSettings — folds the scope's
-# `.withId()` marker (`config.id`, the raw `id`) into the record query key. The
-# key is now scope-SENSITIVE: the session-own scope (`id === undefined`) and the
-# `.withId(clientId)` scope (`id === clientId`) mint two DISTINCT entries instead
-# of collapsing onto the shared `["client", id, "record"]` key.
+# Mutates: client-billing-settings.services.ts loadSettings — folds the scope
+# context's id (`scopeContext?.id`) into the record query key. The key is now
+# scope-SENSITIVE: the session-own scope (`scopeContext === undefined`, so
+# `scopeContext?.id === undefined`) and the `.for(CLIENT, clientId)` scope
+# (`scopeContext.id === clientId`) mint two DISTINCT entries instead of
+# collapsing onto the shared `["client", id, "record"]` key.
 #
 # Expected RED: client-billing-settings.read.int.test.ts —
 # "AC2 two instances resolving the same client id via different scope keys share
@@ -28,15 +29,15 @@
 #   git apply -R <this file>
 #
 diff --git a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
-index a6d87e006..0b62676c4 100644
+index 62a6172a3..fb3a4ba76 100644
 --- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
 +++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
-@@ -282,7 +282,7 @@ function loadSettings(id?: string): ClientBillingSettingsRecordQuery {
+@@ -298,7 +298,7 @@ function loadSettings(
    const response = scope.run(() =>
      vueUseQuery<IClient, DefaultError, BillingSettingsRecord>(
        {
 -        queryKey: ["client", clientId, RECORD_QUERY_KEY_SEGMENT],
-+        queryKey: ["client", clientId, RECORD_QUERY_KEY_SEGMENT, id],
++        queryKey: ["client", clientId, RECORD_QUERY_KEY_SEGMENT, scopeContext?.id],
          queryFn: async () => {
            if (!isAddressable(clientId.value)) {
              throw new NotAuthenticatedError();
