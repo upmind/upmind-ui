@@ -258,9 +258,28 @@ export function ticketsScopeKeys(): string[] {
   );
 }
 
-/** Evict every tickets scope entry so each test starts from a fresh instance. */
-export function resetTicketsScopes(): void {
+/**
+ * Evict every tickets scope entry so each test starts from a fresh instance.
+ *
+ * A prior test's own singleton-module queries (e.g. brand config) can still
+ * be mid-flight through MSW's async response delivery the instant the next
+ * test starts — genuinely `fetchStatus: "fetching"`, not yet resolved or
+ * rejected. Forcibly cancelling one there rejects it with `CancelledError`
+ * before anything ever attached a handler, which vitest reports as an
+ * unhandled rejection. Waiting (briefly, best-effort) for the query cache to
+ * go quiet lets that in-flight response land naturally; only what's still
+ * outstanding after the wait is force-cancelled before `clear()`.
+ */
+export async function resetTicketsScopes(): Promise<void> {
   for (const key of ticketsScopeKeys()) remove(key);
+  try {
+    await vi.waitFor(() => expect(queryClient.isFetching()).toBe(0), {
+      timeout: 2000
+    });
+  } catch {
+    // best-effort settle window elapsed; fall through to explicit cancellation.
+  }
+  await queryClient.cancelQueries();
   queryClient.clear();
 }
 
@@ -296,7 +315,7 @@ export async function seedClientSession(): Promise<{
   clientId: string;
   accessToken: string;
 }> {
-  resetTicketsScopes();
+  await resetTicketsScopes();
   installBackgroundStubs();
 
   const { clientToken, selfBody } = recordedClientCredentials();

@@ -17,6 +17,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { useClientTickets, useClientTicket } from "..";
+import { queryClient } from "../../query/client";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { TicketContextTypes } from "../tickets.types";
 import {
@@ -37,6 +38,8 @@ describe("tickets — AC-26/AC-28 dropped capabilities are absent, not silently 
     const actionKeys = Object.keys(tickets.useActions() as object);
     expect(actionKeys).not.toContain("reschedule");
     expect(actionKeys).not.toContain("changeDepartment");
+
+    tickets.useActions().destroy();
   });
 
   it("the manager exposes no reschedule / change-department member", async () => {
@@ -48,6 +51,8 @@ describe("tickets — AC-26/AC-28 dropped capabilities are absent, not silently 
     const actionKeys = Object.keys(ticket.useActions() as object);
     expect(actionKeys).not.toContain("reschedule");
     expect(actionKeys).not.toContain("changeDepartment");
+
+    ticket.useActions().destroy();
   });
 
   it("AC-27 change-subject issues a real request, and no observed request across a real read/write pass ever names ticket_department_id or a reschedule field", async () => {
@@ -75,5 +80,10 @@ describe("tickets — AC-26/AC-28 dropped capabilities are absent, not silently 
 
     ticket.useActions().destroy();
     tickets.useActions().destroy();
+
+    await vi.waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+      expect(queryClient.isMutating()).toBe(0);
+    });
   });
 });
