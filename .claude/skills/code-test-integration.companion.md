@@ -43,7 +43,7 @@ The plugin law is cited, not restated: recording is step one, and fabricated fix
 3. **Recording env**: `packages/headless/.env.recording` (`VITE_API_URL`, `RECORDING_BRAND_ORIGIN`).
 4. **Credentials**: `tests/fixtures/credentials.ts` (`API_CREDENTIALS`, imported as `@upmind-automation/test-fixtures/credentials`).
 
-A failure of ANY link (network, creds, env) **escalates with the failed command's verbatim output**; hand-authored fixture JSON is never a fallback, and a disclosed placeholder is still a violation (receipt: 2026-08-05 client-email — see `verify-cosplay.companion.md`).
+A failure of ANY link (network, creds, env) **escalates with the failed command's verbatim output**; hand-authored fixture JSON is never a fallback, and a disclosed placeholder is still a violation (receipt: 2026-08-05 client-email — see `the seat laws (agents/*.md, Laws section)`).
 
 ## Governance + reference (base "governing decision record" + reference-doc pointer)
 

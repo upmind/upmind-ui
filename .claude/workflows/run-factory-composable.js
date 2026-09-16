@@ -128,7 +128,7 @@ const FACTS = `Story: ${id}. Worktree: ${worktree}. Module: ${target}. Mode: ${m
 const JTBD = `Run JTBD, verbatim — your gate field is evidence toward THIS, never the goal itself; output that satisfies your gate while contradicting it must surface the contradiction rather than return green: "${jtbd}".`;
 
 // review-notes.md carries the operator rulings and binds at ADR level for this
-// story (agent-behavior.companion.md §1). research.md is the Research stage's
+// story (the seat laws (agents/*.md, Laws section)). research.md is the Research stage's
 // own filed output. Both are read, never re-derived.
 const INPUTS = `Filed inputs in ${sddDir} — read before starting: review-notes.md (operator rulings, ADR-level, never silently overridden) and research.md (the Research stage's filed findings; read it instead of re-deriving it).`;
 const BOUNDS = `Run constraints: ${constraints}`;

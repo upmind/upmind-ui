@@ -46,7 +46,7 @@ So the Research seat **writes `research.md` into the story's SDD directory** —
 
 Writing it is inside the planner seat's existing write lane (`agent-seat-separation`: read-only everywhere except the SDD directory), so this adds no seat permission. Two companions, same directory, same reason:
 
-- **Operator rulings go to `review-notes.md`** — the per-story ruling file (`agent-behavior.companion.md` §1), read first on every re-run and mirrored to the issue tracker. A ruling the operator gives mid-run — a variant call, a scope boundary, a correction to a seat's output — binds at ADR level for that story and is worthless if it lives only in the run's chat.
+- **Operator rulings go to `review-notes.md`** — the per-story ruling file (`the seat laws (agents/*.md, Laws section)` §1), read first on every re-run and mirrored to the issue tracker. A ruling the operator gives mid-run — a variant call, a scope boundary, a correction to a seat's output — binds at ADR level for that story and is worthless if it lives only in the run's chat.
 - **Where the SDD directory is gitignored** (this repo ignores `docs/sdd` as "working notes, not the durable record"), neither file survives the worktree, so the run ALSO mirrors the rulings to the issue tracker as the `## 🤖 AI Session` comment. On-disk for the seats, tracker for the record — never one alone.
 
 ## Code law 1 — the arms determination
@@ -94,7 +94,7 @@ A `*.must-fail.patch` needs the exact source line (the **developer**'s knowledge
 - The **developer** authors the mutant patch — it knows the line it changed, and mutating production source is not a test assertion, so it neither self-certifies nor grades anything.
 - The **prover** applies it blind, confirms the intended assertion goes RED, then reverts — never reading implementation source to construct one.
 
-Author-of-mutation ≠ verifier-of-red (`agent-seat-separation.companion.md`). This holds through every repair cycle: a behaviour repaired or newly armed needs its fresh control authored the same way.
+Author-of-mutation ≠ verifier-of-red (`the seat laws (agents/*.md, Laws section)`). This holds through every repair cycle: a behaviour repaired or newly armed needs its fresh control authored the same way.
 
 ## Seat separation holds across a repair
 

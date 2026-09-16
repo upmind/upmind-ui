@@ -33,7 +33,7 @@ The prop-first layer over the reka-ui primitives, replacing the old lib's `.ce.v
 - **`design-system/packages/ui/COMPONENT_SPEC.md`** — the library's canonical component contract: file layout, reka-ui wrapping, the token vocabulary, focus/invalid/motion/press grammar, Vue conventions, a11y, stories, tests, registry. **Every composed component obeys it in full**, exactly like a primitive. Read it before writing one.
 - **ADR-024 §2** — the styling model (`useStyles`, `uiConfig` and `*.config.ts` retired; `cva()` kept as an internal class-organiser).
 
-The laws below are the **delta**: what the composed layer needs and `COMPONENT_SPEC.md` does not cover. The old lib's `.ce.vue` for the same component is the composed component's **parity oracle** — see [verify-parity-oracle.companion.md](./verify-parity-oracle.companion.md).
+The laws below are the **delta**: what the composed layer needs and `COMPONENT_SPEC.md` does not cover. The old lib's `.ce.vue` for the same component is the composed component's **parity oracle** — see the seat laws (agents/*.md, Laws section).
 
 Skills: `/code-compose-ui` (new or migrated) and `/code-upgrade-ui` (existing). Both cite these laws; neither restates them.
 
