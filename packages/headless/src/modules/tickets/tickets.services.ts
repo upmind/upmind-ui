@@ -235,7 +235,6 @@ function loadList(
     queryKey: [...queryKey, { client: clientId }],
     url,
     withAccessToken: true,
-    withSplitCount: true,
     guard: async () => {
       if (!isAddressable(clientId.value)) throw new NotAuthenticatedError();
       return true;
