@@ -244,7 +244,7 @@ const { availableContexts, recentContexts, remember } =
   useContextScopeSelector();
 
 const store = useSessionStore();
-const { clientSessions } = store.useContext();
+const { activeActor, clientSessions } = store.useContext();
 const { isAvailable } = store.useMeta();
 
 /** One pending id per RETARGET member, keyed by the member's type. */
@@ -261,17 +261,31 @@ const isRetargeting = computed(() => currentContext.value?.id !== undefined);
 const isClientType = (type: string): boolean => type === AccessRoleTypes.CLIENT;
 
 /**
- * Every member the registered matrix declares for the actor the url names.
- * `SELF` resolves to whoever is active, so it is offered every declared member
- * rather than none; the same type declared under two actors is one member.
+ * The actor whose members are offered. A url naming none means SELF, and SELF
+ * is whoever is active — so it resolves to that concrete actor rather than
+ * standing for all of them. Offering the union would put a member of another
+ * actor's cell in front of a hand that cannot use it: the pick would build a
+ * url the module then refuses.
+ *
+ * Resolved off the store this component already holds, not through the scope
+ * builder's own `resolveSelfActor`: same answer, one seam instead of two, and
+ * it follows the store reactively as the active session changes.
+ */
+const resolvedActor = computed<string>(() =>
+  actorScope.value === ScopeActorTypes.SELF
+    ? (activeActor.value ?? AccessRoleTypes.GUEST)
+    : actorScope.value
+);
+
+/**
+ * Every member the registered matrix declares for that actor. A cell may name
+ * the same type twice; the pattern and the type together are the identity.
  */
 const members = computed<AvailableContext[]>(() =>
   uniqBy(
     filter(
       availableContexts.value,
-      ctx =>
-        actorScope.value === ScopeActorTypes.SELF ||
-        ctx.actor === actorScope.value
+      ctx => String(ctx.actor) === resolvedActor.value
     ),
     ctx => `${ctx.pattern}:${ctx.type}`
   )

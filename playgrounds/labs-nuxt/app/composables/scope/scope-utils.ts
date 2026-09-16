@@ -16,9 +16,10 @@
 import { useRouter, useRoute } from "vue-router";
 import {
   ScopeActorTypes,
-  resolveContextDeclarations
+  resolveContextDeclarations,
+  resolveSelfActor
 } from "@upmind-automation/headless";
-import { filter, get, head } from "lodash-es";
+import { filter, get, head, some } from "lodash-es";
 import type {
   ActorContextMatrix,
   ScopeContext,
@@ -69,6 +70,37 @@ export function servesActor(
 ): boolean {
   if (!matrix || actor === ScopeActorTypes.SELF) return true;
   return !!resolveMatrixContext(get(matrix, actor));
+}
+
+/**
+ * Whether a module's own matrix declares the CONTEXT a url NAMED, for the actor
+ * it named. The other half of `servesActor`, and a separate refusal.
+ *
+ * A url-sourced context type never passes through the matrix's compile-time
+ * `.for()` overloads — it is a string a hand typed into the address bar — and
+ * `.for()` itself validates nothing at runtime. Without this test an undeclared
+ * type reaches the module, which resolves its own default instead and renders
+ * it: the page then shows one catalogue while the url names another, with
+ * nothing to say so.
+ *
+ * `SELF` is resolved to the active actor first. The url names no actor, but the
+ * cell that boots is a concrete one, and only the members THAT actor declares
+ * can be served.
+ *
+ * A composable registered without a matrix declares no refusal, and a url that
+ * names no context has nothing to refuse.
+ */
+export function servesContext(
+  matrix: ActorContextMatrix | undefined,
+  actor: ScopeActorTypes,
+  context: ScopeContext | undefined
+): boolean {
+  if (!matrix || !context) return true;
+
+  return some(
+    resolveMatrixContexts(get(matrix, resolveSelfActor(actor))),
+    declared => declared.type === context.type
+  );
 }
 
 export type ScopePathConfig = {

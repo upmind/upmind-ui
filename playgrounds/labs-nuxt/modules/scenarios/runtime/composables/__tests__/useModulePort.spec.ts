@@ -17,6 +17,7 @@ import type {
   FourLayerComposable
 } from "../../scenario.types";
 import type { ModulePort } from "../useModulePort.types";
+import type { ActorContextMatrix } from "@upmind-automation/headless";
 
 /**
  * A cell that OWNS query state: context carries `query` (the live model) and
@@ -247,5 +248,72 @@ describe("@R3 useModulePort context arity (FE-3239)", () => {
     // port made, not a shape both paths share.
     expect(port.snapshot().meta.isScoped).toBe(false);
     expect(port.criteria).toBeUndefined();
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+/**
+ * A matrix declaring exactly one member, so a url naming any other type is
+ * naming one this module does not serve.
+ */
+const ONE_MEMBER_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: "invoice",
+  [ScopeActorTypes.GUEST]: null as never
+} as unknown as ActorContextMatrix;
+
+describe("@R3 useModulePort refuses a context the matrix never declared", () => {
+  /**
+   * The url is a hand's input. `.for(type)` validates nothing at runtime — the
+   * matrix constrains it through compile-time overloads a typed string never
+   * passes through — so the port is the only place the declaration is checked.
+   * Without the check an undeclared type reaches the module, which resolves its
+   * own default and renders THAT: one catalogue shown while the url names
+   * another, with nothing to say so.
+   */
+  it("never reaches .for(), and boots the unserved surface instead", () => {
+    const { composable, calls } = createForRecordingComposable();
+    composable.scopeMatrix = ONE_MEMBER_MATRIX;
+
+    const port = useModulePort(composable, {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "invoicee" }
+    });
+
+    expect(calls).toEqual([]);
+    expect(port.snapshot().meta.isScoped).toBeUndefined();
+    expect(port.snapshot().actions).toEqual([]);
+    expect(port.criteria).toBeUndefined();
+  });
+
+  it("still serves the member the same matrix DOES declare", () => {
+    // The control: the refusal above is a decision about the TYPE, not a port
+    // that refuses every context once a matrix is present.
+    const { composable, calls } = createForRecordingComposable();
+    composable.scopeMatrix = ONE_MEMBER_MATRIX;
+
+    const port = useModulePort(composable, {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "invoice" }
+    });
+
+    expect(calls).toEqual([["invoice"]]);
+    expectScopedCellReturned(port);
+  });
+
+  it("lets a fresh instance through, since it takes no .for() to refuse", () => {
+    const { composable, calls } = createForRecordingComposable();
+    composable.scopeMatrix = ONE_MEMBER_MATRIX;
+
+    const port = useModulePort(composable, {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "invoicee" },
+      fresh: true
+    });
+
+    expect(calls).toEqual([]);
+    expect(port.snapshot().meta.isScoped).toBe(false);
   });
 });
