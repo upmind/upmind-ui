@@ -75,7 +75,9 @@ function createClientTicketForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  *
  * @example
  * ```ts
- * const ticket = useClientTicket().as('client').for('ticket', ticketId)
+ * const ticket = useClientTicket()
+ *   .as(ScopeActorTypes.CLIENT)
+ *   .for(TicketContextTypes.TICKET, ticketId)
  * const { data, feed } = ticket.useContext()
  * await ticket.useActions().isReady()
  * await ticket.useActions().reply('Thanks for the update')
