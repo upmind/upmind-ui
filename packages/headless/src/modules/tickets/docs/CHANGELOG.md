@@ -1,0 +1,229 @@
+# Changelog
+
+All notable changes to the `tickets` module are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/).
+
+## [Unreleased]
+
+The module is **net-new**. Nothing existed under `packages/headless/src/modules/tickets/` before this build — a knowledge-graph query for every tickets construct returned no node in this tree. The only prior tickets-shaped surface in the repo was a portal mock (`apps/portal-nuxt/app/portal/mock/contracts/client-tickets.ts`), which this module **corrects rather than copies**: the mock's collection matrix spelled `.for('client', id)`, which is forbidden here.
+
+### Added
+
+#### The two composables
+
+- **`useClientTickets`** — the client×self ticket collection. Addressed `.as(ScopeActorTypes.SELF)`; its scope matrix maps **every** actor to `null as never`, so `.for()` is unspellable on it and `.for('client', id)` cannot be reached at all.
+- **`useClientTicket`** — the per-ticket manager. Addressed `.as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id)`, because a ticket is a genuine ADR-001 **context** — it owns its own records (its messages) and so is not a leaf. `SINGLE-READ.md`'s `.withId(id)` is deliberately overruled for this module.
+- Both registered under the same module name (`"tickets"`), both built from **one** services factory, so the two halves can never disagree about whose tickets are being read.
+
+#### Collection surface
+
+- **`useActions().setCriteria(intent)`** — the one write verb over `query` · `filters` · `sort` · `pagination`, validated against the module's own declared schema **before** it commits. Merges branches; a branch that is given replaces that whole branch.
+- **`useActions().nextPage()` / `.prevPage()`** — page walk.
+- **`useActions().setPageSize(limit)`** — applies the limit **and** persists it to the client's own preferences.
+- **`useActions().create(model)`** — raises a ticket, including create-time scheduling (`settings.scheduled_datetime`); invalidates the list on success.
+- **`useActions().uploadAttachment(file)`** — uploads ahead of a create, returning the reference `create()`'s `files` consumes.
+- **`useActions().loadDepartmentOptions()` / `.loadAllDepartments()` / `.loadTicketStatuses()`** — the module's own desk and status lookups.
+- **`useActions().savePrefs(prefs)`** — read-modify-write over the client's `meta` map.
+- **`useActions().isReady()` / `.refresh()` / `.invalidate()` / `.reset()` / `.destroy()`** — lifecycle.
+- **`useContext().schemas`** — `{ query: { schema, uischema, sortUischema }, create: { schema, uischema } }`, published as plain JSON so a renderer derives its controls with no per-field UI code.
+- **`useContext().data` / `.error` / `.findOne` / `.getOne` / `.pagination` / `.query`** — the reactive list, the captured error, row lookups, the pagination descriptor, and the live read-only criteria model.
+- **`useMeta()`** — seven flags: `hasError`, `isAvailable`, `isEmpty`, `isLoading`, `hasNextPage`, `hasPrevPage`, `hasPages`.
+- **`useInternals()`** — actor scope and the raw backing query.
+
+#### Manager surface
+
+- **`useActions().loadOlder()` / `.loadNewer()` / `.loadAttachments()`** — the conversation, cursor-paged in both directions on the message id, plus an attachments-only view that is a **different request** rather than a client-side filter. `loadOlder()` on an empty feed is the initial load.
+- **`useActions().getMessage(id)`** — re-reads one message and replaces its row in the feed in place.
+- **`useActions().reply(body, { isPrivate, files })`** — posts a reply carrying `last_message_id`; a `409 ticket_has_more_recent_reply` resolves to `undefined` as a **caution** and pages the thread forward.
+- **`useActions().editMessage(id, body)` / `.deleteMessage(id, reason)`** — refused with **no request** when the held message's `can_manage` is false.
+- **`useActions().downloadAttachment(fileId)` / `.deleteAttachment(messageId, fileId)` / `.uploadAttachment(file)`**.
+- **`useActions().close()` / `.reopen()` / `.setSubject(subject)`** — close and rename refused when `settings.lock`; reopen refused unless the ticket is closed.
+- **`useActions().setRelatedProduct(id)` / `.removeRelatedProduct()`** — link and change are the same write; unlink sends an **explicit `null`**.
+- **`useContext().data` / `.department` / `.relatedProduct` / `.error` / `.feed`** — the feed being a merged, discriminated sequence of `message` and `log` entries drawn from **two** endpoints.
+- **`useMeta()`** — eleven flags, every one derived **per record**: `isAvailable`, `isLoading`, `hasError`, `isClosed`, `isLocked`, `isScheduled`, `isStaged`, `isDelegated`, `isPollable`, `canReply`, `canReopen`.
+- **`useInternals()`** — actor scope, the raw query, and the poll controls `armPoll()` / `disarmPoll()` / `teardown()`.
+
+#### Behaviours worth naming
+
+- **The `limit + 1` has-more probe** on the message thread — the paging contract carries no usable total, so the request asks for one row more than the page size and trims the overflow.
+- **A 60-second poll** on a non-closed ticket, armed automatically by a watch on the loaded ticket's status code (`immediate: true`), skipped and **cleared** on a hidden view, re-fired once on `visibilitychange`.
+- **Criteria-write validation at the module's own edge** — the raw merged candidate is validated against the schema before it is forwarded, and the rejection is folded into **both** `useContext().error` and `useMeta().hasError`.
+- **Total mappers** — an unrecognised value passes through rather than throwing, because a throwing transform in the request pipeline surfaces as a 200 with zero rows.
+
+### Changed (relative to the legacy implementation being migrated from)
+
+- **Identity resolves from the scope the caller opened**, through one seam (`resolveClientId`), never from a session read inside a request-issuing function. Every request is `api/…`; there is no admin-prefixed variant anywhere and a guard spec asserts it by scanning observed requests.
+- **The hidden-view poll clears its interval** instead of returning early. The legacy implementation returned early *without* clearing, leaking no-op fires for the life of the view.
+- **The stale-reply `409` is a caution at the service layer**, resolving to `undefined`, rather than a thrown error every consumer has to special-case on one API code string.
+- **`isReady()` always settles.** It answers addressability first, then waits on a fetch that is actually coming — so it cannot hang behind a query that will never fire.
+- **`refresh()` rejects with a typed error** when the scope cannot address a client, instead of silently returning nothing.
+- **Every write gate is per record**, read off the loaded ticket or message, never per actor. There is no `.{actor}.ts` sibling anywhere in this module.
+- **Errors are state.** Nothing raises a toast or a notification; reads and rejected criteria writes land on `useContext().error` / `useMeta().hasError`, and local refusals throw.
+
+### Removed / deliberately absent
+
+- **`reschedule` (post-creation) and `changeDepartment` — dropped as admin-only** (ruling **R5**). Both are reachable in the legacy app only from an admin-mounted controls dropdown; the client action list renders neither. Disposition: `NOT-SUPPORTED-IN-LEGACY`, signed off by that ruling. No spin-off card. A spec asserts the absence of both members, and that no observed request across a real read/write pass names `ticket_department_id` or a reschedule field.
+  - **Create-time scheduling is unaffected and supported** — `create({ …, scheduledAt })`.
+  - **Change subject is unaffected and supported** — `setSubject()`.
+- **Message-body search — a signed `NOT-SUPPORTED-IN-LEGACY` drop** (ruling **R13(a)**), final on a **server receipt**, not on a reading of client code: a phrase present verbatim in a recorded message body returns `200` with zero rows, while a reference fragment returns the matching ticket. Free-text search covers **subject and reference**.
+- **No mutation state machine.** The module is the `query` variant throughout; form schemas are exported for the consuming page to render and validate against (**R8**), and the module owns no form machine.
+- **No toast or notification surface.**
+
+### Ruled decisions worth carrying forward
+
+Each of these is an operator ruling recorded in `docs/sdd/FE-3226/review-notes.md`, and each is a trap a reader otherwise springs. The full statement of every one is in [gotchas.md](./gotchas.md).
+
+| Ruling  | Decision                                                                                                              |
+| ------- | --------------------------------------------------------------------------------------------------------------------- |
+| **R2**  | Attachments use the **tickets-local** `POST api/ticket_messages/files`, never `system-upload` (whose every branch emits an images path). FE-3185 SC-12 may later absorb the overlap. |
+| **R3**  | The department and status lookups are **owned by `tickets`**, not the shared `system` module — whose equivalents sit commented out at `useSystem.ts:37-38`. |
+| **R4**  | `ITicket` extended **additively** in `packages/types` with `contract_product_id`, `contract_product`, `invoice` — never a module-local intersection type. |
+| **R5**  | Post-creation reschedule and change-department **dropped as admin-only**.                                              |
+| **R7**  | Support preferences are a **read-modify-write** over the client's whole `meta` map.                                    |
+| **R8**  | The module exports model / schema / uischema; the consuming page renders and validates.                               |
+| **R9**  | The criteria schema declares an **undotted** `statusCode`; the service edge translates it to `filter[status.code|neq]`. The query core is **never** edited. |
+| **R11** | The manager is `.as(CLIENT).for(TICKET, id)` with **no cast** on the scope builder; the collection stays `.as(SELF)` with an all-`never` matrix. |
+| **R13(a)** | Message-body search is unsupported — proven by live probe.                                                         |
+| **R17(a)** | The allowed-file-**type** rejection branch is **coded but unproven on this brand**; an absent or empty list means unrestricted. The 25 MiB size guard is the only upload guard with a proof. |
+| **R17(b)** | `body` is required on create **only when no files are attached**, matching the server exactly.                     |
+
+### Recorded fixtures
+
+**49** request/response pairs, every one captured against a live staging environment by this module's own generator (`pnpm fixtures:generate tickets`). **None was hand-authored**, and none is a hand-built wire body. The first 47 back the module's core behaviour; the final two are the playground's forced error states, recorded through the same generator rather than written by hand.
+
+| Group                         | Covers                                                                                                    |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| List — default & tabs         | the `with_staged_imports=1` default read, the active (`status.code\|neq`) tab, the closed (`status.code`) tab |
+| List — paging                 | a real page 1 and page 2 with disjoint rows                                                                |
+| List — sort & filter          | sort by subject; the bare-EQUAL `filter[reference]` shape                                                  |
+| List — search probes          | the **body-only** query returning zero rows, and the **reference-fragment** query returning one — the R13(a) receipt |
+| List — narrow slices          | the product-scoped list, the delegated-in co-mingled list, the short recent overview                       |
+| List — refusals               | the criteria error-collection refusal, and the create error-action refusal                                 |
+| Ticket — single read          | the full detail record, plus the linked / changed / unlinked / delegated-in variants                       |
+| Thread                        | the `filter[is_log]=0` message page, one single message, and the post-withdrawal thread                    |
+| Writes                        | create, reply, reply-with-file, edited reply, withdrawn reply (with its reason), close, final close, reopen, rename |
+| Product link                  | link, change and unlink `PUT`s, with the reads that confirm each                                           |
+| Attachments                   | the multipart upload, the binary download, the file delete                                                 |
+| Lookups                       | brand desks, all desks, ticket statuses                                                                    |
+| Preferences                   | the client record before and after the meta read-modify-write                                              |
+| Delegation                    | the invite, the accept, and the hook-log status feed                                                       |
+| Session / identity            | `GET api/self`, the brand lookup, the contract-product lookup                                              |
+
+**Twelve `*.must-fail.patch` negative controls** sit alongside them — unified diffs that mutate production source and must flip a named assertion red: the staged-imports parameter, the status-code `neq` shape, the locked-close guard, the admin-path law, the poll teardown, the prefs read-modify-write, the bare-equal reference operator, the reply `409` caution, the search minimum length, the status-log feed's object type, the thread cursor direction, and the `limit + 1` probe.
+
+### Notes
+
+- Both composables act on the calling client's own desk. There is no staff scope, no acting on behalf of another client, and no admin path anywhere in this module.
+- `Ticket` is `ITicket` **un-reduced** — the list row carries `department`, `settings` and `contract_product` in full, so drawing a rich row needs no second read.
+- `tickets.services.ts`, `tickets.schemas.ts` and `tickets.mappers.ts` are `@internal`; resolve them through `useClientTickets.ts` / `useClientTicket.ts` only. `index.ts` is curated named re-exports with **no `export *`**.
+
+### Not captured
+
+- **The allowed-file-type rejection.** The recorded brand's `GET api/brand/settings` returns `200` with no upload keys at all, so the type-refusal branch has never been exercised end to end. It is coded, specified, and honestly recorded as unproven — never asserted as verified. The size refusal (25 MiB, `26214399` bytes) **is** proven.
+- **A response carrying an expanded `status` relation, or any `settings` key.** Both are requested via `with=` and neither came back on the recorded environment; every recorded ticket carries `status_id` only. The specs that exercise the lock and closed guards overlay that single field onto the recorded envelope to reach them — the guard behaviour is proven, its input is synthetic. See [gotchas.md](./gotchas.md) #21.
+
+---
+
+## Migration Guide
+
+For a consumer moving off the legacy client-facing ticket views, or off the portal mock.
+
+### Calling either surface
+
+```diff
+- // the portal mock's collection matrix — FORBIDDEN here
+- useClientTickets().as('client').for('client', clientId)
++ useClientTickets().as(ScopeActorTypes.SELF)
+
+- useClientTicket().withId(ticketId)
++ useClientTicket()
++   .as(ScopeActorTypes.CLIENT)
++   .for(TicketContextTypes.TICKET, ticketId)
+```
+
+Enum members, never string literals. No cast on the scope builder — a whole-surface cast erases the matrix's type checking entirely, so a wrong actor or a wrong context compiles silently.
+
+### Narrowing the list
+
+```diff
+- // a hand-built wire key beside the channel
+- params['filter[status.code|neq]'] = 'ticket_closed'
++ tickets.useActions().setCriteria({
++   filters: { statusCode: { neq: "ticket_closed" } }
++ })
+```
+
+Write the **undotted** `statusCode`; the module re-spells it onto the dotted wire column at its own edge. Writing `"status.code"` in the model is the bug, not the fix — see [gotchas.md](./gotchas.md) #1.
+
+### Reading the conversation
+
+```diff
+- const messages = await api.get(`tickets/${id}/messages`)
++ await ticket.useActions().loadOlder()          // the initial load
++ const { entries } = ticket.useContext().feed   // messages AND status-log rows
+```
+
+The feed is a discriminated union — branch on `entry.kind`. Status changes are no longer a second list to render separately; they are interleaved into the conversation by created date.
+
+### Replying
+
+```diff
+- try { await api.post(`tickets/${id}/replies`, body) }
+- catch (e) { if (e.code === 'ticket_has_more_recent_reply') showWarning() }
++ const result = await ticket.useActions().reply(body)
++ if (result === undefined) {
++   // support replied first — the thread has ALREADY been paged forward
++ }
+```
+
+### Attaching a file
+
+```diff
+- await systemUpload(file)                     // wrong surface — emits an images path
++ const ref = await ticket.useActions().uploadAttachment(file)
++ await ticket.useActions().reply("See attached.", { files: [ref] })
+```
+
+Upload and attach are two steps. The same two-step shape works on the collection for a create.
+
+### Closing and reopening
+
+```diff
+- const updated = await api.put(`tickets/${id}/status`, { status_code: 'ticket_closed' })
+- render(updated)
++ await ticket.useActions().close()             // resolves null — the wire returns no body
++ const updated = ticket.useContext().data.value // read it back from state
+```
+
+Guard locally first (`useMeta().isLocked`, `.canReopen`) — the module refuses these before any request, and the refusal **throws**.
+
+### Unlinking a product
+
+```diff
+- await api.put(`tickets/${id}`, {})            // omitting the key leaves the link in place
++ await ticket.useActions().removeRelatedProduct()   // sends an explicit null
+```
+
+### Saving a preference
+
+```diff
+- await api.put(`clients/${id}`, { meta: { 'ui/support/limit': 50 } })  // destroys siblings
++ await tickets.useActions().savePrefs({ limit: 50 })                   // read-modify-write
+```
+
+`PUT api/clients/{id}` replaces the whole `meta` map. The module reads the record, merges only the `ui/support/*` keys it owns, and writes the whole map back — so an unrelated key such as `ui/support/messageSignature` survives.
+
+### Reading the client's own id
+
+```diff
+- const clientId = self.id          // ALWAYS undefined on GET api/self
++ const clientId = self.actor_id
+```
+
+This one has already cost a run: comparing against `self.id` (i.e. against `undefined`) once produced a written finding that the account held no contract products and two tickets, when it held 993 and 25.
+
+### Waiting for readiness
+
+```diff
+- while (!loaded) await sleep(100)
++ const ready = await tickets.useActions().isReady()  // always settles; false = not addressable
+```
