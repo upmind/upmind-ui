@@ -122,12 +122,14 @@
               <dt class="text-faint">
                 {{ t("labs.client_ticket_product") }}
               </dt>
-              <dd>{{ relatedProduct.product_name }}</dd>
+              <dd data-test-key="ticket-product-name">
+                {{ relatedProduct.product_name }}
+              </dd>
             </div>
           </dl>
 
           <!-- Subject editor — refused (disabled) when the ticket is locked. -->
-          <div class="flex items-end gap-3">
+          <div class="flex items-end gap-3 pt-2">
             <label class="flex-1">
               <span class="text-faint text-sm">
                 {{ t("labs.client_ticket_subject_label") }}
@@ -153,8 +155,48 @@
             </Button>
           </div>
 
+          <!-- AC13 — the related product, linked/changed by contract-product id
+               and unlinked with the module's own explicit null. Both writes are
+               gated on the LOCK: legacy refuses them on a locked ticket
+               (`ticketProvider.ts:283,:299`), the same list the close and
+               subject writes sit on. The id is typed rather than picked: this
+               page binds no product lookup, and inventing a picker over a
+               composable it does not boot would draw a control the runtime
+               cannot fire. -->
+          <div class="flex flex-wrap items-end gap-3 pt-2">
+            <label class="flex-1">
+              <span class="text-faint text-sm">
+                {{ t("labs.client_ticket_product_label") }}
+              </span>
+              <Input
+                v-model="productIdDraft"
+                :disabled="meta?.isLocked.value || pending"
+                :data-attrs="{ 'data-test-key': 'ticket-product-input' }"
+              />
+            </label>
+            <Button
+              variant="outline"
+              :disabled="
+                meta?.isLocked.value || pending || !productIdDraft.trim()
+              "
+              :data-attrs="{ 'data-test-key': 'ticket-product-link' }"
+              @click="linkProduct"
+            >
+              {{ t("labs.client_ticket_product_link") }}
+            </Button>
+            <Button
+              v-if="relatedProduct"
+              variant="outline"
+              :disabled="meta?.isLocked.value || pending"
+              :data-attrs="{ 'data-test-key': 'ticket-product-unlink' }"
+              @click="unlinkProduct"
+            >
+              {{ t("labs.client_ticket_product_unlink") }}
+            </Button>
+          </div>
+
           <!-- Lifecycle — close when open (and unlocked), reopen when closed. -->
-          <div class="flex gap-3">
+          <div class="flex flex-wrap gap-3 pt-4">
             <Button
               v-if="!meta?.isClosed.value"
               variant="outline"
@@ -223,6 +265,35 @@
             </div>
           </div>
 
+          <!-- AC15 — All / Attachments over the SAME feed. The attachments
+               view is a different REQUEST (`filter[files.id|gt]=0`), never a
+               client-side filter over rows already held. -->
+          <Tabs
+            :tabs="feedTabs"
+            :model-value="feedView"
+            :data-attrs="{ 'data-test-key': 'ticket-view-tabs' }"
+            @update:model-value="selectView"
+          />
+
+          <!-- AC20's outcome, kept on screen: the bytes the manager handed
+               back, by name and length. Nothing else in this lane can show a
+               download happened at all. -->
+          <Alert
+            v-if="downloaded"
+            variant="info"
+            appearance="muted"
+            :title="
+              t('labs.client_ticket_attachment_downloaded', {
+                name: downloaded.name,
+                bytes: downloaded.bytes
+              })
+            "
+            :data-attrs="{
+              'data-test-key': 'ticket-attachment-downloaded',
+              'data-test-value': downloaded.bytes
+            }"
+          />
+
           <EmptyState
             v-if="!entries.length"
             :title="t('labs.client_ticket_thread_empty')"
@@ -237,8 +308,8 @@
               :key="index"
               data-test-key="ticket-thread-entry"
             >
-              <div v-if="entry.kind === 'message'" class="flex flex-col gap-1">
-                <div class="flex items-center gap-2 text-sm">
+              <div v-if="entry.kind === 'message'" class="flex flex-col gap-2">
+                <div class="flex flex-wrap items-center gap-2 text-sm">
                   <span class="font-medium">{{
                     entry.message.actor_name
                   }}</span>
@@ -265,6 +336,177 @@
                 <p class="text-sm" data-test-key="ticket-message-body">
                   {{ entry.message.body }}
                 </p>
+
+                <!-- AC20/AC21 — one menu per attached file. -->
+                <div
+                  v-if="entry.message.files?.length"
+                  class="flex flex-wrap gap-2"
+                >
+                  <DropdownMenuRoot
+                    v-for="file in entry.message.files"
+                    :key="file.id"
+                  >
+                    <DropdownMenuTrigger as-child>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        :disabled="pending"
+                        :data-attrs="{
+                          'data-test-key': 'ticket-attachment-menu',
+                          'data-test-value': file.id
+                        }"
+                      >
+                        <Icon
+                          icon="file-attachment-01"
+                          size="nano"
+                          aria-hidden="true"
+                        />
+                        {{ file.name }}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuItem
+                        data-test-key="ticket-attachment-download"
+                        :data-test-value="file.id"
+                        @select="downloadFile(file)"
+                      >
+                        {{ t("labs.client_ticket_attachment_download") }}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        data-test-key="ticket-attachment-copy"
+                        :data-test-value="file.id"
+                        @select="copyFileName(file)"
+                      >
+                        {{ t("labs.client_ticket_attachment_copy") }}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        data-test-key="ticket-attachment-delete"
+                        :data-test-value="file.id"
+                        @select="removeFile(entry.message.id, file.id)"
+                      >
+                        {{ t("labs.client_ticket_attachment_delete") }}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenuRoot>
+                </div>
+
+                <!-- AC16/AC18/AC19 — the per-message writes, offered only on a
+                     message this actor's OWN `can_manage` allows. The module
+                     refuses the write regardless; the page does not draw a
+                     control it knows the runtime will refuse. -->
+                <div class="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    :disabled="pending"
+                    :data-attrs="{
+                      'data-test-key': 'ticket-message-reload',
+                      'data-test-value': entry.message.id
+                    }"
+                    @click="reloadMessage(entry.message.id)"
+                  >
+                    {{ t("labs.client_ticket_message_reload") }}
+                  </Button>
+                  <Button
+                    v-if="entry.message.can_manage"
+                    size="sm"
+                    variant="ghost"
+                    :disabled="pending"
+                    :data-attrs="{
+                      'data-test-key': 'ticket-message-edit',
+                      'data-test-value': entry.message.id
+                    }"
+                    @click="startEdit(entry.message)"
+                  >
+                    {{ t("labs.client_ticket_message_edit") }}
+                  </Button>
+                  <Button
+                    v-if="entry.message.can_manage"
+                    size="sm"
+                    variant="ghost"
+                    :disabled="pending"
+                    :data-attrs="{
+                      'data-test-key': 'ticket-message-delete',
+                      'data-test-value': entry.message.id
+                    }"
+                    @click="startWithdraw(entry.message)"
+                  >
+                    {{ t("labs.client_ticket_message_delete") }}
+                  </Button>
+                </div>
+
+                <!-- AC18 — correcting this message in place. -->
+                <div
+                  v-if="editingId === entry.message.id"
+                  class="flex flex-col gap-2 pt-2"
+                >
+                  <Textarea
+                    v-model="editDraft"
+                    :rows="3"
+                    data-test-key="ticket-message-edit-input"
+                  />
+                  <div class="flex justify-end gap-3">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      :data-attrs="{
+                        'data-test-key': 'ticket-message-edit-cancel'
+                      }"
+                      @click="editingId = undefined"
+                    >
+                      {{ t("action.cancel") }}
+                    </Button>
+                    <Button
+                      size="sm"
+                      :disabled="!editDraft.trim() || pending"
+                      :data-attrs="{
+                        'data-test-key': 'ticket-message-edit-save'
+                      }"
+                      @click="saveEdit(entry.message.id)"
+                    >
+                      {{ t("labs.client_ticket_message_edit_save") }}
+                    </Button>
+                  </div>
+                </div>
+
+                <!-- AC19 — withdrawal carries a REASON, which the wire keeps. -->
+                <div
+                  v-if="withdrawingId === entry.message.id"
+                  class="flex flex-col gap-2 pt-2"
+                >
+                  <Input
+                    v-model="withdrawReason"
+                    :placeholder="
+                      t('labs.client_ticket_message_delete_reason_label')
+                    "
+                    :data-attrs="{
+                      'data-test-key': 'ticket-message-delete-reason'
+                    }"
+                  />
+                  <div class="flex justify-end gap-3">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      :data-attrs="{
+                        'data-test-key': 'ticket-message-delete-cancel'
+                      }"
+                      @click="withdrawingId = undefined"
+                    >
+                      {{ t("action.cancel") }}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      :disabled="!withdrawReason.trim() || pending"
+                      :data-attrs="{
+                        'data-test-key': 'ticket-message-delete-confirm'
+                      }"
+                      @click="confirmWithdraw(entry.message.id)"
+                    >
+                      {{ t("labs.client_ticket_message_delete_confirm") }}
+                    </Button>
+                  </div>
+                </div>
               </div>
               <p
                 v-else
@@ -282,16 +524,56 @@
         </Card>
 
         <!-- Reply composer — disabled when the ticket refuses replies. -->
-        <Card size="sm" class="gap-3">
+        <Card size="sm" class="gap-4">
           <Textarea
             v-model="replyBody"
             :rows="3"
             :placeholder="t('labs.client_ticket_reply_placeholder')"
-            :data-attrs="{ 'data-test-key': 'ticket-reply-input' }"
+            data-test-key="ticket-reply-input"
           />
-          <div class="flex justify-end">
+
+          <!-- AC23 — every picked file is uploaded FIRST, and the refs the
+               upload returns ride out on the reply itself. -->
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <input
+              type="file"
+              multiple
+              class="text-sm"
+              data-test-key="ticket-reply-attach"
+              :disabled="!meta?.canReply.value || uploading || pending"
+              :aria-label="t('labs.client_ticket_attach')"
+              @change="pickFiles"
+            />
+            <Spinner v-if="uploading" :label="t('text.loading')" size="sm" />
+            <Badge
+              v-for="file in pendingFiles"
+              :key="file.id"
+              size="sm"
+              appearance="muted"
+              data-test-key="ticket-reply-attachment"
+              :data-test-value="file.id"
+            >
+              {{ file.name }}
+            </Badge>
             <Button
-              :disabled="!meta?.canReply.value || !replyBody.trim() || pending"
+              v-if="pendingFiles.length"
+              size="sm"
+              variant="ghost"
+              :data-attrs="{ 'data-test-key': 'ticket-reply-attach-clear' }"
+              @click="pendingFiles = []"
+            >
+              {{ t("action.clear") }}
+            </Button>
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <Button
+              :disabled="
+                !meta?.canReply.value ||
+                (!replyBody.trim() && !pendingFiles.length) ||
+                uploading ||
+                pending
+              "
               :data-attrs="{ 'data-test-key': 'ticket-reply-send' }"
               @click="send"
             >
@@ -310,19 +592,37 @@
  * @description The client×self ticket MANAGER, drawn directly. It boots
  * `useClientTicket().as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id)`
  * (R11 — enum members, no cast) from the id the scope suffix carries, and
- * drives the manager's own members: the merged thread (`loadOlder`/`loadNewer`),
- * the reply composer (`reply`), the close/reopen lifecycle (`close`/`reopen`),
- * the subject editor (`setSubject`) and `refresh`, each gated by the record's
- * own meta (`isLocked`/`isClosed`/`canReply`).
+ * drives the manager's own members: the merged thread (`loadOlder`/`loadNewer`)
+ * and its attachments view (`loadAttachments`), the reply composer (`reply`)
+ * with its uploads (`uploadAttachment`), the per-message writes (`getMessage`,
+ * `editMessage`, `deleteMessage`), the per-attachment writes
+ * (`downloadAttachment`, `deleteAttachment`), the related-product link
+ * (`setRelatedProduct`/`removeRelatedProduct`), the close/reopen lifecycle
+ * (`close`/`reopen`), the subject editor (`setSubject`) and `refresh` — each
+ * gated by the record's own meta (`isLocked`/`isClosed`/`canReply`) or, for the
+ * per-message writes, by that message's own `can_manage`.
  *
- * NOT drawn, and named rather than faked: the per-message writes
- * (`editMessage`, `deleteMessage`, `deleteAttachment`, `downloadAttachment`,
- * `getMessage`) and the attachment/product writes (`uploadAttachment`,
- * `loadAttachments`, `setRelatedProduct`, `removeRelatedProduct`). Each needs
- * a message-level or file-level control surface (a selected message id, a file
- * picker) beyond this page's load/read/reply/lifecycle/subject remit; the
- * manager can do them, this page does not yet offer the control. `invalidate`
- * is internal plumbing, and `destroy` runs on unmount.
+ * NOT drawn, and named rather than faked:
+ *
+ * - `invalidate` is internal plumbing, and `destroy` runs on unmount.
+ * - **A from-the-top feed reload.** The manager exposes `loadOlder` /
+ *   `loadNewer` (both id-cursor paging off the feed's current oldest/newest
+ *   entry) and `loadAttachments`; there is no member that re-reads the whole
+ *   thread unconditionally. So the All tab fires `loadOlder` — the very call
+ *   this page boots the thread with — which, returning from the attachments
+ *   view, pages back from the oldest attachment-bearing message rather than
+ *   from the thread head. A module-side gap, named here rather than papered
+ *   over with a client-side filter.
+ * - **Delegate access.** Legacy draws it on the ticket; it is legacy row 43,
+ *   owned by FE-3041 (DG-2), and OUT OF SCOPE for FE-3226. Its absence here is
+ *   deliberate — do not "fix" it into this page.
+ *
+ * ## The upload branch this page cannot claim
+ * `uploadAttachment` refuses on two grounds: the 25 MiB ceiling
+ * (`TICKET_ATTACHMENT_MAX_BYTES`, 26214399) and the brand's
+ * `ALLOWED_UPLOAD_FILE_TYPES`. Only the SIZE refusal is proven on this brand —
+ * staging exposes no allowed-types setting, so that branch stays coded and
+ * UNVERIFIED. Nothing here may be read as evidence it works.
  */
 
 import {
@@ -330,6 +630,10 @@ import {
   Badge,
   Button,
   Card,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
   EmptyState,
   Input,
   Page,
@@ -339,6 +643,7 @@ import {
   PageTitle,
   Spinner,
   StatusBadge,
+  Tabs,
   Textarea
 } from "@upmind/ui";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
@@ -349,6 +654,11 @@ import {
   TicketContextTypes,
   useClientTicket,
   useClientTickets
+} from "@upmind-automation/client-vue";
+import type { TabItem } from "@upmind/ui";
+import type {
+  TicketAttachmentRef,
+  TicketMessage
 } from "@upmind-automation/client-vue";
 import { useContextScope } from "~/composables/scope";
 
@@ -392,10 +702,36 @@ const readError = computed(() => context?.error.value?.message);
 const booting = ref(true);
 const feedLoading = ref(false);
 const pending = ref(false);
+const uploading = ref(false);
 const actionError = ref<string>();
 const idInput = ref("");
 const replyBody = ref("");
 const subjectDraft = ref("");
+const productIdDraft = ref("");
+const pendingFiles = ref<TicketAttachmentRef[]>([]);
+const editingId = ref<string>();
+const editDraft = ref("");
+const withdrawingId = ref<string>();
+const withdrawReason = ref("");
+const downloaded = ref<{ name: string; bytes: number }>();
+
+/** The two feed views AC15 names — `all` is the thread, `attachments` a different read. */
+const FEED_VIEWS = { ALL: "all", ATTACHMENTS: "attachments" } as const;
+
+const feedView = ref<string>(FEED_VIEWS.ALL);
+
+const feedTabs = computed<TabItem[]>(() => [
+  {
+    value: FEED_VIEWS.ALL,
+    label: t("labs.client_ticket_view_all"),
+    dataAttrs: { "data-test-key": "ticket-view-all" }
+  },
+  {
+    value: FEED_VIEWS.ATTACHMENTS,
+    label: t("labs.client_ticket_view_attachments"),
+    dataAttrs: { "data-test-key": "ticket-view-attachments" }
+  }
+]);
 
 // Readable once the read has settled with a record and no error — the manager
 // resolves its target from the active session, so an unaddressable scope (no
@@ -497,13 +833,104 @@ async function loadThread(): Promise<void> {
 
 const send = () =>
   run(async () => {
-    await actions?.reply(replyBody.value);
+    await actions?.reply(
+      replyBody.value,
+      pendingFiles.value.length ? { files: pendingFiles.value } : {}
+    );
     replyBody.value = "";
+    pendingFiles.value = [];
   });
 const saveSubject = () => run(() => actions!.setSubject(subjectDraft.value));
 const closeTicket = () => run(() => actions!.close());
 const reopenTicket = () => run(() => actions!.reopen());
 const loadOlder = () => loadThread();
+
+const linkProduct = () =>
+  run(async () => {
+    await actions!.setRelatedProduct(productIdDraft.value.trim());
+    productIdDraft.value = "";
+  });
+const unlinkProduct = () => run(() => actions!.removeRelatedProduct());
+
+/** AC16 — re-reads ONE message; the manager swaps its row in the feed in place. */
+const reloadMessage = (messageId: string) =>
+  run(() => actions!.getMessage(messageId));
+
+function startEdit(message: TicketMessage): void {
+  withdrawingId.value = undefined;
+  editingId.value = message.id;
+  editDraft.value = message.body ?? "";
+}
+
+const saveEdit = (messageId: string) =>
+  run(async () => {
+    await actions!.editMessage(messageId, editDraft.value);
+    editingId.value = undefined;
+  });
+
+function startWithdraw(message: TicketMessage): void {
+  editingId.value = undefined;
+  withdrawingId.value = message.id;
+  withdrawReason.value = "";
+}
+
+const confirmWithdraw = (messageId: string) =>
+  run(async () => {
+    await actions!.deleteMessage(messageId, withdrawReason.value);
+    withdrawingId.value = undefined;
+  });
+
+/** AC21 — drops one file off a message; the manager re-reads the feed after. */
+const removeFile = (messageId: string, fileId: string) =>
+  run(() => actions!.deleteAttachment(messageId, fileId));
+
+/**
+ * AC20 — the raw bytes, straight off the manager. The page holds them and
+ * reports the size: this lane has no download sink, and handing the bytes to a
+ * blob url would be a browser-only flourish the read-back could not grade.
+ */
+const downloadFile = (file: { id: string; name: string }) =>
+  run(async () => {
+    const bytes = await actions!.downloadAttachment(file.id);
+    downloaded.value = { name: file.name, bytes: bytes.byteLength };
+  });
+
+/** Pure UI, no module member — legacy offers the same convenience. */
+function copyFileName(file: { name: string }): void {
+  void navigator?.clipboard?.writeText?.(file.name);
+}
+
+/**
+ * AC23 — each picked file goes up through the manager BEFORE the reply, and the
+ * ref it returns is what rides out on `reply({ files })`. The refusals (size,
+ * and the unverified allowed-types branch) are the module's own: the page lets
+ * them surface rather than re-deciding them here.
+ */
+async function pickFiles(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const chosen = [...(input.files ?? [])];
+  if (!chosen.length || !actions) return;
+
+  uploading.value = true;
+  actionError.value = undefined;
+  try {
+    for (const file of chosen) {
+      pendingFiles.value = [
+        ...pendingFiles.value,
+        await actions.uploadAttachment(file)
+      ];
+    }
+  } catch (error) {
+    report(error);
+  } finally {
+    uploading.value = false;
+    try {
+      input.value = "";
+    } catch {
+      // Some benches lock the picker's value; the selection simply stays put.
+    }
+  }
+}
 
 async function loadNewer(): Promise<void> {
   if (!actions) return;
@@ -515,6 +942,26 @@ async function loadNewer(): Promise<void> {
   } finally {
     feedLoading.value = false;
   }
+}
+
+/** AC15 — the attachments view is its own REQUEST, never a filter over rows held. */
+async function loadAttachments(): Promise<void> {
+  if (!actions) return;
+  feedLoading.value = true;
+  try {
+    await actions.loadAttachments();
+  } catch (error) {
+    report(error);
+  } finally {
+    feedLoading.value = false;
+  }
+}
+
+function selectView(value: string | number): void {
+  feedView.value = String(value);
+  void (feedView.value === FEED_VIEWS.ATTACHMENTS
+    ? loadAttachments()
+    : loadThread());
 }
 
 async function refresh(): Promise<void> {
