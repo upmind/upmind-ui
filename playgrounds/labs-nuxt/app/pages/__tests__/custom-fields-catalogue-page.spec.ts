@@ -175,6 +175,28 @@ async function seedClientSession(): Promise<{ brandId: string }> {
   return { brandId };
 }
 
+/**
+ * Drops the seeded session and everything it warmed. Not optional hygiene: a
+ * live session left behind keeps its own refresh timer running in the shared
+ * worker, and that timer fires inside whichever spec the lane runs next, after
+ * its environment has been torn down.
+ */
+async function clearClientSession(): Promise<void> {
+  const { useSessionStore, useActiveSession } =
+    await import("@upmind-automation/headless");
+
+  try {
+    useSessionStore().useActions().logout();
+  } catch {
+    // No active session to log out of.
+  }
+  queryClient.clear();
+
+  await vi.waitFor(() => {
+    expect(useActiveSession().useMeta().isAuthenticated.value).toBe(false);
+  });
+}
+
 /** The definitions-list entries the page currently holds in the shared cache. */
 function listKeys(): unknown[][] {
   return map(
@@ -226,10 +248,11 @@ describe("the custom-fields page, scoped to one of its brand's catalogues", () =
     await seedClientSession();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     bench?.wrapper.unmount();
     bench = undefined;
     resetDom();
+    await clearClientSession();
     server?.resetHandlers();
   });
 
