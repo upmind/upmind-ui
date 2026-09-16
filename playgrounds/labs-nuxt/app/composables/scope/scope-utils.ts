@@ -88,6 +88,8 @@ export type ScopePathConfig = {
  * Or: /:page/as/:actor (specific page, no brand)
  * Or: /:brandId/as/:actor (homepage with brand)
  * Or: /:brandId/:page/as/:actor/for/:type/:id (full path)
+ * Or: /:page/for/:type[/:id] (a context at SELF — no actor segment, since the
+ *     absence of `/as/` IS self; the parser reads it back the same way)
  *
  * @param config - Scope path configuration
  * @returns Full path string
@@ -131,18 +133,20 @@ export function buildScopePath(config: ScopePathConfig): string {
   // Start with base path (handle empty segments for homepage)
   let path = segments.length > 0 ? `/${segments.join("/")}` : "";
 
-  // Add actor scope if specified (and not SELF)
+  // Add actor scope if specified (and not SELF) — no `/as/` segment IS self.
   if (actor && actor !== ScopeActorTypes.SELF) {
     path += `/as/${actor}`;
+  }
 
-    // Add context if specified. A SELECTOR context carries no id, and the
-    // suffix omits the segment rather than writing `/undefined`.
-    if (context) {
-      path +=
-        context.id === undefined
-          ? `/for/${context.type}`
-          : `/for/${context.type}/${context.id}`;
-    }
+  // Add context if specified, at ANY actor — self included. A SELECTOR context
+  // carries no id, and the suffix omits the segment rather than writing
+  // `/undefined`. (This used to sit inside the actor branch, so a context
+  // picked at self was silently dropped and the url never changed.)
+  if (context) {
+    path +=
+      context.id === undefined
+        ? `/for/${context.type}`
+        : `/for/${context.type}/${context.id}`;
   }
 
   // Ensure we always return at least "/" for homepage without scope

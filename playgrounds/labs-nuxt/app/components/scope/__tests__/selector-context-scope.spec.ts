@@ -78,7 +78,7 @@ const rowFor = (panel: Element, label: string): HTMLElement | undefined =>
  *
  * @returns The mounted bench and its open acting-for panel.
  */
-async function benchOnCatalogues(): Promise<{
+async function benchOnCatalogues(path = SCOPE_PATH): Promise<{
   bench: Bench;
   panel: HTMLElement;
 }> {
@@ -88,7 +88,7 @@ async function benchOnCatalogues(): Promise<{
   seedPool(POOL, { active: "client-1" });
 
   const { default: ActingForSegment } = await import("../ActingForSegment.vue");
-  const bench = await benchOn(ActingForSegment, SCOPE_PATH, {
+  const bench = await benchOn(ActingForSegment, path, {
     [ScopeActorTypes.SELF]: null as never,
     [ScopeActorTypes.STAFF]: null as never,
     [ScopeActorTypes.CLIENT]: [selector("invoice"), selector("cancel_request")],
@@ -136,6 +136,29 @@ describe("scoping the playground to a catalogue (AC-6)", () => {
 
       expect(bench.router.currentRoute.value.fullPath).toBe(
         `${SCOPE_PATH}/for/cancel_request`
+      );
+    }
+  );
+
+  it(
+    "@AC-6 scopes the page to the catalogue at self, with no actor segment",
+    { timeout: 40000 },
+    async () => {
+      // The bare page url names no actor: that IS self. Picking a catalogue
+      // there must still move the url, as `/for/:type` straight after the page.
+      // Before this the writer dropped the context at SELF and built the url
+      // the page was already on, so the pick did nothing.
+      const opened = await benchOnCatalogues(`/${CLIENT_EMAILS_ROUTE}`);
+      bench = opened.bench;
+
+      const row = rowFor(opened.panel, "Invoice");
+      if (!row) throw new Error("the scope bar offered no invoice row at self");
+
+      row.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+      await flush();
+
+      expect(bench.router.currentRoute.value.fullPath).toBe(
+        `/${CLIENT_EMAILS_ROUTE}/for/invoice`
       );
     }
   );
