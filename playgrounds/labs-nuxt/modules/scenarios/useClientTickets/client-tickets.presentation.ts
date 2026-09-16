@@ -65,6 +65,17 @@ export const tableUischema: TableUischema = {
       i18n: "text.department"
     },
     {
+      // AC24/AC27 — the LOCK, scanned per row rather than only on open: a
+      // locked ticket refuses close, subject and related-product, so a hand
+      // that cannot see it before opening learns which rows are writable one
+      // ticket at a time. Drawn as the SAME boolean-flag cell the delegated
+      // marker below already uses, never a new idiom.
+      type: "TableCellIcon",
+      scope: "#/properties/settings/properties/lock",
+      i18n: "text.locked_label",
+      options: { icon: "lock-01" }
+    },
+    {
       // R12/AC10 — the co-mingled-visibility receipt: a ticket delegated in
       // to this client reads `is_delegated_object: true` on the SAME list a
       // client's own tickets ride, never a separate feed.
@@ -114,6 +125,14 @@ export const cardUischema: CardUischema = {
       options: { slot: CardSlotTypes.SUBTITLE }
     },
     {
+      // The table's lock marker, carried onto the card so the two declarations
+      // of the same record never disagree about what a scan shows.
+      type: "TableCellIcon",
+      scope: "#/properties/settings/properties/lock",
+      i18n: "text.locked_label",
+      options: { icon: "lock-01", slot: CardSlotTypes.SUBTITLE }
+    },
+    {
       type: "TableCellText",
       scope: "#/properties/department/properties/name",
       i18n: "text.department",
@@ -131,9 +150,10 @@ export const cardUischema: CardUischema = {
 /**
  * ONE ticket drawn READ-ONLY — the same cell renderers the table uses
  * (`R6-36`), over the same row the list already fetched (no `useDetail`, per
- * this file's module docblock). `contract_product` (AC13) and `settings.lock`
- * (AC24/AC27's own guard) are declared here rather than in the table because
- * they are read on OPEN, not scanned across every row. The merged
+ * this file's module docblock). `contract_product` (AC13) is declared here
+ * rather than in the table because it is read on OPEN, not scanned across
+ * every row; `settings.lock` (AC24/AC27's own guard) rides BOTH, because a
+ * hand needs to see which rows refuse a write before opening one. The merged
  * message/status feed (AC14/AC15/AC22) is NOT drawn here — it is not a flat
  * field on `Ticket`, and this scenario declares no surface for it.
  */
