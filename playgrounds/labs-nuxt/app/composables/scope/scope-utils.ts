@@ -16,9 +16,10 @@
 import { useRouter, useRoute } from "vue-router";
 import {
   ScopeActorTypes,
-  resolveContextDeclarations
+  resolveContextDeclarations,
+  resolveSelfActor
 } from "@upmind-automation/headless";
-import { filter, get, head } from "lodash-es";
+import { filter, get, head, some } from "lodash-es";
 import type {
   ActorContextMatrix,
   ScopeContext,
@@ -71,6 +72,37 @@ export function servesActor(
   return !!resolveMatrixContext(get(matrix, actor));
 }
 
+/**
+ * Whether a module's own matrix declares the CONTEXT a url NAMED, for the actor
+ * it named. The other half of `servesActor`, and a separate refusal.
+ *
+ * A url-sourced context type never passes through the matrix's compile-time
+ * `.for()` overloads — it is a string a hand typed into the address bar — and
+ * `.for()` itself validates nothing at runtime. Without this test an undeclared
+ * type reaches the module, which resolves its own default instead and renders
+ * it: the page then shows one catalogue while the url names another, with
+ * nothing to say so.
+ *
+ * `SELF` is resolved to the active actor first. The url names no actor, but the
+ * cell that boots is a concrete one, and only the members THAT actor declares
+ * can be served.
+ *
+ * A composable registered without a matrix declares no refusal, and a url that
+ * names no context has nothing to refuse.
+ */
+export function servesContext(
+  matrix: ActorContextMatrix | undefined,
+  actor: ScopeActorTypes,
+  context: ScopeContext | undefined
+): boolean {
+  if (!matrix || !context) return true;
+
+  return some(
+    resolveMatrixContexts(get(matrix, resolveSelfActor(actor))),
+    declared => declared.type === context.type
+  );
+}
+
 export type ScopePathConfig = {
   /** Page path (e.g., "useAuth", "products") */
   page: string;
@@ -88,6 +120,8 @@ export type ScopePathConfig = {
  * Or: /:page/as/:actor (specific page, no brand)
  * Or: /:brandId/as/:actor (homepage with brand)
  * Or: /:brandId/:page/as/:actor/for/:type/:id (full path)
+ * Or: /:page/for/:type[/:id] (a context at SELF — no actor segment, since the
+ *     absence of `/as/` IS self; the parser reads it back the same way)
  *
  * @param config - Scope path configuration
  * @returns Full path string
@@ -131,18 +165,20 @@ export function buildScopePath(config: ScopePathConfig): string {
   // Start with base path (handle empty segments for homepage)
   let path = segments.length > 0 ? `/${segments.join("/")}` : "";
 
-  // Add actor scope if specified (and not SELF)
+  // Add actor scope if specified (and not SELF) — no `/as/` segment IS self.
   if (actor && actor !== ScopeActorTypes.SELF) {
     path += `/as/${actor}`;
+  }
 
-    // Add context if specified. A SELECTOR context carries no id, and the
-    // suffix omits the segment rather than writing `/undefined`.
-    if (context) {
-      path +=
-        context.id === undefined
-          ? `/for/${context.type}`
-          : `/for/${context.type}/${context.id}`;
-    }
+  // Add context if specified, at ANY actor — self included. A SELECTOR context
+  // carries no id, and the suffix omits the segment rather than writing
+  // `/undefined`. (This used to sit inside the actor branch, so a context
+  // picked at self was silently dropped and the url never changed.)
+  if (context) {
+    path +=
+      context.id === undefined
+        ? `/for/${context.type}`
+        : `/for/${context.type}/${context.id}`;
   }
 
   // Ensure we always return at least "/" for homepage without scope

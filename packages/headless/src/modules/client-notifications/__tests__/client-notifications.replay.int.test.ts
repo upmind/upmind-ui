@@ -33,7 +33,6 @@ import {
 } from "../../../testing/corpus-replay";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
-  installNotificationsReadHandlers,
   resetClientNotificationsScopes,
   seedClientSession
 } from "./client-notifications.int-helpers";

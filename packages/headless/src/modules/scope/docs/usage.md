@@ -353,5 +353,6 @@ call it yourself.
 - **builder** — `createScopedComposable`; the `Scope*` builder/result types (including `ScopeForStep`, the overloaded `.for()` step type), `ScopedFactory`, `ScopedComposable`.
 - **types** — `ScopeActorTypes`, `ConcreteActorTypes`, `ScopeActor`, `ScopeContext`, `ScopeConfig`, `ScopeKey`, `ActorContextMatrix`, `ScopeContextPatterns`, `SelectorContext`, `ScopeContextDeclaration`, `DeclarationsInCell`, `ContextsForActor`, `IdContextsForActor`, `BareContextsForActor`, `AllContextsFromMatrix`, `HasContexts`, `MatrixHasAnyContexts`.
 - **registry** — `ensure`, `remove`, `clearAll`, `size`, `getRegistry`, `RegistryEntry`.
-- **utils** — `generateScopeKey`, `resolveSelfActor`, `selector`, `resolveContextDeclarations`, `resolveContextDeclaration`.
+- **utils** — `generateScopeKey`, `selector`, `resolveContextDeclarations`, `resolveContextDeclaration` (pure; safe to call from a matrix at module load).
+- **builder** — `createScopedComposable`, `resolveSelfActor` (the one scope function that reads the session store).
 - **devtools** — `setupScopeDevtools`, `refreshDevtools`.

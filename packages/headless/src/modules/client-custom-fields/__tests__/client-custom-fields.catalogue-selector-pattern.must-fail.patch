@@ -1,0 +1,43 @@
+# client-custom-fields.catalogue-selector-pattern.must-fail.patch
+#
+# Targets: FE-3034 AC "Labs catalogue selector (driveable)" / AC-27 public
+# surface — the CLIENT matrix cell declares ONE retarget member and TWO
+# SELECTOR members, so `.for(CLIENT, id)` demands an id while `.for(INVOICE)`
+# and `.for(CANCEL_REQUEST)` forbid one. The `selector()` wrapper is what splits
+# `IdContextsForActor` from `BareContextsForActor`, and it is also what the labs
+# scope bar reads to offer the catalogue as a one-press row rather than an id
+# field.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-custom-fields.types.ts `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX` —
+# declares CANCEL_REQUEST bare, so a catalogue is mis-declared as a RETARGET
+# member. One member only: INVOICE keeps its `selector()` wrapper so the import
+# stays live and the mutant compiles — the failure is the declaration, never an
+# unused-symbol error.
+#
+# Expected RED: client-custom-fields.surface.test.ts — "AC-27 keeps the
+# collection matrix's only live cell on CLIENT — the CLIENT retarget plus the
+# INVOICE and CANCEL_REQUEST selectors; self, staff and guest are null". The
+# cell no longer equals the declared three-member list.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless test client-custom-fields.surface   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts
+index 3f702fba2..87cda7fde 100644
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts
+@@ -126,7 +126,7 @@ export const CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX = {
+   [ScopeActorTypes.CLIENT]: [
+     ClientCustomFieldsContextTypes.CLIENT,
+     selector(ClientCustomFieldsContextTypes.INVOICE),
+-    selector(ClientCustomFieldsContextTypes.CANCEL_REQUEST)
++    ClientCustomFieldsContextTypes.CANCEL_REQUEST
+   ],
+   [ScopeActorTypes.GUEST]: null as never
+ } as const;

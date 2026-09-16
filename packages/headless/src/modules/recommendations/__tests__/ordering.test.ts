@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ProductTypes } from "@upmind-automation/types";
+import { useConfig } from "../../config/useConfig";
+import { parseRelatedProducts } from "../recommendations.utils";
+import type { RelatedProduct } from "../recommendations.types";
 import type {
   IBasket,
   IBasketProduct,
   IProduct
 } from "@upmind-automation/types";
-import { useConfig } from "../../config/useConfig";
-import { parseRelatedProducts } from "../recommendations.utils";
-import type { RelatedProduct } from "../recommendations.types";
 
 // Isolate recommendation ordering from product pricing and global app state.
 vi.mock("../../config/useConfig", () => ({ useConfig: vi.fn() }));

@@ -49,6 +49,7 @@ import {
   TransactionTypes
 } from "@upmind-automation/types";
 import "./mocks";
+import paymentMachine from "../payment.machine";
 import {
   emitAuth,
   loadMock,
@@ -58,7 +59,6 @@ import {
   updateMock,
   validateMock
 } from "./mocks";
-import paymentMachine from "../payment.machine";
 import type { PaymentContext } from "../payment.types";
 import type {
   IGateway,

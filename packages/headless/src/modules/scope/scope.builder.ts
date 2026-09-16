@@ -1,6 +1,8 @@
+import { AccessRoleTypes } from "@upmind-automation/types";
+import { useSessionStore } from "../session-store";
 import { ensure } from "./scope.registry";
 import { ScopeActorTypes } from "./scope.types";
-import { generateScopeKey, resolveSelfActor } from "./scope.utils";
+import { generateScopeKey } from "./scope.utils";
 import type {
   ActorContextMatrix,
   BareContextsForActor,
@@ -16,6 +18,33 @@ import type {
  * @module scope/builder
  * @description Fluent builder factory for creating scope-based composables.
  */
+
+/**
+ * Resolves `ScopeActorTypes.SELF` to the actual actor type from the current
+ * session: the active actor from the session store, or GUEST with no session.
+ *
+ * It lives here, beside its one caller (`.as()`), and NOT in `scope.utils`: it
+ * is the builder's own step, and it is the only scope function that reads a
+ * store. Keeping the store import out of `scope.utils` keeps that file pure, so
+ * a scope matrix — evaluated at MODULE LOAD — can call `selector()` without
+ * re-entering a half-loaded module through the session-store chain.
+ *
+ * @param actor - The actor to resolve
+ * @returns The resolved actor type (never SELF)
+ */
+export function resolveSelfActor(
+  actor: ScopeActor
+): Exclude<ScopeActor, `${ScopeActorTypes.SELF}`> {
+  if (actor !== ScopeActorTypes.SELF) {
+    return actor;
+  }
+
+  const session = useSessionStore();
+  const { activeActor } = session.useContext();
+
+  return activeActor.value ?? AccessRoleTypes.GUEST;
+}
+
 /**
  * Factory function that creates a composable instance from scope config.
  */

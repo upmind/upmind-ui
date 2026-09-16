@@ -61,6 +61,9 @@ export const HOUR_MS = 60 * MINUTE_MS;
 /** The client-emails page the acting-for segment reads its declared matrix off (K7). */
 export const CLIENT_EMAILS_ROUTE = "useClientEmails";
 
+/** The custom-fields page, whose own module declares the catalogue contexts. */
+export const CLIENT_CUSTOM_FIELDS_ROUTE = "useClientCustomFields";
+
 export type SessionSeed = {
   id: string;
   actor: AccessRoleTypes;
@@ -334,7 +337,7 @@ export function headlessDouble(real: object): object {
  * already installs — a second `createI18n` would install a second copy of
  * vue-i18n's components over the same app.
  */
-function installLabsCatalogue(): void {
+export function installLabsCatalogue(): void {
   forEach(config.global.plugins, plugin => {
     const catalogue = get(plugin, ["global"]) as
       | { mergeLocaleMessage?: (locale: string, messages: object) => void }
@@ -375,6 +378,12 @@ export async function clientEmailsRouter(path: string): Promise<Router> {
         name: `${CLIENT_EMAILS_ROUTE}-branded`,
         component: { template: "<div />" },
         meta: { scenario: CLIENT_EMAILS_ROUTE }
+      },
+      {
+        path: `/${CLIENT_CUSTOM_FIELDS_ROUTE}/:scopeSuffix(.*)*`,
+        name: CLIENT_CUSTOM_FIELDS_ROUTE,
+        component: { template: "<div />" },
+        meta: { scenario: CLIENT_CUSTOM_FIELDS_ROUTE }
       },
       {
         path: "/useAuth/:scopeSuffix(.*)*",

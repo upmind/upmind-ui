@@ -417,6 +417,52 @@ export function installDefinitionsHandler(
 }
 
 /**
+ * The catalogue the recorded corpus was captured against — the only
+ * `filter[object_type]` this module has real rows for. The recording brand
+ * carries no `contract_request` field, so staging answers that catalogue 200
+ * with zero rows (`docs/sdd/FE-3034/review-notes.md`, 2026-09-16).
+ */
+export const RECORDED_CATALOGUE = "client";
+
+/**
+ * The catalogue-partitioned sibling of {@link installDefinitionsHandler}:
+ * serves the RECORDED corpus only for the catalogue it was captured against,
+ * and the recorded envelope with zero rows for every other catalogue — what
+ * staging answers for this brand. Counts reads per `filter[object_type]`.
+ */
+export function installCatalogueAwareDefinitionsHandler(
+  mswServer: SetupServer | undefined,
+  brandId: string
+): { reads: (objectType: string) => number; total: () => number } {
+  const envelope = recorded.definitions();
+  const corpus = recordedDefinitions();
+  const reads = new Map<string, number>();
+
+  mswServer?.use(
+    http.get("*/custom_fields", ({ request }) => {
+      const params = new URL(request.url).searchParams;
+      const objectType = params.get("filter[object_type]") ?? "";
+      reads.set(objectType, (reads.get(objectType) ?? 0) + 1);
+
+      const rows =
+        params.get("brand_id") === brandId && objectType === RECORDED_CATALOGUE
+          ? corpus
+          : [];
+
+      return HttpResponse.json(
+        { ...envelope, data: rows, total: rows.length },
+        { status: 200, headers: { "x-total-count": String(rows.length) } }
+      );
+    })
+  );
+
+  return {
+    reads: objectType => reads.get(objectType) ?? 0,
+    total: () => [...reads.values()].reduce((sum, count) => sum + count, 0)
+  };
+}
+
+/**
  * The criteria-aware sibling of {@link installDefinitionsHandler}: that
  * handler ignores every param but `brand_id`, so it cannot back a filter,
  * sort or page assertion. This one narrows the RECORDED two-row corpus by

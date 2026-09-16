@@ -87,6 +87,73 @@ describe("a catalogue scope address", () => {
 
 // -----------------------------------------------------------------------------
 
+describe("a scope address at self names no actor segment", () => {
+  // No `/as/` segment IS self, so a context picked while acting as self writes
+  // `/for/:type` straight after the page. Before this the writer dropped the
+  // context whenever the actor was SELF, so picking a catalogue at the bare
+  // url built the url the page was already on — and nothing happened.
+
+  it("writes a catalogue at self as /for/:type with no actor segment", () => {
+    const path = buildScopePath({
+      page: PAGE,
+      actor: ScopeActorTypes.SELF,
+      context: { type: "invoice" }
+    });
+
+    expect(path).toBe(`/${PAGE}/for/invoice`);
+  });
+
+  it("writes an entity at self as /for/:type/:id with no actor segment", () => {
+    expect(
+      buildScopePath({
+        page: PAGE,
+        actor: ScopeActorTypes.SELF,
+        context: { type: "client", id: "c-9" }
+      })
+    ).toBe(`/${PAGE}/for/client/c-9`);
+  });
+
+  it("reads /for/:type back as a context with no actor", () => {
+    const parsed = parseScopeSuffix("for/invoice");
+
+    expect(parsed.valid).toBe(true);
+    expect(parsed.actor).toBeUndefined();
+    expect(parsed.context).toEqual({ type: "invoice" });
+  });
+
+  it("reads /for/:type/:id back as an entity context with no actor", () => {
+    expect(parseScopeSuffix("for/client/c-9")).toEqual({
+      valid: true,
+      context: { type: "client", id: "c-9" }
+    });
+  });
+
+  it("round-trips a self-scoped catalogue through the url and back", () => {
+    const context = { type: "cancel_request" };
+    const path = buildScopePath({
+      page: PAGE,
+      actor: ScopeActorTypes.SELF,
+      context
+    });
+
+    expect(parseScopeSuffix(path.replace(`/${PAGE}/`, "")).context).toEqual(
+      context
+    );
+  });
+
+  it("strips a self-scoped address whole, leaving the page behind", () => {
+    expect(stripScopeSuffix(`/${PAGE}/for/invoice`)).toBe(`/${PAGE}`);
+    expect(stripScopeSuffix(`/${PAGE}/for/client/c-9`)).toBe(`/${PAGE}`);
+  });
+
+  it("still refuses /for with no type, and any other leading word", () => {
+    expect(parseScopeSuffix("for").valid).toBe(false);
+    expect(parseScopeSuffix("invalid").valid).toBe(false);
+  });
+});
+
+// -----------------------------------------------------------------------------
+
 describe("a retargeted scope address is untouched", () => {
   it("writes, reads and strips the two-segment form exactly as before", () => {
     // Hard-coded literals: these are the addresses the playground's existing

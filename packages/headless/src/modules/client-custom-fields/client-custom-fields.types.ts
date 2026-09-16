@@ -23,9 +23,28 @@
  * matrix; the definition model, the services contract and the mappers are
  * shared, which is what keeps ONE identity seam for both halves.
  */
-import { AccessRoleTypes } from "@upmind-automation/types";
+/**
+ * @graphify-citation `graphify query "ClientCustomFieldsContextTypes
+ * CustomFieldsMajorTypes catalogue selector context"` against
+ * `graphify-out/graph.json` (2026-09-16) returns `ClientCustomFieldsContextTypes`
+ * (this file, L55) and `CustomFieldsMajorTypes`
+ * (`packages/types/src/data/enums/customFields.ts` L3) as EXISTING nodes, and no
+ * catalogue-axis construct anywhere else in the tree. The catalogue members
+ * added below WIDEN that existing enum with values consumed from
+ * `CustomFieldsMajorTypes` — no type is minted. `ScopeContextPatterns` and
+ * `SelectorContext` (`graphify-out/graph.json`, same query) are the scope
+ * platform's own SELECTOR declaration types, consumed rather than re-derived.
+ */
+import {
+  AccessRoleTypes,
+  CustomFieldsMajorTypes
+} from "@upmind-automation/types";
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
+// `selector()` is the platform's EXISTING declaration helper
+// (graphify-out/graph.json, 2026-09-16: `selector` in scope/scope.utils.ts) —
+// consumed here, never re-minted.
+import { selector } from "../scope/scope.utils";
 // graphify-out/graph.json (2026-08-10): `useUpload`'s return type is consumed
 // below (`ClientCustomFieldImageServices.uploader`), never re-minted.
 import type { ResponseError } from "../../utils";
@@ -45,16 +64,31 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 /**
- * Context types for the definitions/values COLLECTION — WHICH client's
- * custom-field value set is being addressed. `.for('client', id)` names the
- * client being addressed; with none, the seam falls back to the active
- * session's own client. The member and wire value match every sibling client
- * module (`ClientPhonesContextTypes.CLIENT` = `AccessRoleTypes.CLIENT`).
- * (`graphify-out/graph.json` — no new node; the member is renamed, not minted.)
+ * Context types for the definitions COLLECTION — the two questions a scope may
+ * answer about this module, in the two mutually exclusive patterns ADR-001's
+ * 2026-09-15 amendment declares.
+ *
+ * WHICH CLIENT (RETARGET). `.for(CLIENT, id)` names the client being addressed;
+ * with none, the seam falls back to the active session's own client. The member
+ * and wire value match every sibling client module
+ * (`ClientPhonesContextTypes.CLIENT` = `AccessRoleTypes.CLIENT`).
+ *
+ * WHICH CATALOGUE (SELECTOR). `.for(INVOICE)` / `.for(CANCEL_REQUEST)` name the
+ * catalogue the loader reads; the type IS the whole answer, so an id is
+ * forbidden. The CLIENT catalogue has no member of its own — it is the ABSENCE
+ * of a selector, and `CustomFieldsMajorTypes.CLIENT` carries the same `"client"`
+ * value the retarget member does.
+ *
+ * (`graphify-out/graph.json` — see this file's head citation; the enum is
+ * widened, never re-minted.)
  */
 export enum ClientCustomFieldsContextTypes {
   /** Acting on a client's own custom field value set. */
-  CLIENT = AccessRoleTypes.CLIENT
+  CLIENT = AccessRoleTypes.CLIENT,
+  /** Reading the INVOICE catalogue. */
+  INVOICE = CustomFieldsMajorTypes.INVOICE,
+  /** Reading the cancellation-request catalogue. */
+  CANCEL_REQUEST = CustomFieldsMajorTypes.CANCEL_REQUEST
 }
 
 /**
@@ -73,11 +107,27 @@ export enum ClientCustomFieldsContextTypes {
  * capability. Same correction as `client-address.types.ts`, whose note carries
  * the `ts.createProgram` probe this rests on. (`graphify-out/graph.json` — the
  * `CLIENT` row is the retarget grant, not a new node.)
+ *
+ * THE CELL IS A LIST (`graphify-out/graph.json`, same citation). `client`
+ * declares one RETARGET member and two SELECTOR members, so `.for(CLIENT, id)`
+ * demands an id while `.for(INVOICE)` forbids one — `IdContextsForActor` and
+ * `BareContextsForActor` split the overload off this one cell. The labs scope
+ * bar reads the same cell through `resolveContextDeclarations`, so the
+ * catalogue picker offers exactly what is declared here.
+ *
+ * The SELECTOR members call the platform's `selector()` (graphify-out/graph.json,
+ * same citation), imported from `scope/scope.utils` directly rather than the
+ * `../scope` barrel: a matrix is evaluated at MODULE LOAD, and the utils file is
+ * kept pure — no store imports — precisely so a matrix can call it on that path.
  */
 export const CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientCustomFieldsContextTypes.CLIENT,
+  [ScopeActorTypes.CLIENT]: [
+    ClientCustomFieldsContextTypes.CLIENT,
+    selector(ClientCustomFieldsContextTypes.INVOICE),
+    selector(ClientCustomFieldsContextTypes.CANCEL_REQUEST)
+  ],
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
@@ -252,8 +302,22 @@ export type SortEntry = { field: "order" | "name"; dir: SortDirection };
 /** What `sortBy` accepts — the schema's `sort` branch. */
 export type SortModel = SortEntry[];
 
-/** What `filterBy` accepts — the schema's `filters` branch. */
-export type FilterModel = { name?: { like?: string | null } };
+// @graphify-citation `graphify query "FilterModel CustomFieldsTypes required
+// eq"` — `graphify-out/graph.json` shows the only other `FilterModel` as
+// `client-company.types.ts`'s own per-module type; no existing `type`/`required`
+// branch to consume. `CustomFieldsTypes` is already imported into this file for
+// `CustomField.typeId`.
+
+/**
+ * What `filterBy` accepts — the schema's `filters` branch. Every branch here
+ * already exists in `useQuerySchema()`; this is the model side catching up, so
+ * a consumer can spell the type and required filters the control bar renders.
+ */
+export type FilterModel = {
+  name?: { like?: string | null };
+  type?: { eq?: CustomFieldsTypes | null };
+  required?: { eq?: boolean | null };
+};
 
 /** The collection's whole request state, as one model. */
 export type QueryModel = {
@@ -294,7 +358,12 @@ export type ClientCustomFieldsErrorCapture = (error: unknown) => void;
  * client through the same seam.
  */
 export type ClientCustomFieldsServices = {
-  /** The module's base cache key. */
+  /**
+   * This scope's CATALOGUE-QUALIFIED cache key — the prefix `invalidate`,
+   * `reset` and `refresh` scope onto, so pressing one never drops a sibling
+   * catalogue's warm rows. (`graphify-out/graph.json` — the member's TYPE is
+   * unchanged; only what it carries is narrower.)
+   */
   queryKey: QueryKey;
   /** The target client this scope resolved. */
   clientId: ComputedRef<string | undefined>;
@@ -330,7 +399,11 @@ export type ClientCustomFieldsServices = {
     model?: CustomFieldModel,
     fields?: CustomField[]
   ) => Promise<CustomFieldModel | undefined>;
-  /** Invalidates {@link ClientCustomFieldsServices.queryKey} so the collection refetches. */
+  /**
+   * Invalidates {@link ClientCustomFieldsServices.queryKey} so THIS
+   * catalogue's collection refetches. (`graphify-out/graph.json` — unchanged
+   * member, narrower scope.)
+   */
   refresh: () => Promise<void>;
 };
 

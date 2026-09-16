@@ -1,9 +1,5 @@
 <template>
-  <DropdownMenu
-    v-if="hasClients || hasSelectorContexts"
-    :items="[]"
-    class="w-80"
-  >
+  <DropdownMenu v-if="hasMembers || isActing" :items="[]" class="w-80">
     <template #trigger>
       <Button
         :class="
@@ -19,62 +15,71 @@
       </Button>
     </template>
 
-    <template v-if="hasSelectorContexts">
+    <DropdownMenuLabel
+      class="text-muted border-surface border-b text-xs tracking-wider uppercase"
+    >
+      {{ t("labs.acting_for_pick_context") }}
+    </DropdownMenuLabel>
+
+    <!-- SELECTOR members: the type IS the whole answer, so each is one row and
+         picking it is the whole act. -->
+    <DropdownMenuGroup
+      v-if="availableSelectorMembers.length"
+      class="flex flex-col p-1"
+    >
+      <DropdownMenuItem
+        v-for="member in availableSelectorMembers"
+        :key="member.type"
+        :data-attrs="{
+          'data-test-key': 'acting-for-context',
+          'data-test-value': member.type
+        }"
+        @select="selectMember(member)"
+      >
+        <span class="truncate text-sm font-medium">
+          {{ startCase(member.type) }}
+        </span>
+      </DropdownMenuItem>
+    </DropdownMenuGroup>
+
+    <!-- RETARGET members: the type names an entity, so each one takes an id.
+         A client is the one entity the session store already knows by name, so
+         the known sessions are offered as rows beneath its id field. -->
+    <template v-for="member in retargetMembers" :key="member.type">
       <DropdownMenuLabel
         class="text-muted border-surface border-b text-xs tracking-wider uppercase"
       >
-        {{ t("labs.acting_for_pick_context") }}
-      </DropdownMenuLabel>
-
-      <DropdownMenuGroup class="flex flex-col p-1">
-        <DropdownMenuItem
-          v-for="context in availableSelectorContexts"
-          :key="context.type"
-          :data-attrs="{
-            'data-test-key': 'acting-for-context',
-            'data-test-value': context.type
-          }"
-          @select="selectContext(context)"
-        >
-          <span class="truncate text-sm font-medium">
-            {{ startCase(context.type) }}
-          </span>
-        </DropdownMenuItem>
-
-        <p
-          v-if="isEmpty(availableSelectorContexts)"
-          class="text-muted py-4 text-center text-sm"
-        >
-          {{ t("labs.acting_for_no_contexts") }}
-        </p>
-      </DropdownMenuGroup>
-    </template>
-
-    <template v-if="hasClients">
-      <DropdownMenuLabel
-        class="text-muted border-surface border-b text-xs tracking-wider uppercase"
-      >
-        {{ t("labs.acting_for_pick_client") }}
+        {{ t("labs.acting_for_by_id", { type: startCase(member.type) }) }}
       </DropdownMenuLabel>
 
       <div class="p-2">
         <Input
-          v-model="clientIdInput"
-          :placeholder="t('labs.acting_for_id_placeholder')"
+          v-model="idInputs[member.type]"
+          :placeholder="
+            t('labs.acting_for_id_placeholder', {
+              type: startCase(member.type)
+            })
+          "
           size="sm"
-          :data-attrs="{ 'data-test-key': 'acting-for-id-input' }"
+          :data-attrs="{
+            'data-test-key': 'acting-for-id-input',
+            'data-test-value': member.type
+          }"
           @keydown.stop
-          @keyup.enter="applyClientId"
+          @keyup.enter="applyId(member)"
         >
           <template #leading>
             <Icon icon="user-01" size="xs" class="text-muted" />
           </template>
-          <template v-if="clientIdInput.trim()" #trailing>
+          <template v-if="trim(idInputs[member.type])" #trailing>
             <Button
               variant="ghost"
               size="xs"
-              :data-attrs="{ 'data-test-key': 'acting-for-id-apply' }"
-              @click="applyClientId"
+              :data-attrs="{
+                'data-test-key': 'acting-for-id-apply',
+                'data-test-value': member.type
+              }"
+              @click="applyId(member)"
             >
               <Icon icon="arrow-right" size="xs" />
             </Button>
@@ -82,7 +87,10 @@
         </Input>
       </div>
 
-      <DropdownMenuGroup class="flex flex-col p-1">
+      <DropdownMenuGroup
+        v-if="isClientType(member.type)"
+        class="flex flex-col p-1"
+      >
         <DropdownMenuItem
           v-for="client in availableClients"
           :key="String(client.id)"
@@ -120,14 +128,22 @@
       </DropdownMenuGroup>
     </template>
 
+    <p v-if="!hasMembers" class="text-muted py-4 text-center text-sm">
+      {{ t("labs.acting_for_no_contexts") }}
+    </p>
+
+    <!-- The active context, whatever its pattern, and the one way out of it. -->
     <div
-      v-if="isActing && !isRetargeting"
+      v-if="isActing"
       class="bg-canvas border-surface flex items-center gap-2 border-t p-2"
     >
+      <Avatar v-if="isRetargeting" size="sm" :alt="activeLabel">
+        <template #fallback>
+          <span class="text-xs font-medium">{{ initials(activeLabel) }}</span>
+        </template>
+      </Avatar>
       <span class="flex min-w-0 flex-1 flex-col">
-        <span class="truncate text-sm font-medium">{{
-          startCase(currentContext?.type)
-        }}</span>
+        <span class="truncate text-sm font-medium">{{ activeLabel }}</span>
         <span class="text-muted text-xs">{{ t("labs.acting_for") }}</span>
       </span>
       <Tooltip :label="t('labs.acting_for_clear')">
@@ -143,36 +159,6 @@
         </Button>
       </Tooltip>
     </div>
-
-    <div v-if="isRetargeting" class="bg-canvas border-surface border-t p-2">
-      <div class="flex items-center gap-2">
-        <Avatar size="sm" :alt="activeClientLabel">
-          <template #fallback>
-            <span class="text-xs font-medium">{{
-              initials(activeClientLabel)
-            }}</span>
-          </template>
-        </Avatar>
-        <span class="flex min-w-0 flex-1 flex-col">
-          <span class="truncate text-sm font-medium">{{
-            activeClientLabel
-          }}</span>
-          <span class="text-muted text-xs">{{ t("labs.acting_for") }}</span>
-        </span>
-        <Tooltip :label="t('labs.acting_for_clear')">
-          <Button
-            size="sm"
-            variant="ghost"
-            icon-only
-            :aria-label="t('labs.acting_for_clear')"
-            :data-attrs="{ 'data-test-key': 'acting-for-clear' }"
-            @click="clear"
-          >
-            <Icon icon="x-close" size="xs" />
-          </Button>
-        </Tooltip>
-      </div>
-    </div>
   </DropdownMenu>
 </template>
 
@@ -180,8 +166,21 @@
 // -----------------------------------------------------------------------------
 /**
  * @module components/scope/ActingForSegment
- * @description Client picker for the scope bar. Matches SessionSwitcher structure.
- * Client ID entry input, available clients list, active client at bottom with clear.
+ * @description The scope bar's "acting for" picker. It is driven by the scope
+ * matrix the page registered, and by nothing else: every context member the
+ * matrix declares for the url's actor is offered, and the member's PATTERN
+ * decides how it is picked.
+ *
+ * - A RETARGET member names an entity, so it takes an id. The row is an id
+ *   field for that type. For `client` — the one entity the session store
+ *   already knows — the held client sessions are offered beneath the field and
+ *   an unknown id is impersonated into the pool first.
+ * - A SELECTOR member IS the whole answer (which catalogue), so it is one row
+ *   and picking it is the act. No id, no session, nothing to remember.
+ *
+ * Either way the pick becomes `/for/:type[/:id]` on the url (`buildScopePath`),
+ * whatever actor the url names — SELF included. The page reads the context back
+ * off the route and boots `.for()` from it.
  */
 
 import {
@@ -194,7 +193,7 @@ import {
   Input,
   Tooltip
 } from "@upmind/ui";
-import { computed, ref } from "vue";
+import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { Icon } from "@upmind-automation/client-vue";
@@ -203,6 +202,7 @@ import {
   ScopeContextPatterns,
   useSessionStore
 } from "@upmind-automation/headless";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import {
   buildScopePath,
   useActorScope,
@@ -219,10 +219,12 @@ import {
   isEmpty,
   map,
   reject,
-  startCase
+  startCase,
+  trim,
+  uniqBy
 } from "lodash-es";
 import type { AvailableContext } from "./useContextScopeSelector";
-import type { SessionEntry } from "@upmind-automation/headless";
+import type { ScopeContext, SessionEntry } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -242,37 +244,69 @@ const { availableContexts, recentContexts, remember } =
   useContextScopeSelector();
 
 const store = useSessionStore();
-const { clientSessions } = store.useContext();
+const { activeActor, clientSessions } = store.useContext();
 const { isAvailable } = store.useMeta();
 
-const clientIdInput = ref("");
+/** One pending id per RETARGET member, keyed by the member's type. */
+const idInputs = reactive<Record<string, string>>({});
 
 const isActing = computed(() => !!currentContext.value);
 
 // A RETARGET context names an entity by id; a SELECTOR one IS the whole answer
 // and carries none. The two are mutually exclusive, so the id's presence is
-// what tells the two branches apart.
+// what tells the two apart on the active context.
 const isRetargeting = computed(() => currentContext.value?.id !== undefined);
 
+/** Whether a context type names a client — the entity the store knows by name. */
+const isClientType = (type: string): boolean => type === AccessRoleTypes.CLIENT;
+
 /**
- * The SELECTOR members the registered matrix declares for the actor the url
- * names. `SELF` resolves to whoever is active, so it is offered every declared
- * member rather than none.
+ * The actor whose members are offered. A url naming none means SELF, and SELF
+ * is whoever is active — so it resolves to that concrete actor rather than
+ * standing for all of them. Offering the union would put a member of another
+ * actor's cell in front of a hand that cannot use it: the pick would build a
+ * url the module then refuses.
+ *
+ * Resolved off the store this component already holds, not through the scope
+ * builder's own `resolveSelfActor`: same answer, one seam instead of two, and
+ * it follows the store reactively as the active session changes.
  */
-const selectorContexts = computed<AvailableContext[]>(() =>
-  filter(
-    availableContexts.value,
-    ctx =>
-      ctx.pattern === ScopeContextPatterns.SELECTOR &&
-      (actorScope.value === ScopeActorTypes.SELF ||
-        ctx.actor === actorScope.value)
+const resolvedActor = computed<string>(() =>
+  actorScope.value === ScopeActorTypes.SELF
+    ? (activeActor.value ?? AccessRoleTypes.GUEST)
+    : actorScope.value
+);
+
+/**
+ * Every member the registered matrix declares for that actor. A cell may name
+ * the same type twice; the pattern and the type together are the identity.
+ */
+const members = computed<AvailableContext[]>(() =>
+  uniqBy(
+    filter(
+      availableContexts.value,
+      ctx => String(ctx.actor) === resolvedActor.value
+    ),
+    ctx => `${ctx.pattern}:${ctx.type}`
   )
 );
 
-const hasSelectorContexts = computed(() => !isEmpty(selectorContexts.value));
+const hasMembers = computed(() => !isEmpty(members.value));
 
-const availableSelectorContexts = computed<AvailableContext[]>(() =>
-  reject(selectorContexts.value, ctx => ctx.type === currentContext.value?.type)
+const selectorMembers = computed<AvailableContext[]>(() =>
+  filter(members.value, { pattern: ScopeContextPatterns.SELECTOR })
+);
+
+const retargetMembers = computed<AvailableContext[]>(() =>
+  filter(members.value, { pattern: ScopeContextPatterns.RETARGET })
+);
+
+/** The selectors not already active — the active one is shown below, with clear. */
+const availableSelectorMembers = computed<AvailableContext[]>(() =>
+  reject(
+    selectorMembers.value,
+    member => member.type === currentContext.value?.type
+  )
 );
 
 const brandId = computed(() => route.params.brandIdOrOrg as string | undefined);
@@ -282,15 +316,21 @@ const page = computed(() => {
   return (brandId.value ? segments[1] : segments[0]) ?? "";
 });
 
-const triggerLabel = computed(() => {
+/** What the active context is called: the type, or the entity it names. */
+const activeLabel = computed(() => {
   const context = currentContext.value;
-  if (!context) return t("labs.acting_for_none");
-
-  return t("labs.acting_for_active", {
-    label:
-      context.id === undefined ? startCase(context.type) : labelFor(context.id)
-  });
+  if (!context) return "";
+  if (context.id === undefined) return startCase(context.type);
+  return isClientType(context.type)
+    ? labelFor(context.id)
+    : `${startCase(context.type)} · ${context.id}`;
 });
+
+const triggerLabel = computed(() =>
+  currentContext.value
+    ? t("labs.acting_for_active", { label: activeLabel.value })
+    : t("labs.acting_for_none")
+);
 
 const triggerIcon = computed(() =>
   currentContext.value ? "layers-three-01" : "user-square"
@@ -315,7 +355,7 @@ const recentClients = computed<ClientOption[]>(() => {
     filter(
       recentContexts.value,
       (r): r is (typeof recentContexts.value)[number] & { id: string } =>
-        r.type === "client" && !!r.id && !poolIds.has(r.id)
+        isClientType(r.type) && !!r.id && !poolIds.has(r.id)
     ),
     r => ({ id: r.id, name: r.label ?? r.id, email: undefined })
   );
@@ -331,13 +371,6 @@ const availableClients = computed<ClientOption[]>(() => {
   if (!activeId) return allClients.value;
   return reject(allClients.value, c => c.id === activeId);
 });
-
-const activeClientLabel = computed(() => {
-  const id = currentContext.value?.id;
-  return id === undefined ? "" : labelFor(id);
-});
-
-const hasClients = computed(() => !isEmpty(allClients.value) || isActing.value);
 
 function initials(name: string): string {
   return name
@@ -360,92 +393,72 @@ function labelFor(id: string): string {
   return id;
 }
 
-async function applyClientId(): Promise<void> {
-  const id = clientIdInput.value.trim();
+/**
+ * A client id that is not in the pool is impersonated into it first, so the
+ * page reads as that client. Any other entity is named by id alone.
+ */
+async function ensureClientSession(id: string): Promise<boolean> {
+  if (has(pool.value, id)) return true;
+
+  try {
+    const token = await impersonateClient(id);
+    const { registerImpersonation, add } = store.useActions();
+    registerImpersonation(id);
+    await add(token);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Act for the entity typed into a RETARGET member's id field. */
+async function applyId(member: AvailableContext): Promise<void> {
+  const id = trim(idInputs[member.type] ?? "");
   if (!id) return;
 
-  const isInPool = has(pool.value, id);
+  if (isClientType(member.type) && !(await ensureClientSession(id))) return;
 
-  if (!isInPool) {
-    try {
-      const token = await impersonateClient(id);
-      const { registerImpersonation, add } = store.useActions();
-      registerImpersonation(id);
-      await add(token);
-    } catch {
-      return;
-    }
-  }
+  remember({
+    type: member.type,
+    id,
+    label: isClientType(member.type) ? labelFor(id) : id
+  });
+  idInputs[member.type] = "";
 
-  await applyContext(id, id);
+  await navigate({ type: member.type, id });
 }
 
+/** Act for a client the store already holds, or has held before. */
 async function selectClient(client: ClientOption): Promise<void> {
-  const isInPool = has(pool.value, client.id);
+  if (!(await ensureClientSession(client.id))) return;
 
-  if (!isInPool) {
-    try {
-      const token = await impersonateClient(client.id);
-      const { registerImpersonation, add } = store.useActions();
-      registerImpersonation(client.id);
-      await add(token);
-    } catch {
-      return;
-    }
-  }
+  remember({ type: AccessRoleTypes.CLIENT, id: client.id, label: client.name });
 
-  await applyContext(client.id, client.name);
+  await navigate({ type: AccessRoleTypes.CLIENT, id: client.id });
 }
 
-async function applyContext(id: string, label: string): Promise<void> {
-  if (isEmpty(id)) return;
-
-  remember({ type: "client", id, label });
-  clientIdInput.value = "";
-
-  await router
-    .push(
-      preserveQuery(
-        buildScopePath({
-          page: page.value,
-          brandId: brandId.value,
-          actor: actorScope.value,
-          context: { type: "client", id }
-        })
-      )
-    )
-    .catch(() => undefined);
-}
-
-/**
- * Scope to a SELECTOR member. No id to enter, no session to impersonate and
- * nothing to remember — the type IS the whole answer, so this shares only the
- * navigation the retarget branch ends on.
- */
-async function selectContext(context: AvailableContext): Promise<void> {
-  await router
-    .push(
-      preserveQuery(
-        buildScopePath({
-          page: page.value,
-          brandId: brandId.value,
-          actor: actorScope.value,
-          context: { type: context.type }
-        })
-      )
-    )
-    .catch(() => undefined);
+/** Act for a SELECTOR member — the type is the whole answer. */
+async function selectMember(member: AvailableContext): Promise<void> {
+  await navigate({ type: member.type });
 }
 
 async function clear(): Promise<void> {
-  await router.push(
-    preserveQuery(
-      buildScopePath({
-        page: page.value,
-        brandId: brandId.value,
-        actor: actorScope.value
-      })
+  await navigate();
+}
+
+/** The one navigation every pick ends on: the page, at the actor, for the context. */
+async function navigate(context?: ScopeContext): Promise<void> {
+  await router
+    .push(
+      preserveQuery(
+        buildScopePath({
+          page: page.value,
+          brandId: brandId.value,
+          actor: actorScope.value,
+          context
+        })
+      )
     )
-  );
+    .catch(() => undefined);
 }
 </script>

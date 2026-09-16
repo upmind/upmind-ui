@@ -33,6 +33,7 @@ import { Suspense, defineComponent, h } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import {
+  appPlugins,
   clearClientSession,
   observeRequests,
   seedClientSession,
@@ -49,6 +50,7 @@ import {
 import { ROUTE } from "../../funnels/types";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
+import type { Router } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -56,6 +58,7 @@ import type { Component } from "vue";
 const INVOICE_PARAM = QUERY_PARAMS.ORDER_ID;
 
 let mounted: VueWrapper | undefined;
+let router: Router | undefined;
 
 type RecordedInvoice = { number: string; status: { code: string } };
 
@@ -64,7 +67,12 @@ async function mountInvoicePage(invoiceId: string): Promise<VueWrapper> {
     await import("../../../modules/scenarios/useInvoice/invoice.page.vue")
   ).default as Component;
 
-  const router = createRouter({
+  // ONE router per file, as the app has one: the routing engine binds the first
+  // router it is handed (`init` is `??=`), and `setParam` writes
+  // `?payment_success` through THAT router once an order settles. A router per
+  // mount would leave it writing through the previous test's router, at a
+  // location it no longer matches.
+  router ??= createRouter({
     history: createWebHistory(),
     routes: [
       {
@@ -87,7 +95,7 @@ async function mountInvoicePage(invoiceId: string): Promise<VueWrapper> {
 
   mounted = mount(host, {
     attachTo: document.body,
-    global: { plugins: [router] }
+    global: { plugins: await appPlugins(router) }
   });
   return mounted;
 }
@@ -107,7 +115,10 @@ async function showInvoice(invoiceCase: InvoiceCase): Promise<{
 
   const wrapper = await mountInvoicePage(invoiceId);
   await vi.waitFor(
-    () => expect(testValue(wrapper, "invoice-number")).toBe(recorded.number),
+    () =>
+      expect(testValue(wrapper, "confirmation-invoice-number")).toBe(
+        recorded.number
+      ),
     { timeout: 10000 }
   );
 
@@ -139,7 +150,9 @@ describe("the invoice page, read by the client who owns the invoice", () => {
       const { wrapper, recorded, invoiceId } = await showInvoice("unpaid");
       observed.stop();
 
-      expect(testValue(wrapper, "invoice-number")).toBe(recorded.number);
+      expect(testValue(wrapper, "confirmation-invoice-number")).toBe(
+        recorded.number
+      );
       expect(testValue(wrapper, "invoice-status")).toBe(recorded.status.code);
       expect(observed.count(`/api/invoices/${invoiceId}`)).toBeGreaterThan(0);
     },
@@ -153,7 +166,9 @@ describe("the invoice page, read by the client who owns the invoice", () => {
       const { wrapper, recorded } = await showInvoice("paid");
 
       expect(recorded.number).not.toBe(other.number);
-      expect(testValue(wrapper, "invoice-number")).toBe(recorded.number);
+      expect(testValue(wrapper, "confirmation-invoice-number")).toBe(
+        recorded.number
+      );
       expect(testValue(wrapper, "invoice-status")).toBe(recorded.status.code);
       expect(testValue(wrapper, "invoice-status")).not.toBe(other.status.code);
     },
