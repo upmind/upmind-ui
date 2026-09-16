@@ -20,13 +20,13 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { mapIBillingSettingsFields } from "../client-billing-settings.mappers";
-import { mapIProfileFields } from "../../client-personal-details/client-personal-details.mappers";
 import {
   DaysOfWeekTypes,
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
+import { mapIProfileFields } from "../../client-personal-details/client-personal-details.mappers";
+import { mapIBillingSettingsFields } from "../client-billing-settings.mappers";
 import type { BillingSettingsModel } from "../client-billing-settings.types";
 
 // -----------------------------------------------------------------------------

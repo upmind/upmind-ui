@@ -13,16 +13,16 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { useSchema, useUischema } from "../payment-gateways.schemas";
+import { useUischema as nickyUischema } from "../nicky/schemas";
 import {
   useSchema as openPaySchema,
   useUischema as openPayUischema
 } from "../openPay/schemas";
+import { useSchema, useUischema } from "../payment-gateways.schemas";
 import {
   useSchema as razorpaySchema,
   useUischema as razorpayUischema
 } from "../razorpay/schemas";
-import { useUischema as nickyUischema } from "../nicky/schemas";
 import type { GatewayContext } from "../payment-gateways.types";
 import type { JsonSchema, Layout, UISchemaElement } from "@jsonforms/core";
 

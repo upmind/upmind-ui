@@ -16,6 +16,10 @@
 import { describe, it, expect, vi } from "vitest";
 
 // -----------------------------------------------------------------------------
+
+import { useModelParser } from "../useValidation";
+
+// -----------------------------------------------------------------------------
 // Mocks — must be declared before any imports that trigger module loading
 
 vi.mock("../../modules/system", () => ({
@@ -36,10 +40,6 @@ vi.mock("@sentry/vue", () => ({
   withScope: vi.fn(),
   logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn() }
 }));
-
-// -----------------------------------------------------------------------------
-
-import { useModelParser } from "../useValidation";
 
 const CATEGORY_ID = "cat-privacy";
 const VALUE_ID = "opt-whois";

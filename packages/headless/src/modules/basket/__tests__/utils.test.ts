@@ -24,6 +24,16 @@
 import { describe, it, expect, vi } from "vitest";
 
 // -----------------------------------------------------------------------------
+
+import { hasProductChanges, preserveProvisionFields } from "../basket.utils";
+
+// --- utils
+import { cloneDeep } from "lodash-es";
+
+// --- types
+import type { IBasket } from "@upmind-automation/types";
+
+// -----------------------------------------------------------------------------
 // Mocks — the machines pulled in by `../utils` read cookies at module load
 
 vi.mock("../../../utils/useCookies", () => ({
@@ -64,16 +74,6 @@ vi.mock("../../", () => ({
   useUrl: vi.fn((path: string) => path),
   invalidateQueryByKey: vi.fn()
 }));
-
-// -----------------------------------------------------------------------------
-
-import { hasProductChanges, preserveProvisionFields } from "../basket.utils";
-
-// --- utils
-import { cloneDeep } from "lodash-es";
-
-// --- types
-import type { IBasket } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // Fixtures — minimal basket shapes for testing product change detection

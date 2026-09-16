@@ -12,24 +12,15 @@
 
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
+import braintreeServices from "../braintree/services";
+import stripeServices from "../stripe/services";
 import { server } from "./setup.integration";
 import type { GatewayContext } from "../payment-gateways.types";
 import type { IClient, IGateway, ICurrency } from "@upmind-automation/types";
-
-import stripeServices from "../stripe/services";
-import braintreeServices from "../braintree/services";
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 const sessionRecordingsDir = join(
