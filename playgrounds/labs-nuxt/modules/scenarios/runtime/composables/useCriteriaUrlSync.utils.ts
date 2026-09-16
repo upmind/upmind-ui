@@ -46,20 +46,44 @@ import type { QuerySortEntry } from "@upmind-automation/headless";
 export const SORT_PARAM = "sort";
 export const PAGINATION_PARAMS = ["limit", "offset"];
 
+/**
+ * The operator a BARE-LEAF filter column carries — one whose schema declares no
+ * operator `properties` map, so the column IS the leaf (an implicit EQUAL). The
+ * empty string is that absence: `filterParam` drops the operator segment for it
+ * and both directions address the value at `filters.<column>` rather than one
+ * level deeper. Every column of every OTHER collection wraps its value in an
+ * operator object, so this is inert for them; `tickets` is the one schema that
+ * mixes bare leaves (`reference`/`subject`/`contract_product_id`) with nested
+ * ones (`statusCode`/`created_at`), and it was the bare leaves that never
+ * reached the url.
+ */
+const LEAF_OPERATOR = "";
+
 /** The one statement of the filter param's format, read by both directions. */
 export function filterParam(column: string, operator: string): string {
-  return `filter.${column}.${operator}`;
+  return operator ? `filter.${column}.${operator}` : `filter.${column}`;
 }
 
-/** Every `(column, operator)` pair the schema DECLARES — never the model's keys. */
+/** Where a `(column, operator)` pair's value sits in the criteria model. */
+function filterPath(column: string, operator: string): string[] {
+  return operator ? ["filters", column, operator] : ["filters", column];
+}
+
+/**
+ * Every `(column, operator)` pair the schema DECLARES — never the model's keys.
+ * A column with an operator `properties` map yields one pair per operator; a
+ * bare-leaf column (no such map) yields a single {@link LEAF_OPERATOR} pair, so
+ * an EQUAL leaf is serialised like any other filter instead of being skipped.
+ */
 export function declaredPairs(schema: unknown): [string, string][] {
   return flatMap(
     get(schema, ["properties", "filters", "properties"], {}),
-    (columnSchema, column: string) =>
-      map(
-        keys(get(columnSchema, "properties", {})),
-        (operator): [string, string] => [column, operator]
-      )
+    (columnSchema, column: string): [string, string][] => {
+      const operators = keys(get(columnSchema, "properties", {}));
+      return isEmpty(operators)
+        ? [[column, LEAF_OPERATOR]]
+        : map(operators, (operator): [string, string] => [column, operator]);
+    }
   );
 }
 
@@ -88,7 +112,7 @@ export function criteriaToParams(
   const params: Record<string, string> = {};
 
   forEach(declaredPairs(schema), ([column, operator]) => {
-    const value = get(model, ["filters", column, operator]);
+    const value = get(model, filterPath(column, operator));
     if (isNil(value) || value === "") return;
     params[filterParam(column, operator)] = toString(value);
   });
@@ -127,18 +151,15 @@ export function paramsToCriteria(
     const raw = get(params, filterParam(column, operator));
     if (!isString(raw) || isEmpty(raw)) return;
 
-    const value = coerce(
-      get(schema, [
-        "properties",
-        "filters",
-        "properties",
-        column,
-        "properties",
-        operator
-      ]),
-      raw
-    );
-    if (!isNil(value)) set(criteria, ["filters", column, operator], value);
+    const leafSchema = get(schema, [
+      "properties",
+      "filters",
+      "properties",
+      column,
+      ...(operator ? ["properties", operator] : [])
+    ]);
+    const value = coerce(leafSchema, raw);
+    if (!isNil(value)) set(criteria, filterPath(column, operator), value);
   });
 
   const fields = declaredSortFields(schema as JsonSchema);
