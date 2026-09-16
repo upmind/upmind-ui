@@ -232,7 +232,10 @@ const TRIAL_ROW: ContentRowConfig = {
   ]
 };
 
-/** The summary every product page carries — legacy's own sidebar facts. */
+/**
+ * The product's facts, on the overview only. The billboard above every product
+ * page already states what the product is, so this repeats none of it.
+ */
 const SUMMARY_ROW: ContentRowConfig = panelRow(
   "Summary",
   "This product's key facts at a glance.",
@@ -244,20 +247,6 @@ const SUMMARY_ROW: ContentRowConfig = panelRow(
       revealLabel: "Reveal"
     }
   })
-);
-
-/** The provider's featured functions — legacy's quick actions, wherever the product has any. */
-const QUICK_ACTIONS_ROW: ContentRowConfig = panelRow(
-  "Quick actions",
-  "The things your provider put in reach.",
-  moduleRef(BUTTON_MODULE_ID, {
-    variant: BUTTON_MODULE_VARIANT.GROUP,
-    props: {
-      label: "Quick actions",
-      actions: dataRef(DATA_REF_ID.PRODUCT_QUICK_ACTIONS)
-    }
-  }),
-  { visible: dataRef(DATA_REF_ID.PRODUCT_HAS_QUICK_ACTIONS) }
 );
 
 /** Legacy's "About this product" — the brand's own markdown, clamped. */
@@ -669,20 +658,21 @@ const ORDER_COMPLETE_ROW: ContentRowConfig = {
 
 /**
  * The chrome every product page wears, in legacy's own order: what the
- * product is, what it needs from the client, where else to go on it, and the
- * facts underneath.
+ * product is, what it needs from the client, and where else to go on it. The
+ * summary is NOT here: every area repeated it under its own rows. Nor are the
+ * promoted functions — legacy's quick-actions panel — which ride the
+ * billboard itself.
  */
 const PRODUCT_CHROME_ROWS: readonly ContentRowConfig[] = [
   BILLBOARD_ROW,
   CONDITION_ROW,
   TRIAL_ROW,
-  AREA_NAV_ROW,
-  SUMMARY_ROW,
-  QUICK_ACTIONS_ROW
+  AREA_NAV_ROW
 ];
 
 /** Legacy's overview area — the provider surface and this product's own notes. The detail page IS the overview, as legacy's detail redirect made it. */
 const OVERVIEW_ROWS: readonly ContentRowConfig[] = [
+  SUMMARY_ROW,
   // The brand's own note on every product page — its `contract_product_overview` slot.
   brandNoteRow(
     DATA_REF_ID.TEMPLATE_PRODUCT_MARKDOWN,
@@ -703,9 +693,9 @@ export function productPages(): Partial<Record<PageKey, ContentConfig>> {
 
   /**
    * A page ABOUT one product: every one of them leads with the same chrome —
-   * the billboard, whatever the product needs answering, the area nav and the
-   * summary — and then its own rows. The listing and the buy flow are not
-   * about a product, so they keep the plain page above.
+   * the billboard, whatever the product needs answering and the area nav —
+   * and then its own rows. The listing and the buy flow are not about a
+   * product, so they keep the plain page above.
    */
   const productPage = (
     title: string,
