@@ -1,6 +1,6 @@
 # tickets — Gotchas
 
-The sharp edges. Every entry below is a thing a reader hits in practice, and every one is recorded because the code alone does not explain itself. Where an entry rests on an operator ruling, the ruling id is named (`R2`, `R3`, `R5`, `R9`, `R11`, `R13(a)`, `R17(a)`, `R17(b)`) — those are recorded in `docs/sdd/FE-3226/review-notes.md`.
+The sharp edges. Every entry below is a thing a reader hits in practice, and every one is recorded because the code alone does not explain itself.
 
 ---
 
@@ -52,7 +52,7 @@ Either way the list comes back unfiltered (or the write is refused) and nothing 
 ### The rule
 
 - **Do not "fix" the schema to the dotted spelling.** It looks more correct and it is the bug.
-- **Do not edit `packages/headless/src/modules/query/**`.** The query core is off limits (standing operator instruction); this is a route-around at the module's own edge, ruled **R9**, not a core fix.
+- **Do not edit `packages/headless/src/modules/query/**`.** The shared query platform is off limits to this module; the fix is a route-around at this module's own edge, never a core edit.
 - If you add another dotted-column filter to this module, it needs the same treatment: undotted in the schema, re-spelled at the service edge.
 
 > **🧪 For Testers:** Assert the **wire**, not the model. `filter[status.code|neq]=ticket_closed` for the active tab, `filter[status.code]=ticket_closed` for the closed tab — and the closed-tab request must carry **no** `|neq`. Those assertions are the read-back that proves the translation works; weakening them removes the only proof.
@@ -67,9 +67,9 @@ Uploads in this module go to a **tickets-local** endpoint:
 POST api/ticket_messages/files      (multipart: file, brand_id)
 ```
 
-Not the shared `system-upload` module — ruling **R2**. The reason is concrete: `system-upload` switches on image object types and **every branch emits a `.../images` path**, so its surface cannot carry an arbitrary file (a PDF, a log, a `.zip`). The premise that "system-upload's surface is sufficient" was tested and refuted.
+Not the shared `system-upload` module. The reason is concrete: `system-upload` switches on image object types and **every branch emits a `.../images` path**, so its surface cannot carry an arbitrary file (a PDF, a log, a `.zip`). The premise that "system-upload's surface is sufficient" was tested and refuted.
 
-Do **not** edit `system-upload` to accommodate tickets. The overlap is recorded here deliberately: **FE-3185 SC-12 may later absorb it**, and when it does, this is the entry that tells it what tickets actually needs. No spin-off card was filed for it.
+Do **not** edit `system-upload` to accommodate tickets. The overlap is recorded here deliberately: a later consolidation may absorb it, and when it does, this is the entry that tells it what tickets actually needs.
 
 `brand_id` on the multipart body is read off the **active session's own user** (`activeUser.value?.brandId`), not `useBrand().brandId` — the latter is the global brand-settings singleton, resolved independently of the caller's session and not guaranteed settled when an upload fires. That is the same race `client-custom-fields` moved off of.
 
@@ -92,7 +92,7 @@ The shared `system` module has equivalents — and they are **commented out**, a
 // let departmentsQuery: ReturnType<typeof services.fetchDepartments>;
 ```
 
-That is ruling **R3**. Do **not** revive those two lines and do **not** edit the shared `system` module to serve tickets. Because the shared services are commented out and not exposed, no live duplication exists today — this entry names the overlap so a future reader does not "discover" it and consolidate in the wrong direction. No spin-off card was filed.
+Do **not** revive those two lines and do **not** edit the shared `system` module to serve tickets. Because the shared services are commented out and not exposed, no live duplication exists today — this entry names the overlap so a future reader does not "discover" it and consolidate in the wrong direction.
 
 ---
 
@@ -123,21 +123,21 @@ useClientTickets().as(ScopeActorTypes.SELF);
 useClientTicket().as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id);
 ```
 
-Ruling **R11**. The points that trip people:
+The points that trip people:
 
-- **`.as(SELF)` on the manager will not work.** `SELF` has **no contexts at all**, by design — ADR-001's actor→context matrix lists `guest`, `client`, `staff`, and there is no `self` row. `TICKET_SCOPE_MATRIX` gives `CLIENT: TicketContextTypes.TICKET` and leaves every other actor `null as never`.
-- **`.as(CLIENT)` is NOT `.for('client', id)`.** Actor and context are independent axes. `.as(CLIENT)` is the client actor on their own session — this **is** the client×self cell. `.for('client', id)` remains forbidden and is unspellable here: the only context this module declares is `ticket`.
+- **`.as(SELF)` on the manager will not work.** `SELF` has **no contexts at all**, by design — the platform's actor→context model declares `guest`, `client` and `staff` as actors, and there is no `self` row among them. `TICKET_SCOPE_MATRIX` gives `CLIENT: TicketContextTypes.TICKET` and leaves every other actor `null as never`.
+- **`.as(CLIENT)` is NOT `.for('client', id)`.** Actor and context are independent axes. `.as(CLIENT)` is the client actor on their own session — this **is** the client-acting-for-themselves case. `.for('client', id)` remains forbidden and is unspellable here: the only context this module declares is `ticket`.
 - **The collection's matrix is all-`never`.** Every actor maps to `null as never`, so `.for()` cannot be spelled on it at all.
 - **Always enum members, never string literals.** `ScopeActorTypes.SELF`, `ScopeActorTypes.CLIENT`, `TicketContextTypes.TICKET`.
-- **No cast on the scope builder.** An earlier spec carried a whole-surface type-erasing cast (`useClientTicket() as unknown as { as: … for: … }`) and it erased the entire composable surface — a wrong actor or a wrong context compiled silently, which is exactly the failure shape seat separation exists to prevent. Narrowing the cast is **not** acceptable; there must be no cast.
+- **No cast on the scope builder.** A whole-surface type-erasing cast (`useClientTicket() as unknown as { as: … for: … }`) would erase the entire composable surface — a wrong actor or a wrong context would then compile silently, exactly the failure a strict scope-builder type is meant to prevent. Narrowing the cast is **not** acceptable; there must be no cast.
 
 ---
 
-## 6. There is no `reschedule` and no `changeDepartment` — by ruling
+## 6. There is no `reschedule` and no `changeDepartment`
 
-Neither composable exposes a member for either capability, and that absence is deliberate, signed, and asserted by a spec.
+Neither composable exposes a member for either capability, and that absence is deliberate and asserted by a dedicated test.
 
-Both are **admin-only** in the legacy app: they are reachable only from an admin-mounted controls dropdown, and the client action list renders neither. This story is client×self only, so both are dropped under ruling **R5** with the disposition `NOT-SUPPORTED-IN-LEGACY` (reason: admin-only, not client-reachable). The story's own job statement was amended by the operator to match.
+Both are **admin-only** in the legacy application: they are reachable only from an admin-mounted controls dropdown, and the client action list renders neither. This module is client-facing only, so both are dropped as not supported on the client path.
 
 What this does **not** mean:
 
@@ -159,7 +159,7 @@ Be precise about what is proven here, because it is easy to over-claim.
 | Size ceiling — 25 MiB (`26214399` bytes)               | **PROVEN.** A file over the ceiling is refused with no request sent.     |
 | Allowed file types — brand's `ALLOWED_UPLOAD_FILE_TYPES` | **CODED, UNPROVEN on this brand.** See below. Never describe it as verified. |
 
-Staging's `GET api/brand/settings` returns **200 with no upload keys at all**. The module reads that as **unrestricted**: an absent or empty allowed-types list means every file type is permitted, and no request is refused on type grounds. That is the behaviour the recorded fixture can prove, and it is what the spec asserts (ruling **R17(a)**).
+The captured environment's `GET api/brand/settings` returns **200 with no upload keys at all**. The module reads that as **unrestricted**: an absent or empty allowed-types list means every file type is permitted, and no request is refused on type grounds. That is the behaviour the recorded fixture proves.
 
 The type-rejection branch itself is real code and stays. It has simply never been exercised against a brand that actually publishes an allowed-types list, so **no proof exists that it rejects correctly**. Do not delete it, do not assert it as proven, and do not weaken the size guard to make this tidy.
 
@@ -191,7 +191,7 @@ required: ["subject"],
 anyOf: [{ required: ["body"] }, { required: ["files"] }]
 ```
 
-The server's own message is verbatim: *"The body field is required when files is not present."* So **a subject-plus-attachment create with no message body is valid** and the module accepts it (ruling **R17(b)**).
+The server's own message is verbatim: *"The body field is required when files is not present."* So **a subject-plus-attachment create with no message body is valid** and the module accepts it.
 
 `subject` is required unconditionally, regardless of files — the guard is narrowed, not removed.
 
@@ -208,7 +208,7 @@ Proven by live probe, not by reading client code:
 - `GET api/tickets?query=<a phrase present verbatim in a recorded message body on this client's own ticket>` → **HTTP 200, `data: []`, `total: 0`**.
 - `GET api/tickets?query=LHG-27` → **1 row**, reference `LHG-275-42348`, whose subject does not contain the term — so the match is on the **reference**.
 
-Both probes are recorded fixtures in `__tests__/fixtures/`. Ruling **R13(a)**: the message-body half is a signed `NOT-SUPPORTED-IN-LEGACY` drop, final on a server receipt.
+Both probes are recorded fixtures in `__tests__/fixtures/`. Message-body search is confirmed absent by this server receipt, not merely by reading the legacy client's own request code.
 
 Also note the schema's `minLength: 3` on `query` — a one- or two-character term is rejected by validation and issues **no request at all**. That is intentional, not a debounce.
 

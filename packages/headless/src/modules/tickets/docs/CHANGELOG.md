@@ -10,8 +10,8 @@ The module is **net-new**. Nothing existed under `packages/headless/src/modules/
 
 #### The two composables
 
-- **`useClientTickets`** — the client×self ticket collection. Addressed `.as(ScopeActorTypes.SELF)`; its scope matrix maps **every** actor to `null as never`, so `.for()` is unspellable on it and `.for('client', id)` cannot be reached at all.
-- **`useClientTicket`** — the per-ticket manager. Addressed `.as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id)`, because a ticket is a genuine ADR-001 **context** — it owns its own records (its messages) and so is not a leaf. `SINGLE-READ.md`'s `.withId(id)` is deliberately overruled for this module.
+- **`useClientTickets`** — the client's own ticket collection. Addressed `.as(ScopeActorTypes.SELF)`; its scope matrix maps **every** actor to `null as never`, so `.for()` is unspellable on it and `.for('client', id)` cannot be reached at all.
+- **`useClientTicket`** — the per-ticket manager. Addressed `.as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id)`, because a ticket is a genuine addressable **context** in this platform's actor model — it owns its own records (its messages) and so is not a leaf record addressed by an id alone.
 - Both registered under the same module name (`"tickets"`), both built from **one** services factory, so the two halves can never disagree about whose tickets are being read.
 
 #### Collection surface
@@ -61,30 +61,12 @@ The module is **net-new**. Nothing existed under `packages/headless/src/modules/
 
 ### Removed / deliberately absent
 
-- **`reschedule` (post-creation) and `changeDepartment` — dropped as admin-only** (ruling **R5**). Both are reachable in the legacy app only from an admin-mounted controls dropdown; the client action list renders neither. Disposition: `NOT-SUPPORTED-IN-LEGACY`, signed off by that ruling. No spin-off card. A spec asserts the absence of both members, and that no observed request across a real read/write pass names `ticket_department_id` or a reschedule field.
+- **`reschedule` (post-creation) and `changeDepartment` — dropped as admin-only.** Both are reachable in the legacy application only from an admin-mounted controls dropdown; the client action list renders neither. A dedicated test asserts the absence of both members, and that no observed request across a real read/write pass names `ticket_department_id` or a reschedule field.
   - **Create-time scheduling is unaffected and supported** — `create({ …, scheduledAt })`.
   - **Change subject is unaffected and supported** — `setSubject()`.
-- **Message-body search — a signed `NOT-SUPPORTED-IN-LEGACY` drop** (ruling **R13(a)**), final on a **server receipt**, not on a reading of client code: a phrase present verbatim in a recorded message body returns `200` with zero rows, while a reference fragment returns the matching ticket. Free-text search covers **subject and reference**.
-- **No mutation state machine.** The module is the `query` variant throughout; form schemas are exported for the consuming page to render and validate against (**R8**), and the module owns no form machine.
+- **Message-body search is not supported**, final on a **server receipt**, not on a reading of client code: a phrase present verbatim in a recorded message body returns `200` with zero rows, while a reference fragment returns the matching ticket. Free-text search covers **subject and reference**.
+- **No mutation state machine.** The module is query-backed throughout; form schemas are exported for the consuming page to render and validate against, and the module owns no form machine.
 - **No toast or notification surface.**
-
-### Ruled decisions worth carrying forward
-
-Each of these is an operator ruling recorded in `docs/sdd/FE-3226/review-notes.md`, and each is a trap a reader otherwise springs. The full statement of every one is in [gotchas.md](./gotchas.md).
-
-| Ruling  | Decision                                                                                                              |
-| ------- | --------------------------------------------------------------------------------------------------------------------- |
-| **R2**  | Attachments use the **tickets-local** `POST api/ticket_messages/files`, never `system-upload` (whose every branch emits an images path). FE-3185 SC-12 may later absorb the overlap. |
-| **R3**  | The department and status lookups are **owned by `tickets`**, not the shared `system` module — whose equivalents sit commented out at `useSystem.ts:37-38`. |
-| **R4**  | `ITicket` extended **additively** in `packages/types` with `contract_product_id`, `contract_product`, `invoice` — never a module-local intersection type. |
-| **R5**  | Post-creation reschedule and change-department **dropped as admin-only**.                                              |
-| **R7**  | Support preferences are a **read-modify-write** over the client's whole `meta` map.                                    |
-| **R8**  | The module exports model / schema / uischema; the consuming page renders and validates.                               |
-| **R9**  | The criteria schema declares an **undotted** `statusCode`; the service edge translates it to `filter[status.code|neq]`. The query core is **never** edited. |
-| **R11** | The manager is `.as(CLIENT).for(TICKET, id)` with **no cast** on the scope builder; the collection stays `.as(SELF)` with an all-`never` matrix. |
-| **R13(a)** | Message-body search is unsupported — proven by live probe.                                                         |
-| **R17(a)** | The allowed-file-**type** rejection branch is **coded but unproven on this brand**; an absent or empty list means unrestricted. The 25 MiB size guard is the only upload guard with a proof. |
-| **R17(b)** | `body` is required on create **only when no files are attached**, matching the server exactly.                     |
 
 ### Recorded fixtures
 
@@ -95,7 +77,7 @@ Each of these is an operator ruling recorded in `docs/sdd/FE-3226/review-notes.m
 | List — default & tabs         | the `with_staged_imports=1` default read, the active (`status.code\|neq`) tab, the closed (`status.code`) tab |
 | List — paging                 | a real page 1 and page 2 with disjoint rows                                                                |
 | List — sort & filter          | sort by subject; the bare-EQUAL `filter[reference]` shape                                                  |
-| List — search probes          | the **body-only** query returning zero rows, and the **reference-fragment** query returning one — the R13(a) receipt |
+| List — search probes          | the **body-only** query returning zero rows, and the **reference-fragment** query returning one — the message-body-search-is-unsupported receipt |
 | List — narrow slices          | the product-scoped list, the delegated-in co-mingled list, the short recent overview                       |
 | List — refusals               | the criteria error-collection refusal, and the create error-action refusal                                 |
 | Ticket — single read          | the full detail record, plus the linked / changed / unlinked / delegated-in variants                       |
@@ -219,7 +201,7 @@ Guard locally first (`useMeta().isLocked`, `.canReopen`) — the module refuses 
 + const clientId = self.actor_id
 ```
 
-This one has already cost a run: comparing against `self.id` (i.e. against `undefined`) once produced a written finding that the account held no contract products and two tickets, when it held 993 and 25.
+This has already caused a real, expensive mistake: comparing against `self.id` (i.e. against `undefined`) once produced a written finding that the account held no contract products and two tickets, when it held 993 and 25.
 
 ### Waiting for readiness
 

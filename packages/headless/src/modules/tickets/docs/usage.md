@@ -16,7 +16,7 @@ import {
 
 ## Getting an instance
 
-The two composables are addressed differently. This is deliberate and is ruled (**R11**); see [gotchas.md](./gotchas.md) #5.
+The two composables are addressed differently, and this is deliberate; see [gotchas.md](./gotchas.md) #5.
 
 ```ts
 // THE COLLECTION — the client's own ticket list.
@@ -231,7 +231,7 @@ await ticket.useActions().reply("See attached.", { files: [ref] });
 
 `setRelatedProduct()` both **links** and **changes** — calling it again replaces the link rather than adding a second. `removeRelatedProduct()` sends an explicit `null`; see [gotchas.md](./gotchas.md) #12.
 
-**There is no `reschedule` and no `changeDepartment`.** Both are dropped as admin-only under ruling **R5** — see [gotchas.md](./gotchas.md) #6.
+**There is no `reschedule` and no `changeDepartment`.** Both are dropped as admin-only — see [gotchas.md](./gotchas.md) #6.
 
 ### Manager context — `useContext()`
 

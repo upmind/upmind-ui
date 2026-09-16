@@ -96,7 +96,7 @@ Two separate defences are in play here and they solve different problems:
 
 **2. `applyStatusCodeFilter` — why the key is re-spelled.** The schema declares `statusCode` **undotted** because `useModelParser` writes each declared property through a plain lodash `set(result, key, value)`, and lodash reads a literal `"status.code"` key as the **path** `status` → `code`. A dotted schema key therefore corrupts every commit regardless of the value supplied. The undotted key parses cleanly, and the service edge re-spells the committed value onto the real wire column directly on the request's own mutable `URL`.
 
-The re-spell runs via a `flush: "sync"` watcher inside `loadList`, **not** via `list()`'s own `guard` hook. That is not a style choice: the query core's `hasGuard = isPromise(guard)` tests the *guard function itself* for thenability, which a plain function never satisfies, so `guard` never actually runs. That is a pre-existing `query/**` defect and it is explicitly out of scope — **`packages/headless/src/modules/query/**` is never edited by this module** (standing operator instruction; ruling **R9** routes around it at the module's own edge instead).
+The re-spell runs via a `flush: "sync"` watcher inside `loadList`, **not** via `list()`'s own `guard` hook. That is not a style choice: the query core's `hasGuard = isPromise(guard)` tests the *guard function itself* for thenability, which a plain function never satisfies, so `guard` never actually runs. That is a pre-existing defect in the shared query platform, and this module deliberately routes around it at its own edge instead of editing shared platform code.
 
 The value and the decision of what is active still come from `setCriteria` and the schema channel. Only the **key spelling** is corrected. No hand-rolled filter ref, no `filter[…]` string built beside the channel.
 
@@ -121,7 +121,7 @@ The `limit + 1` probe is how `hasOlder` / `hasNewer` are known without a count s
 
 ### The poll
 
-`useClientTicket.internals` owns AC29's poll. This is a **deliberate deviation** from the generic `{ send, state, service }` internals shape — this module has no machine to expose there, so the poll lives in that layer instead.
+`useClientTicket.internals` owns the ticket's automatic poll. This is a **deliberate deviation** from the generic `{ send, state, service }` internals shape — this module has no machine to expose there, so the poll lives in that layer instead.
 
 - Armed automatically by a `watch` on the loaded ticket's `status.code`, `immediate: true` — including the moment a poll's own response closes the ticket.
 - Fires every 60 seconds, skipping the tick when `document.hidden`.
@@ -174,7 +174,7 @@ A manager write invalidates only its own ticket's key, so an open **list** does 
 Both are module-local, both avoid editing headless core, and both are deliberate:
 
 - **Attachment download bypasses `useQuery()`.** The shared `doFetch` unconditionally calls `response.json()`, and a binary attachment is not JSON. `downloadFile` uses a plain `fetch()` with the same bearer-token seam and the same base URL, returning an `ArrayBuffer`. The alternative — adding a `responseType` branch to the shared request pipeline every module depends on — is out of scope and was not asked for by any requirement.
-- **Support prefs are a read-modify-write.** `PUT api/clients/{id}` replaces the whole `meta` map, so a partial body deletes every key it does not name. `saveSupportPrefs` reads the current client record, merges the three prefs keys into its `meta`, and PUTs the whole map back — which is the only shape that preserves an untouched sibling key such as `ui/support/messageSignature` (FE-1931's).
+- **Support prefs are a read-modify-write.** `PUT api/clients/{id}` replaces the whole `meta` map, so a partial body deletes every key it does not name. `saveSupportPrefs` reads the current client record, merges the three prefs keys into its `meta`, and PUTs the whole map back — which is the only shape that preserves an untouched sibling key owned by a different feature (`ui/support/messageSignature`).
 
 ## Errors
 
@@ -211,15 +211,13 @@ None today. `useClientTickets` is consumed by the `labs-nuxt` playground scenari
 
 **None.** This module consumes the shared `query` module exactly as every other scoped composable does. Where the shared layer could not serve a need — a binary response body, a guard hook that never runs — the module routed around it locally rather than patching the core. `packages/headless/src/modules/query/**` is untouched.
 
-The one platform change this story made is in `packages/types`: `ITicket` was extended **additively** with `contract_product_id`, `contract_product: IContractProduct` and `invoice`, rather than this module carrying a local intersection type or re-declaring `ITicket`.
+The one platform change this build made is in `packages/types`: `ITicket` was extended **additively** with `contract_product_id`, `contract_product: IContractProduct` and `invoice`, rather than this module carrying a local intersection type or re-declaring `ITicket`.
 
 ## Module boundary
 
 Two overlaps with other modules are deliberate and recorded, so a future reader does not consolidate in the wrong direction:
 
-- **Attachment upload is tickets-local** (`POST api/ticket_messages/files`), not `system-upload`. `system-upload` switches on image object types and every branch emits a `.../images` path, so its surface cannot carry an arbitrary file. Ruling **R2**. **FE-3185 SC-12 may later absorb this overlap** — this is the record it should read.
-- **The department and status lookups are owned here**, not by the shared `system` module, whose equivalents sit commented out at `useSystem.ts:37-38`. Ruling **R3**. Because those shared services are commented out and not exposed, no live duplication exists.
-
-Neither overlap was turned into a spin-off card; both are folded into this story's own scope and recorded here.
+- **Attachment upload is tickets-local** (`POST api/ticket_messages/files`), not `system-upload`. `system-upload` switches on image object types and every branch emits a `.../images` path, so its surface cannot carry an arbitrary file. A later consolidation may absorb this overlap; until then, this is the record of what tickets actually needs from an upload surface.
+- **The department and status lookups are owned here**, not by the shared `system` module, whose equivalents sit commented out at `useSystem.ts:37-38`. Because those shared services are commented out and not exposed, no live duplication exists.
 
 `tickets.services.ts`, `tickets.schemas.ts` and `tickets.mappers.ts` are `@internal` — resolve them through `useClientTickets.ts` / `useClientTicket.ts` only (`@internal/no-cross-module-imports`). `index.ts` is curated named re-exports with **no `export *`** (Module Visibility Law).
