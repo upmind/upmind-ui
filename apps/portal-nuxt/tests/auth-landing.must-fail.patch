@@ -1,0 +1,55 @@
+# Negative control — the landing stops reaching the organisms. Both sign-in
+# pages drop `:landing-route="AUTH_LANDING"`, restoring the original defect: the
+# constant is still declared and still correct, the screens still mount, and a
+# client who signs in stays on the screen they signed in from.
+#
+# The pages are the whole wiring, so a suite that only graded `AUTH_LANDING`'s
+# own value would stay green through this.
+#
+# Intended RED (tests/auth-landing.test.ts):
+#   "hands the sign-in screen the landing, alongside its cross-links"
+#   "hands the registration screen the same landing"
+#
+# Not gradeable by packages/scenario-harness/scripts/verify-negative-controls.mjs:
+# that lane grades import-boundary mutants, whose failure its own added `import`
+# line names. This mutant REMOVES an import — its failure is behavioural, and the
+# spec above is what grades it.
+
+diff --git a/apps/portal-nuxt/app/pages/login.vue b/apps/portal-nuxt/app/pages/login.vue
+index 317dd65546..b570466ce6 100644
+--- a/apps/portal-nuxt/app/pages/login.vue
++++ b/apps/portal-nuxt/app/pages/login.vue
+@@ -7,11 +7,11 @@
+ // route. This app provides no shell components, so the organism renders its
+ // bare template inside the logged-out layout's card.
+ import { UpmSessionLogin } from "@upmind-automation/auth";
+-import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
++import { AUTH_ROUTES } from "~/portal/auth-routes";
+ 
+ definePageMeta({ layout: "logged-out" });
+ </script>
+ 
+ <template>
+-  <UpmSessionLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
++  <UpmSessionLogin v-bind="AUTH_ROUTES" />
+ </template>
+diff --git a/apps/portal-nuxt/app/pages/register.vue b/apps/portal-nuxt/app/pages/register.vue
+index bc07cf8430..91dfb18cb5 100644
+--- a/apps/portal-nuxt/app/pages/register.vue
++++ b/apps/portal-nuxt/app/pages/register.vue
+@@ -9,7 +9,7 @@
+ // a page that exists elsewhere.
+ import { toast } from "@upmind/ui";
+ import { UpmSessionRegister } from "@upmind-automation/auth";
+-import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
++import { AUTH_ROUTES } from "~/portal/auth-routes";
+ import { useMockBrandGates } from "~/portal/mock/gates";
+ 
+ definePageMeta({ layout: "logged-out" });
+@@ -25,5 +25,5 @@ if (!isRegistrationEnabled.value) {
+ </script>
+ 
+ <template>
+-  <UpmSessionRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
++  <UpmSessionRegister v-bind="AUTH_ROUTES" />
+ </template>

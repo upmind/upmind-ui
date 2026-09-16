@@ -1,0 +1,44 @@
+# Negative control — the host mode stops deciding. The `!routingMeta.hasFunnels`
+# term is dropped from both directions of `useSessionResolve`, so a host that
+# DRIVES funnels takes the funnel-free route path: the cart's own sign-in leaves
+# the funnel behind and lands on whatever route the screen happens to name.
+#
+# This is the drop the mode exists to prevent, and it is invisible to a suite
+# that only covers the funnel-free side — that suite passes against the broken
+# code this seam replaced.
+#
+# Intended RED:
+#   src/__tests__/host-mode-resolve.test.ts
+#     "takes the funnel's next step in a host that drives funnels"
+#     "keeps the funnel's back step even when the screen names a route"
+#   src/__tests__/host-mode-back-control.test.ts
+#     "gives recovery exactly one control, and it takes the funnel's back step"
+#     "keeps recovery's control and sends it to the login screen instead"
+#
+# Not gradeable by packages/scenario-harness/scripts/verify-negative-controls.mjs:
+# that lane grades import-boundary mutants, whose failure its own added `import`
+# line names. This mutant adds no import — its failure is behavioural, and the
+# two specs above are what grade it.
+
+diff --git a/packages/auth/src/session.utils.ts b/packages/auth/src/session.utils.ts
+index 8dd43c0cdf..02fb139565 100644
+--- a/packages/auth/src/session.utils.ts
++++ b/packages/auth/src/session.utils.ts
+@@ -43,7 +43,7 @@ export function useSessionResolve(
+   function navigateResolved() {
+     const landing = props.landingRoute;
+ 
+-    if (landing && !routingMeta.value.hasFunnels) return router.push(landing);
++    if (landing && true) return router.push(landing);
+ 
+     return navigateNext();
+   }
+@@ -57,7 +57,7 @@ export function useSessionResolve(
+   function navigateRejected() {
+     const reject = toValue(options.rejectRoute);
+ 
+-    if (reject && !routingMeta.value.hasFunnels) return router.push(reject);
++    if (reject && true) return router.push(reject);
+ 
+     return navigateBack();
+   }
