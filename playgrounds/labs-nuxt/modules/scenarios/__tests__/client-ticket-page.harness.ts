@@ -33,10 +33,6 @@ import { mount } from "@vue/test-utils";
 import { http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
-import { map } from "lodash-es";
-import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
-import { startReplayServer } from "@upmind-automation/test-fixtures/replay-server";
-import { TicketStatusCodes } from "@upmind-automation/types";
 import {
   clearAll,
   mapSessionUser,
@@ -44,12 +40,16 @@ import {
   useActiveSession,
   useSessionStore
 } from "@upmind-automation/headless";
+import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
+import { startReplayServer } from "@upmind-automation/test-fixtures/replay-server";
+import { TicketStatusCodes } from "@upmind-automation/types";
 import routerOptions from "../../../app/router.options";
 import { registerScenarioRoutes } from "./nuxt-build-context";
+import { map } from "lodash-es";
 import type { NuxtPage } from "@nuxt/schema";
-import type { RouteLocationRaw, RouteRecordRaw } from "vue-router";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
+import type { RouteLocationRaw, RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 

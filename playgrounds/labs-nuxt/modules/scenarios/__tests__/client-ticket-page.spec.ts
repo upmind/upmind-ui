@@ -67,9 +67,9 @@ const recordedMessageBody = (
 async function shownReference(wrapper: VueWrapper): Promise<void> {
   await vi.waitFor(
     () =>
-      expect(
-        wrapper.find('[data-test-key="ticket-reference"]').exists()
-      ).toBe(true),
+      expect(wrapper.find('[data-test-key="ticket-reference"]').exists()).toBe(
+        true
+      ),
     { timeout: SETTLE }
   );
 }
@@ -86,134 +86,112 @@ describe("the client-ticket manager page, driven by the client who owns the tick
     teardownSession();
   });
 
-  it(
-    "shows the ticket's own reference and renders its recorded thread",
-    async () => {
-      installTicketsHandlers();
-      const wrapper = await mountTicketPage();
-      await shownReference(wrapper);
+  it("shows the ticket's own reference and renders its recorded thread", async () => {
+    installTicketsHandlers();
+    const wrapper = await mountTicketPage();
+    await shownReference(wrapper);
 
-      expect(wrapper.find('[data-test-key="ticket-reference"]').text()).toBe(
-        recordedReference
-      );
+    expect(wrapper.find('[data-test-key="ticket-reference"]').text()).toBe(
+      recordedReference
+    );
 
-      await vi.waitFor(
-        () =>
-          expect(
-            wrapper.find('[data-test-key="ticket-thread-entry"]').exists()
-          ).toBe(true),
-        { timeout: SETTLE }
-      );
-      expect(wrapper.text()).toContain(recordedMessageBody);
-    },
-    20000
-  );
+    await vi.waitFor(
+      () =>
+        expect(
+          wrapper.find('[data-test-key="ticket-thread-entry"]').exists()
+        ).toBe(true),
+      { timeout: SETTLE }
+    );
+    expect(wrapper.text()).toContain(recordedMessageBody);
+  }, 20000);
 
-  it(
-    "sends the reply this client typed, on the client path",
-    async () => {
-      const sent = installTicketsHandlers();
-      const observed = observeRequests();
-      const wrapper = await mountTicketPage();
-      await shownReference(wrapper);
+  it("sends the reply this client typed, on the client path", async () => {
+    const sent = installTicketsHandlers();
+    const observed = observeRequests();
+    const wrapper = await mountTicketPage();
+    await shownReference(wrapper);
 
-      const send = wrapper.find('[data-test-key="ticket-reply-send"]');
-      await wrapper.find("textarea").setValue("A recorded-bench reply");
-      await wrapper.vm.$nextTick();
-      expect(send.attributes("disabled")).toBeUndefined();
+    const send = wrapper.find('[data-test-key="ticket-reply-send"]');
+    await wrapper.find("textarea").setValue("A recorded-bench reply");
+    await wrapper.vm.$nextTick();
+    expect(send.attributes("disabled")).toBeUndefined();
 
-      await send.trigger("click");
-      await vi.waitFor(() => expect(sent.replies.length).toBeGreaterThan(0), {
-        timeout: SETTLE
-      });
-      observed.stop();
+    await send.trigger("click");
+    await vi.waitFor(() => expect(sent.replies.length).toBeGreaterThan(0), {
+      timeout: SETTLE
+    });
+    observed.stop();
 
-      expect(JSON.stringify(sent.replies[0])).toContain("A recorded-bench reply");
-      expect(observed.count("/api/admin/")).toBe(0);
-      expect(
-        observed.count(`/api/tickets/${RECORDED_TICKET_ID}/replies`)
-      ).toBeGreaterThan(0);
-    },
-    20000
-  );
+    expect(JSON.stringify(sent.replies[0])).toContain("A recorded-bench reply");
+    expect(observed.count("/api/admin/")).toBe(0);
+    expect(
+      observed.count(`/api/tickets/${RECORDED_TICKET_ID}/replies`)
+    ).toBeGreaterThan(0);
+  }, 20000);
 
-  it(
-    "fires the status transition when the client closes an open, unlocked ticket",
-    async () => {
-      const sent = installTicketsHandlers();
-      const observed = observeRequests();
-      const wrapper = await mountTicketPage();
-      await shownReference(wrapper);
+  it("fires the status transition when the client closes an open, unlocked ticket", async () => {
+    const sent = installTicketsHandlers();
+    const observed = observeRequests();
+    const wrapper = await mountTicketPage();
+    await shownReference(wrapper);
 
-      const close = wrapper.find('[data-test-key="ticket-close"]');
-      expect(close.exists()).toBe(true);
-      expect(close.attributes("disabled")).toBeUndefined();
+    const close = wrapper.find('[data-test-key="ticket-close"]');
+    expect(close.exists()).toBe(true);
+    expect(close.attributes("disabled")).toBeUndefined();
 
-      await close.trigger("click");
-      await vi.waitFor(() => expect(sent.statusPuts.length).toBeGreaterThan(0), {
-        timeout: SETTLE
-      });
-      observed.stop();
+    await close.trigger("click");
+    await vi.waitFor(() => expect(sent.statusPuts.length).toBeGreaterThan(0), {
+      timeout: SETTLE
+    });
+    observed.stop();
 
-      expect(sent.statusPuts[0]?.url).toContain(
-        `/api/tickets/${RECORDED_TICKET_ID}/status`
-      );
-      expect(observed.count("/api/admin/")).toBe(0);
-    },
-    20000
-  );
+    expect(sent.statusPuts[0]?.url).toContain(
+      `/api/tickets/${RECORDED_TICKET_ID}/status`
+    );
+    expect(observed.count("/api/admin/")).toBe(0);
+  }, 20000);
 
-  it(
-    "offers reopen on a closed ticket and fires the status transition",
-    async () => {
-      const sent = installTicketsHandlers({
-        oneBody: ticketBodyClosed(),
-        statusBody: recorded.reopenedStatus()
-      });
-      const wrapper = await mountTicketPage();
-      await shownReference(wrapper);
+  it("offers reopen on a closed ticket and fires the status transition", async () => {
+    const sent = installTicketsHandlers({
+      oneBody: ticketBodyClosed(),
+      statusBody: recorded.reopenedStatus()
+    });
+    const wrapper = await mountTicketPage();
+    await shownReference(wrapper);
 
-      await vi.waitFor(
-        () =>
-          expect(
-            wrapper.find('[data-test-key="ticket-reopen"]').exists()
-          ).toBe(true),
-        { timeout: SETTLE }
-      );
-      expect(wrapper.find('[data-test-key="ticket-close"]').exists()).toBe(
-        false
-      );
+    await vi.waitFor(
+      () =>
+        expect(wrapper.find('[data-test-key="ticket-reopen"]').exists()).toBe(
+          true
+        ),
+      { timeout: SETTLE }
+    );
+    expect(wrapper.find('[data-test-key="ticket-close"]').exists()).toBe(false);
 
-      await wrapper.find('[data-test-key="ticket-reopen"]').trigger("click");
-      await vi.waitFor(() => expect(sent.statusPuts.length).toBeGreaterThan(0), {
-        timeout: SETTLE
-      });
+    await wrapper.find('[data-test-key="ticket-reopen"]').trigger("click");
+    await vi.waitFor(() => expect(sent.statusPuts.length).toBeGreaterThan(0), {
+      timeout: SETTLE
+    });
 
-      expect(sent.statusPuts[0]?.url).toContain(
-        `/api/tickets/${RECORDED_TICKET_ID}/status`
-      );
-    },
-    20000
-  );
+    expect(sent.statusPuts[0]?.url).toContain(
+      `/api/tickets/${RECORDED_TICKET_ID}/status`
+    );
+  }, 20000);
 
-  it(
-    "disables close and subject-save when the ticket is locked",
-    async () => {
-      const sent = installTicketsHandlers({ oneBody: ticketBodyLocked() });
-      const wrapper = await mountTicketPage();
-      await shownReference(wrapper);
+  it("disables close and subject-save when the ticket is locked", async () => {
+    const sent = installTicketsHandlers({ oneBody: ticketBodyLocked() });
+    const wrapper = await mountTicketPage();
+    await shownReference(wrapper);
 
-      const close = wrapper.find('[data-test-key="ticket-close"]');
-      const subjectSave = wrapper.find('[data-test-key="ticket-subject-save"]');
+    const close = wrapper.find('[data-test-key="ticket-close"]');
+    const subjectSave = wrapper.find('[data-test-key="ticket-subject-save"]');
 
-      expect(close.exists()).toBe(true);
-      expect(close.attributes("disabled")).toBeDefined();
-      expect(subjectSave.attributes("disabled")).toBeDefined();
+    expect(close.exists()).toBe(true);
+    expect(close.attributes("disabled")).toBeDefined();
+    expect(subjectSave.attributes("disabled")).toBeDefined();
 
-      await close.trigger("click");
-      await wrapper.vm.$nextTick();
-      expect(sent.statusPuts.length).toBe(0);
-    },
-    20000
-  );
+    await close.trigger("click");
+    await wrapper.vm.$nextTick();
+    expect(sent.statusPuts.length).toBe(0);
+  }, 20000);
 });
