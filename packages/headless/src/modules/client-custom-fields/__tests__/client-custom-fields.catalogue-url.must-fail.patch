@@ -1,0 +1,47 @@
+# client-custom-fields.catalogue-url.must-fail.patch
+#
+# Targets: FE-3034 AC "Loader accepts object_type" — the catalogue a SELECTOR
+# context names reaches the wire as `filter[object_type]`. `.for(INVOICE)` must
+# read the invoice catalogue, not the client one.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-custom-fields.services.ts `selectableCatalogues` — reads the
+# CLIENT cell's RETARGET members instead of its SELECTOR members, so no
+# declared catalogue is ever recognised as selectable and every scope falls
+# back to the client catalogue. This is the FE-3034 capability drop in its
+# purest form: the axis is declared, the picker offers it, and the loader
+# silently ignores it.
+#
+# Expected RED: client-custom-fields.catalogue.int.test.ts — the assertion that
+# `.for(ClientCustomFieldsContextTypes.INVOICE)` puts
+# `filter[object_type]=invoice` on the outbound request. The client-default
+# specs (collection AC-1, criteria-defaults AC-32) stay GREEN under this
+# mutant by design — the default wire is untouched, which is what makes this a
+# targeted control rather than a blunt one.
+#
+# NOTE FOR THE PROVER: that spec does not exist on the branch this mutant ships
+# with. Author it from the AC first (plan `docs/plans/FE-3034.md`, Testing
+# Requirements: "the URL param is ... the selector's value for `.for(INVOICE)`"),
+# then apply this blind.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless test client-custom-fields.catalogue.int   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+index 9c11d2f7c..ff6781517 100644
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+@@ -93,7 +93,7 @@ function selectableCatalogues(): string[] {
+       resolveContextDeclarations(
+         CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]
+       ),
+-      { pattern: ScopeContextPatterns.SELECTOR }
++      { pattern: ScopeContextPatterns.RETARGET }
+     ),
+     "type"
+   );

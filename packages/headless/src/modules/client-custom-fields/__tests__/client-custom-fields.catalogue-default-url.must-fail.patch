@@ -1,0 +1,41 @@
+# client-custom-fields.catalogue-default-url.must-fail.patch
+#
+# Targets: FE-3034 AC "Existing CLIENT-scoped consumers unchanged" — a scope
+# that names no catalogue still sends `filter[object_type]=client`. The plan's
+# Correction 1: default the param, never omit it, so the shipped consumer's
+# wire is byte-identical to what it was before the axis existed.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-custom-fields.services.ts `loadList`'s `targetUrl` — feeds
+# the URL param from the CACHE segment (`undefined` at the client default)
+# instead of the resolved catalogue, so the default consumer's request carries
+# an empty `filter[object_type]=`. This is the exact regression Correction 1
+# exists to prevent: omitting the param rather than defaulting it.
+#
+# Expected RED, both already on the branch:
+#   - client-custom-fields.collection.int.test.ts — "AC-1 reads the exact
+#     brand-scoped catalogue URL and every recorded row lands"
+#   - client-custom-fields.criteria-defaults.int.test.ts — "AC-32 every request
+#     carries filter[object_type]=client and a non-empty brand_id"
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless test:integration   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+index 9c11d2f7c..e7c54ed23 100644
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+@@ -354,7 +354,7 @@ function loadList(scopeContext?: ScopeContext): ClientCustomFieldsListQuery {
+   // model — parity Q5 / AC-32.
+   const targetUrl = () =>
+     useUrl("custom_fields", {
+-      "filter[object_type]": catalogue,
++      "filter[object_type]": catalogueSegment ?? "",
+       brand_id: brand.brandId.value ?? ""
+     });
+   const url = targetUrl();

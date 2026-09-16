@@ -1,0 +1,46 @@
+# client-custom-fields.catalogue-cache-key.must-fail.patch
+#
+# Targets: FE-3034 AC "Cache key carries an object-type axis, byte-identical at
+# default" — the vue-query LIST key gains an `objectType` segment per catalogue,
+# omitted at the client default. The plan's Correction 2: without it, two
+# catalogues on the same client and brand collide on one cache entry and the
+# second is served the first's rows.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-custom-fields.services.ts `loadList`'s `queryKey` — drops the
+# conditional `objectType` segment, restoring the catalogue-blind key. The
+# default consumer's key is unaffected (the segment was already omitted there),
+# so this control fires only on the collision it exists to catch.
+#
+# Expected RED: client-custom-fields.catalogue.int.test.ts — the assertion that
+# two catalogues resolved on the same client and brand hold SEPARATE rows (the
+# invoice scope is not served the client scope's collection), plus the
+# assertion that the client-default key still omits `objectType`.
+#
+# NOTE FOR THE PROVER: that spec does not exist on the branch this mutant ships
+# with. Author it from the AC first (plan `docs/plans/FE-3034.md`, Testing
+# Requirements: "the list key omits `object_type` at default and carries it per
+# catalogue (no collision)"), then apply this blind.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless test client-custom-fields.catalogue.int   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+index 9c11d2f7c..2f6163598 100644
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+@@ -380,8 +380,7 @@ function loadList(scopeContext?: ScopeContext): ClientCustomFieldsListQuery {
+       ...queryKey,
+       {
+         client: clientId,
+-        brand: brand.brandId,
+-        ...(catalogueSegment ? { objectType: catalogueSegment } : {})
++        brand: brand.brandId
+       }
+     ],
+     url,

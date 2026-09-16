@@ -1,0 +1,46 @@
+# client-custom-fields.catalogue-verb-isolation.must-fail.patch
+#
+# Targets: FE-3034 AC "verb isolation" — `invalidate` / `reset` / `refresh`
+# scope onto THIS catalogue's key and no sibling's. `service.queryKey` is
+# catalogue-qualified precisely so one press under `exact: false` cannot drop
+# another catalogue's warm rows.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-custom-fields.services.ts `catalogueQueryKey` — returns the
+# bare module key, dropping the catalogue qualifier. Under `exact: false` that
+# prefix now matches EVERY catalogue's entry, so pressing a verb on the invoice
+# scope also drops the client scope's rows. `catalogueKeySegment` stays live
+# (`loadList` still calls it), so this mutant compiles and the failure is
+# behavioural, never a type error.
+#
+# Expected RED: client-custom-fields.catalogue.int.test.ts — the assertion that
+# invalidating one catalogue leaves a sibling catalogue's loaded collection
+# untouched.
+#
+# NOTE FOR THE PROVER: that spec does not exist on the branch this mutant ships
+# with. Author it from the AC first (plan `docs/plans/FE-3034.md`, Testing
+# Requirements: "verb isolation holds per catalogue"), then apply this blind.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless test client-custom-fields.catalogue.int   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+index 9c11d2f7c..61d0c3e73 100644
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+@@ -138,8 +138,8 @@ function catalogueKeySegment(scopeContext?: ScopeContext): string | undefined {
+  * equality, while another catalogue's `objectType` string never does — so the
+  * two can no longer prefix-match one another.
+  */
+-function catalogueQueryKey(scopeContext?: ScopeContext): QueryKey {
+-  return [...queryKey, { objectType: catalogueKeySegment(scopeContext) }];
++function catalogueQueryKey(_scopeContext?: ScopeContext): QueryKey {
++  return [...queryKey];
+ }
+
+ /**
