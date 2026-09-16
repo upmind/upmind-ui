@@ -6,6 +6,7 @@
         <!-- One-page uses the compact "← Back" per the designs; other templates
              keep the default "Back to basket". -->
         <Back
+          v-if="resolveMeta.hasReject"
           :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
           :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
           size="md"
@@ -138,8 +139,12 @@ const themeEngine = useThemeEngine();
 
 const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
-const { navigateBack, navigate } = useRoutingEngine();
-const { navigateResolved } = useSessionResolve(props);
+const { navigate } = useRoutingEngine();
+const {
+  meta: resolveMeta,
+  navigateRejected,
+  navigateResolved
+} = useSessionResolve(props);
 
 const { ui } = useConfig({
   // The key must be PRESENT to opt out: useConfig calls useBasket() unless it
@@ -198,7 +203,7 @@ function doUpdate(value: SessionProps["modelValue"]) {
 
 function doReject() {
   isResolving.value = true;
-  navigateBack().catch(() => {
+  navigateRejected().catch(() => {
     isResolving.value = false;
   });
 }

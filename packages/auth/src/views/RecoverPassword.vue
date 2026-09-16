@@ -109,8 +109,10 @@ const themeEngine = useThemeEngine();
 
 const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
-const { navigateBack, navigate } = useRoutingEngine();
-const { navigateResolved } = useSessionResolve(props);
+const { navigate } = useRoutingEngine();
+const { navigateRejected, navigateResolved } = useSessionResolve(props, {
+  rejectRoute: () => props.loginRoute
+});
 
 const { ui } = useConfig({
   // The key must be PRESENT to opt out: useConfig calls useBasket() unless it
@@ -163,7 +165,7 @@ function doUpdate(value: SessionProps["modelValue"]) {
 
 function doReject() {
   isResolving.value = true;
-  navigateBack().catch(() => {
+  navigateRejected().catch(() => {
     isResolving.value = false;
   });
 }

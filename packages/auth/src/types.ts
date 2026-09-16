@@ -1,6 +1,6 @@
 import type { ButtonVariants } from "@upmind/ui";
 import type { CxOptions } from "class-variance-authority";
-import type { HTMLAttributes } from "vue";
+import type { HTMLAttributes, MaybeRefOrGetter } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
@@ -77,6 +77,16 @@ export type SessionViewProps = SessionRoutes & {
    * with a funnel leaves it unset and keeps the step the funnel resolves.
    */
   landingRoute?: RouteLocationAsRelativeGeneric;
+};
+
+/** What a session screen tells `useSessionResolve` about its own back control. */
+export type SessionResolveOptions = {
+  /**
+   * Where the back control lands in a host that drives no funnel. A screen that
+   * names none renders no back control there: its back is the basket, and a
+   * funnel-free host has no basket to return to.
+   */
+  rejectRoute?: MaybeRefOrGetter<RouteLocationAsRelativeGeneric | undefined>;
 };
 
 export type AuthActionProps = SessionRoutes & {
