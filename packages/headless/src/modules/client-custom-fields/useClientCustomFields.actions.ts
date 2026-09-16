@@ -220,7 +220,11 @@ export function createClientCustomFieldsActions(
      */
     flushImages: service.flushImages,
 
-    /** Marks the shared cache key stale so the next read refetches. */
+    /**
+     * Marks THIS CATALOGUE's cache key stale so the next read refetches —
+     * `service.queryKey` is catalogue-qualified, so a sibling catalogue's warm
+     * rows are untouched.
+     */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
 
     /** Resolves true when the collection is ready to read. */
@@ -238,7 +242,10 @@ export function createClientCustomFieldsActions(
     /** Refetches the list from the server; rejects if it cannot address one. */
     refresh,
 
-    /** Drops the shared cache key's rows so the next read starts from loading. */
+    /**
+     * Drops THIS CATALOGUE's rows — every criteria variant it holds — so the
+     * next read starts from loading; a sibling catalogue's rows are untouched.
+     */
     reset: resetQueryByKey(service.queryKey),
 
     /**
