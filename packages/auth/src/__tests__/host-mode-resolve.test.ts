@@ -18,15 +18,14 @@
  * once per mode, and each is pinned on BOTH channels — the funnel call and the
  * router — so a path cannot be satisfied by doing nothing.
  *
- * ## Where the mode does NOT decide
- * The seam only diverts when the screen names a route to divert to. A screen
- * that names none falls through to the funnel step in EITHER host, so a
- * funnel-free host that reaches it reaches the throwing call this seam exists to
- * avoid. Two screens are in that position, and each is held off it by something
- * other than the mode: the back control is withheld from the render (asserted in
- * `host-mode-back-control.test.ts`), and recovery's forward step is left to end
- * on its own screen. Both fall-throughs are asserted below so the guard that
- * really holds is visible, rather than a passing test implying the mode does it.
+ * ## Where no route is named
+ * The mode is read before any route is. A funnel-free host that names no route
+ * does nothing at all, rather than calling the funnel step and relying on it
+ * throwing — which is what it used to do, with the view swallowing the error.
+ * Recovery is the screen in that position: it ends on its own email-sent
+ * message, and its type no longer declares a landing it would not honour. The
+ * back control's absence is asserted separately in
+ * `host-mode-back-control.test.ts`, and remains load-bearing.
  *
  * ## What Breaks If These Fail
  * Forward: a funnel host loses its funnel step and drops every buying customer
@@ -144,7 +143,7 @@ describe("the session screens' host-mode resolve", () => {
       expect(navigateNext).not.toHaveBeenCalled();
     });
 
-    it("asks the funnel anyway when a funnel-free host names no landing", async () => {
+    it("does nothing when a funnel-free host names no landing", async () => {
       hasFunnels.value = false;
       const { seam, router } = await seatedSeam({});
       await settle();
@@ -152,7 +151,11 @@ describe("the session screens' host-mode resolve", () => {
       await seam.navigateResolved();
       await settle();
 
-      expect(navigateNext).toHaveBeenCalledTimes(1);
+      expect(
+        navigateNext,
+        "the funnel step throws with no funnel service, so reaching it is the " +
+          "defect this seam exists to remove"
+      ).not.toHaveBeenCalled();
       expect(router.currentRoute.value.path).toBe(START);
     });
   });
@@ -198,7 +201,7 @@ describe("the session screens' host-mode resolve", () => {
       expect(navigateBack).not.toHaveBeenCalled();
     });
 
-    it("asks the funnel anyway when a funnel-free host names no route", async () => {
+    it("does nothing when a funnel-free host names no route", async () => {
       hasFunnels.value = false;
       const { seam, router } = await seatedSeam({});
       await settle();
@@ -208,7 +211,11 @@ describe("the session screens' host-mode resolve", () => {
       await seam.navigateRejected();
       await settle();
 
-      expect(navigateBack).toHaveBeenCalledTimes(1);
+      expect(
+        navigateBack,
+        "the funnel step throws with no funnel service, so reaching it is the " +
+          "defect this seam exists to remove"
+      ).not.toHaveBeenCalled();
       expect(router.currentRoute.value.path).toBe(START);
     });
 
