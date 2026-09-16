@@ -36,6 +36,7 @@ import { QUERY_PARAMS } from "@upmind-automation/types";
 import payOverlayPage from "../../../modules/scenarios/overlay-payment/overlay-payment.page.vue";
 import upgradeOverlayPage from "../../../modules/scenarios/overlay-upgrade/overlay-upgrade.page.vue";
 import {
+  appPlugins,
   clearClientSession,
   hasTestKey,
   observeRequests,
@@ -54,26 +55,33 @@ import {
 import { ROUTE } from "../../funnels/types";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
+import type { Router } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
 let mounted: VueWrapper | undefined;
+let router: Router | undefined;
 
 async function mountOverlay(
   page: Component,
   route: { name: string; path: string; url: string }
 ): Promise<VueWrapper> {
-  const router = createRouter({
+  // ONE router per file, as the app has one: the routing engine binds the first
+  // router it is handed (`init` is `??=`), and `setParam` writes
+  // `?payment_success` through THAT router once an order settles. Each surface
+  // adds its own route to the shared table instead of minting a router.
+  router ??= createRouter({
     history: createWebHistory(),
     routes: [
       {
         path: `/${ROUTE.ORDER}/:${QUERY_PARAMS.ORDER_ID}?`,
         name: ROUTE.ORDER,
         component: { template: "<div />" }
-      },
-      { path: route.path, name: route.name, component: page }
+      }
     ]
   });
+  if (!router.hasRoute(route.name))
+    router.addRoute({ path: route.path, name: route.name, component: page });
 
   window.history.replaceState({}, "", route.url);
   await router.push(route.url);
@@ -85,7 +93,7 @@ async function mountOverlay(
 
   mounted = mount(host, {
     attachTo: document.body,
-    global: { plugins: [router] }
+    global: { plugins: await appPlugins(router) }
   });
   return mounted;
 }
