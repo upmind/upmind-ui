@@ -1248,8 +1248,10 @@ export default [
       "file-responsibility/no-type-reexport": "error",
       "file-responsibility/schemas-in-schema-file": "error",
       "file-responsibility/mappers-in-mapper-file": "error",
-      // FE-3249 #7 — `type`, not `interface` (built-in), unless extending.
-      "@typescript-eslint/consistent-type-definitions": ["error", "type"]
+      // FE-3249 #7 — `type`, not `interface`. Custom rule (not the built-in):
+      // it exempts an interface used for declaration merging inside a
+      // `declare global` / `declare module` block, where `type` is illegal.
+      "file-responsibility/consistent-type-definitions": "error"
     }
   },
 
