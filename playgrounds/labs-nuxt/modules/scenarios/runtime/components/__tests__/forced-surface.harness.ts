@@ -105,6 +105,19 @@ import type { VueWrapper } from "@vue/test-utils";
     addEventListener: () => undefined
   });
 
+// The same directive ALSO defers work on a timer that then calls
+// `requestAnimationFrame`, which this environment does not implement. That
+// timer can outlive the test, so the call lands after teardown as an unhandled
+// `ReferenceError` — vitest exits NON-ZERO while every test passes, which reads
+// as a green suite and a red CI. Bind a frame scheduler onto the macrotask
+// queue, with a cancellable handle so a teardown that clears it still works.
+(globalThis as { requestAnimationFrame?: unknown }).requestAnimationFrame ??= ((
+  callback: FrameRequestCallback
+) => setTimeout(() => callback(Date.now()), 0)) as typeof requestAnimationFrame;
+(globalThis as { cancelAnimationFrame?: unknown }).cancelAnimationFrame ??= ((
+  handle: number
+) => clearTimeout(handle)) as typeof cancelAnimationFrame;
+
 const OVERFLOW_TRIGGER = "show-more-options";
 
 /**
