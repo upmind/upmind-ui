@@ -18,7 +18,7 @@ import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { routeQueryContext } from "~/portal/mock/injection";
 import { PAGE_KEY } from "~/portal/types";
 
-definePageMeta({ layout: "logged-out" });
+definePageMeta({ layout: "logged-out-page" });
 
 const route = useRoute();
 

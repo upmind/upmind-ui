@@ -12,7 +12,7 @@ import type { PageKey } from "~/portal/types";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { AUTH_QUERY_KEY, AUTH_QUERY_VALUE, PAGE_KEY } from "~/portal/types";
 
-definePageMeta({ layout: "logged-out" });
+definePageMeta({ layout: "logged-out-page" });
 
 const route = useRoute();
 

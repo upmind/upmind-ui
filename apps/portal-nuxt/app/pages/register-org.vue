@@ -16,7 +16,7 @@ import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { useMockBrandGates } from "~/portal/mock/gates";
 import { PAGE_KEY } from "~/portal/types";
 
-definePageMeta({ layout: "logged-out" });
+definePageMeta({ layout: "logged-out-page" });
 
 const { isOrgRegistrationEnabled } = useMockBrandGates();
 

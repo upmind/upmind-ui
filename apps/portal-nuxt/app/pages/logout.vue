@@ -12,7 +12,7 @@ import { usePortalConfig } from "~/composables/usePortalConfig";
 import { MOCK_ACTION } from "~/portal/mock/actions";
 import { isMockDatasetId, useMockData } from "~/portal/mock/store";
 
-definePageMeta({ layout: "logged-out" });
+definePageMeta({ layout: "logged-out-page" });
 
 const { activeDatasetId } = usePortalConfig();
 

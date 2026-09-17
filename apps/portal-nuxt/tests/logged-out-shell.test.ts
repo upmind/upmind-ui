@@ -66,8 +66,13 @@ async function shellAt(path: string, datasetId: string): Promise<VueWrapper> {
   });
   usePortalConfig().setDataset(datasetId);
 
-  const { default: layout } = await import("~/layouts/logged-out.vue");
-  const wrapper = mount(layout, { slots: { default: "<p>the screen</p>" } });
+  // The chrome moved out of the layout when the auth screens gained their own
+  // templates: every one of them draws it through this component.
+  const { default: shell } = await import("~/portal/auth/PortalAuthShell.vue");
+  const wrapper = mount(shell, {
+    props: { variant: "centered", card: true },
+    slots: { default: "<p>the screen</p>" }
+  });
   await settle();
   return wrapper;
 }
