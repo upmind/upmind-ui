@@ -35,7 +35,8 @@ import {
   actionsUischema,
   cardUischema,
   detailUischema,
-  tableUischema
+  tableUischema,
+  tabsUischema
 } from "./client-tickets.presentation";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
@@ -53,6 +54,7 @@ export default {
   presentation: {
     icon: "message-question-circle",
     table: tableUischema,
+    tabs: tabsUischema,
     card: cardUischema,
     detail: detailUischema,
     actions: actionsUischema
