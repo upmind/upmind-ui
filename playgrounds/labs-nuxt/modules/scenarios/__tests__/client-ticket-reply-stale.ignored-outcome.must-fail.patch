@@ -1,0 +1,30 @@
+Negative control for the manager's refused-reply outcome (AC17).
+
+Puts the page back to ignoring `reply()`'s return value: the composer is cleared
+and no notice is raised whatever the call resolved with. A `409
+ticket_has_more_recent_reply` resolves to `undefined` rather than throwing, so
+nothing errors, nothing is posted, and the client's words are gone — the page
+reports a send it never made. The SUCCESS path is untouched and stays green,
+which is the point: only a spec that drives the REFUSAL goes red.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: `client-ticket-reply-stale.spec.ts` — "a reply REFUSED with 409
+ticket_has_more_recent_reply keeps the draft and says it was not sent", and the
+no-re-post case beside it.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useClientTicket/client-ticket.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useClientTicket/client-ticket.page.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/useClientTicket/client-ticket.page.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/useClientTicket/client-ticket.page.vue
+@@ -877,10 +877,7 @@ const send = () =>
+       replyBody.value,
+       pendingFiles.value.length ? { files: pendingFiles.value } : {}
+     );
+-    if (!posted) {
+-      actionNotice.value = t("labs.client_ticket_reply_stale");
+-      return;
+-    }
++    void posted;
+     replyBody.value = "";
+     pendingFiles.value = [];
+   });

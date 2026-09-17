@@ -1,0 +1,25 @@
+Negative control for the filter bar's quick-search branch.
+
+Stops `FilterBar` forwarding the module's top-level `query` branch, leaving the
+`filters` branch alone forwarded — the exact state the operator reported as "the
+filters are not working". The search control still renders, still takes every
+keystroke, still shows what was typed; nothing leaves for it. Every other filter
+keeps working, so only a spec that reads the WIRE for `query=` goes red.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: `client-tickets-listing.spec.ts` — "AC6 the search box sends the platform
+quick-search `query`, the branch the bar used to drop".
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/FilterBar.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/FilterBar.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/FilterBar.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/FilterBar.vue
+@@ -72,7 +72,7 @@ function onUpdate(next: Record<string, unknown>): void {
+   props.criteria.set(
+     assign(
+       { filters: get(next, "filters", {}) },
+-      hasQueryBranch.value ? { query: isEmpty(query) ? null : query } : {}
++      hasQueryBranch.value && false ? { query: isEmpty(query) ? null : query } : {}
+     )
+   );
+ }

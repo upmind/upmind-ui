@@ -1,0 +1,26 @@
+Negative control for the listing's ACTIVE/CLOSED tab pair (AC1/AC2).
+
+Points the CLOSED tab at the `neq` leaf — the ACTIVE tab's operator — so both
+tabs narrow the collection the same way. The tab still exists, still carries its
+label, still writes through `setCriteria`, and still puts a `status.code` filter
+on the wire: only the OPERATOR is wrong, which is the whole of what separates
+"my closed tickets" from "my open ones". A spec that finds the control, or reads
+only that some status filter left, stays green through it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Reds: `client-tickets-listing.spec.ts` — "AC2 the Closed tab puts
+filter[status.code]=ticket_closed on the wire", and the swap case beside it.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useClientTickets/client-tickets.presentation.ts b/playgrounds/labs-nuxt/modules/scenarios/useClientTickets/client-tickets.presentation.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/useClientTickets/client-tickets.presentation.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/useClientTickets/client-tickets.presentation.ts
+@@ -68,7 +68,7 @@ export const tabsUischema: CriteriaTabsUischema = {
+     {
+       value: "closed",
+       i18n: "text.tickets_closed",
+-      filters: { statusCode: { eq: TicketStatusCodes.CLOSED } }
++      filters: { statusCode: { neq: TicketStatusCodes.CLOSED } }
+     }
+   ]
+ };

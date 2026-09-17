@@ -1,9 +1,10 @@
 Negative control for the locked surface under a replay (`R6-23`).
 
-Takes the lock off every control the ruling names — the facets and the search,
-ordering and the column set and the view, the header's own sort, pagination and
-every row action — while LEAVING the region's `data-test-value="locked"` in
-place. So the surface still SAYS it is locked and is fully interactive
+Takes the lock off every control the ruling names — the declared criteria tab
+pair, the facets and the search, ordering and the column set and the view, the
+header's own sort, pagination and every row action — while LEAVING the region's
+`data-test-value="locked"` in place. So the surface still SAYS it is locked and
+is fully interactive
 underneath, which is exactly the failure the ruling is about: a replay is a
 playback, and a hand that filters or fires a row action mid-track fights the
 script and desyncs the playhead from the url. Nothing else moves: the rows, the
@@ -13,23 +14,25 @@ a spec that checks the controls actually REFUSE goes red.
 
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
-Reds: the list-surface `R6-23` case — with `locked`, the filter bar, the display
-controls, the sortable headers, the pagination region and every row action are
-refused, and the reason is named.
+Reds: the list-surface `R6-23` case — with `locked`, the declared criteria tab
+pair, the filter bar, the display controls, the sortable headers, the pagination
+region and every row action are refused, and the reason is named.
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
-@@ -18,7 +18,7 @@
-          belongs to the page, above this surface (G4). -->
-     <div v-if="meta.hasControls" :class="listSurface.controls()">
-       <div v-if="criteria" :class="listSurface.filterBlock()">
+@@ -27,9 +27,8 @@
+           v-if="presentation?.tabs"
+           :tabs="presentation.tabs"
+           :criteria="criteria"
+-          :disabled="locked"
+         />
 -        <FilterBar :criteria="criteria" :disabled="locked" />
 +        <FilterBar :criteria="criteria" />
        </div>
        <!-- Ordering, the column set and the view choice sit with the data they
             change, in BOTH views — the same criteria, written through the same
-@@ -305,12 +305,8 @@
+@@ -319,12 +318,8 @@
           title (`R6-23`). Geometry is untouched either way. -->
      <div
        v-if="meta.hasPagination && !meta.isEmpty && !meta.isLoading"

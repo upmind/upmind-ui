@@ -34,6 +34,7 @@ import { ListSurface } from "../index";
 import { getRow } from "./table-geometry";
 import { filter, find, keys } from "lodash-es";
 import type { DeclaringTableChannel } from "../../../composables/useTableChannel.types";
+import type { CriteriaTabsUischema } from "../../../scenario.types";
 import type { SurfaceActions } from "../surface.types";
 
 // -----------------------------------------------------------------------------
@@ -50,10 +51,32 @@ const i18n = createI18n({
   messages: { en: { action, labs: labsEn, text } }
 });
 
+/**
+ * A declared criteria tab pair, so the lock can be graded on a control the
+ * `client-email` scenario does not declare. Its leaves are that module's own
+ * `verified` filter, not a shape minted for the test.
+ */
+const declaredTabs: CriteriaTabsUischema = {
+  type: "CriteriaTabsLayout",
+  elements: [
+    {
+      value: "verified",
+      i18n: "text.verified_label",
+      filters: { verified: { eq: true } }
+    },
+    {
+      value: "unverified",
+      i18n: "text.unverified_label",
+      filters: { verified: { eq: false } }
+    }
+  ]
+};
+
 function mountLockedList(
   table?: DeclaringTableChannel,
   actions: SurfaceActions = {},
-  criteria?: Awaited<ReturnType<typeof declaringCriteria>>
+  criteria?: Awaited<ReturnType<typeof declaringCriteria>>,
+  presentationOverride: typeof presentation = presentation
 ) {
   return mount(ListSurface, {
     attachTo: document.body,
@@ -64,7 +87,7 @@ function mountLockedList(
         meta: { isEmpty: false, isFiltered: false }
       },
       actions,
-      presentation,
+      presentation: presentationOverride,
       table,
       criteria,
       locked: true
@@ -104,6 +127,23 @@ describe("R6-23 locked surface — filter bar refused", () => {
     expect(inputs.length).toBeGreaterThan(0);
     for (const input of inputs) {
       expect(input.attributes("disabled")).toBeDefined();
+    }
+  });
+
+  it("disables the declared criteria tab pair when locked", async () => {
+    const table = await declaringChannel("client-email", {
+      total: rows.length
+    });
+    const criteria = await declaringCriteria("client-email");
+    const wrapper = mountLockedList(table, {}, criteria, {
+      ...presentation,
+      tabs: declaredTabs
+    });
+
+    const tabs = wrapper.findAll('[data-test-key="criteria-tab"]');
+    expect(tabs.length).toBe(declaredTabs.elements.length);
+    for (const tab of tabs) {
+      expect(tab.attributes("disabled")).toBeDefined();
     }
   });
 });
