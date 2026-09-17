@@ -1,3 +1,36 @@
+<template>
+  <Page :width="meta.pageWidth" :class="meta.pageTrackClass">
+    <!-- Suppressed while the shape declares a hero — the band carries the h1 (PortalHero). -->
+    <PageHeader v-if="!resolvedContent.hero">
+      <div v-if="resolvedContent.breadcrumb" :class="PAGE_BREADCRUMB_CLASS">
+        <PortalSlotContent :resolved-slot="resolvedContent.breadcrumb" />
+      </div>
+      <PageTitle>{{ meta.title }}</PageTitle>
+      <PageDescription v-if="resolvedContent.description">{{
+        resolvedContent.description
+      }}</PageDescription>
+    </PageHeader>
+
+    <PortalRail :tertiary="resolvedShell.primitives.tertiary" />
+
+    <PortalContent
+      :rows="resolvedContent.rows"
+      :aside="resolvedContent.aside"
+      :aside-size="resolvedContent.asideSize"
+      :aside-divider="resolvedContent.asideDivider"
+      :aside-side="resolvedContent.asideSide"
+      :aside-label="asideLabel"
+    />
+
+    <!-- Empty until the brand's own `footer` template slot lands (plan Phase 6). -->
+    <div
+      v-if="meta.showFooter"
+      data-slot="page-footer"
+      :class="PAGE_FOOTER_CLASS"
+    ></div>
+  </Page>
+</template>
+
 <script setup lang="ts">
 import { Page, PageDescription, PageHeader, PageTitle } from "@upmind/ui";
 import { computed } from "vue";
@@ -127,36 +160,3 @@ const meta = computed(() => ({
   showFooter: Boolean(resolvedContent.value.footer)
 }));
 </script>
-
-<template>
-  <Page :width="meta.pageWidth" :class="meta.pageTrackClass">
-    <!-- Suppressed while the shape declares a hero — the band carries the h1 (PortalHero). -->
-    <PageHeader v-if="!resolvedContent.hero">
-      <div v-if="resolvedContent.breadcrumb" :class="PAGE_BREADCRUMB_CLASS">
-        <PortalSlotContent :resolved-slot="resolvedContent.breadcrumb" />
-      </div>
-      <PageTitle>{{ meta.title }}</PageTitle>
-      <PageDescription v-if="resolvedContent.description">{{
-        resolvedContent.description
-      }}</PageDescription>
-    </PageHeader>
-
-    <PortalRail :tertiary="resolvedShell.primitives.tertiary" />
-
-    <PortalContent
-      :rows="resolvedContent.rows"
-      :aside="resolvedContent.aside"
-      :aside-size="resolvedContent.asideSize"
-      :aside-divider="resolvedContent.asideDivider"
-      :aside-side="resolvedContent.asideSide"
-      :aside-label="asideLabel"
-    />
-
-    <!-- Empty until the brand's own `footer` template slot lands (plan Phase 6). -->
-    <div
-      v-if="meta.showFooter"
-      data-slot="page-footer"
-      :class="PAGE_FOOTER_CLASS"
-    ></div>
-  </Page>
-</template>
