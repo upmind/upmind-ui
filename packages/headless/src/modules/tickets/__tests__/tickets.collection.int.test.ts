@@ -50,7 +50,7 @@ describe("tickets collection — my active tickets (AC-1)", () => {
 
     const observed = observeTicketsRequests();
     await tickets.useActions().setCriteria({
-      filters: { statusCode: { neq: "ticket_closed" } }
+      filters: { isClosed: { eq: false } }
     });
     await vi.waitFor(() =>
       expect(tickets.useMeta().isLoading.value).toBe(false)
@@ -67,6 +67,13 @@ describe("tickets collection — my active tickets (AC-1)", () => {
     expect(decodeURIComponent(request!.url)).toContain(
       "filter[status.code|neq]=ticket_closed"
     );
+    // The active position is the `neq` key ALONE — no bare `eq` spelling, and
+    // no schema-spelled stray: `filter[isClosed|…]` names a column this API
+    // does not have, and staging answers 500 to it riding beside the real key.
+    expect(decodeURIComponent(request!.url)).not.toMatch(
+      /filter\[status\.code\]=/
+    );
+    expect(decodeURIComponent(request!.url)).not.toContain("filter[isClosed");
     assertNoAdminPath(observed.all());
 
     const fixture = recorded.activeList() as {
@@ -91,7 +98,7 @@ describe("tickets collection — my closed tickets (AC-2)", () => {
     handlers.setListBody(recorded.closedList());
     const observed = observeTicketsRequests();
     await tickets.useActions().setCriteria({
-      filters: { statusCode: { eq: "ticket_closed" } }
+      filters: { isClosed: { eq: true } }
     });
     await vi.waitFor(() =>
       expect(tickets.useMeta().isLoading.value).toBe(false)
@@ -106,11 +113,56 @@ describe("tickets collection — my closed tickets (AC-2)", () => {
       "filter[status.code]=ticket_closed"
     );
     expect(decodeURIComponent(closedRequest!.url)).not.toContain("|neq");
+    expect(decodeURIComponent(closedRequest!.url)).not.toContain(
+      "filter[isClosed"
+    );
 
     const fixture = recorded.closedList() as { data: Array<{ id: string }> };
     expect(tickets.useContext().data.value.map(row => row.id)).toEqual(
       fixture.data.map(row => row.id)
     );
+  });
+});
+
+describe("tickets collection — the All position (AC-1/AC-2)", () => {
+  it("clearing the tri-state sends NEITHER status key, and no stray beside them", async () => {
+    await seedClientSession();
+    installTicketsHandlers();
+
+    const tickets = useClientTickets().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+
+    // Narrow first, so "All" is proven to REMOVE a live narrowing rather than
+    // to have never written one — the boot state passes that trivially.
+    await tickets.useActions().setCriteria({
+      filters: { isClosed: { eq: true } }
+    });
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+
+    const observed = observeTicketsRequests();
+    await tickets.useActions().setCriteria({ filters: {} });
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+    // The unnarrowed key is the one the collection booted on, so vue-query
+    // answers the write from cache. Force the read so there IS a request to
+    // grade: what is asserted is the URL the cleared criteria BUILD.
+    await tickets.useActions().refresh();
+    await vi.waitFor(() => expect(observed.all().length).toBeGreaterThan(0));
+    observed.stop();
+
+    const cleared = observed.all().at(-1)!;
+    const url = decodeURIComponent(cleared.url);
+
+    // "All" is the absence of the narrowing, not a third value on the wire.
+    expect(url).not.toContain("filter[status.code]");
+    expect(url).not.toContain("filter[status.code|neq]");
+    expect(url).not.toContain("filter[isClosed");
+    assertNoAdminPath(observed.all());
   });
 });
 

@@ -475,6 +475,14 @@
     "label": null,
     "placeholder": "Search tickets..."
   },
+  "ticket_status_filter": {
+    "description": null,
+    "label": "Status",
+    "placeholder": null,
+    "false": "Active",
+    "true": "Closed",
+    "null": "All"
+  },
   "reference_search": {
     "description": null,
     "label": null,

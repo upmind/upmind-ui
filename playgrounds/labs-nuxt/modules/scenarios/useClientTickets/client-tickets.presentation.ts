@@ -26,7 +26,6 @@
  * query schema's own `sort` enum, which the control reads directly.
  */
 
-import { TicketStatusCodes } from "@upmind-automation/types";
 import {
   ActionPlacementTypes,
   CardSlotTypes,
@@ -35,43 +34,11 @@ import {
 import type {
   ActionsUischema,
   CardUischema,
-  CriteriaTabsUischema,
   DetailUischema,
   TableUischema
 } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
-
-/**
- * AC1/AC2 — the collection's headline narrowing: my ACTIVE tickets versus my
- * CLOSED ones. It is a tab pair rather than a filter-bar control because the
- * query schema's `statusCode` branch carries BOTH operators (`tickets.schemas.ts`
- * — `neq` for active, `eq` for closed) so only the tab in effect reaches the
- * wire, and one schema-driven control cannot write two different leaves of one
- * branch. The service re-spells the undotted `statusCode` onto the real wire
- * column `status.code` at its own edge (R9, `tickets.services.ts`
- * `applyStatusCodeFilter`), so nothing here spells a wire parameter: the tab
- * writes the module's own criteria leaf and the module owns the spelling.
- *
- * Neither tab is selected on boot, which is the truth of the unnarrowed read
- * the collection issues: no status filter is in effect until a hand chooses
- * one, and the control never writes by itself.
- */
-export const tabsUischema: CriteriaTabsUischema = {
-  type: "CriteriaTabsLayout",
-  elements: [
-    {
-      value: "active",
-      i18n: "text.tickets_active",
-      filters: { statusCode: { neq: TicketStatusCodes.CLOSED } }
-    },
-    {
-      value: "closed",
-      i18n: "text.tickets_closed",
-      filters: { statusCode: { eq: TicketStatusCodes.CLOSED } }
-    }
-  ]
-};
 
 export const tableUischema: TableUischema = {
   type: "TableLayout",

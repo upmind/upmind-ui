@@ -72,7 +72,7 @@ tickets.useActions().setCriteria({
   filters: {
     reference: "XGD-235-12434",                         // bare EQUAL leaf
     subject: "Renewal",                                 // bare EQUAL leaf
-    statusCode: { neq: "ticket_closed" },               // UNDOTTED — gotchas #1
+    isClosed: { eq: false },                            // tri-state — gotchas #1
     created_at: { gte: "2026-01-01T00:00:00Z" },
     contract_product_id: someProductId
   },

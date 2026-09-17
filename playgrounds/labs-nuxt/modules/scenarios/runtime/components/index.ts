@@ -8,7 +8,6 @@
 export { default as ActionSlots } from "./ActionSlots.vue";
 export { default as ColumnPicker } from "./ColumnPicker.vue";
 export { default as ContextPanel } from "./ContextPanel.vue";
-export { default as CriteriaTabs } from "./CriteriaTabs.vue";
 export { default as DetailDialog } from "./DetailDialog.vue";
 export { default as FilterBar } from "./FilterBar.vue";
 export { default as MetaPanel } from "./MetaPanel.vue";
@@ -19,7 +18,6 @@ export * from "./ActionSlots.types";
 export * from "./cells";
 export * from "./ColumnPicker.types";
 export * from "./ContextPanel.types";
-export * from "./CriteriaTabs.types";
 export * from "./DetailDialog.types";
 export * from "./FilterBar.types";
 export * from "./MetaPanel.types";

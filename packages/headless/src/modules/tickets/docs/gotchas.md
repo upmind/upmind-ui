@@ -4,19 +4,22 @@ The sharp edges. Every entry below is a thing a reader hits in practice, and eve
 
 ---
 
-## 1. The status filter's schema key is UNDOTTED — and the wire key is DOTTED
+## 1. The status filter is ONE tri-state boolean — and the query core never sees it
 
 **This is the single most surprising thing in the module.** Read this one before you touch the criteria schema.
 
-The criteria schema declares the status filter as **`statusCode`** — one word, no dot:
+The criteria schema declares the active/closed split as **`isClosed`**, a single tri-state boolean leaf:
 
 ```ts
 // tickets.schemas.ts — useQuerySchema()
 filters: {
   properties: {
-    statusCode: {
+    isClosed: {
       type: "object",
-      properties: { eq: { … }, neq: { … } }
+      properties: {
+        // `false` active · `true` closed · `null` All
+        eq: { type: ["boolean", "null"], enum: [false, true, null] }
+      }
     }
   }
 }
@@ -25,37 +28,44 @@ filters: {
 …and you write it the same way:
 
 ```ts
-tickets.useActions().setCriteria({
-  filters: { statusCode: { neq: "ticket_closed" } }
-});
+tickets.useActions().setCriteria({ filters: { isClosed: { eq: false } } });
 ```
 
-But the **wire key is dotted**:
+But the **wire carries a dotted status column, with a different operator per position**:
 
-```text
-GET api/tickets?…&filter[status.code|neq]=ticket_closed
-```
+| `filters.isClosed.eq` | the wire |
+| --- | --- |
+| `false` (Active) | `filter[status.code|neq]=ticket_closed` |
+| `true` (Closed) | `filter[status.code]=ticket_closed` |
+| absent (All) | NEITHER key |
 
-The translation happens at the module's own service edge (`tickets.services.ts` → `applyStatusCodeFilter`, driven by a `flush: "sync"` watcher inside `loadList`). The value and the decision of what is active still come from the schema channel; **only the key spelling** is corrected.
+The translation happens at the module's own service edge (`tickets.services.ts` → `applyStatusCodeFilter`, driven by a `flush: "sync"` watcher inside `loadList`).
+
+### Why one leaf and not two
+
+The two positions want two DIFFERENT operators on one column. A JSON Forms control scopes ONE leaf, so a schema-driven control cannot drive `eq` on one position and `neq` on another. A tri-state boolean can: the module owns the mapping from position to operator, and the filter bar draws exactly the control `client-email-history` draws for `sent.eq`.
 
 ### Why it cannot simply be spelled `"status.code"` in the schema
 
 The query core's model parser walks the schema's own declared property names and writes each through a plain lodash `set(result, key, value)`. Lodash reads a literal `"status.code"` key as the **path** `status` → `code`, not as the key `"status.code"`. So the parser emits a nested `{ status: { code: … } }` object where the schema declared a flat `"status.code"` property, AJV then rejects that nested object as an **additional property**, and the filter **silently never reaches the wire**.
 
+### Why the branch is WITHHELD from the query core
+
+`translateQuery` emits one wire key per branch it can see under `filters`, spelt with the branch's own property name. A visible `isClosed` branch therefore adds `filter[isClosed|eq]=0` **beside** the real key — and `isClosed` is not a column this API has. Measured against staging 2026-09-17: the dotted key alone answers `200`; the dotted key plus the undotted stray answers `500 "A critical database error occurred"`. So `loadList` hands `list()` **`useWireQuerySchema()`** — the query schema minus that one branch — and holds the position itself. Everything else still reads the FULL `useQuerySchema()`: the filter bar draws the control, the refinement chips name it, the url replay serialises it.
+
 ### The symptom you will actually see
 
-- A filter you can see in the model, that never appears in the request's query string; or
-- a **`422`** validation rejection out of `setCriteria` naming an additional/unexpected property, with no request sent at all.
-
-Either way the list comes back unfiltered (or the write is refused) and nothing obviously points at the key spelling.
+- A filter you can see in the model, that never appears in the request's query string;
+- a **`422`** validation rejection out of `setCriteria` naming an additional/unexpected property, with no request sent at all; or
+- a **`500`** on every narrowed read, because a stray filter key on a column the API does not have rode along.
 
 ### The rule
 
 - **Do not "fix" the schema to the dotted spelling.** It looks more correct and it is the bug.
-- **Do not edit `packages/headless/src/modules/query/**`.** The shared query platform is off limits to this module; the fix is a route-around at this module's own edge, never a core edit.
-- If you add another dotted-column filter to this module, it needs the same treatment: undotted in the schema, re-spelled at the service edge.
+- **Do not declare the status branch in the schema `list()` receives.** That is what mints the stray.
+- **Do not edit `packages/headless/src/modules/query/**`.** The shared query platform is off limits to this module; the fix is a route-around at this module's own edge, never a core edit. (Teaching `translateQuery` a per-branch wire-column keyword is the real fix and would delete `useWireQuerySchema` outright — it is a core change, and a separate decision.)
 
-> **🧪 For Testers:** Assert the **wire**, not the model. `filter[status.code|neq]=ticket_closed` for the active tab, `filter[status.code]=ticket_closed` for the closed tab — and the closed-tab request must carry **no** `|neq`. Those assertions are the read-back that proves the translation works; weakening them removes the only proof.
+> **🧪 For Testers:** Assert the **wire**, not the model. `filter[status.code|neq]=ticket_closed` for Active, `filter[status.code]=ticket_closed` for Closed, NEITHER key for All — and **no `filter[isClosed…]` in any of the three**. Those assertions are the read-back that proves the translation works; weakening them removes the only proof.
 
 ---
 

@@ -36,9 +36,9 @@ const tickets = useClientTickets().as(ScopeActorTypes.SELF);
 await tickets.useActions().isReady();
 const { data } = tickets.useContext();
 
-// Narrow to open tickets only
+// Narrow to open tickets only (`true` closed, `null`/absent All)
 tickets.useActions().setCriteria({
-  filters: { statusCode: { neq: "ticket_closed" } }
+  filters: { isClosed: { eq: false } }
 });
 
 // --- The manager: one ticket's conversation

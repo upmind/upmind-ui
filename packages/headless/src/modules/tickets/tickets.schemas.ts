@@ -6,6 +6,7 @@
 /** @internal */
 import { PAGINATION } from "../query/query.utils";
 import { TICKETS_DEFAULT_SORT } from "./tickets.types";
+import { assign, omit } from "lodash-es";
 import type { TicketsQuerySchema } from "./tickets.types";
 import type {
   ControlElement,
@@ -26,12 +27,15 @@ import type {
 
 /**
  * `reference` / `subject` / `contract_product_id` are bare leaf branches
- * (EQUAL, D19). `statusCode` carries both `eq` (closed tab) and `neq`
- * (active tab) so only the tab in effect reaches the wire. `statusCode` is
- * deliberately UNDOTTED (R9) — `tickets.types.ts`'s `TicketsQueryModel`
- * doc-comment carries the full root-cause citation; `tickets.services.ts`'s
- * `loadList` re-spells the committed value onto the real wire column
- * `status.code` at its own edge.
+ * (EQUAL, D19). `isClosed` is AC1/AC2's headline narrowing as ONE tri-state
+ * boolean leaf — `false` active, `true` closed, `null` All — declared exactly
+ * as `client-email-history.schemas.ts` declares `sent.eq`, so the ONE filter-bar
+ * idiom draws it: `null` is a MEMBER of the enum, not an absence, because it is
+ * the value the neutral position writes and the option whose label the control
+ * resolves. `tickets.types.ts`'s `TicketsQueryModel` doc-comment carries the
+ * full root-cause citation for why the leaf is spelt nothing like its wire
+ * column; `tickets.services.ts`'s `applyStatusCodeFilter` re-spells it onto
+ * `filter[status.code]` / `filter[status.code|neq]` at the module's own edge.
  */
 export function useQuerySchema(): TicketsQuerySchema {
   return {
@@ -53,13 +57,20 @@ export function useQuerySchema(): TicketsQuerySchema {
             title: "Subject",
             minLength: 1
           },
-          statusCode: {
+          isClosed: {
             type: "object",
             title: "Status",
             additionalProperties: false,
             properties: {
-              eq: { type: ["string", "null"] },
-              neq: { type: ["string", "null"] }
+              // `null` is a MEMBER, not an absence: it is the value the "All"
+              // position writes, so the tri-state's clear has to validate, and
+              // it is the enum entry whose label the control resolves. Ordered
+              // active-first so the control reads `Active │ Closed │ All` —
+              // the order the collection's own vocabulary names them in.
+              eq: {
+                type: ["boolean", "null"],
+                enum: [false, true, null]
+              }
             }
           },
           created_at: {
@@ -109,6 +120,53 @@ export function useQuerySchema(): TicketsQuerySchema {
 }
 
 /**
+ * @decision
+ * what:     The schema `list()` is handed — {@link useQuerySchema} MINUS the
+ *           `isClosed` branch. The collection's own `applyStatusCodeFilter`
+ *           spells that narrowing onto the request url itself; the query core
+ *           never learns the branch exists.
+ * why:      `translateQuery` emits one wire key per branch the schema declares
+ *           under `filters`, spelt with the branch's OWN property name. A
+ *           declared `isClosed` would therefore put `filter[isClosed|eq]=0`
+ *           on the wire BESIDE the `filter[status.code…]` key the module
+ *           re-spells — and `isClosed` is not a column this API has. Measured
+ *           against staging 2026-09-17: the dotted key alone answers 200; the
+ *           dotted key plus an undotted stray answers 500 "A critical database
+ *           error occurred". The stray is not cosmetic, it is the request
+ *           failing. Withholding the branch from the TRANSLATOR (and only from
+ *           it) is the one place a module can stop the key being minted.
+ *           Everything else still reads the FULL schema — the filter bar draws
+ *           the control, the refinement chips name it, the url replay
+ *           serialises it — because `useClientTickets`'s context publishes
+ *           {@link useQuerySchema}, not this.
+ * rejected: Teaching `translateQuery` a per-branch wire-column keyword, which
+ *           is the real fix and would delete this function outright:
+ *           `packages/headless/src/modules/query/**` is headless core, shared
+ *           by every schema-governed collection in the tree and off limits to
+ *           this story (the same R9 ruling `guardCriteriaWrite` was written
+ *           under — route around at the module's own edge, never edit the
+ *           core).
+ * rejected: Declaring `isClosed` OUTSIDE `filters`, which the translator
+ *           ignores natively. It also drops the leaf out of `declaredPairs`,
+ *           so the refinement chip, Clear all and the url replay would each
+ *           need a second vocabulary for one leaf.
+ */
+export function useWireQuerySchema(): TicketsQuerySchema {
+  const schema = useQuerySchema();
+
+  return assign({}, schema, {
+    properties: assign({}, schema.properties, {
+      filters: assign({}, schema.properties!.filters, {
+        properties: omit(
+          (schema.properties!.filters as JsonSchema7).properties,
+          ["isClosed"]
+        )
+      })
+    })
+  }) as TicketsQuerySchema;
+}
+
+/**
  * The collection's default filter-bar presentation. Each control scopes the
  * operator leaf directly, so the leaf's own write is the wire shape.
  */
@@ -137,6 +195,16 @@ export function useQueryUischema(): UISchemaElement {
             options: { format: "range", noLabel: true, optionalText: "" }
           }
         ]
+      },
+      {
+        // AC1/AC2 — the headline narrowing, a plain `Control` over the one
+        // operator leaf, so the element's `i18n` key is also the enum-option
+        // PREFIX: the three positions resolve as
+        // `form.ticket_status_filter.false` / `.true` / `.null`.
+        type: "Control",
+        scope: "#/properties/filters/properties/isClosed/properties/eq",
+        i18n: "form.ticket_status_filter",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
       },
       {
         type: "Control",

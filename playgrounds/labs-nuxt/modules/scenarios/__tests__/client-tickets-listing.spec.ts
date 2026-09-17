@@ -41,13 +41,12 @@
  * REQUEST, so the body's only job is to let the query settle.
  *
  * ## NOT proven here, and named rather than implied
- * Whether the API ACCEPTS the extra `filter[statusCode|…]` parameter the query
- * core emits beside the module's re-spelled `filter[status.code…]` (see the
- * `statusCode` docblock in `tickets.services.ts` — R9). The bench replays
+ * Whether the API ACCEPTS the parameters that leave. The bench replays
  * recordings and answers 200 to anything, so it cannot grade a server's opinion
- * of an unknown filter column. The assertions below therefore grade that the
- * CORRECT parameter is present and correctly operator-ed, never that it is the
- * only one.
+ * of any filter column. What it CAN grade, and does below, is which keys leave:
+ * the schema-spelled stray this listing used to send beside the real key
+ * (`filter[statusCode|…]`, a column the API does not have — measured against
+ * staging 2026-09-17 as a 500) is asserted ABSENT, not merely un-asserted.
  */
 
 import { join } from "node:path";
@@ -65,7 +64,7 @@ import {
   seedClientSession,
   teardownSession
 } from "./client-ticket-page.harness";
-import { find, last } from "lodash-es";
+import { filter, find, last, map } from "lodash-es";
 import type { ModulePort } from "../runtime/composables/useModulePort.types";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
@@ -166,14 +165,28 @@ function control(field: string): ReturnType<VueWrapper["find"]> {
   return wrapper!.find(`[data-test-value="${field}"]`);
 }
 
-/** The tab pair the scenario declares, in declaration order. */
-function tabs(): ReturnType<VueWrapper["findAll"]> {
-  return wrapper!.findAll('[data-test-key="criteria-tab"]');
+/**
+ * The status control's three positions, in the order a hand reads them. It is a
+ * filter-bar control like any other now, so it is addressed the same way: the
+ * form item its leaf keys, then the segmented positions inside it.
+ */
+function statusPositions(): ReturnType<VueWrapper["findAll"]> {
+  return control("filters-is-closed-eq").findAll(
+    '[data-test-key="toggle-group-item"]'
+  );
+}
+
+/** The position under a NAME — the label a hand actually clicks. */
+function statusPosition(name: string): ReturnType<VueWrapper["find"]> {
+  return (
+    find(statusPositions(), node => node.text().trim() === name) ??
+    wrapper!.find('[data-test-key="position-not-drawn"]')
+  );
 }
 
 // -----------------------------------------------------------------------------
 
-describe("client tickets listing — the active/closed tab pair (AC1 · AC2)", () => {
+describe("client tickets listing — the Active/Closed status filter (AC1 · AC2)", () => {
   beforeEach(async () => {
     await seedClientSession();
   });
@@ -185,65 +198,102 @@ describe("client tickets listing — the active/closed tab pair (AC1 · AC2)", (
   });
 
   it(
-    "draws a tab per declared narrowing, labelled from the catalogue rather than a raw key",
+    "draws the three positions IN the filter bar, labelled from the catalogue rather than a raw key",
     async () => {
       await mountListing();
 
-      expect(tabs()).toHaveLength(2);
-      expect(tabs()[0]!.text()).toBe("Active");
-      expect(tabs()[1]!.text()).toBe("Closed");
+      // Inside the bar, not a strip above it: the same idiom every other
+      // filter takes, so one job has one control.
+      expect(
+        wrapper!
+          .find('[data-test-key="filters"]')
+          .find('[data-test-value="filters-is-closed-eq"]')
+          .exists()
+      ).toBe(true);
+
+      expect(map(statusPositions(), node => node.text().trim())).toEqual([
+        "Active",
+        "Closed",
+        "All"
+      ]);
       // A raw i18n key on screen is the blank-label defect this pass closed.
-      expect(wrapper!.text()).not.toContain("text.tickets_");
+      expect(wrapper!.text()).not.toContain("form.ticket_status_filter");
     },
     CASE
   );
 
   it(
-    "AC2 — the Closed tab puts filter[status.code]=ticket_closed on the wire",
+    "AC2 — Closed puts filter[status.code]=ticket_closed on the wire, and nothing beside it",
     async () => {
       const { seen } = await mountListing();
 
       const before = seen().length;
-      await tabs()[1]!.trigger("click");
+      await statusPosition("Closed").trigger("click");
       await nextRequest(seen, before);
 
       expect(lastUrl(seen)).toContain("filter[status.code]=ticket_closed");
-      // The closed tab is the `eq` leaf ALONE: an `neq` riding beside it would
-      // narrow to "closed and not closed" and return nothing.
+      // The closed position is the `eq` leaf ALONE: an `neq` riding beside it
+      // would narrow to "closed and not closed" and return nothing.
       expect(lastUrl(seen)).not.toContain("filter[status.code|neq]");
+      // And no schema-spelled stray: `isClosed` is not a column this API has,
+      // and the pair answers 500 on staging.
+      expect(lastUrl(seen)).not.toContain("filter[isClosed");
     },
     CASE
   );
 
   it(
-    "AC1 — the Active tab puts filter[status.code|neq]=ticket_closed on the wire",
+    "AC1 — Active puts filter[status.code|neq]=ticket_closed on the wire, and nothing beside it",
     async () => {
       const { seen } = await mountListing();
 
       const before = seen().length;
-      await tabs()[0]!.trigger("click");
+      await statusPosition("Active").trigger("click");
       await nextRequest(seen, before);
 
       expect(lastUrl(seen)).toContain("filter[status.code|neq]=ticket_closed");
-      // The bare `eq` spelling must be gone, or the two tabs would both be in
-      // effect — the whole reason the leaf carries two operators.
+      // The bare `eq` spelling must be gone, or both narrowings would be in
+      // effect — the whole reason one leaf drives two operators.
       expect(lastUrl(seen)).not.toMatch(/filter\[status\.code\]=/);
+      expect(lastUrl(seen)).not.toContain("filter[isClosed");
     },
     CASE
   );
 
   it(
-    "swapping tabs REPLACES the narrowing rather than stacking the two operators",
+    "All clears the narrowing — NEITHER status key leaves",
     async () => {
       const { seen } = await mountListing();
 
       let before = seen().length;
-      await tabs()[1]!.trigger("click");
+      await statusPosition("Closed").trigger("click");
+      await nextRequest(seen, before);
+      expect(lastUrl(seen)).toContain("filter[status.code]=ticket_closed");
+
+      // The third position is a real write, not the absence of one: it must
+      // REMOVE a live narrowing, which the boot state would pass trivially.
+      before = seen().length;
+      await statusPosition("All").trigger("click");
+      await nextRequest(seen, before);
+
+      expect(lastUrl(seen)).not.toContain("filter[status.code");
+      expect(lastUrl(seen)).not.toContain("filter[isClosed");
+    },
+    CASE
+  );
+
+  it(
+    "swapping positions REPLACES the narrowing rather than stacking the two operators",
+    async () => {
+      const { seen } = await mountListing();
+
+      let before = seen().length;
+      await statusPosition("Closed").trigger("click");
       await nextRequest(seen, before);
       expect(lastUrl(seen)).toContain("filter[status.code]=ticket_closed");
 
       before = seen().length;
-      await tabs()[0]!.trigger("click");
+      await statusPosition("Active").trigger("click");
       await nextRequest(seen, before);
 
       expect(lastUrl(seen)).toContain("filter[status.code|neq]=ticket_closed");
@@ -253,19 +303,26 @@ describe("client tickets listing — the active/closed tab pair (AC1 · AC2)", (
   );
 
   it(
-    "the selected tab is READ off the live criteria, never off a click it stored",
+    "the chosen position is READ off the live criteria, never off a click it stored",
     async () => {
       const { port, seen } = await mountListing();
 
       const before = seen().length;
-      // Written through the composable, NOT through the control — the tab must
-      // follow the model, so a url replay or a Clear all moves it too.
-      port.criteria!.set({ filters: { statusCode: { eq: "ticket_closed" } } });
+      // Written through the composable, NOT through the control — the control
+      // must follow the model, so a url replay or a Clear all moves it too.
+      port.criteria!.set({ filters: { isClosed: { eq: true } } });
       await nextRequest(seen, before);
       await wrapper!.vm.$nextTick();
 
-      expect(tabs()[1]!.attributes("data-state")).toBe("on");
-      expect(tabs()[0]!.attributes("data-state")).toBe("off");
+      expect(
+        map(
+          filter(
+            statusPositions(),
+            node => node.attributes("aria-pressed") === "true"
+          ),
+          node => node.text().trim()
+        )
+      ).toEqual(["Closed"]);
     },
     CASE
   );
@@ -378,7 +435,7 @@ describe("client tickets listing — every declared filter reaches the wire", ()
       const { seen } = await mountListing();
 
       const before = seen().length;
-      await tabs()[1]!.trigger("click");
+      await statusPosition("Closed").trigger("click");
       await nextRequest(seen, before);
 
       expect(find(seen(), url => url.includes("/api/admin/"))).toBeUndefined();

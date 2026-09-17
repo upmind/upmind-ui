@@ -1,7 +1,11 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
 import { computed, ref, watch } from "vue";
-import { BrandConfigKeys, HookCodes } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  HookCodes,
+  TicketStatusCodes
+} from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { RequestSortDirection, useQuery } from "../query";
 import { resolveClientId, useActiveSession } from "../session-store";
@@ -13,7 +17,7 @@ import {
   mapTicketMessages,
   mapTickets
 } from "./tickets.mappers";
-import { useQuerySchema } from "./tickets.schemas";
+import { useQuerySchema, useWireQuerySchema } from "./tickets.schemas";
 import {
   TICKET_ATTACHMENT_MAX_BYTES,
   TicketContextTypes
@@ -27,7 +31,7 @@ import {
   useTime,
   useValidation
 } from "../../utils";
-import { assign, get, includes, isEmpty } from "lodash-es";
+import { assign, get, has, includes, isEmpty, isNil } from "lodash-es";
 import type {
   Ticket,
   TicketAttachmentRef,
@@ -50,8 +54,7 @@ import type {
   IStatus,
   ITicket,
   ITicketDepartment,
-  ITicketMessage,
-  TicketStatusCodes
+  ITicketMessage
 } from "@upmind-automation/types";
 import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
@@ -150,33 +153,38 @@ function isAddressable(clientId?: string): boolean {
 // COLLECTION
 
 /**
- * `useQuerySchema()` declares the status filter as the undotted `statusCode`
- * (R9) so `useModelParser` never sees a dotted property name. That leaves the
- * criteria-driven wire output mis-spelled (`filter[statusCode|neq]=…`); this
- * re-spells the SAME committed value onto the real wire column `status.code`
- * directly on the request's own `url` (a shared, mutable instance `request()`
- * also writes to). Run via a `sync`-flush `watch` in `loadList` rather than
- * `list()`'s own `guard` hook: `useQuery.ts`'s `hasGuard = isPromise(guard)`
- * tests the GUARD FUNCTION ITSELF for thenability, which a plain function
- * never satisfies, so `guard` never actually runs (a pre-existing `query/**`
- * defect, out of scope here). The value and the decision of what's active
- * still come from `setCriteria`/the schema channel; only the key spelling is
- * corrected here.
+ * AC1/AC2 — the criteria's ONE tri-state `isClosed` leaf as the TWO wire
+ * shapes the API needs, written straight onto the request's own `url` (a
+ * shared, mutable instance `request()` also writes to):
+ *
+ * | `filters.isClosed.eq` | the wire                               |
+ * | --------------------- | -------------------------------------- |
+ * | `false` (Active)      | `filter[status.code|neq]=ticket_closed` |
+ * | `true` (Closed)       | `filter[status.code]=ticket_closed`     |
+ * | absent (All)          | NEITHER key                            |
+ *
+ * Only the module can spell this: the two positions want two DIFFERENT
+ * operators on one column, which no single schema leaf can declare, and the
+ * column is dotted, which `useModelParser` cannot carry (R9 — see
+ * `tickets.types.ts`). Both keys are cleared first, so a swap REPLACES the
+ * narrowing rather than stacking "closed and not closed" and returning
+ * nothing. `useWireQuerySchema` keeps the translator from minting a
+ * `filter[isClosed|eq]` beside these — see its own `@decision`.
+ *
+ * Run via a `sync`-flush `watch` in `loadList` rather than `list()`'s own
+ * `guard` hook: `useQuery.ts`'s `hasGuard = isPromise(guard)` tests the GUARD
+ * FUNCTION ITSELF for thenability, which a plain function never satisfies, so
+ * `guard` never actually runs (a pre-existing `query/**` defect, out of scope
+ * here).
  */
-function applyStatusCodeFilter(
-  url: URL,
-  statusCode: { eq?: string; neq?: string } | undefined
-): void {
-  if (statusCode?.neq) {
-    url.searchParams.set("filter[status.code|neq]", statusCode.neq);
-    url.searchParams.delete("filter[status.code]");
-  } else if (statusCode?.eq) {
-    url.searchParams.set("filter[status.code]", statusCode.eq);
-    url.searchParams.delete("filter[status.code|neq]");
-  } else {
-    url.searchParams.delete("filter[status.code|neq]");
-    url.searchParams.delete("filter[status.code]");
-  }
+function applyStatusCodeFilter(url: URL, isClosed: boolean | null): void {
+  url.searchParams.delete("filter[status.code]");
+  url.searchParams.delete("filter[status.code|neq]");
+
+  if (isClosed === true)
+    url.searchParams.set("filter[status.code]", TicketStatusCodes.CLOSED);
+  else if (isClosed === false)
+    url.searchParams.set("filter[status.code|neq]", TicketStatusCodes.CLOSED);
 }
 
 /**
@@ -230,9 +238,18 @@ function loadList(
   const url = useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 });
   const schema = useQuerySchema();
 
+  /**
+   * The `isClosed` position the module holds itself, because
+   * {@link useWireQuerySchema} withholds the branch from the query core. It is
+   * a CACHE KEY entry as well as a url write: the core's own key is built from
+   * the filters it translated, so without this a tab swap would re-read the
+   * previous tab's cached rows and never refetch.
+   */
+  const isClosed = ref<boolean | null>(null);
+
   const ticketsList = list<ITicket[], Ticket[], TicketsQueryModel>({
-    criteria: { schema },
-    queryKey: [...queryKey, { client: clientId }],
+    criteria: { schema: useWireQuerySchema() },
+    queryKey: [...queryKey, { client: clientId, isClosed }],
     url,
     withAccessToken: true,
     guard: async () => {
@@ -246,22 +263,48 @@ function loadList(
     placeholderData: keepPreviousData
   });
 
-  watch(
-    () => ticketsList.criteria.value.filters?.statusCode,
-    statusCode => applyStatusCodeFilter(url, statusCode),
-    { immediate: true, flush: "sync" }
+  watch(isClosed, value => applyStatusCodeFilter(url, value), {
+    immediate: true,
+    flush: "sync"
+  });
+
+  /**
+   * The model a consumer reads — the core's own, with the module-held
+   * `isClosed` leaf folded back in, so the filter bar, the refinement chips and
+   * the url replay all see ONE criteria model and the control can never claim a
+   * narrowing the wire does not carry.
+   */
+  const criteria = computed<TicketsQueryModel>(() =>
+    isNil(isClosed.value)
+      ? ticketsList.criteria.value
+      : assign({}, ticketsList.criteria.value, {
+          filters: assign({}, ticketsList.criteria.value.filters, {
+            isClosed: { eq: isClosed.value }
+          })
+        })
   );
 
   return {
     ...ticketsList,
+    criteria,
+    schema,
+    isFiltered: computed(
+      () => ticketsList.isFiltered.value || !isNil(isClosed.value)
+    ),
     setCriteria: candidate => {
-      const rejection = guardCriteriaWrite(
-        schema,
-        ticketsList.criteria.value,
-        candidate
-      );
+      const rejection = guardCriteriaWrite(schema, criteria.value, candidate);
       criteriaGuardError.value = rejection;
-      if (!rejection) ticketsList.setCriteria(candidate);
+      if (rejection) return;
+
+      // `setCriteria` merges at BRANCH level, so a write carrying `filters`
+      // REPLACES that branch whole — a `filters` write without `isClosed` is
+      // the leaf being cleared (Clear all, a chip removed), never left
+      // standing. A write that names no `filters` at all (a sort, a page) does
+      // not touch it.
+      if (has(candidate, "filters"))
+        isClosed.value = get(candidate, ["filters", "isClosed", "eq"], null);
+
+      ticketsList.setCriteria(candidate);
     }
   };
 }

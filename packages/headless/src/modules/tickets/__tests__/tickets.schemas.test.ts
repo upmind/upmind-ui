@@ -4,10 +4,14 @@
  * (AC-1, AC-5, AC-6, AC-9)
  *
  * ## Job To Be Done
- * Pin the query schema's wire-shaping rules: the active/closed split runs on
- * the undotted `statusCode` `eq`/`neq` against a STRING status code, never a
- * boolean, and never the dotted `status.code` spelling (R9 — a dotted schema
- * key is read by `useModelParser` as a lodash PATH and 422s) (AC-1); `reference`
+ * Pin the query schema's wire-shaping rules: the active/closed split is ONE
+ * tri-state boolean leaf (`isClosed.eq`, `false`/`true`/`null`) — the same
+ * shape `client-email-history` declares its `sent.eq` filter with, so the one
+ * filter-bar idiom draws it — and never the dotted `status.code` spelling
+ * (R9 — a dotted schema key is read by `useModelParser` as a lodash PATH and
+ * 422s) (AC-1); the leaf is WITHHELD from the schema the query core translates,
+ * so no `filter[isClosed|eq]` stray rides beside the `filter[status.code…]`
+ * key the module spells itself (staging answers 500 to the pair); `reference`
  * is a bare string leaf so the translator emits the
  * EQUAL wire key, never a nested operator object shaped like CONTAINS
  * (AC-5); quick search only fires at 3+ characters (AC-6). Also pins the
@@ -18,7 +22,9 @@
  * PUBLISHED schema with the repo's own ajv (AC-9).
  *
  * ## What Breaks If These Fail
- * The active/closed split silently stops filtering by status, the reference
+ * The active/closed split silently stops filtering by status, or it reaches the
+ * wire with a stray filter key on a column the API does not have and the whole
+ * request 500s, the reference
  * filter starts matching partial references instead of the exact one,
  * search fires a request on every keystroke instead of waiting for a real
  * term, or the create schema rejects an attachment-only ticket the server
@@ -27,10 +33,14 @@
  */
 
 import { describe, expect, it } from "vitest";
-import type { ErrorObject } from "ajv";
-import { useCreateSchema, useQuerySchema } from "../tickets.schemas";
-import { useValidation } from "../../../utils";
+import {
+  useCreateSchema,
+  useQuerySchema,
+  useWireQuerySchema
+} from "../tickets.schemas";
 import { recorded } from "./tickets.int-helpers";
+import { useValidation } from "../../../utils";
+import type { ErrorObject } from "ajv";
 
 type Validator = ((data: unknown) => boolean) & {
   errors?: ErrorObject[] | null;
@@ -38,22 +48,26 @@ type Validator = ((data: unknown) => boolean) & {
 
 // -----------------------------------------------------------------------------
 
-describe("tickets query schema — statusCode operators (AC-1/AC-2)", () => {
-  it("declares eq and neq against a STRING status code, never a boolean", () => {
+describe("tickets query schema — the isClosed tri-state (AC-1/AC-2)", () => {
+  it("declares ONE boolean leaf carrying all three positions, null among them", () => {
     const schema = useQuerySchema() as {
       properties: {
         filters: {
           properties: {
-            statusCode: {
-              properties: { eq: { type: unknown }; neq: { type: unknown } };
+            isClosed: {
+              properties: { eq: { type: unknown; enum: unknown[] } };
             };
           };
         };
       };
     };
-    const statusCode = schema.properties.filters.properties.statusCode;
-    expect(statusCode.properties.eq.type).toContain("string");
-    expect(statusCode.properties.neq.type).toContain("string");
+    const eq = schema.properties.filters.properties.isClosed.properties.eq;
+
+    // A tri-state, not a two-position toggle: `null` is the "All" MEMBER the
+    // neutral position writes, so clearing the narrowing has to validate.
+    expect(eq.type).toContain("boolean");
+    expect(eq.type).toContain("null");
+    expect(eq.enum).toEqual([false, true, null]);
   });
 
   it("never declares the dotted status.code spelling (R9 — an undotted key is required)", () => {
@@ -66,6 +80,27 @@ describe("tickets query schema — statusCode operators (AC-1/AC-2)", () => {
         "status.code"
       )
     ).toBe(false);
+  });
+
+  it("withholds isClosed from the schema the query core translates, so no stray filter key is minted", () => {
+    const wire = useWireQuerySchema() as {
+      properties: { filters: { properties: Record<string, unknown> } };
+    };
+    const full = useQuerySchema() as {
+      properties: { filters: { properties: Record<string, unknown> } };
+    };
+
+    // The translator emits one wire key per branch it can SEE, spelt with the
+    // branch's own property name. `isClosed` is not a column this API has, and
+    // staging answers 500 to the stray beside the real key.
+    expect(wire.properties.filters.properties).not.toHaveProperty("isClosed");
+
+    // Only that one branch is withheld — every other filter still translates.
+    expect(Object.keys(wire.properties.filters.properties)).toEqual(
+      Object.keys(full.properties.filters.properties).filter(
+        key => key !== "isClosed"
+      )
+    );
   });
 });
 

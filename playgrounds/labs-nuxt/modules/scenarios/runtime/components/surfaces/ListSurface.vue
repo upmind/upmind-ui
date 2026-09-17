@@ -18,17 +18,6 @@
          belongs to the page, above this surface (G4). -->
     <div v-if="meta.hasControls" :class="listSurface.controls()">
       <div v-if="criteria" :class="listSurface.filterBlock()">
-        <!-- The collection's HEADLINE narrowing, where the scenario declares
-             one: a tab pair over the criteria, written through the same
-             `setCriteria` the bar below it writes through (`G3`). A schema
-             control cannot drive two leaves of one operator branch, which is
-             why this is a declaration and not another uischema element. -->
-        <CriteriaTabs
-          v-if="presentation?.tabs"
-          :tabs="presentation.tabs"
-          :criteria="criteria"
-          :disabled="locked"
-        />
         <FilterBar :criteria="criteria" :disabled="locked" />
       </div>
       <!-- Ordering, the column set and the view choice sit with the data they
@@ -445,7 +434,6 @@ import {
 } from "../../scenario.utils";
 import ActionSlots from "../ActionSlots.vue";
 import { CellDispatcher, CellSizingTypes, resolveCellSizing } from "../cells";
-import CriteriaTabs from "../CriteriaTabs.vue";
 import DetailDialog from "../DetailDialog.vue";
 import DisplayRow from "../DisplayRow.vue";
 import FilterBar from "../FilterBar.vue";

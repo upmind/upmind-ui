@@ -342,50 +342,6 @@ export type CardUischema = Layout & {
   elements: TableCell[];
 };
 
-/**
- * ONE criteria tab — a declared narrowing of the collection's OWN `filters`
- * branch, written through the composable's merging `setCriteria` exactly as the
- * filter bar's controls are. It is a FILTER, drawn as a tab: a module whose
- * headline split is a lifecycle (open vs closed, paid vs due) has one leaf its
- * hand chooses between rather than types into, and a schema-driven control
- * cannot drive TWO leaves of one branch (`eq` on one tab, `neq` on the other)
- * from a single scope.
- *
- * `filters` is merged ONTO the live branch, never over it: `setCriteria` merges
- * at BRANCH level, so writing the leaf alone would drop every other filter the
- * hand had set. Which tab reads as selected is DERIVED from the live criteria
- * model — the model stays the one source of truth and no tab can claim a
- * narrowing the wire does not carry.
- *
- * @graphify-citation `graphify query "criteria tab pair status filter listing
- * tabs"` (2026-09-17, `graphify-out/graph.json`, 785 nodes reached) — no
- * criteria-tab / tab-pair / filter-tab node exists anywhere in the tree (the
- * `TABS` matches are a portal test and `TabBusiness.vue`, neither a criteria
- * contract), so this is new ground. Nothing else is minted: the write is the
- * module's own `setCriteria` through `ModulePortCriteria.set`, and the control
- * is `@upmind/ui`'s own `ToggleGroup`, the same primitive `DisplayRow` already
- * draws its view toggle with. See `graphify-out/GRAPH_REPORT.md`.
- */
-export type CriteriaTab = {
-  /** The tab's identity — the value the control keys it by, never rendered. */
-  value: string;
-  /** The tab's label — an i18n key, never English. */
-  i18n: string;
-  /**
-   * The `filters` leaves this tab writes when it is chosen, merged onto the
-   * live branch. A leaf given here REPLACES the live leaf of the same name, so
-   * a tab pair over one operator object (`{ eq }` vs `{ neq }`) leaves only the
-   * tab in effect on the wire.
-   */
-  filters: Record<string, unknown>;
-};
-
-/** The whole tab pair, in the order they are drawn. */
-export type CriteriaTabsUischema = {
-  type: "CriteriaTabsLayout";
-  elements: CriteriaTab[];
-};
-
 /** Which upmind-ui overlay primitive hosts the read detail. */
 export enum DetailSurfaceTypes {
   /** A side drawer — the default. */
@@ -590,12 +546,6 @@ export type ScenarioPresentation = {
   icon?: string;
   /** The table — the declared columns, in order. Absent on a module with no collection. */
   table?: TableUischema;
-  /**
-   * The collection's headline narrowing, drawn as a tab pair over the criteria
-   * (see {@link CriteriaTabsUischema}). Absent, the filter bar's own controls
-   * are the whole of the filtering, which is every other scenario today.
-   */
-  tabs?: CriteriaTabsUischema;
   /** The same row drawn as a card. */
   card?: CardUischema;
   /**

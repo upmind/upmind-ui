@@ -144,27 +144,34 @@ export type TicketSortEntry = {
  * free-text term (AC6). `reference` / `subject` / `contract_product_id` are
  * BARE leaf branches — the translator's own rule is that a branch with no
  * nested operator schema emits the bare EQUAL wire key (`filter[reference]=`,
- * D19 — never CONTAINS, never a `|eq` suffix). `statusCode` and `created_at`
- * declare their operators explicitly because AC1/AC2 need both `eq` (closed
- * tab) and `neq` (active tab) live on the same property, and only the one
- * actually set reaches the wire (empty values are dropped before the
- * request). `statusCode` is deliberately UNDOTTED (R9): `useModelParser`
- * (`utils/useValidation.ts`) walks the schema's own declared property names
- * and writes each one through a plain lodash `set(result, key, value)` — a
- * literal `"status.code"` key is read by `set` as the PATH `status.code`, not
- * the key `"status.code"`, corrupting every commit regardless of the value
- * supplied (proven by instrumented run, `research.md`/`review-notes.md`
- * cycle 6). `tickets.services.ts`'s `loadList` re-spells the committed value
- * onto the real wire column `status.code` at its own edge (inside `guard`,
- * before the request fires) — the schema and the wire deliberately diverge
- * here, and only here.
+ * D19 — never CONTAINS, never a `|eq` suffix). `created_at` declares its
+ * operators explicitly, and only the one actually set reaches the wire (empty
+ * values are dropped before the request).
+ *
+ * `isClosed` is AC1/AC2's headline narrowing as ONE tri-state boolean leaf —
+ * `false` is my active tickets, `true` my closed ones, and an ABSENT leaf is
+ * "All", the neither-narrowing the collection boots on. It is a boolean and
+ * not a status code because the wire needs two DIFFERENT operators for the two
+ * positions (`status.code|neq` for active, a bare `status.code` for closed),
+ * which no single string leaf can carry; `tickets.services.ts`'s
+ * `applyStatusCodeFilter` re-spells the boolean onto whichever operator the
+ * position calls for, at the module's own edge.
+ *
+ * The leaf is deliberately SPELT NOTHING LIKE THE WIRE COLUMN (R9), and the
+ * query core never sees it at all: `useModelParser` (`utils/useValidation.ts`)
+ * walks the schema's own declared property names and writes each one through a
+ * plain lodash `set(result, key, value)`, so a literal `"status.code"` key is
+ * read by `set` as the PATH `status.code` and corrupts every commit (proven by
+ * instrumented run, `research.md`/`review-notes.md` cycle 6). See
+ * `tickets.schemas.ts`'s `useWireQuerySchema` for why the branch is withheld
+ * from the translator rather than merely re-spelt beside it.
  */
 export type TicketsQueryModel = {
   query?: string;
   filters?: {
     reference?: string;
     subject?: string;
-    statusCode?: { eq?: string; neq?: string };
+    isClosed?: { eq?: boolean | null };
     created_at?: { gte?: string; lte?: string };
     contract_product_id?: string;
   };

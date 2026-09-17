@@ -24,7 +24,7 @@ flowchart TD
   call["useClientTickets().as(ScopeActorTypes.SELF)"] --> resolve["scope builder resolves the concrete actor"]
   resolve --> services["createTicketsServices(actor, undefined) — one instance for this scope"]
   services --> mint["service.loadList() — mint the list query ONCE"]
-  mint --> watch["arm the sync-flush statusCode → status.code watcher on the request URL"]
+  mint --> watch["arm the sync-flush isClosed → status.code watcher on the request URL"]
   watch --> actions["mint the actions factory ONCE, closed over the one query instance"]
   actions --> ready["return the four sub-composable factories, all closed over the same query"]
 ```
@@ -82,19 +82,21 @@ The collection's status filter is the one place where **the schema and the wire 
 
 ```mermaid
 flowchart TD
-  write["setCriteria({ filters: { statusCode: { neq } } })"] --> validate["guardCriteriaWrite — validate the RAW merged candidate against the schema"]
+  write["setCriteria({ filters: { isClosed: { eq: false } } })"] --> validate["guardCriteriaWrite — validate the RAW merged candidate against the schema"]
   validate -- rejected --> err["criteriaGuardError ref → useContext().error + useMeta().hasError; NOTHING committed"]
   validate -- ok --> commit["ticketsList.setCriteria(candidate) — the query core's own commit"]
-  commit --> parse["useModelParser walks schema.properties → emits filter[statusCode|neq] on the URL"]
-  parse --> respell["applyStatusCodeFilter (sync-flush watch) re-spells it to filter[status.code|neq] on the SAME URL instance"]
-  respell --> wire["the request goes out with the dotted wire key"]
+  commit --> parse["useModelParser walks the WIRE schema — which does not declare isClosed, so it emits no key for it"]
+  parse --> respell["applyStatusCodeFilter (sync-flush watch) writes filter[status.code|neq] on the SAME URL instance"]
+  respell --> wire["the request goes out with the dotted wire key, and nothing beside it"]
 ```
 
 Two separate defences are in play here and they solve different problems:
 
 **1. `guardCriteriaWrite` — why the candidate is validated twice.** The query core's `commit()` validates the candidate only *after* `useModelParser` reshapes it, and the parser **builds** its output by walking `schema.properties`. A key the schema never declared is therefore never visited, is silently absent from what AJV sees, and the write commits as if valid — `criteria.error` never fires and the caller has no way to know its write was ignored. Validating the **raw merged candidate** against the schema at the module's own edge catches exactly that additional-property class, without touching the core's parse/commit pipeline.
 
-**2. `applyStatusCodeFilter` — why the key is re-spelled.** The schema declares `statusCode` **undotted** because `useModelParser` writes each declared property through a plain lodash `set(result, key, value)`, and lodash reads a literal `"status.code"` key as the **path** `status` → `code`. A dotted schema key therefore corrupts every commit regardless of the value supplied. The undotted key parses cleanly, and the service edge re-spells the committed value onto the real wire column directly on the request's own mutable `URL`.
+**2. `applyStatusCodeFilter` + `useWireQuerySchema` — why the module spells this filter itself.** Two constraints meet on one leaf. First, the column is dotted, and `useModelParser` writes each declared property through a plain lodash `set(result, key, value)`, which reads a literal `"status.code"` key as the **path** `status` → `code` and corrupts every commit. Second, the two positions need two DIFFERENT operators on that one column, which no single schema leaf can declare. So the criteria carries one tri-state boolean (`isClosed.eq`), and the service edge writes the operator the position calls for directly onto the request's own mutable `URL`.
+
+`useWireQuerySchema()` then hands `list()` the query schema **minus that branch**. `translateQuery` emits one wire key per branch it can see, spelt with the branch's own property name, so a visible branch would add `filter[isClosed|eq]=0` beside the real key — a column this API does not have, and measured against staging 2026-09-17 as a `500` when it rides beside the dotted one. Withholding the branch from the translator (and only from it) is the one place a module can stop the key being minted; every consumer still reads the FULL schema, which is what `useClientTickets`'s context publishes.
 
 The re-spell runs via a `flush: "sync"` watcher inside `loadList`, **not** via `list()`'s own `guard` hook. That is not a style choice: the query core's `hasGuard = isPromise(guard)` tests the *guard function itself* for thenability, which a plain function never satisfies, so `guard` never actually runs. That is a pre-existing defect in the shared query platform, and this module deliberately routes around it at its own edge instead of editing shared platform code.
 
