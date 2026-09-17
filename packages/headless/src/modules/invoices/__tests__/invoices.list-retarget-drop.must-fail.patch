@@ -1,36 +1,26 @@
-# must-fail: invoices.scope-identity.int.test.ts > "invoices — retarget my
-# reading at an entitled client (AC-12) > the collection's own list request
-# carries the TARGET client's id on the wire without a manual setCriteria()
-# call"
+# must-fail: invoices.scope-identity.int.test.ts > the collection's own list
+# request carries the TARGET client's id on the wire without a manual
+# setCriteria() call (AC-12).
 #
-# Authored by the developer seat (FE-3031 Review-blocker repair, B2) — the
-# prover applies this blind and confirms its own new assertion goes RED,
-# then reverts (`agent-seat-separation.companion.md`, developer-authors-
-# mutant / prover-verifies-blind).
+# Spec flipped: invoices.scope-identity.int.test.ts (AC12).
+# Mutation: drops the `seedFilterSlots(handle, slots)` mint-time seed from
+# `loadList` — the list fetches the READER's own rows (no client_id filter on
+# the wire) while `select` still attributes every row against the `.for()`
+# TARGET (`mapInvoices(raw, clientId.value)`), so a sub-account row's
+# isSettleable stays wrong even though the fetch "worked".
 #
-# Re-rolled 2026-09-08 (developer, FE-3031 H1 durability repair): `loadList`
-# grew a `withDurableClientId(handle, clientId)` wrap around its `return`
-# directly below the anchor this patch mutates — same mutation, new line
-# anchors.
-#
-# Mutation: drops the `trackClientIdFilter(handle, clientId)` call this
-# repair added to `loadList` — reverting to B2's original defect: the list
-# fetches the READER's own rows (no `client_id` filter on the wire) while
-# `select` still attributes every row against the `.for()` TARGET
-# (`mapInvoices(raw, clientId.value)` two lines above, unchanged), so a
-# genuine sub-account row's `isSettleable` stayed wrong even though the
-# fetch "worked".
+# Authored by the developer seat (FE-3031, developer-authors-mutant); prover
+# applies blind and reverts. Re-rolled for the generalised filter-slot seam
+# (was `trackClientIdFilter`). Apply from repo root: `git apply <this file>`.
+diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
+index 0bd271442..5b8056c23 100644
 --- a/packages/headless/src/modules/invoices/invoices.services.ts
 +++ b/packages/headless/src/modules/invoices/invoices.services.ts
-@@ -240,11 +240,9 @@
-     select: raw => mapInvoices(raw, clientId.value),
-     staleTime: useTime().DAY,
-     placeholderData: keepPreviousData
+@@ -312,7 +312,6 @@ function loadList(
    });
-
--  trackClientIdFilter(handle, clientId);
--
-   return withDurableClientId(handle, clientId);
+ 
+   const slots = resolveFilterSlots(clientId, scopeContext);
+-  seedFilterSlots(handle, slots);
+ 
+   return withDurableFilterSlots(handle, slots);
  }
-
- /**

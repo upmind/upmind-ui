@@ -1,0 +1,33 @@
+# must-fail: the `.for('contract', id)` list/credit-notes wire read carries
+# `filter[contracts.id]=<contract-id>` (F3 contract, OR-1).
+#
+# Spec flipped: the FE-3031 F3 contract-relationship int test (AC mapping
+# "F3 contract" / "OR-1 (a)"). One must-fail per new relationship slot (contract).
+# Mutation: drops the declared `contracts.id` filter column from the query
+# schema — the seeded slot is stripped by allowExtraProps and never reaches the
+# wire, so the whole-contract narrowing is lost.
+#
+# Authored by the developer seat (FE-3031, developer-authors-mutant); prover
+# applies blind and reverts. Apply from repo root: `git apply <this file>`.
+diff --git a/packages/headless/src/modules/invoices/invoices.schemas.ts b/packages/headless/src/modules/invoices/invoices.schemas.ts
+index 8a1123c94..e6c140da9 100644
+--- a/packages/headless/src/modules/invoices/invoices.schemas.ts
++++ b/packages/headless/src/modules/invoices/invoices.schemas.ts
+@@ -223,17 +223,6 @@ export function useQuerySchema(): InvoiceQuerySchema {
+             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+             // would spell `filter[...|eq]`, which the platform rejects 422.
+           },
+-          "contracts.id": {
+-            type: ["string", "null"],
+-            title: "invoices.filter.contract_id",
+-            // Seeded from the `.for('contract', id)` scope slot, never a bar
+-            // control — `readOnly` marks it not consumer-settable.
+-            readOnly: true
+-            // No `properties`: a branch with no operator sub-schema reaches the
+-            // wire as a BARE `filter[contracts.id]`, which the API defaults to
+-            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+-            // would spell `filter[...|eq]`, which the platform rejects 422.
+-          },
+           "products.contracts_product_id": {
+             type: ["string", "null"],
+             title: "invoices.filter.contracts_product_id",

@@ -1,32 +1,25 @@
-# must-fail: invoices.scope-identity.int.test.ts > "invoices — hasUnpaid
-# answers for the .for() TARGET, not the reader (AC-12/AC-10 wire retarget)
-# > hasUnpaid answers for the .for() TARGET, not the reader" — asserts
-# `.for('client', X).useMeta().hasUnpaid` resolves `true` for a target
-# client with outstanding invoices (oracle counterpart: `oracle:561-563`,
-# `...(payload.clientId ? { ["filter[client_id]"]: payload.clientId } :
-# {})`).
+# must-fail: the unpaid-existence count read carries the retargeted client's
+# id on the wire (AC-12 applied to the existence probe).
 #
-# Authored by the developer seat (FE-3031 Review-blocker repair, B1) — the
-# prover applies this blind and confirms its own new assertion goes RED,
-# then reverts (`agent-seat-separation.companion.md`, developer-authors-
-# mutant / prover-verifies-blind).
+# Spec flipped: the unpaid-existence retarget int test (AC12 on the count read).
+# Mutation: drops the `seedFilterSlots(...)` seed from `loadUnpaidExistence`
+# (the FIRST of the two count reads) — the existence probe counts the READER's
+# own unpaid rows instead of the `.for()` TARGET's, so hasUnpaid answers for the
+# wrong client.
 #
-# Mutation: drops the `trackClientIdFilter(handle, clientId)` call this
-# repair added to `loadUnpaidExistence` — reverting to B1's original
-# defect: the unpaid-existence count reads NO `client_id` filter at all, so
-# it answers for the READER regardless of `.for()`, and a sub-account
-# target with outstanding invoices reports `hasUnpaid: false`.
+# Authored by the developer seat (FE-3031, developer-authors-mutant); prover
+# applies blind and reverts. Re-rolled for the generalised seam (was
+# `trackClientIdFilter`). Apply from repo root: `git apply <this file>`.
+diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
+index 0bd271442..a771ed32c 100644
 --- a/packages/headless/src/modules/invoices/invoices.services.ts
 +++ b/packages/headless/src/modules/invoices/invoices.services.ts
-@@ -322,11 +322,9 @@
-     enabled: () => requested.value && isAddressable(clientId.value),
-     select: raw => mapInvoices(raw, clientId.value),
+@@ -468,8 +468,6 @@ function loadUnpaidExistence(
      staleTime: useTime().DAY
    });
-
--  trackClientIdFilter(handle, clientId);
+ 
+-  seedFilterSlots(handle, resolveFilterSlots(clientId, scopeContext));
 -
    return handle;
  }
-
- /**
+ 

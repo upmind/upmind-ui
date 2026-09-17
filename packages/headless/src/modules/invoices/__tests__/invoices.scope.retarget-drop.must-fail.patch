@@ -1,26 +1,33 @@
-# must-fail: invoices.scope-identity.int.test.ts > "invoices — retarget my
-# reading at an entitled client (AC-12, the A7 clause) > AC-12
-# setCriteria({ filters: { client_id } }) carries the TARGET client's id on
-# the wire, as the READING client's own session"
-# Mutation: drops the declared `client_id` filter column from the query
-# schema — the client x client retarget filter is silently stripped by the
-# criteria channel's allowExtraProps guard and never reaches the wire.
-# Re-rolled <2026-09-09>: the FE-3031 verifier ABSENT-verdict re-do added
-# `uniqueItems: true` to the neighbouring `status.code`/`category.slug` leaves
-# (the multi-select-render fix), shifting this hunk's line numbers — same
-# mutation, updated context only.
+# must-fail: invoices.scope-identity.int.test.ts > AC-12 client retarget
+# (`.for('client', X)` / setCriteria({ filters: { client_id } })) carries the
+# TARGET client's id on the wire.
+#
+# Spec flipped: invoices.scope-identity.int.test.ts (AC12).
+# Mutation: drops the declared `client_id` filter column from the query schema
+# (`invoices.schemas.ts`). The criteria channel's allowExtraProps guard then
+# silently strips the seeded `client_id`, so it never reaches the wire and the
+# list re-widens to the READER's own rows.
+#
+# Authored by the developer seat (FE-3031, developer-authors-mutant); the
+# prover applies this blind and reverts. Re-rolled for the bare-column schema
+# form (post scope-context refactor).
+# Apply from repo root: `git apply <this file>`; revert `git apply -R`.
+diff --git a/packages/headless/src/modules/invoices/invoices.schemas.ts b/packages/headless/src/modules/invoices/invoices.schemas.ts
+index 8a1123c94..03c36978a 100644
 --- a/packages/headless/src/modules/invoices/invoices.schemas.ts
 +++ b/packages/headless/src/modules/invoices/invoices.schemas.ts
-@@ -97,12 +97,6 @@
-                 uniqueItems: true
-               }
-             }
--          },
--          client_id: {
--            type: "object",
--            title: "invoices.filter.client_id",
--            additionalProperties: false,
--            properties: { eq: { type: ["string", "null"], minLength: 1 } }
+@@ -110,14 +110,6 @@ export function useQuerySchema(): InvoiceQuerySchema {
+             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+             // would spell `filter[...|eq]`, which the platform rejects 422.
            },
+-          client_id: {
+-            type: ["string", "null"],
+-            title: "invoices.filter.client_id"
+-            // No `properties`: a branch with no operator sub-schema reaches the
+-            // wire as a BARE `filter[client_id]`, which the API defaults to
+-            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
+-            // would spell `filter[...|eq]`, which the platform rejects 422.
+-          },
            is_consolidation: {
-             type: "object",
+             type: ["boolean", "null"],
+             title: "invoices.filter.is_consolidation",
