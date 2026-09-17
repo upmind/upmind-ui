@@ -1,3 +1,11 @@
+<template>
+  <PortalPageHost
+    :page-keys="[PAGE_KEY.AUTH_FORGOTTEN_PASSWORD]"
+    :route-context="routeContext"
+    aside-label="Forgotten password"
+  />
+</template>
+
 <script setup lang="ts">
 // The address the login screen carried across in its own link, handed to the
 // page host as this route's context so the recovery form opens on it
@@ -18,11 +26,3 @@ const routeContext = computed<DataRouteContext>(() => {
   return { username };
 });
 </script>
-
-<template>
-  <PortalPageHost
-    :page-keys="[PAGE_KEY.AUTH_FORGOTTEN_PASSWORD]"
-    :route-context="routeContext"
-    aside-label="Forgotten password"
-  />
-</template>

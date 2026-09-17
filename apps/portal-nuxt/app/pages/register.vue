@@ -1,3 +1,10 @@
+<template>
+  <PortalPageHost
+    :page-keys="[PAGE_KEY.AUTH_REGISTER]"
+    aside-label="Create an account"
+  />
+</template>
+
 <script setup lang="ts">
 // Legacy served no registration screen at all for a brand that hides its
 // registration forms (`brand/hasRegistrationEnabled`), so a client arriving by
@@ -20,10 +27,3 @@ if (!isRegistrationEnabled.value) {
   void navigateTo("/login", { replace: true });
 }
 </script>
-
-<template>
-  <PortalPageHost
-    :page-keys="[PAGE_KEY.AUTH_REGISTER]"
-    aside-label="Create an account"
-  />
-</template>
