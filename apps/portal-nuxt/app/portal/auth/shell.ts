@@ -8,21 +8,21 @@
  */
 
 import { AUTH_SHELL } from "@upmind-automation/auth";
-import PortalAuthCanvasCardTemplate from "./templates/PortalAuthCanvasCard.template.vue";
-import PortalAuthEnclosedTemplate from "./templates/PortalAuthEnclosed.template.vue";
-import PortalAuthInsetTemplate from "./templates/PortalAuthInset.template.vue";
-import PortalAuthLTRTemplate from "./templates/PortalAuthLTR.template.vue";
-import PortalAuthRTLTemplate from "./templates/PortalAuthRTL.template.vue";
-import PortalAuthSplitTemplate from "./templates/PortalAuthSplit.template.vue";
-import PortalAuthSurfaceBoxTemplate from "./templates/PortalAuthSurfaceBox.template.vue";
+import AuthCanvasCardTemplate from "./templates/AuthCanvasCard.template.vue";
+import AuthEnclosedTemplate from "./templates/AuthEnclosed.template.vue";
+import AuthInsetTemplate from "./templates/AuthInset.template.vue";
+import AuthLTRTemplate from "./templates/AuthLTR.template.vue";
+import AuthRTLTemplate from "./templates/AuthRTL.template.vue";
+import AuthSplitTemplate from "./templates/AuthSplit.template.vue";
+import AuthSurfaceBoxTemplate from "./templates/AuthSurfaceBox.template.vue";
 import type { ShellComponents } from "@upmind-automation/foundation";
 
 export const PORTAL_AUTH_SHELL_COMPONENTS: ShellComponents = {
-  [AUTH_SHELL.TEMPLATE_SPLIT]: PortalAuthSplitTemplate,
-  [AUTH_SHELL.TEMPLATE_ENCLOSED]: PortalAuthEnclosedTemplate,
-  [AUTH_SHELL.TEMPLATE_CANVAS_CARD]: PortalAuthCanvasCardTemplate,
-  [AUTH_SHELL.TEMPLATE_SURFACE_BOX]: PortalAuthSurfaceBoxTemplate,
-  [AUTH_SHELL.TEMPLATE_TWO_COLUMN_LTR]: PortalAuthLTRTemplate,
-  [AUTH_SHELL.TEMPLATE_TWO_COLUMN_RTL]: PortalAuthRTLTemplate,
-  [AUTH_SHELL.TEMPLATE_INSET]: PortalAuthInsetTemplate
+  [AUTH_SHELL.TEMPLATE_SPLIT]: AuthSplitTemplate,
+  [AUTH_SHELL.TEMPLATE_ENCLOSED]: AuthEnclosedTemplate,
+  [AUTH_SHELL.TEMPLATE_CANVAS_CARD]: AuthCanvasCardTemplate,
+  [AUTH_SHELL.TEMPLATE_SURFACE_BOX]: AuthSurfaceBoxTemplate,
+  [AUTH_SHELL.TEMPLATE_TWO_COLUMN_LTR]: AuthLTRTemplate,
+  [AUTH_SHELL.TEMPLATE_TWO_COLUMN_RTL]: AuthRTLTemplate,
+  [AUTH_SHELL.TEMPLATE_INSET]: AuthInsetTemplate
 };
