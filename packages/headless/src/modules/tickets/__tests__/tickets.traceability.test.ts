@@ -1,25 +1,72 @@
 // -----------------------------------------------------------------------------
 /**
  * @module tickets/__tests__/tickets.traceability
- * @description The module's AC-link gate: every non-dropped, non-absorbed
- * `@AC-*` tag in `tickets.feature` is named by a sibling spec's `describe`/
- * `it` title, and no sibling spec names an AC id the feature does not carry.
+ * @description The module's ONE traceability gate, carrying BOTH jobs: the
+ * AC link (every non-dropped, non-absorbed `@AC-*` tag in `tickets.feature`
+ * is named by a sibling spec's `describe`/`it` title), and the
+ * spec-to-catalog drift gate over `tickets.steps.ts`.
+ *
+ * GENERIC BY CONSTRUCTION — the second gate reads the WHOLE feature and the
+ * WHOLE catalog, so there is no hardcoded scenario count, no per-scenario list
+ * and no exception list. A scenario or a definition appended later is inside
+ * this verdict the moment it lands, and the driveable count is in the test
+ * NAME rather than asserted, so a spec outgrowing its catalog is a number the
+ * operator reads instead of a silence.
+ *
+ * The verdicts: an orphan step definition FAILS (dead code, or a scenario
+ * renamed underneath it); a scenario whose steps match only in PART FAILS (the
+ * dangerous case — it reads as driveable and silently is not); a malformed
+ * step pattern FAILS; a pattern another module's catalog already claims FAILS;
+ * an action id the catalog declares covered that no step fires FAILS. A
+ * scenario nothing matches PASSES — under ADR-020 Amendment 5 that is a
+ * capability written down and deliberately not driven by this key, which is a
+ * legitimate state.
  *
  * ## What Breaks If These Fail
  * A capability silently loses its proof — the feature still promises it, but
  * no test protects it — or a test claims to cover an AC that was renumbered
- * or retired underneath it.
+ * or retired underneath it. Or the playground plays a track that no longer
+ * drives what it claims to.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { difference, filter, flatMap, map, uniq } from "lodash-es";
+import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
+import { stepCatalogs } from "../../../testing";
+import ticketsSteps, { coveredActionIds } from "./tickets.steps";
+import {
+  difference,
+  filter,
+  flatMap,
+  includes,
+  map,
+  reject,
+  uniq
+} from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const TEST_DIR = import.meta.dirname;
 const featureText = readFileSync(join(TEST_DIR, "tickets.feature"), "utf-8");
+
+const catalogSource = readFileSync(join(TEST_DIR, "tickets.steps.ts"), "utf-8");
+
+/**
+ * The catalog's source with every run of whitespace collapsed away, so the
+ * "declared covered but fired by no step" check reads a `fire(...)` call the
+ * formatter has wrapped across lines exactly as it reads one that fits on one.
+ */
+const unwrappedCatalog = catalogSource.replace(/\s+/g, "");
+
+const {
+  scenarios,
+  driveable,
+  partial,
+  orphanStepDefs,
+  duplicatedPatterns,
+  malformedStepDefs
+} = createTraceabilityCheck(featureText, ticketsSteps, stepCatalogs);
 
 /** Every `@AC-<n>` tag on a scenario NOT tagged `@dropped` or `@absorbed`. */
 function activeFeatureAcTags(text: string): string[] {
@@ -76,6 +123,28 @@ describe("tickets — the module's AC-link traceability gate", () => {
     expect(
       difference(tagged, named),
       "Unproven scenarios (no sibling spec names this AC)"
+    ).toEqual([]);
+  });
+
+  it(`drives ${driveable.length} of ${scenarios.length} scenarios`, () => {
+    expect(map(partial, "name"), "Half-matched scenarios").toEqual([]);
+    expect(
+      map(orphanStepDefs, "pattern"),
+      "Step definitions nothing calls"
+    ).toEqual([]);
+    expect(
+      map(malformedStepDefs, "pattern"),
+      "Patterns that do not compile"
+    ).toEqual([]);
+    expect(
+      duplicatedPatterns,
+      "Patterns another catalog already claims"
+    ).toEqual([]);
+    expect(
+      reject(coveredActionIds, id =>
+        includes(unwrappedCatalog, `fire(TICKETS_COVERED_ACTIONS.${id}`)
+      ),
+      "Declared covered but fired by no step"
     ).toEqual([]);
   });
 });
