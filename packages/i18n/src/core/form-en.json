@@ -442,5 +442,53 @@
     "description": null,
     "label": "Preferred payment currency",
     "placeholder": null
+  },
+  "subject": {
+    "description": null,
+    "error": "A subject is required",
+    "label": "Subject",
+    "placeholder": "What is this about?"
+  },
+  "message": {
+    "description": null,
+    "error": "A message is required",
+    "label": "Message",
+    "placeholder": "Write your message..."
+  },
+  "department": {
+    "description": null,
+    "label": "Department",
+    "placeholder": "Select a department..."
+  },
+  "related_product": {
+    "description": null,
+    "label": "Related product",
+    "placeholder": "Select a product..."
+  },
+  "send_later": {
+    "description": null,
+    "label": "Send later",
+    "placeholder": null
+  },
+  "ticket_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search tickets..."
+  },
+  "reference_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search by reference..."
+  },
+  "created_at_range": {
+    "description": null,
+    "label": "Date",
+    "placeholder": "Any date"
+  },
+  "ticket_sort": {
+    "reference": "Reference",
+    "subject": "Subject",
+    "created_at": "Date added",
+    "updated_at": "Date updated"
   }
 }

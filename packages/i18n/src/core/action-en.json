@@ -106,5 +106,6 @@
   "update_group": "Update {group}",
   "verify": "Verify",
   "view": "View",
-  "view_email": "View Email"
+  "view_email": "View Email",
+  "view_ticket": "View ticket"
 }

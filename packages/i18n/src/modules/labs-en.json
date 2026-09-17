@@ -206,6 +206,7 @@
   "client_ticket_reply_placeholder": "Write a reply…",
   "client_ticket_attach": "Attach file(s)",
   "client_ticket_send": "Send reply",
+  "client_ticket_reply_stale": "A newer reply arrived first, so your message was NOT sent. Read the new reply above, then send yours again.",
   "client_ticket_meta_closed": "Closed",
   "client_ticket_meta_locked": "Locked",
   "client_ticket_meta_delegated": "Delegated",
