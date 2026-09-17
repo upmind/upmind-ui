@@ -6,4 +6,11 @@
 @import "@upmind-automation/client-vue/styles";
 
 @source './**/*.{html,vue,js,tsx,ts}';
+
+/* Every UI package this host mounts lives outside the app tree, so Tailwind
+   generates a class only where the file is named here. One line per package
+   that ships components; a missing line makes its classes silently absent —
+   a grid collapses to one column, a breakpoint never fires. */
+@source '../../../packages/auth/src/**/*.{html,vue,js,tsx,ts}';
 @source '../../../packages/client-vue/src/**/*.{html,vue,js,tsx,ts}';
+@source '../../../packages/foundation/src/**/*.{html,vue,js,tsx,ts}';
