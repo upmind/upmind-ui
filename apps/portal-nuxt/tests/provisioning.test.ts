@@ -3,8 +3,8 @@
  * @module tests/provisioning
  * @description Gap doc §2 Overview (X5): what the provider handed back. The
  * details list is copyable and masks what the provider called a secret; the
- * functions are runnable, and the sidebar's quick actions are the featured
- * ones ALONE; and what running one DOES is decided by its wire kind — a
+ * functions are runnable, the featured ones ALONE ride the product's own
+ * billboard; and what running one DOES is decided by its wire kind — a
  * redirect leaves the portal, a form post and a field refresh only report
  * back, and an iframe becomes a panel on the page it was run from.
  *
@@ -15,7 +15,16 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { ProvisionRequestActionTypes } from "@upmind-automation/types";
 import { propsBinding } from "./support/page-config";
-import { every, filter, find, includes, map, reject } from "lodash-es";
+import {
+  drop,
+  every,
+  filter,
+  find,
+  first,
+  includes,
+  map,
+  reject
+} from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { MockDataset, MockProvisionFunction } from "~/portal/mock/types";
 import { productPages } from "~/portal/config/product-pages";
@@ -27,6 +36,7 @@ import {
 } from "~/portal/mock/actions";
 import { DATA_REF_ID } from "~/portal/mock/data-refs";
 import {
+  productBillboardItems,
   productProvisionActions,
   productProvisionFieldItems,
   productProvisionFrames,
@@ -143,6 +153,16 @@ describe("provisioning functions — every one runnable, the featured ones twice
     expect(highlighted.length).toBeLessThan(functions(data).length);
     expect(map(quick, "value")).toEqual(
       map(highlighted, item => runValue(item.code))
+    );
+  });
+
+  it("the billboard itself carries them, so no panel repeats them per area", () => {
+    const quick = productQuickActions(data, CONTEXT);
+    const billboard = first(productBillboardItems(data, CONTEXT));
+
+    expect(billboard?.action?.value).toBe(first(quick)?.value);
+    expect(map(billboard?.moreActions, "value")).toEqual(
+      map(drop(quick, 1), "value")
     );
   });
 });

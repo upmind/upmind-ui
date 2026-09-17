@@ -17,6 +17,8 @@ The legacy source cited in every row below lives in a **sibling checkout, outsid
 
 `CLIENT_BILLING_SETTINGS_SCOPE_MATRIX` pins the staff key to `null as never`. That is not a runtime check — it means `useBillingSettings().as('staff')` and `useBillingSettingsManager().as('staff')` both fail to compile. There is no code path in this module that a staff actor can reach at all.
 
+The context that names a client (`ClientBillingSettingsContextTypes.CLIENT`, wire value `AccessRoleTypes.CLIENT`) is granted **only** to the `client` row of the matrix, matching every sibling client module. The member briefly carried the resource-flavoured name `SETTINGS` — naming the settings record while carrying the CLIENT's own id — and its context was, for a short period, dropped entirely by a since-reversed change that misread that mismatch as `.for()` itself being the defect. That reversal is corrected, and the compile-time gate it had erased is restored. See [gotchas.md](./gotchas.md#10-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
+
 The legacy application does support a staff-administration surface. Its admin billing-settings page (`views/admin/upmind/billing/settings/index.vue:19-24`) mounts an admin client-billing component (`components/app/admin/clients/clientBillingSettings.vue:29-39`) that in turn mounts the same consolidation form component the client's own self-service page uses (`comp:` → `form:`). This module is built against the client's own self-service half of that shared form only.
 
 ## The dropped capabilities

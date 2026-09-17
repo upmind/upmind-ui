@@ -7,9 +7,9 @@
  * ADR-021 §Allowed reads).
  */
 
+import { vi } from "vitest";
 import { computed, ref, type ComputedRef } from "vue";
 import { createMachine, interpret, type AnyState } from "xstate";
-import { vi } from "vitest";
 import type { UseActor } from "../../../utils";
 
 // -----------------------------------------------------------------------------

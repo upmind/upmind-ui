@@ -11,12 +11,16 @@
 
 import { useStorage } from "@vueuse/core";
 import { computed, onUnmounted, ref } from "vue";
-import { resolveMatrixContext } from "../../composables/scope";
+import {
+  resolveMatrixContext,
+  resolveMatrixContexts
+} from "../../composables/scope";
 import { filter, forEach, map, reject, take, toPairs } from "lodash-es";
 import type {
   ActorContextMatrix,
   ScopeActorTypes,
-  ScopeContext
+  ScopeContext,
+  ScopeContextPatterns
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -29,6 +33,8 @@ export type AvailableContext = {
   type: string;
   /** Actor this context is available for */
   actor: ScopeActorTypes;
+  /** The pattern the matrix declared this member under. */
+  pattern: ScopeContextPatterns;
 };
 
 /**
@@ -142,11 +148,12 @@ export function useContextScopeSelector() {
   function apply(matrix: ActorContextMatrix) {
     const contexts: AvailableContext[] = [];
 
-    forEach(matrix, (contextType, actor) => {
-      const type = resolveMatrixContext(contextType);
-      if (!type) return;
-
-      contexts.push({ type, actor: actor as ScopeActorTypes });
+    // One entry per declared MEMBER, not per actor: a cell may declare several,
+    // and one-per-actor would offer the operator a list of one.
+    forEach(matrix, (cell, actor) => {
+      forEach(resolveMatrixContexts(cell), ({ type, pattern }) => {
+        contexts.push({ type, pattern, actor: actor as ScopeActorTypes });
+      });
     });
 
     registeredMatrix.value = matrix;

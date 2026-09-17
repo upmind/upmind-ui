@@ -486,35 +486,89 @@ function delegateAccessType(delegate: MockDelegate): string {
   return MOCK_ACCESS_TYPE.SPECIFIC;
 }
 
+/** The delegates a criteria set admits — legacy's three controls, in one place. */
+function delegatesMatching(
+  data: MockDataset,
+  criteria: MockFilterCriteria
+): MockDelegate[] {
+  return filter(
+    data.delegates,
+    delegate =>
+      matchesExact(delegateAccessType(delegate), criteria.accessType) &&
+      matchesFlag(
+        delegate.status === MOCK_DELEGATE_STATUS.ACCEPTED,
+        criteria.active
+      ) &&
+      matchesFlag(delegate.isFullDelegate === true, criteria.isFullDelegate)
+  );
+}
+
+const delegateFilters = (
+  apply: (patch: MockFilterCriteria) => void
+): ClientDelegatesFilters => ({
+  query: value => apply({ query: value }),
+  active: value => apply({ active: value }),
+  isFullDelegate: value => apply({ isFullDelegate: value })
+});
+
+const delegatePanel = () => ({
+  // Legacy's `invite_email` CONTAINS filter is the band's own search here,
+  // as every other listing spells free text; the name goes with it, since
+  // the row states both.
+  searchProps: ["email", "name"],
+  sortOptions: DELEGATE_SORT_OPTIONS,
+  filterControls: DELEGATE_FILTER_CONTROLS
+});
+
 export const accountDelegatesCollection = filteredCollection<
   MockDelegate,
   ClientDelegatesFilters
 >(
-  (data, context, criteria) =>
-    filter(
-      data.delegates,
-      delegate =>
-        matchesExact(delegateAccessType(delegate), criteria.accessType) &&
-        matchesFlag(
-          delegate.status === MOCK_DELEGATE_STATUS.ACCEPTED,
-          criteria.active
-        ) &&
-        matchesFlag(delegate.isFullDelegate === true, criteria.isFullDelegate)
-    ),
-  apply => ({
-    query: value => apply({ query: value }),
-    active: value => apply({ active: value }),
-    isFullDelegate: value => apply({ isFullDelegate: value })
-  }),
+  (data, context, criteria) => delegatesMatching(data, criteria),
+  delegateFilters,
   undefined,
-  () => ({
-    // Legacy's `invite_email` CONTAINS filter is the band's own search here,
-    // as every other listing spells free text; the name goes with it, since
-    // the row states both.
-    searchProps: ["email", "name"],
-    sortOptions: DELEGATE_SORT_OPTIONS,
-    filterControls: DELEGATE_FILTER_CONTROLS
-  })
+  delegatePanel
+);
+
+/**
+ * The same delegates, listed from a page ABOUT one ticket or one product.
+ * Each panel is its own definition keyed on the route's entity — a shared
+ * instance would move the account page's page and filters whenever a panel
+ * moved its own, and move every product's together (`collections.ts`
+ * `contextKey`).
+ *
+ * They exist because these panels had NO paging at all: the ticket's
+ * delegate-access list rendered every delegate on the account in one column,
+ * 24 rows deep on the Host·Grid seed.
+ */
+export const ticketDelegatesCollection = filteredCollection<
+  MockDelegate,
+  ClientDelegatesFilters
+>(
+  (data, context, criteria) => delegatesMatching(data, criteria),
+  delegateFilters,
+  context => context.entityId ?? "",
+  delegatePanel
+);
+
+export const productDelegateAccessCollection = filteredCollection<
+  MockDelegate,
+  ClientDelegatesFilters
+>(
+  (data, context, criteria) => delegatesMatching(data, criteria),
+  delegateFilters,
+  context => context.productId ?? "",
+  delegatePanel
+);
+
+export const productDelegatesCollection = filteredCollection<
+  MockDelegate,
+  ClientDelegatesFilters
+>(
+  (data, context, criteria) => delegatesMatching(data, criteria),
+  delegateFilters,
+  context => context.productId ?? "",
+  delegatePanel
 );
 
 /**
@@ -1883,6 +1937,9 @@ export const PAGED_COLLECTION_ID = {
   ACCOUNT_NOTES: "account-notes",
   ACCOUNT_SECRETS: "account-secrets",
   ACCOUNT_DELEGATES: "account-delegates",
+  TICKET_DELEGATES: "ticket-delegates",
+  PRODUCT_DELEGATE_ACCESS: "product-delegate-access",
+  PRODUCT_DELEGATES: "product-delegates",
   DELEGATE_PRODUCTS: "delegate-products",
   DELEGATE_TICKETS: "delegate-tickets",
   CHILD_ACCOUNTS: "child-accounts",
@@ -1921,6 +1978,10 @@ const PAGED_COLLECTIONS: Record<
   [PAGED_COLLECTION_ID.ACCOUNT_NOTES]: accountNotesCollection,
   [PAGED_COLLECTION_ID.ACCOUNT_SECRETS]: accountSecretsCollection,
   [PAGED_COLLECTION_ID.ACCOUNT_DELEGATES]: accountDelegatesCollection,
+  [PAGED_COLLECTION_ID.TICKET_DELEGATES]: ticketDelegatesCollection,
+  [PAGED_COLLECTION_ID.PRODUCT_DELEGATE_ACCESS]:
+    productDelegateAccessCollection,
+  [PAGED_COLLECTION_ID.PRODUCT_DELEGATES]: productDelegatesCollection,
   [PAGED_COLLECTION_ID.DELEGATE_PRODUCTS]: delegateProductsCollection,
   [PAGED_COLLECTION_ID.DELEGATE_TICKETS]: delegateTicketsCollection,
   [PAGED_COLLECTION_ID.CHILD_ACCOUNTS]: childAccountsCollection,

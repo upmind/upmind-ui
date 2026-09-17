@@ -61,12 +61,12 @@ useClientCustomFields().as("client");
 useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
   // @ts-expect-error
-  .for("custom_field_values", clientId);
+  .for("client", clientId);
 
 // ✅ Right — both arguments are enum members
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 ```
 
 Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real.
@@ -95,12 +95,12 @@ const selfScoped = useClientCustomFields().as(ScopeActorTypes.SELF);
 useClientCustomFields()
   .as(ScopeActorTypes.SELF)
   // @ts-expect-error — no .for() on the SELF branch's type
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 
 // ✅ Right: name the concrete actor when you need .for()
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 ```
 
 This is unrelated to whether the _runtime_ actor resolution behaves correctly — it resolves fine either way. It is purely that the _type_ the builder exposes for the `self` branch collapses to a plain, unscoped value with no further chaining, regardless of which composable in the tree you're looking at. Every composable with a matrix that maps `self` to `never` has the identical shape.
@@ -124,7 +124,7 @@ import {
 const SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientCustomFieldsContextTypes.VALUES,
+  [ScopeActorTypes.CLIENT]: ClientCustomFieldsContextTypes.CLIENT,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
@@ -198,7 +198,36 @@ The risk is not in this module's own code — it branches correctly — but in t
 
 > **🧪 For Testers:** If you're testing a DATE or PASSWORD-typed field's schema or form-definition output and it doesn't look date-shaped or password-shaped, check whether the fixture's `type_code` string actually matches what the shared helper expects — this module's own coercion will still be correct even when the shared helper's output isn't.
 
-## 6. The definitions read targets the CLIENT's brand, never the session's own
+## 6. The trap was the context's NAME, not `.for()` itself — a resource-named member carrying the client's own id
+
+This module's collection used to name its context `ClientCustomFieldsContextTypes.VALUES` — the context member named the RESOURCE being addressed (the value set) while the id it actually carried was the CLIENT's own id. The type and the id it carried disagreed about which entity was named. A short-lived correction (since reversed) misdiagnosed that as `.for()` itself being wrong and dropped the context entirely in favour of a bare `.withId(id)` — which erased the compile-time gate: `resolveClientId` fell back to `id ?? activeUser.value?.id` with no actor check at all, so `staff`/`guest` could name any client id too.
+
+The actual fix (ADR-001 amendment 2026-09-15) is a rename, not a removal: the member is now `ClientCustomFieldsContextTypes.CLIENT = AccessRoleTypes.CLIENT`, matching every sibling client module. The matrix gate is real again — `.for(CLIENT, id)` is spellable **only** for the `client` actor; `self`, `staff` and `guest` are `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error exactly as it was before the context was ever dropped.
+
+```ts
+import {
+  useClientCustomFields,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes
+} from "@upmind-automation/headless";
+
+const otherClientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// ✅ Right — only `client` may spell a retarget
+const asClient = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldsContextTypes.CLIENT, otherClientId);
+
+// ⚠️ Does not compile — the matrix pins `staff` to `null as never`
+useClientCustomFields()
+  .as(ScopeActorTypes.STAFF)
+  // @ts-expect-error — staff resolves no context in this module's matrix
+  .for(ClientCustomFieldsContextTypes.CLIENT, otherClientId);
+```
+
+> **🧪 For Testers:** `.for(ClientCustomFieldsContextTypes.CLIENT, id)` is a compile-time refusal for `staff` and `guest`, not a runtime one — write a type-level check (an `@ts-expect-error`), not a runtime assertion.
+
+## 7. The definitions read targets the CLIENT's brand, never the session's own
 
 The brand used to scope the definitions request is the **target client's** brand, resolved through the same identity seam every other request in this module uses — never the calling session's own brand from the ambient brand context.
 
@@ -206,13 +235,13 @@ In a multi-brand organisation, the calling session's own brand and a targeted en
 
 > **🧪 For Testers:** Seed a target client whose brand differs from the ambient session brand and assert the outbound definitions request carries the **client's** brand id, not the session's.
 
-## 7. This module's own brand-id read and the profile module's read are two cache entries, not one
+## 8. This module's own brand-id read and the profile module's read are two cache entries, not one
 
 Both this module and the client's own profile module read the identical underlying client record. Each is built to key against it as closely to the other as its own transport allows, but a small asymmetry in how each side forms its own key leaves them as two separate cache entries rather than one shared one — and that gap is left alone deliberately, not fixed by force, because forcing a shared entry risks one side's selected shape silently overwriting the other's.
 
 **Do not quote a specific per-boot request count anywhere downstream of this doc.** See the profile module's own [gotchas.md](../../client-personal-details/docs/gotchas.md#3-two-independently-keyed-reads-of-the-same-profile-resource) for the full account.
 
-## 8. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
+## 9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
 
 `pnpm lint` at the repo root aborts inside the `packages/types` submodule before it ever reaches this module, and its `--fix` flag mutates that submodule as a side effect. `pnpm install` at the repo root is unsafe in a sparse worktree that is missing one or more app-level `package.json` files — it silently drops those apps' entries from the shared lockfile. Neither is a safe verification step for a change scoped to this module; use the module's own targeted test commands instead.
 
@@ -220,7 +249,7 @@ Both this module and the client's own profile module read the identical underlyi
 
 ### Assuming a client id resolved into `.for(...)` is validated against the caller
 
-The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.VALUES, someOtherId)` compiles and addresses that other id's resource, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. Be precise about where that boundary is enforced, because it splits in two. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** on both composables — each matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead: with no context naming a target, every request resolves its client id from the active session itself and is gated by this module's own addressability check. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error. Only the entity id being named is caller-controlled, not the identity making the call.
+The context id `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.CLIENT, someOtherId)` compiles and addresses that other id's resource, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here — `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error (see gotcha 6 above), and a bare `.as(ScopeActorTypes.STAFF)` falls back to the active session's own id at runtime instead.
 
 ### Serialising a value set before the aggregate image flush has run
 
@@ -245,7 +274,7 @@ const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
 
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientCustomFieldContextTypes.FIELD, fieldId);
@@ -269,10 +298,7 @@ import {
 
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(
-    ClientCustomFieldsContextTypes.VALUES,
-    "825d96e7-63ed-0913-46c4-174825283406"
-  );
+  .for(ClientCustomFieldsContextTypes.CLIENT, "825d96e7-63ed-0913-46c4-174825283406");
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(

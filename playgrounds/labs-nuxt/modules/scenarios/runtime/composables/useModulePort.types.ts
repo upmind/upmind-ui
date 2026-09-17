@@ -47,9 +47,17 @@ export type ModulePortScope = {
    */
   offeredActors?: ScopeActorTypes[];
   /**
-   * The entity being acted FOR, whole — headless's own `ScopeContext`, whose
-   * `type` and `id` are both required, so a type without an id cannot be
-   * expressed at all (`R6-30d`).
+   * The entity being acted FOR, whole — headless's own `ScopeContext`. Its `id`
+   * is present for a RETARGET member and absent for a SELECTOR one, the two
+   * patterns the matrix declares per member (ADR-001 amendment 2026-09-15), so
+   * a type without an id IS expressible and the port calls the one-argument
+   * `.for()` for it.
+   *
+   * @graphify-citation `graphify query "ScopeContext optional id selector
+   * context pattern port"` against `graphify-out/graph.json` resolves
+   * `ScopeContext` to `packages/headless/src/modules/scope/scope.types.ts` and
+   * `ScopeContextPatterns` to the same file — both consumed here unchanged, no
+   * type minted. See `graphify-out/GRAPH_REPORT.md`.
    */
   context?: ScopeContext;
   /**

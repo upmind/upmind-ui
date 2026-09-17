@@ -62,8 +62,6 @@ export const FORM_ID = {
   AFFILIATE_WITHDRAWAL_REQUEST: "affiliate-withdrawal-request",
   /** Legacy's `tenancy/selectAccountModal` — which account this sign-in works on. */
   SWITCH_ACCOUNT: "switch-account",
-  /** The account card's "Change photo" — one field, where the picture lives. */
-  AVATAR_SAVE: "avatar-save",
   /** Legacy's `manageEmailTopicOptInsModal` — what ONE address receives. */
   EMAIL_TOPIC_OPT_INS: "email-topic-opt-ins",
   /**

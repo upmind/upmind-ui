@@ -39,7 +39,10 @@ import {
   some,
   values
 } from "lodash-es";
-import type { SessionEntry } from "@upmind-automation/headless";
+import type {
+  ActorContextMatrix,
+  SessionEntry
+} from "@upmind-automation/headless";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
 import type { Router } from "vue-router";
@@ -57,6 +60,9 @@ export const HOUR_MS = 60 * MINUTE_MS;
 
 /** The client-emails page the acting-for segment reads its declared matrix off (K7). */
 export const CLIENT_EMAILS_ROUTE = "useClientEmails";
+
+/** The custom-fields page, whose own module declares the catalogue contexts. */
+export const CLIENT_CUSTOM_FIELDS_ROUTE = "useClientCustomFields";
 
 export type SessionSeed = {
   id: string;
@@ -331,7 +337,7 @@ export function headlessDouble(real: object): object {
  * already installs — a second `createI18n` would install a second copy of
  * vue-i18n's components over the same app.
  */
-function installLabsCatalogue(): void {
+export function installLabsCatalogue(): void {
   forEach(config.global.plugins, plugin => {
     const catalogue = get(plugin, ["global"]) as
       | { mergeLocaleMessage?: (locale: string, messages: object) => void }
@@ -374,6 +380,12 @@ export async function clientEmailsRouter(path: string): Promise<Router> {
         meta: { scenario: CLIENT_EMAILS_ROUTE }
       },
       {
+        path: `/${CLIENT_CUSTOM_FIELDS_ROUTE}/:scopeSuffix(.*)*`,
+        name: CLIENT_CUSTOM_FIELDS_ROUTE,
+        component: { template: "<div />" },
+        meta: { scenario: CLIENT_CUSTOM_FIELDS_ROUTE }
+      },
+      {
         path: "/useAuth/:scopeSuffix(.*)*",
         name: "useAuth",
         component: { template: "<div />" }
@@ -401,7 +413,10 @@ export type Bench = { wrapper: VueWrapper; router: Router };
  * longer carries one — so the bench does what `ScenarioPlayground` does before
  * the segment can have any rows to draw.
  */
-async function pageRegistering(component: Component): Promise<Component> {
+async function pageRegistering(
+  component: Component,
+  matrix?: ActorContextMatrix
+): Promise<Component> {
   const { CLIENT_EMAILS_SCOPE_MATRIX } =
     await import("@upmind-automation/headless");
   const { useContextScopeSelector } =
@@ -409,20 +424,27 @@ async function pageRegistering(component: Component): Promise<Component> {
 
   return defineComponent({
     setup() {
-      useContextScopeSelector().register(CLIENT_EMAILS_SCOPE_MATRIX);
+      useContextScopeSelector().register(matrix ?? CLIENT_EMAILS_SCOPE_MATRIX);
       return () => h(component as never);
     }
   });
 }
 
+/**
+ * @param component - The scope surface under test.
+ * @param path - The scope url the page is opened on.
+ * @param matrix - The matrix the page registers, for a case whose subject is a
+ * declaration the client-emails page does not carry. Defaults to that page's.
+ */
 export async function benchOn(
   component: Component,
-  path = `/${CLIENT_EMAILS_ROUTE}/as/client`
+  path = `/${CLIENT_EMAILS_ROUTE}/as/client`,
+  matrix?: ActorContextMatrix
 ): Promise<Bench> {
   installLabsCatalogue();
   const router = await clientEmailsRouter(path);
 
-  const wrapper = mount((await pageRegistering(component)) as never, {
+  const wrapper = mount((await pageRegistering(component, matrix)) as never, {
     attachTo: document.body,
     global: { plugins: [router] }
   });

@@ -24,6 +24,13 @@ import type { RowMeasure, RowSurface } from "./types";
  */
 export const ROW_CONTROLS_BAND_CLASS = `mb-6 flex flex-wrap items-center justify-between ${MODULE_CLUSTER_GAP} [&_[data-slot=portal-module-group]]:flex-wrap`;
 
+/**
+ * The breadcrumb row above the page title. `PageHeader` is a STRETCH grid, and
+ * a grid item is blockified — so a back link left to itself filled the column
+ * and centred its own label. The row pins itself to the start instead.
+ */
+export const PAGE_BREADCRUMB_CLASS = "justify-self-start";
+
 const ROW_FULL_MEASURE_CLASS: Readonly<Record<RowMeasure, string>> = {
   // Cancels Page's own `px-4 sm:px-6 lg:px-8` (design-system/packages/ui/src/components/page/variants.ts)
   // so the row reaches the container's edges rather than the viewport's.

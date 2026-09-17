@@ -25,16 +25,9 @@ Repeat each for `state`: `Backlog`, `"Needs Refinement"`, `Todo`.
 
 **Step 8 — move to staged (`set_state` →):** `save_issue(id: "[issue-uuid]", state: "Todo")`.
 
-## Status-name mapping (lifecycle role → Linear workflow state)
+## Status-name mapping
 
-| Base lifecycle role | Linear state string |
-|---------------------|---------------------|
-| Intake pool         | `Backlog`, `Needs Refinement`, `Todo` |
-| Staged / claimed    | `Todo` |
-| Working             | `In Progress` |
-| Blocked (needs human) | `Blocked` |
-| Handed to human for review | `Needs Review` |
-| Terminal            | `Done`, `Deployed`, `Canceled` |
+`.claude/rules/linear-lifecycle.md`.
 
 ## External-blocker note
 

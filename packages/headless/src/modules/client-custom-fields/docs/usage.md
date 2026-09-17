@@ -24,9 +24,9 @@ const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
 // The collection — the calling client's own brand's definitions
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 
-// The image editor — one field, by id
+// The image editor — one field, by id (its own, distinct context: WHICH field, not an owner)
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientCustomFieldContextTypes.FIELD, fieldId);
@@ -279,10 +279,7 @@ import {
 
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(
-    ClientCustomFieldsContextTypes.VALUES,
-    "825d96e7-63ed-0913-46c4-174825283406"
-  );
+  .for(ClientCustomFieldsContextTypes.CLIENT, "825d96e7-63ed-0913-46c4-174825283406");
 const image = useClientCustomFieldImage()
   .as(ScopeActorTypes.CLIENT)
   .for(

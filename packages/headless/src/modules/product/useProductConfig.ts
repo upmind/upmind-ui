@@ -42,8 +42,8 @@ import type {
   SubproductDetails,
   ProductConfigContext
 } from ".";
-import type { ErrorObject } from "ajv";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type { ErrorObject } from "ajv";
 import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------

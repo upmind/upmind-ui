@@ -258,6 +258,7 @@ import {
   isSupportEnabled,
   productAboutMarkdown,
   productAreaNavItems,
+  productBackTo,
   productBillboardItems,
   productBillingSpecItems,
   productConditionAction,
@@ -274,14 +275,12 @@ import {
   productHasProvisionActions,
   productHasProvisionFields,
   productHasProvisionFrames,
-  productHasQuickActions,
   productInvoiceItems,
   productNoteItems,
   productNoteActions,
   productProvisionActions,
   productProvisionFieldItems,
   productProvisionFrames,
-  productQuickActions,
   productSecretItems,
   productSecretActions,
   productSpecItems,
@@ -347,6 +346,7 @@ export const DATA_REF_ID = {
   PRODUCT_SPEC_ITEMS: "product-spec-items",
   PRODUCT_BILLING_SPEC_ITEMS: "product-billing-spec-items",
   PRODUCT_AREA_NAV_ITEMS: "product-area-nav-items",
+  PRODUCT_BACK_TO: "product-back-to",
   PRODUCT_TICKET_ITEMS: "product-ticket-items",
   PRODUCT_DELEGATE_ITEMS: "product-delegate-items",
   // --- the product detail's shared chrome (plan Phase 3)
@@ -368,8 +368,6 @@ export const DATA_REF_ID = {
   PRODUCT_HAS_PROVISION_FIELDS: "product-has-provision-fields",
   PRODUCT_PROVISION_ACTIONS: "product-provision-actions",
   PRODUCT_HAS_PROVISION_ACTIONS: "product-has-provision-actions",
-  PRODUCT_QUICK_ACTIONS: "product-quick-actions",
-  PRODUCT_HAS_QUICK_ACTIONS: "product-has-quick-actions",
   PRODUCT_PROVISION_FRAMES: "product-provision-frames",
   PRODUCT_HAS_PROVISION_FRAMES: "product-has-provision-frames",
   // --- this product's own notes, secrets and documents
@@ -662,6 +660,12 @@ export const DATA_REF_ID = {
   GROUP_PRODUCTS_PAGER: "group-products-pager",
   GROUP_CATALOGUE_PAGER: "group-catalogue-pager",
   PRODUCT_TICKETS_PAGER: "product-tickets-pager",
+  TICKET_DELEGATES_PAGER: "ticket-delegates-pager",
+  TICKET_DELEGATES_CONTROLS: "ticket-delegates-controls",
+  PRODUCT_DELEGATE_ACCESS_PAGER: "product-delegate-access-pager",
+  PRODUCT_DELEGATE_ACCESS_CONTROLS: "product-delegate-access-controls",
+  PRODUCT_DELEGATES_PAGER: "product-delegates-pager",
+  PRODUCT_DELEGATES_CONTROLS: "product-delegates-controls",
   DELEGATE_PRODUCTS_PAGER: "delegate-products-pager",
   DELEGATE_TICKETS_PAGER: "delegate-tickets-pager",
   DELEGATE_PRODUCTS_CONTROLS: "delegate-products-controls",
@@ -902,6 +906,7 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PRODUCT_SPEC_ITEMS]: productSpecItems,
   [DATA_REF_ID.PRODUCT_BILLING_SPEC_ITEMS]: productBillingSpecItems,
   [DATA_REF_ID.PRODUCT_AREA_NAV_ITEMS]: productAreaNavItems,
+  [DATA_REF_ID.PRODUCT_BACK_TO]: productBackTo,
   [DATA_REF_ID.PRODUCT_TICKET_ITEMS]: productTicketItems,
   [DATA_REF_ID.PRODUCT_DELEGATE_ITEMS]: productDelegateItems,
   [DATA_REF_ID.PRODUCT_BILLBOARD_ITEMS]: productBillboardItems,
@@ -921,8 +926,6 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PRODUCT_HAS_PROVISION_FIELDS]: productHasProvisionFields,
   [DATA_REF_ID.PRODUCT_PROVISION_ACTIONS]: productProvisionActions,
   [DATA_REF_ID.PRODUCT_HAS_PROVISION_ACTIONS]: productHasProvisionActions,
-  [DATA_REF_ID.PRODUCT_QUICK_ACTIONS]: productQuickActions,
-  [DATA_REF_ID.PRODUCT_HAS_QUICK_ACTIONS]: productHasQuickActions,
   [DATA_REF_ID.PRODUCT_PROVISION_FRAMES]: productProvisionFrames,
   [DATA_REF_ID.PRODUCT_HAS_PROVISION_FRAMES]: productHasProvisionFrames,
   [DATA_REF_ID.PRODUCT_NOTE_ITEMS]: productNoteItems,
@@ -1225,6 +1228,15 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PRODUCT_TICKETS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.PRODUCT_TICKETS
   ),
+  [DATA_REF_ID.TICKET_DELEGATES_PAGER]: pagerState(
+    PAGED_COLLECTION_ID.TICKET_DELEGATES
+  ),
+  [DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_PAGER]: pagerState(
+    PAGED_COLLECTION_ID.PRODUCT_DELEGATE_ACCESS
+  ),
+  [DATA_REF_ID.PRODUCT_DELEGATES_PAGER]: pagerState(
+    PAGED_COLLECTION_ID.PRODUCT_DELEGATES
+  ),
   [DATA_REF_ID.DELEGATE_PRODUCTS_PAGER]: pagerState(
     PAGED_COLLECTION_ID.DELEGATE_PRODUCTS
   ),
@@ -1332,6 +1344,15 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.PRODUCT_TICKETS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.PRODUCT_TICKETS
   ),
+  [DATA_REF_ID.TICKET_DELEGATES_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.TICKET_DELEGATES
+  ),
+  [DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.PRODUCT_DELEGATE_ACCESS
+  ),
+  [DATA_REF_ID.PRODUCT_DELEGATES_CONTROLS]: listControlsState(
+    PAGED_COLLECTION_ID.PRODUCT_DELEGATES
+  ),
   [DATA_REF_ID.DELEGATE_PRODUCTS_CONTROLS]: listControlsState(
     PAGED_COLLECTION_ID.DELEGATE_PRODUCTS
   ),
@@ -1354,6 +1375,10 @@ export const PAGER_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> = {
   [DATA_REF_ID.GROUP_PRODUCT_ITEMS]: DATA_REF_ID.GROUP_PRODUCTS_PAGER,
   [DATA_REF_ID.GROUP_CATALOGUE_ITEMS]: DATA_REF_ID.GROUP_CATALOGUE_PAGER,
   [DATA_REF_ID.PRODUCT_TICKET_ITEMS]: DATA_REF_ID.PRODUCT_TICKETS_PAGER,
+  [DATA_REF_ID.TICKET_DELEGATE_ITEMS]: DATA_REF_ID.TICKET_DELEGATES_PAGER,
+  [DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_ITEMS]:
+    DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_PAGER,
+  [DATA_REF_ID.PRODUCT_DELEGATE_ITEMS]: DATA_REF_ID.PRODUCT_DELEGATES_PAGER,
   [DATA_REF_ID.DELEGATE_PRODUCT_ITEMS]: DATA_REF_ID.DELEGATE_PRODUCTS_PAGER,
   [DATA_REF_ID.DELEGATE_TICKET_ITEMS]: DATA_REF_ID.DELEGATE_TICKETS_PAGER,
   [DATA_REF_ID.INVOICE_ITEMS]: DATA_REF_ID.INVOICES_PAGER,
@@ -1391,6 +1416,11 @@ export const CONTROLS_REF_BY_ITEMS_REF: Partial<Record<DataRefId, DataRefId>> =
     [DATA_REF_ID.TICKET_ITEMS]: DATA_REF_ID.TICKETS_CONTROLS,
     [DATA_REF_ID.CREDIT_NOTE_LIST_ITEMS]: DATA_REF_ID.CREDIT_NOTES_CONTROLS,
     [DATA_REF_ID.PRODUCT_TICKET_ITEMS]: DATA_REF_ID.PRODUCT_TICKETS_CONTROLS,
+    [DATA_REF_ID.TICKET_DELEGATE_ITEMS]: DATA_REF_ID.TICKET_DELEGATES_CONTROLS,
+    [DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_ITEMS]:
+      DATA_REF_ID.PRODUCT_DELEGATE_ACCESS_CONTROLS,
+    [DATA_REF_ID.PRODUCT_DELEGATE_ITEMS]:
+      DATA_REF_ID.PRODUCT_DELEGATES_CONTROLS,
     [DATA_REF_ID.DELEGATE_PRODUCT_ITEMS]:
       DATA_REF_ID.DELEGATE_PRODUCTS_CONTROLS,
     [DATA_REF_ID.DELEGATE_TICKET_ITEMS]: DATA_REF_ID.DELEGATE_TICKETS_CONTROLS,

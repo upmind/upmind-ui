@@ -1,14 +1,11 @@
 > Companion to the upmind-agent skill /docs — Upmind-monorepo-specific bindings/overrides.
 
-Shared documentation bindings — the foundation-doc path, canonical types/enums packages, dependency-graph location, fixtures location, the client-only `.meta` / `object_meta` envelope, and the hot-keys / dependants-table filters — are homed in the rule companion `docs-modules.companion.md` (auto-injected at session start). This file binds only what is specific to the `/docs` procedure (the module docs factory — was `/docs-module`).
+Shared documentation bindings — the foundation-doc path, canonical types/enums packages, dependency-graph location, fixtures location, the client-only `.meta` / `object_meta` envelope, and the hot-keys / dependants-table filters — are homed in the rule companion `docs-modules.companion.md` (path-scoped to module docs). This file binds only what is specific to the `/docs` procedure.
 
 ## Modules root & output
 
 - `<modules-root>` = `packages/headless/src/modules`.
-- `<guides-root>` = `docs/guides`. Hand-authored guides live here and nowhere
-  else; `docs/corpus/build.mjs` ingests `docs/guides/*-guide.md` into the
-  corpus. They used to sit inside typedoc's own output directory, where a
-  regeneration could wipe them.
+- `<guides-root>` = `docs/guides`. Hand-authored guides live here and nowhere else; `docs/corpus/build.mjs` ingests `docs/guides/*-guide.md` into the corpus.
 - Foundation doc output: `packages/headless/src/modules/<name>/docs/foundation.md` (the module `README.md` is internal-facing and stays untouched).
 
 ## Module source files (base Required-read 4 → concrete filenames)

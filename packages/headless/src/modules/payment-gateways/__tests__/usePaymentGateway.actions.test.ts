@@ -18,6 +18,8 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { usePaymentGateway } from "../usePaymentGateway";
+import { spawnGateway } from "./gateway.doubles";
 
 vi.mock("../../config", () => ({
   useConfig: () => ({ data: { clickwrapDisclaimer: "" } })
@@ -26,9 +28,6 @@ vi.mock("../../config", () => ({
 vi.mock("../../system-localisation", () => ({
   useI18n: () => ({ t: (key: string) => key })
 }));
-
-import { usePaymentGateway } from "../usePaymentGateway";
-import { spawnGateway } from "./gateway.doubles";
 
 // -----------------------------------------------------------------------------
 

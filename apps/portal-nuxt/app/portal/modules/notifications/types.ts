@@ -28,7 +28,12 @@ export interface NotificationsModuleProps {
   readonly filterLabel?: string;
   /** Accessible name for a row's dismiss control. No English default (CC22). */
   readonly dismissLabel?: string;
-  /** The one more-rows control; absent while the feed has nothing further. */
+  /**
+   * Whether the feed has a page beyond the one showing, and the verb that
+   * asks for it. The feed pages on SCROLLING to its end, so this is a signal
+   * rather than a control — absent, the scroll asks for nothing. The `label`
+   * is kept for a host that wants to name the action.
+   */
   readonly loadMore?: {
     readonly value: string;
     readonly label: string;

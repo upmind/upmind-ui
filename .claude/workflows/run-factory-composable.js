@@ -33,7 +33,19 @@
 //   variant     — machine | query | hybrid (settled by the door)
 //   cells       — the ADR-001 actor x context cells in scope
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
-//   arms        — optional operator override of the Plan-stage arms derivation
+//   arms        — accepted for interface compatibility, and deliberately NOT
+//                  threaded into the Plan dispatch: run-plan carries fixed args,
+//                  and an arms override is an operator RULING. It reaches the
+//                  planner the way every other ruling does — recorded in
+//                  review-notes.md in sddDir, which the planner reads first. The
+//                  Code stage still re-derives arms independently and reports a
+//                  mismatch either way.
+//   planApproved — optional boolean. The OPERATOR'S plan verdict, and the only
+//                  thing that lets Code start. Absent or false, the lane stops
+//                  at `plan-gate` with the spec filed and the story handed to a
+//                  human. The operator reads the bundle, runs /sdd-review, and
+//                  re-invokes with planApproved: true and resumeFromRunId set —
+//                  every finished stage replays from cache.
 export const meta = {
   name: "run-factory-composable",
   description:
@@ -41,14 +53,23 @@ export const meta = {
   phases: [
     {
       title: "Research",
-      detail: "planner seat — oracle sweep, files research.md",
-      model: "opus"
+      detail:
+        "run-research — planner sweeps the references, reviewer pre-gates the sweep"
     },
-    { title: "Plan", detail: "planner seat — invokes /plan", model: "opus" },
+    {
+      title: "Plan",
+      detail:
+        "run-plan — planner authors, reviewer + pseudo-nathan pre-gate, operator ratifies"
+    },
     {
       title: "Code",
       detail: "developer seat — invokes /code",
       model: "sonnet"
+    },
+    {
+      title: "Test review",
+      detail: "pseudo-nathan grades the authored tests",
+      model: "opus"
     },
     {
       title: "Prove",
@@ -90,7 +111,7 @@ for (const k of [
 const { id, worktree, sddDir, jtbd, module: target, mode, variant, cells } = A;
 const constraints =
   typeof A.constraints === "string" ? A.constraints : "none recorded";
-const armsOverride = typeof A.arms === "string" ? A.arms : null;
+const planApproved = A.planApproved === true;
 
 // The 3-cycle cap (rules/agent-behavior.md §5). Bounded by construction: at most
 // 1 + 1 + 1 + 1 + 3*2 + 3*2 + 3*2 + 1 + 3*2 = 29 agents, no unbounded
@@ -107,7 +128,7 @@ const FACTS = `Story: ${id}. Worktree: ${worktree}. Module: ${target}. Mode: ${m
 const JTBD = `Run JTBD, verbatim — your gate field is evidence toward THIS, never the goal itself; output that satisfies your gate while contradicting it must surface the contradiction rather than return green: "${jtbd}".`;
 
 // review-notes.md carries the operator rulings and binds at ADR level for this
-// story (agent-behavior.companion.md §1). research.md is the Research stage's
+// story (the seat laws (agents/*.md, Laws section)). research.md is the Research stage's
 // own filed output. Both are read, never re-derived.
 const INPUTS = `Filed inputs in ${sddDir} — read before starting: review-notes.md (operator rulings, ADR-level, never silently overridden) and research.md (the Research stage's filed findings; read it instead of re-deriving it).`;
 const BOUNDS = `Run constraints: ${constraints}`;
@@ -131,45 +152,6 @@ const GATE = {
 // composable shapes. A mismatch against an operator `variant=` is a halt with
 // both shown (receipt: 2026-08-05 client-email — `variant=query` against an
 // oracle shipping a manager amputated the entire manager surface).
-const RESEARCH_GATE = {
-  type: "object",
-  properties: {
-    pass: { type: "boolean" },
-    summary: { type: "string" },
-    genericCitations: { type: "number" },
-    oracleCitations: { type: "number" },
-    researchFiled: { type: "boolean" },
-    derivedVariant: { type: "string" }
-  },
-  required: [
-    "pass",
-    "summary",
-    "genericCitations",
-    "oracleCitations",
-    "researchFiled"
-  ]
-};
-
-const PLAN_GATE = {
-  type: "object",
-  properties: {
-    pass: { type: "boolean" },
-    summary: { type: "string" },
-    sddSetComplete: { type: "boolean" },
-    undispositionedCells: { type: "number" },
-    armsPresent: { type: "boolean" },
-    jtbdContradictedDrops: { type: "number" }
-  },
-  required: [
-    "pass",
-    "summary",
-    "sddSetComplete",
-    "undispositionedCells",
-    "armsPresent",
-    "jtbdContradictedDrops"
-  ]
-};
-
 // Code: the developer re-derives the arms determination independently from the
 // landed parity table, never by trusting the recorded block. A mismatch is a
 // gate failure surfaced with BOTH determinations shown, never a silent pick
@@ -237,6 +219,19 @@ const DOCS_GATE = {
   required: ["pass", "summary", "missingArtefacts"]
 };
 
+// Test review: the test oracle grades what the prover ACTUALLY authored, before
+// any green cycle is spent on it. Blockers route to the PROVER — test
+// authorship is its lane, never the developer's.
+const TEST_REVIEW_GATE = {
+  type: "object",
+  properties: {
+    pass: { type: "boolean" },
+    summary: { type: "string" },
+    blockers: { type: "array", items: { type: "string" } }
+  },
+  required: ["pass", "summary"]
+};
+
 const results = { id, stopped: null, cycles: {}, surfaced: [] };
 
 // --- Research -------------------------------------------------------------------
@@ -244,34 +239,56 @@ const results = { id, stopped: null, cycles: {}, surfaced: [] };
 // record, and a session lost between Research and Plan used to lose the whole
 // oracle sweep.
 phase("Research");
-results.research = await agent(
-  `Run the Research stage for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} ${DOCTRINE} Sweep the knowledge graph and the docs corpus (glossary + docs/reference/), then the ${mode} oracle — for a conversion, wherever the existing implementation lives, the current headless module and/or the legacy surface being ported; for net-new, the closest legacy-parity analogue. Inventory the oracle's composable shapes (query collection / dataManager-machine manager / bespoke machine) and derive the variant from them. If ${sddDir}/research.md ALREADY EXISTS, read it and VALIDATE it against reality rather than re-deriving it — correct what is wrong, extend what is thin, and say which. Otherwise write it fresh. Either way it must end up carrying, BEFORE you return: the oracle capability inventory with file:line receipts, the composable-shape inventory and the variant it derives, the criteria surface, the precedent modules, and every question you cannot close. Then return your gate fields.`,
-  {
-    agentType: "upmind-agent:planner",
-    model: "opus",
-    phase: "Research",
-    schema: RESEARCH_GATE,
-    label: `research:${id}`
-  }
-);
-if (!results.research) {
-  results.stopped = "research-failed";
+// The plugin's `run-research` workflow OWNS this stage: a planner sweeps the
+// references and FILES research.md, then a reviewer PRE-GATES the sweep — is
+// every capability claim cited, is every asserted absence evidenced, was every
+// question answered or reported unanswered — and the planner revises on a
+// blocker up to its own 3-cycle cap.
+//
+// That pre-gate is the guard against the failure this whole lane exists to
+// prevent: a capability the reference has and the sweep missed is dropped by
+// everything downstream, with every gate green.
+//
+// The references and the questions are the factory's; the chain is not. The
+// variant derivation is asked as a KEYED question so this lane can gate on the
+// answer rather than read it out of prose.
+results.research = await workflow("upmind-agent:run-research", {
+  id,
+  worktree,
+  outDir: sddDir,
+  subject: `the ${target} module — every composable it ships or owes`,
+  references: [
+    mode === "conversion"
+      ? "the implementation being ported — wherever it lives, named in the run constraints; follow a capability out of it when it is implemented elsewhere"
+      : "the closest legacy-parity analogue to this subject",
+    "the knowledge graph and the docs corpus (glossary + docs/reference/) for existing constructs this module must consume rather than re-mint",
+    "the landed sibling modules under packages/headless/src/modules/ as the current shape of the art"
+  ],
+  questions: [
+    "variant: which composable shapes does the reference actually ship — a query-backed collection, a dataManager-machine manager, a bespoke machine, or a combination? Derive the variant from the shapes you find, never from what you were told.",
+    "owed: how many composables does this module owe in total, and what is each one's shape?",
+    "criteria: which filters, which sort fields and what pagination must this module's query criteria schema own? Name each with its wire key.",
+    "types: which existing types, enums and constructs must this module CONSUME rather than re-declare? Give each a file:line.",
+    "precedent: which landed module is the closest pattern to copy, and for which part?"
+  ],
+  jtbd,
+  scope: constraints
+});
+if (!results.research || results.research.stopped) {
+  results.stopped = `research-blocked:${(results.research && results.research.stopped) || "research-failed"}`;
   return results;
 }
+const sweep = results.research.sweep || {};
+
+// Derivation vs operator override: halt with BOTH shown, never a silent pick
+// (receipt: 2026-08-05 client-email — `variant=query` against a reference
+// shipping a manager amputated the entire manager surface).
+const derivedVariant = (sweep.answers || {}).variant;
 if (
-  !(results.research.genericCitations > 0) ||
-  !(results.research.oracleCitations > 0)
+  typeof derivedVariant === "string" &&
+  derivedVariant &&
+  !derivedVariant.toLowerCase().includes(variant.toLowerCase())
 ) {
-  results.stopped = "research-citations";
-  return results;
-}
-if (!results.research.researchFiled) {
-  results.stopped = "research-unfiled";
-  return results;
-}
-// Derivation vs operator override: halt with BOTH shown, never a silent pick.
-const derivedVariant = results.research.derivedVariant;
-if (derivedVariant && derivedVariant !== variant) {
   results.stopped = "variant-mismatch";
   results.determinations = { override: variant, derived: derivedVariant };
   return results;
@@ -283,43 +300,56 @@ if (derivedVariant && derivedVariant !== variant) {
 // /plan BARE and inherits whatever depth that door picks for the drift — the
 // factory does not second-guess it.
 phase("Plan");
-const PLAN_DEPTH =
-  mode === "upgrade"
-    ? "Invoke it BARE — that door owns the light-vs-full depth decision for a gap-closure. Scope the work to exactly the audited drift; the gates are unchanged, because a gap-closure over a landed module is precisely where silent capability drops hide."
-    : "Run its FULL-depth SDD route (requirements -> design -> BDD -> tasks). The depth is already derived; do not re-derive it and do not run the light route. A lone design.md is not acceptable output.";
-const ARMS = armsOverride
-  ? ` Operator arms override, in force over your own derivation: ${armsOverride}.`
-  : " Derive the arms determination per layer — services, actions, context, meta, schemas — from the parity table and the research oracle; it is never asked. Each layer is `none` or its earning actors, and every earned arm cites the parity row that earns it.";
-results.plan = await agent(
-  `Invoke /upmind-agent:plan for story ${id}. ${PLAN_DEPTH} ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} ${DOCTRINE}${ARMS} The co-located <module>.feature belongs in the module's __tests__/ at capability altitude — one scenario per actor x context behaviour the parity table carries, in actor/business language, never a per-mapper unit and never a vague "it works". It is the coverage contract for both the developer and the prover. Write only under ${sddDir} and the module's __tests__/; write no module source.`,
-  {
-    agentType: "upmind-agent:planner",
-    model: "opus",
-    phase: "Plan",
-    schema: PLAN_GATE,
-    label: `plan:${id}`
-  }
-);
+// The plugin's `run-plan` workflow OWNS this stage's chain — planner authors,
+// then a reviewer and pseudo-nathan pre-gate the spec IN PARALLEL, then the
+// planner revises on any blocker, up to its own 3-cycle cap, and it stops at
+// the operator gate. Dispatching a lone planner seat here instead would
+// re-implement that badly: it drops both pre-gates, drops the revise loop, and
+// hands the operator an ungraded spec.
+//
+// Depth: `conversion` and `net-new` are never trivial, so they take the FULL
+// SDD route. `upgrade` takes the light route — the factory does not second-
+// guess a gap-closure's shape.
+//
+// The factory's own intake does not ride run-plan's fixed args; it reaches the
+// planner through the files already on disk in sddDir — review-notes.md (the
+// operator rulings, ADR-tier) and research.md (the filed oracle sweep). That is
+// what those files are for.
+results.plan = await workflow("upmind-agent:run-plan", {
+  id,
+  worktree,
+  depth: mode === "upgrade" ? "plan" : "sdd",
+  size: "unset"
+});
 if (!results.plan) {
   results.stopped = "plan-failed";
   return results;
 }
-if (!results.plan.sddSetComplete) {
-  results.stopped = "plan-set-incomplete";
+// run-plan stops at `plan-gate` when BOTH pre-gates come back clean — that is
+// the operator's turn, and the verdict is theirs alone (ADR-029). Any other
+// stop is a pre-gate that blocked or a seat that died; surface it verbatim.
+if (results.plan.stopped && results.plan.stopped !== "plan-gate") {
+  results.stopped = `plan-blocked:${results.plan.stopped}`;
   return results;
 }
-if (results.plan.undispositionedCells !== 0) {
-  results.stopped = "plan-cells-undispositioned";
-  return results;
-}
-if (!results.plan.armsPresent) {
-  results.stopped = "plan-arms-absent";
-  return results;
-}
-// A disposition row is paperwork, not permission: a drop the JTBD forbids is a
-// gate FAIL and an operator escalation (receipt: client-email R17, 2026-08-05).
-if (results.plan.jtbdContradictedDrops !== 0) {
-  results.stopped = "plan-jtbd-contradicted";
+
+// --- THE PLAN GATE — a human ratifies the spec before any code is written ----
+//
+// The pre-gates say the spec carries no blocker. They cannot say it is RIGHT.
+// Every lifecycle table puts a finished plan in front of a human (actor:Human +
+// action:Review, status Needs Review) and only the operator's `/sdd-review
+// approve` flips it back to the agent for dev. A runner that walks from Plan
+// into Code has emitted the plan verdict itself, which no agent seat may do
+// (rules/agent-seat-separation.md, ADR-029).
+//
+// The spec is filed and readable; nothing is discarded. The operator reads it,
+// runs /sdd-review, and re-invokes with planApproved: true and resumeFromRunId
+// set — every finished stage replays from cache, and Code opens on a ratified
+// spec.
+if (!planApproved) {
+  results.stopped = "plan-gate";
+  results.awaiting = "operator plan review";
+  results.spec = sddDir;
   return results;
 }
 
@@ -389,6 +419,56 @@ if (!results.prove) {
   return results;
 }
 
+// --- Test review ------------------------------------------------------------
+// Runs BEFORE the green loop, deliberately: a bad test caught here costs one
+// prover revision; caught after, it costs the developer a wasted repair cycle
+// chasing an assertion that was wrong to begin with. The oracle judges
+// test-layer fit, scenario quality, and whether each test proves CAPABILITY
+// rather than shape. It files findings and emits no approval verdict.
+results.testReviews = [];
+for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+  results.cycles.testReview = cycle;
+
+  const verdict = await agent(
+    `Review the tests authored for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} Inputs: the authored tests, the module's own .feature, and the public surface only — the diff is withheld from you. Judge test-layer fit, scenario quality, and whether each test proves capability rather than shape. Pass = no blocker. File findings; emit no approval verdict.`,
+    {
+      agentType: "upmind-agent:pseudo-nathan",
+      model: "opus",
+      phase: "Test review",
+      schema: TEST_REVIEW_GATE,
+      label: `test-review:${id}#${cycle}`
+    }
+  );
+  results.testReviews.push({ cycle, verdict });
+
+  if (!verdict) {
+    results.stopped = "test-review-failed";
+    return results;
+  }
+  if (verdict.pass) break;
+  if (cycle === MAX_CYCLES) {
+    results.stopped = "test-review-blocked";
+    return results;
+  }
+
+  log(
+    `factory-composable ${id}: test review cycle ${cycle} blocked — prover revising`
+  );
+  const revised = await agent(
+    `Invoke /upmind-agent:test for story ${id} in REVISE mode. ${FACTS} ${BOUNDS} The tests you authored were graded and blocked. Fix them, then stop. Do not read the diff:\n\n${verdict.summary}`,
+    {
+      agentType: "upmind-agent:prover",
+      model: "sonnet",
+      phase: "Test review",
+      label: `retest:${id}#${cycle}`
+    }
+  );
+  if (revised === null) {
+    results.stopped = "prover-failed";
+    return results;
+  }
+}
+
 for (
   let cycle = 1;
   cycle <= MAX_CYCLES &&
@@ -451,7 +531,7 @@ for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
   results.cycles.verify = cycle;
 
   const verdict = await agent(
-    `Invoke /upmind-agent:review (verify lane) for story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Grade the JTBD's surface against the oracle — for a conversion, every composable surface of the implementation being replaced — never only the parity table's in-scope list. Where the run's diff touches __tests__/fixtures/, re-capture against the real system yourself and compare structurally (keys, shapes, enums — not volatile values); a stored receipt is forgeable and is not evidence, only the live re-capture is. Return verdict PRESENT or ABSENT, and whether every new negative control ran green.`,
+    `Invoke /upmind-agent:review (verify lane) for story ${id}. ${FACTS} Bind to the CURRENT HEAD of the working branch — on a re-verify after a repair, grade the repaired commit, never the one you graded last cycle. ${JTBD} ${INPUTS} ${BOUNDS} Grade the JTBD's surface against the oracle — for a conversion, every composable surface of the implementation being replaced — never only the parity table's in-scope list. Where the run's diff touches __tests__/fixtures/, re-capture against the real system yourself and compare structurally (keys, shapes, enums — not volatile values); a stored receipt is forgeable and is not evidence, only the live re-capture is. Return verdict PRESENT or ABSENT, and whether every new negative control ran green.`,
     {
       agentType: "upmind-agent:verifier",
       model: "opus",

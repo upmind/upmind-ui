@@ -16,7 +16,7 @@
 
 import { computed, unref } from "vue";
 import { ScopeActorTypes, translateQuery } from "@upmind-automation/headless";
-import { servesActor } from "../../../../app/composables/scope";
+import { servesActor, servesContext } from "../../../../app/composables/scope";
 import { useCompositionPort } from "./useCompositionPort";
 import { useTableChannel } from "./useTableChannel";
 import { get, isFunction, mapValues } from "lodash-es";
@@ -120,7 +120,20 @@ export function useModulePort(
   // may not act simply does not list it.
   const offered = !!scope.offeredActors?.includes(actor);
 
-  if (!servesActor(composable.scopeMatrix, actor) && !offered)
+  // The CONTEXT half of the same refusal. `.for(type)` validates nothing at
+  // runtime — the matrix constrains it through compile-time overloads a
+  // url-sourced string never passes through — so an undeclared type would reach
+  // the module, which resolves its own default and renders THAT: one catalogue
+  // shown while the url names another. A fresh instance takes no `.for()` at
+  // all, so it has no context to refuse.
+  const contextRefused =
+    !scope.fresh &&
+    !servesContext(composable.scopeMatrix, actor, scope.context);
+
+  if (
+    (!servesActor(composable.scopeMatrix, actor) && !offered) ||
+    contextRefused
+  )
     return {
       actions: {},
       getMeta: () => UNSERVED_META,
@@ -147,7 +160,9 @@ export function useModulePort(
       ? identified.fresh()
       : identified
     : scope.context && isFunction(identified.for)
-      ? identified.for(scope.context.type, scope.context.id)
+      ? scope.context.id === undefined
+        ? identified.for(scope.context.type)
+        : identified.for(scope.context.type, scope.context.id)
       : identified;
 
   // `LiveContext` is deliberately opaque (`Record<string, unknown>`), so the

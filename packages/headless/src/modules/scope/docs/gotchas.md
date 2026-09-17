@@ -241,6 +241,21 @@ A per-actor arm exists only when that actor has members exclusive to it or overr
 shared factory. An empty scaffold is a variance-law violation (clause 3). Fresh modules
 start armless.
 
+### Reading a scope key by fixed position 🧪
+
+A retarget context contributes two segments (`type`, `id`); a selector context
+contributes one; no context contributes zero. Any code that infers a key's fields by
+counting positions from the left — rather than recognising the reserved `id:` / `brand:`
+/ `fresh:` markers by name — will misreport a differently-shaped key: a brand filter
+read as the context id, or a selector's type read as if it had an entity. `scope.devtools.ts`
+hit exactly this and now walks the key from the right, peeling off marker/value pairs,
+rather than matching a fixed offset. Anything else that parses a scope key (custom
+logging, an ad-hoc debug panel) needs the same discipline.
+
+**Test scenario:** Inspect a selector-context instance and a retarget-context instance
+side by side; assert the selector's reported context carries no id field at all, and the
+retarget's id is never confused with a brand or fresh marker.
+
 ---
 
 ## Edge Cases
@@ -250,6 +265,9 @@ start armless.
 | `.as('self')` with no session                                | Resolves to `guest`               | `resolveSelfActor` falls back to `AccessRoleTypes.GUEST`. |
 | Same actor + context called twice                            | One shared instance               | Same scope key → registry hit.                            |
 | `.as('staff').for('ticket', id)` when matrix has no `ticket` | Compile-time type error           | Never reaches runtime.                                    |
+| `.for(type, id)` on a SELECTOR member                        | Compile-time type error           | The member declares no entity; the id belongs in `.withId(id)`. |
+| `.for(type)` on a RETARGET member                            | Compile-time type error           | The member names an entity, so the id is required.        |
+| A labs URL `/for/<type>` with no id, on a RETARGET member     | Boots a differently-keyed instance | Nothing rejects it: the builder never consults the matrix at runtime. Known gap, recorded in FE-3239's design §9. |
 | `.inBrand()` on a non-staff actor                            | Not offered (type error)          | Brand filter is staff-only.                               |
 | `clearAll()` mid-session                                     | All instances stopped and evicted | Test-only; will orphan any live consumers.                |
 

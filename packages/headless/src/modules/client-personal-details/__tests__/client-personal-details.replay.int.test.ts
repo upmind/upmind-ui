@@ -32,10 +32,6 @@ import {
 } from "../../../testing/corpus-replay";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
-  installBrandSettingsHandler,
-  installCustomFieldDefinitionsHandler,
-  installProfileGetHandler,
-  recorded,
   resetClientPersonalDetailsScopes,
   seedClientSession
 } from "./client-personal-details.int-helpers";

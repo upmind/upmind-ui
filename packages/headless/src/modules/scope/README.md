@@ -91,9 +91,18 @@ See [Usage & API](./docs/usage.md) for the full builder surface.
 
 An **actor** is who acts: `self`, `guest`, `client`, `staff` (`ScopeActorTypes`).
 `self` is a placeholder resolved at call time to the active session actor. A
-**context** is the entity an actor acts upon — `{ type, id }`, e.g.
-`{ type: "client", id: "123" }`. Not every actor may name a context; the module's
+**context** is what an actor is scoped to — a `{ type }` pair, with an id present only
+when that type calls for one. Not every actor may name a context; the module's
 **matrix** decides.
+
+Every context type is declared as one of two mutually exclusive patterns: **retarget**
+(`.for(type, id)`, id required — the type names an entity, e.g.
+`.as('staff').for('client', '123')`) or **selector** (`.for(type)`, id forbidden — the
+type IS the whole answer, there is no entity). `.for()` is overloaded on the matrix's
+per-member declaration, so each context type admits exactly one shape. A bare string in
+a matrix cell stays a retarget, unchanged; a cell wrapped in `selector()` declares the
+other pattern; a cell can hold several declarations for one actor as an array. See
+[Usage](./docs/usage.md) for the full split and how to declare a selector context.
 
 ### The matrix
 
@@ -144,6 +153,7 @@ watchers created there are not torn down when the calling component unmounts.
 | [Usage](./docs/usage.md)               | All devs                | Builder API, matrix, registry, DevTools         |
 | [Architecture](./docs/architecture.md) | Internal / contributors | How builder, registry, keys, resolution fit     |
 | [Gotchas](./docs/gotchas.md)           | All                     | Load-order, detached scopes, `.fresh()`, `SELF` |
+| [Changelog](./docs/CHANGELOG.md)       | All                     | Version history, migrations                     |
 
 ## Related
 

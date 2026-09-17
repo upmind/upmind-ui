@@ -101,10 +101,15 @@ Unlike the sibling custom-fields module (which defers its scope-registry registr
 ```ts
 import {
   createScopedComposable,
+  ScopeActorTypes,
   type PersonalDetailsScopeMatrix,
   type ScopeConfig,
   type ScopeKey
 } from "@upmind-automation/headless";
+
+// This module's real shape. `client` is the only actor granted the context —
+// the profile's owning client is named via `.for(CLIENT, id)` (gotcha 8);
+// `self`, `staff` and `guest` are `null as never`.
 
 /** Stand-in for this module's real per-scope factory. */
 function createPersonalDetailsForScope(
@@ -152,12 +157,12 @@ usePersonalDetailsManager().as("client");
 
 // ❌ Wrong — TS2345 on the context type, for the same reason
 // @ts-expect-error
-usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).for("profile", clientId);
+usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).for("client", clientId);
 
 // ✅ Right — both arguments are enum members
 const manager = usePersonalDetailsManager()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientPersonalDetailsContextTypes.PROFILE, clientId);
+  .for(ClientPersonalDetailsContextTypes.CLIENT, clientId);
 ```
 
 Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real.
@@ -189,7 +194,36 @@ This module's own composables don't strictly need `.for()`/`.fresh()` for the ev
 
 > **🧪 For Testers:** A reader who hits gotcha 6 (a bare string rejected) and "fixes" it by dropping the `.for()`/`.fresh()` call entirely has changed the wrong thing — that only compiles because the chained call is gone, not because the string-literal problem was addressed.
 
-## 8. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
+## 8. The trap was the context's NAME, not `.for()` itself — a resource-named member carrying the client's own id
+
+This module used to name its shared context `ClientPersonalDetailsContextTypes.PROFILE` — the context member named the RESOURCE being edited (the profile) while the id it actually carried was the CLIENT's own id. The type and the id it carried disagreed about which entity was named. A short-lived correction (since reversed) misdiagnosed that as `.for()` itself being wrong and dropped the context entirely in favour of a bare `.withId(id)` — which erased the compile-time gate: `resolveClientId` fell back to `id ?? activeUser.value?.id` with no actor check at all, so `staff`/`guest` could name any client id too.
+
+The actual fix (ADR-001 amendment 2026-09-15) is a rename, not a removal: the member is now `ClientPersonalDetailsContextTypes.CLIENT = AccessRoleTypes.CLIENT`, matching every sibling client module (`ClientPhonesContextTypes.CLIENT`, `ClientNotesContextTypes.CLIENT`). The matrix gate is real again — `.for(CLIENT, id)` is spellable **only** for the `client` actor; `self`, `staff` and `guest` are `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error exactly as it was before the context was ever dropped.
+
+```ts
+import {
+  usePersonalDetails,
+  ScopeActorTypes,
+  ClientPersonalDetailsContextTypes
+} from "@upmind-automation/headless";
+
+const otherClientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// ✅ Right — only `client` may spell a retarget
+const asClient = usePersonalDetails()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientPersonalDetailsContextTypes.CLIENT, otherClientId);
+
+// ⚠️ Does not compile — the matrix pins `staff` to `null as never`
+usePersonalDetails()
+  .as(ScopeActorTypes.STAFF)
+  // @ts-expect-error — staff resolves no context in this module's matrix
+  .for(ClientPersonalDetailsContextTypes.CLIENT, otherClientId);
+```
+
+> **🧪 For Testers:** `.for(ClientPersonalDetailsContextTypes.CLIENT, id)` is a compile-time refusal for `staff` and `guest`, not a runtime one — write a type-level check (an `@ts-expect-error`), not a runtime assertion. See [dropped-capabilities.md](./dropped-capabilities.md) for the staff-facing profile-editing surface that remains unbuilt regardless of this context's name.
+
+## 9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
 
 `pnpm lint` at the repo root aborts inside a shared types submodule before it ever reaches this module, and its `--fix` flag mutates that submodule as a side effect. `pnpm install` at the repo root is unsafe in a sparse worktree missing one or more app-level `package.json` files — it silently drops those apps' entries from the shared lockfile. Neither is a safe verification step for a change scoped to this module; use the module's own targeted test commands instead.
 
@@ -197,7 +231,7 @@ This module's own composables don't strictly need `.for()`/`.fresh()` for the ev
 
 ### Assuming a client id resolved into `.for(...)` is validated against the caller
 
-The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.PROFILE, someOtherId)` compiles and addresses that other id's profile, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. Be precise about where that boundary is enforced, because it splits in two. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** on both composables — the shared matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead: with no context naming a target, every request resolves its client id from the active session itself and is gated by this module's own addressability check. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error. Only the entity id being named is caller-controlled, not the identity making the call.
+The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.CLIENT, someOtherId)` compiles and addresses that other id's profile, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. Be precise about where that boundary is enforced, because it splits in two. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** on both composables — the shared matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead: with no context naming a target, every request resolves its client id from the active session itself and is gated by this module's own addressability check. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error. Only the entity id being named is caller-controlled, not the identity making the call.
 
 ### Assuming the editor needs a `.for()` argument
 

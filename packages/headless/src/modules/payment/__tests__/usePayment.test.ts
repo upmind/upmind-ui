@@ -34,6 +34,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import "./mocks";
 import { GatewayTypes } from "@upmind-automation/types";
+import { usePayment } from "../usePayment";
 import {
   emitAuth,
   loadMock,
@@ -41,7 +42,6 @@ import {
   updateMock,
   validateMock
 } from "./mocks";
-import { usePayment } from "../usePayment";
 import type { PaymentArgs } from "../payment.types";
 
 // -----------------------------------------------------------------------------

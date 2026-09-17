@@ -56,24 +56,30 @@ async function authenticate(
   const { post, useUrl } = useQuery();
   const store = useSessionStore();
 
-  const isChildClient =
-    scopeContext?.type === AuthContextTypes.CLIENT && scopeContext?.id;
+  // The id is carried in its own binding rather than read off the context at
+  // each site: `ScopeContext.id` is optional (FE-3239), and an id-less client
+  // context must fall through to the normal login, never mint a child token
+  // around `undefined`.
+  const childClientId =
+    scopeContext?.type === AuthContextTypes.CLIENT
+      ? scopeContext.id
+      : undefined;
 
   const mutationKey: string[] = [
     ...AUTH_SESSION_QUERY_KEY_BASE,
     ScopeActorTypes.CLIENT
   ];
-  if (isChildClient)
-    mutationKey.push("child", scopeContext.type, scopeContext.id);
+  if (childClientId)
+    mutationKey.push("child", AuthContextTypes.CLIENT, childClientId);
 
   return post<IToken>({
     mutationKey,
-    url: isChildClient
-      ? useUrl(`clients/${scopeContext.id}/access_token`)
+    url: childClientId
+      ? useUrl(`clients/${childClientId}/access_token`)
       : useUrl("access_token", {}, { context: "oauth" }),
-    data: isChildClient ? undefined : mapLoginData(model, GrantTypes.PASSWORD),
+    data: childClientId ? undefined : mapLoginData(model, GrantTypes.PASSWORD),
     withAccessToken: true,
-    withCurrency: !isChildClient
+    withCurrency: !childClientId
   }).then(token => {
     // Check if 2FA is required for client
     if (token.actor_type === GrantTypes.TWOFA) {
@@ -85,12 +91,12 @@ async function authenticate(
     }
 
     // Child client login
-    if (isChildClient) {
+    if (childClientId) {
       token.actor_type ||= AccessRoleTypes.CLIENT;
-      token.actor_id ||= scopeContext.id;
+      token.actor_id ||= childClientId;
 
       const { registerImpersonation } = store.useActions();
-      registerImpersonation?.(scopeContext.id);
+      registerImpersonation?.(childClientId);
     } else {
       // Normal client login
       token.actor_type ||= AccessRoleTypes.CLIENT;

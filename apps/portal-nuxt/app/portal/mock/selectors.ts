@@ -67,6 +67,9 @@ import {
 } from "./actions";
 import {
   accountDelegatesCollection,
+  productDelegateAccessCollection,
+  productDelegatesCollection,
+  ticketDelegatesCollection,
   accountNotesCollection,
   accountSecretsCollection,
   affiliateCommissionsCollection,
@@ -254,9 +257,11 @@ import {
   assign,
   compact,
   concat,
+  drop,
   every,
   filter,
   find,
+  first,
   includes,
   flatMap,
   isEmpty,
@@ -953,10 +958,10 @@ export function groupProductStatus(
 }
 
 /**
- * The product's summary — legacy's own facts, in its own order: what it is,
- * where it stands, what each renewal buys, when a trial runs out, what it
- * costs and how that price is quoted, when it next falls due, and the day it
- * was bought, which links to the order that bought it.
+ * The product's summary — what each renewal buys, when a trial runs out, what
+ * it costs and how that price is quoted, when it next falls due, and the day
+ * it was bought, which links to the order that bought it. What the product IS
+ * and where it stands belong to the billboard directly above it.
  */
 export function productSpecItems(
   data: MockDataset,
@@ -965,13 +970,6 @@ export function productSpecItems(
   const product = contextProduct(data, context);
   if (product === undefined) return [];
   return compact([
-    { id: "name", label: "Product", value: product.name },
-    { id: "category", label: "Category", value: product.category },
-    {
-      id: "status",
-      label: "Status",
-      value: PRODUCT_STATUS_LABEL[product.status]
-    },
     product.renewalTerm !== undefined && {
       id: "renewal-term",
       label: "Renews every",
@@ -1047,6 +1045,7 @@ export function productBillingSpecItems(
 /** The product's action areas, as the route spells them — named once for the nav and the guards. */
 export const PRODUCT_AREA_SLUG = {
   SETUP: "setup",
+  OVERVIEW: "overview",
   BILLING: "billing",
   TICKETS: "tickets",
   SETTINGS: "settings"
@@ -1068,7 +1067,11 @@ export function productAreaNavItems(
       label: "Setup",
       icon: Wrench
     },
-    { to: base, label: "Overview", icon: LayoutDashboard },
+    {
+      to: `${base}/${PRODUCT_AREA_SLUG.OVERVIEW}`,
+      label: "Overview",
+      icon: LayoutDashboard
+    },
     {
       to: `${base}/${PRODUCT_AREA_SLUG.BILLING}`,
       label: "Billing",
@@ -1086,6 +1089,18 @@ export function productAreaNavItems(
     },
     { to: `${base}/delegates`, label: "Delegates", icon: UsersRound }
   ]);
+}
+
+/**
+ * Where a product page's back link goes — its own group's listing. The route
+ * carries the group, so a second group needs no second composition; the
+ * structural product pages are shared across every group of every brand.
+ */
+export function productBackTo(
+  data: MockDataset,
+  context: DataRouteContext
+): string {
+  return `/${context.groupSlug ?? ""}`;
 }
 
 /** The product's tickets — legacy cProdTickets, filtered to this product. */
@@ -1114,8 +1129,14 @@ function describedBy(parts: readonly (string | undefined)[]): string {
 }
 
 /** The product delegates area — legacy cProdDelegates (account delegates, mocked account-wide). */
-export function productDelegateItems(data: MockDataset): ListModuleItem[] {
-  return map(data.delegates, delegate => ({
+export function productDelegateItems(
+  data: MockDataset,
+  context: DataRouteContext
+): ListModuleItem[] {
+  const { data: rows } = productDelegatesCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => ({
     id: delegate.id,
     title: delegate.name,
     description: describedBy([delegate.email, permissionList(delegate)])
@@ -1145,7 +1166,13 @@ function productPath(context: DataRouteContext, product: MockProduct): string {
  * Legacy's setup tab sends a finished product back to its overview — once
  * setup is confirmed the page has nothing left to ask.
  */
-/** Legacy opens a product still waiting on setup at its Setup tab, not its overview. */
+/**
+ * A product's root is a redirect position, never a page — legacy's own
+ * `ClientCProd` shell sent it to setup while setup was owed and to the
+ * overview otherwise. Overview therefore keeps its own address, which is what
+ * lets the area nav link to it: pointed at the root, the tab was swallowed by
+ * this redirect and read as dead.
+ */
 export function productRootRedirect(
   data: MockDataset | undefined,
   resolution: CatchAllResolution
@@ -1154,10 +1181,15 @@ export function productRootRedirect(
   if (resolution.kind !== "product-detail") return undefined;
   const product = find(data.products, { id: resolution.id });
   if (product === undefined) return undefined;
-  if (product.status !== ContractStatusCodes.AWAITING_ACTIVATION) {
-    return undefined;
+  return `/${resolution.group.slug}/${product.id}/${productOpeningArea(product)}`;
+}
+
+/** Which area a product opens on — the setup it still owes, else its overview. */
+function productOpeningArea(product: MockProduct): string {
+  if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
+    return PRODUCT_AREA_SLUG.SETUP;
   }
-  return `/${resolution.group.slug}/${product.id}/${PRODUCT_AREA_SLUG.SETUP}`;
+  return PRODUCT_AREA_SLUG.OVERVIEW;
 }
 
 /**
@@ -1190,7 +1222,7 @@ export function setupAreaRedirect(
   if (product.status === ContractStatusCodes.AWAITING_ACTIVATION) {
     return undefined;
   }
-  return `/${resolution.group.slug}/${product.id}`;
+  return `/${resolution.group.slug}/${product.id}/${PRODUCT_AREA_SLUG.OVERVIEW}`;
 }
 
 export function soleProductRedirect(
@@ -1210,7 +1242,8 @@ export function soleProductRedirect(
   const inGroup = filter(data.products, { groupSlug: resolution.group.slug });
   const only = inGroup.at(0);
   if (size(inGroup) !== 1 || only === undefined) return undefined;
-  return `/${resolution.group.slug}/${only.id}`;
+  // Straight to the area it opens on: the root would only redirect again.
+  return `/${resolution.group.slug}/${only.id}/${productOpeningArea(only)}`;
 }
 
 /** The group's orderable catalogue — legacy's storefront, scoped to the route's group. */
@@ -1241,8 +1274,10 @@ export function groupCatalogueItems(
 /**
  * The product's own billboard — what it IS, in one row: its image or glyph,
  * the category above the name, the lifecycle badge and whatever else is
- * standing true of it. A one-row list rather than a module of its own: a row
- * already carries every one of those parts.
+ * standing true of it, and the functions the provider promoted. A one-row list
+ * rather than a module of its own: a row already carries every one of those
+ * parts, the promoted functions included, so they need no panel to repeat on
+ * every area of the product.
  */
 export function productBillboardItems(
   data: MockDataset,
@@ -1250,6 +1285,8 @@ export function productBillboardItems(
 ): ListModuleItem[] {
   const product = contextProduct(data, context);
   if (product === undefined) return [];
+  const promotedFunctions = productQuickActions(data, context);
+  const promoted = first(promotedFunctions);
   return [
     {
       id: product.id,
@@ -1262,7 +1299,12 @@ export function productBillboardItems(
       leadingImageSrc: product.imageSrc,
       leadingIcon: Package,
       status: productBadge(product),
-      tags: map(product.tags ?? [], label => ({ label }))
+      tags: map(product.tags ?? [], label => ({ label })),
+      action: promoted && { value: promoted.value, label: promoted.label },
+      moreActions: map(drop(promotedFunctions, 1), entry => ({
+        value: entry.value,
+        label: entry.label
+      }))
     }
   ];
 }
@@ -1658,7 +1700,7 @@ export function productHasProvisionActions(
   return size(provisioning(data, context).functions) > 0;
 }
 
-/** The sidebar's quick actions — the functions the provider FEATURED, and only those. */
+/** The functions the provider FEATURED, and only those — the billboard's own controls. */
 export function productQuickActions(
   data: MockDataset,
   context: DataRouteContext
@@ -1668,16 +1710,6 @@ export function productQuickActions(
   return map(
     filter(provisioning(data, context).functions, { highlighted: true }),
     entry => provisionAction(productId, entry)
-  );
-}
-
-export function productHasQuickActions(
-  data: MockDataset,
-  context: DataRouteContext
-): boolean {
-  return (
-    size(filter(provisioning(data, context).functions, { highlighted: true })) >
-    0
   );
 }
 
@@ -2609,7 +2641,10 @@ export function productDelegateAccessItems(
 ): ListModuleItem[] {
   const product = contextProduct(data, context);
   if (product === undefined) return [];
-  return map(data.delegates, delegate => {
+  const { data: rows } = productDelegateAccessCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => {
     const row: ListModuleItem = {
       id: delegate.id,
       title: delegate.name,
@@ -3817,11 +3852,7 @@ export function accountCardItems(data: MockDataset): ListModuleItem[] {
     leadingIcon: UserRound,
     leadingImageSrc: persona.avatarSrc,
     leadingImageAlt: name,
-    tags: map(persona.tags ?? [], label => ({ label })),
-    action: {
-      value: openFormValue(FORM_ID.AVATAR_SAVE),
-      label: "Change photo"
-    }
+    tags: map(persona.tags ?? [], label => ({ label }))
   };
   return [row];
 }
@@ -5906,7 +5937,10 @@ export function ticketDelegateItems(
 ): ListModuleItem[] {
   const ticket = contextTicket(data, context);
   if (ticket === undefined) return [];
-  return map(data.delegates, delegate => ({
+  const { data: rows } = ticketDelegatesCollection
+    .resolve(data, context)
+    .useContext();
+  return map(rows.value, delegate => ({
     id: delegate.id,
     title: delegate.name,
     description: delegate.email,

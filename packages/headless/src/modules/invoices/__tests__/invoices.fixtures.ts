@@ -67,6 +67,7 @@ import { Generator } from "@upmind-automation/test-fixtures/generator";
 import { InvoiceStatus } from "@upmind-automation/types";
 // eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
 import { mintClientToken } from "../../auth/__tests__/auth.tokens";
+import { find, toNumber } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------

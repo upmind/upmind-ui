@@ -31,7 +31,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * not part of the key at all, so it carries no differentiation between the
  * two. What keeps their registry entries apart in practice is that each
  * composable's OWN context-type enum differs
- * (`ClientCustomFieldsContextTypes.VALUES` here vs
+ * (`ClientCustomFieldsContextTypes.CLIENT` here vs
  * `ClientCustomFieldContextTypes.FIELD` in the image editor) and lands in
  * the key ONLY when a context is supplied via `.for()`. This is latent, not
  * structurally guaranteed: a bare `.as(actor)` call with NO `.for()` on

@@ -120,8 +120,6 @@ export const MOCK_RECEIPT_REASON = {
   NO_DEPARTMENT: "no-department",
   /** The account the client is already acting for — switching to it moves nothing. */
   ALREADY_ACTIVE: "already-active",
-  /** An avatar address the client cleared — a picture with no address is not a picture. */
-  EMPTY_IMAGE: "empty-image",
   /** A token page reached with no address, or one this account does not hold. */
   UNKNOWN_EMAIL: "unknown-email",
   /** Fewer than two invoices the brand would gather — one document is already one. */

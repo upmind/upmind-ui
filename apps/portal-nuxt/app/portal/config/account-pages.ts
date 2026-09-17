@@ -594,7 +594,6 @@ export function accountPages(options?: {
       [
         {
           layout: ROW_LAYOUT.FULL,
-          surface: ROW_SURFACE.PANEL,
           slots: [
             moduleRef(BANNER_MODULE_ID, {
               variant: BANNER_VARIANT.NOTICE,
@@ -869,9 +868,10 @@ export function accountPages(options?: {
     [PAGE_KEY.ACCOUNT_LOGS]: page("Logs", "A record of emails and sign-ins.", [
       // Legacy's delivery-delay notice over the email history, shown while
       // the brand says mail is running behind.
+      // No surface: an alert already carries its own tone and border, so a
+      // panel around one draws a second box holding nothing else.
       {
         layout: ROW_LAYOUT.FULL,
-        surface: ROW_SURFACE.PANEL,
         visible: dataRef(DATA_REF_ID.IS_EMAIL_DELIVERY_DELAYED),
         slots: [
           moduleRef(BANNER_MODULE_ID, {

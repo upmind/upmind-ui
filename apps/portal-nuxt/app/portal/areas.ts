@@ -10,14 +10,19 @@
  * `areas` had removed from the chrome.
  */
 
+import { DETAIL_AREA_OVERRIDE } from "./config/areas/detail";
 import { PRODUCT_HIERARCHY_AREA_OVERRIDE } from "./config/areas/product-hierarchy";
-import { isNestedProductArea, pillarForPath } from "./routes";
+import { isDetailRoute, isNestedProductArea, pillarForPath } from "./routes";
 import type { AreaOverride, PortalConfig } from "./types";
 
 export function areaForPath(
   config: PortalConfig,
   path: string
 ): AreaOverride | undefined {
+  // Ahead of the shape's own `areas`: a page about ONE product or ticket takes
+  // a back link over its section's rail, whatever the pillar declares.
+  if (isDetailRoute(config, path)) return DETAIL_AREA_OVERRIDE;
+
   const pillar = pillarForPath(config, path);
   const declared = pillar === undefined ? undefined : config.areas?.[pillar];
   if (declared !== undefined) return declared;

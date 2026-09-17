@@ -8,7 +8,7 @@ import {
   stubMatchMedia
 } from "./support/theme-harness";
 import { APP_BRANDS } from "~/portal/brands";
-import { PORTAL_CONFIG_ID } from "~/portal/config";
+import { PORTAL_CONFIGS, PORTAL_CONFIG_ID } from "~/portal/config";
 
 /**
  * tasks.md 6.0 / ui-gaps.md F1a — `PortalConfig.theme` must reach the
@@ -79,15 +79,19 @@ describe("app/layouts/default.vue — a shape's own theme reaches <html data-the
     resetDocument();
   });
 
-  it(`applies "hostgrid" — brand AND mode — for the hostgrid shape`, async () => {
+  it(`applies its own brand AND mode — for the hostgrid shape`, async () => {
     await mountLayout(PORTAL_CONFIG_ID.HOSTGRID);
+
+    // The shape's own theme, read off the config: a shape names the brand it
+    // wears, and that name need not be the shape's own.
+    const brand = PORTAL_CONFIGS[PORTAL_CONFIG_ID.HOSTGRID].theme;
 
     // Asserting the brand NAME alone stayed green for a whole epic while
     // every dark-first shape rendered light, so the mode is asserted here
     // beside it (useTheme's brand-switch boundary is what carries it).
     expect(readRoot()).toEqual({
-      theme: PORTAL_CONFIG_ID.HOSTGRID,
-      isDarkClass: prefersDark(PORTAL_CONFIG_ID.HOSTGRID)
+      theme: brand,
+      isDarkClass: prefersDark(brand ?? "")
     });
   });
 });
