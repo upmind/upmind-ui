@@ -10,31 +10,38 @@
  * Every handler speaks to the module through the `World` members. There is no
  * DOM read, no request read and no import of the module's own source here.
  *
- * ## THE KEY THIS CATALOG BOOTS: `client_tickets`, and only that one
+ * ## THE TWO KEYS THIS CATALOG BOOTS
  *
  * `tickets.feature` describes TWO surfaces under one module name — a
  * COLLECTION (`useClientTickets`) and a per-ticket MANAGER
  * (`useClientTicket`) — and the playground registers them as two SEPARATE
- * scenario keys, not one:
+ * scenario keys, not one. `stepCatalogs` is keyed by MODULE, so this one file
+ * serves both:
  *
  *   - `client_tickets` (`scenarios/useClientTickets/client-tickets.scenario.ts`)
- *     declares `useList: useClientTickets` AND `tracks: "tickets"`. It is in
- *     the registry's `boundKeys`, so `World.boot` can build a thunk for it,
- *     and it is the ONLY page that reads a playlist.
+ *     declares `useList: useClientTickets` AND `tracks: "tickets"`.
  *   - `client_ticket` (`scenarios/useClientTicket/client-ticket.scenario.ts`)
- *     declares NEITHER `useList` nor `useMutate` — the manager draws its own
- *     page — so it is NOT in `boundKeys` and `World.boot("client_ticket", …)`
- *     would fail outright (`registry.ts`: "a self-drawn module binds no
- *     collection and no editor, so there is no thunk to build for it and
- *     asking for one throws"). It also OMITS `tracks` on purpose: a self-drawn
- *     page mounts no `ScenarioPlayground`, so nothing there reads a playlist.
+ *     declares NEITHER `useList` nor `useMutate` — the manager DRAWS ITS OWN
+ *     page, because no generic surface can render a message thread or a reply
+ *     composer — and opts into booting with `useManage: useClientTicket` plus
+ *     `tracks: "tickets"`. That opt-in is what puts it in the registry's
+ *     `boundKeys`, so `World.boot("client_ticket", …)` builds a thunk; its own
+ *     page mounts `ScenarioBar` directly.
  *
- * So a catalog that boots both keys would be a catalog half of which can never
- * run, and the half that could run has no surface asking for it. This catalog
- * scopes itself to `client_tickets` — exactly as the `client-email-history`
- * catalog scopes itself to the read-only collection and names its single-record
- * sibling (`useClientReceivedEmail`) as "a separate composable this key does
- * NOT boot".
+ * Until FE-3226 the second key had neither member, so booting it threw and
+ * every manager scenario here was spec-only. That is no longer why a manager
+ * scenario goes undriven — the reasons below are.
+ *
+ * ## THE SCOPE A MANAGER STEP BOOTS AT
+ *
+ * `openManager` boots `{ actor: CLIENT }` and names NO context. That is
+ * deliberate and it is not a shortcut: the manager is addressed
+ * `.as(CLIENT).for(TICKET, id)`, and the id belongs to the URL the page was
+ * opened on (`/useClientTicket/as/client/for/ticket/<id>`). One catalog serves
+ * every ticket, so a literal id here would be a SECOND scope beside the url's —
+ * the page would render one ticket while the track drove another. The world the
+ * page hosts completes the record from that same url instead, so the step
+ * drives the very cell on screen.
  *
  * ## ADR-020 Amendment 5 (operator ruling 2026-09-12)
  *
@@ -45,14 +52,49 @@
  * as skipped, not as a hole. The exclusions are NAMED here, each with the spec
  * that proves it instead:
  *
- *   - THE WHOLE MANAGER (`@manager` — AC-11, AC-12, AC-13, AC-14, AC-15,
- *     AC-16, AC-17, AC-18, AC-19, AC-20, AC-21, AC-22, AC-23, AC-24, AC-25,
- *     AC-27, AC-29) is a SEPARATE composable this key does NOT boot. One
- *     ticket, its feed, its replies, its message edits and withdrawals, its
- *     files, its lifecycle and its poll are all `useClientTicket` members, and
- *     no `client_tickets` action reaches any of them. Proven by
- *     `tickets.manager.int.test.ts` (24 tests) and
- *     `tickets.upload-attachment.int.test.ts`, each anchored by its @AC tag.
+ *   - THE TWO-ARGUMENT WRITES (`@AC-17` reply-with-files, `@AC-18` both
+ *     scenarios, `@AC-19` both scenarios, `@AC-21`, `@AC-23` attach) are
+ *     unreachable through this seam by CONSTRUCTION, not by choice:
+ *     `World.fire(actionId, input?)` invokes an action with exactly ONE opaque
+ *     input, and `editMessage(id, body)`, `deleteMessage(id, reason)`,
+ *     `deleteAttachment(messageId, fileId)` and `reply(body, { files })` each
+ *     need two. The `@AC-23` uploads additionally need a real `File`, which no
+ *     recording carries and which a step may not author. The two guard halves
+ *     of AC-18 and AC-19 are ABSENCES on top ("nothing is sent to the
+ *     server"). Proven by `tickets.manager.int.test.ts`'s AC-17/AC-18/AC-19/
+ *     AC-21/AC-23 blocks and `tickets.upload-attachment.int.test.ts`.
+ *   - THE STALE REPLY (`@AC-17` `@conflict`) needs a recorded `409
+ *     ticket_has_more_recent_reply`; the one committed reply recording
+ *     (`fixtures/post-tickets-id-replies.json`) is the 200. A step firing it
+ *     would meet the success path and assert a caution that never came. Proven
+ *     by `tickets.manager.int.test.ts`'s AC-17 caution assertion and
+ *     `tickets.reply-409-caution.must-fail.patch`.
+ *   - THE DOWNLOAD (`@AC-20`) asserts the RETURNED bytes
+ *     ("I receive the file's own contents, unaltered"), and `World.fire`
+ *     discards an action's return value — there is nothing for `expectMeta` or
+ *     `expectContext` to read. Proven by `tickets.manager.int.test.ts`'s AC-20
+ *     assertion.
+ *   - THE STATUS-LOG FEED (`@AC-22`) arranges "a ticket has been opened,
+ *     replied to, and closed" — a history no single committed recording holds —
+ *     and asserts the ORDER events interleave with messages, which is a feed
+ *     shape rather than a meta boolean. Proven by
+ *     `tickets.manager.int.test.ts`'s AC-22 assertion and
+ *     `tickets.status-log-feed-object-type.must-fail.patch`.
+ *   - THE LOCKED GUARDS (`@AC-24` `@guard`, `@AC-27` `@guard`) need a recorded
+ *     LOCKED ticket read. None exists: the oracle reaches that state by
+ *     toggling ONE documented wire field on the recorded body, which is a
+ *     spec's disclosed technique and not something a replay step may do. Both
+ *     Thens are absences besides. Proven by `tickets.manager.int.test.ts`'s
+ *     AC-24 refusal assertion and `tickets.close-locked-guard.must-fail.patch`.
+ *   - THE REOPEN (`@AC-25`) arranges "one of my tickets is closed", and no
+ *     recorded single-ticket read is closed — `fixtures/get-tickets-id.json` is
+ *     open, and the closed captures are LIST reads. The Given cannot be
+ *     arranged from the corpus, so the action would meet its own
+ *     not-closed refusal. Proven by `tickets.manager.int.test.ts`'s AC-25 pair.
+ *   - THE POLL (`@AC-29`, all four scenarios) turns on time passing, on
+ *     switching away from the page, and on teardown. None of the three is a
+ *     `fire` / `expectMeta` move. Proven by `tickets.manager.int.test.ts`'s
+ *     AC-29 teardown assertion and `tickets.poll-teardown.must-fail.patch`.
  *   - THE PATH LAW (`@AC-PATH`) is a REQUEST read — which surface a request
  *     went to, and which it never went to. A `World` step cannot read a
  *     request. Proven by `tickets.collection.int.test.ts`'s AC-1/AC-PATH
@@ -97,7 +139,7 @@
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { ScopeActorTypes } from "../../scope/scope.types";
-import { values } from "lodash-es";
+import { uniq, values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -110,6 +152,14 @@ import type { World } from "@upmind-automation/scenario-harness";
  * names it the same way a `.feature` names a url.
  */
 export const CLIENT_TICKETS_SCENARIO = "client_tickets";
+
+/**
+ * The MANAGER page's key, declared by
+ * `scenarios/useClientTicket/client-ticket.scenario.ts`. A literal for the same
+ * reason as its sibling above: the key is the consuming playground's, and
+ * `packages/headless` holds no scenario concept at all.
+ */
+export const CLIENT_TICKET_SCENARIO = "client_ticket";
 
 /**
  * The action ids these steps drive. Exported as the gate's `coveredActionIds`,
@@ -134,9 +184,40 @@ export const TICKETS_COVERED_ACTIONS = {
   loadTicketStatuses: "loadTicketStatuses"
 } as const;
 
-export const coveredActionIds: readonly string[] = values(
-  TICKETS_COVERED_ACTIONS
-);
+/**
+ * The MANAGER action ids these steps drive — members of `useClientTicket`'s own
+ * action surface, graded exactly as its collection sibling above is.
+ *
+ * Every two-argument write is absent, and that is the seam's shape rather than
+ * a gap in the module: `World.fire` invokes an action with ONE opaque input,
+ * so `editMessage`, `deleteMessage`, `deleteAttachment` and a reply carrying
+ * files cannot be fired through it at all (see the exclusions in the header).
+ * `uploadAttachment` is absent for the same reason plus a second: it takes a
+ * real `File`, which no recording carries.
+ */
+export const TICKET_COVERED_ACTIONS = {
+  isReady: "isReady",
+  refresh: "refresh",
+  loadOlder: "loadOlder",
+  loadAttachments: "loadAttachments",
+  getMessage: "getMessage",
+  reply: "reply",
+  setRelatedProduct: "setRelatedProduct",
+  removeRelatedProduct: "removeRelatedProduct",
+  close: "close",
+  setSubject: "setSubject"
+} as const;
+
+/**
+ * Both keys' covered sets, as ONE list — the shape
+ * {@link StepModule.coveredActionIds} is read as. Deduplicated because the two
+ * cells legitimately share a member name (`isReady`, `refresh`): they are two
+ * different actions on two different composables, and the gate grades ids.
+ */
+export const coveredActionIds: readonly string[] = uniq([
+  ...values(TICKETS_COVERED_ACTIONS),
+  ...values(TICKET_COVERED_ACTIONS)
+]);
 
 /**
  * Values the recorded corpus carries, named here because a `World` step cannot
@@ -156,6 +237,23 @@ export const coveredActionIds: readonly string[] = values(
  * ref the recorded upload answered with, which `create`'s `model.files`
  * consumes.
  * @see fixtures/put-clients-id.json — the recorded prefs write, `ui/support/limit: 25`.
+ *
+ * The MANAGER half, under {@link RECORDED.manager}:
+ *
+ * @see fixtures/get-tickets-id-messages-id.json — the single message the
+ * AC-16 re-read asks for again, by the id that capture was taken at.
+ * @see fixtures/put-tickets-id-case-link-product.json — the recorded link
+ * write, `contract_product_id: d0367942-…` (the same contract product the
+ * collection's product-scoped read narrowed on).
+ * @see fixtures/put-tickets-id-case-change-product.json — the recorded CHANGE
+ * write, a second real product id, which is what makes "replaces it rather
+ * than adding a second" a move rather than a repeat.
+ * @see fixtures/post-tickets-id-replies.json — the recorded reply, request
+ * body and all.
+ * @see fixtures/put-tickets-id.json — the recorded rename, `subject:
+ * "Fixture write-cycle ticket (renamed)"`.
+ * @see fixtures/put-tickets-id-status.json — the recorded close,
+ * `status_code: ticket_closed`, which `close()` is the caller for.
  */
 const RECORDED = {
   reference: "XGD-235-12434",
@@ -176,6 +274,14 @@ const RECORDED = {
     object_class: "App\\Models\\TicketMessage",
     object_id: null,
     name: "temp_57.txt"
+  },
+  /** The MANAGER's own recorded values — same discipline, same `@see` block. */
+  manager: {
+    messageId: "de78642d-e539-7145-949a-21208469530d",
+    linkedProductId: "d0367942-4d0e-7109-256f-3153698d582e",
+    changedProductId: "d6325079-8065-d1e3-5e9c-8174e234e98d",
+    reply: "Recorded reply for FE-3226, to be withdrawn.",
+    renamedSubject: "Fixture write-cycle ticket (renamed)"
   }
 } as const;
 
@@ -200,6 +306,25 @@ async function openCollection(
   await world.boot(CLIENT_TICKETS_SCENARIO, scope);
   await world.fire(TICKETS_COVERED_ACTIONS.isReady);
   await settles(() => world.expectMeta({ isAvailable: true, hasError: false }));
+}
+
+/**
+ * Opens the MANAGER on the ticket the PAGE is addressed to. The scope names the
+ * actor and nothing else — the context is the url's, completed by the world the
+ * self-drawn page hosts (see the header's scope note), so this boots the very
+ * cell on screen rather than a second one.
+ */
+async function openManager(world: World) {
+  await world.boot(CLIENT_TICKET_SCENARIO, { actor: ScopeActorTypes.CLIENT });
+  await world.fire(TICKET_COVERED_ACTIONS.isReady);
+  await settles(() => world.expectMeta({ isAvailable: true, hasError: false }));
+}
+
+/** The manager opened with its conversation already paged in — AC-15's own read. */
+async function openThread(world: World) {
+  await openManager(world);
+  await world.fire(TICKET_COVERED_ACTIONS.loadOlder);
+  await settles(() => world.expectMeta({ hasError: false }));
 }
 
 // -----------------------------------------------------------------------------
@@ -521,6 +646,264 @@ export const ticketsSteps = defineSteps(({ Given, When, Then }) => {
     // `tickets.collection.int.test.ts`'s AC-10 assertion.
   });
 
+  // ===========================================================================
+  // THE MANAGER — one ticket, booted at the page's own scope (`openManager`)
+  // ===========================================================================
+
+  // === AC-11 · THE TICKET ITSELF ============================================
+
+  When("I open one of my support tickets", async world => {
+    await openManager(world);
+  });
+
+  Then(
+    "I have that ticket with everything the detail view reads: its desk, its status, the product it is about, who is handling it, and who it is shared with",
+    async world => {
+      // The record lands and the read did not fail. The per-field shape — the
+      // `with=client,contract_product,department` expansion the read asks for —
+      // is proven by `tickets.manager.int.test.ts`'s AC-11 assertion.
+      await settles(() =>
+        world.expectMeta({
+          isAvailable: true,
+          hasError: false,
+          isLoading: false
+        })
+      );
+    }
+  );
+
+  // === AC-12 · THE LIFECYCLE FLAGS ==========================================
+
+  // Shared with AC-14: both scenarios open the same ticket and then read a
+  // different face of it.
+  When("I open a ticket", async world => {
+    await openManager(world);
+  });
+
+  Then(
+    "I know whether it is closed, whether it is locked, whether it is scheduled, and whether it arrived by import",
+    async world => {
+      // The four flags are DERIVED, and the recorded body carries no `settings`
+      // key at all — the capture finding `tickets.manager.int.test.ts`'s AC-12
+      // assertion is built on. Concrete booleans, never a matcher.
+      await settles(() =>
+        world.expectMeta({
+          isClosed: false,
+          isLocked: false,
+          isScheduled: false,
+          isStaged: false,
+          hasError: false
+        })
+      );
+    }
+  );
+
+  Then(
+    "a scheduled ticket shows me when it is due rather than when it was last touched",
+    async () => {
+      // A SCHEDULED ticket, which no committed recording is — the corpus's one
+      // single-ticket read is an open, unscheduled ticket. The date swap is
+      // proven by `tickets.manager.int.test.ts`'s AC-12 assertion over the
+      // derived flags; nothing here may fake a schedule to reach it.
+    }
+  );
+
+  // === AC-13 · THE RELATED PRODUCT ==========================================
+
+  // Shared with AC-17's reply.
+  Given("I am reading one of my tickets", async world => {
+    await openManager(world);
+  });
+
+  When("I attach one of my products to it", async world => {
+    await world.fire(
+      TICKET_COVERED_ACTIONS.setRelatedProduct,
+      RECORDED.manager.linkedProductId
+    );
+  });
+
+  Then("the ticket is about that product", async world => {
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
+
+  Then(
+    "choosing a different product replaces it rather than adding a second",
+    async world => {
+      // A SECOND real product id, recorded by its own capture — the write is
+      // fired again and must settle as a change, not a second link. That it is
+      // one `contract_product_id` on the wire rather than two is proven by
+      // `tickets.manager.int.test.ts`'s AC-13 change assertion.
+      await world.fire(
+        TICKET_COVERED_ACTIONS.setRelatedProduct,
+        RECORDED.manager.changedProductId
+      );
+      await settles(() => world.expectMeta({ hasError: false }));
+    }
+  );
+
+  Then("unlinking clears the product from the ticket entirely", async world => {
+    await world.fire(TICKET_COVERED_ACTIONS.removeRelatedProduct);
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
+
+  // === AC-14 · THE CONVERSATION =============================================
+
+  Then(
+    "I see its messages newest first, each with the files attached to it",
+    async world => {
+      await world.fire(TICKET_COVERED_ACTIONS.loadOlder);
+      await settles(() => world.expectMeta({ hasError: false }));
+    }
+  );
+
+  Then("I never see an agent's internal log rows among them", async () => {
+    // `filter[is_log]=0` on the wire — a REQUEST read. Proven by
+    // `tickets.manager.int.test.ts`'s AC-14 assertion.
+  });
+
+  // === AC-15 · READING FURTHER BACK =========================================
+
+  Given("a ticket has more messages than I have been shown", async world => {
+    await openThread(world);
+  });
+
+  When("I ask for older messages", async world => {
+    await world.fire(TICKET_COVERED_ACTIONS.loadOlder);
+  });
+
+  Then(
+    "I see the messages immediately before the oldest one I hold",
+    async world => {
+      await settles(() => world.expectMeta({ hasError: false }));
+    }
+  );
+
+  Then(
+    "I am never shown a message twice, even if new ones arrive while I read",
+    async () => {
+      // De-duplication INSIDE the merged feed — a feed shape, not a meta
+      // boolean. Proven by `tickets.manager.int.test.ts`'s AC-15 assertion and
+      // `tickets.thread-cursor-direction.must-fail.patch`.
+    }
+  );
+
+  Then(
+    "when I reach the start of the conversation I am told there is no more",
+    async () => {
+      // The limit+1 has-more probe, read off the REQUEST and off the feed's own
+      // `hasOlder` — neither is on the meta layer this seam asserts over.
+      // Proven by `tickets.manager.int.test.ts`'s AC-14/AC-15 assertions and
+      // `tickets.thread-limit-plus-one-probe.must-fail.patch`.
+    }
+  );
+
+  // === AC-15 · THE ATTACHMENTS VIEW =========================================
+
+  Given(
+    "some messages on a ticket carry files and others do not",
+    async world => {
+      await openThread(world);
+    }
+  );
+
+  When("I ask to see only the messages with files", async world => {
+    await world.fire(TICKET_COVERED_ACTIONS.loadAttachments);
+  });
+
+  Then("I see every message on the ticket that carries a file", async world => {
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
+
+  Then(
+    "messages with files that I had not yet scrolled back to are included",
+    async () => {
+      // That the view is its own REQUEST rather than a filter over the rows
+      // already held — a request read. Proven by the playground's own AC-15
+      // read-back (`client-ticket-controls.spec.ts`, "the Attachments view asks
+      // the server for attachment-bearing messages").
+    }
+  );
+
+  // === AC-16 · RE-READING ONE MESSAGE =======================================
+
+  Given("I am reading a ticket's conversation", async world => {
+    await openThread(world);
+  });
+
+  When("I ask for one message again", async world => {
+    await world.fire(
+      TICKET_COVERED_ACTIONS.getMessage,
+      RECORDED.manager.messageId
+    );
+  });
+
+  Then("I have that message with its files, refreshed", async world => {
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
+
+  Then(
+    "it takes its own place in the conversation rather than being added again",
+    async () => {
+      // The in-place row swap inside the feed — a feed shape. Proven by
+      // `tickets.manager.int.test.ts`'s AC-16 assertion.
+    }
+  );
+
+  // === AC-17 · REPLYING =====================================================
+
+  When("I send a reply", async world => {
+    await world.fire(TICKET_COVERED_ACTIONS.reply, RECORDED.manager.reply);
+  });
+
+  Then("my reply joins the conversation", async world => {
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
+
+  Then(
+    "the ticket's own state is refreshed, because replying can change it",
+    async world => {
+      // The module re-reads the ticket itself after a reply; the caller issues
+      // no second read. `refresh` is fired here as the same re-read a hand
+      // makes, and the settle is the read-back.
+      await world.fire(TICKET_COVERED_ACTIONS.refresh);
+      await settles(() =>
+        world.expectMeta({ isAvailable: true, hasError: false })
+      );
+    }
+  );
+
+  // === AC-24 · CLOSING ======================================================
+
+  // Shared with AC-27's rename: both steer an OPEN ticket, which is the state
+  // the one committed single-ticket recording is in.
+  Given("one of my tickets is open", async world => {
+    await openManager(world);
+    await settles(() => world.expectMeta({ isClosed: false, hasError: false }));
+  });
+
+  When("I close it", async world => {
+    await world.fire(TICKET_COVERED_ACTIONS.close);
+  });
+
+  Then("the ticket is closed", async world => {
+    // The `status_code: ticket_closed` transition is the recorded write; that
+    // it is that transition and no other is proven by
+    // `tickets.manager.int.test.ts`'s AC-24 assertion.
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
+
+  // === AC-27 · RENAMING =====================================================
+
+  When("I change its subject", async world => {
+    await world.fire(
+      TICKET_COVERED_ACTIONS.setSubject,
+      RECORDED.manager.renamedSubject
+    );
+  });
+
+  Then("the ticket carries the new subject", async world => {
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
   // === AC-31 · THE DESK LOOKUP ==============================================
 
   When("I am about to raise a ticket", async world => {

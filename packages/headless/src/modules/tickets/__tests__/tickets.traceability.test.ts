@@ -6,6 +6,13 @@
  * is named by a sibling spec's `describe`/`it` title), and the
  * spec-to-catalog drift gate over `tickets.steps.ts`.
  *
+ * BOTH KEYS, one gate. `tickets.steps.ts` serves the COLLECTION page
+ * (`client_tickets`) and the self-drawn MANAGER page (`client_ticket`) —
+ * `stepCatalogs` is keyed by MODULE, so one catalog covers both — and the
+ * covered-action check reads the ids through either key's constant rather than
+ * one hardcoded name. The driveable count in the test NAME therefore counts
+ * both surfaces' scenarios, which is why it moves when either gains steps.
+ *
  * GENERIC BY CONSTRUCTION — the second gate reads the WHOLE feature and the
  * WHOLE catalog, so there is no hardcoded scenario count, no per-scenario list
  * and no exception list. A scenario or a definition appended later is inside
@@ -42,6 +49,7 @@ import {
   includes,
   map,
   reject,
+  some,
   uniq
 } from "lodash-es";
 
@@ -58,6 +66,21 @@ const catalogSource = readFileSync(join(TEST_DIR, "tickets.steps.ts"), "utf-8");
  * formatter has wrapped across lines exactly as it reads one that fits on one.
  */
 const unwrappedCatalog = catalogSource.replace(/\s+/g, "");
+
+/**
+ * The two constants the catalog fires its actions through — one per scenario
+ * KEY the one module serves (`client_tickets`, the collection; `client_ticket`,
+ * the self-drawn manager). An id is covered when SOME step fires it through
+ * either: the ids are graded, not the map they were read off, and the two cells
+ * legitimately share a member name (`isReady`, `refresh`).
+ *
+ * Named here rather than derived so the check stays mechanical: a third key
+ * would add a third constant, and an id fired through none of them still fails.
+ */
+const COVERED_ACTION_MAPS = [
+  "TICKETS_COVERED_ACTIONS",
+  "TICKET_COVERED_ACTIONS"
+];
 
 const {
   scenarios,
@@ -142,7 +165,9 @@ describe("tickets — the module's AC-link traceability gate", () => {
     ).toEqual([]);
     expect(
       reject(coveredActionIds, id =>
-        includes(unwrappedCatalog, `fire(TICKETS_COVERED_ACTIONS.${id}`)
+        some(COVERED_ACTION_MAPS, constant =>
+          includes(unwrappedCatalog, `fire(${constant}.${id}`)
+        )
       ),
       "Declared covered but fired by no step"
     ).toEqual([]);

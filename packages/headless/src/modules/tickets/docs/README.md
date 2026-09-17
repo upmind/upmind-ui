@@ -131,6 +131,14 @@ Open:
 http://labs.localhost:3000/scenarios/client_tickets/as/client
 ```
 
-The scenario ships no `useDetail` and no `useMutate` — the row's own already-loaded data drives the detail overlay directly (a ticket row already carries its department and linked product in full), and no page-level create/edit form is wired for this scenario yet. The per-ticket conversation view has no playground yet.
+The scenario ships no `useDetail` and no `useMutate` — the row's own already-loaded data drives the detail overlay directly (a ticket row already carries its department and linked product in full), and no page-level create/edit form is wired for this scenario yet.
+
+The per-ticket conversation has its own page, addressed by the ticket it is about:
+
+```text
+http://labs.localhost:3000/useClientTicket/as/client/for/ticket/<id>
+```
+
+It draws itself — no generic surface can render a message thread or a reply composer — and carries the same scenario picker the collection does, over this module's one committed capability spec. Ten of the manager's scenarios replay there; the rest are proven by this module's own specs and are named, with their reasons, in `__tests__/tickets.steps.ts`.
 
 See [labs-nuxt's own README](../../../../../../playgrounds/labs-nuxt/README.md) for how the playground itself works — the scenario-key pattern, the dumb rendering pipeline, and the full test-driving commands.
