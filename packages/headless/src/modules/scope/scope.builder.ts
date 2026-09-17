@@ -1,9 +1,13 @@
+import { AccessRoleTypes } from "@upmind-automation/types";
+import { useSessionStore } from "../session-store";
 import { ensure } from "./scope.registry";
 import { ScopeActorTypes } from "./scope.types";
-import { generateScopeKey, resolveSelfActor } from "./scope.utils";
+import { generateScopeKey } from "./scope.utils";
 import type {
   ActorContextMatrix,
+  BareContextsForActor,
   ContextsForActor,
+  IdContextsForActor,
   ScopeActor,
   ScopeConfig,
   ScopeContext,
@@ -14,6 +18,33 @@ import type {
  * @module scope/builder
  * @description Fluent builder factory for creating scope-based composables.
  */
+
+/**
+ * Resolves `ScopeActorTypes.SELF` to the actual actor type from the current
+ * session: the active actor from the session store, or GUEST with no session.
+ *
+ * It lives here, beside its one caller (`.as()`), and NOT in `scope.utils`: it
+ * is the builder's own step, and it is the only scope function that reads a
+ * store. Keeping the store import out of `scope.utils` keeps that file pure, so
+ * a scope matrix — evaluated at MODULE LOAD — can call `selector()` without
+ * re-entering a half-loaded module through the session-store chain.
+ *
+ * @param actor - The actor to resolve
+ * @returns The resolved actor type (never SELF)
+ */
+export function resolveSelfActor(
+  actor: ScopeActor
+): Exclude<ScopeActor, `${ScopeActorTypes.SELF}`> {
+  if (actor !== ScopeActorTypes.SELF) {
+    return actor;
+  }
+
+  const session = useSessionStore();
+  const { activeActor } = session.useContext();
+
+  return activeActor.value ?? AccessRoleTypes.GUEST;
+}
+
 /**
  * Factory function that creates a composable instance from scope config.
  */
@@ -37,6 +68,41 @@ export type ScopedFactory<T, TContextType extends string = string> = (
  */
 export type ScopeBuilderWithId<T> = {
   withId: (id: string) => T;
+};
+
+/**
+ * The `.for()` step, overloaded on the matrix's per-member pattern declaration.
+ *
+ * When an actor declares no RETARGET member, `TIdContexts` is `never` and the
+ * two-argument form is uncallable; when it declares no SELECTOR member,
+ * `TBareContexts` is `never` and the one-argument form is uncallable. So each
+ * member admits exactly one call shape, and the other is rejected — including
+ * within one mixed cell.
+ *
+ * Method syntax is required: a property with an arrow type cannot be overloaded.
+ */
+export type ScopeForStep<
+  TResult,
+  TIdContexts extends string,
+  TBareContexts extends string
+> = {
+  /**
+   * Specifies the context entity being acted upon.
+   *
+   * @param type - The RETARGET context type (constrained by matrix)
+   * @param id - The entity ID
+   * @returns Finalized composable
+   */
+  for(type: TIdContexts, id: string): TResult;
+
+  /**
+   * Specifies the context the actor is scoped to, where the type IS the whole
+   * answer and there is no entity to name.
+   *
+   * @param type - The SELECTOR context type (constrained by matrix)
+   * @returns Finalized composable
+   */
+  for(type: TBareContexts): TResult;
 };
 
 /**
@@ -67,17 +133,13 @@ export type ScopeBuilderAfterFor<T> = T &
  * Builder after .inBrand() has been called for staff with contexts.
  * Can optionally chain with .for() to select a specific context.
  */
-export type ScopeBuilderAfterBrand<T, TContexts extends string> = T &
-  ScopeBuilderWithId<T> & {
-    /**
-     * Specifies the context entity being acted upon.
-     *
-     * @param type - The context type (constrained by matrix)
-     * @param id - The entity ID
-     * @returns Finalized composable
-     */
-    for: (type: TContexts, id: string) => T;
-
+export type ScopeBuilderAfterBrand<
+  T,
+  TIdContexts extends string,
+  TBareContexts extends string
+> = T &
+  ScopeBuilderWithId<T> &
+  ScopeForStep<T, TIdContexts, TBareContexts> & {
     /**
      * Spawns a fresh instance that starts a new session instead of reusing an
      * active one of this scope.
@@ -98,8 +160,13 @@ export type ScopeBuilderAfterBrand<T, TContexts extends string> = T &
  * - `.as('staff').inBrand('x').for('client', '123')` - Specific client in brand
  * - `.as('staff').for('client', '123').inBrand('x')` - Same as above
  */
-export type ScopeBuilderStaffWithContexts<T, TContexts extends string> = T &
-  ScopeBuilderWithId<T> & {
+export type ScopeBuilderStaffWithContexts<
+  T,
+  TIdContexts extends string,
+  TBareContexts extends string
+> = T &
+  ScopeBuilderWithId<T> &
+  ScopeForStep<ScopeBuilderAfterFor<T>, TIdContexts, TBareContexts> & {
     /**
      * Filters by brand.
      * After calling, .for() remains available to select a specific context.
@@ -107,18 +174,9 @@ export type ScopeBuilderStaffWithContexts<T, TContexts extends string> = T &
      * @param brandId - The brand ID to filter by
      * @returns Builder with .for() available
      */
-    inBrand: (brandId: string) => ScopeBuilderAfterBrand<T, TContexts>;
-
-    /**
-     * Specifies the context entity being acted upon.
-     * In org mode, BE will infer the brand from the context.
-     * After calling, .inBrand() remains available for explicit brand validation.
-     *
-     * @param type - The context type (constrained by matrix)
-     * @param id - The entity ID
-     * @returns Builder with .inBrand() available
-     */
-    for: (type: TContexts, id: string) => ScopeBuilderAfterFor<T>;
+    inBrand: (
+      brandId: string
+    ) => ScopeBuilderAfterBrand<T, TIdContexts, TBareContexts>;
 
     /**
      * Spawns a fresh instance that starts a new session instead of reusing an
@@ -164,7 +222,8 @@ export type ScopeBuilderStaffResult<T, TMatrix extends ActorContextMatrix> = [
   ? ScopeBuilderStaffNoContexts<T>
   : ScopeBuilderStaffWithContexts<
       T,
-      ContextsForActor<TMatrix, ScopeActorTypes.STAFF>
+      IdContextsForActor<TMatrix, ScopeActorTypes.STAFF>,
+      BareContextsForActor<TMatrix, ScopeActorTypes.STAFF>
     >;
 
 /**
@@ -176,17 +235,13 @@ export type ScopeBuilderStaffResult<T, TMatrix extends ActorContextMatrix> = [
  * - `.as('client').for('client', '456')` - Client acting on behalf of child client
  * - `.as('guest').for('lead', '789')` - Guest with lead context (if matrix allows)
  */
-export type ScopeBuilderActorWithContexts<T, TContexts extends string> = T &
-  ScopeBuilderWithId<T> & {
-    /**
-     * Specifies the context entity being acted upon.
-     *
-     * @param type - The context type (constrained by matrix)
-     * @param id - The entity ID
-     * @returns Finalized composable
-     */
-    for: (type: TContexts, id: string) => T;
-
+export type ScopeBuilderActorWithContexts<
+  T,
+  TIdContexts extends string,
+  TBareContexts extends string
+> = T &
+  ScopeBuilderWithId<T> &
+  ScopeForStep<T, TIdContexts, TBareContexts> & {
     /**
      * Spawns a fresh instance that starts a new session instead of reusing an
      * active one of this scope.
@@ -232,7 +287,11 @@ export type ScopeBuilderResult<
   ? ScopeBuilderStaffResult<T, TMatrix>
   : [ContextsForActor<TMatrix, TActor>] extends [never]
     ? ScopeBuilderActorNoContexts<T>
-    : ScopeBuilderActorWithContexts<T, ContextsForActor<TMatrix, TActor>>;
+    : ScopeBuilderActorWithContexts<
+        T,
+        IdContextsForActor<TMatrix, TActor>,
+        BareContextsForActor<TMatrix, TActor>
+      >;
 
 /**
  * Builder after .withId() has been called at the ROOT, before any actor is
@@ -361,6 +420,11 @@ export type ScopedComposable<
  * // Single-record read patterns (no matrix needed — an id is not a context):
  * useBasket().withId('123')                               // ✓ SELF reads record 123
  * useBasket().as('staff').withId('123')                   // ✓ Staff reads record 123
+ *
+ * // Selector patterns (the matrix wraps the member in `selector()`):
+ * // const MATRIX = { [ScopeActorTypes.CLIENT]: selector('invoice') } as const;
+ * useBasket().as('client').for('invoice')                 // ✓ The type IS the answer
+ * useBasket().as('client').for('invoice', '1')            // ✗ Type error - id forbidden
  * ```
  */
 export function createScopedComposable<
@@ -431,7 +495,7 @@ export function createScopedComposable<
     const builderMethods: {
       [key: string]:
         | ((actor: ScopeActor) => ScopeBuilder<T, TMatrix>)
-        | ((type: string, id: string) => ScopeBuilder<T, TMatrix>)
+        | ((type: string, id?: string) => ScopeBuilder<T, TMatrix>)
         | ((id: string) => ScopeBuilder<T, TMatrix>)
         | (() => ScopeBuilder<T, TMatrix>);
     } = {
@@ -440,8 +504,13 @@ export function createScopedComposable<
         instance = null;
         return proxy;
       },
-      for(type: string, id: string) {
-        config.context = { type, id } as ScopeContext;
+      // The id key is OMITTED rather than set to `undefined`: the config object
+      // is what DevTools and `useInternals()` surface, and an absent key reads
+      // as an absent id.
+      for(type: string, id?: string) {
+        config.context = (
+          id === undefined ? { type } : { type, id }
+        ) as ScopeContext;
         instance = null;
         return proxy;
       },

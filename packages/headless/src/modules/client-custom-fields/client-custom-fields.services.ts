@@ -5,6 +5,8 @@ import {
   ImageObjectTypes
 } from "@upmind-automation/types";
 import { useQuery, invalidateQueryByKey, isAbortError } from "../query";
+import { ScopeActorTypes, ScopeContextPatterns } from "../scope/scope.types";
+import { resolveContextDeclarations } from "../scope/scope.utils";
 import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { useUpload } from "../system-upload";
@@ -19,6 +21,7 @@ import {
 import {
   ClientCustomFieldContextTypes,
   ClientCustomFieldsContextTypes,
+  CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX,
   CUSTOM_FIELD_DEFAULT_SORT
 } from "./client-custom-fields.types";
 import {
@@ -32,7 +35,15 @@ import {
   NotAuthenticatedError,
   DEBOUNCE_DELAY
 } from "../../utils";
-import { isArray, isEmpty, isEqual, map, sortBy } from "lodash-es";
+import {
+  filter,
+  includes,
+  isArray,
+  isEmpty,
+  isEqual,
+  map,
+  sortBy
+} from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
   ClientCustomFieldsListQuery,
@@ -43,7 +54,6 @@ import type {
   QueryModel
 } from "./client-custom-fields.types";
 import type { ResponseError } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { ICustomField, IClient } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -67,22 +77,95 @@ import type { ICustomField, IClient } from "@upmind-automation/types";
 export const queryKey: QueryKey = ["client", "customFields"];
 
 /**
+ * The catalogues a scope may SELECT, read off the matrix itself so the two can
+ * never drift: every SELECTOR member the CLIENT cell declares, and nothing
+ * else. `resolveContextDeclarations` is the scope platform's ONE reading of a
+ * cell — this module does not learn a second one.
+ *
+ * A function, not a module-level const: `scope.utils` imports `session-store`,
+ * so calling into it while THIS module is still evaluating re-enters it
+ * mid-initialisation (see `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX`'s own
+ * `@decision`). Called per resolution instead, over a three-member cell.
+ */
+function selectableCatalogues(): string[] {
+  return map(
+    filter(
+      resolveContextDeclarations(
+        CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]
+      ),
+      { pattern: ScopeContextPatterns.SELECTOR }
+    ),
+    "type"
+  );
+}
+
+/**
+ * Resolves WHICH catalogue this scope reads — the catalogue a SELECTOR context
+ * names, or the client catalogue when the scope names none. This is the
+ * `filter[object_type]` value and the cache axis, both.
+ *
+ * Only a declared SELECTOR answers. The `CLIENT` retarget context and the image
+ * half's `FIELD` context each name an ENTITY, not a catalogue, so both fall to
+ * the client default: without the membership test a `.for(FIELD, id)` scope
+ * would ask the API for `filter[object_type]=field`, a catalogue it has not got.
+ */
+function resolveCatalogue(scopeContext?: ScopeContext): string {
+  const type = scopeContext?.type;
+  return type && includes(selectableCatalogues(), type)
+    ? type
+    : CustomFieldsMajorTypes.CLIENT;
+}
+
+/**
+ * The catalogue axis as a cache-key segment, or `undefined` at the client
+ * default — the ONE normalisation `loadList`'s query key and
+ * {@link catalogueQueryKey} both fold through.
+ */
+function catalogueKeySegment(scopeContext?: ScopeContext): string | undefined {
+  const catalogue = resolveCatalogue(scopeContext);
+  return catalogue === CustomFieldsMajorTypes.CLIENT ? undefined : catalogue;
+}
+
+/**
+ * The key `invalidate` / `reset` / `refresh` scope onto — this catalogue's
+ * rows and no sibling's.
+ *
+ * NOT the key `loadList` registers under: that one also carries `client` and
+ * `brand`, which stay unconstrained here so one press still reaches every
+ * client and criteria variant OF THIS CATALOGUE under `exact: false`. The
+ * default catalogue omits `objectType` from `loadList`'s key entirely (AC-2),
+ * and an explicit `undefined` here still matches that under TanStack's partial
+ * equality, while another catalogue's `objectType` string never does — so the
+ * two can no longer prefix-match one another.
+ */
+function catalogueQueryKey(scopeContext?: ScopeContext): QueryKey {
+  return [...queryKey, { objectType: catalogueKeySegment(scopeContext) }];
+}
+
+/**
  * Derives the target client id from the RESOLVED scope — the ONE seam every
  * request-issuing function in this file shares, and the fix for a services
  * layer that hardwires the session's client for every call.
  *
- * A `VALUES` context names the client's own value set being addressed; with
- * none it falls back to the active session's own client (the self case). A
- * `FIELD` context (the image half) deliberately falls through to the
- * session too — a field context names the entity, not its owner. This
- * compares the CONTEXT the scope builder resolved, never the actor, so it is
- * not a branch on `ScopeActorTypes.SELF`.
+ * A `.for('client', id)` context names the client being addressed; with none
+ * it falls back to the active session's own client (the self case). A `FIELD`
+ * context (the image half) deliberately falls through to the session too — a
+ * field context names the entity, not its owner. This compares the CONTEXT the
+ * scope builder resolved, never the actor, so it is not a branch on
+ * `ScopeActorTypes.SELF`. ADR-001 amendment 2026-09-15: the client retarget
+ * rides in a `.for()` context; `.withId()` carries a record id, never the owner.
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ClientCustomFieldsContextTypes.VALUES
+    scopeContext?.type === ClientCustomFieldsContextTypes.CLIENT &&
+    scopeContext.id
       ? scopeContext.id
       : activeUser.value?.id
   );
@@ -90,7 +173,7 @@ function resolveClientId(scopeContext?: ScopeContext) {
 
 /**
  * Resolves the field id out of a `FIELD`-context scope; `undefined` for the
- * collection's own `VALUES` scope, which has none.
+ * collection's own `CLIENT` scope, which has none.
  */
 function resolveFieldId(scopeContext?: ScopeContext): string | undefined {
   return scopeContext?.type === ClientCustomFieldContextTypes.FIELD
@@ -263,13 +346,15 @@ function loadList(scopeContext?: ScopeContext): ClientCustomFieldsListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
   const brand = loadClientBrandId(scopeContext);
+  const catalogue = resolveCatalogue(scopeContext);
+  const catalogueSegment = catalogueKeySegment(scopeContext);
 
   // URL SCOPING, not criteria: these two say WHICH catalogue is being read.
   // They are not filters a consumer may change, so they never enter the query
   // model — parity Q5 / AC-32.
   const targetUrl = () =>
     useUrl("custom_fields", {
-      "filter[object_type]": CustomFieldsMajorTypes.CLIENT,
+      "filter[object_type]": catalogue,
       brand_id: brand.brandId.value ?? ""
     });
   const url = targetUrl();
@@ -286,7 +371,19 @@ function loadList(scopeContext?: ScopeContext): ClientCustomFieldsListQuery {
     QueryModel
   >({
     criteria: { schema: useQuerySchema() },
-    queryKey: [...queryKey, { client: clientId, brand: brand.brandId }],
+    // The catalogue axis is OMITTED at the client default, never written as
+    // `objectType: undefined` — the default consumer's key must serialise
+    // byte-identically to what it did before the axis existed (AC-2). Two
+    // catalogues on the same client and brand would otherwise collide on one
+    // cache entry and the second would be served the first's rows.
+    queryKey: [
+      ...queryKey,
+      {
+        client: clientId,
+        brand: brand.brandId,
+        ...(catalogueSegment ? { objectType: catalogueSegment } : {})
+      }
+    ],
     url,
     // `enabled:` only stops the query starting; this rejects a forced
     // `refetch()` on a dead, unaddressable, or brand-unresolved scope with
@@ -456,9 +553,11 @@ async function validate(
   });
 }
 
-/** Invalidates this module's cache key so the collection refetches. */
-async function refresh(): Promise<void> {
-  await invalidateQueryByKey(queryKey, { exact: false })(undefined);
+/** Invalidates this catalogue's cache key so the collection refetches. */
+async function refresh(scopeContext?: ScopeContext): Promise<void> {
+  await invalidateQueryByKey(catalogueQueryKey(scopeContext), {
+    exact: false
+  })(undefined);
 }
 
 // -----------------------------------------------------------------------------
@@ -494,7 +593,7 @@ export const createClientCustomFieldsServices = (
   const clientId = resolveClientId(scopeContext);
 
   return {
-    queryKey,
+    queryKey: catalogueQueryKey(scopeContext),
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
@@ -503,7 +602,7 @@ export const createClientCustomFieldsServices = (
     uploadFieldImage,
     flushImages: model => flushImages(model, scopeContext),
     validate,
-    refresh,
+    refresh: () => refresh(scopeContext),
     ...scopedServices(scopeActor, scopeContext)
   };
 };

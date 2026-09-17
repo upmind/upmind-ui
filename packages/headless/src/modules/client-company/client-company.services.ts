@@ -83,12 +83,17 @@ export const queryKey: QueryKey = ["client", "companies"];
  * not a branch on `ScopeActorTypes.SELF`. The manager's context names the
  * COMPANY, not its owner, so it falls through to the session — the same
  * documented fall-through `client-email.services.ts` L76-84 uses.
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ClientCompaniesContextTypes.CLIENT
+    scopeContext?.type === ClientCompaniesContextTypes.CLIENT && scopeContext.id
       ? scopeContext.id
       : activeUser.value?.id
   );

@@ -7,6 +7,18 @@
  * here (`ScopeActor`, `ScopeContext`, `ScopeConfig`, `ActorContextMatrix`) is
  * pre-existing and consumed unchanged. See `graphify-out/GRAPH_REPORT.md`.
  */
+/**
+ * @graphify-citation `graphify query "ScopeContextPatterns SelectorContext
+ * ScopeContextDeclaration"` and `"IdContextsForActor BareContextsForActor
+ * ScopeForStep"` against `graphify-out/graph.json` (2026-09-15, 28202 nodes /
+ * 59133 edges) both return no matching nodes; `"resolveContextDeclaration
+ * selector context pattern"` returns 102 nodes, none of them a scope construct
+ * (the only `selector` node is an unrelated product-picker component). The
+ * per-member context-pattern declaration added below is new ground, not a
+ * duplicate of something the graph already exposes. Every member it reuses —
+ * `ActorContextMatrix`, `ContextsForActor`, `ScopeContext` — is pre-existing.
+ * See `graphify-out/GRAPH_REPORT.md`.
+ */
 // -----------------------------------------------------------------------------
 import { AccessRoleTypes } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -38,9 +50,51 @@ export type ConcreteActorTypes = Exclude<ScopeActorTypes, ScopeActorTypes.SELF>;
 export type ScopeActor = `${ScopeActorTypes}`;
 
 /**
+ * The two mutually exclusive context patterns a matrix member may declare.
+ *
+ * A string enum so the pattern is readable in DevTools and in a scope URL.
+ * New ground — see this file's head `graphify-out/` citation.
+ */
+export enum ScopeContextPatterns {
+  /** `.for(type, id)` — the id names the entity the actor acts upon. REQUIRED. */
+  RETARGET = "retarget",
+  /** `.for(type)` — the type IS the whole answer. An id is FORBIDDEN. */
+  SELECTOR = "selector"
+}
+
+/**
+ * The declaration a matrix cell carries for a SELECTOR member. Minted by
+ * `selector()` — a bare string declares a RETARGET member and needs no wrapper.
+ */
+export type SelectorContext<TContextType extends string = string> = {
+  readonly pattern: ScopeContextPatterns.SELECTOR;
+  readonly type: TContextType;
+};
+
+/**
+ * What a matrix cell may hold for one member: a bare string (RETARGET) or a
+ * `selector()` wrapper (SELECTOR).
+ */
+export type ScopeContextDeclaration<TContextType extends string = string> =
+  | TContextType
+  | SelectorContext<TContextType>;
+
+/**
+ * The declarations a cell holds, as a union. A cell may hold ONE declaration or
+ * a readonly array of them, and every consumer reads through this so neither
+ * form needs its own branch. A `string` does not extend `readonly unknown[]`,
+ * so a single-declaration cell falls through unchanged.
+ */
+export type DeclarationsInCell<TCell> = TCell extends readonly (infer TMember)[]
+  ? TMember
+  : TCell;
+
+/**
  * Actor-to-context matrix type.
- * Each module defines which contexts are valid for each actor.
- * Context types are defined by the module itself (typically as an enum).
+ * Each module defines which contexts are valid for each actor, and which
+ * pattern each context member is: a bare string declares RETARGET, a
+ * `selector()` wrapper declares SELECTOR. A cell may hold one declaration or a
+ * readonly array of them (ADR-001 amendment 2026-09-15).
  *
  * Note: SELF is included in the matrix but should map to `never` since
  * it's resolved to a concrete actor at runtime before context lookup.
@@ -62,19 +116,48 @@ export type ScopeActor = `${ScopeActorTypes}`;
  *
  * type BasketMatrix = typeof BASKET_SCOPE_MATRIX;
  * ```
+ *
+ * @example
+ * ```typescript
+ * // A mixed cell — one retarget member and two selector members for one actor:
+ * const CUSTOM_FIELDS_SCOPE_MATRIX = {
+ *   [ScopeActorTypes.SELF]: null as never,
+ *   [ScopeActorTypes.STAFF]: null as never,
+ *   [ScopeActorTypes.CLIENT]: [
+ *     CustomFieldsContextTypes.VALUES,
+ *     selector(CustomFieldsContextTypes.INVOICE),
+ *     selector(CustomFieldsContextTypes.CANCEL_REQUEST)
+ *   ],
+ *   [ScopeActorTypes.GUEST]: null as never
+ * } as const;
+ * ```
  */
 export type ActorContextMatrix<
-  TMatrix extends Partial<Record<ScopeActorTypes, string | never>> = Partial<
-    Record<ScopeActorTypes, string | never>
+  TMatrix extends Partial<
+    Record<
+      ScopeActorTypes,
+      ScopeContextDeclaration | readonly ScopeContextDeclaration[] | never
+    >
+  > = Partial<
+    Record<
+      ScopeActorTypes,
+      ScopeContextDeclaration | readonly ScopeContextDeclaration[] | never
+    >
   >
 > = TMatrix;
 
 /**
- * A specific context instance — type and ID.
+ * A specific context instance — type, and an id only when the member's declared
+ * pattern is RETARGET.
  */
 export type ScopeContext<TContextType extends string = string> = {
   type: TContextType;
-  id: string;
+  /**
+   * The entity the actor acts upon. Present for a RETARGET context, absent for
+   * a SELECTOR context — the two patterns are mutually exclusive and the matrix
+   * declares which a member is (ADR-001 amendment 2026-09-15).
+   */
+  id?: string;
 };
 
 /**
@@ -129,6 +212,33 @@ export type ContextsForActor<
 > = TActor extends keyof TMatrix
   ? Exclude<TMatrix[TActor], undefined | never>
   : never;
+
+/**
+ * The RETARGET members of an actor's cell — `.for(type, id)`'s first argument.
+ * `never` when the actor declares no retarget member, which makes the
+ * two-argument overload uncallable for that actor.
+ *
+ * New ground — see this file's head `graphify-out/` citation.
+ */
+export type IdContextsForActor<
+  TMatrix extends ActorContextMatrix,
+  TActor extends ScopeActorTypes
+> = Extract<DeclarationsInCell<ContextsForActor<TMatrix, TActor>>, string>;
+
+/**
+ * The SELECTOR members of an actor's cell, unwrapped to their context type —
+ * `.for(type)`'s only argument. `never` when the actor declares no selector
+ * member, which makes the one-argument overload uncallable for that actor.
+ */
+export type BareContextsForActor<
+  TMatrix extends ActorContextMatrix,
+  TActor extends ScopeActorTypes
+> =
+  DeclarationsInCell<ContextsForActor<TMatrix, TActor>> extends infer TDecl
+    ? TDecl extends SelectorContext<infer TContextType>
+      ? TContextType
+      : never
+    : never;
 
 /**
  * Helper type to extract ALL valid context types from a matrix.

@@ -11,7 +11,7 @@ The base's generic worktree/path placeholders bind to:
 
 ## Issue tracker
 
-The issue tracker is **Linear** (fetch via the Linear MCP). Story IDs look like `FE-2243`.
+Linear — `.claude/rules/linear-lifecycle.md`.
 
 ## Source branches
 
@@ -33,6 +33,4 @@ decision record)" binds to:
 
 The base's generic "auth identity (selected credential/token + on-behalf-of
 headers)" binds to this repo's identity transport — the **session token**
-selected and the **acting-as headers** sent for a `.for('client', id)` call. The
-full read-back contract is homed in `reality-check.companion.md`; assert it, do
-not restate it here.
+selected and the **acting-as headers** sent for a `.for('client', id)` call.

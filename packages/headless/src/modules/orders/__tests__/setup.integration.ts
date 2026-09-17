@@ -14,8 +14,8 @@
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { vi } from "vitest";
-import { startReplayServer } from "@upmind-automation/test-fixtures/replay-server";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { startReplayServer } from "@upmind-automation/test-fixtures/replay-server";
 
 // -----------------------------------------------------------------------------
 

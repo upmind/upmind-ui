@@ -13,10 +13,14 @@
  * @module client-personal-details/client-personal-details.types
  * @description Types for a client's own profile — the query-backed read half
  * (`usePersonalDetails`) and the `dataManagerMachine`-backed editor half
- * (`usePersonalDetailsManager`). Both composables share the SAME scope
- * matrix and context enum (design.md §3.2): the entity being addressed is
- * the profile, and a client has exactly one.
+ * (`usePersonalDetailsManager`). Both composables share the SAME scope matrix
+ * and `CLIENT` context enum (design.md §3.2): the client whose profile is
+ * read/edited is named by a matrix-gated `.for('client', id)` retarget, or
+ * falls back to the active session — mirroring every sibling client module
+ * (`client-phone`, `client-notes`). (`graphify-out/graph.json` — no new node;
+ * the context member is renamed, not minted.)
  */
+import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { CustomField, CustomFieldModel } from "../client-custom-fields";
@@ -34,23 +38,24 @@ import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 
 /**
- * Context type for BOTH halves — WHICH profile is being read/edited. The
- * context names the ENTITY (the profile), not its owner: there is no
- * `client` context type here, so `.for('client', id)` does not exist —
- * see `docs/dropped-capabilities.md` for the staff-acting-for-a-client
- * retarget this drops, and its tracked disposition. (`graphify-out/graph.json`
- * — comment-only citation retarget, no new node; FE-3103 T4.)
+ * Context type for BOTH halves — WHICH client's profile is being read/edited.
+ * `.for('client', id)` names the client being addressed; with none, the seam
+ * falls back to the active session's own client. The member and wire value
+ * match every sibling client module (`ClientPhonesContextTypes.CLIENT`,
+ * `ClientNotesContextTypes.CLIENT` = `AccessRoleTypes.CLIENT`).
+ * (`graphify-out/graph.json` — no new node; the member is renamed, not minted.)
  */
 export enum ClientPersonalDetailsContextTypes {
-  /** A client's own profile. Single-member — a client has exactly one. */
-  PROFILE = "profile"
+  /** Acting on a client's own profile. */
+  CLIENT = AccessRoleTypes.CLIENT
 }
 
 /**
  * Scope matrix shared by `usePersonalDetails` and `usePersonalDetailsManager`
  * (design.md §3.2 — a deliberate divergence from `client-email`'s two
  * matrices, since both composables here scope on the same entity). `client`
- * is the only actor that resolves; `staff` and `guest` are `null as never`.
+ * is the only actor that resolves; `self`, `staff` and `guest` are
+ * `null as never`.
  *
  * WHAT THE TYPE SYSTEM ACTUALLY ENFORCES. `ScopeBuilderResult` accepts EVERY
  * `ScopeActorTypes` and reads the matrix row only to decide whether `.for()`
@@ -62,12 +67,13 @@ export enum ClientPersonalDetailsContextTypes {
  * `.as('staff' | 'guest' | 'self').for(...)`, while `.as('client').for(...)`
  * type-checks. A designed boundary rather than an advertised-but-absent
  * capability. Same correction as `client-address.types.ts`, whose note carries
- * the `ts.createProgram` probe this rests on.
+ * the `ts.createProgram` probe this rests on. (`graphify-out/graph.json` — the
+ * `CLIENT` row is the retarget grant, not a new node.)
  */
 export const PERSONAL_DETAILS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientPersonalDetailsContextTypes.PROFILE,
+  [ScopeActorTypes.CLIENT]: ClientPersonalDetailsContextTypes.CLIENT,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 

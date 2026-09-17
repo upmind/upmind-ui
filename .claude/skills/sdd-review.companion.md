@@ -1,6 +1,6 @@
 > Companion to the upmind-agent skill /sdd-review — Upmind-monorepo-specific bindings/overrides.
 
-The base doctrine is authoritative; this file only supplies the repo values. The verdict transition label strings (`actor:*` / `skill:*` / `action:Review`), the status columns, and the `save_issue`-replaces-whole-set / non-agent-label (area · priority · provenance · releases) invariant are owned by [`agent-labels.companion.md`](../rules/agent-labels.companion.md) — do not restate them here.
+Labels, columns and the read → compute → write invariant: `.claude/rules/linear-lifecycle.md`.
 
 ## Tracker binding (generic verbs → Linear)
 

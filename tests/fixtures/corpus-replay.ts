@@ -15,7 +15,7 @@
  * recorded refusal is served as staging served it. Nothing here authors a body.
  */
 
-import { HttpResponse, http, passthrough } from "msw";
+import { HttpResponse, http } from "msw";
 import {
   compact,
   endsWith,
@@ -1126,7 +1126,22 @@ export function isAbsentRecordRead(fixture: RecordedFixture): boolean {
  * The msw resolver that answers from a corpus session: the recording of this
  * request, the request's own body read once so a write is answered by the
  * recording of the SAME write and, once served, lands where the next read is
- * answered from. A request no recording answers is passed through.
+ * answered from.
+ *
+ * A request no recording answers is DECLINED — `undefined`, msw's "not mine,
+ * try the next handler" — never `passthrough()`. The two are not the same
+ * decision: `passthrough()` is TERMINAL. It ends the handler lookup and
+ * performs the request AS-IS, so a corpus gap left this fake API and became
+ * live traffic to the real one (`https://api.upmind.io`, `usePOP`'s deliberate
+ * default), and — because the lookup stopped — it did so while the module's own
+ * recorded fixture sat unread one handler further down.
+ *
+ * Declining leaves the decision with whoever armed the replay: the labs page
+ * narrows its routes and lets msw's own unhandled policy answer, while
+ * `startReplayServer` closes the stack with a wall, so a capture gap is a named
+ * failure instead of a silent production request.
+ *
+ * @see `tests/fixtures/replay-server.ts` — the wall that closes the stack.
  */
 export function corpusReplayResolver(
   session: CorpusSession
@@ -1144,7 +1159,7 @@ export function corpusReplayResolver(
       sent
     );
 
-    if (!answer) return passthrough();
+    if (!answer) return undefined;
 
     if (answer.status < REFUSED_FROM)
       session.apply(request.method, url, sent, answer.body);

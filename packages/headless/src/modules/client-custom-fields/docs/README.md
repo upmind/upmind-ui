@@ -39,7 +39,7 @@ const file = new File([], "avatar.png", { type: "image/png" });
 // --- The collection: read the brand's definitions
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 const { data } = fields.useContext();
 await fields.useActions().isReady();
 
@@ -92,7 +92,7 @@ const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 // The only actor that resolves — the same on both composables
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 
 // Staff and guest reach nothing here — the matrix pins both to `never`, so
 // neither branch's type carries a `.for()`. The `@ts-expect-error` is the
@@ -100,7 +100,7 @@ const fields = useClientCustomFields()
 useClientCustomFields()
   .as(ScopeActorTypes.STAFF)
   // @ts-expect-error — TS2339: no `.for()` on the staff branch's type
-  .for(ClientCustomFieldsContextTypes.VALUES, clientId);
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
 ```
 
 Naming a client's id here is addressing an **entity**, not adopting an **actor**: the caller's own credentials travel with the request regardless of which id was named, and this contract does not validate locally that the id matches the caller. There is no capability anywhere in this module for one client to act _as_ another — see [foundation.md](./foundation.md#core-concepts) for the full statement.

@@ -5,7 +5,15 @@ export type SeedRef = { journey: string };
 
 export type WorldScope = {
   actor: ScopeActor;
-  context?: { type: string; id: string };
+  /**
+   * The entity the actor acts FOR. The `id` is present for a RETARGET member
+   * and absent for a SELECTOR one — the two patterns a scope matrix declares
+   * per member (ADR-001 amendment 2026-09-15). Mirrors headless's own
+   * `ScopeContext` over this package's vue-free source; no type is minted here.
+   * Resolved via `graphify-out/graph.json` to
+   * `packages/headless/src/modules/scope/scope.types.ts`.
+   */
+  context?: { type: string; id?: string };
   brandId?: string;
   seed?: SeedRef;
 };

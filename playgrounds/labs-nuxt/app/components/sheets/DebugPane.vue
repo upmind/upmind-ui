@@ -105,6 +105,7 @@ import {
 import { computed, unref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/client-vue";
+import { ScopeContextPatterns } from "@upmind-automation/headless";
 import ContextPanel from "../../../modules/scenarios/runtime/components/ContextPanel.vue";
 import MetaPanel from "../../../modules/scenarios/runtime/components/MetaPanel.vue";
 import { ACTOR_LABEL_KEYS } from "../scope/useActorScopeSelector";
@@ -129,6 +130,7 @@ import type { DebugPaneProps } from "./DebugPane.types";
 import type { ContextItem } from "./usePlaygroundSheet.types";
 import type { DescriptionListOption } from "@upmind/ui";
 import { CodeBlock } from "~/components/code";
+import { resolveMatrixContexts } from "~/composables/scope/scope-utils";
 // -----------------------------------------------------------------------------
 
 /** What a credential reads as once the pane has taken it out. */
@@ -226,10 +228,19 @@ const contextValues = computed<Record<string, unknown>>(() =>
 );
 
 function matrixContexts(contexts: unknown): string {
-  if (!contexts) return "—";
-  if (isArray(contexts)) return join(map(contexts, startCase), ", ");
+  // Read through the app's ONE matrix reader: a `selector()` member is an
+  // object, and `String()`-ing it renders `[object Object]`.
+  const declared = resolveMatrixContexts(contexts);
+  if (isEmpty(declared)) return "—";
 
-  return startCase(String(contexts));
+  return join(
+    map(declared, ({ type, pattern }) =>
+      pattern === ScopeContextPatterns.SELECTOR
+        ? `${startCase(type)} (${pattern})`
+        : startCase(type)
+    ),
+    ", "
+  );
 }
 
 /** The matrix as rows: actor → the contexts it resolves. */

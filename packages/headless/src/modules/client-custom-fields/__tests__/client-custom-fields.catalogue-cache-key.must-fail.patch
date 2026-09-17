@@ -1,0 +1,52 @@
+# client-custom-fields.catalogue-cache-key.must-fail.patch
+#
+# Targets: FE-3034 AC "Cache key carries an object-type axis, byte-identical at
+# default" — the vue-query LIST key gains an `objectType` segment per catalogue,
+# omitted at the client default. The plan's Correction 2: without it, two
+# catalogues on the same client and brand collide on one cache entry and the
+# second is served the first's rows.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# Mutates: client-custom-fields.services.ts `loadList`'s `queryKey` — drops the
+# conditional `objectType` segment, restoring the catalogue-blind key. The
+# default consumer's key is unaffected (the segment was already omitted there),
+# so this control fires only on the collision it exists to catch.
+#
+# This control covers ONE half of that AC — the per-catalogue half. The
+# default half (the segment stays OMITTED at the client default) is covered by
+# its own mutant, client-custom-fields.collection.must-fail.patch, which adds
+# the segment where this one removes it. Neither alone covers both halves.
+#
+# Expected RED: client-custom-fields.catalogue-cache-key.int.test.ts — the two
+# AC-35 collision assertions, that two catalogues resolved on the same client
+# and brand each keep their own rows and each is read exactly once (the
+# cancellation-request scope is not served the client scope's collection).
+#
+# Expected GREEN under this mutant, by design: the same file's repeat-read
+# cache-hit assertion, and every client-default assertion on the branch — this
+# mutation leaves the default key untouched, which is what makes it a targeted
+# control rather than a blunt one.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless exec vitest run --project integration \
+#     client-custom-fields.catalogue-cache-key   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+index 9c11d2f7c..2f6163598 100644
+--- a/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
++++ b/packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts
+@@ -380,8 +380,7 @@ function loadList(scopeContext?: ScopeContext): ClientCustomFieldsListQuery {
+       ...queryKey,
+       {
+         client: clientId,
+-        brand: brand.brandId,
+-        ...(catalogueSegment ? { objectType: catalogueSegment } : {})
++        brand: brand.brandId
+       }
+     ],
+     url,

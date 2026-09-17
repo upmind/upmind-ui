@@ -20,6 +20,8 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GatewayTypes } from "@upmind-automation/types";
+import { usePaymentGateway } from "../usePaymentGateway";
+import { noGateway, spawnGateway } from "./gateway.doubles";
 
 vi.mock("../../config", () => ({
   useConfig: () => ({
@@ -30,9 +32,6 @@ vi.mock("../../config", () => ({
 vi.mock("../../system-localisation", () => ({
   useI18n: () => ({ t: (key: string) => key })
 }));
-
-import { usePaymentGateway } from "../usePaymentGateway";
-import { noGateway, spawnGateway } from "./gateway.doubles";
 
 // -----------------------------------------------------------------------------
 

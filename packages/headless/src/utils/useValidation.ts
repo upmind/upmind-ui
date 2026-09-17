@@ -402,12 +402,10 @@ export function useLaravalSchemaParser(
   ) as JsonSchema7;
 }
 
-function isErrorObject(error: any): error is ErrorObject {
+function isErrorObject(error: unknown): error is ErrorObject {
   if (isArray(error)) return every(error, isErrorObject);
 
-  return (
-    error && isObject(error) && "instancePath" in error && "schemaPath" in error
-  );
+  return isObject(error) && "instancePath" in error && "schemaPath" in error;
 }
 
 export const useValidationParser = (error: ResponseError): ErrorObject[] => {
@@ -439,16 +437,21 @@ export const useValidationParser = (error: ResponseError): ErrorObject[] => {
  */
 function omitEmptied<T extends object>(
   baseModel: T | undefined,
-  values: any,
+  values: Record<string, unknown> | undefined,
   groups: string[]
 ): Partial<T> {
-  const isEmptyEntry = (entry: any) =>
+  const isEmptyEntry = (entry: unknown) =>
     (isPlainObject(entry) || isArray(entry)) && isEmpty(entry);
 
   return mapValues(baseModel, (group: any, name: string) => {
     if (!includes(groups, name)) return group;
 
-    const emptied = keys(pickBy(get(values, name), isEmptyEntry));
+    // A group that is not an object has no entries to empty; `pickBy` on a
+    // primitive returned `{}` before, so this is the same answer, typed.
+    const entries = get(values, name);
+    if (!isObject(entries)) return group;
+
+    const emptied = keys(pickBy(entries, isEmptyEntry));
     if (isEmpty(emptied)) return group;
 
     return omit(group, emptied);

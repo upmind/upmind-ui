@@ -33,6 +33,7 @@ import noCosplayArm from "./rules/no-cosplay-arm.mjs";
 import completeLayerSet from "./rules/complete-layer-set.mjs";
 import actorScopeFirst from "./rules/actor-scope-first.mjs";
 import armInMatrix from "./rules/arm-in-matrix.mjs";
+import noPrivateInstanceAxis from "./rules/no-private-instance-axis.mjs";
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -502,5 +503,68 @@ test("arm-in-matrix", () => {
   ruleTester.run("arm-in-matrix", armInMatrix, {
     valid: [read(clientArm), read(noMatrixArm)],
     invalid: [{ ...read(guestOrphan), errors: [{ messageId: "orphanArm" }] }]
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Instance keying is the scope registry's seam, not a module's (FE-3034,
+// 2026-09-15). Each discriminator below is load-bearing: dropping the
+// string-literal check, the REGISTRAR name match, the module-scope test, or the
+// `registrarCalls.length` guard turns one of these red.
+test("no-private-instance-axis", () => {
+  ruleTester.run("no-private-instance-axis", noPrivateInstanceAxis, {
+    valid: [
+      // The one valid shape — a bare string-literal registration name.
+      {
+        code: `const c = createScopedComposable("client-custom-fields", f, M);`
+      },
+      // A namespaced import of the registrar, still a literal name.
+      { code: `const c = scope.createScopedComposable("thing", f, M);` },
+      // A module-scope Map in a file that never registers is not a memo.
+      { code: `const cache = new Map(); export function useThing() {}` },
+      // A Map INSIDE a function is call-local state, not a registration memo.
+      {
+        code: `function f() { const m = new Map(); return createScopedComposable("thing", g, M); }`
+      },
+      // The scope module owns the registry and its cache.
+      {
+        code: `const registry = new Map();\nconst c = createScopedComposable(name, f, M);`,
+        filename: "/repo/packages/headless/src/modules/scope/scope.builder.ts"
+      }
+    ],
+    invalid: [
+      // The incident's tell #1 — a template-literal name computed per variant.
+      {
+        code:
+          "const c = createScopedComposable(`client-custom-fields@${objectType}`, f, M);",
+        errors: [{ messageId: "computedName" }]
+      },
+      // Tell #1 again, behind a helper that returns the name.
+      {
+        code: `const c = createScopedComposable(qualifiedName(catalogue), f, M);`,
+        errors: [{ messageId: "computedName" }]
+      },
+      // An identifier name is computed too — only a literal is legible to the registry.
+      {
+        code: `const c = createScopedComposable(name, f, M);`,
+        errors: [{ messageId: "computedName" }]
+      },
+      // The incident's tell #2 — a module-scope registration memo beside the registrar.
+      {
+        code: `const registered = new Map();\nexport function useThing() { return createScopedComposable("thing", f, M); }`,
+        errors: [{ messageId: "registrationMemo" }]
+      },
+      // Both tells at once, as FE-3034 actually shipped them.
+      {
+        code:
+          "const registered = new Map();\nconst c = createScopedComposable(`thing@${v}`, f, M);",
+        // Errors come back in source order, so the line-1 memo precedes the
+        // line-2 name.
+        errors: [
+          { messageId: "registrationMemo" },
+          { messageId: "computedName" }
+        ]
+      }
+    ]
   });
 });

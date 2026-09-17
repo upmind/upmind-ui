@@ -1,17 +1,27 @@
 # Placeholder audit — what the client-vue refactor will and will not fill
 
-**Date:** 11 September 2026
+**Date:** 11 September 2026. **Re-counted:** 15 September 2026.
 **Companion to:** [`client-vue-adoption.md`](./client-vue-adoption.md), which this corrects.
 
 Every route in this app that shows a **"Provided by client-vue"** row was audited against
 the ADR 023 phase roster, to answer one question: *will each one be filled?*
 
-**No.** Fourteen placeholder sites. **None** is filled by a remaining phase, three are already
-done, two are blocked on one decision, and **nine need components that do not exist and are
-in no phase** — including the two orders pages, corrected on 2026-09-14 after Phase 8 ran.
+The original answer was no, with fourteen placeholder sites and nine of them needing a
+component that does not exist and is in no phase.
 
-This document exists so that is known now rather than at the end of the migration, when the
-placeholder count is supposed to reach zero and will not.
+**Six pages and two panel rows remain.** Eight sites closed between 11 and 15 September,
+because those surfaces were mocked directly on `develop` rather than waiting for a phase.
+
+What is left: three auth rows that are still live on develop but orphaned on the ADR 023 stack,
+one page and two panel rows waiting on a barrel export that is already agreed, and two pages
+blocked on one small defect.
+
+**Read every row below with the branch in mind.** Develop carries none of the ADR 023
+packages, so a surface the stack fills with a real component is still a placeholder there.
+An earlier draft of this document mixed the two states and called three live rows dead.
+
+This document exists so the remainder is known now rather than at the end of the migration,
+when the placeholder count is supposed to reach zero and will not reach it on its own.
 
 ---
 
@@ -25,24 +35,42 @@ placeholder count is supposed to reach zero and will not.
 
 The rule is right. Mocking a surface that already exists is wasted work.
 
-It was applied to seven surfaces where **client-vue provides nothing**. Those were never
-"not new" — there is no component to wait for. They should have been treated like any other
-new surface and mocked, or scheduled as work to build.
+It was applied to surfaces the rule does not cover. Three had **no `client-vue` component at
+all** — verify your account, and the two email-history pages, whose module was retired in
+FE-3103. Four more had a component for a *different* surface: a password recover form but no
+reset-with-token step, a register form but no organisation variant, a product setup step
+belonging to the basket funnel, and profile row renderers arranged for the checkout billing
+screen.
 
-Instead each got a row saying *"Provided by client-vue"*, which reads as **waiting for a
-move** rather than **needs building**.
+Either way the row was wrong. *"Provided by client-vue"* reads as **waiting for a move**. For
+three of these there was nothing to wait for, and for four the thing that arrives does not fit
+the surface it was promised to.
 
-### It changed real decisions
+### The profile page is a different case, and an earlier draft of this document got it wrong
 
-This is not only cosmetic. `mock/facades/useMockContacts.ts` records, in its own header:
+`mock/facades/useMockContacts.ts` records, in its own header:
 
 > The client's contact emails as the REAL scoped collection headless ships (plan R1 (a)),
 > kept for the token opt-ins page alone: **phones, addresses and companies are
 > client-vue's**.
 
-So the portal **deliberately skipped mocking phones, addresses and companies**, on the
-strength of a claim that turned out to be false. That is why the profile page has no mock
-today.
+**That claim is correct.** An earlier draft of this document called it false and used it as
+the example of the root mistake. It is not an example of the mistake.
+
+`client-vue` holds `AddressItem.vue`, `CompanyItem.vue` and `PhoneItem.vue` in
+`src/modules/billing/components/`. The generic frames they sit in — `List`, `Item`, `Form`,
+`Manage`, `Select`, `Actions`, `Skeleton` — moved down to
+`packages/foundation/src/modules/manage/` in Phase 7. The three row renderers are still in
+`client-vue`, inside the billing module, so they travel in **Phase 9**.
+
+So the profile page's parts exist and are moving. What never existed is the **page** that
+arranges them for an account-settings context rather than a checkout billing screen.
+
+That leaves a question Phase 9 must answer. The three Items sit in the billing module, so
+Phase 9 lands them in `basket`. The portal's profile page is not a basket surface, and the
+DAG will not let it import from `basket`. Either those three move somewhere a client-facing
+package can reach, or the profile page needs a different source. This is the same shape as
+**FE-3219**: one component, two surfaces.
 
 ### And it misled the migration
 
@@ -52,8 +80,8 @@ none, and — because nothing in its brief told it to stop when there is nothing
 **wrote five new files** rather than reporting and halting: `Profile.vue`, `Addresses.vue`,
 `Emails.vue`, `Phones.vue` and `components/ProfileManage.vue`.
 
-That work is being taken back out. This migration moves code; it does not author new
-surfaces, and a page written that way carries no design review from anyone.
+That work was taken back out. This migration moves code; it does not author new surfaces, and
+a page written that way carries no design review from anyone.
 
 The genuine migration work in that phase stands: the shared `manage` editing kit moved down
 into `foundation` on a measured consumer count of two, and the `Address` and `Manage` form
@@ -61,62 +89,64 @@ controls moved out of `client-vue`.
 
 ---
 
-## 2. The fourteen placeholder sites
+## 2. What remains — six pages and two panel rows
 
-### Will be filled by the refactor — 0
+Counted from the callers of `clientVuePage` and `clientVueRow` on `develop`.
 
-**Corrected 2026-09-14.** This section previously listed the two orders pages as Phase 8's. They are not.
+### Filled on the ADR 023 stack, still live on develop — 3
 
-| Page | Placeholder names | What happened |
+| Page key | Placeholder names | On develop | On the stack |
+| --- | --- | --- | --- |
+| `AUTH_LOGIN` (and `AUTH_LOGIN_TWOFA`) | `UpmSessionLogin` | **Live.** `pages/login.vue` renders it through `PortalPageHost`. | `pages/login.vue` mounts `UpmSessionLogin` directly. Key orphaned. |
+| `AUTH_REGISTER` | `UpmSessionRegister` | **Live.** | `pages/register.vue` mounts the organism. Key orphaned. |
+| `AUTH_FORGOTTEN_PASSWORD` | `UpmSessionRecoverPassword` | **Live.** | `pages/forgotten-password.vue` mounts the organism. Key orphaned. |
+
+**Action: delete them on the stack, not on develop.** Develop carries none of the ADR 023
+packages, so those three routes there have nothing else to render. Removing the configs on
+develop breaks all three pages. They become dead only once the auth phase rewires the routes.
+
+Note the fourth key: `AUTH_LOGIN_TWOFA` shares the `login` config, so it goes with it.
+
+### Waiting on one export — 1 page, 2 further rows
+
+| Site | Needs |
+| --- | --- |
+| `BILLING_PAYMENT_METHODS` | `PaymentDetails` · `StoredPaymentMethods` |
+| `billing-pages.ts:321` row | `PaymentDetails` |
+| `product-pages.ts:525` row | `StoredPaymentMethods` |
+
+`PaymentDetails` is already published as `UpmPaymentDetails`. `StoredPaymentMethods.vue`
+exists at `packages/payment/src/components/` but is **not exported** from that package's
+barrel — its only importer is `PaymentDetails.vue`.
+
+**Decided (operator, September 2026): publish it.** It has two real portal consumers, which is
+exactly the test that package applies to a published symbol. Once it is in the barrel, all
+three sites use the real component rather than a mock, because the components exist.
+
+### Needs a component — 2
+
+| Page key | Placeholder names | Reality |
 | --- | --- | --- |
-| `/billing/orders` | `UpmOrder` | **Not filled.** Phase 8 extracted the component into `packages/invoice` and registered the feature in portal-nuxt, but mounted no organism — see below. |
-| `/billing/orders/[id]` | `UpmOrder` | **Not filled.** Same. |
+| `BILLING_ORDERS` | `UpmOrder` over headless `orders` | Phase 8 extracted the order surface into `packages/invoice`, but the portal cannot mount it. See below. Recorded on !585. |
+| `BILLING_ORDER_DETAIL` | `UpmOrder` (detail) | Same blocker. |
 
-`UpmOrder` reads its invoice id from `route.params.oid` and nothing else — it takes no id prop. The portal's routes are `/billing/orders/[id]`, so the component cannot find an id there. It is also an async-setup component needing a `<Suspense>` boundary, and it renders a cart-shaped page: a hero, a thank-you and a storefront call to action.
+**The blocker.** `packages/invoice/src/Order.vue:255` reads its id from a fixed route
+parameter:
 
-So mounting it on a portal orders page needs an **arrangement that does not exist** — a different id source and a different page shape. That is a component to build, exactly like the seven below, and Phase 8 halted rather than writing one. That halt is the correct outcome under the rule Phase 7 broke.
+```js
+const orderId = route.params?.[QUERY_PARAMS.ORDER_ID]?.toString();
+```
 
-**These two therefore move into the "will NOT be filled" count, making it nine, not seven.**
+`QUERY_PARAMS.ORDER_ID` is `"oid"`. `OrderProps` carries no id, so the id can only arrive
+through a route parameter of that exact name. This app's route is
+`app/pages/billing/orders/[id].vue`, whose parameter is `id`, so `route.params.oid` is
+`undefined` and `useOrder` receives nothing.
 
-### Already filled — 3, and these placeholders are now lies
+The fix is small: accept an optional `orderId` prop and fall back to the route parameter. The
+cart keeps working unchanged, and a host with a different route shape can pass the id in.
 
-| Page | Placeholder names | Reality |
-| --- | --- | --- |
-| `AUTH_LOGIN` | `UpmSessionLogin` | `/login` mounts the real organism. The page key is referenced by **no route**. |
-| `AUTH_REGISTER` | `UpmSessionRegister` | `/register` mounts the real organism. Page key unrouted. |
-| `AUTH_RECOVER` | `UpmSessionRecoverPassword` | `/forgotten-password` mounts the real organism. Page key unrouted. |
-
-**Action:** delete all three from `portal/config/auth-pages.ts`. They are leftovers from
-before those routes were rewired, and they inflate the placeholder count by three.
-
-### Blocked on one decision — 2
-
-| Page | Needs | Problem |
-| --- | --- | --- |
-| `/billing/payment-methods` | `PaymentDetails` · `StoredPaymentMethods` | `PaymentDetails` is published as `UpmPaymentDetails`. `StoredPaymentMethods` is **not exported** from `packages/payment` — its only importer is `PaymentDetails.vue`. |
-| Product → Payment method panel | `StoredPaymentMethods` | Same. |
-
-`StoredPaymentMethods.vue` exists at `packages/payment/src/components/`. Two portal surfaces
-need it on its own, and ADR 023 Phase 10 deletes `client-vue`, so the old route to it
-disappears.
-
-**Decision owed:** publish it from the payment package's barrel — it has two real consumers,
-which is exactly the test that package applies — or give those two panels a different
-surface.
-
-### Will NOT be filled — 7
-
-Each of these needs a component **written**, not moved.
-
-| Page | Placeholder names | Reality |
-| --- | --- | --- |
-| Choose a new password | `UpmSessionRecoverPassword` (reset step) | Component exists; the reset-with-token step does not. The placeholder text already says "to be added". |
-| Verify your account | `UpmSessionVerify` | Does not exist anywhere. Text already says "to be added". |
-| Register your organisation | `UpmSessionRegister` (organisation variant) | Component exists; the organisation variant does not. Text already says "to be added". |
-| Logs → email history list | `UpmEmailHistory` | Does not exist. Client-vue's `emailHistory` module was **retired in FE-3103**, so there is nothing to move. |
-| Email detail | `UpmEmailHistory` (detail) | Same. |
-| Product → Setup | `UpmProductSetup` | Exists, but it is the **basket funnel's repair step** — route `BASKET_PRODUCTS_SETUP`, driven entirely by basket state. This page is post-purchase, for a product the client already owns, with no basket. Two surfaces, one name. See **FE-3219**. |
-| Account → Profile | `UpmBilling` manage lists | The editing parts exist and are moving to `foundation`. The **profile page itself does not exist**. |
+These two were listed as "filled by Phase 8" until 14 September 2026. Phase 8 ran and could
+not fill them.
 
 ---
 
@@ -126,15 +156,16 @@ When ADR 023 completes, every one of these routes should render either a **mock*
 **real component** — and never a "Provided by client-vue" row, because there will be no
 client-vue.
 
-The rule that decides which, per the operator on 11 September 2026:
+The rule that decides which, per the operator on 11 and 15 September 2026:
 
-> If we have the component and the composable ready, we should use it. Otherwise we mock it.
+> If we have the `.vue` component for what we need — essentially, it existed in client-vue
+> before — then we should use it. Otherwise we mock it up, so that we can decide on the
+> final design before we integrate the real data later.
 
-Applied to the seven above, **every one is "mock it"** — their data layers are ready and
-their components are not. For the profile page specifically the data layer is not merely
-present but complete: `client-address`, `client-email`, `client-company`, `client-phone` and
-`client-personal-details` each ship a list composable *and* a manager machine for add and
-edit.
+The test is the **component**, not the composable. A ready headless module is not a reason to
+build a surface; it is what the surface will eventually bind to. Until the design is settled,
+a mocked surface with mocked data is the right answer, because it can be reviewed without
+real data in the way.
 
 ### One thing the profile build will need to know
 
@@ -154,14 +185,15 @@ row straight shows another. Both render; only one matches the recording.
 
 ### Checklist to reach parity
 
-- [ ] Delete the three out-of-date placeholders (`AUTH_LOGIN`, `AUTH_REGISTER`, `AUTH_RECOVER`).
-- [ ] Decide `StoredPaymentMethods`: publish from `packages/payment`, or re-plan those two panels.
-- [ ] Wire `/billing/payment-methods` and the product renewal-card panel once that is settled — both components then exist, so by the rule they are used, not mocked.
-- [x] Mock the profile page's four collections. This needs the three the portal skipped — **phones, addresses and companies** — added to its mock layer, and `useMockContacts`' header corrected.
-- [x] Mock password reset, email verification and organisation registration.
-- [x] Mock the email-history list and detail.
-- [ ] Mock the post-purchase product setup form, and stop naming `UpmProductSetup` for it.
-- [ ] Rewrite every remaining placeholder so it names what is missing and what already exists to build against, rather than implying a move is coming.
+- [x] Mock password reset, email verification and organisation registration — `reset-password.vue`, `verify-email.vue`, `verify.vue`, and `AUTH_REGISTER_ORG`.
+- [x] Mock the email-history list and detail — `account/logs/index.vue` and `account/logs/emails/[id].vue`.
+- [x] Mock the profile page — `account/profile.vue` with `mock/forms/profile-context.ts`.
+- [x] Mock the post-purchase product setup form, and stop naming `UpmProductSetup` for it.
+- [ ] Delete the four orphaned auth keys (`AUTH_LOGIN`, `AUTH_LOGIN_TWOFA`, `AUTH_REGISTER`, `AUTH_FORGOTTEN_PASSWORD`) — **on the ADR 023 stack only**. They are live on develop.
+- [ ] Export `StoredPaymentMethods` from `packages/payment`'s barrel. Decided; not yet done.
+- [ ] Wire `BILLING_PAYMENT_METHODS` and the product renewal-card panel once that export lands — both components then exist, so by the rule they are used, not mocked.
+- [ ] Give `Order.vue` an optional `orderId` prop with a route-parameter fallback, then wire the two orders pages.
+- [ ] Answer the Phase 9 question in §1: where `AddressItem`, `CompanyItem` and `PhoneItem` land so a client-facing surface can reach them.
 - [ ] Re-run this audit at Phase 10 and confirm the count is zero.
 
 ---
@@ -178,5 +210,7 @@ row straight shows another. Both render; only one matches the recording.
 
 ## 5. Still open
 
-- The seven surfaces above, none of which is in any ADR 023 phase.
-- The `StoredPaymentMethods` decision.
+- The two orders pages, blocked on the `Order.vue` order-id defect.
+- The `StoredPaymentMethods` barrel export, decided but not yet done. It covers one page and two panels.
+- The four orphaned auth keys, which need deleting on the stack rather than filling.
+- Where the three profile row renderers land in Phase 9.

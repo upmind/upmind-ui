@@ -2,10 +2,8 @@
 
 ## Issue tracker: Linear
 
-The "issue tracker" in this repo is **Linear**, and it is the source of truth for session state.
+Linear is the source of truth for session state (`.claude/rules/linear-lifecycle.md`).
 
-- **Issue ID format:** `FE-XXXX` (e.g., `FE-1234`) — substitute for `<ID>` everywhere the base skill uses it.
-- **Branch naming:** `feature/FE-XXXX` — the worktree grep (`git worktree list | grep "feature/FE-XXXX"`) and the push target use this form.
 - **WIP commit prefix:** `wip(FE-XXXX): [description]` inside a worktree, or `wip: [FE-XXXX] [brief description]` in the normal flow.
 
 ## Identifier vs internal ID

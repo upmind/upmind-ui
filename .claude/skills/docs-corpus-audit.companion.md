@@ -21,15 +21,6 @@ Additive. These bind the generic gate, tracker, module-root, ADR designations, a
 - The base's "repo's capability-proof decision record" is **ADR-026, Gate #3 upgrade (§5)** — the EXECUTE-clean + A7-assert requirement for capability-claiming snippets.
 - **A7 auth identity, concrete:** in this repo the "auth identity" a capability read-back must assert is the **session token and acting-as headers** (e.g. a call retargeted with `.for('client', id)`) — assert the outbound request identity, never the response echo.
 
-## KNOWN-RED baseline (step 4, Mechanical enforcement)
-
-Against the live monorepo the gate is **expected** to fire on:
-
-- the **three ADRs numbered `019`** (collision), and
-- **ADR-001 / ADR-022 lacking `## Implementation Status`**.
-
-This is the gate working — do **not** treat these as NEW or REGRESSED, and do **not** suppress them. Remediation (renumber the `019`s; add the headings) edits `docs/adr/**`, which this skill and its gate never touch; the operator actions it separately (design §5).
-
 ## Test-time ceiling + locale (step 5, Mechanical enforcement)
 
 - **Ceiling = 30 minutes; locale scope = EN.** The base's "targeted specs in the primary locale, under the repo's test-time ceiling" is EN / targeted specs inside a hard 30-minute ceiling, per **ADR-021** (Testing Trophy, Agentic Workflow & Coverage Policy). Cite it; do not restate it.

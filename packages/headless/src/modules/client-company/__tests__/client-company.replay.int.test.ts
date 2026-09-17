@@ -37,7 +37,6 @@ import {
 } from "../../../testing/corpus-replay";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
-  installCompaniesSearchHandler,
   resetClientCompanyScopes,
   seedClientSession
 } from "./client-company.int-helpers";

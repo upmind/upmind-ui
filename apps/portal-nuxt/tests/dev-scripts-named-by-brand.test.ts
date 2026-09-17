@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 import { PORTAL_CONFIGS, isPortalConfigId } from "~/portal/config";
 
 /**
- * Each `dev:<brand>` script boots one shape on its own port, and its NAME is
- * the brand it comes up wearing. That is only useful while it stays true: a
- * config re-themed without renaming its script leaves `pnpm dev:hostgrid`
- * serving something else, and nothing else in the tree would notice.
+ * Each `dev:<shape>` script boots one shape on its own port, and its NAME is
+ * the shape it comes up on. That is only useful while it stays true: a script
+ * re-pinned without renaming leaves `pnpm dev:hostgrid` serving something
+ * else, and nothing else in the tree would notice. The shape's THEME is its
+ * own affair — a shape may wear any brand the stylesheet carries.
  *
  * Read straight off package.json and the shipped configs — never a list
  * restated here, which would just be the same claim written twice.
@@ -26,7 +27,7 @@ function pinnedPort(command: string): string | undefined {
   return /--port\s+(\d+)/.exec(command)?.[1];
 }
 
-describe("dev scripts — each is named for the brand it boots", () => {
+describe("dev scripts — each is named for the shape it boots", () => {
   it("ships one per shape, so no shape is unreachable", () => {
     expect(devShapeScripts.length).toBe(Object.keys(PORTAL_CONFIGS).length);
   });
@@ -38,14 +39,12 @@ describe("dev scripts — each is named for the brand it boots", () => {
   });
 
   it.each(devShapeScripts)(
-    "%s boots the brand its name claims",
+    "%s boots the shape its name claims",
     (name, command) => {
       const id = pinnedConfigId(command);
-      const brand = name.replace(/^dev:/, "");
 
       expect(isPortalConfigId(id)).toBe(true);
-      // the RESOLVED theme of the shape it pins, not the script's own text
-      expect(PORTAL_CONFIGS[id as never].theme).toBe(brand);
+      expect(id).toBe(name.replace(/^dev:/, ""));
     }
   );
 

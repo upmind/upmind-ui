@@ -37,6 +37,9 @@
 //   playground  — both | page | composable (string, optional, default 'both')
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
 //   arms        — optional operator override of the Plan-stage arms derivation
+//   planApproved — optional boolean, passed straight through to the composable
+//                  lane. The OPERATOR'S plan verdict and the only thing that
+//                  lets Code start; absent, the lane stops at `plan-gate`.
 //   rulings     — optional object of operator answers to earlier halts, e.g.
 //                 { mode: 'conversion', variant: 'hybrid' }. A field present
 //                 here settles that contradiction; the run does not re-raise it.
@@ -139,35 +142,41 @@ const results = { id, stopped: null, rulings: Object.keys(rulings) };
 // a returned table is not a record, and a session lost mid-run used to lose the
 // whole sweep.
 phase("Audit");
-results.audit = await agent(
-  `Run the Stage-0 factory audit for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} Grade the module M0 absent / M1 unscoped / M2 scoped-partial / M3 full, and the playground P0 absent / P1 stale / P2 current, against what today's templates would produce for every composable the module ships OR OWES — the oracle decides what is owed. Every present row carries a file:line; every absent row names the missing file or member. Report whether the target directory carries uncommitted changes. Write the state table, the drift list, the derived route and every blocker to ${sddDir}/audit.md BEFORE returning your fields.`,
-  {
-    agentType: "upmind-agent:planner",
-    model: "opus",
-    phase: "Audit",
-    schema: AUDIT_GATE,
-    label: `audit:${id}`
-  }
-);
-if (!results.audit) {
-  results.stopped = "audit-failed";
+// The plugin's `run-audit` workflow OWNS this stage: a planner surveys and FILES
+// audit.md, then a reviewer PRE-GATES the survey — receipts, not conclusions —
+// and the planner revises on a blocker up to its own 3-cycle cap. Dispatching a
+// lone planner here instead would hand the door an ungraded table, and the route
+// is derived from that table.
+//
+// The grade vocabulary and the contract are the factory's; the chain is not.
+results.audit = await workflow("upmind-agent:run-audit", {
+  id,
+  worktree,
+  outDir: sddDir,
+  target: target,
+  contract:
+    "the composable lane's current template set — the criteria schema pair wired through list({ criteria: { schema } }), useContext() publishing data / error / pagination / query / schemas.query, enum-typed sort, the actions and meta members including reset, the manager/editor surface, and the colocated feature — graded per composable the module ships OR OWES, the oracle deciding what is owed",
+  jtbd,
+  states:
+    "MODULE: M0 absent | M1 unscoped (predates the four-layer scoped shape) | M2 scoped-partial (drifts from the template contract, or the build is red, or a parity gap stands undispositioned) | M3 full. PLAYGROUND: P0 absent | P1 stale | P2 current. Return both under `grades` as moduleState and playgroundState, plus derivedMode as net-new | conversion | upgrade."
+});
+if (!results.audit || results.audit.stopped) {
+  results.stopped = `audit-blocked:${(results.audit && results.audit.stopped) || "audit-failed"}`;
   return results;
 }
-if (!results.audit.auditFiled) {
-  results.stopped = "audit-unfiled";
-  return results;
-}
+const survey = results.audit.survey || {};
+const grades = survey.grades || {};
 
 // Rewrite-in-place makes git the only record of local hand-tuning, so an
 // upgrade over a dirty target is refused before anything is written.
-if (results.audit.targetDirty) {
+if (survey.targetDirty) {
   results.stopped = "target-dirty";
   return results;
 }
 
 // An override the audit contradicts is a RULING POINT, not a silent pick: halt
 // with both determinations shown and let the operator settle it.
-const derivedMode = results.audit.derivedMode;
+const derivedMode = grades.derivedMode;
 if (
   modeOverride &&
   derivedMode &&
@@ -184,7 +193,7 @@ const variant = rulings.variant || variantOverride || null;
 
 // The composable lane derives the variant from the oracle at its Research stage,
 // so the door only needs one when it is skipping that lane entirely.
-const moduleState = results.audit.moduleState;
+const moduleState = grades.moduleState;
 
 // --- The composable lane ------------------------------------------------------------
 // Runs at M0-M2. Skipped only at M3: there is nothing left to close.
@@ -210,7 +219,8 @@ if (moduleState === "M3") {
     variant,
     cells,
     constraints,
-    ...(typeof A.arms === "string" ? { arms: A.arms } : {})
+    ...(typeof A.arms === "string" ? { arms: A.arms } : {}),
+    ...(A.planApproved === true ? { planApproved: true } : {})
   });
 
   if (!results.composable || results.composable.stopped) {

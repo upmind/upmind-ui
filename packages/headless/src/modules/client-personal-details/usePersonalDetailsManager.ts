@@ -38,18 +38,18 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  *          called bare: every call site supplies either `.withId(id)`
  *          (an existing address) or `.fresh()` (a new draft), both of which
  *          add a segment the collection's own `.as('client')` (no `.for()`)
- *          never has. This module's shared single-member `PROFILE` context
- *          has no such guarantee — `.as('client')` with NO `.for()` is the
+ *          never has. This module's shared `CLIENT` context has no such
+ *          guarantee — `.as('client')` with NO `.for()` is the
  *          NORMAL call for BOTH halves (a client has exactly one profile, so
  *          there is nothing to pick), which would make the read half's and
  *          the manager's scope keys IDENTICAL under a shared name — the
  *          registry would hand one consumer the other's instance. A modules
  *          two DISTINCT registry names is the fix; the SHARED scope MATRIX
  *          (design.md §3.2) still holds — both use the same
- *          `ClientPersonalDetailsContextTypes.PROFILE` context and the same
+ *          `ClientPersonalDetailsContextTypes.CLIENT` context and the same
  *          identity seam, only the registry key's `name:` segment differs.
  * rejected: keeping one shared name and requiring every manager call site to
- *          add `.for('profile', clientId)` — rejected: it forces every
+ *          add `.for('client', clientId)` — rejected: it forces every
  *          caller to know and re-supply the client's own id just to avoid a
  *          collision, for an entity that already has exactly one profile;
  *          brittle and easy to forget.
@@ -82,8 +82,9 @@ function createPersonalDetailsManagerForScope(
     dataManagerMachine
       .withConfig(createPersonalDetailsManagerMachineConfig(service))
       .withContext({
-        // The PROFILE entity's id IS the owning client's id (design.md
-        // §3.4) — both fields seed from the ONE resolved seam.
+        // The profile record IS the client (`clients/{id}`), so the record id
+        // and the client id are one (design.md §3.4) — both fields seed from
+        // the ONE resolved client seam.
         id: service.clientId.value,
         clientId: service.clientId.value,
         lookups: { fields: [], filterFields: [], languages: [] },

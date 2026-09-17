@@ -26,6 +26,7 @@
  */
 
 import { unref } from "vue";
+import { matchesExpectation } from "@upmind-automation/scenario-harness";
 import {
   difference,
   get,
@@ -36,7 +37,6 @@ import {
   omitBy,
   pick
 } from "lodash-es";
-import { matchesExpectation } from "@upmind-automation/scenario-harness";
 import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
