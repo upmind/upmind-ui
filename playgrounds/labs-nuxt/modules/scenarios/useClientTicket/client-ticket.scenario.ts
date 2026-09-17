@@ -34,8 +34,23 @@
  * through `useModulePort` with no scope context, so `.for()` never fires and
  * no ticket loads — a self-drawing page carries none, exactly as `useInvoice`,
  * `useContractProduct` and `usePaymentDetailAdd` carry none.
+ *
+ * ## The playlist this page DOES carry (FE-3226)
+ * Drawing itself no longer means playing nothing. `useManage` is the opt-in a
+ * self-drawn declaration makes so the harness can build a boot thunk for its
+ * key (`registry.ts`), and `tracks` names the module whose committed `.feature`
+ * and step catalog the page plays — the same two artefacts the COLLECTION page
+ * reads, since `stepCatalogs` is keyed by MODULE and one catalog serves both
+ * keys. The page mounts `ScenarioBar` itself; the generic renderer is still
+ * never involved.
+ *
+ * Neither member changes how the page is DRAWN, and neither is inferred: a
+ * self-drawn declaration naming neither stays exactly where it was — outside
+ * `boundKeys`, Live-only, and `World.boot` on its key still throws. The other
+ * self-drawing declarations name neither.
  */
 
+import { useClientTicket } from "@upmind-automation/headless";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
@@ -45,9 +60,16 @@ export const CLIENT_TICKET_SCENARIO = "client_ticket";
 
 export default {
   key: CLIENT_TICKET_SCENARIO,
-  // `useList` / `useMutate` are OMITTED — the module draws itself (see docblock).
-  // `tracks` is OMITTED — a self-drawn page mounts no `ScenarioPlayground`, so
-  // the transport that reads `tracks` has no consumer here.
+  // `useList` / `useMutate` stay OMITTED — the module draws itself, and no
+  // generic surface can render a message thread or a reply composer (see
+  // docblock). `useManage` is the self-drawn page's own opt-in: it binds the
+  // manager for BOOTING only, so `World.boot("client_ticket", …)` builds a
+  // thunk, and the page keeps drawing every pixel itself.
+  useManage: useClientTicket,
+  // The MODULE whose committed `.feature` and step catalog this page plays —
+  // the same module the collection page tracks, because the catalog is keyed by
+  // module and serves both keys.
+  tracks: "tickets",
   presentation: {
     icon: "message-question-circle"
   }

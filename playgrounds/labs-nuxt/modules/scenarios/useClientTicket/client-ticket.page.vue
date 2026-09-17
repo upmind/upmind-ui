@@ -7,7 +7,15 @@
       </PageDescription>
     </PageHeader>
 
-    <PageBody class="gap-8">
+    <!-- The page's OWN scenario bar. A self-drawn page mounts no
+         `ScenarioPlayground`, so it mounts the standalone bar directly over the
+         same transport the shared host builds (`useScenarioTransport`) — one
+         wiring, two hosts. It is a descendant of this page's content root
+         rather than of the app chrome (`G9`, `AC2.1`): scenarios are
+         page-scoped. -->
+    <ScenarioBar :player="player" :tracks="tracks" :states="states" />
+
+    <PageBody class="relative gap-8">
       <!-- No ticket in the url — offer the id that addresses one. -->
       <Card v-if="!ticketId" size="sm" class="gap-4">
         <EmptyState
@@ -594,6 +602,17 @@
           </div>
         </Card>
       </template>
+
+      <!-- While a scenario plays or a forced state is armed, the page content
+           is the SCRIPT's: a transparent scrim takes every click off it, the
+           bar above stays the operator's, and Live lifts it (`R6-23`). -->
+      <div
+        v-if="isLocked"
+        :class="scenarioPlayground.scrim()"
+        :title="t('labs.replay_locked')"
+        aria-hidden="true"
+        data-test-key="replay-scrim"
+      />
     </PageBody>
   </Page>
 </template>
@@ -664,21 +683,34 @@ import {
   Icon,
   ScopeActorTypes,
   TicketContextTypes,
+  resolveSelfActor,
   useClientTicket,
   useClientTickets
 } from "@upmind-automation/client-vue";
+import ScenarioBar from "../runtime/components/ScenarioBar.vue";
+import { useScenarioTransport } from "../runtime/composables/useScenarioTransport";
+import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
+import { registry } from "../runtime/registry";
+import { scenarioPlayground } from "../runtime/ScenarioPlayground.styles";
+import scenario, { CLIENT_TICKET_SCENARIO } from "./client-ticket.scenario";
 import type { TabItem } from "@upmind/ui";
 import type {
   TicketAttachmentRef,
   TicketMessage
 } from "@upmind-automation/client-vue";
-import { useContextScope } from "~/composables/scope";
+import type { ScopeActor } from "@upmind-automation/scenario-harness";
+import { useActorScope, useContextScope } from "~/composables/scope";
 
 // NO `name`, `path` or `nav` here: the registrar owns all three, off the
-// declaration beside this file. `key` keys by the whole url, so addressing a
-// different ticket remounts a fresh manager.
+// declaration beside this file.
+//
+// Keyed by PATH, never `fullPath`: the ticket id is a SCOPE SEGMENT
+// (`/for/ticket/<id>`), so the path alone already remounts a fresh manager for
+// a different ticket — while the QUERY, which the scenario transport writes
+// `track=`, `scene=` and `force=` into, must not. A `fullPath` key tore the
+// page down on every scene the player advanced.
 definePageMeta({
-  key: route => route.fullPath
+  key: route => route.path
 });
 
 const { t } = useI18n();
@@ -703,6 +735,38 @@ const manager = ticketId.value
 const actions = manager?.useActions();
 const context = manager?.useContext();
 const meta = manager?.useMeta();
+
+// --- The page's own scenario transport (FE-3226)
+/**
+ * A SELF-DRAWN page hosting its own scenario bar. Two seams are handed in, and
+ * both exist for the same fact: this page is addressed by a url CONTEXT
+ * (`/for/ticket/<id>`) that no step catalog can name.
+ *
+ * - **The world** is told which key this page HOSTS. `client_ticket`'s boot
+ *   scope then completes from the url this page already read, so the world
+ *   adopts the very cell above rather than booting a second one at a second
+ *   scope — and never destroys it, because the page owns it (`onUnmounted`).
+ * - **The page scope** the player compares a track's declared scope against is
+ *   the ACTOR alone. Every track in this module's playlist declares
+ *   `{ actor: client }` and no context (its Background boots the collection,
+ *   and the manager's own arrangements boot contextless), so reporting the
+ *   ticket here would make every track "foreign" and send the player
+ *   navigating to a manager url with no ticket in it.
+ *
+ * The transport is the SAME wiring `ScenarioPlayground` builds — playlist,
+ * forced-state offer, one player (`S19`) — reached through the composable both
+ * hosts share, never a second copy.
+ */
+const actorScope = useActorScope();
+
+const { tracks, states, player, isLocked } = useScenarioTransport({
+  module: scenario.tracks,
+  world: useScenarioWorld(registry, {
+    key: CLIENT_TICKET_SCENARIO,
+    context: contextScope.value
+  }),
+  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor })
+});
 
 const ticket = computed(() => context?.data.value);
 const department = computed(() => context?.department.value);
