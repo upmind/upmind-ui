@@ -9,7 +9,7 @@
  */
 import { computed } from "vue";
 import { useShellComponents } from "@upmind-automation/foundation";
-import AuthLoadingTemplate from "./templates/AuthLoading.template.vue";
+import AuthLoading from "./components/AuthLoading.vue";
 import { AUTH_TEMPLATE } from "./types";
 import type { Component, ComputedRef } from "vue";
 
@@ -44,9 +44,7 @@ export function useAuthLoading(): { component: ComputedRef<Component> } {
   const shell = useShellComponents();
 
   return {
-    component: computed(
-      () => shell.resolve(AUTH_SHELL.LOADING) ?? AuthLoadingTemplate
-    )
+    component: computed(() => shell.resolve(AUTH_SHELL.LOADING) ?? AuthLoading)
   };
 }
 
