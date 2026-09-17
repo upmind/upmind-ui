@@ -27,7 +27,7 @@ Client → `GrantTypes.PASSWORD`. Staff → `GrantTypes.ADMIN`.
 Four `error` rules in the root `eslint.config.mjs` pin each concern to its named file over `packages/headless/src/modules/**`:
 
 - `file-responsibility/query-only-in-services` — `useQuery` / `useMutation` are called only in a `*.services.ts`. The `query` module that defines them is exempt.
-- `file-responsibility/services-purity` — every exported function in a `*.services.ts` is one of four shapes: a **request** (calls `useQuery`/`useMutation`), a **machine service** (`async fn(context, event)`), a **factory** (returns an object of services, as `createClientAuthServices`), or a **delegate** (calls a services/sibling-module function, imported or in-file). Anything else is a misplaced util → move it to `*.utils.ts`.
+- `file-responsibility/services-purity` — every top-level function in a `*.services.ts`, **exported or not**, is one of four shapes: a **request** (calls `useQuery`/`useMutation`), a **machine service** (`async fn(context, event)`; the context may be `_context`, a `*Context` type, or destructured into its fields), a **factory** (returns an object of services as `createClientAuthServices`, or is typed `Partial<XServices>` as `scopedServices`), or a **delegate** (calls a services/sibling-module function, imported — statically or via `import()` — or in-file). Anything else is a misplaced util → move it to `*.utils.ts`. A non-exported helper is no exception (the FE-3031 gap).
 - `file-responsibility/schemas-in-schema-file` — a `*Schema` / `*Uischema` export (JSONForms) lives only in a `*.schemas.ts`.
 - `file-responsibility/mappers-in-mapper-file` — a `map*` / `parse*` export lives only in a `*.mappers.ts`, except a machine-service `parse(context, event)` in a services file.
 
