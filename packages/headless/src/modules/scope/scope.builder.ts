@@ -294,21 +294,40 @@ export type ScopeBuilderResult<
       >;
 
 /**
+ * The RETARGET members any concrete actor declares. SELF resolves to one of them
+ * at runtime, so an unnamed actor is offered their union.
+ */
+type AnyIdContexts<TMatrix extends ActorContextMatrix> =
+  | IdContextsForActor<TMatrix, ScopeActorTypes.GUEST>
+  | IdContextsForActor<TMatrix, ScopeActorTypes.CLIENT>
+  | IdContextsForActor<TMatrix, ScopeActorTypes.STAFF>;
+
+/** The SELECTOR counterpart of {@link AnyIdContexts}. */
+type AnyBareContexts<TMatrix extends ActorContextMatrix> =
+  | BareContextsForActor<TMatrix, ScopeActorTypes.GUEST>
+  | BareContextsForActor<TMatrix, ScopeActorTypes.CLIENT>
+  | BareContextsForActor<TMatrix, ScopeActorTypes.STAFF>;
+
+/**
  * Builder after .withId() has been called at the ROOT, before any actor is
  * named. The instance is already readable — a missing actor resolves to SELF —
  * and .as() stays available for a caller that names one explicitly.
+ *
+ * .for() is offered here too: naming a context never required naming an actor,
+ * and the runtime proxy has always accepted it at this position.
  */
-export type ScopeBuilderAfterId<T, TMatrix extends ActorContextMatrix> = T & {
-  /**
-   * Specifies the actor performing the action.
-   *
-   * @param actor - The actor type (use ScopeActorTypes enum)
-   * @returns Composable instance for that actor
-   */
-  as<TActor extends ScopeActorTypes>(
-    actor: TActor
-  ): ScopeBuilderResult<T, TMatrix, TActor>;
-};
+export type ScopeBuilderAfterId<T, TMatrix extends ActorContextMatrix> = T &
+  ScopeForStep<T, AnyIdContexts<TMatrix>, AnyBareContexts<TMatrix>> & {
+    /**
+     * Specifies the actor performing the action.
+     *
+     * @param actor - The actor type (use ScopeActorTypes enum)
+     * @returns Composable instance for that actor
+     */
+    as<TActor extends ScopeActorTypes>(
+      actor: TActor
+    ): ScopeBuilderResult<T, TMatrix, TActor>;
+  };
 
 /**
  * Builder interface with fluent chaining.
@@ -338,9 +357,33 @@ export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
    * later `.as()` names another.
    *
    * @param id - The id of the single record being read
-   * @returns Composable instance, with .as() still available
+   * @returns Composable instance, with .as() and .for() still available
    */
   withId(id: string): ScopeBuilderAfterId<T, TMatrix>;
+
+  /**
+   * Specifies the context entity being acted upon, with SELF as the actor
+   * unless a later `.as()` names another.
+   *
+   * @param type - The RETARGET context type (constrained by matrix)
+   * @param id - The entity ID
+   * @returns Composable instance, with .as() and .withId() still available
+   */
+  for(
+    type: AnyIdContexts<TMatrix>,
+    id: string
+  ): ScopeBuilderAfterId<T, TMatrix> & ScopeBuilderWithId<T>;
+
+  /**
+   * Specifies the context the actor is scoped to, where the type IS the whole
+   * answer and there is no entity to name.
+   *
+   * @param type - The SELECTOR context type (constrained by matrix)
+   * @returns Composable instance, with .as() and .withId() still available
+   */
+  for(
+    type: AnyBareContexts<TMatrix>
+  ): ScopeBuilderAfterId<T, TMatrix> & ScopeBuilderWithId<T>;
 
   /**
    * Spawns a fresh instance that starts a new session instead of reusing an
