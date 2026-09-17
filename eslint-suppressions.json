@@ -1166,6 +1166,11 @@
       "count": 1
     }
   },
+  "packages/headless/src/modules/basket-billing/basket-billing.schema.ts": {
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/basket-billing/billing.machine.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1173,6 +1178,9 @@
   },
   "packages/headless/src/modules/basket-billing/unified/schemas.ts": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "file-responsibility/schemas-in-schema-file": {
       "count": 2
     }
   },
@@ -1194,6 +1202,11 @@
       "count": 1
     }
   },
+  "packages/headless/src/modules/basket-currency/basket-currency.utils.ts": {
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/basket-currency/useBasketCurrency.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1202,6 +1215,11 @@
   "packages/headless/src/modules/basket-fields/basket-fields.types.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket-fields/basket-fields.utils.ts": {
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 2
     }
   },
   "packages/headless/src/modules/basket-fields/useBasketFields.ts": {
@@ -1232,6 +1250,9 @@
   "packages/headless/src/modules/basket-product/basket-product.utils.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 5
+    },
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 11
     }
   },
   "packages/headless/src/modules/basket-product/helper.ts": {
@@ -1257,6 +1278,14 @@
       "count": 6
     }
   },
+  "packages/headless/src/modules/basket-promotions/basket-promotions.utils.ts": {
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 1
+    },
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/basket-promotions/useBasketPromotions.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1270,6 +1299,9 @@
   "packages/headless/src/modules/basket/basket.machine.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3
+    },
+    "file-responsibility/query-only-in-services": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/basket/basket.services.ts": {
@@ -1287,6 +1319,9 @@
   },
   "packages/headless/src/modules/basket/basket.utils.ts": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "file-responsibility/mappers-in-mapper-file": {
       "count": 6
     }
   },
@@ -1323,9 +1358,19 @@
       "count": 3
     }
   },
+  "packages/headless/src/modules/client-billing-settings/client-billing-settings.schemas.ts": {
+    "file-responsibility/types-in-types-file": {
+      "count": 1
+    }
+  },
   "packages/headless/src/modules/client-company/client-company.schemas.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    }
+  },
+  "packages/headless/src/modules/client-company/useClientCompanyManager.ts": {
+    "file-responsibility/types-in-types-file": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts": {
@@ -1373,6 +1418,11 @@
       "count": 1
     }
   },
+  "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.context.ts": {
+    "file-responsibility/types-in-types-file": {
+      "count": 1
+    }
+  },
   "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
@@ -1396,6 +1446,14 @@
   "packages/headless/src/modules/config/config.utils.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
+    },
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/config/schema/schema.ts": {
+    "file-responsibility/types-in-types-file": {
+      "count": 2
     }
   },
   "packages/headless/src/modules/config/schema/types.ts": {
@@ -1406,6 +1464,11 @@
   "packages/headless/src/modules/data-manager/data-manager.types.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3
+    }
+  },
+  "packages/headless/src/modules/domain/domain.machine.ts": {
+    "file-responsibility/query-only-in-services": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/domain/domain.services.ts": {
@@ -1422,12 +1485,20 @@
     "@typescript-eslint/no-explicit-any": {
       "count": 8
     },
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 6
+    },
     "no-useless-escape": {
       "count": 10
     }
   },
   "packages/headless/src/modules/domain/useDac.ts": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/domain/useDomain.ts": {
+    "file-responsibility/types-in-types-file": {
       "count": 1
     }
   },
@@ -1446,17 +1517,30 @@
       "count": 8
     }
   },
+  "packages/headless/src/modules/invoices/invoices.service.ts": {
+    "file-responsibility/query-only-in-services": {
+      "count": 1
+    }
+  },
   "packages/headless/src/modules/lookup/useLookup.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
     },
     "@typescript-eslint/no-unsafe-function-type": {
       "count": 1
+    },
+    "file-responsibility/types-in-types-file": {
+      "count": 2
     }
   },
   "packages/headless/src/modules/orders/order.types.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    }
+  },
+  "packages/headless/src/modules/payment-details/index.ts": {
+    "file-responsibility/no-type-reexport": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/payment-details/payment-details.mappers.ts": {
@@ -1500,6 +1584,14 @@
   "packages/headless/src/modules/payment-gateways/braintree/services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    },
+    "file-responsibility/query-only-in-services": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/dlocal/schemas.ts": {
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 2
     }
   },
   "packages/headless/src/modules/payment-gateways/dlocal/services.ts": {
@@ -1517,6 +1609,16 @@
       "count": 1
     }
   },
+  "packages/headless/src/modules/payment-gateways/nicky/schemas.ts": {
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/openPay/schemas.ts": {
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/payment-gateways/openPay/services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3
@@ -1532,7 +1634,20 @@
       "count": 2
     }
   },
+  "packages/headless/src/modules/payment-gateways/payment-gateways.utils.ts": {
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/razorpay/schemas.ts": {
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/payment-gateways/razorpay/services.ts": {
+    "file-responsibility/query-only-in-services": {
+      "count": 2
+    },
     "prefer-promise-reject-errors": {
       "count": 2
     }
@@ -1553,6 +1668,9 @@
   "packages/headless/src/modules/payment-gateways/stripe/utils.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    },
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/payment-gateways/usePaymentGateway.ts": {
@@ -1626,6 +1744,11 @@
       "count": 4
     }
   },
+  "packages/headless/src/modules/product/product.services.ts": {
+    "file-responsibility/services-purity": {
+      "count": 1
+    }
+  },
   "packages/headless/src/modules/product/product.types.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 8
@@ -1634,11 +1757,20 @@
   "packages/headless/src/modules/product/product.utils.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 11
+    },
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 20
+    },
+    "file-responsibility/schemas-in-schema-file": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/product/useProductConfig.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 5
+    },
+    "file-responsibility/types-in-types-file": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/query/__tests__/mocks.ts": {
@@ -1672,6 +1804,9 @@
   "packages/headless/src/modules/query/query.utils.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
+    },
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/query/useQuery.ts": {
@@ -1687,11 +1822,19 @@
   "packages/headless/src/modules/recommendations/recommendations.utils.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
+    },
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 3
     }
   },
   "packages/headless/src/modules/recommendations/recommendationsEngine.machine.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 5
+    }
+  },
+  "packages/headless/src/modules/routing/overlays.ts": {
+    "file-responsibility/types-in-types-file": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/routing/routing.types.ts": {
@@ -1707,11 +1850,29 @@
   "packages/headless/src/modules/routing/useQueryParams.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3
+    },
+    "file-responsibility/types-in-types-file": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/routing/useRoutingEngine.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 8
+    }
+  },
+  "packages/headless/src/modules/scope/scope.builder.ts": {
+    "file-responsibility/types-in-types-file": {
+      "count": 14
+    }
+  },
+  "packages/headless/src/modules/scope/scope.registry.ts": {
+    "file-responsibility/types-in-types-file": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/session-store/useSessionStore.actions.ts": {
+    "file-responsibility/query-only-in-services": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/session/client/client.machine.ts": {
@@ -1772,6 +1933,11 @@
       "count": 2
     }
   },
+  "packages/headless/src/modules/system-analytics/system-analytics.utils.ts": {
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/system-analytics/useDataLayer.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
@@ -1792,9 +1958,19 @@
       "count": 10
     }
   },
+  "packages/headless/src/modules/system-localisation/system-localisation.locales.ts": {
+    "file-responsibility/types-in-types-file": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/system-localisation/useI18n.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
+    }
+  },
+  "packages/headless/src/modules/system-places/system-places.utils.ts": {
+    "file-responsibility/mappers-in-mapper-file": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/system-recaptcha/system-recaptcha.machine.ts": {
