@@ -816,9 +816,15 @@ const contentColumns = computed<string[]>(() =>
 function headerSize(
   id: string
 ): "content" | "fluid" | "remainder" | TableColumnWidthTypes {
-  if (includes(contentColumns.value, id)) return "content";
+  // A DECLARED width wins over the inferred content sizing. `content` is
+  // `w-px`, a shrink-to-fit trick that only holds under an AUTO table: once any
+  // column declares a width the table turns FIXED, where `w-px` is honoured
+  // literally and a one-pixel column lets its header text overflow across its
+  // neighbours. A column that states its own share must therefore be able to
+  // say so even when its cell type infers CONTENT.
   const element = find(columnElements.value, el => columnId(el) === id);
   if (element?.options?.width) return element.options.width;
+  if (includes(contentColumns.value, id)) return "content";
   // Under a fixed table an undeclared column takes the REMAINDER (`w-auto`),
   // never `w-full` — see `headerCell` in the styles file.
   return tableLayout.value === "fixed" ? "remainder" : "fluid";

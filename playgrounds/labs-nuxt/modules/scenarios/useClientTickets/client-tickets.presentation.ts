@@ -106,7 +106,10 @@ export const tableUischema: TableUischema = {
       type: "TableCellIcon",
       scope: "#/properties/settings/properties/lock",
       i18n: "text.locked_label",
-      options: { icon: "lock-01" }
+      // A share, not the inferred `content`: this table is FIXED (other
+      // columns declare widths), and a content column there is one pixel
+      // wide, so its header spills across the neighbouring ones.
+      options: { icon: "lock-01", width: TableColumnWidthTypes.TWELFTH }
     },
     {
       // R12/AC10 — the co-mingled-visibility receipt: a ticket delegated in
@@ -115,7 +118,7 @@ export const tableUischema: TableUischema = {
       type: "TableCellIcon",
       scope: "#/properties/is_delegated_object",
       i18n: "text.delegated_label",
-      options: { icon: "users-01" }
+      options: { icon: "users-01", width: TableColumnWidthTypes.TWELFTH }
     },
     {
       type: "TableCellDate",
