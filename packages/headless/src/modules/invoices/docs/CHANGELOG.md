@@ -12,6 +12,13 @@ All notable changes to the invoices module.
 - Reading an entitled other client's invoices (`.for('client', id)`) — a parent
   account or an accepted delegate reads a sub-account's or delegator's invoices,
   addressed by the target client's id.
+- Three more collection scope contexts, each a declared, read-only filter column
+  that is seeded on scope and stays durable across every published criteria write:
+  `.for('contract', id)` (`filter[contracts.id]`), `.for('contracts_product', id)`
+  (`filter[products.contracts_product_id]`), and `.for('invoice', id)`
+  (`filter[credit_invoice_id]`, a parent invoice's credit notes). Generalises the
+  seam that already kept the `client` retarget durable so all four scoped columns
+  go through the same resolve/seed/durability path.
 - Co-mingled row attribution — own / sub-account / delegated, and whether the reader
   may settle a given row.
 - A live, on-demand re-read of one invoice's unpaid amount, independent of the full

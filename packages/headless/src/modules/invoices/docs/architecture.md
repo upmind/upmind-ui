@@ -4,14 +4,14 @@
 
 Invoices is a scoped, query-backed module with two separately-exported composables sharing one services factory: `useInvoices` (the collection) and `useInvoice` (one invoice by id). There is no state machine — the query handle is the state. One services file resolves the identity seam for both composables, so a collection scope and a single-read scope addressing the same client can never disagree about who that client is.
 
-`ScopeActorTypes.STAFF` resolves to `never` on both scope matrices (deprecated for this resource) — the only live actor is `client`, in two contexts: `self` (the reading client's own invoices) and `client` (an entitled other client's, via `.for('client', id)`). The `self` / `client` difference is resolved inside the shared services factory, not by a per-actor file — no `.{actor}.ts` arm exists anywhere in this module.
+`ScopeActorTypes.STAFF` resolves to `never` on both scope matrices (deprecated for this resource) — the only live actor is `client`. The collection's matrix carries four context members off the `client` cell: `client` (an entitled other client's own invoices, via `.for('client', id)`), and three relationships — `contract`, `contracts_product`, `invoice` — each narrowing to that relationship's invoices or credit notes. Every context is resolved and kept durable through the same seam (`resolveFilterSlots` / `seedFilterSlots` / `withDurableFilterSlots` in `invoices.utils.ts` and `invoices.services.ts`), so a collection scope and a single-read scope addressing the same target can never disagree, and no published criteria write can silently drop a scoped column. The single read's matrix stays all-`never` — `.for(type, id)` is unspellable on `useInvoice`.
 
 ## Data flow
 
 ```mermaid
 flowchart TD
-    A([useInvoices as-actor / .for context]) --> B["resolve target client — the reading<br/>client's own id, or the .for() context's id"]
-    B --> C["GET /invoices — declared filters/sort/pagination,<br/>the target client_id as a filter column"]
+    A([useInvoices as-actor / .for context]) --> B["resolve filter slots — client_id always,<br/>plus one relationship column when .for(type, id)<br/>names contract / contracts_product / invoice"]
+    B --> C["GET /invoices — declared filters/sort/pagination,<br/>each resolved slot seeded and kept durable<br/>across every published criteria write"]
     C --> D["select: map rows → attribute each<br/>(own / sub-account / delegated)"]
     D --> E["data / total / pagination — published on useContext()"]
     A --> F["GET /invoices — unpaid-existence count<br/>(own criteria, own query key)"]
@@ -25,29 +25,30 @@ flowchart TD
     J --> N["GET /invoices/unpaid_amount/id<br/>— re-keyed on currency change"]
     N --> O["useContext().unpaidAmount"]
 
-    E --> P["useActions().setCriteria / sortBy /<br/>filterConsolidatable / filterCreditNotes<br/>— the target client_id column survives every write"]
+    E --> P["useActions().setCriteria / sortBy /<br/>filterConsolidatable / filterCreditNotes<br/>— every resolved slot's column survives every write"]
     M --> Q["useActions().assignPaymentMethod —<br/>PATCH .../payment_details, invalidates the shared key"]
 ```
 
 ## Sub-units
 
-| File                       | Purpose                                                                                                                                                    |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `invoices.types.ts`        | Scope matrices (collection + single-read), the query model, `Invoice`/`Payment` view types, service contract types.                                        |
-| `invoices.services.ts`     | The ONE services factory both composables consume — list/single/unpaid-amount/count reads, the payment-method write, target-client resolution.             |
-| `invoices.schemas.ts`      | The collection's query schema (filters/sort/pagination as one declared model) and its criteria presets.                                                    |
-| `invoices.mappers.ts`      | Wire → view-model mapping: the invoice itself, payments, co-mingled attribution, bundle/large-flag derivation.                                             |
-| `useInvoices.ts`           | Collection composable: mints the list query, the unpaid-existence count query, and the consolidatable-count query once per scope.                          |
-| `useInvoices.actions.ts`   | Collection actions — criteria writes, sort, presets, the payment-method write, lifecycle.                                                                  |
-| `useInvoices.context.ts`   | Collection context — the reactive list, its total, pagination, published criteria, schemas.                                                                |
-| `useInvoices.meta.ts`      | Collection state flags — including the two dedicated count reads.                                                                                          |
-| `useInvoices.internals.ts` | Debugging: the raw query object, the resolved target client, the wire the live criteria builds.                                                            |
-| `useInvoice.ts`            | Single-read composable: mints the item query and the unpaid-amount query once per scope.                                                                   |
-| `useInvoice.actions.ts`    | Single-read actions — lifecycle, the unpaid-amount re-read.                                                                                                |
-| `useInvoice.context.ts`    | Single-read context — the mapped invoice and the live unpaid amount.                                                                                       |
-| `useInvoice.meta.ts`       | Single-read state flags, including the discriminated payment state.                                                                                        |
-| `useInvoice.internals.ts`  | Debugging: the raw query object.                                                                                                                           |
-| `index.ts`                 | Public barrel: `useInvoices`, `useInvoice`, the collection's scope matrix/context enum, public model types, curated `mapInvoice`/`mapInvoices` re-exports. |
+| File                       | Purpose                                                                                                                                                                                                                                                                     |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `invoices.types.ts`        | Scope matrices (collection + single-read), the `InvoicesContextTypes` context enum and its wire-key map, the query model, `Invoice`/`Payment` view types, service contract types.                                                                                           |
+| `invoices.services.ts`     | The ONE services factory both composables consume — list/single/unpaid-amount/count reads, the payment-method write, target-client resolution, and `withDurableFilterSlots` (keeps every resolved slot's column present on every published criteria write).                 |
+| `invoices.utils.ts`        | `resolveFilterSlots` (which filter columns a scope seeds — `client_id` always, one relationship column when `.for()` names one) and `seedFilterSlots` (writes each slot's column onto the query handle and keeps it tracking its source); the PDF-download browser trigger. |
+| `invoices.schemas.ts`      | The collection's query schema (filters/sort/pagination as one declared model) and its criteria presets.                                                                                                                                                                     |
+| `invoices.mappers.ts`      | Wire → view-model mapping: the invoice itself, payments, co-mingled attribution, bundle/large-flag derivation.                                                                                                                                                              |
+| `useInvoices.ts`           | Collection composable: mints the list query, the unpaid-existence count query, and the consolidatable-count query once per scope.                                                                                                                                           |
+| `useInvoices.actions.ts`   | Collection actions — criteria writes, sort, presets, the payment-method write, lifecycle.                                                                                                                                                                                   |
+| `useInvoices.context.ts`   | Collection context — the reactive list, its total, pagination, published criteria, schemas.                                                                                                                                                                                 |
+| `useInvoices.meta.ts`      | Collection state flags — including the two dedicated count reads.                                                                                                                                                                                                           |
+| `useInvoices.internals.ts` | Debugging: the raw query object, the resolved target client, the wire the live criteria builds.                                                                                                                                                                             |
+| `useInvoice.ts`            | Single-read composable: mints the item query and the unpaid-amount query once per scope.                                                                                                                                                                                    |
+| `useInvoice.actions.ts`    | Single-read actions — lifecycle, the unpaid-amount re-read.                                                                                                                                                                                                                 |
+| `useInvoice.context.ts`    | Single-read context — the mapped invoice and the live unpaid amount.                                                                                                                                                                                                        |
+| `useInvoice.meta.ts`       | Single-read state flags, including the discriminated payment state.                                                                                                                                                                                                         |
+| `useInvoice.internals.ts`  | Debugging: the raw query object.                                                                                                                                                                                                                                            |
+| `index.ts`                 | Public barrel: `useInvoices`, `useInvoice`, the collection's scope matrix/context enum, public model types, curated `mapInvoice`/`mapInvoices` re-exports.                                                                                                                  |
 
 No `.{actor}.ts` arm exists on any of the five layers (services, actions, context, meta, schemas) — the `client`/`client` context difference is resolved inside the shared factory, and the staff actor resolves to `never`.
 

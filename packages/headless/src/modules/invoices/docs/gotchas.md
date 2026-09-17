@@ -22,11 +22,11 @@ const { total } = invoices.useContext(); // reads .pagination.value.total intern
 
 ---
 
-## The retarget survives every published criteria write — by design, not by accident 🧪
+## Every scoped column survives every published criteria write — by design, not by accident 🧪
 
-Reading an entitled client's invoices (`.for('client', id)`) applies that client's id as a declared filter column. A published criteria write (`setCriteria`, `sortBy`, the consolidatable/credit-notes presets) merges its own branch wholesale — a filters-branch write that doesn't itself carry the target id would otherwise silently drop the retarget and re-widen the list back to the reader's own invoices, while row attribution still labelled the returned rows against the original target. This module closes that door: every published write re-asserts the resolved target's id unless the caller explicitly declares their own — an explicit caller-declared id always wins.
+Reading an entitled client's invoices (`.for('client', id)`) applies that client's id as a declared filter column; reading one contract's, one contract product's, or one parent invoice's credit notes (`.for('contract'|'contracts_product'|'invoice', id)`) does the same for its own column (`contracts.id` / `products.contracts_product_id` / `credit_invoice_id`). A published criteria write (`setCriteria`, `sortBy`, the consolidatable/credit-notes presets) merges its own branch wholesale — a filters-branch write that doesn't itself carry the scoped column would otherwise silently drop it and re-widen the list, while row attribution still labelled the returned rows against the original target. This module closes that door: every published write re-asserts each resolved slot's column unless the caller explicitly declares that same key — an explicit caller-declared key always wins.
 
-**Test scenario:** retarget the collection, then call `filterCreditNotes()` (whose preset carries no client id) and a bare `setCriteria({ filters: {...} })`; assert the next request still carries the target id.
+**Test scenario:** retarget the collection with `.for('contract', id)`, then call `filterCreditNotes()` (whose preset carries no relationship id) and a bare `setCriteria({ filters: {...} })`; assert the next request still carries `contracts.id`.
 
 ---
 

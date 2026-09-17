@@ -1,6 +1,6 @@
 # Invoices Usage & API
 
-`useInvoices` (the collection) and `useInvoice` (one invoice) are both SCOPED composables (`.as(actor)` / `.for(context, id)`), sharing one services factory. Neither the `staff` actor nor a `.for()` retarget is available for `self` — the two live scopes are `self` and an entitled other `client`.
+`useInvoices` (the collection) and `useInvoice` (one invoice) are both SCOPED composables (`.as(actor)` / `.for(context, id)`), sharing one services factory. Neither the `staff` actor nor a `.for()` context is available for `self`. The collection's `client` scope carries four context members: `client` (an entitled other client's own invoices), `contract`, `contracts_product`, and `invoice` (the last three narrow to one relationship's invoices/credit notes). The single read (`useInvoice`) has no context at all — it is marked with `.withId(id)`, and `.for(type, id)` is a compile-time error on it.
 
 ## Reading your own invoices — the collection
 
@@ -185,6 +185,26 @@ const theirInvoice = useInvoice()
 ```
 
 The retarget survives every published criteria write on the collection (`setCriteria`, `sortBy`, `filterConsolidatable`, `filterCreditNotes`) — none of them can silently widen the list back to the reader's own invoices.
+
+## Scoping the collection to a relationship
+
+Three more `.for()` contexts narrow the collection to one relationship's invoices, each a declared, read-only filter column:
+
+```typescript
+// One contract's invoices — filter[contracts.id]
+const forContract = useInvoices().as("client").for("contract", contractId);
+
+// One contract product's invoices — filter[products.contracts_product_id]
+const forProduct = useInvoices()
+  .as("client")
+  .for("contracts_product", contractsProductId);
+
+// One parent invoice's credit notes — filter[credit_invoice_id]
+const forParent = useInvoices().as("client").for("invoice", parentInvoiceId);
+await forParent.useActions().isReady();
+```
+
+Each context's id is seeded onto its own filter column when the scope mints, and stays durable across every published criteria write — including `filterCreditNotes()`, whose own preset carries no relationship id. A `.for('contract', id)` scope that then calls `filterCreditNotes()` still keeps `contracts.id` on the next request. The column is declared `readOnly` in the query schema — it is not drawn as a filter-bar control — because it is the scope's own context slot, not a free filter a caller picks.
 
 ## Assigning the payment method
 
