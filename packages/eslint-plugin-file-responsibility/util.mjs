@@ -30,30 +30,59 @@ export function isTestFile(filename) {
   );
 }
 
+/** The declared type name of a parameter, or null. `context: AuthContext` → "AuthContext". */
+function paramTypeName(param) {
+  const ref = param?.typeAnnotation?.typeAnnotation;
+  if (ref?.type === "TSTypeReference" && ref.typeName?.type === "Identifier") {
+    return ref.typeName.name;
+  }
+  return null;
+}
+
+/** True when a first parameter is the machine context. */
+function isContextParam(param) {
+  if (!param) return false;
+  // `context` / `_context`, however typed.
+  if (param.type === "Identifier" && /^_?context$/.test(param.name)) return true;
+  // The `fn({ context, event })` shape — a `context` property in the destructure.
+  if (param.type === "ObjectPattern") {
+    if (
+      param.properties.some(
+        (p) =>
+          p.type === "Property" &&
+          p.key?.type === "Identifier" &&
+          /^_?context$/.test(p.key.name)
+      )
+    ) {
+      return true;
+    }
+  }
+  // Typed as a `*Context` — `context: AuthContext`, or `{ model }: ClientContext`
+  // (the context destructured into its own fields).
+  const typeName = paramTypeName(param);
+  if (typeName && typeName.endsWith("Context")) return true;
+  return false;
+}
+
 /**
- * The XState machine-service signature: an async function whose FIRST parameter
- * is `context` — either the identifier `context` (`fn(context, event)`) or a
- * destructured `{ context }` (`fn({ context, event })`). This is the shape a
- * machine invokes, and it is the universal carve-out that keeps a legitimate
- * non-request service function (and a `parse(context, event)`) in a services
- * file. Pass the function node (FunctionDeclaration | ArrowFunctionExpression |
- * FunctionExpression).
+ * The XState machine-service signature: an async function invoked by a machine
+ * as `(context, event)`, recognised by its FIRST parameter being the context.
+ * This is the universal carve-out that keeps a legitimate non-request service
+ * function (and a `parse(context, event)`) in a services file. The context
+ * parameter takes any of the shapes the codebase uses:
+ *
+ *   - the identifier `context` / `_context` (an unused param is `_`-prefixed);
+ *   - the `fn({ context, event })` destructure — a `context` property;
+ *   - a `*Context` type — `context: AuthContext`, or the context destructured
+ *     into its own fields, `{ model }: ClientContext`.
+ *
+ * A plain data util (`formatName(s)`, `resolveFilterSlots(rows)`) has no such
+ * first parameter, so it stays governed. Pass the function node
+ * (FunctionDeclaration | ArrowFunctionExpression | FunctionExpression).
  */
 export function isMachineServiceFn(fnNode) {
   if (!fnNode || !fnNode.async) return false;
-  const first = fnNode.params?.[0];
-  if (!first) return false;
-  if (first.type === "Identifier") return first.name === "context";
-  if (first.type === "ObjectPattern") {
-    return first.properties.some(
-      (p) =>
-        p.type === "Property" &&
-        p.key?.type === "Identifier" &&
-        p.key.name === "context"
-    );
-  }
-  // A typed param arrives as the identifier with a typeAnnotation; still an Identifier above.
-  return false;
+  return isContextParam(fnNode.params?.[0]);
 }
 
 /** Unwrap a `const x = <fn>` / `export const x = <fn>` initialiser to its function node, or return the node itself if already a function. */

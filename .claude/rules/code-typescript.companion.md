@@ -11,7 +11,7 @@ The base rule's "dedicated types module" binds concretely to the **`<module>.typ
 
 **Enforced (FE-3249)** over `packages/headless/src/modules/**` by two `error` rules in the root `eslint.config.mjs`:
 
-- `file-responsibility/types-in-types-file` — an exported `type` / `interface` / `enum` must live in a `*.types.ts` file. A local non-exported type stays legal anywhere. A co-located derived type (`export type X = ReturnType<typeof factory>` / `Awaited<…>`) is exempt: it cannot leave the file without a cycle.
+- `file-responsibility/types-in-types-file` — an exported `type` / `interface` / `enum` must live in a `*.types.ts` file. A local non-exported type stays legal anywhere **except a `*.services.ts`, which carries no type declarations at all** — a top-level non-exported type there is flagged too (the FE-3031 gap). A co-located derived type (`export type X = ReturnType<typeof factory>` / `Awaited<…>`) is exempt: it cannot leave the file without a cycle. A function-scoped local type is untouched.
 - `file-responsibility/no-type-reexport` — a type has one home. Do not re-export it from ANOTHER module. A module's own barrel re-exporting its own `*.types` is fine; a package re-export (ajv) is fine.
 
 ## Enum example

@@ -5,7 +5,10 @@
  * `*.types.ts` file, never in a sibling concern file (`*.services.ts`,
  * `*.utils.ts`, an unsuffixed `*.ts`, …). A local, non-exported `type` /
  * `interface` / `enum` is a private implementation detail and stays legal in
- * any `.ts` file.
+ * any `.ts` file — EXCEPT a services file, which carries no type declarations
+ * at all (the FE-3031 gap): a top-level non-exported type in a `*.services.ts`
+ * is flagged too, so it moves to `*.types.ts`. A derived alias stays exempt;
+ * a function-scoped local type is untouched.
  *
  * Both export shapes count as exported:
  *   - a declaration-level export — `export type X = …`, `export interface P {}`,
@@ -18,7 +21,7 @@
  * @module packages/eslint-plugin-file-responsibility/rules/types-in-types-file
  */
 
-import { isTypesFile, isTestFile } from "../util.mjs";
+import { isTypesFile, isTestFile, isServicesFile } from "../util.mjs";
 
 /** AST node type → the human word the message uses for the fix. */
 const KIND = {
@@ -57,7 +60,9 @@ export default {
     schema: [],
     messages: {
       typeOutsideTypesFile:
-        "Move this exported {{kind}} into the module's `*.types.ts` file. An exported type, interface or enum belongs in a types file, not in `{{basename}}`."
+        "Move this exported {{kind}} into the module's `*.types.ts` file. An exported type, interface or enum belongs in a types file, not in `{{basename}}`.",
+      localTypeInServicesFile:
+        "Move this {{kind}} into the module's `*.types.ts` file. A services file holds no type declarations — not even a non-exported one; `{{basename}}` is a services file."
     }
   },
 
@@ -67,11 +72,16 @@ export default {
     if (isTypesFile(filename) || isTestFile(filename)) return {};
 
     const basename = filename.split("/").pop();
+    // A services file holds no type declarations at all — see the extra
+    // top-level non-exported check below (FE follow-up to FE-3249).
+    const inServices = isServicesFile(filename);
 
     /** name → the local type-like declaration node it names. */
     const localTypeDecls = new Map();
     /** named-export specifiers with no source and no inline declaration. */
     const pendingLocalExports = [];
+    /** Top-level non-exported type-like declarations in a services file. */
+    const localTopLevelTypes = [];
 
     return {
       // Declaration-level export: `export type/interface/enum …`.
@@ -87,9 +97,23 @@ export default {
       },
 
       // Record every type-like declaration by name (order-independent).
+      // In a services file, a TOP-LEVEL non-exported declaration is also a
+      // violation: a services file carries no type declarations, exported or
+      // not. A derived alias stays exempt; a function-scoped local type is an
+      // implementation detail and is not top-level, so it is untouched.
       "TSTypeAliasDeclaration, TSInterfaceDeclaration, TSEnumDeclaration"(node) {
         if (node.id && node.id.type === "Identifier") {
           localTypeDecls.set(node.id.name, node);
+        }
+        if (
+          inServices &&
+          node.parent &&
+          node.parent.type === "Program" &&
+          !isDerivedTypeAlias(node)
+        ) {
+          // Report at Program:exit — a type later exported via `export { X }`
+          // is already flagged by the export path, so it must not double-fire.
+          localTopLevelTypes.push(node);
         }
       },
 
@@ -106,6 +130,9 @@ export default {
       // Resolve local named exports once the whole file is parsed, so a
       // hoisted `export { X }` before `type X = …` is still caught.
       "Program:exit"() {
+        const exportedByName = new Set(
+          pendingLocalExports.map(spec => spec.local.name)
+        );
         for (const spec of pendingLocalExports) {
           const decl = localTypeDecls.get(spec.local.name);
           if (decl && !isDerivedTypeAlias(decl)) {
@@ -115,6 +142,19 @@ export default {
               data: { kind: KIND[decl.type], basename }
             });
           }
+        }
+        // A services file holds no type declarations. Flag a top-level
+        // non-exported one — unless it is exported via a specifier above, which
+        // has already reported it.
+        for (const node of localTopLevelTypes) {
+          if (node.id?.type === "Identifier" && exportedByName.has(node.id.name)) {
+            continue;
+          }
+          context.report({
+            node,
+            messageId: "localTypeInServicesFile",
+            data: { kind: KIND[node.type], basename }
+          });
         }
       }
     };
