@@ -105,19 +105,28 @@ const MODEL_KEYS = [
 
 /**
  * Derives the target client id from the RESOLVED scope — the ONE seam every
- * request-issuing function in this file shares. A `SETTINGS` context names
- * the settings being addressed, which IS the owning client's id; with none it
- * falls back to the active session's own client (the self case). Both halves
- * share this one seam, which is what makes AC1's read-back (read and write
- * resolve the SAME id) executable, and is the guard against the FE-2824
- * defect shape (a services file that hardwires the session id and drops
- * `.for('client', id)`).
+ * request-issuing function in this file shares. A `.for('client', id)` context
+ * names the client being addressed; with none it falls back to the active
+ * session's own client (the self case). This compares the CONTEXT the scope
+ * builder resolved, never the actor, so it is not a branch on
+ * `ScopeActorTypes.SELF`. Both halves share this one seam, which is what makes
+ * AC1's read-back (read and write resolve the SAME id) executable, and is the
+ * guard against the FE-2824 defect shape (a services file that hardwires the
+ * session id and drops `.for('client', id)`). ADR-001 amendment 2026-09-15: the
+ * client retarget rides in a `.for()` context; `.withId()` carries a record id,
+ * never the owner.
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ClientBillingSettingsContextTypes.SETTINGS
+    scopeContext?.type === ClientBillingSettingsContextTypes.CLIENT &&
+    scopeContext.id
       ? scopeContext.id
       : activeUser.value?.id
   );

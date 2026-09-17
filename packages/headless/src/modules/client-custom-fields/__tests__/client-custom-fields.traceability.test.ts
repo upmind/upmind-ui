@@ -7,7 +7,7 @@
  * and every sibling spec's `AC-<n>` title mentions, then enforce the link
  * BOTH ways — a non-`@todo` scenario with no proving test fails, and a test
  * naming an AC the feature does not tag fails — plus the hard count: the
- * distinct `@AC-<n>` tag set has exactly 36 members.
+ * distinct `@AC-<n>` tag set has exactly 40 members.
  *
  * ALSO grades step catalog driveability: a scenario whose steps ALL match the
  * catalog is driveable; one whose steps match only in PART fails (the dangerous
@@ -120,7 +120,7 @@ describe("client-custom-fields traceability — co-located feature vs proving te
     ).toEqual([]);
   });
 
-  it("the distinct @AC-<n> tag set has exactly 36 members, and every one names a proving file", () => {
+  it("the distinct @AC-<n> tag set has exactly 40 members, and every one names a proving file", () => {
     const tests = provingTests();
     const acEntries = map(
       [...featureAcTags(COLOCATED_FEATURE)].sort(
@@ -129,7 +129,7 @@ describe("client-custom-fields traceability — co-located feature vs proving te
       ac => ({ ac, files: tests.get(ac) ?? [] })
     );
 
-    expect(acEntries).toHaveLength(36);
+    expect(acEntries).toHaveLength(40);
     expect(filter(acEntries, entry => entry.files.length === 0)).toEqual([]);
   });
 

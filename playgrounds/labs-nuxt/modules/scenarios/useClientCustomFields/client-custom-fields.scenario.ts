@@ -12,8 +12,20 @@
  * The DIRECTORY is the url segment and the route name
  * (`/useClientCustomFields`), so nothing here declares a route. Nor a scope:
  * the page boots as self with no context, and only the url's `/as/:actor` and
- * `/for/:type/:id` segments move it — offering only what the module's own
- * scope matrix serves (`client` x `custom_field_values`).
+ * `/for/:type[/:id]` segments move it — offering only what the module's own
+ * scope matrix serves.
+ *
+ * THE CATALOGUE PICKER IS NOT DECLARED HERE, and that is the point (FE-3034).
+ * The catalogue is a SELECTOR context on the module's own scope matrix, so
+ * `ScenarioPlayground`'s `registerContexts(port.scopeMatrix)` hands the scope
+ * bar `invoice` and `contract_request` for free, and `/for/invoice` boots the
+ * page on that catalogue. No second construction channel exists: naming no
+ * context IS choosing the client catalogue.
+ *
+ * DATA BOUNDS: only the client catalogue has recorded rows. The
+ * `contract_request` catalogue reaches the wire, but staging has none
+ * configured, so it answers with zero rows — read that as "no recorded rows",
+ * never as proof no data exists.
  */
 
 import { useClientCustomFields } from "@upmind-automation/headless";

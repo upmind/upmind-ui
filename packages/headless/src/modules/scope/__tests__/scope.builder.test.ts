@@ -19,6 +19,9 @@
  * to nobody; `useX().useMeta()` is undefined because the proxy stops forwarding;
  * two callers of the same scope drift apart; or `.fresh()` hands back the stale
  * cached instance instead of an isolated one.
+ *
+ * @anchor scope.feature
+ * @anchor AC-1
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -26,7 +29,9 @@ import "./mocks";
 import { createScopedComposable } from "../scope.builder";
 import { clearAll } from "../scope.registry";
 import { ScopeActorTypes } from "../scope.types";
+import { selector } from "../scope.utils";
 import { sessionState } from "./mocks";
+import { forEach, map, sortBy } from "lodash-es";
 import type { ScopeConfig, ScopeKey } from "../scope.types";
 
 // -----------------------------------------------------------------------------
@@ -286,5 +291,154 @@ describe("createScopedComposable", () => {
       expect(second.useMeta().count).toBe(0);
       expect(factory).toHaveBeenCalledTimes(2);
     });
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+/**
+ * One actor, three declared members: a retarget member and two catalogues. This
+ * is the mixed cell FE-3239 mints — the shape `scope.feature`'s Background
+ * declares and `@AC-1` grades.
+ */
+const CUSTOM_FIELDS_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: [
+    "values",
+    selector("invoice"),
+    selector("cancel_request")
+  ],
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+const CUSTOM_FIELDS = "client-custom-fields";
+
+/**
+ * A scoped composable on the mixed cell, recording every config it was built
+ * with against the key it was built under.
+ */
+function makeCustomFields() {
+  const configs = new Map<ScopeKey, ScopeConfig>();
+
+  const factory = vi.fn((config: ScopeConfig, scopeKey: ScopeKey): Layered => {
+    configs.set(scopeKey, config);
+    let count = 0;
+    const id = Symbol("instance");
+    return {
+      useContext: () => ({ actor: config.actor }),
+      useMeta: () => ({ count }),
+      useActions: () => ({
+        inc: () => {
+          count++;
+        }
+      }),
+      useInternals: () => ({ id })
+    };
+  });
+
+  return {
+    use: createScopedComposable<Layered, typeof CUSTOM_FIELDS_MATRIX>(
+      CUSTOM_FIELDS,
+      factory,
+      CUSTOM_FIELDS_MATRIX
+    ),
+    factory,
+    configs
+  };
+}
+
+describe("createScopedComposable — the catalogue context (FE-3239)", () => {
+  beforeEach(() => {
+    clearAll();
+    sessionState.activeActor = undefined;
+  });
+
+  it("@AC-1 keeps two catalogues read through one module separate", () => {
+    const { use, factory } = makeCustomFields();
+
+    const invoices = use().as(ScopeActorTypes.CLIENT).for("invoice");
+    const cancellations = use()
+      .as(ScopeActorTypes.CLIENT)
+      .for("cancel_request");
+
+    invoices.useActions().inc();
+
+    expect(cancellations.useMeta().count).toBe(0);
+    expect(factory).toHaveBeenCalledTimes(2);
+  });
+
+  it("@AC-1 hands the first catalogue back the instance it already had", () => {
+    const { use, factory } = makeCustomFields();
+
+    const invoices = use().as(ScopeActorTypes.CLIENT).for("invoice");
+    use().as(ScopeActorTypes.CLIENT).for("cancel_request").useInternals();
+
+    invoices.useActions().inc();
+    use().as(ScopeActorTypes.CLIENT).for("invoice").useActions().inc();
+
+    expect(invoices.useMeta().count).toBe(2);
+    expect(factory).toHaveBeenCalledTimes(2);
+  });
+
+  it("@AC-1 keys each catalogue on the member alone", () => {
+    const { use, configs } = makeCustomFields();
+
+    use().as(ScopeActorTypes.CLIENT).for("invoice").useInternals();
+    use().as(ScopeActorTypes.CLIENT).for("cancel_request").useInternals();
+
+    // The literal keys, not a template over the enum the builder itself reads.
+    // Instance distinctness alone is already green on a builder that keys
+    // `…:invoice:undefined`, so the string IS the capability AC-1 grades.
+    expect(sortBy([...configs.keys()])).toEqual([
+      "client-custom-fields:client:cancel_request",
+      "client-custom-fields:client:invoice"
+    ]);
+  });
+
+  it("@AC-1 attributes no entity to either catalogue read", () => {
+    const { use, configs } = makeCustomFields();
+
+    use().as(ScopeActorTypes.CLIENT).for("invoice").useInternals();
+    use().as(ScopeActorTypes.CLIENT).for("cancel_request").useInternals();
+
+    const contexts = map([...configs.values()], config => config.context);
+
+    expect(sortBy(map(contexts, "type"))).toEqual([
+      "cancel_request",
+      "invoice"
+    ]);
+
+    forEach(contexts, context =>
+      expect(Object.hasOwn(context ?? {}, "id")).toBe(false)
+    );
+  });
+
+  it("leaves the retargeted member of the same cell resolving to the instance it always did", () => {
+    const { use, factory, configs } = makeCustomFields();
+
+    const first = use().as(ScopeActorTypes.CLIENT).for("values", "123");
+    const second = use().as(ScopeActorTypes.CLIENT).for("values", "123");
+
+    first.useActions().inc();
+
+    expect(second.useMeta().count).toBe(1);
+    expect(factory).toHaveBeenCalledTimes(1);
+    expect(
+      configs.get(`${CUSTOM_FIELDS}:${ScopeActorTypes.CLIENT}:values:123`)
+        ?.context
+    ).toEqual({ type: "values", id: "123" });
+  });
+
+  it("separates a catalogue read from a retargeted read of the same cell", () => {
+    const { use, factory } = makeCustomFields();
+
+    const retargeted = use().as(ScopeActorTypes.CLIENT).for("values", "123");
+    const catalogue = use().as(ScopeActorTypes.CLIENT).for("invoice");
+
+    retargeted.useActions().inc();
+
+    expect(catalogue.useMeta().count).toBe(0);
+    expect(factory).toHaveBeenCalledTimes(2);
   });
 });

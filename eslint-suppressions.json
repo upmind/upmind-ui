@@ -633,6 +633,11 @@
       "count": 5
     }
   },
+  "packages/headless/src/modules/payment-gateways/__tests__/gateway-actions.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 16
+    }
+  },
   "packages/headless/src/modules/payment-gateways/__tests__/utils.spec.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -736,6 +741,16 @@
       "count": 4
     }
   },
+  "packages/headless/src/modules/product/__tests__/refresh-removed-selection.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "packages/headless/src/modules/product/__tests__/subproduct-defaults.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
   "packages/headless/src/modules/product/__tests__/validation-parity.test.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 10
@@ -807,7 +822,7 @@
   },
   "packages/headless/src/modules/query/useQuery.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 9
+      "count": 8
     }
   },
   "packages/headless/src/modules/recommendations/recommendations.types.ts": {

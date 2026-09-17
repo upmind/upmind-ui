@@ -16,6 +16,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { interpret } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
+import { promotionsMachine as machine } from "../../basket-promotions";
 import { isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -45,8 +46,6 @@ vi.mock("../../../utils", () => ({
   useTranslateName: (item: { name?: string }) => item?.name,
   DEBOUNCE_DELAY: 350
 }));
-
-import machine from "../../basket-promotions/promotions.machine";
 
 // -----------------------------------------------------------------------------
 

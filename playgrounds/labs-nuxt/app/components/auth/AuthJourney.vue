@@ -234,7 +234,12 @@ const auth = (() => {
     return builder.fresh();
   }
 
-  if (!props.context) {
+  // An id-less context falls through with an absent one: every member of the
+  // auth matrix is a RETARGET, so `.for(type)` is uncallable here and a context
+  // naming no entity names nothing this module can scope to.
+  const retargetId = props.context?.id;
+
+  if (!props.context || !retargetId) {
     const builder = base.as(props.actor);
     if (props.actor === ScopeActorTypes.STAFF && props.brandId) {
       return (
@@ -250,9 +255,9 @@ const auth = (() => {
   if (props.actor === ScopeActorTypes.STAFF && props.brandId) {
     return (builder as ReturnType<typeof base.as<ScopeActorTypes.STAFF>>)
       .inBrand(props.brandId)
-      .for(props.context.type, props.context.id);
+      .for(props.context.type, retargetId);
   }
-  return builder.for(props.context.type, props.context.id);
+  return builder.for(props.context.type, retargetId);
 })();
 
 const { destroy, isReady, reject, resolve, set, start } = auth.useActions();

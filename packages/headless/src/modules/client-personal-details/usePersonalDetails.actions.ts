@@ -2,7 +2,7 @@ import { watch } from "vue";
 // A's own collection (AC-63) — this scope's readiness must fold in A's, or
 // `isReady()` resolves before the joined custom-field rows have settled
 // (`usePersonalDetails.context.ts`'s own `@decision` for WHY a bare vs
-// `.for('profile', id)` scope is chosen — mirrored here verbatim, never
+// `.for('client', id)` scope is chosen — mirrored here verbatim, never
 // re-derived).
 import {
   ClientCustomFieldsContextTypes,
@@ -42,15 +42,16 @@ export function createPersonalDetailsActions(
   /**
    * A's own collection scope for THIS profile — identical resolution to
    * `usePersonalDetails.context.ts`'s own `customFieldsScope` (see that
-   * file's `@decision`): `.for('profile', id)` only when THIS module's own
+   * file's `@decision`): `.for('client', id)` only when THIS module's own
    * scope was explicitly retargeted, otherwise a bare `.as(CLIENT)` that
    * falls through to A's own session-client fallback.
    */
   const customFieldsScope =
-    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE
+    scopeContext?.type === ClientPersonalDetailsContextTypes.CLIENT &&
+    scopeContext.id
       ? useClientCustomFields()
           .as(ScopeActorTypes.CLIENT)
-          .for(ClientCustomFieldsContextTypes.VALUES, scopeContext.id)
+          .for(ClientCustomFieldsContextTypes.CLIENT, scopeContext.id)
       : useClientCustomFields().as(ScopeActorTypes.CLIENT);
   const { isReady: isCustomFieldsReady } = customFieldsScope.useActions();
 

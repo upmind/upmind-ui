@@ -80,7 +80,10 @@
     "graph": "bash .claude/scripts/graphify/refresh.sh",
     "graph:check": "bash .claude/scripts/graphify/refresh.sh --check",
     "graph:open": "open graphify-out/graph.html",
-    "graph:open:modules": "open graphify-out/graph-modules.html"
+    "graph:open:modules": "open graphify-out/graph-modules.html",
+    "typecheck": "pnpm -r --if-present run type-check && pnpm -r --if-present run typecheck",
+    "ci:check": "pnpm -r --workspace-concurrency=1 build && pnpm lint:verify && bash tests/features/lint-feature-files.sh && pnpm lint:quarantine && pnpm test:unit && pnpm test:integration && pnpm --filter @upmind/tokens test && pnpm --filter @upmind/ui test",
+    "ci:check:full": "pnpm ci:check && pnpm run test:bdd"
   },
   "devDependencies": {
     "@eslint/js": "9.39.2",

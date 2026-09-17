@@ -5,8 +5,8 @@
  * (operator brief 2026-08-28): the framework diagram's own arrangement, the
  * one `@upmind/ui`'s `AdminShell` preset draws. The brand heads a
  * rail-collapsible SIDEBAR carrying the primary destinations, and the topbar
- * keeps a ⌘K launcher left with alerts + account right. The palette is
- * Host·Grid's — a white canvas, grey panels, ink CTAs.
+ * keeps a ⌘K launcher left with alerts + account right. The palette is the
+ * shipped `upmind` theme's, so first paint needs no runtime CSS.
  *
  * Its menus are the LEGACY client portal's, exactly (operator ruling
  * 2026-08-26): `ClientPrimaryTabigation`'s six tabs — now the
@@ -20,7 +20,6 @@
  * the page's own aside track — carries the current pillar's section menu.
  */
 
-import { defineTheme } from "@upmind/tokens";
 import { ArrowRight } from "lucide-vue-next";
 import {
   CONTENT_ASIDE_SIZE,
@@ -152,35 +151,6 @@ const ACCOUNT_UTILITY_PANE = {
 } as const satisfies UtilityConfig;
 
 /** hostgrid — Host·Grid's own palette (config/hostgrid.ts), on this shape. */
-export const hostgridTheme = defineTheme({
-  name: "hostgrid",
-  label: "Host·Grid",
-  description:
-    "Host·Grid's identity on the topbar-primary shape — a white canvas, soft grey chips and panels, near-black CTAs.",
-  colors: {
-    // Host·Grid's render carries no accent: its only "colour" is ink.
-    primary: { base: "#171717", label: "light" },
-    promo: "#171717",
-    gray: "#8A8A8A",
-    control: "#171717"
-  },
-  preferredMode: "light",
-  overrides: {
-    // The render's canvas is pure white, flat — no derived neutral wash.
-    canvas: "#FFFFFF",
-    "canvas-stop": "#FFFFFF",
-    // The no-accent identity extends to text links (the section View-alls):
-    // muted grey at rest, darkening on hover — never the ink CTA colour.
-    "text-button-link": "var(--muted)",
-    "text-button-link-hover": "var(--body)",
-    "radius-slot-button": "8px",
-    "radius-slot-card": "12px",
-    "radius-slot-field": "8px",
-    "radius-slot-image": "8px"
-  },
-  brand: { logoText: "Host·Grid", tagline: "Domains, websites and email." }
-});
-
 /** The trailing View-all action every dashboard section carries alike — the quiet `link` tone, never a boxed button beside the heading. */
 function viewAllButton(to: string) {
   return moduleRef(BUTTON_MODULE_ID, {
@@ -196,7 +166,7 @@ function viewAllButton(to: string) {
 }
 
 export const hostgridConfig: PortalConfig = {
-  theme: "hostgrid",
+  theme: "upmind",
   primitives: {
     // The app shell's bar: the ⌘K launcher left, alerts + account right. The
     // brand is NOT here — it heads the sidebar, as the shell puts it, and the

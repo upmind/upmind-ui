@@ -6,52 +6,24 @@ paths:
   - '**/*.js'
   - '**/*.mjs'
 ---
-> Companion to [code-quality.md](./code-quality.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to `code-quality.md` — Upmind-monorepo bindings.
 
-## The graphify gate (existing-type mechanical gate)
+## No duplicate types (graphify gate)
 
-Before proposing any new type, enum, or utility, run `/graphify query "<concept>"` to confirm one does not already exist. This is mechanically enforced by `hooks/graphify-gate.sh`, which blocks a new type/enum that skipped the graph query. Consume what the graph already exposes rather than adding a parallel construct.
+Before you mint a type, enum or utility, find the existing one: the graphify MCP (`query_graph` / `get_node` on the name) is the fast lookup. The plugin's `graphify-gate.sh` denies a write that re-declares an exported type name already present anywhere in the repo, and names where it lives. Import it, or move it to `@upmind-automation/types` when two modules need it. A same-named export in a different module directory is allowed only for the per-module convention names below.
 
-## Module Visibility Law — ESLint rule names + receipts
+## Module Visibility Law
 
-The internal-file set includes `session-store.*` alongside `*.machine.ts` / `*.services.ts` / `*.mappers.ts` / `*.schemas.ts`.
-
-**ESLint enforcement (root `eslint.config.mjs`):**
-
-- `@internal/no-cross-module-imports` — errors on any cross-module import of a file whose first lines carry `@internal`.
-- `@internal/no-barrel-imports` — errors on aggregator-barrel imports.
-
-Receipts:
-
-- The aggregator-barrel `export *` cycle is the `useTime is not a function` load-order crash.
-- Intra-module imports pointing at the module's own barrel create import-time cycles — see commit `2db6fc391`.
+Mechanically enforced by two ESLint rules in the root `eslint.config.mjs`: `@internal/no-cross-module-imports` and `@internal/no-barrel-imports`. The internal-file set is `*.machine.ts`, `*.services.ts`, `*.mappers.ts`, `*.schemas.ts` and `session-store.*`.
 
 ## Import package binding
 
-The scoped types package in the import-order example is `@upmind-automation/types` (shown as `@app/types` in the base).
+The scoped types package is `@upmind-automation/types` (`@app/types` in the base).
 
 ## Collection utilities — the Lodash mandate
 
-**Use Lodash for ALL array/object operations:**
-
-```typescript
-import { map, filter, find, reduce, isEmpty } from "lodash-es";
-
-const ids = map(items, 'id');
-const active = filter(items, item => item.active);
-const found = find(items, { id: targetId });
-const total = reduce(items, (sum, item) => sum + item.price, 0);
-
-// WRONG - Do NOT use native JS methods: items.map/filter/find/reduce
-```
-
-**Prefer one traversal, and mutating utilities over immutable chains.** Each lodash call is a full pass — deriving subsets with `filter` + `reject` + `map` loops the same array repeatedly. Use a single `remove(arr, predicate)` (mutates in place, returns the pulled items) so one call yields both subsets; at worst one `reduce`/`forEach`. Side effects inline in an `assign` are idiomatic here (precedent: `setAuthHelper`).
-
-**Exception:** Do NOT use `lodash.get` for state/context access — use the Upmind state-read utilities instead (see `code-xstate.md`).
+Use Lodash (`lodash-es`) for ALL array and object operations, in every package including `design-system/packages/ui`. Never native `items.map/filter/find/reduce`. Prefer one traversal: `remove(arr, predicate)` yields both subsets in one pass; at worst one `reduce`/`forEach`. Exception: never `lodash.get` for state or context access — use the Upmind state-read utilities (`code-xstate.md`).
 
 ## Gate bindings (graphify-gate.sh)
 
-Machine-readable bindings `hooks/graphify-gate.sh` reads from this companion (resolved via `git rev-parse --show-toplevel` → `.claude/rules/`, exactly like `hooks/seat-guard.sh`). No env-var channel exists. This section is what ACTIVATES the graphify gate: absent it (or absent a `citation-pattern`) the gate is INACTIVE and exits 0 for every write. With it present, a Write/Edit of a public-surface file (or one introducing an exported enum) is denied unless the content carries the citation substring.
-
-- citation-pattern: graphify-out/
-- public-surface-globs: *.types.ts
+- per-module-names: Context, ContextTypes, Actions, Meta, Internals, Props, ScopeMatrix

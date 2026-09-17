@@ -20,13 +20,14 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { mapIBillingSettingsFields } from "../client-billing-settings.mappers";
-import { mapIProfileFields } from "../../client-personal-details/client-personal-details.mappers";
 import {
   DaysOfWeekTypes,
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
+// eslint-disable-next-line @internal/no-cross-module-imports -- this control exists to drive BOTH modules' mappers side by side and prove their emitted key sets stay disjoint; the other module's mapper is the subject under test, not a runtime dependency, and the barrel does not (and should not) export it.
+import { mapIProfileFields } from "../../client-personal-details/client-personal-details.mappers";
+import { mapIBillingSettingsFields } from "../client-billing-settings.mappers";
 import type { BillingSettingsModel } from "../client-billing-settings.types";
 
 // -----------------------------------------------------------------------------

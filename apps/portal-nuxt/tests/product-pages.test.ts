@@ -123,16 +123,20 @@ describe("group listing — the context names the group and the status tab", () 
 });
 
 describe("product detail — the context names the product", () => {
-  it("the spec carries the product's legacy overview fields", () => {
+  it("the spec carries the billing facts, and none the billboard states", () => {
     const items = resolveRef(DATA_REF_ID.PRODUCT_SPEC_ITEMS, {
       groupSlug: "products",
       productId: "prod-analytics"
     }) as SpecModuleItem[];
 
     const byId = new Map(items.map(item => [item.id, item.value]));
-    expect(byId.get("name")).toBe("Analytics Add-on");
-    expect(byId.get("status")).toBe("Active");
     expect(byId.get("next-due")).toBe("2026-09-05");
+    expect(byId.get("tax")).toBe("inc. VAT");
+    // The billboard directly above says what the product is and where it
+    // stands, so the spec repeats none of it.
+    expect(byId.has("name")).toBe(false);
+    expect(byId.has("category")).toBe(false);
+    expect(byId.has("status")).toBe(false);
   });
 
   it("the area nav is gated as legacy gated it — Setup only while pending", () => {

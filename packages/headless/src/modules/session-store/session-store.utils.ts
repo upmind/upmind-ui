@@ -53,6 +53,11 @@ import type { ComputedRef } from "vue";
  * Resolves the client id a call addresses: a `client` scope context wins,
  * otherwise the active session's own user.
  *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less `client` context would otherwise return `undefined`
+ * AS the identity instead of falling through to the session. The guard now
+ * holds what the type used to hold.
+ *
  * @param scopeContext - The resolved scope context, if the scope carries one
  * @returns The client id to address, or `undefined` while none resolves
  */
@@ -60,7 +65,8 @@ export function resolveClientId(
   scopeContext?: ScopeContext
 ): ComputedRef<string | undefined> {
   return computed(() => {
-    if (scopeContext?.type === AccessRoleTypes.CLIENT) return scopeContext.id;
+    if (scopeContext?.type === AccessRoleTypes.CLIENT && scopeContext.id)
+      return scopeContext.id;
 
     // `store.state` is a plain read, so the tick is what makes this reactive.
     void storeTick.value;

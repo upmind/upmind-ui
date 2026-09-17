@@ -104,6 +104,11 @@ export const queryKey: QueryKey = ["client", "addresses"];
  * `??=` is what makes the first NON-EMPTY resolution the pin, so a scope built
  * before the session has settled still pins the right client rather than
  * freezing `undefined`.
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext, pin = false) {
   const { activeUser } = useActiveSession().useContext();
@@ -111,7 +116,8 @@ function resolveClientId(scopeContext?: ScopeContext, pin = false) {
 
   return computed(() => {
     const live =
-      scopeContext?.type === ClientAddressesContextTypes.CLIENT
+      scopeContext?.type === ClientAddressesContextTypes.CLIENT &&
+      scopeContext.id
         ? scopeContext.id
         : activeUser.value?.id;
 
