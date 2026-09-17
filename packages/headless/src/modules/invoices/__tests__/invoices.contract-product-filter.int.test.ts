@@ -109,6 +109,26 @@ describe("invoices collection — narrows by contract product on the wire (AC-18
     }
   });
 
+  it("FE-3031 .for('contracts_product', id) puts filter[products.contracts_product_id]=<id> on the outbound GET /api/invoices query string — the scope-context slot form", async () => {
+    const { accessToken } = await seedClientSession();
+    installInvoiceHandlers();
+
+    const observed = observeInvoiceRequests();
+    const invoices = useInvoices()
+      .as(ScopeActorTypes.CLIENT)
+      .for(InvoicesContextTypes.CONTRACT_PRODUCT, PRODUCT_ID);
+    await vi.waitFor(() =>
+      expect(invoices.useMeta().isLoading.value).toBe(false)
+    );
+    observed.stop();
+
+    const request = observed.first();
+    expect(decodeURIComponent(request.url)).toContain(
+      `filter[products.contracts_product_id]=${PRODUCT_ID}`
+    );
+    assertClientIdentityTransport(request, accessToken);
+  });
+
   it("AC-18 narrowing a .for('client', X) scope to one contract product still carries the TARGET client's id — narrowing never re-widens the retarget", async () => {
     const { accessToken } = await seedClientSession();
     installInvoiceHandlers();

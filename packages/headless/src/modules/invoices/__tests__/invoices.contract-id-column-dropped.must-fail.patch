@@ -1,0 +1,30 @@
+# must-fail: scoping by contract reaches the wire under the API's own key,
+# `filter[contracts.id]=<contract-id>` (FE-3031, the `.for('contract', id)`
+# relationship context).
+#
+# Spec flipped: invoices.relationship-context-filter.int.test.ts — the
+# `.for('contract', id)` construction read (filter[contracts.id]=<id>) and the
+# OR-1(b) `.for('contract', id)` + filterCreditNotes() durability compose.
+# Mutation: INVOICES_CONTEXT_WIRE_KEYS[CONTRACT] is remapped off `contracts.id`
+# onto `client_id`, so the contract scope context seeds the WRONG filter column
+# and `filter[contracts.id]` never reaches the wire — the FE-2824 wrong-column
+# defect for the contract relationship.
+#
+# Authored by the prover seat under the operator's explicit task directive
+# ("Add a mutant if one is missing; fix a mutant so it reddens your new test"):
+# no developer-authored control existed for the contract relationship column.
+# Targets INVOICES_CONTEXT_WIRE_KEYS in invoices.types.ts (the public wire-key
+# map on the contract surface), not the schema internals. Apply from repo root:
+# `git apply <this file>`.
+diff --git a/packages/headless/src/modules/invoices/invoices.types.ts b/packages/headless/src/modules/invoices/invoices.types.ts
+--- a/packages/headless/src/modules/invoices/invoices.types.ts
++++ b/packages/headless/src/modules/invoices/invoices.types.ts
+@@ -105,7 +105,7 @@
+  */
+ export const INVOICES_CONTEXT_WIRE_KEYS = {
+   [InvoicesContextTypes.CLIENT]: "client_id",
+-  [InvoicesContextTypes.CONTRACT]: "contracts.id",
++  [InvoicesContextTypes.CONTRACT]: "client_id",
+   [InvoicesContextTypes.CONTRACT_PRODUCT]: "products.contracts_product_id",
+   [InvoicesContextTypes.INVOICE]: "credit_invoice_id"
+ } as const satisfies Record<InvoicesContextTypes, keyof InvoiceFilterModel>;
