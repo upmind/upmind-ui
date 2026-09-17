@@ -63,7 +63,7 @@
  * ESLint with `--prune-suppressions` in a later FE-2842 step, never here.
  */
 
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import js from "@eslint/js";
 import eslintPluginTypescript from "@typescript-eslint/eslint-plugin";
@@ -829,20 +829,41 @@ const importGraphSettings = {
   "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx", ".mts"] }
 };
 
-// The ADR 023 §3 roster. Kept as one list so the glob and the forbid pattern
-// below cannot drift from each other.
-const DOMAIN_PACKAGES = [
-  "foundation",
-  "product",
-  "recommendations",
-  "catalogue",
-  "domain",
-  "auth",
-  "client",
-  "payment",
-  "invoice",
-  "basket"
-];
+// The ADR 023 §3 roster, read off the packages themselves rather than kept by
+// hand: a domain package is the shared base, plus every package that declares
+// the shared base as a dependency. A new one is armed the day its package.json
+// lands, and no list can drift from the packages on disk.
+//
+// `client-vue` is excluded by name, and by name only. The god package this
+// migration splits declares the shared base for the length of the split, and it
+// holds the import cycles the split exists to remove; arming `import/no-cycle`
+// on it would report them as this phase's work. The exclusion dies with the
+// package.
+const SHARED_BASE = "foundation";
+const SHARED_BASE_SPECIFIER = `@upmind-automation/${SHARED_BASE}`;
+const EXCLUDED_FROM_ROSTER = ["client-vue"];
+
+function dependsOnSharedBase(name) {
+  const manifest = resolve(PACKAGES_ROOT, name, "package.json");
+  if (!existsSync(manifest)) return false;
+  const { dependencies } = JSON.parse(readFileSync(manifest, "utf8"));
+  return Boolean(dependencies?.[SHARED_BASE_SPECIFIER]);
+}
+
+const DOMAIN_PACKAGES = readdirSync(PACKAGES_ROOT, { withFileTypes: true })
+  .filter(entry => entry.isDirectory())
+  .map(entry => entry.name)
+  .filter(name => !EXCLUDED_FROM_ROSTER.includes(name))
+  .filter(name => name === SHARED_BASE || dependsOnSharedBase(name))
+  .sort();
+
+// An absent shared base means the read failed, not that the repo has no domain
+// packages. Without this, both rules below arm on nothing and report green.
+if (!DOMAIN_PACKAGES.includes(SHARED_BASE)) {
+  throw new Error(
+    `ADR 023 roster is empty: no packages/${SHARED_BASE} under ${PACKAGES_ROOT}`
+  );
+}
 
 const DOMAIN_PACKAGE_FILES = DOMAIN_PACKAGES.map(
   p => `packages/${p}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`
