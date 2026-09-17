@@ -96,6 +96,7 @@
     "@typescript-eslint/eslint-plugin": "8.50.0",
     "@typescript-eslint/parser": "8.50.0",
     "@upmind-automation/eslint-plugin-scope-based": "workspace:*",
+    "@upmind-automation/eslint-plugin-ui": "workspace:*",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitest/coverage-istanbul": "^3.2.4",
     "@vitest/eslint-plugin": "^1.3.4",
