@@ -6,11 +6,16 @@ All notable changes to the `tickets` module are documented here. Format follows 
 
 The module is **net-new**. Nothing existed under `packages/headless/src/modules/tickets/` before this build — a knowledge-graph query for every tickets construct returned no node in this tree. The only prior tickets-shaped surface in the repo was a portal mock (`apps/portal-nuxt/app/portal/mock/contracts/client-tickets.ts`), which this module **corrects rather than copies**: the mock's collection matrix spelled `.for('client', id)`, which is forbidden here.
 
+### Changed
+
+- **The product-scoped list is a SCOPE CONTEXT, not a filter column.** `filters.contract_product_id` is removed from `TicketsQueryModel` and from `useQuerySchema()`; AC-7 is now spelt `useClientTickets().as(CLIENT).for(TicketsContextTypes.PRODUCT, id)`. The product a ticket is raised against is a RELATIONSHIP between two entities, and ADR-001 § 3/§ 4 already carries `product` in the `ContextType` union and grants it to the `client` actor — so the platform had a first-class home for it all along, while everything left under `filters` (`reference`, `subject`, `isClosed`, `created_at`) is a genuine attribute of a ticket. The collection matrix's previous all-`never` row conflated "may not be retargeted at another client" (true, and unchanged) with "has no contexts at all" (false), which is what left the relationship nowhere to live but a filter column.
+  **The wire is unchanged**: `tickets.services.ts`'s `applyProductScopeFilter` re-spells the context onto `filter[contract_product_id]=<id>` at the module's own edge, the same seam `applyStatusCodeFilter` already uses, and an observed-request assertion in `tickets.collection.int.test.ts` pins it. The product id also joins the list query key, so a product-scoped read and the unscoped one can never serve each other's cached rows.
+
 ### Added
 
 #### The two composables
 
-- **`useClientTickets`** — the client's own ticket collection. Addressed `.as(ScopeActorTypes.SELF)`; its scope matrix maps **every** actor to `null as never`, so `.for()` is unspellable on it and `.for('client', id)` cannot be reached at all.
+- **`useClientTickets`** — the client's own ticket collection. Addressed `.as(ScopeActorTypes.SELF)` for the whole list, or `.as(ScopeActorTypes.CLIENT).for(TicketsContextTypes.PRODUCT, id)` for the tickets raised about one of my contract products (AC-7). Its scope matrix declares that ONE member on the `client` row and leaves `self`, `staff` and `guest` `null as never`, so `.for('client', id)` cannot be reached at all.
 - **`useClientTicket`** — the per-ticket manager. Addressed `.as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id)`, because a ticket is a genuine addressable **context** in this platform's actor model — it owns its own records (its messages) and so is not a leaf record addressed by an id alone.
 - Both registered under the same module name (`"tickets"`), both built from **one** services factory, so the two halves can never disagree about whose tickets are being read.
 

@@ -25,6 +25,7 @@ import { useClientTickets } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   TICKETS_DEFAULT_SORT,
+  TicketsContextTypes,
   TicketsSortableProperties
 } from "../tickets.types";
 import {
@@ -353,29 +354,36 @@ describe("tickets collection — raise a new ticket (AC-9)", () => {
 });
 
 describe("tickets collection — tickets about one of my products (AC-7)", () => {
-  it("AC-7 narrowing by contract_product_id issues the real filter and returns only that product's tickets", async () => {
+  /**
+   * The product is a RELATIONSHIP, so it is the SCOPE CONTEXT and never a
+   * criteria filter column. This assertion is the wire proof of that
+   * refactor: the API shape moved from `setCriteria({ filters: {
+   * contract_product_id } })` to `.for('product', id)`, and the REQUEST is
+   * byte-for-byte what the recorded capture answered —
+   * `filter[contract_product_id]=<id>` beside `with_staged_imports=1`.
+   */
+  it("AC-7 the PRODUCT scope context issues the real filter[contract_product_id] wire key and returns only that product's tickets", async () => {
     await seedClientSession();
     const handlers = installTicketsHandlers();
     handlers.setListBody(recorded.productScopedList());
     const observed = observeTicketsRequests();
 
-    const tickets = useClientTickets().as(ScopeActorTypes.SELF);
-    await vi.waitFor(() =>
-      expect(tickets.useMeta().isLoading.value).toBe(false)
-    );
-
     const lookup = recorded.contractProductsLookup() as {
       data: Array<{ id: string }>;
     };
     const targetId = lookup.data[0]!.id;
-    await tickets.useActions().setCriteria({
-      filters: { contract_product_id: targetId }
-    });
+
+    const tickets = useClientTickets()
+      .as(ScopeActorTypes.CLIENT)
+      .for(TicketsContextTypes.PRODUCT, targetId);
+
     await vi.waitFor(() =>
       expect(tickets.useMeta().isLoading.value).toBe(false)
     );
     observed.stop();
 
+    // THE WIRE, unchanged by the refactor: the narrowing rides on the very
+    // first request the scope issues, no `setCriteria` write involved.
     const request = observed
       .all()
       .find(r =>
@@ -384,6 +392,18 @@ describe("tickets collection — tickets about one of my products (AC-7)", () =>
         )
       );
     expect(request).toBeDefined();
+
+    // NO STRAY SCHEMA-SPELLED KEY. The query core writes one wire key per
+    // branch the schema declares, spelt with the branch's OWN name — which is
+    // how a `filter[statusCode|eq]` once rode along and made staging answer
+    // 500. `contract_product_id` is gone from the schema, so the context's
+    // own re-spelling must be the ONLY occurrence of it on the url, and no
+    // `product` key may appear at all.
+    const url = decodeURIComponent(request!.url);
+    expect(url.split(`filter[contract_product_id]=`)).toHaveLength(2);
+    expect(url).not.toContain("filter[product]");
+    expect(url).not.toContain("filter[product|");
+    expect(url).toContain("with_staged_imports=1");
 
     const fixture = recorded.productScopedList() as {
       data: Array<{ id: string; contract_product_id: string }>;
@@ -394,6 +414,52 @@ describe("tickets collection — tickets about one of my products (AC-7)", () =>
     expect(tickets.useContext().data.value.map(row => row.id)).toEqual(
       fixture.data.map(row => row.id)
     );
+  });
+
+  /**
+   * AC-7's second Then — "I cannot accidentally widen the list back to all my
+   * tickets". Under the old filter-column shape this was a hope; under the
+   * scope context it is structural: the criteria model has no product column
+   * to clear, so a `filters` write that names none (Clear all, a chip
+   * removed) cannot drop the narrowing.
+   */
+  it("AC-7 the narrowing survives a criteria write that clears every filter", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+    handlers.setListBody(recorded.productScopedList());
+
+    const lookup = recorded.contractProductsLookup() as {
+      data: Array<{ id: string }>;
+    };
+    const targetId = lookup.data[0]!.id;
+
+    const tickets = useClientTickets()
+      .as(ScopeActorTypes.CLIENT)
+      .for(TicketsContextTypes.PRODUCT, targetId);
+
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+
+    // A `filters` write REPLACES that branch whole, so this is the exact move
+    // that used to be able to drop a `contract_product_id` column standing in
+    // it.
+    const observed = observeTicketsRequests();
+    await tickets.useActions().setCriteria({
+      filters: { subject: "Fixture write-cycle ticket" }
+    });
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+    observed.stop();
+
+    const listReads = observed.matching("/tickets?");
+    expect(listReads.length).toBeGreaterThan(0);
+    for (const read of listReads) {
+      expect(decodeURIComponent(read.url)).toContain(
+        `filter[contract_product_id]=${targetId}`
+      );
+    }
   });
 });
 

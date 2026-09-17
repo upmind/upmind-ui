@@ -16,11 +16,12 @@
  * @module tickets/tickets.types
  * @description Types for the client×self support-ticket data layer — the
  * query-backed collection (`useClientTickets`) and the query-backed manager
- * (`useClientTicket`). The COLLECTION owns no context: `ADR-001:117,133`
- * ruling R1 confirms `client` may act for `ticket`, but the collection itself
- * is never retargeted (`.for('client', id)` stays forbidden), so its matrix
- * refuses every actor. The MANAGER owns a `ticket` context (R1), because
- * `ADR-001:117,133` names `ticket` a genuine context and a ticket owns its own
+ * (`useClientTicket`). The COLLECTION owns ONE context, `product`
+ * (`ADR-001:117,133` names it and grants it to `client`) — the list read
+ * about one of my contract products. It is never retargeted at another
+ * client: `.for('client', id)` stays forbidden (R1). The MANAGER owns a
+ * `ticket` context (R1), because `ADR-001:117,133` names `ticket` a genuine
+ * context and a ticket owns its own
  * records (messages) rather than being a leaf. Model types are reused from
  * `@upmind-automation/types`, never re-declared; the derived shapes here are
  * the scope matrices, the criteria model, the feed union and the service
@@ -44,27 +45,71 @@ import type {
 import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
-// SCOPE — two matrices, one context enum (the manager's)
+// SCOPE — two matrices, two context enums (the collection's and the manager's)
 // -----------------------------------------------------------------------------
+
+/**
+ * Context types for the COLLECTION — which entity the list is read ABOUT.
+ * The context names the ENTITY, not its owner: the owning client falls
+ * through the same `resolveClientId` seam as every other call, exactly as
+ * {@link TicketContextTypes} does for the manager.
+ *
+ * `PRODUCT` is spelt `"product"` because that is the member ADR-001's own
+ * `ContextType` union already carries (`ADR-001:114` — beside `contract`,
+ * `invoice`, `order` and the `ticket` this module's manager uses at `:117`),
+ * and `ADR-001:138`'s availability matrix already grants it to the `client`
+ * actor (`contract`, `product`, `invoice`, `ticket`). No new vocabulary is
+ * minted — the enum binds this module to the platform's word for the thing.
+ *
+ * It is a RETARGET member (a bare string, never `selector()`): the id is
+ * REQUIRED, because the id IS the answer to "which product" (ADR-001
+ * amendment 2026-09-15, the retarget/selector split).
+ */
+export enum TicketsContextTypes {
+  /** Reading the tickets raised about one of my contract products (AC-7). */
+  PRODUCT = "product"
+}
 
 /**
  * @graphify-citation `graphify query "TICKETS_SCOPE_MATRIX"` against
  * `graphify-out/graph.json` (2026-09-15) confirms this is the sole existing
- * declaration (`L57`) — this is a doc-comment-only correction (R11), no new
- * type is minted.
+ * declaration — this edit widens the `client` cell, it mints no second
+ * matrix.
  *
- * The COLLECTION's scope matrix. Every actor refuses `.for()` — the
- * collection is read `.as(ScopeActorTypes.SELF)` only, and the run
- * constraint forbids `.for('client', id)` outright (R1, confirmed unchanged
- * by R11 — the collection stays `.as(ScopeActorTypes.SELF)` with the
- * all-`never` matrix and no cast). Mirrors the all-`never` construction
- * `client-email-history`'s single read uses for the same reason: no context
- * enum is minted, so nothing is spellable.
+ * The COLLECTION's scope matrix. `client` resolves to ONE retarget member,
+ * {@link TicketsContextTypes.PRODUCT}; `self`, `staff` and `guest` stay
+ * `null as never`, so `.for()` is unspellable for every other actor.
+ *
+ * `.for('client', id)` STAYS FORBIDDEN (R1) and is unrelated to this grant —
+ * actor and context are independent axes, and `client` is not a member of
+ * this enum. What R1 ruled out was retargeting the list at ANOTHER CLIENT,
+ * never the list being read about one of my own products.
+ *
+ * WHY THE CELL IS NOT EMPTY (the anti-pattern this corrects). The matrix was
+ * all-`never` on the reasoning "the collection owns no context". That
+ * conflated "may not be retargeted at another client" with "has no contexts
+ * at all", and the product RELATIONSHIP — which is what AC-7 narrows on —
+ * was left with nowhere to live but a `contract_product_id` filter column
+ * beside `reference` and `subject`. A relationship is not an attribute: the
+ * platform's first-class home for it is the scope context, so the grant is
+ * the fix and the filter column is removed (see {@link TicketsQueryModel}).
+ * The WIRE is unchanged — `tickets.services.ts`'s `applyProductScopeFilter`
+ * re-spells the context onto `filter[contract_product_id]` at the module's
+ * own edge, the same seam `applyStatusCodeFilter` already uses.
+ *
+ * WHY `client` AND NOT `self`. `ADR-001:136-139`'s availability matrix has no
+ * `self` ROW — it lists `guest`, `client` and `staff` and nothing else:
+ * `self` resolves to whoever is active (`resolveSelfActor`), and
+ * the concrete cell that boots for this module is `client` — the same actor
+ * the manager is addressed as (`.as(CLIENT).for(TICKET, id)`). Granting the
+ * member to `self` would declare it for `staff` and `guest` too, which
+ * ADR-001 does not. A consumer that boots `.as(SELF)` and names no context
+ * is untouched.
  */
 export const TICKETS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.CLIENT]: TicketsContextTypes.PRODUCT,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
@@ -141,12 +186,12 @@ export type TicketSortEntry = {
  * new type.
  *
  * The collection's whole request state as one model. `query` is the
- * free-text term (AC6). `reference` / `subject` / `contract_product_id` are
- * BARE leaf branches — the translator's own rule is that a branch with no
- * nested operator schema emits the bare EQUAL wire key (`filter[reference]=`,
- * D19 — never CONTAINS, never a `|eq` suffix). `created_at` declares its
- * operators explicitly, and only the one actually set reaches the wire (empty
- * values are dropped before the request).
+ * free-text term (AC6). `reference` and `subject` are BARE leaf branches —
+ * the translator's own rule is that a branch with no nested operator schema
+ * emits the bare EQUAL wire key (`filter[reference]=`, D19 — never CONTAINS,
+ * never a `|eq` suffix). `created_at` declares its operators explicitly, and
+ * only the one actually set reaches the wire (empty values are dropped before
+ * the request).
  *
  * `isClosed` is AC1/AC2's headline narrowing as ONE tri-state boolean leaf —
  * `false` is my active tickets, `true` my closed ones, and an ABSENT leaf is
@@ -165,6 +210,15 @@ export type TicketSortEntry = {
  * instrumented run, `research.md`/`review-notes.md` cycle 6). See
  * `tickets.schemas.ts`'s `useWireQuerySchema` for why the branch is withheld
  * from the translator rather than merely re-spelt beside it.
+ *
+ * WHAT IS DELIBERATELY NOT HERE. `contract_product_id` used to sit beside
+ * `reference` and `subject` as a fourth bare leaf. It is a RELATIONSHIP to
+ * another entity, not an attribute of a ticket, and the platform's
+ * first-class home for a relationship is the scope context: it is now
+ * {@link TicketsContextTypes.PRODUCT}, spelt `.for('product', id)` and
+ * re-spelt onto the SAME wire key by `tickets.services.ts`'s
+ * `applyProductScopeFilter`. Everything remaining in `filters` is a genuine
+ * attribute of a ticket — a reference, a subject, a status, a date.
  */
 export type TicketsQueryModel = {
   query?: string;
@@ -173,7 +227,6 @@ export type TicketsQueryModel = {
     subject?: string;
     isClosed?: { eq?: boolean | null };
     created_at?: { gte?: string; lte?: string };
-    contract_product_id?: string;
   };
   sort?: TicketSortEntry[];
   pagination?: { limit?: number; offset?: number };

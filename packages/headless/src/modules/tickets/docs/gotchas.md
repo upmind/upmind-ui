@@ -126,8 +126,13 @@ It works because `loadOlder()` reads the oldest **held** message id as its curso
 ## 5. The two composables are addressed differently — and neither takes a cast
 
 ```ts
-// COLLECTION — SELF, no context, ever
+// COLLECTION — SELF, the whole list, no context
 useClientTickets().as(ScopeActorTypes.SELF);
+
+// COLLECTION, about ONE of my products — CLIENT actor, PRODUCT context
+useClientTickets()
+  .as(ScopeActorTypes.CLIENT)
+  .for(TicketsContextTypes.PRODUCT, contractProductId);
 
 // MANAGER — CLIENT actor, TICKET context
 useClientTicket().as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id);
@@ -136,9 +141,9 @@ useClientTicket().as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id);
 The points that trip people:
 
 - **`.as(SELF)` on the manager will not work.** `SELF` has **no contexts at all**, by design — the platform's actor→context model declares `guest`, `client` and `staff` as actors, and there is no `self` row among them. `TICKET_SCOPE_MATRIX` gives `CLIENT: TicketContextTypes.TICKET` and leaves every other actor `null as never`.
-- **`.as(CLIENT)` is NOT `.for('client', id)`.** Actor and context are independent axes. `.as(CLIENT)` is the client actor on their own session — this **is** the client-acting-for-themselves case. `.for('client', id)` remains forbidden and is unspellable here: the only context this module declares is `ticket`.
-- **The collection's matrix is all-`never`.** Every actor maps to `null as never`, so `.for()` cannot be spelled on it at all.
-- **Always enum members, never string literals.** `ScopeActorTypes.SELF`, `ScopeActorTypes.CLIENT`, `TicketContextTypes.TICKET`.
+- **`.as(CLIENT)` is NOT `.for('client', id)`.** Actor and context are independent axes. `.as(CLIENT)` is the client actor on their own session — this **is** the client-acting-for-themselves case. `.for('client', id)` remains forbidden and is unspellable here: the contexts this module declares are `ticket` and `product`, and neither is `client`.
+- **The collection's matrix declares ONE member, on `client` only.** `TicketsContextTypes.PRODUCT` — the tickets raised about one of my contract products. `self`, `staff` and `guest` stay `null as never`. The product is a **relationship**, not an attribute of a ticket, so it lives in the scope context and there is no `contract_product_id` filter column to set. A `setCriteria` write therefore cannot widen a product-scoped list back to everything.
+- **Always enum members, never string literals.** `ScopeActorTypes.SELF`, `ScopeActorTypes.CLIENT`, `TicketsContextTypes.PRODUCT`, `TicketContextTypes.TICKET`.
 - **No cast on the scope builder.** A whole-surface type-erasing cast (`useClientTicket() as unknown as { as: … for: … }`) would erase the entire composable surface — a wrong actor or a wrong context would then compile silently, exactly the failure a strict scope-builder type is meant to prevent. Narrowing the cast is **not** acceptable; there must be no cast.
 
 ---

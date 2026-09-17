@@ -20,7 +20,8 @@ import {
 import { useQuerySchema, useWireQuerySchema } from "./tickets.schemas";
 import {
   TICKET_ATTACHMENT_MAX_BYTES,
-  TicketContextTypes
+  TicketContextTypes,
+  TicketsContextTypes
 } from "./tickets.types";
 import {
   DetailedError,
@@ -141,8 +142,10 @@ const ONE_WITH = [
 /**
  * The ONE seam every request-issuing function in this file shares — the
  * target client falls through to the active session's own client; a
- * `.for('client', id)` retarget is never spelled here (`ticket` is the only
- * context this module declares, `TicketContextTypes.TICKET`, never `client`).
+ * `.for('client', id)` retarget is never spelled here. The two contexts this
+ * module declares are `TicketContextTypes.TICKET` (the manager) and
+ * `TicketsContextTypes.PRODUCT` (the collection), and neither is `client` —
+ * both name an ENTITY the read is about, never its owner.
  */
 function isAddressable(clientId?: string): boolean {
   const { isAuthenticated } = useActiveSession().useMeta();
@@ -185,6 +188,48 @@ function applyStatusCodeFilter(url: URL, isClosed: boolean | null): void {
     url.searchParams.set("filter[status.code]", TicketStatusCodes.CLOSED);
   else if (isClosed === false)
     url.searchParams.set("filter[status.code|neq]", TicketStatusCodes.CLOSED);
+}
+
+/**
+ * AC-7 — the PRODUCT scope context as the wire key the API has, written onto
+ * the request's own `url` exactly as {@link applyStatusCodeFilter} writes the
+ * status narrowing.
+ *
+ * | the scope                        | the wire                                |
+ * | -------------------------------- | --------------------------------------- |
+ * | `.for('product', id)`            | `filter[contract_product_id]=<id>`      |
+ * | no context                       | the key is absent                       |
+ *
+ * The product a ticket is about is a RELATIONSHIP, so it is a scope context
+ * and not a criteria filter column (`tickets.types.ts`'s
+ * `TicketsContextTypes`). Only the module can spell the translation: the
+ * context's own word is the platform's (`product`, ADR-001 § 3), the wire's
+ * is this API's (`contract_product_id`), and the query core only ever writes
+ * keys a SCHEMA declared — which is why the column is gone from
+ * `useQuerySchema` and no `filter[contract_product_id]` stray can be minted
+ * beside this one.
+ *
+ * Written ONCE, not watched: a scope context is fixed for the life of the
+ * instance the scope key mints, so there is no second value to swap to. That
+ * is also why the narrowing cannot be widened away — no `setCriteria` write
+ * can reach it (AC-7's second Then).
+ */
+function applyProductScopeFilter(url: URL, contractProductId?: string): void {
+  if (contractProductId)
+    url.searchParams.set("filter[contract_product_id]", contractProductId);
+}
+
+/**
+ * The contract product a PRODUCT-scoped read is about, or `undefined` when
+ * the scope names no context. Sibling of the `ticketId` resolution in
+ * {@link createTicketsServices} — one place each context type is read.
+ */
+function resolveContractProductId(
+  scopeContext: ScopeContext | undefined
+): string | undefined {
+  return scopeContext?.type === TicketsContextTypes.PRODUCT
+    ? scopeContext.id
+    : undefined;
 }
 
 /**
@@ -235,8 +280,12 @@ function loadList(
 ): TicketsListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
+  const contractProductId = resolveContractProductId(scopeContext);
   const url = useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 });
   const schema = useQuerySchema();
+
+  // AC-7 — before `list()`, so the very first request carries the narrowing.
+  applyProductScopeFilter(url, contractProductId);
 
   /**
    * The `isClosed` position the module holds itself, because
@@ -249,7 +298,14 @@ function loadList(
 
   const ticketsList = list<ITicket[], Ticket[], TicketsQueryModel>({
     criteria: { schema: useWireQuerySchema() },
-    queryKey: [...queryKey, { client: clientId, isClosed }],
+    // The product context is a CACHE KEY entry for the same reason `isClosed`
+    // is: the core builds its own key from the filters IT translated, and it
+    // translates neither, so without this a product-scoped read and the
+    // unscoped one would share a cache entry and serve each other's rows.
+    queryKey: [
+      ...queryKey,
+      { client: clientId, isClosed, product: contractProductId }
+    ],
     url,
     withAccessToken: true,
     guard: async () => {

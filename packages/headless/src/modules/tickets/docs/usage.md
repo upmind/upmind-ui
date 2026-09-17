@@ -6,6 +6,7 @@ Full API reference for both composables. Every member below is read off the ship
 import {
   ScopeActorTypes,
   TicketContextTypes,
+  TicketsContextTypes,
   TicketsSortableProperties,
   useClientTicket,
   useClientTickets
@@ -20,8 +21,14 @@ The two composables are addressed differently, and this is deliberate; see [gotc
 
 ```ts
 // THE COLLECTION — the client's own ticket list.
-// SELF only. The scope matrix is all-`never`, so `.for()` is unspellable.
 const tickets = useClientTickets().as(ScopeActorTypes.SELF);
+
+// THE COLLECTION, read about ONE of my products (AC-7).
+// CLIENT actor + PRODUCT context. The product is a relationship, so it is
+// the SCOPE — there is no product filter column to set.
+const productTickets = useClientTickets()
+  .as(ScopeActorTypes.CLIENT)
+  .for(TicketsContextTypes.PRODUCT, contractProductId);
 
 // THE MANAGER — one ticket, addressed as a CONTEXT.
 // CLIENT actor + TICKET context. No cast on the builder, ever.
@@ -29,6 +36,11 @@ const ticket = useClientTicket()
   .as(ScopeActorTypes.CLIENT)
   .for(TicketContextTypes.TICKET, ticketId);
 ```
+
+`.for('client', id)` is unspellable on **both** composables — the list is never
+retargeted at another client, and neither matrix declares `client`. That is a
+different axis from the entity a read is ABOUT, which is what `product` and
+`ticket` name.
 
 Both return the uniform four-layer shape:
 
@@ -73,8 +85,7 @@ tickets.useActions().setCriteria({
     reference: "XGD-235-12434",                         // bare EQUAL leaf
     subject: "Renewal",                                 // bare EQUAL leaf
     isClosed: { eq: false },                            // tri-state — gotchas #1
-    created_at: { gte: "2026-01-01T00:00:00Z" },
-    contract_product_id: someProductId
+    created_at: { gte: "2026-01-01T00:00:00Z" }
   },
   sort: [{ field: TicketsSortableProperties.SUBJECT, dir: "asc" }],
   pagination: { limit: 20, offset: 0 }
@@ -87,6 +98,11 @@ tickets.useActions().setCriteria({
 | `nextPage()`      | `() => Promise<…>`                               | Fetches the next page.                                                      |
 | `prevPage()`      | `() => Promise<…>`                               | Fetches the previous page.                                                  |
 | `setPageSize()`   | `(limit: number) => Promise<void>`               | Applies the limit **and** persists it to the client's prefs (`savePrefs`).  |
+
+**Every filter is an ATTRIBUTE of a ticket.** A reference, a subject, a status,
+a date. The product a ticket is about is a RELATIONSHIP, so it is not here — it
+is the scope context (`.for(TicketsContextTypes.PRODUCT, id)` above), and no
+`setCriteria` write can widen it away.
 
 **`setCriteria` merges branches, and a branch that IS given replaces that whole branch.** Naming `filters` replaces the entire filters branch; branches left out are untouched.
 
@@ -322,6 +338,6 @@ Exported from `@upmind-automation/headless`:
 | `TicketsSortModel`        | its `sort` branch                                                      |
 | `TicketsScopeMatrix` / `TicketScopeMatrix` | the two scope matrices' types                          |
 
-Runtime values: `TICKETS_SCOPE_MATRIX`, `TICKET_SCOPE_MATRIX`, `TicketContextTypes`, `TicketsSortableProperties`.
+Runtime values: `TICKETS_SCOPE_MATRIX`, `TICKET_SCOPE_MATRIX`, `TicketsContextTypes`, `TicketContextTypes`, `TicketsSortableProperties`.
 
 `Ticket` is deliberately `ITicket` with nothing stripped — the list row already carries `department`, `settings` and `contract_product` in full, so a consumer rarely needs a second read to draw a row.

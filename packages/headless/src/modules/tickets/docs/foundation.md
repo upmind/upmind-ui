@@ -314,7 +314,7 @@ Parameters:
 | `filter[status.code\|neq]`         | exclude one status (the "active" tab)                              |
 | `filter[reference]`                | **exact** reference match — a bare equality leaf, not a contains   |
 | `filter[subject]`                  | exact subject match                                                |
-| `filter[contract_product_id]`      | narrow to one product's tickets                                    |
+| `filter[contract_product_id]`      | narrow to one product's tickets — the module reaches this key through the **scope context** `.for('product', id)`, never a criteria filter column |
 | `filter[created_at\|gte]` / `\|lte` | a created-date range                                              |
 
 ```bash

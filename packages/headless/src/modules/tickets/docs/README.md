@@ -19,7 +19,7 @@ The module ships **two composables**, because reading the list and managing one 
 
 Both always operate on the **calling client's own** tickets. There is no staff or admin capability here, and no capability to reach another client's tickets.
 
-> **🧪 For Testers:** The collection is opened `.as(ScopeActorTypes.SELF)` with no context — `.for('client', id)` is unspellable, the matrix refuses every actor. The manager is opened `.as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id)` — addressing one ticket, never another client.
+> **🧪 For Testers:** The collection is opened `.as(ScopeActorTypes.SELF)` with no context, or `.as(ScopeActorTypes.CLIENT).for(TicketsContextTypes.PRODUCT, id)` to read the tickets raised about one of my products. The manager is opened `.as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id)` — addressing one ticket. `.for('client', id)` is unspellable on both: neither matrix declares `client`, so a list is never retargeted at another client.
 
 ## Quick Start
 
@@ -79,6 +79,8 @@ The collection and the manager are separate composables that share one services 
 ### The manager addresses a ticket, never a client
 
 `useClientTicket().as('client').for('ticket', id)` names which ticket, not which client — the owning client still resolves from the active session. A ticket is a genuine context (it owns its own records — its messages), not a leaf record, so it is addressed with `.for()`, never `.withId()`.
+
+`useClientTickets().as('client').for('product', id)` reads the same way: it names the PRODUCT the list is about, not a second client. The product a ticket is raised against is a relationship between two entities, and the platform's home for a relationship is the scope context — never a filter column beside `reference` and `subject`, which are attributes of a ticket.
 
 > **🧪 For Testers:** `.as(ScopeActorTypes.STAFF)` and `.as(ScopeActorTypes.CLIENT).for('client', id)` are both compile-time errors on this module's scope matrices — there is no staff arm and no cross-client retarget to test against.
 

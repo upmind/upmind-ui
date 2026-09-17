@@ -8,7 +8,10 @@
  * any runner and a browser can carry it.
  *
  * Every handler speaks to the module through the `World` members. There is no
- * DOM read, no request read and no import of the module's own source here.
+ * DOM read, no request read and no import of the module's own IMPLEMENTATION
+ * here — only the scope VOCABULARY a step must name to boot a cell
+ * (`ScopeActorTypes`, `TicketsContextTypes`), which is the same vocabulary a
+ * url segment spells.
  *
  * ## THE TWO KEYS THIS CATALOG BOOTS
  *
@@ -139,6 +142,7 @@
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { TicketsContextTypes } from "../tickets.types";
 import { uniq, values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 
@@ -547,9 +551,20 @@ export const ticketsSteps = defineSteps(({ Given, When, Then }) => {
     // capture run narrowed on (see {@link RECORDED.contractProductId}).
   });
 
+  /**
+   * The product a ticket is about is a RELATIONSHIP, so it is the SCOPE this
+   * list is read at — `.as(client).for(product, id)` — never a filter column
+   * a `setCriteria` write sets. The step therefore BOOTS the collection at
+   * that scope instead of firing an action, which is also what the page does
+   * when a hand opens `/useClientTickets/as/client/for/product/<id>`.
+   */
   When("I open the support tickets about that product", async world => {
-    await world.fire(TICKETS_COVERED_ACTIONS.setCriteria, {
-      filters: { contract_product_id: RECORDED.contractProductId }
+    await openCollection(world, {
+      actor: ScopeActorTypes.CLIENT,
+      context: {
+        type: TicketsContextTypes.PRODUCT,
+        id: RECORDED.contractProductId
+      }
     });
   });
 
@@ -562,8 +577,11 @@ export const ticketsSteps = defineSteps(({ Given, When, Then }) => {
   Then(
     "I cannot accidentally widen the list back to all my tickets",
     async () => {
-      // A narrowing that cannot be dropped — proven by
-      // `tickets.collection.int.test.ts`'s AC-7 assertion.
+      // A narrowing that cannot be dropped — structural now that the product
+      // is the scope rather than a filter column: the criteria model has no
+      // product leaf for a `filters` write to replace away. Proven by
+      // `tickets.collection.int.test.ts`'s AC-7 survives-a-criteria-write
+      // assertion.
     }
   );
 

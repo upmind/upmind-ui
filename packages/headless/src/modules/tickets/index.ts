@@ -14,11 +14,12 @@ export type { UseClientTickets } from "./useClientTickets";
 export { useClientTicket } from "./useClientTicket";
 export type { UseClientTicket } from "./useClientTicket";
 
-// --- Scope matrices + the manager's context enum
+// --- Scope matrices + both context enums (the collection's and the manager's)
 export {
   TICKETS_SCOPE_MATRIX,
   TICKET_SCOPE_MATRIX,
   TicketContextTypes,
+  TicketsContextTypes,
   TicketsSortableProperties
 } from "./tickets.types";
 export type { TicketsScopeMatrix, TicketScopeMatrix } from "./tickets.types";

@@ -26,9 +26,16 @@ import type {
 // -----------------------------------------------------------------------------
 
 /**
- * `reference` / `subject` / `contract_product_id` are bare leaf branches
- * (EQUAL, D19). `isClosed` is AC1/AC2's headline narrowing as ONE tri-state
- * boolean leaf — `false` active, `true` closed, `null` All — declared exactly
+ * Every branch here is a genuine ATTRIBUTE of a ticket. `reference` and
+ * `subject` are bare leaf branches (EQUAL, D19). The product a ticket is
+ * about is NOT here and never was an attribute: it is a relationship, so it
+ * lives in the scope context (`.for('product', id)`,
+ * `tickets.types.ts`'s `TicketsContextTypes`) and `tickets.services.ts`'s
+ * `applyProductScopeFilter` re-spells it onto `filter[contract_product_id]`
+ * at the module's own edge — the same seam `applyStatusCodeFilter` uses.
+ *
+ * `isClosed` is AC1/AC2's headline narrowing as ONE tri-state boolean leaf —
+ * `false` active, `true` closed, `null` All — declared exactly
  * as `client-email-history.schemas.ts` declares `sent.eq`, so the ONE filter-bar
  * idiom draws it: `null` is a MEMBER of the enum, not an absence, because it is
  * the value the neutral position writes and the option whose label the control
@@ -81,11 +88,6 @@ export function useQuerySchema(): TicketsQuerySchema {
               gte: { type: ["string", "null"], format: "date-time" },
               lte: { type: ["string", "null"], format: "date-time" }
             }
-          },
-          contract_product_id: {
-            type: ["string", "null"],
-            title: "Product",
-            minLength: 1
           }
         }
       },

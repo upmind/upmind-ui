@@ -21,15 +21,17 @@ The module has **no state machine**. It is the `query` variant throughout: the c
 
 ```mermaid
 flowchart TD
-  call["useClientTickets().as(ScopeActorTypes.SELF)"] --> resolve["scope builder resolves the concrete actor"]
-  resolve --> services["createTicketsServices(actor, undefined) — one instance for this scope"]
-  services --> mint["service.loadList() — mint the list query ONCE"]
+  call["useClientTickets().as(SELF) — or .as(CLIENT).for(PRODUCT, id)"] --> resolve["scope builder resolves the concrete actor and context"]
+  resolve --> services["createTicketsServices(actor, context) — one instance for this scope"]
+  services --> mint["service.loadList() — write filter[contract_product_id] from the PRODUCT context, then mint the list query ONCE"]
   mint --> watch["arm the sync-flush isClosed → status.code watcher on the request URL"]
   watch --> actions["mint the actions factory ONCE, closed over the one query instance"]
   actions --> ready["return the four sub-composable factories, all closed over the same query"]
 ```
 
-`config.context` is always `undefined` here — `TICKETS_SCOPE_MATRIX` maps every actor to `null as never`, so no context can be spelled. The collection therefore always resolves the active session's own client.
+`config.context` is either absent or `TicketsContextTypes.PRODUCT` — `TICKETS_SCOPE_MATRIX` declares that one member on the `client` row and leaves every other actor `null as never`. Neither shape names a client, so the collection always resolves the active session's own client; the context names the **product the list is about**.
+
+A product context is a **relationship** made first-class, which is why it is not a filter column. It reaches the wire as `filter[contract_product_id]=<id>`, written straight onto the request url by `applyProductScopeFilter` — the same module-owned edge `applyStatusCodeFilter` writes the status narrowing at, and for the same reason: the query core only ever emits keys a SCHEMA declared, spelt with the branch's own name.
 
 ### Instantiation — the manager
 
