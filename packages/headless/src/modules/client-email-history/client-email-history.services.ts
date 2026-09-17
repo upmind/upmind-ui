@@ -57,12 +57,17 @@ export const queryKey: QueryKey = ["client", "emailHistory"];
  *
  * This compares the CONTEXT the scope builder resolved, never the actor, so
  * it is not a branch on `ScopeActorTypes.SELF` (variance-law clause 4).
+ *
+ * The `&& scopeContext.id` is load-bearing: the context id became OPTIONAL in
+ * FE-3239, so an id-less context of this type would otherwise resolve
+ * `undefined` AS the identity instead of falling through. The guard now holds
+ * what the type used to hold.
  */
 function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ReceivedEmailsContextTypes.CLIENT
+    scopeContext?.type === ReceivedEmailsContextTypes.CLIENT && scopeContext.id
       ? scopeContext.id
       : activeUser.value?.id
   );

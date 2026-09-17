@@ -31,8 +31,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { interpret } from "xstate";
 import "./mocks";
 import { GatewayTypes } from "@upmind-automation/types";
-import { emitAuth, loadMock, resetPaymentMocks } from "./mocks";
 import paymentMachine from "../payment.machine";
+import { emitAuth, loadMock, resetPaymentMocks } from "./mocks";
 import type { PaymentContext } from "../payment.types";
 
 // -----------------------------------------------------------------------------

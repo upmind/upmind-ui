@@ -19,6 +19,14 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
+import braintreeActions from "../braintree/actions";
+import dlocalModule from "../dlocal/index";
+import mercadoPagoActions from "../mercadoPago/actions";
+import nickyActions from "../nicky/actions";
+import openPayActions from "../openPay/actions";
+import razorpayActions from "../razorpay/actions";
+import stripeActions from "../stripe/actions";
 import type { GatewayContext } from "../payment-gateways.types";
 import type {
   ICurrency,
@@ -26,15 +34,6 @@ import type {
   IClient,
   IAddress
 } from "@upmind-automation/types";
-import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
-
-import stripeActions from "../stripe/actions";
-import braintreeActions from "../braintree/actions";
-import mercadoPagoActions from "../mercadoPago/actions";
-import nickyActions from "../nicky/actions";
-import openPayActions from "../openPay/actions";
-import razorpayActions from "../razorpay/actions";
-import dlocalModule from "../dlocal/index";
 
 const CLIENT: IClient = { id: "test-client-id" } as IClient;
 const CURRENCY_GBP: ICurrency = { id: "gbp-id", code: "GBP" } as ICurrency;

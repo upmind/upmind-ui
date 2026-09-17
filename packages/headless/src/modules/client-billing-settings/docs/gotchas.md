@@ -109,11 +109,44 @@ const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 
 `pnpm lint` at the repo root aborts inside a shared types submodule before it ever reaches this module, and its `--fix` flag mutates that submodule as a side effect. `pnpm install` at the repo root is unsafe in a sparse worktree missing one or more app-level `package.json` files — it silently drops those apps' entries from the shared lockfile. Neither is a safe verification step for a change scoped to this module; use the module's own targeted test commands instead.
 
+## 10. The trap was the context's NAME, not `.for()` itself — a resource-named member carrying the client's own id
+
+This module used to name its shared context `ClientBillingSettingsContextTypes.SETTINGS` — the context member named the RESOURCE being edited (the settings) while the id it actually carried was the CLIENT's own id. The type and the id it carried disagreed about which entity was named. A short-lived correction (since reversed) misdiagnosed that as `.for()` itself being wrong and dropped the context entirely in favour of a bare `.withId(id)` — which erased the compile-time gate: `resolveClientId` fell back to `id ?? activeUser.value?.id` with no actor check at all, so `staff`/`guest` could name any client id too.
+
+The actual fix (ADR-001 amendment 2026-09-15) is a rename, not a removal: the member is now `ClientBillingSettingsContextTypes.CLIENT = AccessRoleTypes.CLIENT`, matching every sibling client module. The matrix gate is real again — `.for(CLIENT, id)` is spellable **only** for the `client` actor; `self`, `staff` and `guest` are `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error exactly as it was before the context was ever dropped.
+
+```ts
+import {
+  useBillingSettings,
+  ScopeActorTypes,
+  ClientBillingSettingsContextTypes
+} from "@upmind-automation/headless";
+
+const otherClientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// ✅ Right — only `client` may spell a retarget
+const asClient = useBillingSettings()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientBillingSettingsContextTypes.CLIENT, otherClientId);
+
+// ⚠️ Does not compile — the matrix pins `staff` to `null as never`
+useBillingSettings()
+  .as(ScopeActorTypes.STAFF)
+  // @ts-expect-error — staff resolves no context in this module's matrix
+  .for(ClientBillingSettingsContextTypes.CLIENT, otherClientId);
+```
+
+> **🧪 For Testers:** `.for(ClientBillingSettingsContextTypes.CLIENT, id)` is a compile-time refusal for `staff` and `guest`, not a runtime one — write a type-level check (an `@ts-expect-error`), not a runtime assertion. See [dropped-capabilities.md](./dropped-capabilities.md) for the staff-administration surface that remains unbuilt regardless of this context's name.
+
 ## Common Mistakes
 
 ### Assuming a diff is computed by "does this field look set" rather than "did this field change"
 
 A hand-rolled diff that filters out falsy-looking values before comparing against the base model will drop an explicit off (`0`) the same way it drops "never touched". The only correct diff test is an identity comparison (`!==`) against the base model, field by field — never a value-emptiness check applied afterward.
+
+### Assuming a client id resolved into `.for(...)` is validated against the caller
+
+The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.CLIENT, someOtherId)` compiles and addresses that other id's preference, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** — the shared matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error.
 
 ### Assuming the editor needs a `.for()` argument
 

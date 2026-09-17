@@ -47,13 +47,14 @@ describe("useTheme — public surface", () => {
   it("derives one option per available brand — the shipped themes, then the app's own", async () => {
     const { themeOptions, useTheme } = await loadTheme();
 
-    // The app defines its own brands (portal/brands.ts) with the token
+    // The app may define its own brands (portal/brands.ts) with the token
     // package's public defineTheme rather than adding them to the package, so
-    // the picker is the shipped set PLUS those, in that order.
+    // the picker is the shipped set PLUS those, in that order — and just the
+    // shipped set while the app's own roster stands empty.
     expect(themeOptions.map(option => option.name)).toEqual(
       ALL_BRANDS.map(theme => theme.name)
     );
-    expect(themeOptions.length).toBeGreaterThan(themes.length);
+    expect(themeOptions.length).toBe(themes.length + APP_BRANDS.length);
     expect(useTheme().options).toBe(themeOptions);
 
     for (const [index, option] of themeOptions.entries()) {

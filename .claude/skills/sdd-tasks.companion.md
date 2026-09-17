@@ -34,4 +34,4 @@ The "governing decision record" throughout /sdd-tasks is **ADR 021**:
 
 ## Issue tracker (Step 7)
 
-The "issue tracker" that `docs/sdd/[STORY-ID]/review-notes.md` gaps mirror to (per the `/sdd` orchestrator) is **Linear**.
+`docs/sdd/[STORY-ID]/review-notes.md` gaps mirror to Linear (`.claude/rules/linear-lifecycle.md`).

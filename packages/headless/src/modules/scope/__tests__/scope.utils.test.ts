@@ -16,12 +16,22 @@
  * grants, or an anonymous visitor is treated as an authenticated actor); or the
  * registry key collides so a staff view of client-123 is served the org-wide
  * instance — cross-scope data leakage between different clients/brands.
+ *
+ * @anchor scope.feature
+ * @anchor AC-3
+ * @anchor AC-4
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
 import "./mocks";
-import { ScopeActorTypes } from "../scope.types";
-import { generateScopeKey, resolveSelfActor } from "../scope.utils";
+import { resolveSelfActor } from "../scope.builder";
+import { ScopeActorTypes, ScopeContextPatterns } from "../scope.types";
+import {
+  generateScopeKey,
+  resolveContextDeclaration,
+  resolveContextDeclarations,
+  selector
+} from "../scope.utils";
 import { sessionState } from "./mocks";
 
 // -----------------------------------------------------------------------------
@@ -215,6 +225,179 @@ describe("generateScopeKey — the single-record id (.withId, FE-3095)", () => {
       })
     ).toBe(
       `client-email-history:${ScopeActorTypes.STAFF}:client:9:id:email-1:brand:brand-abc`
+    );
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+describe("reading a matrix cell's declared members (FE-3239)", () => {
+  it("reads a bare string as a retarget member", () => {
+    expect(resolveContextDeclarations("client")).toEqual([
+      { type: "client", pattern: ScopeContextPatterns.RETARGET }
+    ]);
+  });
+
+  it("reads a selector() wrapper as a selector member", () => {
+    expect(resolveContextDeclarations(selector("invoice"))).toEqual([
+      { type: "invoice", pattern: ScopeContextPatterns.SELECTOR }
+    ]);
+  });
+
+  it("reads every member of a mixed cell, in declaration order", () => {
+    // Order is the contract the scope bar renders in: a cell read as a set
+    // would offer the operator its catalogues in an arbitrary order.
+    expect(
+      resolveContextDeclarations([
+        "values",
+        selector("invoice"),
+        selector("cancel_request")
+      ])
+    ).toEqual([
+      { type: "values", pattern: ScopeContextPatterns.RETARGET },
+      { type: "invoice", pattern: ScopeContextPatterns.SELECTOR },
+      { type: "cancel_request", pattern: ScopeContextPatterns.SELECTOR }
+    ]);
+  });
+
+  it("reads no member from an actor the module does not serve", () => {
+    expect(resolveContextDeclarations(null as never)).toEqual([]);
+    expect(resolveContextDeclaration(null as never)).toBeNull();
+  });
+
+  it("offers the first member as the singular read its existing callers take", () => {
+    expect(resolveContextDeclaration(["values", selector("invoice")])).toEqual({
+      type: "values",
+      pattern: ScopeContextPatterns.RETARGET
+    });
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+describe("generateScopeKey — the catalogue context (FE-3239 AC-3)", () => {
+  it("@AC-3 keys a catalogue read by its type alone, with no entity segment", () => {
+    // The whole point: a catalogue has no entity, so the key must carry the
+    // type and stop. A trailing separator or a literal "undefined" would key
+    // every catalogue of every module under a shape nothing can parse back.
+    const key = generateScopeKey("client-custom-fields", {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "invoice" }
+    });
+
+    expect(key).toBe(`client-custom-fields:${ScopeActorTypes.CLIENT}:invoice`);
+    expect(key).not.toMatch(/undefined/);
+    expect(key).not.toMatch(/:$/);
+  });
+
+  it("@AC-3 keys two catalogues of one module to two different scopes", () => {
+    const invoices = generateScopeKey("client-custom-fields", {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "invoice" }
+    });
+    const cancellations = generateScopeKey("client-custom-fields", {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "cancel_request" }
+    });
+
+    expect(invoices).not.toBe(cancellations);
+  });
+
+  it("@AC-3 never collides with a retarget, brand, record or fresh key", () => {
+    // Every other optional segment is PREFIXED (`id:`, `brand:`, `fresh:`) and a
+    // retarget contributes two unprefixed segments to a catalogue's one, so the
+    // unprefixed run alone separates them. Asserted rather than assumed: a
+    // collision hands one scope's cached instance to another.
+    const catalogue = generateScopeKey("client-custom-fields", {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "invoice" }
+    });
+
+    const others = [
+      generateScopeKey("client-custom-fields", {
+        actor: ScopeActorTypes.CLIENT,
+        context: { type: "invoice", id: "123" }
+      }),
+      generateScopeKey("client-custom-fields", {
+        actor: ScopeActorTypes.CLIENT,
+        brandId: "invoice"
+      }),
+      generateScopeKey("client-custom-fields", {
+        actor: ScopeActorTypes.CLIENT,
+        id: "invoice"
+      }),
+      generateScopeKey("client-custom-fields", {
+        actor: ScopeActorTypes.CLIENT,
+        newSession: true
+      })
+    ];
+
+    expect(others).not.toContain(catalogue);
+  });
+
+  it("@AC-3 composes a catalogue with the one record read and the brand filter", () => {
+    // Which catalogue and which record are different questions, and both may be
+    // asked at once (design §9).
+    expect(
+      generateScopeKey("client-custom-fields", {
+        actor: ScopeActorTypes.CLIENT,
+        context: { type: "invoice" },
+        id: "42",
+        brandId: "brand-abc"
+      })
+    ).toBe(
+      `client-custom-fields:${ScopeActorTypes.CLIENT}:invoice:id:42:brand:brand-abc`
+    );
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+describe("generateScopeKey — a catalogue leaves a retargeted read untouched", () => {
+  it("@AC-4 keys a retargeted read exactly as it always did", () => {
+    // Hard-coded literals on purpose: these are the keys 18 shipped composables'
+    // cached instances already live under. Deriving the expectation from the
+    // same builder under test would assert nothing — it has to be the string.
+    expect(
+      generateScopeKey("basket", {
+        actor: ScopeActorTypes.STAFF,
+        context: { type: "client", id: "123" }
+      })
+    ).toBe("basket:user:client:123");
+
+    expect(
+      generateScopeKey("client-addresses", {
+        actor: ScopeActorTypes.CLIENT,
+        context: { type: "client", id: "c-9" },
+        brandId: "brand-abc"
+      })
+    ).toBe("client-addresses:client:client:c-9:brand:brand-abc");
+
+    expect(
+      generateScopeKey("client-email-history", {
+        actor: ScopeActorTypes.CLIENT,
+        context: { type: "client", id: "c-9" },
+        id: "email-1"
+      })
+    ).toBe("client-email-history:client:client:c-9:id:email-1");
+  });
+
+  it("@AC-4 keys a retargeted read the same whether or not the cell also declares a catalogue", () => {
+    // The declaration is read at compile time only — a cell gaining a catalogue
+    // member cannot move the key its retarget member already resolves to.
+    const retargeted = {
+      actor: ScopeActorTypes.CLIENT,
+      context: { type: "values", id: "c-9" }
+    };
+
+    expect(generateScopeKey("client-custom-fields", retargeted)).toBe(
+      `client-custom-fields:${ScopeActorTypes.CLIENT}:values:c-9`
+    );
+    expect(generateScopeKey("client-custom-fields", retargeted)).not.toBe(
+      generateScopeKey("client-custom-fields", {
+        actor: ScopeActorTypes.CLIENT,
+        context: { type: "values" }
+      })
     );
   });
 });

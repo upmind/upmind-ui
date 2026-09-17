@@ -42,10 +42,10 @@ export function createPersonalDetailsContext(
 
   /**
    * @decision retarget A's own scope ONLY when THIS module's own scope was
-   * explicitly retargeted (an explicit `.for('profile', id)`); a bare
+   * explicitly retargeted (an explicit `.for('client', id)`); a bare
    * `.as(actor)` call is left UNPINNED on A's side too.
-   * what:    `.for(VALUES, scopeContext.id)` only fires when `scopeContext`
-   *          names a `PROFILE` context — the SAME check `resolveClientId`
+   * what:    `.for(CLIENT, scopeContext.id)` only fires when `scopeContext`
+   *          names a `CLIENT` context — the SAME check `resolveClientId`
    *          (`client-personal-details.services.ts`) makes to decide between
    *          the given id and the session's own. Otherwise this calls
    *          `useClientCustomFields().as(ScopeActorTypes.CLIENT)` with no
@@ -57,13 +57,13 @@ export function createPersonalDetailsContext(
    *          `.for()` context id is a STATIC snapshot, captured once and
    *          never revisited — pinning it to `undefined` here would freeze
    *          A's collection unaddressable for this scope's whole lifetime,
-   *          even after the session resolves. `.for('profile', id)` is
+   *          even after the session resolves. `.for('client', id)` is
    *          different: that id is caller-supplied and already known
    *          synchronously (design.md/AC-30's retarget), so pinning it
    *          immediately is both safe and required — A's brand/definitions
    *          must resolve for the SAME named profile B's own read/write
    *          seam addresses, never silently the session's own client.
-   * rejected: always calling `.for(VALUES, id)` with `resolveClientId`'s
+   * rejected: always calling `.for(CLIENT, id)` with `resolveClientId`'s
    *          resolved id — rejected: the manager's `loadLookups` can do this
    *          safely because it runs inside an async XState service invoked
    *          only once the machine already knows the scope is addressable;
@@ -78,10 +78,11 @@ export function createPersonalDetailsContext(
   // `loadLookups` is the precedent for hardcoding rather than threading the
   // (always-CLIENT) param through.
   const customFieldsScope =
-    scopeContext?.type === ClientPersonalDetailsContextTypes.PROFILE
+    scopeContext?.type === ClientPersonalDetailsContextTypes.CLIENT &&
+    scopeContext.id
       ? useClientCustomFields()
           .as(ScopeActorTypes.CLIENT)
-          .for(ClientCustomFieldsContextTypes.VALUES, scopeContext.id)
+          .for(ClientCustomFieldsContextTypes.CLIENT, scopeContext.id)
       : useClientCustomFields().as(ScopeActorTypes.CLIENT);
   const { data: definitions, error: definitionsError } =
     customFieldsScope.useContext();

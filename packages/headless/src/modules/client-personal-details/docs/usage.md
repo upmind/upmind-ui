@@ -25,13 +25,14 @@ const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
 // The editor — callable bare; a client has exactly one profile
 const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
 
-// Either composable can instead address a NAMED entity id — see below
+// Either composable can instead retarget to a NAMED client via a matrix-gated
+// .for() context — only the `client` actor may spell it
 const otherProfile = usePersonalDetails()
   .as(ScopeActorTypes.CLIENT)
-  .for(ClientPersonalDetailsContextTypes.PROFILE, someClientId);
+  .for(ClientPersonalDetailsContextTypes.CLIENT, someClientId);
 ```
 
-> **🧪 For Testers:** The only actor that resolves on either composable is `client` — `.as(ScopeActorTypes.SELF)` resolves to it too, via the scope builder, before either matrix is even consulted. There is nothing in this module for a staff member or a guest to act at all, but the refusal is not all compile-time: `.as(ScopeActorTypes.STAFF).for(...)` fails to compile, while a bare `.as(ScopeActorTypes.STAFF)` type-checks and is refused at runtime. That is narrower than "no other profile is ever reachable": naming a different client's id in `.for(...)` compiles and addresses that client's own resource, on the caller's own session bearer, with no local check that the id matches the caller. See [gotchas.md](./gotchas.md).
+> **🧪 For Testers:** Only `client` (and `self`, which resolves to the calling client via the scope builder, before either matrix is even consulted) address a real profile. `.for(ClientPersonalDetailsContextTypes.CLIENT, id)` retargets to a named client, and it is spellable only for the `client` actor — the matrix pins `self`, `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error. A bare `.as(ScopeActorTypes.STAFF)`/`.as(ScopeActorTypes.GUEST)` — no context — falls back to the active session's own id and is refused by this module's own addressability check at runtime. Naming a different client's id via `.for(CLIENT, id)` compiles and addresses that client's own resource, on the caller's own session bearer, with no local check that the id matches the caller. See [gotchas.md](./gotchas.md).
 
 Both composables return the same four sub-composables:
 

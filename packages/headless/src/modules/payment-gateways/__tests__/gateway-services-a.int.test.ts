@@ -12,24 +12,15 @@
 
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
+import braintreeServices from "../braintree/services";
+import stripeServices from "../stripe/services";
 import { server } from "./setup.integration";
 import type { GatewayContext } from "../payment-gateways.types";
 import type { IClient, IGateway, ICurrency } from "@upmind-automation/types";
-
-import stripeServices from "../stripe/services";
-import braintreeServices from "../braintree/services";
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 const sessionRecordingsDir = join(
@@ -45,10 +36,12 @@ const BEGIN_STRIPE =
   "post-gateway-frontend-tokenize-begin-id-case-begin-stripe";
 const BEGIN_BRAINTREE =
   "post-gateway-frontend-tokenize-begin-id-case-begin-braintree";
-const END_REFUSED_STRIPE =
-  "post-gateway-frontend-tokenize-end-id-case-end-refused-stripe";
-const END_REFUSED_BRAINTREE =
-  "post-gateway-frontend-tokenize-end-id-case-end-refused-braintree";
+// Recorded fixtures, no test replays them yet. Kept as pointers to the
+// recordings for the refused-end test that will.
+// const END_REFUSED_STRIPE =
+//   "post-gateway-frontend-tokenize-end-id-case-end-refused-stripe";
+// const END_REFUSED_BRAINTREE =
+//   "post-gateway-frontend-tokenize-end-id-case-end-refused-braintree";
 const GATEWAYS_STRIPE =
   "get-brands-id-gateways-active-1-case-list-stripe-client-id-country-id";
 const GATEWAYS_BRAINTREE =

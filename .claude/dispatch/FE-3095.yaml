@@ -38,7 +38,7 @@ worktree:
 # packages/headless/src/modules/client-email-history/** — exactly the targets
 # docs/plans/FE-3095.md names. Threaded onto the developer dispatch as
 # operatorSignoff. permissions.deny carries zero rules, so this token is the
-# only thing standing between the seat and core (agent-behavior.companion.md §5).
+# only thing standing between the seat and core (the seat laws (agents/*.md, Laws section)).
 operatorSignoff: FE-3095-core-2026-08-19
 
 branch:

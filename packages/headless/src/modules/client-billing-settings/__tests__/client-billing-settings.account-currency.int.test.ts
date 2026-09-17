@@ -14,9 +14,12 @@
  * `clients/{id}` — carrying only the changed keys (AC-21, AC-22); the
  * preferred-currency choice is offered ONLY on an explicit truthy brand
  * opt-in, structurally disjoint from the consolidation surface's own
- * default-hidden gate (AC-23); the currency options are the brand's own, by
- * name, plus the account's own currency when the brand list omits it
- * (AC-24); the whole slice is withheld — never silently mis-served — when
+ * default-hidden gate (AC-23); the currency options are the brand's own,
+ * ordered by name (AC-24 — the omit-and-append edge, where the account's own
+ * currency is appended when the brand list lacks it, is proven in isolation by
+ * the sibling `currency-options-own-missing.int.test.ts`, which the colocated
+ * must-fail patch mutates); the whole slice is withheld — never silently
+ * mis-served — when
  * the addressed client is not the session's own (AC-25, the FE-2824 shape);
  * and a successful write is what the next read, and the shared session data
  * the app-wide currency-precedence consumer reads, both reflect (AC-26).
@@ -58,14 +61,16 @@
 
 import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { useBillingSettings, useBillingSettingsManager } from "..";
+import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import {
+  ClientBillingSettingsContextTypes,
+  useBillingSettings,
+  useBillingSettingsManager
+} from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useActiveSession } from "../../session-store";
-import { getFixtureBody } from "@upmind-automation/test-fixtures";
-import { ClientBillingSettingsContextTypes } from "../client-billing-settings.types";
 import {
   assertAccountIdentityTransport,
-  brandSettingsOmittingAccountCurrency,
   installAccountPutEchoHandler,
   installBrandGatesHandler,
   installBrandSettingsHandler,
@@ -116,7 +121,7 @@ afterEach(() => {
 // -----------------------------------------------------------------------------
 
 describe("useBillingSettings — the currency options (AC-24)", () => {
-  it("AC24 offers the brand's currencies by name, plus the account's own when the brand omits it", async () => {
+  it("AC24 offers the brand's supported currencies, ordered by name", async () => {
     const { clientId } = await seedClientSession();
     installSettingsGetHandler(server, clientId, recorded.settings());
     installBrandSettingsHandler(server);
@@ -124,14 +129,11 @@ describe("useBillingSettings — the currency options (AC-24)", () => {
     const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
     await settings.useActions().isReady();
 
-    // The session's own account (session-store's OWN recorded capture) and
-    // the brand's currency list (this module's OWN recorded capture) are
-    // masked INDEPENDENTLY at record time, so the account's real own
-    // currency NEVER shares an id with any brand-list entry across these two
-    // fixtures — the append (row B3) fires on every real run against this
-    // recorded pair, not only the dedicated "omits it" case below. The
-    // expectation below is built from BOTH real fixtures for that reason,
-    // never from a hand-invented currency.
+    // The recorded brand list already carries the account's own currency, so
+    // the append is a no-op here — this case proves the "ordered by name"
+    // clause; the omit-and-append edge (row B3) is proven in isolation by
+    // client-billing-settings.currency-options-own-missing.int.test.ts. The
+    // ternary stays defensive against a re-record dropping the own currency.
     const account = sessionAccount();
     const currencies = recorded.brandSettings().data.currencies;
     const withOwnAppended = currencies.some(c => c.id === account.currency_id)
@@ -145,26 +147,6 @@ describe("useBillingSettings — the currency options (AC-24)", () => {
         settings.useContext().currencyOptions.value.map(c => c.id)
       ).toEqual(expectedOrder)
     );
-
-    settings.useActions().destroy();
-  });
-
-  it("AC24 still offers the account's own currency when the brand's list omits it", async () => {
-    const { clientId } = await seedClientSession();
-    installSettingsGetHandler(server, clientId, recorded.settings());
-    const account = sessionAccount();
-    installBrandSettingsHandler(
-      server,
-      brandSettingsOmittingAccountCurrency(account.currency_id)
-    );
-
-    const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
-    await settings.useActions().isReady();
-
-    await vi.waitFor(() => {
-      const ids = settings.useContext().currencyOptions.value.map(c => c.id);
-      expect(ids.filter(id => id === account.currency_id)).toHaveLength(1);
-    });
 
     settings.useActions().destroy();
   });
@@ -459,17 +441,16 @@ describe("useBillingSettings — the account-currency capability is withheld for
     };
     server?.use(
       http.get(`*/clients/${OTHER_CLIENT_ID}`, () =>
-        // eslint-disable-next-line scope-based/no-hand-rolled-int-fixture
         HttpResponse.json(otherClientEnvelope, { status: 200 })
       )
     );
 
     const retargetedSettings = useBillingSettings()
       .as(ScopeActorTypes.CLIENT)
-      .for(ClientBillingSettingsContextTypes.SETTINGS, OTHER_CLIENT_ID);
+      .for(ClientBillingSettingsContextTypes.CLIENT, OTHER_CLIENT_ID);
     const retargetedManager = useBillingSettingsManager()
       .as(ScopeActorTypes.CLIENT)
-      .for(ClientBillingSettingsContextTypes.SETTINGS, OTHER_CLIENT_ID);
+      .for(ClientBillingSettingsContextTypes.CLIENT, OTHER_CLIENT_ID);
     await Promise.all([
       retargetedSettings.useActions().isReady(),
       retargetedManager.useActions().isReady()

@@ -1,17 +1,51 @@
+# client-personal-details.seam-bypass.must-fail.patch
+#
+# Targets: the custom-field VALUE mapping seam — the read maps each value
+# through `mapCustomFieldValue(value, field)` (definition-driven), never a
+# naive `String()`. Bypassing the seam renders the literal word "undefined"
+# for absent values instead of the mapper's empty shape.
+#
+# Authored by: developer seat (agent-seat-separation.companion.md — the seat
+# that knows the exact line it changed authors the mutant; the prover applies
+# it blind, confirms RED, then reverts — never reading src to construct it).
+#
+# REBASED (developer seat, FE-3240 second pass): the prior hunk went stale on
+# `develop` — a `fieldPath: customFields.${code}` field was inserted between
+# `code` and `title` (commit 53811230d, pre-FE-3240; mappers.ts is untouched by
+# FE-3240 itself), shifting the context the old hunk searched for. Same
+# mutation, new context.
+#
+# Mutates: client-personal-details.mappers.ts — both custom-field mapping sites
+# swap `mapCustomFieldValue(...)` for `String(...)`, bypassing the seam.
+#
+# Expected RED: client-personal-details.mappers.test.ts —
+# "AC-59 projects a custom field's value exactly as A's own seam
+# (mapCustomFieldValues) coerces it — never re-derived locally" — the value must
+# ride A's coercion seam, never a local String(). Collateral:
+# definition-driven-read.int.test.ts AC-63 also reddens (an absent value renders
+# the literal "undefined" instead of the type's oracle empty value).
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm --filter @upmind-automation/headless test client-personal-details.mappers   # must go RED
+#   git apply -R <this file>
+#
+diff --git a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
+index 27c2517fe..0fcdbf749 100644
 --- a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
 +++ b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
-@@ -172,7 +172,7 @@
-         id: field.id,
+@@ -173,7 +173,7 @@ export function mapProfileFields(
          code: field.code,
+         fieldPath: `customFields.${field.code}`,
          title: field.name,
 -        value: mapCustomFieldValue(value.value, field),
 +        value: String(value.value),
          meta: { ...field.meta, isCustomField: true }
        });
        return result;
-@@ -219,7 +219,7 @@
-         id: field.id,
+@@ -225,7 +225,7 @@ export function mapProfileFields(
          code: field.code,
+         fieldPath: `customFields.${field.code}`,
          title: field.name,
 -        value: mapCustomFieldValue(value?.value, field),
 +        value: String(value?.value),

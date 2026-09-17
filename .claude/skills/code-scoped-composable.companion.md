@@ -19,7 +19,7 @@
   ```
 
   `DEFAULT` maps to `clientServices`.
-- Base Step 7 actions type export binds to the canonical's merged shape: `UseAuthActions = ReturnType<typeof createAuthActions>` (`useAuth.actions.ts`), actor arm spread into the shared return. The live union-health receipt (`registerAsGuest`) is bound in `code-composables.companion.md`.
+- Base Step 7 actions type export binds to the canonical's merged shape: `UseAuthActions = ReturnType<typeof createAuthActions>` (`useAuth.actions.ts`), actor arm spread into the shared return.
 
 ## Paths
 
@@ -57,4 +57,4 @@ export function createModuleMachineConfig(
 
 NEVER hand the machine three separate `useXActions()` / `useXGuards()` / `useXServices()` hooks cast `as any` inline — the `as any ×3` at the `interpret(...)` call site is the tell the payload is untyped. Pinning the factory's return to `Parameters<typeof dataManagerMachine.withConfig>[0]` type-checks every updater and guard and removes the casts.
 
-**This IS the pattern — no on-disk module is the exemplar.** Every current `dataManagerMachine` consumer (`client-address`, `client-company`, `client-phone`, `client-personal-details`, `basket-billing/unified`) is still on the old inline three-hook `as any` shape and is a migration target, not a reference. Scaffolded by the `/factory` door's composable lane — `.claude/skills/factory/composable/templates/machine/use{Module}.machine.ts`. (2026-08-04, surfaced by the FE-2968 client-email smoke run.)
+**This IS the pattern — no on-disk module is the exemplar.** Every current `dataManagerMachine` consumer (`client-address`, `client-company`, `client-phone`, `client-personal-details`, `basket-billing/unified`) is still on the old inline three-hook `as any` shape and is a migration target, not a reference. Template: `.claude/skills/factory/composable/templates/machine/use{Module}.machine.ts`.
