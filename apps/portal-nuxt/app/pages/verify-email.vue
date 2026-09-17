@@ -1,3 +1,7 @@
+<template>
+  <PortalPageHost :page-keys="pageKeys" aside-label="Email verification" />
+</template>
+
 <script setup lang="ts">
 // The email-verification link's own two outcomes. A mock has no request to
 // wait on, so the progress bar arrives full rather than animating a wait that
@@ -19,7 +23,3 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_VERIFY_EMAIL];
 });
 </script>
-
-<template>
-  <PortalPageHost :page-keys="pageKeys" aside-label="Email verification" />
-</template>
