@@ -21,6 +21,7 @@ import typesInTypesFile from "./rules/types-in-types-file.mjs";
 import noTypeReexport from "./rules/no-type-reexport.mjs";
 import schemasInSchemaFile from "./rules/schemas-in-schema-file.mjs";
 import mappersInMapperFile from "./rules/mappers-in-mapper-file.mjs";
+import consistentTypeDefinitions from "./rules/consistent-type-definitions.mjs";
 
 const plugin = {
   meta: { name: "file-responsibility", version: "1.0.0" },
@@ -30,7 +31,8 @@ const plugin = {
     "types-in-types-file": typesInTypesFile,
     "no-type-reexport": noTypeReexport,
     "schemas-in-schema-file": schemasInSchemaFile,
-    "mappers-in-mapper-file": mappersInMapperFile
+    "mappers-in-mapper-file": mappersInMapperFile,
+    "consistent-type-definitions": consistentTypeDefinitions
   }
 };
 
