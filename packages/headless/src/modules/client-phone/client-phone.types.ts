@@ -98,7 +98,7 @@ export type ClientPhoneScopeMatrix = typeof CLIENT_PHONE_SCOPE_MATRIX;
 /**
  * Interface representing parsed phone number data, typically from a phone number parsing utility.
  */
-export interface IPhoneData {
+export type IPhoneData = {
   /**
    * The national format of the phone number.
    */
@@ -111,13 +111,13 @@ export interface IPhoneData {
    * The two-letter ISO country code.
    */
   country: string;
-}
+};
 
 /**
  * Interface representing the data model for a phone number, suitable for forms
  * or API payloads.
  */
-export interface PhoneModel {
+export type PhoneModel = {
   /**
    * Optional unique identifier for the phone number. Present if editing an existing phone number.
    */
@@ -148,14 +148,14 @@ export interface PhoneModel {
    * @deprecated The `type` property is deprecated in `PhoneModel` and should not be used directly here — see `Phone.type` (read-only; row W4 / decision D-1).
    */
   // type?: number; // deprecated
-}
+};
 
 /**
  * Interface representing a comprehensive phone object, extending {@link PhoneModel}
  * with additional identifiers, computed display fields, and meta-data about its status.
  * This is typically used for phone numbers retrieved from the API or displayed in the UI.
  */
-export interface Phone {
+export type Phone = {
   /**
    * The unique identifier for the phone number.
    */
@@ -194,7 +194,7 @@ export interface Phone {
      */
     isDefault: boolean;
   };
-}
+};
 
 /**
  * Interface representing the context for phone number management within a client item context.
@@ -203,13 +203,13 @@ export interface Phone {
  *
  * @template TModel - The type of the phone model, typically {@link PhoneModel}.
  */
-export interface PhoneContext extends DataManagerContext<PhoneModel> {
+export type PhoneContext = {
   /**
    * The currently selected {@link ICountry} object in the context, used for
    * phone number formatting and validation rules.
    */
   country?: ICountry;
-}
+} & DataManagerContext<PhoneModel>;
 
 // -----------------------------------------------------------------------------
 // QUERY MODEL — see the graphify-out/ citation at the head of this file

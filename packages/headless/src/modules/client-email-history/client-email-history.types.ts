@@ -201,19 +201,19 @@ export type SentEmailQuerySchema = JsonSchema7;
  * Interface representing the data model for an email address, suitable for forms
  * or API payloads.
  */
-export interface SentEmailModel {
+export type SentEmailModel = {
   /**
    * Optional unique identifier for the email address. Present if editing an existing email.
    */
   id?: ISentEmail["id"];
-}
+};
 
 /**
  * Interface representing a comprehensive email object, extending {@link SentEmailModel}
  * with additional identifiers, computed display fields, and meta-data about its status.
  * This is typically used for email addresses retrieved from the API or displayed in the UI.
  */
-export interface SentEmail extends SentEmailModel {
+export type SentEmail = {
   //--- identifier
   /**
    * The unique identifier for the email address.
@@ -313,7 +313,7 @@ export interface SentEmail extends SentEmailModel {
      */
     isSent: boolean;
   };
-}
+} & SentEmailModel;
 
 // -----------------------------------------------------------------------------
 // SERVICE-LAYER SHAPES

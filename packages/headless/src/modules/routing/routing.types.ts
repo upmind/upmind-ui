@@ -293,7 +293,7 @@ export type OverlayDefinition = {
 // --- Vue Router meta extension
 
 declare module "vue-router" {
-  interface RouteMeta {
+  type RouteMeta = {
     /** When set, indicates this route renders as an overlay (modal or drawer) */
     overlay?: OverlayType;
     /** The overlay identifier: 'auth', '2fa', 'verify-email', etc. */
@@ -305,5 +305,5 @@ declare module "vue-router" {
      * pushing a new one. Used on transitional routes like loading.
      */
     replace?: boolean;
-  }
+  };
 }

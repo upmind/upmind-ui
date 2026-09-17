@@ -7,7 +7,7 @@
  * @interface Locale
  * @property {Record<string, Record<string, string>>} [localeCode] - A mapping of locale codes to translation message objects.
  */
-export interface Locale {
+export type Locale = {
   /**
    * Index signature allowing dynamic access by locale code.
    * Each locale code maps to an object where keys are message paths and values are translated strings.
@@ -27,7 +27,7 @@ export interface Locale {
    * ```
    */
   [localeCode: string]: Record<string, string>;
-}
+};
 
 /**
  * Type alias representing the structure of files loaded via a glob import

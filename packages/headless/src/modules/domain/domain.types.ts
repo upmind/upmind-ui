@@ -22,14 +22,14 @@ import type { ActorRef } from "xstate";
  * `meta.total_pages` — so domain callers read them off the raw envelope
  * via `useQuery().request(...)` without `as` casts.
  */
-export interface DomainEnvelopeResponse<T> extends QueryResponse<T> {
+export type DomainEnvelopeResponse<T> = {
   related?: {
     products?: Record<string, IProduct>;
   } | null;
   meta?: {
     total_pages?: number;
   } | null;
-}
+} & QueryResponse<T>;
 
 // -----------------------------------------------------------------------------
 
@@ -182,7 +182,7 @@ export type DomainModel = {
  * It holds the state for domain availability checks, existing domains, basket integration,
  * search queries, and related lookups.
  */
-export interface DacContext extends BasketHelperContext<DomainProduct> {
+export type DacContext = {
   /**
    * The domain flow mode: 'register' (default) runs suggestions + availability,
    * 'transfer' runs only checkAvailability.
@@ -297,21 +297,21 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * When `false`, falls back to the legacy `/search` endpoint.
    */
   useSuggestions?: boolean;
-}
+} & BasketHelperContext<DomainProduct>;
 
-export interface DacOptions {
+export type DacOptions = {
   mode?: DomainMode;
   limit?: number;
   tlds?: string[];
-}
+};
 
-export interface DomainOptions {
+export type DomainOptions = {
   type?: DomainTypes;
   required?: boolean;
   tlds?: string[];
-}
+};
 
-export interface DomainContext extends BasketHelperContext<DomainProduct> {
+export type DomainContext = {
   /**
    * An array of available {@link DomainTypes} to choose from.
    */
@@ -425,4 +425,4 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * `provisioning.domain_names.search_method` in `useDomain`/`useDac`.
    */
   useSuggestions?: boolean;
-}
+} & BasketHelperContext<DomainProduct>;
