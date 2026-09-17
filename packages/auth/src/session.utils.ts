@@ -1,20 +1,20 @@
 import { computed, toValue, type Ref } from "vue";
 import { useRouter } from "vue-router";
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { SESSION_TEMPLATE } from "./types";
+import { AUTH_TEMPLATE } from "./types";
 import type { SessionResolveOptions, SessionViewProps } from "./types";
 
-const INACTIVE_SECTION_TEMPLATES: SESSION_TEMPLATE[] = [
-  SESSION_TEMPLATE.SPLIT,
-  SESSION_TEMPLATE.CANVAS_CARD,
-  SESSION_TEMPLATE.SURFACE_BOX
+const INACTIVE_SECTION_TEMPLATES: AUTH_TEMPLATE[] = [
+  AUTH_TEMPLATE.SPLIT,
+  AUTH_TEMPLATE.CANVAS_CARD,
+  AUTH_TEMPLATE.SURFACE_BOX
 ];
 
-export function useSessionTemplates(template: Ref<SESSION_TEMPLATE>) {
+export function useAuthTemplates(template: Ref<AUTH_TEMPLATE>) {
   const meta = computed(() => ({
     hasActiveSection: !INACTIVE_SECTION_TEMPLATES.includes(template.value),
     hasMarkdownSlot: INACTIVE_SECTION_TEMPLATES.includes(template.value),
-    isSplit: template.value === SESSION_TEMPLATE.SPLIT
+    isSplit: template.value === AUTH_TEMPLATE.SPLIT
   }));
 
   return { meta };

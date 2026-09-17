@@ -74,7 +74,7 @@ export type SessionRoutes = {
  * screen with the email-sent message, so no host has one to name.
  */
 export type SessionRecoverViewProps = SessionRoutes & {
-  template?: SESSION_TEMPLATE;
+  template?: AUTH_TEMPLATE;
 };
 
 /** What the two sign-in screens take: recovery's contract, plus a landing. */
@@ -100,7 +100,7 @@ export type AuthActionProps = SessionRoutes & {
   shape?: string;
 };
 
-export enum SESSION_TEMPLATE {
+export enum AUTH_TEMPLATE {
   SPLIT = "split",
   ENCLOSED = "enclosed",
   CANVAS_CARD = "canvas-card",

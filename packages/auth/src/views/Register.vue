@@ -206,13 +206,13 @@ import {
 } from "@upmind-automation/headless";
 import Account from "../components/Account.vue";
 import Auth from "../components/Auth.vue";
-import { useSessionResolve, useSessionTemplates } from "../session.utils";
+import { useSessionResolve, useAuthTemplates } from "../session.utils";
 import { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthLoading } from "../shell";
 import AuthBareTemplate from "../templates/AuthBare.template.vue";
 import {
   type SessionProps,
   type SessionViewProps,
-  SESSION_TEMPLATE
+  AUTH_TEMPLATE
 } from "../types";
 import {
   guestCheckoutVariants,
@@ -270,13 +270,13 @@ const isResolving = ref(false);
 const template = computed(() =>
   validateTemplate(
     ui.template.value || props.template,
-    SESSION_TEMPLATE,
-    SESSION_TEMPLATE.TWO_COLUMN_LTR
+    AUTH_TEMPLATE,
+    AUTH_TEMPLATE.TWO_COLUMN_LTR
   )
 );
 
 const meta = computed(() => ({
-  isInset: template.value === SESSION_TEMPLATE.INSET
+  isInset: template.value === AUTH_TEMPLATE.INSET
 }));
 
 const shell = useShellComponents();
@@ -288,7 +288,7 @@ const templateVariant = computed(
 const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
 const guestCheckout = computed(() => shell.resolve(AUTH_SHELL.GUEST_CHECKOUT));
 const { component: loading } = useAuthLoading();
-const { meta: templateMeta } = useSessionTemplates(template);
+const { meta: templateMeta } = useAuthTemplates(template);
 
 function doUpdate(value: SessionProps["modelValue"]) {
   if (value === "login") {

@@ -95,7 +95,7 @@ import AuthBareTemplate from "../templates/AuthBare.template.vue";
 import {
   type SessionProps,
   type SessionRecoverViewProps,
-  SESSION_TEMPLATE
+  AUTH_TEMPLATE
 } from "../types";
 import { sessionFormWidthVariants } from "../variants";
 
@@ -136,13 +136,13 @@ const isResolving = ref(false);
 const template = computed(() =>
   validateTemplate(
     ui.template.value || props.template,
-    SESSION_TEMPLATE,
-    SESSION_TEMPLATE.TWO_COLUMN_LTR
+    AUTH_TEMPLATE,
+    AUTH_TEMPLATE.TWO_COLUMN_LTR
   )
 );
 
 const meta = computed(() => ({
-  isInset: template.value === SESSION_TEMPLATE.INSET
+  isInset: template.value === AUTH_TEMPLATE.INSET
 }));
 
 const shell = useShellComponents();

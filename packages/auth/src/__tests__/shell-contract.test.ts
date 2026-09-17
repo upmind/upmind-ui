@@ -24,13 +24,13 @@ import {
   useShellComponents
 } from "@upmind-automation/foundation";
 import { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "../index";
-import { SESSION_TEMPLATE } from "../types";
+import { AUTH_TEMPLATE } from "../types";
 import type { ShellComponents } from "@upmind-automation/foundation";
 import type { Component } from "vue";
 
 // -----------------------------------------------------------------------------
 
-const TEMPLATES = Object.values(SESSION_TEMPLATE);
+const TEMPLATES = Object.values(AUTH_TEMPLATE);
 const PUBLISHED_SLOTS = Object.values(AUTH_SHELL);
 const TEMPLATE_SLOTS = TEMPLATES.map(template => AUTH_TEMPLATE_SLOT[template]);
 

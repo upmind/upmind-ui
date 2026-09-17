@@ -40,7 +40,7 @@ export {
 export type { AuthFlowOptions } from "./flows";
 
 // --- Export utils
-export { useSessionTemplates } from "./session.utils";
+export { useAuthTemplates } from "./session.utils";
 
 // --- Export Types
 export * from "./types";
