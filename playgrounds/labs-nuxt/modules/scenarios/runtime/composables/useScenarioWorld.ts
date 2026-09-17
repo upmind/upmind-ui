@@ -16,6 +16,7 @@ import {
   ErrorOrigin,
   responseCodes
 } from "@upmind-automation/headless";
+import { matchesExpectation } from "@upmind-automation/scenario-harness";
 import { registry } from "../registry";
 import { useModulePort } from "./useModulePort";
 import { useScenarioStage } from "./useScenarioStage";
@@ -33,7 +34,6 @@ import {
 import type { ScenarioBinding, ScenarioKey } from "../scenario.types";
 import type { ModulePort } from "./useModulePort.types";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
-import { matchesExpectation } from "@upmind-automation/scenario-harness";
 import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -59,13 +59,34 @@ function fail(message: string): never {
 }
 
 /**
+ * What a SELF-DRAWN page tells the world about the cell IT has already booted
+ * (`ScenarioBinding.useManage`). Absent — which is every page the shared
+ * `ScenarioPlayground` hosts — the world behaves exactly as it always has.
+ *
+ * It exists because such a page is addressed by a url CONTEXT
+ * (`/useClientTicket/as/client/for/ticket/<id>`) and a step catalog cannot
+ * name that id: the catalog is one file serving every ticket, and a literal in
+ * it would be a second scope beside the url's. So the track declares the ACTOR
+ * and the page completes the record — one scope, the url's, read once.
+ */
+export type ScenarioWorldHost = {
+  /** The key the page renders itself — the one cell the world adopts. */
+  key: ScenarioKey;
+  /** The scope context the page's own url names, completing a boot that names none. */
+  context?: WorldScope["context"];
+};
+
+/**
  * Builds the in-page world over the scenario contract.
  *
  * @param bindings The scenario contract, defaulted to this playground's own
  * registry and overridable so a spec can drive a narrowed set.
+ * @param host The self-drawn page's own booted cell, where one hosts this
+ * world. See {@link ScenarioWorldHost}.
  */
 export function useScenarioWorld(
-  bindings: Record<ScenarioKey, ScenarioBinding> = registry
+  bindings: Record<ScenarioKey, ScenarioBinding> = registry,
+  host?: ScenarioWorldHost
 ): World<ScenarioKey> {
   let port: ModulePort | undefined;
   let booted: { key: ScenarioKey; scope: WorldScope } | undefined;
@@ -76,8 +97,17 @@ export function useScenarioWorld(
   }
 
   function dispose(): void {
+    // The HOST page's own cell is never destroyed here. It is the cell the page
+    // renders, held by the page for its whole lifetime and torn down by the
+    // page on unmount — so destroying it because the next track's Background
+    // boots a different key would kill the surface the replay is playing on
+    // (the same reason `disarm()` disposes nothing, design §7.1). The world
+    // lets it go instead, and the scope registry hands the same cell back on
+    // the next boot.
+    const isHosted = !!host && booted?.key === host.key;
+
     const destroy = get(port?.actions ?? {}, "destroy");
-    if (isFunction(destroy)) destroy();
+    if (!isHosted && isFunction(destroy)) destroy();
     port = undefined;
     booted = undefined;
   }
@@ -100,10 +130,19 @@ export function useScenarioWorld(
       // wire values — so a feature may name the actor and it lands as the
       // enum the scope builder takes. `WorldScope.context` is already the
       // complete `{ type, id }` pair a scope is only ever expressed as.
-      port = useModulePort((entry.useList ?? entry.useMutate)!, {
-        actor: scope.actor as ScopeActorTypes,
-        context: scope.context
-      });
+      // `useManage` last, exactly as `registry.ts` orders them: a declaration
+      // binding a renderer keeps the cell it always booted.
+      port = useModulePort(
+        (entry.useList ?? entry.useMutate ?? entry.useManage)!,
+        {
+          actor: scope.actor as ScopeActorTypes,
+          // The host page's url completes a boot scope that names no context
+          // — the SAME scope the page itself booted, so the scope registry
+          // hands back the cell already on screen rather than a second one.
+          context:
+            scope.context ?? (host?.key === key ? host.context : undefined)
+        }
+      );
       booted = { key, scope };
     },
 

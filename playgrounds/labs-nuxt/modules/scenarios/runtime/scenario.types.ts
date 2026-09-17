@@ -591,9 +591,42 @@ export type ScenarioBinding = (
    * shared renderer never sees it. It still declares, still registers, still
    * carries its nav entry — a module whose composable is not four-layer yet
    * reaches the playground this way rather than as a page outside it.
+   *
+   * Such a page may still OPT IN to a playlist by naming {@link
+   * ScenarioBinding.useManage} — see that member.
    */
   | { useList?: never; useMutate?: never }
 ) & {
+  /**
+   * The composable a SELF-DRAWN page boots so its own scenario bar has a cell
+   * to drive — the third verb beside `useList` (the collection) and
+   * `useMutate` (the editor), and the one a module that renders itself needs.
+   *
+   * WHY IT EXISTS. `boundKeys` is the set of keys the harness can build a
+   * boot thunk for, and it was the two renderer bindings alone — so a
+   * self-drawn declaration was excluded from `scenarioRegistry`, and
+   * `World.boot` on its key threw. That is the correct answer for a page with
+   * nothing to boot; it is the wrong one for a page that boots the module
+   * ITSELF and simply draws it by hand, which is every manager whose thread,
+   * composer or wizard no generic surface can render.
+   *
+   * PURELY OPT-IN. A declaration that does not name it is unchanged in every
+   * respect: it stays out of `boundKeys`, out of `scenarioRegistry`, and
+   * asking the world to boot it still throws. Nothing here is inferred from a
+   * page file's presence — the declaration says it or it does not.
+   *
+   * It is read LAST, after `useList` and `useMutate`, so a declaration that
+   * binds a renderer cannot have its boot moved by naming one.
+   *
+   * @graphify-citation `graphify query "scenario binding self-drawn boot
+   * composable useManage"` (2026-09-17, `graphify-out/graph.json`, 482 nodes)
+   * — no self-drawn-boot node and no binding member of this name exist in the
+   * tree; the one `useManage*` hit is `useValidationKeywords.ts`'s
+   * `useManageKeyword`, an unrelated JSON-schema keyword. Nothing is minted:
+   * this member extends the existing `ScenarioBinding` and names the module's
+   * own exported builder, exactly as its two siblings do.
+   */
+  useManage?: FourLayerComposable;
   /**
    * The single-read composable a row opens READ-ONLY — the read twin of
    * `useMutate`. Omitted, the detail overlay renders the clicked row's own data
