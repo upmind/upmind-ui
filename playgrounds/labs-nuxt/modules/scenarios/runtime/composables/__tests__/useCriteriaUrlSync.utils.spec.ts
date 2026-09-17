@@ -23,11 +23,17 @@
  *
  * ## Provenance
  * These are pure serialisation functions with no external boundary; the schema
- * and model here are constructed function INPUTS (the query-collection shape
- * `tickets` publishes), not recorded wire data. The column names and the
- * bare-vs-nested split mirror the real `tickets` query schema
+ * and model here are constructed function INPUTS, not recorded wire data. The
+ * bare-vs-nested SPLIT is the shape the real `tickets` query schema exhibits
  * (`packages/headless/src/modules/tickets/tickets.schemas.ts`, pinned by
- * `tickets.schemas.test.ts`).
+ * `tickets.schemas.test.ts`); the column names are representative of it rather
+ * than a copy of it, and this file does not track that schema's membership.
+ * Two of them are deliberately no longer in it: `statusCode` was superseded by
+ * the `isClosed` tri-state, and `contract_product_id` was removed altogether
+ * because the product a ticket is about is a RELATIONSHIP and now lives in the
+ * scope context (`.for('product', id)`). Both are kept here as inputs — the
+ * walker must serialise whatever shape it is handed, and dropping a column
+ * would delete a bare-leaf case this proves rather than reflect one.
  */
 
 import { describe, expect, it } from "vitest";

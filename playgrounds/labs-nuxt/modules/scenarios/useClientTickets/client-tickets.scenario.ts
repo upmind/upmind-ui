@@ -25,9 +25,14 @@
  * a route and nothing can misname one. Nor does it declare a scope: the page
  * boots as self with no context, and only the url's `/as/:actor` and
  * `/for/:type/:id` segments move it — offering only what the module's own
- * scope matrix serves (`client` only; the run constraint forbids
- * `.for('client', id)` outright, so the collection's own matrix refuses
- * every actor — `TICKETS_SCOPE_MATRIX` in `tickets.types.ts`).
+ * scope matrix serves. `TICKETS_SCOPE_MATRIX` (`tickets.types.ts`) declares
+ * ONE member, on the `client` row: `product`, the tickets raised about one of
+ * my contract products (AC-7). So `/useClientTickets/as/client/for/product/<id>`
+ * is a real url here and the scope bar offers that member; every other type
+ * is refused by `servesContext` rather than silently resolving the default.
+ * `.for('client', id)` stays forbidden (R1) and is not a member — a list is
+ * never retargeted at another client, which is a different axis from the
+ * entity it is read ABOUT.
  */
 
 import { useClientTickets } from "@upmind-automation/headless";

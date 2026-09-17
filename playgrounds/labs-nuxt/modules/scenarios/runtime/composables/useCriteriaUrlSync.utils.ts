@@ -61,9 +61,9 @@ export const QUERY_PARAM = "query";
  * and both directions address the value at `filters.<column>` rather than one
  * level deeper. Every column of every OTHER collection wraps its value in an
  * operator object, so this is inert for them; `tickets` is the one schema that
- * mixes bare leaves (`reference`/`subject`/`contract_product_id`) with nested
- * ones (`statusCode`/`created_at`), and it was the bare leaves that never
- * reached the url.
+ * mixes bare leaves (`reference`/`subject`) with nested ones
+ * (`isClosed`/`created_at`), and it was the bare leaves that never reached the
+ * url.
  */
 const LEAF_OPERATOR = "";
 
