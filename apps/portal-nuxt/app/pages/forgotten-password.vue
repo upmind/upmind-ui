@@ -1,3 +1,7 @@
+<template>
+  <UpmAuthRecoverPassword v-bind="AUTH_ROUTES" />
+</template>
+
 <script setup lang="ts">
 // The real `@upmind-automation/auth` organism, replacing the stub this route
 // carried while the surface still lived in `client-vue`. The address the login
@@ -11,7 +15,3 @@ definePageMeta({
   middleware: "signed-in-redirect"
 });
 </script>
-
-<template>
-  <UpmAuthRecoverPassword v-bind="AUTH_ROUTES" />
-</template>

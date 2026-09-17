@@ -1,3 +1,7 @@
+<template>
+  <UpmAuthLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
+</template>
+
 <script setup lang="ts">
 // The real `@upmind-automation/auth` organism, replacing the stub this route
 // carried while the surface still lived in `client-vue`
@@ -14,7 +18,3 @@ definePageMeta({
   middleware: "signed-in-redirect"
 });
 </script>
-
-<template>
-  <UpmAuthLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
-</template>

@@ -1,3 +1,7 @@
+<template>
+  <UpmAuthRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
+</template>
+
 <script setup lang="ts">
 // The real `@upmind-automation/auth` organism, replacing the stub this route
 // carried while the surface still lived in `client-vue`.
@@ -26,7 +30,3 @@ if (!isRegistrationEnabled.value) {
   void navigateTo("/login", { replace: true });
 }
 </script>
-
-<template>
-  <UpmAuthRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
-</template>
