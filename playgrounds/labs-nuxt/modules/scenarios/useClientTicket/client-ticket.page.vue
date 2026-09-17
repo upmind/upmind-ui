@@ -525,6 +525,18 @@
 
         <!-- Reply composer — disabled when the ticket refuses replies. -->
         <Card size="sm" class="gap-4">
+          <!-- AC17 — the stale-reply caution. A refused reply is NOT a
+               failure and NOT a success: the draft is still here, and this
+               says so beside it rather than letting an emptied box claim the
+               message was posted. -->
+          <Alert
+            v-if="actionNotice"
+            variant="warning"
+            appearance="muted"
+            :title="actionNotice"
+            :data-attrs="{ 'data-test-key': 'ticket-reply-stale' }"
+          />
+
           <Textarea
             v-model="replyBody"
             :rows="3"
@@ -704,6 +716,13 @@ const feedLoading = ref(false);
 const pending = ref(false);
 const uploading = ref(false);
 const actionError = ref<string>();
+/**
+ * A refusal that is NOT a failure — the AC17 stale-reply caution, which the
+ * module resolves without throwing. It rides its own ref so it reads as a
+ * warning beside the composer rather than as the danger alert a real failure
+ * raises.
+ */
+const actionNotice = ref<string>();
 const idInput = ref("");
 const replyBody = ref("");
 const subjectDraft = ref("");
@@ -810,6 +829,7 @@ function report(error: unknown): void {
 async function run(work: () => Promise<unknown>): Promise<void> {
   pending.value = true;
   actionError.value = undefined;
+  actionNotice.value = undefined;
   try {
     await work();
   } catch (error) {
@@ -831,12 +851,36 @@ async function loadThread(): Promise<void> {
   }
 }
 
+/**
+ * AC17 — the reply, and the ONE outcome that is neither a success nor a throw.
+ * `reply()` resolves to `undefined` when the server refused with
+ * `409 ticket_has_more_recent_reply` (support replied first): the module's own
+ * ruling makes that a CAUTION, not an error, so nothing is thrown and the
+ * message was NOT posted. Ignoring the return value cleared the composer and
+ * reported success over a reply that never left — the operator's "it says it is
+ * sent but in messages I have nothing".
+ *
+ * So the two outcomes are told apart by the value: a message means sent (clear
+ * the composer), `undefined` means refused (keep the draft, say plainly that a
+ * newer reply arrived and this one was not sent). The thread is already paged
+ * forward by the manager itself on that path (`useClientTicket.actions.ts`
+ * calls `loadNewer()` before returning `undefined`), so the newer reply is on
+ * screen for the client to read before they send again — no second read is
+ * issued here.
+ */
 const send = () =>
   run(async () => {
-    await actions?.reply(
+    // `actions!` like every sibling write: the composer only exists inside the
+    // readable-ticket branch, so an absent manager here would be a mount bug,
+    // not the AC17 refusal — and `?.` would quietly report it as one.
+    const posted = await actions!.reply(
       replyBody.value,
       pendingFiles.value.length ? { files: pendingFiles.value } : {}
     );
+    if (!posted) {
+      actionNotice.value = t("labs.client_ticket_reply_stale");
+      return;
+    }
     replyBody.value = "";
     pendingFiles.value = [];
   });
