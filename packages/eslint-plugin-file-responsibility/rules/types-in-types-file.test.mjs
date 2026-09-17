@@ -37,9 +37,20 @@ test("types-in-types-file", () => {
         code: `export interface Props { id: string }`,
         filename: "modules/foo/foo.types.customer.ts"
       },
-      // A local, non-exported type stays legal in a concern file.
+      // A local, non-exported type stays legal in a non-services concern file.
       {
         code: `type Local = number;`,
+        filename: "modules/foo/foo.utils.ts"
+      },
+      // In a services file, a co-located derived type stays exempt even local.
+      {
+        code: `type UseFoo = ReturnType<typeof createFoo>;`,
+        filename: "modules/foo/foo.services.ts"
+      },
+      // A function-scoped local type in a services file is an implementation
+      // detail, not a top-level declaration, so it is untouched.
+      {
+        code: `export async function checkSession(context) { type Row = number; return context; }`,
         filename: "modules/foo/foo.services.ts"
       },
       // A local, non-exported interface stays legal too.
@@ -75,6 +86,19 @@ test("types-in-types-file", () => {
       }
     ],
     invalid: [
+      // A NON-exported top-level type in a services file is a violation too —
+      // a services file carries no type declarations (the FE-3031 gap).
+      {
+        code: `type DurableFilterSlot = { id: string };`,
+        filename: "modules/foo/foo.services.ts",
+        errors: [{ messageId: "localTypeInServicesFile" }]
+      },
+      // A NON-exported top-level interface in a services file likewise.
+      {
+        code: `interface FilterState { open: boolean }`,
+        filename: "modules/foo/foo.services.ts",
+        errors: [{ messageId: "localTypeInServicesFile" }]
+      },
       // Discriminator 1: an exported interface in an unsuffixed `.ts`.
       {
         code: `export interface Props {}`,

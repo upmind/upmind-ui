@@ -1240,6 +1240,9 @@
   "packages/headless/src/modules/basket-product/basket-product.services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
+    },
+    "file-responsibility/services-purity": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/basket-product/basket-product.types.ts": {
@@ -1363,9 +1366,19 @@
       "count": 1
     }
   },
+  "packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts": {
+    "file-responsibility/services-purity": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/client-company/client-company.schemas.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    }
+  },
+  "packages/headless/src/modules/client-company/client-company.services.ts": {
+    "file-responsibility/services-purity": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/client-company/useClientCompanyManager.ts": {
@@ -1376,6 +1389,9 @@
   "packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
+    },
+    "file-responsibility/services-purity": {
+      "count": 3
     }
   },
   "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts": {
@@ -1393,6 +1409,11 @@
       "count": 1
     }
   },
+  "packages/headless/src/modules/client-notifications/client-notifications.services.ts": {
+    "file-responsibility/services-purity": {
+      "count": 1
+    }
+  },
   "packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
@@ -1406,6 +1427,9 @@
   "packages/headless/src/modules/client-personal-details/client-personal-details.services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
+    },
+    "file-responsibility/services-purity": {
+      "count": 2
     }
   },
   "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts": {
@@ -1431,6 +1455,9 @@
   "packages/headless/src/modules/client-phone/client-phone.services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3
+    },
+    "file-responsibility/services-purity": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/client-phone/useClientPhoneManager.ts": {
@@ -1474,6 +1501,9 @@
   "packages/headless/src/modules/domain/domain.services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
+    },
+    "file-responsibility/services-purity": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/domain/domain.types.ts": {
@@ -1986,6 +2016,9 @@
   "packages/headless/src/modules/system-upload/system-upload.services.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    },
+    "file-responsibility/services-purity": {
+      "count": 1
     }
   },
   "packages/headless/src/modules/system-upload/system-upload.types.ts": {

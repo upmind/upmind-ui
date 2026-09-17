@@ -68,22 +68,21 @@ export function wrap() { return fetchThing(); }`
         filename: SERVICES,
         code: `export const createServices = () => ({ read, write });`
       },
-      // (d) DELEGATE in-file — dispatches to a helper declared in the same file.
+      // (d) DELEGATE in-file — dispatches to a local helper that is itself a
+      // request, so both the helper and the exported delegate are allowed.
       {
         filename: SERVICES,
-        code: `function loadStaffUser(t) { return t; }
+        code: `import { useQuery } from "../query";
+function loadStaffUser(t) { const { query } = useQuery(); return query({ t }); }
 export async function loadUser(token) { return loadStaffUser(token); }`
       },
-      // (d) DELEGATE in-file — to a local const-arrow helper.
+      // (d) DELEGATE in-file — a non-exported const-arrow helper that itself
+      // delegates to a sibling module; both are allowed.
       {
         filename: SERVICES,
-        code: `const driveGuestMint = () => Promise.resolve();
+        code: `import { useBasket } from "../basket";
+const driveGuestMint = () => useBasket().mint();
 export function mintGuestToken() { return driveGuestMint(); }`
-      },
-      // A non-exported util in a services file is not governed.
-      {
-        filename: SERVICES,
-        code: `function formatName(s) { return s.trim(); }`
       },
       // The rule is OFF outside a services file — a util here is fine.
       {
@@ -92,6 +91,13 @@ export function mintGuestToken() { return driveGuestMint(); }`
       }
     ],
     invalid: [
+      // A NON-exported stray util in a services file is a misplaced util too —
+      // the missing `export` does not save it (the FE-3031 gap).
+      {
+        filename: SERVICES,
+        code: `function resolveFilterSlots(s) { return s.trim(); }`,
+        errors: [{ messageId: "misplacedLocalUtil" }]
+      },
       // Discriminator 1: an exported `formatName` util — no request, not
       // machine, not a delegate.
       {
