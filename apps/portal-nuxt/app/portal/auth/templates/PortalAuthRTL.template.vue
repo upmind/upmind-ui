@@ -1,5 +1,5 @@
 <template>
-  <PortalAuthShell variant="split">
+  <PortalAuthShell variant="offset" card>
     <slot name="back" />
     <slot name="hero" />
     <slot name="form" />
@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-// The mirror of the LTR page: the brand rail leads and the form follows,
-// which is the default order of the shell's split arrangement.
+// The mirror of the LTR page: the narrow aside leads and the wide form column
+// follows, which is the default track order of the shell's offset pair.
 import PortalAuthShell from "../PortalAuthShell.vue";
 import type { AuthRoutes } from "@upmind-automation/auth";
 

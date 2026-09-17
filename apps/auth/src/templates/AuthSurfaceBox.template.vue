@@ -1,19 +1,17 @@
 <template>
-  <AuthShell variant="triptych" :skip-label="t('action.skip_to_content')">
+  <AuthShell :skip-label="t('action.skip_to_content')">
     <template #header>
       <slot name="back" />
     </template>
 
     <slot name="hero" />
-    <slot name="form" />
 
-    <template #brand>
+    <Card>
       <slot name="markdown" />
-    </template>
+      <slot name="form" />
+    </Card>
 
-    <template #secondary>
-      <slot name="summary" />
-    </template>
+    <slot name="summary" />
 
     <template #footer>
       <slot name="actions" />
@@ -22,10 +20,10 @@
 </template>
 
 <script lang="ts" setup>
-// The cart's surface-box page sets the form on a toned box between two rails.
-// The shell's triptych is that arrangement: a brand rail, the form, and a muted
-// second rail the summary sits in.
-import { AuthShell } from "@upmind/ui";
+// The cart's surface-box page is one centred box on the canvas, holding the
+// marketing copy and the form together. The centred arrangement draws that
+// column, and the canvas tone is the one the shell says brings a card.
+import { AuthShell, Card } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import type { AuthRoutes } from "@upmind-automation/auth";
 

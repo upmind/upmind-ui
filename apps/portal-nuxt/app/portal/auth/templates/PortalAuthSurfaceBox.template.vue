@@ -1,24 +1,19 @@
 <template>
-  <PortalAuthShell variant="triptych">
+  <PortalAuthShell variant="centered" card>
     <slot name="back" />
     <slot name="hero" />
+    <slot name="markdown" />
     <slot name="form" />
+    <slot name="summary" />
     <slot name="actions" />
-
-    <template #brand>
-      <slot name="markdown" />
-    </template>
-
-    <template #secondary>
-      <slot name="summary" />
-    </template>
   </PortalAuthShell>
 </template>
 
 <script setup lang="ts">
-// The cart's surface-box page sets the form between two rails. The shell's
-// triptych is that arrangement: a brand rail, the form, and a muted second
-// rail the summary sits in.
+// The centred column with the form on a card. The cart draws this one narrow,
+// with the copy above the form, and canvas-card wide with the copy beside it.
+// This app's card wraps the whole column at one width, so the two brand names
+// land on the same page here.
 import PortalAuthShell from "../PortalAuthShell.vue";
 import type { AuthRoutes } from "@upmind-automation/auth";
 

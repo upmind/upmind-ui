@@ -1,5 +1,5 @@
 <template>
-  <AuthShell variant="split" :skip-label="t('action.skip_to_content')">
+  <AuthShell variant="offset" :skip-label="t('action.skip_to_content')">
     <template #header>
       <slot name="back" />
     </template>
@@ -19,8 +19,8 @@
 </template>
 
 <script lang="ts" setup>
-// The mirror of the LTR page: the brand rail leads and the form follows, which
-// is the default order of the shell's split arrangement.
+// The mirror of the LTR page: the narrow aside leads and the wide form column
+// follows, which is the default track order of the shell's offset pair.
 import { AuthShell } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import type { AuthRoutes } from "@upmind-automation/auth";

@@ -10,8 +10,10 @@
 </template>
 
 <script setup lang="ts">
-// The centred column with the form lifted onto a card — the arrangement this
-// app's logged-out screens drew before the templates existed.
+// The centred column with the form on a card. The cart draws this one wide,
+// with the copy beside the form, and surface-box narrow with the copy above it.
+// This app's card wraps the whole column at one width, so the two brand names
+// land on the same page here.
 import PortalAuthShell from "../PortalAuthShell.vue";
 import type { AuthRoutes } from "@upmind-automation/auth";
 

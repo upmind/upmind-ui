@@ -1,5 +1,5 @@
 <template>
-  <AuthShell variant="split" reverse :skip-label="t('action.skip_to_content')">
+  <AuthShell variant="offset" reverse :skip-label="t('action.skip_to_content')">
     <template #header>
       <slot name="back" />
     </template>
@@ -19,8 +19,9 @@
 </template>
 
 <script lang="ts" setup>
-// Two columns, the form leading. `reverse` puts the form column first and the
-// brand rail second, which is what the cart's own two-column-ltr page draws.
+// Two columns, the form leading and wider — the cart's two-column-ltr page puts
+// a full-width form column beside a narrow aside. `offset` is the shell's
+// asymmetric pair, and `reverse` brings the wide column first.
 import { AuthShell } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import type { AuthRoutes } from "@upmind-automation/auth";
