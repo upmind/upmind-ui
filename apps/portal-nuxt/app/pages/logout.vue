@@ -1,3 +1,7 @@
+<template>
+  <div />
+</template>
+
 <script setup lang="ts">
 // Signing out is a VERB, not a screen: the page hands it to the one action
 // door and the receipt does the rest — the ribbon comes down, the toast says
@@ -23,7 +27,3 @@ const { run: runMockAction } = useMockActionRunner(
 
 void runMockAction(MOCK_ACTION.AUTH_LOGOUT);
 </script>
-
-<template>
-  <div />
-</template>
