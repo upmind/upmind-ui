@@ -46,22 +46,34 @@ async function authenticate(
   const { post, useUrl } = useQuery();
   const store = useSessionStore();
 
-  const isImpersonation =
-    scopeContext?.type === AuthContextTypes.CLIENT && scopeContext?.id;
+  // The id is carried in its own binding rather than read off the context at
+  // each site: `ScopeContext.id` is optional (FE-3239), and an id-less client
+  // context must fall through to the normal staff login, never impersonate
+  // `undefined`.
+  const impersonatedClientId =
+    scopeContext?.type === AuthContextTypes.CLIENT
+      ? scopeContext.id
+      : undefined;
 
   const mutationKey: string[] = [
     ...AUTH_SESSION_QUERY_KEY_BASE,
     ScopeActorTypes.STAFF
   ];
-  if (isImpersonation)
-    mutationKey.push("impersonate", scopeContext.type, scopeContext.id);
+  if (impersonatedClientId)
+    mutationKey.push(
+      "impersonate",
+      AuthContextTypes.CLIENT,
+      impersonatedClientId
+    );
 
   return post<IToken>({
     mutationKey,
-    url: isImpersonation
-      ? useUrl(`admin/clients/${scopeContext.id}/access_token`)
+    url: impersonatedClientId
+      ? useUrl(`admin/clients/${impersonatedClientId}/access_token`)
       : useUrl("access_token", {}, { context: "oauth" }),
-    data: isImpersonation ? undefined : mapLoginData(model, GrantTypes.ADMIN),
+    data: impersonatedClientId
+      ? undefined
+      : mapLoginData(model, GrantTypes.ADMIN),
     withAccessToken: true
   }).then(token => {
     // Check if 2FA is required for staff
@@ -69,12 +81,12 @@ async function authenticate(
       return { token, requires2fa: true, twofa_provider: token.twofa_provider };
     }
     // Impersonated staff login
-    if (isImpersonation) {
+    if (impersonatedClientId) {
       token.actor_type ||= AccessRoleTypes.CLIENT;
-      token.actor_id ||= scopeContext.id;
+      token.actor_id ||= impersonatedClientId;
 
       const { registerImpersonation } = store.useActions();
-      registerImpersonation?.(scopeContext.id);
+      registerImpersonation?.(impersonatedClientId);
     } else {
       // Normal staff login
       token.actor_type ||= AccessRoleTypes.STAFF;

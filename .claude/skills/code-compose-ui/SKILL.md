@@ -64,7 +64,7 @@ grep -c 'default as' design-system/packages/ui/src/components/<slug>/index.ts
 | No `.ce.vue`, but consumers exist for an equivalent old component | **Migration** against that component. |
 | Genuinely new (no old-lib counterpart, no consumers) | **Greenfield.** Skip Step 3; Step 4 still runs against the *consumer* demand you are building for. |
 
-Never self-declare greenfield to make Step 2 disappear — that is the failure this skill exists to prevent (`verify-cosplay.companion.md`).
+Never self-declare greenfield to make Step 2 disappear — that is the failure this skill exists to prevent (`the seat laws (agents/*.md, Laws section)`).
 
 ### Step 3 — Four-Layer Audit (migration route, MANDATORY)
 
@@ -249,7 +249,7 @@ A changed or newly-absent key breaks the suite silently — either keep the old 
 ### Step 8 — file the evidence
 
 - The parity table → `docs/sdd/<ID>/parity.yaml` or a Linear comment on the story.
-- The read-back (command + output) → the story's evidence per `verify-evidence-filing.companion.md`. A read-back that lived only in this session is not filed.
+- The read-back (command + output) → the story's evidence per `verify-evidence-filing.md`. A read-back that lived only in this session is not filed.
 - Update Linear status + a completion comment as the work lands.
 
 ## Checklist — none of these is optional

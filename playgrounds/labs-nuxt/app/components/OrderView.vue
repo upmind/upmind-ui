@@ -287,10 +287,13 @@ watch(
     if (was === payOverlayName && toString(now).indexOf("--") === -1) refresh();
   }
 );
-const orderId = (
+// The route declares the param (`invoice.scenario.ts` `params: ["oid"]`), so
+// the id is always present; `toString` states that to the compiler without a
+// cast, and reads the same value the optional chain did.
+const orderId = toString(
   get(route.params, QUERY_PARAMS.ORDER_ID) ||
-  get(route.query, QUERY_PARAMS.ORDER_ID)
-)?.toString();
+    get(route.query, QUERY_PARAMS.ORDER_ID)
+);
 
 const { set } = useThemes();
 
@@ -512,6 +515,19 @@ const orderItems = computed((): OrderItem[] => {
       dataAttrs: {
         "data-test-key": "confirmation-invoice-number",
         "data-test-value": orderData.value.number
+      }
+    });
+  }
+
+  // The platform's own status code rides the value; the label is the one the
+  // hero already shows, so the row never says something the page does not.
+  if (orderData.value.status) {
+    items.push({
+      term: t("text.status"),
+      description: toString(badge.value.label),
+      dataAttrs: {
+        "data-test-key": "invoice-status",
+        "data-test-value": orderData.value.status
       }
     });
   }

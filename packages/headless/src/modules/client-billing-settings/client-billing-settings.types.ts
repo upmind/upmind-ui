@@ -21,10 +21,14 @@
  * @description Types for a client's own invoice-consolidation preference —
  * the query-backed read half (`useBillingSettings`) and the
  * `dataManagerMachine`-backed editor half (`useBillingSettingsManager`). Both
- * composables share the SAME scope matrix and context enum (design.md §4.2):
- * the entity being addressed is the settings, and a client has exactly one.
+ * composables share the SAME scope matrix and `CLIENT` context enum
+ * (design.md §4.2): the client whose settings are read/edited is named by a
+ * matrix-gated `.for('client', id)` retarget, or falls back to the active
+ * session — mirroring every sibling client module. (`graphify-out/graph.json`
+ * — no new node; the context member is renamed, not minted.)
  */
 import {
+  AccessRoleTypes,
   DaysOfWeekTypes,
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes
@@ -97,15 +101,15 @@ import type { AnyEventObject } from "xstate";
 
 /**
  * Context type for BOTH halves — WHICH client's settings are being
- * read/edited. Single-member: a client has exactly one invoice-consolidation
- * preference. Named `SETTINGS`, not `CONSOLIDATION` — this module is the
- * future home of the CO-2/CO-3 billing slices the legacy
- * `clientBillingSettings.vue` page mounts alongside consolidation
- * (requirements.md §8.1).
+ * read/edited. `.for('client', id)` names the client being addressed; with
+ * none, the seam falls back to the active session's own client. The member and
+ * wire value match every sibling client module (`ClientPhonesContextTypes.CLIENT`
+ * = `AccessRoleTypes.CLIENT`). (`graphify-out/graph.json` — no new node; the
+ * member is renamed, not minted.)
  */
 export enum ClientBillingSettingsContextTypes {
-  /** A client's own billing settings. Single-member — a client has exactly one. */
-  SETTINGS = "settings"
+  /** Acting on a client's own billing settings. */
+  CLIENT = AccessRoleTypes.CLIENT
 }
 
 /**
@@ -114,12 +118,12 @@ export enum ClientBillingSettingsContextTypes {
  * that resolves; `self`, `staff` and `guest` are `null as never`, which makes
  * `.as('staff')` / `.as('guest')` / `.as('self')` compile-time errors rather
  * than advertised-but-absent capabilities. Mirrors
- * `PERSONAL_DETAILS_SCOPE_MATRIX` (`client-personal-details.types.ts:57-62`).
+ * `PERSONAL_DETAILS_SCOPE_MATRIX`.
  */
 export const CLIENT_BILLING_SETTINGS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ClientBillingSettingsContextTypes.SETTINGS,
+  [ScopeActorTypes.CLIENT]: ClientBillingSettingsContextTypes.CLIENT,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 

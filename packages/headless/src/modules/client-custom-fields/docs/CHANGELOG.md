@@ -28,6 +28,8 @@ All notable changes to the `client-custom-fields` module are documented here. Fo
 - **The definitions request now targets the target client's OWN brand**, resolved through the same identity seam every request in this module uses — never the calling session's own brand.
 - **Definitions are sorted client-side** by display order, regardless of what order the server returns them in.
 - **Client-side filtering matches the reference conversion's own pattern** — a partial-match predicate over the already-loaded list, issuing no new request.
+- **The collection's context member is renamed from `VALUES` to `CLIENT`**, matching every sibling client module. The former name described the RESOURCE being addressed (the value set) while the id it carried was the CLIENT's own — a mismatch a since-reversed change misread as `.for()` itself being wrong, briefly dropping the context entirely in favour of a bare `.withId()`. `ClientCustomFieldsContextTypes`, `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX`, and `ClientCustomFieldsScopeMatrix` are exported from the module barrel (and the package root) as before. The image editor's own `ClientCustomFieldContextTypes.FIELD` context is unaffected — it names a real entity (which field), not an owner, and keeps its `.for(FIELD, id)` shape. See [gotchas.md](./gotchas.md#6-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
+- **`useClientCustomFields`'s scope matrix is registered at runtime again** (`.scopeMatrix` is re-attached on the exported wrapper, read by `useModulePort.ts` before the composable is ever invoked) — the earlier all-`never` drop no longer applies.
 - **Documentation refreshed against the shipped surface.**
 
 ### Known limitations
@@ -58,6 +60,30 @@ A large share of this module's value-semantics proofs (schema generation, displa
 ---
 
 ## Migration Guide
+
+### Addressing the collection's owning client
+
+**Breaking change:** the context member is named `CLIENT`, not `VALUES`.
+
+```ts
+import {
+  useClientCustomFields,
+  ScopeActorTypes,
+  ClientCustomFieldsContextTypes
+} from "@upmind-automation/headless";
+
+const clientId = "825d96e7-63ed-0913-46c4-174825283406";
+
+// Before
+// useClientCustomFields().as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.VALUES, clientId);
+
+// After
+const fields = useClientCustomFields()
+  .as(ScopeActorTypes.CLIENT)
+  .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
+```
+
+The image editor's own `.for(ClientCustomFieldContextTypes.FIELD, fieldId)` is unchanged — see "Uploading an image value" below.
 
 ### Reading a definition's type
 

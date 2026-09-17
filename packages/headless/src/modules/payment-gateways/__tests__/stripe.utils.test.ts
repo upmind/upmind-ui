@@ -14,12 +14,12 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { ZERO_DECIMAL_CURRENCIES } from "../payment-gateways.types";
 import {
   parseMinorUnitAmount,
   getSupportedPaymentMethods,
   getPublicKey
 } from "../stripe/utils";
-import { ZERO_DECIMAL_CURRENCIES } from "../payment-gateways.types";
 import type { IGateway } from "@upmind-automation/types";
 
 function gateway(settings: Array<{ field: string; value: string }>): IGateway {

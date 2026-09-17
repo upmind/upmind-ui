@@ -1,42 +1,51 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview client-custom-fields public surface — both composables, curated barrel (unit)
+ * @fileoverview client-custom-fields public surface — both composables, curated
+ * barrel, and the restored collection scope matrix (unit)
  *
  * ## Job To Be Done
- * Prove AC-27's structural half: the barrel offers BOTH composables with
- * both scope matrices, both context enums and the full value-semantics seam;
- * that it uses no `export *`; and that every internal file's head carries the
- * `@internal` marker. The RUNTIME enforcement half of AC-27 — "importing
- * `.services`/`.mappers`/`.schemas` from outside the module fails the
- * module-visibility lint" — is `eslint.config.mjs`'s existing
- * `internalBarrierPlugin` (marker-based, scoped to headless modules), already
- * wired into `pnpm lint`; re-implementing an ESLint-API check here would
- * duplicate that gate rather than add coverage, so it is cited, not re-proven
- * (contract_gaps).
+ * Prove AC-27's structural half: the barrel offers BOTH composables with BOTH
+ * scope matrices and BOTH context enums (the definitions collection's CLIENT
+ * channel and the image editor's unchanged FIELD channel), the full
+ * value-semantics seam; that it uses no `export *`; and that every internal
+ * file's head carries the `@internal` marker. The RUNTIME enforcement half of
+ * AC-27 — "importing `.services`/`.mappers`/`.schemas` from outside the module
+ * fails the module-visibility lint" — is `eslint.config.mjs`'s existing
+ * `internalBarrierPlugin`, cited not re-proven (contract_gaps).
+ *
+ * The FE-3240 identity channel matches every sibling client module: the
+ * collection names the client by
+ * `.for(ClientCustomFieldsContextTypes.CLIENT, id)`, gated by a matrix that
+ * grants that context to `ScopeActorTypes.CLIENT` alone. The image editor's own
+ * `ClientCustomFieldContextTypes.FIELD` / `CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX`
+ * are UNCHANGED and are this file's untouched control throughout.
  *
  * `ScopeActorTypes` is imported by its deep path, never through the scope
  * barrel, mirroring `client-email.surface.test.ts`'s own load-order note.
  *
  * ## What Breaks If These Fail
- * A consumer loses a whole composable (the FE-2824 amputation archetype one
- * altitude up), or an internal file's marker slips and the barrier goes
- * silently permissive.
+ * A consumer loses a whole composable or the collection's client-identity
+ * channel (the FE-2824 amputation archetype one altitude up), or an internal
+ * file's marker slips and the barrier goes silently permissive.
  */
 
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import "./mocks";
 import * as clientCustomFields from "..";
 import {
-  CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX,
   CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX,
+  CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX,
   ClientCustomFieldContextTypes,
   ClientCustomFieldsContextTypes,
   useClientCustomFieldImage,
   useClientCustomFields
 } from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
+import { ScopeActorTypes, ScopeContextPatterns } from "../../scope/scope.types";
+import { last, sortBy, split, trim, uniq } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -71,6 +80,38 @@ const barrelSource = (): string =>
   readFileSync(join(MODULE_DIR, "index.ts"), "utf-8");
 
 /**
+ * Type-check `lines` as a real program against this module's real barrel and
+ * return the 1-based line numbers that carry a diagnostic — the executable
+ * form of the type-level contract this module's own build excludes
+ * (`__tests__/**`), mirroring `client-address.surface.test.ts`'s own probe.
+ */
+function compileProbe(lines: string[]): number[] {
+  const dir = mkdtempSync(join(tmpdir(), "ccf-probe-"));
+  const file = join(dir, "probe.ts");
+  writeFileSync(file, `${lines.join("\n")}\n`);
+
+  const script = `
+    const ts = require(${JSON.stringify(require.resolve("typescript"))});
+    const file = ${JSON.stringify(file)};
+    const program = ts.createProgram([file], {
+      noEmit: true, strict: true, skipLibCheck: true,
+      target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      jsx: ts.JsxEmit.Preserve, types: []
+    });
+    const found = ts.getPreEmitDiagnostics(program)
+      .filter(d => d.file && d.file.fileName === file && typeof d.start === "number")
+      .map(d => d.file.getLineAndCharacterOfPosition(d.start).line + 1);
+    console.log(JSON.stringify([...new Set(found)]));
+  `;
+
+  const stdout = execFileSync(process.execPath, ["-e", script], {
+    encoding: "utf-8"
+  });
+  return sortBy(uniq(JSON.parse(last(split(trim(stdout), "\n")) as string)));
+}
+
+/**
  * Reads only the file's head (~15 lines, matching `eslint.config.mjs`'s own
  * marker window) — a structural presence check the test itself performs at
  * run time, not this prover reading the file's logic by hand.
@@ -92,18 +133,45 @@ describe("client-custom-fields public surface (AC-27)", () => {
   it("AC-27 offers both scope matrices and both context enums", () => {
     expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX).toBeDefined();
     expect(CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX).toBeDefined();
-    expect(ClientCustomFieldsContextTypes.VALUES).toBe("custom_field_values");
+    expect(ClientCustomFieldsContextTypes.CLIENT).toBe("client");
     expect(ClientCustomFieldContextTypes.FIELD).toBe("field");
   });
 
-  it("AC-27 keeps the collection matrix's only live cell on CLIENT — self, staff and guest are dropped", () => {
-    expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
-      ClientCustomFieldsContextTypes.VALUES
-    );
+  it("AC-27 keeps the collection matrix's only live cell on CLIENT — the CLIENT retarget plus the INVOICE and CANCEL_REQUEST selectors; self, staff and guest are null", () => {
+    expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toEqual([
+      ClientCustomFieldsContextTypes.CLIENT,
+      {
+        pattern: ScopeContextPatterns.SELECTOR,
+        type: ClientCustomFieldsContextTypes.INVOICE
+      },
+      {
+        pattern: ScopeContextPatterns.SELECTOR,
+        type: ClientCustomFieldsContextTypes.CANCEL_REQUEST
+      }
+    ]);
     expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.SELF]).toBeNull();
     expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.STAFF]).toBeNull();
     expect(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
   });
+
+  it("AC-27/AC-37 compiles the collection's `.for(CLIENT, id)` and the image editor's `.for(FIELD, id)` as the CLIENT actor, and refuses the collection's context for every other actor", () => {
+    const diagnostics = compileProbe([
+      `import { useClientCustomFields, useClientCustomFieldImage, ClientCustomFieldsContextTypes, ClientCustomFieldContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
+      `import { ScopeActorTypes } from ${JSON.stringify(join(MODULE_DIR, "../scope/scope.types"))};`,
+      `import { CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX } from ${JSON.stringify(MODULE_DIR)};`,
+      `import type { ClientCustomFieldsScopeMatrix } from ${JSON.stringify(MODULE_DIR)};`,
+      // 5 — control: the collection's `.for(CLIENT, id)` is the sanctioned channel.
+      `useClientCustomFields().as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.CLIENT, "x");`,
+      // 6 — control: the IMAGE editor's FIELD retarget is UNCHANGED and clean.
+      `useClientCustomFieldImage().as(ScopeActorTypes.CLIENT).for(ClientCustomFieldContextTypes.FIELD, "x");`,
+      // 7-9 — the gate: the collection's context is unspellable for every non-CLIENT actor.
+      `useClientCustomFields().as(ScopeActorTypes.STAFF).for(ClientCustomFieldsContextTypes.CLIENT, "x");`,
+      `useClientCustomFields().as(ScopeActorTypes.GUEST).for(ClientCustomFieldsContextTypes.CLIENT, "x");`,
+      `useClientCustomFields().as(ScopeActorTypes.SELF).for(ClientCustomFieldsContextTypes.CLIENT, "x");`
+    ]);
+
+    expect(diagnostics).toEqual([7, 8, 9]);
+  }, 60000);
 
   it("AC-27 keeps the image matrix's only live cell on CLIENT → FIELD — self, staff and guest are dropped", () => {
     expect(CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBe(
@@ -138,8 +206,8 @@ describe("client-custom-fields public surface (AC-27)", () => {
   );
 });
 
-describe("AC-37 — the runtime scope matrix reaches createScopedComposable on both composables", () => {
-  it("useClientCustomFields carries CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX on the exported function, before any call", async () => {
+describe("AC-37 — the runtime scope surface: the collection publishes CLIENT→CLIENT, the image editor CLIENT→FIELD", () => {
+  it("AC-37 the collection carries its restored CLIENT→CLIENT matrix on the exported function, before any call", async () => {
     const { useClientCustomFields } = await import("../useClientCustomFields");
     const { CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX } =
       await import("../client-custom-fields.types");
@@ -149,7 +217,7 @@ describe("AC-37 — the runtime scope matrix reaches createScopedComposable on b
     ).toEqual(CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX);
   });
 
-  it("useClientCustomFieldImage carries CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX on the exported function, before any call", async () => {
+  it("AC-37 the IMAGE editor carries its unchanged CLIENT→FIELD matrix on the exported function, before any call", async () => {
     const { useClientCustomFieldImage } =
       await import("../useClientCustomFieldImage");
     const { CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX } =

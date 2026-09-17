@@ -257,9 +257,11 @@ import {
   assign,
   compact,
   concat,
+  drop,
   every,
   filter,
   find,
+  first,
   includes,
   flatMap,
   isEmpty,
@@ -956,10 +958,10 @@ export function groupProductStatus(
 }
 
 /**
- * The product's summary — legacy's own facts, in its own order: what it is,
- * where it stands, what each renewal buys, when a trial runs out, what it
- * costs and how that price is quoted, when it next falls due, and the day it
- * was bought, which links to the order that bought it.
+ * The product's summary — what each renewal buys, when a trial runs out, what
+ * it costs and how that price is quoted, when it next falls due, and the day
+ * it was bought, which links to the order that bought it. What the product IS
+ * and where it stands belong to the billboard directly above it.
  */
 export function productSpecItems(
   data: MockDataset,
@@ -968,13 +970,6 @@ export function productSpecItems(
   const product = contextProduct(data, context);
   if (product === undefined) return [];
   return compact([
-    { id: "name", label: "Product", value: product.name },
-    { id: "category", label: "Category", value: product.category },
-    {
-      id: "status",
-      label: "Status",
-      value: PRODUCT_STATUS_LABEL[product.status]
-    },
     product.renewalTerm !== undefined && {
       id: "renewal-term",
       label: "Renews every",
@@ -1279,8 +1274,10 @@ export function groupCatalogueItems(
 /**
  * The product's own billboard — what it IS, in one row: its image or glyph,
  * the category above the name, the lifecycle badge and whatever else is
- * standing true of it. A one-row list rather than a module of its own: a row
- * already carries every one of those parts.
+ * standing true of it, and the functions the provider promoted. A one-row list
+ * rather than a module of its own: a row already carries every one of those
+ * parts, the promoted functions included, so they need no panel to repeat on
+ * every area of the product.
  */
 export function productBillboardItems(
   data: MockDataset,
@@ -1288,6 +1285,8 @@ export function productBillboardItems(
 ): ListModuleItem[] {
   const product = contextProduct(data, context);
   if (product === undefined) return [];
+  const promotedFunctions = productQuickActions(data, context);
+  const promoted = first(promotedFunctions);
   return [
     {
       id: product.id,
@@ -1300,7 +1299,12 @@ export function productBillboardItems(
       leadingImageSrc: product.imageSrc,
       leadingIcon: Package,
       status: productBadge(product),
-      tags: map(product.tags ?? [], label => ({ label }))
+      tags: map(product.tags ?? [], label => ({ label })),
+      action: promoted && { value: promoted.value, label: promoted.label },
+      moreActions: map(drop(promotedFunctions, 1), entry => ({
+        value: entry.value,
+        label: entry.label
+      }))
     }
   ];
 }
@@ -1696,7 +1700,7 @@ export function productHasProvisionActions(
   return size(provisioning(data, context).functions) > 0;
 }
 
-/** The sidebar's quick actions — the functions the provider FEATURED, and only those. */
+/** The functions the provider FEATURED, and only those — the billboard's own controls. */
 export function productQuickActions(
   data: MockDataset,
   context: DataRouteContext
@@ -1706,16 +1710,6 @@ export function productQuickActions(
   return map(
     filter(provisioning(data, context).functions, { highlighted: true }),
     entry => provisionAction(productId, entry)
-  );
-}
-
-export function productHasQuickActions(
-  data: MockDataset,
-  context: DataRouteContext
-): boolean {
-  return (
-    size(filter(provisioning(data, context).functions, { highlighted: true })) >
-    0
   );
 }
 

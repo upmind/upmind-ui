@@ -62,10 +62,14 @@ export type ScenarioKey = string;
  *
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — both
  * steps are `scope.builder.ts`'s own builder methods, named here rather than
- * minted.
+ * minted. The `.for()` overload pair mirrors `ScopeForStep`
+ * (`scope.builder.ts`, FE-3239), likewise named rather than minted.
  */
 export type ScenarioScopedCell = LiveCompositionCell & {
+  /** RETARGET — the id names the entity the actor acts upon. */
   for?(type: string, id: string): LiveCompositionCell;
+  /** SELECTOR — the type IS the whole answer; an id is forbidden. */
+  for?(type: string): LiveCompositionCell;
   /**
    * The ONE record a single read fetches — the builder's own `.withId(id)`, and
    * NOT a context: a leaf record has no context type (`graphify-out/graph.json`

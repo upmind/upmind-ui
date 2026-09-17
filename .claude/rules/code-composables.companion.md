@@ -9,70 +9,51 @@ paths:
   - 'packages/headless/src/modules/**'
 ---
 
-> Companion to [code-composables.md](./code-composables.md) — Upmind-monorepo-specific bindings/examples.
+> Companion to `code-composables.md` — Upmind-monorepo bindings.
 
 ## Decision record & reference implementation
 
-- The architectural rationale for the scoped pattern is [ADR-001: Scope-Based Composables](../../docs/adr/001-scope-based-composables.md) — cite it, never restate it.
-- **Reference implementation (scoped):** `useAuth` at `packages/headless/src/modules/auth/` is the canonical example. **Read it first** — before writing or reviewing any scoped composable. **The rules and the docs are the authority; `useAuth` is one worked example of them, not a match target.** Where a doc's template and the canonical disagree, that is a surfaced finding — say so out loud, never silently resolve toward the example.
+- Rationale: ADR-001 (Scope-Based Composables). Cite it, never restate it.
+- Reference (scoped): `packages/headless/src/modules/auth/`. Read it first. The rules are the authority; `useAuth` is one worked example, not a match target — where they disagree, say so out loud.
 
-## Exemplars (Pre-Generation Requirement)
+## Exemplars
 
-- **Flat utility composables:** `useDomain`, `useBasket`, `useBrand`.
-- **Scoped (actor-aware) composables:** `packages/headless/src/modules/auth/`.
-- The legacy single-`meta`-object form still exists in older modules (e.g. `useBrand`) — leave it where it works, do not add it to new code.
+- Flat utility composables: `useDomain`, `useBasket`, `useBrand`.
+- Scoped (actor-aware): `packages/headless/src/modules/auth/`.
+- The legacy single-`meta`-object form survives in older modules (`useBrand`). Leave it; never add it to new code.
 
 ## Actor set & identifiers
 
-- **Actor set:** guest / client / staff. Scoped composables are for modules where guest / client / staff have different capabilities — Auth (client vs staff login), Basket (guest vs authenticated actions), Client Management (staff acting on behalf of clients).
-- **Actor enum:** `ScopeActorTypes` (with `ScopeActorTypes.SELF` resolving to the active actor, and concrete `ScopeActorTypes.STAFF` / `ScopeActorTypes.CLIENT`).
-- **Scoped factory:** `createScopedComposable<ReturnType, Matrix>(...)`.
-- **Scope-key generator:** `generateScopeKey("module-name", { ...config, actor: actorScope })`.
-- **Scope matrix example:** `AUTH_SCOPE_MATRIX`.
-- **Per-actor arm bindings:** services `auth.services.client.ts` / `auth.services.guest.ts` / `auth.services.staff.ts` (resolved by `scopedServices` in `auth.services.ts`); actions `useAuth.actions.client.ts` / `useAuth.actions.staff.ts` (merged by spread in `useAuth.actions.ts` — the tree's only actions split); meta/context are single factories today (`createAuthMeta` / `createAuthContext`) — no `.meta.{actor}.ts` / `.context.{actor}.ts` exists in the tree yet. Type exports: `UseAuthActions` / `UseAuthContext` / `UseAuthMeta` = `ReturnType` of the factories.
-- **Union-health receipt:** `registerAsGuest` is implemented only in `auth.services.client.ts` — the services-arm divergence behind the optional `AuthServices.registerAsGuest` in `auth.types.ts` and the `registerAsGuest!` assertion in `auth.services.ts`; the client actions arm (`useAuth.actions.client.ts`, sends `GUEST`) makes `UseAuthActions` key-incompatible across arms.
+- Actors: guest / client / staff. Scoped composables are for modules where the actors have different capabilities.
+- Actor enum: `ScopeActorTypes` (`SELF` resolves to the active actor; concrete `STAFF` / `CLIENT`).
+- Factory: `createScopedComposable<ReturnType, Matrix>(...)`. Scope key: `generateScopeKey("module-name", { ...config, actor: actorScope })`. Matrix example: `AUTH_SCOPE_MATRIX`.
+- Per-actor arms: services `auth.services.{client,guest,staff}.ts` resolved by `scopedServices`; actions `useAuth.actions.{client,staff}.ts` merged by spread in `useAuth.actions.ts`. Meta and context are single factories today.
 
 ## TanStack Query worked examples
 
-The data-fetching lifecycle variant is exemplified by the **auth / product-catalogue** modules.
+The data-fetching lifecycle variant is exemplified by the auth and product-catalogue modules.
 
-## Platform seams every composable consumes (never re-derives)
+## Platform seams every composable consumes, never re-derives
 
-Three platform surfaces touch EVERY composable; consuming them is mandatory, re-deriving them is a defect:
+- **Query types** — `modules/query/query.types.ts` exports `ListQuery<TQueryFnData, TData>` and `MutationResult<TData, …>`. A module-local `type XQuery = ReturnType<typeof localServiceFn>` over a query result is the defect.
+- **Identity / target resolution** — the scope builder owns actor resolution (`resolveSelfActor`, `scope/scope.builder.ts`). The request target id follows the live convention: scope-context id wins when a `.for()` context is present; the session `activeUser` id supplies the self case. A services file that ignores the scope context and hardwires the session id drops `.for('client', id)` retargeting — the FE-2824 defect. Tell: a request URL built from `activeUser` with no scope-context check upstream.
+- **Instance keying** — `createScopedComposable` owns registration; `generateScopeKey` owns the key (actor + context + `.withId()` id + brand). A module never mints its own axis: no per-variant registration name (`"module@<variant>"`), no module-local `Map` of registrations, no hand-derived cache key. Where the platform blocks the native shape, stop and escalate in plain language — never mint a private axis.
 
-- **Query types** — `modules/query/query.types.ts` exports **`ListQuery<TQueryFnData, TData>`** and **`MutationResult<TData, …>`** precisely so a module never derives `ReturnType<typeof localServiceFn>` from its own instantiated service (the `ListQuery` docblock states this ban verbatim). A module-local `type XQuery = ReturnType<...>` alias over a query/mutation result is the tell.
-- **Identity/target resolution** — the scope builder owns ACTOR resolution (clause 4 above; `resolveSelfActor`, `scope/scope.utils.ts`); the request TARGET id follows the live convention (client-phone / client-address): **scope-context id wins when a `.for()` context is present; the session's `activeUser` id supplies the self case** (`const { activeUser } = useActiveSession().useContext()`). The FE-2824 defect is a services file that **ignores the scope context** and hardwires the session id for every call — dropping `.for('client', id)` retargeting — not the session read itself. Tell: a request URL built from `activeUser` with no scope-context check upstream.
-- **Instance keying** — `createScopedComposable` owns registration; `generateScopeKey` (`scope/scope.utils.ts`) owns the key, built from actor + context + `.withId()` id + brand. A module never mints its own instance axis beside it. Tells: a registration NAME computed per variant (`"module@<variant>"`), a module-local `Map` of registrations, or a hand-derived cache key re-encoding what the scope key already carries. Where the platform blocks the native shape, STOP and escalate to the operator — never mint a private axis. State what is missing and why, in plain language the operator can rule on without the author's context. A framing only the author follows makes the operator default to the recommendation, and that is not a decision.
+## Singletons
 
-  *Incident (2026-09-15, FE-3034):* asked for a second custom-fields catalogue, the story built all three tells — `client-custom-fields@<objectType>`, a registration `Map`, and a hand-rolled `catalogueQueryKey`. The scope-native answer was a context member, unreachable only because `.for(type, id)` still demanded an id (now FE-3239). Every gate stayed green: the graphify gate checks for a filed citation, not for actual reuse, and a name is not a type. Audit: `docs/sdd/FE-3034/review-scope-axis.md`.
+Long-lived singletons: brand, basket, session-store. Non-singletons that need `destroy()`: flow/wizard composables (auth, checkout).
 
-## Machine-node sweep receipt
+## Variance law (scoped composables)
 
-Nesting `registering` under `available` made `useSession.completeRegistration`'s `waitFor(["available","done"])` resolve immediately, so the submit was never awaited and the form navigated on — the silent-resolve failure the base rule's sweep exists to catch.
+Mechanically enforced by the `scope-based/*` ESLint rules in `pnpm lint` over `packages/headless/src/modules/**`. Cite base Part B for the four-layer shape. The deltas a diff is judged against:
 
-## Singleton examples
-
-Long-lived singletons in this monorepo: **brand, basket, session-store**. Non-singletons that need `destroy()`: flow/wizard composables (auth, checkout).
-
-## Variance law (scoped composables, deltas only)
-
-Cite base Part B for the shared four-layer shape — not restated here. This is what a diff under `packages/headless/src/modules/**` is judged against beyond it.
-
-1. **Uniform four-layer default.** Every scoped composable returns the same four sub-composables regardless of actor — base Part B "Four-Layer Return Shape."
-2. **Fresh modules start armless.** A module is born with zero `.{actor}.ts` files until a scope earns one — exemplar `account/` (no arm files anywhere in the tree). The merge seam that later folds an arm in is a spread into the shared factory file, never a `.base` file: `auth/useAuth.actions.ts`'s `return { destroy, onDone, onError, reject, resolve, set, ...actorActions }`, where `actorActions` is chosen by `actorScope` and always spreads last.
-3. **Per-actor arm ONLY for exclusive/overriding members.** Base Part B, "Actor-Specific Sub-Composables" (section name, not a line number — the base rule's line numbers move between plugin versions): an `.{actor}.ts` arm exists only when that scope has members exclusive to it or overriding the shared implementation, never as an empty scaffold. See also this file's union-health receipt above (`registerAsGuest`).
-
-   **Layer-scope note (added `docs/sdd/FE-2966-FE-2967` task 7c, operator ruling 2026-07-28):** clause 3 applies to any of the five sub-composable layers — services, actions, context, meta, schemas — not only the layers with a pre-existing exemplar in this tree. `code-composables.md` Part B states the arm pattern is "the same pattern for every layer"; the `/factory` door's composable-lane templates scaffold an opt-in arm for all five so a developer doesn't hand-invent shape when clause 3 first triggers on a layer this tree has no receipt for yet (today: context, meta, schemas). A layer earning its first real arm is a receipt to add here, not a reason the templates should have waited.
-4. **`.as('self')` resolution is owned by the scope builder.** A module factory receives an already-resolved, concrete actor and never branches on `SELF` itself — cite ADR-001. Resolution lives at `scope/scope.builder.ts:276`, which calls `resolveSelfActor` (`scope/scope.utils.ts:54`). What breaks the clause is a SELF branch inside a module's own factory/services file; a consumer's `.as('self')` / `.as(ScopeActorTypes.SELF)` call site and an `as const` scope-matrix computed key are the documented API, not a branch. One in-tree exception stands: `auth/auth.services.ts:83`'s `case ScopeActorTypes.SELF:` inside `getSession`'s actor switch, awaiting operator-gated removal.
-5. **Deviations need `@decision`.** A comment block adjacent to the deviating construct with `what:` / `why:` / `rejected:`. Any field missing is unjustified and blocks.
-
-### Loader scoping (this file's frontmatter)
-
-The `paths:` block above narrows when *the Claude Code host* treats this rule pair as contextually relevant. It does NOT guarantee SessionStart injection: the installed `hooks/inject-laws.sh` is an allowlist that injects only the always-on rule companions, and `code-composables` is not among them — so this companion is not auto-injected at SessionStart, and `paths:` governs only the host-native context-assembly channel. (An earlier note here claimed `inject-laws.sh` `cat`s every companion unconditionally at `:82-100`; that described a superseded version of the hook.) Enforcement does not depend on either channel — the variance law is mechanically enforced by the `@upmind-automation/eslint-plugin-scope-based` rules in `pnpm lint` / CI over `packages/headless/src/modules/**`.
-
-**Empirical finding (T1.3):** of the 24 `.claude/rules/*.companion.md` files in this repo, this was the only one a fresh session's initial context omitted from the always-loaded set — correlating exactly with `code-composables.md` being the only paired base rule that already carries its own `paths:` frontmatter. A live in-session check — opening `packages/headless/src/modules/auth/useAuth.ts` (a match) versus `packages/headless/package.json` (a non-match) — surfaced no additional context for either; the scoping decision reads as fixed at context-assembly time, not re-evaluated per tool call within a running session. Net effect for a **net-new** module (files that don't exist yet when a session starts): this channel won't retroactively pick it up either. Neither the host channel nor SessionStart injection is the enforcement backstop — that is the `scope-based` ESLint plugin in CI. Scoping is kept because it costs nothing and narrows correctly for the majority case — an agent already working inside an existing matching module (conversion, review).
+1. Uniform four-layer return regardless of actor.
+2. Fresh modules start armless (exemplar `account/`). An arm is folded in by a spread into the shared factory file — `useAuth.actions.ts`'s `...actorActions`, spread last — never a `.base` file.
+3. A per-actor `.{actor}.ts` arm exists only for members exclusive to that scope or overriding the shared implementation, never as an empty scaffold. Applies to all five layers.
+4. `.as('self')` resolution belongs to the scope builder (`scope/scope.builder.ts` → `resolveSelfActor`). A SELF branch inside a module's own factory or services file breaks the clause; a consumer's `.as('self')` call and an `as const` matrix key are the documented API. One standing exception awaits operator-gated removal: `auth/auth.services.ts` `case ScopeActorTypes.SELF` in `getSession`.
+5. Deviations carry an adjacent `@decision` block with `what:` / `why:` / `rejected:`. Any field missing blocks.
 
 ## Related bindings
 
-- The `@internal` + barrel Module Visibility Law is bound in `code-quality.companion.md`.
-- State-read utilities (`stateMatches` / `useContext` / `contextValue`) are the Upmind state utilities referenced under `code-xstate.md`.
+- The `@internal` + barrel Module Visibility Law: `code-quality.companion.md`.
+- State-read utilities (`stateMatches` / `useContext` / `contextValue`): `code-xstate.md`.

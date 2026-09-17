@@ -1,12 +1,11 @@
-> Companion to the upmind-agent skill /complete — Upmind-monorepo-specific bindings/overrides.
+> Companion to the upmind-agent skill /complete — Upmind-monorepo bindings.
 
-Binds the base skill's generic `<ID>`, "issue tracker", and "review state" placeholders to this repo's concrete systems. The base doctrine is authoritative; this file only supplies the values.
+Labels and columns: `.claude/rules/linear-lifecycle.md`.
 
 ## ID and branch format
 
-- Story IDs use the `FE-` prefix on the `FE` team (e.g. `FE-2476`). Everywhere the base says `<ID>`, use `FE-XXXX`.
-- The feature branch is therefore `feature/FE-XXXX` — this is what the Worktree Auto-Detection grep (`git worktree list | grep "feature/FE-XXXX"`) and the Step 6 cleanup message resolve to.
-- The story's SDD directory glob is `docs/sdd/FE-XXXX*/` — bind the Step 4.5 evidence check and the Step 4.6 audit table to it:
+- Story ids `FE-XXXX`; feature branch `feature/FE-XXXX` (the Worktree Auto-Detection grep and the Step 6 cleanup message).
+- SDD directory glob `docs/sdd/FE-XXXX*/`, for the Step 4.5 evidence check and the Step 4.6 audit table:
 
 ```bash
 test -d "$(ls -d docs/sdd/FE-XXXX*/evidence 2>/dev/null | head -1)" \
@@ -16,17 +15,11 @@ test -d "$(ls -d docs/sdd/FE-XXXX*/evidence 2>/dev/null | head -1)" \
 
 ## Issue-tracker binding (Step 6.5)
 
-- The issue tracker is **Linear** (via the Linear MCP tools). The base "move the completed story to the review state" binds to:
+Linear. The base "move the completed story to the review state" is the review-pending role in `linear-lifecycle.md`; `id` is the issue UUID from `get_issue`, never the `FE-XXXX` identifier.
 
-```
-linear__save_issue(id: "<issue-uuid>", state: "Needs Review")
-```
+## Change-request host (Step 5)
 
-The `id` is Linear's internal issue UUID; the human `FE-XXXX` id resolves to it via `linear__get_issue`.
-
-## Change-request host (Step 5) — absorbed from the retired `/mr-create`
-
-`/complete` now opens the change request itself (the former `/mr-create` step is absorbed into this door). Git host is **GitLab** (`git.upmind.io`); the change request is a **merge request**. Target-branch detection: a `release/*` source targets its release branch, everything else targets **`develop`**. Open it via the GitLab push-option incantation (single-line description — push-option values cannot contain newlines):
+GitLab (`git.upmind.io`); a merge request. A `release/*` source targets its release branch, everything else targets `develop`. Push-option values cannot contain newlines; a re-do push updates the existing MR; the queue's CR-URL field is `mrUrl`.
 
 ```bash
 git push -u origin $BRANCH \
@@ -38,14 +31,12 @@ git push -u origin $BRANCH \
   -o merge_request.remove_source_branch
 ```
 
-On a re-do branch that already has an open MR, the push updates it (no new MR). The queue's CR-URL field is `mrUrl`.
+## Docs-corpus refresh — final step
 
-## Docs-corpus refresh — final step (replaces the removed PostToolUse hook, FE-2752)
-
-The FE-2752 PostToolUse `docs-corpus-refresh` hook was removed: keeping the corpus in sync with the code is a completion **step**, not a per-tool trigger. On story completion, if the story touched `packages/*/src` or `docs/`, run the refresh as a final step and commit the result with the story:
+If the story touched `packages/*/src` or `docs/`, run the refresh last and commit `docs/corpus/corpus.json` with the story:
 
 ```bash
-pnpm --filter docs corpus:refresh   # corpus:build (corpus.json) && corpus:emit
+pnpm --filter docs corpus:refresh
 ```
 
-Commit the regenerated `docs/corpus/corpus.json`. NOTE: `corpus:emit` writes the rendered tree into the `docs/published-docs` submodule; committing/pushing that tree — and re-enabling the (currently paused) docs-corpus CI — is gated on the mintlify-docs bot PAT (FE-2949). Until then this keeps `corpus.json` current in-repo.
+`corpus:emit` writes into the `docs/published-docs` submodule; committing that tree is gated on the mintlify-docs bot PAT (FE-2949).

@@ -10,6 +10,7 @@
  * `.feature` the spec fully controls.
  */
 
+import { ScopeActorTypes } from "@upmind-automation/headless";
 import { defineSteps, SCOPE_ACTOR } from "@upmind-automation/scenario-harness";
 import type {
   LiveCompositionCell,
@@ -27,7 +28,6 @@ import type {
   DetailUischema,
   ActionsUischema
 } from "../runtime/scenario.types";
-import type { ScopeActorTypes } from "@upmind-automation/headless";
 import type {
   StepCatalog,
   WorldScope
@@ -220,6 +220,23 @@ const syntheticLoadingScopedCell: ScenarioScopedCell = {
   fresh: () => syntheticLoadingCell
 };
 
+/** The ONE context type the synthetic module declares — its handoffs name it too. */
+const SYNTHETIC_CONTEXT_TYPE = "synthetic";
+
+/**
+ * The synthetic module's matrix, in the shape headless reads
+ * (`resolveContextDeclarations`): a cell is a context-type string, an array of
+ * members, or a `SelectorContext` — never a bare object. The previous
+ * `{ client: {} }` cells only read as "served" while the app stringified a cell
+ * (`String({})`); once the app delegated cell reading to headless (FE-3239) an
+ * empty object declared no member, so `servesActor` refused the actor and every
+ * port booted UNSERVED — a notice standing where the skeleton should be.
+ */
+const SYNTHETIC_SCOPE_MATRIX = {
+  [ScopeActorTypes.CLIENT]: SYNTHETIC_CONTEXT_TYPE,
+  [ScopeActorTypes.STAFF]: SYNTHETIC_CONTEXT_TYPE
+};
+
 /**
  * A minimal FourLayerComposable for framework tests. Does not instantiate any
  * real scope or make any API calls.
@@ -228,14 +245,14 @@ export const useSyntheticList: FourLayerComposable = Object.assign(
   () => ({
     as: (_actor: ScopeActorTypes) => syntheticScopedCell
   }),
-  { scopeMatrix: { client: {}, staff: { client: {} } } }
+  { scopeMatrix: SYNTHETIC_SCOPE_MATRIX }
 );
 
 export const useSyntheticMutate: FourLayerComposable = Object.assign(
   () => ({
     as: (_actor: ScopeActorTypes) => syntheticScopedCell
   }),
-  { scopeMatrix: { client: {}, staff: { client: {} } } }
+  { scopeMatrix: SYNTHETIC_SCOPE_MATRIX }
 );
 
 /** Loading composable for skeleton tests — stays in loading state. */
@@ -243,7 +260,7 @@ export const useSyntheticMutateLoading: FourLayerComposable = Object.assign(
   () => ({
     as: (_actor: ScopeActorTypes) => syntheticLoadingScopedCell
   }),
-  { scopeMatrix: { client: {}, staff: { client: {} } } }
+  { scopeMatrix: SYNTHETIC_SCOPE_MATRIX }
 );
 
 // -----------------------------------------------------------------------------
@@ -406,7 +423,7 @@ export const syntheticHandoffs: Record<string, DeclaredHandoff> = {
     feedback: SYNTHETIC_FEEDBACK
   },
   edit: {
-    context: { type: "synthetic", from: "/id" },
+    context: { type: SYNTHETIC_CONTEXT_TYPE, from: "/id" },
     feedback: SYNTHETIC_FEEDBACK
   },
   view: {

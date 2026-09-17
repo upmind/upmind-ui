@@ -32,19 +32,19 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * why:     `generateScopeKey(name, config)` is `name:actor[:context.type:
  *          context.id][:brand][:fresh]` (`scope.utils.ts`) — NOTHING else
  *          differentiates two composables sharing one name. This module's
- *          shared single-member `SETTINGS` context has no `.for()`/`.withId()`
- *          segment to differentiate on — `.as('client')` with no `.for()` is
- *          the NORMAL call for BOTH halves (a client has exactly one
- *          consolidation preference), which would make the read half's and
+ *          shared `CLIENT` context has no `.for()`/`.withId()` segment to
+ *          differentiate on in the normal self case — `.as('client')` with no
+ *          `.for()` is the NORMAL call for BOTH halves (a client has exactly
+ *          one consolidation preference), which would make the read half's and
  *          the manager's scope keys IDENTICAL under a shared name — the
  *          registry would hand one consumer the other's instance. Two
  *          DISTINCT registry names is the fix; the SHARED scope MATRIX
  *          (design.md §4.2) still holds — both use the same
- *          `ClientBillingSettingsContextTypes.SETTINGS` context and the same
+ *          `ClientBillingSettingsContextTypes.CLIENT` context and the same
  *          identity seam, only the registry key's `name:` segment differs.
  *          Mirrors `usePersonalDetailsManager.ts`'s own `@decision`.
  * rejected: keeping one shared name and requiring every manager call site to
- *          add `.for('settings', clientId)` — rejected: it forces every
+ *          add `.for('client', clientId)` — rejected: it forces every
  *          caller to know and re-supply the client's own id just to avoid a
  *          collision, for an entity that already has exactly one preference;
  *          brittle and easy to forget.
@@ -77,8 +77,9 @@ function createBillingSettingsManagerForScope(
     dataManagerMachine
       .withConfig(createBillingSettingsManagerMachineConfig(service))
       .withContext({
-        // The SETTINGS entity's id IS the owning client's id — both fields
-        // seed from the ONE resolved seam.
+        // The settings record IS the client (`clients/{id}`), so the record id
+        // and the client id are one — both fields seed from the ONE resolved
+        // client seam.
         id: service.clientId.value,
         clientId: service.clientId.value,
         lookups: { isStaged: [false] },

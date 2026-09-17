@@ -114,7 +114,8 @@ type PhoneManagerInstance = {
 };
 type ScopedPhoneManager = ScopeBuilderActorWithContexts<
   PhoneManagerInstance,
-  ClientPhoneContextTypes
+  ClientPhoneContextTypes,
+  never
 >;
 
 // -----------------------------------------------------------------------------

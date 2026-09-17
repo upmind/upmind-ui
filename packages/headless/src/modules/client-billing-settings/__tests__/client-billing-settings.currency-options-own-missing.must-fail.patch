@@ -1,8 +1,8 @@
 diff --git a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
-index 9fbbc9dab..eaca18136 100644
+index 62a6172a3..4e7ae83dc 100644
 --- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
 +++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
-@@ -199,17 +199,10 @@ function resolveAccount(scopeContext?: ScopeContext) {
+@@ -215,17 +215,10 @@ function resolveAccount(scopeContext?: ScopeContext) {
   *          account's own currency; both are oracle behaviours (row B3).
   */
  function currencyOptions(scopeContext?: ScopeContext) {

@@ -30,6 +30,7 @@
  * `packages/headless/vitest.config.ts` makes for its own integration project.
  */
 
+import { VueQueryPlugin } from "@tanstack/vue-query";
 import { http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { nextTick } from "vue";
@@ -48,6 +49,7 @@ import type {
   FunnelTarget,
   UseRoutingEngine
 } from "@upmind-automation/headless";
+import type { Plugin } from "vue";
 import type { RouteLocation, Router } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -159,6 +161,24 @@ export async function clearClientSession(): Promise<void> {
   await vi.waitFor(() => {
     expect(useActiveSession().useMeta().isAuthenticated.value).toBe(false);
   });
+}
+
+/**
+ * The plugins a mounted page needs beside its router — the SAME wiring the app
+ * performs through `useUpmind` (`plugins/upmind.client.ts`): TanStack's plugin
+ * over headless's OWN query client, so a surface's `useQueryClient()` reads the
+ * cache the modules write, and the routing engine's router, which `setParam`
+ * writes `?payment_success` through once an order settles. Without them the pay
+ * surface throws in `setup` and a paid order rejects unhandled — both red
+ * before the first assertion, for a reason no assertion names.
+ */
+export async function appPlugins(router: Router): Promise<Plugin[]> {
+  const { queryClient, useRoutingEngine } =
+    await import("@upmind-automation/headless");
+
+  useRoutingEngine().init(router);
+
+  return [router, [VueQueryPlugin, { queryClient }]] as unknown as Plugin[];
 }
 
 // -----------------------------------------------------------------------------

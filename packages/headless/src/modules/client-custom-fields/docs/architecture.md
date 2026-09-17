@@ -7,7 +7,7 @@ The module ships **two** scoped composables over one shared services factory:
 - **`useClientCustomFields`** — the definitions collection. Query-backed, no state machine. One list query is minted per resolved `(actor, context)` scope, at construction, so it survives component lifecycles.
 - **`useClientCustomFieldImage`** — the per-field image editor. Wraps the platform's existing upload interpreter (`useUpload`, from `system-upload`) rather than owning a machine of its own — this module adds no machine file at all.
 
-Both are registered under the **same** module name (`"client-custom-fields"`); the composable's own context-type enum (`VALUES` for the collection, `FIELD` for the image editor) is what keeps their registry entries apart in practice, not any name-level guarantee — a bare `.as(actor)` call with no `.for()` on either composable would produce the identical registry key, and the image editor is simply never called that way (it is meaningless without a field id).
+Both are registered under the **same** module name (`"client-custom-fields"`); the composable's own context-type enum (`CLIENT` for the collection, `FIELD` for the image editor) is what keeps their registry entries apart in practice, not any name-level guarantee — a bare `.as(actor)` call with no `.for()` on either composable would produce the identical registry key, and the image editor is simply never called that way (it is meaningless without a field id). The collection's context member was briefly named `VALUES` — describing the RESOURCE (the value set) while the id it carried was the CLIENT's own — and was, for a short period, dropped entirely by a since-reversed change that misread that mismatch as `.for()` itself being the defect. ADR-001's 2026-09-15 amendment restores it under the corrected name: `ClientCustomFieldsContextTypes.CLIENT`, matching the image editor's own `ClientCustomFieldContextTypes.FIELD` in shape, not name.
 
 The single most important property of this module is that **every request resolves its target client from the scope**, never from a direct session read — one `resolveClientId` function, consumed by every request-issuing path in the services file.
 
@@ -17,7 +17,7 @@ The single most important property of this module is that **every request resolv
 
 ```mermaid
 flowchart TD
-  call["useClientCustomFields().as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.VALUES, clientId)"] --> resolve["resolveClientId derives the target client from the scope context"]
+  call["useClientCustomFields().as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.CLIENT, clientId)"] --> resolve["resolveClientId derives the target client from the scope context, falling back to the session's own id"]
   resolve --> brand["one-shot read of the target client's OWN brand id, under this module's own cache key"]
   brand --> mint["mint the definitions list query ONCE for this scope, gated on the client AND the brand having resolved"]
   mint --> ready["return the four sub-composable factories, all closed over the same query"]
