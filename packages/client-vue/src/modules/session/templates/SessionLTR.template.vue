@@ -27,11 +27,11 @@ import {
   FOOTER_BACKGROUND
 } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
-import type { SessionRoutes } from "@upmind-automation/auth";
+import type { AuthRoutes } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<SessionRoutes>();
+const props = defineProps<AuthRoutes>();
 
 // -----------------------------------------------------------------------------
 

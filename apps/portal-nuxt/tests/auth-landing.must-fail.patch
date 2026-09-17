@@ -22,7 +22,7 @@ index 317dd65546..b570466ce6 100644
 @@ -7,11 +7,11 @@
  // route. This app provides no shell components, so the organism renders its
  // bare template inside the logged-out layout's card.
- import { UpmSessionLogin } from "@upmind-automation/auth";
+ import { UpmAuthLogin } from "@upmind-automation/auth";
 -import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 +import { AUTH_ROUTES } from "~/portal/auth-routes";
  
@@ -30,8 +30,8 @@ index 317dd65546..b570466ce6 100644
  </script>
  
  <template>
--  <UpmSessionLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
-+  <UpmSessionLogin v-bind="AUTH_ROUTES" />
+-  <UpmAuthLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
++  <UpmAuthLogin v-bind="AUTH_ROUTES" />
  </template>
 diff --git a/apps/portal-nuxt/app/pages/register.vue b/apps/portal-nuxt/app/pages/register.vue
 index bc07cf8430..91dfb18cb5 100644
@@ -40,7 +40,7 @@ index bc07cf8430..91dfb18cb5 100644
 @@ -9,7 +9,7 @@
  // a page that exists elsewhere.
  import { toast } from "@upmind/ui";
- import { UpmSessionRegister } from "@upmind-automation/auth";
+ import { UpmAuthRegister } from "@upmind-automation/auth";
 -import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 +import { AUTH_ROUTES } from "~/portal/auth-routes";
  import { useMockBrandGates } from "~/portal/mock/gates";
@@ -50,6 +50,6 @@ index bc07cf8430..91dfb18cb5 100644
  </script>
  
  <template>
--  <UpmSessionRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
-+  <UpmSessionRegister v-bind="AUTH_ROUTES" />
+-  <UpmAuthRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
++  <UpmAuthRegister v-bind="AUTH_ROUTES" />
  </template>

@@ -85,11 +85,11 @@ import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession } from "@upmind-automation/headless";
 import { isEmpty, isFunction } from "lodash-es";
-import type { SessionExpiredProps } from "../types";
+import type { AuthExpiredProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const props = withDefaults(defineProps<SessionExpiredProps>(), {
+const props = withDefaults(defineProps<AuthExpiredProps>(), {
   modal: true,
   size: "2xl",
   avatar: () => ({

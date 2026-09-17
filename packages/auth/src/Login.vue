@@ -18,9 +18,9 @@
 // provide after an await never binds.
 import { useAuthLoading } from "./shell";
 import LoginView from "./views/Login.vue";
-import type { SessionViewProps } from "./types";
+import type { AuthViewProps } from "./types";
 
-const props = defineProps<SessionViewProps>();
+const props = defineProps<AuthViewProps>();
 
 const { component: loading } = useAuthLoading();
 </script>

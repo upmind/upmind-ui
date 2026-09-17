@@ -4,7 +4,7 @@ import {
   type FunnelContext,
   type FunnelProps,
   QUERY_PARAMS,
-  SESSION_FORMS
+  AUTH_FORMS
 } from "@upmind-automation/client-vue";
 import {
   AUTH_SCOPE_MATRIX,
@@ -155,7 +155,7 @@ export function authOverlayTarget(
         ...(authNamedActor(named)
           ? { [ACTOR_PARAM]: toString(named) }
           : undefined),
-        [MODE_PARAM]: SESSION_FORMS.LOGIN,
+        [MODE_PARAM]: AUTH_FORMS.LOGIN,
         [QUERY_PARAMS.CANCEL_URL]: ROUTE.HOME
       };
 

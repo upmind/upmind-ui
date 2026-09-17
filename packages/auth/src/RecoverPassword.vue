@@ -12,9 +12,9 @@
 // The boundary seam — see `Login.vue` for why it lives in this package.
 import { useAuthLoading } from "./shell";
 import RecoverPasswordView from "./views/RecoverPassword.vue";
-import type { SessionRecoverViewProps } from "./types";
+import type { AuthRecoverViewProps } from "./types";
 
-const props = defineProps<SessionRecoverViewProps>();
+const props = defineProps<AuthRecoverViewProps>();
 
 const { component: loading } = useAuthLoading();
 </script>

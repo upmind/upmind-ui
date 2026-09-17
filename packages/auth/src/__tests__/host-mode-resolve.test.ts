@@ -7,7 +7,7 @@
  * machine alone. A host that drives no funnel — portal-nuxt — has no funnel
  * service to resolve, so an accepted sign-in threw and the visitor stayed on
  * `/login`, signed in, looking at the form they had just filled in.
- * `useSessionResolve` is the seam that ends that: the HOST MODE picks the path,
+ * `useAuthResolve` is the seam that ends that: the HOST MODE picks the path,
  * `navigateNext`/`navigateBack` in a funnel host and the screen's own routes in
  * a funnel-free one.
  *
@@ -37,8 +37,8 @@ import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, defineComponent, h, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { useSessionResolve } from "../session.utils";
-import type { SessionResolveOptions, SessionViewProps } from "../types";
+import { useAuthResolve } from "../auth.utils";
+import type { AuthResolveOptions, AuthViewProps } from "../types";
 import type { Router } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -70,11 +70,11 @@ const CROSS_LINKS = {
   recoverRoute: { name: "recover" }
 } as const;
 
-type Seam = ReturnType<typeof useSessionResolve>;
+type Seam = ReturnType<typeof useAuthResolve>;
 
 async function seatedSeam(
-  props: Partial<SessionViewProps>,
-  options: SessionResolveOptions = {}
+  props: Partial<AuthViewProps>,
+  options: AuthResolveOptions = {}
 ): Promise<{ seam: Seam; router: Router }> {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -92,13 +92,13 @@ async function seatedSeam(
   let seam: Seam | undefined;
   const Probe = defineComponent({
     setup() {
-      seam = useSessionResolve({ ...CROSS_LINKS, ...props }, options);
+      seam = useAuthResolve({ ...CROSS_LINKS, ...props }, options);
       return () => null;
     }
   });
   mount(Probe, { global: { plugins: [router] } });
 
-  if (!seam) throw new Error("the probe never reached useSessionResolve");
+  if (!seam) throw new Error("the probe never reached useAuthResolve");
   return { seam, router };
 }
 

@@ -6,7 +6,7 @@
 // own 2FA interstitial is that position, so the screen still has no second
 // route. This app provides no shell components, so the organism renders its
 // bare template inside the logged-out layout's card.
-import { UpmSessionLogin } from "@upmind-automation/auth";
+import { UpmAuthLogin } from "@upmind-automation/auth";
 import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 
 definePageMeta({
@@ -16,5 +16,5 @@ definePageMeta({
 </script>
 
 <template>
-  <UpmSessionLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
+  <UpmAuthLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
 </template>

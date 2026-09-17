@@ -20,10 +20,10 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  UpmSessionLogin,
-  UpmSessionLogout,
-  UpmSessionRecoverPassword,
-  UpmSessionRegister
+  UpmAuthLogin,
+  UpmAuthLogout,
+  UpmAuthRecoverPassword,
+  UpmAuthRegister
 } from "../index";
 import LoginView from "../views/Login.vue";
 import RecoverPasswordView from "../views/RecoverPassword.vue";
@@ -39,16 +39,16 @@ function setupKind(component: { setup?: unknown }) {
 }
 
 const PUBLISHED = [
-  UpmSessionLogin,
-  UpmSessionRegister,
-  UpmSessionRecoverPassword,
-  UpmSessionLogout
+  UpmAuthLogin,
+  UpmAuthRegister,
+  UpmAuthRecoverPassword,
+  UpmAuthLogout
 ];
 
 const BOUNDARIES = [
-  { owner: UpmSessionLogin, body: LoginView },
-  { owner: UpmSessionRegister, body: RegisterView },
-  { owner: UpmSessionRecoverPassword, body: RecoverPasswordView }
+  { owner: UpmAuthLogin, body: LoginView },
+  { owner: UpmAuthRegister, body: RegisterView },
+  { owner: UpmAuthRecoverPassword, body: RecoverPasswordView }
 ];
 
 describe("the auth package's async boundary", () => {

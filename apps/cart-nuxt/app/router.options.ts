@@ -13,7 +13,7 @@
  */
 import {
   OverlayType,
-  SESSION_FORMS,
+  AUTH_FORMS,
   useAssetRecovery
 } from "@upmind-automation/client-vue";
 import { BID_PREFIX, RegexMatch, ROUTE } from "./funnels/types";
@@ -55,7 +55,7 @@ const OVERLAY_ROUTES: RouteRecordRaw[] = [
     meta: {
       overlay: OverlayType.CUSTOM,
       dismissable: false,
-      mode: SESSION_FORMS.VERIFY
+      mode: AUTH_FORMS.VERIFY
     }
   }
 ];

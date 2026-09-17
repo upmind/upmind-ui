@@ -24,11 +24,11 @@ import { useSection } from "@upmind-automation/foundation";
 import InsetLayout from "../../../components/layout/layouts/Inset.layout.vue";
 
 // --- types
-import type { SessionRoutes } from "@upmind-automation/auth";
+import type { AuthRoutes } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 
-defineProps<SessionRoutes>();
+defineProps<AuthRoutes>();
 
 defineOptions({
   inheritAttrs: false

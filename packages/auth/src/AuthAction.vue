@@ -1,5 +1,5 @@
 <template>
-  <SessionLoginPopover
+  <AuthLoginPopover
     v-if="!isAuthenticated"
     :login-route="props.loginRoute"
     :register-route="props.registerRoute"
@@ -13,9 +13,9 @@
       <Icon icon="user-circle" />
       <span class="hidden md:inline">{{ t("action.login") }}</span>
     </Button>
-  </SessionLoginPopover>
+  </AuthLoginPopover>
 
-  <SessionDetailsDropdown v-else-if="client" @register="goToRegister">
+  <AuthDetailsDropdown v-else-if="client" @register="goToRegister">
     <Avatar
       size="md"
       class="cursor-pointer"
@@ -29,7 +29,7 @@
         <template v-else>{{ client.avatar?.caption }}</template>
       </template>
     </Avatar>
-  </SessionDetailsDropdown>
+  </AuthDetailsDropdown>
 </template>
 
 <script lang="ts" setup>
@@ -40,8 +40,8 @@ import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession, QUERY_PARAMS } from "@upmind-automation/headless";
-import SessionDetailsDropdown from "./components/DetailsDropdown.vue";
-import SessionLoginPopover from "./components/LoginPopover.vue";
+import AuthDetailsDropdown from "./components/DetailsDropdown.vue";
+import AuthLoginPopover from "./components/LoginPopover.vue";
 import type { AuthActionProps } from "./types";
 // -----------------------------------------------------------------------------
 

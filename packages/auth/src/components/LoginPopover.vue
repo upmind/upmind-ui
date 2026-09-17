@@ -38,10 +38,10 @@ import {
 } from "@upmind-automation/headless";
 import { contentVariants } from "../variants";
 import Auth from "./Auth.vue";
-import type { SessionProps, SessionRoutes } from "../types";
+import type { AuthProps, AuthRoutes } from "../types";
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<SessionProps & SessionRoutes>(), {
+const props = withDefaults(defineProps<AuthProps & AuthRoutes>(), {
   modelValue: "login",
   noHeader: true,
   noFooter: false,
@@ -66,7 +66,7 @@ function doReset(value: boolean) {
   if (value) start(AuthFlowTypes.LOGIN);
 }
 
-function doUpdate(value: SessionProps["modelValue"]) {
+function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {
     const target = props.loginRoute.name?.toString();
     if (target) navigate(target);

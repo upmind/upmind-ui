@@ -50,7 +50,7 @@
             'data-test-value': currentForm
           }"
         >
-          <template v-if="currentForm === SESSION_FORMS.GUEST" #footer>
+          <template v-if="currentForm === AUTH_FORMS.GUEST" #footer>
             <TermsAndConditions
               class="text-muted text-sm"
               :label="t('action.continue_label')"
@@ -124,7 +124,7 @@ import {
   type CompleteRegistrationModel
 } from "@upmind-automation/headless";
 import { useActiveSession } from "@upmind-automation/headless";
-import { SESSION_FORMS } from "../types";
+import { AUTH_FORMS } from "../types";
 import {
   authRootVariants,
   authFormVariants,
@@ -139,17 +139,17 @@ import {
   transitionsFadeLeaveFromVariants,
   transitionsFadeLeaveToVariants
 } from "../variants";
-import type { SessionProps } from "../types";
+import type { AuthProps } from "../types";
 import type { FormActionProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);
-const props = withDefaults(defineProps<Omit<SessionProps, "modelValue">>(), {
+const props = withDefaults(defineProps<Omit<AuthProps, "modelValue">>(), {
   variant: "primary"
 });
 
-const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
-  default: SESSION_FORMS.LOGIN
+const modelValue = defineModel<AuthProps["modelValue"]>("modelValue", {
+  default: AUTH_FORMS.LOGIN
 });
 
 const { t } = useI18n();
@@ -175,15 +175,15 @@ const { errors, model, schema, uischema, validationErrors } =
 
 const { cancel, register, resend, set, verify } = account.useActions();
 
-const currentForm = computed<SESSION_FORMS>(() => {
+const currentForm = computed<AUTH_FORMS>(() => {
   // An unverified client owes email verification (sourced from the client
   // machine); it isn't in any guest/login/register state.
-  if (showVerifyEmailForm.value) return SESSION_FORMS.VERIFY;
+  if (showVerifyEmailForm.value) return AUTH_FORMS.VERIFY;
   // A guest client upgrading is its own form (sourced from the client machine);
   // it shares the register fields but has a distinct submit label/flow.
-  if (showGuestUpgradeForm.value) return SESSION_FORMS.GUEST;
+  if (showGuestUpgradeForm.value) return AUTH_FORMS.GUEST;
 
-  return SESSION_FORMS.UNKNOWN;
+  return AUTH_FORMS.UNKNOWN;
 });
 
 // Keyed so <Transition> fades between resend messages — the wrapper is
@@ -198,15 +198,15 @@ const resendState = computed(() => {
 
 const formActions = computed(() => {
   const label =
-    currentForm.value === SESSION_FORMS.GUEST
+    currentForm.value === AUTH_FORMS.GUEST
       ? t("action.register")
-      : currentForm.value === SESSION_FORMS.VERIFY
+      : currentForm.value === AUTH_FORMS.VERIFY
         ? t("action.verify")
         : t("action.continue_label");
   const submitTestKey =
-    currentForm.value === SESSION_FORMS.GUEST
+    currentForm.value === AUTH_FORMS.GUEST
       ? "button-complete-registration"
-      : currentForm.value === SESSION_FORMS.VERIFY
+      : currentForm.value === AUTH_FORMS.VERIFY
         ? "button-verify"
         : "button-continue";
 
@@ -251,30 +251,27 @@ const formActions = computed(() => {
 
 const alertTitle = computed(() => {
   if (resendFailed.value) return t("error.session_resend_failed");
-  if (currentForm.value === SESSION_FORMS.VERIFY)
+  if (currentForm.value === AUTH_FORMS.VERIFY)
     return t("error.session_verify_failed");
   return t("error.session_register_failed");
 });
 
 // ---
 
-async function toggleForm(type: SessionProps["modelValue"]) {
+async function toggleForm(type: AuthProps["modelValue"]) {
   switch (type) {
-    case SESSION_FORMS.REGISTER:
+    case AUTH_FORMS.REGISTER:
       if (!showGuestUpgradeForm.value) {
-        if (modelValue.value !== SESSION_FORMS.REGISTER)
-          modelValue.value = SESSION_FORMS.REGISTER;
+        if (modelValue.value !== AUTH_FORMS.REGISTER)
+          modelValue.value = AUTH_FORMS.REGISTER;
       }
       break;
 
-    case SESSION_FORMS.VERIFY:
+    case AUTH_FORMS.VERIFY:
       // The verify form is state-driven (auto-entered when the client is
       // unverified) — there is no action to switch into it. Sync the model.
-      if (
-        showVerifyEmailForm.value &&
-        modelValue.value !== SESSION_FORMS.VERIFY
-      )
-        modelValue.value = SESSION_FORMS.VERIFY;
+      if (showVerifyEmailForm.value && modelValue.value !== AUTH_FORMS.VERIFY)
+        modelValue.value = AUTH_FORMS.VERIFY;
       break;
   }
 }

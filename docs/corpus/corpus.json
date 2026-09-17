@@ -12141,11 +12141,11 @@
       "path": "packages/client-vue/src/modules/session/index.ts",
       "title": "index.ts"
     },
-    "file:packages/client-vue/src/modules/session/session.utils.ts": {
+    "file:packages/client-vue/src/modules/session/auth.utils.ts": {
       "kind": "file",
       "module": "session",
-      "path": "packages/client-vue/src/modules/session/session.utils.ts",
-      "title": "session.utils.ts"
+      "path": "packages/client-vue/src/modules/session/auth.utils.ts",
+      "title": "auth.utils.ts"
     },
     "file:packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue": {
       "kind": "file",
@@ -31501,7 +31501,7 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
+        "to": "file:packages/client-vue/src/modules/session/auth.utils.ts"
       },
       {
         "confidence": 1,
@@ -31693,7 +31693,7 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
+        "to": "file:packages/client-vue/src/modules/session/auth.utils.ts"
       },
       {
         "confidence": 1,
@@ -32129,18 +32129,18 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/session.utils.ts",
+        "from": "file:packages/client-vue/src/modules/session/auth.utils.ts",
         "granularity": "file",
         "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts",
-        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
+        "sourceFile": "packages/client-vue/src/modules/session/auth.utils.ts",
+        "to": "file:packages/client-vue/src/modules/session/auth.utils.ts"
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/session.utils.ts",
+        "from": "file:packages/client-vue/src/modules/session/auth.utils.ts",
         "granularity": "file",
         "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts",
+        "sourceFile": "packages/client-vue/src/modules/session/auth.utils.ts",
         "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {

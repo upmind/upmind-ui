@@ -1,10 +1,10 @@
 <template>
-  <UpmSessionLogout :storefront-route="{ to: { name: ROUTE.HOME } }" />
+  <UpmAuthLogout :storefront-route="{ to: { name: ROUTE.HOME } }" />
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmSessionLogout } from "@upmind-automation/client-vue";
+import { UpmAuthLogout } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
 
 const { t } = useI18n();

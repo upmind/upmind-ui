@@ -20998,14 +20998,14 @@
       "to": "packages_client_vue_src_modules_session_types_ts",
       "relation": "imports_from",
       "confidence": 1,
-      "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts"
+      "sourceFile": "packages/client-vue/src/modules/session/auth.utils.ts"
     },
     {
       "from": "packages_client_vue_src_modules_session_session_utils_ts",
       "to": "session_utils_usesessiontemplates",
       "relation": "contains",
       "confidence": 1,
-      "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts"
+      "sourceFile": "packages/client-vue/src/modules/session/auth.utils.ts"
     },
     {
       "from": "packages_client_vue_src_modules_session_templates_sessioncanvascard_template_vue",
@@ -58894,9 +58894,9 @@
       "sourceLine": 1
     },
     "packages_client_vue_src_modules_session_session_utils_ts": {
-      "label": "session.utils.ts",
-      "normLabel": "session.utils.ts",
-      "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts",
+      "label": "auth.utils.ts",
+      "normLabel": "auth.utils.ts",
+      "sourceFile": "packages/client-vue/src/modules/session/auth.utils.ts",
       "sourceLine": 1
     },
     "packages_client_vue_src_modules_session_templates_sessioncanvascard_template_vue": {
@@ -66504,7 +66504,7 @@
     "session_utils_usesessiontemplates": {
       "label": "useSessionTemplates()",
       "normLabel": "usesessiontemplates()",
-      "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts",
+      "sourceFile": "packages/client-vue/src/modules/session/auth.utils.ts",
       "sourceLine": 10
     },
     "slots_mappers_parseclientslot": {

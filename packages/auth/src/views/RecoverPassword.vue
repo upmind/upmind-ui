@@ -88,20 +88,20 @@ import {
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { useAuthResolve } from "../auth.utils";
 import Auth from "../components/Auth.vue";
-import { useSessionResolve } from "../session.utils";
 import { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthLoading } from "../shell";
 import AuthBareTemplate from "../templates/AuthBare.template.vue";
 import {
-  type SessionProps,
-  type SessionRecoverViewProps,
+  type AuthProps,
+  type AuthRecoverViewProps,
   AUTH_TEMPLATE
 } from "../types";
 import { sessionFormWidthVariants } from "../variants";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<SessionRecoverViewProps>();
+const props = defineProps<AuthRecoverViewProps>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -114,7 +114,7 @@ const {
   meta: resolveMeta,
   navigateRejected,
   navigateResolved
-} = useSessionResolve(props, {
+} = useAuthResolve(props, {
   rejectRoute: () => props.loginRoute
 });
 
@@ -154,7 +154,7 @@ const templateVariant = computed(
 const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
 const { component: loading } = useAuthLoading();
 
-function doUpdate(value: SessionProps["modelValue"]) {
+function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {
     const target = props.loginRoute.name?.toString();
     if (target) navigate(target);

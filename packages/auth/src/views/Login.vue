@@ -118,20 +118,16 @@ import {
   useClientTemplate,
   useBrand
 } from "@upmind-automation/headless";
+import { useAuthResolve, useAuthTemplates } from "../auth.utils";
 import Auth from "../components/Auth.vue";
-import { useSessionResolve, useAuthTemplates } from "../session.utils";
 import { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthLoading } from "../shell";
 import AuthBareTemplate from "../templates/AuthBare.template.vue";
-import {
-  type SessionProps,
-  type SessionViewProps,
-  AUTH_TEMPLATE
-} from "../types";
+import { type AuthProps, type AuthViewProps, AUTH_TEMPLATE } from "../types";
 import { markdownVariants, sessionFormWidthVariants } from "../variants";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<SessionViewProps>();
+const props = defineProps<AuthViewProps>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -144,7 +140,7 @@ const {
   meta: resolveMeta,
   navigateRejected,
   navigateResolved
-} = useSessionResolve(props);
+} = useAuthResolve(props);
 
 const { ui } = useConfig({
   // The key must be PRESENT to opt out: useConfig calls useBasket() unless it
@@ -188,7 +184,7 @@ const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
 const { component: loading } = useAuthLoading();
 const { meta: templateMeta } = useAuthTemplates(template);
 
-function doUpdate(value: SessionProps["modelValue"]) {
+function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {
     const target = props.loginRoute.name?.toString();
     if (target) navigate(target);

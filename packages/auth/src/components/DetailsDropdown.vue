@@ -37,7 +37,7 @@ import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession } from "@upmind-automation/headless";
 import type { MenuItem } from "@upmind/ui";
 
-interface SessionMenuItem extends MenuItem {
+interface AuthMenuItem extends MenuItem {
   icon: string;
 }
 
@@ -51,8 +51,8 @@ const { isAuthenticated, isGuestClient } = session.useMeta();
 const { activeUser: client } = session.useContext();
 const { logout } = session.useActions();
 
-const items = computed<SessionMenuItem[]>(() => {
-  const menuItems: SessionMenuItem[] = [];
+const items = computed<AuthMenuItem[]>(() => {
+  const menuItems: AuthMenuItem[] = [];
 
   if (isGuestClient.value) {
     menuItems.push({

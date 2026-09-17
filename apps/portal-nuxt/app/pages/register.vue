@@ -8,7 +8,7 @@
 // support pillar's own guard uses, told out loud because the client asked for
 // a page that exists elsewhere.
 import { toast } from "@upmind/ui";
-import { UpmSessionRegister } from "@upmind-automation/auth";
+import { UpmAuthRegister } from "@upmind-automation/auth";
 import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 import { useMockBrandGates } from "~/portal/mock/gates";
 
@@ -28,5 +28,5 @@ if (!isRegistrationEnabled.value) {
 </script>
 
 <template>
-  <UpmSessionRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
+  <UpmAuthRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
 </template>

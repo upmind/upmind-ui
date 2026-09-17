@@ -24,7 +24,7 @@ export type ActionProps = {
   visible?: boolean;
 };
 
-export const enum SESSION_FORMS {
+export const enum AUTH_FORMS {
   LOGIN = "login",
   REGISTER = "register",
   RECOVER = "recover",
@@ -35,8 +35,8 @@ export const enum SESSION_FORMS {
   UNKNOWN = "unknown"
 }
 
-export type SessionProps = {
-  modelValue?: `${SESSION_FORMS}`;
+export type AuthProps = {
+  modelValue?: `${AUTH_FORMS}`;
   noHeader?: boolean;
   noFooter?: boolean;
   noTabs?: boolean;
@@ -50,7 +50,7 @@ export type SessionProps = {
   cancelRoute?: RouteLocationAsRelativeGeneric;
 };
 
-export type SessionExpiredProps = {
+export type AuthExpiredProps = {
   // ---
   modal?: boolean;
   open?: boolean;
@@ -63,7 +63,7 @@ export type SessionExpiredProps = {
   size?: string;
 };
 
-export type SessionRoutes = {
+export type AuthRoutes = {
   loginRoute: RouteLocationAsRelativeGeneric;
   registerRoute: RouteLocationAsRelativeGeneric;
   recoverRoute: RouteLocationAsRelativeGeneric;
@@ -73,12 +73,12 @@ export type SessionRoutes = {
  * What the recovery screen takes. It names no landing: recovery ends on its own
  * screen with the email-sent message, so no host has one to name.
  */
-export type SessionRecoverViewProps = SessionRoutes & {
+export type AuthRecoverViewProps = AuthRoutes & {
   template?: AUTH_TEMPLATE;
 };
 
 /** What the two sign-in screens take: recovery's contract, plus a landing. */
-export type SessionViewProps = SessionRecoverViewProps & {
+export type AuthViewProps = AuthRecoverViewProps & {
   /**
    * Where an accepted sign-in lands in a host that drives no funnel. A host
    * with a funnel leaves it unset and keeps the step the funnel resolves.
@@ -86,8 +86,8 @@ export type SessionViewProps = SessionRecoverViewProps & {
   landingRoute?: RouteLocationAsRelativeGeneric;
 };
 
-/** What a session screen tells `useSessionResolve` about its own back control. */
-export type SessionResolveOptions = {
+/** What a session screen tells `useAuthResolve` about its own back control. */
+export type AuthResolveOptions = {
   /**
    * Where the back control lands in a host that drives no funnel. A screen that
    * names none renders no back control there: its back is the basket, and a
@@ -96,7 +96,7 @@ export type SessionResolveOptions = {
   rejectRoute?: MaybeRefOrGetter<RouteLocationAsRelativeGeneric | undefined>;
 };
 
-export type AuthActionProps = SessionRoutes & {
+export type AuthActionProps = AuthRoutes & {
   shape?: string;
 };
 

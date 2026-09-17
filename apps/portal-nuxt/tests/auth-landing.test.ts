@@ -55,9 +55,9 @@ function recorder(name: string): Component {
 }
 
 vi.mock("@upmind-automation/auth", () => ({
-  UpmSessionLogin: recorder("UpmSessionLogin"),
-  UpmSessionRegister: recorder("UpmSessionRegister"),
-  UpmSessionRecoverPassword: recorder("UpmSessionRecoverPassword")
+  UpmAuthLogin: recorder("UpmAuthLogin"),
+  UpmAuthRegister: recorder("UpmAuthRegister"),
+  UpmAuthRecoverPassword: recorder("UpmAuthRecoverPassword")
 }));
 
 const PAGES = join(import.meta.dirname, "..", "app", "pages");

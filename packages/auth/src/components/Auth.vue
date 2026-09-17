@@ -50,7 +50,7 @@
             'data-test-value': currentForm
           }"
         >
-          <template v-if="currentForm === SESSION_FORMS.REGISTER" #footer>
+          <template v-if="currentForm === AUTH_FORMS.REGISTER" #footer>
             <TermsAndConditions
               class="text-muted text-sm"
               :label="t('action.continue_label')"
@@ -91,24 +91,24 @@ import {
   useRoutingEngine,
   type AuthModel
 } from "@upmind-automation/headless";
-import { SESSION_FORMS } from "../types";
+import { AUTH_FORMS } from "../types";
 import {
   authRootVariants,
   authFormVariants,
   authActionsVariants
 } from "../variants";
 import { find, get, map } from "lodash-es";
-import type { SessionProps } from "../types";
+import type { AuthProps } from "../types";
 import type { FormActionProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits(["resolve", "reject"]);
-const props = withDefaults(defineProps<Omit<SessionProps, "modelValue">>(), {
+const props = withDefaults(defineProps<Omit<AuthProps, "modelValue">>(), {
   variant: "primary"
 });
 
-const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
-  default: SESSION_FORMS.LOGIN
+const modelValue = defineModel<AuthProps["modelValue"]>("modelValue", {
+  default: AUTH_FORMS.LOGIN
 });
 
 const { t } = useI18n();
@@ -133,11 +133,11 @@ const {
 const { errors, model, schema, uischema, validationErrors } = auth.useContext();
 const { reject, resolve, set, start } = auth.useActions();
 
-const currentForm = computed<SESSION_FORMS>(() => {
-  if (showLoginForm.value) return SESSION_FORMS.LOGIN;
-  if (showRegisterForm.value) return SESSION_FORMS.REGISTER;
-  if (showRecoverPasswordForm.value) return SESSION_FORMS.RECOVER;
-  return SESSION_FORMS.UNKNOWN;
+const currentForm = computed<AUTH_FORMS>(() => {
+  if (showLoginForm.value) return AUTH_FORMS.LOGIN;
+  if (showRegisterForm.value) return AUTH_FORMS.REGISTER;
+  if (showRecoverPasswordForm.value) return AUTH_FORMS.RECOVER;
+  return AUTH_FORMS.UNKNOWN;
 });
 
 const twofaI18nKey = computed(() => {
@@ -181,15 +181,15 @@ const formActions = computed(() => {
   let label: string;
   let submitTestKey: string;
   switch (currentForm.value) {
-    case SESSION_FORMS.LOGIN:
+    case AUTH_FORMS.LOGIN:
       label = t("action.log_in_to_your_account");
       submitTestKey = "button-log-into-my-account";
       break;
-    case SESSION_FORMS.RECOVER:
+    case AUTH_FORMS.RECOVER:
       label = t("action.send_reset");
       submitTestKey = "button-send-reset";
       break;
-    case SESSION_FORMS.REGISTER:
+    case AUTH_FORMS.REGISTER:
     default:
       label = t("action.continue_label");
       submitTestKey = "button-continue";
@@ -229,39 +229,39 @@ const formActions = computed(() => {
 
 const alertTitle = computed(() => {
   switch (currentForm.value) {
-    case SESSION_FORMS.RECOVER:
+    case AUTH_FORMS.RECOVER:
       return t("error.session_recover_failed");
-    case SESSION_FORMS.LOGIN:
+    case AUTH_FORMS.LOGIN:
       return t("error.session_login_failed");
-    case SESSION_FORMS.REGISTER:
+    case AUTH_FORMS.REGISTER:
     default:
       return t("error.session_register_failed");
   }
 });
 
-async function toggleForm(type: SessionProps["modelValue"]) {
+async function toggleForm(type: AuthProps["modelValue"]) {
   switch (type) {
-    case SESSION_FORMS.LOGIN:
+    case AUTH_FORMS.LOGIN:
       if (!showLoginForm.value) {
         start(AuthFlowTypes.LOGIN).then(() => {
-          if (modelValue.value !== SESSION_FORMS.LOGIN)
-            modelValue.value = SESSION_FORMS.LOGIN;
+          if (modelValue.value !== AUTH_FORMS.LOGIN)
+            modelValue.value = AUTH_FORMS.LOGIN;
         });
       }
       break;
-    case SESSION_FORMS.REGISTER:
+    case AUTH_FORMS.REGISTER:
       if (!showRegisterForm.value) {
         start(AuthFlowTypes.REGISTER).then(() => {
-          if (modelValue.value !== SESSION_FORMS.REGISTER)
-            modelValue.value = SESSION_FORMS.REGISTER;
+          if (modelValue.value !== AUTH_FORMS.REGISTER)
+            modelValue.value = AUTH_FORMS.REGISTER;
         });
       }
       break;
-    case SESSION_FORMS.RECOVER:
+    case AUTH_FORMS.RECOVER:
       if (!showRecoverPasswordForm.value) {
         start(AuthFlowTypes.RECOVER).then(() => {
-          if (modelValue.value !== SESSION_FORMS.RECOVER)
-            modelValue.value = SESSION_FORMS.RECOVER;
+          if (modelValue.value !== AUTH_FORMS.RECOVER)
+            modelValue.value = AUTH_FORMS.RECOVER;
         });
       }
       break;
@@ -271,7 +271,7 @@ async function toggleForm(type: SessionProps["modelValue"]) {
 function doResolve(model: unknown) {
   // Capture at submit time — after a successful login/register the machine
   // leaves the form state, so currentForm changes before the .then runs.
-  const authenticates = currentForm.value !== SESSION_FORMS.RECOVER;
+  const authenticates = currentForm.value !== AUTH_FORMS.RECOVER;
   resolve(model as AuthModel).then(async success => {
     if (!success) return;
     // The auth machine resolves as soon as it holds a token, but promoting the

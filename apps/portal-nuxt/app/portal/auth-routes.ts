@@ -7,10 +7,10 @@
  * this app's, so the mapping is too. The names are the ones Nuxt derives from
  * `app/pages/*.vue`.
  */
-import type { SessionRoutes } from "@upmind-automation/auth";
+import type { AuthRoutes } from "@upmind-automation/auth";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
-export const AUTH_ROUTES: SessionRoutes = {
+export const AUTH_ROUTES: AuthRoutes = {
   loginRoute: { name: "login" },
   registerRoute: { name: "register" },
   recoverRoute: { name: "forgotten-password" }

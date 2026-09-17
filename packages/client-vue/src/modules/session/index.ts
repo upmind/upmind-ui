@@ -8,12 +8,16 @@
  */
 
 // --- Export Views (now owned by @upmind-automation/auth)
+// The `Session*` spelling survives HERE and nowhere else. `apps/velia` and
+// `apps/hosting` are separate repositories that import these names from this
+// package, and this package is deleted in the final phase — so the aliases are
+// a compatibility shim with a known end date, not a second vocabulary.
 export {
   UpmAuthAction,
-  UpmSessionLogin,
-  UpmSessionRegister,
-  UpmSessionLogout,
-  UpmSessionRecoverPassword
+  UpmAuthLogin as UpmSessionLogin,
+  UpmAuthRegister as UpmSessionRegister,
+  UpmAuthLogout as UpmSessionLogout,
+  UpmAuthRecoverPassword as UpmSessionRecoverPassword
 } from "@upmind-automation/auth";
 
 // --- Export Components
@@ -23,11 +27,14 @@ export { UpmAccount, UpmAuth } from "@upmind-automation/auth";
 export { SESSION_SHELL_COMPONENTS } from "./shell";
 
 // --- Export Types
-export { SESSION_FORMS, SESSION_TEMPLATE } from "@upmind-automation/auth";
+export {
+  AUTH_FORMS as SESSION_FORMS,
+  AUTH_TEMPLATE as SESSION_TEMPLATE
+} from "@upmind-automation/auth";
 export type {
   ActionProps,
   AuthActionProps,
-  SessionExpiredProps,
-  SessionProps,
-  SessionRoutes
+  AuthExpiredProps as SessionExpiredProps,
+  AuthProps as SessionProps,
+  AuthRoutes as SessionRoutes
 } from "@upmind-automation/auth";

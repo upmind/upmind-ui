@@ -1,4 +1,4 @@
-import { OverlayType, SESSION_FORMS } from "@upmind-automation/client-vue";
+import { OverlayType, AUTH_FORMS } from "@upmind-automation/client-vue";
 import { ROUTE, RegexMatch } from "./funnels/types";
 import { BID_PREFIX } from "./funnels/types";
 import { reduce, trimStart } from "lodash-es";
@@ -24,7 +24,7 @@ export const OVERLAY_ROUTES: RouteRecordRaw[] = [
     meta: {
       overlay: OverlayType.CUSTOM,
       dismissable: false,
-      mode: SESSION_FORMS.VERIFY
+      mode: AUTH_FORMS.VERIFY
     }
   }
 ];

@@ -13,9 +13,9 @@
 // template — the standalone `auth` app, `portal-nuxt`, and any widget embed.
 // It draws no chrome of its own: Amendment 1 change 3 keeps that app-owned.
 import { bareRootVariants } from "../variants";
-import type { SessionRoutes } from "../types";
+import type { AuthRoutes } from "../types";
 
-defineProps<SessionRoutes>();
+defineProps<AuthRoutes>();
 
 defineOptions({ inheritAttrs: false });
 </script>

@@ -2,7 +2,7 @@ import { computed, toValue, type Ref } from "vue";
 import { useRouter } from "vue-router";
 import { useRoutingEngine } from "@upmind-automation/headless";
 import { AUTH_TEMPLATE } from "./types";
-import type { SessionResolveOptions, SessionViewProps } from "./types";
+import type { AuthResolveOptions, AuthViewProps } from "./types";
 
 const INACTIVE_SECTION_TEMPLATES: AUTH_TEMPLATE[] = [
   AUTH_TEMPLATE.SPLIT,
@@ -24,9 +24,9 @@ export function useAuthTemplates(template: Ref<AUTH_TEMPLATE>) {
  * How an accepted or an abandoned session leaves an auth screen. Call it before
  * the view's own `await`, as with any composable that injects.
  */
-export function useSessionResolve(
-  props: SessionViewProps,
-  options: SessionResolveOptions = {}
+export function useAuthResolve(
+  props: AuthViewProps,
+  options: AuthResolveOptions = {}
 ) {
   const router = useRouter();
   const { navigateNext, navigateBack, meta: routingMeta } = useRoutingEngine();

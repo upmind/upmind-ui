@@ -12,9 +12,9 @@
 // The boundary seam — see `Login.vue` for why it lives in this package.
 import { useAuthLoading } from "./shell";
 import RegisterView from "./views/Register.vue";
-import type { SessionViewProps } from "./types";
+import type { AuthViewProps } from "./types";
 
-const props = defineProps<SessionViewProps>();
+const props = defineProps<AuthViewProps>();
 
 const { component: loading } = useAuthLoading();
 </script>

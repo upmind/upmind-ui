@@ -4,7 +4,7 @@
  * they keep
  *
  * ## Job To Be Done
- * `useSessionResolve` does not gate the back step: asked, it falls through to the
+ * `useAuthResolve` does not gate the back step: asked, it falls through to the
  * funnel in either host (see `host-mode-resolve.test.ts`). The only thing that
  * keeps a funnel-free host off that call is that login and register RENDER NO
  * BACK CONTROL there — their back is the basket, and such a host has none.
