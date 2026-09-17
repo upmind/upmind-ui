@@ -95,6 +95,7 @@
     "@types/node": "^22.17.1",
     "@typescript-eslint/eslint-plugin": "8.50.0",
     "@typescript-eslint/parser": "8.50.0",
+    "@upmind-automation/eslint-plugin-file-responsibility": "workspace:*",
     "@upmind-automation/eslint-plugin-scope-based": "workspace:*",
     "@upmind-automation/eslint-plugin-ui": "workspace:*",
     "@vitejs/plugin-vue": "^6.0.1",
