@@ -1,4 +1,4 @@
-export type TermsAndConditions = {
+export interface TermsAndConditions {
   id: string;
   title: string;
   content?: string;
@@ -6,4 +6,4 @@ export type TermsAndConditions = {
   meta: {
     isUrl: boolean;
   };
-};
+}

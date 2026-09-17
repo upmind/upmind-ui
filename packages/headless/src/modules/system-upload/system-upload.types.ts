@@ -8,7 +8,7 @@ import type { ImageObjectTypes } from "@upmind-automation/types";
  * This context holds information about the upload field, allowed file types, progress,
  * request/response details, and any errors encountered.
  */
-export type UploadContext = {
+export interface UploadContext {
   /**
    * Details about the file input field, including its type, ID, and default status.
    */
@@ -64,4 +64,4 @@ export type UploadContext = {
    * An error object if any issue occurred during the file upload process.
    */
   error?: ResponseError;
-};
+}

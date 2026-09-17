@@ -44,7 +44,7 @@ export type { ErrorObject as ValidationErrorObject } from "ajv";
 /**
  * Interface representing a structured error response from an API query.
  */
-export type QueryResponseError = {
+export interface QueryResponseError {
   /**
    * An optional unique identifier for the error, typically `null` if not specified.
    */
@@ -69,7 +69,7 @@ export type QueryResponseError = {
    * The HTTP status code associated with the error (e.g. 400, 500).
    */
   status: responseCodes | number;
-};
+}
 
 /**
  * Represents the structure of a single page returned from an infinite query's `queryFn`.
@@ -94,7 +94,7 @@ export type InfiniteQueryPage<TData> = {
  *
  * @template TData - The type of the main data payload (defaults to `unknown`).
  */
-export type QueryResponse<TData = unknown> = {
+export interface QueryResponse<TData = unknown> {
   /**
    * The HTTP status code of the response.
    */
@@ -123,7 +123,7 @@ export type QueryResponse<TData = unknown> = {
    * Optional metadata included alongside the main data, e.g. `total_pages`, `tlds`.
    */
   meta?: Record<string, any> | null;
-};
+}
 
 /**
  * Type alias defining common properties for API queries, including sorting, filtering, and pagination.
@@ -587,7 +587,7 @@ export type RequestFilters = Record<string, unknown>;
 /**
  * Interface representing pagination parameters for a request.
  */
-export type RequestPagination = {
+export interface RequestPagination {
   /**
    * The maximum number of items to return in a single page.
    */
@@ -596,13 +596,13 @@ export type RequestPagination = {
    * The number of items to skip from the beginning of the result set.
    */
   offset?: number;
-};
+}
 
 /**
  * Interface representing comprehensive pagination information, typically returned
  * by an API to describe the current state of paginated results.
  */
-export type PaginationInfo = {
+export interface PaginationInfo {
   /**
    * The maximum number of items per page.
    */
@@ -627,4 +627,4 @@ export type PaginationInfo = {
    * The index of the last item on the current page (1-indexed).
    */
   to: number;
-};
+}

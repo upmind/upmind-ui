@@ -17,7 +17,7 @@ import type { ActorRef } from "xstate";
  * Interface representing the arguments required to initiate a payment.
  * These details are essential for processing a transaction.
  */
-export type PaymentArgs = {
+export interface PaymentArgs {
   /**
    * The unique identifier of the order for which the payment is being made.
    */
@@ -36,14 +36,14 @@ export type PaymentArgs = {
    * an invoked child, so the parent declares itself.
    */
   parentId?: string;
-};
+}
 
 /**
  * Interface representing the context for a payment operation, typically managed by an XState machine.
  * It extends {@link PaymentArgs} with additional details for handling payment cancellations,
  * approvals, and tracking the payment attempt itself.
  */
-export type PaymentContext = {
+export interface PaymentContext extends PaymentArgs {
   /**
    * Spawned auth subscription actor.
    */
@@ -85,4 +85,4 @@ export type PaymentContext = {
    * An error object if any issue occurred during the payment process.
    */
   error?: ResponseError;
-} & PaymentArgs;
+}

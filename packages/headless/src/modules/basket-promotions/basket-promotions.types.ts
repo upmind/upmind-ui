@@ -4,11 +4,11 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
-export type PromotionModel = {
+export interface PromotionModel {
   promocode: string;
-};
+}
 
-export type PromotionsContext = {
+export interface PromotionsContext {
   basketId?: string;
   // ---
   promotions?: PromotionDetails[];
@@ -19,4 +19,4 @@ export type PromotionsContext = {
   // ---
   autoupdate?: boolean;
   error?: ResponseError;
-};
+}

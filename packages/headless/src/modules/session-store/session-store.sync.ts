@@ -179,13 +179,13 @@ const SESSION_COOKIE_NAMES = [
  */
 const COOKIE_SYNC_KEY = Symbol.for("upmind:cookie-sync");
 
-type CookieSyncState = {
+interface CookieSyncState {
   pollInterval: ReturnType<typeof setInterval> | null;
   removeChangeListener: (() => void) | undefined;
   lastGuestToken: string | undefined;
   lastClientToken: string | undefined;
   lastStaffToken: string | undefined;
-};
+}
 
 function getGlobalSyncState(): CookieSyncState {
   const g = globalThis as unknown as Record<symbol, CookieSyncState>;

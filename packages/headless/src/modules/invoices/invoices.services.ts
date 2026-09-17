@@ -10,10 +10,8 @@ import {
   createInvoicesSchemas,
   UNPAID_EXISTENCE_CRITERIA
 } from "./invoices.schemas";
-import {
-  InvoicesContextTypes,
-  INVOICES_CONTEXT_WIRE_KEYS
-} from "./invoices.types";
+import { InvoicesContextTypes } from "./invoices.types";
+import { resolveFilterSlots, seedFilterSlots } from "./invoices.utils";
 import {
   useTime,
   DetailedError,
@@ -23,6 +21,7 @@ import {
 import { forEach, has } from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
+  DurableFilterSlot,
   Invoice,
   InvoiceFilterModel,
   InvoicePaymentDetailsModel,
@@ -39,7 +38,7 @@ import type { Currency } from "../currency/currency.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IInvoice } from "@upmind-automation/types";
-import type { ComputedRef, MaybeRef, Ref } from "vue";
+import type { MaybeRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/invoices.services
@@ -134,75 +133,6 @@ function isAddressable(clientId?: string): boolean {
   const { isAuthenticated } = useActiveSession().useMeta();
 
   return isAuthenticated.value && !!clientId;
-}
-
-/** One durable filter column and the reactive-or-static id that seeds it. */
-type DurableFilterSlot = {
-  key: (typeof INVOICES_CONTEXT_WIRE_KEYS)[InvoicesContextTypes];
-  value: MaybeRef<string | undefined>;
-};
-
-/**
- * The durable filter slots this scope seeds — always the resolved `client_id`
- * (a `.for('client', X)` target, or the session's own id), plus the ONE
- * relationship column a `.for('contract'|'contracts_product'|'invoice', id)`
- * names, if any. A caller names the client OR a relationship, never both, so
- * the array holds at most two entries.
- *
- * The client id is reactive (it follows a session switch); a relationship id
- * arrives as a static value on `config.context` and stays a plain string — the
- * one seam reads both through `unref`, so nothing is wrapped to fake reactivity.
- */
-function resolveFilterSlots(
-  clientId: ComputedRef<string | undefined>,
-  scopeContext?: ScopeContext
-): DurableFilterSlot[] {
-  const slots: DurableFilterSlot[] = [
-    {
-      key: INVOICES_CONTEXT_WIRE_KEYS[InvoicesContextTypes.CLIENT],
-      value: clientId
-    }
-  ];
-
-  const type = scopeContext?.type;
-  if (
-    scopeContext?.id &&
-    type !== undefined &&
-    type !== InvoicesContextTypes.CLIENT &&
-    type in INVOICES_CONTEXT_WIRE_KEYS
-  ) {
-    slots.push({
-      key: INVOICES_CONTEXT_WIRE_KEYS[type as InvoicesContextTypes],
-      value: scopeContext.id
-    });
-  }
-
-  return slots;
-}
-
-/**
- * Seeds each resolved slot's wire column onto the handle and keeps it tracking
- * its source — a reactive `client_id` follows a session switch (W2), a static
- * relationship id seeds once. Every other declared filter is preserved; only
- * the slot's own key is (re)written.
- */
-function seedFilterSlots(
-  handle: InvoicesListQuery,
-  slots: DurableFilterSlot[]
-): void {
-  forEach(slots, slot =>
-    watch(
-      () => unref(slot.value),
-      value => {
-        const filters: InvoiceFilterModel = {
-          ...handle.criteria.value.filters
-        };
-        if (value) filters[slot.key] = value;
-        handle.setCriteria({ filters });
-      },
-      { immediate: true }
-    )
-  );
 }
 
 /**

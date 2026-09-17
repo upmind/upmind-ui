@@ -7,7 +7,7 @@ import type { ResponseError } from "../../utils";
  * typically managed by an XState machine. It holds the reCAPTCHA site key,
  * the `grecaptcha` object, the generated token, and any associated errors.
  */
-export type RecaptchaContext = {
+export interface RecaptchaContext {
   /**
    * The public site key provided by Google for reCAPTCHA.
    */
@@ -29,4 +29,4 @@ export type RecaptchaContext = {
    * An error object if any issue occurred during reCAPTCHA processing.
    */
   error?: ResponseError;
-};
+}

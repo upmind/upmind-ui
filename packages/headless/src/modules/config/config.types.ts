@@ -168,14 +168,14 @@ export type MetaPrefix = (typeof META_PREFIX)[keyof typeof META_PREFIX];
  * - ScopeItems<DataSchema> for data properties (typed as DataItems)
  * - ScopeItems (untyped) for internal engine functions
  */
-export type ScopeItems<T = Record<string, unknown>> = {
+export interface ScopeItems<T = Record<string, unknown>> {
   context?: UIContext;
   brand?: Partial<T>;
   category?: Partial<T>;
   product?: Partial<T>;
   optionGroup?: Partial<T>;
   option?: Partial<T>;
-};
+}
 
 /** For UI property resolution (getUIProperty) */
 export type MetaItems = ScopeItems<UISchema>;
@@ -230,7 +230,7 @@ export type DataProxy = {
 // --- Composable Types ---
 
 /** Raw input for meta resolution (before reactive wrapper) */
-export type MetaInput = {
+export interface MetaInput {
   context?: UIContext;
   viewport?: Viewport;
   brand?: RawMeta;
@@ -238,10 +238,10 @@ export type MetaInput = {
   product?: ProductInput;
   optionGroup?: OptionInput;
   option?: OptionInput;
-};
+}
 
 /** Options for useConfig composable (reactive wrappers) */
-export type UseMetaOptions = {
+export interface UseMetaOptions {
   brand?: MaybeRefOrGetter<BrandMeta["cart"]>;
   context?: MaybeRefOrGetter<UIContext | undefined>;
   category?: MaybeRefOrGetter<CategoryInput | undefined>;
@@ -251,7 +251,7 @@ export type UseMetaOptions = {
   basket?: MaybeRefOrGetter<IBasket | undefined>;
   basketProduct?: MaybeRefOrGetter<BasketProductInput | undefined>;
   provide?: boolean;
-};
+}
 
 /**
  * Options for .with() - extends meta with additional scopes.
@@ -260,16 +260,16 @@ export type UseMetaOptions = {
  * and a child needs to add product/optionGroup/option without prop drilling.
  * Returns a new UseMetaResult that inherits parent scopes.
  */
-export type WithMetaOptions = {
+export interface WithMetaOptions {
   category?: MaybeRefOrGetter<CategoryInput | undefined>;
   product?: MaybeRefOrGetter<ProductInput | undefined>;
   optionGroup?: MaybeRefOrGetter<any>;
   option?: MaybeRefOrGetter<any>;
   basketProduct?: MaybeRefOrGetter<BasketProductInput | undefined>;
-};
+}
 
 /** Return type for useConfig composable */
-export type UseMetaResult = {
+export interface UseMetaResult {
   ui: UIMetaProxy;
   data: DataProxy;
   /**
@@ -278,7 +278,7 @@ export type UseMetaResult = {
    * Useful for adding optionGroup/option scopes without prop drilling.
    */
   with: (options: WithMetaOptions) => UseMetaResult;
-};
+}
 
 /**
  * Type utilities for extracting helper return types.

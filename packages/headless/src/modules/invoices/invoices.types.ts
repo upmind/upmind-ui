@@ -110,6 +110,12 @@ export const INVOICES_CONTEXT_WIRE_KEYS = {
   [InvoicesContextTypes.INVOICE]: "credit_invoice_id"
 } as const satisfies Record<InvoicesContextTypes, keyof InvoiceFilterModel>;
 
+/** One durable filter column and the reactive-or-static id that seeds it. */
+export type DurableFilterSlot = {
+  key: (typeof INVOICES_CONTEXT_WIRE_KEYS)[InvoicesContextTypes];
+  value: MaybeRef<string | undefined>;
+};
+
 /**
  * Scope matrix for `useInvoices`.
  *
