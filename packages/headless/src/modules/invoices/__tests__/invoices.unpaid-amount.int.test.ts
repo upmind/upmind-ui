@@ -17,7 +17,6 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { map } from "lodash-es";
 import { useInvoice } from "..";
 import {
   installInvoiceHandlers,
@@ -25,6 +24,7 @@ import {
   recorded,
   seedClientSession
 } from "./invoices.int-helpers";
+import { map } from "lodash-es";
 import "./setup.integration";
 
 // -----------------------------------------------------------------------------

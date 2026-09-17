@@ -331,9 +331,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
     observed.stop();
 
     const decoded = decodeURIComponent(observed.last().url);
-    expect(decoded).toContain(
-      `filter[client_id]=${MANUAL_RETARGET_CLIENT_ID}`
-    );
+    expect(decoded).toContain(`filter[client_id]=${MANUAL_RETARGET_CLIENT_ID}`);
     expect(decoded).not.toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
   });
 
@@ -360,9 +358,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
 
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
-    expect(decoded).toContain(
-      "filter[number]=durability-falsy-client-id-001"
-    );
+    expect(decoded).toContain("filter[number]=durability-falsy-client-id-001");
     expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
     assertClientIdentityTransport(request, accessToken);
   });

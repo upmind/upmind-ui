@@ -26,13 +26,13 @@
 
 import { describe, expect, it } from "vitest";
 import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
-import { filter, includes, map, some } from "lodash-es";
 import { useInvoices } from "..";
 import {
   installInvoiceHandlers,
   observeInvoiceRequests,
   seedClientSession
 } from "./invoices.int-helpers";
+import { filter, includes, map, some } from "lodash-es";
 import "./setup.integration";
 
 // -----------------------------------------------------------------------------
@@ -56,7 +56,9 @@ async function wireAfter(write: () => void): Promise<string[]> {
 
 describe("invoices collection — filters reach the wire as bare keys", () => {
   it("AC-2 one status spells filter[status.code], never filter[status.code|eq]", async () => {
-    const urls = await wireAfter(function (this: ReturnType<typeof useInvoices>) {
+    const urls = await wireAfter(function (
+      this: ReturnType<typeof useInvoices>
+    ) {
       this.useActions().filterBy({ "status.code": InvoiceStatus.PAID });
     });
 
@@ -69,7 +71,9 @@ describe("invoices collection — filters reach the wire as bare keys", () => {
   });
 
   it("AC-2 several statuses ride ONE bare key as a comma list, never filter[status.code|in]", async () => {
-    const urls = await wireAfter(function (this: ReturnType<typeof useInvoices>) {
+    const urls = await wireAfter(function (
+      this: ReturnType<typeof useInvoices>
+    ) {
       this.useActions().filterBy({
         "status.code": [InvoiceStatus.UNPAID, InvoiceStatus.OVERDUE]
       });
@@ -87,7 +91,9 @@ describe("invoices collection — filters reach the wire as bare keys", () => {
   });
 
   it("AC-2 the category column spells the same way", async () => {
-    const urls = await wireAfter(function (this: ReturnType<typeof useInvoices>) {
+    const urls = await wireAfter(function (
+      this: ReturnType<typeof useInvoices>
+    ) {
       this.useActions().filterBy({
         "category.slug": InvoiceCategoryCode.RECURRENT
       });
@@ -106,7 +112,9 @@ describe("invoices collection — filters reach the wire as bare keys", () => {
   it("AC-2 NO invoices request carries a suffixed filter key at all", async () => {
     // The whole-request sweep the per-column cases cannot make: a column this
     // file does not name re-growing an operator bag is the same 422.
-    const urls = await wireAfter(function (this: ReturnType<typeof useInvoices>) {
+    const urls = await wireAfter(function (
+      this: ReturnType<typeof useInvoices>
+    ) {
       this.useActions().filterConsolidatable();
     });
 

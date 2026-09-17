@@ -25,7 +25,10 @@
 
 import { describe, expect, it } from "vitest";
 import { useInvoices } from "..";
-import { installInvoiceHandlers, seedClientSession } from "./invoices.int-helpers";
+import {
+  installInvoiceHandlers,
+  seedClientSession
+} from "./invoices.int-helpers";
 import "./setup.integration";
 
 // -----------------------------------------------------------------------------

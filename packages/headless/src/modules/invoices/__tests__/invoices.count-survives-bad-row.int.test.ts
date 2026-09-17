@@ -20,8 +20,8 @@
  * loaded correctly.
  */
 
-import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
+import { describe, expect, it } from "vitest";
 import { useInvoices } from "..";
 import { recorded, seedClientSession } from "./invoices.int-helpers";
 import { server } from "./setup.integration";
