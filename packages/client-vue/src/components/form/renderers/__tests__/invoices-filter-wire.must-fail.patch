@@ -35,7 +35,7 @@ fixed source re-confirmed GREEN at 161/161.
 
 --- a/packages/client-vue/src/components/form/renderers/FilterMultiSelectRenderer.vue
 +++ b/packages/client-vue/src/components/form/renderers/FilterMultiSelectRenderer.vue
-@@ -1,6 +1,6 @@
+@@ -140,4 +140,4 @@
  /** Read by literal path: `control.data` never resolves for a dotted column. */
  const selected = computed<unknown[]>(
 -  () => get(jsonforms?.core?.data, literalPath.value) ?? []
