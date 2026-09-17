@@ -1,0 +1,27 @@
+# Negative control — an organism speaks Nuxt. `Auth.vue` is mounted by both
+# hosts, and `#app` is a virtual module Nuxt resolves for itself: under every
+# Nuxt app this import compiles, type-checks and passes. `apps/cart` is a plain
+# Vite app with no such resolver, so it alone breaks, at build time, on code
+# every other gate called green. That asymmetry is why ADR 023 §9 puts Nuxt in
+# the thin `/nuxt` adapter and nowhere else.
+#
+# The guard cannot be a whole-package reach count: the adapter legitimately
+# reaches `#app`, so moving the import into an organism leaves the package's
+# reached set byte-identical. The two closures are walked separately for exactly
+# this patch.
+#
+# Intended RED:
+#   src/__tests__/basket-free.test.ts
+#     "keeps Nuxt core out of every organism"
+diff --git a/packages/auth/src/components/Auth.vue b/packages/auth/src/components/Auth.vue
+index 781629ee0b..511474097e 100644
+--- a/packages/auth/src/components/Auth.vue
++++ b/packages/auth/src/components/Auth.vue
+@@ -75,6 +75,7 @@
+ </template>
+ 
+ <script lang="ts" setup>
++import { useRuntimeConfig } from "#app";
+ import { Slot } from "@upmind/ui";
+ import { cn, Interstitial, Link } from "@upmind/ui";
+ import { Alert } from "@upmind/ui";

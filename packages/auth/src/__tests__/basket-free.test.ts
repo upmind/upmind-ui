@@ -29,6 +29,13 @@
  * The closure below sees every hop, and strips comments before it reads a
  * specifier, so prose can neither hide a reach nor invent one.
  *
+ * ## The Nuxt half rides here too
+ * The same closure answers a second §9 question: Nuxt core belongs to the thin
+ * `/nuxt` adapter and to nothing else, because `apps/cart` is a plain Vite app
+ * and `#app` has no resolver there. An organism that imports it compiles, tests
+ * green under every Nuxt host, and breaks that app alone — so the two halves
+ * are walked separately and asserted in both directions.
+ *
  * ## Where the request fact is held instead
  * The harm itself — an auth surface issuing an order or basket request — is a
  * network fact and is asserted where the platform actually boots, against the
@@ -49,15 +56,21 @@ const PACKAGE_ROOT = resolve(process.cwd());
 const SOURCE_EXTENSIONS = [".ts", ".vue", ".mts", ".js", ".mjs"];
 
 /**
- * Every way in: the three `package.json#exports` entries plus the Nuxt plugin,
- * which the adapter registers by path rather than by import.
+ * The two entry points a host mounts components through. Framework-core-
+ * agnostic by ADR 023 §9: what they reach has to run under plain Vite, because
+ * `apps/cart` mounts exactly these organisms and knows nothing of Nuxt.
  */
-const ENTRY_POINTS = [
-  "src/index.ts",
-  "src/feature.ts",
-  "nuxt.ts",
-  "src/nuxt/auth.plugin.ts"
-];
+const ORGANISM_ENTRIES = ["src/index.ts", "src/feature.ts"];
+
+/**
+ * The Nuxt half: the module a host lists in `nuxt.config`, and the plugin it
+ * registers BY PATH rather than by import — which is why the plugin is named
+ * here and not found by following the module.
+ */
+const ADAPTER_ENTRIES = ["nuxt.ts", "src/nuxt/auth.plugin.ts"];
+
+/** Every way in: the three `package.json#exports` entries plus that plugin. */
+const ENTRY_POINTS = [...ORGANISM_ENTRIES, ...ADAPTER_ENTRIES];
 
 /**
  * Commerce packages sit ABOVE `auth`, so nothing reachable from it may resolve
@@ -74,8 +87,11 @@ const ABOVE_AUTH = [
  * Everything outside the package the closure reaches, exactly. An exact set is
  * deliberate: a scanner that silently drops a specifier would make every
  * forbidden-reach assertion vacuous, so the set has to be pinned in BOTH
- * directions. `#app` and `nuxt/kit` are the Nuxt adapter's two, reached only
- * from `nuxt.ts` and the plugin it registers.
+ * directions. `#app` and `nuxt/kit` are the Nuxt adapter's two; that they are
+ * reached ONLY from `nuxt.ts` and the plugin it registers is asserted below,
+ * against the two closures separately — this whole-package set cannot see it,
+ * because a specifier that moves from the adapter into an organism leaves the
+ * set unchanged.
  */
 const REACHED = [
   "#app",
@@ -96,6 +112,9 @@ const REACHED = [
  * this stays a subset check: deleting the file is fine, orphaning another is not.
  */
 const UNREACHABLE = ["src/components/Expired.vue"];
+
+/** Nuxt's own modules, virtual and real. None may reach an organism. */
+const NUXT_CORE = ["#app", "#imports", "nuxt", "nuxt/kit", "nuxt/app"];
 
 function relativeToPackage(path: string) {
   return path.slice(PACKAGE_ROOT.length + 1);
@@ -151,13 +170,13 @@ function resolveRelative(from: string, specifier: string) {
  * the bare specifiers the closure reaches — a transitive reach three hops from
  * the barrel is caught the same as one in the barrel itself.
  */
-function resolvedGraph() {
+function resolvedGraph(entries: string[] = ENTRY_POINTS) {
   const bare = new Set<string>();
   const files = new Set<string>();
   const unresolved: string[] = [];
-  const queue = ENTRY_POINTS.map(entry => join(PACKAGE_ROOT, entry)).filter(
-    entry => existsSync(entry)
-  );
+  const queue = entries
+    .map(entry => join(PACKAGE_ROOT, entry))
+    .filter(entry => existsSync(entry));
 
   while (queue.length > 0) {
     const file = queue.shift();
@@ -197,9 +216,48 @@ function sourceFiles(directory: string): string[] {
 }
 
 const graph = resolvedGraph();
+const organisms = resolvedGraph(ORGANISM_ENTRIES);
+const adapter = resolvedGraph(ADAPTER_ENTRIES);
 const modules = sourceFiles(join(PACKAGE_ROOT, "src"));
 
+/** Which of `names` the closure reaches, by exact name or by subpath. */
+function reaches(bare: string[], names: string[]) {
+  return names.filter(name =>
+    bare.some(
+      specifier => specifier === name || specifier.startsWith(`${name}/`)
+    )
+  );
+}
+
 // -----------------------------------------------------------------------------
+
+describe("the Nuxt half, which is one adapter and not the package", () => {
+  /**
+   * ADR 023 §9 keeps the organisms framework-core-agnostic and puts every Nuxt
+   * import in the thin `/nuxt` adapter. The two halves are walked SEPARATELY
+   * because the whole-package set cannot tell them apart: move `#app` from the
+   * plugin into a component and the package still reaches exactly `#app`.
+   */
+  it("keeps Nuxt core out of every organism", () => {
+    expect(
+      reaches(organisms.bare, NUXT_CORE),
+      "an organism speaks Nuxt, so the Vite cart cannot mount it"
+    ).toEqual([]);
+  });
+
+  /** The other direction, so the assertion above cannot pass on an empty walk. */
+  it("confines Nuxt core to the adapter that exists to speak it", () => {
+    expect(reaches(adapter.bare, NUXT_CORE)).not.toEqual([]);
+
+    const organismFiles = new Set(organisms.files);
+    const adapterOnly = adapter.files
+      .filter(file => !organismFiles.has(file))
+      .map(relativeToPackage)
+      .sort();
+
+    expect(adapterOnly).toEqual(["nuxt.ts", "src/nuxt/auth.plugin.ts"]);
+  });
+});
 
 describe("the auth package's resolved import boundary", () => {
   it("resolves a real graph, and every edge in it", () => {
