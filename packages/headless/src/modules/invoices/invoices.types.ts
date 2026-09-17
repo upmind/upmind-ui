@@ -24,9 +24,11 @@
  * @module invoices/invoices.types
  * @description Types for the invoices module's conversion (M1 -> M3): the
  * query-backed collection (`useInvoices`) and the query-backed single read
- * (`useInvoice`). The COLLECTION owns a context ENUM and a matrix that
- * resolves one cell (`client`), because whose invoices are read is a genuine
- * actor context. The SINGLE READ owns NO context enum — which invoice is read
+ * (`useInvoice`). The COLLECTION owns a context ENUM and a matrix whose
+ * `client` cell holds four RETARGET members — `client` plus the `contract` /
+ * `contracts_product` / `invoice` relationships (FE-3031 F3, OR-1) — because
+ * WHICH entity a read is scoped to is a genuine actor context. The SINGLE READ
+ * owns NO context enum — which invoice is read
  * is a record id (`.withId(id)`), not a context — but it still owns a
  * matrix, an ALL-`never` one, because that is the only construct that makes
  * `.for()` unspellable (`templates/SINGLE-READ.md`). Both matrices resolve
@@ -38,7 +40,7 @@
  * is a single nullable id (see `InvoicePaymentDetailsModel`).
  */
 
-import { AccessRoleTypes } from "@upmind-automation/types";
+import { AccessRoleTypes, UpmindObjectTypes } from "@upmind-automation/types";
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { FormattedDate, ResponseError } from "../../utils";
@@ -77,12 +79,36 @@ import type { ComputedRef, MaybeRef } from "vue";
 // -----------------------------------------------------------------------------
 
 /**
- * Context types for the invoice COLLECTION — whose invoices are read.
+ * Context types for the invoice COLLECTION — the entity a read is scoped to.
+ * Every relationship value is sourced from the canonical object-type enum
+ * (`UpmindObjectTypes`), never a minted literal — `IdContextsForActor` extracts
+ * the string VALUE, so `.for('contract', id)` only spells if that value is
+ * `"contract"` (`scope.types.ts`).
  */
 export enum InvoicesContextTypes {
   /** Reading an entitled client's invoices (sub-account or delegator). */
-  CLIENT = AccessRoleTypes.CLIENT
+  CLIENT = AccessRoleTypes.CLIENT,
+  /** Reading one contract's invoices (`filter[contracts.id]`). */
+  CONTRACT = UpmindObjectTypes.CONTRACT,
+  /** Reading one contract product's invoices (`filter[products.contracts_product_id]`). */
+  CONTRACT_PRODUCT = UpmindObjectTypes.CONTRACTS_PRODUCT,
+  /** Reading one parent invoice's credit notes (`filter[credit_invoice_id]`). */
+  INVOICE = UpmindObjectTypes.INVOICE
 }
+
+/**
+ * Each relationship context's wire filter column. The scope seam
+ * (`invoices.services.ts`) reads this to seed the resolved slot and keep it
+ * durable across criteria writes, exactly as it does the client's own
+ * `client_id`. Values are `InvoiceQueryModel` filter keys — no raw
+ * `filter[...]` string is minted here.
+ */
+export const INVOICES_CONTEXT_WIRE_KEYS = {
+  [InvoicesContextTypes.CLIENT]: "client_id",
+  [InvoicesContextTypes.CONTRACT]: "contracts.id",
+  [InvoicesContextTypes.CONTRACT_PRODUCT]: "products.contracts_product_id",
+  [InvoicesContextTypes.INVOICE]: "credit_invoice_id"
+} as const satisfies Record<InvoicesContextTypes, keyof InvoiceFilterModel>;
 
 /**
  * Scope matrix for `useInvoices`.
@@ -101,15 +127,35 @@ export enum InvoicesContextTypes {
  * the `client x self` cell (`invoices.services.ts`). A cell governs `.for()`
  * ONLY (`client-email-history.types.ts:74-77`).
  *
- * `CLIENT: InvoicesContextTypes.CLIENT` is the `client x client` cell: the
- * retarget is a declared `client_id` filter column on `useQuerySchema()`,
- * never a path segment — the client lane has no `api/clients/{id}/invoices`
- * route (`oracle:25-34`).
+ * The `CLIENT` actor's cell is an ARRAY of RETARGET members (`scope.types.ts`
+ * array-cell form): `client` is the `client x client` cell (a declared
+ * `client_id` filter column on `useQuerySchema()`, never a path segment — the
+ * client lane has no `api/clients/{id}/invoices` route, `oracle:25-34`), and
+ * `contract` / `contracts_product` / `invoice` are the three entity
+ * relationships (FE-3031 F3, OR-1), each a declared filter column the scope
+ * seam seeds (`INVOICES_CONTEXT_WIRE_KEYS`).
+ *
+ * @decision
+ * what: model the three entity relationships as RETARGET context members of
+ * the CLIENT cell, not as consumer-settable filter-bar columns.
+ * why: a relationship is an actor-scope slot (`.for('contract', id)`), not a
+ * free filter — one context slot per read, seeded and kept durable through the
+ * same seam the client already flows through, so a preset write
+ * (`filterCreditNotes()`) cannot silently drop it (OR-1 (b)). The wire stays
+ * flat `filter[...]`; only the public API shape changes.
+ * rejected: leaving the three as raw filter columns — a caller could set them
+ * alongside the client, and a preset write would drop them; neither matches
+ * the "scope slot" contract this story asks for.
  */
 export const INVOICES_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: InvoicesContextTypes.CLIENT,
+  [ScopeActorTypes.CLIENT]: [
+    InvoicesContextTypes.CLIENT,
+    InvoicesContextTypes.CONTRACT,
+    InvoicesContextTypes.CONTRACT_PRODUCT,
+    InvoicesContextTypes.INVOICE
+  ],
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
@@ -211,7 +257,7 @@ export type InvoiceQueryModel = {
     is_consolidation?: boolean | null;
     /** The credit-notes preset filters on this (AC7). */
     "category.slug"?: InvoiceCategoryCode | InvoiceCategoryCode[];
-    /** Set when scoping to one invoice's credit notes (AC7); not drawn. */
+    /** Seeded from the `.for('invoice', id)` scope slot (AC7); not consumer-settable. */
     credit_invoice_id?: string;
     /** Used by the consolidatable preset (AC2); not drawn. */
     paid_amount?: number;
@@ -228,9 +274,9 @@ export type InvoiceQueryModel = {
      * by URL and absent from the bar (`design.md` "Filter columns").
      */
     fraud_status?: number | number[];
-    /** Set when scoping to one contract; not drawn. */
+    /** Seeded from the `.for('contract', id)` scope slot; not consumer-settable. */
     "contracts.id"?: string;
-    /** Set when scoping to one product; not drawn. */
+    /** Seeded from the `.for('contracts_product', id)` scope slot; not consumer-settable. */
     "products.contracts_product_id"?: string;
   };
   sort?: InvoiceSortEntry[];

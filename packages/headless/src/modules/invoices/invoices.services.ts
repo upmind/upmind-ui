@@ -10,17 +10,21 @@ import {
   createInvoicesSchemas,
   UNPAID_EXISTENCE_CRITERIA
 } from "./invoices.schemas";
-import { InvoicesContextTypes } from "./invoices.types";
+import {
+  InvoicesContextTypes,
+  INVOICES_CONTEXT_WIRE_KEYS
+} from "./invoices.types";
 import {
   useTime,
   DetailedError,
   ErrorOrigin,
   NotAuthenticatedError
 } from "../../utils";
-import { has } from "lodash-es";
+import { forEach, has } from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
   Invoice,
+  InvoiceFilterModel,
   InvoicePaymentDetailsModel,
   InvoiceItemQuery,
   InvoiceQueryModel,
@@ -132,100 +136,130 @@ function isAddressable(clientId?: string): boolean {
   return isAuthenticated.value && !!clientId;
 }
 
+/** One durable filter column and the reactive-or-static id that seeds it. */
+type DurableFilterSlot = {
+  key: (typeof INVOICES_CONTEXT_WIRE_KEYS)[InvoicesContextTypes];
+  value: MaybeRef<string | undefined>;
+};
+
 /**
- * Keeps a list handle's `client_id` filter column tracking the RESOLVED
- * scope target reactively, through the declared criteria column
- * (`setCriteria`) — never a mint-time snapshot (W2): a self-scope's
- * `clientId` follows the active session and can change after construction
- * (e.g. a session switch), and a criteria `model` seed is committed once,
- * at mint, only. Every other declared filter on the handle is preserved —
- * only the `client_id` key is overridden.
+ * The durable filter slots this scope seeds — always the resolved `client_id`
+ * (a `.for('client', X)` target, or the session's own id), plus the ONE
+ * relationship column a `.for('contract'|'contracts_product'|'invoice', id)`
+ * names, if any. A caller names the client OR a relationship, never both, so
+ * the array holds at most two entries.
+ *
+ * The client id is reactive (it follows a session switch); a relationship id
+ * arrives as a static value on `config.context` and stays a plain string — the
+ * one seam reads both through `unref`, so nothing is wrapped to fake reactivity.
  */
-function trackClientIdFilter(
+function resolveFilterSlots(
+  clientId: ComputedRef<string | undefined>,
+  scopeContext?: ScopeContext
+): DurableFilterSlot[] {
+  const slots: DurableFilterSlot[] = [
+    {
+      key: INVOICES_CONTEXT_WIRE_KEYS[InvoicesContextTypes.CLIENT],
+      value: clientId
+    }
+  ];
+
+  const type = scopeContext?.type;
+  if (
+    scopeContext?.id &&
+    type !== undefined &&
+    type !== InvoicesContextTypes.CLIENT &&
+    type in INVOICES_CONTEXT_WIRE_KEYS
+  ) {
+    slots.push({
+      key: INVOICES_CONTEXT_WIRE_KEYS[type as InvoicesContextTypes],
+      value: scopeContext.id
+    });
+  }
+
+  return slots;
+}
+
+/**
+ * Seeds each resolved slot's wire column onto the handle and keeps it tracking
+ * its source — a reactive `client_id` follows a session switch (W2), a static
+ * relationship id seeds once. Every other declared filter is preserved; only
+ * the slot's own key is (re)written.
+ */
+function seedFilterSlots(
   handle: InvoicesListQuery,
-  clientId: ComputedRef<string | undefined>
+  slots: DurableFilterSlot[]
 ): void {
-  watch(
-    clientId,
-    value =>
-      handle.setCriteria({
-        filters: {
-          ...handle.criteria.value.filters,
-          ...(value ? { client_id: value } : {})
-        }
-      }),
-    { immediate: true }
+  forEach(slots, slot =>
+    watch(
+      () => unref(slot.value),
+      value => {
+        const filters: InvoiceFilterModel = {
+          ...handle.criteria.value.filters
+        };
+        if (value) filters[slot.key] = value;
+        handle.setCriteria({ filters });
+      },
+      { immediate: true }
+    )
   );
 }
 
 /**
- * Wraps a list handle's published `setCriteria` so the RESOLVED target's
- * `client_id` column survives every write that OMITS it, whatever `filters`
- * branch a caller replaces (AC12, the A7 clause, blocker H1). `criteria.set`
- * merges at BRANCH level (`useQueryCriteria.ts:100-101`: "`set({ filters })`
- * replaces the whole `filters` branch") — a bare `filters` write that omits
- * `client_id` would otherwise drop the column and re-widen the list to the
- * READER's own rows while `select: raw => mapInvoices(raw, clientId.value)`
- * still attributes them against the target. A caller that DECLARES its own
- * `client_id` (the published `setCriteria`'s own manual-retarget door,
- * `invoices.scope-identity.int.test.ts`) is left untouched — this seam only
- * fills an ABSENT column, it never overrides a present one.
+ * Wraps a list handle's published `setCriteria` so every RESOLVED slot's
+ * column survives a write that OMITS it, whatever `filters` branch a caller
+ * replaces (AC12, the AC7 clause, OR-1 (b), blocker H1). `criteria.set` merges
+ * at BRANCH level (`useQueryCriteria.ts`: "`set({ filters })` replaces the
+ * whole `filters` branch") — a bare `filters` write that omits `client_id`
+ * (or a scoped `contracts.id`) would otherwise drop the column: the client
+ * re-widens to the READER's own rows while `select` still attributes them
+ * against the target, and a `.for('contract', id)` + `filterCreditNotes()`
+ * read loses the contract narrowing. A caller that DECLARES a slot's key is
+ * left untouched — this seam fills only an ABSENT column.
  *
  * @decision
- * what: intercept every `filters`-branch write reaching the handle this
- * module hands to `useInvoices.actions.ts` (the ONE handle backing the
- * published `setCriteria`, `sortBy`, `filterConsolidatable` and
- * `filterCreditNotes`), and re-assert `client_id` inside the caller's own
- * `filters` object ONLY when that object does not already declare the key —
- * never a second, competing `setCriteria` call, never a raw wire param.
- * why: the merge semantics live in `useQueryCriteria.set`
- * (`packages/headless/src/modules/query/useQueryCriteria.ts:111-123`) and
- * are shared platform behaviour every module on `list()` relies on;
- * changing them would change every consumer's semantics, not just this
- * module's. `creditNotesCriteria` is one of two reachable doors (the
- * published `setCriteria` is the other, per `useInvoices.ts`'s own doc
- * example) — patching only the preset leaves the second door open. Wrapping
- * the ONE handle every published verb shares closes both: no caller-spelled
- * request can silently drop the column. The presence check (never
- * unconditional override) preserves `setCriteria`'s own manual-retarget
- * door, where a caller declaring `client_id` explicitly must win.
+ * what: intercept every `filters`-branch write reaching the ONE handle this
+ * module hands to `useInvoices.actions.ts` (backing the published
+ * `setCriteria`, `sortBy`, `filterConsolidatable` and `filterCreditNotes`),
+ * and re-assert each resolved slot inside the caller's own `filters` object
+ * ONLY when it does not already declare that key. Generalises the former
+ * client-only `withDurableClientId` over the slot list so the three
+ * relationship columns are kept durable by the SAME seam the client is, rather
+ * than a second, competing one.
+ * why: the merge semantics live in `useQueryCriteria.set` and are shared
+ * platform behaviour every module on `list()` relies on; changing them would
+ * change every consumer's semantics. `creditNotesCriteria` is one of two
+ * reachable doors (the published `setCriteria` is the other) — wrapping the
+ * one shared handle closes both, for every slot, so no caller-spelled request
+ * can silently drop a scoped column. The presence check (never unconditional
+ * override) preserves `setCriteria`'s own manual-retarget door.
  * rejected:
  * - fix `useQueryCriteria.set` to merge `filters` at key level: blocked by
  * operator ruling 2026-09-08 (verbatim, "do not chnage any query stuff") —
  * `packages/headless/src/modules/query/**` stays untouched.
- * - patch only `creditNotesCriteria` to carry `client_id`: leaves the
- * published `setCriteria` — AC12's other reachable door — open.
- * - unconditionally re-assert `client_id` regardless of presence: breaks the
- * published `setCriteria`'s own manual-retarget door, which must let an
- * explicit caller-declared `client_id` win.
- * - a bare key-presence check (`has(next.filters, ["client_id"])`): passes
- * for `consolidatableCriteria`'s `client_id: { eq: undefined }`
- * (`invoices.schemas.ts:349`) too — a key with no value is not a caller
- * "declaring" `client_id`. A value-level truthiness check on `.eq` closes
- * that structurally rather than relying on `isAddressable(clientId.value)`
- * happening to keep it unreachable today.
+ * - patch only `creditNotesCriteria` to re-carry the slots: leaves the
+ * published `setCriteria` — the other reachable door — open.
+ * - unconditionally re-assert a slot regardless of presence: breaks the
+ * manual-retarget door, which must let an explicit caller-declared key win.
  */
-function withDurableClientId(
+function withDurableFilterSlots(
   handle: InvoicesListQuery,
-  clientId: ComputedRef<string | undefined>
+  slots: DurableFilterSlot[]
 ): InvoicesListQuery {
   const setCriteria: InvoicesListQuery["setCriteria"] = next => {
-    if (
-      !has(next, "filters") ||
-      !clientId.value ||
-      // Truthiness, not presence — a declared-but-undefined `client_id` (e.g.
-      // `consolidatableCriteria(undefined)`) is not a caller retarget. The
-      // column is a BARE value now, not an operator bag, so there is no `.eq`
-      // to reach through.
-      !!next.filters?.client_id
-    ) {
+    if (!has(next, "filters")) {
       handle.setCriteria(next);
       return;
     }
-    handle.setCriteria({
-      ...next,
-      filters: { ...next.filters, client_id: clientId.value }
+    const durable: InvoiceFilterModel = {};
+    forEach(slots, slot => {
+      const value = unref(slot.value);
+      // Truthiness, not presence — a declared-but-undefined key (e.g.
+      // `consolidatableCriteria(undefined)`'s `client_id`) is not a caller
+      // retarget, so this seam still fills it.
+      if (value && !next.filters?.[slot.key]) durable[slot.key] = value;
     });
+    handle.setCriteria({ ...next, filters: { ...next.filters, ...durable } });
   };
 
   return { ...handle, setCriteria };
@@ -237,14 +271,16 @@ function withDurableClientId(
  * from it and publishes filters/sort/pagination back on the handle, so there
  * is no raw `sort`/`filters`/`pagination` param beside it (AC2).
  *
- * {@link trackClientIdFilter} seeds and keeps the `client_id` filter column
- * in step with the resolved scope target (AC12, the A7 clause): without it,
- * a `.for('client', X)` scope fetched the READER's own rows while `select`
- * still attributed them against `X` (`mapInvoices` below), corrupting
- * `Invoice.attribution`/`isSettleable` for a genuine sub-account row.
+ * {@link seedFilterSlots} seeds and keeps each resolved slot's filter column
+ * in step with its source — the `client_id` follows the resolved scope target
+ * (AC12, the AC7 clause: without it a `.for('client', X)` scope fetched the
+ * READER's own rows while `select` still attributed them against `X`
+ * (`mapInvoices` below), corrupting `Invoice.attribution`/`isSettleable`), and
+ * a `.for('contract'|'contracts_product'|'invoice', id)` relationship seeds its
+ * own column (FE-3031 F3, OR-1).
  *
- * {@link withDurableClientId} then makes that column DURABLE across every
- * published criteria write, not just the mint-time seed — blocker H1.
+ * {@link withDurableFilterSlots} then makes each column DURABLE across every
+ * published criteria write, not just the mint-time seed — blocker H1, OR-1 (b).
  */
 function loadList(
   useQuerySchema: () => InvoiceQuerySchema,
@@ -275,9 +311,10 @@ function loadList(
     placeholderData: keepPreviousData
   });
 
-  trackClientIdFilter(handle, clientId);
+  const slots = resolveFilterSlots(clientId, scopeContext);
+  seedFilterSlots(handle, slots);
 
-  return withDurableClientId(handle, clientId);
+  return withDurableFilterSlots(handle, slots);
 }
 
 /**
@@ -431,7 +468,7 @@ function loadUnpaidExistence(
     staleTime: useTime().DAY
   });
 
-  trackClientIdFilter(handle, clientId);
+  seedFilterSlots(handle, resolveFilterSlots(clientId, scopeContext));
 
   return handle;
 }
@@ -493,7 +530,7 @@ function loadConsolidatableCount(
     staleTime: useTime().DAY
   });
 
-  trackClientIdFilter(handle, clientId);
+  seedFilterSlots(handle, resolveFilterSlots(clientId, scopeContext));
 
   return handle;
 }

@@ -93,6 +93,11 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  *
  * // client x client — retarget at an entitled client
  * const subAccount = useInvoices().as('client').for('client', clientId)
+ *
+ * // relationship scope — one entity per read (FE-3031 F3, OR-1)
+ * const byContract = useInvoices().for('contract', contractId)
+ * const byProduct = useInvoices().for('contracts_product', contractProductId)
+ * const creditNotes = useInvoices().for('invoice', parentInvoiceId)
  * ```
  */
 export const useInvoices = createScopedComposable<

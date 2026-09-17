@@ -85,7 +85,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
         properties: {
           id: {
             type: ["string", "null"],
-            title: "invoices.filter.id",
+            title: "invoices.filter.id"
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[id]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -93,7 +93,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
           },
           number: {
             type: ["string", "null"],
-            title: "invoices.filter.number",
+            title: "invoices.filter.number"
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[number]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -104,7 +104,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
             title: "invoices.filter.status",
             items: { type: "string", oneOf: STATUS_VOCABULARY },
             // Kept on the bare column: the bar's multi-select tester matches on it.
-            uniqueItems: true,
+            uniqueItems: true
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[status.code]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -112,7 +112,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
           },
           client_id: {
             type: ["string", "null"],
-            title: "invoices.filter.client_id",
+            title: "invoices.filter.client_id"
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[client_id]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -121,7 +121,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
           is_consolidation: {
             type: ["boolean", "null"],
             title: "invoices.filter.is_consolidation",
-            enum: [true, false, null],
+            enum: [true, false, null]
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[is_consolidation]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -132,7 +132,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
             title: "invoices.filter.category",
             items: { type: "string", oneOf: CATEGORY_VOCABULARY },
             // Kept on the bare column: the bar's multi-select tester matches on it.
-            uniqueItems: true,
+            uniqueItems: true
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[category.slug]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -141,6 +141,9 @@ export function useQuerySchema(): InvoiceQuerySchema {
           credit_invoice_id: {
             type: ["string", "null"],
             title: "invoices.filter.credit_invoice_id",
+            // Seeded from the `.for('invoice', id)` scope slot, never a bar
+            // control — `readOnly` marks it not consumer-settable.
+            readOnly: true
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[credit_invoice_id]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -148,7 +151,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
           },
           paid_amount: {
             type: ["number", "null"],
-            title: "invoices.filter.paid_amount",
+            title: "invoices.filter.paid_amount"
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[paid_amount]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -156,7 +159,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
           },
           total_amount: {
             type: ["number", "null"],
-            title: "invoices.filter.total_amount",
+            title: "invoices.filter.total_amount"
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[total_amount]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -164,7 +167,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
           },
           net_amount: {
             type: ["number", "null"],
-            title: "invoices.filter.net_amount",
+            title: "invoices.filter.net_amount"
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[net_amount]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -172,7 +175,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
           },
           total_discount_amount: {
             type: ["number", "null"],
-            title: "invoices.filter.total_discount_amount",
+            title: "invoices.filter.total_discount_amount"
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[total_discount_amount]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -201,7 +204,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
           proforma: {
             type: ["boolean", "null"],
             title: "invoices.filter.proforma",
-            enum: [true, false, null],
+            enum: [true, false, null]
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[proforma]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -214,7 +217,7 @@ export function useQuerySchema(): InvoiceQuerySchema {
             type: ["number", "array", "null"],
             title: "invoices.filter.fraud_status",
             items: { type: "number" },
-            uniqueItems: true,
+            uniqueItems: true
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[fraud_status]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -223,6 +226,9 @@ export function useQuerySchema(): InvoiceQuerySchema {
           "contracts.id": {
             type: ["string", "null"],
             title: "invoices.filter.contract_id",
+            // Seeded from the `.for('contract', id)` scope slot, never a bar
+            // control — `readOnly` marks it not consumer-settable.
+            readOnly: true
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[contracts.id]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
@@ -231,6 +237,9 @@ export function useQuerySchema(): InvoiceQuerySchema {
           "products.contracts_product_id": {
             type: ["string", "null"],
             title: "invoices.filter.contracts_product_id",
+            // Seeded from the `.for('contracts_product', id)` scope slot, never
+            // a bar control — `readOnly` marks it not consumer-settable.
+            readOnly: true
             // No `properties`: a branch with no operator sub-schema reaches the
             // wire as a BARE `filter[products.contracts_product_id]`, which the API defaults to
             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
