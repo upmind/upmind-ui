@@ -1,56 +1,3 @@
-<script setup lang="ts">
-import {
-  cn,
-  SelectRoot,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SettingsDialogRoot,
-  SettingsDialogContent,
-  SettingsDialogGroup,
-  SettingsDialogItem,
-  SettingsDialogMain,
-  SettingsDialogNav,
-  SettingsDialogPanel,
-  SettingsDialogRow,
-  SettingsDialogSearch,
-  SettingsDialogSection,
-  SettingsDialogSidebar,
-  SettingsDialogTrigger,
-  navigationMenuTriggerStyle,
-  sidebarNavLinkVariants,
-  Switch,
-  Tooltip
-} from "@upmind/ui";
-import { Palette, Settings } from "lucide-vue-next";
-import { usePortalConfig } from "~/composables/usePortalConfig";
-import { useTheme } from "~/composables/useTheme";
-
-/**
- * Which trigger renders. `rail` is the sidebar's own; `bar` matches a chrome
- * bar's nav links, so a config can seat this beside "My Plan" and the entry
- * point is the portal's OWN Settings item rather than a second affordance
- * parked in a corner.
- */
-const props = defineProps<{
-  collapsed?: boolean;
-  presentation?: "rail" | "bar";
-  /** Resolved by the `settings` module from the shared nav vocabulary. */
-  emphasisClass?: string;
-}>();
-
-const { themeName, isDark, options, setTheme, toggleMode } = useTheme();
-const {
-  activeConfigId,
-  options: portalConfigOptions,
-  setConfig,
-  activeDatasetId,
-  datasetOptions,
-  setDataset
-} = usePortalConfig();
-</script>
-
 <template>
   <SettingsDialogRoot>
     <!-- Bar: indistinguishable from the nav links either side of it, so the
@@ -212,3 +159,56 @@ const {
     </SettingsDialogContent>
   </SettingsDialogRoot>
 </template>
+
+<script setup lang="ts">
+import {
+  cn,
+  SelectRoot,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SettingsDialogRoot,
+  SettingsDialogContent,
+  SettingsDialogGroup,
+  SettingsDialogItem,
+  SettingsDialogMain,
+  SettingsDialogNav,
+  SettingsDialogPanel,
+  SettingsDialogRow,
+  SettingsDialogSearch,
+  SettingsDialogSection,
+  SettingsDialogSidebar,
+  SettingsDialogTrigger,
+  navigationMenuTriggerStyle,
+  sidebarNavLinkVariants,
+  Switch,
+  Tooltip
+} from "@upmind/ui";
+import { Palette, Settings } from "lucide-vue-next";
+import { usePortalConfig } from "~/composables/usePortalConfig";
+import { useTheme } from "~/composables/useTheme";
+
+/**
+ * Which trigger renders. `rail` is the sidebar's own; `bar` matches a chrome
+ * bar's nav links, so a config can seat this beside "My Plan" and the entry
+ * point is the portal's OWN Settings item rather than a second affordance
+ * parked in a corner.
+ */
+const props = defineProps<{
+  collapsed?: boolean;
+  presentation?: "rail" | "bar";
+  /** Resolved by the `settings` module from the shared nav vocabulary. */
+  emphasisClass?: string;
+}>();
+
+const { themeName, isDark, options, setTheme, toggleMode } = useTheme();
+const {
+  activeConfigId,
+  options: portalConfigOptions,
+  setConfig,
+  activeDatasetId,
+  datasetOptions,
+  setDataset
+} = usePortalConfig();
+</script>

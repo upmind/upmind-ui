@@ -1,3 +1,12 @@
+<template>
+  <PortalPageHost
+    :page-keys="pageKeys"
+    :heading="heading"
+    :route-context="routeContext"
+    aside-label="Account summary"
+  />
+</template>
+
 <script setup lang="ts">
 import { computed } from "vue";
 import { find, startCase } from "lodash-es";
@@ -130,12 +139,3 @@ function catchAllPageKeys(resolution: CatchAllResolution): readonly PageKey[] {
   }
 }
 </script>
-
-<template>
-  <PortalPageHost
-    :page-keys="pageKeys"
-    :heading="heading"
-    :route-context="routeContext"
-    aside-label="Account summary"
-  />
-</template>
