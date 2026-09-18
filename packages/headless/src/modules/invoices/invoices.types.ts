@@ -102,6 +102,9 @@ export const INVOICES_CONTEXT_WIRE_PARAMS = {
   [InvoicesContextTypes.INVOICE]: "filter[credit_invoice_id]"
 } as const;
 
+/** The static request param that keeps the invoice lookup to credited invoices: the parents. */
+export const INVOICE_PARENT_WIRE_PARAM = "filter[partial_amount_credited|gt]";
+
 /**
  * Scope matrix for `useInvoices`.
  *
@@ -633,9 +636,10 @@ export type InvoicesServices = {
 // context type this module's collection resolves against.
 export type { ScopeContext };
 
-/** The invoice lookup's criteria model — quick-search term + pagination. */
+/** The invoice lookup's criteria model — the number search + pagination. */
 export type InvoiceLookupQueryModel = {
-  query?: string | null;
+  filters?: { number?: { like?: string | null } };
+  sort?: InvoiceSortModel;
   pagination?: { limit?: number; offset?: number };
 };
 
@@ -648,7 +652,7 @@ export type InvoiceLookupQueryModel = {
 export type InvoiceLookupQuery = ListQuery<
   IInvoice[],
   LookupItem[],
-  InvoiceQueryModel
+  InvoiceLookupQueryModel
 >;
 
 /**

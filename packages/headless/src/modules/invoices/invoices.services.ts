@@ -19,9 +19,13 @@ import {
 import {
   useContractProductsQuerySchema,
   useContractsQuerySchema,
+  useInvoiceLookupQuerySchema,
   useQuerySchema
 } from "./invoices.schemas";
-import { InvoicesContextTypes } from "./invoices.types";
+import {
+  INVOICE_PARENT_WIRE_PARAM,
+  InvoicesContextTypes
+} from "./invoices.types";
 import { scopeWireParams } from "./invoices.utils";
 import {
   useTime,
@@ -39,6 +43,7 @@ import type {
   ContractProductLookupQuery,
   ContractProductLookupQueryModel,
   InvoiceLookupQuery,
+  InvoiceLookupQueryModel,
   InvoicePaymentDetailsModel,
   InvoiceItemQuery,
   InvoiceQueryModel,
@@ -255,26 +260,17 @@ function loadInvoiceLookup(
   const { listInfinite, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return listInfinite<IInvoice[], LookupItem[], InvoiceQueryModel>({
-    // Parent invoices only: `.for('invoice', id)` lists the credit notes OF an
-    // invoice, so a credit note is never a context. The legacy invoices list's
-    // own category set (`invoicesProvider.categoryFilter`).
-    criteria: {
-      schema: useQuerySchema(),
-      model: {
-        filters: {
-          "category.slug": [
-            InvoiceCategoryCode.NEW_CONTRACT,
-            InvoiceCategoryCode.ADDITIONAL_SERVICE,
-            InvoiceCategoryCode.ONE_TIME_SERVICE,
-            InvoiceCategoryCode.MIGRATION,
-            InvoiceCategoryCode.RECURRENT
-          ]
-        }
-      }
-    },
+  return listInfinite<IInvoice[], LookupItem[], InvoiceLookupQueryModel>({
+    criteria: { schema: useInvoiceLookupQuerySchema() },
     queryKey: [...queryKey, "lookups", "invoices", { client: clientId }],
-    url: useUrl("invoices", { client_id: clientId.value }),
+    // `.for('invoice', id)` lists the credit notes OF an invoice, so the picker
+    // offers the invoices that have been credited: the parents. A credit note
+    // carries no credited amount, so it never appears. Static like `client_id`;
+    // staging: `partial_amount_credited > 0` selects every credit note's parent.
+    url: useUrl("invoices", {
+      client_id: clientId.value,
+      [INVOICE_PARENT_WIRE_PARAM]: 0
+    }),
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {

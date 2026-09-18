@@ -502,8 +502,7 @@
     "label": "Consolidation",
     "placeholder": null,
     "true": "Consolidated",
-    "false": "Not consolidated",
-    "null": "All"
+    "false": "Not consolidated"
   },
   "invoice_total_filter": {
     "description": null,

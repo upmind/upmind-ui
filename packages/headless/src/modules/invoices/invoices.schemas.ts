@@ -184,9 +184,54 @@ export function useSortUischema(): ControlElement {
 }
 
 // -----------------------------------------------------------------------------
-// The two foreign lists the scope picker reads. They live here until the
-// `contracts` module has code of its own.
+// The three lists the scope picker reads. A lookup schema declares only what
+// its search writes: the list schema's other filter columns would reach the
+// wire empty and evict the static request params beside `client_id`.
 // -----------------------------------------------------------------------------
+
+export function useInvoiceLookupQuerySchema(): QuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          number: {
+            type: "object",
+            additionalProperties: false,
+            properties: { like: { type: ["string", "null"], minLength: 1 } }
+          }
+        }
+      },
+      sort: {
+        type: "array",
+        maxItems: 1,
+        uniqueItems: true,
+        default: INVOICE_DEFAULT_SORT,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["field", "dir"],
+          properties: {
+            field: { enum: ["create_datetime", "number"] },
+            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+          }
+        }
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+          offset: { type: "integer", minimum: 0 }
+        }
+      }
+    }
+  } satisfies QuerySchema;
+}
 
 export function useContractsQuerySchema(): QuerySchema {
   return {
@@ -329,7 +374,10 @@ export function useLookupsUischema(
         scope: `#/properties/${InvoicesContextTypes.INVOICE}`,
         i18n: "form.invoice_lookup",
         options: {
-          lookup: { service: lookups.invoice, searchScope: "filters.number" },
+          lookup: {
+            service: lookups.invoice,
+            searchScope: "filters.number.like"
+          },
           optionalText: ""
         }
       },

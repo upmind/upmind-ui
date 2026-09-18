@@ -44,8 +44,14 @@
 
     <!-- RETARGET members: ONE form over every context the matrix declares,
          when the page's module publishes one (`schemas.lookups`). The form has
-         no actions, so a model write IS the pick. -->
-    <div v-if="contextForm" class="p-2" @keydown.stop>
+         no actions: a lookup write IS the pick, a typed client id applies on
+         Enter. -->
+    <div
+      v-if="contextForm"
+      class="p-2"
+      @keydown.stop
+      @keydown.enter="applyPendingClient"
+    >
       <UpmForm
         :schema="contextForm.schema"
         :uischema="contextForm.uischema"
@@ -194,7 +200,7 @@ import {
   Input,
   Tooltip
 } from "@upmind/ui";
-import { computed, reactive } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
 import {
@@ -406,10 +412,15 @@ async function ensureClientSession(id: string): Promise<boolean> {
 
 /**
  * Act for an entity — the one RETARGET write every path ends on. A client is
- * impersonated into the pool first, so the page reads as that client.
+ * impersonated into the pool first, so the page reads as that client; a
+ * refused impersonation is the one way this returns false.
  */
-async function actFor(type: string, id: string, label?: string): Promise<void> {
-  if (isClientType(type) && !(await ensureClientSession(id))) return;
+async function actFor(
+  type: string,
+  id: string,
+  label?: string
+): Promise<boolean> {
+  if (isClientType(type) && !(await ensureClientSession(id))) return false;
 
   remember({
     type,
@@ -418,6 +429,7 @@ async function actFor(type: string, id: string, label?: string): Promise<void> {
   });
 
   await updateScopeParam("context", { type, id });
+  return true;
 }
 
 /** Act for a client the store already holds, or has held before. */
@@ -433,19 +445,41 @@ const clientMember = computed(() =>
 /** The typed ids of the plain fallback, one per RETARGET member. */
 const idInputs = reactive<Record<string, string>>({});
 
-/** Act for the id typed into a member's plain field. */
+/** Act for the id typed into a member's plain field; a refused id stays put. */
 async function applyId(member: AvailableContext): Promise<void> {
   const id = trim(idInputs[member.type] ?? "");
   if (!id) return;
 
-  idInputs[member.type] = "";
-  await actFor(member.type, id);
+  if (await actFor(member.type, id)) idInputs[member.type] = "";
 }
+
+/**
+ * The client id typed into the form, held until Enter. A plain field writes
+ * on every keystroke, and a client pick impersonates, so the keystroke is not
+ * the pick. A lookup pick names a whole record and applies at once.
+ */
+const pendingClientId = ref<string>();
 
 /** Act for whichever context the form write names. */
 async function onContextPick(value: Record<string, unknown>): Promise<void> {
   const context = pickContext(value);
-  if (context?.id) await actFor(context.type, context.id);
+  if (!context?.id) return;
+
+  if (isClientType(context.type)) {
+    pendingClientId.value = context.id;
+    return;
+  }
+
+  await actFor(context.type, context.id);
+}
+
+/** Enter in the form applies the held client id. */
+async function applyPendingClient(): Promise<void> {
+  const id = pendingClientId.value;
+  if (!id) return;
+
+  if (await actFor(AccessRoleTypes.CLIENT, id))
+    pendingClientId.value = undefined;
 }
 
 /** Act for a SELECTOR member — the type is the whole answer. */

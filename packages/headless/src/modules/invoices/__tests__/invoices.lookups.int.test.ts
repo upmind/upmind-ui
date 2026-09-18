@@ -15,6 +15,7 @@ import { useLookup } from "../../lookup";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installInvoiceHandlers,
+  observeInvoiceRequests,
   seedClientSession
 } from "./invoices.int-helpers";
 import { server } from "./setup.integration";
@@ -110,9 +111,10 @@ describe("invoices lookups — each relationship lookup reaches the wire", () =>
     expect(query.data.value?.[0]).toMatchObject({ value: "cp-1" });
   });
 
-  it("the invoice lookup issues a request and returns options", async () => {
+  it("the invoice lookup offers credited invoices only, and a search keeps that", async () => {
     await seedClientSession();
     installInvoiceHandlers();
+    const observed = observeInvoiceRequests();
 
     const invoices = useInvoices().as(ScopeActorTypes.CLIENT);
     const query = invoices.useContext().lookups.invoice();
@@ -121,7 +123,25 @@ describe("invoices lookups — each relationship lookup reaches the wire", () =>
       () => expect((query.data.value ?? []).length).toBeGreaterThan(0),
       { timeout: 4000 }
     );
-
     expect(query.data.value?.[0]).toHaveProperty("value");
+
+    const parentsOnly = (url: string) =>
+      decodeURIComponent(url).includes("filter[partial_amount_credited|gt]=0");
+    expect(observed.all().some(request => parentsOnly(request.url))).toBe(true);
+
+    useLookup(query, { searchScope: "filters.number.like" }).search("INV");
+    await vi.waitFor(() =>
+      expect(
+        observed
+          .all()
+          .some(
+            request =>
+              decodeURIComponent(request.url).includes(
+                "filter[number|like]=%INV%"
+              ) && parentsOnly(request.url)
+          )
+      ).toBe(true)
+    );
+    observed.stop();
   });
 });

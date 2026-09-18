@@ -250,9 +250,12 @@ export function useScopeNavigation() {
       context: param === "context" ? (value as ScopeContext) : currentContext
     };
 
+    // A guard that throws rejects the push; the app chose that redirect, so
+    // it is not an error for the caller.
     return router
       .push(preserveQuery(buildScopePath(newConfig)))
-      .then(() => undefined);
+      .then(() => undefined)
+      .catch(() => undefined);
   }
 
   return { updateScopeParam };
