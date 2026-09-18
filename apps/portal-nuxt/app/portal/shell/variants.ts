@@ -200,6 +200,43 @@ export const SPLIT_FORM_CLASS =
   "bg-surface flex w-full flex-col justify-center gap-6 px-6 py-7 md:w-1/2 lg:px-16 lg:py-24 2xl:px-32";
 export const SPLIT_ASIDE_CLASS = "bg-canvas hidden md:block md:w-1/2";
 
+/** Every auth page fills the viewport, so its ground reaches the fold. */
+export const PORTAL_AUTH_GROUND_CLASS = "flex min-h-dvh w-full flex-col";
+
+/** The wordmark sits on the column's own ground, with no bar behind it. */
+export const PORTAL_AUTH_BRAND_CLASS = "inline-flex w-fit items-center";
+
+/**
+ * The two-column auth pages, ported part for part from the cart's
+ * TWO_COLUMN_LTR layout. The header and footer take the SAME ground as the body
+ * and no border (`useHeader({ border: "none" })`), so the split runs the full
+ * height: the wordmark and the brand's line live INSIDE the form column, the
+ * store shortcut and the platform's line inside the aside.
+ */
+export const AUTH_LTR_GROUND_CLASS = "bg-surface lg:canvas-gradient";
+export const AUTH_RTL_GROUND_CLASS = "bg-surface lg:canvas-gradient-rtl";
+export const AUTH_TWO_COLUMN_CONTAINER_CLASS =
+  "max-w-app mx-auto flex w-full min-w-0 flex-1 flex-col lg:flex-row";
+export const AUTH_TWO_COLUMN_FORM_CLASS =
+  "bg-surface flex w-full min-w-0 flex-col gap-10 px-6 py-8 lg:px-16 lg:py-10";
+export const AUTH_TWO_COLUMN_ASIDE_CLASS =
+  "bg-canvas hidden flex-col gap-10 px-6 py-8 lg:flex lg:min-w-app-aside lg:max-w-app-aside lg:px-8 lg:py-10";
+/** The form's own measure inside its column, as `sessionFormWidthVariants` sets it. */
+export const AUTH_TWO_COLUMN_MAIN_CLASS = "w-full max-w-3xl flex-1";
+/** Each column's chrome rows: the mark at the top, the line at the foot. */
+export const AUTH_TWO_COLUMN_ROW_CLASS = "flex items-center justify-between";
+export const AUTH_TWO_COLUMN_FOOT_CLASS = "mt-auto flex items-end";
+
+/**
+ * The single-column auth pages. The cart gives enclosed a SURFACE ground and
+ * canvas-card, surface-box and inset a CANVAS one; each bounds its content with
+ * the same `max-w-app` container and carries its chrome inside it, with no bar.
+ */
+export const AUTH_SURFACE_GROUND_CLASS = "bg-surface";
+export const AUTH_CANVAS_GROUND_CLASS = "bg-canvas";
+export const AUTH_ONE_COLUMN_CONTAINER_CLASS =
+  "max-w-app mx-auto flex w-full min-w-0 flex-1 flex-col gap-10 px-6 py-8 lg:px-16 lg:py-10";
+
 export const PORTAL_FOOTER_LINK_CLASS = "shrink-0 hover:underline";
 
 /**

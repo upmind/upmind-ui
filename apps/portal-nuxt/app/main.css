@@ -2,6 +2,11 @@
    global base. */
 @import "@upmind/ui/styles";
 
+/* This package owns the two-tone `canvas-gradient` the two-column auth pages
+   are set on. `@source` only scans for class names; the `@utility` itself has
+   to be imported, as both carts do. */
+@import "@upmind-automation/foundation/styles";
+
 /* The library's Markdown component styles its output with `prose-*` classes,
    which only exist once the typography plugin is loaded by the app that
    builds the stylesheet. Without it a numbered list renders as bare lines. */

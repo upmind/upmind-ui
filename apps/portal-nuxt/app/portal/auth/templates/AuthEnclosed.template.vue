@@ -1,23 +1,40 @@
 <template>
-  <PortalAuthShell>
-    <Page width="reading">
-      <PageHeader v-if="$slots.hero">
-        <slot name="hero" />
-      </PageHeader>
+  <PortalAuthShell :ground="AUTH_SURFACE_GROUND_CLASS">
+    <div :class="AUTH_ONE_COLUMN_CONTAINER_CLASS">
+      <header :class="AUTH_TWO_COLUMN_ROW_CLASS">
+        <PortalAuthBrand />
+        <PortalAuthStore />
+      </header>
 
-      <PageBody>
+      <main id="portal-auth-main" :class="AUTH_TWO_COLUMN_MAIN_CLASS">
+        <slot name="hero" />
         <slot name="form" />
-      </PageBody>
-    </Page>
+      </main>
+
+      <footer :class="[AUTH_TWO_COLUMN_FOOT_CLASS, 'justify-between']">
+        <PortalAuthLegal />
+        <PortalAuthUpmind />
+      </footer>
+    </div>
   </PortalAuthShell>
 </template>
 
 <script setup lang="ts">
-// One full-width column — what develop's `SessionEnclosed.template.vue` draws on
-// the cart's SPLIT_VERTICAL layout: stacked surface rows, no aside and no card.
-// The cart places no markdown here, so this template places no note.
-import { Page, PageBody, PageHeader } from "@upmind/ui";
+// One full-width column on the surface — what develop's
+// `SessionEnclosed.template.vue` draws on the cart's SPLIT_VERTICAL layout:
+// stacked surface rows, no aside and no card.
+import PortalAuthBrand from "../PortalAuthBrand.vue";
+import PortalAuthLegal from "../PortalAuthLegal.vue";
 import PortalAuthShell from "../PortalAuthShell.vue";
+import PortalAuthStore from "../PortalAuthStore.vue";
+import PortalAuthUpmind from "../PortalAuthUpmind.vue";
+import {
+  AUTH_SURFACE_GROUND_CLASS,
+  AUTH_ONE_COLUMN_CONTAINER_CLASS,
+  AUTH_TWO_COLUMN_FOOT_CLASS,
+  AUTH_TWO_COLUMN_MAIN_CLASS,
+  AUTH_TWO_COLUMN_ROW_CLASS
+} from "~/portal/shell/variants";
 import type { AuthRoutes } from "@upmind-automation/auth";
 
 defineProps<AuthRoutes>();

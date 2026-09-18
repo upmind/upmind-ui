@@ -66,10 +66,21 @@ async function shellAt(path: string, datasetId: string): Promise<VueWrapper> {
   });
   usePortalConfig().setDataset(datasetId);
 
-  // The chrome moved out of the layout when the auth screens gained their own
-  // templates: every one of them draws it through this component.
-  const { default: shell } = await import("~/portal/auth/PortalAuthShell.vue");
-  const wrapper = mount(shell, { slots: { default: "<p>the screen</p>" } });
+  // The chrome moved into the COLUMNS when the pages took the cart's shape: the
+  // cart gives its header and footer the body's own ground and no border, so a
+  // bar would cut a two-column page in half. Every template composes the same
+  // four parts, so any one of them proves the set.
+  const { default: page } =
+    await import("~/portal/auth/templates/AuthEnclosed.template.vue");
+  const wrapper = mount(page, {
+    // The organism hands every template the three routes it links between.
+    props: {
+      loginRoute: { name: "login" },
+      registerRoute: { name: "register" },
+      recoverRoute: { name: "recover" }
+    },
+    slots: { form: "<p>the screen</p>" }
+  });
   await settle();
   return wrapper;
 }
