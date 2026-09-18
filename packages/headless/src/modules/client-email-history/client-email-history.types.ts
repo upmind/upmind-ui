@@ -44,7 +44,6 @@ import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { ListQuery, SimpleQuery } from "../query";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IClient, IImage, ISentEmail } from "@upmind-automation/types";
 import type { SentEmailStatus } from "@upmind-automation/types";
@@ -185,13 +184,6 @@ export type SentEmailSortModel = NonNullable<SentEmailQueryModel["sort"]>;
 export const SENT_EMAIL_DEFAULT_SORT: SentEmailSortEntry[] = [
   { field: "created_at", dir: SortDirection.DESC }
 ];
-
-/**
- * The collection's query schema. A `JsonSchema7`: a query schema IS a real
- * Draft-07 schema, walked at runtime by the translator/validators, so the type
- * stays general rather than a module-specific literal.
- */
-export type SentEmailQuerySchema = JsonSchema7;
 
 // -----------------------------------------------------------------------------
 // MODELS

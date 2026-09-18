@@ -50,7 +50,6 @@ import { selector } from "../scope/scope.utils";
 import type { ResponseError } from "../../utils";
 import type { ListQuery } from "../query";
 import type { ScopeContext } from "../scope";
-import type { useQuerySchema } from "./client-custom-fields.schemas";
 import type { useUpload } from "../system-upload";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
@@ -325,9 +324,6 @@ export type QueryModel = {
   sort?: SortModel;
   pagination?: { limit?: number; offset?: number };
 };
-
-/** The declared type of `useQuerySchema()`'s return. */
-export type QuerySchema = ReturnType<typeof useQuerySchema>;
 
 /**
  * The catalogue's natural sequence — the API's own display-order column,

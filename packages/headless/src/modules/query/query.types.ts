@@ -21,7 +21,7 @@
  * reason as {@link ListQuery}.
  */
 import type { responseCodes, ResponseError } from "../../utils";
-import type { JsonSchema } from "@jsonforms/core";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type {
   DefaultError,
   MutationObserverOptions,
@@ -329,11 +329,18 @@ export type ListQuery<
  *
  * @template TModel - The module's own query model (filters · sort · pagination).
  */
+/**
+ * A collection's declared query schema — filters · sort · pagination as ONE
+ * Draft-07 schema. The translator and the validators walk it at runtime, so
+ * the type stays the general Draft-07 shape, never a module literal.
+ */
+export type QuerySchema = JsonSchema7;
+
 export type QueryCriteriaOptions<
   TModel extends Record<string, unknown> = Record<string, unknown>
 > = {
   /** The collection's declared query schema — filters · sort · pagination. */
-  schema: JsonSchema;
+  schema: QuerySchema;
   /**
    * The starting model, so a cold boot is already correct: a list rehydrated
    * from a url's page/sort/filters fetches once, rather than fetching
@@ -365,7 +372,7 @@ export type QueryCriteria<
    */
   model: ComputedRef<TModel>;
   /** The declaration itself, so the handle can re-publish what is filterable/sortable. */
-  schema: JsonSchema;
+  schema: QuerySchema;
   /** The translated wire triple. `list()` is its only consumer. */
   props: ComputedRef<QueryProps>;
   /** ajv's verdict on the last REJECTED write, as the module's normal error shape. Never swallowed. */
@@ -416,7 +423,7 @@ export type QueryCriteriaHandle<
   /** The semantic request state — {@link QueryCriteria.model}. */
   criteria: ComputedRef<TModel>;
   /** What is filterable / sortable at all. */
-  schema: JsonSchema;
+  schema: QuerySchema;
   /** Any declared filter column carries a value. */
   isFiltered: ComputedRef<boolean>;
   /**

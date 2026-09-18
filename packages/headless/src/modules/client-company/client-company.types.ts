@@ -46,7 +46,6 @@ import type { Email } from "../client-email";
 import type { Phone, PhoneModel } from "../client-phone";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { ListQuery } from "../query";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { ICountry, ICompany, IRegion } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -256,13 +255,6 @@ export type SortModel = NonNullable<QueryModel["sort"]>;
 export const DEFAULT_SORT: SortModel = [
   { field: "created_at", dir: SortDirection.ASC }
 ];
-
-/**
- * The collection's query schema. A `JsonSchema7`: a query schema IS a real
- * Draft-07 schema, and the translator/validators walk it at runtime, so the
- * type stays general rather than a module-specific literal.
- */
-export type QuerySchema = JsonSchema7;
 
 /**
  * The manager's machine context — the shared machine's, over this form

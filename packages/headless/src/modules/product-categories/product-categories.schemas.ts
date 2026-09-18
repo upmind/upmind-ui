@@ -1,5 +1,5 @@
 /** @internal */
-import type { ProductCategoryQuerySchema } from "./product-categories.types";
+import type { QuerySchema } from "../query/query.types";
 import type { JsonSchema7 } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
@@ -20,7 +20,7 @@ import type { JsonSchema7 } from "@jsonforms/core";
  * collection declares no filters and no sort, and `limit: 0` asks the API for
  * the unpaged read.
  */
-export function useQuerySchema(): ProductCategoryQuerySchema {
+export function useQuerySchema(): QuerySchema {
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",

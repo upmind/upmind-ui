@@ -38,12 +38,9 @@ import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { LookupItem } from "../lookup";
 import type { ListQuery } from "../query";
 import type { SortDirection } from "../query/query.types";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IContractProduct, IVaultAsset } from "@upmind-automation/types";
-// `Ref` types the lookup's activation gate — see the file-header
-// `graphify-out/` citation for the lookup types.
-import type { ComputedRef, Ref } from "vue";
+import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
@@ -391,13 +388,6 @@ export type SortModel = NonNullable<QueryModel["sort"]>;
  * default `sort` would override that and regress the boot ordering.
  */
 
-/**
- * The collection's query schema. A `JsonSchema7`: a query schema IS a real
- * Draft-07 schema, and the translator/validators walk it at runtime, so the
- * type stays general rather than a module-specific literal.
- */
-export type QuerySchema = JsonSchema7;
-
 // -----------------------------------------------------------------------------
 // SERVICES CONTRACT
 // -----------------------------------------------------------------------------
@@ -475,9 +465,7 @@ export type ClientNoteServices = {
    * control first reads the service, so manager `loading` boot fires no
    * `contracts_products` request (AC2) — the first fetch is the control's own.
    */
-  loadContractProductLookup: (
-    isActive: Ref<boolean>
-  ) => ContractProductLookupQuery;
+  loadContractProductLookup: () => ContractProductLookupQuery;
   /** `available.checking.parsing` — schema-parses the incoming model. */
   parse: (
     context: VaultAssetContext,
