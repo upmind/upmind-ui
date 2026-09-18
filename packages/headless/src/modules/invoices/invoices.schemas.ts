@@ -307,7 +307,7 @@ export function useLookupsUischema(
         options: {
           lookup: {
             service: lookups.contract,
-            searchScope: "filters.name.like"
+            searchScope: "filters.main_invoice_number.like"
           }
         }
       },
