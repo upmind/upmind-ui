@@ -19,7 +19,7 @@ import {
   accountSectionNavItems,
   pillarNavItems,
   pillarSubmenuItems,
-  supportPinSpecItems
+  supportPinPanelItems
 } from "~/portal/mock/selectors";
 import { BRAND_GATE_CONFIG_KEY } from "~/portal/mock/types";
 
@@ -207,12 +207,14 @@ describe("account section — notes, affiliate and the support PIN", () => {
     expect(gatedOff.some(label => /security/i.test(label))).toBe(true);
   });
 
-  it("shows the support PIN row only where SUPPORT_PIN_ENABLED is on", () => {
-    const enabled = supportPinSpecItems(HOSTGRID_MOCK_DATASET);
-    const gatedOff = supportPinSpecItems(HOSTGRID_MINIMAL_MOCK_DATASET);
+  // The panel masks the number until the client asks for it, so the VALUE is
+  // read in `account-card.test.ts`, which drives the reveal. The gate is here.
+  it("shows the support PIN panel only where SUPPORT_PIN_ENABLED is on", () => {
+    const enabled = supportPinPanelItems(HOSTGRID_MOCK_DATASET);
+    const gatedOff = supportPinPanelItems(HOSTGRID_MINIMAL_MOCK_DATASET);
 
     expect(enabled.length).toBe(1);
-    expect(enabled[0]?.value).toBe(HOSTGRID_MOCK_DATASET.persona.supportPin);
+    expect(enabled[0]?.value).not.toBe(HOSTGRID_MOCK_DATASET.persona.supportPin);
     expect(gatedOff).toEqual([]);
   });
 });

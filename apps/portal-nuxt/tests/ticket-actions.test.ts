@@ -106,7 +106,7 @@ function everyRow(data: MockDataset): ListModuleItem[] {
 }
 
 function detailPage(): ConfigNode {
-  const page = supportPages({ pinRow: true })[PAGE_KEY.SUPPORT_TICKET_DETAIL];
+  const page = supportPages()[PAGE_KEY.SUPPORT_TICKET_DETAIL];
   if (page === undefined) throw new Error("no ticket detail page config");
   return page;
 }
