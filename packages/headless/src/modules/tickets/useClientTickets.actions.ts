@@ -14,6 +14,7 @@ import type {
   TicketsServices,
   TicketSupportPrefs
 } from "./tickets.types";
+import type { TicketsFilterModel, TicketsSortModel } from "./tickets.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type {
   ITicketDepartment,
@@ -151,6 +152,27 @@ export function createClientTicketsActions(
     return service.saveSupportPrefs(prefs);
   }
 
+  /**
+   * Applies a filter INTENT — the `filters` branch of the one query model, so
+   * `sort` and `pagination` are untouched by construction. A thin typed adapter
+   * over `setCriteria`, so the platform table channel's `filterBy` resolves to
+   * a real member (`useTableChannel.ts` calls it by name).
+   */
+  function filterBy(intent: TicketsFilterModel): void {
+    query.setCriteria({ filters: intent });
+  }
+
+  /**
+   * Applies a sort INTENT — the `sort` branch of the one query model, so
+   * `filters` and `pagination` are untouched. The platform table channel calls
+   * `actions.sortBy` BY NAME; without this member the column headers threw
+   * `actions.sortBy is not a function` and sorting did nothing at all. Every
+   * sibling collection publishes the same pair.
+   */
+  function sortBy(intent: TicketsSortModel): void {
+    query.setCriteria({ sort: intent });
+  }
+
   /** AC3 — the page size persists via the same read-modify-write as AC33. */
   async function setPageSize(limit: number): Promise<void> {
     query.setCriteria({ pagination: { limit } } as never);
@@ -199,6 +221,12 @@ export function createClientTicketsActions(
 
     /** AC3 — persists the chosen page size via the same read-modify-write. */
     setPageSize,
+
+    /** The table channel's filter entry point. */
+    filterBy,
+
+    /** The table channel's sort entry point. */
+    sortBy,
 
     /** AC23 — uploads a file, returning the ref `create`'s `model.files` consumes. */
     uploadAttachment

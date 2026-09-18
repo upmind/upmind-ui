@@ -220,6 +220,41 @@ describe("tickets collection — default sort and the reference filter's wire sh
 });
 
 describe("tickets collection — default sort and explicit ordering (AC-4)", () => {
+  it("AC-4 the platform table channel's sortBy/filterBy resolve to real members and reach the wire", async () => {
+    await seedClientSession();
+    const handlers = installTicketsHandlers();
+
+    const tickets = useClientTickets().as(ScopeActorTypes.SELF);
+    await vi.waitFor(() =>
+      expect(tickets.useMeta().isLoading.value).toBe(false)
+    );
+
+    // `useTableChannel` calls these BY NAME. Their absence threw
+    // `actions.sortBy is not a function` at the column header, so the sort
+    // arrow did nothing at all.
+    const actions = tickets.useActions();
+    expect(typeof actions.sortBy).toBe("function");
+    expect(typeof actions.filterBy).toBe("function");
+
+    handlers.setListBody(recorded.sortedBySubject());
+    const observed = observeTicketsRequests();
+    // `sortBy` is sync — it writes the intent and returns, so wait on the
+    // REQUEST rather than on a loading flag that has not flipped yet.
+    actions.sortBy([{ field: TicketsSortableProperties.SUBJECT, dir: "asc" }]);
+    await vi.waitFor(
+      () =>
+        expect(
+          observed
+            .all()
+            .some(request =>
+              decodeURIComponent(request.url).includes("order=subject")
+            )
+        ).toBe(true),
+      { timeout: 2000 }
+    );
+    observed.stop();
+  });
+
   it("AC-4 defaults to the newest-updated-first order, and setCriteria can re-order by another field", async () => {
     await seedClientSession();
     const handlers = installTicketsHandlers();
