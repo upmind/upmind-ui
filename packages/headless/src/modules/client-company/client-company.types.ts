@@ -111,7 +111,7 @@ export type ClientCompanyScopeMatrix = typeof CLIENT_COMPANY_SCOPE_MATRIX;
  * The form/request model for a company. Present fields are mutually exclusive
  * pairs — an id-or-inline choice for the address, the email and the phone.
  */
-export interface CompanyModel {
+export type CompanyModel = {
   /** Present when editing an existing company. */
   id?: ICompany["id"];
   // --- one of
@@ -145,12 +145,12 @@ export interface CompanyModel {
    * the only route (`parity.yaml` C14, not a defect).
    */
   default?: ICompany["default"];
-}
+};
 
 /**
  * A company as read from the API, with its display and status fields.
  */
-export interface Company {
+export type Company = {
   /** The unique identifier for the company. */
   id: ICompany["id"];
   /** The id of the associated email address. */
@@ -204,7 +204,7 @@ export interface Company {
     /** `true` if the company's tax number has been validated. */
     hasValidTax: boolean;
   };
-}
+};
 
 // -----------------------------------------------------------------------------
 // QUERY MODEL (see graphify-out/ citation at the head of this file)
@@ -278,7 +278,7 @@ export type QuerySchema = JsonSchema7;
  * `Parameters<typeof dataManagerMachine.withConfig>[0]` (NFR-4) real instead
  * of re-introducing the casts it exists to remove.
  */
-export interface CompanyContext extends DataManagerContext<CompanyModel> {
+export type CompanyContext = DataManagerContext<CompanyModel> & {
   /** The client's own addresses. */
   addresses?: Address[];
   /** The client's own emails. */
@@ -293,7 +293,7 @@ export interface CompanyContext extends DataManagerContext<CompanyModel> {
   countries?: ICountry[];
   /** `true` when the schema/uischema should render a reduced field set. */
   minimal?: boolean;
-}
+};
 
 /**
  * The reactive list query, minted ONCE per scope in `useClientCompanies.ts`.

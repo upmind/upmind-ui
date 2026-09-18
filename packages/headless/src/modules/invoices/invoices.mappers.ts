@@ -17,6 +17,7 @@ import {
   sortBy
 } from "lodash-es";
 import type { BasketProduct } from "../basket-product";
+import type { LookupItem } from "../lookup";
 import type {
   InvoiceBundleGroup,
   Invoice,
@@ -299,4 +300,21 @@ function mapBundleGroupsSummary(groups: InvoiceBundleGroup[]): string {
     ),
     ", "
   );
+}
+
+/**
+ * One invoice as a lookup option — the `.for('invoice', id)` slot takes the id,
+ * so the record is offered by its number with its formatted total beneath.
+ */
+export function mapInvoiceLookupItem(raw: IInvoice): LookupItem {
+  return {
+    value: raw.id,
+    label: raw.number,
+    description: raw.total_amount_formatted ?? undefined
+  };
+}
+
+/** The lookup query's `select` — every row as a selectable option. */
+export function mapInvoiceLookupItems(raw: IInvoice[]): LookupItem[] {
+  return map(raw, mapInvoiceLookupItem);
 }

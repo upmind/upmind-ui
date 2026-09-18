@@ -1,10 +1,10 @@
 import { createScopedComposable } from "../scope";
 import createInvoicesServices from "./invoices.services";
+import { INVOICES_SCOPE_MATRIX } from "./invoices.types";
 import { createInvoicesActions } from "./useInvoices.actions";
 import { createInvoicesContext } from "./useInvoices.context";
 import { createInvoicesInternals } from "./useInvoices.internals";
 import { createInvoicesMeta } from "./useInvoices.meta";
-import { INVOICES_SCOPE_MATRIX } from "./invoices.types";
 import type { InvoicesScopeMatrix } from "./invoices.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";

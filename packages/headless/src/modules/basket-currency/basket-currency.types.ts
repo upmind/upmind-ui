@@ -10,7 +10,7 @@ export type CurrencyModel = {
   code?: ICurrency["code"];
 };
 
-export interface CurrencyContext {
+export type CurrencyContext = {
   basketId?: string;
   // ---
   currencies?: ICurrency[];
@@ -22,4 +22,4 @@ export interface CurrencyContext {
   // ---
   authHelper?: ActorRef<AnyEventObject>;
   error?: ResponseError;
-}
+};

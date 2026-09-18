@@ -14,7 +14,11 @@ import type {
   InvoicesSchemas
 } from "./invoices.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { ControlElement, UISchemaElement } from "@jsonforms/core";
+import type {
+  ControlElement,
+  JsonSchema7,
+  UISchemaElement
+} from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/invoices.schemas
@@ -501,3 +505,38 @@ export const createInvoicesSchemas = (
 });
 
 export default createInvoicesSchemas;
+
+/**
+ * The criteria model path the invoice lookup control's typed term writes — a
+ * top-level `query` string (NOT a `filters` branch), the backend's dedicated
+ * quick-search, which `translateQuery` emits as a bare `query=<term>`.
+ */
+export const INVOICE_LOOKUP_SEARCH_SCOPE = "query";
+
+/**
+ * The criteria schema for the async invoice lookup — the whole request state
+ * (`query` quick-search + `pagination`) as ONE Draft-07 schema. The picker
+ * offers parent invoices for the `.for('invoice', id)` scope slot.
+ */
+export function useInvoiceLookupSchema(): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      query: {
+        type: ["string", "null"],
+        title: "invoices.lookup.search",
+        minLength: 1
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 1, default: 20 },
+          offset: { type: "integer", minimum: 0, default: 0 }
+        }
+      }
+    }
+  } satisfies JsonSchema7;
+}

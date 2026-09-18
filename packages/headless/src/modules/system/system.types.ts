@@ -12,7 +12,7 @@ import type {
 
 // ---  Contexts
 
-export interface SystemContext {
+export type SystemContext = {
   currencies?: ICurrency[];
   billingCycles?: IBillingCycle[];
   countries?: ICountry[];
@@ -33,4 +33,4 @@ export interface SystemContext {
         statuses?: ResponseError;
         departments?: ResponseError;
       };
-}
+};

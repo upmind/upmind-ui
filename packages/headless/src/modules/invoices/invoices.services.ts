@@ -4,10 +4,16 @@ import { computed, ref, unref, watch } from "vue";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import { useLocale } from "../system-localisation";
-import { mapInvoice, mapInvoices, mapUnpaidAmount } from "./invoices.mappers";
+import {
+  mapInvoice,
+  mapInvoiceLookupItems,
+  mapInvoices,
+  mapUnpaidAmount
+} from "./invoices.mappers";
 import {
   consolidatableCountCriteria,
   createInvoicesSchemas,
+  useInvoiceLookupSchema,
   UNPAID_EXISTENCE_CRITERIA
 } from "./invoices.schemas";
 import { InvoicesContextTypes } from "./invoices.types";
@@ -16,14 +22,18 @@ import {
   useTime,
   DetailedError,
   ErrorOrigin,
-  NotAuthenticatedError
+  NotAuthenticatedError,
+  DEBOUNCE_DELAY
 } from "../../utils";
 import { forEach, has } from "lodash-es";
+import type { LookupItem } from "../lookup";
 import type { ScopeContext } from "../scope";
 import type {
   DurableFilterSlot,
   Invoice,
   InvoiceFilterModel,
+  InvoiceLookupQuery,
+  InvoiceLookupQueryModel,
   InvoicePaymentDetailsModel,
   InvoiceItemQuery,
   InvoiceQueryModel,
@@ -245,6 +255,43 @@ function loadList(
   seedFilterSlots(handle, slots);
 
   return withDurableFilterSlots(handle, slots);
+}
+
+/**
+ * The async invoice lookup — the PARENT invoices a `.for('invoice', id)` scope
+ * slot takes. Client-scoped, search-driven, and lazy: `isActive` defers the
+ * first fetch to the control's own read, so the query stays idle until a
+ * picker opens it. Sibling of the contract-product lookup in `client-notes`.
+ */
+function loadInvoiceLookup(
+  scopeContext: ScopeContext | undefined,
+  isActive: Ref<boolean>
+): InvoiceLookupQuery {
+  const { listInfinite, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  const targetUrl = () =>
+    useUrl("invoices", { "filter[client_id]": clientId.value });
+  const url = targetUrl();
+
+  return listInfinite<IInvoice[], LookupItem[], InvoiceLookupQueryModel>({
+    criteria: { schema: useInvoiceLookupSchema() },
+    queryKey: [...queryKey, "lookups", "invoices", { client: clientId }],
+    url,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (!isAddressable(clientId.value)) {
+          reject(new NotAuthenticatedError());
+          return;
+        }
+        url.search = targetUrl().search;
+        resolve(true);
+      }),
+    withAccessToken: true,
+    select: mapInvoiceLookupItems,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => isAddressable(clientId.value) && isActive.value
+  }) as unknown as InvoiceLookupQuery;
 }
 
 /**
@@ -586,6 +633,7 @@ export const createInvoicesServices = (
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed<ResponseError | undefined>(() => undefined),
     loadList: () => loadList(useQuerySchema, scopeContext),
+    loadInvoiceLookup: isActive => loadInvoiceLookup(scopeContext, isActive),
     loadOne: invoiceId => loadOne(invoiceId, scopeContext),
     loadUnpaidAmount: (invoiceId, currencyId) =>
       loadUnpaidAmount(invoiceId, currencyId, scopeContext),

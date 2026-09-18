@@ -48,6 +48,7 @@ import type { BasketProduct } from "../basket-product";
 import type { Client } from "../client";
 import type { Address } from "../client-address/client-address.types";
 import type { Currency } from "../currency/currency.types";
+import type { LookupItem } from "../lookup";
 import type { ListQuery, SimpleQuery } from "../query";
 import type { ScopeContext } from "../scope";
 import type {
@@ -67,7 +68,7 @@ import type {
 } from "@upmind-automation/types";
 // MaybeRef added for loadUnpaidAmount's reactive currency param — widening an
 // existing member, not a new type (see this file's head `graphify-out/` citation).
-import type { ComputedRef, MaybeRef } from "vue";
+import type { ComputedRef, MaybeRef, Ref } from "vue";
 
 // -----------------------------------------------------------------------------
 // SCOPE — two matrices, one context enum
@@ -594,6 +595,11 @@ export type InvoicesServices = {
    * shape uniformity.
    */
   error: ComputedRef<ResponseError | undefined>;
+  /**
+   * The async PARENT-invoice lookup a `.for('invoice', id)` picker drives.
+   * `isActive` defers the first fetch to the control's own read.
+   */
+  loadInvoiceLookup: (isActive: Ref<boolean>) => InvoiceLookupQuery;
   /** Takes NOTHING: the request state is the declared query schema. */
   loadList: () => InvoicesListQuery;
   loadOne: (invoiceId?: Invoice["id"]) => InvoiceItemQuery;
@@ -663,3 +669,28 @@ export type InvoicesSchemas = {
 // Re-export so a consumer building a scope-aware call site can spell the
 // context type this module's collection resolves against.
 export type { ScopeContext };
+
+/** The invoice lookup's criteria model — quick-search term + pagination. */
+export type InvoiceLookupQueryModel = {
+  query?: string | null;
+  pagination?: { limit?: number; offset?: number };
+};
+
+/**
+ * The invoice lookup handle — a `listInfinite` query whose `select` maps rows
+ * to {@link LookupItem}. This IS the service `useLookup` drives; it rides a
+ * control's `options.lookup.service` as a thunk (below). It offers the PARENT
+ * invoices the `.for('invoice', id)` scope slot takes.
+ */
+export type InvoiceLookupQuery = ListQuery<
+  IInvoice[],
+  LookupItem[],
+  InvoiceLookupQueryModel
+>;
+
+/**
+ * What a lookup control's `options.lookup.service` carries — a THUNK returning
+ * the once-minted {@link InvoiceLookupQuery}, so the first fetch defers to the
+ * control's own read rather than firing at construction.
+ */
+export type InvoiceLookupService = () => InvoiceLookupQuery;
