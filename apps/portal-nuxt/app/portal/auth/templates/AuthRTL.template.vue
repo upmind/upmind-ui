@@ -5,8 +5,8 @@
         <slot name="hero" />
       </PageHeader>
 
-      <PageBody aside="left">
-        <PageAside ariaLabel="Summary">
+      <PageBody :aside="$slots.summary ? 'left' : 'none'">
+        <PageAside v-if="$slots.summary" ariaLabel="Summary">
           <slot name="summary" />
         </PageAside>
 
@@ -20,7 +20,9 @@
 // Two columns, the aside leading — what develop's `SessionRTL.template.vue`
 // draws on the cart's TWO_COLUMN_RTL layout: a fluid form column beside a fixed
 // aside, both stacked below `lg`. `Page`'s own `aside="left"` is that grid.
-// The cart places no markdown here, so this template places no note.
+// The cart places no markdown here, so this template places no note. The
+// aside only exists when something fills it: an empty track would reserve a
+// fifth of the page for nothing.
 import { Page, PageAside, PageBody, PageHeader } from "@upmind/ui";
 import PortalAuthShell from "../PortalAuthShell.vue";
 import type { AuthRoutes } from "@upmind-automation/auth";
