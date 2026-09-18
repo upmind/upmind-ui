@@ -10,7 +10,7 @@ description: Internal (invoked by /factory) — the LAWS the scoped-composable l
 
 ## Where the chain lives
 
-**The lane's conductor is a script: [`.claude/workflows/run-factory-composable.js`](../../../workflows/run-factory-composable.js).** It owns the stage order, the seat per stage, the model per seat, every gate field and threshold, the repair loops, the cycle caps and the halt names. The door's runner (`run-factory`) calls it.
+**The lane's conductor is a script: [`.claude/workflows/run-factory-composable.js`](../../../workflows/run-factory-composable.js).** It owns the stage order, the seat per stage, the model per seat, every gate field and threshold, the repair loops, the cycle caps and the halt names. The door calls it directly, as its second dispatch, after the audit.
 
 **This file owns the doctrine that script implements** — the laws, the reasoning, and the receipts a seat needs to do its stage correctly. It carries no stage table, no gate thresholds and no model pins, because those live in the script and a rule written twice drifts.
 

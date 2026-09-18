@@ -9,13 +9,16 @@
 // Seat identity transport: `agentType` — the harness stamps it into every
 // PreToolUse payload, and hooks/seat-guard.sh keys its lanes on it.
 //
-// Shape: derive -> code -> prove -> verify -> review. No Docs stage,
-// deliberately: the declaration is its own documentation surface, and the
-// module doc set belongs to the composable lane.
+// Shape: ordering gate -> derive -> code -> prove -> verify -> review ->
+// readback. No Docs stage, deliberately: the declaration is its own
+// documentation surface, and the module doc set belongs to the composable lane.
 //
-// Never invoked directly. `run-factory` dispatches it only after the ordering
-// gate — the composable lane's Docs gate green AND a conformance re-grade
-// returning drift 0 — because this lane derives from the LANDED module.
+// The `/factory` door dispatches it directly, after the composable lane (or
+// straight after the audit at M3). This lane derives from the LANDED module, so
+// it OPENS with the ordering gate — a fresh conformance re-grade that must
+// return drift 0 — and CLOSES with the terminal JTBD readback. Both used to
+// live in a parent `run-factory` runner; the harness nests workflow() one
+// level only, so the parent is retired and the two gates live here as code.
 //
 // args (strings, required unless noted):
 //   id        — story ID or ad-hoc slug
@@ -23,12 +26,19 @@
 //   sddDir    — the story's SDD directory; research.md and review-notes.md live here
 //   jtbd      — the run's binding termination condition, verbatim
 //   module    — the LANDED module the page derives from
+//   cells     — optional; the ADR-001 actor x context cells, for the re-grade and readback briefs
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
 export const meta = {
   name: "run-factory-scenario",
   description:
-    "The playground lane: derive a driveable page from a landed module, prove it, verify a hand can drive it",
+    "The playground lane: re-grade the landed module, derive a driveable page, prove it, verify a hand can drive it, read the goal back",
   phases: [
+    {
+      title: "Ordering gate",
+      detail:
+        "planner seat — conformance re-grade over the landed module, drift must be 0",
+      model: "opus"
+    },
     {
       title: "Derive",
       detail: "planner seat — fills the derivation table off the landed module",
@@ -58,6 +68,12 @@ export const meta = {
       title: "Review",
       detail: "reviewer seat — invokes /review code lane (pre-gate)",
       model: "opus"
+    },
+    {
+      title: "Readback",
+      detail:
+        "verifier seat — the JTBD capability table, files jtbd-readback.md",
+      model: "opus"
     }
   ]
 };
@@ -70,12 +86,13 @@ for (const k of ["id", "worktree", "sddDir", "jtbd", "module"]) {
 const { id, worktree, sddDir, jtbd, module: target } = A;
 const constraints =
   typeof A.constraints === "string" ? A.constraints : "none recorded";
+const cells = typeof A.cells === "string" ? A.cells : "as audited";
 
 // The 3-cycle cap (rules/agent-behavior.md). Bounded by construction: at most
-// 1 + 1 + 1 + 3*2 + 3*2 + 3*2 = 21 agents, no unbounded accumulation.
+// 1 + 1 + 1 + 1 + 3*2 + 3*2 + 3*2 + 1 = 23 agents, no unbounded accumulation.
 const MAX_CYCLES = 3;
 
-const FACTS = `Story: ${id}. Worktree: ${worktree}. Module: ${target}.`;
+const FACTS = `Story: ${id}. Worktree: ${worktree}. Module: ${target}. Cells: ${cells}.`;
 const JTBD = `Run JTBD, verbatim — your gate field is evidence toward THIS, never the goal itself; output that satisfies your gate while contradicting it must surface the contradiction rather than return green: "${jtbd}".`;
 const INPUTS = `Filed inputs in ${sddDir} — read before starting: review-notes.md (operator rulings, ADR-level, never silently overridden), research.md and audit.md.`;
 const BOUNDS = `Run constraints: ${constraints}`;
@@ -180,7 +197,53 @@ const TEST_REVIEW_GATE = {
   required: ["pass", "summary"]
 };
 
+const REGRADE_GATE = {
+  type: "object",
+  properties: {
+    pass: { type: "boolean" },
+    summary: { type: "string" },
+    driftCount: { type: "number" }
+  },
+  required: ["pass", "summary", "driftCount"]
+};
+
+const READBACK_GATE = {
+  type: "object",
+  properties: {
+    pass: { type: "boolean" },
+    summary: { type: "string" },
+    undriveableCapabilities: { type: "array", items: { type: "string" } },
+    readbackFiled: { type: "boolean" }
+  },
+  required: ["pass", "summary", "readbackFiled"]
+};
+
 const results = { id, stopped: null, cycles: {}, surfaced: [] };
+
+// --- The ordering gate ----------------------------------------------------------------
+// This lane reads the LANDED module's mapper, schemas, criteria surface and
+// matrix, so a derivation over a still-partial module is a guess. A fresh
+// re-grade of what the module HAS — not of what the composable lane reported —
+// stands between the lanes. At M3 the audit's own grade is what this confirms.
+phase("Ordering gate");
+results.regrade = await agent(
+  `Re-grade the landed module for story ${id} against the current template contract. ${FACTS} ${BOUNDS} Return the drift count and name every drifted row with a file:line. Grade what the module HAS, not what the run reported.`,
+  {
+    agentType: "upmind-agent:planner",
+    model: "opus",
+    phase: "Ordering gate",
+    schema: REGRADE_GATE,
+    label: `regrade:${id}`
+  }
+);
+if (!results.regrade) {
+  results.stopped = "regrade-failed";
+  return results;
+}
+if (results.regrade.driftCount !== 0) {
+  results.stopped = "ordering-gate-drift";
+  return results;
+}
 
 // --- Derive -----------------------------------------------------------------------
 // Every derived row carries a file:line in the LANDED module. A derivation over
@@ -461,6 +524,34 @@ for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
     results.stopped = "developer-failed";
     return results;
   }
+}
+
+// --- The terminal JTBD readback -----------------------------------------------------------
+// The binding goal's only exit. Green lane gates are evidence toward the goal,
+// never the goal: this is the gate the 2026-08-14 run lacked — five green gates,
+// and nobody was required to ask "can a hand actually do the job?"
+phase("Readback");
+results.readback = await agent(
+  `File the terminal JTBD readback for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} Write a two-column capability table to ${sddDir}/jtbd-readback.md, beside your own verify.md, BEFORE returning: the ORACLE's surface — what the legacy oracle lets a consumer do, filter, sort, page, search, open, act — beside the LANDED PAGE's driveable surface, row for row. Any oracle capability a hand cannot drive on the page means the run FAILED the JTBD, regardless of every lane gate being green. List those capabilities verbatim.`,
+  {
+    agentType: "upmind-agent:verifier",
+    model: "opus",
+    phase: "Readback",
+    schema: READBACK_GATE,
+    label: `readback:${id}`
+  }
+);
+if (!results.readback) {
+  results.stopped = "readback-failed";
+  return results;
+}
+if (!results.readback.readbackFiled) {
+  results.stopped = "readback-unfiled";
+  return results;
+}
+if (!results.readback.pass) {
+  results.stopped = "jtbd-failed";
+  return results;
 }
 
 return results;

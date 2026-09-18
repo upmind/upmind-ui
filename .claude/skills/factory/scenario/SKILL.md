@@ -116,7 +116,7 @@ Seat lanes are `agent-seat-separation`'s, cited not restated — including its c
 
 ## Where the chain lives
 
-**The lane's conductor is a script: [`.claude/workflows/run-factory-scenario.js`](../../../workflows/run-factory-scenario.js).** It owns the stage order, the seat per stage, the model per seat, every gate field and threshold, the repair loops, the cycle caps and the halt names. The door's runner (`run-factory`) calls it after the ordering gate.
+**The lane's conductor is a script: [`.claude/workflows/run-factory-scenario.js`](../../../workflows/run-factory-scenario.js).** It owns the stage order, the seat per stage, the model per seat, every gate field and threshold, the repair loops, the cycle caps and the halt names. The door calls it directly, as its third dispatch, after the composable lane; the ordering re-grade is this script's own first stage and the JTBD readback its last.
 
 **This file owns the doctrine that script implements** — above all the derivation contract (D1–D22), which is the whole substance of this lane. It carries no gate thresholds and no model pins, because those live in the script and a rule written twice drifts. Where the script and this file disagree, the script is the defect: fix the script. Never hand-run the chain from this file.
 
