@@ -158,8 +158,17 @@ export function floatingTopbarInnerClass(
  * line beside it, quiet and small — a footer states, it does not compete with
  * the page above it.
  */
+/**
+ * The signed-in footer's own row. It takes NO padding: the shell's `footer`
+ * element already pads (`px-4 py-6 sm:px-6`), and repeating it here made the
+ * band 113px tall for two lines of small print.
+ */
 export const PORTAL_FOOTER_CLASS =
-  "flex flex-col items-center gap-2 px-4 py-6 text-center text-xs text-muted sm:flex-row sm:justify-between sm:text-start";
+  "flex flex-col items-center gap-2 text-center text-xs text-muted sm:flex-row sm:justify-between sm:text-start";
+
+/** The platform's line — no colour, no size: the footer it sits in sets both. */
+export const PORTAL_UPMIND_MARK_CLASS =
+  "inline-flex shrink-0 items-center gap-1.5";
 
 export const PORTAL_FOOTER_PROSE_CLASS = "[&_p]:m-0 [&_a]:underline";
 
@@ -295,8 +304,6 @@ export const AUTH_ONE_COLUMN_CONTAINER_CLASS =
 /** A chrome row inside a column: the mark at one end, its partner at the other. */
 export const AUTH_TWO_COLUMN_ROW_CLASS = "flex items-center justify-between";
 export const AUTH_TWO_COLUMN_FOOT_CLASS = "mt-auto flex items-end";
-
-export const PORTAL_FOOTER_LINK_CLASS = "shrink-0 hover:underline";
 
 /**
  * The chrome grid. `@upmind/ui`'s own `Shell` panel declares three rows and

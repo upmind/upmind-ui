@@ -616,11 +616,12 @@ export function billingPages(): Partial<Record<PageKey, ContentConfig>> {
           ),
           { visible: dataRef(DATA_REF_ID.WALLET_HAS_CREDIT_STATEMENTS) }
         ),
-        // A header-only muted band (the Host·Grid DNS-page pattern) so the
-        // page explains the mechanism the figures above obey.
+        // A header-only band so the page explains the mechanism the figures
+        // above obey. A panel, not the muted fill, which has no edge of its own
+        // and sits a shade off the page's own ground.
         {
           layout: ROW_LAYOUT.FULL,
-          surface: ROW_SURFACE.MUTED,
+          surface: ROW_SURFACE.PANEL,
           header: {
             title: "How credit works",
             description:
