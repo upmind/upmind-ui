@@ -157,6 +157,15 @@ describe("tickets manager — thread cursor direction (AC-15)", () => {
       expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(0)
     );
 
+    // Read the two ends off the feed the manager actually holds, never a
+    // literal: the feed is `desc`, so the newest is FIRST and the oldest LAST.
+    const held = ticket
+      .useContext()
+      .feed.entries.value.filter(entry => entry.kind === "message");
+    const newestHeldId = held[0]!.message.id;
+    const oldestHeldId = held[held.length - 1]!.message.id;
+    expect(newestHeldId).not.toBe(oldestHeldId);
+
     const olderObserved = observeTicketsRequests();
     await ticket.useActions().loadOlder();
     olderObserved.stop();
@@ -164,7 +173,13 @@ describe("tickets manager — thread cursor direction (AC-15)", () => {
       .all()
       .find(request => request.url.includes("/messages?"));
     expect(olderRequest).toBeDefined();
-    expect(decodeURIComponent(olderRequest!.url)).toMatch(/filter\[id\|lt\]=/);
+    // The ID, not just the operator: asserting only `filter[id|lt]=` passes
+    // whichever end the cursor names, which is how the two cursors sat swapped
+    // — `loadOlder` paged back from the NEWEST held id and re-read the thread
+    // it already had.
+    expect(decodeURIComponent(olderRequest!.url)).toContain(
+      `filter[id|lt]=${oldestHeldId}`
+    );
 
     const newerObserved = observeTicketsRequests();
     await ticket.useActions().loadNewer();
@@ -173,7 +188,9 @@ describe("tickets manager — thread cursor direction (AC-15)", () => {
       .all()
       .find(request => request.url.includes("/messages?"));
     expect(newerRequest).toBeDefined();
-    expect(decodeURIComponent(newerRequest!.url)).toMatch(/filter\[id\|gt\]=/);
+    expect(decodeURIComponent(newerRequest!.url)).toContain(
+      `filter[id|gt]=${newestHeldId}`
+    );
   });
 });
 
@@ -806,6 +823,49 @@ describe("tickets manager — attachments: download and remove (AC-20/AC-21)", (
       );
     expect(deleteRequest).toBeDefined();
     expect(deleteRequest!.url).toContain(reply.data.files[0]!.id);
+  });
+});
+
+describe("tickets manager — the stale-reply guard names the NEWEST message (AC-17)", () => {
+  it("AC-17 reply() sends the newest message's id as last_message_id, never the oldest", async () => {
+    await seedClientSession();
+    installTicketsHandlers();
+    let capturedBody: { last_message_id?: string } = {};
+    server?.use(
+      http.post("*/api/tickets/:id/replies", async ({ request }) => {
+        capturedBody = (await request.json()) as { last_message_id?: string };
+        return HttpResponse.json(recorded.reply());
+      })
+    );
+
+    const thread = recorded.messages() as {
+      data: Array<{ id: string; created_at: string }>;
+    };
+    // The recording is newest-first, as the wire's `order=-created_at,-id` asks.
+    const newest = thread.data[0]!;
+    const oldest = thread.data[thread.data.length - 1]!;
+    expect(newest.id).not.toBe(oldest.id);
+
+    const ticket = manager();
+    await vi.waitFor(() =>
+      expect(!!ticket.useContext().data.value?.id).toBe(true)
+    );
+    await ticket.useActions().loadOlder();
+    await vi.waitFor(
+      () =>
+        expect(ticket.useContext().feed.entries.value.length).toBeGreaterThan(
+          1
+        ),
+      { timeout: 2000 }
+    );
+
+    await ticket.useActions().reply("a reply that must not be refused");
+
+    // Sending the OLDEST id is exactly the condition the server answers 409
+    // `ticket_has_more_recent_reply` to, so every reply on a thread with more
+    // than one message would be refused.
+    expect(capturedBody.last_message_id).toBe(newest.id);
+    expect(capturedBody.last_message_id).not.toBe(oldest.id);
   });
 });
 

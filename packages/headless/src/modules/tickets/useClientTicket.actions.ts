@@ -10,6 +10,7 @@ import {
   NotAuthenticatedError,
   responseCodes
 } from "../../utils";
+import { findLast } from "lodash-es";
 import type {
   Ticket,
   TicketAttachmentRef,
@@ -151,18 +152,27 @@ export function createClientTicketActions(
     }
   }
 
-  /** AC15 — loads older messages (`filter[id|lt]`). */
+  /**
+   * AC15 — loads older messages (`filter[id|lt]` the OLDEST held id).
+   *
+   * The feed is `desc` by `created_at`, so the oldest message is the LAST
+   * entry, not the first. The two cursors were swapped: `loadOlder` asked for
+   * messages older than the NEWEST held id and `loadNewer` for messages newer
+   * than the OLDEST — each re-reading the thread it already held instead of
+   * paging past it.
+   */
   async function loadOlder(): Promise<void> {
-    const oldest = feed.entries.value.find(entry => entry.kind === "message")
-      ?.message.id;
+    const oldest = findLast(
+      feed.entries.value,
+      entry => entry.kind === "message"
+    )?.message.id;
     await loadFeed({ before: oldest });
   }
 
-  /** AC15 — loads newer messages (`filter[id|gt]`). */
+  /** AC15 — loads newer messages (`filter[id|gt]` the NEWEST held id, the FIRST entry). */
   async function loadNewer(): Promise<void> {
-    const newest = [...feed.entries.value]
-      .reverse()
-      .find(entry => entry.kind === "message")?.message.id;
+    const newest = feed.entries.value.find(entry => entry.kind === "message")
+      ?.message.id;
     await loadFeed({ after: newest });
   }
 
@@ -199,9 +209,14 @@ export function createClientTicketActions(
     options: { isPrivate?: boolean; files?: TicketAttachmentRef[] } = {}
   ): Promise<TicketMessage | undefined> {
     const id = requireTicketId();
-    const lastMessage = [...feed.entries.value]
-      .reverse()
-      .find(entry => entry.kind === "message")?.message;
+    // AC-17's stale-reply guard wants the NEWEST message, and `mergeFeed`
+    // emits the feed `desc` by `created_at` — so the newest is the FIRST
+    // entry. Reversing first handed the server the OLDEST message, which IS
+    // the "a newer reply exists" condition: every reply on a thread with more
+    // than one message came back 409 `ticket_has_more_recent_reply`.
+    const lastMessage = feed.entries.value.find(
+      entry => entry.kind === "message"
+    )?.message;
 
     const result = await service.postReply(id, {
       body,
