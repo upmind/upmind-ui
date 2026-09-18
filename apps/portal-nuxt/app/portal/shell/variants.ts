@@ -208,7 +208,9 @@ export const PORTAL_AUTH_BRAND_CLASS = "inline-flex w-fit items-center";
 
 /**
  * The two-column auth pages, ported part for part from the cart's
- * TWO_COLUMN_LTR layout. The header and footer take the SAME ground as the body
+ * TWO_COLUMN_LTR layout, on the halves the ground itself splits into:
+ * `canvas-gradient` turns at 50%, so the columns do too. The header and footer
+ * take the SAME ground as the body
  * and no border (`useHeader({ border: "none" })`), so the split runs the full
  * height: the wordmark and the brand's line live INSIDE the form column, the
  * store shortcut and the platform's line inside the aside.
@@ -216,11 +218,11 @@ export const PORTAL_AUTH_BRAND_CLASS = "inline-flex w-fit items-center";
 export const AUTH_LTR_GROUND_CLASS = "bg-surface lg:canvas-gradient";
 export const AUTH_RTL_GROUND_CLASS = "bg-surface lg:canvas-gradient-rtl";
 export const AUTH_TWO_COLUMN_CONTAINER_CLASS =
-  "max-w-app mx-auto flex w-full min-w-0 flex-1 flex-col lg:flex-row";
+  "flex w-full min-w-0 flex-1 flex-col lg:flex-row";
 export const AUTH_TWO_COLUMN_FORM_CLASS =
-  "bg-surface flex w-full min-w-0 flex-col gap-10 px-6 py-8 lg:px-16 lg:py-10";
+  "bg-surface flex w-full min-w-0 flex-col gap-10 px-6 py-8 lg:w-1/2 lg:px-16 lg:py-10 2xl:px-32";
 export const AUTH_TWO_COLUMN_ASIDE_CLASS =
-  "bg-canvas hidden flex-col gap-10 px-6 py-8 lg:flex lg:min-w-app-aside lg:max-w-app-aside lg:px-8 lg:py-10";
+  "bg-canvas hidden flex-col gap-10 px-6 py-8 lg:flex lg:w-1/2 lg:px-16 lg:py-10 2xl:px-32";
 /** The form's own measure inside its column, as `sessionFormWidthVariants` sets it. */
 export const AUTH_TWO_COLUMN_MAIN_CLASS = "w-full max-w-3xl flex-1";
 /** Each column's chrome rows: the mark at the top, the line at the foot. */
