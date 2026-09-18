@@ -69,10 +69,26 @@ async function shellAt(path: string, datasetId: string): Promise<VueWrapper> {
   // The chrome moved out of the layout when the auth screens gained their own
   // templates: every one of them draws it through this component.
   const { default: shell } = await import("~/portal/auth/PortalAuthShell.vue");
-  const wrapper = mount(shell, {
-    props: { variant: "centered", card: true },
-    slots: { default: "<p>the screen</p>" }
+  const wrapper = mount(shell, { slots: { default: "<p>the screen</p>" } });
+  await settle();
+  return wrapper;
+}
+
+/**
+ * The brand's note is BODY content, not chrome: the templates place it where
+ * the cart places the organism's markdown slot, so it is proven where it lives.
+ */
+async function noteAt(path: string, datasetId: string): Promise<VueWrapper> {
+  stubMatchMedia();
+  Object.assign(globalThis, {
+    useRoute: () => ({ path, query: {} }),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), afterEach: vi.fn() }),
+    navigateTo: vi.fn()
   });
+  usePortalConfig().setDataset(datasetId);
+
+  const { default: note } = await import("~/portal/auth/PortalAuthNote.vue");
+  const wrapper = mount(note);
   await settle();
   return wrapper;
 }
@@ -152,7 +168,7 @@ describe("the brand's note for the screen it is on", () => {
   it("prints the login slot on the sign-in screen", async () => {
     authorSlot(hostgrid(), ClientTemplateSlotCodes.LOGIN_PAGE, AUTHORED_NOTE);
 
-    const wrapper = await shellAt(SIGN_IN_PATH, MOCK_DATASET_ID.HOSTGRID);
+    const wrapper = await noteAt(SIGN_IN_PATH, MOCK_DATASET_ID.HOSTGRID);
 
     expect(wrapper.find(NOTE).text()).toBe(AUTHORED_NOTE);
   });
@@ -166,7 +182,7 @@ describe("the brand's note for the screen it is on", () => {
       "Read this before you open one."
     );
 
-    const wrapper = await shellAt(
+    const wrapper = await noteAt(
       `/${RESERVED_PILLAR_SEGMENT.REGISTER}`,
       MOCK_DATASET_ID.HOSTGRID
     );
@@ -175,7 +191,7 @@ describe("the brand's note for the screen it is on", () => {
   });
 
   it("prints nothing on a screen the brand wrote no note for", async () => {
-    const wrapper = await shellAt(
+    const wrapper = await noteAt(
       `/${RESERVED_PILLAR_SEGMENT.VERIFY}`,
       MOCK_DATASET_ID.HOSTGRID
     );
@@ -184,7 +200,7 @@ describe("the brand's note for the screen it is on", () => {
   });
 
   it("prints nothing for a brand that wrote no note at all", async () => {
-    const wrapper = await shellAt(
+    const wrapper = await noteAt(
       SIGN_IN_PATH,
       MOCK_DATASET_ID.HOSTGRID_MINIMAL
     );

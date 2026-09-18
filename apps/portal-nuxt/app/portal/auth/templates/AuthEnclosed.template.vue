@@ -1,17 +1,22 @@
 <template>
-  <PortalAuthShell variant="centered">
-    <slot name="back" />
-    <slot name="hero" />
-    <slot name="markdown" />
-    <slot name="form" />
-    <slot name="summary" />
-    <slot name="actions" />
+  <PortalAuthShell>
+    <Page width="reading">
+      <PageHeader v-if="$slots.hero">
+        <slot name="hero" />
+      </PageHeader>
+
+      <PageBody>
+        <slot name="form" />
+      </PageBody>
+    </Page>
   </PortalAuthShell>
 </template>
 
 <script setup lang="ts">
-// One centred column with the form set plainly on the page. The centred
-// arrangement draws no rails, so every part the organism fills stacks here.
+// One full-width column — what develop's `SessionEnclosed.template.vue` draws on
+// the cart's SPLIT_VERTICAL layout: stacked surface rows, no aside and no card.
+// The cart places no markdown here, so this template places no note.
+import { Page, PageBody, PageHeader } from "@upmind/ui";
 import PortalAuthShell from "../PortalAuthShell.vue";
 import type { AuthRoutes } from "@upmind-automation/auth";
 

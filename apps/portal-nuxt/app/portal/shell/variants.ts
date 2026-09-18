@@ -171,12 +171,34 @@ export const PORTAL_FOOTER_PROSE_CLASS = "[&_p]:m-0 [&_a]:underline";
  */
 export const LOGGED_OUT_COLUMN_CLASS = "flex flex-col gap-4";
 
+/** `ShellHeader` lays its children in a row; the wordmark and the shortcut sit at the two ends. */
+export const LOGGED_OUT_HEADER_CLASS = "justify-between";
+
 /** The brand's own note above the screen — quieter than the form under it. */
 export const LOGGED_OUT_NOTE_CLASS =
   "text-muted text-sm [&_p]:m-0 [&_a]:underline";
 
 /** The page inside the card brings `Page`'s own padding; a second one boxes it in. */
 export const LOGGED_OUT_CARD_CONTENT_CLASS = "p-0";
+
+/**
+ * The canvas-card page's interior, ported from the cart's `canvasCardBodyVariants`
+ * and `canvasCardContentHeaderVariants`: the copy sits beside the form at `lg`
+ * and above it below that.
+ */
+export const CANVAS_CARD_BODY_CLASS =
+  "flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32";
+export const CANVAS_CARD_HEADER_CLASS = "w-full lg:max-w-sm";
+
+/**
+ * The split page's two halves, ported from the cart's `splitRootVariants`,
+ * `splitContainerVariants` and `splitAsideVariants`. The second half carries no
+ * content in the cart either — it is the canvas the form is set against.
+ */
+export const SPLIT_ROOT_CLASS = "flex min-h-full w-full flex-row";
+export const SPLIT_FORM_CLASS =
+  "bg-surface flex w-full flex-col justify-center gap-6 px-6 py-7 md:w-1/2 lg:px-16 lg:py-24 2xl:px-32";
+export const SPLIT_ASIDE_CLASS = "bg-canvas hidden md:block md:w-1/2";
 
 export const PORTAL_FOOTER_LINK_CLASS = "shrink-0 hover:underline";
 
