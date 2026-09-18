@@ -1,7 +1,7 @@
 import { computed, shallowRef } from "vue";
-import { map } from "lodash-es";
 import { addRenderers, clearRenderers } from "../renderers";
 import { addRoutes, clearRouting, registerFlows } from "../routing";
+import { map } from "lodash-es";
 import type { FeatureContext, FeatureDefinition } from "./feature.types";
 
 // The singleton registry. Feature contributions are brand-invariant, so one

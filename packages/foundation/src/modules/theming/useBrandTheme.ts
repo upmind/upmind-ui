@@ -1,9 +1,9 @@
 import { computed } from "vue";
-import { map } from "lodash-es";
 import { useBrand, useTheming } from "@upmind-automation/headless";
 import { useBrandConfig } from "../brand";
 import { COLOR_SCHEME } from "./theming.types";
 import { useThemeEngine } from "./useThemeEngine";
+import { map } from "lodash-es";
 import type { BrandThemeMeta, ColorScheme } from "./theming.types";
 
 const DEFAULT_THEME_ID = "default";
