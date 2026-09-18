@@ -27,14 +27,9 @@ import { createI18n } from "vue-i18n";
 import {
   PAGINATION,
   SortDirection,
+  useI18n as useLocalisation,
   useInvoices
 } from "@upmind-automation/headless";
-import action from "@upmind-automation/i18n/core/action-en.json";
-import error from "@upmind-automation/i18n/core/error-en.json";
-import form from "@upmind-automation/i18n/core/form-en.json";
-import invoices from "@upmind-automation/i18n/modules/invoices-en.json";
-import text from "@upmind-automation/i18n/core/text-en.json";
-import validation from "@upmind-automation/i18n/core/validation-en.json";
 import { Icon } from "../../../icon";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
@@ -64,8 +59,20 @@ export type QueryDeclaration = {
   uischema: UISchemaElement;
 };
 
+/**
+ * The SHIPPED catalogue, loaded the way the app loads it: headless's own
+ * `useI18n` over the `packages/i18n` source glob. No file is hand-picked here.
+ */
+const catalogueInstance = createI18n({ legacy: false, locale: "en" });
+const localisation = useLocalisation();
+localisation.init(
+  catalogueInstance,
+  import.meta.glob("@upmind-automation/i18n/**/*-en.json", { eager: true })
+);
+await localisation.loadLocaleMessages("en");
+
 export const messages = {
-  en: { action, error, form, invoices, text, validation }
+  en: catalogueInstance.global.getLocaleMessage("en") as Record<string, unknown>
 };
 
 // -----------------------------------------------------------------------------

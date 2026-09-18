@@ -17,8 +17,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import text from "@upmind-automation/i18n/core/text-en.json";
 import {
+  catalogue,
   clientEmailQuery,
   mountFilters,
   rawKeysIn,
@@ -93,7 +93,9 @@ describe("the search box carries its own clear", () => {
     await column(SEARCH).find("input").setValue("case");
     await settle();
 
-    expect(accessibleName(column(SEARCH).find(CLEAR))).toBe(text.all);
+    expect(accessibleName(column(SEARCH).find(CLEAR))).toBe(
+      catalogue("text.all")
+    );
     expect(rawKeysIn(renderedStrings(wrapper))).toEqual([]);
   });
 });

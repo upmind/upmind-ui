@@ -8,6 +8,7 @@ import { createClientNotesActions } from "./useClientNotes.actions";
 import { createClientNotesContext } from "./useClientNotes.context";
 import { createClientNotesInternals } from "./useClientNotes.internals";
 import { createClientNotesMeta } from "./useClientNotes.meta";
+import { once } from "lodash-es";
 import type {
   ClientNotesScopeMatrix,
   ProductLookupService
@@ -61,15 +62,12 @@ function createClientNotesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    * drives (they share the cache). No eager full-list fetch (design.md
    * §Layer 3): the first request is the control's own, on search/open.
    *
-   * `lookupActive` gates that first fetch — the thunk flips it when the control
-   * first reads the service, so the query stays idle until then.
+   * The thunk mints the query on its first call and then returns that same
+   * query, so the lookup stays idle until a control reads it.
    */
-  const lookupActive = ref(false);
-  const productLookupQuery = service.loadContractProductLookup(lookupActive);
-  const productLookup: ProductLookupService = () => {
-    lookupActive.value = true;
-    return productLookupQuery;
-  };
+  const productLookup: ProductLookupService = once(() =>
+    service.loadContractProductLookup()
+  );
 
   /**
    * ONE actions instance per scope, not one per `useActions()` call — the
