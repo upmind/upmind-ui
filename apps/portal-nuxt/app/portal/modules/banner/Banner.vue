@@ -21,6 +21,7 @@
   <Alert
     v-else-if="meta.hasMessage"
     :variant="props.tone"
+    :appearance="meta.appearance"
     :title="props.title"
     :description="props.message"
     :action="props.action"
@@ -40,6 +41,7 @@
  */
 import { Alert, AnnouncementBar, Button } from "@upmind/ui";
 import { computed } from "vue";
+import { hasPaintedSurface, injectRowSurface } from "../../content/surface";
 import { BANNER_VARIANT } from "./types";
 import { ALERT_UI } from "./variants";
 import { isEmpty, trim } from "lodash-es";
@@ -49,6 +51,8 @@ defineOptions({ name: "PortalBanner" });
 
 const props = defineProps<BannerModuleProps>();
 const emits = defineEmits<BannerModuleEmits>();
+
+const rowSurface = injectRowSurface();
 
 /** The library lays its own action Link inline after the body; a slotted Button would butt against the text. */
 function onAction(): void {
@@ -66,6 +70,9 @@ const meta = computed(() => ({
   // A data-fed message resolves empty once its condition clears ("nothing
   // needs the user"), so neither form renders — a titled band with a blank
   // body and a live button reads as a bug.
-  hasMessage: !isEmpty(trim(props.message))
+  hasMessage: !isEmpty(trim(props.message)),
+  // The soft fill only reads over a painted ground. On the page's own it sits
+  // two points off the ground behind it, so the notice takes an edge instead.
+  appearance: hasPaintedSurface(rowSurface.value) ? "muted" : "outline"
 }));
 </script>
