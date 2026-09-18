@@ -1,6 +1,6 @@
 import { nextTick, watch } from "vue";
 import { TicketStatusCodes } from "@upmind-automation/types";
-import { invalidateQueryByKey } from "../query";
+import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import { mergeFeed } from "./tickets.mappers";
@@ -395,6 +395,17 @@ export function createClientTicketActions(
 
     /** Marks the shared ticket cache key stale so the next read refetches. */
     invalidate: invalidateTicket,
+
+    /**
+     * Drops this ticket's cached rows so the next read starts from loading.
+     *
+     * `reset`, never `invalidate`: the latter KEEPS the rows, so a forced
+     * `loading` redraws the data it already had and a forced failure draws its
+     * error above rows the read never returned. The labs force handle calls
+     * this by name — without it, arming a forced state swapped the transport
+     * while the page kept its answers, and the console said so every boot.
+     */
+    reset: resetQueryByKey([...service.queryKey, "ticket", ticketId]),
 
     /** Resolves true when the manager is ready to read. Always settles. */
     isReady,

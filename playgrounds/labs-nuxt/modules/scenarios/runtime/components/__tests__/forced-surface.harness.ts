@@ -106,17 +106,11 @@ import type { VueWrapper } from "@vue/test-utils";
   });
 
 // The same directive ALSO defers work on a timer that then calls
-// `requestAnimationFrame`, which this environment does not implement. That
-// timer can outlive the test, so the call lands after teardown as an unhandled
-// `ReferenceError` — vitest exits NON-ZERO while every test passes, which reads
-// as a green suite and a red CI. Bind a frame scheduler onto the macrotask
-// queue, with a cancellable handle so a teardown that clears it still works.
-(globalThis as { requestAnimationFrame?: unknown }).requestAnimationFrame ??= ((
-  callback: FrameRequestCallback
-) => setTimeout(() => callback(Date.now()), 0)) as typeof requestAnimationFrame;
-(globalThis as { cancelAnimationFrame?: unknown }).cancelAnimationFrame ??= ((
-  handle: number
-) => clearTimeout(handle)) as typeof cancelAnimationFrame;
+// `requestAnimationFrame`. A stub HERE cannot help: jsdom defines
+// `requestAnimationFrame` for the whole of a test, so the guard never fired,
+// and vitest's jsdom teardown deletes the key outright, so an unconditional
+// assignment would not survive to the moment the stale timer lands either. The
+// lane cuts the timer instead (`modules/scenarios/testing/component.setup.ts`).
 
 const OVERFLOW_TRIGGER = "show-more-options";
 

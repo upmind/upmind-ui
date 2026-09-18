@@ -280,6 +280,7 @@ const {
   featureText,
   states,
   player,
+  preset,
   forcedState,
   forcedRefusal,
   isLocked

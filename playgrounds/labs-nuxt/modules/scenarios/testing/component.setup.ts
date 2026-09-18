@@ -1,3 +1,4 @@
+import { afterEach } from "vitest";
 import { config } from "@vue/test-utils";
 import * as vue from "vue";
 import { createI18n } from "vue-i18n";
@@ -88,3 +89,40 @@ config.global.plugins = [
     messages: { en: { action, confirm, error, form, labs, text, validation } }
   })
 ];
+
+/**
+ * `vue-sonner` closes a toast on its OWN timer, and the callback that timer
+ * runs (`removeToast` → `ToastState.dismiss(id)`) calls `requestAnimationFrame`
+ * SYNCHRONOUSLY. A spec that raises a toast and ends before that timer elapses
+ * leaves it pending: it then fires into a torn-down environment, where jsdom's
+ * `requestAnimationFrame` no longer exists, and vitest reports an unhandled
+ * `ReferenceError`. Every test passes and the run still exits NON-ZERO.
+ *
+ * Stubbing the global cannot fix it. jsdom defines `requestAnimationFrame` for
+ * the whole of a test, so a `??=` guard never installs; and vitest's own jsdom
+ * teardown does `keys.forEach(key => delete global[key])`, so even an
+ * unconditional assignment is deleted before the stale timer lands either way.
+ *
+ * So cut the timer instead of the symptom. UNMOUNTING is what cuts it — a
+ * toast's timer belongs to its component, and the component's own teardown
+ * clears it. `clearToasts()` is not the tool here: its `document.body` wipe
+ * pulls the nodes out from under components still mounted, and Vue's later
+ * unmount then walks a detached tree (`Cannot read properties of null (reading
+ * 'nextSibling')`). Leave that helper to the four specs that call it
+ * deliberately at their own end.
+ *
+ * Auto-unmounting every wrapper is not the tool either: specs that mount once
+ * per `describe` and read the same surface across their tests lose it.
+ *
+ * What is left is `toast.dismiss()`, which clears the queue `vue-sonner` keeps
+ * in MODULE state — it outlives any one mount, so a toast raised in one test is
+ * still queued in the next. Dismissing collapses the pending window from the
+ * toast's full lifetime to the exit animation, which is the shortest window a
+ * lane-wide hook can honestly reach without touching how specs mount. The
+ * import is dynamic because this file's canvas stub above must run BEFORE the
+ * `@upmind/ui` barrel is evaluated, and a static import would hoist over it.
+ */
+afterEach(async () => {
+  const { toast } = await import("@upmind/ui");
+  toast.dismiss();
+});

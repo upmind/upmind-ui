@@ -192,6 +192,7 @@ export function useScenarioTransport(
     featureText: trackSource?.feature,
     states,
     player,
+    preset,
     forcedState,
     forcedRefusal,
     isLocked
