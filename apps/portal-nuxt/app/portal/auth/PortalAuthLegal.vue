@@ -6,9 +6,7 @@
     :class="PORTAL_FOOTER_PROSE_CLASS"
   />
   <p v-else :class="PORTAL_FOOTER_PROSE_CLASS">
-    {{
-      t("text.copyright", { year: new Date().getFullYear(), name: brandName })
-    }}
+    © {{ new Date().getFullYear() }} {{ brandName }}. All rights reserved.
   </p>
 </template>
 
@@ -16,11 +14,11 @@
 // The brand's own line at the foot of the form column — the cart's FLAT footer.
 // It prints the brand's authored footer body where there is one and the
 // copyright line where there is not, which is the rule `Footer.vue` follows.
+// The sentence is `text.copyright` in the cart; this app carries no i18n and
+// writes its copy in place, as every other string here does.
 import { Markdown } from "@upmind/ui";
-import { useI18n } from "vue-i18n";
 import { useMockBrandGates } from "~/portal/mock/gates";
 import { PORTAL_FOOTER_PROSE_CLASS } from "~/portal/shell/variants";
 
-const { t } = useI18n();
 const { brandName, footerMarkdown } = useMockBrandGates();
 </script>
