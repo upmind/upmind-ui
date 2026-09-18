@@ -571,3 +571,34 @@ export function useContractLookupSchema(): JsonSchema7 {
     }
   } satisfies JsonSchema7;
 }
+
+/** The criteria model path the contract-product lookup control's term writes. */
+export const CONTRACT_PRODUCT_LOOKUP_SEARCH_SCOPE = "query";
+
+/**
+ * The criteria schema for the async contract-product lookup — quick-search plus
+ * pagination. The picker offers what a `.for('contracts_product', id)` slot
+ * takes.
+ */
+export function useContractProductLookupSchema(): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      query: {
+        type: ["string", "null"],
+        title: "invoices.lookup.search",
+        minLength: 1
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 1, default: 20 },
+          offset: { type: "integer", minimum: 0, default: 0 }
+        }
+      }
+    }
+  } satisfies JsonSchema7;
+}

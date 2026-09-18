@@ -65,6 +65,7 @@ import type {
   InvoiceStatus,
   CreditNoteStatus,
   IContract,
+  IContractProduct,
   IInvoice
 } from "@upmind-automation/types";
 // MaybeRef added for loadUnpaidAmount's reactive currency param — widening an
@@ -606,6 +607,10 @@ export type InvoicesServices = {
    * `isActive` defers the first fetch to the control.s own read.
    */
   loadContractLookup: (isActive: Ref<boolean>) => ContractLookupQuery;
+  /** The async CONTRACT-PRODUCT lookup a `.for('contracts_product', id)` picker drives. */
+  loadContractProductLookup: (
+    isActive: Ref<boolean>
+  ) => ContractProductLookupQuery;
   /** Takes NOTHING: the request state is the declared query schema. */
   loadList: () => InvoicesListQuery;
   loadOne: (invoiceId?: Invoice["id"]) => InvoiceItemQuery;
@@ -720,3 +725,22 @@ export type ContractLookupQuery = ListQuery<
 
 /** A THUNK returning the once-minted {@link ContractLookupQuery}. */
 export type ContractLookupService = () => ContractLookupQuery;
+
+/** The contract-product lookup's criteria model. */
+export type ContractProductLookupQueryModel = {
+  query?: string | null;
+  pagination?: { limit?: number; offset?: number };
+};
+
+/**
+ * The contract-product lookup handle — offers what a
+ * `.for('contracts_product', id)` scope slot takes.
+ */
+export type ContractProductLookupQuery = ListQuery<
+  IContractProduct[],
+  LookupItem[],
+  ContractProductLookupQueryModel
+>;
+
+/** A THUNK returning the once-minted {@link ContractProductLookupQuery}. */
+export type ContractProductLookupService = () => ContractProductLookupQuery;

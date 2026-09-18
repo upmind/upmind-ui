@@ -26,6 +26,7 @@ import type {
 } from "./invoices.types";
 import type {
   IContract,
+  IContractProduct,
   IInvoice,
   InvoiceStatus
 } from "@upmind-automation/types";
@@ -339,4 +340,25 @@ export function mapContractLookupItem(raw: IContract): LookupItem {
 /** The contract lookup query's `select` — every row as a selectable option. */
 export function mapContractLookupItems(raw: IContract[]): LookupItem[] {
   return map(raw, mapContractLookupItem);
+}
+
+/**
+ * One contract product as a lookup option — the `.for('contracts_product', id)`
+ * slot takes the id. The label leads with the service identifier, falling back
+ * to the product name and then the plain name.
+ */
+export function mapContractProductLookupItem(
+  raw: IContractProduct
+): LookupItem {
+  return {
+    value: raw.id,
+    label: raw.service_identifier || raw.product_name || raw.name
+  };
+}
+
+/** The contract-product lookup query's `select`. */
+export function mapContractProductLookupItems(
+  raw: IContractProduct[] = []
+): LookupItem[] {
+  return map(raw, mapContractProductLookupItem);
 }
