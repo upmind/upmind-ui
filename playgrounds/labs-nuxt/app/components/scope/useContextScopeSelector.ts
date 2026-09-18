@@ -15,7 +15,17 @@ import {
   resolveMatrixContext,
   resolveMatrixContexts
 } from "../../composables/scope";
-import { filter, forEach, map, reject, take, toPairs } from "lodash-es";
+import {
+  filter,
+  findKey,
+  forEach,
+  isString,
+  map,
+  reject,
+  take,
+  toPairs,
+  trim
+} from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type {
   ActorContextMatrix,
@@ -71,6 +81,9 @@ const registeredMatrix = ref<ActorContextMatrix | null>(null);
 
 // --- The page's own "Act for" form, registered beside its matrix
 const contextForm = ref<ScopeContextForm | undefined>();
+
+// --- That form's model: one nullable id per context type. A write IS a pick.
+const contextModel = ref<Record<string, unknown>>({});
 
 // --- Track which component set the contexts (for cleanup)
 let contextOwner: symbol | null = null;
@@ -153,6 +166,7 @@ export function useContextScopeSelector() {
 
     apply(matrix);
     contextForm.value = form;
+    contextModel.value = {};
 
     onUnmounted(() => {
       // Only reset if this component still owns the contexts
@@ -176,6 +190,24 @@ export function useContextScopeSelector() {
 
     registeredMatrix.value = matrix;
     availableContexts.value = contexts;
+  }
+
+  /**
+   * The context a form write names: the one key whose value changed is the
+   * type, its value the id. The model is kept so the next write diffs against
+   * it. A write that names no id (a cleared field, no change) is no pick.
+   */
+  function pickContext(
+    model: Record<string, unknown>
+  ): ScopeContext | undefined {
+    const type = findKey(
+      model,
+      (value, key) => value !== contextModel.value[key]
+    );
+    contextModel.value = model;
+
+    const id = type ? model[type] : undefined;
+    return type && isString(id) && trim(id) ? { type, id } : undefined;
   }
 
   /** Record a context as acted for, newest first, deduped on type + id. */
@@ -207,6 +239,7 @@ export function useContextScopeSelector() {
     availableContexts.value = [];
     registeredMatrix.value = null;
     contextForm.value = undefined;
+    contextModel.value = {};
     contextOwner = null;
   }
 
@@ -223,11 +256,17 @@ export function useContextScopeSelector() {
     /** The page's "Act for" form, when its scenario declares one. */
     contextForm,
 
+    /** That form's model, one id per context type. */
+    contextModel,
+
     /** Get context types available for specific actor. */
     getContextTypesForActor,
 
     /** True if any contexts are registered. */
     hasContexts,
+
+    /** The context a form write names, if it names one. */
+    pickContext,
 
     /** Contexts acted for before, newest first. */
     recentContexts,

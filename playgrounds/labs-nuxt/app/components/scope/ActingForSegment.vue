@@ -43,10 +43,8 @@
     </DropdownMenuGroup>
 
     <!-- RETARGET members: ONE form over every context the matrix declares,
-         when the page's module publishes one (`schemas.lookups`). A member with
-         a lookup picks a real record; one without keeps a plain id field.
-         Every model write applies straight away: the form has no actions, so
-         the write IS the pick. -->
+         when the page's module publishes one (`schemas.lookups`). The form has
+         no actions, so a model write IS the pick. -->
     <div v-if="contextForm" class="p-2" @keydown.stop>
       <UpmForm
         :schema="contextForm.schema"
@@ -181,9 +179,9 @@
  * - A SELECTOR member IS the whole answer (which catalogue), so it is one row
  *   and picking it is the act. No id, no session, nothing to remember.
  *
- * Either way the pick becomes `/for/:type[/:id]` on the url (`buildScopePath`),
- * whatever actor the url names — SELF included. The page reads the context back
- * off the route and boots `.for()` from it.
+ * Either way the pick is ONE scope write — `updateScopeParam("context", …)` —
+ * which becomes `/for/:type[/:id]` on the url, whatever actor the url names.
+ * The page reads the context back off the route and boots `.for()` from it.
  */
 
 import {
@@ -196,9 +194,8 @@ import {
   Input,
   Tooltip
 } from "@upmind/ui";
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter, useRoute } from "vue-router";
 import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
 import {
   ScopeActorTypes,
@@ -207,11 +204,10 @@ import {
 } from "@upmind-automation/headless";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import {
-  buildScopePath,
   useActorScope,
-  useContextScope
+  useContextScope,
+  useScopeNavigation
 } from "../../composables/scope";
-import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
 import { impersonateClient } from "../../services/impersonation";
 import { useContextScopeSelector } from "./useContextScopeSelector";
 import {
@@ -220,8 +216,6 @@ import {
   get,
   has,
   isEmpty,
-  isString,
-  keys,
   map,
   reject,
   startCase,
@@ -229,7 +223,7 @@ import {
   uniqBy
 } from "lodash-es";
 import type { AvailableContext } from "./useContextScopeSelector";
-import type { ScopeContext, SessionEntry } from "@upmind-automation/headless";
+import type { SessionEntry } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -240,13 +234,17 @@ interface ClientOption {
 }
 
 const { t } = useI18n();
-const route = useRoute();
-const router = useRouter();
 const actorScope = useActorScope();
 const currentContext = useContextScope();
-const { preserveQuery } = usePlaygroundUrlState();
-const { availableContexts, contextForm, recentContexts, remember } =
-  useContextScopeSelector();
+const { updateScopeParam } = useScopeNavigation();
+const {
+  availableContexts,
+  contextForm,
+  contextModel,
+  pickContext,
+  recentContexts,
+  remember
+} = useContextScopeSelector();
 
 const store = useSessionStore();
 const { activeActor, clientSessions } = store.useContext();
@@ -310,13 +308,6 @@ const availableSelectorMembers = computed<AvailableContext[]>(() =>
     member => member.type === currentContext.value?.type
   )
 );
-
-const brandId = computed(() => route.params.brandIdOrOrg as string | undefined);
-
-const page = computed(() => {
-  const segments = filter(route.path.split("/"), Boolean);
-  return (brandId.value ? segments[1] : segments[0]) ?? "";
-});
 
 /** What the active context is called: the type, or the entity it names. */
 const activeLabel = computed(() => {
@@ -413,22 +404,31 @@ async function ensureClientSession(id: string): Promise<boolean> {
   }
 }
 
+/**
+ * Act for an entity — the one RETARGET write every path ends on. A client is
+ * impersonated into the pool first, so the page reads as that client.
+ */
+async function actFor(type: string, id: string, label?: string): Promise<void> {
+  if (isClientType(type) && !(await ensureClientSession(id))) return;
+
+  remember({
+    type,
+    id,
+    label: label ?? (isClientType(type) ? labelFor(id) : id)
+  });
+
+  await updateScopeParam("context", { type, id });
+}
+
 /** Act for a client the store already holds, or has held before. */
 async function selectClient(client: ClientOption): Promise<void> {
-  if (!(await ensureClientSession(client.id))) return;
-
-  remember({ type: AccessRoleTypes.CLIENT, id: client.id, label: client.name });
-
-  await navigate({ type: AccessRoleTypes.CLIENT, id: client.id });
+  await actFor(AccessRoleTypes.CLIENT, client.id, client.name);
 }
 
 /** The client member, when the matrix declares one — it also lists sessions. */
 const clientMember = computed(() =>
   find(retargetMembers.value, member => isClientType(member.type))
 );
-
-/** ONE model over every declared context, keyed by the context type. */
-const contextModel = ref<Record<string, unknown>>({});
 
 /** The typed ids of the plain fallback, one per RETARGET member. */
 const idInputs = reactive<Record<string, string>>({});
@@ -438,56 +438,22 @@ async function applyId(member: AvailableContext): Promise<void> {
   const id = trim(idInputs[member.type] ?? "");
   if (!id) return;
 
-  if (isClientType(member.type) && !(await ensureClientSession(id))) return;
-
-  remember({
-    type: member.type,
-    id,
-    label: isClientType(member.type) ? labelFor(id) : id
-  });
   idInputs[member.type] = "";
-
-  await navigate({ type: member.type, id });
+  await actFor(member.type, id);
 }
 
-/** Act for whichever context the form just named. */
+/** Act for whichever context the form write names. */
 async function onContextPick(value: Record<string, unknown>): Promise<void> {
-  const changed = find(
-    keys(value),
-    key => value[key] !== contextModel.value[key]
-  );
-  contextModel.value = value;
-  if (!changed) return;
-
-  const id = value[changed];
-  if (!isString(id) || !trim(id)) return;
-
-  remember({ type: changed, id, label: id });
-  await navigate({ type: changed, id });
+  const context = pickContext(value);
+  if (context?.id) await actFor(context.type, context.id);
 }
 
 /** Act for a SELECTOR member — the type is the whole answer. */
 async function selectMember(member: AvailableContext): Promise<void> {
-  await navigate({ type: member.type });
+  await updateScopeParam("context", { type: member.type });
 }
 
 async function clear(): Promise<void> {
-  await navigate();
-}
-
-/** The one navigation every pick ends on: the page, at the actor, for the context. */
-async function navigate(context?: ScopeContext): Promise<void> {
-  await router
-    .push(
-      preserveQuery(
-        buildScopePath({
-          page: page.value,
-          brandId: brandId.value,
-          actor: actorScope.value,
-          context
-        })
-      )
-    )
-    .catch(() => undefined);
+  await updateScopeParam("context", undefined);
 }
 </script>

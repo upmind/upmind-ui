@@ -256,7 +256,23 @@ function loadInvoiceLookup(
   const clientId = resolveClientId(scopeContext);
 
   return listInfinite<IInvoice[], LookupItem[], InvoiceQueryModel>({
-    criteria: { schema: useQuerySchema() },
+    // Parent invoices only: `.for('invoice', id)` lists the credit notes OF an
+    // invoice, so a credit note is never a context. The legacy invoices list's
+    // own category set (`invoicesProvider.categoryFilter`).
+    criteria: {
+      schema: useQuerySchema(),
+      model: {
+        filters: {
+          "category.slug": [
+            InvoiceCategoryCode.NEW_CONTRACT,
+            InvoiceCategoryCode.ADDITIONAL_SERVICE,
+            InvoiceCategoryCode.ONE_TIME_SERVICE,
+            InvoiceCategoryCode.MIGRATION,
+            InvoiceCategoryCode.RECURRENT
+          ]
+        }
+      }
+    },
     queryKey: [...queryKey, "lookups", "invoices", { client: clientId }],
     url: useUrl("invoices", { client_id: clientId.value }),
     withAccessToken: true,

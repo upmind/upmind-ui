@@ -19,6 +19,7 @@ import {
   resolveContextDeclarations,
   resolveSelfActor
 } from "@upmind-automation/headless";
+import { usePlaygroundUrlState } from "../usePlaygroundUrlState";
 import { filter, get, head, some } from "lodash-es";
 import type {
   ActorContextMatrix,
@@ -202,10 +203,13 @@ export function buildScopePath(config: ScopePathConfig): string {
 export function useScopeNavigation() {
   const route = useRoute();
   const router = useRouter();
+  const { preserveQuery } = usePlaygroundUrlState();
 
   /**
    * Update a single scope parameter while preserving others.
    * Reads current scope from route, updates specified param, and navigates.
+   * The surface query (view, columns, track, criteria) rides along: scope is
+   * path segments, and a `router.push` would otherwise drop it.
    *
    * @param param - Which parameter to update
    * @param value - New value for the parameter
@@ -246,8 +250,9 @@ export function useScopeNavigation() {
       context: param === "context" ? (value as ScopeContext) : currentContext
     };
 
-    const newPath = buildScopePath(newConfig);
-    return router.push(newPath).then(() => undefined);
+    return router
+      .push(preserveQuery(buildScopePath(newConfig)))
+      .then(() => undefined);
   }
 
   return { updateScopeParam };

@@ -145,7 +145,7 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/is_consolidation",
         i18n: "form.invoice_consolidation_filter",
-        options: { format: "button-group", optionalText: "" }
+        options: { format: "toggle-group", optionalText: "" }
       },
       {
         type: "Control",
@@ -308,7 +308,8 @@ export function useLookupsUischema(
           lookup: {
             service: lookups.contract,
             searchScope: "filters.main_invoice_number.like"
-          }
+          },
+          optionalText: ""
         }
       },
       {
@@ -319,7 +320,8 @@ export function useLookupsUischema(
           lookup: {
             service: lookups.contracts_product,
             searchScope: "filters.service_identifier.like"
-          }
+          },
+          optionalText: ""
         }
       },
       {
@@ -327,13 +329,17 @@ export function useLookupsUischema(
         scope: `#/properties/${InvoicesContextTypes.INVOICE}`,
         i18n: "form.invoice_lookup",
         options: {
-          lookup: { service: lookups.invoice, searchScope: "filters.number" }
+          lookup: { service: lookups.invoice, searchScope: "filters.number" },
+          optionalText: ""
         }
       },
       {
         type: "Control",
         scope: `#/properties/${InvoicesContextTypes.CLIENT}`,
-        i18n: "form.client_id"
+        i18n: "form.client_id",
+        options: {
+          optionalText: ""
+        }
       }
     ]
   } as UISchemaElement;
