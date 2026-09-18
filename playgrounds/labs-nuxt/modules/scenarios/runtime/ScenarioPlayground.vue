@@ -120,6 +120,7 @@ import {
   get,
   isArray,
   isEmpty,
+  isFunction,
   map,
   mapValues,
   reduce,
@@ -138,9 +139,8 @@ import type {
   Archetype,
   ScopeActor
 } from "@upmind-automation/scenario-harness";
+import type { ScopeContextForm } from "~/components/scope";
 import { useContextScopeSelector } from "~/components/scope";
-import { useScopeLookups } from "~/components/scope/useScopeLookups";
-import type { ScopeLookups } from "~/components/scope/useScopeLookups";
 import { usePlaygroundSheet } from "~/components/sheets/usePlaygroundSheet";
 import { PlaygroundSheetTypes } from "~/components/sheets/usePlaygroundSheet.types";
 import {
@@ -280,15 +280,16 @@ function onCollectionActions(actions: ActionSlotItem[]): void {
 
 // The acting-for picker offers what the COMPOSABLE's own matrix declares, read
 // off the cell this page booted rather than re-declared beside it (`R6-31`).
+//
+// The "Act for" form is the cell's own too: the module's context publishes
+// `schemas.lookups` with each control already bound to its lookup, so the bar
+// renders it and reaches no service.
 const { register: registerContexts } = useContextScopeSelector();
-if (port.scopeMatrix) registerContexts(port.scopeMatrix);
-
-// The picker offers REAL records where the cell publishes a lookup for that
-// context type; a type with none keeps its plain id field.
-const { register: registerLookups } = useScopeLookups();
-registerLookups(
-  get(port.useContext?.(), "lookups") as ScopeLookups | undefined
-);
+const contextForm = get(
+  isFunction(port.useContext) ? port.useContext() : undefined,
+  ["schemas", "lookups"]
+) as ScopeContextForm | undefined;
+if (port.scopeMatrix) registerContexts(port.scopeMatrix, contextForm);
 
 // --- Playlist and transport
 // `tracks` names the MODULE (`R6-37`); the seam hands back that module's own

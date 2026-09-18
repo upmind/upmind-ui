@@ -42,18 +42,57 @@
       </DropdownMenuItem>
     </DropdownMenuGroup>
 
-    <!-- RETARGET members: ONE form over every context the matrix declares.
-         A member with a lookup picks a real record; one without keeps a plain
-         id field. Picking applies straight away — no submit, no actions. -->
-    <div v-if="retargetMembers.length" class="p-2" @keydown.stop>
+    <!-- RETARGET members: ONE form over every context the matrix declares,
+         when the page's module publishes one (`schemas.lookups`). A member with
+         a lookup picks a real record; one without keeps a plain id field.
+         Every model write applies straight away: the form has no actions, so
+         the write IS the pick. -->
+    <div v-if="contextForm" class="p-2" @keydown.stop>
       <UpmForm
-        :schema="contextSchema"
-        :uischema="contextUischema"
+        :schema="contextForm.schema"
+        :uischema="contextForm.uischema"
         :model-value="contextModel"
         :additional-renderers="formRenderers"
+        no-actions
+        size="sm"
         @update:model-value="onContextPick"
       />
     </div>
+
+    <!-- A module with no lookups form: each RETARGET member takes a typed id. -->
+    <template v-else>
+      <div v-for="member in retargetMembers" :key="member.type" class="p-2">
+        <Input
+          v-model="idInputs[member.type]"
+          :placeholder="
+            t('labs.acting_for_id_placeholder', {
+              type: startCase(member.type)
+            })
+          "
+          size="sm"
+          :data-attrs="{
+            'data-test-key': 'acting-for-id-input',
+            'data-test-value': member.type
+          }"
+          @keydown.stop
+          @keyup.enter="applyId(member)"
+        >
+          <template v-if="trim(idInputs[member.type])" #trailing>
+            <Button
+              variant="ghost"
+              size="xs"
+              :data-attrs="{
+                'data-test-key': 'acting-for-id-apply',
+                'data-test-value': member.type
+              }"
+              @click="applyId(member)"
+            >
+              <Icon icon="arrow-right" size="xs" />
+            </Button>
+          </template>
+        </Input>
+      </div>
+    </template>
 
     <!-- A client is the one entity the session store already knows by name, so
          the known sessions are offered as rows. -->
@@ -154,9 +193,10 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  Input,
   Tooltip
 } from "@upmind/ui";
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
@@ -174,7 +214,6 @@ import {
 import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
 import { impersonateClient } from "../../services/impersonation";
 import { useContextScopeSelector } from "./useContextScopeSelector";
-import { useScopeLookups } from "./useScopeLookups";
 import {
   filter,
   find,
@@ -184,7 +223,6 @@ import {
   isString,
   keys,
   map,
-  reduce,
   reject,
   startCase,
   trim,
@@ -207,7 +245,7 @@ const router = useRouter();
 const actorScope = useActorScope();
 const currentContext = useContextScope();
 const { preserveQuery } = usePlaygroundUrlState();
-const { availableContexts, recentContexts, remember } =
+const { availableContexts, contextForm, recentContexts, remember } =
   useContextScopeSelector();
 
 const store = useSessionStore();
@@ -384,10 +422,6 @@ async function selectClient(client: ClientOption): Promise<void> {
   await navigate({ type: AccessRoleTypes.CLIENT, id: client.id });
 }
 
-/** The page-published lookups, keyed by context type. */
-const { lookups: scopeLookups } = useScopeLookups();
-const lookupFor = (type: string) => get(scopeLookups.value, type);
-
 /** The client member, when the matrix declares one — it also lists sessions. */
 const clientMember = computed(() =>
   find(retargetMembers.value, member => isClientType(member.type))
@@ -396,40 +430,25 @@ const clientMember = computed(() =>
 /** ONE model over every declared context, keyed by the context type. */
 const contextModel = ref<Record<string, unknown>>({});
 
-/** ONE schema: a string property per RETARGET member the matrix declares. */
-const contextSchema = computed(() => ({
-  type: "object",
-  properties: reduce(
-    retargetMembers.value,
-    (properties: Record<string, unknown>, member) => {
-      properties[member.type] = { type: ["string", "null"] };
-      return properties;
-    },
-    {}
-  )
-}));
+/** The typed ids of the plain fallback, one per RETARGET member. */
+const idInputs = reactive<Record<string, string>>({});
 
-/**
- * ONE uischema: a control per member. A member with a lookup rides the SAME
- * `options.lookup` seam every other form uses; one without renders a plain id
- * field. No actions — a pick applies itself.
- */
-const contextUischema = computed(() => ({
-  type: "VerticalLayout",
-  elements: map(retargetMembers.value, member => ({
-    type: "Control",
-    scope: `#/properties/${member.type}`,
-    label: startCase(member.type),
-    options: {
-      ...(lookupFor(member.type)
-        ? { lookup: { service: lookupFor(member.type), searchScope: "query" } }
-        : {}),
-      placeholder: t("labs.acting_for_id_placeholder", {
-        type: startCase(member.type)
-      })
-    }
-  }))
-}));
+/** Act for the id typed into a member's plain field. */
+async function applyId(member: AvailableContext): Promise<void> {
+  const id = trim(idInputs[member.type] ?? "");
+  if (!id) return;
+
+  if (isClientType(member.type) && !(await ensureClientSession(id))) return;
+
+  remember({
+    type: member.type,
+    id,
+    label: isClientType(member.type) ? labelFor(id) : id
+  });
+  idInputs[member.type] = "";
+
+  await navigate({ type: member.type, id });
+}
 
 /** Act for whichever context the form just named. */
 async function onContextPick(value: Record<string, unknown>): Promise<void> {
