@@ -74,10 +74,10 @@ export function declaredPairs(schema: unknown): [string, string | undefined][] {
       const operators = keys(get(columnSchema, "properties", {}));
       return isEmpty(operators)
         ? ([[column, undefined]] as [string, string | undefined][])
-        : map(
-            operators,
-            (operator): [string, string | undefined] => [column, operator]
-          );
+        : map(operators, (operator): [string, string | undefined] => [
+            column,
+            operator
+          ]);
     }
   );
 }
@@ -161,7 +161,10 @@ export function paramsToCriteria(
     if (!isString(raw) || isEmpty(raw)) return;
 
     const leafSchema = get(schema, leafSchemaPath(column, operator));
-    const value = includes(castArray(get(leafSchema, "type", "string")), "array")
+    const value = includes(
+      castArray(get(leafSchema, "type", "string")),
+      "array"
+    )
       ? compact(split(raw, ","))
       : coerce(leafSchema, raw);
     if (!isNil(value) && !(isArray(value) && isEmpty(value)))

@@ -22,14 +22,14 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
 import { useInvoices } from "@upmind-automation/headless";
-import { filter, map, size } from "lodash-es";
+import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
 import {
   criteriaToParams,
   declaredPairs,
   paramsToCriteria
 } from "../runtime/composables/useCriteriaUrlSync.utils";
+import { filter, map, size } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -48,7 +48,9 @@ describe("criteria ⇄ url — every declared column survives the round-trip", (
   });
 
   it("a bare column round-trips to the SAME model — the loop condition", () => {
-    const model = { filters: { client_id: "04038696-e547-21d4-93ef-e18d9305e7d2" } };
+    const model = {
+      filters: { client_id: "04038696-e547-21d4-93ef-e18d9305e7d2" }
+    };
     const params = criteriaToParams(schema(), model);
 
     expect(params["filter.client_id"]).toBe(
@@ -73,7 +75,9 @@ describe("criteria ⇄ url — every declared column survives the round-trip", (
   });
 
   it("an operator-bearing column still round-trips — this is an addition", () => {
-    const model = { filters: { create_datetime: { gte: "2026-01-01T00:00:00Z" } } };
+    const model = {
+      filters: { create_datetime: { gte: "2026-01-01T00:00:00Z" } }
+    };
     const params = criteriaToParams(schema(), model);
 
     expect(params["filter.create_datetime.gte"]).toBe("2026-01-01T00:00:00Z");

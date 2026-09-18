@@ -6,7 +6,7 @@
     <div
       v-for="(element, index) in layout.uischema.elements"
       :key="`${layout.path}-${index}`"
-      class="min-w-0 max-w-full shrink"
+      class="max-w-full min-w-0 shrink"
     >
       <DispatchRenderer
         :schema="layout.schema"
