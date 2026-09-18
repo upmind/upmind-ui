@@ -52,7 +52,21 @@
         {{ t("labs.acting_for_by_id", { type: startCase(member.type) }) }}
       </DropdownMenuLabel>
 
-      <div class="p-2">
+      <div v-if="lookupFor(member.type)" class="p-2">
+        <UpmForm
+          :schema="lookupSchema(member.type)"
+          :uischema="lookupUischema(member.type)"
+          :model-value="{}"
+          :additional-renderers="formRenderers"
+          :data-attrs="{
+            'data-test-key': 'acting-for-lookup',
+            'data-test-value': member.type
+          }"
+          @update:model-value="value => onLookupPick(member, value)"
+        />
+      </div>
+
+      <div v-else class="p-2">
         <Input
           v-model="idInputs[member.type]"
           :placeholder="
@@ -196,7 +210,7 @@ import {
 import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
-import { Icon } from "@upmind-automation/client-vue";
+import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
 import {
   ScopeActorTypes,
   ScopeContextPatterns,
@@ -211,12 +225,14 @@ import {
 import { usePlaygroundUrlState } from "../../composables/usePlaygroundUrlState";
 import { impersonateClient } from "../../services/impersonation";
 import { useContextScopeSelector } from "./useContextScopeSelector";
+import { useScopeLookups } from "./useScopeLookups";
 import {
   filter,
   find,
   get,
   has,
   isEmpty,
+  isString,
   map,
   reject,
   startCase,
@@ -435,6 +451,45 @@ async function selectClient(client: ClientOption): Promise<void> {
   remember({ type: AccessRoleTypes.CLIENT, id: client.id, label: client.name });
 
   await navigate({ type: AccessRoleTypes.CLIENT, id: client.id });
+}
+
+/** The page-published lookup for a context type, when it publishes one. */
+const scopeLookups = useScopeLookups();
+const lookupFor = (type: string) => get(scopeLookups(), type);
+
+/** A one-property model so the control writes the picked id back by type. */
+function lookupSchema(type: string) {
+  return {
+    type: "object",
+    properties: { [type]: { type: ["string", "null"] } }
+  };
+}
+
+/** The lookup control — the SAME `options.lookup` seam every form uses. */
+function lookupUischema(type: string) {
+  return {
+    type: "Control",
+    scope: `#/properties/`,
+    i18n: `labs.acting_for_by_id`,
+    options: {
+      lookup: { service: lookupFor(type), searchScope: "query" },
+      placeholder: t("labs.acting_for_id_placeholder", {
+        type: startCase(type)
+      })
+    }
+  };
+}
+
+/** Act for the record the picker chose. */
+async function onLookupPick(
+  member: AvailableContext,
+  value: Record<string, unknown>
+): Promise<void> {
+  const id = get(value, member.type);
+  if (!isString(id) || !id) return;
+
+  remember({ type: member.type, id, label: id });
+  await navigate({ type: member.type, id });
 }
 
 /** Act for a SELECTOR member — the type is the whole answer. */

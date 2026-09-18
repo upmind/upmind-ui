@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import { createScopedComposable } from "../scope";
 import createInvoicesServices from "./invoices.services";
 import { INVOICES_SCOPE_MATRIX } from "./invoices.types";
@@ -56,6 +57,33 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    */
   const consolidatableCountQuery = service.loadConsolidatableCount();
 
+  /**
+   * The three relationship lookups, minted ONCE per scope. Each stays idle
+   * until a control first reads its thunk — the `active` ref flips then.
+   */
+  const contractActive = ref(false);
+  const contractProductActive = ref(false);
+  const invoiceActive = ref(false);
+  const contractLookupQuery = service.loadContractLookup(contractActive);
+  const contractProductLookupQuery = service.loadContractProductLookup(
+    contractProductActive
+  );
+  const invoiceLookupQuery = service.loadInvoiceLookup(invoiceActive);
+  const lookups = {
+    contract: () => {
+      contractActive.value = true;
+      return contractLookupQuery;
+    },
+    contracts_product: () => {
+      contractProductActive.value = true;
+      return contractProductLookupQuery;
+    },
+    invoice: () => {
+      invoiceActive.value = true;
+      return invoiceLookupQuery;
+    }
+  };
+
   /** ONE actions instance per scope; the layers below stay lazy. */
   const actions = createInvoicesActions(actorScope, service, query, scopeKey);
 
@@ -65,7 +93,8 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     useActions: () => actions,
 
     /** Sub-composable for collection context (reactive list + criteria/schemas). */
-    useContext: () => createInvoicesContext(actorScope, service, query),
+    useContext: () =>
+      createInvoicesContext(actorScope, service, query, lookups),
 
     /** Sub-composable for advanced debugging and internal access. */
     useInternals: () => createInvoicesInternals(actorScope, query, service),

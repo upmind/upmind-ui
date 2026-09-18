@@ -4,6 +4,7 @@ import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
   Invoice,
+  InvoicesScopeLookups,
   InvoicesListQuery,
   InvoicesServices
 } from "./invoices.types";
@@ -24,7 +25,8 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 export function createInvoicesContext(
   actorScope: ScopeActorTypes,
   service: InvoicesServices,
-  query: InvoicesListQuery
+  query: InvoicesListQuery,
+  lookups: InvoicesScopeLookups
 ) {
   const { useQuerySchema, useQueryUischema, useSortUischema } =
     createInvoicesSchemas(actorScope);
@@ -47,6 +49,8 @@ export function createInvoicesContext(
   // earns one, add `useInvoices.context.{actor}.ts` and spread it LAST.
 
   return {
+    /** The relationship lookups a scope picker drives, one per context type. */
+    lookups,
     /** The reactive list of this scope's invoices (always an array). */
     data,
 

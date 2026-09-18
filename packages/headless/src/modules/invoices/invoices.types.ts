@@ -744,3 +744,14 @@ export type ContractProductLookupQuery = ListQuery<
 
 /** A THUNK returning the once-minted {@link ContractProductLookupQuery}. */
 export type ContractProductLookupService = () => ContractProductLookupQuery;
+
+/**
+ * The three relationship lookups a scope publishes — one thunk per RETARGET
+ * context type, keyed by that type's own enum VALUE so a picker can resolve
+ * the right one from the context it is rendering.
+ */
+export type InvoicesScopeLookups = {
+  contract: ContractLookupService;
+  contracts_product: ContractProductLookupService;
+  invoice: InvoiceLookupService;
+};
