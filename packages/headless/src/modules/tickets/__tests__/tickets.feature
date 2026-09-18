@@ -519,7 +519,7 @@ Feature: A client runs their own support conversations
 
   # === THE LOOKUPS AND PREFERENCES ===========================================
 
-  @AC-31 @lookups
+  @AC-31 @collection @lookups
   Scenario: Choose which desk should handle a new ticket
     When I am about to raise a ticket
     Then I am offered only the desks my brand opens to clients
@@ -533,7 +533,7 @@ Feature: A client runs their own support conversations
     Then I am given the status by name
     And only ticket statuses are offered, not the statuses of other things
 
-  @AC-33 @preferences
+  @AC-33 @manager @preferences
   Scenario: My support composer preferences survive a reload
     When I choose how a new line is entered and whether a shortcut sends my message
     Then those choices are saved against my account

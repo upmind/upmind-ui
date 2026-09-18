@@ -53,8 +53,13 @@ export default {
   key: CLIENT_TICKETS_SCENARIO,
   useList: useClientTickets,
   persistCriteria: true,
-  // The MODULE whose committed `.feature` and step catalog this page plays.
-  tracks: "tickets",
+  // The MODULE whose committed `.feature` and step catalog this page plays —
+  // the same module the ticket page tracks, because the catalog is keyed by
+  // module and serves both keys. The feature tags every scenario `@collection`
+  // or `@manager`, so this page leaves the manager's out: replying to a ticket
+  // and renaming its subject are the detail page's, and listing them here
+  // offered a control this surface cannot honestly drive.
+  tracks: { module: "tickets", without: ["@manager"] },
   presentation: {
     icon: "message-question-circle",
     table: tableUischema,

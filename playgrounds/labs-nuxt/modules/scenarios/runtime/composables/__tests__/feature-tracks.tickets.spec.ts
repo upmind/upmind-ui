@@ -35,16 +35,36 @@ import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
 import ticketsScenario from "../../../useClientTickets/client-tickets.scenario";
 import { featureTracksFor, isModuleResolved } from "../../force/corpus.source";
 import { useFeatureTracks } from "../useFeatureTracks";
-import { every, filter, isEmpty, map, size } from "lodash-es";
+import {
+  every,
+  filter,
+  includes,
+  intersection,
+  isEmpty,
+  map,
+  size
+} from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-/** The module the collection page declares, read off the declaration itself. */
-const TRACKED_MODULE = ticketsScenario.tracks;
+/**
+ * The declaration's `tracks` is the PAIRED form here: `tickets` is the first
+ * module whose one feature serves two pages, so the page names the module AND
+ * the lane it does not play (`ScenarioTracks`). Both halves are read off the
+ * declaration rather than restated, so a page that changes lanes moves these
+ * assertions with it.
+ */
+const TRACKED = ticketsScenario.tracks as {
+  module: string;
+  without: readonly string[];
+};
+
+const TRACKED_MODULE = TRACKED.module;
 
 const source = () => featureTracksFor(TRACKED_MODULE);
 
-const playlist = () => useFeatureTracks(source()!);
+const playlist = () =>
+  useFeatureTracks({ ...source()!, without: TRACKED.without });
 
 /**
  * The playlist's own oracle, computed by the harness's OTHER reader of the
@@ -54,7 +74,10 @@ const playlist = () => useFeatureTracks(source()!);
  */
 const driveable = () => {
   const { feature, catalog } = source()!;
-  return createTraceabilityCheck(feature, catalog, {}).driveable;
+  return filter(
+    createTraceabilityCheck(feature, catalog, {}).driveable,
+    scenario => isEmpty(intersection(scenario.tags, TRACKED.without))
+  );
 };
 
 // -----------------------------------------------------------------------------
@@ -62,6 +85,7 @@ const driveable = () => {
 describe("the tickets seam resolves — the picker no longer reads Scenarios (0)", () => {
   it("names a module the seam reaches, taken from the page's own declaration", () => {
     expect(TRACKED_MODULE).toBe("tickets");
+    expect(TRACKED.without).toStrictEqual(["@manager"]);
     expect(isModuleResolved(TRACKED_MODULE)).toBe(true);
   });
 
@@ -75,6 +99,22 @@ describe("the tickets seam resolves — the picker no longer reads Scenarios (0)
 
   it("yields a non-empty playlist — the count the scenario bar draws", () => {
     expect(size(playlist().tracks)).toBeGreaterThan(0);
+  });
+
+  it("leaves the manager's lane OUT — the split the paired declaration asks for", () => {
+    const names = map(playlist().tracks, "name");
+
+    expect(names).not.toContain("Reply to a ticket");
+    expect(names).not.toContain("Rename a ticket's subject");
+    expect(
+      every(playlist().tracks, track => !includes(track.tags, "@manager"))
+    ).toBe(true);
+  });
+
+  it("keeps a scenario NEITHER page excludes — shared behaviour is not lost to the split", () => {
+    expect(map(playlist().tracks, "name")).toContain(
+      "Read a ticket's status as words, not as a code"
+    );
   });
 
   it("plays the driveable subset, named exactly as the committed feature declares them", () => {

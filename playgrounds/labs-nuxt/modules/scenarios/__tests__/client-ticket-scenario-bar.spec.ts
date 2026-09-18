@@ -32,6 +32,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
+import { excludedTagsOf, trackedModuleOf } from "../runtime/scenario.utils";
 import { featureTracksFor } from "../runtime/force/corpus.source";
 import managerScenario from "../useClientTicket/client-ticket.scenario";
 import {
@@ -42,7 +43,7 @@ import {
   testKey,
   unmountTicketPage
 } from "./client-ticket-page.harness";
-import { size } from "lodash-es";
+import { filter, intersection, isEmpty, size } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
@@ -53,11 +54,22 @@ const SETTLE = 10000;
  * What the page SHOULD be able to draw, computed off the same committed
  * artefacts it reads — the module's driveable subset (ADR-020 Amendment 5),
  * through the harness's own parser and matcher.
+ *
+ * MINUS the lane this page does not play. `tickets` is the first module whose
+ * one feature serves two pages, so the manager's bar offers the manager's
+ * scenarios and the shared ones, never the collection's paging and sorting
+ * (`ScenarioTracks.without`). Both halves are read off the declaration, so the
+ * oracle follows a page that changes lanes rather than pinning a number.
  */
 function driveableCount(): number {
-  const source = featureTracksFor(managerScenario.tracks!)!;
+  const source = featureTracksFor(trackedModuleOf(managerScenario.tracks)!)!;
+  const excluded = excludedTagsOf(managerScenario.tracks);
+
   return size(
-    createTraceabilityCheck(source.feature, source.catalog, {}).driveable
+    filter(
+      createTraceabilityCheck(source.feature, source.catalog, {}).driveable,
+      scenario => isEmpty(intersection(scenario.tags, excluded))
+    )
   );
 }
 

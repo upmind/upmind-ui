@@ -11,6 +11,7 @@
  * the shipped replay handlers.
  */
 
+import { trackedModuleOf } from "../../scenario.utils";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { computed, defineComponent, h } from "vue";
@@ -36,7 +37,7 @@ import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
 
-const MODULE = declaration.tracks as string;
+const MODULE = trackedModuleOf(declaration.tracks)!;
 const ON = "Consolidate invoices";
 const OFF = "Do NOT consolidate invoices";
 

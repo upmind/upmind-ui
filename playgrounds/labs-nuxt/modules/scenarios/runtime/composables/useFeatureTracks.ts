@@ -36,6 +36,8 @@ import {
   every,
   filter,
   forEach,
+  intersection,
+  isEmpty,
   kebabCase,
   map,
   noop,
@@ -173,9 +175,20 @@ export function useFeatureTracks(
       Boolean(matcher.match(step.text))
     );
 
+  // A module whose ONE feature serves two pages splits its playlist by the lane
+  // tags the feature already carries, and each page names the lane it is NOT
+  // (`ScenarioTracks.without`). A scenario tagged with neither lane is excluded
+  // by neither page and plays on both, which is what shared behaviour is.
+  const isThisPage = (scenario: FeatureScenario): boolean =>
+    isEmpty(source.without) ||
+    isEmpty(intersection(scenario.tags, source.without));
+
   return {
     tracks: map(
-      filter(parseFeatureScenarios(source.feature), isDriven),
+      filter(
+        parseFeatureScenarios(source.feature),
+        scenario => isDriven(scenario) && isThisPage(scenario)
+      ),
       scenario => toTrack(scenario, matcher, taken)
     ),
     malformedStepDefs: matcher.malformedStepDefs

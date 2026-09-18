@@ -91,6 +91,28 @@ config.global.plugins = [
 ];
 
 /**
+ * `@formkit/auto-animate` cold-polls every animated element's position on a
+ * 2s `setInterval` it never clears on unmount, and each tick calls
+ * `requestAnimationFrame` — the same stale-timer shape as the toast below, and
+ * the same unhandled `ReferenceError` once the environment is torn down.
+ *
+ * Its scheduler prefers `requestIdleCallback` and only falls back to the frame
+ * one, and THAT is the seam: jsdom defines no `requestIdleCallback`, so vitest
+ * never collected it as a window key and its teardown never deletes it. A
+ * global installed here therefore outlives the environment, which is exactly
+ * what `requestAnimationFrame` could not do.
+ *
+ * It runs nothing. The work behind the poll is a position measurement, and this
+ * lane computes no layout — `Element.animate` is already a stub here — so there
+ * is no reading for the callback to take and nothing for it to move. The handle
+ * is real so a caller that cancels still works.
+ */
+Object.assign(globalThis, {
+  requestIdleCallback: () => 0,
+  cancelIdleCallback: () => {}
+});
+
+/**
  * `vue-sonner` closes a toast on its OWN timer, and the callback that timer
  * runs (`removeToast` → `ToastState.dismiss(id)`) calls `requestAnimationFrame`
  * SYNCHRONOUSLY. A spec that raises a toast and ends before that timer elapses
@@ -124,5 +146,18 @@ config.global.plugins = [
  */
 afterEach(async () => {
   const { toast } = await import("@upmind/ui");
+
+  // Whether this test actually raised one. Dismissing is cheap and clears the
+  // module queue either way, but the settle below is only owed where a toast is
+  // on screen — every other test in the lane pays nothing.
+  const raised = !!document.querySelector("[data-sonner-toast]");
+
   toast.dismiss();
+
+  // Dismissing does not remove a toast; it starts its exit, and `removeToast`
+  // lands `TIME_BEFORE_UNMOUNT` (200ms) later — so the dismiss REPLACES the
+  // 4s lifetime timer with a 200ms one rather than cutting it. Waiting that
+  // window out is what keeps the call inside the environment that still has a
+  // `requestAnimationFrame` for it.
+  if (raised) await new Promise(resolve => setTimeout(resolve, 400));
 });

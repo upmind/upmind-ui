@@ -68,8 +68,10 @@ export default {
   useManage: useClientTicket,
   // The MODULE whose committed `.feature` and step catalog this page plays —
   // the same module the collection page tracks, because the catalog is keyed by
-  // module and serves both keys.
-  tracks: "tickets",
+  // module and serves both keys. The feature tags every scenario `@collection`
+  // or `@manager`, so this page leaves the collection's out: paging, sorting and
+  // filtering a list are the listing page's, and one ticket has no list to page.
+  tracks: { module: "tickets", without: ["@collection"] },
   presentation: {
     icon: "message-question-circle"
   }

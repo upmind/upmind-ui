@@ -19,6 +19,7 @@
  * proven so the title is shown to TRACK the clicked row, not read a constant.
  */
 
+import { trackedModuleOf } from "../../scenario.utils";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import { computed, defineComponent, h } from "vue";
@@ -55,7 +56,7 @@ import type {
   });
 
 const settle = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
-const module = declaration.tracks as string;
+const module = trackedModuleOf(declaration.tracks)!;
 
 // Module scope, like `proveForcedSurface`: these bind the lane's msw lifecycle
 // hooks, which only register at collection time.

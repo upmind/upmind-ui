@@ -571,7 +571,26 @@ export type ScenarioPresentation = {
  * A scenario declaring none renders Live alone and no transport, which is the
  * state every page boots into anyway (`S12`).
  */
-export type ScenarioTracks = string;
+export type ScenarioTracks =
+  | string
+  | {
+      /** The module's own name, exactly as the bare-string form carries it. */
+      module: string;
+      /**
+       * Scenario tags this page does NOT play, for a module whose ONE feature
+       * serves two pages. `tickets` is the first such module: its feature tags
+       * every scenario `@collection` or `@manager`, and without this both pages
+       * listed all 24 driveable tracks — the collection offering "Reply to a
+       * ticket" and "Rename a ticket's subject", which belong to the manager.
+       *
+       * It names what a page is NOT rather than what it is, so there is no lane
+       * vocabulary to keep in step across two files, and a scenario carrying
+       * NEITHER lane tag stays on both pages. That is the honest default for
+       * shared behaviour: reading a status as words is the list's business and
+       * the detail's alike, and a tag nobody excludes is nobody's alone.
+       */
+      without?: readonly string[];
+    };
 
 // -----------------------------------------------------------------------------
 

@@ -40,6 +40,7 @@
  * record — must red the error-action cell.
  */
 
+import { trackedModuleOf } from "../../scenario.utils";
 import { Skeleton } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -242,7 +243,7 @@ const isDisabled = (control: { attributes: (name: string) => unknown }) =>
 export async function proveForcedSurface(
   declaration: ScenarioDeclaration
 ): Promise<void> {
-  const module = declaration.tracks as string;
+  const module = trackedModuleOf(declaration.tracks)!;
   const kit = (await integrationKits[module]()) as Record<string, unknown>;
   const { server } = (await integrationSetups[module]()) as {
     server: {

@@ -30,6 +30,7 @@
  * row is authored.
  */
 
+import { trackedModuleOf } from "../../scenario.utils";
 import { join } from "node:path";
 import { mount } from "@vue/test-utils";
 import { http, HttpResponse } from "msw";
@@ -76,7 +77,7 @@ const LOCK_GLYPH = "svg.lucide-lock";
 const FLAGGED = "text-primary";
 const QUIET = "text-muted";
 
-const module = declaration.tracks as string;
+const module = trackedModuleOf(declaration.tracks)!;
 const kit = (await integrationKits[module]()) as Record<string, unknown>;
 const { server } = (await integrationSetups[module]()) as {
   server: {

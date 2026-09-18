@@ -33,6 +33,7 @@ import { presetRefusal } from "../force/presets";
 import { useFeatureTracks } from "./useFeatureTracks";
 import { useForcedState } from "./useForcedState";
 import { useScenarioPlayer } from "./useScenarioPlayer";
+import { excludedTagsOf, trackedModuleOf } from "../scenario.utils";
 import { isEmpty, map } from "lodash-es";
 import type {
   ScenarioTransport,
@@ -54,13 +55,21 @@ export function useScenarioTransport(
   // `tracks` names the MODULE (`R6-37`); the seam hands back that module's own
   // committed playlist and the catalog that plays it, and a module it does not
   // reach leaves the page Live-only (`S12`).
-  const trackedModule = source.module;
+  //
+  // The declaration may name the module alone, or name it with the scenario
+  // tags THIS page does not play — the paired form, for a module whose one
+  // feature serves two pages (`ScenarioTracks`). Everything below wants the
+  // bare name, so the pair is read apart once, here.
+  const trackedModule = trackedModuleOf(source.module);
+  const withoutTags = excludedTagsOf(source.module);
 
   const trackSource = trackedModule
     ? featureTracksFor(trackedModule)
     : undefined;
 
-  const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
+  const tracks = trackSource
+    ? useFeatureTracks({ ...trackSource, without: withoutTags }).tracks
+    : [];
 
   // The forced states THIS page offers: the ones its module's own `.feature`
   // declares (operator ruling, 2026-09-12), kept to those its own recordings can

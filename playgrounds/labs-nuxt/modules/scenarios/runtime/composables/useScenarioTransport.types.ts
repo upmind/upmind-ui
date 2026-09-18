@@ -24,6 +24,7 @@
  * self-drawn page — pass through it.
  */
 
+import type { ScenarioTracks } from "../scenario.types";
 import type { FeatureTrack } from "./useFeatureTracks.types";
 import type { ForceReset } from "./useForcedState.types";
 import type { ModulePortCriteria } from "./useModulePort.types";
@@ -40,8 +41,12 @@ import type { ComputedRef, Ref } from "vue";
  * which leaves the bar on Live with no transport (`S12`).
  */
 export type ScenarioTransportSource = {
-  /** The MODULE whose committed playlist and recordings this page plays (`R6-37`). */
-  module?: string;
+  /**
+   * The MODULE whose committed playlist and recordings this page plays
+   * (`R6-37`) — the declaration's own `tracks` channel, handed over whole so a
+   * paired page's `without` rides with the name it belongs to.
+   */
+  module?: ScenarioTracks;
   /** The booted port's request state, for the cell that owns one. */
   criteria?: ModulePortCriteria;
   /** The booted module's OWN cache clear, which every arm ends on (FE-3113). */

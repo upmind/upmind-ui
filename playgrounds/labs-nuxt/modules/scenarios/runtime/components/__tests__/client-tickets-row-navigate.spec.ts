@@ -24,6 +24,7 @@
  * live list the recordings produced, never authored here.
  */
 
+import { trackedModuleOf } from "../../scenario.utils";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import { computed, defineComponent, h } from "vue";
@@ -64,7 +65,7 @@ const OPEN_CONTROL = "open-ticket";
 
 // The MSW replay server needs its lifecycle hooks registered at module scope;
 // booted inside a test it never intercepts and the list query never fetches.
-const module = declaration.tracks as string;
+const module = trackedModuleOf(declaration.tracks)!;
 const kit = (await integrationKits[module]()) as Record<string, unknown>;
 const { server } = (await integrationSetups[module]()) as {
   server: {

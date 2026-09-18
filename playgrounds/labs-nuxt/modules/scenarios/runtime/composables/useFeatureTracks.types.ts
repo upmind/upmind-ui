@@ -43,6 +43,12 @@ export type FeatureTracksSource = {
    * Playwright lane registers, never a playground copy of it.
    */
   catalog: StepCatalog;
+  /**
+   * Scenario tags to leave OUT of this playlist — the declaration's own
+   * `tracks.without`, for a module whose one feature serves two pages. Absent,
+   * every driveable scenario is a track, which is every page but a paired one.
+   */
+  without?: readonly string[];
 };
 
 /**
