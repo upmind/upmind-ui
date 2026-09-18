@@ -22,7 +22,12 @@ The scoped types package is `@upmind-automation/types` (`@app/types` in the base
 
 ## Collection utilities — the Lodash mandate
 
-Use Lodash (`lodash-es`) for ALL array and object operations, in every package including `design-system/packages/ui`. Never native `items.map/filter/find/reduce`. Prefer one traversal: `remove(arr, predicate)` yields both subsets in one pass; at worst one `reduce`/`forEach`. Exception: never `lodash.get` for state or context access — use the Upmind state-read utilities (`code-xstate.md`).
+Use Lodash (`lodash-es`) for ALL array and object operations. Never native `items.map/filter/find/reduce`. Prefer one traversal: `remove(arr, predicate)` yields both subsets in one pass; at worst one `reduce`/`forEach`.
+
+Two exceptions:
+
+- Never `lodash.get` for state or context access — use the Upmind state-read utilities (`code-xstate.md`).
+- **The composed components carve out.** No `lodash-es` import under `design-system/packages/ui/src/components/**` — native methods and the local `lib/utils.ts` helpers stand in, per `COMPONENT_SPEC.md`. Enforced by `ui/no-lodash-in-components` (FE-3247). The vendored `src/form/**` subtree is unaffected.
 
 ## Gate bindings (graphify-gate.sh)
 

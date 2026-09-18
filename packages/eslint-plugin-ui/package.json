@@ -1,0 +1,24 @@
+{
+  "name": "@upmind-automation/eslint-plugin-ui",
+  "version": "1.0.0",
+  "description": "ESLint rules enforcing the composed-component laws (CC*) for design-system/packages/ui, replacing the code-ui.companion prose (FE-3247).",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test:unit": "node --test"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.50.0",
+    "vue-eslint-parser": "10.2.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "eslint": "9.39.2"
+  }
+}

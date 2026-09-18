@@ -1,0 +1,23 @@
+{
+  "name": "@upmind-automation/eslint-plugin-file-responsibility",
+  "version": "1.0.0",
+  "description": "ESLint rules pinning each module concern to its named file (types/services/schemas/mappers) for packages/headless (FE-3249).",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test:unit": "node --test"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.50.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "eslint": "9.39.2"
+  }
+}

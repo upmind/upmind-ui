@@ -80,14 +80,6 @@ function pinPanelText(data: MockDataset): string {
   return join(map(pinPanel(data), "value"), " ");
 }
 
-function supportPageText(data: MockDataset): string {
-  const items = resolveRef(
-    data,
-    DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS
-  ) as SpecModuleItem[];
-  return join(map(items, "value"), " ");
-}
-
 /** Drives the panel to REVEALED whatever it was — the control is a toggle, so its state is read, never assumed. */
 function ensureRevealed(data: MockDataset): void {
   if (isSupportPinRevealed(data.persona)) return;
@@ -366,8 +358,7 @@ describe("the support PIN panel — gated, masked, re-mintable", () => {
 
     ensureRevealed(data);
     expect(pinPanelText(data)).toContain(after);
-    expect(supportPageText(data)).toContain(after);
-    expect(supportPageText(data)).not.toContain(before);
+    expect(pinPanelText(data)).not.toContain(before);
   });
 
   it("a brand with no PIN feature has no PIN to show", () => {

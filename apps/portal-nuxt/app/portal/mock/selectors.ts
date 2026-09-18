@@ -6226,12 +6226,6 @@ function ticketMessageActions(
  * row keeps the spec module's own masked-value affordance; the panel drives
  * its masking from the facade instead, as legacy's Reveal/Hide pair did.
  */
-export function supportPinSpecItems(data: MockDataset): SpecModuleItem[] {
-  const pin = supportPin(data);
-  if (!isSupportPinEnabled(data) || pin === undefined) return [];
-  return [{ id: "pin", label: "Support PIN", value: pin, secret: true }];
-}
-
 function ticketListItem(ticket: MockTicket): ListModuleItem {
   return {
     id: ticket.id,

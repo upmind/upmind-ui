@@ -127,6 +127,32 @@ const SUPPORT_PIN_PANEL = moduleGroup(
   }
 );
 
+/**
+ * The support pillar's own pane — the section menu, then the PIN. Legacy
+ * carried the PIN in this side menu, and the page's own rows are the tickets:
+ * a full-width band above them spent the content track on four digits.
+ */
+const SUPPORT_UTILITY_PANE = {
+  primitive: PRIMITIVE_ID.UTILITY,
+  variant: "inline",
+  side: UTILITY_SIDE.RIGHT,
+  asideSize: CONTENT_ASIDE_SIZE.MD,
+  surface: ROW_SURFACE.PANEL,
+  slots: {
+    top: moduleRef(MENU_MODULE_ID, {
+      props: {
+        items: dataRef(DATA_REF_ID.PILLAR_SUBMENU_ITEMS),
+        navLabel: "Section navigation"
+      }
+    }),
+    botmid: SUPPORT_PIN_PANEL
+  },
+  slotVisible: {
+    top: dataRef(DATA_REF_ID.HAS_PILLAR_SUBMENU),
+    botmid: dataRef(DATA_REF_ID.IS_SUPPORT_PIN_ENABLED)
+  }
+} as const satisfies UtilityConfig;
+
 /** The account pillar's own pane — the card, the section menu, then the PIN. */
 const ACCOUNT_UTILITY_PANE = {
   primitive: PRIMITIVE_ID.UTILITY,
@@ -535,7 +561,7 @@ export const hostgridConfig: PortalConfig = {
       footer: false
     },
     ...billingPages(),
-    ...supportPages({ pinRow: true }),
+    ...supportPages(),
     // No horizontal section rail: this shape's inset LEFT pane already
     // carries the account submenu, and the two duplicated each other.
     ...accountPages({ sectionNav: false }),
@@ -557,7 +583,10 @@ export const hostgridConfig: PortalConfig = {
     // sidebar summary — over the section menu, with the support PIN under it.
     // An area override replaces a primitive wholesale (types.ts
     // `AreaOverride`), so the pane is restated here rather than merged.
-    [PORTAL_PILLAR.ACCOUNT]: { [PRIMITIVE_ID.UTILITY]: ACCOUNT_UTILITY_PANE }
+    [PORTAL_PILLAR.ACCOUNT]: { [PRIMITIVE_ID.UTILITY]: ACCOUNT_UTILITY_PANE },
+    // The support pillar's pane carries the PIN under its section menu, as
+    // legacy's support menu did.
+    [PORTAL_PILLAR.SUPPORT]: { [PRIMITIVE_ID.UTILITY]: SUPPORT_UTILITY_PANE }
   },
   groups: HOSTGRID_GROUPS,
   customAreas: []
