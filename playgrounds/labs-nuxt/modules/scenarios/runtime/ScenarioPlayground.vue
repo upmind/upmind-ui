@@ -139,7 +139,7 @@ import type {
   ScopeActor
 } from "@upmind-automation/scenario-harness";
 import { useContextScopeSelector } from "~/components/scope";
-import { provideScopeLookups } from "~/components/scope/useScopeLookups";
+import { useScopeLookups } from "~/components/scope/useScopeLookups";
 import type { ScopeLookups } from "~/components/scope/useScopeLookups";
 import { usePlaygroundSheet } from "~/components/sheets/usePlaygroundSheet";
 import { PlaygroundSheetTypes } from "~/components/sheets/usePlaygroundSheet.types";
@@ -285,8 +285,9 @@ if (port.scopeMatrix) registerContexts(port.scopeMatrix);
 
 // The picker offers REAL records where the cell publishes a lookup for that
 // context type; a type with none keeps its plain id field.
-provideScopeLookups(
-  () => get(port.useContext?.(), "lookups") as ScopeLookups | undefined
+const { register: registerLookups } = useScopeLookups();
+registerLookups(
+  get(port.useContext?.(), "lookups") as ScopeLookups | undefined
 );
 
 // --- Playlist and transport

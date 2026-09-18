@@ -42,105 +42,55 @@
       </DropdownMenuItem>
     </DropdownMenuGroup>
 
-    <!-- RETARGET members: the type names an entity, so each one takes an id.
-         A client is the one entity the session store already knows by name, so
-         the known sessions are offered as rows beneath its id field. -->
-    <template v-for="member in retargetMembers" :key="member.type">
-      <DropdownMenuLabel
-        class="text-muted border-surface border-b text-xs tracking-wider uppercase"
+    <!-- RETARGET members: ONE form over every context the matrix declares.
+         A member with a lookup picks a real record; one without keeps a plain
+         id field. Picking applies straight away — no submit, no actions. -->
+    <div v-if="retargetMembers.length" class="p-2" @keydown.stop>
+      <UpmForm
+        :schema="contextSchema"
+        :uischema="contextUischema"
+        :model-value="contextModel"
+        :additional-renderers="formRenderers"
+        @update:model-value="onContextPick"
+      />
+    </div>
+
+    <!-- A client is the one entity the session store already knows by name, so
+         the known sessions are offered as rows. -->
+    <DropdownMenuGroup v-if="clientMember" class="flex flex-col p-1">
+      <DropdownMenuItem
+        v-for="client in availableClients"
+        :key="String(client.id)"
+        :data-attrs="{
+          'data-test-key': 'acting-for-client',
+          'data-test-value': client.id
+        }"
+        @select="selectClient(client)"
       >
-        {{ t("labs.acting_for_by_id", { type: startCase(member.type) }) }}
-      </DropdownMenuLabel>
-
-      <div v-if="lookupFor(member.type)" class="p-2">
-        <UpmForm
-          :schema="lookupSchema(member.type)"
-          :uischema="lookupUischema(member.type)"
-          :model-value="{}"
-          :additional-renderers="formRenderers"
-          :data-attrs="{
-            'data-test-key': 'acting-for-lookup',
-            'data-test-value': member.type
-          }"
-          @update:model-value="value => onLookupPick(member, value)"
-        />
-      </div>
-
-      <div v-else class="p-2">
-        <Input
-          v-model="idInputs[member.type]"
-          :placeholder="
-            t('labs.acting_for_id_placeholder', {
-              type: startCase(member.type)
-            })
-          "
-          size="sm"
-          :data-attrs="{
-            'data-test-key': 'acting-for-id-input',
-            'data-test-value': member.type
-          }"
-          @keydown.stop
-          @keyup.enter="applyId(member)"
-        >
-          <template #leading>
-            <Icon icon="user-01" size="xs" class="text-muted" />
-          </template>
-          <template v-if="trim(idInputs[member.type])" #trailing>
-            <Button
-              variant="ghost"
-              size="xs"
-              :data-attrs="{
-                'data-test-key': 'acting-for-id-apply',
-                'data-test-value': member.type
-              }"
-              @click="applyId(member)"
-            >
-              <Icon icon="arrow-right" size="xs" />
-            </Button>
-          </template>
-        </Input>
-      </div>
-
-      <DropdownMenuGroup
-        v-if="isClientType(member.type)"
-        class="flex flex-col p-1"
-      >
-        <DropdownMenuItem
-          v-for="client in availableClients"
-          :key="String(client.id)"
-          :data-attrs="{
-            'data-test-key': 'acting-for-client',
-            'data-test-value': client.id
-          }"
-          @select="selectClient(client)"
-        >
-          <span class="flex min-w-0 items-center gap-2">
-            <Avatar size="sm" :alt="client.name">
-              <template #fallback>
-                <span class="text-xs font-medium">{{
-                  initials(client.name)
-                }}</span>
-              </template>
-            </Avatar>
-            <span class="flex min-w-0 flex-col">
-              <span class="truncate text-sm font-medium">{{
-                client.name
+        <span class="flex min-w-0 items-center gap-2">
+          <Avatar size="sm" :alt="client.name">
+            <template #fallback>
+              <span class="text-xs font-medium">{{
+                initials(client.name)
               }}</span>
-              <span v-if="client.email" class="text-muted truncate text-xs">
-                {{ client.email }}
-              </span>
+            </template>
+          </Avatar>
+          <span class="flex min-w-0 flex-col">
+            <span class="truncate text-sm font-medium">{{ client.name }}</span>
+            <span v-if="client.email" class="text-muted truncate text-xs">
+              {{ client.email }}
             </span>
           </span>
-        </DropdownMenuItem>
+        </span>
+      </DropdownMenuItem>
 
-        <p
-          v-if="!availableClients.length && !isActing"
-          class="text-muted py-4 text-center text-sm"
-        >
-          {{ t("labs.acting_for_no_clients") }}
-        </p>
-      </DropdownMenuGroup>
-    </template>
+      <p
+        v-if="!availableClients.length && !isActing"
+        class="text-muted py-4 text-center text-sm"
+      >
+        {{ t("labs.acting_for_no_clients") }}
+      </p>
+    </DropdownMenuGroup>
 
     <p v-if="!hasMembers" class="text-muted py-4 text-center text-sm">
       {{ t("labs.acting_for_no_contexts") }}
@@ -204,10 +154,9 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  Input,
   Tooltip
 } from "@upmind/ui";
-import { computed, reactive } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
@@ -233,7 +182,9 @@ import {
   has,
   isEmpty,
   isString,
+  keys,
   map,
+  reduce,
   reject,
   startCase,
   trim,
@@ -262,9 +213,6 @@ const { availableContexts, recentContexts, remember } =
 const store = useSessionStore();
 const { activeActor, clientSessions } = store.useContext();
 const { isAvailable } = store.useMeta();
-
-/** One pending id per RETARGET member, keyed by the member's type. */
-const idInputs = reactive<Record<string, string>>({});
 
 const isActing = computed(() => !!currentContext.value);
 
@@ -427,23 +375,6 @@ async function ensureClientSession(id: string): Promise<boolean> {
   }
 }
 
-/** Act for the entity typed into a RETARGET member's id field. */
-async function applyId(member: AvailableContext): Promise<void> {
-  const id = trim(idInputs[member.type] ?? "");
-  if (!id) return;
-
-  if (isClientType(member.type) && !(await ensureClientSession(id))) return;
-
-  remember({
-    type: member.type,
-    id,
-    label: isClientType(member.type) ? labelFor(id) : id
-  });
-  idInputs[member.type] = "";
-
-  await navigate({ type: member.type, id });
-}
-
 /** Act for a client the store already holds, or has held before. */
 async function selectClient(client: ClientOption): Promise<void> {
   if (!(await ensureClientSession(client.id))) return;
@@ -453,43 +384,67 @@ async function selectClient(client: ClientOption): Promise<void> {
   await navigate({ type: AccessRoleTypes.CLIENT, id: client.id });
 }
 
-/** The page-published lookup for a context type, when it publishes one. */
-const scopeLookups = useScopeLookups();
-const lookupFor = (type: string) => get(scopeLookups(), type);
+/** The page-published lookups, keyed by context type. */
+const { lookups: scopeLookups } = useScopeLookups();
+const lookupFor = (type: string) => get(scopeLookups.value, type);
 
-/** A one-property model so the control writes the picked id back by type. */
-function lookupSchema(type: string) {
-  return {
-    type: "object",
-    properties: { [type]: { type: ["string", "null"] } }
-  };
-}
+/** The client member, when the matrix declares one — it also lists sessions. */
+const clientMember = computed(() =>
+  find(retargetMembers.value, member => isClientType(member.type))
+);
 
-/** The lookup control — the SAME `options.lookup` seam every form uses. */
-function lookupUischema(type: string) {
-  return {
+/** ONE model over every declared context, keyed by the context type. */
+const contextModel = ref<Record<string, unknown>>({});
+
+/** ONE schema: a string property per RETARGET member the matrix declares. */
+const contextSchema = computed(() => ({
+  type: "object",
+  properties: reduce(
+    retargetMembers.value,
+    (properties: Record<string, unknown>, member) => {
+      properties[member.type] = { type: ["string", "null"] };
+      return properties;
+    },
+    {}
+  )
+}));
+
+/**
+ * ONE uischema: a control per member. A member with a lookup rides the SAME
+ * `options.lookup` seam every other form uses; one without renders a plain id
+ * field. No actions — a pick applies itself.
+ */
+const contextUischema = computed(() => ({
+  type: "VerticalLayout",
+  elements: map(retargetMembers.value, member => ({
     type: "Control",
-    scope: `#/properties/`,
-    i18n: `labs.acting_for_by_id`,
+    scope: `#/properties/${member.type}`,
+    label: startCase(member.type),
     options: {
-      lookup: { service: lookupFor(type), searchScope: "query" },
+      ...(lookupFor(member.type)
+        ? { lookup: { service: lookupFor(member.type), searchScope: "query" } }
+        : {}),
       placeholder: t("labs.acting_for_id_placeholder", {
-        type: startCase(type)
+        type: startCase(member.type)
       })
     }
-  };
-}
+  }))
+}));
 
-/** Act for the record the picker chose. */
-async function onLookupPick(
-  member: AvailableContext,
-  value: Record<string, unknown>
-): Promise<void> {
-  const id = get(value, member.type);
-  if (!isString(id) || !id) return;
+/** Act for whichever context the form just named. */
+async function onContextPick(value: Record<string, unknown>): Promise<void> {
+  const changed = find(
+    keys(value),
+    key => value[key] !== contextModel.value[key]
+  );
+  contextModel.value = value;
+  if (!changed) return;
 
-  remember({ type: member.type, id, label: id });
-  await navigate({ type: member.type, id });
+  const id = value[changed];
+  if (!isString(id) || !trim(id)) return;
+
+  remember({ type: changed, id, label: id });
+  await navigate({ type: changed, id });
 }
 
 /** Act for a SELECTOR member — the type is the whole answer. */

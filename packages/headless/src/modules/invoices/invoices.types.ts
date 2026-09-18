@@ -160,10 +160,10 @@ export const INVOICES_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
   [ScopeActorTypes.CLIENT]: [
-    InvoicesContextTypes.CLIENT,
     InvoicesContextTypes.CONTRACT,
     InvoicesContextTypes.CONTRACT_PRODUCT,
-    InvoicesContextTypes.INVOICE
+    InvoicesContextTypes.INVOICE,
+    InvoicesContextTypes.CLIENT
   ],
   [ScopeActorTypes.GUEST]: null as never
 } as const;
