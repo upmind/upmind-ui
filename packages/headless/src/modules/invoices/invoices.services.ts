@@ -1,6 +1,10 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
 import { computed, ref, unref, watch } from "vue";
+import {
+  InvoiceCategoryCode,
+  InvoiceStatusGroups
+} from "@upmind-automation/types";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import { useLocale } from "../system-localisation";
@@ -13,15 +17,12 @@ import {
   mapUnpaidAmount
 } from "./invoices.mappers";
 import {
-  consolidatableCountCriteria,
-  createInvoicesSchemas,
-  useContractLookupSchema,
-  useContractProductLookupSchema,
-  useInvoiceLookupSchema,
-  UNPAID_EXISTENCE_CRITERIA
+  useContractProductsQuerySchema,
+  useContractsQuerySchema,
+  useQuerySchema
 } from "./invoices.schemas";
 import { InvoicesContextTypes } from "./invoices.types";
-import { resolveFilterSlots, seedFilterSlots } from "./invoices.utils";
+import { scopeWireParams } from "./invoices.utils";
 import {
   useTime,
   DetailedError,
@@ -29,23 +30,18 @@ import {
   NotAuthenticatedError,
   DEBOUNCE_DELAY
 } from "../../utils";
-import { forEach, has } from "lodash-es";
 import type { LookupItem } from "../lookup";
 import type { ScopeContext } from "../scope";
 import type {
-  DurableFilterSlot,
   Invoice,
-  InvoiceFilterModel,
   ContractLookupQuery,
   ContractLookupQueryModel,
   ContractProductLookupQuery,
   ContractProductLookupQueryModel,
   InvoiceLookupQuery,
-  InvoiceLookupQueryModel,
   InvoicePaymentDetailsModel,
   InvoiceItemQuery,
   InvoiceQueryModel,
-  InvoiceQuerySchema,
   InvoiceUnpaidAmount,
   InvoiceUnpaidAmountQuery,
   InvoicesListQuery,
@@ -157,177 +153,82 @@ function isAddressable(clientId?: string): boolean {
   return isAuthenticated.value && !!clientId;
 }
 
-/**
- * The async contract lookup — the contracts a `.for('contract', id)` scope slot
- * takes. Client-scoped, search-driven, and lazy: `isActive` defers the first
- * fetch to the control's own read. Sibling of {@link loadInvoiceLookup}.
- */
-/**
- * The async contract-product lookup — what a `.for('contracts_product', id)`
- * scope slot takes. Lazy and client-scoped, as its two siblings are.
- */
+/** The contract products a `.for('contracts_product', id)` picker offers; minted on the picker's first call. */
 function loadContractProductLookup(
-  scopeContext: ScopeContext | undefined,
-  isActive: Ref<boolean>
+  scopeContext: ScopeContext | undefined
 ): ContractProductLookupQuery {
   const { listInfinite, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
-
-  const targetUrl = () =>
-    useUrl("contracts_products", {
-      "filter[clients.id]": clientId.value,
-      with: "product"
-    });
-  const url = targetUrl();
 
   return listInfinite<
     IContractProduct[],
     LookupItem[],
     ContractProductLookupQueryModel
   >({
-    criteria: { schema: useContractProductLookupSchema() },
+    criteria: { schema: useContractProductsQuerySchema() },
     queryKey: [
       ...queryKey,
       "lookups",
       "contract-products",
       { client: clientId }
     ],
-    url,
+    url: useUrl("contracts_products", {
+      client_id: clientId.value,
+      with: "product",
+      exclude_delegated: 1
+    }),
+    withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
         if (!isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
           return;
         }
-        url.search = targetUrl().search;
         resolve(true);
       }),
-    withAccessToken: true,
     select: mapContractProductLookupItems,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value) && isActive.value
+    enabled: () => isAddressable(clientId.value)
   }) as unknown as ContractProductLookupQuery;
 }
 
+/** The contracts a `.for('contract', id)` picker offers. */
 function loadContractLookup(
-  scopeContext: ScopeContext | undefined,
-  isActive: Ref<boolean>
+  scopeContext: ScopeContext | undefined
 ): ContractLookupQuery {
   const { listInfinite, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  const targetUrl = () =>
-    useUrl("contracts", { "filter[client_id]": clientId.value });
-  const url = targetUrl();
-
   return listInfinite<IContract[], LookupItem[], ContractLookupQueryModel>({
-    criteria: { schema: useContractLookupSchema() },
+    criteria: { schema: useContractsQuerySchema() },
     queryKey: [...queryKey, "lookups", "contracts", { client: clientId }],
-    url,
+    url: useUrl("contracts", { client_id: clientId.value }),
+    withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
         if (!isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
           return;
         }
-        url.search = targetUrl().search;
         resolve(true);
       }),
-    withAccessToken: true,
     select: mapContractLookupItems,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value) && isActive.value
+    enabled: () => isAddressable(clientId.value)
   }) as unknown as ContractLookupQuery;
 }
 
-/**
- * Wraps a list handle's published `setCriteria` so every RESOLVED slot's
- * column survives a write that OMITS it, whatever `filters` branch a caller
- * replaces (AC12, the AC7 clause, OR-1 (b), blocker H1). `criteria.set` merges
- * at BRANCH level (`useQueryCriteria.ts`: "`set({ filters })` replaces the
- * whole `filters` branch") — a bare `filters` write that omits `client_id`
- * (or a scoped `contracts.id`) would otherwise drop the column: the client
- * re-widens to the READER's own rows while `select` still attributes them
- * against the target, and a `.for('contract', id)` + `filterCreditNotes()`
- * read loses the contract narrowing. A caller that DECLARES a slot's key is
- * left untouched — this seam fills only an ABSENT column.
- *
- * @decision
- * what: intercept every `filters`-branch write reaching the ONE handle this
- * module hands to `useInvoices.actions.ts` (backing the published
- * `setCriteria`, `sortBy`, `filterConsolidatable` and `filterCreditNotes`),
- * and re-assert each resolved slot inside the caller's own `filters` object
- * ONLY when it does not already declare that key. Generalises the former
- * client-only `withDurableClientId` over the slot list so the three
- * relationship columns are kept durable by the SAME seam the client is, rather
- * than a second, competing one.
- * why: the merge semantics live in `useQueryCriteria.set` and are shared
- * platform behaviour every module on `list()` relies on; changing them would
- * change every consumer's semantics. `creditNotesCriteria` is one of two
- * reachable doors (the published `setCriteria` is the other) — wrapping the
- * one shared handle closes both, for every slot, so no caller-spelled request
- * can silently drop a scoped column. The presence check (never unconditional
- * override) preserves `setCriteria`'s own manual-retarget door.
- * rejected:
- * - fix `useQueryCriteria.set` to merge `filters` at key level: blocked by
- * operator ruling 2026-09-08 (verbatim, "do not chnage any query stuff") —
- * `packages/headless/src/modules/query/**` stays untouched.
- * - patch only `creditNotesCriteria` to re-carry the slots: leaves the
- * published `setCriteria` — the other reachable door — open.
- * - unconditionally re-assert a slot regardless of presence: breaks the
- * manual-retarget door, which must let an explicit caller-declared key win.
- */
-function withDurableFilterSlots(
-  handle: InvoicesListQuery,
-  slots: DurableFilterSlot[]
-): InvoicesListQuery {
-  const setCriteria: InvoicesListQuery["setCriteria"] = next => {
-    if (!has(next, "filters")) {
-      handle.setCriteria(next);
-      return;
-    }
-    const durable: InvoiceFilterModel = {};
-    forEach(slots, slot => {
-      const value = unref(slot.value);
-      // Truthiness, not presence — a declared-but-undefined key (e.g.
-      // `consolidatableCriteria(undefined)`'s `client_id`) is not a caller
-      // retarget, so this seam still fills it.
-      if (value && !next.filters?.[slot.key]) durable[slot.key] = value;
-    });
-    handle.setCriteria({ ...next, filters: { ...next.filters, ...durable } });
-  };
-
-  return { ...handle, setCriteria };
-}
-
-/**
- * COLLECTION — the reactive list query, minted once per scope. The whole
- * request state is the DECLARED query schema: `list()` builds the criteria
- * from it and publishes filters/sort/pagination back on the handle, so there
- * is no raw `sort`/`filters`/`pagination` param beside it (AC2).
- *
- * {@link seedFilterSlots} seeds and keeps each resolved slot's filter column
- * in step with its source — the `client_id` follows the resolved scope target
- * (AC12, the AC7 clause: without it a `.for('client', X)` scope fetched the
- * READER's own rows while `select` still attributed them against `X`
- * (`mapInvoices` below), corrupting `Invoice.attribution`/`isSettleable`), and
- * a `.for('contract'|'contracts_product'|'invoice', id)` relationship seeds its
- * own column (FE-3031 F3, OR-1).
- *
- * {@link withDurableFilterSlots} then makes each column DURABLE across every
- * published criteria write, not just the mint-time seed — blocker H1, OR-1 (b).
- */
-function loadList(
-  useQuerySchema: () => InvoiceQuerySchema,
-  scopeContext?: ScopeContext
-): InvoicesListQuery {
+/** The list. The scope's client and relationship ride as static url params, as the legacy portal sends them. */
+function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  const handle = list<IInvoice[], Invoice[], InvoiceQueryModel>({
+  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
     criteria: { schema: useQuerySchema() },
-    queryKey: [...queryKey, { client: clientId }],
+    queryKey: [...queryKey, { client: clientId, scope: scopeContext }],
     url: useUrl("invoices", {
+      client_id: clientId.value,
+      ...scopeWireParams(scopeContext),
       with: LOAD_LIST_INCLUDES,
       with_count: "products"
     }),
@@ -345,47 +246,31 @@ function loadList(
     staleTime: useTime().DAY,
     placeholderData: keepPreviousData
   });
-
-  const slots = resolveFilterSlots(clientId, scopeContext);
-  seedFilterSlots(handle, slots);
-
-  return withDurableFilterSlots(handle, slots);
 }
 
-/**
- * The async invoice lookup — the PARENT invoices a `.for('invoice', id)` scope
- * slot takes. Client-scoped, search-driven, and lazy: `isActive` defers the
- * first fetch to the control's own read, so the query stays idle until a
- * picker opens it. Sibling of the contract-product lookup in `client-notes`.
- */
+/** The parent invoices a `.for('invoice', id)` picker offers. */
 function loadInvoiceLookup(
-  scopeContext: ScopeContext | undefined,
-  isActive: Ref<boolean>
+  scopeContext: ScopeContext | undefined
 ): InvoiceLookupQuery {
   const { listInfinite, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  const targetUrl = () =>
-    useUrl("invoices", { "filter[client_id]": clientId.value });
-  const url = targetUrl();
-
-  return listInfinite<IInvoice[], LookupItem[], InvoiceLookupQueryModel>({
-    criteria: { schema: useInvoiceLookupSchema() },
+  return listInfinite<IInvoice[], LookupItem[], InvoiceQueryModel>({
+    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, "lookups", "invoices", { client: clientId }],
-    url,
+    url: useUrl("invoices", { client_id: clientId.value }),
+    withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
         if (!isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
           return;
         }
-        url.search = targetUrl().search;
         resolve(true);
       }),
-    withAccessToken: true,
     select: mapInvoiceLookupItems,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value) && isActive.value
+    enabled: () => isAddressable(clientId.value)
   }) as unknown as InvoiceLookupQuery;
 }
 
@@ -486,103 +371,34 @@ function loadUnpaidAmount(
 }
 
 /**
- * AC10's unpaid-existence count read — the same `loadList` shape, seeded with
- * the fixed {@link UNPAID_EXISTENCE_CRITERIA} preset (`oracle:553-572`). No
- * relations: count only.
- *
- * `requested` gates `enabled`: the query is minted once, alongside the list
- * query, but stays disabled until `requestUnpaidExistence()` flips it —
- * `meta.hasUnpaid` calls that on read, so an `useInvoices()` scope that never
- * asks about `hasUnpaid` never issues this request.
- *
- * {@link trackClientIdFilter} seeds `client_id` onto this read the same way
- * the oracle conditionally does (`oracle:561-563` —
- * `...(payload.clientId ? { ["filter[client_id]"]: payload.clientId } : {})`):
- * without it this read answered for the READER, so
- * `.for('client', X).useMeta().hasUnpaid` reported a sub-account's own
- * outstanding invoices as `false`.
+ * AC10 — one row of the client's unpaid invoices; `hasUnpaid` reads the
+ * total. `requested` defers the read until `useMeta().hasUnpaid` is consumed.
  */
 function loadUnpaidExistence(
-  useQuerySchema: () => InvoiceQuerySchema,
   requested: Ref<boolean>,
   scopeContext?: ScopeContext
 ): InvoicesListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  const handle = list<IInvoice[], Invoice[], InvoiceQueryModel>({
-    criteria: { schema: useQuerySchema(), model: UNPAID_EXISTENCE_CRITERIA },
-    queryKey: [...queryKey, "unpaid_existence", { client: clientId }],
-    url: useUrl("invoices"),
-    withAccessToken: true,
-    // `requested` is NOT part of the guard: "nobody has asked for this count
-    // yet" is not an authentication failure, and manufacturing one here put a
-    // `NotAuthenticatedError` on the handle that `useMeta().hasError` folds
-    // into the COLLECTION's error — so an unasked notice read presented as
-    // "Something went wrong" over the whole list. `enabled` below owns that
-    // gate; the guard answers only whether the read is addressable at all.
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (!isAddressable(clientId.value)) {
-          reject(new NotAuthenticatedError());
-          return;
-        }
-        resolve(true);
-      }),
-    enabled: () => requested.value && isAddressable(clientId.value),
-    // NO `select`: this read answers a COUNT and nothing else — `hasUnpaid` and
-    // `consolidatableCount` read `pagination.total`, never a row. `list()`
-    // applies `select` INSIDE its queryFn, so a mapper that throws on one live
-    // row rejects the whole query: the network shows 200 with the real total,
-    // the handle reports an error, `pagination.total` falls back to 0, and
-    // `useMeta().hasError` folds that into the COLLECTION's error. Mapping rows
-    // nobody reads can only lose.
-    staleTime: useTime().DAY
-  });
-
-  seedFilterSlots(handle, resolveFilterSlots(clientId, scopeContext));
-
-  return handle;
-}
-
-/**
- * AC2's dedicated consolidatable-count read — the same `list()` shape as
- * {@link loadUnpaidExistence}, seeded with `consolidatableCountCriteria`
- * (`invoices.schemas.ts`) so the notice/CTA count is served from ITS OWN
- * criteria object and query key, never the one `filterConsolidatable()`
- * mutates on the list query (`useInvoices.actions.ts`) — the two coexist.
- *
- * `requested` gates `enabled` exactly like `loadUnpaidExistence`:
- * `meta.consolidatableCount` flips it on read, so a scope nobody asks about
- * never issues this request.
- *
- * The `client_id` this seeds at mint (via `consolidatableCountCriteria`)
- * would otherwise freeze whatever `clientId.value` resolved to at
- * construction (W2); {@link trackClientIdFilter} re-applies it on every
- * change, so a self-scope's client_id tracks a session switch instead.
- */
-function loadConsolidatableCount(
-  useQuerySchema: () => InvoiceQuerySchema,
-  requested: Ref<boolean>,
-  scopeContext?: ScopeContext
-): InvoicesListQuery {
-  const { list, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
-
-  const handle = list<IInvoice[], Invoice[], InvoiceQueryModel>({
+  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
     criteria: {
       schema: useQuerySchema(),
-      model: consolidatableCountCriteria(clientId.value)
+      model: {
+        filters: {
+          "status.code": InvoiceStatusGroups.UNPAID,
+          client_id: clientId.value
+        },
+        pagination: { limit: 1 }
+      }
     },
-    queryKey: [...queryKey, "consolidatable_count", { client: clientId }],
-    url: useUrl("invoices"),
+    queryKey: [
+      ...queryKey,
+      "unpaid_existence",
+      { client: clientId, scope: scopeContext }
+    ],
+    url: useUrl("invoices", scopeWireParams(scopeContext)),
     withAccessToken: true,
-    // `requested` is NOT part of the guard: "nobody has asked for this count
-    // yet" is not an authentication failure, and manufacturing one here put a
-    // `NotAuthenticatedError` on the handle that `useMeta().hasError` folds
-    // into the COLLECTION's error — so an unasked notice read presented as
-    // "Something went wrong" over the whole list. `enabled` below owns that
-    // gate; the guard answers only whether the read is addressable at all.
     guard: async () =>
       new Promise((resolve, reject) => {
         if (!isAddressable(clientId.value)) {
@@ -592,19 +408,52 @@ function loadConsolidatableCount(
         resolve(true);
       }),
     enabled: () => requested.value && isAddressable(clientId.value),
-    // NO `select`: this read answers a COUNT and nothing else — `hasUnpaid` and
-    // `consolidatableCount` read `pagination.total`, never a row. `list()`
-    // applies `select` INSIDE its queryFn, so a mapper that throws on one live
-    // row rejects the whole query: the network shows 200 with the real total,
-    // the handle reports an error, `pagination.total` falls back to 0, and
-    // `useMeta().hasError` folds that into the COLLECTION's error. Mapping rows
-    // nobody reads can only lose.
+    // No `select`: only `pagination.total` is read.
     staleTime: useTime().DAY
   });
+}
 
-  seedFilterSlots(handle, resolveFilterSlots(clientId, scopeContext));
+/** AC2 — the consolidatable count, over its own criteria so reading it never moves the list. */
+function loadConsolidatableCount(
+  requested: Ref<boolean>,
+  scopeContext?: ScopeContext
+): InvoicesListQuery {
+  const { list, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
 
-  return handle;
+  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
+    criteria: {
+      schema: useQuerySchema(),
+      model: {
+        filters: {
+          "status.code": InvoiceStatusGroups.UNPAID,
+          is_consolidation: false,
+          "category.slug": [InvoiceCategoryCode.RECURRENT],
+          client_id: clientId.value,
+          paid_amount: 0
+        },
+        pagination: { limit: 1 }
+      }
+    },
+    queryKey: [
+      ...queryKey,
+      "consolidatable_count",
+      { client: clientId, scope: scopeContext }
+    ],
+    url: useUrl("invoices", scopeWireParams(scopeContext)),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (!isAddressable(clientId.value)) {
+          reject(new NotAuthenticatedError());
+          return;
+        }
+        resolve(true);
+      }),
+    enabled: () => requested.value && isAddressable(clientId.value),
+    // No `select`: only `pagination.total` is read.
+    staleTime: useTime().DAY
+  });
 }
 
 /**
@@ -702,22 +551,11 @@ function scopedServices(
   }
 }
 
-/**
- * Services factory — the concrete actor and the context it acts upon arrive
- * first, at construction. `useInvoices.ts` calls it once and so does
- * `useInvoice.ts`, each with ITS OWN resolved scope, so the two instances
- * share no mutable state.
- *
- * Resolves `useQuerySchema` once, through `createInvoicesSchemas`, so this
- * services file and the query-issuing reads below never re-derive their own
- * copy of the arm-resolution switch (`invoices.schemas.ts`'s own factory) —
- * the same seam `scopedServices` below already routes `scopeActor` through.
- */
+/** One services instance per scope; `scopeContext` decides the target client and relationship. */
 export const createInvoicesServices = (
   scopeActor: ScopeActorTypes,
   scopeContext?: ScopeContext
 ): InvoicesServices => {
-  const { useQuerySchema } = createInvoicesSchemas(scopeActor);
   const clientId = resolveClientId(scopeContext);
   const unpaidExistenceRequested = ref(false);
   const consolidatableCountRequested = ref(false);
@@ -727,29 +565,20 @@ export const createInvoicesServices = (
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed<ResponseError | undefined>(() => undefined),
-    loadList: () => loadList(useQuerySchema, scopeContext),
-    loadInvoiceLookup: isActive => loadInvoiceLookup(scopeContext, isActive),
-    loadContractLookup: isActive => loadContractLookup(scopeContext, isActive),
-    loadContractProductLookup: isActive =>
-      loadContractProductLookup(scopeContext, isActive),
+    loadList: () => loadList(scopeContext),
+    loadInvoiceLookup: () => loadInvoiceLookup(scopeContext),
+    loadContractLookup: () => loadContractLookup(scopeContext),
+    loadContractProductLookup: () => loadContractProductLookup(scopeContext),
     loadOne: invoiceId => loadOne(invoiceId, scopeContext),
     loadUnpaidAmount: (invoiceId, currencyId) =>
       loadUnpaidAmount(invoiceId, currencyId, scopeContext),
     loadUnpaidExistence: () =>
-      loadUnpaidExistence(
-        useQuerySchema,
-        unpaidExistenceRequested,
-        scopeContext
-      ),
+      loadUnpaidExistence(unpaidExistenceRequested, scopeContext),
     requestUnpaidExistence: () => {
       unpaidExistenceRequested.value = true;
     },
     loadConsolidatableCount: () =>
-      loadConsolidatableCount(
-        useQuerySchema,
-        consolidatableCountRequested,
-        scopeContext
-      ),
+      loadConsolidatableCount(consolidatableCountRequested, scopeContext),
     requestConsolidatableCount: () => {
       consolidatableCountRequested.value = true;
     },

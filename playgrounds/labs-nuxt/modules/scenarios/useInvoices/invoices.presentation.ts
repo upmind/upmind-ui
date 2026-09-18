@@ -425,11 +425,8 @@ export const detailUischema: DetailUischema = {
  * channels, resolved off the criteria schema rather than an action control
  * (`CHANNELS.md`).
  *
- * `filterCreditNotes` is drawn TWICE (AC-7) — once collection-scoped in the
- * HEADER (no `invoiceId`, every credit note) and once row-scoped in
- * `VISIBLE` (the generic single-arg row press supplies the clicked row's
- * `id` as `invoiceId`, narrowing to that invoice's own credit notes) — one
- * capability, two placements, matching the derivation table.
+ * `filterCreditNotes` is drawn once, in the HEADER; one invoice's own credit
+ * notes are a `.for('invoice', id)` scope, picked in the scope bar.
  *
  * `assignPaymentMethod` (AC-4's clear half) is not drawn here — see this
  * file's module docblock — so no row control reads the `locked` flag for it.
@@ -494,15 +491,6 @@ export const actionsUischema: ActionsUischema = {
       icon: "file-attachment-01",
       variant: "outline",
       placement: ActionPlacementTypes.HEADER
-    },
-    {
-      type: "Action",
-      // AC-7 — this invoice's own credit notes, row-scoped.
-      name: "filterCreditNotes",
-      i18n: "action.view_credit_notes",
-      icon: "file-attachment-01",
-      variant: "outline",
-      placement: ActionPlacementTypes.VISIBLE
     },
     {
       type: "Action",

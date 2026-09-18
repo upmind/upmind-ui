@@ -12,8 +12,10 @@
  * `/for/:type/:id` segments move it — offering only what the module's own
  * scope matrix serves. The client cell holds four RETARGET members —
  * `client`, `contract`, `contracts_product`, `invoice` (FE-3031 F3 / OR-1) —
- * so the acting-for picker offers each as an id row and every pick drives the
- * list; `self`/`staff`/`guest` stay compile-time errors on `.for()`, per the
+ * so the acting-for picker offers each and every pick drives the list. The
+ * picker's form is the module's own (`useContext().schemas.lookups`), its
+ * relationship controls bound to the module's lookups; nothing here declares
+ * it. `self`/`staff`/`guest` stay compile-time errors on `.for()`, per the
  * operator cell ruling recorded in `invoices.types.ts`'s `INVOICES_SCOPE_MATRIX`.
  *
  * No `useMutate` — the module ships no manager (no state machine, no

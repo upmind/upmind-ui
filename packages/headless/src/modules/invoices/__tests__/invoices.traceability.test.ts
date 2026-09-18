@@ -110,10 +110,7 @@ function acsNamedBySiblingSpecs(directory: string): string[] {
  * type of `createInvoicesActions`), never from this file's own assumption.
  * `Function.prototype.length` ignores only parameters carrying a JS runtime
  * default (`= value`); TypeScript's `?` optional marker erases at compile
- * time to an ordinary parameter, so `filterCreditNotes(invoiceId?: string)`
- * still counts 1 — measured empirically against the live function, not
- * assumed (both arities below are pinned against the real runtime value,
- * confirmed by running this test, not read off the implementation source).
+ * time to an ordinary parameter and still counts.
  * Pinning this — not just that the member is callable — is
  * what would have caught Review blocker B1 mechanically: `sortBy` silently
  * regaining its pre-conformance `(field, dir)` two-argument shape changes
@@ -126,7 +123,7 @@ const EXPECTED_ACTION_ARITY: Record<string, number> = {
   sortBy: 1,
   assignPaymentMethod: 2,
   refreshAfterPayment: 0,
-  filterCreditNotes: 1
+  filterCreditNotes: 0
 };
 
 // -----------------------------------------------------------------------------

@@ -1,35 +1,17 @@
-# must-fail: scoping by product reaches the wire under the API's own key,
-# `filter[products.contracts_product_id]=<contract-product-id>` (F3 product).
-#
-# Spec flipped: the FE-3031 contract-product relationship wire test
-# (`.for('contracts_product', id)` form). Re-rolled for the context form and
-# the bare-column schema (post scope-context refactor); supersedes the prior
-# setCriteria-form / operator-bag-schema version.
-# Mutation: drops the declared `products.contracts_product_id` filter column
-# from the query schema — the seeded slot is stripped by allowExtraProps and
-# never reaches the wire.
-#
-# Authored by the developer seat (FE-3031, developer-authors-mutant); prover
-# applies blind and reverts. Apply from repo root: `git apply <this file>`.
-diff --git a/packages/headless/src/modules/invoices/invoices.schemas.ts b/packages/headless/src/modules/invoices/invoices.schemas.ts
-index 8a1123c94..45c992d5d 100644
---- a/packages/headless/src/modules/invoices/invoices.schemas.ts
-+++ b/packages/headless/src/modules/invoices/invoices.schemas.ts
-@@ -234,17 +234,6 @@ export function useQuerySchema(): InvoiceQuerySchema {
-             // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
-             // would spell `filter[...|eq]`, which the platform rejects 422.
-           },
--          "products.contracts_product_id": {
--            type: ["string", "null"],
--            title: "invoices.filter.contracts_product_id",
--            // Seeded from the `.for('contracts_product', id)` scope slot, never
--            // a bar control — `readOnly` marks it not consumer-settable.
--            readOnly: true
--            // No `properties`: a branch with no operator sub-schema reaches the
--            // wire as a BARE `filter[products.contracts_product_id]`, which the API defaults to
--            // equality (`translateQuery`, `query.utils.ts`). Declaring `eq`
--            // would spell `filter[...|eq]`, which the platform rejects 422.
--          }
-         }
-       },
-       sort: {
+# must-fail: invoices.contract-product-filter.int.test.ts > .for('contracts_product', id) puts filter[products.contracts_product_id]=<id> on the wire.
+# Mutation: remaps the CONTRACT_PRODUCT scope param onto `client_id`, so the relationship never reaches the wire under its own key.
+# Apply from repo root: `git apply <this file>`; revert `git apply -R`.
+diff --git a/packages/headless/src/modules/invoices/invoices.types.ts b/packages/headless/src/modules/invoices/invoices.types.ts
+index 0e3a7ee9d..f51f0f508 100644
+--- a/packages/headless/src/modules/invoices/invoices.types.ts
++++ b/packages/headless/src/modules/invoices/invoices.types.ts
+@@ -97,8 +97,7 @@ export enum InvoicesContextTypes {
+ /** The static request param each relationship `.for()` context adds, as the legacy portal sends it. */
+ export const INVOICES_CONTEXT_WIRE_PARAMS = {
+   [InvoicesContextTypes.CONTRACT]: "filter[contracts.id]",
+-  [InvoicesContextTypes.CONTRACT_PRODUCT]:
+-    "filter[products.contracts_product_id]",
++  [InvoicesContextTypes.CONTRACT_PRODUCT]: "client_id",
+   [InvoicesContextTypes.INVOICE]: "filter[credit_invoice_id]"
+ } as const;
+ 

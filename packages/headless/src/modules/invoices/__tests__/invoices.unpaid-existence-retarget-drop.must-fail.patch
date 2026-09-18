@@ -1,25 +1,17 @@
-# must-fail: the unpaid-existence count read carries the retargeted client's
-# id on the wire (AC-12 applied to the existence probe).
-#
-# Spec flipped: the unpaid-existence retarget int test (AC12 on the count read).
-# Mutation: drops the `seedFilterSlots(...)` seed from `loadUnpaidExistence`
-# (the FIRST of the two count reads) — the existence probe counts the READER's
-# own unpaid rows instead of the `.for()` TARGET's, so hasUnpaid answers for the
-# wrong client.
-#
-# Authored by the developer seat (FE-3031, developer-authors-mutant); prover
-# applies blind and reverts. Re-rolled for the generalised seam (was
-# `trackClientIdFilter`). Apply from repo root: `git apply <this file>`.
+# must-fail: invoices.scope-identity.int.test.ts > hasUnpaid answers for the .for() TARGET (AC-12/AC-10).
+# Mutation: drops `client_id` from the unpaid-existence model, so the count answers for the READER.
+# Apply from repo root: `git apply <this file>`; revert `git apply -R`.
 diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
-index 0bd271442..a771ed32c 100644
+index 3a72d794c..b24104a94 100644
 --- a/packages/headless/src/modules/invoices/invoices.services.ts
 +++ b/packages/headless/src/modules/invoices/invoices.services.ts
-@@ -468,8 +468,6 @@ function loadUnpaidExistence(
-     staleTime: useTime().DAY
-   });
- 
--  seedFilterSlots(handle, resolveFilterSlots(clientId, scopeContext));
--
-   return handle;
- }
- 
+@@ -386,8 +386,7 @@ function loadUnpaidExistence(
+       schema: useQuerySchema(),
+       model: {
+         filters: {
+-          "status.code": InvoiceStatusGroups.UNPAID,
+-          client_id: clientId.value
++          "status.code": InvoiceStatusGroups.UNPAID
+         },
+         pagination: { limit: 1 }
+       }

@@ -132,8 +132,8 @@ describe("invoices — retarget my reading at an entitled client (AC-12, the A7 
     server.use(
       http.get("*/invoices", ({ request }) => {
         if (
-          decodeURIComponent(request.url).includes(
-            `filter[client_id]=${OTHER_CLIENT_ID}`
+          new RegExp(`[?&]client_id=${OTHER_CLIENT_ID}`).test(
+            decodeURIComponent(request.url)
           )
         ) {
           return HttpResponse.json({
@@ -159,8 +159,8 @@ describe("invoices — retarget my reading at an entitled client (AC-12, the A7 
     observed.stop();
 
     const request = observed.first();
-    expect(decodeURIComponent(request.url)).toContain(
-      `filter[client_id]=${OTHER_CLIENT_ID}`
+    expect(decodeURIComponent(request.url)).toMatch(
+      new RegExp(`[?&]client_id=${OTHER_CLIENT_ID}`)
     );
     assertClientIdentityTransport(request, accessToken);
 
@@ -283,7 +283,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toMatch(/credit_note/);
-    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toMatch(new RegExp(`[?&]client_id=${OTHER_CLIENT_ID}`));
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -308,7 +308,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toContain("filter[number]=durability-check-001");
-    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toMatch(new RegExp(`[?&]client_id=${OTHER_CLIENT_ID}`));
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -359,7 +359,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toContain("filter[number]=durability-falsy-client-id-001");
-    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toMatch(new RegExp(`[?&]client_id=${OTHER_CLIENT_ID}`));
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -388,7 +388,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toContain("order=-due_date");
-    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toMatch(new RegExp(`[?&]client_id=${OTHER_CLIENT_ID}`));
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -410,7 +410,7 @@ describe("invoices — the retarget survives every published criteria write (AC-
 
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
-    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toMatch(new RegExp(`[?&]client_id=${OTHER_CLIENT_ID}`));
     assertClientIdentityTransport(request, accessToken);
   });
 });

@@ -63,7 +63,7 @@ describe("invoices — filterBy() carries the retarget through the filters branc
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
     expect(decoded).toContain("filter[number]=filterby-a7-001");
-    expect(decoded).toContain(`filter[client_id]=${OTHER_CLIENT_ID}`);
+    expect(decoded).toMatch(new RegExp(`[?&]client_id=${OTHER_CLIENT_ID}`));
     assertClientIdentityTransport(request, accessToken);
   });
 
@@ -83,7 +83,7 @@ describe("invoices — filterBy() carries the retarget through the filters branc
 
     const request = observed.last();
     const decoded = decodeURIComponent(request.url);
-    expect(decoded).toContain(`filter[client_id]=${clientId}`);
+    expect(decoded).toMatch(new RegExp(`[?&]client_id=${clientId}`));
     expect(decoded).not.toContain(OTHER_CLIENT_ID);
   });
 });

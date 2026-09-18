@@ -27,22 +27,20 @@ import {
   rawKeysIn,
   renderedStrings
 } from "./filter.harness";
-import { forEach, get, indexOf, map, split, uniq } from "lodash-es";
+import { forEach, get, indexOf, split, uniq } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
 const declaration = invoicesQuery();
 
-const enumValuesOf = (schema: JsonSchema7, column: string): string[] => {
-  const oneOf = get(schema, [
+const enumValuesOf = (schema: JsonSchema7, column: string): string[] =>
+  get(schema, [
     "properties",
     "filters",
     "properties",
     column,
     "items",
-    "oneOf"
-  ]) as { const: string }[];
-  return map(oneOf, "const");
-};
+    "enum"
+  ]) as string[];
 
 const STATUS_COLUMN = "status.code";
 const CATEGORY_COLUMN = "category.slug";
@@ -161,10 +159,7 @@ describe("driving a facet reaches the wire under its declared dotted column", ()
   it("FAIRNESS CONTROL — a non-dotted column reaches the wire the same way", async () => {
     const mount = await mountFilters(declaration);
 
-    await mount
-      .column("filters.number")
-      .find("input")
-      .setValue("INV-2026-100");
+    await mount.column("filters.number").find("input").setValue("INV-2026-100");
     await mount.settle();
 
     const wire = get(

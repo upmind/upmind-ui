@@ -1,11 +1,11 @@
 import { nextTick, watch } from "vue";
+import {
+  InvoiceCategoryCode,
+  InvoiceStatusGroups
+} from "@upmind-automation/types";
 import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
-import {
-  consolidatableCriteria,
-  creditNotesCriteria
-} from "./invoices.schemas";
 import { NotAuthenticatedError } from "../../utils";
 import type {
   Invoice,
@@ -153,28 +153,29 @@ export function createInvoicesActions(
     query.setCriteria({ sort: intent });
   }
 
-  /**
-   * AC2's preset — narrows the VISIBLE list to invoices this client could
-   * consolidate. `clientId` defaults to this scope's resolved target
-   * (`service.clientId`) (`invoices.schemas.ts`'s `consolidatableCriteria`).
-   * The notice/CTA COUNT is a separate reader — `useMeta().consolidatableCount`
-   * — over its own dedicated query, never this list's criteria; the two
-   * coexist because reading the count no longer mutates what this preset
-   * filters.
-   */
+  /** AC2 — narrows the list to invoices this client could consolidate. */
   function filterConsolidatable(clientId?: string): void {
-    query.setCriteria(
-      consolidatableCriteria(clientId ?? service.clientId.value)
-    );
+    query.setCriteria({
+      filters: {
+        "status.code": InvoiceStatusGroups.UNPAID,
+        is_consolidation: false,
+        "category.slug": [InvoiceCategoryCode.RECURRENT],
+        client_id: clientId ?? service.clientId.value,
+        paid_amount: 0
+      }
+    });
   }
 
-  /**
-   * AC7's preset — applies the credit-notes criteria, narrowed to one
-   * invoice's credit notes when `invoiceId` is given
-   * (`invoices.schemas.ts`'s `creditNotesCriteria`).
-   */
-  function filterCreditNotes(invoiceId?: string): void {
-    query.setCriteria(creditNotesCriteria(invoiceId));
+  /** AC7 — credit notes as a filtered view of this same collection. */
+  function filterCreditNotes(): void {
+    query.setCriteria({
+      filters: {
+        "category.slug": [
+          InvoiceCategoryCode.CREDIT_NOTE,
+          InvoiceCategoryCode.CREDIT_NOTE_FOR_REFUND
+        ]
+      }
+    });
   }
 
   /**

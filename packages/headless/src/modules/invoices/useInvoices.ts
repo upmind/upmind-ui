@@ -1,4 +1,3 @@
-import { ref } from "vue";
 import { createScopedComposable } from "../scope";
 import createInvoicesServices from "./invoices.services";
 import { INVOICES_SCOPE_MATRIX } from "./invoices.types";
@@ -6,7 +5,11 @@ import { createInvoicesActions } from "./useInvoices.actions";
 import { createInvoicesContext } from "./useInvoices.context";
 import { createInvoicesInternals } from "./useInvoices.internals";
 import { createInvoicesMeta } from "./useInvoices.meta";
-import type { InvoicesScopeMatrix } from "./invoices.types";
+import { once } from "lodash-es";
+import type {
+  InvoicesScopeLookups,
+  InvoicesScopeMatrix
+} from "./invoices.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
@@ -58,30 +61,13 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const consolidatableCountQuery = service.loadConsolidatableCount();
 
   /**
-   * The three relationship lookups, minted ONCE per scope. Each stays idle
-   * until a control first reads its thunk — the `active` ref flips then.
+   * The three relationship lookups. Each mints on its first call and then
+   * returns that same query, so a scope nobody picks in never fetches.
    */
-  const contractActive = ref(false);
-  const contractProductActive = ref(false);
-  const invoiceActive = ref(false);
-  const contractLookupQuery = service.loadContractLookup(contractActive);
-  const contractProductLookupQuery = service.loadContractProductLookup(
-    contractProductActive
-  );
-  const invoiceLookupQuery = service.loadInvoiceLookup(invoiceActive);
-  const lookups = {
-    contract: () => {
-      contractActive.value = true;
-      return contractLookupQuery;
-    },
-    contracts_product: () => {
-      contractProductActive.value = true;
-      return contractProductLookupQuery;
-    },
-    invoice: () => {
-      invoiceActive.value = true;
-      return invoiceLookupQuery;
-    }
+  const lookups: InvoicesScopeLookups = {
+    contract: once(() => service.loadContractLookup()),
+    contracts_product: once(() => service.loadContractProductLookup()),
+    invoice: once(() => service.loadInvoiceLookup())
   };
 
   /** ONE actions instance per scope; the layers below stay lazy. */

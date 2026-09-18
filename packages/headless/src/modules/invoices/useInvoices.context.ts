@@ -1,5 +1,11 @@
 import { computed } from "vue";
-import { createInvoicesSchemas } from "./invoices.schemas";
+import {
+  useLookupsSchema,
+  useLookupsUischema,
+  useQuerySchema,
+  useQueryUischema,
+  useSortUischema
+} from "./invoices.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
@@ -23,13 +29,11 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * @doctrine clause 2 — shared-only (armless).
  */
 export function createInvoicesContext(
-  actorScope: ScopeActorTypes,
+  _actorScope: ScopeActorTypes,
   service: InvoicesServices,
   query: InvoicesListQuery,
   lookups: InvoicesScopeLookups
 ) {
-  const { useQuerySchema, useQueryUischema, useSortUischema } =
-    createInvoicesSchemas(actorScope);
   const { findOne, getOne } = useCollection<Invoice>(query.data);
 
   // `castArray(undefined)` yields a phantom element, so the empty case is
@@ -103,6 +107,14 @@ export function createInvoicesContext(
         schema: useQuerySchema(),
         uischema: useQueryUischema(),
         sortUischema: useSortUischema()
+      },
+      /**
+       * The `.for()` picker's lookups pair, each control already bound to
+       * this scope's lookup. A picker renders it and reaches no service.
+       */
+      lookups: {
+        schema: useLookupsSchema(),
+        uischema: useLookupsUischema(lookups)
       }
     }
 

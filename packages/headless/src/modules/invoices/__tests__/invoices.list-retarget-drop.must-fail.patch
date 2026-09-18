@@ -1,26 +1,15 @@
-# must-fail: invoices.scope-identity.int.test.ts > the collection's own list
-# request carries the TARGET client's id on the wire without a manual
-# setCriteria() call (AC-12).
-#
-# Spec flipped: invoices.scope-identity.int.test.ts (AC12).
-# Mutation: drops the `seedFilterSlots(handle, slots)` mint-time seed from
-# `loadList` — the list fetches the READER's own rows (no client_id filter on
-# the wire) while `select` still attributes every row against the `.for()`
-# TARGET (`mapInvoices(raw, clientId.value)`), so a sub-account row's
-# isSettleable stays wrong even though the fetch "worked".
-#
-# Authored by the developer seat (FE-3031, developer-authors-mutant); prover
-# applies blind and reverts. Re-rolled for the generalised filter-slot seam
-# (was `trackClientIdFilter`). Apply from repo root: `git apply <this file>`.
+# must-fail: invoices.scope-identity.int.test.ts > the list request carries the TARGET client's id (AC-12).
+# Mutation: drops `client_id` from the list url, so the list fetches the READER's own rows.
+# Apply from repo root: `git apply <this file>`; revert `git apply -R`.
 diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
-index 0bd271442..5b8056c23 100644
+index c51446f50..f239aa890 100644
 --- a/packages/headless/src/modules/invoices/invoices.services.ts
 +++ b/packages/headless/src/modules/invoices/invoices.services.ts
-@@ -312,7 +312,6 @@ function loadList(
-   });
- 
-   const slots = resolveFilterSlots(clientId, scopeContext);
--  seedFilterSlots(handle, slots);
- 
-   return withDurableFilterSlots(handle, slots);
- }
+@@ -227,7 +227,6 @@ function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
+     criteria: { schema: useQuerySchema() },
+     queryKey: [...queryKey, { client: clientId, scope: scopeContext }],
+     url: useUrl("invoices", {
+-      client_id: clientId.value,
+       ...scopeWireParams(scopeContext),
+       with: LOAD_LIST_INCLUDES,
+       with_count: "products"

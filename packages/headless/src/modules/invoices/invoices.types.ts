@@ -51,11 +51,6 @@ import type { Currency } from "../currency/currency.types";
 import type { LookupItem } from "../lookup";
 import type { ListQuery, SimpleQuery } from "../query";
 import type { ScopeContext } from "../scope";
-import type {
-  ControlElement,
-  JsonSchema7,
-  UISchemaElement
-} from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 // IInvoice added for InvoicesListQuery/InvoiceItemQuery's wire-type argument
 // (S1) — already imported and used elsewhere in this module's own services
@@ -70,7 +65,7 @@ import type {
 } from "@upmind-automation/types";
 // MaybeRef added for loadUnpaidAmount's reactive currency param — widening an
 // existing member, not a new type (see this file's head `graphify-out/` citation).
-import type { ComputedRef, MaybeRef, Ref } from "vue";
+import type { ComputedRef, MaybeRef } from "vue";
 
 // -----------------------------------------------------------------------------
 // SCOPE — two matrices, one context enum
@@ -99,25 +94,13 @@ export enum InvoicesContextTypes {
   INVOICE = UpmindObjectTypes.INVOICE
 }
 
-/**
- * Each relationship context's wire filter column. The scope seam
- * (`invoices.services.ts`) reads this to seed the resolved slot and keep it
- * durable across criteria writes, exactly as it does the client's own
- * `client_id`. Values are `InvoiceQueryModel` filter keys — no raw
- * `filter[...]` string is minted here.
- */
-export const INVOICES_CONTEXT_WIRE_KEYS = {
-  [InvoicesContextTypes.CLIENT]: "client_id",
-  [InvoicesContextTypes.CONTRACT]: "contracts.id",
-  [InvoicesContextTypes.CONTRACT_PRODUCT]: "products.contracts_product_id",
-  [InvoicesContextTypes.INVOICE]: "credit_invoice_id"
-} as const satisfies Record<InvoicesContextTypes, keyof InvoiceFilterModel>;
-
-/** One durable filter column and the reactive-or-static id that seeds it. */
-export type DurableFilterSlot = {
-  key: (typeof INVOICES_CONTEXT_WIRE_KEYS)[InvoicesContextTypes];
-  value: MaybeRef<string | undefined>;
-};
+/** The static request param each relationship `.for()` context adds, as the legacy portal sends it. */
+export const INVOICES_CONTEXT_WIRE_PARAMS = {
+  [InvoicesContextTypes.CONTRACT]: "filter[contracts.id]",
+  [InvoicesContextTypes.CONTRACT_PRODUCT]:
+    "filter[products.contracts_product_id]",
+  [InvoicesContextTypes.INVOICE]: "filter[credit_invoice_id]"
+} as const;
 
 /**
  * Scope matrix for `useInvoices`.
@@ -266,8 +249,6 @@ export type InvoiceQueryModel = {
     is_consolidation?: boolean | null;
     /** The credit-notes preset filters on this (AC7). */
     "category.slug"?: InvoiceCategoryCode | InvoiceCategoryCode[];
-    /** Seeded from the `.for('invoice', id)` scope slot (AC7); not consumer-settable. */
-    credit_invoice_id?: string;
     /** Used by the consolidatable preset (AC2); not drawn. */
     paid_amount?: number;
     total_amount?: number;
@@ -283,10 +264,6 @@ export type InvoiceQueryModel = {
      * by URL and absent from the bar (`design.md` "Filter columns").
      */
     fraud_status?: number | number[];
-    /** Seeded from the `.for('contract', id)` scope slot; not consumer-settable. */
-    "contracts.id"?: string;
-    /** Seeded from the `.for('contracts_product', id)` scope slot; not consumer-settable. */
-    "products.contracts_product_id"?: string;
   };
   sort?: InvoiceSortEntry[];
   /**
@@ -302,13 +279,6 @@ export type InvoiceFilterModel = NonNullable<InvoiceQueryModel["filters"]>;
 
 /** The ordered sort model — the `sort` branch of {@link InvoiceQueryModel}. */
 export type InvoiceSortModel = NonNullable<InvoiceQueryModel["sort"]>;
-
-/**
- * The collection's query schema. A `JsonSchema7`: a query schema IS a real
- * Draft-07 schema, walked at runtime by the translator/validators, so the
- * type stays general rather than a module-specific literal.
- */
-export type InvoiceQuerySchema = JsonSchema7;
 
 // -----------------------------------------------------------------------------
 // MODELS
@@ -597,20 +567,12 @@ export type InvoicesServices = {
    * shape uniformity.
    */
   error: ComputedRef<ResponseError | undefined>;
-  /**
-   * The async PARENT-invoice lookup a `.for('invoice', id)` picker drives.
-   * `isActive` defers the first fetch to the control's own read.
-   */
-  loadInvoiceLookup: (isActive: Ref<boolean>) => InvoiceLookupQuery;
-  /**
-   * The async CONTRACT lookup a `.for(.contract., id)` picker drives.
-   * `isActive` defers the first fetch to the control.s own read.
-   */
-  loadContractLookup: (isActive: Ref<boolean>) => ContractLookupQuery;
+  /** The async PARENT-invoice lookup a `.for('invoice', id)` picker drives. */
+  loadInvoiceLookup: () => InvoiceLookupQuery;
+  /** The async CONTRACT lookup a `.for('contract', id)` picker drives. */
+  loadContractLookup: () => ContractLookupQuery;
   /** The async CONTRACT-PRODUCT lookup a `.for('contracts_product', id)` picker drives. */
-  loadContractProductLookup: (
-    isActive: Ref<boolean>
-  ) => ContractProductLookupQuery;
+  loadContractProductLookup: () => ContractProductLookupQuery;
   /** Takes NOTHING: the request state is the declared query schema. */
   loadList: () => InvoicesListQuery;
   loadOne: (invoiceId?: Invoice["id"]) => InvoiceItemQuery;
@@ -667,16 +629,6 @@ export type InvoicesServices = {
   downloadPdf: (invoiceId: Invoice["id"]) => Promise<Blob>;
 };
 
-/**
- * The module's schema family (`invoices.schemas.ts`). No form pair — the
- * module has no edit form; AC4's write is a single nullable id (design D1).
- */
-export type InvoicesSchemas = {
-  useQuerySchema: () => InvoiceQuerySchema;
-  useQueryUischema: () => UISchemaElement;
-  useSortUischema: () => ControlElement;
-};
-
 // Re-export so a consumer building a scope-aware call site can spell the
 // context type this module's collection resolves against.
 export type { ScopeContext };
@@ -696,7 +648,7 @@ export type InvoiceLookupQueryModel = {
 export type InvoiceLookupQuery = ListQuery<
   IInvoice[],
   LookupItem[],
-  InvoiceLookupQueryModel
+  InvoiceQueryModel
 >;
 
 /**
@@ -708,7 +660,8 @@ export type InvoiceLookupService = () => InvoiceLookupQuery;
 
 /** The contract lookup's criteria model — quick-search term + pagination. */
 export type ContractLookupQueryModel = {
-  query?: string | null;
+  filters?: { main_invoice_number?: { like?: string | null } };
+  sort?: InvoiceSortModel;
   pagination?: { limit?: number; offset?: number };
 };
 
@@ -728,7 +681,8 @@ export type ContractLookupService = () => ContractLookupQuery;
 
 /** The contract-product lookup's criteria model. */
 export type ContractProductLookupQueryModel = {
-  query?: string | null;
+  filters?: { service_identifier?: { like?: string | null } };
+  sort?: InvoiceSortModel;
   pagination?: { limit?: number; offset?: number };
 };
 
