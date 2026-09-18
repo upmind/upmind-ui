@@ -71,6 +71,9 @@ export default {
   // module and serves both keys. The feature tags every scenario `@collection`
   // or `@manager`, so this page leaves the collection's out: paging, sorting and
   // filtering a list are the listing page's, and one ticket has no list to page.
+  // The desk lookup, the status vocabulary and the composer preferences read as
+  // ticket concerns and are not: all three fire `useClientTickets` actions, so
+  // they are tagged `@collection` and excluded here too.
   tracks: { module: "tickets", without: ["@collection"] },
   presentation: {
     icon: "message-question-circle"

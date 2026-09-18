@@ -526,14 +526,14 @@ Feature: A client runs their own support conversations
     And each desk is named the way my brand names it
     And a sensible desk is chosen for me: the one that handles my product if there is one, otherwise my brand's default
 
-  @AC-32 @lookups
+  @AC-32 @collection @lookups
   Scenario: Read a ticket's status as words, not as a code
     Given one of my tickets is awaiting a response
     When I read its status
     Then I am given the status by name
     And only ticket statuses are offered, not the statuses of other things
 
-  @AC-33 @manager @preferences
+  @AC-33 @collection @preferences
   Scenario: My support composer preferences survive a reload
     When I choose how a new line is entered and whether a shortcut sends my message
     Then those choices are saved against my account

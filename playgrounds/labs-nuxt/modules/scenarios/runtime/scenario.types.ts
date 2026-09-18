@@ -585,9 +585,11 @@ export type ScenarioTracks =
        *
        * It names what a page is NOT rather than what it is, so there is no lane
        * vocabulary to keep in step across two files, and a scenario carrying
-       * NEITHER lane tag stays on both pages. That is the honest default for
-       * shared behaviour: reading a status as words is the list's business and
-       * the detail's alike, and a tag nobody excludes is nobody's alone.
+       * NEITHER lane tag stays on both pages — the honest default for behaviour
+       * two pages genuinely share. `tickets` has no such scenario: each of the
+       * three its feature left untagged turned out to fire a collection action,
+       * so the lane a scenario belongs to is read off the composable that
+       * implements it, never off how the title reads.
        */
       without?: readonly string[];
     };

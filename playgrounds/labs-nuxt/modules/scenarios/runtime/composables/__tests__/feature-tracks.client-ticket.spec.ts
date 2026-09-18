@@ -176,10 +176,15 @@ describe("the client-ticket manager's picker no longer reads Scenarios (0)", () 
     ).toBe(true);
   });
 
-  it("keeps a scenario NEITHER page excludes — shared behaviour is not lost to the split", () => {
-    expect(map(playlist().tracks, "name")).toContain(
-      "Read a ticket's status as words, not as a code"
-    );
+  it("carries its OWN lane and nothing else — the split is total", () => {
+    // Every driveable tickets scenario belongs to exactly one page: each of the
+    // three the feature left untagged turned out to fire a COLLECTION action
+    // (`tickets.steps.ts` — `loadDepartmentOptions`, `loadTicketStatuses`,
+    // `savePrefs` all live on `useClientTickets` and nowhere else), so there is
+    // no shared scenario to keep. `without` still admits one; none exists here.
+    expect(
+      every(playlist().tracks, track => includes(track.tags, "@manager"))
+    ).toBe(true);
   });
 
   it("plays the driveable subset, named exactly as the committed feature declares them", () => {
