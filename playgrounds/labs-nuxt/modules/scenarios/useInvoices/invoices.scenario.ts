@@ -10,9 +10,11 @@
  * route and nothing can misname one. Nor does it declare a scope: the page
  * boots as self with no context, and only the url's `/as/:actor` and
  * `/for/:type/:id` segments move it — offering only what the module's own
- * scope matrix serves (`client` only; `self`/`staff`/`guest` are
- * compile-time errors on `.for()`, per the operator cell ruling recorded in
- * `invoices.types.ts`'s `INVOICES_SCOPE_MATRIX`).
+ * scope matrix serves. The client cell holds four RETARGET members —
+ * `client`, `contract`, `contracts_product`, `invoice` (FE-3031 F3 / OR-1) —
+ * so the acting-for picker offers each as an id row and every pick drives the
+ * list; `self`/`staff`/`guest` stay compile-time errors on `.for()`, per the
+ * operator cell ruling recorded in `invoices.types.ts`'s `INVOICES_SCOPE_MATRIX`.
  *
  * No `useMutate` — the module ships no manager (no state machine, no
  * edit-form schema pair, `invoices.types.ts:33-34`), so there is no create

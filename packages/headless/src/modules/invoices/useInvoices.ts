@@ -4,6 +4,7 @@ import { createInvoicesActions } from "./useInvoices.actions";
 import { createInvoicesContext } from "./useInvoices.context";
 import { createInvoicesInternals } from "./useInvoices.internals";
 import { createInvoicesMeta } from "./useInvoices.meta";
+import { INVOICES_SCOPE_MATRIX } from "./invoices.types";
 import type { InvoicesScopeMatrix } from "./invoices.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -103,7 +104,7 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useInvoices = createScopedComposable<
   ReturnType<typeof createInvoicesForScope>,
   InvoicesScopeMatrix
->("invoices", createInvoicesForScope);
+>("invoices", createInvoicesForScope, INVOICES_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseInvoices = ReturnType<typeof useInvoices>;
