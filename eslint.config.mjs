@@ -76,6 +76,8 @@ import eslintPluginUnusedImports from "eslint-plugin-unused-imports";
 import vueParser from "vue-eslint-parser";
 import globals from "globals";
 import scopeBasedPlugin from "@upmind-automation/eslint-plugin-scope-based";
+import fileResponsibilityPlugin from "@upmind-automation/eslint-plugin-file-responsibility";
+import uiPlugin from "@upmind-automation/eslint-plugin-ui";
 
 // typescript-eslint's flat/recommended is a 3-config array:
 //   [0] base    — registers the @typescript-eslint plugin + parser + sourceType
@@ -1308,6 +1310,120 @@ export default [
       "design-system/**"
     ],
     rules: { "@typescript-eslint/ban-ts-comment": "off" }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 12a. Composed-component laws (FE-3247) — the ui plugin over the composed
+  //     components. Each rule is one former code-ui.companion CC law; the prose
+  //     is retired to a lint. A genuine exception is silenced in place with
+  //     `// eslint-disable-next-line ui/<rule> -- <why>`. The vendored
+  //     src/form/** subtree is never in scope.
+  //
+  //     ALL-COMPONENT rules — the SFC hygiene laws that bind a composed MAIN
+  //     and its parts alike (types-in-types.ts, slot declarations, template
+  //     conditions, test-attr key discipline, class placement, lodash ban).
+  // ---------------------------------------------------------------------------
+  {
+    files: ["design-system/packages/ui/src/components/**/*.vue"],
+    plugins: { ui: uiPlugin },
+    rules: {
+      "ui/folder-grammar": "error",
+      "ui/no-inline-sfc-types": "error",
+      "ui/test-attrs-key": "error",
+      "ui/test-attrs-in-template": "error",
+      "ui/simple-template-conditions": "error",
+      "ui/no-direct-slots-access": "error",
+      "ui/no-v-for-index-key": "error",
+      "ui/slot-return-vnode": "error",
+      "ui/class-strings-placement": "error",
+      "ui/named-clauses-single-expression": "error",
+      "ui/no-lodash-in-components": "error",
+      // Blunt by nature (operator ruling 2026-09-17: everything to error).
+      // no-english-default cannot tell a variant token (`size: "md"`) from
+      // rendered copy; controlled-boolean-undefined cannot tell a genuine
+      // `false` default from a controlled fall-through. Existing hits are
+      // banked; narrowing is tracked for the burn-down (see the FE-3247
+      // follow-up). A false positive is silenced in place with the waiver.
+      "ui/no-english-default": "error",
+      "ui/controlled-boolean-undefined": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 12b. MAIN-ONLY rules — laws that bind the composed MAIN (the folder-root
+  //     `<Name>.vue`) but NOT the parts under `parts/`. A part is a reka
+  //     primitive wrapper: it legitimately calls `cn()`, forwards `asChild`,
+  //     and names itself. Applying these to parts is a false positive, so the
+  //     `parts/` glob is ignored here.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["design-system/packages/ui/src/components/**/*.vue"],
+    ignores: ["design-system/packages/ui/src/components/**/parts/**"],
+    plugins: { ui: uiPlugin },
+    rules: {
+      "ui/no-cva-in-composed": "error",
+      "ui/no-as-child-prop": "error",
+      "ui/define-options-name": "error",
+      "ui/require-accessible-name": "error",
+      "ui/require-empty-state": "error",
+      "ui/require-story-and-registry": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 12c. The lodash carve-out also covers the folder's `.ts` helpers
+  //     (variants.ts, types.ts, context.ts). The cva ban does NOT extend to
+  //     `.ts`: `variants.ts` is the sanctioned home of `cva` (CC26), so
+  //     `no-cva-in-composed` binds the composed MAIN `.vue` only, above.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["design-system/packages/ui/src/components/**/*.{ts,mts,cts}"],
+    ignores: ["**/*.test.*", "**/*.spec.*"],
+    plugins: { ui: uiPlugin },
+    rules: { "ui/no-lodash-in-components": "error" }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 12c. CC-C — consumers never hand-assemble from a composed folder's parts/.
+  //     Runs over app/package consumer code, NOT the ui components themselves
+  //     (the rule's own guard skips files under src/components/).
+  // ---------------------------------------------------------------------------
+  {
+    files: ["apps/**/*.{ts,tsx,vue}", "packages/**/*.{ts,tsx,vue}"],
+    ignores: ["**/eslint-plugin-*/**", "**/*.test.*", "**/*.spec.*"],
+    plugins: { ui: uiPlugin },
+    rules: { "ui/no-parts-import": "error" }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 13. File-responsibility (FE-3249) — each module concern lives in its named
+  //     file. Retires the code-typescript / code-services companion prose to
+  //     lint. Every exception is structural (the machine-service signature), so
+  //     no rule needs an eslint-disable. Over the headless modules; each rule
+  //     self-filters by filename, so one glob suffices.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    plugins: { "file-responsibility": fileResponsibilityPlugin },
+    rules: {
+      "file-responsibility/query-only-in-services": "error",
+      "file-responsibility/services-purity": "error",
+      "file-responsibility/types-in-types-file": "error",
+      "file-responsibility/no-type-reexport": "error",
+      "file-responsibility/schemas-in-schema-file": "error",
+      "file-responsibility/mappers-in-mapper-file": "error",
+      // FE-3249 #7 — `type`, not `interface`. Custom rule (not the built-in):
+      // it exempts an interface used for declaration merging inside a
+      // `declare global` / `declare module` block, where `type` is illegal.
+      "file-responsibility/consistent-type-definitions": "error"
+    }
   },
 
   // ---------------------------------------------------------------------------
