@@ -24,7 +24,11 @@ import type {
   InvoiceUnpaidAmount,
   Payment
 } from "./invoices.types";
-import type { IInvoice, InvoiceStatus } from "@upmind-automation/types";
+import type {
+  IContract,
+  IInvoice,
+  InvoiceStatus
+} from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/invoices.mappers
@@ -317,4 +321,22 @@ export function mapInvoiceLookupItem(raw: IInvoice): LookupItem {
 /** The lookup query's `select` — every row as a selectable option. */
 export function mapInvoiceLookupItems(raw: IInvoice[]): LookupItem[] {
   return map(raw, mapInvoiceLookupItem);
+}
+
+/**
+ * One contract as a lookup option — the `.for('contract', id)` slot takes the
+ * id, so the record is offered by its name, falling back to its main invoice
+ * number and then the id itself when the contract is unnamed.
+ */
+export function mapContractLookupItem(raw: IContract): LookupItem {
+  return {
+    value: raw.id,
+    label: raw.name ?? raw.main_invoice_number ?? raw.id,
+    description: raw.total_amount_formatted ?? undefined
+  };
+}
+
+/** The contract lookup query's `select` — every row as a selectable option. */
+export function mapContractLookupItems(raw: IContract[]): LookupItem[] {
+  return map(raw, mapContractLookupItem);
 }

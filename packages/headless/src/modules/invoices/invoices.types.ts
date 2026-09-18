@@ -64,6 +64,7 @@ import type {
   InvoiceCategoryCode,
   InvoiceStatus,
   CreditNoteStatus,
+  IContract,
   IInvoice
 } from "@upmind-automation/types";
 // MaybeRef added for loadUnpaidAmount's reactive currency param — widening an
@@ -600,6 +601,11 @@ export type InvoicesServices = {
    * `isActive` defers the first fetch to the control's own read.
    */
   loadInvoiceLookup: (isActive: Ref<boolean>) => InvoiceLookupQuery;
+  /**
+   * The async CONTRACT lookup a `.for(.contract., id)` picker drives.
+   * `isActive` defers the first fetch to the control.s own read.
+   */
+  loadContractLookup: (isActive: Ref<boolean>) => ContractLookupQuery;
   /** Takes NOTHING: the request state is the declared query schema. */
   loadList: () => InvoicesListQuery;
   loadOne: (invoiceId?: Invoice["id"]) => InvoiceItemQuery;
@@ -694,3 +700,23 @@ export type InvoiceLookupQuery = ListQuery<
  * control's own read rather than firing at construction.
  */
 export type InvoiceLookupService = () => InvoiceLookupQuery;
+
+/** The contract lookup's criteria model — quick-search term + pagination. */
+export type ContractLookupQueryModel = {
+  query?: string | null;
+  pagination?: { limit?: number; offset?: number };
+};
+
+/**
+ * The contract lookup handle — a `listInfinite` query whose `select` maps rows
+ * to {@link LookupItem}. It offers the contracts a `.for('contract', id)`
+ * scope slot takes.
+ */
+export type ContractLookupQuery = ListQuery<
+  IContract[],
+  LookupItem[],
+  ContractLookupQueryModel
+>;
+
+/** A THUNK returning the once-minted {@link ContractLookupQuery}. */
+export type ContractLookupService = () => ContractLookupQuery;
