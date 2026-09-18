@@ -66,6 +66,7 @@
 import { Card } from "@upmind/ui";
 import { computed } from "vue";
 import PortalSlotContent from "../shell/PortalSlotContent.vue";
+import { provideRowSurface } from "./surface";
 import { ROW_SURFACE } from "./types";
 import {
   ROW_CONTROLS_BAND_CLASS,
@@ -100,4 +101,9 @@ const meta = computed(() => {
     }
   } as const;
 });
+
+// What the modules inside read to tell a painted ground from the page's own.
+provideRowSurface(
+  computed(() => (meta.value.isBare ? undefined : meta.value.surface))
+);
 </script>
