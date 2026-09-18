@@ -26,7 +26,7 @@
     "reset": "rm -rf node_modules dist .nuxt .output node_modules/.cache node_modules/.vite *.tsbuildinfo",
     "start": "pnpm dev",
     "start:test": "vite --mode test --dotenv .env.test",
-    "dev": "nuxt dev --host collabstudio.localhost --dotenv .env.development",
+    "dev": "nuxt dev --no-fork --host collabstudio.localhost --dotenv .env.development",
     "generate": "pnpm generate",
     "generate:staging": "nuxt generate --mode staging --dotenv .env.staging",
     "build:prod": "pnpm type-check && pnpm build-only",

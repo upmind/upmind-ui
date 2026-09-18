@@ -25,7 +25,7 @@
   "scripts": {
     "clean": "rm -rf node_modules dist .nuxt .output node_modules/.cache node_modules/.vite *.tsbuildinfo",
     "start": "pnpm dev",
-    "dev": "nuxt dev --host labs.localhost --dotenv .env.development",
+    "dev": "nuxt dev --no-fork --host labs.localhost --dotenv .env.development",
     "build:prod": "pnpm type-check && pnpm build-only",
     "build-only": "nuxt generate",
     "type-check": "nuxt typecheck",
