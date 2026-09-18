@@ -3,9 +3,9 @@
     v-if="footerMarkdown"
     tag="div"
     :model-value="footerMarkdown"
-    :class="PORTAL_FOOTER_PROSE_CLASS"
+    :class="AUTH_FOOTER_PROSE_CLASS"
   />
-  <p v-else :class="PORTAL_FOOTER_PROSE_CLASS">
+  <p v-else :class="AUTH_FOOTER_PROSE_CLASS">
     © {{ new Date().getFullYear() }} {{ brandName }}. All rights reserved.
   </p>
 </template>
@@ -18,7 +18,7 @@
 // writes its copy in place, as every other string here does.
 import { Markdown } from "@upmind/ui";
 import { useMockBrandGates } from "~/portal/mock/gates";
-import { PORTAL_FOOTER_PROSE_CLASS } from "~/portal/shell/variants";
+import { AUTH_FOOTER_PROSE_CLASS } from "~/portal/shell/variants";
 
 const { brandName, footerMarkdown } = useMockBrandGates();
 </script>
