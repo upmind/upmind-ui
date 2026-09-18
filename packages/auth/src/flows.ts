@@ -9,6 +9,7 @@
  */
 import { watch } from "vue";
 import { QUERY_PARAMS, useActiveSession } from "@upmind-automation/headless";
+import { every } from "lodash-es";
 import type {
   RouteLocationNormalizedLoaded,
   RouteLocationRaw,
@@ -27,7 +28,7 @@ const PROBE_ORIGINS = ["http://probe-a.invalid", "https://probe-b.invalid"];
  * so names no host of its own.
  */
 function isSameOrigin(target: string): boolean {
-  return PROBE_ORIGINS.every(origin => {
+  return every(PROBE_ORIGINS, origin => {
     try {
       return new URL(target, origin).origin === origin;
     } catch {

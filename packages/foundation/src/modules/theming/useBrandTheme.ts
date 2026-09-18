@@ -1,4 +1,5 @@
 import { computed } from "vue";
+import { map } from "lodash-es";
 import { useBrand, useTheming } from "@upmind-automation/headless";
 import { useBrandConfig } from "../brand";
 import { COLOR_SCHEME } from "./theming.types";
@@ -17,7 +18,7 @@ export const useBrandTheme = () => {
   const { uiTheme } = useBrand();
   const engine = useThemeEngine();
 
-  const available = computed(() => (themes.value ?? []).map(theme => theme.id));
+  const available = computed(() => map(themes.value, theme => theme.id));
 
   const selected = computed(() => {
     const preferred = config.value?.themeId;

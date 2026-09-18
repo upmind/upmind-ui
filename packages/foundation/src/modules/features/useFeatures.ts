@@ -1,4 +1,5 @@
 import { computed, shallowRef } from "vue";
+import { map } from "lodash-es";
 import { addRenderers, clearRenderers } from "../renderers";
 import { addRoutes, clearRouting, registerFlows } from "../routing";
 import type { FeatureContext, FeatureDefinition } from "./feature.types";
@@ -11,7 +12,7 @@ const setUp = new Set<string>();
 const context: FeatureContext = { addRenderers, addRoutes, registerFlows };
 
 export const useFeatures = () => {
-  const names = computed(() => features.value.map(feature => feature.name));
+  const names = computed(() => map(features.value, feature => feature.name));
 
   const register = (...added: FeatureDefinition[]) => {
     // `claimed` grows as the call proceeds, so the first definition of a name
