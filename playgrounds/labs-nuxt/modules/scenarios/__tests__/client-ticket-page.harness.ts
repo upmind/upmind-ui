@@ -302,6 +302,10 @@ export function installTicketsHandlers(opts?: {
     http.get("*/api/tickets/departments", () =>
       HttpResponse.json(recorded.departments())
     ),
+    // AC-13's product picker reads this. Recorded, like every other body here.
+    http.get("*/api/contract_products", () =>
+      HttpResponse.json(recorded.contractProductsLookup())
+    ),
     http.get("*/api/statuses", () => HttpResponse.json(recorded.statuses())),
     http.get("*/api/hooks/logs/client/:clientId", () =>
       HttpResponse.json(recorded.hooksLogs())

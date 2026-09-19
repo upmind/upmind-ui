@@ -12,8 +12,18 @@
          same transport the shared host builds (`useScenarioTransport`) — one
          wiring, two hosts. It is a descendant of this page's content root
          rather than of the app chrome (`G9`, `AC2.1`): scenarios are
-         page-scoped. -->
-    <ScenarioBar :player="player" :tracks="tracks" :states="states" />
+         page-scoped.
+
+         The bottom margin stands in for the shared host's own `gap-4`: there,
+         the bar and the surface below it are children of one flex column, and
+         a self-drawn page has no such wrapper — so the bar sat flush against
+         its first card, which no other playground does. -->
+    <ScenarioBar
+      :player="player"
+      :tracks="tracks"
+      :states="states"
+      class="mb-4"
+    />
 
     <PageBody class="relative gap-8">
       <!-- No ticket in the url — offer the id that addresses one. -->
@@ -188,10 +198,32 @@
                and unlinked with the module's own explicit null. Both writes are
                gated on the LOCK: legacy refuses them on a locked ticket
                (`ticketProvider.ts:283,:299`), the same list the close and
-               subject writes sit on. The id is typed rather than picked: this
-               page binds no product lookup, and inventing a picker over a
-               composable it does not boot would draw a control the runtime
-               cannot fire. -->
+               subject writes sit on.
+
+               The id is PICKED here, off the manager's own product lookup
+               (`schemas.productLookup`) — the pair carries its service already
+               bound, so this page renders a form and reaches none. A pick
+               writes the contract-product id into the same draft the box
+               below holds, so `Link product` commits either route and the
+               lock gates both. -->
+          <div
+            v-if="productForm"
+            class="pt-2"
+            data-test-key="ticket-product-lookup"
+          >
+            <UpmForm
+              :schema="productForm.schema"
+              :uischema="productForm.uischema"
+              :model-value="productModel"
+              :additional-renderers="formRenderers"
+              :disabled="meta?.isLocked.value || pending"
+              no-actions
+              size="sm"
+              @update:model-value="onProductPick"
+            />
+          </div>
+
+          <!-- ...or type the id, for one read off another surface. -->
           <div class="flex flex-wrap items-end gap-3 pt-2">
             <label class="flex-1">
               <span class="text-faint text-sm">
@@ -1008,10 +1040,34 @@ const closeTicket = () => run(() => actions!.close());
 const reopenTicket = () => run(() => actions!.reopen());
 const loadOlder = () => loadThread();
 
+/**
+ * AC13's product picker — the manager's OWN pair, its lookup already bound to
+ * this scope's service. Absent before a ticket is addressed, which is also
+ * when there is no product to link.
+ */
+const productForm = context?.schemas.productLookup;
+
+/** The picked contract product, held so the control draws its own selection. */
+const productModel = ref<{ contract_product_id?: string | null }>({});
+
+/**
+ * A pick fills the draft rather than linking outright. Linking is a WRITE on a
+ * ticket that may be locked, and the lock is read at the press — so the pick
+ * stays a choice and `Link product` stays the commit.
+ */
+function onProductPick(
+  next: { contract_product_id?: string | null } | undefined
+): void {
+  const picked = next?.contract_product_id;
+  productModel.value = { contract_product_id: picked };
+  if (picked) productIdDraft.value = picked;
+}
+
 const linkProduct = () =>
   run(async () => {
     await actions!.setRelatedProduct(productIdDraft.value.trim());
     productIdDraft.value = "";
+    productModel.value = {};
   });
 const unlinkProduct = () => run(() => actions!.removeRelatedProduct());
 

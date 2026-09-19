@@ -29,9 +29,8 @@
 
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { UpmForm } from "@upmind-automation/client-vue";
-import { get } from "lodash-es";
+import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import {
   installTicketsListBody,
   mountManagerAt,
@@ -39,6 +38,7 @@ import {
   teardownSession,
   unmountTicketPage
 } from "./client-ticket-page.harness";
+import { get } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 

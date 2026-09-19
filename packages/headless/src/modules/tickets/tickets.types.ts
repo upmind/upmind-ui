@@ -37,6 +37,7 @@ import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
   IBrandTicketDepartment,
+  IContractProduct,
   IHookLog,
   ITicket,
   ITicketDepartment,
@@ -396,9 +397,37 @@ export type TicketLookupQuery = ListQuery<
  */
 export type TicketLookupService = () => TicketLookupQuery;
 
-/** The lookups a ticket picker drives. One entry: the ticket itself. */
+/**
+ * The contract-product lookup's criteria model — the quick-search term the
+ * control writes and its pagination. The term rides `service_identifier`,
+ * which is what a client recognises a product by (their own domain, their own
+ * service name), exactly as the invoices picker searches it.
+ */
+export type ContractProductLookupQueryModel = {
+  filters?: { service_identifier?: { like?: string | null } };
+  pagination?: { limit?: number; offset?: number };
+};
+
+/**
+ * The contract-product lookup handle — a `listInfinite` query whose `select`
+ * maps rows to the option shape a lookup control renders.
+ */
+export type ContractProductLookupQuery = ListQuery<
+  IContractProduct[],
+  LookupItem[],
+  ContractProductLookupQueryModel
+>;
+
+/** A THUNK returning the once-minted {@link ContractProductLookupQuery}. */
+export type ContractProductLookupService = () => ContractProductLookupQuery;
+
+/**
+ * The lookups this module's pickers drive: the ticket a manager is addressed
+ * by, and the contract product a ticket is linked to (AC-13).
+ */
 export type TicketsScopeLookups = {
   ticket: TicketLookupService;
+  contract_product: ContractProductLookupService;
 };
 
 /**

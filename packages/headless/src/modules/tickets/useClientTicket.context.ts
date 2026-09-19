@@ -1,4 +1,8 @@
 import { computed } from "vue";
+import {
+  useProductLookupSchema,
+  useProductLookupUischema
+} from "./tickets.schemas";
 import { mapToHeadlessError } from "../../utils";
 import type { TicketItemQuery, TicketsServices } from "./tickets.types";
 import type { TicketFeedState } from "./tickets.types";
@@ -50,7 +54,23 @@ export function createClientTicketContext(
     },
 
     /** AC13 — the ticket's linked product, if any. */
-    relatedProduct: computed(() => data.value?.contract_product)
+    relatedProduct: computed(() => data.value?.contract_product),
+
+    schemas: {
+      /**
+       * AC13's product picker — a schema and a uischema whose control carries
+       * THIS scope's contract-product lookup already bound. A surface renders
+       * the pair and reaches no service, the same shape the collection
+       * publishes for the ticket picker and `useInvoices` for its own.
+       *
+       * The value it writes is the contract-product id `setRelatedProduct`
+       * links by, so a pick is ready to link with nothing left to resolve.
+       */
+      productLookup: {
+        schema: useProductLookupSchema(),
+        uischema: useProductLookupUischema(service.lookups)
+      }
+    }
   };
 }
 

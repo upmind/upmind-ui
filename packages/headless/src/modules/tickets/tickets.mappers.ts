@@ -10,6 +10,7 @@ import type {
 import type { LookupItem } from "../lookup";
 import type {
   IBrandTicketDepartment,
+  IContractProduct,
   IHookLog,
   ITicket,
   ITicketDepartment,
@@ -117,3 +118,22 @@ export const mapTicketLookupItem = (raw: ITicket): LookupItem => ({
 /** The ticket lookup query's `select` — every row as a selectable option. */
 export const mapTicketLookupItems = (raw: ITicket[]): LookupItem[] =>
   map(raw, mapTicketLookupItem);
+
+/**
+ * One contract product as a lookup option. A client recognises their own
+ * product by its service identifier — their domain, their service name — so
+ * that is the label, falling back to the product's name when a record carries
+ * no identifier. The value is the contract-product id, which is what
+ * `setRelatedProduct` links by (AC-13).
+ */
+export const mapContractProductLookupItem = (
+  raw: IContractProduct
+): LookupItem => ({
+  value: raw.id,
+  label: raw.service_identifier || raw.product_name || raw.name || raw.id
+});
+
+/** The contract-product lookup query's `select`. */
+export const mapContractProductLookupItems = (
+  raw: IContractProduct[] = []
+): LookupItem[] => map(raw, mapContractProductLookupItem);

@@ -356,13 +356,23 @@ export function useTicketLookupQuerySchema(): TicketsQuerySchema {
         items: {
           type: "object",
           additionalProperties: false,
+          required: ["field", "dir"],
           properties: {
-            field: { type: "string" },
-            direction: { type: "string", enum: ["asc", "desc"] }
+            field: {
+              enum: ["reference", "subject", "created_at", "updated_at"]
+            },
+            dir: { enum: ["asc", "desc"] }
           }
         }
       },
-      pagination: PAGINATION
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+          offset: { type: "integer", minimum: 0 }
+        }
+      }
     }
   } as TicketsQuerySchema;
 }
@@ -398,6 +408,84 @@ export function useLookupsUischema(
           lookup: {
             service: lookups.ticket,
             searchScope: "query"
+          },
+          optionalText: ""
+        }
+      }
+    ]
+  } as UISchemaElement;
+}
+
+// -----------------------------------------------------------------------------
+// The product picker: the contract products a ticket can be linked to (AC-13).
+// -----------------------------------------------------------------------------
+
+/**
+ * The contract-product lookup's own criteria. The term rides
+ * `service_identifier` — the client's own domain or service name, which is
+ * what they recognise a product by — the same branch the invoices picker
+ * searches, so the two pickers behave alike.
+ */
+export function useContractProductLookupQuerySchema(): TicketsQuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          service_identifier: {
+            type: "object",
+            additionalProperties: false,
+            properties: { like: { type: ["string", "null"], minLength: 1 } }
+          }
+        }
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+          offset: { type: "integer", minimum: 0 }
+        }
+      }
+    }
+  } as TicketsQuerySchema;
+}
+
+/** The product picker's model — the contract-product id a link writes. */
+export function useProductLookupSchema(): TicketsQuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      contract_product_id: { type: ["string", "null"] }
+    }
+  } as TicketsQuerySchema;
+}
+
+/**
+ * The product picker's one control, its lookup bound once. The value it writes
+ * is the contract-product id `setRelatedProduct` links by, so a surface
+ * renders this and reaches no service of its own.
+ */
+export function useProductLookupUischema(
+  lookups: TicketsScopeLookups
+): UISchemaElement {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Lookup",
+        scope: "#/properties/contract_product_id",
+        i18n: "form.contract_product_lookup",
+        options: {
+          lookup: {
+            service: lookups.contract_product,
+            searchScope: "filters.service_identifier.like"
           },
           optionalText: ""
         }

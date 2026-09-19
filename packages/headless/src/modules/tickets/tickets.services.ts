@@ -11,10 +11,12 @@ import {
   mapTicket,
   mapTicketMessage,
   mapTicketMessages,
+  mapContractProductLookupItems,
   mapTicketLookupItems,
   mapTickets
 } from "./tickets.mappers";
 import {
+  useContractProductLookupQuerySchema,
   useQuerySchema,
   useTicketLookupQuerySchema,
   useWireQuerySchema
@@ -40,6 +42,8 @@ import {
 } from "../../utils";
 import { assign, get, has, includes, isEmpty, isNil } from "lodash-es";
 import type {
+  ContractProductLookupQuery,
+  ContractProductLookupQueryModel,
   Ticket,
   TicketAttachmentRef,
   TicketItemQuery,
@@ -60,6 +64,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
   IBrandTicketDepartment,
+  IContractProduct,
   IHookLog,
   IStatus,
   ITicket,
@@ -353,6 +358,53 @@ function loadTicketLookup(
     retryDelay: DEBOUNCE_DELAY,
     enabled: () => isAddressable(clientId.value)
   }) as unknown as TicketLookupQuery;
+}
+
+/**
+ * The contract products a ticket can be linked to (AC-13) — THIS client's own,
+ * searched by service identifier. Minted on the picker's first call.
+ *
+ * `exclude_delegated` keeps the list to products the client owns rather than
+ * ones merely shared with them: linking a ticket to a product is a claim about
+ * the client's own service, and the invoices picker draws the same line.
+ */
+function loadContractProductLookup(
+  scopeContext: ScopeContext | undefined
+): ContractProductLookupQuery {
+  const { listInfinite, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  return listInfinite<
+    IContractProduct[],
+    LookupItem[],
+    ContractProductLookupQueryModel
+  >({
+    criteria: { schema: useContractProductLookupQuerySchema() },
+    queryKey: [
+      ...queryKey,
+      "lookups",
+      "contract-products",
+      { client: clientId }
+    ],
+    // `contract_products`, which is the endpoint THIS module's own recording
+    // answered 200 on (`get-contract-products-case-lookup`), not the
+    // `contracts_products` the invoices picker names. The recorded rows are
+    // this client's already — the token scopes the read — so no `client_id`
+    // param is invented here on evidence that does not exist for this path.
+    url: useUrl("contract_products", { with: "product" }),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (!isAddressable(clientId.value)) {
+          reject(new NotAuthenticatedError());
+          return;
+        }
+        resolve(true);
+      }),
+    select: mapContractProductLookupItems,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => isAddressable(clientId.value)
+  }) as unknown as ContractProductLookupQuery;
 }
 
 /** AC8 — the narrower dashboard/recent list. A one-shot imperative read. */
@@ -842,7 +894,10 @@ export const createTicketsServices = (
      * The picker's lookups, one per pickable record. A THUNK per entry so the
      * first fetch defers to the control's own read (`TicketLookupService`).
      */
-    lookups: { ticket: () => loadTicketLookup(scopeContext) },
+    lookups: {
+      ticket: () => loadTicketLookup(scopeContext),
+      contract_product: () => loadContractProductLookup(scopeContext)
+    },
 
     loadOne: (id = ticketId) => loadOne(id, scopeContext),
     createTicket,

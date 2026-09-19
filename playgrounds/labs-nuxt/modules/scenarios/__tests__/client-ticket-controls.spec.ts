@@ -46,6 +46,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { UpmForm } from "@upmind-automation/client-vue";
 import {
   RECORDED_TICKET_ID,
   installTicketsHandlers,
@@ -60,6 +61,7 @@ import {
   ticketBodyLocked,
   unmountTicketPage
 } from "./client-ticket-page.harness";
+import { get } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
@@ -628,6 +630,58 @@ describe("the manager page links and unlinks the ticket's related product", () =
           ?.contract_product_id
       ).toBe(targetId);
       expect(observed.count("/api/admin/")).toBe(0);
+    },
+    CASE
+  );
+
+  it(
+    "AC-13 the product picker is the MANAGER's own pair, and a pick links that product",
+    async () => {
+      const sent = installTicketsHandlers({
+        ticketPutBody: recorded.linkedProduct()
+      });
+      const wrapper = await mountTicketPage();
+      await shown(wrapper);
+
+      const picker = key(wrapper, "ticket-product-lookup");
+      expect(picker.exists()).toBe(true);
+
+      // The pair is the MODULE's (`schemas.productLookup`), not one authored
+      // beside the page: a Lookup control carrying a bound service thunk, which
+      // is what lets this page render a form and reach no service itself.
+      const form = picker.findComponent(UpmForm);
+      const control = get(form.props("uischema"), ["elements", 0]) as Record<
+        string,
+        unknown
+      >;
+
+      expect(get(control, "type")).toBe("Lookup");
+      expect(get(control, "scope")).toBe("#/properties/contract_product_id");
+      expect(typeof get(control, ["options", "lookup", "service"])).toBe(
+        "function"
+      );
+
+      const targetId = (
+        recorded.contractProductsLookup() as unknown as Envelope<
+          Array<{ id: string }>
+        >
+      ).data[0]!.id;
+
+      // A pick fills the draft; `Link product` is still the commit, because
+      // the write is gated on a lock read at the press.
+      form.vm.$emit("update:modelValue", { contract_product_id: targetId });
+      await wrapper.vm.$nextTick();
+      await key(wrapper, "ticket-product-link").trigger("click");
+
+      await vi.waitFor(
+        () => expect(sent.subjectPuts.length).toBeGreaterThan(0),
+        { timeout: SETTLE }
+      );
+
+      expect(
+        (sent.subjectPuts[0] as { contract_product_id?: string })
+          ?.contract_product_id
+      ).toBe(targetId);
     },
     CASE
   );
