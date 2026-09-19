@@ -42,8 +42,10 @@
         </div>
 
         <!-- ...or address one directly, for a reference read off a listing or
-             an id pasted from a url. -->
-        <div class="flex items-end gap-3">
+             an id pasted from a url. The top margin is its own rather than the
+             card's `gap-4`: `UpmForm` draws its own trailing space, which left
+             the two inputs reading as one stacked control. -->
+        <div class="mt-4 flex items-end gap-3">
           <Input
             v-model="idInput"
             :placeholder="t('labs.client_ticket_id_label')"
