@@ -1,0 +1,17 @@
+# must-fail: invoices.scope-identity.int.test.ts > hasUnpaid answers for the .for() TARGET (AC-12/AC-10).
+# Mutation: drops `client_id` from the unpaid-existence model, so the count answers for the READER.
+# Apply from repo root: `git apply <this file>`; revert `git apply -R`.
+diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
+index 3a72d794c..b24104a94 100644
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -386,8 +386,7 @@ function loadUnpaidExistence(
+       schema: useQuerySchema(),
+       model: {
+         filters: {
+-          "status.code": InvoiceStatusGroups.UNPAID,
+-          client_id: clientId.value
++          "status.code": InvoiceStatusGroups.UNPAID
+         },
+         pagination: { limit: 1 }
+       }

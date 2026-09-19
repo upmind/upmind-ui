@@ -3,7 +3,7 @@
  * @fileoverview LookupRenderer component tests (client-notes-product-lookup B4–B7)
  *
  * ## Job To Be Done
- * A `Control` whose `options.lookup` carries a live service renders as a
+ * A `Lookup` whose `options.lookup` carries a live service renders as a
  * server-driven remote-select: it drives `useLookup(service(), { searchScope })`,
  * forwards the typed term to `search`, renders the service's items, offers a
  * renderer-owned "Load more" that calls `loadMore` (gated on `hasMore`, disabled
@@ -25,13 +25,9 @@ import { mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import action from "@upmind-automation/i18n/core/action-en.json";
-import errorMessages from "@upmind-automation/i18n/core/error-en.json";
-import form from "@upmind-automation/i18n/core/form-en.json";
-import text from "@upmind-automation/i18n/core/text-en.json";
-import validation from "@upmind-automation/i18n/core/validation-en.json";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
+import { messages } from "./filter.harness";
 import { find, map } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
 
@@ -41,10 +37,6 @@ vi.mock("@upmind-automation/headless", async orig => {
   const actual = await orig<Record<string, unknown>>();
   return { ...actual, useLookup: useLookupMock };
 });
-
-const messages = {
-  en: { action, error: errorMessages, form, text, validation }
-};
 
 type LookupItem = { value: string; label: string };
 type Meta = {
@@ -99,8 +91,9 @@ function mountControl(
       contract_product_id: { type: ["string", "null"], title: "Linked product" }
     }
   };
+  // No options means no lookup at all: a plain `Control`, never this renderer.
   const element = options
-    ? { type: "Control", scope: CONTROL_SCOPE, options }
+    ? { type: "Lookup", scope: CONTROL_SCOPE, options }
     : { type: "Control", scope: CONTROL_SCOPE };
   const uischema = { type: "VerticalLayout", elements: [element] };
 
@@ -184,7 +177,7 @@ describe("LookupRenderer — the contract-product remote-select control", () => 
     });
   });
 
-  it("B6/AC8 — a control with no lookup service falls back to a plain input and never calls useLookup", async () => {
+  it("B6/AC8 — a plain control with no lookup renders a plain input and never calls useLookup", async () => {
     const { wrapper } = mountControl(undefined);
     await flush();
 

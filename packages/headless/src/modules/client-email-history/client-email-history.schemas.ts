@@ -1,7 +1,7 @@
 /** @internal */
 import { PAGINATION } from "../query/query.utils";
 import { SENT_EMAIL_DEFAULT_SORT } from "./client-email-history.types";
-import type { SentEmailQuerySchema } from "./client-email-history.types";
+import type { QuerySchema } from "../query/query.types";
 import type {
   ControlElement,
   JsonSchema7,
@@ -27,7 +27,7 @@ import type {
  * `neq: "null"` is "show me the failures". The search box binds
  * `subject.like` — this endpoint honours no free-text term of its own.
  */
-export function useQuerySchema(): SentEmailQuerySchema {
+export function useQuerySchema(): QuerySchema {
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",

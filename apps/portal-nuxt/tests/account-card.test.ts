@@ -80,14 +80,6 @@ function pinPanelText(data: MockDataset): string {
   return join(map(pinPanel(data), "value"), " ");
 }
 
-function supportPageText(data: MockDataset): string {
-  const items = resolveRef(
-    data,
-    DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS
-  ) as SpecModuleItem[];
-  return join(map(items, "value"), " ");
-}
-
 /** Drives the panel to REVEALED whatever it was — the control is a toggle, so its state is read, never assumed. */
 function ensureRevealed(data: MockDataset): void {
   if (isSupportPinRevealed(data.persona)) return;
@@ -221,16 +213,19 @@ describe("the account pane — the card the pillar opens with", () => {
     );
   });
 
-  it("names the account type — a parent, its children counted, its list linked", () => {
+  // Two facts, so two rows. Joined by a middot they read as one long value the
+  // card's narrow value column wraps mid-sentence.
+  it("names the account type and counts its children on their own rows", () => {
     const data = hostgrid();
+    const rows = cardSpec(data);
 
-    const row = find(cardSpec(data), item => /parent/i.test(item.value));
+    const kind = find(rows, item => item.label === "Account type");
+    const children = find(rows, item => /child accounts?/i.test(item.label));
 
-    expect(row).toBeDefined();
-    expect(row?.value).toContain("Parent account");
-    expect(row?.value).toContain(String(data.childAccounts.length));
-    expect(row?.value).toMatch(/child accounts?/i);
-    expect(row?.to).toBe(CHILD_ACCOUNTS_PATH);
+    expect(kind?.value).toBe("Parent account");
+    expect(kind?.to).toBeUndefined();
+    expect(children?.value).toBe(String(data.childAccounts.length));
+    expect(children?.to).toBe(CHILD_ACCOUNTS_PATH);
   });
 
   it("an account with nobody under it is a personal one, and links nowhere", () => {
@@ -366,8 +361,7 @@ describe("the support PIN panel — gated, masked, re-mintable", () => {
 
     ensureRevealed(data);
     expect(pinPanelText(data)).toContain(after);
-    expect(supportPageText(data)).toContain(after);
-    expect(supportPageText(data)).not.toContain(before);
+    expect(pinPanelText(data)).not.toContain(before);
   });
 
   it("a brand with no PIN feature has no PIN to show", () => {

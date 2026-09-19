@@ -30,6 +30,7 @@ import {
 } from "@upmind-automation/headless/testing";
 import { reflect, SCOPE_ACTOR } from "@upmind-automation/scenario-harness";
 import { CATALOGUES } from "../../../testing/rendered";
+import declaration from "../../../useClientNotifications/client-notifications.scenario";
 import { useModulePort } from "../../composables/useModulePort";
 import {
   armCorpusModule,
@@ -38,14 +39,13 @@ import {
 } from "../../force/corpus";
 import { createForceHandlers } from "../../force/handlers";
 import { ModuleRenderer } from "../index";
-import declaration from "../../../useClientNotifications/client-notifications.scenario";
 import { find, get, keys, kebabCase, mapValues } from "lodash-es";
-import type { VueWrapper } from "@vue/test-utils";
 import type {
   FourLayerComposable,
   ResolvedHandoff,
   ScenarioAction
 } from "../../scenario.types";
+import type { VueWrapper } from "@vue/test-utils";
 
 // happy-dom ships no `Element.animate`; the list's auto-animate throws without it.
 (Element.prototype as unknown as { animate: () => unknown }).animate ??=

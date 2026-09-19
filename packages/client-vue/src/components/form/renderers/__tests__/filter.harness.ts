@@ -21,15 +21,15 @@
  */
 
 import { Form, provideFormIcon } from "@upmind/ui";
-import { mount } from "@vue/test-utils";
+import { DOMWrapper, mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import { PAGINATION, SortDirection } from "@upmind-automation/headless";
-import action from "@upmind-automation/i18n/core/action-en.json";
-import error from "@upmind-automation/i18n/core/error-en.json";
-import form from "@upmind-automation/i18n/core/form-en.json";
-import text from "@upmind-automation/i18n/core/text-en.json";
-import validation from "@upmind-automation/i18n/core/validation-en.json";
+import {
+  PAGINATION,
+  SortDirection,
+  useI18n as useLocalisation,
+  useInvoices
+} from "@upmind-automation/headless";
 import { Icon } from "../../../icon";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
@@ -50,7 +50,7 @@ import {
   unset
 } from "lodash-es";
 import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
-import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
+import type { VueWrapper } from "@vue/test-utils";
 
 export type QueryModel = Record<string, unknown>;
 
@@ -59,7 +59,21 @@ export type QueryDeclaration = {
   uischema: UISchemaElement;
 };
 
-export const messages = { en: { action, error, form, text, validation } };
+/**
+ * The SHIPPED catalogue, loaded the way the app loads it: headless's own
+ * `useI18n` over the `packages/i18n` source glob. No file is hand-picked here.
+ */
+const catalogueInstance = createI18n({ legacy: false, locale: "en" });
+const localisation = useLocalisation();
+localisation.init(
+  catalogueInstance,
+  import.meta.glob("@upmind-automation/i18n/**/*-en.json", { eager: true })
+);
+await localisation.loadLocaleMessages("en");
+
+export const messages = {
+  en: catalogueInstance.global.getLocaleMessage("en") as Record<string, unknown>
+};
 
 // -----------------------------------------------------------------------------
 // The transcribed consumer declarations — see PROVENANCE above.
@@ -253,6 +267,25 @@ export const clientEmailHistoryQuery = (): QueryDeclaration => ({
 });
 
 /**
+ * The `invoices` collection's REAL, live-published query declaration — never
+ * transcribed. Unlike `clientEmailQuery`/`clientEmailHistoryQuery` above, this
+ * is pulled straight off `useInvoices().as("self").useContext().schemas.query`
+ * at call time: the module's own public composable surface, not a hand-copied
+ * shape. This is deliberate — a transcription can drift from its source
+ * invisibly (see the PROVENANCE note above); the invoices bar shipped broken
+ * three times behind gates that graded a model or a transcription, never the
+ * module's own live wire shape, so this declaration is sourced the one way
+ * that cannot go stale relative to what the module actually publishes.
+ */
+export const invoicesQuery = (): QueryDeclaration => {
+  const { schemas } = useInvoices().as("self").useContext();
+  return {
+    schema: schemas.query.schema as JsonSchema7,
+    uischema: schemas.query.uischema as UISchemaElement
+  };
+};
+
+/**
  * A two-ended date column and the element that scopes it — the `range` format's
  * declaration. No consumer bar draws one yet, so unlike the two above this is a
  * declaration the format's own contract defines rather than a transcription.
@@ -300,6 +333,13 @@ export type FilterMount = {
   model: () => QueryModel;
   column: (path: string) => DOMWrapper<Element>;
   settle: () => Promise<void>;
+  /**
+   * Opens a `multi-select` facet's menu and returns its options. The menu
+   * panel is TELEPORTED to `document.body`, so it is neither in the wrapper's
+   * tree nor in the DOM at all until the trigger is pressed — a facet's
+   * options can only be read through here.
+   */
+  openFacet: (path: string) => Promise<DOMWrapper<Element>[]>;
 };
 
 /**
@@ -339,18 +379,56 @@ export async function mountFilters(options: {
     }
   });
 
-  const wrapper = mount(harness, { global: { plugins: [i18n] } });
+  const wrapper = mount(harness, {
+    attachTo: document.body,
+    global: { plugins: [i18n] }
+  });
   const settle = () => new Promise<void>(resolve => setTimeout(resolve, 60));
   await settle();
+
+  const column = (path: string) =>
+    wrapper.find(
+      `[data-test-key="form-item"][data-test-value="${kebabCase(path)}"]`
+    );
 
   return {
     wrapper,
     model: () => model.value,
-    column: path =>
-      wrapper.find(
-        `[data-test-key="form-item"][data-test-value="${kebabCase(path)}"]`
-      ),
-    settle
+    column,
+    settle,
+    openFacet: async path => {
+      const trigger = column(path).find(
+        '[data-test-key="filter-multi-select"]'
+      );
+      if (!trigger.exists())
+        throw new Error(`No multi-select facet trigger at "${path}"`);
+
+      if (trigger.attributes("aria-expanded") !== "true") {
+        await trigger.trigger("click");
+        await settle();
+      }
+
+      // The panel is teleported to `document.body`, so it is outside the
+      // wrapper's tree; `aria-controls` is what ties it back to THIS trigger,
+      // which matters once a second facet's menu is open beside it.
+      //
+      // The LAST match, not `getElementById`'s first: JSON Forms derives a
+      // control's id from its scope, so every mount in a file produces the
+      // same ids, and a previous test's panel is still attached to this body.
+      // The first match is that dead panel, whose items dispatch into a form
+      // nobody is watching any more.
+      const panelId = trigger.attributes("aria-controls");
+      const panels = panelId
+        ? document.body.querySelectorAll(`[id="${panelId}"]`)
+        : [];
+      const panel = panels[panels.length - 1];
+      if (!panel) throw new Error(`Facet menu at "${path}" did not open`);
+
+      return map(
+        panel.querySelectorAll('[data-test-key="option-tile"]'),
+        node => new DOMWrapper(node)
+      );
+    }
   };
 }
 

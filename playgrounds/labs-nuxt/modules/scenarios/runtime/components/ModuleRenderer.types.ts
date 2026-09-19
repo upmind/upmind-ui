@@ -15,8 +15,8 @@
 
 // `ResolvedDetail` added below is minted once in `runtime/scenario.types.ts`
 // and consumed here — see its `graphify-out/graph.json` (2026-08-14) citation.
-import type { ForcedState } from "../force/states.types";
 import type { ModulePort } from "../composables/useModulePort.types";
+import type { ForcedState } from "../force/states.types";
 import type {
   ResolvedDetail,
   ResolvedHandoff,

@@ -46,9 +46,10 @@ export function brandNoteRow(
 ): ContentRowConfig {
   return {
     layout: ROW_LAYOUT.FULL,
-    // A muted surface, so the brand's words read as a note ABOUT the page
-    // rather than as the page's own opening copy.
-    surface: ROW_SURFACE.MUTED,
+    // A panel, not the muted fill: `bg-neutral-muted` on the page's own grey
+    // ground reads as a smudge rather than a note, and carries no border to
+    // give it an edge.
+    surface: ROW_SURFACE.PANEL,
     visible: dataRef(presenceRef),
     slots: [
       moduleRef(PROSE_MODULE_ID, {

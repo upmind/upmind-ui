@@ -151,11 +151,10 @@ const { meta: routingMeta, isReady } = useRoutingEngine();
  * A registry-derived item owns a PATH and its scope suffix extends it
  * (`/as/:actor/for/:type/:id`); a route-declared one owns a named record.
  *
- * The suffix match is anchored on a SEGMENT boundary, never a bare prefix: two
- * scenario directories may share one as a prefix of the other, and a bare
- * `startsWith` lights BOTH (`/useClientTickets` starts with `/useClientTicket`).
- * Either the path IS the item, or the item is followed by `/` and the rest is
- * the scope suffix.
+ * The prefix must land on a SEGMENT boundary. A bare `startsWith` lights up
+ * every sibling whose path is a prefix of another's — `/useInvoice` matches
+ * `/useInvoices`, so both read as current — and the rail then says the user is
+ * in two places at once.
  */
 function isActive(item: NavItem): boolean {
   return item.to

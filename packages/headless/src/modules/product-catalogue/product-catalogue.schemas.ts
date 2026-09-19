@@ -1,6 +1,6 @@
 /** @internal */
 import { PRODUCT_DEFAULT_SORT } from "./product-catalogue.types";
-import type { ProductQuerySchema } from "./product-catalogue.types";
+import type { QuerySchema } from "../query/query.types";
 import type { JsonSchema7 } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
@@ -21,7 +21,7 @@ import type { JsonSchema7 } from "@jsonforms/core";
  * is the API's own `order=` columns, so a column it does not name is
  * unspellable rather than an HTTP 500.
  */
-export function useQuerySchema(): ProductQuerySchema {
+export function useQuerySchema(): QuerySchema {
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",

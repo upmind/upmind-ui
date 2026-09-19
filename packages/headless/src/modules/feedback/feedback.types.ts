@@ -73,7 +73,7 @@ export enum messageTypes {
  * Interface representing a client-side message object for display in the UI.
  * It contains content, display preferences, and optional actions.
  */
-export interface Message {
+export type Message = {
   /**
    * An optional hash to uniquely identify and deduplicate messages.
    */
@@ -138,13 +138,13 @@ export interface Message {
    * Pass `0` to make the alert persist indefinitely.
    */
   maxAge?: number;
-}
+};
 
 /**
  * Interface representing a message object as typically retrieved from a backend API.
  * This includes unique identifiers, content, and translation metadata.
  */
-export interface IMessage {
+export type IMessage = {
   /**
    * The unique identifier of the message.
    */
@@ -177,13 +177,13 @@ export interface IMessage {
    * The timestamp when the message was last updated.
    */
   updated_at: string;
-}
+};
 
 /**
  * Interface representing a client-side model for an {@link IMessage},
  * simplifying the structure for UI consumption.
  */
-export interface MessageModel {
+export type MessageModel = {
   /**
    * The unique identifier of the message.
    */
@@ -200,13 +200,13 @@ export interface MessageModel {
    * Translation metadata for the message.
    */
   translations: IMessage["translations"];
-}
+};
 
 /**
  * Interface representing a structured error object, typically used for displaying
  * error messages from API responses or internal validation.
  */
-export interface MessageError {
+export type MessageError = {
   /**
    * An optional numeric type code for the error.
    */
@@ -219,15 +219,15 @@ export interface MessageError {
    * Optional additional data related to the error, e.g. validation specifics.
    */
   data?: Record<string, any>;
-}
+};
 
 /**
  * Interface representing the context for a message management system,
  * typically managed by an XState machine. It holds references to active message actors.
  */
-export interface MessagesContext {
+export type MessagesContext = {
   /**
    * An array of `ActorRef`s, each pointing to an XState actor managing an individual message's lifecycle.
    */
   messages: ActorRef<any>[];
-}
+};

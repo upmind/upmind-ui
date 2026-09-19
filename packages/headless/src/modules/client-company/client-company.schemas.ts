@@ -39,7 +39,8 @@ import { useClientPhoneManager, useClientPhones } from "../client-phone";
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { DEFAULT_SORT } from "./client-company.types";
-import type { CompanyContext, QuerySchema } from "./client-company.types";
+import type { CompanyContext } from "./client-company.types";
+import type { QuerySchema } from "../query/query.types";
 import type {
   ControlElement,
   JsonSchema7,

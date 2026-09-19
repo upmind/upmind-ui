@@ -76,6 +76,7 @@ import eslintPluginUnusedImports from "eslint-plugin-unused-imports";
 import vueParser from "vue-eslint-parser";
 import globals from "globals";
 import scopeBasedPlugin from "@upmind-automation/eslint-plugin-scope-based";
+import fileResponsibilityPlugin from "@upmind-automation/eslint-plugin-file-responsibility";
 import uiPlugin from "@upmind-automation/eslint-plugin-ui";
 
 // typescript-eslint's flat/recommended is a 3-config array:
@@ -1221,6 +1222,37 @@ export default [
     ignores: ["**/eslint-plugin-*/**", "**/*.test.*", "**/*.spec.*"],
     plugins: { ui: uiPlugin },
     rules: { "ui/no-parts-import": "error" }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 13. File-responsibility (FE-3249) — each module concern lives in its named
+  //     file. Retires the code-typescript / code-services companion prose to
+  //     lint. Every exception is structural (the machine-service signature), so
+  //     no rule needs an eslint-disable. Over the headless modules; each rule
+  //     self-filters by filename, so one glob suffices.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    plugins: { "file-responsibility": fileResponsibilityPlugin },
+    rules: {
+      "file-responsibility/query-only-in-services": "error",
+      "file-responsibility/services-purity": "error",
+      "file-responsibility/types-in-types-file": "error",
+      "file-responsibility/no-type-reexport": "error",
+      "file-responsibility/schemas-in-schema-file": "error",
+      "file-responsibility/mappers-in-mapper-file": "error",
+      // FE-3249 #7 — `type`, not `interface`. Custom rule (not the built-in):
+      // it exempts an interface used for declaration merging inside a
+      // `declare global` / `declare module` block, where `type` is illegal.
+      "file-responsibility/consistent-type-definitions": "error"
+    }
   },
 
   // ---------------------------------------------------------------------------

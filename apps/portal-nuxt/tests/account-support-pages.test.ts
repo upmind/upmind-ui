@@ -137,17 +137,20 @@ describe("support — tickets, thread, and the reply", () => {
     );
   });
 
-  it("the support PIN row carries the brand's PIN where enabled and empties where not", () => {
+  it("the support PIN panel carries a row where enabled and empties where not", () => {
     const withPin = resolveRef(
       HOSTGRID_MOCK_DATASET,
-      DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS
+      DATA_REF_ID.SUPPORT_PIN_PANEL_ITEMS
     ) as SpecModuleItem[];
     const withoutPin = resolveRef(
       gatesOffDataset(),
-      DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS
+      DATA_REF_ID.SUPPORT_PIN_PANEL_ITEMS
     ) as SpecModuleItem[];
 
-    expect(find(withPin, { id: "pin" })?.value).toBe("4821");
+    // Masked until the client asks for it — `account-card.test.ts` drives the
+    // reveal and reads the number itself.
+    expect(find(withPin, { id: "pin" })?.value).not.toBe("4821");
+    expect(withPin.length).toBe(1);
     expect(withoutPin).toEqual([]);
   });
 

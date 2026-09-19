@@ -1,0 +1,35 @@
+# must-fail: invoices.consolidatable-count.int.test.ts > "invoices —
+# consolidatableCount coexists with the client's own list (AC-2) >
+# consolidatableCount issues its own dedicated request, distinct from the
+# list's, and never mutates the list's published criteria"
+#
+# Re-rolled 2026-09-08 (developer, FE-3031 count-defect repair): line
+# anchors moved when `consolidatableCount` was rewritten in the same repair
+# this dispatch closes (`.total.value` → `.pagination.value.total`); same
+# mutation, new context lines. The scratch-proof provenance note below is
+# unchanged from the original authoring — a colocated assertion now exists
+# (`invoices.consolidatable-count.int.test.ts`, added after this patch was
+# first authored) and is the one this mutation flips RED, superseding the
+# original "PROVER's to add" caveat.
+#
+# Mutation: `consolidatableCount` reads the LIST query's own total
+# (`query.pagination.value.total`) instead of issuing its dedicated
+# `loadConsolidatableCount` read, and drops the
+# `service.requestConsolidatableCount()` gate call — reverting to a count
+# reachable only by first mutating the list's criteria via
+# `filterConsolidatable()`, exactly the coupling this repair removes. With
+# no gate call, the dedicated `limit=1`/`is_consolidation` request is never
+# issued, so the colocated test's `vi.waitFor` on a dedicated request
+# appearing times out RED.
+--- a/packages/headless/src/modules/invoices/useInvoices.meta.ts
++++ b/packages/headless/src/modules/invoices/useInvoices.meta.ts
+@@ -70,8 +70,7 @@
+    * — same defect, same fix, same `@decision` as `hasUnpaid` above.
+    */
+   const consolidatableCount = computed(() => {
+-    service.requestConsolidatableCount();
+-    return consolidatableCountQuery.pagination.value.total;
++    return query.pagination.value.total;
+   });
+
+   // --- actor-specific meta: none earned yet (clause 2). When a scope earns

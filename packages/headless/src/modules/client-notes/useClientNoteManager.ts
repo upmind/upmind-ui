@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import { watch } from "vue";
 import { interpret } from "xstate";
 import { dataManagerMachine } from "../data-manager";
 // Deep path, never the `../scope` barrel — see useClientNotes.ts for the
@@ -22,6 +22,7 @@ import {
   ErrorOrigin,
   responseCodes
 } from "../../utils";
+import { once } from "lodash-es";
 import type {
   ClientNoteScopeMatrix,
   ProductLookupService
@@ -83,16 +84,13 @@ function createClientNoteManagerForScope(
    * the editor select's `options.lookup.service`; the SAME query the collection
    * filter bar drives (they share the cache).
    *
-   * `lookupActive` gates the first fetch — the thunk flips it when the control
-   * first reads the service (after `loading`), so manager boot fires no
-   * `contracts_products` request (AC2).
+   * The thunk mints the query on its first call (after `loading`) and then
+   * returns that same query, so manager boot fires no `contracts_products`
+   * request (AC2).
    */
-  const lookupActive = ref(false);
-  const productLookupQuery = service.loadContractProductLookup(lookupActive);
-  const productLookup: ProductLookupService = () => {
-    lookupActive.value = true;
-    return productLookupQuery;
-  };
+  const productLookup: ProductLookupService = once(() =>
+    service.loadContractProductLookup()
+  );
 
   const machineService = interpret(
     dataManagerMachine

@@ -116,6 +116,33 @@ import type { VueWrapper } from "@vue/test-utils";
 const OVERFLOW_TRIGGER = "show-more-options";
 
 /**
+ * The criteria chrome the runtime resolves off `useX().useContext().schemas.query`
+ * (`FilterBar`'s own root, `<form data-test-key="filters">`) — drawn on EVERY
+ * preset regardless of what the read returns, never a function of the records
+ * on screen. An untranslated multi-select option renders its raw i18n key
+ * (`invoices.filter_option.status.invoice_paid`), which can contain, as a
+ * plain substring, a value this module's own corpus also carries as real
+ * record data (`"invoice_paid"`) — a coincidence of vocabulary, not a record
+ * reaching the screen. Excluded from `witness()` for exactly that reason: a
+ * substring match against this chrome is never evidence a record rendered.
+ */
+const FILTER_CHROME_SELECTOR = '[data-test-key="filters"]';
+
+/**
+ * The wrapper's own text with the criteria chrome's subtree removed — Vue
+ * Test Utils has no "text excluding a subtree" primitive, so this clones the
+ * root element and prunes the chrome node before reading `textContent`,
+ * leaving the original mounted tree untouched.
+ */
+const textOutsideFilterChrome = (wrapper: VueWrapper<unknown>): string => {
+  const clone = (wrapper.element as Element).cloneNode(true) as Element;
+
+  clone.querySelectorAll(FILTER_CHROME_SELECTOR).forEach(node => node.remove());
+
+  return clone.textContent ?? "";
+};
+
+/**
  * The catalogue's two competing accounts of a failed read. One notice may carry
  * a title and ONE of these; carrying both is the pile-up the operator read three
  * sentences of at once.
@@ -361,7 +388,7 @@ export async function proveForcedSurface(
       wrapper,
       rows,
       witness: () => {
-        const onScreen = wrapper.text();
+        const onScreen = textOutsideFilterChrome(wrapper);
 
         return filter(recorded, value => includes(onScreen, value));
       }

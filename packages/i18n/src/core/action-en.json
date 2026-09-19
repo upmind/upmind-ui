@@ -40,6 +40,8 @@
   "do_this_later": "I'll do this later",
   "edit": "Edit",
   "enter_address_manually": "Enter address manually",
+  "filter_consolidatable": "Consolidatable only",
+  "filter_credit_notes": "Credit notes only",
   "fix": "Fix",
   "generate_password": "Generate a strong password",
   "go_to_invoice": "Go to invoice",
@@ -67,6 +69,7 @@
   "proceed_to_checkout": "Proceed to checkout",
   "recover_password": "Recover password",
   "refresh": "Refresh",
+  "refresh_after_payment": "Refresh after payment",
   "register": "Register",
   "register_or_added": "Register | Added",
   "reload_page": "Reload page",
@@ -109,6 +112,7 @@
   "update_group": "Update {group}",
   "verify": "Verify",
   "view": "View",
+  "view_credit_notes": "View credit notes",
   "view_email": "View Email",
   "view_ticket": "View ticket"
 }

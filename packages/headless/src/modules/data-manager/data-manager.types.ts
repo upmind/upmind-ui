@@ -6,7 +6,7 @@ import type { BrandConfigKeys } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 // Contexts
 
-export interface DataManagerContext<TModel = any, TBaseModel = any> {
+export type DataManagerContext<TModel = any, TBaseModel = any> = {
   clientId?: IClient["id"]; // allow for an override of the current client
   id?: string;
 
@@ -24,4 +24,4 @@ export interface DataManagerContext<TModel = any, TBaseModel = any> {
   allowMultipleEdits?: boolean;
   // ---
   config?: Record<BrandConfigKeys, boolean>;
-}
+};

@@ -61,13 +61,15 @@ function isLoneBanner(row: ContentRowConfig): boolean {
 }
 
 describe("a brand's note reads as a note", () => {
-  it("sits on a muted surface, not bare under the title", () => {
+  // A panel, not the muted fill: `bg-neutral-muted` carries no border, and on
+  // the page's own grey ground it reads as a smudge rather than a note.
+  it("sits on a panel, not bare under the title and not a grey band", () => {
     const row = brandNoteRow(
       DATA_REF_ID.TEMPLATE_DASHBOARD_MARKDOWN,
       DATA_REF_ID.TEMPLATE_HAS_DASHBOARD
     );
 
-    expect(row.surface).toBe(ROW_SURFACE.MUTED);
+    expect(row.surface).toBe(ROW_SURFACE.PANEL);
   });
 
   it("carries that surface on every page that serves one", () => {
@@ -75,7 +77,7 @@ describe("a brand's note reads as a note", () => {
     // makes them all, so this is the guard against a page hand-rolling its
     // own note row and landing back on bare markdown.
     const notes = filter(allRows(), isBrandNote);
-    const bare = filter(notes, row => row.surface !== ROW_SURFACE.MUTED);
+    const bare = filter(notes, row => row.surface !== ROW_SURFACE.PANEL);
 
     expect(size(notes)).toBeGreaterThan(0);
     expect(map(bare, gateOf)).toEqual([]);

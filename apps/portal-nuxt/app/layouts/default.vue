@@ -29,9 +29,9 @@ import PortalFormDialog from "~/portal/shell/PortalFormDialog.vue";
 import PortalFormIcon from "~/portal/shell/PortalFormIcon.vue";
 import PortalFrame from "~/portal/shell/PortalFrame.vue";
 import PortalProseDialog from "~/portal/shell/PortalProseDialog.vue";
+import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
 import {
   PORTAL_FOOTER_CLASS,
-  PORTAL_FOOTER_LINK_CLASS,
   PORTAL_FOOTER_PROSE_CLASS
 } from "~/portal/shell/variants";
 import { PORTAL_PILLAR } from "~/portal/types";
@@ -154,14 +154,7 @@ router.afterEach(() => {
             :model-value="footerMarkdown"
             :class="PORTAL_FOOTER_PROSE_CLASS"
           />
-          <a
-            v-if="hasUpmindBranding"
-            :class="PORTAL_FOOTER_LINK_CLASS"
-            href="https://upmind.com"
-            target="_blank"
-            rel="noreferrer"
-            >Powered by Upmind</a
-          >
+          <PortalUpmind v-if="hasUpmindBranding" />
         </div>
       </template>
     </PortalFrame>

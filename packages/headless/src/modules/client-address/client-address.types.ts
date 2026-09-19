@@ -132,7 +132,7 @@ export const ADDRESS_TYPE_KEYS = {
  * Interface representing the data model for an address, suitable for forms
  * or API payloads. It encapsulates the core geographical details of an address.
  */
-export interface AddressModel {
+export type AddressModel = {
   /**
    * Optional unique identifier for the address. Present if editing an existing address.
    */
@@ -179,14 +179,14 @@ export interface AddressModel {
      */
     state?: IAddress["state"];
   };
-}
+};
 
 /**
  * Interface representing a comprehensive address object, extending {@link AddressModel}
  * with additional identifiers, contextual information, and meta-data about the address.
  * This is typically used for addresses retrieved from the API or displayed in the UI.
  */
-export interface Address extends AddressModel {
+export type Address = AddressModel & {
   // --- identifiers
   /**
    * The unique identifier for the address.
@@ -242,7 +242,7 @@ export interface Address extends AddressModel {
      */
     isVerified: boolean;
   };
-}
+};
 
 /**
  * The manager's machine context — the shared machine's, over this form model.
@@ -256,7 +256,7 @@ export interface Address extends AddressModel {
  *
  * @template TModel - The type of the address model, typically {@link AddressModel}.
  */
-export interface AddressContext extends DataManagerContext<AddressModel> {
+export type AddressContext = DataManagerContext<AddressModel> & {
   /**
    * The currently selected country object in the context.
    */
@@ -270,7 +270,7 @@ export interface AddressContext extends DataManagerContext<AddressModel> {
    * An array of all available countries in the system for selection in address forms.
    */
   countries?: ICountry[];
-}
+};
 
 // -----------------------------------------------------------------------------
 // QUERY MODEL
