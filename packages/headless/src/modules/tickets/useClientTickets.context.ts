@@ -2,6 +2,8 @@ import { computed } from "vue";
 import {
   useCreateSchema,
   useCreateUischema,
+  useLookupsSchema,
+  useLookupsUischema,
   useQuerySchema,
   useQueryUischema,
   useSortUischema
@@ -70,6 +72,15 @@ export function createClientTicketsContext(
       create: {
         schema: useCreateSchema(),
         uischema: useCreateUischema()
+      },
+      /**
+       * The ticket picker's pair, its lookup already bound to THIS scope's
+       * service. A surface renders it and reaches no service of its own —
+       * the same shape `useInvoices` publishes for the `.for()` picker.
+       */
+      lookups: {
+        schema: useLookupsSchema(),
+        uischema: useLookupsUischema(service.lookups)
       }
     }
   };

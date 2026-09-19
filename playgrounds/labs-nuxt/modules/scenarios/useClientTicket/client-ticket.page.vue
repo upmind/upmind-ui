@@ -24,6 +24,25 @@
         >
           <template #icon><Icon icon="message-question-circle" /></template>
         </EmptyState>
+        <!-- FIND a ticket. The module's OWN lookups pair, its control already
+             bound to this scope's service (`schemas.lookups`) — the same shape
+             `useInvoices` publishes for the `.for()` picker, rendered here by
+             the same form. The pick IS the write: selecting a row writes the
+             ticket's id, and this page navigates to it. -->
+        <div v-if="pickerForm" class="w-full" data-test-key="ticket-lookup">
+          <UpmForm
+            :schema="pickerForm.schema"
+            :uischema="pickerForm.uischema"
+            :model-value="pickerModel"
+            :additional-renderers="formRenderers"
+            no-actions
+            size="sm"
+            @update:model-value="onTicketPick"
+          />
+        </div>
+
+        <!-- ...or address one directly, for a reference read off a listing or
+             an id pasted from a url. -->
         <div class="flex items-end gap-3">
           <Input
             v-model="idInput"
@@ -680,9 +699,11 @@ import {
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
+  formRenderers,
   Icon,
   ScopeActorTypes,
   TicketContextTypes,
+  UpmForm,
   resolveSelfActor,
   useClientTicket,
   useClientTickets
@@ -842,6 +863,38 @@ const notFoundReference = ref<string>();
 watch(idInput, () => {
   notFoundReference.value = undefined;
 });
+
+/**
+ * The picker's own collection instance. `.fresh()` for the same reason the
+ * reference resolver below uses one — a picker search must never disturb a
+ * live listing scope — and booted ONLY while no ticket is addressed, because
+ * once one is, this card is gone and the lookup has nothing to offer.
+ *
+ * It publishes the pair rather than a list: `schemas.lookups` carries the
+ * control with its service already bound, so this page renders a form and
+ * reaches no service itself.
+ */
+const picker = ticketId.value
+  ? undefined
+  : useClientTickets().as(ScopeActorTypes.SELF).fresh();
+
+const pickerForm = picker?.useContext().schemas.lookups;
+
+/** The picked id, held so the control draws its own selection back. */
+const pickerModel = ref<{ ticket?: string | null }>({});
+
+onUnmounted(() => picker?.useActions().destroy());
+
+/**
+ * A pick is a navigation. The lookup writes the ticket's ID — that is the
+ * option's `value` (`mapTicketLookupItem`) and what the manager loads by — so
+ * nothing is resolved here, unlike a pasted reference.
+ */
+function onTicketPick(next: { ticket?: string | null } | undefined): void {
+  const picked = next?.ticket;
+  pickerModel.value = { ticket: picked };
+  if (picked) router.push(`/useClientTicket/as/client/for/ticket/${picked}`);
+}
 
 // A hand only ever sees a ticket's REFERENCE on the listing; the manager loads
 // by id. Resolve a pasted reference through the module's OWN public surface —

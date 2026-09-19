@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { mapToHeadlessError } from "../../utils";
 import type { TicketItemQuery, TicketsServices } from "./tickets.types";
-import type { TicketFeedState } from "./useClientTicket.actions";
+import type { TicketFeedState } from "./tickets.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------

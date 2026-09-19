@@ -1,11 +1,7 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
 import { computed, ref, watch } from "vue";
-import {
-  BrandConfigKeys,
-  HookCodes,
-  TicketStatusCodes
-} from "@upmind-automation/types";
+import { BrandConfigKeys, HookCodes } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { RequestSortDirection, useQuery } from "../query";
 import { resolveClientId, useActiveSession } from "../session-store";
@@ -15,15 +11,25 @@ import {
   mapTicket,
   mapTicketMessage,
   mapTicketMessages,
+  mapTicketLookupItems,
   mapTickets
 } from "./tickets.mappers";
-import { useQuerySchema, useWireQuerySchema } from "./tickets.schemas";
+import {
+  useQuerySchema,
+  useTicketLookupQuerySchema,
+  useWireQuerySchema
+} from "./tickets.schemas";
 import {
   TICKET_ATTACHMENT_MAX_BYTES,
-  TicketContextTypes,
-  TicketsContextTypes
+  TicketContextTypes
 } from "./tickets.types";
 import {
+  applyProductScopeFilter,
+  applyStatusCodeFilter,
+  resolveContractProductId
+} from "./tickets.utils";
+import {
+  DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   mapToHeadlessError,
@@ -37,6 +43,8 @@ import type {
   Ticket,
   TicketAttachmentRef,
   TicketItemQuery,
+  TicketLookupQuery,
+  TicketLookupQueryModel,
   TicketMessage,
   TicketsListQuery,
   TicketsQueryModel,
@@ -46,6 +54,7 @@ import type {
   TicketSupportPrefs
 } from "./tickets.types";
 import type { ResponseError } from "../../utils";
+import type { LookupItem } from "../lookup";
 import type { ScopeContext } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
@@ -55,7 +64,8 @@ import type {
   IStatus,
   ITicket,
   ITicketDepartment,
-  ITicketMessage
+  ITicketMessage,
+  TicketStatusCodes
 } from "@upmind-automation/types";
 import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
@@ -177,62 +187,7 @@ function isAddressable(clientId?: string): boolean {
  * Run via a `sync`-flush `watch` in `loadList` rather than `list()`'s own
  * `guard` hook: `useQuery.ts`'s `hasGuard = isPromise(guard)` tests the GUARD
  * FUNCTION ITSELF for thenability, which a plain function never satisfies, so
- * `guard` never actually runs (a pre-existing `query/**` defect, out of scope
- * here).
- */
-function applyStatusCodeFilter(url: URL, isClosed: boolean | null): void {
-  url.searchParams.delete("filter[status.code]");
-  url.searchParams.delete("filter[status.code|neq]");
-
-  if (isClosed === true)
-    url.searchParams.set("filter[status.code]", TicketStatusCodes.CLOSED);
-  else if (isClosed === false)
-    url.searchParams.set("filter[status.code|neq]", TicketStatusCodes.CLOSED);
-}
-
-/**
- * AC-7 — the PRODUCT scope context as the wire key the API has, written onto
- * the request's own `url` exactly as {@link applyStatusCodeFilter} writes the
- * status narrowing.
- *
- * | the scope                        | the wire                                |
- * | -------------------------------- | --------------------------------------- |
- * | `.for('product', id)`            | `filter[contract_product_id]=<id>`      |
- * | no context                       | the key is absent                       |
- *
- * The product a ticket is about is a RELATIONSHIP, so it is a scope context
- * and not a criteria filter column (`tickets.types.ts`'s
- * `TicketsContextTypes`). Only the module can spell the translation: the
- * context's own word is the platform's (`product`, ADR-001 § 3), the wire's
- * is this API's (`contract_product_id`), and the query core only ever writes
- * keys a SCHEMA declared — which is why the column is gone from
- * `useQuerySchema` and no `filter[contract_product_id]` stray can be minted
- * beside this one.
- *
- * Written ONCE, not watched: a scope context is fixed for the life of the
- * instance the scope key mints, so there is no second value to swap to. That
- * is also why the narrowing cannot be widened away — no `setCriteria` write
- * can reach it (AC-7's second Then).
- */
-function applyProductScopeFilter(url: URL, contractProductId?: string): void {
-  if (contractProductId)
-    url.searchParams.set("filter[contract_product_id]", contractProductId);
-}
-
-/**
- * The contract product a PRODUCT-scoped read is about, or `undefined` when
- * the scope names no context. Sibling of the `ticketId` resolution in
- * {@link createTicketsServices} — one place each context type is read.
- */
-function resolveContractProductId(
-  scopeContext: ScopeContext | undefined
-): string | undefined {
-  return scopeContext?.type === TicketsContextTypes.PRODUCT
-    ? scopeContext.id
-    : undefined;
-}
-
-/**
+ * `guard` never actually runs (a pre-existing `query/**
  * @decision
  * what:     Re-validates a `setCriteria` candidate, merged onto the live
  *           model, against the RAW schema via `useValidation()` directly —
@@ -363,6 +318,41 @@ function loadList(
       ticketsList.setCriteria(candidate);
     }
   };
+}
+
+/**
+ * The tickets a picker offers — a `listInfinite` over THIS client's own
+ * tickets, searched by the collection's own top-level `query` branch.
+ *
+ * It is a second query rather than the collection's own list because the two
+ * answer different questions: the list carries the surface's filters, its tab
+ * and its page, and a picker searching through them would offer only what is
+ * already on screen. Its own key keeps a search from evicting the rows the
+ * listing is showing.
+ */
+function loadTicketLookup(
+  scopeContext: ScopeContext | undefined
+): TicketLookupQuery {
+  const { listInfinite, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  return listInfinite<ITicket[], LookupItem[], TicketLookupQueryModel>({
+    criteria: { schema: useTicketLookupQuerySchema() },
+    queryKey: [...queryKey, "lookups", "tickets", { client: clientId }],
+    url: useUrl("tickets", { with: "status" }),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (!isAddressable(clientId.value)) {
+          reject(new NotAuthenticatedError());
+          return;
+        }
+        resolve(true);
+      }),
+    select: mapTicketLookupItems,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => isAddressable(clientId.value)
+  }) as unknown as TicketLookupQuery;
 }
 
 /** AC8 — the narrower dashboard/recent list. A one-shot imperative read. */
@@ -847,6 +837,13 @@ export const createTicketsServices = (
     error: computed(() => criteriaGuardError.value),
 
     loadList: () => loadList(scopeContext, criteriaGuardError),
+
+    /**
+     * The picker's lookups, one per pickable record. A THUNK per entry so the
+     * first fetch defers to the control's own read (`TicketLookupService`).
+     */
+    lookups: { ticket: () => loadTicketLookup(scopeContext) },
+
     loadOne: (id = ticketId) => loadOne(id, scopeContext),
     createTicket,
     updateTicket,

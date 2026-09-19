@@ -14,16 +14,16 @@
  * setting on the same client meta map.
  */
 
-import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
+import { describe, expect, it, vi } from "vitest";
 import { useClientTickets } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { server } from "./setup.integration";
 import {
   installTicketsHandlers,
   recorded,
   seedClientSession
 } from "./tickets.int-helpers";
-import { server } from "./setup.integration";
 import "./setup.integration";
 
 // -----------------------------------------------------------------------------
@@ -71,4 +71,3 @@ describe("tickets support prefs — read-modify-write (AC-33)", () => {
     expect(sentMeta[siblingKey]).toBe(siblingValue);
   });
 });
-

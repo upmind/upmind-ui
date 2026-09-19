@@ -30,6 +30,8 @@
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { UpmForm } from "@upmind-automation/client-vue";
+import { get } from "lodash-es";
 import {
   installTicketsListBody,
   mountManagerAt,
@@ -88,6 +90,49 @@ describe("the manager's openTicket loader turns what a hand can paste into the r
     teardownSession();
   });
 
+  it("offers the module's OWN ticket picker — the lookups pair, its control bound to the service", async () => {
+    installTicketsListBody(recorded.byReference());
+    const { wrapper } = await mountManagerAt(BASE);
+
+    const picker = wrapper.find('[data-test-key="ticket-lookup"]');
+    expect(picker.exists()).toBe(true);
+
+    // The pair is the MODULE's (`schemas.lookups`), not one authored beside
+    // the page: its control is a Lookup carrying a bound service thunk, which
+    // is what lets the page render a form and reach no service itself.
+    const form = picker.findComponent(UpmForm);
+    const control = get(form.props("uischema"), ["elements", 0]) as Record<
+      string,
+      unknown
+    >;
+
+    expect(get(control, "type")).toBe("Lookup");
+    expect(get(control, "scope")).toBe("#/properties/ticket");
+    expect(typeof get(control, ["options", "lookup", "service"])).toBe(
+      "function"
+    );
+    expect(get(form.props("schema"), ["properties", "ticket"])).toBeDefined();
+  });
+
+  it("navigates to the ticket a pick names, resolving nothing — the pick carries the id", async () => {
+    const list = installTicketsListBody(recorded.byReference());
+    const { wrapper, pushes } = await mountManagerAt(BASE);
+
+    const form = wrapper
+      .find('[data-test-key="ticket-lookup"]')
+      .findComponent(UpmForm);
+
+    // A pick is the control's own write. The option's value IS the ticket id
+    // (`mapTicketLookupItem`), so nothing is resolved after it — unlike the
+    // pasted reference below, which costs a list read.
+    const seenBeforePick = list.seen().length;
+    form.vm.$emit("update:modelValue", { ticket: singleId });
+    await vi.waitFor(() => expect(pushes.length).toBeGreaterThan(0));
+
+    expect(pushes).toEqual([managerUrl(singleId)]);
+    expect(list.seen().length).toBe(seenBeforePick);
+  });
+
   it("navigates a pasted UUID straight to its manager url, resolving nothing", async () => {
     const list = installTicketsListBody(recorded.byReference());
     const { wrapper, pushes } = await mountManagerAt(BASE);
@@ -97,7 +142,17 @@ describe("the manager's openTicket loader turns what a hand can paste into the r
     await vi.waitFor(() => expect(pushes.length).toBeGreaterThan(0));
 
     expect(pushes).toEqual([managerUrl(singleId)]);
-    expect(list.seen()).toEqual([]);
+
+    // "Resolving nothing" is about the REFERENCE lookup, and that is what is
+    // asserted — not a bare read count. The card also carries the picker now,
+    // whose own reads land on their own schedule, so a count taken around the
+    // press measures that race rather than this claim.
+    expect(
+      list
+        .seen()
+        .map(url => decodeURIComponent(url))
+        .some(url => url.includes("filter[reference]"))
+    ).toBe(false);
   }, 20000);
 
   it("resolves a pasted REFERENCE through the bare-EQUAL reference filter, then navigates to the id it found", async () => {

@@ -519,6 +519,11 @@
     "label": "Registered Tax ID",
     "placeholder": "Tax ID/VAT/GST Number"
   },
+  "ticket_lookup": {
+    "description": null,
+    "label": "Find a ticket",
+    "placeholder": "Search by reference or subject"
+  },
   "ticket_search": {
     "description": null,
     "label": null,

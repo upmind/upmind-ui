@@ -30,6 +30,7 @@
 
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
+import type { LookupItem } from "../lookup";
 import type { ListQuery, SimpleQuery } from "../query";
 import type { SortDirection } from "../query/query.types";
 import type { JsonSchema7 } from "@jsonforms/core";
@@ -42,7 +43,7 @@ import type {
   ITicketMessage,
   TicketStatusCodes
 } from "@upmind-automation/types";
-import type { ComputedRef } from "vue";
+import type { ComputedRef, Ref } from "vue";
 
 // -----------------------------------------------------------------------------
 // SCOPE — two matrices, two context enums (the collection's and the manager's)
@@ -351,8 +352,54 @@ export type TicketsListQuery = ListQuery<
   TicketsQueryModel
 >;
 
+/**
+ * The manager's merged feed as the actions layer holds it — the entries, the
+ * two paging edges and the in-flight flag.
+ */
+export type TicketFeedState = {
+  entries: Ref<TicketFeedEntry[]>;
+  hasOlder: Ref<boolean>;
+  hasNewer: Ref<boolean>;
+  isLoading: Ref<boolean>;
+};
+
 /** The manager's reactive single-ticket query, minted once per scope. */
 export type TicketItemQuery = SimpleQuery<ITicket, Ticket>;
+
+/**
+ * The ticket lookup's criteria model — the quick-search term the control writes
+ * and its pagination. `query` is the collection's OWN top-level search branch
+ * (`useQuerySchema`), not a `like` filter: it is the one search this API
+ * answers for tickets, and the listing's own search box already rides it.
+ */
+export type TicketLookupQueryModel = {
+  query?: string | null;
+  sort?: TicketsSortModel;
+  pagination?: { limit?: number; offset?: number };
+};
+
+/**
+ * The ticket lookup handle — a `listInfinite` query whose `select` maps rows to
+ * the option shape a lookup control renders, so the control reaches no service
+ * of its own.
+ */
+export type TicketLookupQuery = ListQuery<
+  ITicket[],
+  LookupItem[],
+  TicketLookupQueryModel
+>;
+
+/**
+ * What a lookup control's `options.lookup.service` carries — a THUNK returning
+ * the once-minted {@link TicketLookupQuery}, so the first fetch defers to the
+ * control's own read rather than firing at construction.
+ */
+export type TicketLookupService = () => TicketLookupQuery;
+
+/** The lookups a ticket picker drives. One entry: the ticket itself. */
+export type TicketsScopeLookups = {
+  ticket: TicketLookupService;
+};
 
 /**
  * The contract `createTicketsServices` resolves to — consumed by BOTH
@@ -367,6 +414,10 @@ export type TicketsServices = {
   error: ComputedRef<ResponseError | undefined>;
 
   loadList: () => TicketsListQuery;
+
+  /** The picker's lookups, one thunk per pickable record. */
+  lookups: TicketsScopeLookups;
+
   loadOne: (ticketId?: string) => TicketItemQuery;
   createTicket: (body: Record<string, unknown>) => Promise<Ticket>;
   updateTicket: (

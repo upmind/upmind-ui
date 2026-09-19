@@ -7,6 +7,7 @@ import type {
   TicketMessage,
   TicketStatusLog
 } from "./tickets.types";
+import type { LookupItem } from "../lookup";
 import type {
   IBrandTicketDepartment,
   IHookLog,
@@ -100,3 +101,19 @@ export const mapDepartmentName = (
   department?.name_translated ||
   department?.name ||
   "";
+
+/**
+ * One ticket as a lookup option. A hand recognises a ticket by its REFERENCE —
+ * that is what the listing prints and what a colleague quotes — so the
+ * reference is the label and the subject rides beneath it as the description.
+ * The id is the value because that is what the manager loads by.
+ */
+export const mapTicketLookupItem = (raw: ITicket): LookupItem => ({
+  value: raw.id,
+  label: raw.reference || raw.id,
+  description: raw.subject ?? undefined
+});
+
+/** The ticket lookup query's `select` — every row as a selectable option. */
+export const mapTicketLookupItems = (raw: ITicket[]): LookupItem[] =>
+  map(raw, mapTicketLookupItem);

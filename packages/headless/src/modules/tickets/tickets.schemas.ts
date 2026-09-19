@@ -5,9 +5,9 @@
  */
 /** @internal */
 import { PAGINATION } from "../query/query.utils";
-import { TICKETS_DEFAULT_SORT } from "./tickets.types";
+import { TICKETS_DEFAULT_SORT, TicketContextTypes } from "./tickets.types";
 import { assign, omit } from "lodash-es";
-import type { TicketsQuerySchema } from "./tickets.types";
+import type { TicketsQuerySchema, TicketsScopeLookups } from "./tickets.types";
 import type {
   ControlElement,
   JsonSchema7,
@@ -325,5 +325,83 @@ export function useMessageEditUischema(): UISchemaElement {
     type: "Control",
     scope: "#/properties/body",
     i18n: "form.message"
+  } as UISchemaElement;
+}
+
+// -----------------------------------------------------------------------------
+// The ticket picker: one searchable lookup over this client's own tickets.
+// -----------------------------------------------------------------------------
+
+/**
+ * The lookup's own criteria model. It carries the collection's top-level
+ * `query` rather than a `like` filter: `query` is the one search this API
+ * answers for tickets, and the listing's own search box already rides it, so
+ * the picker and the listing search the same way or they disagree on screen.
+ *
+ * `minLength` is 1, not the listing's 3 — a hand typing a reference sees
+ * matches from the first character, and the debounce is the control's.
+ */
+export function useTicketLookupQuerySchema(): TicketsQuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      query: { type: ["string", "null"], minLength: 1 },
+      sort: {
+        type: "array",
+        maxItems: 1,
+        uniqueItems: true,
+        default: TICKETS_DEFAULT_SORT,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            field: { type: "string" },
+            direction: { type: "string", enum: ["asc", "desc"] }
+          }
+        }
+      },
+      pagination: PAGINATION
+    }
+  } as TicketsQuerySchema;
+}
+
+/** The picker's model — the id the manager is addressed by. */
+export function useLookupsSchema(): TicketsQuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      [TicketContextTypes.TICKET]: { type: ["string", "null"] }
+    }
+  } as TicketsQuerySchema;
+}
+
+/**
+ * The picker's one control, its lookup bound once. A surface renders this and
+ * reaches no service: the pick IS the write, and the value it writes is the
+ * ticket id the manager loads by.
+ */
+export function useLookupsUischema(
+  lookups: TicketsScopeLookups
+): UISchemaElement {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Lookup",
+        scope: `#/properties/${TicketContextTypes.TICKET}`,
+        i18n: "form.ticket_lookup",
+        options: {
+          lookup: {
+            service: lookups.ticket,
+            searchScope: "query"
+          },
+          optionalText: ""
+        }
+      }
+    ]
   } as UISchemaElement;
 }

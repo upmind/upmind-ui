@@ -14,14 +14,13 @@ import { findLast } from "lodash-es";
 import type {
   Ticket,
   TicketAttachmentRef,
-  TicketFeedEntry,
+  TicketFeedState,
   TicketItemQuery,
   TicketMessage,
   TicketsServices
 } from "./tickets.types";
 import type { UseClientTicketInternals } from "./useClientTicket.internals";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module tickets/useClientTicket.actions
@@ -31,13 +30,6 @@ import type { Ref } from "vue";
  * AC26 reschedule and AC28 change-department ship NEITHER, ever (R5).
  * @doctrine clause 2 (fresh modules start armless) — shared members only.
  */
-export type TicketFeedState = {
-  entries: Ref<TicketFeedEntry[]>;
-  hasOlder: Ref<boolean>;
-  hasNewer: Ref<boolean>;
-  isLoading: Ref<boolean>;
-};
-
 export function createClientTicketActions(
   _actorScope: ScopeActorTypes,
   service: TicketsServices,
