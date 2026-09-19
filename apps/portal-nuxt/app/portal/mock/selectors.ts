@@ -3862,34 +3862,43 @@ export function accountCardItems(data: MockDataset): ListModuleItem[] {
  * accounts hang off it and links to them, a child names its parent, and an
  * account with neither is simply personal.
  */
-function accountTypeRow(data: MockDataset): SpecModuleItem {
+function accountTypeRows(data: MockDataset): SpecModuleItem[] {
   // The persona IS the child while the ribbon is up, so the parent's name is
   // the one held for the way back, never the one on the card.
   const { restoredName } = useMockImpersonation();
   if (restoredName.value !== undefined) {
-    return {
-      id: "account-type",
-      label: "Account type",
-      value: `Child of ${restoredName.value}`,
-      to: CHILD_ACCOUNTS_PATH
-    };
+    return [
+      {
+        id: "account-type",
+        label: "Account type",
+        value: `Child of ${restoredName.value}`,
+        to: CHILD_ACCOUNTS_PATH
+      }
+    ];
   }
   const children = size(data.childAccounts);
   if (children === 0) {
-    return {
-      id: "account-type",
-      label: "Account type",
-      value: "Personal account"
-    };
+    return [
+      {
+        id: "account-type",
+        label: "Account type",
+        value: "Personal account"
+      }
+    ];
   }
-  let noun = "child accounts";
-  if (children === 1) noun = "child account";
-  return {
-    id: "account-type",
-    label: "Account type",
-    value: `Parent account · ${children} ${noun}`,
-    to: CHILD_ACCOUNTS_PATH
-  };
+  // Two facts, so two rows: the kind of account, then how many hang off it.
+  // Joined by a middot they read as one long value the spec column wraps.
+  let label = "Child accounts";
+  if (children === 1) label = "Child account";
+  return [
+    { id: "account-type", label: "Account type", value: "Parent account" },
+    {
+      id: "child-accounts",
+      label,
+      value: String(children),
+      to: CHILD_ACCOUNTS_PATH
+    }
+  ];
 }
 
 /** The card's standing facts, under the identity row. */
@@ -3897,7 +3906,7 @@ export function accountCardSpecItems(data: MockDataset): SpecModuleItem[] {
   const { persona } = data;
   return compact([
     usernameRow(data),
-    accountTypeRow(data),
+    ...accountTypeRows(data),
     persona.lastLoginAt !== undefined && {
       id: "last-login",
       label: "Last login",
@@ -6226,12 +6235,6 @@ function ticketMessageActions(
  * row keeps the spec module's own masked-value affordance; the panel drives
  * its masking from the facade instead, as legacy's Reveal/Hide pair did.
  */
-export function supportPinSpecItems(data: MockDataset): SpecModuleItem[] {
-  const pin = supportPin(data);
-  if (!isSupportPinEnabled(data) || pin === undefined) return [];
-  return [{ id: "pin", label: "Support PIN", value: pin, secret: true }];
-}
-
 function ticketListItem(ticket: MockTicket): ListModuleItem {
   return {
     id: ticket.id,

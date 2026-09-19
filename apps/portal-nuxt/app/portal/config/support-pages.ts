@@ -23,11 +23,10 @@ import {
   COMPOSER_MODULE_ID,
   FORM_MODULE_ID,
   LIST_MODULE_ID,
-  moduleGroup,
   moduleRef,
   SPEC_MODULE_ID
 } from "../registry";
-import { GROUP_AXIS, PAGE_KEY } from "../types";
+import { PAGE_KEY } from "../types";
 import { assign } from "lodash-es";
 import {
   backLink,
@@ -73,10 +72,7 @@ function ticketList(
   };
 }
 
-export function supportPages(options?: {
-  /** SUPPORT_PIN_ENABLED — the brand opts the PIN row in; the value comes from its dataset. */
-  readonly pinRow?: boolean;
-}): Partial<Record<PageKey, ContentConfig>> {
+export function supportPages(): Partial<Record<PageKey, ContentConfig>> {
   const page = (
     title: string,
     description: string,
@@ -92,36 +88,6 @@ export function supportPages(options?: {
       breadcrumb: backLink("My tickets", "/support/tickets")
     });
 
-  const pinRows: readonly ContentRowConfig[] = options?.pinRow
-    ? [
-        {
-          layout: ROW_LAYOUT.FULL,
-          surface: ROW_SURFACE.MUTED,
-          slots: [
-            // Legacy's support-menu PIN panel: the masked PIN with show and
-            // copy, and "Generate new" beneath it.
-            moduleGroup(GROUP_AXIS.STACKED, [
-              moduleRef(SPEC_MODULE_ID, {
-                variant: "micro",
-                props: {
-                  items: dataRef(DATA_REF_ID.SUPPORT_PIN_SPEC_ITEMS),
-                  emptyTitle: "No support PIN"
-                }
-              }),
-              moduleRef(BUTTON_MODULE_ID, {
-                variant: BUTTON_MODULE_VARIANT.GROUP,
-                props: {
-                  label: "Support PIN",
-                  actions: dataRef(DATA_REF_ID.SUPPORT_PIN_ACTIONS),
-                  emptyTitle: "No PIN controls"
-                }
-              })
-            ])
-          ]
-        }
-      ]
-    : [];
-
   return {
     [PAGE_KEY.SUPPORT_TICKETS]: page(
       "Tickets",
@@ -131,7 +97,6 @@ export function supportPages(options?: {
           DATA_REF_ID.TEMPLATE_SUPPORT_MARKDOWN,
           DATA_REF_ID.TEMPLATE_HAS_SUPPORT
         ),
-        ...pinRows,
         // Legacy's Active / Closed tabs, as a rail in the panel's control band.
         ticketList(
           "Tickets",
