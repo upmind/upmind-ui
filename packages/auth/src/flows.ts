@@ -1,11 +1,11 @@
 /**
  * @module auth/flows
  * @description This package's own navigation rule: once a visitor is
- * authenticated, an auth route it owns hands control back to the return target
+ * authenticated, an opted-in auth route hands control back to the return target
  * it was launched with (`?returnUrl=`), or to the host's own `fallback` when
  * that names nowhere this package will go. Both arms fire ONLY on a record
- * carrying `meta.authReturnTarget`, which `authRoutes({ returnTarget: true })`
- * sets — a host driving navigation from its own funnel is untouched.
+ * carrying `meta.authReturnTarget`, which the host sets on the records it owns
+ * — a host driving navigation from its own funnel omits it and is untouched.
  */
 import { watch } from "vue";
 import { QUERY_PARAMS, useActiveSession } from "@upmind-automation/headless";

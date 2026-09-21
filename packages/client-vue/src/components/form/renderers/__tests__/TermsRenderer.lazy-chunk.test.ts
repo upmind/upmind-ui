@@ -31,6 +31,7 @@ import { mount } from "@vue/test-utils";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
+import { provideFormRenderers } from "@upmind-automation/foundation";
 import {
   GRID_LAYOUT,
   TERM_SELECTOR,
@@ -40,6 +41,7 @@ import {
 } from "@upmind-automation/headless";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
+import { formRenderers } from "../index";
 import { messages } from "./filter.harness";
 import { filter, map } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
@@ -114,6 +116,7 @@ const mountTerms = async (
           product: { productDetails: { uiMeta } }
         })
       );
+      provideFormRenderers(formRenderers);
       const translator = useFormI18n();
 
       return () =>

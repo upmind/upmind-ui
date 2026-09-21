@@ -24,6 +24,7 @@ import { Form, provideFormIcon } from "@upmind/ui";
 import { DOMWrapper, mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
+import { provideFormRenderers } from "@upmind-automation/foundation";
 import {
   PAGINATION,
   SortDirection,
@@ -343,7 +344,7 @@ export type FilterMount = {
 };
 
 /**
- * Mounts a declaration through the renderer registry `UpmForm` binds.
+ * Mounts a declaration through the renderer socket `UpmForm` reads.
  *
  * @param options.translate - `false` swaps `UpmForm` for `@upmind/ui`'s bare
  *   engine `Form` carrying the same renderer set and NO `i18n` prop, so the
@@ -364,6 +365,7 @@ export async function mountFilters(options: {
     setup() {
       const translator = useFormI18n();
       provideFormIcon(Icon);
+      provideFormRenderers(formRenderers);
       const shared = {
         noActions: true,
         touched: true,

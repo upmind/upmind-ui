@@ -1,27 +1,22 @@
-import { computed, hasInjectionContext, inject, provide } from "vue";
-import { rendererEntries } from "./renderer.registry";
+import { hasInjectionContext, inject, provide } from "vue";
 import type { FormRendererEntry } from "./renderer.types";
-import type { ComputedRef, InjectionKey } from "vue";
+import type { InjectionKey } from "vue";
 
-export const FORM_RENDERERS: InjectionKey<ComputedRef<FormRendererEntry[]>> =
-  Symbol("upmind-form-renderers");
+export const FORM_RENDERERS: InjectionKey<FormRendererEntry[]> = Symbol(
+  "upmind-form-renderers"
+);
 
-export const provideFormRenderers = (
-  renderers: ComputedRef<FormRendererEntry[]>
-) => provide(FORM_RENDERERS, renderers);
+export const provideFormRenderers = (renderers: FormRendererEntry[]) =>
+  provide(FORM_RENDERERS, renderers);
 
 export type UseFormRenderers = {
-  renderers: ComputedRef<FormRendererEntry[]>;
+  renderers: FormRendererEntry[];
 };
 
 /**
  * The renderers a form host injects in place of the `additionalRenderers` prop.
- * Reads the registry unless a host provides its own set.
+ * Reads an empty set when no host provided one.
  */
-export const useFormRenderers = (): UseFormRenderers => {
-  const provided = hasInjectionContext() ? inject(FORM_RENDERERS, null) : null;
-
-  return {
-    renderers: computed(() => provided?.value ?? rendererEntries.value)
-  };
-};
+export const useFormRenderers = (): UseFormRenderers => ({
+  renderers: hasInjectionContext() ? inject(FORM_RENDERERS, []) : []
+});

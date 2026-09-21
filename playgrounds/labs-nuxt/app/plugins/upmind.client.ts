@@ -1,8 +1,10 @@
 import UpmindClient, {
   decorateRoutes,
+  formRenderers,
   registerOverlayRoutes,
   useTheme
 } from "@upmind-automation/client-vue";
+import { FORM_RENDERERS } from "@upmind-automation/foundation";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { forEach } from "lodash-es";
 import type { I18n } from "vue-i18n";
@@ -12,6 +14,8 @@ import { LABS_OVERLAYS, registerFunnels } from "~/funnels";
 export default defineNuxtPlugin(async nuxtApp => {
   const runtimeConfig = useRuntimeConfig();
   const router = nuxtApp.$router as Router;
+
+  nuxtApp.vueApp.provide(FORM_RENDERERS, formRenderers);
 
   // 0. Inject the overlay routes onto every eligible page before the engine
   //    guards the first navigation — a deep-linked `<route>--session` must resolve.

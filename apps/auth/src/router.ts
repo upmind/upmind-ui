@@ -1,15 +1,15 @@
 /**
  * @module auth-app/router
- * @description Every auth route on this app comes from the `auth` package's own
- * `defineFeature` contribution (ADR 023 §8), read back through `foundation`'s
- * route registry. The app declares only the post-login landing the package
- * hands back to, which is app-owned shell (Amendment 1 change 3) — that is what
- * makes this a decoupling proof rather than a second implementation.
+ * @description This app owns its auth paths (`./routes`) and mounts the
+ * package's organisms on them. It declares the post-login landing itself, then
+ * arms the package's own flow: an authenticated visitor on one of these routes
+ * is handed back to `?returnUrl=`, or to the landing when it named no usable
+ * target — this app has no funnel to move them on.
  */
 import { createRouter, createWebHistory } from "vue-router";
-import { AUTH_ROUTE, defineAuthFeature } from "@upmind-automation/auth";
-import { useFeatures, useRouting } from "@upmind-automation/foundation";
+import { registerAuthFlows } from "@upmind-automation/auth";
 import { useActiveSession } from "@upmind-automation/headless";
+import { AUTH_ROUTE, authRoutes } from "./routes";
 import SignedIn from "./SignedIn.vue";
 
 export const LANDING_ROUTE = {
@@ -17,26 +17,10 @@ export const LANDING_ROUTE = {
   path: "/signed-in"
 } as const;
 
-const features = useFeatures();
-
-// `returnTarget: true` arms the package's own flow: an authenticated visitor on
-// one of these routes is handed back to `?returnUrl=`, or to the landing below
-// when it named no usable target — this app has no funnel to move them on.
-features.register(
-  defineAuthFeature({
-    base: "/",
-    returnTarget: true,
-    fallback: LANDING_ROUTE.path
-  })
-);
-features.install();
-
-const { routes, register } = useRouting();
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    ...routes.value,
+    ...authRoutes,
     {
       path: LANDING_ROUTE.path,
       name: LANDING_ROUTE.name,
@@ -57,6 +41,6 @@ const router = createRouter({
   ]
 });
 
-register(router);
+registerAuthFlows(router, { fallback: LANDING_ROUTE.path });
 
 export default router;

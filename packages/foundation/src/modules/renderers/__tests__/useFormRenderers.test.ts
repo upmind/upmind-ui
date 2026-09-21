@@ -2,26 +2,22 @@
  * @fileoverview useFormRenderers inject door — ADR 023 §7 socket rule
  *
  * ## Job To Be Done
- * Prove the renderer socket has both arms. Absent a provider a form host reads
- * whatever the contributing packages registered; with `provideFormRenderers` an
- * app or a brand layer substitutes its own list and that substitution wins.
+ * Prove the renderer seam has both arms. Absent a provider a form host reads an
+ * empty set, which is a shipped state — `apps/auth` renders its forms with zero
+ * domain renderers. With `provideFormRenderers` the host's own list is what the
+ * form reads, handed through rather than copied.
  *
  * ## What Breaks If These Fail
- * The fallback arm broken means every registered domain renderer is invisible to
- * the form host and provision fields render as raw controls. The override arm
- * broken means an app or Nuxt layer cannot swap a renderer, so §7's "injected,
- * not imported" escape hatch is gone and `catalogue` has to import `domain`.
+ * The empty arm broken means a host that wants no domain renderer cannot mount a
+ * form at all. The provided arm broken means an app or a brand layer cannot
+ * supply its set, so §7's "injected, not imported" escape hatch is gone and
+ * `catalogue` has to import `domain`.
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { computed, defineComponent, ref } from "vue";
+import { describe, expect, it, vi } from "vitest";
+import { defineComponent } from "vue";
 import { readInChildOfProvider } from "../../../__tests__/component-context";
-import {
-  defineFeature,
-  provideFormRenderers,
-  useFeatures,
-  useFormRenderers
-} from "../../../index";
+import { provideFormRenderers, useFormRenderers } from "../../../index";
 import type { FormRendererEntry } from "../../../index";
 
 vi.mock("@upmind-automation/headless", async () => {
@@ -36,57 +32,37 @@ function entry(rank: number): FormRendererEntry {
   return { renderer: Stub, tester: () => rank };
 }
 
+const provideNothing = () => undefined;
+
 describe("useFormRenderers", () => {
-  beforeEach(() => {
-    useFeatures().reset();
-  });
-
-  it("reads the registry when nothing is provided", () => {
-    const registered = entry(1);
-
-    useFeatures().register(
-      defineFeature({
-        name: "domain",
-        setup: ctx => ctx.addRenderers([registered])
-      })
+  it("reads an empty set when no host provided one", () => {
+    const renderers = readInChildOfProvider(
+      provideNothing,
+      () => useFormRenderers().renderers
     );
-    useFeatures().install();
 
-    expect(useFormRenderers().renderers.value).toEqual([registered]);
+    expect(renderers).toEqual([]);
   });
 
-  it("prefers a provided list over the registry", () => {
-    const registered = entry(1);
+  it("reads the list a host provided", () => {
     const provided = entry(2);
 
-    useFeatures().register(
-      defineFeature({
-        name: "domain",
-        setup: ctx => ctx.addRenderers([registered])
-      })
-    );
-    useFeatures().install();
-
     const renderers = readInChildOfProvider(
-      () => provideFormRenderers(computed(() => [provided])),
+      () => provideFormRenderers([provided]),
       () => useFormRenderers().renderers
     );
 
-    expect(renderers.value).toEqual([provided]);
+    expect(renderers).toEqual([provided]);
   });
 
-  it("reads the provided list through, rather than snapshotting it", () => {
-    const first = entry(1);
-    const second = entry(2);
-    const source = ref([first]);
+  it("hands the provided list through, rather than copying it", () => {
+    const provided = [entry(1), entry(2)];
 
     const renderers = readInChildOfProvider(
-      () => provideFormRenderers(computed(() => source.value)),
+      () => provideFormRenderers(provided),
       () => useFormRenderers().renderers
     );
 
-    source.value = [first, second];
-
-    expect(renderers.value).toEqual([first, second]);
+    expect(renderers).toBe(provided);
   });
 });

@@ -21,13 +21,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, h, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import {
-  AUTH_QUERY,
-  AUTH_ROUTE,
-  authRoutes,
-  registerAuthFlows
-} from "../index";
-import type { AuthFlowOptions, AuthRoutesOptions } from "../index";
+import { AUTH_QUERY, registerAuthFlows } from "../index";
+import type { AuthFlowOptions } from "../index";
+import type { RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -50,6 +46,41 @@ vi.mock("@upmind-automation/headless", async importOriginal => {
 
 const Blank = { setup: () => () => h("div") };
 
+/** The route names a host picks; the package publishes none of its own. */
+const AUTH_ROUTE = {
+  ROOT: "auth",
+  LOGIN: "auth-login",
+  REGISTER: "auth-register",
+  RECOVER: "auth-recover",
+  END: "auth-end"
+} as const;
+
+/**
+ * A host's own auth records, stood up here because the package no longer
+ * publishes any. `returnTarget` is the meta the registrar's guard keys on: a
+ * host that drives its own funnel omits it and the guard must stay silent.
+ */
+function hostAuthRoutes(
+  options: { returnTarget?: boolean } = {}
+): RouteRecordRaw[] {
+  const meta = { authReturnTarget: !!options.returnTarget };
+
+  return [
+    {
+      path: "/auth",
+      name: AUTH_ROUTE.ROOT,
+      redirect: { name: AUTH_ROUTE.LOGIN },
+      meta,
+      children: [
+        { path: "login", name: AUTH_ROUTE.LOGIN, component: Blank, meta },
+        { path: "register", name: AUTH_ROUTE.REGISTER, component: Blank, meta },
+        { path: "recover", name: AUTH_ROUTE.RECOVER, component: Blank, meta },
+        { path: "logout", name: AUTH_ROUTE.END, component: Blank, meta }
+      ]
+    }
+  ];
+}
+
 /** The host's own pages, including the one it nominates as the landing. */
 const HOST_ROUTES = [
   { path: "/", name: "home", component: Blank },
@@ -61,10 +92,13 @@ const HOST_ROUTES = [
 const LANDING = "/signed-in";
 const LANDING_NAME = "signed-in";
 
-function armedRouter(routes?: AuthRoutesOptions, flows?: AuthFlowOptions) {
+function armedRouter(
+  routes?: { returnTarget?: boolean },
+  flows?: AuthFlowOptions
+) {
   const router = createRouter({
     history: createMemoryHistory(),
-    routes: [...authRoutes(routes), ...HOST_ROUTES]
+    routes: [...hostAuthRoutes(routes), ...HOST_ROUTES]
   });
   registerAuthFlows(router, flows);
   return router;
@@ -165,7 +199,7 @@ describe("the post-login landing", () => {
   });
 
   it("leaves the funnel alone when the host never opted the routes in", async () => {
-    const router = armedRouter(undefined, { fallback: LANDING });
+    const router = armedRouter({}, { fallback: LANDING });
     await router.push("/auth/login");
 
     await signIn();

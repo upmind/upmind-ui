@@ -5,15 +5,12 @@
   "type": "module",
   "license": "UNLICENSED",
   "sideEffects": [
-    "**/feature.ts",
     "**/*.css"
   ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./feature": "./src/feature.ts",
-    "./nuxt": "./nuxt.ts"
+    ".": "./src/index.ts"
   },
   "engines": {
     "node": ">=22.18"
@@ -39,7 +36,6 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^26.1.0",
-    "nuxt": "^4.2.2",
     "vitest": "^3.2.4"
   },
   "peerDependencies": {

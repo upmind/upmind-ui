@@ -25,5 +25,4 @@ export { default as UpmMain } from "./components/main/Main.vue";
 export * from "./components";
 // -----------------------------------------------------------------------------
 export * from "./modules";
-export { clientVueFeature } from "./feature";
 export default useUpmindClient;

@@ -25,8 +25,10 @@ import { mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
+import { provideFormRenderers } from "@upmind-automation/foundation";
 import { UpmForm } from "../../index";
 import { useFormI18n } from "../../useFormI18n";
+import { formRenderers } from "../index";
 import { messages } from "./filter.harness";
 import { find, map } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
@@ -99,6 +101,7 @@ function mountControl(
 
   const harness = defineComponent({
     setup() {
+      provideFormRenderers(formRenderers);
       const translator = useFormI18n();
       return () =>
         h(UpmForm, {

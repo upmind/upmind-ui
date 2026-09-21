@@ -1,6 +1,7 @@
 import UpmindClient, {
   useTheme,
   decorateRoutes,
+  formRenderers,
   registerOverlayRoutes,
   useHeader,
   useFooter,
@@ -8,6 +9,7 @@ import UpmindClient, {
   useShell,
   SHELL
 } from "@upmind-automation/client-vue";
+import { FORM_RENDERERS } from "@upmind-automation/foundation";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { forEach } from "lodash-es";
 import type { I18n } from "vue-i18n";
@@ -19,6 +21,8 @@ import { CART_OVERLAYS } from "~/router.options";
 export default defineNuxtPlugin(async nuxtApp => {
   const runtimeConfig = useRuntimeConfig();
   const router = nuxtApp.$router as Router;
+
+  nuxtApp.vueApp.provide(FORM_RENDERERS, formRenderers);
 
   // Client-side initialization
   // 1. Initialize Upmind

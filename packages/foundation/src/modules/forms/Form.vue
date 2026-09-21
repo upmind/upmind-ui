@@ -80,6 +80,6 @@ const { renderers } = useFormRenderers();
 
 const additionalRenderers = computed(() => [
   ...(props.additionalRenderers ?? []),
-  ...renderers.value
+  ...renderers
 ]);
 </script>
