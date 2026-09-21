@@ -203,7 +203,9 @@
     </ShellMain>
 
     <ShellFooter v-if="slots.footer" :class="CHROME_FOOTER_CLASS">
-      <slot name="footer" />
+      <div :class="footerTrackClass">
+        <slot name="footer" />
+      </div>
     </ShellFooter>
 
     <!-- Viewport-fixed, so it leaves the panel's flow entirely: the bar is
@@ -290,6 +292,7 @@ import {
   floatingTopbarInnerClass,
   chromeLevelClass,
   chromeMeasureClass,
+  contentMeasureClass,
   chromeStickyOffset,
   chromeToneMeta,
   topbarHeightClass
@@ -394,6 +397,11 @@ watchEffect(() => {
 /** The bars share the page's measure AND its gutter arrangement, so the logo aligns with the page title. */
 const measureClass = computed(() =>
   chromeMeasureClass(props.shell.content.measure, props.shell.content.gutter)
+);
+
+/** The footer shares it too — as a block, since it lays its own row out. */
+const footerTrackClass = computed(() =>
+  contentMeasureClass(props.shell.content.measure, props.shell.content.gutter)
 );
 
 const topbarMeta = computed(() => {
