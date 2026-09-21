@@ -227,8 +227,11 @@ issue no request of their own:
 ```typescript
 import {
   isDelegated,
-  getOwnerForDelegatedRecord
+  getOwnerForDelegatedRecord,
+  type DelegatableRecord
 } from "@upmind-automation/headless";
+
+declare const invoice: DelegatableRecord;
 
 isDelegated(invoice); // was this shared with me?
 getOwnerForDelegatedRecord(invoice); // whose is it? → { id, publicName, username, imageUrl }

@@ -313,7 +313,8 @@ await add(token, true, {
     caption: "JD",
     forceCaption: false,
     src: "https://example.com/avatar.jpg"
-  }
+  },
+  delegatedIds: {}
 });
 
 // Access user profile

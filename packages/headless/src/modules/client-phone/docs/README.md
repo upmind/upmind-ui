@@ -38,7 +38,8 @@ import {
 // see gotchas.md #11.
 type ScopedPhoneManager = ScopeBuilderActorWithContexts<
   ReturnType<UseClientPhoneManager["fresh"]>,
-  ClientPhoneContextTypes
+  ClientPhoneContextTypes,
+  never
 >;
 
 // --- The collection: read the list, promote a number to the default

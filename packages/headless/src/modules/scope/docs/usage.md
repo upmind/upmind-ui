@@ -206,7 +206,11 @@ hold **several** declarations for one actor, as a `readonly` array; each member 
 its own pattern independently:
 
 ```ts
-import { selector, ScopeActorTypes } from "@upmind-automation/headless";
+import {
+  selector,
+  ScopeActorTypes,
+  type ScopedComposable
+} from "@upmind-automation/headless";
 
 enum CustomFieldsContextTypes {
   VALUES = "values",
@@ -228,6 +232,11 @@ const CUSTOM_FIELDS_SCOPE_MATRIX = {
   ],
   [ScopeActorTypes.GUEST]: null as never
 } as const;
+
+declare const useCustomFields: ScopedComposable<
+  { useMeta: () => object },
+  typeof CUSTOM_FIELDS_SCOPE_MATRIX
+>;
 
 // Two independent selector reads of the SAME module — different keys, different
 // instances, neither one taking an id:

@@ -4,24 +4,33 @@
 
 ```ts
 import {
+  ScopeActorTypes,
   useClientNotifications,
   useClientNotificationsManager
 } from "@upmind-automation/headless";
 
+declare const token: string;
+
 // Collection — signed-in account
-const list = useClientNotifications().as("client");
+const list = useClientNotifications().as(ScopeActorTypes.CLIENT);
 
 // Collection — a guest holding an emailed link token
-const guestList = useClientNotifications().as("guest").withId(token);
+const guestList = useClientNotifications()
+  .as(ScopeActorTypes.GUEST)
+  .withId(token);
 
 // Editor — signed-in account
-const editor = useClientNotificationsManager().as("client");
+const editor = useClientNotificationsManager().as(ScopeActorTypes.CLIENT);
 
 // Editor — guest link token
-const guestEditor = useClientNotificationsManager().as("guest").withId(token);
+const guestEditor = useClientNotificationsManager()
+  .as(ScopeActorTypes.GUEST)
+  .withId(token);
 
 // A signed-in account following its own emailed link also type-checks:
-const both = useClientNotifications().as("client").withId(token);
+const both = useClientNotifications()
+  .as(ScopeActorTypes.CLIENT)
+  .withId(token);
 ```
 
 There is no `.for(actorType, id)` on either composable — both scope matrices declare every actor `never` for that call, so it is a compile-time error, not a runtime refusal. There is no context enum to import for it either; nothing publishes one.
@@ -35,6 +44,9 @@ Each `.as(...)` (optionally `.withId(token)`) call resolves to its own scoped in
 #### `isReady()`
 
 ```ts
+import type { UseClientNotifications } from "@upmind-automation/headless";
+declare const list: ReturnType<UseClientNotifications["fresh"]>;
+
 const ready = await list.useActions().isReady();
 ```
 
@@ -43,6 +55,9 @@ Resolves once the account is addressable (signed in, or holding a token) **and**
 #### `refresh()`
 
 ```ts
+import type { UseClientNotifications } from "@upmind-automation/headless";
+declare const list: ReturnType<UseClientNotifications["fresh"]>;
+
 await list.useActions().refresh();
 ```
 
@@ -51,6 +66,9 @@ Refetches all three reads from the server.
 #### `destroy()`
 
 ```ts
+import type { UseClientNotifications } from "@upmind-automation/headless";
+declare const list: ReturnType<UseClientNotifications["fresh"]>;
+
 list.useActions().destroy();
 ```
 
@@ -59,6 +77,9 @@ Releases this scoped instance from the registry.
 ### Collection context — `useContext()`
 
 ```ts
+import type { UseClientNotifications } from "@upmind-automation/headless";
+declare const list: ReturnType<UseClientNotifications["fresh"]>;
+
 const {
   topics,
   channels,
@@ -113,6 +134,9 @@ Debugging only. `query.topics` / `.channels` / `.optOuts` each carry a narrowed,
 #### `isReady()`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
 const ready = await editor.useActions().isReady();
 ```
 
@@ -121,6 +145,12 @@ Resolves once the account is addressable and the editor has reached a settled st
 #### `toggle(topicId, channelId)`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
+declare const topicId: string;
+declare const channelId: string;
+
 editor.useActions().toggle(topicId, channelId);
 ```
 
@@ -129,6 +159,11 @@ Flips one pair in the draft. Silently refused, with no dirty flag raised, when t
 #### `selectAll(topicId)` / `clearAll(topicId)`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
+declare const topicId: string;
+
 editor.useActions().selectAll(topicId); // every channel ON for this topic
 editor.useActions().clearAll(topicId); // every channel OFF for this topic
 ```
@@ -138,6 +173,11 @@ Both refused on a locked topic.
 #### `isAllSelected(topicId)`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
+declare const topicId: string;
+
 const allOn = editor.useActions().isAllSelected(topicId);
 ```
 
@@ -146,6 +186,9 @@ const allOn = editor.useActions().isAllSelected(topicId);
 #### `revert()`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
 editor.useActions().revert();
 ```
 
@@ -154,9 +197,14 @@ Restores the draft to the last-saved (server) state and clears the dirty flag.
 #### `update(value?)`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
 const saved = await editor.useActions().update();
 // or, with an explicit replacement draft:
-const saved = await editor.useActions().update({ preferences: { ... } });
+const replaced = await editor
+  .useActions()
+  .update({ preferences: { "billing::email": true, "billing::sms": false } });
 ```
 
 Saves the current (or given) draft as the account's WHOLE opt-out set. Rejects with `"Nothing to save"` when called with no argument and nothing has changed since the last save.
@@ -168,6 +216,9 @@ After a rejected save, calling `update()` again with no argument resends the sam
 #### `onDone()` / `onError()`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
 const saved = await editor.useActions().onDone();
 const failed = await editor.useActions().onError();
 ```
@@ -177,6 +228,9 @@ Resolve once a save completes, or once a save failure is captured, respectively.
 #### `stop()` / `destroy()`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
 editor.useActions().stop(); // pause, keep the registry entry
 editor.useActions().destroy(); // stop AND remove from the registry
 ```
@@ -184,6 +238,9 @@ editor.useActions().destroy(); // stop AND remove from the registry
 ### Editor context — `useContext()`
 
 ```ts
+import type { UseClientNotificationsManager } from "@upmind-automation/headless";
+declare const editor: ReturnType<UseClientNotificationsManager["fresh"]>;
+
 const {
   model,
   lookups,
