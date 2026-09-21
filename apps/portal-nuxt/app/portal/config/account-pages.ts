@@ -277,13 +277,10 @@ function tableRow(
 }
 
 /** A panel's trailing controls, from whatever the dataset says apply right now. */
-function panelActions(
-  refId: Parameters<typeof dataRef>[0],
-  emptyTitle: string
-): SlotAssignment {
+function panelActions(refId: Parameters<typeof dataRef>[0]): SlotAssignment {
   return moduleRef(BUTTON_MODULE_ID, {
     variant: BUTTON_MODULE_VARIANT.GROUP,
-    props: { label: "Actions", actions: dataRef(refId), emptyTitle }
+    props: { label: "Actions", actions: dataRef(refId) }
   });
 }
 
@@ -383,10 +380,7 @@ export function accountPages(options?: {
           DATA_REF_ID.ACCOUNT_NOTE_ITEMS,
           "No notes yet",
           {
-            actions: panelActions(
-              DATA_REF_ID.ACCOUNT_NOTE_ACTIONS,
-              "Nothing to add"
-            )
+            actions: panelActions(DATA_REF_ID.ACCOUNT_NOTE_ACTIONS)
           }
         ),
         listRow(
@@ -395,10 +389,7 @@ export function accountPages(options?: {
           DATA_REF_ID.ACCOUNT_SECRET_ITEMS,
           "No secrets yet",
           {
-            actions: panelActions(
-              DATA_REF_ID.ACCOUNT_SECRET_ACTIONS,
-              "Nothing to add"
-            )
+            actions: panelActions(DATA_REF_ID.ACCOUNT_SECRET_ACTIONS)
           }
         )
       ]
@@ -413,10 +404,7 @@ export function accountPages(options?: {
           DATA_REF_ID.SECURITY_SPEC_ITEMS,
           "No security facts",
           {
-            actions: panelActions(
-              DATA_REF_ID.SECURITY_TWOFA_ACTIONS,
-              "No security controls"
-            )
+            actions: panelActions(DATA_REF_ID.SECURITY_TWOFA_ACTIONS)
           }
         ),
         USERNAME_FORM_ROW,
@@ -542,10 +530,7 @@ export function accountPages(options?: {
           DATA_REF_ID.DELEGATE_SPEC_ITEMS,
           "No such delegate",
           {
-            actions: panelActions(
-              DATA_REF_ID.DELEGATE_HEADER_ACTIONS,
-              "No delegate controls"
-            )
+            actions: panelActions(DATA_REF_ID.DELEGATE_HEADER_ACTIONS)
           }
         ),
         listRow(
@@ -637,10 +622,7 @@ export function accountPages(options?: {
           {
             visible: dataRef(DATA_REF_ID.HAS_PARENT_BRANDING),
             // Legacy's own form, in the shell's one dialog (plan F2).
-            actions: panelActions(
-              DATA_REF_ID.PARENT_BRANDING_ACTIONS,
-              "Brand appearance"
-            )
+            actions: panelActions(DATA_REF_ID.PARENT_BRANDING_ACTIONS)
           }
         ),
         listRow(
@@ -662,10 +644,7 @@ export function accountPages(options?: {
           DATA_REF_ID.RELATION_SPEC_ITEMS,
           "No such account",
           {
-            actions: panelActions(
-              DATA_REF_ID.RELATION_HEADER_ACTIONS,
-              "No relation controls"
-            )
+            actions: panelActions(DATA_REF_ID.RELATION_HEADER_ACTIONS)
           }
         ),
         listRow(
@@ -697,10 +676,7 @@ export function accountPages(options?: {
           header: {
             title: "Join the affiliate programme",
             description: "Earn commission on every account you refer to us.",
-            actions: panelActions(
-              DATA_REF_ID.AFFILIATE_ENROL_ACTION,
-              "No controls"
-            )
+            actions: panelActions(DATA_REF_ID.AFFILIATE_ENROL_ACTION)
           },
           slots: [
             moduleRef(PROSE_MODULE_ID, {
@@ -754,10 +730,7 @@ export function accountPages(options?: {
             title: "Your programme",
             description:
               "What your links have brought in, and what you are owed.",
-            actions: panelActions(
-              DATA_REF_ID.AFFILIATE_WITHDRAWAL_ACTIONS,
-              "No controls"
-            )
+            actions: panelActions(DATA_REF_ID.AFFILIATE_WITHDRAWAL_ACTIONS)
           },
           slots: [
             moduleRef(METRIC_MODULE_ID, {
@@ -778,10 +751,7 @@ export function accountPages(options?: {
           "No referral links",
           {
             visible: dataRef(DATA_REF_ID.AFFILIATE_IS_ENROLLED),
-            actions: panelActions(
-              DATA_REF_ID.AFFILIATE_LINK_HEADER_ACTIONS,
-              "No controls"
-            ),
+            actions: panelActions(DATA_REF_ID.AFFILIATE_LINK_HEADER_ACTIONS),
             // Legacy's own links toolbar (`affiliateLinksTable.vue:10-15`):
             // searched by name and redirect, ordered by how each has done.
             controls: panelControls(
