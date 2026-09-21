@@ -2,8 +2,8 @@
 
 import { SortDirection } from "../query/query.types";
 import { DEFAULT_SORT } from "./client-phone.types";
-import type { QuerySchema } from "./client-phone.types";
 import type { WithPhoneCountryCode } from "../../utils/useValidationKeywords";
+import type { QuerySchema } from "../query/query.types";
 import type {
   ControlElement,
   JsonSchema7,

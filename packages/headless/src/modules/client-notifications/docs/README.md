@@ -23,15 +23,16 @@ The module ships **two composables**, because reading the grid and editing it ar
 
 ```ts
 import {
+  ScopeActorTypes,
   useClientNotifications,
   useClientNotificationsManager
 } from "@upmind-automation/headless";
 
-const list = useClientNotifications().as("client");
+const list = useClientNotifications().as(ScopeActorTypes.CLIENT);
 await list.useActions().isReady();
 const { topics, channels } = list.useContext();
 
-const editor = useClientNotificationsManager().as("client");
+const editor = useClientNotificationsManager().as(ScopeActorTypes.CLIENT);
 editor.useActions().toggle(topics.value[0].id, channels.value[0].id);
 await editor.useActions().update();
 ```

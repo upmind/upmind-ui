@@ -13,8 +13,8 @@
  * control. See `graphify-out/GRAPH_REPORT.md`.
  */
 
-import type { ForcedState } from "../../force/states.types";
 import type { SurfaceProps } from "./surface.types";
+import type { ForcedState } from "../../force/states.types";
 import type { ScenarioHandoff } from "../../scenario.types";
 
 // -----------------------------------------------------------------------------

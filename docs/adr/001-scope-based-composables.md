@@ -61,7 +61,7 @@ useAuth()
 
 #### Convention: `.as()` before `.for()`
 
-The shipped builder offers `.for()` only after `.as()`, which is also the convention that reads best:
+The shipped builder also offers `.for()` before `.as()` (the actor then resolves to SELF), but `.as()` first is the convention that reads best:
 
 ```ts
 import {
@@ -77,7 +77,7 @@ useClientEmails()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientEmailsContextTypes.CLIENT, clientId)
 
-// @ts-expect-error — `.for()` is offered only after `.as()`
+// Discouraged: this compiles — the actor resolves to SELF — but it reads worse
 useClientEmails().for(ClientEmailsContextTypes.CLIENT, clientId)
 ```
 
@@ -207,7 +207,7 @@ import type { SessionState } from '@upmind-automation/headless'
 // One guest token alongside client and staff sessions, each keyed by session id.
 declare const sessions: SessionState
 
-export const guest = sessions.guestSession
+export const guest = sessions.guestSessions
 export const clients = sessions.clientSessions
 export const staff = sessions.staffSessions
 ```
@@ -410,6 +410,16 @@ useInvoices().as(ScopeActorTypes.STAFF).inBrand('brand-abc')
 // Staff viewing a specific client's invoices
 useInvoices().as(ScopeActorTypes.STAFF).for('client', clientId)
 ```
+
+> **Superseded for this resource (2026-09-01).** The `staff` examples above no
+> longer reflect the shipped `invoices` module: the platform is retiring the
+> `staff` actor for invoices specifically, and the module's own scope matrix
+> now resolves `staff` to an unspellable cell. Reading an entitled other
+> client's invoices is still live, but as
+> `useInvoices().as('client').for('client', clientId)` — see the module's own
+> docs for the current shape. This is a per-resource narrowing, not a change
+> to the `staff` actor or to this ADR's decision: `staff` remains live on
+> other resources and this pattern remains valid elsewhere in this document.
 
 ### Product Catalogue
 

@@ -1,7 +1,7 @@
 # Playwright e2e tests with Allure reporting published to Google Cloud Storage.
 #
 # Required GitLab CI variables (Settings → CI/CD → Variables):
-#   GCP_SERVICE_ACCOUNT_JSON_ALLURE   masked, protected — service-account key JSON
+#   GCP_SERVICE_ACCOUNT_JSON_ALLURE   masked, protected, service-account key JSON
 #   ALLURE_GCS_BUCKET                 e.g. upmind-playwright-reports
 #
 # Service account needs: roles/storage.objectAdmin (or objectCreator + objectViewer)
@@ -43,11 +43,9 @@ e2e:allure:
     # the mapped tenant domain the API expects. Map it to loopback in-container so
     # Playwright's readiness poll can reach vite (which binds localhost).
     - echo "127.0.0.1 qa-automation.local" >> /etc/hosts
-    - corepack enable
-    - corepack prepare pnpm@10.33.0 --activate
-    # reinstall to get correct native binaries as 'dependencies' job runs on
-    # Alpine (musl), but this image is Ubuntu (glibc)
-    - pnpm install --force
+    # Install pnpm the same way as the shared template. The `dependencies`
+    # artifact is glibc-matched to this image, so it needs no reinstall.
+    - !reference [.pnpm, before_script]
     # Allure 3 CLI is installed as a project devDependency (no Java needed).
   script:
     # globalTeardown in playwright.config.ts calls allure-generate.sh,
@@ -114,32 +112,32 @@ e2e:allure:publish:
     - node tests/allure/allure-index.mjs
 
 #------------------------------------------------------------------------------
-# E2E full suite — nightly + pre-release tags (FE-2772, ADR 021 §CI strategy).
+# E2E full suite. Nightly + pre-release tags (FE-2772, ADR 021 §CI strategy).
 #
 # The full e2e suite is too slow to gate every PR, so it runs as a safety net:
 # on a nightly SCHEDULE and on release / release-candidate TAGS. It NEVER runs on
 # a merge request, so it can never block a PR. `e2e:allure` above (the
 # critical-journey subset on develop-merge) is the PR-facing gate and is left
-# unchanged; this job is purely additive.
+# unchanged. This job is purely additive.
 #
 # "Full" means the whole spec set across ALL browsers (`pnpm test:all-browsers`
 # → chromium + firefox + webkit), the genuine superset of the develop-merge
-# chrome run — otherwise nightly would just repeat the develop job. Visual
+# chrome run. Otherwise nightly would just repeat the develop job. Visual
 # regression is deliberately NOT included (out of scope until ADR 022 is
-# promoted; it runs on its own cadence and does not count toward the ceiling).
+# promoted. It runs on its own cadence and does not count toward the ceiling).
 #
-# 30-MINUTE CEILING — WARNS, NEVER FAILS. ADR 021 caps the full suite at 30min
+# 30-MINUTE CEILING. WARNS, NEVER FAILS. ADR 021 caps the full suite at 30min
 # to discipline coverage growth. The script measures wall-clock and emits a
 # warning if the run exceeds the ceiling, but the ceiling breach itself never
 # fails the job (and `allow_failure: true` keeps even genuine test failures
-# non-blocking — this is a report, not a gate).
+# non-blocking, so this is a report, not a gate).
 #
 # NOTIFICATION. After the run the job posts a pass/fail + duration summary to
 # Slack. It degrades gracefully (repo idiom, cf. ALLURE_GCS_BUCKET / the
 # quarantine cron): if the webhook variable is unset it prints the summary to
 # the job log instead of erroring.
 #
-# No GitLab `retry:` here — Playwright's `retries: 1` is the only retry (AC).
+# No GitLab `retry:` here. Playwright's `retries: 1` is the only retry (AC).
 #
 # OPS SETUP (one-time):
 #   - GitLab → CI/CD → Schedules: add a nightly schedule on the default branch
@@ -180,14 +178,11 @@ e2e:full:
     # ADR 021 ceiling, in seconds. Warn (never fail) if the run exceeds it.
     E2E_CEILING_SECONDS: "1800"
   before_script:
-    # Identical setup to e2e:allure (kept inline rather than sharing a template
-    # so e2e:allure stays byte-for-byte unchanged per the AC).
+    # Identical setup to e2e:allure.
     - echo "127.0.0.1 qa-automation.local" >> /etc/hosts
-    - corepack enable
-    - corepack prepare pnpm@10.33.0 --activate
-    - pnpm install --force
+    - !reference [.pnpm, before_script]
   script:
-    # Time the full cross-browser run; capture (don't propagate) test failure so
+    # Time the full cross-browser run. Capture (don't propagate) test failure so
     # the ceiling check + notification always run.
     - START=$(date +%s)
     - pnpm test:all-browsers || TESTS_FAILED=1
@@ -210,7 +205,7 @@ e2e:full:
       if [ "${TESTS_FAILED:-0}" -eq 0 ]; then RESULT="✅ passed"; else RESULT="❌ failed"; fi
       SUMMARY="Nightly full e2e (${CI_COMMIT_REF_NAME:-$CI_COMMIT_TAG}): ${RESULT} in ${DURATION}s (${CEILING_STATUS}). Pipeline: ${CI_PIPELINE_URL}"
       echo "${SUMMARY}"
-    # Report to the notification channel; degrade to log if no webhook configured.
+    # Report to the notification channel. Degrade to log if no webhook configured.
     - |
       if [ -n "${E2E_NIGHTLY_SLACK_WEBHOOK:-}" ]; then
         # SUMMARY is single-line and git refs cannot contain '"', so plain

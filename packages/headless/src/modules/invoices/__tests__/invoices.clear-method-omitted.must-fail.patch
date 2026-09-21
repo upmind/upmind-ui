@@ -1,0 +1,24 @@
+# must-fail: invoices.payment-method.int.test.ts > AC-4 sends payment_details_id: null as a PRESENT key.
+# Mutation: strips nil values from the PATCH body, so a clear sends an omitted key.
+# Apply from repo root: `git apply <this file>`; revert `git apply -R`.
+diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
+index 3a72d794c..9bc461b66 100644
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -26,6 +26,7 @@ import {
+   NotAuthenticatedError,
+   DEBOUNCE_DELAY
+ } from "../../utils";
++import { isNil, omitBy } from "lodash-es";
+ import type { LookupItem } from "../lookup";
+ import type { ScopeContext } from "../scope";
+ import type {
+@@ -462,7 +463,7 @@ function updatePaymentDetails(
+   return patch({
+     mutationKey: [...queryKey, invoiceId, "payment_details"],
+     url: useUrl(`invoices/${invoiceId}/payment_details`),
+-    data: model,
++    data: omitBy(model, isNil),
+     withAccessToken: true
+   });
+ }

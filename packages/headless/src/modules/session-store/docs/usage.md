@@ -247,8 +247,11 @@ Two pure helpers, exported from the barrel. Both read data already embedded on a
 ```typescript
 import {
   isDelegated,
-  getOwnerForDelegatedRecord
+  getOwnerForDelegatedRecord,
+  type DelegatableRecord
 } from "@upmind-automation/headless";
+
+declare const invoice: DelegatableRecord;
 
 if (isDelegated(invoice)) {
   const owner = getOwnerForDelegatedRecord(invoice);

@@ -331,7 +331,8 @@ useClientPhoneManager()
 // as a cast to the `.as(SELF)` result
 type ScopedPhoneManager = ScopeBuilderActorWithContexts<
   ReturnType<UseClientPhoneManager["fresh"]>,
-  ClientPhoneContextTypes
+  ClientPhoneContextTypes,
+  never
 >;
 
 const scoped = useClientPhoneManager().as(

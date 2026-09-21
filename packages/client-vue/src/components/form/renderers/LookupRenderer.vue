@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import { and, hasOption, uiTypeIs } from "@jsonforms/core";
+import { uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 import { Button, Combobox, FormField, useUpmindUIRenderer } from "@upmind/ui";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
@@ -158,6 +158,6 @@ onBeforeUnmount(() => debouncedSearch.cancel());
 <script lang="ts">
 export const tester = {
   rank: 3,
-  controlType: and(uiTypeIs("Control"), hasOption("lookup"))
+  controlType: uiTypeIs("Lookup")
 };
 </script>

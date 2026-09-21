@@ -3,12 +3,13 @@
  * @module invoices/__tests__/setup.integration
  * @description Replays this module's co-located fixtures through MSW (see
  * `@upmind-automation/test-fixtures/replay-server`), failing loudly on any
- * unmatched request. Imported by `invoices.int.test.ts` so its replay lifecycle
- * registers for that file. Real network only in record/live mode.
+ * unmatched request. Imported by every `*.int.test.ts` in this module so its
+ * replay lifecycle registers for that file. Real network only in
+ * record/live mode. Mirrors `client-email-history/__tests__/setup.integration.ts`.
  *
- * Background stubs for the endpoints session-store touches on init are installed
- * per-seed by the test (see `installBackgroundStubs`), because `resetHandlers()`
- * between tests drops any handler added at import time.
+ * Background stubs for the endpoints session-store touches on init are
+ * installed per-seed by the test (see `installBackgroundStubs`), because
+ * `resetHandlers()` between tests drops any handler added at import time.
  */
 
 import { join } from "node:path";

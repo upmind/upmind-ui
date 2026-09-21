@@ -28,7 +28,7 @@ export type RecommendationVisibility = "visible" | "hidden";
  * with additional details specific to recommendations, such as pricing, configuration,
  * and meta-information for tracking.
  */
-export interface Recommendation extends Product {
+export type Recommendation = Product & {
   /**
    * The unique identifier of the recommendation. This typically corresponds to a product ID.
    */
@@ -108,14 +108,14 @@ export interface Recommendation extends Product {
      */
     loading?: boolean;
   };
-}
+};
 
 /**
  * Interface representing the context for the recommendation engine, typically managed by an XState machine.
  * It holds the list of recommendations, raw product data, relationships, and various helper functions
  * and references for basket integration.
  */
-export interface RecommendationsEngineContext {
+export type RecommendationsEngineContext = {
   /**
    * An array of active {@link Recommendation} objects displayed by the engine.
    */
@@ -190,14 +190,14 @@ export interface RecommendationsEngineContext {
     rawProduct?: IProduct
   ) => ProductProps;
   // ---
-}
+};
 
 /**
  * Interface representing a product that is related to another product, extending
  * `IRelatedObject` with additional display fields and augmented product data.
  * This is used to define and enrich connections between products for recommendations.
  */
-export interface RelatedProduct extends IRelatedObject {
+export type RelatedProduct = IRelatedObject & {
   // --- additional fields
   /**
    * The URL for an image associated with the related product.
@@ -241,4 +241,4 @@ export interface RelatedProduct extends IRelatedObject {
    * recommendation's product in the basket sets `meta.added = true`.
    */
   inBasketConditions?: ConditionalValue<boolean>;
-}
+};

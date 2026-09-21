@@ -31,20 +31,20 @@ export type ThemeConfigValue =
  * }
  * ```
  */
-export interface ThemeConfig {
+export type ThemeConfig = {
   /**
    * A key-value map where keys are component identifiers (e.g. "button", "input")
    * and values are their configurations (either direct values or nested objects).
    */
   [component: string]: ThemeConfigValue;
-}
+};
 
 /**
  * Interface representing theme tokens, which are the fundamental design system values
  * like colours, typography, spacing, and border radii. These are typically inferred
  * from a `tokens.json` file or a design system definition.
  */
-export interface ThemeTokens {
+export type ThemeTokens = {
   /** Typography settings for different text styles. */
   fonts?: {
     /** Default sans-serif font. */
@@ -320,13 +320,13 @@ export interface ThemeTokens {
       };
     };
   };
-}
+};
 
 /**
  * Interface representing a complete theme configuration, combining a name,
  * optional icon, and specific UI and token settings.
  */
-export interface Theme {
+export type Theme = {
   /** The name of the theme (e.g. "Dark Mode", "High Contrast"). */
   name: string;
   /** The unique identifier for the theme. */
@@ -338,4 +338,4 @@ export interface Theme {
    */
   uiConfig?: ThemeConfig;
   tokens?: string;
-}
+};

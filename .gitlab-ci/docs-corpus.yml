@@ -1,59 +1,52 @@
-# Docs-corpus drift-gate lane (FE-2752 / FE-2753 / FE-2950 / FE-3003 glossary
-# slice — design §7 "CI drift gates"). This is the ONLY docs CI after the dead
-# legacy VitePress docs-build job's retirement (design §7.4); the corpus + these
-# gates are the product (ADR-026), Mintlify is a swappable rendering target.
+# Docs-corpus drift-gate lane (FE-2752, FE-2753, FE-2950, FE-3003).
+# The corpus and these gates are the product (ADR-026). Mintlify is a swappable
+# rendering target.
 #
-# Lane SHAPE copied from the sibling agent-tooling lane `ci/docs-corpus-gate.yml`
-# (a DIFFERENT gate — docs-tree honesty, no overlap; design §2.3): the same
-# `SKIP_*` env escape hatch, the same no-silent-bypass posture (each engine's
-# exit code is captured DIRECTLY and propagated — never masked behind a pipe),
-# the same findings-log-as-artifact convention, and the same change-glob rules.
+# The lane shape follows the sibling ci/docs-corpus-gate.yml (a separate docs-tree
+# honesty gate, no overlap): the same SKIP_* escape hatch, the same no-silent-bypass
+# posture (each engine's exit code is captured and propagated, never masked behind a
+# pipe), the same findings-log artifact, and the same change-glob rules.
 #
-# One coherent pipeline (design §1):
+# One pipeline:
 #
 #   dependencies
 #        │
 #        ├─ corpus:build ── typedoc --json reflection → build.mjs → corpus.json
-#        │      │           (+ .reflection.json artifact the drift gates reuse —
-#        │      │            NO second TypeDoc run in CI, design §7.5)
+#        │      │           (plus the .reflection.json artifact the gates reuse, so
+#        │      │            there is no second TypeDoc run in CI)
 #        │      ├─ gate:examples    (vue-tsc snippets vs real workspace exports)
-#        │      ├─ gate:api-drift   (fresh reflection vs COMMITTED corpus + pages)
+#        │      ├─ gate:api-drift   (fresh reflection vs committed corpus + pages)
 #        │      └─ gate:symbols     (documented symbols + glossary referents live)
 #        │
-#        └─ gate:authorship  (committed-tree-only: emit replay + integrity pins +
-#                             provenance — runs in PARALLEL with corpus:build,
-#                             design §8.2; no corpus:build dependency)
+#        └─ gate:authorship  (committed-tree only: emit replay + integrity pins +
+#                             provenance, runs in parallel with corpus:build)
 #
-#   corpus:emit  needs [corpus:build + all four gates]  ── STRUCTURALLY skipped
-#                on any gate RED (2753-AC2); publishes the emitted tree as the
-#                pipeline artifact FE-2949's publish/canary seam consumes (§6.4).
+#   corpus:emit  needs [corpus:build + all four gates], so GitLab skips it on any
+#                gate failure (2753-AC2). It publishes the emitted tree as the
+#                artifact FE-2949's publish/canary seam consumes.
 #
-# BLOCKING: every gate is `allow_failure: false` (EXPLICIT, not implied —
-# 2753-AC1). A RED gate blocks the MR and makes `corpus:emit` unreachable.
+# Every gate is allow_failure: false (2753-AC1): a red gate blocks the MR and makes
+# corpus:emit unreachable.
 #
-# WHY corpus:build publishes ONLY `.reflection.json` (not the freshly-built
-# corpus.json): gate:api-drift diffs the FRESH reflection against the COMMITTED
-# `docs/corpus/corpus.json`, and gate:symbols reads the COMMITTED documented
-# surface too (design §7.1). Each gate clones the repo (its committed corpus.json)
-# and downloads only `.reflection.json` from corpus:build — so the build's own
+# corpus:build publishes only .reflection.json, not the fresh corpus.json, because
+# gate:api-drift diffs the fresh reflection against the committed corpus.json and
+# gate:symbols reads the committed surface. Each gate clones the repo for its own
+# committed corpus.json and downloads only .reflection.json, so the build's
 # regenerated corpus.json never clobbers the committed view the diff needs.
 #
-# GIT_DEPTH: 0 on corpus:build ONLY — build.mjs reads `git tag -l 'docs-v*'` and a
-# bounded `git log` for the symbol-keyed changelog window (design §5.4); the other
-# jobs are committed-tree/artifact readers and need no history.
+# GIT_DEPTH: 0 on corpus:build only, because build.mjs reads `git tag -l 'docs-v*'`
+# and a bounded `git log` for the changelog window. The other jobs read the committed
+# tree or the artifacts and need no history.
 #
-# Runtime (design §7.5): gates run in parallel after corpus:build → added critical
-# path ≈ 4–9 min, well inside the ≤30-min per-MR ceiling (ADR-021). Nothing here
-# runs a browser, a dev server, or the e2e suite.
+# Runtime: the gates run in parallel after corpus:build, adding roughly 4-9 min, well
+# inside the 30-min per-MR ceiling (ADR-021). Nothing here runs a browser, a dev
+# server, or the e2e suite.
 
-# --- shared config (stage / interruptible / trigger rules) -----------------
-# Trigger rules (design §7.3, narrowed by FE-2752 review item #7): MR pipelines +
-# default-branch pushes that touch `docs/corpus/**` (the corpus source + gates +
-# fixtures) or the lane file itself. The code-side `packages/*/src/**` trigger was
-# dropped so this lane runs like the test lanes — on docs-corpus MRs, not on every
-# code MR. TRADE-OFF: a code-only MR that renames an exported symbol without a docs
-# change no longer trips gate:api-drift/gate:symbols here; the CI backstop for that
-# drift now runs only when the corpus source is touched.
+# --- shared config (stage, interruptible, trigger rules) -------------------
+# Trigger rules (FE-2752 review item #7): MR pipelines and default-branch pushes that
+# touch docs/corpus/** or this lane file. The lane runs on docs-corpus MRs, not every
+# code MR. Trade-off: a code-only MR that renames an exported symbol does not trip
+# gate:api-drift or gate:symbols here. The post-merge job below is the backstop.
 .docs-corpus:
   stage: test
   interruptible: true
@@ -74,10 +67,10 @@
         - .gitlab-ci/docs-corpus.yml
 
 #------------------------------------------------------------------------------
-# corpus:build — the one TypeDoc run in the lane. Produces the fresh corpus.json
-# in its own workspace and publishes `.reflection.json` (gitignored, so it exists
-# only as this artifact) for the drift gates to reuse. GIT_DEPTH: 0 for the
-# `docs-v*` tag + changelog window (design §5.4).
+# corpus:build: the one TypeDoc run in the lane. Produces the fresh corpus.json in
+# its own workspace and publishes .reflection.json (gitignored, so it exists only as
+# this artifact) for the gates to reuse. GIT_DEPTH: 0 for the docs-v* tags and the
+# changelog window.
 #------------------------------------------------------------------------------
 corpus:build:
   extends:
@@ -96,21 +89,20 @@ corpus:build:
       - corpus-build.log
   script:
     - |
-      pnpm --filter docs corpus:build > corpus-build.log 2>&1
-      status=$?
-      cat corpus-build.log
-      if [ "$status" -ne 0 ]; then
-        echo "[corpus:build] RED — corpus build failed (build error / schema violation / glossary parse error above)."
-      else
+      set -o pipefail
+      if pnpm --filter docs corpus:build 2>&1 | tee corpus-build.log; then
         echo "[corpus:build] GREEN — corpus.json + .reflection.json built."
+      else
+        status=$?
+        echo "[corpus:build] RED — corpus build failed (build error / schema violation / glossary parse error above)."
+        exit "$status"
       fi
-      exit "$status"
 
 #------------------------------------------------------------------------------
-# gate:examples — materializes every corpus `examples` snippet + marked fenced
-# snippet into a temp project importing the REAL workspace packages, one
-# `vue-tsc --noEmit` pass (design §7.1). Empty-set is green-with-count. Bare node
-# (invokes vue-tsc from the `dependencies` node_modules artifact).
+# gate:examples: build every corpus example snippet and marked fenced snippet into a
+# temp project that imports the real workspace packages, then one vue-tsc --noEmit
+# pass. An empty set is green with a count. Runs vue-tsc from the dependencies
+# node_modules artifact.
 #------------------------------------------------------------------------------
 gate:examples:
   extends: .docs-corpus
@@ -126,20 +118,19 @@ gate:examples:
       - gate-examples.log
   script:
     - |
-      node docs/corpus/gates/gate-examples.mjs > gate-examples.log 2>&1
-      status=$?
-      cat gate-examples.log
-      if [ "$status" -ne 0 ]; then
-        echo "[gate:examples] RED — a documented snippet no longer type-checks against real exports (2753-AC1/AC4; named above)."
-      else
+      set -o pipefail
+      if node docs/corpus/gates/gate-examples.mjs 2>&1 | tee gate-examples.log; then
         echo "[gate:examples] GREEN — every documented snippet type-checks (count above)."
+      else
+        status=$?
+        echo "[gate:examples] RED — a documented snippet no longer type-checks against real exports (2753-AC1/AC4; named above)."
+        exit "$status"
       fi
-      exit "$status"
 
 #------------------------------------------------------------------------------
-# gate:api-drift — diffs the FRESH `symbols` section (rebuilt from corpus:build's
-# `.reflection.json`) against the COMMITTED corpus.json + emitted reference pages
-# (design §7.1). Consumes the reflection artifact; no second TypeDoc run.
+# gate:api-drift: diff the fresh symbols section (rebuilt from corpus:build's
+# .reflection.json) against the committed corpus.json and emitted reference pages.
+# Reuses the reflection artifact, so there is no second TypeDoc run.
 #------------------------------------------------------------------------------
 gate:api-drift:
   extends: .docs-corpus
@@ -155,20 +146,19 @@ gate:api-drift:
       - gate-api-drift.log
   script:
     - |
-      node docs/corpus/gates/gate-api-drift.mjs > gate-api-drift.log 2>&1
-      status=$?
-      cat gate-api-drift.log
-      if [ "$status" -ne 0 ]; then
-        echo "[gate:api-drift] RED — documented API surface drifted from reality (2753-AC1/AC4; drifted symbol + stale page named above)."
-      else
+      set -o pipefail
+      if node docs/corpus/gates/gate-api-drift.mjs 2>&1 | tee gate-api-drift.log; then
         echo "[gate:api-drift] GREEN — emitted API surface matches reality."
+      else
+        status=$?
+        echo "[gate:api-drift] RED — documented API surface drifted from reality (2753-AC1/AC4; drifted symbol + stale page named above)."
+        exit "$status"
       fi
-      exit "$status"
 
 #------------------------------------------------------------------------------
-# gate:symbols — every documented symbol id + EVERY glossary referent resolves
-# against the fresh reflection (design §5.5, §7.1). Reuses corpus:build's
-# reflection artifact; no second TypeDoc run.
+# gate:symbols: every documented symbol id and every glossary referent must resolve
+# against the fresh reflection. Reuses corpus:build's reflection artifact, so there
+# is no second TypeDoc run.
 #------------------------------------------------------------------------------
 gate:symbols:
   extends: .docs-corpus
@@ -184,21 +174,20 @@ gate:symbols:
       - gate-symbols.log
   script:
     - |
-      node docs/corpus/gates/gate-symbols.mjs > gate-symbols.log 2>&1
-      status=$?
-      cat gate-symbols.log
-      if [ "$status" -ne 0 ]; then
-        echo "[gate:symbols] RED — dead documented symbol or dead glossary referent (2753-AC1/AC4, 3003-AC2; named above)."
-      else
+      set -o pipefail
+      if node docs/corpus/gates/gate-symbols.mjs 2>&1 | tee gate-symbols.log; then
         echo "[gate:symbols] GREEN — every documented symbol + glossary referent resolves."
+      else
+        status=$?
+        echo "[gate:symbols] RED — dead documented symbol or dead glossary referent (2753-AC1/AC4, 3003-AC2; named above)."
+        exit "$status"
       fi
-      exit "$status"
 
 #------------------------------------------------------------------------------
-# gate:authorship — the regen-and-compare guard (design §8, FE-2950).
-# COMMITTED-TREE-ONLY: no corpus:build dependency, no TypeDoc, no git history —
-# it re-emits from the committed corpus.json and checks the integrity pins, so it
-# runs in PARALLEL with corpus:build (needs only `dependencies`, design §8.2).
+# gate:authorship: the regen-and-compare guard (FE-2950). Committed-tree only, with
+# no corpus:build dependency, no TypeDoc, and no git history: it re-emits from the
+# committed corpus.json and checks the integrity pins, so it runs in parallel with
+# corpus:build (needs only dependencies).
 #------------------------------------------------------------------------------
 gate:authorship:
   extends: .docs-corpus
@@ -213,21 +202,19 @@ gate:authorship:
       - gate-authorship.log
   script:
     - |
-      node docs/corpus/gates/gate-authorship.mjs > gate-authorship.log 2>&1
-      status=$?
-      cat gate-authorship.log
-      if [ "$status" -ne 0 ]; then
-        echo "[gate:authorship] RED — hand-edited generated file / broken integrity pin / provenance violation (2950-AC2/AC3/AC4; named above)."
-      else
+      set -o pipefail
+      if node docs/corpus/gates/gate-authorship.mjs 2>&1 | tee gate-authorship.log; then
         echo "[gate:authorship] GREEN — generated tree, corpus.json, and relations.json are pipeline-authored and unmodified."
+      else
+        status=$?
+        echo "[gate:authorship] RED — hand-edited generated file / broken integrity pin / provenance violation (2950-AC2/AC3/AC4; named above)."
+        exit "$status"
       fi
-      exit "$status"
 
 #------------------------------------------------------------------------------
-# corpus:emit — re-runs the MDX emitter and publishes the generated tree as the
-# pipeline artifact FE-2949's publish/canary seam consumes (design §6.4).
-# STRUCTURALLY UNREACHABLE on any gate RED: `needs` lists corpus:build + all four
-# gates, so GitLab marks this `skipped` when any gate fails (2753-AC2).
+# corpus:emit: re-run the MDX emitter and publish the generated tree as the artifact
+# FE-2949's publish/canary seam consumes. `needs` lists corpus:build and all four
+# gates, so GitLab skips this job when any gate fails (2753-AC2).
 #------------------------------------------------------------------------------
 corpus:emit:
   extends:
@@ -251,47 +238,43 @@ corpus:emit:
       - corpus-emit.log
   script:
     - |
-      pnpm --filter docs corpus:emit > corpus-emit.log 2>&1
-      status=$?
-      cat corpus-emit.log
-      if [ "$status" -ne 0 ]; then
-        echo "[corpus:emit] RED — an emit-time ENFORCE assertion failed (see log above)."
-      else
+      set -o pipefail
+      if pnpm --filter docs corpus:emit 2>&1 | tee corpus-emit.log; then
         echo "[corpus:emit] GREEN — generated developer-docs partition + corpus-version.json emitted."
+      else
+        status=$?
+        echo "[corpus:emit] RED — an emit-time ENFORCE assertion failed (see log above)."
+        exit "$status"
       fi
-      exit "$status"
 
 #==============================================================================
-# POST-MERGE corpus self-heal (FE-2752 !502 cleanup item #7b).
+# POST-MERGE corpus self-heal (FE-2752, FE-2949).
 #
-# WHY post-merge, not a per-MR gate: drift protection must never block an MR or
-# slow dev. Batch A narrowed the per-MR lane above to `docs/corpus/**` and dropped
-# the old `packages/*/src/**` trigger (design §7.3 / review item #7), so a
-# code-only MR that renames an exported symbol no longer trips gate:api-drift /
-# gate:symbols on the MR. THIS job is the backstop that reinstates full drift
-# coverage ON THE DEFAULT BRANCH: once code lands on `develop`, it regenerates the
-# corpus + emitted tree and checks the committed copy still matches — docs
-# self-heal with zero dev friction.
+# The per-MR lane above only runs on docs/corpus/** changes, so a code-only MR that
+# renames an exported symbol never trips the gates. This job is the backstop: on
+# every push to the default branch it regenerates the corpus and emitted tree, then
+# pushes the result back so the docs stay in sync with no dev friction. It honours
+# the same $SKIP_DOCS_CORPUS escape hatch as the lane above.
 #
-# TRIGGER: default-branch PUSH only (post-merge). Unlike the per-MR lane it is
-# deliberately NOT path-scoped — a code-only merge is exactly the drift this must
-# catch. Honours the same $SKIP_DOCS_CORPUS escape hatch as the lane above.
+# It pushes twice, because the corpus spans two repos:
+#   1. docs/published-docs/developers/** (emitted MDX) to the mintlify-docs
+#      submodule's develop, over SSH with UPMIND_MINTLIFY_DOCS_DEPLOY_PRIVATE_KEY.
+#      CI is the sole writer to this path, and force-with-lease guards it.
+#   2. docs/corpus/corpus.json and the submodule pointer to this repo's develop,
+#      over HTTPS with CORPUS_PUSH_TOKEN, pushed with -o ci.skip.
+# Push the submodule first, then bump and push the pointer to its new SHA. Both
+# commit messages carry [skip ci] so the docs commits don't re-trigger the code
+# lanes. relations.json is a committed graphify input, not regenerated here.
 #
-# COMMIT-BACK STATUS: this repo has NO CI push-back/bot pattern and no
-# write-scoped push token — the only CI token, CI_JOB_TOKEN, is read-only npm
-# registry auth (.gitlab-ci.yml INTERNAL_NPMRC). Per the cleanup brief we do NOT
-# invent secrets, so this job runs in DRIFT-DETECTION mode: it regenerates the
-# corpus, publishes the fresh tree as an artifact, and FAILS if the committed
-# corpus is stale — making the drift loud on `develop` for a human to commit the
-# artifact back.
+# Gates-green (AC) holds without running the gates in this job: corpus source only
+# lands on develop through gated MRs, so a deterministic regenerate can't add ungated
+# content. Running the drift gates here would block the update it exists to make.
 #
-# TO UPGRADE to true auto-commit-back self-heal: wire a protected, write-scoped
-# push token (e.g. a project/group access token in a masked CI var such as
-# CORPUS_PUSH_TOKEN) and replace the staleness FAIL below with a docs-path-scoped
-# commit of docs/corpus/corpus.json + docs/published-docs/developers/** back to $CI_DEFAULT_BRANCH,
-# pushed with `-o ci.skip` (or a `[skip ci]` commit message) so the docs-only
-# commit cannot re-trigger the code lanes. relations.json is a committed graphify
-# INPUT snapshot (not regenerated by corpus:refresh), so it is not in scope here.
+# Canary (AC): after pushing, if MINTLIFY_LLMS_URL is set, check the live llms.txt
+# corpus_version against the build and fail on a mismatch. It skips until the URL is set.
+#
+# The dependencies artifact restores the submodule's files but not its .git, and a
+# push needs real git metadata, so this job re-clones the submodule cleanly.
 #==============================================================================
 corpus:post-merge-refresh:
   extends: .pnpm
@@ -302,12 +285,12 @@ corpus:post-merge-refresh:
   needs:
     - dependencies
   variables:
-    # Match corpus:build — build.mjs reads `git tag -l 'docs-v*'` + a bounded git
-    # log for the changelog window, so a faithful refresh needs full history to be
-    # byte-identical to whatever produced the committed corpus (design §5.4).
+    # Match corpus:build: build.mjs reads `git tag -l 'docs-v*'` and a bounded git log
+    # for the changelog window, so a faithful refresh needs full history to match the
+    # committed corpus byte for byte.
     GIT_DEPTH: 0
-    # The emitted tree now lives in the docs/published-docs submodule; check it out
-    # so emit can write into it AND the staleness check can see file-level drift.
+    # The emitted tree lives in the docs/published-docs submodule, so check it out so
+    # emit can write into it and the drift check can see file-level changes.
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_SUBMODULE_DEPTH: 1
     DOCS_CORPUS_CI_ENABLED: "true"
@@ -316,6 +299,10 @@ corpus:post-merge-refresh:
       when: never
     - if: $SKIP_DOCS_CORPUS == "true"
       when: never
+    # Run on demand from the GitLab UI (CI/CD > Pipelines > Run pipeline): set
+    # CORPUS_REFRESH_NOW=true. Add CORPUS_PUSH_DRY_RUN=true for a no-write probe.
+    - if: $CI_PIPELINE_SOURCE == "web" && $CORPUS_REFRESH_NOW == "true"
+    # Automatic post-merge refresh on the default branch.
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   allow_failure: false
   artifacts:
@@ -328,33 +315,37 @@ corpus:post-merge-refresh:
       - docs/published-docs/developers/corpus-version.json
       - corpus-refresh.log
   script:
-    - apk add --no-cache git
-    - git config --global --add safe.directory "$CI_PROJECT_DIR"
-    - git config --global --add safe.directory "$CI_PROJECT_DIR/docs/published-docs"
+    - apt-get update && apt-get install -y --no-install-recommends git openssh-client curl jq
     - |
-      pnpm --filter docs corpus:refresh > corpus-refresh.log 2>&1
-      status=$?
-      cat corpus-refresh.log
-      if [ "$status" -ne 0 ]; then
-        echo "[corpus:post-merge-refresh] RED — corpus:refresh failed (build/emit error above)."
-        exit "$status"
-      fi
+      # Identity and auth. Use `git config --global` (not a ~/.gitconfig heredoc) so
+      # the settings compose. The deploy key and insteadOf rewrite mirror the
+      # dependencies job, so the submodule pushes over SSH.
+      git config --global --add safe.directory "${CI_PROJECT_DIR}"
+      git config --global --add safe.directory "${CI_PROJECT_DIR}/docs/published-docs"
+      git config --global user.email "docs-bot@upmind.com"
+      git config --global user.name "Upmind Docs Bot"
+      git config --global url."github-mintlify-docs:upmind/mintlify-docs".insteadOf "git@github.com:upmind/mintlify-docs"
+      mkdir -p ~/.ssh && chmod 700 ~/.ssh
+      echo "${UPMIND_MINTLIFY_DOCS_DEPLOY_PRIVATE_KEY}" > ~/.ssh/id.mintlify-docs
+      chmod 600 ~/.ssh/id.mintlify-docs
+      printf 'Host *\n  StrictHostKeyChecking no\nHost github-mintlify-docs\n  User git\n  Hostname github.com\n  IdentityFile ~/.ssh/id.mintlify-docs\n' > ~/.ssh/config
     - |
-      # Staleness check: a fresh refresh must leave the committed tree unchanged.
-      # corpus.json lives in THIS repo; the emitted developer-docs tree lives in the
-      # docs/published-docs SUBMODULE, so it needs a submodule-scoped status — a
-      # superproject path filter into a submodule reports only the gitlink, not the
-      # file-level drift. `--porcelain` catches modified AND added/removed pages
-      # (plain `git diff` misses untracked adds); .reflection.json is gitignored.
-      super_changed=$(git status --porcelain -- docs/corpus/corpus.json)
-      sub_changed=$(git -C docs/published-docs status --porcelain -- developers)
-      if [ -n "$super_changed" ] || [ -n "$sub_changed" ]; then
-        echo "[corpus:post-merge-refresh] STALE — committed corpus drifted from source on ${CI_DEFAULT_BRANCH}:"
-        [ -n "$super_changed" ] && echo "$super_changed"
-        [ -n "$sub_changed" ] && echo "$sub_changed"
-        git --no-pager diff --stat -- docs/corpus/corpus.json || true
-        git -C docs/published-docs --no-pager diff --stat -- developers || true
-        echo "Fresh corpus + emitted tree published as this job's artifact — commit it back to ${CI_DEFAULT_BRANCH} to self-heal (see the job header for the push-token upgrade path)."
+      # Re-clone the submodule so it has real git metadata (the artifact carries its
+      # files but not its .git). corpus-push-back.sh then positions it on develop.
+      git submodule deinit -f docs/published-docs 2>/dev/null || true
+      rm -rf docs/published-docs .git/modules/docs/published-docs
+      git submodule update --init docs/published-docs
+    - |
+      # CI pushes corpus.json to THIS repo with the write-scoped token. The submodule
+      # pushes over SSH via the deploy key set up above. A dry-run does not need the token.
+      if [ -z "${CORPUS_PUSH_TOKEN:-}" ] && [ "${CORPUS_PUSH_DRY_RUN:-false}" != "true" ]; then
+        echo "[corpus:post-merge-refresh] RED — CORPUS_PUSH_TOKEN unset; cannot push corpus.json back."
         exit 1
       fi
-      echo "[corpus:post-merge-refresh] GREEN — committed corpus matches a fresh refresh; no drift."
+      [ -n "${CORPUS_PUSH_TOKEN:-}" ] && export CORPUS_SUPER_PUSH_URL="https://oauth2:${CORPUS_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+    - |
+      # Regenerate + push (the portable core, also runnable locally). tee keeps the log
+      # artifact. pipefail stops tee from masking the script's exit status.
+      set -o pipefail
+      sh etc/ci/corpus-push-back.sh 2>&1 | tee corpus-refresh.log
+    - sh etc/ci/corpus-canary.sh

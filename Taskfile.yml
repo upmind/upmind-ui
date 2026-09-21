@@ -10,3 +10,55 @@ includes:
   hosting:
     taskfile: apps/hosting/Taskfile.yml
     dir: apps/hosting
+
+vars:
+  DEV_IMAGE: upmind/monorepo/node:dev
+  # Keep in sync with package.json `packageManager`.
+  PNPM_VERSION: 12.3.4
+  DOCKER_UID:
+    sh: id -u
+  DOCKER_GID:
+    sh: id -g
+
+tasks:
+  dev:setup:
+    desc: Build the dev image, install deps in-container, then start the dev stack
+    cmds:
+      - task: dev:build-image
+      - docker compose run --rm -it node pnpm install
+      - docker compose up --detach --force-recreate
+      - docker compose logs
+      - echo "Run 'task dev:logs' to tail the logs"
+
+  dev:build-image:
+    desc: Build the local dev container image (host-UID user, pinned pnpm)
+    cmds:
+      - >
+        docker build
+        -f etc/docker/dev/Dockerfile.dev-static
+        --build-arg DOCKER_UID={{.DOCKER_UID}}
+        --build-arg DOCKER_GID={{.DOCKER_GID}}
+        --build-arg PNPM_VERSION={{.PNPM_VERSION}}
+        -t {{.DEV_IMAGE}}
+        etc/docker/dev
+
+  dev:shell:
+    desc: Open a bash shell in the running dev container
+    cmds:
+      - docker compose exec node /bin/bash
+
+  dev:run:
+    desc: Start a throwaway dev container with a bash shell
+    cmds:
+      - docker compose run --rm node bash
+
+  dev:logs:
+    desc: Tail the dev container logs
+    cmds:
+      - docker compose logs --tail 10 -f
+
+  dev:kill:
+    desc: Stop the dev stack and remove the local image
+    cmds:
+      - docker compose down 2>/dev/null || true
+      - docker rmi {{.DEV_IMAGE}} 2>/dev/null || true

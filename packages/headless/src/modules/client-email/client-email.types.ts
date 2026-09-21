@@ -36,7 +36,6 @@ import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { ListQuery } from "../query";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IEmail } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -200,14 +199,6 @@ export const DEFAULT_SORT: SortModel = [
   { field: "default", dir: SortDirection.DESC },
   { field: "email", dir: SortDirection.ASC }
 ];
-
-/**
- * The collection's query schema. A `JsonSchema7`: a query schema IS a real
- * Draft-07 schema, and the translator/validators walk it at runtime, so the
- * type stays general rather than a module-specific literal (see the `@decision`
- * adjacent to `useQuerySchema` for why `as const` is not used).
- */
-export type QuerySchema = JsonSchema7;
 
 /** The manager's machine context — the shared machine's, over this form model. */
 export type EmailContext = DataManagerContext<EmailModel>;

@@ -52,7 +52,7 @@ export enum ClientFormType {
   EMAIL = "email"
 }
 
-export interface ClientContext {
+export type ClientContext = {
   /** Resolved actor type (never SELF — resolved before machine starts). */
   scopeActor?: ScopeActorTypes;
   /** Scope context — who the actor is managing standing on behalf of. */
@@ -80,7 +80,7 @@ export interface ClientContext {
     | VerifyEmailModel;
   schema?: JsonSchema;
   uischema?: UISchemaElement;
-}
+};
 
 export type CompleteRegistrationModel = {
   customFields?: Record<string, unknown>;
@@ -95,6 +95,6 @@ export type GuestEmailModel = {
   email?: string;
 };
 
-export interface VerifyEmailModel {
+export type VerifyEmailModel = {
   code?: string;
-}
+};

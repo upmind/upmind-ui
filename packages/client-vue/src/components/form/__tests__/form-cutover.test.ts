@@ -384,7 +384,10 @@ describe("the wrapper's validator reaches the engine", () => {
     });
 
     expect(messagesOf(wrapper, "website")).toHaveLength(1);
-    expect(messagesOf(wrapper, "website")[0]).toContain("domain_name");
+    // The catalogue's own `validation.domain_name` copy, title interpolated.
+    expect(messagesOf(wrapper, "website")[0]).toBe(
+      "Website must be a valid domain name"
+    );
   });
 
   it("stays non-vacuous: domain_name is headless's format, and JSON Forms' own Ajv has never heard of it", () => {

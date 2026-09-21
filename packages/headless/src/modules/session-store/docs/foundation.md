@@ -170,6 +170,8 @@ Config: an equivalent may restrict which actor scopes an app instance permits (e
 The identity response reports which objects belonging to **other** customers have been shared with the signed-in customer. An equivalent keeps this alongside the profile, keyed by object type:
 
 ```ts
+type ObjectType = string; // an equivalent names its own object-type union
+
 type DelegatedIds = Partial<Record<ObjectType, string[]>>;
 // e.g. { contracts_product: ["cp-1", "cp-2"], client: ["client-9"] }
 ```

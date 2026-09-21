@@ -81,6 +81,11 @@ const settings = useBillingSettings()
 ### Reading a client's own consolidation preference
 
 ```ts
+import {
+  ScopeActorTypes,
+  useBillingSettings
+} from "@upmind-automation/headless";
+
 const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
 const { data } = settings.useContext();
 await settings.useActions().isReady();
@@ -89,6 +94,11 @@ await settings.useActions().isReady();
 ### Turning consolidation off
 
 ```ts
+import {
+  ScopeActorTypes,
+  useBillingSettingsManager
+} from "@upmind-automation/headless";
+
 const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 await manager.useActions().update({ enabled: 0 }); // → { "invoice_consolidation_enabled": 0 }
 ```
@@ -96,5 +106,8 @@ await manager.useActions().update({ enabled: 0 }); // → { "invoice_consolidati
 ### Clearing a field back to "follow the brand"
 
 ```ts
+import type { UseBillingSettingsManager } from "@upmind-automation/headless";
+declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+
 await manager.useActions().update({ baseRule: null }); // → { "invoice_consolidation_base_rule": null }
 ```

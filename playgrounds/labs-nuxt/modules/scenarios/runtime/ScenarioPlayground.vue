@@ -120,6 +120,7 @@ import {
   get,
   isArray,
   isEmpty,
+  isFunction,
   map,
   mapValues,
   reduce,
@@ -138,6 +139,7 @@ import type {
   Archetype,
   ScopeActor
 } from "@upmind-automation/scenario-harness";
+import type { ScopeContextForm } from "~/components/scope";
 import { useContextScopeSelector } from "~/components/scope";
 import { usePlaygroundSheet } from "~/components/sheets/usePlaygroundSheet";
 import { PlaygroundSheetTypes } from "~/components/sheets/usePlaygroundSheet.types";
@@ -278,8 +280,16 @@ function onCollectionActions(actions: ActionSlotItem[]): void {
 
 // The acting-for picker offers what the COMPOSABLE's own matrix declares, read
 // off the cell this page booted rather than re-declared beside it (`R6-31`).
+//
+// The "Act for" form is the cell's own too: the module's context publishes
+// `schemas.lookups` with each control already bound to its lookup, so the bar
+// renders it and reaches no service.
 const { register: registerContexts } = useContextScopeSelector();
-if (port.scopeMatrix) registerContexts(port.scopeMatrix);
+const contextForm = get(
+  isFunction(port.useContext) ? port.useContext() : undefined,
+  ["schemas", "lookups"]
+) as ScopeContextForm | undefined;
+if (port.scopeMatrix) registerContexts(port.scopeMatrix, contextForm);
 
 // --- Playlist and transport
 // `tracks` names the MODULE (`R6-37`); the seam hands back that module's own

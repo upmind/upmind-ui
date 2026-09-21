@@ -39,6 +39,7 @@ import {
   some,
   values
 } from "lodash-es";
+import type { ScopeContextForm } from "../useContextScopeSelector";
 import type {
   ActorContextMatrix,
   SessionEntry
@@ -415,7 +416,8 @@ export type Bench = { wrapper: VueWrapper; router: Router };
  */
 async function pageRegistering(
   component: Component,
-  matrix?: ActorContextMatrix
+  matrix?: ActorContextMatrix,
+  form?: ScopeContextForm
 ): Promise<Component> {
   const { CLIENT_EMAILS_SCOPE_MATRIX } =
     await import("@upmind-automation/headless");
@@ -424,7 +426,10 @@ async function pageRegistering(
 
   return defineComponent({
     setup() {
-      useContextScopeSelector().register(matrix ?? CLIENT_EMAILS_SCOPE_MATRIX);
+      useContextScopeSelector().register(
+        matrix ?? CLIENT_EMAILS_SCOPE_MATRIX,
+        form
+      );
       return () => h(component as never);
     }
   });
@@ -435,19 +440,24 @@ async function pageRegistering(
  * @param path - The scope url the page is opened on.
  * @param matrix - The matrix the page registers, for a case whose subject is a
  * declaration the client-emails page does not carry. Defaults to that page's.
+ * @param form - The "Act for" form the page registers beside its matrix.
  */
 export async function benchOn(
   component: Component,
   path = `/${CLIENT_EMAILS_ROUTE}/as/client`,
-  matrix?: ActorContextMatrix
+  matrix?: ActorContextMatrix,
+  form?: ScopeContextForm
 ): Promise<Bench> {
   installLabsCatalogue();
   const router = await clientEmailsRouter(path);
 
-  const wrapper = mount((await pageRegistering(component, matrix)) as never, {
-    attachTo: document.body,
-    global: { plugins: [router] }
-  });
+  const wrapper = mount(
+    (await pageRegistering(component, matrix, form)) as never,
+    {
+      attachTo: document.body,
+      global: { plugins: [router] }
+    }
+  );
   await flush();
 
   return { wrapper, router };

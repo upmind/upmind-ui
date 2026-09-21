@@ -1,0 +1,22 @@
+name: "upmind-monorepo"
+
+services:
+  node:
+    image: upmind/monorepo/node:dev
+    # Built locally by `task dev:build-image`. It is never pulled from a registry.
+    pull_policy: never
+    # `pnpm dev` runs every package's dev script (root `pnpm -r dev`). Override
+    # for a single app, e.g. `docker compose run --rm node pnpm --filter cart dev`.
+    command: pnpm dev
+    # host networking so vite ports and the qa-automation.local mapping resolve
+    # exactly as they do on the host (parity with vue-app).
+    network_mode: host
+    volumes:
+      - .:/app
+      # Persist the pnpm content-addressable store across runs so re-installs are
+      # fast. It lives outside /app so it is not shadowed by the bind mount.
+      - pnpm-store:/home/thedockeruser/.local/share/pnpm/store
+    tty: true
+
+volumes:
+  pnpm-store:
