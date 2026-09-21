@@ -1,7 +1,7 @@
-// ADR 023 §2 — `foundation` owns the empty typed registry and its read API.
-// Registry ENTRIES live in each contributing package's own `feature.ts`, reached
-// through `defineFeature`'s context: the package barrel deliberately publishes no
-// direct mutator, and `foundation` imports no domain package.
+// ADR 023 §2 — `foundation` owns the renderer seam's read side, and nothing
+// else. An app composes the renderer array from the packages it already imports
+// and provides it at app level; `foundation` reads it back and so imports no
+// domain package.
 //
 // Routes and funnel flows are NOT here. An app owns its own router: it composes
 // its route array from the records a package exports, and calls that package's
@@ -33,10 +33,3 @@ export {
   provideFormRenderers,
   useFormRenderers
 } from "./modules/renderers";
-
-export type {
-  FeatureContext,
-  FeatureDefinition,
-  UseFeatures
-} from "./modules/features";
-export { defineFeature, useFeatures } from "./modules/features";
