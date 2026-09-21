@@ -81,7 +81,6 @@ export function createModuleManagerContext(
   };
 }
 
-// Type export for consumers
 export type UseModuleManagerContext = ReturnType<
   typeof createModuleManagerContext
 >;

@@ -43,19 +43,19 @@ export { useModules, type UseModules } from "./useModules";
 export { useModuleManager, type UseModuleManager } from "./useModuleManager";
 
 // --- Scope matrices — one per composable, both public
-export { MODULE_SCOPE_MATRIX, ModuleContextTypes } from "./module.types";
-export type { ModuleScopeMatrix } from "./module.types";
+export { MODULES_SCOPE_MATRIX, ModulesContextTypes } from "./module.types";
+export type { ModulesScopeMatrix } from "./module.types";
 export {
-  MODULE_MANAGER_SCOPE_MATRIX,
-  ModuleManagerContextTypes
+  MODULE_SCOPE_MATRIX,
+  ModuleContextTypes
 } from "./module.types";
-export type { ModuleManagerScopeMatrix } from "./module.types";
+export type { ModuleScopeMatrix } from "./module.types";
 
 // --- Sub-composable type exports for consumers (collection)
-export type { UseModuleActions } from "./useModules.actions";
-export type { UseModuleContext } from "./useModules.context";
-export type { UseModuleMeta } from "./useModules.meta";
-export type { UseModuleInternals } from "./useModules.internals";
+export type { UseModulesActions } from "./useModules.actions";
+export type { UseModulesContext } from "./useModules.context";
+export type { UseModulesMeta } from "./useModules.meta";
+export type { UseModulesInternals } from "./useModules.internals";
 
 // --- Sub-composable type exports for consumers (manager)
 export type { UseModuleManagerActions } from "./useModuleManager.actions";
@@ -64,4 +64,4 @@ export type { UseModuleManagerMeta } from "./useModuleManager.meta";
 export type { UseModuleManagerInternals } from "./useModuleManager.internals";
 
 // --- Public item/model types (shared by both composables)
-export type { ModuleItem, ModuleModel } from "./module.types";
+export type { {Module}, ModuleModel } from "./module.types";

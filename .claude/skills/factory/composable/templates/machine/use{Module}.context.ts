@@ -67,5 +67,4 @@ export function createModuleContext(
   };
 }
 
-// Type export for consumers
 export type UseModuleContext = ReturnType<typeof createModuleContext>;
