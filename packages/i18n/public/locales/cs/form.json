@@ -91,6 +91,21 @@
     "label": "IČO",
     "placeholder": "Identifikační číslo společnosti"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "Země",
     "placeholder": "Vyberte zemi"
@@ -106,6 +121,9 @@
     "label": "E-mail",
     "placeholder": "jméno@email.com",
     "title": "Přidat nový e-mail | Aktualizovat e-mail"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "Poznámky k objednávce"

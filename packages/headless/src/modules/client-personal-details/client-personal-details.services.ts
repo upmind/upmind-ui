@@ -339,6 +339,8 @@ async function loadLookups(
       lastName: profile?.lastName,
       publicName: profile?.publicName,
       language: profile?.language,
+      excludeDelegatedProducts: profile?.excludeDelegatedProducts,
+      meta: profile?.meta,
       customFields: mapCustomFieldValues(
         profile?.customFieldValues,
         definitions.value

@@ -96,6 +96,10 @@ export type ProfileRecord = {
   publicName?: string;
   /** The interface language id — an id, never the display name (AC-33). */
   language?: string;
+  /** The show-delegated-products preference, read off `meta` (section 8.5). */
+  excludeDelegatedProducts?: boolean;
+  /** The raw `meta` bag — the merge base an update writes back against. */
+  meta?: IClient["meta"];
   customFieldValues: ICustomFieldValue[];
 };
 
@@ -118,6 +122,10 @@ export type ProfileModel = {
   lastName?: string | null;
   publicName?: string | null;
   language?: string | null;
+  /** The show-delegated-products preference (section 8.5). */
+  excludeDelegatedProducts?: boolean;
+  /** The raw `meta` bag this preference merges against on write. */
+  meta?: IClient["meta"];
   customFields?: CustomFieldModel;
 };
 
