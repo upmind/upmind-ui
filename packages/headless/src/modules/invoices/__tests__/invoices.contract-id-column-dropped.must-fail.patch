@@ -1,0 +1,16 @@
+# must-fail: invoices.relationship-context-filter.int.test.ts > .for('contract', id) puts filter[contracts.id]=<id> on the wire.
+# Mutation: remaps the CONTRACT scope param onto `client_id`, so the relationship never reaches the wire under its own key.
+# Apply from repo root: `git apply <this file>`; revert `git apply -R`.
+diff --git a/packages/headless/src/modules/invoices/invoices.types.ts b/packages/headless/src/modules/invoices/invoices.types.ts
+index 0e3a7ee9d..3f74bb96a 100644
+--- a/packages/headless/src/modules/invoices/invoices.types.ts
++++ b/packages/headless/src/modules/invoices/invoices.types.ts
+@@ -96,7 +96,7 @@ export enum InvoicesContextTypes {
+ 
+ /** The static request param each relationship `.for()` context adds, as the legacy portal sends it. */
+ export const INVOICES_CONTEXT_WIRE_PARAMS = {
+-  [InvoicesContextTypes.CONTRACT]: "filter[contracts.id]",
++  [InvoicesContextTypes.CONTRACT]: "client_id",
+   [InvoicesContextTypes.CONTRACT_PRODUCT]:
+     "filter[products.contracts_product_id]",
+   [InvoicesContextTypes.INVOICE]: "filter[credit_invoice_id]"

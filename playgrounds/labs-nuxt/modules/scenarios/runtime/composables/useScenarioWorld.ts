@@ -16,6 +16,7 @@ import {
   ErrorOrigin,
   responseCodes
 } from "@upmind-automation/headless";
+import { matchesExpectation } from "@upmind-automation/scenario-harness";
 import { registry } from "../registry";
 import { useModulePort } from "./useModulePort";
 import { useScenarioStage } from "./useScenarioStage";
@@ -33,7 +34,6 @@ import {
 import type { ScenarioBinding, ScenarioKey } from "../scenario.types";
 import type { ModulePort } from "./useModulePort.types";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
-import { matchesExpectation } from "@upmind-automation/scenario-harness";
 import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------

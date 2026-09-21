@@ -3,9 +3,10 @@
     v-if="layout.visible"
     class="flex w-full flex-wrap items-end gap-x-6 gap-y-2"
   >
-    <template
+    <div
       v-for="(element, index) in layout.uischema.elements"
       :key="`${layout.path}-${index}`"
+      class="max-w-full min-w-0 shrink"
     >
       <DispatchRenderer
         :schema="layout.schema"
@@ -15,7 +16,7 @@
         :renderers="layout.renderers"
         :cells="layout.cells"
       />
-    </template>
+    </div>
   </div>
 </template>
 

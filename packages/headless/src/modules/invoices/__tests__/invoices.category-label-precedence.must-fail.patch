@@ -1,0 +1,25 @@
+# must-fail: invoices.mappers.test.ts:265-277 > "invoices — category label
+# precedence (AC-7)" > "labels a consolidation credit note as a
+# consolidation, never a plain credit note". Authored per the repair brief's
+# mutant table against the DOCUMENTED precedence (invoices.mappers.ts:69-70,
+# oracle:172-179, design D4): is_consolidation must be checked BEFORE
+# category.slug, so a consolidation credit note is labelled CONSOLIDATION,
+# never a plain credit note. Mutation: label always resolves to `slug`
+# (is_consolidation never wins) via `slug || InvoiceCategoryCode.CONSOLIDATION`.
+# git apply --check is clean. The colocated file's SECOND test ("labels a
+# non-consolidation invoice by its own category slug", :279-290) does NOT
+# flip — its own row has `is_consolidation: false` and a truthy `slug`, and
+# `slug || CONSOLIDATION` still yields that same truthy `slug`, so the
+# mutation is invisible to it. Only the consolidation-labelled assertion
+# is this mutant's live control.
+--- a/packages/headless/src/modules/invoices/invoices.mappers.ts
++++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
+@@ -68,7 +68,7 @@
+       slug,
+       // is_consolidation wins first (`oracle:172-179`) — a consolidation
+       // credit note never reads as a plain credit note.
+-      label: raw.is_consolidation ? InvoiceCategoryCode.CONSOLIDATION : slug
++      label: slug || InvoiceCategoryCode.CONSOLIDATION
+     },
+     consolidation: {
+       isConsolidation: !!raw.is_consolidation,

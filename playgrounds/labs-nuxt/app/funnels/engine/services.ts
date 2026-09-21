@@ -84,9 +84,10 @@ async function admitsIntent(
   const invoiceId = useQueryParams(route).getParam(QUERY_PARAMS.ORDER_ID);
   if (!invoiceId) return false;
 
-  const { data, isReady } = useInvoice(toString(invoiceId));
-  if (!(await bounded(isReady()))) return false;
+  const invoice = useInvoice().withId(toString(invoiceId));
+  if (!(await bounded(invoice.useActions().isReady()))) return false;
 
+  const { data } = invoice.useContext();
   return !isEmpty(data.value) && data.value?.status !== InvoiceStatus.PAID;
 }
 

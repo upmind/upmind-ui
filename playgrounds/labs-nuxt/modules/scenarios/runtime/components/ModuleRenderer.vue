@@ -28,6 +28,7 @@
     :detail="detail"
     :locked="locked"
     :forced-refusal="forcedRefusal"
+    :notices="port.rawMeta?.()"
   />
 </template>
 

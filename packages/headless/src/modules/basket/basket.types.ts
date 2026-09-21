@@ -11,7 +11,7 @@ import type { ActorRef } from "xstate";
  * It holds the entire state of the basket, including its products, summary, errors, and references
  * to spawned child actors for managing related concerns like billing, currency, and promotions.
  */
-export interface BasketContext {
+export type BasketContext = {
   /**
    * Warning notes from the API, stored in context for banner display.
    * Only non-hidden notes are stored.
@@ -106,4 +106,4 @@ export interface BasketContext {
   attempts?: number;
   // --- Payment
   paymentDetail?: PaymentDetailData;
-}
+};

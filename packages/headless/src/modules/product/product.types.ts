@@ -28,7 +28,7 @@ export {
 /**
  * The price details for any price, allowing for gross/net and discount breakdowns.
  */
-export interface Price {
+export type Price = {
   /**
    * The total price of the product or item.
    */
@@ -53,7 +53,7 @@ export interface Price {
    * The formatted discount price of the product (e.g. "£20.00").
    */
   discountFormatted: string;
-}
+};
 
 /**
  * The display price structure for any price that is shown in the UI.
@@ -394,7 +394,7 @@ export type PromotionModel = {
  * Interface defining the properties required to create or configure a product.
  * It extends {@link ProductModel} with additional client, currency, and promotion details.
  */
-export interface ProductProps extends ProductModel {
+export type ProductProps = ProductModel & {
   /** The ID of the currency to use for pricing. */
   currencyId?: ICurrency["id"];
   /** The ISO code of the currency to use for pricing. */
@@ -420,13 +420,13 @@ export interface ProductProps extends ProductModel {
    * as a bulk or background operation.
    */
   silent?: boolean;
-}
+};
 
 /**
  * Interface representing raw product configuration properties, typically passed
  * from a backend API or extracted from URL parameters.
  */
-export interface IProductConfig {
+export type IProductConfig = {
   /** Product ID. */
   pid?: string;
   /** Quantity. */
@@ -439,7 +439,7 @@ export interface IProductConfig {
   pfields?: Record<string, any>;
   /** Coupon codes. */
   coupons?: string[];
-}
+};
 
 /**
  * Type alias for a product summary, aggregating key pricing and detail information.
@@ -649,71 +649,6 @@ export enum BreadcrumbVariant {
   PARENT = "parent",
   VISIBLE = "visible"
 }
-
-export interface UIMeta {
-  ui?: UIConfig;
-  uischema?: UISchema;
-  related?: Recommendation[];
-  product?: UIProductMeta;
-}
-
-export interface UIProductMeta {
-  variant?: string;
-  image: {
-    hide?: boolean;
-    carousel?: boolean;
-    ratio?: string;
-  };
-  display_price?: {
-    trim_trailing_zeroes?: boolean;
-  };
-  card: {
-    benefits: {
-      hide?: boolean;
-      data?: Benefit[];
-    };
-    description: {
-      hide?: boolean;
-    };
-    breakdown: {
-      hide?: boolean;
-    };
-    price: {
-      hide?: boolean;
-    };
-    terms: {
-      hide?: boolean;
-    };
-  };
-}
-
-export interface UIConfig {
-  summary?: {
-    append?: string;
-  };
-}
-
-export interface UISchema {
-  billing?: {
-    control?: string;
-  };
-  primary?: boolean;
-  group?: string;
-  group_name?: string;
-  icon?: string;
-  config?: {
-    summary?: {
-      append?: string;
-    };
-    breadcrumbs?: BreadcrumbVariant;
-  };
-  productConfig?: {
-    summary?: {
-      append?: string;
-    };
-  };
-}
-
 export const UI_SCHEMA_DEFAULTS: UISchema = {
   // Allow the context to set the default (e.g category for configuration/edit pages)
   // config: {
@@ -737,7 +672,7 @@ export type ProductImage = {
  * Interface representing UI meta-data for a product or view.
  * It encapsulates configurations for UI elements, related items, and product-specific overrides.
  */
-export interface UIMeta {
+export type UIMeta = {
   /** Optional {@link UIConfig} for general UI settings. */
   ui?: UIConfig;
   /** Optional {@link UISchema} for form UI layout. */
@@ -746,13 +681,13 @@ export interface UIMeta {
   related?: Recommendation[];
   /** Optional {@link UIProductMeta} for product-specific UI overrides. */
   product?: UIProductMeta;
-}
+};
 
 /**
  * Interface representing UI meta-data specific to a product, allowing for granular control
  * over how product components are displayed in the user interface.
  */
-export interface UIProductMeta {
+export type UIProductMeta = {
   /** Optional variant string for styling purposes. */
   variant?: string;
   /** Configuration for product images. */
@@ -799,24 +734,24 @@ export interface UIProductMeta {
       hide?: boolean;
     };
   };
-}
+};
 
 /**
  * Interface representing general UI configuration settings.
  */
-export interface UIConfig {
+export type UIConfig = {
   /** Summary display configuration. */
   summary?: {
     /** Optional string to append to the summary. */
     append?: string;
   };
-}
+};
 
 /**
  * Interface representing a UI Schema for form rendering.
  * It provides configurations for billing, grouping, and other form-specific UI aspects.
  */
-export interface UISchema {
+export type UISchema = {
   /** Billing-specific control configuration. */
   billing?: {
     /** The control type for billing. */
@@ -852,7 +787,7 @@ export interface UISchema {
       clamp: number;
     };
   };
-}
+};
 
 /**
  * Represents a benefit associated with a product.
@@ -891,11 +826,11 @@ export type ExternalError = ErrorObject[];
 /**
  * Interface representing a product bundle, extending {@link IRelatedObject}.
  */
-export interface ProductBundle extends IRelatedObject {
+export type ProductBundle = IRelatedObject & {
   // --- config to be used in adding the bundle
   /** The {@link IProductConfig} to be used when adding this bundle to the basket. */
   config: IProductConfig;
-}
+};
 
 /**
  * Type alias for a collection of product bundles.
@@ -908,7 +843,7 @@ export type ProductBundles = ProductBundle[] | Record<string, ProductBundle>;
  * Interface representing the context for product configuration, typically managed by an XState machine.
  * It holds the state for configuring a single product, including its model, lookups, pricing, and associated errors.
  */
-export interface ProductConfigContext {
+export type ProductConfigContext = {
   /** The unique identifier for the product configuration instance. */
   id: string;
   /** Optional client ID for context. */
@@ -1001,4 +936,4 @@ export interface ProductConfigContext {
   parseBasketProduct?: (item: ProductModel) => ProductModel;
   /** A function to parse a {@link BasketProduct} for comparison with a partial {@link ProductModel}. */
   parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
-}
+};

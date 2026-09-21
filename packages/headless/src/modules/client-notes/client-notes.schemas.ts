@@ -2,7 +2,8 @@
 
 import { SortDirection } from "../query/query.types";
 import type { LookupItem } from "../lookup";
-import type { ProductLookupService, QuerySchema } from "./client-notes.types";
+import type { ProductLookupService } from "./client-notes.types";
+import type { QuerySchema } from "../query/query.types";
 import type {
   ControlElement,
   JsonSchema7,
@@ -182,7 +183,7 @@ export const useUischema = ({
   }
 
   elements.push({
-    type: "Control",
+    type: "Lookup",
     scope: "#/properties/contract_product_id",
     i18n: "form.contract_product",
     // The async lookup rides here as a live reference (the `options.manage`
@@ -197,7 +198,7 @@ export const useUischema = ({
       },
       placeholder: "Select a product…"
     }
-  });
+  } as UISchemaElement);
 
   return { type: "VerticalLayout", elements } as UISchemaElement;
 };
@@ -377,7 +378,7 @@ export function useQueryUischema(
         options: { format: "toggle-group", noLabel: true, optionalText: "" }
       },
       {
-        type: "Control",
+        type: "Lookup",
         scope:
           "#/properties/filters/properties/contract_product_id/properties/eq",
         i18n: "form.contract_product_filter",

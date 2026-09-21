@@ -38,12 +38,9 @@ import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { LookupItem } from "../lookup";
 import type { ListQuery } from "../query";
 import type { SortDirection } from "../query/query.types";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IContractProduct, IVaultAsset } from "@upmind-automation/types";
-// `Ref` types the lookup's activation gate — see the file-header
-// `graphify-out/` citation for the lookup types.
-import type { ComputedRef, Ref } from "vue";
+import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
@@ -126,7 +123,7 @@ export type ClientNoteScopeMatrix = typeof CLIENT_NOTE_SCOPE_MATRIX;
 // -----------------------------------------------------------------------------
 
 /** One actor (user or client) who wrote or last changed a vault asset. */
-export interface VaultAssetActor {
+export type VaultAssetActor = {
   /** The actor's id. */
   id: string;
   /** The actor's display name. */
@@ -135,7 +132,7 @@ export interface VaultAssetActor {
   imageUrl?: string;
   /** `true` when the actor is a client rather than a staff user. */
   isClient: boolean;
-}
+};
 
 /**
  * The view model — a vault asset is ONE entity; `encrypted` is the
@@ -145,7 +142,7 @@ export interface VaultAssetActor {
 // carries no prior node for a widened `VaultAsset.label` or a `useDate()`
 // descriptor here; both widen existing module-local fields (D15 / C21), they
 // mint no new type.
-export interface VaultAsset {
+export type VaultAsset = {
   /** The asset's id. */
   id: string;
   /**
@@ -226,7 +223,7 @@ export interface VaultAsset {
      */
     isRevealed: boolean;
   };
-}
+};
 
 /**
  * The FORM model.
@@ -247,7 +244,7 @@ export interface VaultAsset {
  *   types coexist and can drift; this module never imports the submodule
  *   form type.
  */
-export interface VaultAssetModel {
+export type VaultAssetModel = {
   /** Present when editing an existing asset; absent for a new draft. */
   id?: string;
   /** The note body — always required, note or secret alike. */
@@ -268,14 +265,14 @@ export interface VaultAssetModel {
    * (`VaultAsset.meta.isHiddenFromClient`).
    */
   visible_for_client: boolean;
-}
+};
 
 /**
  * The manager's machine context. `isRevealed` records that the decrypt-on-open
  * already ran for this editor instance (AC-18) — without it, any re-entry
  * into `loading` (a `REFRESH`) would fire a second decrypt.
  */
-export interface VaultAssetContext extends DataManagerContext<VaultAssetModel> {
+export type VaultAssetContext = DataManagerContext<VaultAssetModel> & {
   /** `true` once this editor instance has decrypted its secret. */
   isRevealed?: boolean;
   /**
@@ -295,7 +292,7 @@ export interface VaultAssetContext extends DataManagerContext<VaultAssetModel> {
    * interaction, not a semantic requirement. Typed access for consumers goes
    * through {@link VaultAssetLookups} instead.
    */
-}
+};
 
 // @graphify-citation see the file header — no `ContractProductLookupQuery`
 // node in `graphify-out/graph.json`; these narrow the query platform's own
@@ -391,13 +388,6 @@ export type SortModel = NonNullable<QueryModel["sort"]>;
  * default `sort` would override that and regress the boot ordering.
  */
 
-/**
- * The collection's query schema. A `JsonSchema7`: a query schema IS a real
- * Draft-07 schema, and the translator/validators walk it at runtime, so the
- * type stays general rather than a module-specific literal.
- */
-export type QuerySchema = JsonSchema7;
-
 // -----------------------------------------------------------------------------
 // SERVICES CONTRACT
 // -----------------------------------------------------------------------------
@@ -475,9 +465,7 @@ export type ClientNoteServices = {
    * control first reads the service, so manager `loading` boot fires no
    * `contracts_products` request (AC2) — the first fetch is the control's own.
    */
-  loadContractProductLookup: (
-    isActive: Ref<boolean>
-  ) => ContractProductLookupQuery;
+  loadContractProductLookup: () => ContractProductLookupQuery;
   /** `available.checking.parsing` — schema-parses the incoming model. */
   parse: (
     context: VaultAssetContext,

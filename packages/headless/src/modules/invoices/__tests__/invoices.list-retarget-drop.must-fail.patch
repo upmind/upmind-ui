@@ -1,0 +1,15 @@
+# must-fail: invoices.scope-identity.int.test.ts > the list request carries the TARGET client's id (AC-12).
+# Mutation: drops `client_id` from the list url, so the list fetches the READER's own rows.
+# Apply from repo root: `git apply <this file>`; revert `git apply -R`.
+diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
+index c51446f50..f239aa890 100644
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -227,7 +227,6 @@ function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
+     criteria: { schema: useQuerySchema() },
+     queryKey: [...queryKey, { client: clientId, scope: scopeContext }],
+     url: useUrl("invoices", {
+-      client_id: clientId.value,
+       ...scopeWireParams(scopeContext),
+       with: LOAD_LIST_INCLUDES,
+       with_count: "products"

@@ -46,7 +46,6 @@ import type { Email } from "../client-email";
 import type { Phone, PhoneModel } from "../client-phone";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { ListQuery } from "../query";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { ICountry, ICompany, IRegion } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -111,7 +110,7 @@ export type ClientCompanyScopeMatrix = typeof CLIENT_COMPANY_SCOPE_MATRIX;
  * The form/request model for a company. Present fields are mutually exclusive
  * pairs — an id-or-inline choice for the address, the email and the phone.
  */
-export interface CompanyModel {
+export type CompanyModel = {
   /** Present when editing an existing company. */
   id?: ICompany["id"];
   // --- one of
@@ -145,12 +144,12 @@ export interface CompanyModel {
    * the only route (`parity.yaml` C14, not a defect).
    */
   default?: ICompany["default"];
-}
+};
 
 /**
  * A company as read from the API, with its display and status fields.
  */
-export interface Company {
+export type Company = {
   /** The unique identifier for the company. */
   id: ICompany["id"];
   /** The id of the associated email address. */
@@ -204,7 +203,7 @@ export interface Company {
     /** `true` if the company's tax number has been validated. */
     hasValidTax: boolean;
   };
-}
+};
 
 // -----------------------------------------------------------------------------
 // QUERY MODEL (see graphify-out/ citation at the head of this file)
@@ -258,13 +257,6 @@ export const DEFAULT_SORT: SortModel = [
 ];
 
 /**
- * The collection's query schema. A `JsonSchema7`: a query schema IS a real
- * Draft-07 schema, and the translator/validators walk it at runtime, so the
- * type stays general rather than a module-specific literal.
- */
-export type QuerySchema = JsonSchema7;
-
-/**
  * The manager's machine context — the shared machine's, over this form
  * model (see the header `@graphify-citation` — graphify-out/GRAPH_REPORT.md,
  * 0 pre-existing nodes for this construct). Every member beyond the base
@@ -278,7 +270,7 @@ export type QuerySchema = JsonSchema7;
  * `Parameters<typeof dataManagerMachine.withConfig>[0]` (NFR-4) real instead
  * of re-introducing the casts it exists to remove.
  */
-export interface CompanyContext extends DataManagerContext<CompanyModel> {
+export type CompanyContext = DataManagerContext<CompanyModel> & {
   /** The client's own addresses. */
   addresses?: Address[];
   /** The client's own emails. */
@@ -293,7 +285,7 @@ export interface CompanyContext extends DataManagerContext<CompanyModel> {
   countries?: ICountry[];
   /** `true` when the schema/uischema should render a reduced field set. */
   minimal?: boolean;
-}
+};
 
 /**
  * The reactive list query, minted ONCE per scope in `useClientCompanies.ts`.
