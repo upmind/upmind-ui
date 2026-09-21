@@ -355,8 +355,7 @@ const VAULT_ROWS: readonly ContentRowConfig[] = [
           variant: BUTTON_MODULE_VARIANT.GROUP,
           props: {
             label: "Notes",
-            actions: dataRef(DATA_REF_ID.PRODUCT_NOTE_ACTIONS),
-            emptyTitle: "Nothing to add"
+            actions: dataRef(DATA_REF_ID.PRODUCT_NOTE_ACTIONS)
           }
         }),
         moduleRef(BUTTON_MODULE_ID, {
@@ -391,8 +390,7 @@ const VAULT_ROWS: readonly ContentRowConfig[] = [
         variant: BUTTON_MODULE_VARIANT.GROUP,
         props: {
           label: "Secrets",
-          actions: dataRef(DATA_REF_ID.PRODUCT_SECRET_ACTIONS),
-          emptyTitle: "Nothing to add"
+          actions: dataRef(DATA_REF_ID.PRODUCT_SECRET_ACTIONS)
         }
       })
     }

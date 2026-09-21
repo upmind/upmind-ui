@@ -115,7 +115,6 @@ import {
   delegateProductItems,
   delegateSpecItems,
   delegateTicketItems,
-  emailHeaderActions,
   hasParentBranding,
   isEmailDeliveryDelayed,
   parentBrandingActions,
@@ -582,7 +581,6 @@ export const DATA_REF_ID = {
   AFFILIATE_COMMISSION_ITEMS: "affiliate-commission-items",
   AFFILIATE_PAYOUT_ITEMS: "affiliate-payout-items",
   IS_EMAIL_DELIVERY_DELAYED: "is-email-delivery-delayed",
-  EMAIL_HEADER_ACTIONS: "email-header-actions",
   LOGIN_ATTEMPT_ITEMS: "login-attempt-items",
   // --- legacy's email history
   // --- the logged-out forms
@@ -1131,7 +1129,6 @@ const SELECTOR_BY_REF: Readonly<
   [DATA_REF_ID.AFFILIATE_COMMISSION_ITEMS]: affiliateCommissionItems,
   [DATA_REF_ID.AFFILIATE_PAYOUT_ITEMS]: affiliatePayoutItems,
   [DATA_REF_ID.IS_EMAIL_DELIVERY_DELAYED]: isEmailDeliveryDelayed,
-  [DATA_REF_ID.EMAIL_HEADER_ACTIONS]: emailHeaderActions,
   [DATA_REF_ID.LOGIN_ATTEMPT_ITEMS]: loginAttemptItems,
   [DATA_REF_ID.RESET_PASSWORD_FORM_SCHEMA]: resetPasswordFormSchema,
   [DATA_REF_ID.RESET_PASSWORD_FORM_UISCHEMA]: resetPasswordFormUischema,

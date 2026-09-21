@@ -5445,10 +5445,6 @@ export function isEmailDeliveryDelayed(data: MockDataset): boolean {
  * `isAdmin`), so the client's preview offers none — the message itself is
  * what a client came to read.
  */
-export function emailHeaderActions(): ButtonModuleAction[] {
-  return [];
-}
-
 // --- the logged-out forms: reset link, verification link, organisation sign-up
 
 /** Legacy's `resetPasswordForm`: the code joins the password only where two-factor is on. */
