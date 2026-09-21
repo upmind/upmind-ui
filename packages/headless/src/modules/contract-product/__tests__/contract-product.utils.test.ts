@@ -1,5 +1,5 @@
 /**
- * @fileoverview contracts.mappers unit tests
+ * @fileoverview contract-product.utils unit tests
  *
  * ## Job To Be Done
  * Pin the raw `status.code` branch of the contract-product status derivation
@@ -18,8 +18,30 @@
  */
 import { describe, expect, it } from "vitest";
 import { ContractStatusCodes } from "@upmind-automation/types";
-import { selectStatusNode } from "../contract-products.mappers";
-import { ContractProductState } from "../contract-products.types";
+import { ContractProductState } from "../contract-product.types";
+import { selectStatusNode } from "../contract-product.utils";
+import type { ContractProduct } from "../contract-product.types";
+
+function fixture(
+  code: ContractStatusCodes
+): Pick<
+  ContractProduct,
+  | "status"
+  | "stagedImport"
+  | "contractRequest"
+  | "renew"
+  | "isSubscription"
+  | "calculatedCancelDate"
+> {
+  return {
+    status: { code },
+    stagedImport: false,
+    contractRequest: undefined,
+    renew: true,
+    isSubscription: false,
+    calculatedCancelDate: null
+  };
+}
 
 describe("selectStatusNode — the raw status.code branch (@AC-17)", () => {
   it.each([
@@ -30,12 +52,12 @@ describe("selectStatusNode — the raw status.code branch (@AC-17)", () => {
     [ContractStatusCodes.CANCELLED, ContractProductState.CANCELLED],
     [ContractStatusCodes.CLOSED, ContractProductState.LAPSED]
   ])("maps %s to %s", (code, expected) => {
-    expect(selectStatusNode({ status: { code } } as never)).toBe(expected);
+    expect(selectStatusNode(fixture(code))).toBe(expected);
   });
 
   it("maps contract_fraud to unavailable.fraud — the one code no recorded fixture can carry (T03)", () => {
-    expect(
-      selectStatusNode({ status: { code: ContractStatusCodes.FRAUD } } as never)
-    ).toBe(ContractProductState.FRAUD);
+    expect(selectStatusNode(fixture(ContractStatusCodes.FRAUD))).toBe(
+      ContractProductState.FRAUD
+    );
   });
 });
