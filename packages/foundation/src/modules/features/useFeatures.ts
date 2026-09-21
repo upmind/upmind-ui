@@ -1,6 +1,5 @@
 import { computed, shallowRef } from "vue";
 import { addRenderers, clearRenderers } from "../renderers";
-import { addRoutes, clearRouting, registerFlows } from "../routing";
 import type { FeatureContext, FeatureDefinition } from "./feature.types";
 
 // The singleton registry. Feature contributions are brand-invariant, so one
@@ -8,7 +7,7 @@ import type { FeatureContext, FeatureDefinition } from "./feature.types";
 const features = shallowRef<FeatureDefinition[]>([]);
 const setUp = new Set<string>();
 
-const context: FeatureContext = { addRenderers, addRoutes, registerFlows };
+const context: FeatureContext = { addRenderers };
 
 export const useFeatures = () => {
   const names = computed(() => features.value.map(feature => feature.name));
@@ -39,12 +38,11 @@ export const useFeatures = () => {
     }
   };
 
-  /** Drops every registration and empties the sockets `install` filled. */
+  /** Drops every registration and empties the socket `install` filled. */
   const reset = () => {
     features.value = [];
     setUp.clear();
     clearRenderers();
-    clearRouting();
   };
 
   return {

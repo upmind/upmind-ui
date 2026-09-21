@@ -1,7 +1,13 @@
-// ADR 023 §2 — `foundation` owns the empty typed registries and their read APIs.
+// ADR 023 §2 — `foundation` owns the empty typed registry and its read API.
 // Registry ENTRIES live in each contributing package's own `feature.ts`, reached
 // through `defineFeature`'s context: the package barrel deliberately publishes no
 // direct mutator, and `foundation` imports no domain package.
+//
+// Routes and funnel flows are NOT here. An app owns its own router: it composes
+// its route array from the records a package exports, and calls that package's
+// flow registrar with its own router instance. That is the shape `apps/cart`
+// has always had, and a registry in this package only sent the records on a
+// round trip to reach the app that already imported them.
 
 export type { BrandConfig, BrandConfigMeta } from "./modules/brand";
 export { useBrandConfig } from "./modules/brand";
@@ -27,9 +33,6 @@ export {
   provideFormRenderers,
   useFormRenderers
 } from "./modules/renderers";
-
-export type { FlowRegistrar, UseRouting } from "./modules/routing";
-export { useRouting } from "./modules/routing";
 
 export type {
   FeatureContext,

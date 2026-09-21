@@ -3,9 +3,9 @@
  *
  * ## Job To Be Done
  * Hold the acyclic keystone. ADR 023 §2 gives `foundation` the empty typed
- * registries and the inject API only; every renderer, route and flow ENTRY
- * belongs to the contributing package's `feature.ts`. This spec reads all four
- * registries on a cold import and asserts each reports nothing.
+ * registry and the inject API only; every renderer ENTRY belongs to the
+ * contributing package's `feature.ts`. This spec reads the registry on a cold
+ * import and asserts it reports nothing.
  *
  * ## What Breaks If These Fail
  * One domain entry declared inside `foundation` creates `foundation → <domain>`,
@@ -18,7 +18,7 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import { useFeatures, useFormRenderers, useRouting } from "../index";
+import { useFeatures, useFormRenderers } from "../index";
 
 vi.mock("@upmind-automation/headless", async () => {
   const { createHeadlessStub } = await import("./headless.stub");
@@ -28,13 +28,6 @@ vi.mock("@upmind-automation/headless", async () => {
 describe("foundation registries on a cold import", () => {
   it("declares no form renderer of its own", () => {
     expect(useFormRenderers().renderers.value).toEqual([]);
-  });
-
-  it("declares no route and no flow of its own", () => {
-    const { routes, flows } = useRouting();
-
-    expect(routes.value).toEqual([]);
-    expect(flows.value).toEqual([]);
   });
 
   it("declares no feature of its own", () => {
