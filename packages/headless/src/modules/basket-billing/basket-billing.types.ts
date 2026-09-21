@@ -12,7 +12,7 @@ export { UnifiedType } from "./unified/types";
  * Interface representing the data model for billing information, typically used in checkout forms.
  * This model holds the identifiers for the selected address, company, and phone.
  */
-export interface BillingModel {
+export type BillingModel = {
   /**
    * The unique identifier of the selected address for billing, or `null` if no address is selected.
    */
@@ -25,14 +25,14 @@ export interface BillingModel {
    * The unique identifier of the selected phone number for billing, or `null` if no phone is selected.
    */
   phoneId?: IBasket["phone_id"] | null;
-}
+};
 
 /**
  * Interface representing the context for billing management, typically managed by an XState machine.
  * It holds the state for billing forms, including the data model, schema definitions,
  * and configuration settings derived from brand keys.
  */
-export interface BillingContext {
+export type BillingContext = {
   /**
    * The unique identifier of the current shopping basket.
    */
@@ -86,4 +86,4 @@ export interface BillingContext {
    * An error object if any issue occurred during billing operations.
    */
   error?: ResponseError;
-}
+};

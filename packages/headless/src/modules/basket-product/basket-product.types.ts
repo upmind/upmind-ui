@@ -17,7 +17,7 @@ import type {
  *
  * @template T - The generic type of product model this helper context is designed to manage.
  */
-export interface BasketHelperContext<T = unknown> {
+export type BasketHelperContext<T = unknown> = {
   /**
    * Allows for additional dynamic properties on the context.
    * @ignore
@@ -43,13 +43,13 @@ export interface BasketHelperContext<T = unknown> {
    * An array of `IBasketPromotion` objects that apply to the basket.
    */
   promotions?: IBasketPromotion[];
-}
+};
 
 /**
  * Interface representing a product that is already in the shopping basket.
  * It extends the base {@link Product} interface and guarantees the presence of an `id`.
  */
-export interface BasketProduct extends Product {
+export type BasketProduct = Product & {
   /**
    * Basket Products will always have an ID, unlike pending products.
    * This is the unique identifier for the product *within the basket*.
@@ -71,14 +71,14 @@ export interface BasketProduct extends Product {
    * basketProduct is in scope.
    */
   product?: IProduct;
-}
+};
 
 /**
  * Interface representing the data model for a subproduct within a basket product.
  * This defines how subproducts (like add-ons or options) are structured when
  * being added or configured in the basket.
  */
-export interface IBasketSubproductModel {
+export type IBasketSubproductModel = {
   /**
    * The unique identifier of the subproduct.
    */
@@ -91,14 +91,14 @@ export interface IBasketSubproductModel {
    * The billing cycle duration in months for the subproduct.
    */
   billing_cycle_months: number;
-}
+};
 
 /**
  * Interface representing the data model for a product when it's being added
  * to or configured within the shopping basket. It includes core product details
  * and optional configurations for attributes, options, provisioning, and promotions.
  */
-export interface IBasketProductModel {
+export type IBasketProductModel = {
   /**
    * The unique identifier of the main product.
    */
@@ -137,7 +137,7 @@ export interface IBasketProductModel {
    * An optional flag indicating whether to start a free trial for this product.
    */
   start_trial?: boolean;
-}
+};
 
 /** Toggle metadata for option switches in the basket. */
 export type OptionToggleMeta = {

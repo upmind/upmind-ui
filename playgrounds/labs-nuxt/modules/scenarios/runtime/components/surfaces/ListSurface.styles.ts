@@ -208,6 +208,10 @@ export const listSurface = {
   // table header's first line.
   notice: cva("mb-3"),
 
+  // The collection's own declared meta, one badge row above the controls —
+  // `MetaPanel`'s own `list()` rhythm, at this surface's own standoff.
+  notices: cva("mb-3 flex flex-wrap gap-2"),
+
   // TWO regions: the filter block (facets + refinements) and the display row.
   // The filter block carries the spec's own border/padding/margin (R5); the
   // display row sits outside it (R6).

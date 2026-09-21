@@ -111,7 +111,7 @@ export async function impersonateClient(clientId: string): Promise<IToken> {
 
   const response = await post<ClientAccessTokenResponse>({
     mutationKey: ["admin", "clients", clientId, "impersonate"],
-    url: useUrl(`admin/clients/${clientId}/access_token`),
+    url: useUrl(`admin/clients/${encodeURIComponent(clientId)}/access_token`),
     withAccessToken: true
   });
 
@@ -138,7 +138,7 @@ export async function impersonateUser(userId: string): Promise<IToken> {
 
   const response = await post<UserAccessTokenResponse>({
     mutationKey: ["admin", "users", userId, "impersonate"],
-    url: useUrl(`admin/users/${userId}/access_token`),
+    url: useUrl(`admin/users/${encodeURIComponent(userId)}/access_token`),
     withAccessToken: true
   });
 

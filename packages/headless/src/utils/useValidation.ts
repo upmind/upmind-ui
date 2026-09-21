@@ -458,6 +458,22 @@ function omitEmptied<T extends object>(
   });
 }
 
+/**
+ * @decision
+ * what: `safeValue`'s recursive `set(result, subKey, subValue)` and the
+ * top-level `set(result, key, value)` now pass the key as a single-element
+ * array (`[key]`), forcing lodash to treat it as one literal property name
+ * rather than a dot-delimited path.
+ * why: a schema property genuinely named with a literal `.` (eg
+ * `invoices.schemas.ts`'s `"status.code"`, `"category.slug"`) was being
+ * exploded into a nested object (`{ status: { code: … } }`) instead of
+ * written as one flat key, so it never reached the wire as declared and the
+ * API rejected the request. Operator sign-off "Authorise the core fix"
+ * (2026-09-02) authorises this file only, for FE-3031.
+ * rejected: renaming the affected schema columns to avoid the dot — the dot
+ * is the API's own filter-column name (oracle receipt), not a naming choice
+ * this module controls.
+ */
 export const useModelParser = <
   TModel extends Record<string, any> = Record<string, any>,
   TBaseModel = TModel
@@ -528,7 +544,7 @@ export const useModelParser = <
         field.properties,
         (result, subField, subKey) => {
           const subValue = safeValue(subField, values?.[key], subKey);
-          set(result, subKey, subValue);
+          set(result, [subKey], subValue);
           return result;
         },
         {} as Record<string, any>
@@ -553,7 +569,7 @@ export const useModelParser = <
     schema.properties,
     (result, field, key) => {
       const value = safeValue(field, values, key);
-      set(result, key, value);
+      set(result, [key], value);
       return result;
     },
     {} as Record<string, any>

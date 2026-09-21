@@ -19,9 +19,9 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { find, map, sum } from "lodash-es";
-import { tableUischema } from "../useClientNotifications/client-notifications.presentation";
 import { TableColumnWidthTypes } from "../runtime/scenario.types";
+import { tableUischema } from "../useClientNotifications/client-notifications.presentation";
+import { find, map, sum } from "lodash-es";
 import type { TableCell } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------

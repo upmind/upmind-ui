@@ -61,7 +61,7 @@ import {
 } from "../scenario.types";
 import ActionSlots from "./ActionSlots.vue";
 import DetailSurface from "./surfaces/DetailSurface.vue";
-import { get, isFunction, noop } from "lodash-es";
+import { get, isFunction, noop, pick } from "lodash-es";
 import type { ActionSlotItem } from "./ActionSlots.types";
 import type { DetailDialogProps } from "./DetailDialog.types";
 import type { SurfaceActions } from "./surfaces/surface.types";
@@ -156,10 +156,19 @@ const surfaceActions = computed<SurfaceActions>(() => port?.actions ?? {});
 // The unifying seam: DetailSurface reads `context.model`, so both feeds are
 // normalised to it — the fetch's mapped record (published as `context.data`)
 // or the clicked row. The row-data path carries no meta, which reads READY.
+//
+// `presentation.siblings` (2026-09-09 operator sign-off) folds NAMED context
+// siblings (e.g. `useInvoice().useContext().unpaidAmount`) into `model`
+// additively: no declared siblings, `pick` returns `{}` and `model` is `data`
+// alone, byte-for-byte as before this field existed.
 const snapshot = computed<ModulePortSnapshot>(() => {
   if (port) {
     const snap = port.snapshot();
-    return { ...snap, context: { ...snap.context, model: snap.context.data } };
+    const model = {
+      ...(snap.context.data as Record<string, unknown> | undefined),
+      ...pick(snap.context, props.presentation?.siblings ?? [])
+    };
+    return { ...snap, context: { ...snap.context, model } };
   }
   return { actions: [], context: { model: props.record }, meta: {} };
 });

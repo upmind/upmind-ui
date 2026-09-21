@@ -123,11 +123,12 @@ function column(name: string): unknown {
 }
 
 /** The leaf's own filter-bar element — where its `i18n` key PREFIX lives. */
-function element(name: string, operator: string): unknown {
+function element(name: string, operator?: string): unknown {
   return find(
     get(props.criteria.uischema, "elements", []),
     candidate =>
-      toDataPath(get(candidate, "scope", "")) === `filters.${name}.${operator}`
+      toDataPath(get(candidate, "scope", "")) ===
+      (operator ? `filters.${name}.${operator}` : `filters.${name}`)
   );
 }
 
@@ -139,8 +140,10 @@ function element(name: string, operator: string): unknown {
  * never live in the schema (`client-email.schemas.ts`). A leaf declaring no set
  * is free text — the user's own words, so there is nothing to translate.
  */
-function valueLabel(name: string, operator: string, value: unknown): string {
-  const declared = get(column(name), ["properties", operator, "enum"]);
+function valueLabel(name: string, operator?: string, value?: unknown): string {
+  const declared = operator
+    ? get(column(name), ["properties", operator, "enum"])
+    : get(column(name), "enum");
   const prefix = get(element(name, operator), "i18n");
 
   if (isEmpty(declared) || !isString(prefix)) return toString(value);
@@ -157,17 +160,17 @@ const refinements = computed<Refinement[]>(() =>
   reduce(
     declaredPairs(props.criteria.schema),
     (active: Refinement[], [name, operator]) => {
-      const value = get(props.criteria.model.value, [
-        "filters",
-        name,
-        operator
-      ]);
+      // A column with no declared operator holds its value directly.
+      const value = get(
+        props.criteria.model.value,
+        operator ? ["filters", name, operator] : ["filters", name]
+      );
       if (isNil(value) || value === "") return active;
 
       const title = get(column(name), "title");
 
       active.push({
-        id: `${name}.${operator}`,
+        id: operator ? `${name}.${operator}` : name,
         column: name,
         operator,
         value,
@@ -190,7 +193,13 @@ function remove(dropped: Refinement): void {
     filters: reduce(
       reject(refinements.value, { id: dropped.id }),
       (next: Record<string, unknown>, refinement) => {
-        set(next, [refinement.column, refinement.operator], refinement.value);
+        set(
+          next,
+          refinement.operator
+            ? [refinement.column, refinement.operator]
+            : [refinement.column],
+          refinement.value
+        );
         return next;
       },
       {}

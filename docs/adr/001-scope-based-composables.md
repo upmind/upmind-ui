@@ -411,6 +411,16 @@ useInvoices().as(ScopeActorTypes.STAFF).inBrand('brand-abc')
 useInvoices().as(ScopeActorTypes.STAFF).for('client', clientId)
 ```
 
+> **Superseded for this resource (2026-09-01).** The `staff` examples above no
+> longer reflect the shipped `invoices` module: the platform is retiring the
+> `staff` actor for invoices specifically, and the module's own scope matrix
+> now resolves `staff` to an unspellable cell. Reading an entitled other
+> client's invoices is still live, but as
+> `useInvoices().as('client').for('client', clientId)` — see the module's own
+> docs for the current shape. This is a per-resource narrowing, not a change
+> to the `staff` actor or to this ADR's decision: `staff` remains live on
+> other resources and this pattern remains valid elsewhere in this document.
+
 ### Product Catalogue
 
 ```ts

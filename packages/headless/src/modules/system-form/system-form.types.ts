@@ -3,7 +3,7 @@
  * This contract defines common methods and properties expected from composables
  * that manage form state, data, and interactions, typically backed by an XState machine.
  */
-export interface FormComposable {
+export type FormComposable = {
   /**
    * Retrieves a function that returns the current data model of the form.
    *
@@ -79,4 +79,4 @@ export interface FormComposable {
    * The UI Schema defining the presentation and layout of the form fields.
    */
   uischema: any;
-}
+};

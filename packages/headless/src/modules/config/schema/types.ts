@@ -209,22 +209,22 @@ export const BADGE_APPEARANCE = {
 export type BadgeAppearance =
   (typeof BADGE_APPEARANCE)[keyof typeof BADGE_APPEARANCE];
 
-export interface Badge {
+export type Badge = {
   label?: string;
   icon?: string;
   /** Colour intent. An unlisted value reaches no compound variant and renders unstyled. */
   variant?: BadgeVariant;
   /** Fill style. Defaults to `outline` at the consumer, matching the pre-migration chip. */
   appearance?: BadgeAppearance;
-}
+};
 /** A badge may be configured as a bare label or as the full object. */
 export type BadgeInput = string | Badge;
 
 /** Minimal labelled-content shape: a label, optionally annotated with an icon. */
-export interface LabelContent {
+export type LabelContent = {
   label: string;
   icon?: string;
-}
+};
 
 export enum UIContext {
   ALL = "all",
@@ -282,7 +282,7 @@ export type ValueType =
   | typeof OPTION_GROUP_SPACING
   | typeof PRODUCT_SETUP_MODE;
 
-export interface UIPropertyDefinition {
+export type UIPropertyDefinition = {
   type?: ValueType;
   default?: string;
   contexts: UIContext[];
@@ -290,13 +290,13 @@ export interface UIPropertyDefinition {
   locked?: Partial<Record<UIContext, string>>;
   defaults?: Partial<Record<UIContext, string>>;
   conditional?: boolean;
-}
+};
 
-export interface DataPropertyDefinition {
+export type DataPropertyDefinition = {
   default: string | boolean | Benefit[] | undefined;
   contexts: UIContext[];
   scopes: UIScope[];
-}
+};
 
 export type UIDefinitions = Record<keyof UISchema, UIPropertyDefinition>;
 
@@ -306,7 +306,7 @@ export type DataDefinitions = Record<keyof DataSchema, DataPropertyDefinition>;
  * Configuration for a product bundle item.
  * Used in `@data.productsToBundle` to define products that should be automatically added.
  */
-export interface ProductBundleConfig {
+export type ProductBundleConfig = {
   /** The product ID to bundle */
   object_id: string;
   /** The type of object being bundled (typically "product") */
@@ -315,13 +315,13 @@ export interface ProductBundleConfig {
   active: boolean;
   /** Product configuration to apply when adding the bundle to basket */
   config?: ProductRecommendConfigOptions;
-}
+};
 
 /**
  * Configuration for a product recommendation item.
  * Used in `@data.productsToRecommend` to define cross-sell recommendations.
  */
-export interface ProductRecommendConfig {
+export type ProductRecommendConfig = {
   /** Optional unique identifier for this recommendation (auto-generated if not provided) */
   id?: string;
   /** The product ID to recommend */
@@ -348,13 +348,13 @@ export interface ProductRecommendConfig {
   benefits?: Benefit[];
   /** Product configuration to apply when adding the recommendation to basket */
   config?: ProductRecommendConfigOptions;
-}
+};
 
 /**
  * Configuration options for a product recommendation.
  * Defines quantity, billing cycle, subproducts, provision fields, and coupons.
  */
-export interface ProductRecommendConfigOptions {
+export type ProductRecommendConfigOptions = {
   /** Quantity to add */
   qty?: number;
   /** Billing cycle in months */
@@ -365,7 +365,7 @@ export interface ProductRecommendConfigOptions {
   pfields?: Record<string, any> | any[];
   /** Coupon codes to apply */
   coupons?: string[];
-}
+};
 
 // -----------------------------------------------------------------------------
 // State Availability Matrix

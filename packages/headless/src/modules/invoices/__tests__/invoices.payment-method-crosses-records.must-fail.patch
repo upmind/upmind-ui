@@ -1,0 +1,29 @@
+Negative control for AC-4's READ half — the invoice's OWN assigned payment
+method (`mapPaymentMethod`, `invoices.mappers.ts`).
+
+Assertion it attacks: `invoices.mappers.test.ts` ›
+"is the INVOICE's assigned method, not the card a payment happens to carry".
+
+Two different records are both called `payment_details` on the wire: the
+invoice's standing assignment (`raw.payment_details`) and the card one
+payment happened to use (`raw.payments[].payment_details`). They are mapped by
+different readers. This mutation makes the invoice's reader fall back to the
+first payment's card, so an invoice with NO assigned method reports the card
+of a payment already made against it — 'None selected' silently reads as
+assigned, and AC-4's clear would appear not to have worked.
+
+Re-rolled 2026-09-17 (developer, FE-3031 negative-control repair): the prior
+hunk header declared a 7-line span for a 5-line body — `git apply` rejected it
+as a corrupt patch. Same mutation, corrected span and context.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+--- a/packages/headless/src/modules/invoices/invoices.mappers.ts
++++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
+@@ -242,5 +242,5 @@ function mapPaymentMethod(raw: IInvoice): Invoice["paymentMethod"] {
+ function mapPaymentMethod(raw: IInvoice): Invoice["paymentMethod"] {
+-  const details = raw.payment_details;
++  const details = raw.payment_details ?? raw.payments?.[0]?.payment_details;
+   if (!details) return { id: null, cardType: null, cardLast4: null, label: "" };
+
+   return {

@@ -37,6 +37,15 @@ async function getEmails(clientId: string): Promise<Email[]> {
 
 **Decision:** ✅ Yes - Different endpoints + permissions
 
+> **Superseded for this resource (2026-09-01).** The example below is
+> illustrative of the split pattern, not a description of the shipped
+> `invoices` module: the platform retired the `staff` actor for invoices
+> specifically, so the module carries no `invoices.services.staff.ts` arm and
+> no `/admin/clients/{id}/invoices` endpoint is served from it today. The
+> module's own docs are the current source of truth. This narrowing is
+> resource-specific — `staff` remains a live actor elsewhere, and the split
+> pattern itself is unaffected.
+
 | Actor | Endpoint | Capabilities |
 |-------|----------|--------------|
 | Client | `/client/invoices` | View own invoices, pay |
@@ -184,7 +193,7 @@ Start
 |---------|----------------|----------------|--------|--------|
 | **Auth** | `/access_token` (PASSWORD) | `/access_token` (ADMIN) | ✅ Yes | Different grant types + 2FA flows + registration logic |
 | **Client Emails** | `/client/emails` | `/admin/clients/{id}/emails` | ✅ Yes | Different endpoints |
-| **Invoices** | `/client/invoices` | `/admin/clients/{id}/invoices` | ✅ Yes | Different endpoints + permissions |
+| **Invoices** | `/client/invoices` | `/admin/clients/{id}/invoices` | ✅ Yes | Different endpoints + permissions — **superseded 2026-09-01**: `staff` is retired for this resource; see Example 2 above |
 | **Basket** | `/baskets` | `/baskets` | 🟡 Maybe | Same endpoint, but claim flow differs - evaluate complexity |
 | **Product Catalogue** | `/products` | `/products` | ❌ No | Same endpoint, server-side filtering |
 | **Brand Config** | `/brand/config` | `/brand/config` | ❌ No | Same endpoint, same data |

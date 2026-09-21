@@ -1,0 +1,17 @@
+# must-fail: invoices.mapping.int.test.ts > "invoices single read — balance
+# diverges from the raw unpaid amount (AC-11, constructed) > AC-11
+# (constructed — balance toggled distinct from unpaid_amount) exposes both
+# numbers distinctly on the summary"
+# Mutation: aliases summary.balance to the raw unpaid_amount, losing the
+# post-consolidation divergence between the two figures.
+--- a/packages/headless/src/modules/invoices/invoices.mappers.ts
++++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
+@@ -94,7 +94,7 @@
+       unpaidAmount: raw.unpaid_amount,
+       unpaidAmountConverted: raw.unpaid_amount_converted,
+       unpaidAmountFormatted: raw.unpaid_amount_formatted,
+-      balance: raw.balance,
++      balance: raw.unpaid_amount,
+       balanceFormatted: raw.balance_formatted
+     },
+     dateCreated: useDate(raw.create_datetime, undefined, "MMM Do, YYYY"),

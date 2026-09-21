@@ -1,5 +1,5 @@
 /** @internal */
-import type { QuerySchema } from "./brand.types";
+import type { QuerySchema } from "../query/query.types";
 
 // -----------------------------------------------------------------------------
 /**

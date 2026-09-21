@@ -44,7 +44,6 @@ import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
 import type { ListQuery, SimpleQuery } from "../query";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IClient, IImage, ISentEmail } from "@upmind-automation/types";
 import type { SentEmailStatus } from "@upmind-automation/types";
@@ -186,13 +185,6 @@ export const SENT_EMAIL_DEFAULT_SORT: SentEmailSortEntry[] = [
   { field: "created_at", dir: SortDirection.DESC }
 ];
 
-/**
- * The collection's query schema. A `JsonSchema7`: a query schema IS a real
- * Draft-07 schema, walked at runtime by the translator/validators, so the type
- * stays general rather than a module-specific literal.
- */
-export type SentEmailQuerySchema = JsonSchema7;
-
 // -----------------------------------------------------------------------------
 // MODELS
 // -----------------------------------------------------------------------------
@@ -201,19 +193,19 @@ export type SentEmailQuerySchema = JsonSchema7;
  * Interface representing the data model for an email address, suitable for forms
  * or API payloads.
  */
-export interface SentEmailModel {
+export type SentEmailModel = {
   /**
    * Optional unique identifier for the email address. Present if editing an existing email.
    */
   id?: ISentEmail["id"];
-}
+};
 
 /**
  * Interface representing a comprehensive email object, extending {@link SentEmailModel}
  * with additional identifiers, computed display fields, and meta-data about its status.
  * This is typically used for email addresses retrieved from the API or displayed in the UI.
  */
-export interface SentEmail extends SentEmailModel {
+export type SentEmail = SentEmailModel & {
   //--- identifier
   /**
    * The unique identifier for the email address.
@@ -313,7 +305,7 @@ export interface SentEmail extends SentEmailModel {
      */
     isSent: boolean;
   };
-}
+};
 
 // -----------------------------------------------------------------------------
 // SERVICE-LAYER SHAPES

@@ -23,6 +23,7 @@ import {
   get,
   has,
   includes,
+  isArray,
   isEmpty,
   isFinite,
   isNil,
@@ -46,22 +47,50 @@ import type { QuerySortEntry } from "@upmind-automation/headless";
 export const SORT_PARAM = "sort";
 export const PAGINATION_PARAMS = ["limit", "offset"];
 
-/** The one statement of the filter param's format, read by both directions. */
-export function filterParam(column: string, operator: string): string {
-  return `filter.${column}.${operator}`;
+/**
+ * The one statement of the filter param's format, read by both directions.
+ *
+ * A column declaring no operator sub-schema reaches the API as a bare
+ * `filter[column]` (`translateQuery`), and spells the same way here: an
+ * operator segment naming an operator that does not exist would be a url the
+ * round-trip could never read back.
+ */
+export function filterParam(column: string, operator?: string): string {
+  return operator ? `filter.${column}.${operator}` : `filter.${column}`;
 }
 
-/** Every `(column, operator)` pair the schema DECLARES — never the model's keys. */
-export function declaredPairs(schema: unknown): [string, string][] {
+/**
+ * Every `(column, operator)` pair the schema DECLARES — never the model's keys.
+ *
+ * A column with NO operator sub-properties is one pair with an `undefined`
+ * operator: its value sits directly on the column (`filters.status.code`), not
+ * under an operator key. Enumerating only `properties` skipped those columns
+ * entirely, which left their url params unreadable and unwritable.
+ */
+export function declaredPairs(schema: unknown): [string, string | undefined][] {
   return flatMap(
     get(schema, ["properties", "filters", "properties"], {}),
-    (columnSchema, column: string) =>
-      map(
-        keys(get(columnSchema, "properties", {})),
-        (operator): [string, string] => [column, operator]
-      )
+    (columnSchema, column: string) => {
+      const operators = keys(get(columnSchema, "properties", {}));
+      return isEmpty(operators)
+        ? ([[column, undefined]] as [string, string | undefined][])
+        : map(operators, (operator): [string, string | undefined] => [
+            column,
+            operator
+          ]);
+    }
   );
 }
+
+/** The model path a declared pair reads and writes. */
+const leafPath = (column: string, operator?: string): string[] =>
+  operator ? ["filters", column, operator] : ["filters", column];
+
+/** The schema path a declared pair's leaf sits at. */
+const leafSchemaPath = (column: string, operator?: string): string[] =>
+  operator
+    ? ["properties", "filters", "properties", column, "properties", operator]
+    : ["properties", "filters", "properties", column];
 
 /**
  * A url string back to the leaf's declared type, or `undefined` when it is not
@@ -88,9 +117,13 @@ export function criteriaToParams(
   const params: Record<string, string> = {};
 
   forEach(declaredPairs(schema), ([column, operator]) => {
-    const value = get(model, ["filters", column, operator]);
-    if (isNil(value) || value === "") return;
-    params[filterParam(column, operator)] = toString(value);
+    const value = get(model, leafPath(column, operator));
+    if (isNil(value) || value === "" || (isArray(value) && isEmpty(value)))
+      return;
+    // An array column rides ONE param as a comma list, matching the wire.
+    params[filterParam(column, operator)] = isArray(value)
+      ? join(value, ",")
+      : toString(value);
   });
 
   const sort = get(model, "sort", []) as QuerySortEntry[];
@@ -127,18 +160,15 @@ export function paramsToCriteria(
     const raw = get(params, filterParam(column, operator));
     if (!isString(raw) || isEmpty(raw)) return;
 
-    const value = coerce(
-      get(schema, [
-        "properties",
-        "filters",
-        "properties",
-        column,
-        "properties",
-        operator
-      ]),
-      raw
-    );
-    if (!isNil(value)) set(criteria, ["filters", column, operator], value);
+    const leafSchema = get(schema, leafSchemaPath(column, operator));
+    const value = includes(
+      castArray(get(leafSchema, "type", "string")),
+      "array"
+    )
+      ? compact(split(raw, ","))
+      : coerce(leafSchema, raw);
+    if (!isNil(value) && !(isArray(value) && isEmpty(value)))
+      set(criteria, leafPath(column, operator), value);
   });
 
   const fields = declaredSortFields(schema as JsonSchema);
