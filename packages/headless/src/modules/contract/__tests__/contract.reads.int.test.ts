@@ -22,8 +22,8 @@
  * is entitled to ask for — with no integration coverage able to catch it.
  */
 
-import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
+import { describe, expect, it, vi } from "vitest";
 import { ContractContextTypes, useContract, useContracts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {

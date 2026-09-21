@@ -101,21 +101,34 @@ describe("useContract — I point my contract at a different stored payment meth
     expect(captured.body).toEqual({ payment_details_id: paymentDetailsId });
   });
 
-  it("AC-8 sends nothing when I pick the stored method my contract already uses", async () => {
-    const { manager, row } = await openManager();
-    const observed = observeAllRequests();
+  it("AC-8 still PATCHes payment_details when I pick the stored method my contract already uses — design.md §8.3 gives this write no guard (ADR-17)", async () => {
+    const { manager, row, accessToken } = await openManager();
+    const storedPaymentDetailsId = (row as { payment_details_id: string })
+      .payment_details_id;
+    const captured: Captured = {};
 
-    await manager.useActions().setPaymentMethod({
-      paymentDetailsId: (row as { payment_details_id: string })
-        .payment_details_id
+    server?.use(
+      http.patch(
+        `*/contracts/${row.id}/payment_details`,
+        async ({ request }) => {
+          capture(request, captured);
+          captured.body = await request.json();
+          return HttpResponse.json(recorded.paymentMethodSet(), {
+            status: 200
+          });
+        }
+      )
+    );
+
+    await manager
+      .useActions()
+      .setPaymentMethod({ paymentDetailsId: storedPaymentDetailsId });
+
+    expect(captured.request).toBeDefined();
+    assertClientIdentityTransport(captured.request!, accessToken);
+    expect(captured.body).toEqual({
+      payment_details_id: storedPaymentDetailsId
     });
-
-    observed.stop();
-    expect(
-      observed
-        .matching(`/contracts/${row.id}/payment_details`)
-        .map(request => request.url)
-    ).toEqual([]);
   });
 
   it("AC-8 I can still change how a cancelled or lapsed contract is paid for (R13 self-transition)", async () => {

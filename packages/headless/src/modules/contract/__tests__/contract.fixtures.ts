@@ -95,6 +95,13 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
+/** The 3 `with` members the list view model maps (design.md §8.1, R19, R30). */
+const CONTRACTS_LIST_WITH = [
+  "status",
+  "cancellation_request",
+  "cancellation_request.status"
+].join(",");
+
 /** The 12 `with` members of the client contract read (design.md §8.1). */
 const CONTRACT_WITH = [
   "products.contract_request",
@@ -111,7 +118,6 @@ const CONTRACT_WITH = [
   "cancellation_request.status"
 ].join(",");
 
-type WireContract = { id: string };
 type WireContractProduct = {
   id: string;
   contract_id: string;
@@ -259,7 +265,7 @@ describe("Contract API Fixtures Generator", () => {
   it("captures GET /api/contracts (list — AC-14)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(
-      "/api/contracts?pagination[limit]=10"
+      `/api/contracts?pagination[limit]=10&with=${CONTRACTS_LIST_WITH}`
     );
     generator.clearBearerToken();
     if (status !== 200) {

@@ -20,8 +20,8 @@
  * product) — with no integration coverage able to catch it.
  */
 
-import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
+import { describe, expect, it, vi } from "vitest";
 import {
   ContractProductContextTypes,
   useContractProduct,
@@ -30,6 +30,8 @@ import {
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installBackgroundStubs,
+  installProductHandler,
+  observeAllRequests,
   recorded,
   seedClientSession
 } from "./contract-product.int-helpers";
@@ -129,6 +131,63 @@ describe("useContractProducts — I see the products on my own account (AC-1)", 
     for (const product of context.data.value) {
       expect(product.id).toBeTruthy();
       expect(product.status?.code).toBeTruthy();
+    }
+  });
+
+  it("AC-1 every narrowing I ask for travels one way only — the observed request carries no filter I never asked for", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    let capturedUrl: string | undefined;
+    server?.use(
+      http.get("*/contracts_products", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      })
+    );
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+
+    expect(capturedUrl).toBeDefined();
+    const params = new URL(capturedUrl!).searchParams;
+    // I narrowed, ordered and paged NOTHING on this request — so the
+    // declared query contract carries no `filter[...]` at all. A mutation
+    // that bakes a narrowing behind the schema, where I never asked for it
+    // and cannot see or reject it, surfaces here as a `filter[...]` key this
+    // request never earned.
+    for (const key of params.keys()) {
+      expect(key.startsWith("filter[")).toBe(false);
+    }
+  });
+});
+
+describe("useContractProduct — I open one product's scheduled actions (AC-15)", () => {
+  it("AC-15 the initial read and refresh() both GET contract_products/{id} — the product itself — never the staff-only scheduled-actions route", async () => {
+    const { accessToken } = await seedClientSession();
+    const row = recorded.one().data;
+    const handler = installProductHandler(server);
+    const observed = observeAllRequests();
+
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    await manager.useActions().isReady();
+    const readsAfterOpen = handler.reads();
+
+    await manager.useActions().refresh();
+    await vi.waitFor(() => {
+      expect(handler.reads()).toBeGreaterThan(readsAfterOpen);
+    });
+
+    observed.stop();
+    const requests = observed.all();
+    expect(readsAfterOpen).toBeGreaterThan(0);
+    expect(requests.length).toBeGreaterThan(0);
+    for (const request of requests) {
+      expect(request.url).not.toMatch(/\/scheduled_actions\b/);
+      expect(
+        request.headers.authorization ?? request.headers.Authorization
+      ).toBe(`Bearer ${accessToken}`);
     }
   });
 });
