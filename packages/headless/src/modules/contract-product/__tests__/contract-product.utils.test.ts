@@ -176,7 +176,7 @@ describe("selectStatusNode — the record's own staged/cancelled/lapsed facts (@
   });
 });
 
-describe("selectStatusNode — an unknown status.code matches no node in ContractProductState (@AC-12)", () => {
+describe("selectStatusNode — an unknown status.code matches no node in ContractProductState (@AC-17)", () => {
   // `ContractProductState` has one member per published code (flow.md §3). A
   // code outside that vocabulary cannot select ANY of its members — the
   // selector returns no node, never a coerced default. AC-17's own promise,

@@ -345,7 +345,7 @@ describe("useContract — no staff route is ever reachable from my contract surf
     );
 
     await manager.useActions().setPaymentMethod({
-      paymentDetailsId: A_DIFFERENT_PAYMENT_DETAILS_ID
+      paymentDetailsId: A_NON_STORED_PAYMENT_DETAILS_ID
     });
     await manager.useActions().requestCancellation({
       productIds: [A_REAL_PRODUCT_ID]
@@ -395,7 +395,7 @@ describe("useContract — the account I act on is the one my scope resolved (AC-
     );
 
     await manager.useActions().setPaymentMethod({
-      paymentDetailsId: A_DIFFERENT_PAYMENT_DETAILS_ID
+      paymentDetailsId: A_NON_STORED_PAYMENT_DETAILS_ID
     });
 
     const requests = observed.all();
