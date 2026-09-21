@@ -6,7 +6,9 @@
           <PortalAuthBrand />
         </div>
         <div :class="AUTH_ROW_ASIDE_CLASS">
-          <div :class="[AUTH_ROW_ASIDE_TRACK_CLASS, 'justify-end']">
+          <!-- No `justify-end`: the shortcut heads the canvas column, so it
+               starts where the summary below it does, not at the page's edge. -->
+          <div :class="AUTH_ROW_ASIDE_TRACK_CLASS">
             <PortalAuthStore />
           </div>
         </div>
