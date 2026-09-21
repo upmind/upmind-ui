@@ -25,7 +25,10 @@
  * nodes shares `status.code: contract_active` with the plain-active case.
  */
 import { describe, expect, it } from "vitest";
-import { ContractStatusCodes } from "@upmind-automation/types";
+import {
+  CancellationRequestStatusCodes,
+  ContractStatusCodes
+} from "@upmind-automation/types";
 import { ContractProductState } from "../contract-product.types";
 import { selectStatusNode } from "../contract-product.utils";
 import type { ContractProduct } from "../contract-product.types";
@@ -90,7 +93,9 @@ describe("selectStatusNode — entry order on a shared contract_active code (flo
         fixture({
           status: { code: ContractStatusCodes.ACTIVE },
           contractRequest: {
-            status: { code: "request_cancellation_request" as never }
+            status: {
+              code: CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST
+            }
           }
         })
       )
@@ -129,7 +134,9 @@ describe("selectStatusNode — entry order on a shared contract_active code (flo
         fixture({
           status: { code: ContractStatusCodes.ACTIVE },
           contractRequest: {
-            status: { code: "request_cancellation_request" as never }
+            status: {
+              code: CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST
+            }
           },
           isSubscription: true,
           renew: false,

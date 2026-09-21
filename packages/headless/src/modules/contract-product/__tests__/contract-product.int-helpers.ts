@@ -13,7 +13,7 @@
 
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
-import { expect, vi } from "vitest";
+import { afterEach, expect, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { useBrand } from "../../brand";
 import { queryClient } from "../../query/client";
@@ -216,28 +216,33 @@ export function observeAllRequests(): {
     });
   };
   server?.events.on("request:start", listener);
+  const stop = (): void =>
+    server?.events.removeListener("request:start", listener);
+  afterEach(stop);
 
   return {
     all: () => seen,
     matching: (fragment: string) =>
       seen.filter(entry => entry.url.includes(fragment)),
-    stop: () => server?.events.removeListener("request:start", listener)
+    stop
   };
 }
+
+const ACTING_AS_HEADER_KEYS = [
+  "x-acting-as",
+  "x-impersonate",
+  "x-on-behalf-of",
+  "x-staff-id",
+  "x-admin-id",
+  "impersonation"
+];
 
 /** Every header key the identity-transport read-back must NOT carry (A7). */
 export function assertNoActingAsHeaders(headers: Record<string, string>): void {
   const keys = Object.keys(headers).map(key => key.toLowerCase());
-  expect(keys).toEqual(
-    expect.not.arrayContaining([
-      "x-acting-as",
-      "x-impersonate",
-      "x-on-behalf-of",
-      "x-staff-id",
-      "x-admin-id",
-      "impersonation"
-    ])
-  );
+  for (const bannedKey of ACTING_AS_HEADER_KEYS) {
+    expect(keys).not.toContain(bannedKey);
+  }
 }
 
 /** The full A7 identity read-back for one observed request against a contract-product URL. */
