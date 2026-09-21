@@ -16,6 +16,8 @@
     "build": "pnpm type-check && pnpm build-only",
     "build-only": "vite build",
     "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run",
     "preview": "vite preview",
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
     "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
@@ -41,8 +43,10 @@
     "@types/node": "^22.17.1",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.7.0",
+    "jsdom": "^26.1.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.2",
+    "vitest": "^3.2.4",
     "vue-tsc": "^3.0.5"
   }
 }

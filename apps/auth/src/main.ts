@@ -1,6 +1,6 @@
 import "./main.css";
 import { createApp } from "vue";
-import { registerIcons } from "@upmind-automation/foundation";
+import { FORM_RENDERERS, registerIcons } from "@upmind-automation/foundation";
 import useUpmind from "@upmind-automation/headless";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import App from "./App.vue";
@@ -48,4 +48,9 @@ void useUpmind.init({
   }
 });
 
-createApp(App).use(i18n).use(router).mount("#app");
+const app = createApp(App).use(i18n).use(router);
+
+// Empty by declaration: auth's fields need only the engine's own controls.
+app.provide(FORM_RENDERERS, []);
+
+app.mount("#app");
