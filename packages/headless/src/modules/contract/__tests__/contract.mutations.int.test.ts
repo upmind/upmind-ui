@@ -65,19 +65,27 @@ async function openManager() {
 // -----------------------------------------------------------------------------
 
 /**
- * The REAL recorded contract row's OWN `payment_details_id` — the id AC-8's
- * refusal half says must never re-trigger a write ("nothing is sent ... when
- * I picked the one it already uses"). A DIFFERENT id proves the send; this
- * SAME id proves the refusal — never the reverse, or the two scenarios would
- * collide on the one payment method this staging client actually carries
- * (`contract.fixtures.ts` fileoverview limit 1).
+ * FIXTURE GAP: the only real `payment_details_id` this recorded staging
+ * client carries anywhere — the contract row's own stored id AND the one
+ * body `patch-contracts-id-payment-details.json` was itself captured
+ * setting — is `785d26e9-6783-d16e-738f-314502e70439`. No second real
+ * stored-method id exists in any capture on disk, so AC-8's "point it at a
+ * DIFFERENT method" send-half has no real alternate id to derive from
+ * (recording is forbidden this pass — see `receipts.md`). This id is a
+ * placeholder used ONLY to be provably unequal to the recorded stored id
+ * above; it is never asserted to be a real payment-details record, and it
+ * is NEVER reused as a product id (a product id comes from
+ * `recorded.one().data.products[0].id` below).
  */
-const A_DIFFERENT_PAYMENT_DETAILS_ID = "785d26e9-6783-d169-497f-314502e70439";
+const A_NON_STORED_PAYMENT_DETAILS_ID = "785d26e9-6783-d169-497f-314502e70439";
+
+/** The real product id `recorded.one()` carries — never a fabricated id. */
+const A_REAL_PRODUCT_ID = "785d26e9-6783-d169-678a-314502e70439";
 
 describe("useContract — I point my contract at a different stored payment method (AC-8)", () => {
   it("AC-8 PATCHes { payment_details_id } to my own contract's payment_details, under my own identity", async () => {
     const { manager, row, accessToken } = await openManager();
-    const paymentDetailsId = A_DIFFERENT_PAYMENT_DETAILS_ID;
+    const paymentDetailsId = A_NON_STORED_PAYMENT_DETAILS_ID;
     const captured: Captured = {};
 
     server?.use(
@@ -99,36 +107,6 @@ describe("useContract — I point my contract at a different stored payment meth
     expect(captured.request!.method).toBe("PATCH");
     assertClientIdentityTransport(captured.request!, accessToken);
     expect(captured.body).toEqual({ payment_details_id: paymentDetailsId });
-  });
-
-  it("AC-8 still PATCHes payment_details when I pick the stored method my contract already uses — design.md §8.3 gives this write no guard (ADR-17)", async () => {
-    const { manager, row, accessToken } = await openManager();
-    const storedPaymentDetailsId = (row as { payment_details_id: string })
-      .payment_details_id;
-    const captured: Captured = {};
-
-    server?.use(
-      http.patch(
-        `*/contracts/${row.id}/payment_details`,
-        async ({ request }) => {
-          capture(request, captured);
-          captured.body = await request.json();
-          return HttpResponse.json(recorded.paymentMethodSet(), {
-            status: 200
-          });
-        }
-      )
-    );
-
-    await manager
-      .useActions()
-      .setPaymentMethod({ paymentDetailsId: storedPaymentDetailsId });
-
-    expect(captured.request).toBeDefined();
-    assertClientIdentityTransport(captured.request!, accessToken);
-    expect(captured.body).toEqual({
-      payment_details_id: storedPaymentDetailsId
-    });
   });
 
   it("AC-8 I can still change how a cancelled or lapsed contract is paid for (R13 self-transition)", async () => {
@@ -163,20 +141,62 @@ describe("useContract — I point my contract at a different stored payment meth
 
     await manager
       .useActions()
-      .setPaymentMethod({ paymentDetailsId: A_DIFFERENT_PAYMENT_DETAILS_ID });
+      .setPaymentMethod({ paymentDetailsId: A_NON_STORED_PAYMENT_DETAILS_ID });
 
     expect(captured.request).toBeDefined();
     assertClientIdentityTransport(captured.request!, accessToken);
     expect(captured.body).toEqual({
-      payment_details_id: A_DIFFERENT_PAYMENT_DETAILS_ID
+      payment_details_id: A_NON_STORED_PAYMENT_DETAILS_ID
     });
+  });
+});
+
+/**
+ * bdd.md amendment A22(d) — a `Scenario Outline` tagged `@AC-8 @manager
+ * @mutation`, over ONE `<selection>` column with the rows "no method at
+ * all" and "the method it already uses", whose outcome for BOTH rows is
+ * that no request is sent. `contract.feature:143` states the same claim in
+ * the host scenario ("nothing is sent when I have picked no method, or
+ * picked the one it already uses"). This is the caller/action-layer
+ * condition design.md §8.3's AC8 row states in its condition column ("The
+ * client selected a method, and it is different [o13]") — the machine
+ * itself carries no guard (ADR-17), so this refusal is proven here, at the
+ * action layer, never against the machine.
+ */
+describe("useContract — nothing is sent when my selection changes nothing (AC-8, bdd.md A22(d))", () => {
+  it("AC-8 sends nothing when I pick no method at all", async () => {
+    const { manager, row } = await openManager();
+    const observed = observeAllRequests();
+
+    await manager.useActions().setPaymentMethod({ paymentDetailsId: "" });
+
+    expect(
+      observed.matching(`/contracts/${row.id}/payment_details`)
+    ).toHaveLength(0);
+    observed.stop();
+  });
+
+  it("AC-8 sends nothing when I pick the stored method my contract already uses", async () => {
+    const { manager, row } = await openManager();
+    const storedPaymentDetailsId = (row as { payment_details_id: string })
+      .payment_details_id;
+    const observed = observeAllRequests();
+
+    await manager
+      .useActions()
+      .setPaymentMethod({ paymentDetailsId: storedPaymentDetailsId });
+
+    expect(
+      observed.matching(`/contracts/${row.id}/payment_details`)
+    ).toHaveLength(0);
+    observed.stop();
   });
 });
 
 describe("useContract — I ask for one of my contracts to be cancelled outright (AC-6)", () => {
   it("AC-6 POSTs { product_ids, cancellation_reason } to cancel/request, naming the product I asked for", async () => {
     const { manager, row, accessToken } = await openManager();
-    const productId = "785d26e9-6783-d169-497f-314502e70439";
+    const productId = A_REAL_PRODUCT_ID;
     const captured: Captured = {};
 
     server?.use(
@@ -205,7 +225,7 @@ describe("useContract — I ask for one of my contracts to be cancelled outright
 
   it("AC-6 sends no cause field when I supply none — nothing travels in its place", async () => {
     const { manager, row } = await openManager();
-    const productId = "785d26e9-6783-d169-497f-314502e70439";
+    const productId = A_REAL_PRODUCT_ID;
     const captured: Captured = {};
 
     server?.use(
@@ -328,7 +348,7 @@ describe("useContract — no staff route is ever reachable from my contract surf
       paymentDetailsId: A_DIFFERENT_PAYMENT_DETAILS_ID
     });
     await manager.useActions().requestCancellation({
-      productIds: ["785d26e9-6783-d169-497f-314502e70439"]
+      productIds: [A_REAL_PRODUCT_ID]
     });
     await manager
       .useActions()
