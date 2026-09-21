@@ -18,8 +18,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import text from "@upmind-automation/i18n/core/text-en.json";
 import {
+  catalogue,
   clientEmailQuery,
   mountFilters,
   renderedStrings,
@@ -54,14 +54,16 @@ describe("no filter column draws the Optional indicator", () => {
     const { column } = await shippedFilters();
 
     for (const path of COLUMNS) {
-      expect(includes(column(path).text(), text.optional)).toBe(false);
+      expect(includes(column(path).text(), catalogue("text.optional"))).toBe(
+        false
+      );
     }
   });
 
   it("puts it nowhere else in the bar either — not a label, not an attribute", async () => {
     const { wrapper } = await shippedFilters();
 
-    expect(renderedStrings(wrapper)).not.toContain(text.optional);
+    expect(renderedStrings(wrapper)).not.toContain(catalogue("text.optional"));
   });
 });
 
@@ -75,9 +77,9 @@ describe("the suppression is the uischema's option, not the renderer's rule", ()
       })
     });
 
-    expect(includes(column("filters.verified.eq").text(), text.optional)).toBe(
-      true
-    );
+    expect(
+      includes(column("filters.verified.eq").text(), catalogue("text.optional"))
+    ).toBe(true);
   });
 });
 
@@ -85,6 +87,6 @@ describe("the indicator is still live for the fields that earn it", () => {
   it("draws it on an ordinary optional control in the very same mount", async () => {
     const { wrapper } = await plainControl();
 
-    expect(renderedStrings(wrapper)).toContain(text.optional);
+    expect(renderedStrings(wrapper)).toContain(catalogue("text.optional"));
   });
 });

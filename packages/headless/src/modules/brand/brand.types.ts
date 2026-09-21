@@ -9,7 +9,6 @@
  * See `graphify-out/GRAPH_REPORT.md`.
  */
 import type { UIMeta } from "../product/product.types";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { BrandConfigKeys } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -173,10 +172,3 @@ export type QueryModel = {
     keys?: { eq?: BrandConfigKeys[] };
   };
 };
-
-/**
- * The declared query schema's type. The query layer accepts any Draft-07
- * schema, and the translator/validators walk it at runtime, so the type stays
- * general rather than a module-specific literal.
- */
-export type QuerySchema = JsonSchema7;

@@ -1,0 +1,24 @@
+# must-fail: invoices.include-set.int.test.ts:64-83 > "invoices single read —
+# the include set may not shrink below its floor" > "carries every floor
+# relation on the outbound GET /invoices/{id}". That test asserts the
+# OUTBOUND request's own `with=` query content against the full FLOOR_RELATIONS
+# list (including `last_payment_log`) — unlike invoices.collection.
+# int.test.ts:71, which only asserts the substring "with=" is present, this
+# test reads the real request URL's `with` param and checks every relation
+# name is present. Mutation, as specified in the repair brief: drops
+# `last_payment_log` from `LOAD_ONE_INCLUDES` (`invoices.services.ts`), one
+# relation below the pre-conversion 17-relation floor design.md requires.
+# git apply --check is clean and this patch reddens the `toContain(
+# "last_payment_log")` assertion in that test's floor-relation loop.
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -73,8 +73,7 @@
+   "payments.payment_type",
+   "payment_details",
+   "gateway",
+-  "client.parent_client_config",
+-  "last_payment_log"
++  "client.parent_client_config"
+ ].join(",");
+ 
+ /**

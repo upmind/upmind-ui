@@ -205,8 +205,8 @@ import { Alert, type AlertProps } from "@upmind/ui";
 import { computed, onUnmounted, provide, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { ROUTE } from "~/funnels/types";
-import { PAYMENT_OVERLAY_ID } from "~/funnels/labs.constants";
+import { Icon } from "@upmind-automation/client-vue";
+import { useConfig } from "@upmind-automation/headless";
 import {
   useAccount,
   useTransfer,
@@ -218,13 +218,9 @@ import {
   UIContext,
   type Badge
 } from "@upmind-automation/headless";
-import { useConfig } from "@upmind-automation/headless";
 import { useAnnouncement } from "../../../../packages/client-vue/src/components/announcement/useAnnouncement";
 import Hero from "../../../../packages/client-vue/src/components/hero/Hero.vue";
-import { Icon } from "@upmind-automation/client-vue";
 import Section from "../../../../packages/client-vue/src/components/section/Section.vue";
-import Auth from "../../../../packages/client-vue/src/modules/session/components/Auth.vue";
-import { useThemes } from "../../../../packages/client-vue/src/modules/theming";
 import OrderProducts from "../../../../packages/client-vue/src/modules/order/components/OrderProducts.vue";
 import OrderEnclosedTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderEnclosed.template.vue";
 import OrderFullTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderFull.template.vue";
@@ -241,8 +237,11 @@ import {
   detailsSkeletonTotalRowVariants,
   detailsSkeletonItemVariants
 } from "../../../../packages/client-vue/src/modules/order/variants";
+import Auth from "../../../../packages/client-vue/src/modules/session/components/Auth.vue";
+import { useThemes } from "../../../../packages/client-vue/src/modules/theming";
 import { capitalize, first, get, omit, toString } from "lodash-es";
 import type { OrderProps } from "../../../../packages/client-vue/src/modules/order/types";
+import { PAYMENT_OVERLAY_ID } from "~/funnels/labs.constants";
 
 interface OrderItem {
   term?: string;
@@ -321,7 +320,7 @@ const {
   refresh,
   renderChallenge,
   retry
-} = useOrder(orderId);
+} = useOrder(toString(orderId));
 
 await isReady();
 

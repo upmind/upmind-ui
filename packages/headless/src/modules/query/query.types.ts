@@ -21,7 +21,7 @@
  * reason as {@link ListQuery}.
  */
 import type { responseCodes, ResponseError } from "../../utils";
-import type { JsonSchema } from "@jsonforms/core";
+import type { JsonSchema7 } from "@jsonforms/core";
 import type {
   DefaultError,
   MutationObserverOptions,
@@ -44,7 +44,7 @@ export type { ErrorObject as ValidationErrorObject } from "ajv";
 /**
  * Interface representing a structured error response from an API query.
  */
-export interface QueryResponseError {
+export type QueryResponseError = {
   /**
    * An optional unique identifier for the error, typically `null` if not specified.
    */
@@ -69,7 +69,7 @@ export interface QueryResponseError {
    * The HTTP status code associated with the error (e.g. 400, 500).
    */
   status: responseCodes | number;
-}
+};
 
 /**
  * Represents the structure of a single page returned from an infinite query's `queryFn`.
@@ -94,7 +94,7 @@ export type InfiniteQueryPage<TData> = {
  *
  * @template TData - The type of the main data payload (defaults to `unknown`).
  */
-export interface QueryResponse<TData = unknown> {
+export type QueryResponse<TData = unknown> = {
   /**
    * The HTTP status code of the response.
    */
@@ -123,7 +123,7 @@ export interface QueryResponse<TData = unknown> {
    * Optional metadata included alongside the main data, e.g. `total_pages`, `tlds`.
    */
   meta?: Record<string, any> | null;
-}
+};
 
 /**
  * Type alias defining common properties for API queries, including sorting, filtering, and pagination.
@@ -329,11 +329,18 @@ export type ListQuery<
  *
  * @template TModel - The module's own query model (filters · sort · pagination).
  */
+/**
+ * A collection's declared query schema — filters · sort · pagination as ONE
+ * Draft-07 schema. The translator and the validators walk it at runtime, so
+ * the type stays the general Draft-07 shape, never a module literal.
+ */
+export type QuerySchema = JsonSchema7;
+
 export type QueryCriteriaOptions<
   TModel extends Record<string, unknown> = Record<string, unknown>
 > = {
   /** The collection's declared query schema — filters · sort · pagination. */
-  schema: JsonSchema;
+  schema: QuerySchema;
   /**
    * The starting model, so a cold boot is already correct: a list rehydrated
    * from a url's page/sort/filters fetches once, rather than fetching
@@ -365,7 +372,7 @@ export type QueryCriteria<
    */
   model: ComputedRef<TModel>;
   /** The declaration itself, so the handle can re-publish what is filterable/sortable. */
-  schema: JsonSchema;
+  schema: QuerySchema;
   /** The translated wire triple. `list()` is its only consumer. */
   props: ComputedRef<QueryProps>;
   /** ajv's verdict on the last REJECTED write, as the module's normal error shape. Never swallowed. */
@@ -416,7 +423,7 @@ export type QueryCriteriaHandle<
   /** The semantic request state — {@link QueryCriteria.model}. */
   criteria: ComputedRef<TModel>;
   /** What is filterable / sortable at all. */
-  schema: JsonSchema;
+  schema: QuerySchema;
   /** Any declared filter column carries a value. */
   isFiltered: ComputedRef<boolean>;
   /**
@@ -587,7 +594,7 @@ export type RequestFilters = Record<string, unknown>;
 /**
  * Interface representing pagination parameters for a request.
  */
-export interface RequestPagination {
+export type RequestPagination = {
   /**
    * The maximum number of items to return in a single page.
    */
@@ -596,13 +603,13 @@ export interface RequestPagination {
    * The number of items to skip from the beginning of the result set.
    */
   offset?: number;
-}
+};
 
 /**
  * Interface representing comprehensive pagination information, typically returned
  * by an API to describe the current state of paginated results.
  */
-export interface PaginationInfo {
+export type PaginationInfo = {
   /**
    * The maximum number of items per page.
    */
@@ -627,4 +634,4 @@ export interface PaginationInfo {
    * The index of the last item on the current page (1-indexed).
    */
   to: number;
-}
+};

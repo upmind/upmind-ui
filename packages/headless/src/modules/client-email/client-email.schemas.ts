@@ -2,7 +2,7 @@
 import { SortDirection } from "../query/query.types";
 import { PAGINATION } from "../query/query.utils";
 import { DEFAULT_SORT } from "./client-email.types";
-import type { QuerySchema } from "./client-email.types";
+import type { QuerySchema } from "../query/query.types";
 import type {
   ControlElement,
   JsonSchema7,

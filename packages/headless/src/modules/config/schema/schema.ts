@@ -29,7 +29,7 @@ import type {
   LabelContent
 } from "./types";
 
-export interface UISchema {
+export type UISchema = {
   // --- Categories
   /** Display active category badge */
   activeCategoryBadge?: Visibility;
@@ -185,9 +185,9 @@ export interface UISchema {
   trustMessaging?: Visibility;
   /** Control the presentation of zero prices (eg. '$0.00' or 'Free') */
   zeroPriceDisplay?: ZeroPriceDisplay;
-}
+};
 
-export interface DataSchema {
+export type DataSchema = {
   /** Disable standalone billing details screen */
   billingDetailsDisabled?: boolean;
 
@@ -288,4 +288,4 @@ export interface DataSchema {
   optionGroupIcon?: string;
   /** Option image URL */
   optionImgUrl?: string;
-}
+};

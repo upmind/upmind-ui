@@ -48,8 +48,12 @@ export type Refinement = {
   id: string;
   /** The wire column the leaf narrows. */
   column: string;
-  /** The declared operator — the leaf's key under that column. */
-  operator: string;
+  /**
+   * The declared operator — the leaf's key under that column. Absent on a
+   * column declaring none, whose value sits directly on the column and reaches
+   * the API as a bare `filter[column]`.
+   */
+  operator?: string;
   /** The leaf's live value, carried so a removal can write every OTHER leaf back. */
   value: unknown;
   /** What the chip says: the column's declared title and the value it is set to. */

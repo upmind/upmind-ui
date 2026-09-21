@@ -1,6 +1,5 @@
 import { SortDirection } from "../query/query.types";
 import type { QuerySortEntry } from "../query/query.types";
-import type { JsonSchema7 } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 // QUERY MODEL — the collection's whole request state as ONE model
@@ -50,10 +49,3 @@ export type ProductQueryModel = {
 export const PRODUCT_DEFAULT_SORT: QuerySortEntry[] = [
   { field: ProductSortableProperties.DEFAULT, dir: SortDirection.ASC }
 ];
-
-/**
- * The collection's query schema. A `JsonSchema7`: the translator and the
- * validators walk it at runtime, so the type stays general rather than a
- * module-specific literal.
- */
-export type ProductQuerySchema = JsonSchema7;

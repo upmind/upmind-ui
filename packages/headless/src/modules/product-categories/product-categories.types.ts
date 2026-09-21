@@ -8,7 +8,6 @@
 // Reuses the config schema's badge shape (graphify-out/GRAPH_REPORT.md — no
 // category-local badge type exists); the bare-label form is permitted here too.
 import type { BadgeInput } from "../config/schema";
-import type { JsonSchema7 } from "@jsonforms/core";
 import type { IProductCategory } from "@upmind-automation/types";
 
 export type ProductCategory = {
@@ -38,10 +37,3 @@ export type ProductCategory = {
 export type ProductCategoryQueryModel = {
   pagination?: { limit?: number; offset?: number };
 };
-
-/**
- * The collection's query schema. A `JsonSchema7`: the translator and the
- * validators walk it at runtime, so the type stays general rather than a
- * module-specific literal.
- */
-export type ProductCategoryQuerySchema = JsonSchema7;

@@ -150,10 +150,15 @@ const { meta: routingMeta, isReady } = useRoutingEngine();
 /**
  * A registry-derived item owns a PATH and its scope suffix extends it
  * (`/as/:actor/for/:type/:id`); a route-declared one owns a named record.
+ *
+ * The prefix must land on a SEGMENT boundary. A bare `startsWith` lights up
+ * every sibling whose path is a prefix of another's — `/useInvoice` matches
+ * `/useInvoices`, so both read as current — and the rail then says the user is
+ * in two places at once.
  */
 function isActive(item: NavItem): boolean {
   return item.to
-    ? startsWith(route.path, item.to)
+    ? route.path === item.to || startsWith(route.path, `${item.to}/`)
     : !!item.route && route.name === item.route;
 }
 

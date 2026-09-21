@@ -1,0 +1,77 @@
+Negative control for invoices.download.int.test.ts (AC-17, FE-3031's mid-run
+addition — invoice/credit-note PDF download).
+
+Authored by the developer seat (`agent-seat-separation.companion.md`,
+developer-authors-mutant / prover-verifies-blind) — it knows the exact line
+it mutates; the prover applies this blind and reverts, never reading
+`invoices.services.ts` to construct it.
+
+Assertion it attacks: the SUBSTANCE claim the file header states plainly —
+"the response is handled as a Blob — never treated as JSON, which a shape
+assertion cannot see." A TypeScript declaration check on `downloadPdf`'s
+`Promise<Blob>` return type cannot see this: `response.json()` still
+typechecks against that signature (both are `Promise<unknown>`-shaped at the
+call site until runtime), so only a REAL request/response round-trip proves
+the read is handled as a blob and not parsed as JSON — exactly what these
+tests exist to do (per the module's own `resolveClientId`/`isAddressable`
+seam doc, "the same standard every other read in this module is held to").
+The filename-derivation and `isAddressable`-gate claims are each already
+covered by their own dedicated assertions in this same file and are
+UNAFFECTED by this mutation (confirmed below) — this control isolates the
+blob-vs-JSON claim specifically, the one claim a shape/declaration check
+cannot see.
+
+Mutation: `downloadPdf` (`invoices.services.ts`) parses the download
+response as JSON instead of returning it as a Blob.
+
+Verified by hand before filing (developer seat, source-read; the prover
+verifies the RED blind, per `agent-seat-separation.companion.md`): applying
+this mutation and running
+`pnpm --filter @upmind-automation/headless test -- invoices.download.int.test.ts`
+reddens exactly 2 of the file's 3 tests — the wire+blob+filename test and the
+credit-note-same-reader test, both of which await `downloadPdf()` and then
+assert on the Blob handed to the save utility. The synthetic PDF fixture body
+(`%PDF-1.4 fixture-bytes-only`) is not valid JSON, so `response.json()`
+throws before either test's assertions run — the test never reaches
+`expect(blobArg).toBeInstanceOf(Blob)` because the read that was supposed to
+hand it a Blob threw instead. The third test (the `isAddressable` gate,
+"issues NO download request... when signed out") is UNAFFECTED — it never
+reaches the response-handling line at all, since `isAddressable` short-
+circuits before any `fetch` — confirming this control is narrow to the
+blob/JSON claim and does not spuriously flip the addressability gate.
+
+Apply from the repo root: `git apply <this file>`; revert with
+`git apply -R`.
+
+Proven RED 2026-09-09
+(`pnpm --filter @upmind-automation/headless test -- invoices.download.int.test.ts`):
+  x invoices single read — download the invoice PDF (AC-17) > AC-17 issues
+    GET api/invoices/{id}/download for the held invoice, handles the
+    response as a Blob (not JSON), and saves it as ${number}.pdf
+      -> SyntaxError: Unexpected token '%', "%PDF-1.4 f"... is not valid JSON
+         at FetchResponse.json (happy-dom Response.ts:266:15)
+         at Object.downloadPdf (useInvoice.actions.ts:168:18)
+  x invoices single read — download the invoice PDF (AC-17) > AC-17
+    (constructed — category.slug toggled) a credit note rides the SAME
+    reader as a plain invoice: identical request shape, no category branch
+      -> SyntaxError: Unexpected token '%', "%PDF-1.4 f"... is not valid JSON
+         at FetchResponse.json (happy-dom Response.ts:266:15)
+         at Object.downloadPdf (useInvoice.actions.ts:168:18)
+  Test Files  1 failed | 234 passed (235)
+       Tests  2 failed | 1827 passed | 3 todo (1832)
+  (3rd test in the file, the isAddressable gate, stayed green — confirmed
+  narrow)
+
+diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
+index d82aa6930..b88738ecf 100644
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -540,7 +540,7 @@ async function downloadPdf(
+     );
+   }
+ 
+-  return response.blob();
++  return response.json();
+ }
+ 
+ // -----------------------------------------------------------------------------

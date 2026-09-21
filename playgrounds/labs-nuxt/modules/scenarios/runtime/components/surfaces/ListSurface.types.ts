@@ -118,6 +118,18 @@ export type ListSurfaceProps = SurfaceProps & {
    * `graphify-out/GRAPH_REPORT.md`.
    */
   forcedRefusal?: string;
+  /**
+   * The cell's own `useMeta()` members, raw — `ModulePort.rawMeta()` relayed
+   * by `ModuleRenderer`, never re-derived here. Read only for the scopes the
+   * scenario NAMES in `presentation.notices`; absent or missing a named key,
+   * that notice draws nothing (2026-09-09 operator sign-off).
+   *
+   * @graphify-citation `graphify-out/graph.json` (2026-09-09) — queried
+   * "raw uncoerced meta number count channel bypass CompositionPort": no
+   * such prop exists in the tree; `ModulePort.rawMeta` (minted the same pass,
+   * `useModulePort.types.ts`) is the source this relays, additively.
+   */
+  notices?: Record<string, boolean | number>;
 };
 
 /** Which of the two empty sentences a list tells. */

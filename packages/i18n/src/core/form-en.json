@@ -442,5 +442,99 @@
     "description": null,
     "label": "Preferred payment currency",
     "placeholder": null
+  },
+  "client_id": {
+    "description": null,
+    "label": "Client",
+    "placeholder": "Client id"
+  },
+  "contract_lookup": {
+    "description": null,
+    "label": "Contract",
+    "placeholder": "Select a contract"
+  },
+  "contract_product_lookup": {
+    "description": null,
+    "label": "Contract product",
+    "placeholder": "Select a contract product"
+  },
+  "invoice_lookup": {
+    "description": null,
+    "label": "Parent invoice",
+    "placeholder": "Select an invoice"
+  },
+  "invoice_number_filter": {
+    "description": null,
+    "label": "Invoice number",
+    "placeholder": "Search invoice number"
+  },
+  "invoice_status_filter": {
+    "description": null,
+    "label": "Status",
+    "placeholder": null,
+    "invoice_adjusted": "Adjusted",
+    "invoice_cancelled": "Cancelled",
+    "invoice_draft": "Draft",
+    "invoice_overdue": "Overdue",
+    "invoice_paid": "Paid",
+    "invoice_refunded": "Refunded",
+    "invoice_replaced": "Replaced",
+    "invoice_unpaid": "Unpaid",
+    "invoice_cancellation_request": "Cancellation requested",
+    "invoice_allocated": "Allocated",
+    "invoice_unallocated": "Unallocated"
+  },
+  "invoice_category_filter": {
+    "description": null,
+    "label": "Category",
+    "placeholder": null,
+    "new_contract": "New contract",
+    "additional_service": "Additional service",
+    "one_time_service": "One-time service",
+    "migration_pro_rata": "Migration",
+    "recurrent": "Renewal",
+    "credit_note": "Credit note",
+    "credit_note_for_refund": "Credit note for refund",
+    "consolidation": "Consolidation"
+  },
+  "invoice_consolidation_filter": {
+    "description": null,
+    "label": "Consolidation",
+    "placeholder": null,
+    "true": "Consolidated",
+    "false": "Not consolidated"
+  },
+  "invoice_total_filter": {
+    "description": null,
+    "label": "Total",
+    "placeholder": null
+  },
+  "invoice_net_filter": {
+    "description": null,
+    "label": "Net amount",
+    "placeholder": null
+  },
+  "invoice_created_filter": {
+    "description": null,
+    "label": "Created",
+    "placeholder": null
+  },
+  "invoice_due_filter": {
+    "description": null,
+    "label": "Due",
+    "placeholder": null
+  },
+  "invoice_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "create_datetime": "Created",
+    "number": "Number",
+    "total_amount": "Total",
+    "net_amount": "Net amount",
+    "status": "Status",
+    "paid_datetime": "Paid",
+    "due_date": "Due",
+    "cancellation_datetime": "Cancelled"
   }
 }

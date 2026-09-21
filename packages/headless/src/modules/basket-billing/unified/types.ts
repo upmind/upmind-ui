@@ -57,7 +57,7 @@ export type UnifiedModel = {
  * such as addresses, companies, phones, emails, and geographical lookups.
  * This context provides a comprehensive view of a client's unified profile.
  */
-export interface UnifiedContext extends DataManagerContext<UnifiedModel> {
+export type UnifiedContext = DataManagerContext<UnifiedModel> & {
   /**
    * The type of the unified client profile, indicating whether it's 'personal' or 'business'.
    */
@@ -93,4 +93,4 @@ export interface UnifiedContext extends DataManagerContext<UnifiedModel> {
    * An array of all email addresses associated with the client.
    */
   emails: Email[];
-}
+};

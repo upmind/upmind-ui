@@ -1,0 +1,27 @@
+# must-fail: invoices.payment-state.int.test.ts > "invoices single read —
+# overall payment state (AC-16) > AC-16 a failed load reports no guessed
+# payment state" (and its 404 counterpart, "AC-16 a real 404 (unknown
+# invoice) reports the same failed-load guarantee as any other failed load")
+# — both assert `paymentState.value` resolves to `PAYMENT_STATE.FAILED` on a
+# failed load.
+# Mutation: replaces the `isEmpty(invoice?.summary)` failed-load guard with
+# a `!invoice` check, so a failed load whose `invoice` is truthy but whose
+# `summary` is absent no longer short-circuits — the computed then
+# destructures `summary` and throws `Cannot read properties of undefined
+# (reading 'unpaidAmount')` instead of resolving `PAYMENT_STATE.FAILED`.
+--- a/packages/headless/src/modules/invoices/useInvoice.meta.ts	2026-09-07 23:05:56
++++ b/packages/headless/src/modules/invoices/useInvoice.meta.ts	2026-09-07 23:08:31
+@@ -45,10 +45,10 @@
+    * payment attempt.
+    */
+   const paymentState = computed<PaymentState>(() => {
+-    const invoice = query.data.value;
+-    if (isEmpty(invoice?.summary)) return PAYMENT_STATE.FAILED;
++    const invoice: Invoice | undefined = query.data.value;
++    if (!invoice) return PAYMENT_STATE.PENDING;
+ 
+-    const { payments, summary } = invoice as Invoice;
++    const { payments, summary } = invoice;
+ 
+     if (summary.unpaidAmount === 0) {
+       return isEmpty(payments) ? PAYMENT_STATE.FREE : PAYMENT_STATE.COMPLETE;

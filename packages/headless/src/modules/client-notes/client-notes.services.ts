@@ -50,7 +50,6 @@ import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IContractProduct, IVaultAsset } from "@upmind-automation/types";
-import type { Ref } from "vue";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
@@ -527,8 +526,7 @@ async function decrypt(
  *   thing this story replaces (984 products, a 19 MB fixture).
  */
 function loadContractProductLookup(
-  scopeContext: ScopeContext | undefined,
-  isActive: Ref<boolean>
+  scopeContext: ScopeContext | undefined
 ): ContractProductLookupQuery {
   const { listInfinite, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
@@ -575,10 +573,7 @@ function loadContractProductLookup(
     withAccessToken: true,
     select: mapContractProductLookupItems,
     retryDelay: DEBOUNCE_DELAY,
-    // `isActive` defers the FIRST fetch to the control's own read (AC2): the
-    // query is minted at composable construction but stays idle through manager
-    // `loading` boot until the renderer reads the service on control render.
-    enabled: () => isAddressable(clientId.value) && isActive.value
+    enabled: () => isAddressable(clientId.value)
   }) as unknown as ContractProductLookupQuery;
 }
 
@@ -873,8 +868,7 @@ export const createClientNoteServices = (
     setEncrypted: (id, encrypted) =>
       setEncrypted(id, encrypted, scopeContext, captureError),
     decrypt: id => decrypt(id, scopeContext),
-    loadContractProductLookup: isActive =>
-      loadContractProductLookup(scopeContext, isActive),
+    loadContractProductLookup: () => loadContractProductLookup(scopeContext),
     loadLookups: context => loadLookups(context, scopeContext),
     parse,
     validate,

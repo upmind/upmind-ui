@@ -3,12 +3,12 @@ import type { CustomField } from "../client-custom-fields";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 
-export interface FieldsModel {
+export type FieldsModel = {
   notes: string;
   customFields: Record<string, any>;
-}
+};
 
-export interface FieldsContext {
+export type FieldsContext = {
   basketId?: string;
   // ---
   fields?: CustomField[];
@@ -19,4 +19,4 @@ export interface FieldsContext {
   autoupdate?: boolean;
   // ---
   error?: ResponseError;
-}
+};

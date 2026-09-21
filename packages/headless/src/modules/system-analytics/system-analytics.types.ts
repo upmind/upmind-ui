@@ -15,13 +15,13 @@ declare global {
  * Interface representing user-specific data to be pushed to the data layer.
  * This can include anonymised user IDs, login status, or other user attributes for analytics.
  */
-export interface DataLayerUser {}
+export type DataLayerUser = {};
 
 /**
  * Interface representing page-specific data to be pushed to the data layer.
  * This helps track navigation, page views, and contextual information about the current page.
  */
-export interface DataLayerPage {
+export type DataLayerPage = {
   /**
    * The type of the current page (e.g. "product_detail", "category", "checkout").
    */
@@ -46,13 +46,13 @@ export interface DataLayerPage {
    * The full URL of the previous page, if known.
    */
   previous_url?: string;
-}
+};
 
 /**
  * Interface representing e-commerce purchase or transaction data to be pushed to the data layer.
  * This typically follows the Google Analytics Enhanced E-commerce schema for purchase events.
  */
-export interface DataLayerEcommerce {
+export type DataLayerEcommerce = {
   /**
    * The coupon code applied to the entire purchase, if any.
    */
@@ -85,13 +85,13 @@ export interface DataLayerEcommerce {
    * The total gross value of the transaction (including taxes).
    */
   gross_value?: number;
-}
+};
 
 /**
  * Interface representing a collection of e-commerce items, often used for add_to_cart, remove_from_cart,
  * or view_item_list events, which require currency and total value information.
  */
-export interface DataLayerEcommerceItems {
+export type DataLayerEcommerceItems = {
   /**
    * The ISO 4217 currency code for the items (e.g. "GBP", "USD").
    */
@@ -108,7 +108,7 @@ export interface DataLayerEcommerceItems {
    * The total gross value of the items (including taxes).
    */
   gross_value?: number;
-}
+};
 
 /**
  * Interface representing a single e-commerce item within the data layer.
@@ -117,7 +117,7 @@ export interface DataLayerEcommerceItems {
  * This should always represent the unit/base price of the item and not the total price.
  * The `price` should always be nett, with a custom `gross_price` field added for the gross price.
  */
-export interface DataLayerEcommerceItem {
+export type DataLayerEcommerceItem = {
   /**
    * The discount applied to this specific item.
    */
@@ -174,4 +174,4 @@ export interface DataLayerEcommerceItem {
    * The quantity of the item.
    */
   quantity: number;
-}
+};

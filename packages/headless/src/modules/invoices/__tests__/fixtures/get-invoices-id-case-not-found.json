@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/invoices/00000000-0000-0000-0000-000000000000?case=not-found&with=brand,taxes,client,status,contract,payments,payments.payment_details,products,promotions,client.tags,products.tags,taxes.tax_tag_data,custom_fields.field,affiliate_commissions,products.product.image,account.affiliate_referral.affiliate_account.account.client",
+    "path": "/api/invoices/00000000-0000-0000-0000-000000000000?with=brand,taxes,client,status,contract,payments,payments.payment_details,products,promotions,client.tags,products.tags,taxes.tax_tag_data,custom_fields.field,affiliate_commissions,products.product.image,account.affiliate_referral.affiliate_account.account.client,address,address.country,category,payments.gateway,payments.payment_type,payment_details,gateway,client.parent_client_config,last_payment_log&case=not-found",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf913b8009090-DUB",
+      "cf-ray": "a37c98c518abae16-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:18:36 GMT",
+      "date": "Tue, 08 Sep 2026 08:31:25 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=i0FxZ63f8rO%2FpB7fcp8avFCLB1loF0yXVdql70mMprAAmyUaPboRQO2JsY49kihhE488I54NOB8XfR3s3Bl2F8NQbyjKAeuxkouQF6%2BgHq6rzHNEyyN4jdTe5hp3G5F46D4d%2FIZyhA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=kgFLJaZmfCloIi4iHm50fSL1RJ44cobSec0XR%2B6iaEDHzQEmjqyM3RTfWIxlOsAfSbua6EkgtoZ7EUYK8yWErdU9ha7mjb9uW%2Bd1AwziaXEUwMG%2FpFB9BIfi7fRvaOD1KBWJL1yRzA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -46,7 +46,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:18:36.415Z",
+  "captured_at": "2026-09-08T08:31:25.258Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {
