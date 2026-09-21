@@ -64,8 +64,11 @@ All notable changes to the invoices module.
 The single-invoice read is now a scoped composable, matching the collection's shape:
 
 ```typescript
-// Before
-const invoice = useInvoice(invoiceId);
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+
+// Before — `useInvoice(invoiceId)` (the pre-conversion call, no longer spellable)
 
 // After
 const invoice = useInvoice().withId(invoiceId);

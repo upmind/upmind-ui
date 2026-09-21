@@ -26,6 +26,10 @@ awaiting acceptance.
 **Returns:** `Promise<Delegate[]>`
 
 ```ts
+import { readClientDelegates } from "@upmind-automation/headless";
+
+declare const ownerId: string;
+
 const delegates = await readClientDelegates(ownerId);
 delegates[0].isAccepted; // false while the invitation is still outstanding
 ```
@@ -60,6 +64,10 @@ type DelegateInviteModel = {
 **Returns:** `Promise<Delegate>` — the created row, `isAccepted: false`.
 
 ```ts
+import { inviteClientDelegate } from "@upmind-automation/headless";
+
+declare const ownerId: string;
+
 const grant = await inviteClientDelegate(ownerId, {
   email: "invitee@example.com",
   fullDelegate: true
@@ -87,6 +95,10 @@ at all (see [gotchas.md #1](./gotchas.md#1-the-accept-hash-is-not-readable-from-
 the SAME owner-side row, now `isAccepted: true`.
 
 ```ts
+import { acceptDelegateInvite } from "@upmind-automation/headless";
+
+declare const hashFromInvitationEmail: string;
+
 const accepted = await acceptDelegateInvite(hashFromInvitationEmail);
 accepted.isAccepted; // true
 accepted.ownerClientId; // whose account this access is on
@@ -104,6 +116,10 @@ as a rejected promise, never as an empty array, a fabricated pending row, or
 a fabricated accepted row.
 
 ```ts
+import { readClientDelegates } from "@upmind-automation/headless";
+
+declare const someAccountId: string;
+
 try {
   await readClientDelegates(someAccountId);
 } catch (error) {

@@ -11,10 +11,15 @@ Edge cases and things to watch out for.
 `useContext().total`, `useMeta().hasUnpaid`, and `useMeta().consolidatableCount` all derive from the server's reported row count. That count only refreshes as a side effect of reading `.pagination`/`.meta` on the underlying query handle — reading the query's own top-level `total` field directly returns a value pinned at `0`, forever, regardless of what the server answered. This module always reads through `.pagination.value.total`; a new derivation added to this module (or copied from it into another) must do the same.
 
 ```typescript
+import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
+
+declare const someOtherModulesQuery: { total: { value: number } };
+
 // ❌ Wrong — reads a value that never updates
-const total = someOtherModulesQuery.total.value;
+const staleTotal = someOtherModulesQuery.total.value;
 
 // ✅ Correct — this module's own members already do this
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
 const { total } = invoices.useContext(); // reads .pagination.value.total internally
 ```
 
@@ -35,6 +40,11 @@ Reading an entitled client's invoices (`.for('client', id)`) applies that client
 A row's delegated classification is a fact about the invoice's own client (does it have _any_ parent account at all), independent of who is reading. A row's sub-account classification needs to compare that parent against the reader's own id. Calling the mapper with only one argument — as `orders/order.machine.ts` does — still yields a correct delegated signal, but a conservative "not mine" sub-account signal. This is intentional, not a bug to fix in `orders`.
 
 ```typescript
+import { mapInvoice } from "@upmind-automation/headless";
+import type { IInvoice } from "@upmind-automation/types";
+
+declare const raw: IInvoice;
+
 // A single-argument call still resolves isDelegated correctly:
 mapInvoice(raw); // isDelegated: correct; isChildOfClient: conservative false
 ```
@@ -124,10 +134,14 @@ The snapshot does not follow the live client record. Renames and address edits a
 Both composables' `destroy()` removes the scoped instance from the registry so the next `.as()` / `.withId()` mints a fresh one. `isReady()` always settles — even a fetch that never completes resolves `false` on a bound timeout, rather than leaving a caller's `await` hanging forever.
 
 ```ts
-import { useInvoice, useInvoices } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  useInvoice,
+  useInvoices
+} from "@upmind-automation/headless";
 
 declare const id: string;
 
-await useInvoices().as("self").useActions().isReady();
+await useInvoices().as(ScopeActorTypes.SELF).useActions().isReady();
 await useInvoice().withId(id).useActions().isReady();
 ```

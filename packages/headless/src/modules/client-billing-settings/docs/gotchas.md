@@ -9,6 +9,9 @@ The sharp edges of the consolidation-preference read view and its editor. For an
 `InvoiceConsolidationTypes.DISABLED` is the number `0`. Anything in a test, or in calling code, that checks "is this field set?" with a plain truthiness test (`if (model.enabled)`) will treat an explicit off exactly the same as "never touched" — which is the single highest-risk failure mode in this module.
 
 ```ts
+import type { UseBillingSettingsManager } from "@upmind-automation/headless";
+declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+
 await manager.useActions().update({ enabled: 0 });
 // → PUT body MUST carry: { "invoice_consolidation_enabled": 0 }
 // NOT an omitted key, NOT `false`, NOT dropped as "empty"
@@ -23,10 +26,14 @@ Fixture: `put-clients-id-case-enabled-off.json` (`{"invoice_consolidation_enable
 The on/off/follow switch always holds one of three literal values (`0` / `1` / `2`) and is deliberately **not** modelled nullable — "follow the brand" is its own third enum value, not an absence. The other four fields (`baseRule`, `dayOfWeek`, `dateOfMonthDay`, `dueDateDay`) each defer to the brand's own default by being `null`.
 
 ```ts
+import type { UseBillingSettingsManager } from "@upmind-automation/headless";
+declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+
 // ✅ Right — follow the brand via the switch's own third value
 await manager.useActions().update({ enabled: 2 });
 
-// ❌ Wrong — enabled is never modelled nullable; this is a type error
+// ❌ Wrong — enabled is never modelled nullable; BillingSettingsModel has no
+// null for it (update() also accepts a loose record, so it is not caught here)
 await manager.useActions().update({ enabled: null });
 
 // ✅ Right — the OTHER four fields defer via null
@@ -62,6 +69,9 @@ This module reads `clients/{id}?with=custom_fields,custom_fields.field` under th
 Typing into the form schedules a debounced parse. Calling `clear()` immediately afterward resets the model right away — but if the debounce window from the last keystroke hasn't closed yet, that pending `input()` call still fires afterward and silently repopulates the field `clear()` just emptied.
 
 ```ts
+import type { UseBillingSettingsManager } from "@upmind-automation/headless";
+declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+
 manager.useActions().input({ baseRule: "daily" }); // debounced — scheduled, not yet sent
 manager.useActions().clear(); // model clears NOW
 // ...350ms later, the pending input() from the line above still fires
@@ -77,6 +87,12 @@ manager.useActions().clear(); // model clears NOW
 Some other scoped modules in this codebase register a query-backed collection and a machine-backed editor under one shared internal name, relying on the editor always supplying its own `.for()` or `.fresh()` to keep the two composables' scope keys apart. **This module cannot use that pattern**, because a client has exactly one preference — the editor's normal, everyday call (`.as(ScopeActorTypes.CLIENT)`, no further argument) would produce the _identical_ scope key the read view's own normal call produces, under a shared name. So this module's two composables are registered under two distinct internal names instead; they still share one scope matrix and one identity-resolution function underneath.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useBillingSettings,
+  useBillingSettingsManager
+} from "@upmind-automation/headless";
+
 // Both of these resolve the SAME target client, through the SAME seam —
 // but they are two SEPARATE registry entries, not one shared instance.
 const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
@@ -96,8 +112,14 @@ A save attempted while the owning client record is a staged, unprocessed import 
 Both scoping methods on both composables are typed against the actual enum, not against the string a member happens to resolve to. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut.
 
 ```ts
+import {
+  ScopeActorTypes,
+  useBillingSettingsManager
+} from "@upmind-automation/headless";
+
 // ❌ Wrong — TS2345, not a working shortcut
-const manager = useBillingSettingsManager().as("client");
+// @ts-expect-error — a plain string is not a ScopeActorTypes member
+const wrongManager = useBillingSettingsManager().as("client");
 
 // ✅ Right
 const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
@@ -161,6 +183,14 @@ The visibility gate resolves through its own asynchronous fetch, run in parallel
 ### Destroy the instance when done
 
 ```ts
+import { onUnmounted } from "vue";
+import type {
+  UseBillingSettings,
+  UseBillingSettingsManager
+} from "@upmind-automation/headless";
+declare const settings: ReturnType<UseBillingSettings["fresh"]>;
+declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+
 onUnmounted(() => {
   settings.useActions().destroy();
   manager.useActions().destroy(); // also stops the underlying machine
@@ -170,6 +200,13 @@ onUnmounted(() => {
 ### Wait for readiness before reading or editing
 
 ```ts
+import type {
+  UseBillingSettings,
+  UseBillingSettingsManager
+} from "@upmind-automation/headless";
+declare const settings: ReturnType<UseBillingSettings["fresh"]>;
+declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+
 await settings.useActions().isReady(); // also waits for the visibility gate to settle
 await manager.useActions().isReady(); // bounded — resolves false rather than hanging
 ```

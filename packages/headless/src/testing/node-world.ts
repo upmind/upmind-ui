@@ -53,8 +53,12 @@ export type NodeScopedCell = {
   useActions: () => Record<string, unknown>;
   useContext: () => Record<string, unknown>;
   useMeta: () => Record<string, unknown>;
-  /** Present on a module whose matrix offers a context; absent on one that does not. */
-  for?: (type: string, id: string) => NodeScopedCell;
+  /**
+   * Present on a module whose matrix offers a context; absent on one that does
+   * not. The `id` is present for a RETARGET member and absent for a SELECTOR
+   * one, mirroring `WorldScope.context`.
+   */
+  for?: (type: string, id?: string) => NodeScopedCell;
 };
 
 /** The module builder a scenario key resolves to — `useBillingSettingsManager` and its kind. */

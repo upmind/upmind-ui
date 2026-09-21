@@ -5,9 +5,9 @@
 ## Reading your own invoices — the collection
 
 ```ts
-import { useInvoices } from "@upmind-automation/headless";
+import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
 
-const invoices = useInvoices().as("self");
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
 
 const { data, error, findOne, getOne, pagination, query, schemas, total } =
   invoices.useContext();
@@ -39,11 +39,13 @@ const {
 `data` defaults to `[]` until the first fetch settles. Await `isReady()` before branching on it:
 
 ```ts
-import { useInvoices } from "@upmind-automation/headless";
+import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
 
-const invoices = useInvoices().as("self");
-const ok = await invoices.useActions().isReady();
-if (!ok) return; // unauthenticated, or the fetch timed out
+async function load() {
+  const invoices = useInvoices().as(ScopeActorTypes.SELF);
+  const ok = await invoices.useActions().isReady();
+  if (!ok) return; // unauthenticated, or the fetch timed out
+}
 ```
 
 ### Filtering, sorting, paging
@@ -51,17 +53,24 @@ if (!ok) return; // unauthenticated, or the fetch timed out
 All request state travels through `setCriteria` — there is no raw filter string, sort string, or limit/page literal anywhere in this module:
 
 ```ts
-import { useInvoices } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  SortDirection,
+  useInvoices
+} from "@upmind-automation/headless";
+import { InvoiceStatus } from "@upmind-automation/types";
 
-const invoices = useInvoices().as("self");
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
 
 invoices.useActions().setCriteria({
-  filters: { "status.code": { in: ["invoice_unpaid", "invoice_overdue"] } },
-  sort: [{ field: "due_date", dir: "asc" }],
+  filters: { "status.code": [InvoiceStatus.UNPAID, InvoiceStatus.OVERDUE] },
+  sort: [{ field: "due_date", dir: SortDirection.ASC }],
   pagination: { limit: 25, offset: 0 }
 });
 
-invoices.useActions().sortBy("total_amount", "desc");
+invoices.useActions().sortBy([
+  { field: "total_amount", dir: SortDirection.DESC }
+]);
 ```
 
 An undeclared filter column or operator does not silently pass through or get dropped — it fails validation, and no request carrying it reaches the wire.
@@ -69,9 +78,9 @@ An undeclared filter column or operator does not silently pass through or get dr
 ### Credit notes and consolidation, as presets over the same collection
 
 ```ts
-import { useInvoices } from "@upmind-automation/headless";
+import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
 
-const invoices = useInvoices().as("self");
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
 
 // Read this client's credit notes
 invoices.useActions().filterCreditNotes();
@@ -86,6 +95,12 @@ const { consolidatableCount } = invoices.useMeta();
 ### Does this client owe anything at all?
 
 ```typescript
+import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
+
+declare function showDunningBanner(): void;
+
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
+
 const { hasUnpaid } = invoices.useMeta();
 // Reading `hasUnpaid` is what triggers its own dedicated request — a scope
 // that never reads it never issues that request.
@@ -95,6 +110,10 @@ if (hasUnpaid.value) showDunningBanner();
 ### The list's total
 
 ```typescript
+import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
+
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
+
 const { total, pagination } = invoices.useContext();
 // `total` is this scope's server-reported row total for the CURRENT
 // published criteria — not the consolidation-notice count.
@@ -103,6 +122,10 @@ const { total, pagination } = invoices.useContext();
 ## Reading one invoice in full
 
 ```typescript
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+
 const invoice = useInvoice().withId(invoiceId);
 
 const { data, error, unpaidAmount } = invoice.useContext();
@@ -124,6 +147,10 @@ const { isReady, refresh, invalidate, destroy, refreshUnpaidAmount } =
 ```
 
 ```typescript
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+
 const invoice = useInvoice().withId(invoiceId);
 await invoice.useActions().isReady();
 
@@ -140,6 +167,11 @@ data.value.attribution; // { isOwn, isChildOfClient, isDelegated, isSettleable }
 ### Re-reading the live unpaid amount
 
 ```typescript
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+declare const currencyId: string;
+
 const invoice = useInvoice().withId(invoiceId);
 const { unpaidAmount } = invoice.useContext();
 
@@ -158,6 +190,11 @@ await invoice.useActions().refreshUnpaidAmount(currencyId); // on a currency cha
 | `failed`   | the load itself failed — never a guessed state standing in for a failure |
 
 ```typescript
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+declare function promptPayment(): void;
+
 const invoice = useInvoice().withId(invoiceId);
 await invoice.useActions().isReady();
 if (invoice.useMeta().paymentState.value === "pending") promptPayment();
@@ -168,7 +205,19 @@ if (invoice.useMeta().paymentState.value === "pending") promptPayment();
 A parent account or an accepted delegate reads another client's invoices the same way, retargeted:
 
 ```typescript
-const subAccount = useInvoices().as("client").for("client", clientId);
+import {
+  InvoicesContextTypes,
+  ScopeActorTypes,
+  useInvoice,
+  useInvoices
+} from "@upmind-automation/headless";
+
+declare const clientId: string;
+declare const invoiceId: string;
+
+const subAccount = useInvoices()
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.CLIENT, clientId);
 await subAccount.useActions().isReady();
 
 const { data } = subAccount.useContext();
@@ -177,11 +226,9 @@ data.value.forEach(invoice => {
   // ...
 });
 
-// The single read retargets the same way:
-const theirInvoice = useInvoice()
-  .as("client")
-  .for("client", clientId)
-  .withId(invoiceId);
+// The single read needs no retarget — it is marked by record id alone
+// (`.for()` is a compile-time error on it):
+const theirInvoice = useInvoice().withId(invoiceId);
 ```
 
 The retarget survives every published criteria write on the collection (`setCriteria`, `sortBy`, `filterConsolidatable`, `filterCreditNotes`) — none of them can silently widen the list back to the reader's own invoices.
@@ -191,16 +238,30 @@ The retarget survives every published criteria write on the collection (`setCrit
 Three more `.for()` contexts narrow the collection to one relationship's invoices, each a declared, read-only filter column:
 
 ```typescript
+import {
+  InvoicesContextTypes,
+  ScopeActorTypes,
+  useInvoices
+} from "@upmind-automation/headless";
+
+declare const contractId: string;
+declare const contractsProductId: string;
+declare const parentInvoiceId: string;
+
 // One contract's invoices — filter[contracts.id]
-const forContract = useInvoices().as("client").for("contract", contractId);
+const forContract = useInvoices()
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.CONTRACT, contractId);
 
 // One contract product's invoices — filter[products.contracts_product_id]
 const forProduct = useInvoices()
-  .as("client")
-  .for("contracts_product", contractsProductId);
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.CONTRACT_PRODUCT, contractsProductId);
 
 // One parent invoice's credit notes — filter[credit_invoice_id]
-const forParent = useInvoices().as("client").for("invoice", parentInvoiceId);
+const forParent = useInvoices()
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.INVOICE, parentInvoiceId);
 await forParent.useActions().isReady();
 ```
 
@@ -209,7 +270,12 @@ Each context's id is seeded onto its own filter column when the scope mints, and
 ## Assigning the payment method
 
 ```typescript
-const invoices = useInvoices().as("self");
+import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+declare const paymentDetailsId: string;
+
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
 
 await invoices.useActions().assignPaymentMethod(invoiceId, paymentDetailsId);
 await invoices.useActions().assignPaymentMethod(invoiceId, null); // clear — sends null, not an omitted field
@@ -220,11 +286,15 @@ Invalidates the shared invoices cache key on success, so both the list and the s
 ## Refresh & invalidate
 
 ```ts
-import { useInvoice, useInvoices } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  useInvoice,
+  useInvoices
+} from "@upmind-automation/headless";
 
 declare const invoiceId: string;
 
-const invoices = useInvoices().as("self");
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
 await invoices.useActions().refresh(); // re-read the list
 await invoices.useActions().refreshAfterPayment(); // the payment-outcome refetch
 await invoices.useActions().invalidate(); // drop the cache and re-fetch
