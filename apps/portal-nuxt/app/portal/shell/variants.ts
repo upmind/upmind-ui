@@ -159,12 +159,20 @@ export function floatingTopbarInnerClass(
  * the page above it.
  */
 /**
- * The signed-in footer's own row. It takes NO padding: the shell's `footer`
- * element already pads (`px-4 py-6 sm:px-6`), and repeating it here made the
- * band 113px tall for two lines of small print.
+ * The signed-in footer's own row. It takes NO padding: the track around it
+ * carries the page's measure and padding, and repeating it here made the band
+ * 113px tall for two lines of small print.
+ *
+ * At `lg` it takes the page BODY's own two tracks — `PageBody`'s
+ * `minmax(0,1fr)` beside a fixed aside — so the platform's line starts at the
+ * aside's left edge rather than flush against the far side of the page. The
+ * aside measure is the one every pane of this shape declares
+ * (`CONTENT_ASIDE_SIZE.MD`, which `pageBodyVariants` reads as 20rem); the
+ * footer sits outside `PageBody`, so it cannot inherit the variable and sets
+ * its own.
  */
 export const PORTAL_FOOTER_CLASS =
-  "flex flex-col items-center gap-2 text-center text-xs text-muted sm:flex-row sm:justify-between sm:text-start";
+  "flex flex-col items-center gap-2 text-center text-xs text-muted sm:flex-row sm:justify-between sm:text-start lg:grid lg:grid-cols-[minmax(0,1fr)_var(--page-aside-w)] lg:gap-6 lg:[--page-aside-w:20rem]";
 
 /** The platform's line — no colour, no size: the footer it sits in sets both. */
 export const PORTAL_UPMIND_MARK_CLASS =
@@ -362,7 +370,14 @@ export function chromeStickyOffset(
 
 /** The content and footer tracks, moved down past the two sub-bar rows. */
 export const CHROME_MAIN_CLASS = "row-start-4";
-export const CHROME_FOOTER_CLASS = "row-start-5";
+/**
+ * `px-0` cancels `ShellFooter`'s own `px-4 sm:px-6`: the band still spans the
+ * column, but the padding belongs to the track inside it, which carries the
+ * page's measure so the small print starts where the page title does.
+ * `border-t-0` drops the rule the shell draws above it — the band is quiet
+ * enough without a line separating it from the page it belongs to.
+ */
+export const CHROME_FOOTER_CLASS = "row-start-5 border-t-0 px-0 sm:px-0";
 
 /** The sidebar column spans every row of the taller grid. */
 export const CHROME_SIDEBAR_CLASS = "row-span-5 row-start-1";
