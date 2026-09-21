@@ -35,7 +35,8 @@ import {
   keys,
   mapValues,
   omitBy,
-  pick
+  pick,
+  isNil
 } from "lodash-es";
 import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 
@@ -210,10 +211,17 @@ export function createNodeWorld<K extends string>(
       // `.for(type, id)` names an entity the ACTOR acts upon; a module whose
       // matrix offers no context publishes no `.for`, and a scope that names
       // none never reaches for it.
-      cell =
-        scope.context && isFunction(scoped.for)
-          ? scoped.for(scope.context.type, scope.context.id)
-          : scoped;
+      // The world is generic over every module, so the cell's `.for` is read
+      // through the one signature both patterns share: `(type, id?)`.
+      const retarget = (
+        scoped as { for?: (type: string, id?: string) => NodeScopedCell }
+      ).for;
+      cell = scoped;
+      if (scope.context && isFunction(retarget)) {
+        cell = isNil(scope.context.id)
+          ? retarget(scope.context.type)
+          : retarget(scope.context.type, scope.context.id);
+      }
     },
 
     async fire(actionId: string, input?: unknown) {
