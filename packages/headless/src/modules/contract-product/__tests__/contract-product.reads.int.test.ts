@@ -22,11 +22,13 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
+import { ContractStatusCodes } from "@upmind-automation/types";
 import {
   ContractProductContextTypes,
   useContractProduct,
   useContractProducts
 } from "..";
+import { SortDirection } from "../../query/query.types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installBackgroundStubs,
@@ -158,6 +160,133 @@ describe("useContractProducts — I see the products on my own account (AC-1)", 
     for (const key of params.keys()) {
       expect(key.startsWith("filter[")).toBe(false);
     }
+
+    // The declared query contract's own defaults (design.md §8.2/§8.1) —
+    // asserted EXACTLY, key by key, so a mutation that injects, drops or
+    // silently changes a query param this request never earned or lost
+    // surfaces here, not only an ADDED `filter[...]`.
+    expect(params.get("split_count")).toBe("1");
+    expect(params.get("limit")).toBe("10");
+    expect(params.get("offset")).toBe("0");
+    expect(params.get("order")).toBe("created_at");
+    expect(params.get("exclude_delegated")).toBe("0");
+  });
+
+  it("AC-1 a narrowing I DO ask for travels — setCriteria({ status.code }) reaches the wire as filter[status.code]", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    // The schema-backed criteria write drives an unrelated background
+    // lookup (a country list) the same way every other collection's boot
+    // does — stub it harmlessly here too, so it settles inside THIS test's
+    // own observation window rather than bleeding an unstubbed, un-awaited
+    // request into whichever test runs next.
+    server?.use(
+      http.get("*/countries", () =>
+        HttpResponse.json({ status: "ok", data: [] }, { status: 200 })
+      )
+    );
+    const observed = observeAllRequests();
+    let capturedUrl: string | undefined;
+    server?.use(
+      http.get("*/contracts_products", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      })
+    );
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+    collection.useActions().setCriteria({
+      filters: { "status.code": ContractStatusCodes.SUSPENDED }
+    });
+
+    await vi.waitFor(() => {
+      expect(capturedUrl).toBeDefined();
+      const params = new URL(capturedUrl!).searchParams;
+      expect(params.get("filter[status.code]")).toBe(
+        ContractStatusCodes.SUSPENDED
+      );
+    });
+    await vi.waitFor(() => {
+      expect(observed.matching("/countries").length).toBeGreaterThan(0);
+    });
+    observed.stop();
+  });
+
+  it("AC-1 filterBy({ status.code }) — the collection's own named narrowing verb — reaches the wire identically to setCriteria", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    server?.use(
+      http.get("*/countries", () =>
+        HttpResponse.json({ status: "ok", data: [] }, { status: 200 })
+      )
+    );
+    let capturedUrl: string | undefined;
+    server?.use(
+      http.get("*/contracts_products", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      })
+    );
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+    collection
+      .useActions()
+      .filterBy({ "status.code": ContractStatusCodes.SUSPENDED });
+
+    await vi.waitFor(() => {
+      expect(capturedUrl).toBeDefined();
+      const params = new URL(capturedUrl!).searchParams;
+      expect(params.get("filter[status.code]")).toBe(
+        ContractStatusCodes.SUSPENDED
+      );
+    });
+  });
+
+  it("AC-1 setCriteria MERGES into my request state — a second narrowing does not drop the first (query.types.ts QueryCriteria.set)", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    server?.use(
+      http.get("*/countries", () =>
+        HttpResponse.json({ status: "ok", data: [] }, { status: 200 })
+      )
+    );
+    let capturedUrl: string | undefined;
+    server?.use(
+      http.get("*/contracts_products", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      })
+    );
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+    collection.useActions().setCriteria({
+      filters: { "status.code": ContractStatusCodes.SUSPENDED }
+    });
+    await vi.waitFor(() => {
+      const params = new URL(capturedUrl!).searchParams;
+      expect(params.get("filter[status.code]")).toBe(
+        ContractStatusCodes.SUSPENDED
+      );
+    });
+
+    collection.useActions().setCriteria({
+      sort: [{ field: "next_due_date", dir: SortDirection.DESC }]
+    });
+
+    await vi.waitFor(() => {
+      const params = new URL(capturedUrl!).searchParams;
+      // The later, SORT-only write travels alongside the earlier filter — a
+      // merge across branches, never a whole-model replace. A regression
+      // that swaps `set` for a whole-model overwrite drops the filter branch
+      // the moment a write that never mentions it lands.
+      expect(params.get("filter[status.code]")).toBe(
+        ContractStatusCodes.SUSPENDED
+      );
+      expect(params.get("order")).toBe("-next_due_date");
+    });
   });
 });
 
@@ -189,5 +318,26 @@ describe("useContractProduct — I open one product's scheduled actions (AC-15)"
         request.headers.authorization ?? request.headers.Authorization
       ).toBe(`Bearer ${accessToken}`);
     }
+  });
+
+  it("AC-15 the scheduled_actions member the product read carries reaches the manager's own published state, not only the route it avoided", async () => {
+    const row = recorded.one().data as Record<string, unknown> & {
+      id: string;
+      scheduled_actions?: unknown[];
+    };
+    installProductHandler(server);
+
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    await manager.useActions().isReady();
+
+    // The REAL capture's own `scheduled_actions` member, whatever it holds —
+    // never a fabricated non-empty array — read back off the manager's
+    // published context, so a regression that drops the mapping (leaves it
+    // `undefined` while the wire carries an array, or vice versa) fails here.
+    expect(
+      manager.useContext().contractProduct.value?.scheduledActions
+    ).toEqual(row.scheduled_actions);
   });
 });

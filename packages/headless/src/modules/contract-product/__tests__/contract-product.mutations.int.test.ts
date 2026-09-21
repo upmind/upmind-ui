@@ -322,7 +322,7 @@ describe("useContractProduct — I decide whether one subscription joins my cons
 });
 
 describe("useContractProduct — I book a cancellation for a date I choose, and revoke it (AC-22/AC-23)", () => {
-  it("AC-22 PUTs { future_cancellation_date } to contracts/{c}/products/{p}/schedule-cancel — the REAL route, my own status unchanged, and every reader re-reads", async () => {
+  it("AC-22 PUTs { future_cancellation_date } to contracts/{c}/products/{p}/schedule-cancel — the REAL route, my own status unchanged, and every reader re-reads (AC-13)", async () => {
     const { accessToken } = await seedClientSession();
     const row = recorded.one().data as Record<string, unknown> & {
       id: string;
@@ -369,7 +369,7 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
     expect(handler.reads()).toBeGreaterThan(readsBeforeWrite);
   });
 
-  it("AC-23 PUTs to contracts/{c}/products/{p}/schedule-cancel-revoke, under my own identity, my own status unchanged, and every reader re-reads", async () => {
+  it("AC-23 PUTs to contracts/{c}/products/{p}/schedule-cancel-revoke, under my own identity, my own status unchanged, and every reader re-reads (AC-13)", async () => {
     const { accessToken } = await seedClientSession();
     const row = recorded.one().data as Record<string, unknown> & {
       id: string;

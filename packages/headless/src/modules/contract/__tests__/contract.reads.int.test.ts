@@ -83,15 +83,24 @@ describe("useContract — I open one of my contracts with everything the account
   });
 });
 
+/** design.md §8.1 R19/R30 — the list view model's own 3-member `with` list. */
+const CONTRACTS_LIST_WITH_MEMBERS = [
+  "status",
+  "cancellation_request",
+  "cancellation_request.status"
+].sort();
+
 describe("useContracts — I see and page through the contracts on my own account (AC-14)", () => {
   it("AC-14 the reactive first page arrives from the RECORDED production list capture, told which page I am on, how many there are, and that a next page exists", async () => {
     const captured = recorded.list();
     await seedClientSession();
     installBackgroundStubs();
+    let capturedUrl: string | undefined;
     server?.use(
-      http.get("*/contracts", () =>
-        HttpResponse.json(captured, { status: 200 })
-      )
+      http.get("*/contracts", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(captured, { status: 200 });
+      })
     );
 
     const collection = useContracts().as(ScopeActorTypes.CLIENT);
@@ -113,5 +122,13 @@ describe("useContracts — I see and page through the contracts on my own accoun
     expect(context.pagination.value.total).toBe(captured.total);
     expect(meta.hasNextPage.value).toBe(true);
     expect(meta.hasPrevPage.value).toBe(false);
+
+    // The list view model's own `with` list travels on the SAME request this
+    // page's data came from — never asserted separately against a request
+    // the reactive read above never actually drove.
+    expect(capturedUrl).toBeDefined();
+    const withParam = new URL(capturedUrl!).searchParams.get("with") ?? "";
+    const requestedMembers = withParam.split(",").filter(Boolean).sort();
+    expect(requestedMembers).toEqual(CONTRACTS_LIST_WITH_MEMBERS);
   });
 });

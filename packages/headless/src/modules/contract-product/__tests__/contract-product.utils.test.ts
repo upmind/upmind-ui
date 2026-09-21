@@ -29,8 +29,12 @@ import {
   CancellationRequestStatusCodes,
   ContractStatusCodes
 } from "@upmind-automation/types";
+import { ContractProductsContextTypes } from "../contract-product.types";
 import { ContractProductState } from "../contract-product.types";
-import { selectStatusNode } from "../contract-product.utils";
+import {
+  resolveExcludeDelegated,
+  selectStatusNode
+} from "../contract-product.utils";
 import type { ContractProduct } from "../contract-product.types";
 
 type Fixture = Pick<
@@ -193,5 +197,33 @@ describe("selectStatusNode — an unknown status.code matches no node in Contrac
     expect(node).not.toBe(ContractProductState.ACTIVE);
     expect(node).not.toBe(ContractProductState.PENDING);
     expect(node).toBeUndefined();
+  });
+});
+
+/**
+ * design.md §6.1/§8.5/§8.9, §"edge conditions" (@AC-18) — the exclude_delegated
+ * flag `useContractProducts` sends. Named-scope-context tests are deliberately
+ * excluded here per `contract-product.traceability.test.ts`'s `KNOWN_GAPS`
+ * (AC-18 needs a `client-personal-details` preference-read capture that does
+ * not exist on disk); this suite pins the PURE derivation only — the leaf that
+ * decides the flag, with no fixture and no HTTP at all.
+ */
+describe("resolveExcludeDelegated — the exclude_delegated flag the scope sends (@AC-18)", () => {
+  it("the DELEGATED selector context always reads the delegated view — exclude_delegated=0", () => {
+    expect(
+      resolveExcludeDelegated(
+        { type: ContractProductsContextTypes.DELEGATED },
+        undefined,
+        true
+      )
+    ).toBe(0);
+  });
+
+  it("the client's own excludeDelegatedProducts preference, set true, forces exclude_delegated=1 outside the delegated view", () => {
+    expect(resolveExcludeDelegated(undefined, true, true)).toBe(1);
+  });
+
+  it("the client's own excludeDelegatedProducts preference, set false, forces exclude_delegated=0 outside the delegated view", () => {
+    expect(resolveExcludeDelegated(undefined, false, true)).toBe(0);
   });
 });

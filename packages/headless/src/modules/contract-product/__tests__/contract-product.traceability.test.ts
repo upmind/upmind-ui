@@ -82,10 +82,31 @@ function testFileContents(): { file: string; content: string }[] {
  */
 const KNOWN_GAPS = new Set(["AC-2", "AC-18", "AC-19", "AC-10"]);
 
+/**
+ * Every `AC-n` id a test-TITLE claims — `it`/`describe`/`it.each` calls
+ * only, never a `//` comment. A prose comment mentioning an id is not an
+ * anchor: it proves nothing runs under that id, so it must not satisfy the
+ * forward (feature -> test) check any more than it satisfies the reverse
+ * (test -> feature) one.
+ */
+function titleClaimedIds(content: string): Set<string> {
+  const titlePattern = /\b(?:it|describe|it\.each)\s*\(\s*["'`]([^"'`]*)["'`]/g;
+  const claimed = new Set<string>();
+  for (const titleMatch of content.matchAll(titlePattern)) {
+    for (const idMatch of titleMatch[1].matchAll(/\bAC-\d+\b/g)) {
+      claimed.add(idMatch[0]);
+    }
+  }
+  return claimed;
+}
+
 describe("contract-product — every contract-product.feature @AC-n scenario is anchored to a real test (traceability)", () => {
   const scenarios = parseFeatureTags();
   const files = testFileContents();
-  const allTestContent = files.map(f => f.content).join("\n");
+  const allTitleIds = new Set<string>();
+  for (const { content } of files) {
+    for (const id of titleClaimedIds(content)) allTitleIds.add(id);
+  }
 
   it("names at least one @AC-n scenario, so this check itself is not vacuous", () => {
     expect(scenarios.length).toBeGreaterThan(0);
@@ -94,26 +115,15 @@ describe("contract-product — every contract-product.feature @AC-n scenario is 
   it.each(
     scenarios.filter(scenario => !scenario.todo && !KNOWN_GAPS.has(scenario.id))
   )(
-    "$id ($scenario) has a matching test in this module's __tests__ tree",
+    "$id ($scenario) has a matching test TITLE in this module's __tests__ tree",
     ({ id }) => {
-      const idPattern = new RegExp(`\\b${id}\\b`);
-      expect(idPattern.test(allTestContent)).toBe(true);
+      expect(allTitleIds.has(id)).toBe(true);
     }
   );
 
   it("names no test-TITLE AC-n claim absent from contract-product.feature (no stale/untethered test)", () => {
     const featureIds = new Set(scenarios.map(scenario => scenario.id));
-    const claimed = new Set<string>();
-    const titlePattern =
-      /\b(?:it|describe|it\.each)\s*\(\s*["'`]([^"'`]*)["'`]/g;
-    for (const { content } of files) {
-      for (const titleMatch of content.matchAll(titlePattern)) {
-        for (const idMatch of titleMatch[1].matchAll(/\bAC-\d+\b/g)) {
-          claimed.add(idMatch[0]);
-        }
-      }
-    }
-    const untethered = [...claimed].filter(id => !featureIds.has(id));
+    const untethered = [...allTitleIds].filter(id => !featureIds.has(id));
     expect(untethered).toEqual([]);
   });
 });
