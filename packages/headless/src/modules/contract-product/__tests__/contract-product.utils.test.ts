@@ -176,8 +176,16 @@ describe("selectStatusNode — the record's own staged/cancelled/lapsed facts (@
   });
 });
 
-describe("selectStatusNode — an unknown status.code is a wire-contract violation, not a state (@AC-12)", () => {
-  it("a code outside the seven published codes falls through to the raw, unmapped code rather than a coerced default", () => {
+describe("selectStatusNode — an unknown status.code matches no node in ContractProductState (@AC-12)", () => {
+  // `ContractProductState` has one member per published code (flow.md §3). A
+  // code outside that vocabulary cannot select ANY of its members — the
+  // selector returns no node, never a coerced default. AC-17's own promise,
+  // "shown to me as it is, rather than quietly turned into one that is", is
+  // the raw `status.code` reaching the manager's published state — proven at
+  // the integration layer against the real record, not by this pure
+  // selector, whose contract is "which enum member, if any" and never "the
+  // raw code".
+  it("a code outside the seven published codes selects no ContractProductState member", () => {
     const node = selectStatusNode(
       fixture({ status: { code: "not_a_real_code" as ContractStatusCodes } })
     );

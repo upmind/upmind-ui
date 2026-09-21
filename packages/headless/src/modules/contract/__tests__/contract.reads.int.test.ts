@@ -1,24 +1,30 @@
 /**
- * @fileoverview useContracts — the paged contracts collection (integration, AC-14)
+ * @fileoverview useContracts / useContract — the paged contracts collection
+ * (AC-14) and the single-contract read (AC-3)
  *
  * ## Job To Be Done
- * Drive the REAL `useContracts()` collection against the RECORDED production
- * list capture (`contract.fixtures.ts`, `GET contracts?pagination[limit]=10`)
- * and prove AC-14 exactly as `contract.feature` states it: a client sees the
- * reactive page of contracts on their own account, and is given the first
- * page, told which page they are on and how many there are, and can move
- * forward and back. `contract.mutations.int.test.ts` proves the three
- * writes; this file proves the one read the collection owns.
+ * Drive the REAL `useContracts()` collection and `useContract()` manager
+ * against RECORDED production captures (`contract.fixtures.ts`) and prove:
+ * AC-14 exactly as `contract.feature` states it — a client sees the reactive
+ * page of contracts on their own account, told which page they are on and
+ * how many there are; and AC-3 — opening one contract sends the real
+ * 12-member `with` list design.md §8.1 states (the 11-member client read
+ * [o28] plus the one named `cancellation_request.status` addition), with
+ * `with_staged_imports=1`, and asks for no member outside that set.
+ * `contract.mutations.int.test.ts` proves the three writes; this file proves
+ * the two reads.
  *
  * ## What Breaks If These Fail
  * A client's contracts page renders empty, or with no page/count
- * information, even though real contracts exist on the account — with no
- * integration coverage able to catch it.
+ * information, even though real contracts exist on the account; or opening
+ * one contract silently drops a member a consumer needs (the cancellation
+ * request, the staged-import inclusion), or leaks a member no client route
+ * is entitled to ask for — with no integration coverage able to catch it.
  */
 
 import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
-import { useContracts } from "..";
+import { ContractContextTypes, useContract, useContracts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installBackgroundStubs,
@@ -28,6 +34,54 @@ import {
 import { server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
+
+/** design.md §8.1's 12-member client contract read — the 11-member oracle
+ * caller [o28] plus the one named `cancellation_request.status` addition. */
+const CONTRACT_WITH_MEMBERS = [
+  "products.contract_request",
+  "products.contract_request.custom_fields.field",
+  "products.future_cancellation_request",
+  "products.product.image",
+  "products.product.brand.currency",
+  "cancellation_request",
+  "cancellation_request.custom_fields.field",
+  "products.status",
+  "products.tags",
+  "client.image",
+  "status",
+  "cancellation_request.status"
+].sort();
+
+describe("useContract — I open one of my contracts with everything the account area needs (AC-3)", () => {
+  it("AC-3 GETs contracts/{id} with_staged_imports=1 and exactly the 12-member client with-list — no staff-only member", async () => {
+    const { accessToken } = await seedClientSession();
+    const row = recorded.one().data;
+    let capturedUrl: string | undefined;
+    let capturedAuth: string | null | undefined;
+
+    server?.use(
+      http.get(`*/contracts/:id`, ({ request, params }) => {
+        if (String(params.id) !== row.id) return undefined;
+        capturedUrl = request.url;
+        capturedAuth = request.headers.get("authorization");
+        return HttpResponse.json(recorded.one(), { status: 200 });
+      })
+    );
+
+    const manager = useContract()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractContextTypes.CONTRACT, row.id);
+    await manager.useActions().isReady();
+
+    expect(capturedUrl).toBeDefined();
+    expect(capturedAuth).toBe(`Bearer ${accessToken}`);
+    const url = new URL(capturedUrl!);
+    expect(url.searchParams.get("with_staged_imports")).toBe("1");
+    const withParam = url.searchParams.get("with") ?? "";
+    const requestedMembers = withParam.split(",").filter(Boolean).sort();
+    expect(requestedMembers).toEqual(CONTRACT_WITH_MEMBERS);
+  });
+});
 
 describe("useContracts — I see and page through the contracts on my own account (AC-14)", () => {
   it("AC-14 the reactive first page arrives from the RECORDED production list capture, told which page I am on, how many there are, and that a next page exists", async () => {

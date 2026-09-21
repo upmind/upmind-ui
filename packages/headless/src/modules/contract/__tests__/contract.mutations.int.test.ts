@@ -25,6 +25,7 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
+import { ContractStatusCodes } from "@upmind-automation/types";
 import { ContractContextTypes, useContract } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -63,10 +64,20 @@ async function openManager() {
 
 // -----------------------------------------------------------------------------
 
+/**
+ * The REAL recorded contract row's OWN `payment_details_id` — the id AC-8's
+ * refusal half says must never re-trigger a write ("nothing is sent ... when
+ * I picked the one it already uses"). A DIFFERENT id proves the send; this
+ * SAME id proves the refusal — never the reverse, or the two scenarios would
+ * collide on the one payment method this staging client actually carries
+ * (`contract.fixtures.ts` fileoverview limit 1).
+ */
+const A_DIFFERENT_PAYMENT_DETAILS_ID = "785d26e9-6783-d169-497f-314502e70439";
+
 describe("useContract — I point my contract at a different stored payment method (AC-8)", () => {
   it("AC-8 PATCHes { payment_details_id } to my own contract's payment_details, under my own identity", async () => {
     const { manager, row, accessToken } = await openManager();
-    const paymentDetailsId = "785d26e9-6783-d16e-738f-314502e70439";
+    const paymentDetailsId = A_DIFFERENT_PAYMENT_DETAILS_ID;
     const captured: Captured = {};
 
     server?.use(
@@ -88,6 +99,64 @@ describe("useContract — I point my contract at a different stored payment meth
     expect(captured.request!.method).toBe("PATCH");
     assertClientIdentityTransport(captured.request!, accessToken);
     expect(captured.body).toEqual({ payment_details_id: paymentDetailsId });
+  });
+
+  it("AC-8 sends nothing when I pick the stored method my contract already uses", async () => {
+    const { manager, row } = await openManager();
+    const observed = observeAllRequests();
+
+    await manager.useActions().setPaymentMethod({
+      paymentDetailsId: (row as { payment_details_id: string })
+        .payment_details_id
+    });
+
+    observed.stop();
+    expect(
+      observed
+        .matching(`/contracts/${row.id}/payment_details`)
+        .map(request => request.url)
+    ).toEqual([]);
+  });
+
+  it("AC-8 I can still change how a cancelled or lapsed contract is paid for (R13 self-transition)", async () => {
+    const { accessToken } = await seedClientSession();
+    const base = recorded.one().data as Record<string, unknown> & {
+      id: string;
+      payment_details_id: string;
+    };
+    const row = {
+      ...base,
+      status: { code: ContractStatusCodes.CANCELLED }
+    };
+    installContractHandler(server, row);
+    const manager = useContract()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractContextTypes.CONTRACT, row.id);
+    await manager.useActions().isReady();
+    const captured: Captured = {};
+
+    server?.use(
+      http.patch(
+        `*/contracts/${row.id}/payment_details`,
+        async ({ request }) => {
+          capture(request, captured);
+          captured.body = await request.json();
+          return HttpResponse.json(recorded.paymentMethodSet(), {
+            status: 200
+          });
+        }
+      )
+    );
+
+    await manager
+      .useActions()
+      .setPaymentMethod({ paymentDetailsId: A_DIFFERENT_PAYMENT_DETAILS_ID });
+
+    expect(captured.request).toBeDefined();
+    assertClientIdentityTransport(captured.request!, accessToken);
+    expect(captured.body).toEqual({
+      payment_details_id: A_DIFFERENT_PAYMENT_DETAILS_ID
+    });
   });
 });
 
@@ -243,7 +312,7 @@ describe("useContract — no staff route is ever reachable from my contract surf
     );
 
     await manager.useActions().setPaymentMethod({
-      paymentDetailsId: "785d26e9-6783-d16e-738f-314502e70439"
+      paymentDetailsId: A_DIFFERENT_PAYMENT_DETAILS_ID
     });
     await manager.useActions().requestCancellation({
       productIds: ["785d26e9-6783-d169-497f-314502e70439"]
@@ -254,8 +323,24 @@ describe("useContract — no staff route is ever reachable from my contract surf
       .catch(() => undefined);
 
     const requests = observed.all();
-    expect(requests.length).toBeGreaterThan(0);
+    // A positive allow-list, not only a negative ban: every request this
+    // block observes — each write AND the re-read it triggers (design.md
+    // §6.2/§8.4's re-read-after-write, AC-13) — lands on the exact client
+    // routes AC-6/AC-7/AC-8 name, or on the contract's own read. So a
+    // mutation that swapped one write (or its re-read) onto ANY other path
+    // (staff or not) fails here too, not only one that happens to spell
+    // "admin" or a cancel_requests approval verb.
+    const allowed = [
+      `/contracts/${row.id}/payment_details`,
+      `/contracts/${row.id}/cancel/request`,
+      `/contracts/${row.id}`
+    ];
+    expect(requests.length).toBeGreaterThanOrEqual(3);
     for (const request of requests) {
+      const path = new URL(request.url).pathname;
+      expect(allowed.some(allowedPath => path.endsWith(allowedPath))).toBe(
+        true
+      );
       expect(request.url).not.toMatch(/\/admin\//);
       expect(request.url).not.toMatch(
         /cancel_requests\/[^/]+\/(approve|reject|acknowledge|cancel)/
@@ -266,7 +351,7 @@ describe("useContract — no staff route is ever reachable from my contract surf
 });
 
 describe("useContract — the account I act on is the one my scope resolved (AC-16, FE-2824)", () => {
-  it("AC-16 no request or its URL ever names a clientId option, and none contains the literal text clients/undefined/", async () => {
+  it("AC-16 the request is addressed to the contract `.for()` resolved, never to any clientId option or an unresolved id", async () => {
     const { manager, row } = await openManager();
     const observed = observeAllRequests();
 
@@ -277,12 +362,19 @@ describe("useContract — the account I act on is the one my scope resolved (AC-
     );
 
     await manager.useActions().setPaymentMethod({
-      paymentDetailsId: "785d26e9-6783-d16e-738f-314502e70439"
+      paymentDetailsId: A_DIFFERENT_PAYMENT_DETAILS_ID
     });
 
     const requests = observed.all();
     expect(requests.length).toBeGreaterThan(0);
     for (const request of requests) {
+      // The load-bearing, falsifiable half: the URL is addressed to the REAL
+      // id `.for(CONTRACT, row.id)` resolved — a regression that dropped
+      // that retargeting and fell back to the session's own client id (or to
+      // nothing) fails this line, where a bare "not clients/undefined/"
+      // check never could, because this URL shape never carries a
+      // "clients/" segment to begin with.
+      expect(new URL(request.url).pathname).toContain(`/contracts/${row.id}`);
       expect(request.url).not.toContain("clients/undefined/");
       expect(new URL(request.url).searchParams.has("clientId")).toBe(false);
     }

@@ -28,7 +28,10 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
-import { InvoiceConsolidationTypes } from "@upmind-automation/types";
+import {
+  ContractStatusCodes,
+  InvoiceConsolidationTypes
+} from "@upmind-automation/types";
 import { ContractProductContextTypes, useContractProduct } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -65,7 +68,126 @@ async function openManager() {
   return { manager, row, accessToken };
 }
 
+/**
+ * Opens the manager over the REAL recorded product row, with ONLY the
+ * `overrides` fields replaced — never a hand-typed body. Used to reach a
+ * record shape (`staged_import: true`, a cancelled/lapsed `status.code`, a
+ * one-off `billing_cycle_months: 0`) this staging client's own reachable
+ * products do not carry (`contract-product.fixtures.ts` fileoverview
+ * limit 2), so AC-11's guard refusals can still be proven against the
+ * module's own real wire shape rather than skipped for want of a live
+ * candidate.
+ */
+async function openManagerWith(overrides: Record<string, unknown>) {
+  const { accessToken } = await seedClientSession();
+  const base = recorded.one().data as Record<string, unknown> & {
+    id: string;
+    contract_id: string;
+  };
+  const row = { ...base, ...overrides };
+  installProductHandler(server, row);
+  const manager = useContractProduct()
+    .as(ScopeActorTypes.CLIENT)
+    .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+  await manager.useActions().isReady();
+  return { manager, row, accessToken };
+}
+
+/**
+ * The value an action SETTLED on: its rejection, a `{ resolved }` wrapper, or
+ * the `never-settled` sentinel. Raced rather than awaited outright, matching
+ * `contract-product.auth-guard.int.test.ts`'s own pattern — an action-level
+ * refusal (design.md §8.3) is expected to settle promptly with no request,
+ * never to hang.
+ */
+async function settlement(action: Promise<unknown>): Promise<unknown> {
+  return Promise.race([
+    action.then(
+      resolved => ({ resolved }),
+      rejection => rejection
+    ),
+    new Promise(resolve => setTimeout(() => resolve("never-settled"), 3000))
+  ]);
+}
+
 // -----------------------------------------------------------------------------
+
+/**
+ * `contract-product.feature`'s `@AC-11` scenarios promise that a refused
+ * change is NEVER sent — "not one that is sent and refused". Each guard
+ * below opens the manager over a REAL row shaped into the refused state
+ * (staged, cancelled/lapsed, or one-off), attempts the write, and proves
+ * BOTH halves of that promise: the action does not resolve as a normal
+ * success, and `observeAllRequests()` sees no matching outbound call at all
+ * — never merely that a response was rejected server-side.
+ */
+describe("useContractProduct — a product I cannot act on refuses my changes without sending a request (AC-11)", () => {
+  it("AC-11 a staged product refuses stopRenewing and setConsolidation, sending no request to either endpoint", async () => {
+    const { manager, row } = await openManagerWith({ staged_import: true });
+    const observed = observeAllRequests();
+
+    await settlement(manager.useActions().stopRenewing());
+    await settlement(
+      manager.useActions().setConsolidation({
+        invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+      })
+    );
+
+    observed.stop();
+    expect(
+      observed
+        .matching(
+          `/contracts/${row.contract_id}/products/${row.id}/modify_renew`
+        )
+        .map(request => request.url)
+    ).toEqual([]);
+    expect(
+      observed
+        .matching(`/contracts/${row.contract_id}/products/${row.id}/properties`)
+        .map(request => request.url)
+    ).toEqual([]);
+  });
+
+  it("AC-11 a cancelled product refuses setConsolidation, sending no request — a merely suspended product is not one I have finished with", async () => {
+    const { manager, row } = await openManagerWith({
+      status: { code: ContractStatusCodes.CANCELLED }
+    });
+    const observed = observeAllRequests();
+
+    await settlement(
+      manager.useActions().setConsolidation({
+        invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+      })
+    );
+
+    observed.stop();
+    expect(
+      observed
+        .matching(`/contracts/${row.contract_id}/products/${row.id}/properties`)
+        .map(request => request.url)
+    ).toEqual([]);
+  });
+
+  it("AC-11 a one-off purchase refuses setConsolidation, sending no request — the choice is not offered to a subscription-only change", async () => {
+    const { manager, row } = await openManagerWith({
+      billing_cycle_months: 0
+    });
+    const observed = observeAllRequests();
+
+    await settlement(
+      manager.useActions().setConsolidation({
+        invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+      })
+    );
+
+    observed.stop();
+    expect(
+      observed
+        .matching(`/contracts/${row.contract_id}/products/${row.id}/properties`)
+        .map(request => request.url)
+    ).toEqual([]);
+  });
+});
 
 describe("useContractProduct — I stop one of my subscriptions renewing, and change my mind (AC-5)", () => {
   it("AC-5 PUTs {renew:false} to modify_renew, under my own identity", async () => {
@@ -200,8 +322,19 @@ describe("useContractProduct — I decide whether one subscription joins my cons
 });
 
 describe("useContractProduct — I book a cancellation for a date I choose, and revoke it (AC-22/AC-23)", () => {
-  it("AC-22 PUTs { future_cancellation_date } to contracts/{c}/products/{p}/schedule-cancel — the REAL route", async () => {
-    const { manager, row, accessToken } = await openManager();
+  it("AC-22 PUTs { future_cancellation_date } to contracts/{c}/products/{p}/schedule-cancel — the REAL route, my own status unchanged, and every reader re-reads", async () => {
+    const { accessToken } = await seedClientSession();
+    const row = recorded.one().data as Record<string, unknown> & {
+      id: string;
+      contract_id: string;
+      status: { code: string };
+    };
+    const handler = installProductHandler(server);
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    await manager.useActions().isReady();
+    const readsBeforeWrite = handler.reads();
     const captured: Captured = {};
 
     server?.use(
@@ -224,10 +357,31 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
     expect(captured.request).toBeDefined();
     assertClientIdentityTransport(captured.request!, accessToken);
     expect(captured.body).toEqual({ future_cancellation_date: "2027-01-01" });
+    // The REAL capture `put-…-schedule-cancel.json` still carries
+    // `status.code: contract_active`, exactly as the base read does — a
+    // booked cancellation is a self-transition (flow.md §3), never the hard
+    // request that moves the node.
+    expect(manager.useContext().contractProduct.value?.status?.code).toBe(
+      row.status.code
+    );
+    // Every reader re-reads (AC-13's own promise, exercised here for the
+    // manager itself): the product GET fires again after the write.
+    expect(handler.reads()).toBeGreaterThan(readsBeforeWrite);
   });
 
-  it("AC-23 PUTs to contracts/{c}/products/{p}/schedule-cancel-revoke, under my own identity", async () => {
-    const { manager, row, accessToken } = await openManager();
+  it("AC-23 PUTs to contracts/{c}/products/{p}/schedule-cancel-revoke, under my own identity, my own status unchanged, and every reader re-reads", async () => {
+    const { accessToken } = await seedClientSession();
+    const row = recorded.one().data as Record<string, unknown> & {
+      id: string;
+      contract_id: string;
+      status: { code: string };
+    };
+    const handler = installProductHandler(server);
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    await manager.useActions().isReady();
+    const readsBeforeWrite = handler.reads();
     const captured: Captured = {};
 
     server?.use(
@@ -247,6 +401,13 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
     expect(captured.request).toBeDefined();
     expect(captured.request!.method).toBe("PUT");
     assertClientIdentityTransport(captured.request!, accessToken);
+    // The REAL capture `put-…-schedule-cancel-revoke.json` also still
+    // carries `status.code: contract_active` — the revoke leaves the node
+    // exactly as the booking left it unchanged.
+    expect(manager.useContext().contractProduct.value?.status?.code).toBe(
+      row.status.code
+    );
+    expect(handler.reads()).toBeGreaterThan(readsBeforeWrite);
   });
 
   it("AC-22 carries my reason and custom fields when I supply them, and nothing travels in their place when I don't", async () => {
@@ -342,8 +503,26 @@ describe("useContractProduct — no staff route is ever reachable from my produc
     await manager.useActions().revokeScheduledCancellation();
 
     const requests = observed.all();
-    expect(requests.length).toBeGreaterThan(0);
+    // A positive allow-list, not only a negative ban: every request this
+    // block observes — each write AND the re-read it triggers (design.md
+    // §6.2/§8.4's re-read-after-write, AC-13) — lands on the exact client
+    // routes AC-5/AC-9/AC-22/AC-23 name, or on the product's own read. So a
+    // mutation that swapped one write (or its re-read) onto ANY other path
+    // (staff or not) fails here too, not only one that happens to spell
+    // "admin" or a named staff verb.
+    const allowed = [
+      `/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+      `/contracts/${row.contract_id}/products/${row.id}/properties`,
+      `/contracts/${row.contract_id}/products/${row.id}/schedule-cancel`,
+      `/contracts/${row.contract_id}/products/${row.id}/schedule-cancel-revoke`,
+      `/contract_products/${row.id}`
+    ];
+    expect(requests.length).toBeGreaterThanOrEqual(4);
     for (const request of requests) {
+      const path = new URL(request.url).pathname;
+      expect(allowed.some(allowedPath => path.endsWith(allowedPath))).toBe(
+        true
+      );
       expect(request.url).not.toMatch(/\/admin\//);
       expect(request.url).not.toMatch(
         /\/(terms|activate|manual_status|currency|transfer|scheduled_actions)\b/
@@ -354,7 +533,7 @@ describe("useContractProduct — no staff route is ever reachable from my produc
 });
 
 describe("useContractProduct — the account I act on is the one my scope resolved (AC-16, FE-2824)", () => {
-  it("AC-16 no request or its URL ever names a clientId option, and none contains the literal text clients/undefined/", async () => {
+  it("AC-16 the request is addressed to the product `.for()` resolved, never to any clientId option or an unresolved id", async () => {
     const { manager, row } = await openManager();
     const observed = observeAllRequests();
 
@@ -368,8 +547,23 @@ describe("useContractProduct — the account I act on is the one my scope resolv
     await manager.useActions().stopRenewing();
 
     const requests = observed.all();
+    // Every observed URL — the write AND its re-read — is addressed to the
+    // REAL ids `.for(CONTRACT_PRODUCT, row.id)` resolved: either the write
+    // path (nested under the resolved contract AND product id) or the
+    // manager's own re-read of that same product. A regression that dropped
+    // the retargeting and fell back to the session's own client id (or to
+    // nothing) fails this line, where a bare "not clients/undefined/" check
+    // never could, because neither URL shape carries a "clients/" segment.
+    const allowed = [
+      `/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+      `/contract_products/${row.id}`
+    ];
     expect(requests.length).toBeGreaterThan(0);
     for (const request of requests) {
+      const path = new URL(request.url).pathname;
+      expect(allowed.some(allowedPath => path.endsWith(allowedPath))).toBe(
+        true
+      );
       expect(request.url).not.toContain("clients/undefined/");
       expect(new URL(request.url).searchParams.has("clientId")).toBe(false);
     }
