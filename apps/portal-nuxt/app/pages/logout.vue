@@ -3,27 +3,25 @@
 </template>
 
 <script setup lang="ts">
-// Signing out is a VERB, not a screen: the page hands it to the one action
-// door and the receipt does the rest — the ribbon comes down, the toast says
-// so, and the destination is the sign-in screen. Rendered empty, exactly as
-// the support pillar's own redirect page is.
-import { useMockActionRunner } from "~/composables/useMockActionRunner";
-import { usePortalConfig } from "~/composables/usePortalConfig";
-import { MOCK_ACTION } from "~/portal/mock/actions";
-import { isMockDatasetId, useMockData } from "~/portal/mock/store";
+// -----------------------------------------------------------------------------
+/**
+ * @module pages/logout
+ * @description Signing out is a VERB, not a screen. The page ends the session
+ * and replaces itself with the sign-in form.
+ *
+ * It takes NO layout: the logged-out chrome would paint a brand row, an empty
+ * card and a footer for the one frame between arriving and leaving, which reads
+ * as a "you are signed out" page nobody asked for. `replace` keeps it out of
+ * the history, so Back from the login form does not sign the client in again.
+ */
+import { useActiveSession } from "@upmind-automation/headless";
+import { AUTH_ROUTES } from "~/portal/auth-routes";
 
-definePageMeta({ layout: "logged-out-page" });
+definePageMeta({ layout: false });
 
-const { activeDatasetId } = usePortalConfig();
+const { logout } = useActiveSession().useActions();
 
-const { run: runMockAction } = useMockActionRunner(
-  () => {
-    const id = activeDatasetId.value;
-    if (!isMockDatasetId(id)) return undefined;
-    return useMockData(id);
-  },
-  () => ({})
-);
+logout();
 
-void runMockAction(MOCK_ACTION.AUTH_LOGOUT);
+await navigateTo(AUTH_ROUTES.loginRoute, { replace: true });
 </script>
