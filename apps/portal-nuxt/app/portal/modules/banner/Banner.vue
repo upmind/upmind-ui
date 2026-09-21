@@ -21,7 +21,7 @@
   <Alert
     v-else-if="meta.hasMessage"
     :variant="props.tone"
-    :appearance="meta.appearance"
+    :appearance="appearance"
     :title="props.title"
     :description="props.message"
     :action="props.action"
@@ -46,6 +46,7 @@ import { BANNER_VARIANT } from "./types";
 import { ALERT_UI } from "./variants";
 import { isEmpty, trim } from "lodash-es";
 import type { BannerModuleEmits, BannerModuleProps } from "./types";
+import type { AlertProps } from "@upmind/ui";
 
 defineOptions({ name: "PortalBanner" });
 
@@ -70,9 +71,15 @@ const meta = computed(() => ({
   // A data-fed message resolves empty once its condition clears ("nothing
   // needs the user"), so neither form renders — a titled band with a blank
   // body and a live button reads as a bug.
-  hasMessage: !isEmpty(trim(props.message)),
-  // The soft fill only reads over a painted ground. On the page's own it sits
-  // two points off the ground behind it, so the notice takes an edge instead.
-  appearance: hasPaintedSurface(rowSurface.value) ? "muted" : "outline"
+  hasMessage: !isEmpty(trim(props.message))
 }));
+
+/**
+ * The soft fill only reads over a painted ground. On the page's own it sits two
+ * points off the ground behind it, so the notice takes an edge instead.
+ */
+const appearance = computed<AlertProps["appearance"]>(() => {
+  if (hasPaintedSurface(rowSurface.value)) return "muted";
+  return "outline";
+});
 </script>
