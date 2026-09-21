@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "DELETE",
+    "path": "/api/contracts/785d26e9-6783-d16e-d4ef-314502e70439/cancel/request",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a3eb5b297b8a3241-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 21 Sep 2026 19:08:01 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Ss1K68f%2B57TldXjfgii7TCyxl2bpVlt2BZKViyheNsEzCs1adND1i%2BXgmsbc3oLyD%2B2tBaS8UPJzynWgjD3Ic%2BgtN%2FvQFJi%2B%2F%2FICejJCJhzxipS6%2Bb1zYo5%2BzO5OAF44yc09%2Bb5Bpw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "613e95826d4f4435ba31e7df5a80fc7f21bcb1d4",
+        "type": 0,
+        "code": 404,
+        "message": "Contract Request not found!",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-21T19:08:01.001Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract"
+  }
+}
