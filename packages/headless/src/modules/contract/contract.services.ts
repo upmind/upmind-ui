@@ -61,6 +61,30 @@ const CONTRACT_WITH = [
   "cancellation_request.status"
 ].join();
 
+/**
+ * @decision The contracts LIST read requests only the relations the view
+ *   model's status branch reads; a list row carries no `products`.
+ * what: `GET contracts` asks for `status`, `cancellation_request` and
+ *   `cancellation_request.status`, so `mapContract` can read `status.code`
+ *   and `cancellation_request.status.code` on every row. `products` is not
+ *   requested, and a list row maps to `products: []`.
+ * why: the mapping law (R19) binds the read to what the view model maps; the
+ *   bare list carries `status_id` only and `mapContract` threw on every row
+ *   (AC-14). The client's products surface is `useContractProducts`
+ *   (`GET contracts_products`, its own 12-member with-list, its own paging
+ *   and the delegated force-set); a row of the contracts list is a paging
+ *   handle, and the single-contract read (`CONTRACT_WITH`) carries the
+ *   products for the one contract that is opened.
+ * rejected: reusing `CONTRACT_WITH` on the list — one page of ten contracts
+ *   would pull ten nested product trees the collection never reads, and it
+ *   would duplicate the products collection without its delegation rules.
+ */
+const CONTRACT_LIST_WITH = [
+  "status",
+  "cancellation_request",
+  "cancellation_request.status"
+].join();
+
 // -----------------------------------------------------------------------------
 // COLLECTION
 
@@ -76,7 +100,7 @@ function loadList(scopeContext?: ScopeContext): ContractListQuery {
   return list<IContract[], Contract[], QueryModel>({
     criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
-    url: useUrl("contracts"),
+    url: useUrl("contracts", { with: CONTRACT_LIST_WITH }),
     guard: async () =>
       new Promise((resolve, reject) => {
         if (isAuthenticated.value && !!clientId.value) {

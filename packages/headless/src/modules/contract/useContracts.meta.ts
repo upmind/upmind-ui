@@ -27,6 +27,15 @@ export function createContractsMeta(
     /** True if the list query failed, criteria errors included. */
     hasError,
 
+    /** True while the query has a further page after the current one. */
+    hasNextPage: computed(() => query.meta.value.hasNextPage),
+
+    /** True while pagination applies to this list at all. */
+    hasPages: computed(() => query.meta.value.hasPages),
+
+    /** True while the query has a page before the current one. */
+    hasPrevPage: computed(() => query.meta.value.hasPrevPage),
+
     /** True while this scope can address a client — the predicate the request gates call. */
     isAvailable: service.isAvailable,
 
