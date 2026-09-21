@@ -1,0 +1,29 @@
+# Negative-control mutant — contract-product criteria travel one way (AC-1)
+#
+# Scenario it must flip: contract-product.feature >
+#   "Every narrowing I ask for travels one way only"
+#   ("patching a narrowing onto the request behind that contract turns this scenario red")
+# Test that goes red: the AC-1 criteria scenario has no colocated test yet —
+#   the prover authors it against this mutant. The load-bearing assertion: the
+#   observed `GET contracts_products` URL carries ONLY the declared schema's
+#   criteria (`with`, `split_count`, `exclude_delegated`, the caller's own
+#   `filter[...]` / `order` / `pagination[...]`) — a `filter[status.code]` the
+#   caller never asked for is absent.
+# Mutation: `loadList` bakes `filter[status.code]=contract_active` into the
+#   base URL behind the query schema — a narrowing the caller did not ask for
+#   and the declared contract cannot see or reject.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+index f9de1acf0..214ff787a 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -191,6 +191,7 @@ function loadList(
+   const excludeDelegated = excludeDelegatedFor(scopeContext, preference);
+   const url = useUrl("contracts_products", {
+     with: join(CONTRACT_PRODUCTS_LIST_WITH, ","),
++    "filter[status.code]": "contract_active",
+     split_count: 1
+   });
+

@@ -1,0 +1,28 @@
+# Negative-control mutant — contract staff route (AC-16)
+#
+# Scenario it must flip: contract.feature >
+#   "No staff route is ever reachable from my contract surfaces"
+# Test that goes red: contract.mutations.int.test.ts >
+#   "AC-16 not one of the writes this module offers me is ever addressed to a staff route"
+#   (the positive allow-list `allowed.some(path.endsWith)` reads false, and
+#   `not.toMatch(/cancel_requests\/[^/]+\/(approve|reject|acknowledge|cancel)/)`
+#   flips; the replay server also refuses the unmatched URL).
+# Mutation: `requestCancellation` POSTs to the staff approval route
+#   `cancel_requests/{id}/approve` instead of the client route
+#   `contracts/{id}/cancel/request`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.services.ts b/packages/headless/src/modules/contract/contract.services.ts
+index 22a13db00..2cee92395 100644
+--- a/packages/headless/src/modules/contract/contract.services.ts
++++ b/packages/headless/src/modules/contract/contract.services.ts
+@@ -163,7 +163,7 @@ async function requestCancellation(
+
+   return post<IContract>({
+     mutationKey: [...queryKey, contractId, "cancel", "request"],
+-    url: useUrl(`contracts/${contractId}/cancel/request`),
++    url: useUrl(`cancel_requests/${contractId}/approve`),
+     data: toRequestCancellationBody(data as RequestCancellationModel),
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));

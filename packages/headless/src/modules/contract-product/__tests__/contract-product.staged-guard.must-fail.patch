@@ -1,0 +1,29 @@
+# Negative-control mutant — contract-product staged-import guard (AC-11)
+#
+# Scenario it must flip: contract-product.feature >
+#   "A product still being imported cannot be changed"
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   "AC-11 a staged product refuses stopRenewing and setConsolidation, sending no request to either endpoint"
+#   (a staged row now lands on `available.status.active`, so STOP_RENEWING and
+#   SET_CONSOLIDATION enter `processing` and a request is observed against
+#   `.../modify_renew` and `.../properties`; both `toEqual([])` flip).
+# Mutation: `selectStatusNode` drops the `stagedImport` arm, so a staged
+#   import is placed by its raw `status.code` alone — the protection is gone.
+# Collateral: contract-product.utils.test.ts >
+#   "a staged import reads as STAGED regardless of its status.code" goes red
+#   too — both tests guard this one line.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+index 34fab8669..937e5bc96 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -40,7 +40,6 @@ export function selectStatusNode(
+ ): ContractProductState | undefined {
+   const code = product.status?.code;
+
+-  if (product.stagedImport) return ContractProductState.STAGED;
+   if (code === ContractStatusCodes.CANCELLED)
+     return ContractProductState.CANCELLED;
+   if (code === ContractStatusCodes.CLOSED) return ContractProductState.LAPSED;

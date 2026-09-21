@@ -1,0 +1,30 @@
+# Negative-control mutant — contract-product scope identity (AC-16, FE-2824 shape)
+#
+# Scenario it must flip: contract-product.feature >
+#   "The account I act on is the one my scope resolved"
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   "AC-16 the request is addressed to the product `.for()` resolved, never to any clientId option or an unresolved id"
+#   (the write path no longer ends with `/contracts/{c}/products/{p}/modify_renew`,
+#   and `searchParams.has("clientId")` reads true; the replay server also
+#   refuses the unmatched URL, so the write rejects).
+# Mutation: `productUrl` drops the scope-resolved contract and product ids out
+#   of the path and re-introduces the id as a `clientId` query option.
+# Collateral: every write in contract-product.mutations.int.test.ts routes
+#   through `productUrl`, so AC-5 / AC-9 / AC-22 / AC-23 go red too.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+index f9de1acf0..1d02371b4 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -384,7 +384,8 @@ function productUrl(
+
+   return Promise.resolve(
+     useUrl(
+-      `contracts/${context.contractId}/products/${context.contractProductId}/${action}`
++      `contract_products/${action}`,
++      { clientId: context.contractProductId }
+     )
+   );
+ }

@@ -1,0 +1,35 @@
+# Negative-control mutant — contract-product scheduled actions (AC-15)
+#
+# Scenario it must flip: contract-product.feature >
+#   "See what is scheduled to happen to one of my products"
+#   ("pointing them at the staff-only scheduled-actions route turns this scenario red")
+# Test that goes red: the AC-15 scenario has no colocated test yet — the
+#   prover authors it against this mutant. The load-bearing assertion: the
+#   manager's read, and the re-read `refresh()` triggers, GET
+#   `contract_products/{id}` — the product itself — and never a URL matching
+#   `/scheduled_actions\b/`.
+# Collateral (already colocated, both go red under this mutant):
+#   contract-product.reads.int.test.ts >
+#     "AC-4 GETs contract_products/{id} with exactly the 35-member client with-list, read under my own identity"
+#   contract-product.mutations.int.test.ts >
+#     "AC-16 not one of the writes this module offers me is ever addressed to a staff route"
+#     (the re-read after each write now hits `/scheduled_actions`).
+# Mutation: the machine's `load` service reads
+#   `contract_products/{id}/scheduled_actions` — the staff-only scheduled-actions
+#   collection — instead of the product the client is entitled to read.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+index f9de1acf0..a853c52a5 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -353,7 +353,7 @@ async function load(
+       "products",
+       context.contractProductId
+     ],
+-    url: useUrl(`contract_products/${context.contractProductId}`, {
++    url: useUrl(`contract_products/${context.contractProductId}/scheduled_actions`, {
+       with: CONTRACT_PRODUCT_WITH
+     }),
+     withAccessToken: true,
