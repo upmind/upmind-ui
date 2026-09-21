@@ -96,10 +96,8 @@ export type ProfileRecord = {
   publicName?: string;
   /** The interface language id — an id, never the display name (AC-33). */
   language?: string;
-  /** The show-delegated-products preference, read off `meta` (section 8.5). */
+  /** The show-delegated-products preference (section 8.5). */
   excludeDelegatedProducts?: boolean;
-  /** The raw `meta` bag — the merge base an update writes back against. */
-  meta?: IClient["meta"];
   customFieldValues: ICustomFieldValue[];
 };
 
@@ -124,8 +122,6 @@ export type ProfileModel = {
   language?: string | null;
   /** The show-delegated-products preference (section 8.5). */
   excludeDelegatedProducts?: boolean;
-  /** The raw `meta` bag this preference merges against on write. */
-  meta?: IClient["meta"];
   customFields?: CustomFieldModel;
 };
 
@@ -149,8 +145,11 @@ export type ProfileUpdateBody = Omit<
   | "public_name"
   | "interface_language_id"
   | "document_language_id"
+  | "meta"
 > & {
   custom_fields?: CustomFieldModel;
+  /** The client's `meta` bag — `update()` merges the one-key diff over the held record's bag before sending (section 8.5). */
+  meta?: IClient["meta"];
   firstname?: string | null;
   lastname?: string | null;
   public_name?: string | null;
@@ -264,4 +263,19 @@ export type ClientPersonalDetailsManagerMachineServices = {
    * all-null and blank the form immediately after a successful save.
    */
   update: (context: ProfileContext) => Promise<ProfileModel>;
+};
+
+// -----------------------------------------------------------------------------
+// MANAGER CONTEXT — usePersonalDetailsManager.context
+// -----------------------------------------------------------------------------
+
+/** Options for `uischemaFor`. */
+export type UischemaForOptions = {
+  /**
+   * When true (the default), validation errors outside the requested fields
+   * are included — pulling invalid fields into the view is what lets a save
+   * proceed when full-schema validation refuses a save while a required field
+   * outside the view is empty.
+   */
+  includeInvalid?: boolean;
 };

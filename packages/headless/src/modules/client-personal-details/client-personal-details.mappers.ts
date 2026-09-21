@@ -59,7 +59,6 @@ export function mapProfile(raw: IClient): ProfileRecord {
     excludeDelegatedProducts: mapExcludeDelegatedProducts(
       raw.meta?.[UserMetaKeys.UI_PRODUCTS_EXCLUDE_DELEGATES]
     ),
-    meta: raw.meta,
     customFieldValues: raw.custom_fields ?? []
   };
 }
@@ -290,11 +289,10 @@ export function mapIProfileFields(
   if (customFields !== undefined) diff.custom_fields = customFields;
 
   if (
-    model.excludeDelegatedProducts !== baseModel.excludeDelegatedProducts &&
-    isBoolean(model.excludeDelegatedProducts)
+    isBoolean(model.excludeDelegatedProducts) &&
+    model.excludeDelegatedProducts !== baseModel.excludeDelegatedProducts
   ) {
     diff.meta = {
-      ...baseModel.meta,
       [UserMetaKeys.UI_PRODUCTS_EXCLUDE_DELEGATES]:
         model.excludeDelegatedProducts ? "1" : "0"
     };
