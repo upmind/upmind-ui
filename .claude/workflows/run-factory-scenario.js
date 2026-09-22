@@ -128,7 +128,7 @@ const BOUNDS = `Run constraints: ${constraints}`;
 // is a HALT back to the door for an M2 regrade — never derived around. A page
 // built over a hole proves a capability the module does not have.
 const HALT_TO_DOOR =
-  "If the landed module has no criteria schema pair, no sort member, or no pagination descriptor, HALT and say so — that is a module gap for the composable lane, never something to derive around or absorb as a surfaced decision.";
+  "If the landed module has no criteria schema pair, no sort member, or no pagination descriptor, or a non-never scope-matrix cell a hand cannot drive from the acting-for bar (a RETARGET context with no schemas.lookups control keyed by its context value — a plain id text input counts ONLY where no list endpoint that actor's token can reach exists for the entity, stated in a one-line comment on the input; a SELECTOR context not choosable), HALT and say so — that is a module gap for the composable lane, never something to derive around or absorb as a surfaced decision.";
 
 // The exhaustive-review preamble every lane-local reviewer carries — the same
 // text the plugin's loops carry, so a lane-local reviewer is held to the same
