@@ -269,8 +269,8 @@ describe("useContractProducts — I see the products on my own account (AC-1)", 
   });
 
   /**
-   * KNOWN GAP — `contract-product.feature:98`'s "narrowing by category name
-   * is offered to me" half of the AC-1 criteria scenario. design.md §8.2
+   * KNOWN GAP — `@gap contract-product.feature:98`'s "narrowing by category
+   * name is offered to me" half of the AC-1 criteria scenario. design.md §8.2
    * documents the wire shape (`categoryName` leaf, wire column
    * `product.category.name`, `like` operator, `filter[product.category.name|like]`)
    * but not the composable's own runtime call shape for an operator-bound
@@ -428,9 +428,10 @@ describe("useContractProduct — I open one product's scheduled actions (AC-15)"
   });
 
   /**
-   * KNOWN GAP — the empty-vs-absent half of this scenario's `Then` ("an
-   * empty result tells me whether it is empty because there are none, or
-   * because the product was loaded without them") is NOT proven below: the
+   * KNOWN GAP — `@gap contract-product.feature:295`, the empty-vs-absent
+   * half of this scenario's `Then` ("an empty result tells me whether it is
+   * empty because there are none, or because the product was loaded without
+   * them") is NOT proven below: the
    * only recorded product capture on disk carries `scheduled_actions: []`,
    * so this suite can prove the empty-array reading but has no real capture
    * of a product loaded WITHOUT the member at all to prove the two are told

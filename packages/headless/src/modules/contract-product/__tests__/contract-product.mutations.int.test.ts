@@ -184,7 +184,7 @@ describe("useContractProduct — a product I cannot act on refuses my changes wi
   });
 
   /**
-   * `contract-product.feature:265` — "a product that is merely suspended is
+   * `@proves contract-product.feature:265` — "a product that is merely suspended is
    * not one I have finished with — on that one I can still stop it renewing,
    * change how it is invoiced, and book a scheduled cancellation, exactly as
    * my account area lets me today". This is the PARITY-LOSS direction the
@@ -193,7 +193,10 @@ describe("useContractProduct — a product I cannot act on refuses my changes wi
    * three changes. Driven over a REAL row with only `status.code` overridden
    * to `SUSPENDED` (`openManagerWith`'s own documented pattern for a state
    * this staging client's reachable products do not carry) — never a
-   * fabricated body.
+   * fabricated body. It is also the positive control
+   * `@proves contract-product.feature:245` names — the staged-guard
+   * scenario's own parity-loss clause, which asks that the same three
+   * changes are NOT withheld from a suspended subscription.
    */
   it("AC-11 a merely suspended product is NOT one I have finished with — stopRenewing, setConsolidation and scheduleCancellation are all still offered normally", async () => {
     const { manager, row, accessToken } = await openManagerWith({

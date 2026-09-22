@@ -106,19 +106,57 @@ const SCENARIO_GAPS = new Set([
 ]);
 
 /**
- * Every `AC-n` id a test-TITLE claims — `it`/`describe`/`it.each` calls
- * only, never a `//` comment. A prose comment mentioning an id is not an
- * anchor: it proves nothing runs under that id, so it must not satisfy the
- * forward (feature -> test) check any more than it satisfies the reverse
- * (test -> feature) one.
+ * The PARTIAL-PROMISE ledger — the blind spot the id+scenario floor below
+ * cannot see. That floor is a per-SCENARIO cardinality proof: it fires when a
+ * whole scenario is unproven, and is silent when a scenario is proven in part
+ * and one of its `And` lines is not. Those halves are where a parity loss
+ * hides, so each one this module has argued about is written down here, at
+ * its exact feature line, with its disposition:
+ *
+ * - `gap`   — the promise has no proof. The tree must carry a matching
+ *             `@gap <feature>:<line>` marker in a KNOWN GAP comment, so the
+ *             reason lives beside the tests rather than only in a report.
+ * - `proves` — the promise IS proven. The tree must carry a matching
+ *             `@proves <feature>:<line>` marker on the proving test, so the
+ *             proof survives a rename of the title the floor counts.
+ *
+ * Every entry pins the feature line VERBATIM, so editing the promise (or
+ * inserting a line above it) fails here instead of silently orphaning the
+ * marker.
  */
-function titleClaimedIds(content: string): Set<string> {
-  const claimed = new Set<string>();
-  for (const id of extractTitlesWithIds(content).flatMap(entry => entry.ids)) {
-    claimed.add(id);
+type PartialPromise = {
+  line: number;
+  text: string;
+  disposition: "gap" | "proves";
+};
+
+const PARTIAL_PROMISES: PartialPromise[] = [
+  {
+    line: 98,
+    text: "And narrowing by category name is offered to me — it is the one narrowing the legacy client area gives a client and an account holder alone",
+    disposition: "gap"
+  },
+  {
+    line: 295,
+    text: "And an empty result tells me whether it is empty because there are none, or because the product was loaded without them",
+    disposition: "gap"
+  },
+  {
+    line: 184,
+    text: "And it is not confused with a subscription whose renewal invoicing was switched off — a separate thing this module does not offer me",
+    disposition: "proves"
+  },
+  {
+    line: 245,
+    text: "And so does withholding those same changes from a merely suspended subscription — my account area offers them on one of those, and a surface that refuses them has taken something away from me rather than protected me",
+    disposition: "proves"
+  },
+  {
+    line: 265,
+    text: "And a product that is merely suspended is not one I have finished with — on that one I can still stop it renewing, change how it is invoiced, and book a scheduled cancellation, exactly as my account area lets me today",
+    disposition: "proves"
   }
-  return claimed;
-}
+];
 
 /**
  * Every `it`/`describe`/`it.each` TITLE string in the content, paired with
@@ -201,6 +239,42 @@ describe("contract-product — every contract-product.feature @AC-n scenario is 
       expect(titleCountById.get(id) ?? 0).toBeGreaterThanOrEqual(requiredCount);
     }
   );
+
+  const featureLines = readFileSync(
+    join(TESTS_DIR, FEATURE_FILE),
+    "utf-8"
+  ).split("\n");
+  const treeContent = files.map(entry => entry.content).join("\n");
+
+  it.each(PARTIAL_PROMISES)(
+    "$disposition $line — the ledger still quotes contract-product.feature:$line verbatim",
+    ({ line, text }) => {
+      expect(featureLines[line - 1]?.trim()).toBe(text);
+    }
+  );
+
+  it.each(PARTIAL_PROMISES)(
+    "$disposition $line — a `@$disposition` marker for contract-product.feature:$line sits in this module's __tests__ tree",
+    ({ line, disposition }) => {
+      const marker = `@${disposition} ${FEATURE_FILE}:${line}`;
+      expect(treeContent.includes(marker)).toBe(true);
+    }
+  );
+
+  it("carries no `@gap`/`@proves` marker the ledger never declared", () => {
+    const declared = new Set(
+      PARTIAL_PROMISES.map(
+        promise => `@${promise.disposition} ${FEATURE_FILE}:${promise.line}`
+      )
+    );
+    const found = [
+      ...treeContent.matchAll(
+        new RegExp(`@(?:gap|proves) ${FEATURE_FILE}:\\d+`, "g")
+      )
+    ].map(match => match[0]);
+    expect(found.length).toBeGreaterThan(0);
+    expect(found.filter(marker => !declared.has(marker))).toEqual([]);
+  });
 
   it("names no test-TITLE AC-n claim absent from contract-product.feature (no stale/untethered test)", () => {
     const featureIds = new Set(scenarios.map(scenario => scenario.id));

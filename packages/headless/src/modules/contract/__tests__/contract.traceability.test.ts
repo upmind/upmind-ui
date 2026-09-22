@@ -89,19 +89,30 @@ function testFileContents(): { file: string; content: string }[] {
 const SCENARIO_GAPS = new Set<string>();
 
 /**
- * Every `AC-n` id a test-TITLE claims — `it`/`describe`/`it.each` calls
- * only, never a `//` comment. A prose comment mentioning an id is not an
- * anchor: it proves nothing runs under that id, so it must not satisfy the
- * forward (feature -> test) check any more than it satisfies the reverse
- * (test -> feature) one.
+ * The PARTIAL-PROMISE ledger — the blind spot the id+scenario floor below
+ * cannot see; see the sibling `contract-product.traceability.test.ts` for the
+ * full rationale. A `gap` entry needs a `@gap <feature>:<line>` marker in a
+ * KNOWN GAP comment; a `proves` entry needs a `@proves <feature>:<line>`
+ * marker on the proving test. Each pins its feature line VERBATIM.
  */
-function titleClaimedIds(content: string): Set<string> {
-  const claimed = new Set<string>();
-  for (const id of extractTitlesWithIds(content).flatMap(entry => entry.ids)) {
-    claimed.add(id);
+type PartialPromise = {
+  line: number;
+  text: string;
+  disposition: "gap" | "proves";
+};
+
+const PARTIAL_PROMISES: PartialPromise[] = [
+  {
+    line: 131,
+    text: "Then the request is removed and my contract carries on",
+    disposition: "gap"
+  },
+  {
+    line: 145,
+    text: "And a suspended subscription is offered the change normally",
+    disposition: "proves"
   }
-  return claimed;
-}
+];
 
 /**
  * Every `it`/`describe`/`it.each` TITLE string in the content, paired with
@@ -176,6 +187,43 @@ describe("contract — every contract.feature @AC-n scenario is anchored to a re
       expect(titleCountById.get(id) ?? 0).toBeGreaterThanOrEqual(requiredCount);
     }
   );
+
+  const featureLines = readFileSync(
+    join(TESTS_DIR, FEATURE_FILE),
+    "utf-8"
+  ).split("\n");
+  const treeContent = files.map(entry => entry.content).join("\n");
+
+  it.each(PARTIAL_PROMISES)(
+    "$disposition $line — the ledger still quotes contract.feature:$line verbatim",
+    ({ line, text }) => {
+      expect(featureLines[line - 1]?.trim()).toBe(text);
+    }
+  );
+
+  it.each(PARTIAL_PROMISES)(
+    "$disposition $line — a `@$disposition` marker for contract.feature:$line sits in this module's __tests__ tree",
+    ({ line, disposition }) => {
+      expect(
+        treeContent.includes(`@${disposition} ${FEATURE_FILE}:${line}`)
+      ).toBe(true);
+    }
+  );
+
+  it("carries no `@gap`/`@proves` marker the ledger never declared", () => {
+    const declared = new Set(
+      PARTIAL_PROMISES.map(
+        promise => `@${promise.disposition} ${FEATURE_FILE}:${promise.line}`
+      )
+    );
+    const found = [
+      ...treeContent.matchAll(
+        new RegExp(`@(?:gap|proves) ${FEATURE_FILE}:\\d+`, "g")
+      )
+    ].map(match => match[0]);
+    expect(found.length).toBeGreaterThan(0);
+    expect(found.filter(marker => !declared.has(marker))).toEqual([]);
+  });
 
   it("names no test-TITLE AC-n claim absent from contract.feature (no stale/untethered test)", () => {
     const featureIds = new Set(scenarios.map(scenario => scenario.id));

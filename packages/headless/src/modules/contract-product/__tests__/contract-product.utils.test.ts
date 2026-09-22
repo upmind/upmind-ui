@@ -120,7 +120,7 @@ describe("selectStatusNode — entry order on a shared contract_active code (flo
   });
 
   /**
-   * `contract-product.feature:184` — "it is not confused with a subscription
+   * `@proves contract-product.feature:184` — "it is not confused with a subscription
    * whose renewal invoicing was switched off — a separate thing this module
    * does not offer me". EXPIRING is read off `renew`/`calculatedCancelDate`
    * alone (flow.md §3); a subscription that is STILL renewing reads

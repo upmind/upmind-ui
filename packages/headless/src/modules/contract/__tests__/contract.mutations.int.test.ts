@@ -150,6 +150,9 @@ describe("useContract — I point my contract at a different stored payment meth
     });
   });
 
+  /** `@proves contract.feature:145` — the parity-loss direction: an
+   * over-refusing surface would silently withhold this change on a merely
+   * suspended contract that the legacy account area still offers it on. */
   it("AC-8 a suspended subscription is offered the change normally — no product fact and no contract status refuses it", async () => {
     const { accessToken } = await seedClientSession();
     const base = recorded.one().data as Record<string, unknown> & {
@@ -301,6 +304,17 @@ function cancellingRow(): ReturnType<typeof recorded.one>["data"] {
   return { ...base, cancellation_request: cancellationRequest };
 }
 
+/**
+ * KNOWN GAP — `@gap contract.feature:131`
+ *
+ * "Then the request is removed and my contract carries on". Both tests below
+ * drive the sandbox's own recorded refusal, so AC-7's FAILURE half is proven
+ * and its SUCCESS half is not: no recorded `200` capture for
+ * `DELETE contracts/{id}/cancel/request` exists on disk, and recording is
+ * forbidden this pass (`receipts.md`). Hand-authoring a success body would
+ * fabricate the very outcome this promise names, so the gap is registered in
+ * `contract.traceability.test.ts`'s partial-promise ledger instead.
+ */
 describe("useContract — I change my mind about a cancellation I asked for (AC-7)", () => {
   it("AC-7 DELETEs cancel/request under my own identity, exactly as design.md §8.3 states", async () => {
     const { accessToken } = await seedClientSession();
