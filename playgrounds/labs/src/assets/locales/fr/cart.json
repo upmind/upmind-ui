@@ -19,7 +19,7 @@
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Il semblerait que vous n'ayez encore rien ajouté à votre panier.",
   "encrypted_and_secure_payments": "Paiements cryptés et sécurisés",
-  "nothing_to_pay_msg": "Excellente nouvelle : y a rien à payer !",
+  "nothing_to_pay_msg": "Excellente nouvelle : il n'y a rien à payer !",
   "order_converting": "**Conversion** de votre commande",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "Nous convertissons votre commande. Ça ne devrait prendre que quelques instants.",

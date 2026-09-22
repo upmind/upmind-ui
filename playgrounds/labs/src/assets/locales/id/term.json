@@ -10,7 +10,7 @@
   "n_years": "tahun | {count} bertahun-tahun",
   "n_yr": "tahun | {n} tahun",
   "once": "Sekali",
-  "one_time": "Suatu waktu",
+  "one_time": "Sekali",
   "price_by_n_years": "{price}/tahun | {price} /{n} tahun",
   "price_msg": "Pembayaran satu kali {price} | Dari {price} sebulan | Dari {price} setiap {period}",
   "quarterly": "Triwulanan",

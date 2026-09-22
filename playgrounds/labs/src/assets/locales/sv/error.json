@@ -14,7 +14,7 @@
   "500_text": "Vi har för närvarande tekniska problem. Försök igen senare.",
   "500_title": "Vi har tyvärr **tekniska problem**",
   "500_title_md": "@.markdown:{'error.500_title'}",
-  "503_text": "Tyvärr är vår tjänst tillfälligt otillgänglig medan vi utför planerat underhåll. Ha tålamod med oss ​​under denna uppgradering – allt borde vara tillbaka till det normala inom nolltid! 👷",
+  "503_text": "Tyvärr är vår tjänst tillfälligt otillgänglig medan vi utför planerat underhåll. Ha tålamod med oss under denna uppgradering – allt borde vara tillbaka till det normala inom nolltid! 👷",
   "503_title": "Tjänsten **tillfälligt** otillgänglig",
   "503_title_md": "@.markdown:{'error.503_title'}",
   "adding_or_updating": "Ett fel uppstod Lägger till | ett fel uppstod Uppdaterar",

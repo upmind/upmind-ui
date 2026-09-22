@@ -10,7 +10,7 @@
   "n_years": "rok | {count} lat",
   "n_yr": "rok | {n} rok",
   "once": "Raz",
-  "one_time": "Pewnego razu",
+  "one_time": "Jednorazowo",
   "price_by_n_years": "{price}/rok | {price} /{n} lat",
   "price_msg": "Jednorazowa płatność {price} | Od {price} miesiąc | Od {price} każdy {period}",
   "quarterly": "Kwartalny",

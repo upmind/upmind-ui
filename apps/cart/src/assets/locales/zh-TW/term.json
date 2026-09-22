@@ -10,7 +10,7 @@
   "n_years": "年 | {count} 年",
   "n_yr": "年 | {n} 年",
   "once": "一次",
-  "one_time": "一度",
+  "one_time": "一次性",
   "price_by_n_years": "{price}/年 | {price} /{n} 歲",
   "price_msg": "僅有的 {price} | 來自 {price} 一個月 | 來自 {price} 每一個 {period}",
   "quarterly": "季刊",

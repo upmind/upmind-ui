@@ -4,7 +4,7 @@
   "adds_to_price": "Dodatki do ceny",
   "adjust_search_filters_msg": "Spróbuj dostosować filtry wyszukiwania lub kategorii",
   "almost_there_msg": "Już prawie gotowe! Przygotowujemy wszystko dla Ciebie.",
-  "amount_save": "Ratować {amount}",
+  "amount_save": "Zaoszczędź {amount}",
   "available": "Dostępny",
   "basket_total": "Całkowita wartość koszyka",
   "billing_cycle": "Cykl rozliczeniowy",
@@ -30,7 +30,7 @@
   "loading_title": "Coś **ekscytujące** jest za rogiem",
   "loading_title_md": "@.markdown:{'text.loading_title'}",
   "moment_short_desc": "To zajmie tylko chwilę.",
-  "none": "Nic",
+  "none": "Brak",
   "on_sale": "W sprzedaży",
   "option_overrides_price_desc": "Ta opcja zastępuje główną cenę produktu w przypadku zamówienia początkowego",
   "optional": "Fakultatywny",
@@ -74,6 +74,6 @@
   "terms_and_conditions": "Warunki korzystania z serwisu",
   "terms_and_conditions_desc": "Klikając „{label}„, Zgadzam się na {action} z {brand}.",
   "terms_of_service": "Warunki korzystania z usługi",
-  "total": "Całkowity",
+  "total": "Razem",
   "welcome_back_msg": "Witamy ponownie, {name}"
 }
