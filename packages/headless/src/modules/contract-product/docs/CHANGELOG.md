@@ -13,6 +13,4 @@ All notable changes to the contract-product module.
 
 ## Migration Guide
 
-### From v1.x to v2.x
-
 > _No migrations yet — this is the module's first documented release._

@@ -30,7 +30,7 @@ See [Usage](./usage.md) for the complete API reference.
 | Feature | Status | Notes |
 |---------|--------|-------|
 | List / filter / sort the client's own contract products | ✅ | `useContractProducts` |
-| Include/exclude delegated products | ✅ | Preference-driven; forced `0` on the `DELEGATED` selector context |
+| Include/exclude delegated products | ✅ | Preference-driven; excluded by default when the client has any; forced OFF (included) on the `DELEGATED` selector context, which does not narrow to delegated-only |
 | Dashboard grouped counts | ✅ | `loadGroupedCounts` |
 | Purchased-category read | ✅ | `loadPurchasedCategories` |
 | Load one contract product in detail | ✅ | `useContractProduct` |
@@ -51,11 +51,13 @@ A loaded contract product's lifecycle is reported as three simultaneous facts, n
 
 ### Actor Types
 
-Client-only. `.as('staff')` and `.as('guest')` do not resolve on either composable's scope matrix:
+Client-only. `.as('staff')`, `.as('guest')` and `.as('self')` all fail to compile on either composable's scope matrix — `self` is not a shorthand for `client` here, it is its own non-resolving entry:
 
 ```typescript
 const products = useContractProducts().as("client");
-const delegated = useContractProducts().as("client").for("delegated");
+// "delegated" turns the exclude-delegated preference OFF — it returns the
+// client's own products together with any delegated ones, not a delegated-only list.
+const withDelegated = useContractProducts().as("client").for("delegated");
 const product = useContractProduct().as("client").for("contract-product", id);
 ```
 

@@ -4,12 +4,12 @@
 
 The **contract-product** module is where a signed-in client reads and manages the individual products living inside their own contracts — the concrete, billable line items (a hosting plan, a domain, a service subscription) rather than the contract envelope that groups them. It offers two working surfaces over the same server resource: a **collection**, which lists and filters the client's own contract products for dashboards and browse views, and a **manager**, which loads one contract product in full detail and drives the small set of changes a client is allowed to make directly to it — pausing or resuming automatic renewal, choosing whether its invoices consolidate with the rest of the contract's billing, and booking or cancelling a future-dated cancellation.
 
-It never manages the contract itself (starting a contract, changing its payment method, requesting or withdrawing a hard cancellation) — that is a sibling capability living beside this one. It also never acts on behalf of another client or on a staff operator's authority; every read and write here resolves to the signed-in client's own identity, with one narrow exception: a client can be granted delegated access to another client's products, and the collection can be narrowed to show only those.
+It never manages the contract itself (starting a contract, changing its payment method, requesting or withdrawing a hard cancellation) — that is a sibling capability living beside this one. It also never acts on behalf of another client or on a staff operator's authority; every read and write here resolves to the signed-in client's own identity, with one narrow exception: a client can be granted delegated access to another client's products, and the collection can choose whether or not to include those alongside the client's own — there is no dedicated view of only the delegated set.
 
 ## Core concepts
 
 - **Contract product** — one product instance inside a contract: what was bought, its billing cadence, whether it renews, and its current lifecycle status. A contract typically holds several contract products.
-- **Delegated product** — a contract product belonging to a different client that the signed-in client has been granted access to. The collection can include delegated products (the default, when the client has any) or exclude them, and a dedicated view of only the delegated set is also available.
+- **Delegated product** — a contract product belonging to a different client that the signed-in client has been granted access to. With no explicit preference held, the collection excludes delegated products by default whenever the signed-in client has any (there is nothing to exclude otherwise); an explicit preference the client holds overrides that default in either direction. A second selector on the same collection turns that exclusion off, so the client's own products and their delegated products are returned together — it is not a dedicated delegated-only view.
 - **The status/setup/trial regions** — a contract product's lifecycle is reported as three simultaneous facts rather than one linear status: which of the published statuses it currently sits in (pending, awaiting activation, active, suspended, expiring, or mid-cancellation-request — outside these, the product is either staged, cancelled, lapsed, or flagged fraudulent and reported as unavailable for any action), whether its setup fields are still outstanding, and whether it is currently on a trial and how that trial is expected to end. All three are derived from one read and can be true at once — a product can be both "active" and "still in trial", for example.
 - **Soft cancellation (stop/resume renewal)** — a client can stop a subscription's automatic renewal (it keeps running to its already-paid-for end date and then lapses) and can resume that renewal before it takes effect. This is distinct from a hard cancellation request, which is not part of this module.
 - **Scheduled (future-dated) cancellation** — a subscription client can additionally book an exact future date on which the product will be cancelled, and can revoke that booking before it fires. A future date is only valid when it lands exactly on one of the product's own billing anniversaries (its next due date, or that date plus a whole number of billing cycles) and is not earlier than the next anniversary strictly after today; the module publishes the maths to compute and validate that date, it does not enumerate every valid date itself.
@@ -31,7 +31,7 @@ It never manages the contract itself (starting a contract, changing its payment 
 | 9   | **Revoke a booked future-dated cancellation**                                     | none                                                            | The booking is removed; the re-read product reports it as no longer booked                   |
 | 10  | **Compute the valid future-cancellation date range**                              | the product's billing facts, and (to validate one) a candidate date | The earliest bookable date, and whether a given date lands on a valid anniversary        |
 | 11  | **Judge an unpaid invoice's due/cancellable state**                               | one invoice                                                     | Whether it is still due, and whether it is still eligible to be included in a cancellation    |
-| 12  | **Include or exclude delegated products from the list**                           | a client-held preference, or an explicit narrowing to delegated-only | The list scope changes accordingly                                                       |
+| 12  | **Include or exclude delegated products from the list**                           | a client-held preference, or an explicit request to turn exclusion off | The list scope changes accordingly — delegated products join the client's own, never replace them |
 
 **Additional always-on behaviours:**
 
@@ -65,20 +65,25 @@ type ContractProduct = {
   isDelegatedObject: boolean;
   autoCreateRenewInvoice: boolean;
   unpaidRecurringInvoices: { status?: { code: InvoiceStatusCode } }[];
-  scheduledActions?: { id: string; actionCode: string; status: unknown; executedAt?: string; createdAt: string }[];
+  /** The four members below stay in their WIRE (snake_case) form — this
+   * relation is carried straight off the server record, unlike every other
+   * member of this type, which the mapper renames to camelCase. */
+  scheduledActions?: { id: string; action_code: string; status: unknown; executed_at?: string; created_at: string }[];
   /** billing_cycle_months > 0 — is this a recurring subscription, not a one-time purchase. */
   isSubscription: boolean;
   /** True once a future-dated cancellation is booked. */
   hasScheduledFutureCancellation: boolean;
-  product?: { id: string; name: string; image?: unknown; provisionBlueprint?: unknown };
+  product?: { id: string; name: string; image?: unknown; provision_blueprint?: unknown };
   brand?: { id: string; name: string; currency?: unknown };
-  tags?: { id: string; name: string; colour?: string; showToCustomer: boolean }[];
-  futureCancellationRequest?: { id: string; futureCancellationDate?: string; scheduledFor?: string; executedAt?: string };
+  tags?: { id: string; name: string; colour?: string; show_to_customer: boolean }[];
+  futureCancellationRequest?: { id: string; future_cancellation_date?: string; scheduled_for?: string; executed_at?: string };
   movedToContractProduct?: { id: string; name: string; status?: unknown; clients?: { id: string; fullname: string; email: string; image?: unknown; brand?: unknown }[] };
-  /** Present only on the DELEGATED-scoped collection view. */
+  /** Populated whenever the read carries the `clients` relation — every
+   * collection scope, not only the delegated-inclusive one; the manager's
+   * single-product read omits this relation, so it is always undefined there. */
   delegatingClients?: { id: string; fullname: string; email: string; image?: unknown; brand?: unknown }[];
   /** The unmodified server record this view model was mapped from. */
-  raw: WireContractProduct;
+  raw: IContractProduct;
 };
 ```
 
@@ -143,13 +148,15 @@ Fixture: `get-contracts-products-split-count-1.json` (response status 200).
 
 ### GET /clients/{clientId}/contracts/products
 
-Role: the dashboard's grouped counts of active contract products by category and service — no `exclude_delegated` narrowing.
+Role: the dashboard's grouped counts of ACTIVE contract products by category and service — no `exclude_delegated` narrowing.
 
 ```bash
-curl "$API/clients/$CLIENT_ID/contracts/products?limit=count&group_count=products.category_id,service_identifier&with=status,product.image,brand.currency,product.provision_blueprint,contract_request,future_cancellation_request,moved_to_contract_product,tags" \
+curl "$API/clients/$CLIENT_ID/contracts/products?limit=count&group_count=products.category_id,service_identifier&filter%5Bstatus.code%5D=contract_active&sort=ASC,service_identifier&with=status,product.image,brand.currency,product.provision_blueprint,contract_request,future_cancellation_request,moved_to_contract_product,moved_to_contract_product.clients,tags" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Accept: application/json"
 ```
+
+The `status.code = contract_active` filter and the `sort=ASC,service_identifier` ordering are always sent — this is a count of ACTIVE products only, not every status. `moved_to_contract_product.clients` stays in the `with` list here even though the bare `clients`/`clients.image`/`clients.brand` relations are dropped for this read (they only start with `clients`, not `moved_`).
 
 ### GET /contract_product_categories
 
@@ -166,10 +173,12 @@ curl "$API/contract_product_categories?exclude_delegated=1" \
 Role: the manager's single-product read — every field and relation its detailed view needs, including the parent contract, tags, scheduled actions and unpaid invoices.
 
 ```bash
-curl "$API/contract_products/$CONTRACT_PRODUCT_ID?with=contract,contract.account,contract.address,contract.brand.currency,contract.cancellation_request.status,contract.client,contract.gateway,contract.status,allowed_migrations,attributes.product.image,brand,contract_request,future_cancellation_request,product,product.image,scheduled_actions,status,tags,unpaid_recurring_invoices" \
+curl "$API/contract_products/$CONTRACT_PRODUCT_ID?with=contract,contract.account,contract.address,contract.brand.currency,contract.cancellation_request.status,contract.cancellation_request.custom_fields.field,contract.client,contract.client.tags,contract.client.image,contract.gateway,contract.import.credentials,contract.import.source,contract.moved_to_contract,contract.moved_to_contract.products,contract.payment_details,contract.payment_details.gateway,contract.promotions,contract.status,allowed_migrations,attributes.product.image,brand,contract_request,contract_request.custom_fields.field,future_cancellation_request,options.product.image,product,product.brand.currency,product.image,product.images,product.provision_blueprint,product.provision_category,scheduled_actions,status,tags,unpaid_recurring_invoices" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Accept: application/json"
 ```
+
+Thirty-five relations in total, including the whole payment-details and promotions branch on the parent contract, and the moved-to-contract branch used when the product has moved.
 
 ```json
 {
@@ -244,8 +253,8 @@ Fixture: `put-contracts-id-products-id-schedule-cancel-revoke.json` (`{}`, 200).
 ## Failure modes
 
 - **An unauthenticated or unaddressable caller** — every read and write rejects rather than silently returning nothing, so a caller cannot mistake "not signed in" for "the client has no products".
-- **An unrecognised status code** — a product whose status does not match any of the module's published codes is surfaced as an error state rather than silently falling into one of the known ones; this keeps an unexpected new server status from being misreported as, say, "active".
-- **A write attempted from the wrong lifecycle point** — stopping/resuming renewal or setting consolidation on a one-time (non-subscription) product, or booking a cancellation date that is not a valid future anniversary, is refused rather than sent to the server; a caller checks the relevant state flag or date helper first.
+- **An unrecognised status code** — a product whose status does not match any of the module's published codes is recorded on the failure/error property rather than silently falling into one of the known ones; it does not carry its own dedicated state, it is a fact recorded alongside whatever node the product otherwise reports. This keeps an unexpected new server status from being misreported as, say, "active".
+- **A write attempted from the wrong lifecycle point** — stopping/resuming renewal or setting consolidation on a one-time (non-subscription) product is refused rather than sent to the server; a caller checks the relevant state flag first. Booking a future-dated cancellation carries NO such client-side check: the module sends whatever date the caller supplies, valid anniversary or not, and the module publishes the maths (see Compute the valid future-cancellation date range) purely as a helper — a caller that wants to refuse an invalid date must call it and check the result itself before booking.
 - **A second write while one is already in flight** — the module resolves the product to one definite state before accepting the next write; a caller that fires a second write while the first is still processing is left to the same one-write-at-a-time discipline the platform enforces generally.
 
 ## Lessons (hard-won)
@@ -253,4 +262,5 @@ Fixture: `put-contracts-id-products-id-schedule-cancel-revoke.json` (`{}`, 200).
 - **A contract product's lifecycle is three parallel facts, not one status string.** A product can be simultaneously "active" and "on a trial that is ending soon" and "setup is still incomplete" — treating status/setup/trial as one linear state loses information a caller needs (e.g. a client should see both "your subscription is active" and "finish your setup" at once, not one or the other).
 - **"Not cancellable yet" and "not due" are different facts about the same unpaid invoice.** An invoice that has already been adjusted is still due (it must still be paid or resolved) but is no longer eligible to be swept up into a cancellation; conflating the two under a single "unpaid" flag would let a caller offer to cancel an invoice that the server will refuse.
 - **A future cancellation date is only valid on a billing anniversary.** It is not simply "today or later" — a client-picked date has to land exactly on the product's next-due-date, or that date plus a whole number of billing cycles, and not fall before the next anniversary that is still strictly in the future. A caller building a date picker needs both the earliest bookable date and a per-date validity check, not just a minimum bound.
-- **Delegated-product visibility is a preference with a real default, not a blanket always-on/always-off switch.** With no explicit preference held, the collection includes delegated products only when the signed-in client actually has any; a fixed default in either direction would either hide products a delegate-holding client expects to see, or clutter the list of a client with no delegated access at all.
+- **Delegated-product visibility is a preference with a real default, not a blanket always-on/always-off switch.** With no explicit preference held, the collection excludes delegated products by default whenever the signed-in client actually has any (there being none is treated the same as "nothing to exclude"); a fixed default in either direction would either hide products a delegate-holding client expects to see by default, or clutter every list with delegated items nobody asked to see.
+- **The billing-anniversary maths is a helper, not a gate.** The write that books a future cancellation sends whatever date it is given — the module never refuses an off-anniversary date itself. A caller that wants that refusal to be client-side (rather than discovered from the server's response) has to call the minimum-date and validity helpers and act on the result before sending the write.

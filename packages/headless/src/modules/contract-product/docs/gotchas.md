@@ -11,19 +11,22 @@ Edge cases, known issues, and things to watch out for.
 `stopRenewing`, `resumeRenewing` (implicitly — `resumeRenewing` is only reachable from `expiring`, which itself requires `isSubscription`) and `setConsolidation` all carry an `isSubscription` guard on the machine transition. Sending one of these on a one-time (non-subscription) product does not throw — the event is simply refused, the machine never enters `processing`, and the action resolves `false`.
 
 ```typescript
-// ❌ Wrong — assumes a thrown error means "not allowed"
-try {
-  await product.useActions().stopRenewing();
-} catch {
-  showError("Cannot stop renewal");
-}
-
-// ✅ Correct — check the resolved value, or gate on isSubscription first
+// ❌ Wrong — assumes a thrown error is the ONLY failure signal, and never catches
 const result = await product.useActions().stopRenewing();
-if (result === false) showError("Cannot stop renewal on a one-time product");
+if (result === false) showError("Cannot stop renewal");
+
+// ✅ Correct — both signals matter: a resolved `false` means the machine refused
+// the event outright (e.g. sent on a one-time product); a REJECTED promise means
+// the write (or its re-read) reached the server and failed.
+try {
+  const result = await product.useActions().stopRenewing();
+  if (result === false) showError("Cannot stop renewal on a one-time product");
+} catch (error) {
+  showError("Stopping renewal failed");
+}
 ```
 
-**Test scenario:** load a one-time (non-subscription) contract product, call `stopRenewing()`, and assert the resolved value is `false` and no `PUT .../modify_renew` request was sent.
+**Test scenario:** load a one-time (non-subscription) contract product, call `stopRenewing()`, and assert the resolved value is `false` and no `PUT .../modify_renew` request was sent. Separately: force the write's re-read to fail and assert the call REJECTS rather than resolving `false`.
 
 ---
 
@@ -36,7 +39,7 @@ if (result === false) showError("Cannot stop renewal on a one-time product");
 await product.useActions().scheduleCancellation({ futureCancellationDate: "2026-11-01" });
 
 // ✅ Correct — validate against the product's own anniversaries first
-import { isSelectableFutureCancellationDate } from "@upmind-automation/headless/modules/contract-product";
+import { isSelectableFutureCancellationDate } from "@upmind-automation/headless";
 
 if (isSelectableFutureCancellationDate(contractProduct, pickedDate)) {
   await product.useActions().scheduleCancellation({ futureCancellationDate: pickedDate });
@@ -55,7 +58,7 @@ Once a product is placed on `unavailable`, no event moves it — not even `REFRE
 
 ## `hasScheduledFutureCancellation` and `canScheduleFutureCancellation` are not opposites
 
-`hasScheduledFutureCancellation` reports whether one is currently booked. `canScheduleFutureCancellation` reports whether booking a **new** one is currently allowed — which also requires not cancelling, not pending, and a computable anniversary. A product can have neither true (no anniversary computable, e.g. missing `nextDueDate`) or, transiently, both false during a write.
+`hasScheduledFutureCancellation` reports whether one is currently booked. `canScheduleFutureCancellation` reports whether booking a **new** one is currently allowed — which also requires not cancelling, not pending, and a computable anniversary. A product can have neither true (no anniversary computable, e.g. missing `nextDueDate`). While a write is in flight (`isSubmitting`), the machine has left the whole `available.status` region, so `isCancelling` and `isPending` both read `false` — this can make `canScheduleFutureCancellation` read `true` mid-write, even though no new booking can actually be sent until the write settles. Gate a "schedule cancellation" control on `!isSubmitting` too, not on `canScheduleFutureCancellation` alone.
 
 ---
 
@@ -75,10 +78,12 @@ They don't. The collection's list query and one manager instance's machine conte
 
 | Scenario | Expected Behavior | Notes |
 |----------|-------------------|-------|
-| Product has no `nextDueDate` or `billingCycleMonths <= 0` | All anniversary helpers return `null`/`false` | `canScheduleFutureCancellation` is also `false` |
+| Product has no `nextDueDate` | All anniversary helpers return `null`/`false` | No anchor at all to compute from |
+| Product has a `nextDueDate` but `billingCycleMonths <= 0` | `minFutureCancellationDate` returns the **`nextDueDate` string itself**, NOT `null`; the other anniversary helpers (`anniversaryCycleForDate`, `isSelectableFutureCancellationDate`) still return `null`/`false` | `minFutureCancellationCycle`/`anniversaryAnchor` return `null` for this input, and `minFutureCancellationDate` falls back to `product.nextDueDate` when its own cycle lookup is `null` — do not treat a falsy `minFutureCancellationDate` as the guard for "hide the date picker"; a one-time product still returns a truthy date string here |
 | Client has delegated products but sets the exclude preference to `false` | Delegated products are included | Preference wins over the default when explicitly set |
+| Client has delegated products and holds no preference | Delegated products are **excluded** by default | The force-set resolves to `1` whenever there is something to exclude |
 | Client has no delegated products and holds no preference | Delegated products excluded is moot — the force-set resolves to `0` | No delegated rows exist to exclude |
-| `.for('delegated')` selector context | The exclude-delegated force-set is always `0`, the held preference is never read | The context itself already narrows to delegated products |
+| `.for('delegated')` selector context | The exclude-delegated force-set is always `0`, the held preference is never read | This turns exclusion OFF — the client's own products and their delegated products both come back. It is not a delegated-only view; nothing narrows the result to delegated items alone |
 | An invoice's status is `ADJUSTED` | `isDue` is true, `isCancellable` is false | The cancellable set is narrower than the due set |
 
 ---

@@ -87,7 +87,18 @@ await scheduleCancellation({ futureCancellationDate: "2026-10-21", reason: "down
 await revokeScheduledCancellation();
 ```
 
-Every write resolves the re-read `ContractProduct`, or `false` when the machine refused the event outright (e.g. a subscription-only write sent on a one-time product).
+Every write resolves the re-read `ContractProduct`, or `false` when the machine refused the event outright (e.g. a subscription-only write sent on a one-time product). This is distinct from a write that reaches the server and fails, or whose re-read fails: either of those **rejects** the promise with a `DetailedError`, for the caller to catch and render:
+
+```typescript
+try {
+  const result = await stopRenewing();
+  if (result === false) {
+    // refused: not a subscription, or another write already in flight
+  }
+} catch (error) {
+  // the write (or its re-read) reached the server and failed
+}
+```
 
 ## Meta (State Flags)
 
@@ -99,7 +110,7 @@ All return Vue `ComputedRef<boolean>`.
 |------|-------------|
 | `isAvailable` | This scope can currently address a client |
 | `isLoading` | The list is loading or has not completed its first fetch |
-| `isEmpty` | The current page has no items |
+| `isEmpty` | The list's data is empty (no items have been loaded at all, not merely "this page") |
 | `isFiltered` | Any filter is applied |
 | `hasPages` | Pagination applies to this list |
 | `hasError` | The list query or its criteria failed |
@@ -130,9 +141,33 @@ All return Vue `ComputedRef<boolean>`.
 
 ## Context (Computed Values)
 
+### `useContractProducts().useContext()`
+
 ```typescript
-const { data, error, schemas } = products.useContext();       // collection: list data, error, query-schema family
-const { contractProduct, error } = product.useContext();      // manager: mapped view model, error
+const {
+  data,        // ComputedRef<ContractProduct[]> — always an array
+  error,       // ComputedRef<ResponseError | undefined>
+  findOne,     // finds a single product by a partial mapping
+  getOne,      // finds a single product by id
+  pagination,  // reactive pagination descriptor
+  query,       // this scope's active request state (filters/sort/pagination)
+  schemas      // the query schema family ({ query: { schema, uischema, sortUischema } })
+} = products.useContext();
+```
+
+### `useContractProduct().useContext()`
+
+```typescript
+const {
+  context,                  // the full machine context object
+  contractId,                // the contract this product belongs to
+  contractProduct,           // ComputedRef<ContractProduct | undefined> — the mapped view model
+  contractProductId,         // the product this manager acts on
+  error,                     // ComputedRef<ResponseError | undefined>
+  minFutureCancellationDate, // instance-bound earliest selectable date, or null
+  rawContractProduct,        // the raw wire record beside the view model
+  scheduledActions           // ComputedRef<ScheduledAction[]> — [] until the read carries them (see hasFetchedScheduledActions)
+} = product.useContext();
 ```
 
 ## Future-cancellation date helpers
@@ -144,16 +179,22 @@ import {
   minFutureCancellationDate,
   isSelectableFutureCancellationDate,
   anniversaryCycleForDate
-} from "@upmind-automation/headless/modules/contract-product";
+} from "@upmind-automation/headless";
 
 const earliest = minFutureCancellationDate(contractProduct);
 const valid = isSelectableFutureCancellationDate(contractProduct, pickedDate);
 ```
 
+A loaded manager instance also exposes its own instance-bound `minFutureCancellationDate`, computed off the loaded product — no import or manual argument needed:
+
+```typescript
+const { minFutureCancellationDate } = product.useContext();
+```
+
 ## Unpaid-invoice predicates
 
 ```typescript
-import { isDue, isCancellable } from "@upmind-automation/headless/modules/contract-product";
+import { isDue, isCancellable } from "@upmind-automation/headless";
 
 contractProduct.unpaidRecurringInvoices.filter(isDue);
 contractProduct.unpaidRecurringInvoices.filter(isCancellable);

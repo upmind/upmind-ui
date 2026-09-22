@@ -75,14 +75,14 @@ The `loading` state's `always` array is the one place `selectStatusNode` is cons
 
 | Sub-composable | `useContractProducts` | `useContractProduct` |
 |----------------|------------------------|------------------------|
-| `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `destroy` | `stopRenewing`, `resumeRenewing`, `setConsolidation`, `scheduleCancellation`, `revokeScheduledCancellation`, `isReady`, `refresh`, `stop`, `destroy` |
-| `useContext()` | `data`, `error`, the query-schema family | `contractProduct`, `error` |
+| `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `stopRenewing`, `resumeRenewing`, `setConsolidation`, `scheduleCancellation`, `revokeScheduledCancellation`, `isReady`, `refresh`, `stop`, `destroy` |
+| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `context`, `contractId`, `contractProduct`, `contractProductId`, `error`, `minFutureCancellationDate`, `rawContractProduct`, `scheduledActions` |
 | `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen node flags plus the record-fact flags (see usage.md) |
 | `useInternals()` | raw query access | raw machine-state access |
 
 ## Services
 
-Both composables resolve through the same factory (`createContractProductServices`) and the same per-write machine-service map (`contractProductMachineServices`). There is no per-actor split — client is the only resolving actor on either scope matrix.
+The collection (`useContractProducts`) resolves its requests through `createContractProductServices`. The manager (`useContractProduct`) does not call that factory — it interprets `contract-product.machine.ts`, whose services import `contractProductMachineServices` directly. Both sides come from the one services file, `contract-product.services.ts`; there is no per-actor split — client is the only resolving actor on either scope matrix.
 
 | Concern | Function | Endpoint |
 |---------|----------|----------|
