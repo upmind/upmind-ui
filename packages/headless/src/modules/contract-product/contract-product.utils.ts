@@ -3,6 +3,7 @@ import {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
   InvoiceStatus,
+  InvoiceStatusGroups,
   TrialEndActionTypes
 } from "@upmind-automation/types";
 import {
@@ -184,13 +185,19 @@ export function minFutureCancellationDate(
 
 // -----------------------------------------------------------------------------
 // Unpaid-invoice predicates (AC10, ADR-10, design 8.7 [o23])
+//
+// Pure functions of `Pick<IInvoice, "status">` — never meta (R23 restricts
+// meta to `is*`/`has*`/`can*` booleans; these take an argument). Consumers
+// call them per invoice, e.g. over `hasUnpaidRecurringInvoices`'s list.
 
-const DUE_STATUSES: InvoiceStatus[] = [
-  InvoiceStatus.UNPAID,
-  InvoiceStatus.ADJUSTED,
-  InvoiceStatus.OVERDUE
-];
+const DUE_STATUSES: readonly InvoiceStatus[] = InvoiceStatusGroups.UNPAID;
 
+/**
+ * `[UNPAID, OVERDUE]` — the legacy `isCancellable` set (`store/modules/data/
+ * invoices/index.ts:123-127` [o23]). Narrower than `InvoiceStatusGroups.UNPAID`
+ * (which also carries `ADJUSTED`) and has no published-group counterpart to
+ * reuse.
+ */
 const CANCELLABLE_STATUSES: InvoiceStatus[] = [
   InvoiceStatus.UNPAID,
   InvoiceStatus.OVERDUE

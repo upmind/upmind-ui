@@ -1,0 +1,56 @@
+# Negative-control mutant — AC-12's raw-code members read the wire, not the
+# mapped view model (design 8.7's "as it arrived" clause)
+#
+# What this mutant proves: `contractStatusCode` and
+# `cancellationRequestStatusCode` (`useContract.context.ts`) read the RAW
+# `rawContract` context member, genuinely distinct in SOURCE from
+# `contractStatus` / `cancellationRequestStatus`, which read the MAPPED
+# `contract` view model. Before this fix both pairs read the identical mapped
+# path, so the design-8.7 distinction ("this member carries it as it arrived")
+# was inert — the two members could never differ, by construction.
+#
+# STATUS — landed, structurally sound, currently UNPROVEN. No unit/integration
+# test in either `useContract.context`'s consumers asserts the SOURCE the two
+# "Code" members read. Positive coverage is a prover-seat task. The prover's
+# AC-12 test should construct a machine-actor double where `rawContract.status
+# .code` and `contract.status.code` are deliberately different strings, and
+# assert `contractStatusCode.value` equals the RAW one, not the mapped one
+# (symmetrically for `cancellationRequestStatusCode` /
+# `rawContract.cancellation_request.status.code`). A test that only checks
+# both members hold the SAME string (the common case, since the mapper's cast
+# is a no-op at runtime) would pass against this mutant too and is not a
+# control — it must assert the SOURCE, per the header above.
+#
+# Mutation: both raw-code members read `contract.status.code` /
+# `contract.cancellationRequest.status.code` again — the mapped view model,
+# not the raw wire record — re-collapsing them onto their sibling members.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
+index 0ad5bddfe..d6c1d1b69 100644
+--- a/packages/headless/src/modules/contract/useContract.context.ts
++++ b/packages/headless/src/modules/contract/useContract.context.ts
+@@ -35,8 +35,9 @@ export function createContractContext(
+     ),
+
+     /** The raw `cancellation_request.status.code` string, as it arrived off the wire — next to `cancellationRequestStatus` (AC12). */
+-    cancellationRequestStatusCode: computed<string | undefined>(() =>
+-      get(rawContract.value, "cancellation_request.status.code")
++    cancellationRequestStatusCode: useContext<string>(
++      state,
++      "contract.cancellationRequest.status.code"
+     ),
+
+     /** The mapped contract view model. */
+@@ -49,9 +50,7 @@ export function createContractContext(
+     ),
+
+     /** The raw `status.code` string, as it arrived off the wire — next to `contractStatus` (AC12). */
+-    contractStatusCode: computed<string | undefined>(() =>
+-      get(rawContract.value, "status.code")
+-    ),
++    contractStatusCode: useContext<string>(state, "contract.status.code"),
+
+     /** Machine-captured error, if any — read, never raised. */
+     error: useContext<ResponseError>(state, "error"),

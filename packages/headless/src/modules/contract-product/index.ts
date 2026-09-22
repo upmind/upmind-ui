@@ -59,6 +59,10 @@ export type {
 // --- Curated cross-module mapper (the `contract` module maps its `products` relation with it)
 export { mapContractProduct } from "./contract-product.mappers";
 
+// --- Unpaid-invoice predicates (AC10, ADR-10, design 8.7 [o23]) — pure
+// functions of `Pick<IInvoice, "status">`, not meta (R23); call per invoice.
+export { isCancellable, isDue } from "./contract-product.utils";
+
 // --- Sub-composable type exports for consumers (collection)
 export type { UseContractProductsActions } from "./useContractProducts.actions";
 export type { UseContractProductsContext } from "./useContractProducts.context";

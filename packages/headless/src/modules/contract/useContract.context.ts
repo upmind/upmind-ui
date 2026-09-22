@@ -1,4 +1,6 @@
+import { computed } from "vue";
 import { useContext } from "../../utils";
+import { get } from "lodash-es";
 import type { Contract } from "./contract.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -23,6 +25,8 @@ export function createContractContext(
 ) {
   const { state } = actor;
 
+  const rawContract = useContext<IContract>(state, "rawContract");
+
   return {
     /** The cancellation-request status in the platform vocabulary; undefined when no request exists (AC12). */
     cancellationRequestStatus: useContext<CancellationRequestStatusCodes>(
@@ -30,10 +34,9 @@ export function createContractContext(
       "contract.cancellationRequest.status.code"
     ),
 
-    /** The raw `cancellation_request.status.code` string, next to `cancellationRequestStatus` (AC12). */
-    cancellationRequestStatusCode: useContext<string>(
-      state,
-      "contract.cancellationRequest.status.code"
+    /** The raw `cancellation_request.status.code` string, as it arrived off the wire — next to `cancellationRequestStatus` (AC12). */
+    cancellationRequestStatusCode: computed<string | undefined>(() =>
+      get(rawContract.value, "cancellation_request.status.code")
     ),
 
     /** The mapped contract view model. */
@@ -45,8 +48,10 @@ export function createContractContext(
       "contract.status.code"
     ),
 
-    /** The raw `status.code` string, next to `contractStatus` (AC12). */
-    contractStatusCode: useContext<string>(state, "contract.status.code"),
+    /** The raw `status.code` string, as it arrived off the wire — next to `contractStatus` (AC12). */
+    contractStatusCode: computed<string | undefined>(() =>
+      get(rawContract.value, "status.code")
+    ),
 
     /** Machine-captured error, if any — read, never raised. */
     error: useContext<ResponseError>(state, "error"),
@@ -55,7 +60,7 @@ export function createContractContext(
     id: useContext<IContract["id"]>(state, "contractId"),
 
     /** The raw `IContract` API response beside the view model. */
-    rawContract: useContext<IContract>(state, "rawContract")
+    rawContract
   };
 }
 
