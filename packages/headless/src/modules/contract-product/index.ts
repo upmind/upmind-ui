@@ -44,7 +44,9 @@ export type { ContractProductsScopeMatrix } from "./contract-product.types";
  * what: this barrel exports the COLLECTION's matrix, its type and its context
  *   enum, and exports none of the three for the MANAGER. The template contract
  *   expects a barrel export per composable.
- * why: the manager is a single-record read. Its context enum does not exist
+ * template-departure: ContractProductContextTypes
+ * why: the manager is a single-record read. `ContractProductContextTypes`,
+ *   the context enum the template names, does not exist
  *   (see the @decision in `contract-product.types.ts`), and its matrix is
  *   all-`never`, so it names nothing a consumer can spell — there is no
  *   `.for()` call it could ever type. templates/SINGLE-READ.md states the rule
