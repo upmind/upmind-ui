@@ -701,3 +701,24 @@ Feature: A client manages the products on their own contracts
       | renewal invoicing | reading |
       | on                | on      |
       | off               | off     |
+
+  # AC-24 (ruling R19). The mapping law, as a client-visible promise: what the
+  # module hands a consumer is a view model, not the wire record.
+  @AC-24 @mapping
+  Scenario: What I am given is the module's own shape, not the server's
+    Given a product the server has described in its own words
+    When the module gives it to me
+    Then every member it publishes is named the way this codebase names things
+    And it publishes only the parts this module reads
+    And the server's own record is still reachable beside it
+
+  # AC-25 (ruling R20). The write spine, as a client-visible promise: one place
+  # a write happens, and the module says so while it is happening.
+  @AC-25 @machine
+  Scenario: While a change of mine is in flight, the module says so
+    Given one of my products
+    When I ask for a change
+    Then the module reports itself busy while the change is in flight
+    And it reports itself settled once the change has landed
+    And it has re-read the product before it settles
+

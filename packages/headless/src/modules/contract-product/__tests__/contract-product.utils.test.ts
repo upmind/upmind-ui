@@ -30,6 +30,7 @@ import {
   ContractStatusCodes
 } from "@upmind-automation/types";
 import { TrialEndActionTypes } from "@upmind-automation/types";
+import { mapContractProduct } from "..";
 import { ContractProductsContextTypes } from "../contract-product.types";
 import { ContractProductState } from "../contract-product.types";
 import {
@@ -38,6 +39,7 @@ import {
   selectStatusNode,
   selectTrialNode
 } from "../contract-product.utils";
+import recordedProduct from "./fixtures/get-contract-products-id.json";
 import type { ContractProduct } from "../contract-product.types";
 
 type Fixture = Pick<
@@ -366,5 +368,29 @@ describe("resolveExcludeDelegated — the exclude_delegated flag the scope sends
 
   it("the client's own excludeDelegatedProducts preference, set false, forces exclude_delegated=0 outside the delegated view", () => {
     expect(resolveExcludeDelegated(undefined, false, true)).toBe(0);
+  });
+});
+
+describe("mapContractProduct — the mapping law (AC-24)", () => {
+  const raw = (recordedProduct as { response: { body: { data: unknown } } })
+    .response.body.data as Parameters<typeof mapContractProduct>[0];
+  const mapped = mapContractProduct(raw);
+
+  it("AC-24 returns a view model, never the wire record it was given", () => {
+    expect(mapped).not.toBe(raw);
+  });
+
+  it("AC-24 every published member is camelCase — no snake_case wire key survives", () => {
+    const snake = Object.keys(mapped).filter(key => key.includes("_"));
+
+    expect(snake).toEqual([]);
+  });
+
+  it("AC-24 keeps the wire record reachable beside the view model", () => {
+    expect(mapped.raw).toBe(raw);
+  });
+
+  it("AC-24 publishes only what this module reads — the wire record carries more", () => {
+    expect(Object.keys(mapped).length).toBeLessThan(Object.keys(raw).length);
   });
 });

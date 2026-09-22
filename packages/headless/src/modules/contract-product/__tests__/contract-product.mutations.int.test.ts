@@ -1119,3 +1119,55 @@ describe("useContractProduct — the renewal-invoicing permission governs neithe
     expect(captured.body).toEqual({ renew: false });
   });
 });
+
+describe("useContractProduct — every write runs through the one processing state (AC-25)", () => {
+  it("AC-25 reports itself submitting while a write is in flight, and settled once it lands", async () => {
+    const { manager, row } = await openManagerWith({});
+    let inFlight: boolean | undefined;
+
+    server?.use(
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+        async () => {
+          // Read the flag from inside the request, while the machine is in
+          // `processing` — the whole point of the spine (R20).
+          inFlight = manager.useMeta().isSubmitting.value;
+          return HttpResponse.json(recorded.softCancelled(), { status: 200 });
+        }
+      )
+    );
+
+    expect(manager.useMeta().isSubmitting.value).toBe(false);
+    await manager.useActions().stopRenewing();
+
+    expect(inFlight).toBe(true);
+    expect(manager.useMeta().isSubmitting.value).toBe(false);
+  });
+
+  it("AC-25 comes back out of processing onto a settled node, having re-read the record", async () => {
+    const { manager, row } = await openManagerWith({});
+    let reads = 0;
+
+    server?.use(
+      http.get(`*/contract_products/${row.id}`, () => {
+        reads += 1;
+        return HttpResponse.json(recorded.one(), { status: 200 });
+      }),
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+        () => HttpResponse.json(recorded.softCancelled(), { status: 200 })
+      )
+    );
+    const before = reads;
+
+    const settled = await manager.useActions().stopRenewing();
+
+    // onDone leaves `processing` for `loading`, which re-reads and lets the
+    // entry selector place the node again (R20). The action resolves the
+    // re-read product, never `false`.
+    expect(settled).not.toBe(false);
+    expect(reads).toBeGreaterThan(before);
+    expect(manager.useMeta().isSubmitting.value).toBe(false);
+    expect(manager.useMeta().isAvailable.value).toBe(true);
+  });
+});
