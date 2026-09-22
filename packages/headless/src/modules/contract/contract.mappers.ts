@@ -36,7 +36,8 @@ export function mapContract(raw: IContract): Contract {
       ? { cancellationRequest: { status: { code: requestCode } } }
       : {}),
     paymentDetailsId: raw.payment_details_id,
-    products: map(raw.products, mapContractProduct)
+    products: map(raw.products, mapContractProduct),
+    raw
   };
 }
 

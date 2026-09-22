@@ -189,6 +189,8 @@ export type ContractProduct = {
   movedToContractProduct?: MovedToContractProduct;
   /** The client(s) this product is delegated from, on the `DELEGATED` scope. */
   delegatingClients?: ContractProductClient[];
+  /** The wire record this view model was mapped from (AC24, R19). */
+  raw: IContractProduct;
 };
 
 // -----------------------------------------------------------------------------

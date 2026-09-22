@@ -97,7 +97,8 @@ export function mapContractProduct(raw: IContractProduct): ContractProduct {
     movedToContractProduct: raw.moved_to_contract_product
       ? mapMovedToContractProduct(raw.moved_to_contract_product)
       : undefined,
-    delegatingClients: raw.clients ? map(raw.clients, mapClient) : undefined
+    delegatingClients: raw.clients ? map(raw.clients, mapClient) : undefined,
+    raw
   };
 }
 
