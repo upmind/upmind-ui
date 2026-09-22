@@ -15,8 +15,12 @@
  * NO SCHEMA EXPORTS HERE. The query schema family reaches consumers through
  * `useContractProducts().useContext().schemas`.
  *
- * Both composables support the CLIENT'S OWN scope only (R2) — `staff` and
- * `guest` are compile-time errors.
+ * Both composables serve the CLIENT'S OWN scope only (R2), and each enforces
+ * it differently. On the COLLECTION, `staff` and `guest` resolve no context,
+ * so `.for()` is a compile error for them. On the MANAGER, a single-record
+ * read, the matrix refuses every actor a context, so `.for()` never compiles
+ * for anyone; `.as()` itself stays open and the services reject a caller the
+ * session cannot address.
  */
 
 // --- Composables (collection + manager)
@@ -35,8 +39,21 @@ export {
   ContractProductsContextTypes
 } from "./contract-product.types";
 export type { ContractProductsScopeMatrix } from "./contract-product.types";
-// `CONTRACT_PRODUCT_SCOPE_MATRIX` and its type stay INTERNAL: an all-`never`
-// matrix names nothing a consumer can spell (templates/SINGLE-READ.md).
+/**
+ * @decision
+ * what: this barrel exports the COLLECTION's matrix, its type and its context
+ *   enum, and exports none of the three for the MANAGER. The template contract
+ *   expects a barrel export per composable.
+ * why: the manager is a single-record read. Its context enum does not exist
+ *   (see the @decision in `contract-product.types.ts`), and its matrix is
+ *   all-`never`, so it names nothing a consumer can spell — there is no
+ *   `.for()` call it could ever type. templates/SINGLE-READ.md states the rule
+ *   directly: do not re-export the all-`never` matrix from the module barrel.
+ * rejected: exporting `CONTRACT_PRODUCT_SCOPE_MATRIX` and
+ *   `ContractProductScopeMatrix` for symmetry with the collection. A consumer
+ *   who imports them can only pass them where the factory already applies
+ *   them, so the export advertises a choice that does not exist.
+ */
 
 // --- Public model types (shared by both composables)
 export { ContractProductState } from "./contract-product.types";

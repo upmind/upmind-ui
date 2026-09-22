@@ -32,9 +32,11 @@ import type { ActorRef, AnyEventObject } from "xstate";
  * @module contract-product/contract-product.types
  * @description Types for a client's own contract products — the query-backed
  * COLLECTION (`useContractProducts`) and the bespoke-machine MANAGER
- * (`useContractProduct`, `contract-product.machine.ts`). Each composable owns
- * its own context enum and scope matrix; the view model, the query model and
- * the services contract are shared.
+ * (`useContractProduct`, `contract-product.machine.ts`). The COLLECTION owns a
+ * context enum and a scope matrix that names it. The MANAGER is a
+ * single-record read: it owns an all-`never` matrix and no context enum at all
+ * (see the @decision beside `CONTRACT_PRODUCT_SCOPE_MATRIX`). The view model,
+ * the query model and the services contract are shared.
  */
 
 // -----------------------------------------------------------------------------
@@ -65,13 +67,26 @@ export type ContractProductsScopeMatrix = typeof CONTRACT_PRODUCTS_SCOPE_MATRIX;
 /**
  * Scope matrix for `useContractProduct` — every actor refused.
  *
- * `useContractProduct` is a SINGLE-RECORD READ BY ID (templates/SINGLE-READ.md).
- * The product id rides on `.withId(id)`, never on `.for(type, id)`: the legacy
- * oracle names no entity a client acts on behalf of here, and an absent legacy
- * context is never licence to invent one. Every cell is `never`, so
- * `ContextsForActor` resolves `never` for all four actors and `.for()` is a
- * compile error — the matrix is what makes it unspellable, so it is declared
- * and its TYPE is passed, never dropped.
+ * @decision
+ * what: the manager declares NO context enum, and every cell of its matrix is
+ *   `never`. The template contract expects a context enum and a matrix that
+ *   names it, as the collection beside it has.
+ * why: `useContractProduct` is a SINGLE-RECORD READ BY ID
+ *   (templates/SINGLE-READ.md). The legacy oracle names no entity a client
+ *   acts on behalf of for this capability, and an absent legacy context is
+ *   never licence to invent one. The product id rides on `.withId(id)`, which
+ *   `generateScopeKey` folds in as `id:<value>`. `ContextsForActor` resolves
+ *   `never` for all four actors, so `MatrixHasAnyContexts` is `false` and
+ *   `.for()` is a compile error for everyone.
+ * rejected: minting a `ContractProductContextTypes.CONTRACT_PRODUCT` and
+ *   naming it in the CLIENT cell — the shape this module shipped until
+ *   73e2517dd. It modelled a leaf record as an ADR-001 context with no oracle
+ *   entity behind it, made the matrix say something it cannot mean, and made
+ *   `.as('staff').for('client', c).withId(r)` unsayable. Research finding F19
+ *   named it. Also rejected: dropping the matrix entirely — `TMatrix` then
+ *   defaults to the WIDE `ActorContextMatrix` and `.for("anything", id)`
+ *   compiles again (the FE-3095 receipt). The matrix is declared, and its
+ *   TYPE is passed, precisely so the hole stays shut.
  */
 export const CONTRACT_PRODUCT_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,

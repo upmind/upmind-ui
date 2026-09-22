@@ -43,6 +43,22 @@ import type { AnyEventObject } from "xstate";
 
 export const contractProductMachine = createMachine(
   {
+    /**
+     * @decision
+     * what: this chart carries NO boot guard on a missing `contractProductId`.
+     *   templates/SINGLE-READ.md's variant-delta table puts the missing-id
+     *   gate on the machine's own boot guard, before `loading`.
+     * why: the two machine charts of `flow.md` §3 are LOCKED by operator
+     *   ruling R4. Adding a boot guard adds a node and a transition to a
+     *   locked chart, and R4 makes a mismatch a HALT, never a redesign. The
+     *   capability is not lost: `load` rejects a missing id at
+     *   `contract-product.services.ts` before any request is built, so a
+     *   manager opened with no id issues NO request. The observable
+     *   difference is where it lands — an error node rather than an idle one.
+     * rejected: adding the guard anyway. That is exactly the silent chart
+     *   redesign R4 forbids, and the operator, not this file, moves that
+     *   chart.
+     */
     id: "contractProductManager",
     predictableActionArguments: true,
     initial: "subscribing",
