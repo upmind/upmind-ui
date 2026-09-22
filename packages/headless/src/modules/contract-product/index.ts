@@ -63,6 +63,18 @@ export { mapContractProduct } from "./contract-product.mappers";
 // functions of `Pick<IInvoice, "status">`, not meta (R23); call per invoice.
 export { isCancellable, isDue } from "./contract-product.utils";
 
+// --- Future-cancellation anniversary maths (research F18) — pure functions
+// of the product's `nextDueDate`/`billingCycleMonths`; consumers validate a
+// client-picked date and derive the picker's selectable range with these.
+export {
+  anniversaryAnchor,
+  anniversaryAtCycle,
+  anniversaryCycleForDate,
+  isSelectableFutureCancellationDate,
+  minFutureCancellationCycle,
+  minFutureCancellationDate
+} from "./contract-product.utils";
+
 // --- Sub-composable type exports for consumers (collection)
 export type { UseContractProductsActions } from "./useContractProducts.actions";
 export type { UseContractProductsContext } from "./useContractProducts.context";

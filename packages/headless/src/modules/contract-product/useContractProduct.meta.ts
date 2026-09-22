@@ -1,9 +1,13 @@
 import { computed } from "vue";
 import { ContractProductState } from "./contract-product.types";
-import { anniversaryAnchor } from "./contract-product.utils";
+import {
+  anniversaryAnchor,
+  isCancellable,
+  isDue
+} from "./contract-product.utils";
 import { contextValue, useContext, useStateMatches } from "../../utils";
-import { isUndefined } from "lodash-es";
-import type { ContractProduct } from "./contract-product.types";
+import { isUndefined, some } from "lodash-es";
+import type { ContractProduct, UnpaidInvoice } from "./contract-product.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
@@ -31,6 +35,14 @@ export function createContractProductMeta(
         state,
         "contractProduct.hasScheduledFutureCancellation"
       )
+  );
+
+  const unpaidRecurringInvoices = computed<UnpaidInvoice[]>(
+    () =>
+      contextValue<UnpaidInvoice[]>(
+        state,
+        "contractProduct.unpaidRecurringInvoices"
+      ) ?? []
   );
 
   return {
@@ -86,6 +98,14 @@ export function createContractProductMeta(
     /** True once the product is placed on any `available` node. */
     isAvailable: useStateMatches(state, "available"),
 
+    /**
+     * True while an outstanding invoice of this product can still be
+     * cancelled. Legacy rule [o23]: `invoice_unpaid` or `invoice_overdue`.
+     */
+    isCancellable: computed(() =>
+      some(unpaidRecurringInvoices.value, isCancellable)
+    ),
+
     /** True on `unavailable.cancelled`. */
     isCancelled: useStateMatches(state, ContractProductState.CANCELLED),
 
@@ -96,6 +116,12 @@ export function createContractProductMeta(
     isDelegatedAccess: computed(
       () => !!contextValue<boolean>(state, "contractProduct.isDelegatedObject")
     ),
+
+    /**
+     * True while an outstanding invoice of this product is still due. Legacy
+     * rule [o23]: `invoice_unpaid`, `invoice_adjusted` or `invoice_overdue`.
+     */
+    isDue: computed(() => some(unpaidRecurringInvoices.value, isDue)),
 
     /** True when no product is loaded. */
     isEmpty: computed(() => !contractProduct.value),

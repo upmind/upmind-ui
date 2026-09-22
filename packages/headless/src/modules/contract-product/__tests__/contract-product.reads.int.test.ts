@@ -922,3 +922,67 @@ describe("useContractProduct — I am told when a product no longer invoices its
  *   per-row outcomes and left this one behind. Asserting it would contradict
  *   the rows; deleting it is a feature edit outside this seat's remit.
  */
+
+/**
+ * AC-10 — the `@AC-10` scenario at `contract-product.feature:358`. The two
+ * readings are pure
+ * functions of the outstanding invoice's `status.code` [o23]: `isDue` over
+ * `[invoice_unpaid, invoice_adjusted, invoice_overdue]`, `isCancellable` over
+ * the narrower `[invoice_unpaid, invoice_overdue]`. The recorded product
+ * carries `unpaid_recurring_invoices: []`, so each case below serves the
+ * RECORDED body with that one member set — the row-override seam
+ * `installProductHandler` already takes, not a hand-rolled fixture.
+ */
+describe("useContractProduct — whether an outstanding invoice is due, and cancellable (AC-10)", () => {
+  async function openWithInvoiceStatus(code?: string) {
+    await seedClientSession();
+    const base = recorded.one().data as Record<string, unknown> & {
+      id: string;
+    };
+    const row = {
+      ...base,
+      unpaid_recurring_invoices: code ? [{ status: { code } }] : []
+    };
+    installProductHandler(server, row);
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    await manager.useActions().isReady();
+    return manager.useMeta();
+  }
+
+  it("AC-10 an overdue invoice reads as due, and as cancellable", async () => {
+    const meta = await openWithInvoiceStatus("invoice_overdue");
+
+    expect(meta.isDue.value).toBe(true);
+    expect(meta.isCancellable.value).toBe(true);
+  });
+
+  it("AC-10 an unpaid invoice reads as due, and as cancellable", async () => {
+    const meta = await openWithInvoiceStatus("invoice_unpaid");
+
+    expect(meta.isDue.value).toBe(true);
+    expect(meta.isCancellable.value).toBe(true);
+  });
+
+  it("AC-10 an adjusted invoice reads as due, but NOT as cancellable — the narrower legacy set [o23]", async () => {
+    const meta = await openWithInvoiceStatus("invoice_adjusted");
+
+    expect(meta.isDue.value).toBe(true);
+    expect(meta.isCancellable.value).toBe(false);
+  });
+
+  it("AC-10 a paid invoice reads as neither due nor cancellable", async () => {
+    const meta = await openWithInvoiceStatus("invoice_paid");
+
+    expect(meta.isDue.value).toBe(false);
+    expect(meta.isCancellable.value).toBe(false);
+  });
+
+  it("AC-10 a product with no outstanding invoice reads as neither", async () => {
+    const meta = await openWithInvoiceStatus();
+
+    expect(meta.isDue.value).toBe(false);
+    expect(meta.isCancellable.value).toBe(false);
+  });
+});

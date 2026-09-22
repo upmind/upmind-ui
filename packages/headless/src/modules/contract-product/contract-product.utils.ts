@@ -183,6 +183,36 @@ export function minFutureCancellationDate(
   );
 }
 
+/** Which cycle `date` lands on off the product's anchor, or `null` when it isn't an exact multiple of the billing cycle. */
+export function anniversaryCycleForDate(
+  product: Pick<ContractProduct, "nextDueDate" | "billingCycleMonths">,
+  date: Date | string
+): number | null {
+  const anchor = anniversaryAnchor(product);
+  if (!anchor) return null;
+
+  const candidate = dayjs(date).startOf("day");
+  const monthsDiff = candidate.diff(anchor.reference, "month");
+  if (monthsDiff % anchor.billingCycleMonths !== 0) return null;
+
+  const cycles = monthsDiff / anchor.billingCycleMonths;
+  return anniversaryAtCycle(product, cycles)?.isSame(candidate, "day")
+    ? cycles
+    : null;
+}
+
+/** Whether `date` is a valid future-cancellation anniversary: an exact cycle, on or after `minFutureCancellationDate`. */
+export function isSelectableFutureCancellationDate(
+  product: Pick<ContractProduct, "nextDueDate" | "billingCycleMonths">,
+  date: Date | string
+): boolean {
+  const cycles = anniversaryCycleForDate(product, date);
+  const minCycles = minFutureCancellationCycle(product);
+  if (cycles === null || minCycles === null) return false;
+
+  return cycles >= minCycles;
+}
+
 // -----------------------------------------------------------------------------
 // Unpaid-invoice predicates (AC10, ADR-10, design 8.7 [o23])
 //

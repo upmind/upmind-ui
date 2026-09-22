@@ -195,7 +195,7 @@ async function setPaymentMethod(
 
   return patch<IContract>({
     mutationKey: [...queryKey, contractId, "payment-method"],
-    url: useUrl("contracts/payment_details", { clientId: contractId }),
+    url: useUrl(`contracts/${contractId}/payment_details`),
     data: toPaymentMethodBody(data as SetPaymentMethodModel),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
