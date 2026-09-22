@@ -91,11 +91,6 @@ function testFileContents(): { file: string; content: string }[] {
  *   the hide-one-off-purchases flag; see the KNOWN GAP note beside
  *   `contract-product.reads.int.test.ts`'s AC-1 describe block. Recording is
  *   forbidden this pass.
- * - AC-1's "Clearing what I asked for brings all my products back" (amendment
- *   A23) needs the composable's own runtime call shape for CLEARING a declared
- *   criteria leaf, which sits in a `*.ts` file the prover's Read-block law
- *   puts out of reach this pass — the same wall the `category name` narrowing
- *   row hit, and for the same reason.
  * - AC-15's "An empty scheduled-actions result tells me why it is empty"
  *   (amendment A22(f)) needs a recorded product capture WITHOUT the
  *   `scheduled_actions` member at all, to tell "none are scheduled" from "not
@@ -115,7 +110,6 @@ const SCENARIO_GAPS = new Set([
   "AC-19::See my products grouped by category, with a count for each",
   "AC-19::A brand that hides one-off purchases hides them from my category counts too",
   "AC-1::A brand that hides one-off purchases hides them from me everywhere",
-  "AC-1::Clearing what I asked for brings all my products back",
   "AC-15::An empty scheduled-actions result tells me why it is empty"
 ]);
 
@@ -501,7 +495,7 @@ const PARTIAL_PROMISES: PartialPromise[] = [
   {
     line: 145,
     text: "Scenario: Clearing what I asked for brings all my products back",
-    disposition: "gap"
+    disposition: "proves"
   },
   {
     line: 168,

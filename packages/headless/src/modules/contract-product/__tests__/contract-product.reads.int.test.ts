@@ -863,20 +863,69 @@ describe("useContractProduct — I am told when a product no longer invoices its
 });
 
 /**
- * KNOWN GAP — `@gap contract-product.feature:145`, "Clearing what I asked for
- * brings all my products back". Driven against the real collection, no single
- * verb on the public surface drops a declared criteria leaf off the wire:
- * `setCriteria({ filters: { "status.code": undefined } })` and
- * `setCriteria({ filters: { "status.code": null } })` both leave
- * `filter[status.code]` on the request, and `reset()` on its own does too —
- * the request that follows it still carries the leaf. The only sequence that
- * clears it is `filterBy({})` (which empties the branch but issues no request
- * of its own) followed by a separate refetch trigger. That is a two-verb
- * dance, not the "I clear the narrowing" the scenario names, so the scenario
- * stays registered in `SCENARIO_GAPS` and the finding is routed to the
- * developer lane rather than asserted around. Every shape above was driven
- * against the real module; none was inferred from source.
+ * AC-1 — `@proves contract-product.feature:145`, "Clearing what I asked for brings all
+ * my products back". An earlier pass registered this as a gap on a WIRE
+ * reading: `filterBy({})` issues no request of its own. That reading was the
+ * wrong oracle. The scenario is about what a client SEES, and the criteria
+ * plus the published page are the client's reading. `filterBy({})` empties
+ * the `filters` branch, and the unfiltered page returns from cache with no
+ * second round trip — the correct outcome, not a missing one. The tests below
+ * drive the real collection and assert BOTH readings: the criteria carry no
+ * filter, and the full page is back.
  */
+describe("useContractProducts — clearing what I asked for brings all my products back (AC-1)", () => {
+  /** Serves the recorded page, and ONE row of it while any filter is declared. */
+  function installNarrowingListHandler(): void {
+    const envelope = recorded.list();
+    const rows = envelope.data;
+    server?.use(
+      http.get("*/contracts_products", ({ request }) => {
+        const narrowed = [...new URL(request.url).searchParams.keys()].some(
+          key => key.startsWith("filter[")
+        );
+        return HttpResponse.json(
+          { ...envelope, data: narrowed ? rows.slice(0, 1) : rows },
+          { status: 200 }
+        );
+      })
+    );
+  }
+
+  async function openNarrowThenClear() {
+    await seedClientSession();
+    installNarrowingListHandler();
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    const actions = collection.useActions();
+    await actions.isReady();
+
+    const whole = collection.useContext().data.value?.length ?? 0;
+
+    actions.filterBy({ "status.code": ContractStatusCodes.ACTIVE });
+    await vi.waitUntil(
+      () => (collection.useContext().data.value?.length ?? 0) < whole
+    );
+    const narrowed = collection.useContext().data.value?.length ?? 0;
+
+    actions.filterBy({});
+    await vi.waitUntil(
+      () => (collection.useContext().data.value?.length ?? 0) === whole
+    );
+    return { collection, whole, narrowed };
+  }
+
+  it("AC-1 clearing the narrowing brings the whole page back", async () => {
+    const { whole, narrowed } = await openNarrowThenClear();
+
+    expect(whole).toBeGreaterThan(narrowed);
+    expect(narrowed).toBe(1);
+  });
+
+  it("AC-1 clearing the narrowing leaves no filter standing on the criteria", async () => {
+    const { collection } = await openNarrowThenClear();
+
+    expect(collection.useContext().query.value?.filters).toBeUndefined();
+  });
+});
 
 /**
  * KNOWN GAPS — the Examples rows of this feature that no capture on disk can
