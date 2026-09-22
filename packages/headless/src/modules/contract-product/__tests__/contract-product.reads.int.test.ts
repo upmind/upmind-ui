@@ -450,7 +450,7 @@ describe("useContractProducts — I see the products on my own account (AC-1)", 
 
   /**
    * KNOWN GAP — "A brand that hides one-off purchases hides them from me
-   * everywhere" (contract-product.feature:104, @AC-1 @brand) has no test
+   * everywhere" (contract-product.feature:160, @AC-1 @brand) has no test
    * here. Proving it needs a recorded brand-settings capture carrying the
    * hide-one-off-purchases flag; no such capture exists on disk in this
    * module's `fixtures/` (or anywhere else on disk this prover can read),
