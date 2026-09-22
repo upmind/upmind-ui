@@ -6,8 +6,8 @@
  * ## Job To Be Done
  * Drive the REAL `useContractProduct()` manager actions against RECORDED
  * staging responses and prove each write reaches the wire exactly as
- * design.md §8.3 states. The exposed action names are `stopRenewing()` /
- * `resumeRenewing()` — design.md §8.3's action column and
+ * `design ✅.md` §8.3 states. The exposed action names are `stopRenewing()` /
+ * `resumeRenewing()` — `design ✅.md` §8.3's action column and
  * `ContractProductMachineServices`' key names (`requestSoftCancel` /
  * `abortSoftCancel`) name the INVOKED SERVICE, not the composable's public
  * action; `Object.keys(manager.useActions())` on the real module confirms
@@ -16,7 +16,7 @@
  * `{ invoice_consolidation_enabled }` to `properties`; `scheduleCancellation`/
  * `revokeScheduledCancellation` PUT to `schedule-cancel(-revoke)` under
  * `contracts/{c}/products/{p}/…` — the REAL route
- * (`contract-product.fixtures.ts` fileoverview limit 3; design.md §8.3's
+ * (`contract-product.fixtures.ts` fileoverview limit 3; `design ✅.md` §8.3's
  * stated `contract_products/{p}/…` path 404s on this API). Every response
  * body is the module's OWN recorded capture — never a hand-rolled mock.
  *
@@ -74,14 +74,24 @@ async function openManager() {
 }
 
 /**
- * Opens the manager over the REAL recorded product row, with ONLY the
- * `overrides` fields replaced — never a hand-typed body. Used to reach a
- * record shape (`staged_import: true`, a cancelled/lapsed `status.code`, a
- * one-off `billing_cycle_months: 0`) this staging client's own reachable
- * products do not carry (`contract-product.fixtures.ts` fileoverview
- * limit 2), so AC-11's guard refusals can still be proven against the
- * module's own real wire shape rather than skipped for want of a live
- * candidate.
+ * Opens the manager over the REAL recorded product row, with the `overrides`
+ * fields replaced. Used to reach a record shape (`staged_import: true`, a
+ * cancelled/lapsed/suspended `status.code`, a one-off
+ * `billing_cycle_months: 0`) this staging client's own reachable products do
+ * not carry (`contract-product.fixtures.ts` fileoverview limit 2), so AC-11's
+ * guard refusals and its parity-loss positive control can still be driven
+ * against the module's own real wire shape rather than skipped for want of a
+ * live candidate.
+ *
+ * PROVENANCE, STATED EXACTLY. A scalar override (`staged_import`,
+ * `billing_cycle_months`, `can_disable_auto_create_renew_invoice`) replaces
+ * one real value with another real value of the same field. A `status`
+ * override is NOT that: `{ status: { code } }` replaces the whole `status`
+ * RELATION, so every other field the real capture's `status` object carries
+ * (its id, its name, its type) is discarded. A row driven that way is
+ * real-except-for-a-synthesised-status — never a wholly real row — and no
+ * assertion below reads any `status` member other than `code`. Recording a
+ * genuine suspended/cancelled row is forbidden this pass (`receipts.md`).
  */
 async function openManagerWith(overrides: Record<string, unknown>) {
   const { accessToken } = await seedClientSession();
@@ -102,7 +112,7 @@ async function openManagerWith(overrides: Record<string, unknown>) {
  * The value an action SETTLED on: its rejection, a `{ resolved }` wrapper, or
  * the `never-settled` sentinel. Raced rather than awaited outright, matching
  * `contract-product.auth-guard.int.test.ts`'s own pattern — an action-level
- * refusal (design.md §8.3) is expected to settle promptly with no request,
+ * refusal (`design ✅.md` §8.3) is expected to settle promptly with no request,
  * never to hang.
  */
 async function settlement(action: Promise<unknown>): Promise<unknown> {
@@ -184,19 +194,23 @@ describe("useContractProduct — a product I cannot act on refuses my changes wi
   });
 
   /**
-   * `@proves contract-product.feature:265` — "a product that is merely suspended is
-   * not one I have finished with — on that one I can still stop it renewing,
-   * change how it is invoiced, and book a scheduled cancellation, exactly as
-   * my account area lets me today". This is the PARITY-LOSS direction the
-   * refusal test above cannot prove: it shows a CANCELLED product is
-   * refused, never that a SUSPENDED one is still offered every one of those
-   * three changes. Driven over a REAL row with only `status.code` overridden
-   * to `SUSPENDED` (`openManagerWith`'s own documented pattern for a state
-   * this staging client's reachable products do not carry) — never a
-   * fabricated body. It is also the positive control
-   * `@proves contract-product.feature:245` names — the staged-guard
-   * scenario's own parity-loss clause, which asks that the same three
-   * changes are NOT withheld from a suspended subscription.
+   * The three rows of `contract-product.feature`'s "A suspended subscription
+   * is still offered every change" Outline (amendments A10 and A11), each
+   * proven on the wire:
+   *
+   * - `@proves contract-product.feature:464` — stop it renewing
+   * - `@proves contract-product.feature:465` — change whether it joins my
+   *   consolidated invoice
+   * - `@proves contract-product.feature:466` — book a cancellation for a date
+   *   I choose
+   *
+   * This is the PARITY-LOSS direction the refusal tests above cannot prove:
+   * they show a STAGED and a CANCELLED product are refused, never that a
+   * SUSPENDED one is still offered every one of those three changes. An
+   * over-refusing surface silently takes capability from the client. Driven
+   * over a REAL row with the `status` relation overridden to `SUSPENDED` —
+   * see `openManagerWith`'s provenance note for exactly what that override
+   * does and does not replace.
    */
   it("AC-11 a merely suspended product is NOT one I have finished with — stopRenewing, setConsolidation and scheduleCancellation are all still offered normally", async () => {
     const { manager, row, accessToken } = await openManagerWith({
@@ -385,7 +399,7 @@ describe("useContractProduct — I stop one of my subscriptions renewing, and ch
   });
 
   it("AC-5 stopping renewal is not the renewal-invoicing permission — a product not allowed to switch that off still stops renewing normally", async () => {
-    // design.md §8.3 row C5: the gate `can_disable_auto_create_renew_invoice`
+    // `design ✅.md` §8.3 row C5: the gate `can_disable_auto_create_renew_invoice`
     // goes with the excluded auto-renew-invoicing endpoint, never with this
     // stop-renewing write. A REAL row with that gate forced false proves the
     // module ignores it — the request still reaches the wire unchanged.
@@ -413,6 +427,52 @@ describe("useContractProduct — I stop one of my subscriptions renewing, and ch
 });
 
 describe("useContractProduct — I decide whether one subscription joins my consolidated invoice (AC-9)", () => {
+  /**
+   * `@proves contract-product.feature:433` — "my account-level consolidation
+   * preference is left exactly as it was". The `it.each` below proves the
+   * per-product body; it cannot see a SECOND write this action might make
+   * against the client's own account-level preference, because it only
+   * inspects the one request it installed a handler for. This one observes
+   * EVERY outbound request the write makes and holds it to a positive
+   * allow-list — the product's own `properties` write and the re-read it
+   * triggers — so a regression that also PUT/PATCHed the account-level
+   * preference (`clients/{id}`, `clients/{id}/personal_details`, or any
+   * other path) fails here, not only one that happened to spell a path this
+   * file thought to ban.
+   */
+  it("AC-9 setting ONE product's consolidation writes to that product only — my account-level preference is never touched", async () => {
+    const { manager, row } = await openManager();
+    const observed = observeAllRequests();
+
+    server?.use(
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/properties`,
+        () => HttpResponse.json(recorded.consolidationSet(), { status: 200 })
+      )
+    );
+
+    await manager.useActions().setConsolidation({
+      invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+    });
+
+    const requests = observed.all();
+    observed.stop();
+    const allowed = [
+      `/contracts/${row.contract_id}/products/${row.id}/properties`,
+      `/contract_products/${row.id}`
+    ];
+    expect(requests.length).toBeGreaterThan(0);
+    for (const request of requests) {
+      const path = new URL(request.url).pathname;
+      expect(allowed.some(allowedPath => path.endsWith(allowedPath))).toBe(
+        true
+      );
+    }
+    expect(
+      requests.filter(request => request.method !== "GET").map(r => r.url)
+    ).toHaveLength(1);
+  });
+
   it.each([
     ["opted out", InvoiceConsolidationTypes.DISABLED],
     ["opted in", InvoiceConsolidationTypes.ENABLED],
@@ -589,6 +649,16 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
   });
 });
 
+/**
+ * KNOWN GAP — `@gap contract-product.feature:520`, the THIRD reader of the
+ * AC-13 scenario's `Given` ("my dashboard's count of them"). That surface is
+ * the grouped-counts read, which `contract-product.traceability.test.ts`
+ * already registers as an unproven AC-19 scenario: no grouped-by-category
+ * capture exists on disk, and recording is forbidden this pass
+ * (`receipts.md`). The test below therefore drives the two readers that ARE
+ * reachable — the manager and the collection — and the count surface stays
+ * unproven, registered here rather than silently discharged by them.
+ */
 describe("useContractProduct — a change I make shows up on my products list too, without reloading (AC-13, cross-surface)", () => {
   it("AC-13 the products COLLECTION re-reads after a write made through the MANAGER — not only the manager's own re-read", async () => {
     await seedClientSession();
@@ -621,7 +691,7 @@ describe("useContractProduct — a change I make shows up on my products list to
     await manager.useActions().isReady();
     await manager.useActions().stopRenewing();
 
-    // The write's cache-key invalidation is whole (design.md §8.4's base
+    // The write's cache-key invalidation is whole (`design ✅.md` §8.4's base
     // "contracts" key), so a SEPARATE collection instance — never told about
     // this write directly — re-fetches too, not only the manager that made it.
     await vi.waitFor(() => {

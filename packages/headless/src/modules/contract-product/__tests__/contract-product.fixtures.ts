@@ -16,7 +16,7 @@
  * by the `*.fixtures.ts` suffix. It has no assertions beyond "the capture
  * happened"; `save()` in `afterAll` writes every capture once.
  *
- * ## Captures (design.md §8.1, §8.3)
+ * ## Captures (`design ✅.md` §8.1, §8.3)
  * `get-contracts_products` (list — AC-1) ·
  * `get-contract_products-id` (the 35-member client read — AC-4/AC-15) ·
  * `put-contracts-id-products-id-modify_renew-case-stop` /
@@ -41,7 +41,7 @@
  *    staging client's reachable products do not include one in those states.
  *    `contract-product.utils.test.ts` proves the client-side guard shape at
  *    the unit layer instead.
- * 3. **design.md §8.3's wire route for `scheduleCancellation` /
+ * 3. **`design ✅.md` §8.3's wire route for `scheduleCancellation` /
  *    `revokeScheduledCancellation` is `PUT api/contract_products/{p}/…` —
  *    that exact path answers a real, reproducible `404 "API route not
  *    found"`.** Three sibling shapes were probed uncaptured
@@ -53,7 +53,7 @@
  *    use — is the real route (a real `409 "Scheduled cancellation already
  *    exists!"` on first probe, then a clean book/revoke pair once that
  *    pre-existing real schedule was revoked). **This generator captures
- *    the real route** and flags design.md §8.3's stated wire path for
+ *    the real route** and flags `design ✅.md` §8.3's stated wire path for
  *    operator correction against this finding.
  *
  * ## Staging hygiene
@@ -93,7 +93,7 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
-/** The 35 `with` members of the client product detail read (design.md §8.1). */
+/** The 35 `with` members of the client product detail read (`design ✅.md` §8.1). */
 const PRODUCT_WITH = [
   "contract",
   "contract.account",

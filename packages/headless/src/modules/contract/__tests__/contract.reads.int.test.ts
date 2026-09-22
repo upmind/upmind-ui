@@ -8,7 +8,7 @@
  * AC-14 exactly as `contract.feature` states it — a client sees the reactive
  * page of contracts on their own account, told which page they are on and
  * how many there are; and AC-3 — opening one contract sends the real
- * 12-member `with` list design.md §8.1 states (the 11-member client read
+ * 12-member `with` list `design ✅.md` §8.1 states (the 11-member client read
  * [o28] plus the one named `cancellation_request.status` addition), with
  * `with_staged_imports=1`, and asks for no member outside that set.
  * `contract.mutations.int.test.ts` proves the three writes; this file proves
@@ -35,7 +35,7 @@ import { server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
 
-/** design.md §8.1's 12-member client contract read — the 11-member oracle
+/** `design ✅.md` §8.1's 12-member client contract read — the 11-member oracle
  * caller [o28] plus the one named `cancellation_request.status` addition. */
 const CONTRACT_WITH_MEMBERS = [
   "products.contract_request",
@@ -53,6 +53,34 @@ const CONTRACT_WITH_MEMBERS = [
 ].sort();
 
 describe("useContract — I open one of my contracts with everything the account area needs (AC-3)", () => {
+  /**
+   * The twelve one-record-per-line promises amendment A28(b) splits the AC-3
+   * `Then` block into are the twelve members asserted EXACTLY below, so a
+   * module that drops one — or asks for one this client read is not entitled
+   * to — fails one NAMED line:
+   *
+   * - `@proves contract.feature:138` — the cancellation request on it
+   *   (`cancellation_request`)
+   * - `@proves contract.feature:139` — that request's custom fields
+   *   (`cancellation_request.custom_fields.field`)
+   * - `@proves contract.feature:140` — that request's state
+   *   (`cancellation_request.status`)
+   * - `@proves contract.feature:141` — the contract's own status (`status`)
+   * - `@proves contract.feature:142` — my account's image (`client.image`)
+   * - `@proves contract.feature:143` — each product's status
+   *   (`products.status`)
+   * - `@proves contract.feature:144` — each product's tags (`products.tags`)
+   * - `@proves contract.feature:145` — each product's pending contract request
+   *   (`products.contract_request`)
+   * - `@proves contract.feature:146` — that request's custom fields
+   *   (`products.contract_request.custom_fields.field`)
+   * - `@proves contract.feature:147` — any scheduled future cancellation
+   *   (`products.future_cancellation_request`)
+   * - `@proves contract.feature:148` — each product's catalogue product image
+   *   (`products.product.image`)
+   * - `@proves contract.feature:149` — the currency of each product's brand
+   *   (`products.product.brand.currency`)
+   */
   it("AC-3 GETs contracts/{id} with_staged_imports=1 and exactly the 12-member client with-list — no staff-only member", async () => {
     const { accessToken } = await seedClientSession();
     const row = recorded.one().data;
@@ -107,7 +135,7 @@ describe("useContract — I open one of my contracts with everything the account
   });
 });
 
-/** design.md §8.1 R19/R30 — the list view model's own 3-member `with` list. */
+/** `design ✅.md` §8.1 R19/R30 — the list view model's own 3-member `with` list. */
 const CONTRACTS_LIST_WITH_MEMBERS = [
   "status",
   "cancellation_request",

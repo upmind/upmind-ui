@@ -74,17 +74,15 @@ function testFileContents(): { file: string; content: string }[] {
  * Named, reviewed exceptions to full coverage — never a silent hole, keyed
  * on the EXACT `id::scenario` pair (see `contract-product.traceability.test.ts`
  * for why an id-only exemption or an id-only "some test mentions this id"
- * check can silently let one covered scenario discharge every OTHER
- * scenario sharing its id).
+ * check can silently let one covered scenario discharge every OTHER scenario
+ * sharing its id).
  *
- * AC-7 — only the failure half is proven (`contract.mutations.int.test.ts`'s
- * withdraw tests both drive the sandbox's real `404` rejection). The success
- * half (a withdraw that actually succeeds) has no recorded 200 capture on
- * disk for `DELETE contracts/{id}/cancel/request` — recording is forbidden
- * this pass (see `receipts.md`), so it stays unproven rather than faked with
- * a hand-rolled 200 body. `contract.feature` carries a single AC-7 scenario,
- * so this entry is written down here for visibility, not because the id+
- * scenario floor below would otherwise miss a shared-id masking case.
+ * EMPTY, AND THAT IS THE STATE — every `contract.feature` scenario has a test
+ * naming its id. AC-7's half-proof is NOT a scenario gap: its failure half IS
+ * proven (both withdraw tests drive the sandbox's real `404`), and only its
+ * success half is unproven for want of a recorded 200 capture. A half-proven
+ * scenario is the PARTIAL_PROMISES ledger's business, not this set's, and
+ * that is where AC-7 is registered.
  */
 const SCENARIO_GAPS = new Set<string>();
 
@@ -103,13 +101,69 @@ type PartialPromise = {
 
 const PARTIAL_PROMISES: PartialPromise[] = [
   {
-    line: 131,
+    line: 178,
     text: "Then the request is removed and my contract carries on",
     disposition: "gap"
   },
   {
+    line: 199,
+    text: "| a suspended subscription |",
+    disposition: "proves"
+  },
+  {
+    line: 138,
+    text: "Then it arrives with the cancellation request on it",
+    disposition: "proves"
+  },
+  {
+    line: 139,
+    text: "And with that cancellation request's custom fields",
+    disposition: "proves"
+  },
+  {
+    line: 140,
+    text: "And with that cancellation request's state",
+    disposition: "proves"
+  },
+  {
+    line: 141,
+    text: "And with the contract's own status",
+    disposition: "proves"
+  },
+  { line: 142, text: "And with my account's image", disposition: "proves" },
+  {
+    line: 143,
+    text: "And with each of its products' status",
+    disposition: "proves"
+  },
+  {
+    line: 144,
+    text: "And with each of its products' tags",
+    disposition: "proves"
+  },
+  {
     line: 145,
-    text: "And a suspended subscription is offered the change normally",
+    text: "And with each of its products' pending contract request",
+    disposition: "proves"
+  },
+  {
+    line: 146,
+    text: "And with that contract request's custom fields",
+    disposition: "proves"
+  },
+  {
+    line: 147,
+    text: "And with any cancellation scheduled against each of its products for a future date",
+    disposition: "proves"
+  },
+  {
+    line: 148,
+    text: "And with each of its products' catalogue product image",
+    disposition: "proves"
+  },
+  {
+    line: 149,
+    text: "And with the currency of each of its products' brand",
     disposition: "proves"
   }
 ];

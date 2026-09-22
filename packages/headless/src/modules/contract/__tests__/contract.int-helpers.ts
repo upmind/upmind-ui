@@ -16,7 +16,7 @@
 
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
-import { afterEach, expect, vi } from "vitest";
+import { expect, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { useBrand } from "../../brand";
 import { queryClient } from "../../query/client";
@@ -185,7 +185,15 @@ export type ContractObservedRequest = {
   headers: Record<string, string>;
 };
 
-/** Passively observes EVERY outbound request. */
+/**
+ * Passively observes EVERY outbound request.
+ *
+ * @remarks The caller MUST call `stop()` — there is no automatic cleanup. An
+ * `afterEach(stop)` registered here would be inert: this helper is invoked
+ * from inside a test BODY, and a hook registered during execution is not
+ * collected for the running test. The earlier version of this function
+ * registered one anyway, which advertised a safety net it did not provide.
+ */
 export function observeAllRequests(): {
   all: () => ContractObservedRequest[];
   matching: (fragment: string) => ContractObservedRequest[];
@@ -202,7 +210,6 @@ export function observeAllRequests(): {
   server?.events.on("request:start", listener);
   const stop = (): void =>
     server?.events.removeListener("request:start", listener);
-  afterEach(stop);
 
   return {
     all: () => seen,

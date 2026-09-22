@@ -15,7 +15,7 @@
  * by the `*.fixtures.ts` suffix. It has no assertions beyond "the capture
  * happened"; `save()` in `afterAll` writes every capture once.
  *
- * ## Captures (design.md §8.1, §8.3)
+ * ## Captures (`design ✅.md` §8.1, §8.3)
  * `get-contracts` (list — AC-14) ·
  * `get-contracts-id` (the 12-member client read — AC-3) ·
  * `patch-contracts-id-payment_details` (AC-8, `setPaymentMethod`, idempotent
@@ -47,7 +47,7 @@
  *    id-less path is the real route. **This 404 is shipped as the capture**
  *    rather than forced to a fabricated 200 — `contract.mutations.int.test.ts`
  *    asserts the module surfaces this real error rather than a happy-path
- *    withdrawal, and flags the design.md AC-7 wire contract for operator
+ *    withdrawal, and flags the `design ✅.md` AC-7 wire contract for operator
  *    review against this finding.
  * 3. The staging client's real 422/409 refusal bodies for a cancel request on
  *    an already-cancelling product, or a payment-method write to a contract
@@ -59,7 +59,7 @@
  *
  * ## Staging hygiene
  * The cancellation request this run lodges is real and, per limit 2 above,
- * this run cannot withdraw it again through any route design.md or this
+ * this run cannot withdraw it again through any route `design ✅.md` or this
  * generator's probes found. It is left as the account's real state; a
  * subsequent `pnpm fixtures:generate contract` run selects a different clean
  * subscription (one with no `contract_request`) rather than reusing this one.
@@ -95,14 +95,14 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
-/** The 3 `with` members the list view model maps (design.md §8.1, R19, R30). */
+/** The 3 `with` members the list view model maps (`design ✅.md` §8.1, R19, R30). */
 const CONTRACTS_LIST_WITH = [
   "status",
   "cancellation_request",
   "cancellation_request.status"
 ].join(",");
 
-/** The 12 `with` members of the client contract read (design.md §8.1). */
+/** The 12 `with` members of the client contract read (`design ✅.md` §8.1). */
 const CONTRACT_WITH = [
   "products.contract_request",
   "products.contract_request.custom_fields.field",

@@ -89,10 +89,23 @@ function testFileContents(): { file: string; content: string }[] {
  * - AC-10 needs `isDue`/`isCancellable`'s exact export surface, which sits
  *   in a `*.ts` file the prover's Read-block law puts out of reach this
  *   pass.
- * - AC-1's brand-hides-one-off-purchases scenario needs a recorded
- *   brand-settings capture carrying the hide-one-off-purchases flag; see the
- *   KNOWN GAP note beside `contract-product.reads.int.test.ts`'s AC-1
- *   describe block. Recording is forbidden this pass.
+ * - AC-1's two brand scenarios (the collection one and the AC-19 category-count
+ *   one amendment A18(d) adds) need a recorded brand-settings capture carrying
+ *   the hide-one-off-purchases flag; see the KNOWN GAP note beside
+ *   `contract-product.reads.int.test.ts`'s AC-1 describe block. Recording is
+ *   forbidden this pass.
+ * - AC-1's "Clearing what I asked for brings all my products back" (amendment
+ *   A23) needs the composable's own runtime call shape for CLEARING a declared
+ *   criteria leaf, which sits in a `*.ts` file the prover's Read-block law
+ *   puts out of reach this pass — the same wall the `category name` narrowing
+ *   row hit, and for the same reason.
+ * - AC-15's "An empty scheduled-actions result tells me why it is empty"
+ *   (amendment A22(f)) needs a recorded product capture WITHOUT the
+ *   `scheduled_actions` member at all, to tell "none are scheduled" from "not
+ *   asked for yet". The one capture on disk carries `scheduled_actions: []`.
+ * - AC-18's two split scenarios (amendments A18(c) and A19) ride the same
+ *   `client-personal-details` preference seam as their host, which has no
+ *   capture on disk.
  *
  * Every entry is a reported, cited gap — never a silently faked green.
  */
@@ -100,9 +113,14 @@ const SCENARIO_GAPS = new Set([
   "AC-2::Choose whether to see products delegated to me",
   "AC-2::Never be shown delegated products I do not have",
   "AC-18::My choice about delegated products is remembered",
+  "AC-18::Having nothing delegated to me outranks what I chose before",
+  "AC-18::My choice survives a profile I have open at the same time",
   "AC-19::See my products grouped by category, with a count for each",
+  "AC-19::A brand that hides one-off purchases hides them from my category counts too",
   "AC-10::Know whether an outstanding invoice is still due, and still cancellable",
-  "AC-1::A brand that hides one-off purchases hides them from me everywhere"
+  "AC-1::A brand that hides one-off purchases hides them from me everywhere",
+  "AC-1::Clearing what I asked for brings all my products back",
+  "AC-15::An empty scheduled-actions result tells me why it is empty"
 ]);
 
 /**
@@ -110,8 +128,8 @@ const SCENARIO_GAPS = new Set([
  * cannot see. That floor is a per-SCENARIO cardinality proof: it fires when a
  * whole scenario is unproven, and is silent when a scenario is proven in part
  * and one of its `And` lines is not. Those halves are where a parity loss
- * hides, so each one this module has argued about is written down here, at
- * its exact feature line, with its disposition:
+ * hides, so each one is written down here, at its exact feature line, with
+ * its disposition:
  *
  * - `gap`   — the promise has no proof. The tree must carry a matching
  *             `@gap <feature>:<line>` marker in a KNOWN GAP comment, so the
@@ -123,6 +141,19 @@ const SCENARIO_GAPS = new Set([
  * Every entry pins the feature line VERBATIM, so editing the promise (or
  * inserting a line above it) fails here instead of silently orphaning the
  * marker.
+ *
+ * WHAT THIS LEDGER IS AND IS NOT. It is a hand-curated ALLOW-LIST, so it
+ * cannot DETECT an unregistered half-promise — only carry the disposition of
+ * one already found. The mechanism that keeps the INPUT SET honest sits
+ * upstream, in the feature itself: bdd.md's amendments A1, A20, A28 and A32
+ * split every packed `Then` into ONE READING PER LINE, so a half-promise can
+ * no longer hide inside a thirteen-reading sentence that one assertion appears
+ * to discharge, and amendments A10-A13, A18, A19, A22, A24 and A25 move every
+ * claim whose `Given` did not set its subject up onto a row that does. This
+ * ledger then carries the per-line disposition for every line whose proof is
+ * not self-evident from the test naming its scenario. A line added to the
+ * feature without an entry here is still caught by review, not by this file:
+ * that limitation is stated rather than papered over.
  */
 type PartialPromise = {
   line: number;
@@ -132,29 +163,114 @@ type PartialPromise = {
 
 const PARTIAL_PROMISES: PartialPromise[] = [
   {
-    line: 98,
-    text: "And narrowing by category name is offered to me — it is the one narrowing the legacy client area gives a client and an account holder alone",
+    line: 111,
+    text: "And each one arrives with its status",
+    disposition: "proves"
+  },
+  {
+    line: 112,
+    text: "And each one arrives with its catalogue product",
+    disposition: "proves"
+  },
+  {
+    line: 113,
+    text: "And each one arrives with that product's brand",
+    disposition: "proves"
+  },
+  {
+    line: 114,
+    text: "And each one arrives with its category",
     disposition: "gap"
   },
   {
-    line: 295,
-    text: "And an empty result tells me whether it is empty because there are none, or because the product was loaded without them",
+    line: 115,
+    text: "And each one arrives with its tags",
+    disposition: "proves"
+  },
+  {
+    line: 116,
+    text: "And each one arrives with its pending contract request",
+    disposition: "proves"
+  },
+  {
+    line: 117,
+    text: "And each one arrives with any cancellation scheduled against it for a future date",
+    disposition: "proves"
+  },
+  {
+    line: 118,
+    text: "And each one arrives with the product it was moved to",
+    disposition: "proves"
+  },
+  {
+    line: 134,
+    text: "| category name                             |",
     disposition: "gap"
   },
   {
-    line: 184,
-    text: "And it is not confused with a subscription whose renewal invoicing was switched off — a separate thing this module does not offer me",
+    line: 333,
+    text: "And whether it is awaiting setup",
     disposition: "proves"
   },
   {
-    line: 245,
-    text: "And so does withholding those same changes from a merely suspended subscription — my account area offers them on one of those, and a surface that refuses them has taken something away from me rather than protected me",
+    line: 334,
+    text: "And whether it is on trial",
     disposition: "proves"
   },
   {
-    line: 265,
-    text: "And a product that is merely suspended is not one I have finished with — on that one I can still stop it renewing, change how it is invoiced, and book a scheduled cancellation, exactly as my account area lets me today",
+    line: 335,
+    text: "And whether that trial is about to end",
     disposition: "proves"
+  },
+  {
+    line: 340,
+    text: "And whether it was imported",
+    disposition: "gap"
+  },
+  {
+    line: 341,
+    text: "And whether it was moved to another product",
+    disposition: "gap"
+  },
+  {
+    line: 342,
+    text: "And whether it has unpaid recurring invoices",
+    disposition: "gap"
+  },
+  {
+    line: 352,
+    text: "And it is not confused with a subscription whose renewal invoicing was switched off, which this surface tells me about but never changes",
+    disposition: "proves"
+  },
+  {
+    line: 433,
+    text: "And my account-level consolidation preference is left exactly as it was",
+    disposition: "proves"
+  },
+  {
+    line: 464,
+    text: "| stop it renewing                                |",
+    disposition: "proves"
+  },
+  {
+    line: 465,
+    text: "| change whether it joins my consolidated invoice |",
+    disposition: "proves"
+  },
+  {
+    line: 466,
+    text: "| book a cancellation for a date I choose         |",
+    disposition: "proves"
+  },
+  {
+    line: 520,
+    text: "Given I am looking at one of my products, at my products list, and at my dashboard's count of them, all at the same time",
+    disposition: "gap"
+  },
+  {
+    line: 560,
+    text: "| not been asked for them yet  |",
+    disposition: "gap"
   }
 ];
 

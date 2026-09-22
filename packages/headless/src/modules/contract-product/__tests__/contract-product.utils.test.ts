@@ -4,7 +4,7 @@
  * ## Job To Be Done
  * Pin `selectStatusNode`'s full entry-order derivation for criterion @AC-17
  * ("Know what state each of my products is in") and @AC-15/AC-11's guard
- * inputs, per design.md §5.2 (`ContractProductState`), §8.7 and flow.md §3's
+ * inputs, per `design ✅.md` §5.2 (`ContractProductState`), §8.7 and flow.md §3's
  * locked "Entry order" rule: **unavailable first, then cancelling, then
  * expiring, then active** — the same raw `status.code` (`contract_active`)
  * is shared by three of the seven fixture rows below, so the branch a naive
@@ -29,11 +29,14 @@ import {
   CancellationRequestStatusCodes,
   ContractStatusCodes
 } from "@upmind-automation/types";
+import { TrialEndActionTypes } from "@upmind-automation/types";
 import { ContractProductsContextTypes } from "../contract-product.types";
 import { ContractProductState } from "../contract-product.types";
 import {
   resolveExcludeDelegated,
-  selectStatusNode
+  selectSetupNode,
+  selectStatusNode,
+  selectTrialNode
 } from "../contract-product.utils";
 import type { ContractProduct } from "../contract-product.types";
 
@@ -120,9 +123,9 @@ describe("selectStatusNode — entry order on a shared contract_active code (flo
   });
 
   /**
-   * `@proves contract-product.feature:184` — "it is not confused with a subscription
-   * whose renewal invoicing was switched off — a separate thing this module
-   * does not offer me". EXPIRING is read off `renew`/`calculatedCancelDate`
+   * `@proves contract-product.feature:352` — "it is not confused with a
+   * subscription whose renewal invoicing was switched off, which this surface
+   * tells me about but never changes". EXPIRING is read off `renew`/`calculatedCancelDate`
    * alone (flow.md §3); a subscription that is STILL renewing reads
    * `ACTIVE`, whatever its separate renewal-invoicing setting is — this
    * selector carries no input for that setting at all, so a mutation that
@@ -224,14 +227,125 @@ describe("selectStatusNode — an unknown status.code matches no node in Contrac
 });
 
 /**
- * design.md §6.1/§8.5/§8.9, §"edge conditions" — the exclude_delegated flag
+ * The `setup` and `trial` regions of the LOCKED product chart (flow.md §3):
+ * `setup.incomplete` is `!(provision_setup_fields_confirmed ?? true)` — ruling
+ * R15 confirms the nullish default, and the reference bundle's omission of it
+ * is a transcription error against its own oracle [L24]. `trial.running` is
+ * `in_trial`; `trial.ending` is `in_trial && trial_end_action === CANCEL`.
+ *
+ * `status` is exclusive and `setup`/`trial` are independent, so a product can
+ * be active, awaiting setup and on trial at once — which is exactly why these
+ * three readings cannot be proven by `selectStatusNode`'s own suite, and why a
+ * regression in either region is invisible to it.
+ *
+ * - `@proves contract-product.feature:333` — whether it is awaiting setup
+ * - `@proves contract-product.feature:334` — whether it is on trial
+ * - `@proves contract-product.feature:335` — whether that trial is about to end
+ */
+function setupFixture(
+  provisionSetupFieldsConfirmed: ContractProduct["provisionSetupFieldsConfirmed"]
+): Parameters<typeof selectSetupNode>[0] {
+  return {
+    provisionSetupFieldsConfirmed
+  } as Parameters<typeof selectSetupNode>[0];
+}
+
+function trialFixture(
+  inTrial: ContractProduct["inTrial"],
+  trialEndAction: ContractProduct["trialEndAction"]
+): Parameters<typeof selectTrialNode>[0] {
+  return { inTrial, trialEndAction } as Parameters<typeof selectTrialNode>[0];
+}
+
+describe("selectSetupNode — whether my product is awaiting setup (@AC-17, flow.md §3)", () => {
+  it("a product whose setup fields are NOT confirmed is awaiting setup", () => {
+    expect(selectSetupNode(setupFixture(false))).toBe(
+      ContractProductState.SETUP_INCOMPLETE
+    );
+  });
+
+  it("a product whose setup fields ARE confirmed is not awaiting setup", () => {
+    expect(selectSetupNode(setupFixture(true))).toBe(
+      ContractProductState.SETUP_COMPLETE
+    );
+  });
+
+  // Ruling R15: the field ABSENT means complete, never incomplete. Dropping
+  // the `?? true` default inverts exactly this case and would tell every
+  // client whose record omits the field that their product is awaiting setup.
+  it("a product whose record omits the field altogether is NOT awaiting setup — the nullish default is complete (R15)", () => {
+    expect(selectSetupNode(setupFixture(undefined))).toBe(
+      ContractProductState.SETUP_COMPLETE
+    );
+  });
+});
+
+describe("selectTrialNode — whether my product is on trial, and whether that trial is about to end (@AC-17, flow.md §3)", () => {
+  it("a product not on trial reads as neither running nor ending", () => {
+    expect(
+      selectTrialNode(trialFixture(false, TrialEndActionTypes.CONTINUE))
+    ).toBe(ContractProductState.TRIAL_NONE);
+  });
+
+  it("a product on trial whose trial continues afterwards reads as TRIAL_RUNNING", () => {
+    expect(
+      selectTrialNode(trialFixture(true, TrialEndActionTypes.CONTINUE))
+    ).toBe(ContractProductState.TRIAL_RUNNING);
+  });
+
+  it("a product on trial whose trial ends in cancellation reads as TRIAL_ENDING, tested BEFORE running", () => {
+    expect(
+      selectTrialNode(trialFixture(true, TrialEndActionTypes.CANCEL))
+    ).toBe(ContractProductState.TRIAL_ENDING);
+  });
+
+  // A migrating trial is still merely RUNNING: only CANCEL makes it "about to
+  // end" for a client. A regression that treated every non-CONTINUE action as
+  // ending would warn a client their product is about to stop when it is in
+  // fact about to change plan.
+  it("a product on trial that MIGRATES afterwards is running, not ending — only a cancelling trial end is 'about to end'", () => {
+    expect(
+      selectTrialNode(trialFixture(true, TrialEndActionTypes.MIGRATE))
+    ).toBe(ContractProductState.TRIAL_RUNNING);
+  });
+
+  it("a product NOT on trial whose trial end action is CANCEL is still not ending — the trial must be running first", () => {
+    expect(
+      selectTrialNode(trialFixture(false, TrialEndActionTypes.CANCEL))
+    ).toBe(ContractProductState.TRIAL_NONE);
+  });
+});
+
+/**
+ * KNOWN GAP — the three RECORD-FACT lines of the AC-17 scenario that amendment
+ * A1 splits out alongside the thirteen states:
+ *
+ * - `@gap contract-product.feature:340` — whether it was imported (`isImported`)
+ * - `@gap contract-product.feature:341` — whether it was moved to another
+ *   product (`hasMoved`)
+ * - `@gap contract-product.feature:342` — whether it has unpaid recurring
+ *   invoices (`hasUnpaidRecurringInvoices`)
+ *
+ * `design ✅.md` §8.7 names all three as record facts read off the product
+ * record, never machine nodes — so neither this selector suite nor the
+ * integration suite's state assertions reach them. Proving them needs a
+ * recorded product capture that actually CARRIES an import id, a moved-to
+ * product and an unpaid recurring invoice; the one product capture on disk
+ * (`get-contract-products-id.json`) carries none of the three, and recording
+ * is forbidden this pass (`receipts.md`). Asserting them against the capture's
+ * own empty values would be a tautology over the fixture, not a proof of the
+ * reading. Registered here rather than faked green.
+ */
+
+/**
+ * `design ✅.md` §6.1/§8.5/§8.9, §"edge conditions" — the exclude_delegated flag
  * `useContractProducts` sends. This is NOT AC-18 coverage: AC-18 promises the
  * client's remembered preference is persisted and re-read across sessions via
  * the `client-personal-details` seam, which this pure 3-arg function never
  * touches (its `preference` argument is a plain boolean handed in by the
  * caller, not a read of that seam), and which the prover cannot exercise — no
  * capture for it exists on disk, and `contract-product.traceability.test.ts`'s
- * `KNOWN_GAPS` records AC-18 as an unproven operator gap for that reason. This
+ * `SCENARIO_GAPS` records AC-18 as an unproven operator gap for that reason. This
  * suite pins only the PURE derivation: given a context and a preference value,
  * which `exclude_delegated` int comes out.
  */

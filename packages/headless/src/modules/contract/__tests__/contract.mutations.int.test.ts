@@ -5,7 +5,7 @@
  *
  * ## Job To Be Done
  * Drive the REAL `useContract()` manager actions against RECORDED staging
- * responses and prove each write reaches the wire exactly as design.md §8.3
+ * responses and prove each write reaches the wire exactly as `design ✅.md` §8.3
  * states: `setPaymentMethod` PATCHes `{ payment_details_id }` to the
  * contract's own `payment_details` endpoint; `requestCancellation` POSTs
  * `{ product_ids, cancellation_reason }` to `cancel/request`; `withdrawCancellation`
@@ -150,9 +150,12 @@ describe("useContract — I point my contract at a different stored payment meth
     });
   });
 
-  /** `@proves contract.feature:145` — the parity-loss direction: an
-   * over-refusing surface would silently withhold this change on a merely
-   * suspended contract that the legacy account area still offers it on. */
+  /** `@proves contract.feature:199` — the `a suspended subscription` row of
+   * the AC-8 Outline amendment A13 creates. The parity-loss direction: an
+   * over-refusing surface would silently withhold this contract-level change
+   * on a contract whose product is merely suspended, which the legacy account
+   * area still offers it on. Ruling R11 withdrew the product-level gate, so
+   * this row's outcome is the same as every other row's. */
   it("AC-8 a suspended subscription is offered the change normally — no product fact and no contract status refuses it", async () => {
     const { accessToken } = await seedClientSession();
     const base = recorded.one().data as Record<string, unknown> & {
@@ -202,7 +205,7 @@ describe("useContract — I point my contract at a different stored payment meth
  * that no request is sent. `contract.feature:143` states the same claim in
  * the host scenario ("nothing is sent when I have picked no method, or
  * picked the one it already uses"). This is the caller/action-layer
- * condition design.md §8.3's AC8 row states in its condition column ("The
+ * condition `design ✅.md` §8.3's AC8 row states in its condition column ("The
  * client selected a method, and it is different [o13]") — the machine
  * itself carries no guard (ADR-17), so this refusal is proven here, at the
  * action layer, never against the machine.
@@ -305,7 +308,7 @@ function cancellingRow(): ReturnType<typeof recorded.one>["data"] {
 }
 
 /**
- * KNOWN GAP — `@gap contract.feature:131`
+ * KNOWN GAP — `@gap contract.feature:178`
  *
  * "Then the request is removed and my contract carries on". Both tests below
  * drive the sandbox's own recorded refusal, so AC-7's FAILURE half is proven
@@ -316,7 +319,7 @@ function cancellingRow(): ReturnType<typeof recorded.one>["data"] {
  * `contract.traceability.test.ts`'s partial-promise ledger instead.
  */
 describe("useContract — I change my mind about a cancellation I asked for (AC-7)", () => {
-  it("AC-7 DELETEs cancel/request under my own identity, exactly as design.md §8.3 states", async () => {
+  it("AC-7 DELETEs cancel/request under my own identity, exactly as `design ✅.md` §8.3 states", async () => {
     const { accessToken } = await seedClientSession();
     const row = cancellingRow();
     installContractHandler(server, row);

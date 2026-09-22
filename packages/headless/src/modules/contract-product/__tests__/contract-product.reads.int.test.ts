@@ -7,7 +7,7 @@
  * manager against RECORDED production captures (`contract-product.fixtures.ts`)
  * and prove: AC-1 — a client sees the reactive page of contract products on
  * their own account, each one arriving with its status; and AC-4 — opening
- * one product sends the real 35-member `with` list design.md §8.1 states
+ * one product sends the real 35-member `with` list `design ✅.md` §8.1 states
  * (the 18 `contract.*` members plus the 17 own members of the legacy detail
  * read [o10]), under the client's own identity. `contract-product.mutations.int.test.ts`
  * proves the manager's writes; this file proves the two reads.
@@ -41,7 +41,7 @@ import { server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
 
-/** design.md §8.1's 35-member client product detail read [o10]: the 18
+/** `design ✅.md` §8.1's 35-member client product detail read [o10]: the 18
  * `contract.*` members plus the 17 own members. */
 const PRODUCT_WITH_MEMBERS = [
   "contract",
@@ -134,7 +134,78 @@ describe("useContractProduct — I open one of my products with what its detail 
   });
 });
 
+/** `design ✅.md` §8.1's 12-member client products-list read [o2]. */
+const PRODUCTS_LIST_WITH_MEMBERS = [
+  "clients",
+  "clients.image",
+  "clients.brand",
+  "status",
+  "product.image",
+  "brand.currency",
+  "product.provision_blueprint",
+  "contract_request",
+  "future_cancellation_request",
+  "moved_to_contract_product",
+  "moved_to_contract_product.clients",
+  "tags"
+].sort();
+
 describe("useContractProducts — I see the products on my own account (AC-1)", () => {
+  /**
+   * The seven one-record-per-line promises amendment A28(a) splits the
+   * collection scenario's packed `And` into, each a member of the 12-member
+   * products-list read — so the list this collection actually puts on the wire
+   * IS the proof the record was asked for, and a regression that drops one
+   * surfaces here as a missing member, where the row-shape assertion below
+   * never could:
+   *
+   * - `@proves contract-product.feature:111` — its status (`status`)
+   * - `@proves contract-product.feature:112` — its catalogue product
+   *   (`product.image`, `product.provision_blueprint`)
+   * - `@proves contract-product.feature:113` — that product's brand
+   *   (`brand.currency`)
+   * - `@proves contract-product.feature:115` — its tags (`tags`)
+   * - `@proves contract-product.feature:116` — its pending contract request
+   *   (`contract_request`)
+   * - `@proves contract-product.feature:117` — any cancellation scheduled
+   *   against it for a future date (`future_cancellation_request`)
+   * - `@proves contract-product.feature:118` — the product it was moved to
+   *   (`moved_to_contract_product`, `moved_to_contract_product.clients`)
+   *
+   * The eighth line, "its category", is NOT a member of this read and is a
+   * registered gap (`@gap contract-product.feature:114`).
+   */
+  it("AC-1 the collection GETs contracts_products with exactly the 12-member client with-list, so every record the page promises is asked for", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    let capturedUrl: string | undefined;
+    server?.use(
+      http.get("*/contracts_products", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      })
+    );
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+
+    expect(capturedUrl).toBeDefined();
+    const withParam = new URL(capturedUrl!).searchParams.get("with") ?? "";
+    const requestedMembers = withParam.split(",").filter(Boolean).sort();
+    expect(requestedMembers).toEqual(PRODUCTS_LIST_WITH_MEMBERS);
+  });
+
+  /**
+   * KNOWN GAP — `@gap contract-product.feature:114`, the "its category" half
+   * of the AC-1 collection scenario. `design ✅.md` §8.1 enumerates the
+   * products-list read's 12 `with` members and NO category member is among
+   * them: the category reaches a client through the separate grouped-counts
+   * read (AC-19) and the purchased-categories read (parity row S4c), both of
+   * which are themselves registered gaps for want of a recorded capture.
+   * Asserting a category on the list row would therefore assert a record this
+   * read never requested. Reported here rather than faked green.
+   */
+
   it("AC-1 the reactive page arrives from the RECORDED production list capture, each row carrying a mapped status", async () => {
     await seedClientSession();
     installBackgroundStubs();
@@ -185,7 +256,7 @@ describe("useContractProducts — I see the products on my own account (AC-1)", 
       expect(key.startsWith("filter[")).toBe(false);
     }
 
-    // The declared query contract's own defaults (design.md §8.2/§8.1) —
+    // The declared query contract's own defaults (`design ✅.md` §8.2/§8.1) —
     // asserted EXACTLY, key by key, so a mutation that injects, drops or
     // silently changes a query param this request never earned or lost
     // surfaces here, not only an ADDED `filter[...]`.
@@ -269,8 +340,8 @@ describe("useContractProducts — I see the products on my own account (AC-1)", 
   });
 
   /**
-   * KNOWN GAP — `@gap contract-product.feature:98`'s "narrowing by category
-   * name is offered to me" half of the AC-1 criteria scenario. design.md §8.2
+   * KNOWN GAP — `@gap contract-product.feature:134`, the `category name` row
+   * of the AC-1 narrowing Outline. `design ✅.md` §8.2
    * documents the wire shape (`categoryName` leaf, wire column
    * `product.category.name`, `like` operator, `filter[product.category.name|like]`)
    * but not the composable's own runtime call shape for an operator-bound
@@ -428,10 +499,9 @@ describe("useContractProduct — I open one product's scheduled actions (AC-15)"
   });
 
   /**
-   * KNOWN GAP — `@gap contract-product.feature:295`, the empty-vs-absent
-   * half of this scenario's `Then` ("an empty result tells me whether it is
-   * empty because there are none, or because the product was loaded without
-   * them") is NOT proven below: the
+   * KNOWN GAP — `@gap contract-product.feature:560`, the "not been asked for
+   * them yet" row of the empty-scheduled-actions Outline amendment A22(f)
+   * adds, is NOT proven below: the
    * only recorded product capture on disk carries `scheduled_actions: []`,
    * so this suite can prove the empty-array reading but has no real capture
    * of a product loaded WITHOUT the member at all to prove the two are told
