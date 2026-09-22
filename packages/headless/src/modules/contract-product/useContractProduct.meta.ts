@@ -1,6 +1,10 @@
 import { computed } from "vue";
 import { ContractProductState } from "./contract-product.types";
-import { anniversaryAnchor } from "./contract-product.utils";
+import {
+  anniversaryAnchor,
+  isCancellable,
+  isDue
+} from "./contract-product.utils";
 import { contextValue, useContext, useStateMatches } from "../../utils";
 import { isUndefined } from "lodash-es";
 import type { ContractProduct } from "./contract-product.types";
@@ -86,6 +90,9 @@ export function createContractProductMeta(
     /** True once the product is placed on any `available` node. */
     isAvailable: useStateMatches(state, "available"),
 
+    /** True while cancelling an unpaid recurring invoice still means anything (AC10). */
+    isCancellable,
+
     /** True on `unavailable.cancelled`. */
     isCancelled: useStateMatches(state, ContractProductState.CANCELLED),
 
@@ -96,6 +103,9 @@ export function createContractProductMeta(
     isDelegatedAccess: computed(
       () => !!contextValue<boolean>(state, "contractProduct.isDelegatedObject")
     ),
+
+    /** True while an unpaid recurring invoice still carries an outstanding balance (AC10). */
+    isDue,
 
     /** True when no product is loaded. */
     isEmpty: computed(() => !contractProduct.value),

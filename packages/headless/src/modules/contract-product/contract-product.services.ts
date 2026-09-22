@@ -369,9 +369,10 @@ async function load(
  *   getter resolves that form whenever a contract id is supplied, and both
  *   client callers of the two scheduled-cancellation writes always supply one
  *   (R18; operator correction 2026-09-19).
- * rejected: the bare `contract_products/{p}/schedule-cancel[-revoke]` path
- *   that design 8.3 and parity rows P23/P24 still carry — stale against the
- *   oracle, a planner finding rather than a re-plan.
+ * rejected: the bare `contract_products/{p}/schedule-cancel[-revoke]` path.
+ *   design 8.3 and parity rows P23/P24 now carry this same contract-scoped
+ *   form (corrected 2026-09-22) — this block's earlier "stale against the
+ *   oracle" note was itself wrong and is withdrawn.
  */
 function productUrl(
   context: ContractProductContext,

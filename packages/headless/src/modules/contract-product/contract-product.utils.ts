@@ -2,13 +2,14 @@ import dayjs from "dayjs";
 import {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
+  InvoiceStatus,
   TrialEndActionTypes
 } from "@upmind-automation/types";
 import {
   ContractProductsContextTypes,
   ContractProductState
 } from "./contract-product.types";
-import type { ContractProduct } from "./contract-product.types";
+import type { ContractProduct, UnpaidInvoice } from "./contract-product.types";
 import type { ScopeContext } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -179,4 +180,28 @@ export function minFutureCancellationDate(
   return (
     anniversaryAtCycle(product, cycles)?.format(BACKEND_DATE_FORMAT) ?? null
   );
+}
+
+// -----------------------------------------------------------------------------
+// Unpaid-invoice predicates (AC10, ADR-10, design 8.7 [o23])
+
+const DUE_STATUSES: InvoiceStatus[] = [
+  InvoiceStatus.UNPAID,
+  InvoiceStatus.ADJUSTED,
+  InvoiceStatus.OVERDUE
+];
+
+const CANCELLABLE_STATUSES: InvoiceStatus[] = [
+  InvoiceStatus.UNPAID,
+  InvoiceStatus.OVERDUE
+];
+
+/** True while the invoice still carries an outstanding balance. */
+export function isDue(invoice: UnpaidInvoice): boolean {
+  return DUE_STATUSES.includes(invoice.status?.code as InvoiceStatus);
+}
+
+/** True while cancelling the invoice still means anything. */
+export function isCancellable(invoice: UnpaidInvoice): boolean {
+  return CANCELLABLE_STATUSES.includes(invoice.status?.code as InvoiceStatus);
 }
