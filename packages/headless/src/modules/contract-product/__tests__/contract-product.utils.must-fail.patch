@@ -9,11 +9,42 @@
 #   `client-personal-details` seam, which this pure function never touches
 #   (its `preference` argument is a plain boolean handed in by the caller).
 #   AC-18 is a registered, unproven gap
-#   (`contract-product.traceability.test.ts`'s `SCENARIO_GAPS`,
-#   `contract-product.utils.test.ts:205-214`) — no capture for the seam exists
-#   on disk and recording is forbidden this pass. This patch grades the
-#   derivation alone, so it is renamed off the AC-18-shaped filename that
-#   implied otherwise.
+#   (`contract-product.traceability.test.ts`'s `SCENARIO_GAPS`, and the
+#   disclaimer docblock at `contract-product.utils.test.ts:226-237`) — no
+#   capture for the seam exists on disk and recording is forbidden this pass.
+#   This patch grades the derivation alone, so it is renamed off the
+#   AC-18-shaped filename that implied otherwise.
+#
+# AC-18's OWN @negative-control mutant — WITHHELD, and why (review W1).
+#   AC-18's last line, "recording only the choice that changed, rather than the
+#   whole set of preferences my account already holds, turns this scenario red",
+#   names a WRITE. The seam it names is one line, and it is in neither module
+#   this story owns:
+#     packages/headless/src/modules/client-personal-details/client-personal-details.services.ts
+#     `update()` — `diff.meta = { ...record.value.meta, ...diff.meta };`
+#   That merge IS the "whole set of preferences" the criterion protects: the PUT
+#   replaces the `meta` bag wholesale, so deleting the merge records only the
+#   changed key. That deletion is the mutant AC-18 asks for.
+#
+#   It is not authored, for two causes, either sufficient on its own:
+#     1. SCOPE. Ruling R21 scopes this run to `modules/contract/` and
+#        `modules/contract-product/`. `client-personal-details` is a third
+#        module. `contract-product` only READS the preference
+#        (`createShowDelegatedPreference` -> `filterFields([...])` -> the model)
+#        and holds no write path at all; bdd.md:160-174 puts AC-18's write half
+#        in that third module's own two scenarios, under task T10d.
+#     2. DEAD CONTROL. A mutant is a control only if a NAMED test flips. No test
+#        in either module drives the write, and no test in
+#        `client-personal-details/__tests__/` asserts the merged `meta` bag —
+#        its nearest control, `client-personal-details.diff-only.must-fail.patch`,
+#        grades `mapIProfileFields`'s diff, not the merge. A patch that flips
+#        nothing would restage exactly the misrepresentation the prior
+#        `delegated-preference` filename was pulled for.
+#
+#   What unblocks it: the `client-personal-details` preference-write capture
+#   (bdd.md T10d). Recording is forbidden this pass, so the capture is a
+#   REPORTED gap, not a silent one — AC-18 stays in `SCENARIO_GAPS`, so the
+#   traceability gate names it on every run until the mutant lands.
 # Test that goes red: contract-product.utils.test.ts >
 #   "the client's own excludeDelegatedProducts preference, set false, forces
 #   exclude_delegated=0 outside the delegated view"
