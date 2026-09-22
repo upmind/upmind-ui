@@ -770,6 +770,98 @@ describe("useContractProducts — every narrowing I ask for travels one way only
   });
 });
 
+describe("useContractProducts — I browse the categories I have already bought into (AC-20)", () => {
+  /**
+   * AC-20's three claims are all about the REQUEST: which endpoint is asked,
+   * which is never asked, and whether the delegated categories are excluded.
+   * The response SHAPE is not under test here and has no capture on disk —
+   * that half is the registered gap below. The handler returns an empty list
+   * only so the promise settles; no assertion reads it.
+   */
+  async function loadCategoriesObservingUrls() {
+    await seedClientSession();
+    server?.use(
+      http.get("*/contract_product_categories", () =>
+        HttpResponse.json({ data: [] }, { status: 200 })
+      )
+    );
+    const observed = observeAllRequests();
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+    await collection.useActions().loadPurchasedCategories();
+
+    return { observed };
+  }
+
+  it("AC-20 asks the purchased-categories endpoint, and never the shop catalogue (ruling R10)", async () => {
+    const { observed } = await loadCategoriesObservingUrls();
+
+    const paths = observed.all().map(entry => new URL(entry.url).pathname);
+    expect(
+      paths.filter(path => path.endsWith("/contract_product_categories"))
+    ).toHaveLength(1);
+    // The shop catalogue is `/products` and `/product_categories`; the
+    // purchased list is the `contract_`-prefixed path alone.
+    expect(paths.filter(path => path.endsWith("/products"))).toEqual([]);
+    expect(paths.filter(path => path.endsWith("/product_categories"))).toEqual(
+      []
+    );
+    observed.stop();
+  });
+
+  it("AC-20 hides the delegated categories unless the client asks for them", async () => {
+    const { observed } = await loadCategoriesObservingUrls();
+
+    const asked = observed.matching("contract_product_categories")[0];
+    expect(
+      new URL(asked.url).searchParams.get("exclude_delegated")
+    ).not.toBeNull();
+    observed.stop();
+  });
+});
+
+/**
+ * AC-21's Outline rows, each proved by its own assertion below:
+ * - `@proves contract-product.feature:702` — renewal invoicing on, read as on
+ * - `@proves contract-product.feature:703` — renewal invoicing off, read as off
+ */
+describe("useContractProduct — I am told when a product no longer invoices its own renewal (AC-21)", () => {
+  /**
+   * Opens the manager over the recorded product read, with
+   * `auto_create_renew_invoice` taken from the caller. The recorded capture
+   * carries `true`; the `false` row is the same real record with that one
+   * server-owned field flipped, never a hand-authored product.
+   */
+  async function openWith(autoCreateRenewInvoice: boolean) {
+    await seedClientSession();
+    const base = recorded.one().data as Record<string, unknown> & {
+      id: string;
+    };
+    const row = {
+      ...base,
+      auto_create_renew_invoice: autoCreateRenewInvoice
+    };
+    installProductHandler(server, row);
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    await manager.useActions().isReady();
+    return manager;
+  }
+
+  it("AC-21 reports the renewal invoicing as ON for the recorded product, which creates its own renewal invoice", async () => {
+    const manager = await openWith(true);
+
+    expect(manager.useMeta().hasAutoRenewDisabled.value).toBe(false);
+  });
+
+  it("AC-21 reports the renewal invoicing as OFF when the server says the product no longer creates one (ruling R9)", async () => {
+    const manager = await openWith(false);
+
+    expect(manager.useMeta().hasAutoRenewDisabled.value).toBe(true);
+  });
+});
+
 /**
  * KNOWN GAP — `@gap contract-product.feature:145`, "Clearing what I asked for
  * brings all my products back". Driven against the real collection, no single

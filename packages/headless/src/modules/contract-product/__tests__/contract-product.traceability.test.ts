@@ -163,6 +163,16 @@ type PartialPromise = {
 
 const PARTIAL_PROMISES: PartialPromise[] = [
   {
+    line: 702,
+    text: "| on                | on      |",
+    disposition: "proves"
+  },
+  {
+    line: 703,
+    text: "| off               | off     |",
+    disposition: "proves"
+  },
+  {
     line: 111,
     text: "And each one arrives with its status",
     disposition: "proves"

@@ -676,3 +676,28 @@ Feature: A client manages the products on their own contracts
 # capabilities. The integration suite still asserts the first as a supporting
 # line inside the AC-16 scope-identity tests, where the load-bearing assertion
 # is the resolved-id allow-list.
+
+  # AC-20 (ruling R10). The client browses the categories they ALREADY bought
+  # into, not the shop's catalogue. Three named readings, one per line: the
+  # right endpoint is asked, the shop is not, and the delegated categories
+  # follow the same choice the product list follows.
+  @AC-20 @collection
+  Scenario: Browse the categories I have already bought into
+    Given I am signed in and I have bought products in several categories
+    When I ask for the categories I have bought into
+    Then the categories I have bought into are requested
+    And the shop catalogue is not requested
+    And my delegated choice rides that request
+
+  # AC-21 (ruling R9). One product fact, in the client's own words: a product
+  # that no longer raises its own renewal invoice says so.
+  @AC-21 @meta
+  Scenario Outline: Know whether a product still invoices its own renewal
+    Given a product whose renewal invoicing is <renewal invoicing>
+    When I open it
+    Then I am told its renewal invoicing is <reading>
+
+    Examples:
+      | renewal invoicing | reading |
+      | on                | on      |
+      | off               | off     |
