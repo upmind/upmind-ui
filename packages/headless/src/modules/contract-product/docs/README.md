@@ -30,7 +30,7 @@ See [Usage](./usage.md) for the complete API reference.
 | Feature | Status | Notes |
 |---------|--------|-------|
 | List / filter / sort the client's own contract products | ✅ | `useContractProducts` |
-| Include/exclude delegated products | ✅ | Preference-driven; **included** by default when no preference is held (the underlying store never leaves the preference truly unset, so a "hide by default" outcome never occurs on its own); forced OFF (included) on the `DELEGATED` selector context, which does not narrow to delegated-only |
+| Include/exclude delegated products | ✅ | Preference-driven; **included** by default when no preference is held (the underlying store coerces an untouched preference to `false`, so a "hide by default" outcome does not occur once the preference has loaded; before it loads the first request can still exclude them, then refetch); forced OFF (included) on the `DELEGATED` selector context, which does not narrow to delegated-only |
 | Dashboard grouped counts | ✅ | `loadGroupedCounts` |
 | Purchased-category read | ✅ | `loadPurchasedCategories` |
 | Load one contract product in detail | ✅ | `useContractProduct` |
