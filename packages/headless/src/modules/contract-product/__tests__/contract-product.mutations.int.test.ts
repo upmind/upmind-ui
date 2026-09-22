@@ -162,7 +162,7 @@ describe("useContractProduct — a product I cannot act on refuses my changes wi
     ).toEqual([]);
   });
 
-  it("AC-11 a cancelled product refuses setConsolidation, sending no request — a merely suspended product is not one I have finished with", async () => {
+  it("AC-11 a cancelled product refuses setConsolidation, sending no request", async () => {
     const { manager, row } = await openManagerWith({
       status: { code: ContractStatusCodes.CANCELLED }
     });
@@ -181,6 +181,88 @@ describe("useContractProduct — a product I cannot act on refuses my changes wi
         .matching(`/contracts/${row.contract_id}/products/${row.id}/properties`)
         .map(request => request.url)
     ).toEqual([]);
+  });
+
+  /**
+   * `contract-product.feature:265` — "a product that is merely suspended is
+   * not one I have finished with — on that one I can still stop it renewing,
+   * change how it is invoiced, and book a scheduled cancellation, exactly as
+   * my account area lets me today". This is the PARITY-LOSS direction the
+   * refusal test above cannot prove: it shows a CANCELLED product is
+   * refused, never that a SUSPENDED one is still offered every one of those
+   * three changes. Driven over a REAL row with only `status.code` overridden
+   * to `SUSPENDED` (`openManagerWith`'s own documented pattern for a state
+   * this staging client's reachable products do not carry) — never a
+   * fabricated body.
+   */
+  it("AC-11 a merely suspended product is NOT one I have finished with — stopRenewing, setConsolidation and scheduleCancellation are all still offered normally", async () => {
+    const { manager, row, accessToken } = await openManagerWith({
+      status: { code: ContractStatusCodes.SUSPENDED }
+    });
+    const captured: {
+      renew?: Captured;
+      consolidation?: Captured;
+      schedule?: Captured;
+    } = {};
+
+    server?.use(
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+        async ({ request }) => {
+          captured.renew = {};
+          capture(request, captured.renew);
+          captured.renew.body = await request.json();
+          return HttpResponse.json(recorded.softCancelled(), { status: 200 });
+        }
+      ),
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/properties`,
+        async ({ request }) => {
+          captured.consolidation = {};
+          capture(request, captured.consolidation);
+          captured.consolidation.body = await request.json();
+          return HttpResponse.json(recorded.consolidationSet(), {
+            status: 200
+          });
+        }
+      ),
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/schedule-cancel`,
+        async ({ request }) => {
+          captured.schedule = {};
+          capture(request, captured.schedule);
+          captured.schedule.body = await request.json();
+          return HttpResponse.json(recorded.cancellationScheduled(), {
+            status: 200
+          });
+        }
+      )
+    );
+
+    await manager.useActions().stopRenewing();
+    await manager.useActions().setConsolidation({
+      invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+    });
+    await manager
+      .useActions()
+      .scheduleCancellation({ futureCancellationDate: "2027-01-01" });
+
+    expect(captured.renew?.request).toBeDefined();
+    expect(captured.consolidation?.request).toBeDefined();
+    expect(captured.schedule?.request).toBeDefined();
+    assertClientIdentityTransport(captured.renew!.request!, accessToken);
+    assertClientIdentityTransport(
+      captured.consolidation!.request!,
+      accessToken
+    );
+    assertClientIdentityTransport(captured.schedule!.request!, accessToken);
+    expect(captured.renew!.body).toEqual({ renew: false });
+    expect(captured.consolidation!.body).toEqual({
+      invoice_consolidation_enabled: InvoiceConsolidationTypes.ENABLED
+    });
+    expect(captured.schedule!.body).toEqual({
+      future_cancellation_date: "2027-01-01"
+    });
   });
 
   it("AC-11 a one-off purchase refuses setConsolidation, sending no request — the choice is not offered to a subscription-only change", async () => {

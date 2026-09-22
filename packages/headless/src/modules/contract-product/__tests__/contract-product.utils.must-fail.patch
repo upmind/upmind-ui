@@ -1,0 +1,39 @@
+# Negative-control mutant — resolveExcludeDelegated's remembered-preference
+# arm (pure derivation, NOT an AC-18 seam proof)
+#
+# What this mutant proves: `contract-product.utils.test.ts`'s pure-function
+#   coverage of `resolveExcludeDelegated`'s three-argument derivation. It does
+#   NOT prove `contract-product.feature`'s AC-18 scenario ("My choice about
+#   delegated products is remembered") — that scenario promises the client's
+#   choice is PERSISTED and RE-READ across sessions via the
+#   `client-personal-details` seam, which this pure function never touches
+#   (its `preference` argument is a plain boolean handed in by the caller).
+#   AC-18 is a registered, unproven gap
+#   (`contract-product.traceability.test.ts`'s `SCENARIO_GAPS`,
+#   `contract-product.utils.test.ts:205-214`) — no capture for the seam exists
+#   on disk and recording is forbidden this pass. This patch grades the
+#   derivation alone, so it is renamed off the AC-18-shaped filename that
+#   implied otherwise.
+# Test that goes red: contract-product.utils.test.ts >
+#   "the client's own excludeDelegatedProducts preference, set false, forces
+#   exclude_delegated=0 outside the delegated view"
+#   (`resolveExcludeDelegated(undefined, false, true)` returns `1`, not `0`,
+#   so `expect(...).toBe(0)` flips).
+# Mutation: `resolveExcludeDelegated` drops the `preference === false` arm, so
+#   an explicit "show delegated" preference falls through to the
+#   no-preference default and is forgotten.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+index 34fab8669..d3dcc2a75 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -110,7 +110,6 @@ export function resolveExcludeDelegated(
+ ): 0 | 1 {
+   if (scopeContext?.type === ContractProductsContextTypes.DELEGATED) return 0;
+   if (preference === true) return 1;
+-  if (preference === false) return 0;
+   return hasDelegatedProducts ? 1 : 0;
+ }
+

@@ -119,6 +119,29 @@ describe("selectStatusNode — entry order on a shared contract_active code (flo
     ).toBe(ContractProductState.EXPIRING);
   });
 
+  /**
+   * `contract-product.feature:184` — "it is not confused with a subscription
+   * whose renewal invoicing was switched off — a separate thing this module
+   * does not offer me". EXPIRING is read off `renew`/`calculatedCancelDate`
+   * alone (flow.md §3); a subscription that is STILL renewing reads
+   * `ACTIVE`, whatever its separate renewal-invoicing setting is — this
+   * selector carries no input for that setting at all, so a mutation that
+   * wired it in as a second, mistaken trigger for EXPIRING would surface
+   * here.
+   */
+  it("a subscription that is still renewing does not read as EXPIRING — renewal invoicing is a separate fact this selector never reads", () => {
+    expect(
+      selectStatusNode(
+        fixture({
+          status: { code: ContractStatusCodes.ACTIVE },
+          isSubscription: true,
+          renew: true,
+          calculatedCancelDate: null
+        })
+      )
+    ).toBe(ContractProductState.ACTIVE);
+  });
+
   it("a one-off purchase that never renews at all is not read as EXPIRING — expiring needs a subscription, not just renew:false", () => {
     expect(
       selectStatusNode(

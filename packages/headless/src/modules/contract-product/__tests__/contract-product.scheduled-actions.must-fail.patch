@@ -3,11 +3,14 @@
 # Scenario it must flip: contract-product.feature >
 #   "See what is scheduled to happen to one of my products"
 #   ("pointing them at the staff-only scheduled-actions route turns this scenario red")
-# Test that goes red: the AC-15 scenario has no colocated test yet — the
-#   prover authors it against this mutant. The load-bearing assertion: the
-#   manager's read, and the re-read `refresh()` triggers, GET
-#   `contract_products/{id}` — the product itself — and never a URL matching
-#   `/scheduled_actions\b/`.
+# Test that goes red: contract-product.reads.int.test.ts >
+#   "AC-15 the initial read and refresh() both GET contract_products/{id} —
+#   the product itself — never the staff-only scheduled-actions route"
+#   (`request.url` matches `/scheduled_actions\b/` for the open-time read and
+#   the `refresh()` re-read, flipping `expect(request.url).not.toMatch(...)`).
+#   The load-bearing assertion: the manager's read, and the re-read
+#   `refresh()` triggers, GET `contract_products/{id}` — the product itself —
+#   and never a URL matching `/scheduled_actions\b/`.
 # Collateral (already colocated, both go red under this mutant):
 #   contract-product.reads.int.test.ts >
 #     "AC-4 GETs contract_products/{id} with exactly the 35-member client with-list, read under my own identity"

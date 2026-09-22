@@ -268,6 +268,29 @@ describe("useContractProducts — I see the products on my own account (AC-1)", 
     });
   });
 
+  /**
+   * KNOWN GAP — `contract-product.feature:98`'s "narrowing by category name
+   * is offered to me" half of the AC-1 criteria scenario. design.md §8.2
+   * documents the wire shape (`categoryName` leaf, wire column
+   * `product.category.name`, `like` operator, `filter[product.category.name|like]`)
+   * but not the composable's own runtime call shape for an operator-bound
+   * leaf, which the prover's Read-block law puts out of reach this pass. The
+   * sibling `"status.code"` narrowing above uses a BARE leaf (schema
+   * property equals the wire column, value passed direct); every plausible
+   * analogous shape for this LIKE leaf was driven against the real module —
+   * `setCriteria({ filters: { categoryName: "Hosting" } })`,
+   * `{ "product.category.name": "Hosting" }`,
+   * `{ "product.category.name|like": "Hosting" }`,
+   * `{ categoryName: { like: "Hosting" } }`,
+   * `filterBy({ "product.category.name": { like: "Hosting" } })` — and NONE
+   * produced a second `GET contracts_products` request: the captured URL
+   * never changed off the boot fetch across a full `vi.waitFor` window on
+   * every attempt. Recording a fixture to introspect further is forbidden
+   * this pass. Reported here rather than asserted blind or silently
+   * dropped — the generic narrowing tests above (order/page/clear/no-leak)
+   * still prove the rest of this scenario's `Then` lines.
+   */
+
   it("AC-1 setCriteria MERGES into my request state — a second narrowing does not drop the first (query.types.ts QueryCriteria.set)", async () => {
     await seedClientSession();
     installBackgroundStubs();

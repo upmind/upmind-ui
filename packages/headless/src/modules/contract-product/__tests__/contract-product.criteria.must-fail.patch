@@ -3,12 +3,13 @@
 # Scenario it must flip: contract-product.feature >
 #   "Every narrowing I ask for travels one way only"
 #   ("patching a narrowing onto the request behind that contract turns this scenario red")
-# Test that goes red: the AC-1 criteria scenario has no colocated test yet —
-#   the prover authors it against this mutant. The load-bearing assertion: the
-#   observed `GET contracts_products` URL carries ONLY the declared schema's
-#   criteria (`with`, `split_count`, `exclude_delegated`, the caller's own
-#   `filter[...]` / `order` / `pagination[...]`) — a `filter[status.code]` the
-#   caller never asked for is absent.
+# Test that goes red: contract-product.reads.int.test.ts >
+#   "AC-1 every narrowing I ask for travels one way only — the observed
+#   request carries no filter I never asked for"
+#   (the loop over `params.keys()` finds `filter[status.code]`, so
+#   `expect(key.startsWith("filter[")).toBe(false)` flips). The load-bearing
+#   assertion: the observed `GET contracts_products` URL carries no
+#   `filter[...]` key the caller never asked for.
 # Mutation: `loadList` bakes `filter[status.code]=contract_active` into the
 #   base URL behind the query schema — a narrowing the caller did not ask for
 #   and the declared contract cannot see or reject.
