@@ -88,11 +88,36 @@ export function createContractActions(
 
   /**
    * Sets which stored payment method pays the contract's future invoices (AC8).
-   * @returns the re-read contract, or `false` when the node refused the event.
+   * @returns the re-read contract, or `false` when nothing was sent — the
+   *   model names no method or the one already in use, or the node refused
+   *   the event.
    */
   async function setPaymentMethod(
     model: SetPaymentMethodModel
   ): Promise<Contract | false> {
+    /**
+     * @decision The no-op refusal lives here, in the action layer (R31).
+     * what: no `SET_PAYMENT_METHOD` event is sent when `model.paymentDetailsId`
+     *   is empty or equals `contract.paymentDetailsId`; the call resolves
+     *   `false`, the same channel as a node refusal.
+     * why: legacy `changePaymentMethodModal.vue:114-117` returns early on
+     *   `!isChanged`, and `isChanged` (`:82-89`) is true only when the
+     *   selection differs from the contract's `payment_details_id` or
+     *   `gateway_id`. Our model names a stored method only, so the id is the
+     *   whole comparison. Design 8.3 keeps the locked chart guardless, so the
+     *   refusal is the action's, as it is legacy's.
+     * rejected: a guard on the locked chart (R4, ADR-17); a distinct
+     *   return value for the no-op — the caller's question is "did anything
+     *   change", and `false` already answers it.
+     */
+    const current = contextValue<Contract["paymentDetailsId"]>(
+      state,
+      "contract.paymentDetailsId"
+    );
+    if (!model.paymentDetailsId || model.paymentDetailsId === current) {
+      return false;
+    }
+
     send({ type: "SET_PAYMENT_METHOD", data: model });
 
     return settled("error.contract_set_payment_method_failed");

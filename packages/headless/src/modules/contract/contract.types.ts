@@ -105,6 +105,8 @@ export type Contract = {
   id: IContract["id"];
   status: ContractStatus;
   cancellationRequest?: ContractCancellationRequest;
+  /** The stored method that pays the contract today — the no-op refusal of `setPaymentMethod` reads it (AC8, R31). */
+  paymentDetailsId: IContract["payment_details_id"];
   products: ContractProduct[];
 };
 
