@@ -4,7 +4,7 @@
 
 ```typescript
 const products = useContractProducts().as("client");
-const product = useContractProduct().as("client").for("contract-product", id);
+const product = useContractProduct().as("client").withId(id);
 
 // Sub-composables (both composables)
 const context = products.useContext();   // reactive query / computed values
@@ -214,7 +214,7 @@ contractProduct.unpaidRecurringInvoices.filter(isCancellable);
 </template>
 
 <script setup>
-const product = useContractProduct().as("client").for("contract-product", props.id);
+const product = useContractProduct().as("client").withId(props.id);
 const { contractProduct, error } = product.useContext();
 const { isLoading, isSubmitting, isSubscription, hasError } = product.useMeta();
 const { stopRenewing } = product.useActions();

@@ -226,6 +226,17 @@ export enum ContractProductState {
 
 /** Context for the contract-product manager machine. */
 export type ContractProductContext = {
+  /**
+   * The resolved actor, never SELF — the scope builder resolves it before the
+   * machine starts. This is the machine variant's ARM SEAM (templates/ARMS.md):
+   * a machine has no construction-time closure, so a member that later earns a
+   * per-actor arm resolves it off `context.scopeActor` per call. The module is
+   * armless today — its parity table carries the one cell `client×self` — so
+   * nothing reads it yet. The seam is seeded, not the arm, which is what the
+   * `account/` exemplar does (account.types.ts, useAccount.ts).
+   */
+  scopeActor?: ScopeActorTypes;
+
   /** The contract the product belongs to; seeded from the first read. */
   contractId?: IContract["id"];
 

@@ -23,8 +23,8 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * @module contract-product/useContractProduct
  * @description Scoped manager for ONE contract product, backed by the locked
  * `contract-product.machine.ts` (R4). One interpreter per concrete
- * `(actor, contract-product)` scope: the product comes from
- * `.for('contract-product', id)`. Registered under the same module name as
+ * `(actor, contract-product)` scope: the product comes from `.withId(id)`,
+ * the single-record read form (templates/SINGLE-READ.md). Registered under the same module name as
  * `useContractProducts`; the scope key carries the differentiation.
  *
  * @doctrine clause 1 (uniform four-layer default).
@@ -44,6 +44,7 @@ function createContractProductForScope(
 
   const machineService = interpret(
     contractProductMachine.withContext({
+      scopeActor: actorScope,
       contractProductId
     } as ContractProductContext),
     {

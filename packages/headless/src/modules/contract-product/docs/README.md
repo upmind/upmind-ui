@@ -1,6 +1,6 @@
 # contract-product Module
 
-A client's own contract products — the individual, billable line items inside their contracts. Two scoped composables: `useContractProducts` (the query-backed collection) and `useContractProduct` (the per-product manager, backed by `contract-product.machine.ts`). Client scope only — `staff` and `guest` are compile-time errors on both.
+A client's own contract products — the individual, billable line items inside their contracts. Two scoped composables: `useContractProducts` (the query-backed collection) and `useContractProduct` (the per-product manager, backed by `contract-product.machine.ts`). The collection is client scope only: `.as('staff')` and `.as('guest')` do not resolve a context on its matrix. The manager is a SINGLE-RECORD READ — its matrix refuses every actor a context, so `.for()` does not compile for anyone, while `.as()` itself stays open (`.as('staff').withId(id)` type-checks; the services reject a caller the session cannot address).
 
 ## What Is This? (ELI5)
 
@@ -18,7 +18,7 @@ const products = useContractProducts().as("client");
 await products.useActions().isReady();
 const { data } = products.useContext();
 
-const product = useContractProduct().as("client").for("contract-product", productId);
+const product = useContractProduct().as("client").withId(productId);
 await product.useActions().isReady();
 const { isActive, isSubscription } = product.useMeta();
 ```
@@ -51,14 +51,14 @@ A loaded contract product's lifecycle is reported as three simultaneous facts, n
 
 ### Actor Types
 
-Client-only. `.as('staff')`, `.as('guest')` and `.as('self')` all fail to compile on either composable's scope matrix — `self` is not a shorthand for `client` here, it is its own non-resolving entry:
+Client-only by capability, and the two composables enforce it differently. On the COLLECTION, `.as('staff')`, `.as('guest')` and `.as('self')` resolve no context — `self` is not a shorthand for `client` here, it is its own non-resolving entry. On the MANAGER, the matrix refuses every actor, so `.for()` is a compile error for all four; `.as()` compiles for any actor and the services reject a caller the session cannot address:
 
 ```typescript
 const products = useContractProducts().as("client");
 // "delegated" turns the exclude-delegated preference OFF — it returns the
 // client's own products together with any delegated ones, not a delegated-only list.
 const withDelegated = useContractProducts().as("client").for("delegated");
-const product = useContractProduct().as("client").for("contract-product", id);
+const product = useContractProduct().as("client").withId(id);
 ```
 
 ## Documentation

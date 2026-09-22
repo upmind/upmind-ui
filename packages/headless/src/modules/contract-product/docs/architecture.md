@@ -2,7 +2,7 @@
 
 ## Overview
 
-The module ships two scoped composables under one module name: `useContractProducts` (a TanStack-query-backed collection, no machine) and `useContractProduct` (a bespoke XState machine, one instance per contract product). Both are armless — client is the only actor that resolves on either scope matrix, so there is no per-actor `.client.ts`/`.staff.ts` split; `scopedServices` returns `{}` for every case. One services file, `contract-product.services.ts`, backs both composables and owns the module's one cache key, `["contracts"]`; every write invalidates it whole rather than a narrower key.
+The module ships two scoped composables under one module name: `useContractProducts` (a TanStack-query-backed collection, no machine) and `useContractProduct` (a bespoke XState machine, one instance per contract product). Both are armless — the parity table carries the one cell `client×self`, so there is no per-actor `.client.ts`/`.staff.ts` split and `scopedServices` returns `{}` for every case. The two matrices say this differently: the collection resolves a context for `client` alone, and the manager, a single-record read, resolves one for nobody. One services file, `contract-product.services.ts`, backs both composables and owns the module's one cache key, `["contracts"]`; every write invalidates it whole rather than a narrower key.
 
 ## State Machine (`useContractProduct`)
 
@@ -82,7 +82,7 @@ The `loading` state's `always` array is the one place `selectStatusNode` is cons
 
 ## Services
 
-The collection (`useContractProducts`) resolves its requests through `createContractProductServices`. The manager (`useContractProduct`) does not call that factory — it interprets `contract-product.machine.ts`, whose services import `contractProductMachineServices` directly. Both sides come from the one services file, `contract-product.services.ts`; there is no per-actor split — client is the only resolving actor on either scope matrix.
+The collection (`useContractProducts`) resolves its requests through `createContractProductServices`. The manager (`useContractProduct`) does not call that factory — it interprets `contract-product.machine.ts`, whose services import `contractProductMachineServices` directly. Both sides come from the one services file, `contract-product.services.ts`; there is no per-actor split — the parity table carries the one cell `client×self`.
 
 | Concern | Function | Endpoint |
 |---------|----------|----------|

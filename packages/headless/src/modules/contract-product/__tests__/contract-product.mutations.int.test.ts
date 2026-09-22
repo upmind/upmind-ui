@@ -897,7 +897,7 @@ describe("useContractProduct — no staff route is ever reachable from my produc
 });
 
 describe("useContractProduct — the account I act on is the one my scope resolved (AC-16, FE-2824)", () => {
-  it("AC-16 the request is addressed to the product `.for()` resolved, never to any clientId option or an unresolved id", async () => {
+  it("AC-16 the request is addressed to the product `.withId()` resolved, never to any clientId option or an unresolved id", async () => {
     const { manager, row } = await openManager();
     const observed = observeAllRequests();
 
@@ -912,7 +912,7 @@ describe("useContractProduct — the account I act on is the one my scope resolv
 
     const requests = observed.all();
     // Every observed URL — the write AND its re-read — is addressed to the
-    // REAL ids `.for(CONTRACT_PRODUCT, row.id)` resolved: either the write
+    // REAL ids `.withId(row.id)` resolved: either the write
     // path (nested under the resolved contract AND product id) or the
     // manager's own re-read of that same product. A regression that dropped
     // the retargeting and fell back to the session's own client id (or to
