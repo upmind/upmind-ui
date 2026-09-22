@@ -19,7 +19,7 @@
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Det ser ud til, at du ikke har tilføjet noget til din kurv endnu.",
   "encrypted_and_secure_payments": "Krypterede og sikre betalinger",
-  "nothing_to_pay_msg": "Gode ​​nyheder – der er intet at betale!",
+  "nothing_to_pay_msg": "Gode nyheder – der er intet at betale!",
   "order_converting": "**Konvertering** af din ordre",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "Vi konverterer din ordre. Dette burde kun tage et øjeblik.",

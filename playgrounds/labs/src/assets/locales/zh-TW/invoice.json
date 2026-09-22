@@ -1,6 +1,6 @@
 {
   "order_complete": "訂單**完成**！",
-  "order_complete_md": "@.markdown：{'invoice.order_complete'}",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
   "order_complete_msg": "感謝您的訂購，您的購買已完成。您很快就會收到一封確認郵件。",
   "order_not_found": "找不到**訂單**！",
   "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
