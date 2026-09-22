@@ -27,15 +27,20 @@
  */
 
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   ContractStatusCodes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
-import { ContractProductContextTypes, useContractProduct } from "..";
+import {
+  ContractProductContextTypes,
+  useContractProduct,
+  useContractProducts
+} from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertClientIdentityTransport,
+  installBackgroundStubs,
   installProductHandler,
   observeAllRequests,
   recorded,
@@ -126,12 +131,21 @@ describe("useContractProduct — a product I cannot act on refuses my changes wi
     const { manager, row } = await openManagerWith({ staged_import: true });
     const observed = observeAllRequests();
 
-    await settlement(manager.useActions().stopRenewing());
-    await settlement(
+    const stopSettled = await settlement(manager.useActions().stopRenewing());
+    const consolidationSettled = await settlement(
       manager.useActions().setConsolidation({
         invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
       })
     );
+
+    // The action-level half of the promise: both settlements resolve
+    // PROMPTLY (never `never-settled`) to the refusal's own `false` — not to
+    // a truthy payload that would signal the write actually went through,
+    // and not a hang. A regression that let a refused write resolve as if it
+    // had succeeded is caught here, not only by the absence of a request
+    // below.
+    expect(stopSettled).toEqual({ resolved: false });
+    expect(consolidationSettled).toEqual({ resolved: false });
 
     observed.stop();
     expect(
@@ -154,12 +168,13 @@ describe("useContractProduct — a product I cannot act on refuses my changes wi
     });
     const observed = observeAllRequests();
 
-    await settlement(
+    const settled = await settlement(
       manager.useActions().setConsolidation({
         invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
       })
     );
 
+    expect(settled).toEqual({ resolved: false });
     observed.stop();
     expect(
       observed
@@ -174,12 +189,13 @@ describe("useContractProduct — a product I cannot act on refuses my changes wi
     });
     const observed = observeAllRequests();
 
-    await settlement(
+    const settled = await settlement(
       manager.useActions().setConsolidation({
         invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
       })
     );
 
+    expect(settled).toEqual({ resolved: false });
     observed.stop();
     expect(
       observed
@@ -281,6 +297,33 @@ describe("useContractProduct — I stop one of my subscriptions renewing, and ch
       renew: false,
       cancellation_reason: "too expensive"
     });
+  });
+
+  it("AC-5 stopping renewal is not the renewal-invoicing permission — a product not allowed to switch that off still stops renewing normally", async () => {
+    // design.md §8.3 row C5: the gate `can_disable_auto_create_renew_invoice`
+    // goes with the excluded auto-renew-invoicing endpoint, never with this
+    // stop-renewing write. A REAL row with that gate forced false proves the
+    // module ignores it — the request still reaches the wire unchanged.
+    const { manager, row } = await openManagerWith({
+      can_disable_auto_create_renew_invoice: false
+    });
+    const captured: Captured = {};
+
+    server?.use(
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+        async ({ request }) => {
+          capture(request, captured);
+          captured.body = await request.json();
+          return HttpResponse.json(recorded.softCancelled(), { status: 200 });
+        }
+      )
+    );
+
+    await manager.useActions().stopRenewing();
+
+    expect(captured.request).toBeDefined();
+    expect(captured.body).toEqual({ renew: false });
   });
 });
 
@@ -458,6 +501,47 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
       .scheduleCancellation({ futureCancellationDate: "2027-01-01" });
 
     expect(captured.body).toEqual({ future_cancellation_date: "2027-01-01" });
+  });
+});
+
+describe("useContractProduct — a change I make shows up on my products list too, without reloading (AC-13, cross-surface)", () => {
+  it("AC-13 the products COLLECTION re-reads after a write made through the MANAGER — not only the manager's own re-read", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    const row = recorded.one().data as Record<string, unknown> & {
+      id: string;
+      contract_id: string;
+    };
+    let listReads = 0;
+    server?.use(
+      http.get("*/contracts_products", () => {
+        listReads += 1;
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      }),
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+        () => HttpResponse.json(recorded.softCancelled(), { status: 200 })
+      )
+    );
+    installProductHandler(server, row);
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+    const readsBeforeWrite = listReads;
+    expect(readsBeforeWrite).toBeGreaterThan(0);
+
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    await manager.useActions().isReady();
+    await manager.useActions().stopRenewing();
+
+    // The write's cache-key invalidation is whole (design.md §8.4's base
+    // "contracts" key), so a SEPARATE collection instance — never told about
+    // this write directly — re-fetches too, not only the manager that made it.
+    await vi.waitFor(() => {
+      expect(listReads).toBeGreaterThan(readsBeforeWrite);
+    });
   });
 });
 

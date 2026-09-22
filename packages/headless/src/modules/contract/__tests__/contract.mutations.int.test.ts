@@ -149,6 +149,47 @@ describe("useContract — I point my contract at a different stored payment meth
       payment_details_id: A_NON_STORED_PAYMENT_DETAILS_ID
     });
   });
+
+  it("AC-8 a suspended subscription is offered the change normally — no product fact and no contract status refuses it", async () => {
+    const { accessToken } = await seedClientSession();
+    const base = recorded.one().data as Record<string, unknown> & {
+      id: string;
+      payment_details_id: string;
+    };
+    const row = {
+      ...base,
+      status: { code: ContractStatusCodes.SUSPENDED }
+    };
+    installContractHandler(server, row);
+    const manager = useContract()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractContextTypes.CONTRACT, row.id);
+    await manager.useActions().isReady();
+    const captured: Captured = {};
+
+    server?.use(
+      http.patch(
+        `*/contracts/${row.id}/payment_details`,
+        async ({ request }) => {
+          capture(request, captured);
+          captured.body = await request.json();
+          return HttpResponse.json(recorded.paymentMethodSet(), {
+            status: 200
+          });
+        }
+      )
+    );
+
+    await manager
+      .useActions()
+      .setPaymentMethod({ paymentDetailsId: A_NON_STORED_PAYMENT_DETAILS_ID });
+
+    expect(captured.request).toBeDefined();
+    assertClientIdentityTransport(captured.request!, accessToken);
+    expect(captured.body).toEqual({
+      payment_details_id: A_NON_STORED_PAYMENT_DETAILS_ID
+    });
+  });
 });
 
 /**

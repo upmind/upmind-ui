@@ -201,14 +201,18 @@ describe("selectStatusNode — an unknown status.code matches no node in Contrac
 });
 
 /**
- * design.md §6.1/§8.5/§8.9, §"edge conditions" (@AC-18) — the exclude_delegated
- * flag `useContractProducts` sends. Named-scope-context tests are deliberately
- * excluded here per `contract-product.traceability.test.ts`'s `KNOWN_GAPS`
- * (AC-18 needs a `client-personal-details` preference-read capture that does
- * not exist on disk); this suite pins the PURE derivation only — the leaf that
- * decides the flag, with no fixture and no HTTP at all.
+ * design.md §6.1/§8.5/§8.9, §"edge conditions" — the exclude_delegated flag
+ * `useContractProducts` sends. This is NOT AC-18 coverage: AC-18 promises the
+ * client's remembered preference is persisted and re-read across sessions via
+ * the `client-personal-details` seam, which this pure 3-arg function never
+ * touches (its `preference` argument is a plain boolean handed in by the
+ * caller, not a read of that seam), and which the prover cannot exercise — no
+ * capture for it exists on disk, and `contract-product.traceability.test.ts`'s
+ * `KNOWN_GAPS` records AC-18 as an unproven operator gap for that reason. This
+ * suite pins only the PURE derivation: given a context and a preference value,
+ * which `exclude_delegated` int comes out.
  */
-describe("resolveExcludeDelegated — the exclude_delegated flag the scope sends (@AC-18)", () => {
+describe("resolveExcludeDelegated — the exclude_delegated flag the scope sends", () => {
   it("the DELEGATED selector context always reads the delegated view — exclude_delegated=0", () => {
     expect(
       resolveExcludeDelegated(

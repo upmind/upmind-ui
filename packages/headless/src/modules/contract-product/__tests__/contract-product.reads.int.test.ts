@@ -108,6 +108,30 @@ describe("useContractProduct — I open one of my products with what its detail 
     const requestedMembers = withParam.split(",").filter(Boolean).sort();
     expect(requestedMembers).toEqual(PRODUCT_WITH_MEMBERS);
   });
+
+  it("AC-17 the manager publishes the REAL record's own raw status.code, never a coerced substitute", async () => {
+    await seedClientSession();
+    const row = recorded.one().data as { id: string; status: { code: string } };
+    server?.use(
+      http.get(`*/contract_products/:id`, ({ params }) => {
+        if (String(params.id) !== row.id) return undefined;
+        return HttpResponse.json(recorded.one(), { status: 200 });
+      })
+    );
+
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    await manager.useActions().isReady();
+
+    // The real capture's own status.code, read back off the manager's
+    // published view model unchanged — AC-17's own promise ("shown to me as
+    // it is, rather than quietly turned into one that is") proven against a
+    // real record, not only against the pure selector's own vocabulary table.
+    expect(manager.useContext().contractProduct.value?.status?.code).toBe(
+      row.status.code
+    );
+  });
 });
 
 describe("useContractProducts — I see the products on my own account (AC-1)", () => {
@@ -288,6 +312,66 @@ describe("useContractProducts — I see the products on my own account (AC-1)", 
       expect(params.get("order")).toBe("-next_due_date");
     });
   });
+
+  it("AC-1 I order my products and page through them — order travels on the wire, and paging actually moves the offset, not only the page number it reports", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    let capturedUrl: string | undefined;
+    server?.use(
+      http.get("*/contracts_products", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      })
+    );
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+    const context = collection.useContext();
+
+    collection.useActions().setCriteria({
+      sort: [{ field: "next_due_date", dir: SortDirection.DESC }]
+    });
+    await vi.waitFor(() => {
+      expect(new URL(capturedUrl!).searchParams.get("order")).toBe(
+        "-next_due_date"
+      );
+    });
+
+    const firstOffset = new URL(capturedUrl!).searchParams.get("offset");
+    expect(context.pagination.value.page).toBe(1);
+
+    await collection.useActions().nextPage();
+    await vi.waitFor(() => {
+      const offset = new URL(capturedUrl!).searchParams.get("offset");
+      expect(offset).not.toBe(firstOffset);
+    });
+    const secondOffset = new URL(capturedUrl!).searchParams.get("offset");
+    await vi.waitFor(() => {
+      expect(context.pagination.value.page).toBe(2);
+    });
+
+    await collection.useActions().prevPage();
+    // The second page's fetch may satisfy the first page from cache rather
+    // than re-issuing the wire request, so the window itself — the
+    // published pagination state — is the load-bearing assertion here, not
+    // a second network round-trip.
+    expect(secondOffset).not.toBe(firstOffset);
+    await vi.waitFor(() => {
+      expect(context.pagination.value.page).toBe(1);
+    });
+  });
+
+  /**
+   * KNOWN GAP — "A brand that hides one-off purchases hides them from me
+   * everywhere" (contract-product.feature:104, @AC-1 @brand) has no test
+   * here. Proving it needs a recorded brand-settings capture carrying the
+   * hide-one-off-purchases flag; no such capture exists on disk in this
+   * module's `fixtures/` (or anywhere else on disk this prover can read),
+   * and recording is forbidden this pass (`receipts.md`). Hand-rolling that
+   * flag's value would be exactly the fabricated-provenance failure the
+   * prover refuses to ship, so this scenario is reported here as an operator
+   * gap rather than faked green.
+   */
 });
 
 describe("useContractProduct — I open one product's scheduled actions (AC-15)", () => {
@@ -320,6 +404,17 @@ describe("useContractProduct — I open one product's scheduled actions (AC-15)"
     }
   });
 
+  /**
+   * KNOWN GAP — the empty-vs-absent half of this scenario's `Then` ("an
+   * empty result tells me whether it is empty because there are none, or
+   * because the product was loaded without them") is NOT proven below: the
+   * only recorded product capture on disk carries `scheduled_actions: []`,
+   * so this suite can prove the empty-array reading but has no real capture
+   * of a product loaded WITHOUT the member at all to prove the two are told
+   * apart. Recording is forbidden this pass (`receipts.md`); hand-authoring
+   * an "absent member" body would fabricate the very distinction this gap
+   * names, so it is reported here rather than faked.
+   */
   it("AC-15 the scheduled_actions member the product read carries reaches the manager's own published state, not only the route it avoided", async () => {
     const row = recorded.one().data as Record<string, unknown> & {
       id: string;

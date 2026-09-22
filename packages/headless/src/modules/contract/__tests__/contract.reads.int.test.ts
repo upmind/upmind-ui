@@ -81,6 +81,30 @@ describe("useContract — I open one of my contracts with everything the account
     const requestedMembers = withParam.split(",").filter(Boolean).sort();
     expect(requestedMembers).toEqual(CONTRACT_WITH_MEMBERS);
   });
+
+  it("AC-12 the manager publishes the REAL record's own raw status.code, never a coerced substitute", async () => {
+    await seedClientSession();
+    const row = recorded.one().data as { id: string; status: { code: string } };
+    server?.use(
+      http.get(`*/contracts/:id`, ({ params }) => {
+        if (String(params.id) !== row.id) return undefined;
+        return HttpResponse.json(recorded.one(), { status: 200 });
+      })
+    );
+
+    const manager = useContract()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractContextTypes.CONTRACT, row.id);
+    await manager.useActions().isReady();
+
+    // The real capture's own status.code, read back off the manager's
+    // published view model unchanged — AC-12's own promise ("shown to me as
+    // it is, rather than quietly turned into one that is") proven against a
+    // real record, not only against the pure selector's own vocabulary table.
+    expect(manager.useContext().contract.value?.status.code).toBe(
+      row.status.code
+    );
+  });
 });
 
 /** design.md §8.1 R19/R30 — the list view model's own 3-member `with` list. */
@@ -130,5 +154,51 @@ describe("useContracts — I see and page through the contracts on my own accoun
     const withParam = new URL(capturedUrl!).searchParams.get("with") ?? "";
     const requestedMembers = withParam.split(",").filter(Boolean).sort();
     expect(requestedMembers).toEqual(CONTRACTS_LIST_WITH_MEMBERS);
+  });
+
+  it("AC-14 nextPage()/prevPage() actually move the window — the offset on the wire advances and returns, not only the hasNextPage/hasPrevPage flags", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    let capturedUrl: string | undefined;
+    server?.use(
+      http.get("*/contracts", ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      })
+    );
+
+    const collection = useContracts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+    const context = collection.useContext();
+    const meta = collection.useMeta();
+
+    await vi.waitFor(() => {
+      expect(context.data.value.length).toBeGreaterThan(0);
+    });
+    const firstOffset = new URL(capturedUrl!).searchParams.get("offset");
+    expect(meta.hasNextPage.value).toBe(true);
+    expect(meta.hasPrevPage.value).toBe(false);
+
+    await collection.useActions().nextPage();
+    await vi.waitFor(() => {
+      const offset = new URL(capturedUrl!).searchParams.get("offset");
+      expect(offset).not.toBe(firstOffset);
+    });
+    const secondOffset = new URL(capturedUrl!).searchParams.get("offset");
+    expect(secondOffset).not.toBe(firstOffset);
+    await vi.waitFor(() => {
+      expect(context.pagination.value.page).toBe(2);
+      expect(meta.hasPrevPage.value).toBe(true);
+    });
+
+    await collection.useActions().prevPage();
+    // The second page's fetch may satisfy the first page from cache rather
+    // than re-issuing the wire request, so the window itself — the
+    // published pagination state — is the load-bearing assertion here, not
+    // a second network round-trip.
+    await vi.waitFor(() => {
+      expect(context.pagination.value.page).toBe(1);
+    });
+    expect(meta.hasPrevPage.value).toBe(false);
   });
 });
