@@ -77,7 +77,7 @@ The `loading` state's `always` array is the one place `selectStatusNode` is cons
 |----------------|------------------------|------------------------|
 | `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `stopRenewing`, `resumeRenewing`, `setConsolidation`, `scheduleCancellation`, `revokeScheduledCancellation`, `isReady`, `refresh`, `stop`, `destroy` |
 | `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `context`, `contractId`, `contractProduct`, `contractProductId`, `error`, `minFutureCancellationDate`, `rawContractProduct`, `scheduledActions` |
-| `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen node flags plus the record-fact flags (see usage.md) |
+| `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen status/setup/trial node flags, the `isAvailable`/`isLoading`/`isSubmitting` state-derived flags, plus the record-fact flags (see usage.md) |
 | `useInternals()` | raw query access | raw machine-state access |
 
 ## Services

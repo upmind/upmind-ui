@@ -80,9 +80,10 @@ They don't. The collection's list query and one manager instance's machine conte
 |----------|-------------------|-------|
 | Product has no `nextDueDate` | All anniversary helpers return `null`/`false` | No anchor at all to compute from |
 | Product has a `nextDueDate` but `billingCycleMonths <= 0` | `minFutureCancellationDate` returns the **`nextDueDate` string itself**, NOT `null`; the other anniversary helpers (`anniversaryCycleForDate`, `isSelectableFutureCancellationDate`) still return `null`/`false` | `minFutureCancellationCycle`/`anniversaryAnchor` return `null` for this input, and `minFutureCancellationDate` falls back to `product.nextDueDate` when its own cycle lookup is `null` — do not treat a falsy `minFutureCancellationDate` as the guard for "hide the date picker"; a one-time product still returns a truthy date string here |
-| Client has delegated products but sets the exclude preference to `false` | Delegated products are included | Preference wins over the default when explicitly set |
-| Client has delegated products and holds no preference | Delegated products are **excluded** by default | The force-set resolves to `1` whenever there is something to exclude |
-| Client has no delegated products and holds no preference | Delegated products excluded is moot — the force-set resolves to `0` | No delegated rows exist to exclude |
+| Client explicitly sets the exclude preference to `true` | Delegated products are excluded | Preference wins in either direction whenever it is actually held |
+| Client explicitly sets the exclude preference to `false` | Delegated products are included | Preference wins in either direction whenever it is actually held |
+| Client has delegated products and holds no stored preference | Delegated products are **included**, not excluded | The preference store coerces an untouched preference to `false` before this module ever reads it, so the force-set's own "exclude by default when the client has any" branch never actually fires |
+| Client has no delegated products | Delegated products excluded is moot | No delegated rows exist to exclude |
 | `.for('delegated')` selector context | The exclude-delegated force-set is always `0`, the held preference is never read | This turns exclusion OFF — the client's own products and their delegated products both come back. It is not a delegated-only view; nothing narrows the result to delegated items alone |
 | An invoice's status is `ADJUSTED` | `isDue` is true, `isCancellable` is false | The cancellable set is narrower than the due set |
 

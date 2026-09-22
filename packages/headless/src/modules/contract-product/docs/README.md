@@ -30,13 +30,13 @@ See [Usage](./usage.md) for the complete API reference.
 | Feature | Status | Notes |
 |---------|--------|-------|
 | List / filter / sort the client's own contract products | ✅ | `useContractProducts` |
-| Include/exclude delegated products | ✅ | Preference-driven; excluded by default when the client has any; forced OFF (included) on the `DELEGATED` selector context, which does not narrow to delegated-only |
+| Include/exclude delegated products | ✅ | Preference-driven; **included** by default when no preference is held (the underlying store never leaves the preference truly unset, so a "hide by default" outcome never occurs on its own); forced OFF (included) on the `DELEGATED` selector context, which does not narrow to delegated-only |
 | Dashboard grouped counts | ✅ | `loadGroupedCounts` |
 | Purchased-category read | ✅ | `loadPurchasedCategories` |
 | Load one contract product in detail | ✅ | `useContractProduct` |
 | Stop / resume automatic renewal | ✅ | Subscription products only |
 | Set invoice-consolidation preference | ✅ | Subscription products only |
-| Book / revoke a scheduled (future-dated) cancellation | ✅ | Anniversary-validated date only |
+| Book / revoke a scheduled (future-dated) cancellation | ✅ | The module sends whatever date it is given — it does not validate the date itself. Anniversary validation is a separate helper the caller must call and check before booking |
 | Unpaid-invoice due/cancellable predicates | ✅ | Pure functions over `unpaidRecurringInvoices` |
 
 ## Key Concepts

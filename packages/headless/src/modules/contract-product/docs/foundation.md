@@ -9,7 +9,7 @@ It never manages the contract itself (starting a contract, changing its payment 
 ## Core concepts
 
 - **Contract product** — one product instance inside a contract: what was bought, its billing cadence, whether it renews, and its current lifecycle status. A contract typically holds several contract products.
-- **Delegated product** — a contract product belonging to a different client that the signed-in client has been granted access to. With no explicit preference held, the collection excludes delegated products by default whenever the signed-in client has any (there is nothing to exclude otherwise); an explicit preference the client holds overrides that default in either direction. A second selector on the same collection turns that exclusion off, so the client's own products and their delegated products are returned together — it is not a dedicated delegated-only view.
+- **Delegated product** — a contract product belonging to a different client that the signed-in client has been granted access to. A client who has explicitly set the preference gets it honoured in either direction (excluded when set to exclude, included when set to include); a client who has never touched the preference gets delegated products **included** by default — the preference storage this module reads always resolves an untouched preference to "not excluded" before the collection ever sees it, so there is no held-preference state in which delegated products are hidden without the client asking for that. A second selector on the same collection forces exclusion off outright regardless of preference, so the client's own products and their delegated products are returned together — it is not a dedicated delegated-only view.
 - **The status/setup/trial regions** — a contract product's lifecycle is reported as three simultaneous facts rather than one linear status: which of the published statuses it currently sits in (pending, awaiting activation, active, suspended, expiring, or mid-cancellation-request — outside these, the product is either staged, cancelled, lapsed, or flagged fraudulent and reported as unavailable for any action), whether its setup fields are still outstanding, and whether it is currently on a trial and how that trial is expected to end. All three are derived from one read and can be true at once — a product can be both "active" and "still in trial", for example.
 - **Soft cancellation (stop/resume renewal)** — a client can stop a subscription's automatic renewal (it keeps running to its already-paid-for end date and then lapses) and can resume that renewal before it takes effect. This is distinct from a hard cancellation request, which is not part of this module.
 - **Scheduled (future-dated) cancellation** — a subscription client can additionally book an exact future date on which the product will be cancelled, and can revoke that booking before it fires. A future date is only valid when it lands exactly on one of the product's own billing anniversaries (its next due date, or that date plus a whole number of billing cycles) and is not earlier than the next anniversary strictly after today; the module publishes the maths to compute and validate that date, it does not enumerate every valid date itself.
@@ -65,17 +65,22 @@ type ContractProduct = {
   isDelegatedObject: boolean;
   autoCreateRenewInvoice: boolean;
   unpaidRecurringInvoices: { status?: { code: InvoiceStatusCode } }[];
-  /** The four members below stay in their WIRE (snake_case) form — this
-   * relation is carried straight off the server record, unlike every other
-   * member of this type, which the mapper renames to camelCase. */
+  /** The members inside each scheduled action stay in their WIRE (snake_case)
+   * form, carried straight off the server record. A few other nested members
+   * elsewhere in this type do too — each is flagged at its own line below.
+   * Every top-level member of this type, and every member not individually
+   * flagged, is renamed to camelCase by the mapper. */
   scheduledActions?: { id: string; action_code: string; status: unknown; executed_at?: string; created_at: string }[];
   /** billing_cycle_months > 0 — is this a recurring subscription, not a one-time purchase. */
   isSubscription: boolean;
   /** True once a future-dated cancellation is booked. */
   hasScheduledFutureCancellation: boolean;
+  /** `provision_blueprint` also stays in its WIRE (snake_case) form. */
   product?: { id: string; name: string; image?: unknown; provision_blueprint?: unknown };
   brand?: { id: string; name: string; currency?: unknown };
+  /** `show_to_customer` also stays in its WIRE (snake_case) form. */
   tags?: { id: string; name: string; colour?: string; show_to_customer: boolean }[];
+  /** All three members here also stay in their WIRE (snake_case) form. */
   futureCancellationRequest?: { id: string; future_cancellation_date?: string; scheduled_for?: string; executed_at?: string };
   movedToContractProduct?: { id: string; name: string; status?: unknown; clients?: { id: string; fullname: string; email: string; image?: unknown; brand?: unknown }[] };
   /** Populated whenever the read carries the `clients` relation — every
@@ -83,7 +88,7 @@ type ContractProduct = {
    * single-product read omits this relation, so it is always undefined there. */
   delegatingClients?: { id: string; fullname: string; email: string; image?: unknown; brand?: unknown }[];
   /** The unmodified server record this view model was mapped from. */
-  raw: IContractProduct;
+  raw: WireContractProduct;
 };
 ```
 
@@ -253,7 +258,7 @@ Fixture: `put-contracts-id-products-id-schedule-cancel-revoke.json` (`{}`, 200).
 ## Failure modes
 
 - **An unauthenticated or unaddressable caller** — every read and write rejects rather than silently returning nothing, so a caller cannot mistake "not signed in" for "the client has no products".
-- **An unrecognised status code** — a product whose status does not match any of the module's published codes is recorded on the failure/error property rather than silently falling into one of the known ones; it does not carry its own dedicated state, it is a fact recorded alongside whatever node the product otherwise reports. This keeps an unexpected new server status from being misreported as, say, "active".
+- **An unrecognised status code** — a product whose status does not match any of the module's published codes never resolves to any lifecycle node at all: the load step records the fact on the failure/error property but does not transition the product onward. A caller's readiness check therefore never resolves, and every status/setup/trial flag stays at its initial not-yet-loaded value indefinitely; the product does not report itself as "active" or as anything else, it simply never finishes loading. This is a genuine gap rather than a design choice — an unexpected new server status silently strands the product instead of misreporting it, and nothing but the stuck error flag signals the caller.
 - **A write attempted from the wrong lifecycle point** — stopping/resuming renewal or setting consolidation on a one-time (non-subscription) product is refused rather than sent to the server; a caller checks the relevant state flag first. Booking a future-dated cancellation carries NO such client-side check: the module sends whatever date the caller supplies, valid anniversary or not, and the module publishes the maths (see Compute the valid future-cancellation date range) purely as a helper — a caller that wants to refuse an invalid date must call it and check the result itself before booking.
 - **A second write while one is already in flight** — the module resolves the product to one definite state before accepting the next write; a caller that fires a second write while the first is still processing is left to the same one-write-at-a-time discipline the platform enforces generally.
 
@@ -262,5 +267,5 @@ Fixture: `put-contracts-id-products-id-schedule-cancel-revoke.json` (`{}`, 200).
 - **A contract product's lifecycle is three parallel facts, not one status string.** A product can be simultaneously "active" and "on a trial that is ending soon" and "setup is still incomplete" — treating status/setup/trial as one linear state loses information a caller needs (e.g. a client should see both "your subscription is active" and "finish your setup" at once, not one or the other).
 - **"Not cancellable yet" and "not due" are different facts about the same unpaid invoice.** An invoice that has already been adjusted is still due (it must still be paid or resolved) but is no longer eligible to be swept up into a cancellation; conflating the two under a single "unpaid" flag would let a caller offer to cancel an invoice that the server will refuse.
 - **A future cancellation date is only valid on a billing anniversary.** It is not simply "today or later" — a client-picked date has to land exactly on the product's next-due-date, or that date plus a whole number of billing cycles, and not fall before the next anniversary that is still strictly in the future. A caller building a date picker needs both the earliest bookable date and a per-date validity check, not just a minimum bound.
-- **Delegated-product visibility is a preference with a real default, not a blanket always-on/always-off switch.** With no explicit preference held, the collection excludes delegated products by default whenever the signed-in client actually has any (there being none is treated the same as "nothing to exclude"); a fixed default in either direction would either hide products a delegate-holding client expects to see by default, or clutter every list with delegated items nobody asked to see.
+- **Delegated-product visibility defaults to included, not excluded, when the client has never touched the preference.** The exclusion seam has a branch that would exclude delegated products by default whenever the client actually has any and no preference is held, but the preference this module actually reads is sourced from a store that coerces an untouched value to "not excluded" before it ever reaches that seam — so that branch never fires in the shipped module, and a client who has never opened the setting sees their delegated products alongside their own. A caller that wants delegated products hidden by default has to set the preference itself; the module will not do it unasked.
 - **The billing-anniversary maths is a helper, not a gate.** The write that books a future cancellation sends whatever date it is given — the module never refuses an off-anniversary date itself. A caller that wants that refusal to be client-side (rather than discovered from the server's response) has to call the minimum-date and validity helpers and act on the result before sending the write.

@@ -172,7 +172,7 @@ const {
 
 ## Future-cancellation date helpers
 
-Pure functions, not tied to a loaded instance — import from the module barrel:
+Pure functions, not tied to a loaded instance — import from the package root:
 
 ```typescript
 import {
