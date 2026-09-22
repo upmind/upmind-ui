@@ -32,11 +32,7 @@ import {
   ContractStatusCodes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
-import {
-  ContractProductContextTypes,
-  useContractProduct,
-  useContractProducts
-} from "..";
+import { useContractProduct, useContractProducts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertClientIdentityTransport,
@@ -68,7 +64,7 @@ async function openManager() {
   const row = recorded.one().data;
   const manager = useContractProduct()
     .as(ScopeActorTypes.CLIENT)
-    .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    .withId(row.id);
   await manager.useActions().isReady();
   return { manager, row, accessToken };
 }
@@ -103,7 +99,7 @@ async function openManagerWith(overrides: Record<string, unknown>) {
   installProductHandler(server, row);
   const manager = useContractProduct()
     .as(ScopeActorTypes.CLIENT)
-    .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    .withId(row.id);
   await manager.useActions().isReady();
   return { manager, row, accessToken };
 }
@@ -133,7 +129,7 @@ async function openExpiringManager() {
   installProductHandler(server, row);
   const manager = useContractProduct()
     .as(ScopeActorTypes.CLIENT)
-    .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+    .withId(row.id);
   await manager.useActions().isReady();
   return { manager, row, accessToken };
 }
@@ -382,7 +378,7 @@ describe("useContractProduct — I stop one of my subscriptions renewing, and ch
     installProductHandler(server, row);
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
     const captured: Captured = {};
 
@@ -565,7 +561,7 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
     const handler = installProductHandler(server);
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
     const readsBeforeWrite = handler.reads();
     const captured: Captured = {};
@@ -612,7 +608,7 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
     const handler = installProductHandler(server);
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
     const readsBeforeWrite = handler.reads();
     const captured: Captured = {};
@@ -794,7 +790,7 @@ describe("useContractProduct — a change I make shows up on my products list to
 
       const manager = useContractProduct()
         .as(ScopeActorTypes.CLIENT)
-        .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+        .withId(row.id);
       await manager.useActions().isReady();
 
       const actions = manager.useActions() as unknown as Record<

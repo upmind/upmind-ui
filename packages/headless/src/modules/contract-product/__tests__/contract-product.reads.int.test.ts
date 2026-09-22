@@ -23,11 +23,7 @@
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { ContractStatusCodes } from "@upmind-automation/types";
-import {
-  ContractProductContextTypes,
-  useContractProduct,
-  useContractProducts
-} from "..";
+import { useContractProduct, useContractProducts } from "..";
 import { SortDirection } from "../../query/query.types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -99,7 +95,7 @@ describe("useContractProduct — I open one of my products with what its detail 
 
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
 
     expect(capturedUrl).toBeDefined();
@@ -121,7 +117,7 @@ describe("useContractProduct — I open one of my products with what its detail 
 
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
 
     // The real capture's own status.code, read back off the manager's
@@ -470,7 +466,7 @@ describe("useContractProduct — I open one product's scheduled actions (AC-15)"
 
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
     const readsAfterOpen = handler.reads();
 
@@ -516,7 +512,7 @@ describe("useContractProduct — I open one product's scheduled actions (AC-15)"
 
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
 
     // The REAL capture's own `scheduled_actions` member, whatever it holds —
@@ -844,7 +840,7 @@ describe("useContractProduct — I am told when a product no longer invoices its
     installProductHandler(server, row);
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
     return manager;
   }
@@ -995,7 +991,7 @@ describe("useContractProduct — whether an outstanding invoice is due, and canc
     installProductHandler(server, row);
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      .withId(row.id);
     await manager.useActions().isReady();
     return manager.useMeta();
   }

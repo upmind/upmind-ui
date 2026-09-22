@@ -32,14 +32,11 @@ export {
 // --- Scope matrices — one per composable, both public
 export {
   CONTRACT_PRODUCTS_SCOPE_MATRIX,
-  ContractProductsContextTypes,
-  CONTRACT_PRODUCT_SCOPE_MATRIX,
-  ContractProductContextTypes
+  ContractProductsContextTypes
 } from "./contract-product.types";
-export type {
-  ContractProductsScopeMatrix,
-  ContractProductScopeMatrix
-} from "./contract-product.types";
+export type { ContractProductsScopeMatrix } from "./contract-product.types";
+// `CONTRACT_PRODUCT_SCOPE_MATRIX` and its type stay INTERNAL: an all-`never`
+// matrix names nothing a consumer can spell (templates/SINGLE-READ.md).
 
 // --- Public model types (shared by both composables)
 export { ContractProductState } from "./contract-product.types";

@@ -20,11 +20,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  ContractProductContextTypes,
-  useContractProduct,
-  useContractProducts
-} from "..";
+import { useContractProduct, useContractProducts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useSessionStore } from "../../session-store";
 import {
@@ -74,9 +70,7 @@ describe("contract-product with no authenticated client session (AC-16)", () => 
     const observed = observeAllRequests();
 
     useContractProducts().as(ScopeActorTypes.CLIENT);
-    useContractProduct()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, TARGET_ID);
+    useContractProduct().as(ScopeActorTypes.CLIENT).withId(TARGET_ID);
     // Give an (incorrectly) enabled query/machine time to fire before
     // asserting absence.
     await new Promise(resolve => setTimeout(resolve, 400));
@@ -108,7 +102,7 @@ describe("contract-product with no authenticated client session (AC-16)", () => 
 
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, TARGET_ID);
+      .withId(TARGET_ID);
 
     const settled = await Promise.race([
       manager.useActions().isReady(),
@@ -124,7 +118,7 @@ describe("contract-product with no authenticated client session (AC-16)", () => 
 
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, TARGET_ID);
+      .withId(TARGET_ID);
 
     await expect(
       settlement(manager.useActions().stopRenewing()),
@@ -143,7 +137,7 @@ describe("contract-product with no authenticated client session (AC-16)", () => 
 
     const manager = useContractProduct()
       .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, TARGET_ID);
+      .withId(TARGET_ID);
 
     await expect(
       settlement(

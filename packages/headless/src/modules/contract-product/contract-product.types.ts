@@ -62,17 +62,21 @@ export const CONTRACT_PRODUCTS_SCOPE_MATRIX = {
 /** Scope matrix type for `useContractProducts` (derived from the runtime const). */
 export type ContractProductsScopeMatrix = typeof CONTRACT_PRODUCTS_SCOPE_MATRIX;
 
-/** Context types for the contract-product MANAGER — which product is addressed. */
-export enum ContractProductContextTypes {
-  /** Acting on one existing contract product by id. */
-  CONTRACT_PRODUCT = "contract-product"
-}
-
-/** Scope matrix for `useContractProduct`. `.for('contract-product', id)` names the record. */
+/**
+ * Scope matrix for `useContractProduct` — every actor refused.
+ *
+ * `useContractProduct` is a SINGLE-RECORD READ BY ID (templates/SINGLE-READ.md).
+ * The product id rides on `.withId(id)`, never on `.for(type, id)`: the legacy
+ * oracle names no entity a client acts on behalf of here, and an absent legacy
+ * context is never licence to invent one. Every cell is `never`, so
+ * `ContextsForActor` resolves `never` for all four actors and `.for()` is a
+ * compile error — the matrix is what makes it unspellable, so it is declared
+ * and its TYPE is passed, never dropped.
+ */
 export const CONTRACT_PRODUCT_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ContractProductContextTypes.CONTRACT_PRODUCT,
+  [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 

@@ -244,6 +244,25 @@ async function loadGroupedCounts(
       group_count: "products.category_id,service_identifier",
       with: CONTRACT_PRODUCTS_GROUPED_WITH
     }),
+    /**
+     * @decision
+     * what: this read sends `sort` and `limit` beside the criteria channel,
+     *   not through it. The sort field is `service_identifier`, which the
+     *   query schema's sort vocabulary does not declare, and `limit` is the
+     *   literal `"count"`.
+     * why: `loadGroupedCounts` is the dashboard's fixed grouped-count read,
+     *   not a consumer-narrowed list. Its grouping, its ordering and its
+     *   count-only limit are the SHAPE of the read itself — no consumer
+     *   chooses them, and no consumer can vary them. The criteria channel
+     *   exists for what a consumer narrows, and the one branch a consumer
+     *   does narrow here (the active-status filter) DOES go through it, via
+     *   `translateQuery(useQuerySchema(), …)` above.
+     * rejected: adding `service_identifier` to the schema's sort `oneOf`.
+     *   That schema drives the client's own sort control on the products
+     *   list. Declaring a field there would advertise a sort a client can
+     *   pick and the list cannot honour — a worse breach than this one, and
+     *   a false capability rather than a stated departure.
+     */
     sort: [RequestSortDirection.ASC, "service_identifier"],
     filters,
     withAccessToken: true

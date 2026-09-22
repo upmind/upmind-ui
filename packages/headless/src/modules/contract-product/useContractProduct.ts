@@ -2,10 +2,6 @@ import { interpret } from "xstate";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import { contractProductMachine } from "./contract-product.machine";
-import {
-  CONTRACT_PRODUCT_SCOPE_MATRIX,
-  ContractProductContextTypes
-} from "./contract-product.types";
 import { createContractProductActions } from "./useContractProduct.actions";
 import { createContractProductContext } from "./useContractProduct.context";
 import { createContractProductInternals } from "./useContractProduct.internals";
@@ -42,10 +38,9 @@ function createContractProductForScope(
 
   const actorScope = config.actor as ScopeActorTypes;
 
-  const contractProductId =
-    config.context?.type === ContractProductContextTypes.CONTRACT_PRODUCT
-      ? config.context.id
-      : undefined;
+  // SINGLE-READ step 3: the id comes from `.withId(id)` — `config.id` — and is
+  // never re-derived from `config.context` (templates/SINGLE-READ.md).
+  const contractProductId = config.id;
 
   const machineService = interpret(
     contractProductMachine.withContext({
@@ -93,7 +88,7 @@ function createContractProductForScope(
  *
  * @example
  * ```ts
- * const manager = useContractProduct().as('client').for('contract-product', id)
+ * const manager = useContractProduct().as('client').withId(id)
  * await manager.useActions().isReady()
  * await manager.useActions().stopRenewing({ reason: 'moving provider' })
  * ```
@@ -101,10 +96,6 @@ function createContractProductForScope(
 export const useContractProduct = createScopedComposable<
   ReturnType<typeof createContractProductForScope>,
   ContractProductScopeMatrix
->(
-  "contract-product",
-  createContractProductForScope,
-  CONTRACT_PRODUCT_SCOPE_MATRIX
-);
+>("contract-product", createContractProductForScope);
 
 export type UseContractProduct = ReturnType<typeof useContractProduct>;
