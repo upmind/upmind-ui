@@ -14,7 +14,7 @@
   "500_text": "Vi opplever for øyeblikket tekniske problemer. Prøv igjen senere.",
   "500_title": "Beklager, vi opplever **tekniske problemer**",
   "500_title_md": "@.markdown:{'error.500_title'}",
-  "503_text": "Beklager, men tjenesten vår er midlertidig utilgjengelig mens vi utfører planlagt vedlikehold. Vennligst ha tålmodighet med oss ​​under denne oppgraderingen – alt skal være tilbake til normalen snart! 👷",
+  "503_text": "Beklager, men tjenesten vår er midlertidig utilgjengelig mens vi utfører planlagt vedlikehold. Vennligst ha tålmodighet med oss under denne oppgraderingen – alt skal være tilbake til normalen snart! 👷",
   "503_title": "Tjenesten **midlertidig** utilgjengelig",
   "503_title_md": "@.markdown:{'error.503_title'}",
   "adding_or_updating": "Det oppsto en feil Legger til | Det oppsto en feil Oppdaterer",
