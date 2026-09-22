@@ -29,6 +29,8 @@ export function createContractProductMeta(
 
   const isCancelling = useStateMatches(state, ContractProductState.CANCELLING);
 
+  const isPending = useStateMatches(state, ContractProductState.PENDING);
+
   const hasScheduledFutureCancellation = computed(
     () =>
       !!contextValue<boolean>(
@@ -51,11 +53,12 @@ export function createContractProductMeta(
       () => !!contextValue<boolean>(state, "contractProduct.canCancel")
     ),
 
-    /** True when a future cancellation can be booked: not cancelling, none booked, and an anniversary exists. */
+    /** True when a future cancellation can be booked: not cancelling, not pending, none booked, and an anniversary exists. */
     canScheduleFutureCancellation: computed(
       () =>
         !!contractProduct.value &&
         !isCancelling.value &&
+        !isPending.value &&
         !hasScheduledFutureCancellation.value &&
         !!anniversaryAnchor(contractProduct.value)
     ),
@@ -156,7 +159,7 @@ export function createContractProductMeta(
     isOnTrial: useStateMatches(state, ContractProductState.TRIAL_RUNNING),
 
     /** True on `available.status.pending`. */
-    isPending: useStateMatches(state, ContractProductState.PENDING),
+    isPending,
 
     /** True on `available.setup.incomplete`. */
     isSetupIncomplete: useStateMatches(

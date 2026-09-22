@@ -353,12 +353,9 @@ async function load(
       "products",
       context.contractProductId
     ],
-    url: useUrl(
-      `contract_products/${context.contractProductId}/scheduled_actions`,
-      {
-        with: CONTRACT_PRODUCT_WITH
-      }
-    ),
+    url: useUrl(`contract_products/${context.contractProductId}`, {
+      with: CONTRACT_PRODUCT_WITH
+    }),
     withAccessToken: true,
     staleTime: 0,
     gcTime: 0

@@ -126,7 +126,7 @@ export function hidesOneTimePurchasesForced(): boolean {
 }
 
 // -----------------------------------------------------------------------------
-// Future-cancellation anniversary maths (research F18, rows P25-P26)
+// Future-cancellation anniversary maths (research.md F18 — no parity row)
 
 const BACKEND_DATE_FORMAT = "YYYY-MM-DD";
 
