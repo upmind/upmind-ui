@@ -8,16 +8,21 @@ import type { QueryKey } from "@tanstack/vue-query";
 import type {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
+  IBrand,
   ICProdGroup,
+  IClient,
   IContract,
   IContractCancellationRequest,
   IContractProduct,
+  IContractProductScheduledCancellation,
   ICustomField,
   IInvoice,
   InvoiceConsolidationTypes,
+  IProduct,
   IProductCategory,
   IScheduledAction,
   IStatus,
+  ITag,
   TrialEndActionTypes
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -105,6 +110,43 @@ export type ScheduledAction = Pick<
 /** The `unpaid_recurring_invoices` member this module reads. */
 export type UnpaidInvoice = Pick<IInvoice, "status">;
 
+/** The `product` relation this module reads (12-member products-list `with`, design 8.1). */
+export type ContractProductCatalogueProduct = Pick<
+  IProduct,
+  "id" | "name" | "image" | "provision_blueprint"
+>;
+
+/** The `brand` relation this module reads — `brand.currency` (design 8.1). */
+export type ContractProductBrand = Pick<IBrand, "id" | "name" | "currency">;
+
+/** The `tags` relation this module reads. Undeclared on the shared platform
+ * `IContractProduct` interface though the wire returns it (verify.md B1);
+ * carried here until the shared package catches up. */
+export type ContractProductTag = Pick<
+  ITag,
+  "id" | "name" | "colour" | "show_to_customer"
+>;
+
+/** A delegating client, off the `clients` / `moved_to_contract_product.clients` relations. */
+export type ContractProductClient = Pick<
+  IClient,
+  "id" | "fullname" | "email" | "image" | "brand"
+>;
+
+/** The `moved_to_contract_product` relation this module reads. */
+export type MovedToContractProduct = Pick<
+  IContractProduct,
+  "id" | "name" | "status"
+> & {
+  clients?: ContractProductClient[];
+};
+
+/** The `future_cancellation_request` relation this module reads. */
+export type ContractProductFutureCancellation = Pick<
+  IContractProductScheduledCancellation,
+  "id" | "future_cancellation_date" | "scheduled_for" | "executed_at"
+>;
+
 /**
  * The view model `mapContractProduct` maps `IContractProduct` into — only the
  * fields this module reads, plus the two derived readings every layer shares.
@@ -135,6 +177,18 @@ export type ContractProduct = {
   isSubscription: boolean;
   /** `contract_request.status.code === request_scheduled_future_cancellation`. */
   hasScheduledFutureCancellation: boolean;
+  /** The catalogue product (`product.image`, `product.provision_blueprint`). */
+  product?: ContractProductCatalogueProduct;
+  /** That product's brand (`brand.currency`). */
+  brand?: ContractProductBrand;
+  /** The product's tags. */
+  tags?: ContractProductTag[];
+  /** Any cancellation scheduled against it for a future date, and its date. */
+  futureCancellationRequest?: ContractProductFutureCancellation;
+  /** The product it was moved to, when `moved` is true. */
+  movedToContractProduct?: MovedToContractProduct;
+  /** The client(s) this product is delegated from, on the `DELEGATED` scope. */
+  delegatingClients?: ContractProductClient[];
 };
 
 // -----------------------------------------------------------------------------

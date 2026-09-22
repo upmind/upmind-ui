@@ -4,7 +4,9 @@ import { castArray, map, pick } from "lodash-es";
 import type {
   ConsolidationBody,
   ContractProduct,
+  ContractProductClient,
   ContractProductRequest,
+  MovedToContractProduct,
   ScheduleCancellationBody,
   ScheduleCancellationModel,
   ScheduledAction,
@@ -15,11 +17,18 @@ import type {
 } from "./contract-product.types";
 import type {
   ContractStatusCodes,
+  IClient,
   IContractCancellationRequest,
   IContractProduct,
+  IContractProductScheduledCancellation,
   IInvoice,
-  IScheduledAction
+  IScheduledAction,
+  ITag
 } from "@upmind-automation/types";
+
+/** `tags` reaches the wire on this record but is undeclared on the shared
+ * `IContractProduct` platform type (verify.md B1) — augmented locally. */
+type WireContractProduct = IContractProduct & { tags?: ITag[] };
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.mappers
@@ -76,7 +85,19 @@ export function mapContractProduct(raw: IContractProduct): ContractProduct {
     isSubscription: raw.billing_cycle_months > 0,
     hasScheduledFutureCancellation:
       contractRequest?.status?.code ===
-      CancellationRequestStatusCodes.REQUEST_SCHEDULED_FUTURE_CANCELLATION
+      CancellationRequestStatusCodes.REQUEST_SCHEDULED_FUTURE_CANCELLATION,
+    product: raw.product
+      ? pick(raw.product, ["id", "name", "image", "provision_blueprint"])
+      : undefined,
+    brand: raw.brand ? pick(raw.brand, ["id", "name", "currency"]) : undefined,
+    tags: (raw as WireContractProduct).tags,
+    futureCancellationRequest: raw.future_cancellation_request
+      ? mapFutureCancellation(raw.future_cancellation_request)
+      : undefined,
+    movedToContractProduct: raw.moved_to_contract_product
+      ? mapMovedToContractProduct(raw.moved_to_contract_product)
+      : undefined,
+    delegatingClients: raw.clients ? map(raw.clients, mapClient) : undefined
   };
 }
 
@@ -88,6 +109,30 @@ function mapContractRequest(
       ? { code: raw.status.code as CancellationRequestStatusCodes }
       : undefined
   };
+}
+
+function mapFutureCancellation(
+  raw: IContractProductScheduledCancellation
+): NonNullable<ContractProduct["futureCancellationRequest"]> {
+  return pick(raw, [
+    "id",
+    "future_cancellation_date",
+    "scheduled_for",
+    "executed_at"
+  ]);
+}
+
+function mapMovedToContractProduct(
+  raw: IContractProduct
+): MovedToContractProduct {
+  return {
+    ...pick(raw, ["id", "name", "status"]),
+    clients: raw.clients ? map(raw.clients, mapClient) : undefined
+  };
+}
+
+function mapClient(raw: IClient): ContractProductClient {
+  return pick(raw, ["id", "fullname", "email", "image", "brand"]);
 }
 
 function mapScheduledAction(raw: IScheduledAction): ScheduledAction {
