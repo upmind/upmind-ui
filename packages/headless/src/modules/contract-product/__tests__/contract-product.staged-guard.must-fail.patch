@@ -13,6 +13,20 @@
 #   "a staged import reads as STAGED regardless of its status.code" goes red
 #   too — both tests guard this one line.
 #
+# THE SECOND MUTATION THAT COMMENT NAMES — DISCLOSED, NOT DROPPED.
+#   `contract-product.feature`'s AC-11 mutant comment names TWO mutations:
+#   removing the staged-import protection (this patch) and withholding the
+#   same changes from a merely SUSPENDED subscription. The second has a
+#   POSITIVE control — "A suspended subscription is still offered every
+#   change" is driven per row on the wire by
+#   contract-product.mutations.int.test.ts — but no mutant of its own, and it
+#   is not authored, for one cause: the behaviour it protects is the ABSENCE
+#   of a refusal. There is no guard to delete. A patch would have to INVENT a
+#   suspended-state refusal and then remove it, which grades the patch rather
+#   than the module — the same misrepresentation the `delegated-preference`
+#   filename was pulled for. Stated here so the comment's second limb is a
+#   disclosed withholding, never an un-met promise.
+#
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts

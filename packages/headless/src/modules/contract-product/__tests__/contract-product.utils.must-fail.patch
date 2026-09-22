@@ -10,8 +10,16 @@
 #   (its `preference` argument is a plain boolean handed in by the caller).
 #   AC-18 is a registered, unproven gap
 #   (`contract-product.traceability.test.ts`'s `SCENARIO_GAPS`, and the
-#   disclaimer docblock at `contract-product.utils.test.ts:226-237`) — no
-#   capture for the seam exists on disk and recording is forbidden this pass.
+#   disclaimer docblock that opens
+#   `contract-product.utils.test.ts`'s
+#   `describe("resolveExcludeDelegated — the exclude_delegated flag the scope
+#   sends")`) — no line number is cited here on purpose: the two earlier
+#   revisions of this header both cited one, and both were orphaned by a later
+#   insertion above the block. The describe title is the anchor, and
+#   `contract-product.traceability.test.ts`'s
+#   "the AC-18 disclaimer this patch header cites still opens
+#   resolveExcludeDelegated's describe" check fails if it moves or is reworded.
+#   No capture for the seam exists on disk and recording is forbidden this pass.
 #   This patch grades the derivation alone, so it is renamed off the
 #   AC-18-shaped filename that implied otherwise.
 #

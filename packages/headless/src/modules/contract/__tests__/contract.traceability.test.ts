@@ -165,6 +165,101 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     line: 149,
     text: "And with the currency of each of its products' brand",
     disposition: "proves"
+  },
+  {
+    line: 113,
+    text: "| first             | forward to the next page  | the next page comes back                                                 |",
+    disposition: "proves"
+  },
+  {
+    line: 114,
+    text: "| second            | back to the previous page | the previous page comes back                                             |",
+    disposition: "proves"
+  },
+  {
+    line: 150,
+    text: "And with the products that are still being imported included rather than hidden",
+    disposition: "proves"
+  },
+  {
+    line: 171,
+    text: "| a reason and details | my reason and details travel with the request |",
+    disposition: "proves"
+  },
+  {
+    line: 172,
+    text: "| nothing              | nothing travels in their place                |",
+    disposition: "proves"
+  },
+  {
+    line: 198,
+    text: "| an active subscription   |",
+    disposition: "proves"
+  },
+  {
+    line: 200,
+    text: "| a one-off purchase       |",
+    disposition: "proves"
+  },
+  {
+    line: 216,
+    text: "| no method at all           |",
+    disposition: "proves"
+  },
+  {
+    line: 217,
+    text: "| the method it already uses |",
+    disposition: "proves"
+  },
+  {
+    line: 249,
+    text: "| I open my contracts                              |",
+    disposition: "proves"
+  },
+  {
+    line: 250,
+    text: "| I open one of my contracts                       |",
+    disposition: "proves"
+  },
+  {
+    line: 251,
+    text: "| I force a change to my contract's payment method |",
+    disposition: "proves"
+  },
+  {
+    line: 252,
+    text: "| I force a cancellation request                   |",
+    disposition: "proves"
+  },
+  {
+    line: 273,
+    text: "| opening one of my contracts         |",
+    disposition: "proves"
+  },
+  {
+    line: 274,
+    text: "| changing how a contract is paid for |",
+    disposition: "proves"
+  },
+  {
+    line: 275,
+    text: "| asking for a cancellation           |",
+    disposition: "proves"
+  },
+  {
+    line: 276,
+    text: "| withdrawing a cancellation request  |",
+    disposition: "proves"
+  },
+  {
+    line: 115,
+    text: "| first             | forward to the last page  | the last page comes back and I am told there is no further page to go to |",
+    disposition: "gap"
+  },
+  {
+    line: 201,
+    text: "| delegated to me          |",
+    disposition: "gap"
   }
 ];
 
@@ -278,6 +373,65 @@ describe("contract — every contract.feature @AC-n scenario is anchored to a re
     expect(found.length).toBeGreaterThan(0);
     expect(found.filter(marker => !declared.has(marker))).toEqual([]);
   });
+
+  /**
+   * THE OUTLINE-ROW FLOOR — the detection mechanism the ledger above is not.
+   * `PARTIAL_PROMISES` is a hand-curated allow-list: it carries the
+   * disposition of a half-promise already found, and is blind to one nobody
+   * thought to write down. A `Scenario Outline` is where that blindness bites
+   * hardest, because each Examples row is a NAMED, independently falsifiable
+   * promise, and the id+scenario cardinality floor counts the whole Outline as
+   * ONE scenario — so an Outline proven on one row and silent on four passes
+   * every other check in this file.
+   *
+   * This check is DERIVED from the feature, not declared here: it parses every
+   * Examples data row out of `contract.feature` and fails when one has no
+   * ledger entry at its own line. Adding a row to the feature — or splitting a
+   * packed line into rows, which is exactly what the last repair did — makes
+   * this check fail until each new row is either proven (`proves` + a marker on
+   * the proving test) or reported with its cause (`gap` + a KNOWN GAP marker).
+   */
+  const exampleRowLines: number[] = (() => {
+    const rows: number[] = [];
+    let inExamples = false;
+    let headerPending = false;
+    featureLines.forEach((rawLine, index) => {
+      const line = rawLine.trim();
+      if (/^Scenario(?: Outline)?:/.test(line)) {
+        inExamples = false;
+        return;
+      }
+      if (/^Examples:/.test(line)) {
+        inExamples = true;
+        headerPending = true;
+        return;
+      }
+      if (inExamples && line.startsWith("|")) {
+        if (headerPending) {
+          headerPending = false;
+          return;
+        }
+        rows.push(index + 1);
+        return;
+      }
+      if (inExamples && line.length > 0 && !line.startsWith("#")) {
+        inExamples = false;
+      }
+    });
+    return rows;
+  })();
+
+  it("finds Examples rows to grade, so this check itself is not vacuous", () => {
+    expect(exampleRowLines.length).toBeGreaterThan(0);
+  });
+
+  it.each(exampleRowLines)(
+    "contract.feature:%s — this Examples row carries a disposition in the ledger",
+    line => {
+      const declared = new Set(PARTIAL_PROMISES.map(promise => promise.line));
+      expect(declared.has(line)).toBe(true);
+    }
+  );
 
   it("names no test-TITLE AC-n claim absent from contract.feature (no stale/untethered test)", () => {
     const featureIds = new Set(scenarios.map(scenario => scenario.id));

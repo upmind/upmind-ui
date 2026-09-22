@@ -81,6 +81,12 @@ describe("useContract — I open one of my contracts with everything the account
    * - `@proves contract.feature:149` — the currency of each product's brand
    *   (`products.product.brand.currency`)
    */
+  /** `@proves contract.feature:150` — "with the products that are still being
+   * imported included rather than hidden": the `with_staged_imports=1`
+   * assertion in the test below is that line's whole proof, and this marker
+   * is what makes the ledger see it. The comment at `contract.feature:128`
+   * says twelve `Then` lines; the scenario carries thirteen, and this is the
+   * thirteenth. */
   it("AC-3 GETs contracts/{id} with_staged_imports=1 and exactly the 12-member client with-list — no staff-only member", async () => {
     const { accessToken } = await seedClientSession();
     const row = recorded.one().data;
@@ -184,6 +190,17 @@ describe("useContracts — I see and page through the contracts on my own accoun
     expect(requestedMembers).toEqual(CONTRACTS_LIST_WITH_MEMBERS);
   });
 
+  /**
+   * The AC-14 paging Outline, two of whose three rows this test drives:
+   * - `@proves contract.feature:113` — first page, forward to the next
+   * - `@proves contract.feature:114` — second page, back to the previous
+   *
+   * KNOWN GAP — `@gap contract.feature:115`, the "forward to the last page"
+   * row. The collection exposes `nextPage`/`prevPage` and no last-page verb,
+   * so the last page is only reachable by walking every page of the recorded
+   * capture one at a time — driven, and it does not complete in a test
+   * budget. The missing verb is a parity finding for the developer lane.
+   */
   it("AC-14 nextPage()/prevPage() actually move the window — the offset on the wire advances and returns, not only the hasNextPage/hasPrevPage flags", async () => {
     await seedClientSession();
     installBackgroundStubs();

@@ -61,6 +61,13 @@ const TARGET_ID = "00000000-0000-0000-0000-000000000000";
 
 // -----------------------------------------------------------------------------
 
+/**
+ * The four rows of AC-16's unauthenticated Outline, one per `<use>`:
+ * - `@proves contract-product.feature:637` — I open my products
+ * - `@proves contract-product.feature:638` — I open one of my products
+ * - `@proves contract-product.feature:639` — I force a renewal stop
+ * - `@proves contract-product.feature:640` — I force a consolidation change
+ */
 describe("contract-product with no authenticated client session (AC-16)", () => {
   it("AC-16 makes no request against any product resource — forced or not", async () => {
     await bootUnauthenticated();

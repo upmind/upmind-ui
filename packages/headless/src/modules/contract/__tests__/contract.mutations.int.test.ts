@@ -83,6 +83,9 @@ const A_NON_STORED_PAYMENT_DETAILS_ID = "785d26e9-6783-d169-497f-314502e70439";
 const A_REAL_PRODUCT_ID = "785d26e9-6783-d169-678a-314502e70439";
 
 describe("useContract — I point my contract at a different stored payment method (AC-8)", () => {
+  /** `@proves contract.feature:198` — the `an active subscription` row of the
+   * AC-8 Outline: the recorded contract capture's own products are active
+   * subscriptions, and this is the row every other row is compared against. */
   it("AC-8 PATCHes { payment_details_id } to my own contract's payment_details, under my own identity", async () => {
     const { manager, row, accessToken } = await openManager();
     const paymentDetailsId = A_NON_STORED_PAYMENT_DETAILS_ID;
@@ -199,6 +202,70 @@ describe("useContract — I point my contract at a different stored payment meth
 });
 
 /**
+ * `@proves contract.feature:200` — the `a one-off purchase` row of the AC-8
+ * Outline (amendment A13 + A16). Ruling R11 withdrew the product-level gate,
+ * so NO product state refuses this CONTRACT-level write; a module that
+ * re-introduced a `isSubscription` read on this path would withhold from a
+ * one-off contract a change the legacy account area still offers, and fails
+ * this row alone.
+ */
+describe("useContract — a contract holding a one-off purchase is offered the payment-method change too (AC-8)", () => {
+  it("AC-8 a one-off purchase on the contract refuses nothing — the PATCH reaches the wire unchanged", async () => {
+    const { accessToken } = await seedClientSession();
+    const base = recorded.one().data as Record<string, unknown> & {
+      id: string;
+      products?: Record<string, unknown>[];
+    };
+    const products = (base.products ?? []).map(product => ({
+      ...product,
+      billing_cycle_months: 0
+    }));
+    const row = { ...base, products };
+    installContractHandler(server, row);
+    const manager = useContract()
+      .as(ScopeActorTypes.CLIENT)
+      .for(ContractContextTypes.CONTRACT, row.id);
+    await manager.useActions().isReady();
+    const captured: Captured = {};
+
+    server?.use(
+      http.patch(
+        `*/contracts/${row.id}/payment_details`,
+        async ({ request }) => {
+          capture(request, captured);
+          captured.body = await request.json();
+          return HttpResponse.json(recorded.paymentMethodSet(), {
+            status: 200
+          });
+        }
+      )
+    );
+
+    await manager
+      .useActions()
+      .setPaymentMethod({ paymentDetailsId: A_NON_STORED_PAYMENT_DETAILS_ID });
+
+    expect(captured.request).toBeDefined();
+    assertClientIdentityTransport(captured.request!, accessToken);
+    expect(captured.body).toEqual({
+      payment_details_id: A_NON_STORED_PAYMENT_DETAILS_ID
+    });
+  });
+});
+
+/**
+ * KNOWN GAP — `@gap contract.feature:201`, the `delegated to me` row of the
+ * AC-8 Outline. A delegated contract is one belonging to ANOTHER account that
+ * my account has been granted access to; no such capture exists on disk in
+ * this module's `fixtures/`, and the only way to fabricate one is to rewrite
+ * the recorded row's owning account id — which would break the very
+ * identity assertion (`assertClientIdentityTransport`) every other row of
+ * this Outline leans on, and would be a synthesised, not a recorded,
+ * delegation. Recording is forbidden this pass (`receipts.md`), so the row is
+ * reported rather than faked green.
+ */
+
+/**
  * bdd.md amendment A22(d) — a `Scenario Outline` tagged `@AC-8 @manager
  * @mutation`, over ONE `<selection>` column with the rows "no method at
  * all" and "the method it already uses", whose outcome for BOTH rows is
@@ -211,6 +278,12 @@ describe("useContract — I point my contract at a different stored payment meth
  * action layer, never against the machine.
  */
 describe("useContract — nothing is sent when my selection changes nothing (AC-8, bdd.md A22(d))", () => {
+  /**
+   * The two rows of AC-8's "Nothing is sent when my selection changes nothing"
+   * Outline (amendment A22(d)):
+   * - `@proves contract.feature:216` — no method at all
+   * - `@proves contract.feature:217` — the method it already uses
+   */
   it("AC-8 sends nothing when I pick no method at all", async () => {
     const { manager, row } = await openManager();
     const observed = observeAllRequests();
@@ -241,6 +314,12 @@ describe("useContract — nothing is sent when my selection changes nothing (AC-
 });
 
 describe("useContract — I ask for one of my contracts to be cancelled outright (AC-6)", () => {
+  /**
+   * The two rows of AC-6's `<what I supply>` Outline (amendment A22(c)):
+   * - `@proves contract.feature:171` — a reason and details
+   * - `@proves contract.feature:172` — nothing (proven by the sibling test
+   *   below, which asserts no cause field travels)
+   */
   it("AC-6 POSTs { product_ids, cancellation_reason } to cancel/request, naming the product I asked for", async () => {
     const { manager, row, accessToken } = await openManager();
     const productId = A_REAL_PRODUCT_ID;
@@ -383,6 +462,14 @@ describe("useContract — I change my mind about a cancellation I asked for (AC-
  * on the SAME real traffic the writes above already prove correct.
  */
 describe("useContract — no staff route is ever reachable from my contract surfaces (AC-16)", () => {
+  /**
+   * The four rows of AC-16's staff-route Outline, all driven in this one
+   * observation window and held to a positive allow-list:
+   * - `@proves contract.feature:273` — opening one of my contracts
+   * - `@proves contract.feature:274` — changing how a contract is paid for
+   * - `@proves contract.feature:275` — asking for a cancellation
+   * - `@proves contract.feature:276` — withdrawing a cancellation request
+   */
   it("AC-16 not one of the writes this module offers me is ever addressed to a staff route", async () => {
     const { manager, row } = await openManager();
     const observed = observeAllRequests();

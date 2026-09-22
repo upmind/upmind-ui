@@ -109,6 +109,36 @@ async function openManagerWith(overrides: Record<string, unknown>) {
 }
 
 /**
+ * Opens the manager over a row in the `expiring` node — a subscription that
+ * already asked to stop. Assembled from two REAL captures: the base product
+ * read, with `renew` and `calculated_cancel_date` taken from the server's own
+ * recorded post-effect of the stop write (`put-…modify-renew-case-stop`),
+ * never hand-typed.
+ */
+async function openExpiringManager() {
+  const { accessToken } = await seedClientSession();
+  const base = recorded.one().data as Record<string, unknown> & {
+    id: string;
+    contract_id: string;
+  };
+  const stopped = recorded.softCancelled().data as {
+    renew: boolean;
+    calculated_cancel_date: string;
+  };
+  const row = {
+    ...base,
+    renew: stopped.renew,
+    calculated_cancel_date: stopped.calculated_cancel_date
+  };
+  installProductHandler(server, row);
+  const manager = useContractProduct()
+    .as(ScopeActorTypes.CLIENT)
+    .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+  await manager.useActions().isReady();
+  return { manager, row, accessToken };
+}
+
+/**
  * The value an action SETTLED on: its rejection, a `{ resolved }` wrapper, or
  * the `never-settled` sentinel. Raced rather than awaited outright, matching
  * `contract-product.auth-guard.int.test.ts`'s own pattern — an action-level
@@ -376,6 +406,11 @@ describe("useContractProduct — I stop one of my subscriptions renewing, and ch
     expect(captured.body).toEqual({ renew: true });
   });
 
+  /**
+   * The two rows of AC-5's `<what I supply>` Outline (amendment A19 + A21):
+   * - `@proves contract-product.feature:402` — a reason and details
+   * - `@proves contract-product.feature:403` — nothing
+   */
   it("AC-5 carries my reason and custom fields when I supply them, and nothing travels in their place when I don't", async () => {
     const { manager, row } = await openManager();
     const captured: Captured = {};
@@ -398,6 +433,9 @@ describe("useContractProduct — I stop one of my subscriptions renewing, and ch
     });
   });
 
+  /** `@proves contract-product.feature:422` — the `not allowed` row of AC-5's
+   * renewal-invoicing-permission Outline. Its `allowed` sibling is proven in
+   * its own describe below. */
   it("AC-5 stopping renewal is not the renewal-invoicing permission — a product not allowed to switch that off still stops renewing normally", async () => {
     // `design ✅.md` §8.3 row C5: the gate `can_disable_auto_create_renew_invoice`
     // goes with the excluded auto-renew-invoicing endpoint, never with this
@@ -473,6 +511,13 @@ describe("useContractProduct — I decide whether one subscription joins my cons
     ).toHaveLength(1);
   });
 
+  /**
+   * The three rows of AC-9's consolidation Outline (amendment A8), each on its
+   * own row so a module that honours two of the three fails one NAMED choice:
+   * - `@proves contract-product.feature:437` — opted out
+   * - `@proves contract-product.feature:438` — opted in
+   * - `@proves contract-product.feature:439` — follow my account
+   */
   it.each([
     ["opted out", InvoiceConsolidationTypes.DISABLED],
     ["opted in", InvoiceConsolidationTypes.ENABLED],
@@ -598,6 +643,11 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
     expect(handler.reads()).toBeGreaterThan(readsBeforeWrite);
   });
 
+  /**
+   * The two rows of AC-22's `<what I supply>` Outline (amendment A33):
+   * - `@proves contract-product.feature:591` — a reason and details
+   * - `@proves contract-product.feature:592` — nothing
+   */
   it("AC-22 carries my reason and custom fields when I supply them, and nothing travels in their place when I don't", async () => {
     const { manager, row } = await openManager();
     const captured: Captured = {};
@@ -659,45 +709,114 @@ describe("useContractProduct — I book a cancellation for a date I choose, and 
  * reachable — the manager and the collection — and the count surface stays
  * unproven, registered here rather than silently discharged by them.
  */
+/**
+ * The five rows of `contract-product.feature`'s AC-13 Outline (amendment A7)
+ * — one row per write this manager offers, so a module that re-reads after
+ * four of the five fails one NAMED row:
+ *
+ * - `@proves contract-product.feature:527` — stop the renewal
+ * - `@proves contract-product.feature:528` — abort that stop
+ * - `@proves contract-product.feature:529` — set the consolidation value
+ * - `@proves contract-product.feature:530` — book a cancellation for a date I choose
+ * - `@proves contract-product.feature:531` — revoke that booking
+ *
+ * The load-bearing reader here is the COLLECTION, not the manager: the
+ * manager's own re-read is already asserted beside each write, and a
+ * cache-key regression that narrowed the invalidation to the single product
+ * would leave the manager green and the products list stale — the exact
+ * "I changed it and my list still says the old thing" the scenario names.
+ */
 describe("useContractProduct — a change I make shows up on my products list too, without reloading (AC-13, cross-surface)", () => {
-  it("AC-13 the products COLLECTION re-reads after a write made through the MANAGER — not only the manager's own re-read", async () => {
-    await seedClientSession();
-    installBackgroundStubs();
-    const row = recorded.one().data as Record<string, unknown> & {
-      id: string;
-      contract_id: string;
-    };
-    let listReads = 0;
-    server?.use(
-      http.get("*/contracts_products", () => {
-        listReads += 1;
-        return HttpResponse.json(recorded.list(), { status: 200 });
-      }),
-      http.put(
-        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
-        () => HttpResponse.json(recorded.softCancelled(), { status: 200 })
-      )
-    );
-    installProductHandler(server, row);
+  it.each([
+    ["stop the renewal", false, "stopRenewing"],
+    ["abort that stop", true, "resumeRenewing"],
+    ["set the consolidation value", false, "setConsolidation"],
+    ["book a cancellation for a date I choose", false, "scheduleCancellation"],
+    ["revoke that booking", false, "revokeScheduledCancellation"]
+  ] as const)(
+    "AC-13 the products COLLECTION re-reads after I %s through the MANAGER — not only the manager's own re-read",
+    async (_change, fromExpiring, action) => {
+      await seedClientSession();
+      installBackgroundStubs();
+      const base = recorded.one().data as Record<string, unknown> & {
+        id: string;
+        contract_id: string;
+      };
+      const stopped = recorded.softCancelled().data as {
+        renew: boolean;
+        calculated_cancel_date: string;
+      };
+      const row = fromExpiring
+        ? {
+            ...base,
+            renew: stopped.renew,
+            calculated_cancel_date: stopped.calculated_cancel_date
+          }
+        : base;
 
-    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
-    await collection.useActions().isReady();
-    const readsBeforeWrite = listReads;
-    expect(readsBeforeWrite).toBeGreaterThan(0);
+      let listReads = 0;
+      server?.use(
+        http.get("*/contracts_products", () => {
+          listReads += 1;
+          return HttpResponse.json(recorded.list(), { status: 200 });
+        }),
+        http.put(
+          `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+          () =>
+            HttpResponse.json(
+              fromExpiring
+                ? recorded.softCancelAborted()
+                : recorded.softCancelled(),
+              { status: 200 }
+            )
+        ),
+        http.put(
+          `*/contracts/${row.contract_id}/products/${row.id}/properties`,
+          () => HttpResponse.json(recorded.consolidationSet(), { status: 200 })
+        ),
+        http.put(
+          `*/contracts/${row.contract_id}/products/${row.id}/schedule-cancel`,
+          () =>
+            HttpResponse.json(recorded.cancellationScheduled(), { status: 200 })
+        ),
+        http.put(
+          `*/contracts/${row.contract_id}/products/${row.id}/schedule-cancel-revoke`,
+          () =>
+            HttpResponse.json(recorded.cancellationRevoked(), { status: 200 })
+        )
+      );
+      installProductHandler(server, row);
 
-    const manager = useContractProduct()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
-    await manager.useActions().isReady();
-    await manager.useActions().stopRenewing();
+      const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+      await collection.useActions().isReady();
+      const readsBeforeWrite = listReads;
+      expect(readsBeforeWrite).toBeGreaterThan(0);
 
-    // The write's cache-key invalidation is whole (`design ✅.md` §8.4's base
-    // "contracts" key), so a SEPARATE collection instance — never told about
-    // this write directly — re-fetches too, not only the manager that made it.
-    await vi.waitFor(() => {
-      expect(listReads).toBeGreaterThan(readsBeforeWrite);
-    });
-  });
+      const manager = useContractProduct()
+        .as(ScopeActorTypes.CLIENT)
+        .for(ContractProductContextTypes.CONTRACT_PRODUCT, row.id);
+      await manager.useActions().isReady();
+
+      const actions = manager.useActions() as unknown as Record<
+        string,
+        (model?: unknown) => Promise<unknown>
+      >;
+      const model =
+        action === "setConsolidation"
+          ? { invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED }
+          : action === "scheduleCancellation"
+            ? { futureCancellationDate: "2027-01-01" }
+            : undefined;
+      await actions[action]!(model);
+
+      // The write's cache-key invalidation is whole (`design ✅.md` §8.4's base
+      // "contracts" key), so a SEPARATE collection instance — never told about
+      // this write directly — re-fetches too, not only the manager that made it.
+      await vi.waitFor(() => {
+        expect(listReads).toBeGreaterThan(readsBeforeWrite);
+      });
+    }
+  );
 });
 
 /**
@@ -708,6 +827,16 @@ describe("useContractProduct — a change I make shows up on my products list to
  * already prove correct.
  */
 describe("useContractProduct — no staff route is ever reachable from my product surfaces (AC-16)", () => {
+  /**
+   * The five rows of AC-16's staff-route Outline, all driven in this one
+   * observation window — every request the four writes and the read they
+   * trigger actually make is held to a positive allow-list:
+   * - `@proves contract-product.feature:661` — opening one of my products
+   * - `@proves contract-product.feature:662` — stopping one renewing
+   * - `@proves contract-product.feature:663` — changing its consolidation
+   * - `@proves contract-product.feature:664` — booking a cancellation
+   * - `@proves contract-product.feature:665` — revoking that booking
+   */
   it("AC-16 not one of the writes this module offers me is ever addressed to a staff route", async () => {
     const { manager, row } = await openManager();
     const observed = observeAllRequests();
@@ -807,5 +936,186 @@ describe("useContractProduct — the account I act on is the one my scope resolv
       expect(new URL(request.url).searchParams.has("clientId")).toBe(false);
     }
     observed.stop();
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+/**
+ * The remaining rows of `contract-product.feature`'s AC-11 "A one-off purchase
+ * is never offered a consolidation choice" Outline (amendment A12 + A16),
+ * each on a row whose own `Given` sets its product kind and state up:
+ *
+ * - `@proves contract-product.feature:506` — a one-off purchase, live
+ * - `@proves contract-product.feature:507` — a one-off purchase, still pending
+ * - `@proves contract-product.feature:508` — a subscription
+ * - `@proves contract-product.feature:509` — a subscription already asked to stop
+ *
+ * Rows 506 and 507 are the REFUSAL direction and assert BOTH limbs the
+ * `<offered>` column names — the consolidation choice AND stopping it
+ * renewing — never only the first. Rows 508 and 509 are the PARITY-LOSS
+ * direction: an over-refusing surface silently withholds from a subscription
+ * what this Outline only ever meant to withhold from a one-off.
+ */
+describe("useContractProduct — what a one-off purchase is offered, and what a subscription still is (AC-11)", () => {
+  it.each([
+    ["a one-off purchase, live", { billing_cycle_months: 0 }],
+    [
+      "a one-off purchase, still pending",
+      {
+        billing_cycle_months: 0,
+        status: { code: ContractStatusCodes.PENDING }
+      }
+    ]
+  ])(
+    "AC-11 %s is offered neither the consolidation choice nor a renewal stop — forcing either makes no request",
+    async (_kind, overrides) => {
+      const { manager, row } = await openManagerWith(overrides);
+      const observed = observeAllRequests();
+
+      const consolidationSettled = await settlement(
+        manager.useActions().setConsolidation({
+          invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+        })
+      );
+      const stopSettled = await settlement(manager.useActions().stopRenewing());
+
+      expect(consolidationSettled).toEqual({ resolved: false });
+      expect(stopSettled).toEqual({ resolved: false });
+      observed.stop();
+      expect(
+        observed.matching(
+          `/contracts/${row.contract_id}/products/${row.id}/properties`
+        )
+      ).toEqual([]);
+      expect(
+        observed.matching(
+          `/contracts/${row.contract_id}/products/${row.id}/modify_renew`
+        )
+      ).toEqual([]);
+    }
+  );
+
+  it("AC-11 a subscription is offered both the consolidation choice and a renewal stop — each reaches the wire", async () => {
+    const { manager, row, accessToken } = await openManager();
+    const captured: { renew?: Captured; consolidation?: Captured } = {};
+
+    server?.use(
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/properties`,
+        async ({ request }) => {
+          captured.consolidation = {};
+          capture(request, captured.consolidation);
+          captured.consolidation.body = await request.json();
+          return HttpResponse.json(recorded.consolidationSet(), {
+            status: 200
+          });
+        }
+      ),
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+        async ({ request }) => {
+          captured.renew = {};
+          capture(request, captured.renew);
+          captured.renew.body = await request.json();
+          return HttpResponse.json(recorded.softCancelled(), { status: 200 });
+        }
+      )
+    );
+
+    await manager.useActions().setConsolidation({
+      invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+    });
+    await manager.useActions().stopRenewing();
+
+    expect(captured.consolidation?.request).toBeDefined();
+    expect(captured.renew?.request).toBeDefined();
+    assertClientIdentityTransport(
+      captured.consolidation!.request!,
+      accessToken
+    );
+    assertClientIdentityTransport(captured.renew!.request!, accessToken);
+    expect(captured.consolidation!.body).toEqual({
+      invoice_consolidation_enabled: InvoiceConsolidationTypes.ENABLED
+    });
+    expect(captured.renew!.body).toEqual({ renew: false });
+  });
+
+  it("AC-11 a subscription that already asked to stop is still offered the consolidation choice, and aborting that stop in place of stopping it", async () => {
+    const { manager, row, accessToken } = await openExpiringManager();
+    const captured: { renew?: Captured; consolidation?: Captured } = {};
+
+    server?.use(
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/properties`,
+        async ({ request }) => {
+          captured.consolidation = {};
+          capture(request, captured.consolidation);
+          captured.consolidation.body = await request.json();
+          return HttpResponse.json(recorded.consolidationSet(), {
+            status: 200
+          });
+        }
+      ),
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+        async ({ request }) => {
+          captured.renew = {};
+          capture(request, captured.renew);
+          captured.renew.body = await request.json();
+          return HttpResponse.json(recorded.softCancelAborted(), {
+            status: 200
+          });
+        }
+      )
+    );
+
+    await manager.useActions().setConsolidation({
+      invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+    });
+    await manager.useActions().resumeRenewing();
+
+    expect(captured.consolidation?.request).toBeDefined();
+    expect(captured.renew?.request).toBeDefined();
+    assertClientIdentityTransport(
+      captured.consolidation!.request!,
+      accessToken
+    );
+    assertClientIdentityTransport(captured.renew!.request!, accessToken);
+    expect(captured.renew!.body).toEqual({ renew: true });
+  });
+});
+
+/**
+ * `@proves contract-product.feature:423` — the `allowed` row of AC-5's
+ * renewal-invoicing-permission Outline (amendment A22(e)). Its sibling row,
+ * `not allowed`, is proven above. Both rows exist because the permission
+ * governs a DIFFERENT change: a module that read it either way — refusing the
+ * stop when the permission is false, or only sending it when true — fails one
+ * of the two.
+ */
+describe("useContractProduct — the renewal-invoicing permission governs neither direction of a renewal stop (AC-5)", () => {
+  it("AC-5 a subscription ALLOWED to switch its renewal invoicing off still stops renewing by the same request", async () => {
+    const { manager, row, accessToken } = await openManagerWith({
+      can_disable_auto_create_renew_invoice: true
+    });
+    const captured: Captured = {};
+
+    server?.use(
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/modify_renew`,
+        async ({ request }) => {
+          capture(request, captured);
+          captured.body = await request.json();
+          return HttpResponse.json(recorded.softCancelled(), { status: 200 });
+        }
+      )
+    );
+
+    await manager.useActions().stopRenewing();
+
+    expect(captured.request).toBeDefined();
+    assertClientIdentityTransport(captured.request!, accessToken);
+    expect(captured.body).toEqual({ renew: false });
   });
 });

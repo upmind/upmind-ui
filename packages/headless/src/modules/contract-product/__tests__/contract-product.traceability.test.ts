@@ -203,11 +203,6 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     disposition: "proves"
   },
   {
-    line: 134,
-    text: "| category name                             |",
-    disposition: "gap"
-  },
-  {
     line: 333,
     text: "And whether it is awaiting setup",
     disposition: "proves"
@@ -270,6 +265,311 @@ const PARTIAL_PROMISES: PartialPromise[] = [
   {
     line: 560,
     text: "| not been asked for them yet  |",
+    disposition: "gap"
+  },
+  {
+    line: 133,
+    text: "| product name                              |",
+    disposition: "proves"
+  },
+  {
+    line: 134,
+    text: "| category name                             |",
+    disposition: "proves"
+  },
+  {
+    line: 135,
+    text: "| category                                  |",
+    disposition: "proves"
+  },
+  {
+    line: 136,
+    text: "| lifecycle status                          |",
+    disposition: "proves"
+  },
+  {
+    line: 137,
+    text: "| whether they are subscriptions or one-off |",
+    disposition: "proves"
+  },
+  {
+    line: 138,
+    text: "| when I bought them                        |",
+    disposition: "proves"
+  },
+  {
+    line: 139,
+    text: "| when they next fall due                   |",
+    disposition: "proves"
+  },
+  {
+    line: 140,
+    text: "| price                                     |",
+    disposition: "proves"
+  },
+  {
+    line: 183,
+    text: "| status                  |",
+    disposition: "proves"
+  },
+  {
+    line: 184,
+    text: "| when I bought them      |",
+    disposition: "proves"
+  },
+  {
+    line: 185,
+    text: "| when they next fall due |",
+    disposition: "proves"
+  },
+  {
+    line: 186,
+    text: "| when they were cancelled |",
+    disposition: "proves"
+  },
+  {
+    line: 197,
+    text: "| first             | forward to the next page  | the next page comes back                                                 |",
+    disposition: "proves"
+  },
+  {
+    line: 198,
+    text: "| second            | back to the previous page | the previous page comes back                                             |",
+    disposition: "proves"
+  },
+  {
+    line: 214,
+    text: "| narrow  |",
+    disposition: "proves"
+  },
+  {
+    line: 215,
+    text: "| order   |",
+    disposition: "proves"
+  },
+  {
+    line: 216,
+    text: "| page    |",
+    disposition: "proves"
+  },
+  {
+    line: 402,
+    text: "| a reason and details | my reason and details travel with the change |",
+    disposition: "proves"
+  },
+  {
+    line: 403,
+    text: "| nothing              | nothing travels in their place               |",
+    disposition: "proves"
+  },
+  {
+    line: 422,
+    text: "| not allowed |",
+    disposition: "proves"
+  },
+  {
+    line: 423,
+    text: "| allowed     |",
+    disposition: "proves"
+  },
+  {
+    line: 437,
+    text: "| opted out         | kept out of my consolidated invoice                 |",
+    disposition: "proves"
+  },
+  {
+    line: 438,
+    text: "| opted in          | joined to my consolidated invoice                   |",
+    disposition: "proves"
+  },
+  {
+    line: 439,
+    text: "| follow my account | consolidated exactly as the rest of my account is   |",
+    disposition: "proves"
+  },
+  {
+    line: 506,
+    text: "| a one-off purchase, live        | the consolidation choice is not offered to me, and neither is stopping it renewing |",
+    disposition: "proves"
+  },
+  {
+    line: 507,
+    text: "| a one-off purchase, still pending | the consolidation choice is not offered to me, and neither is stopping it renewing |",
+    disposition: "proves"
+  },
+  {
+    line: 508,
+    text: "| a subscription                  | the consolidation choice is offered to me, and so is stopping it renewing          |",
+    disposition: "proves"
+  },
+  {
+    line: 509,
+    text: "| a subscription already asked to stop | the consolidation choice is offered to me, and aborting that stop is offered in its place |",
+    disposition: "proves"
+  },
+  {
+    line: 527,
+    text: "| stop the renewal                        |",
+    disposition: "proves"
+  },
+  {
+    line: 528,
+    text: "| abort that stop                         |",
+    disposition: "proves"
+  },
+  {
+    line: 529,
+    text: "| set the consolidation value             |",
+    disposition: "proves"
+  },
+  {
+    line: 530,
+    text: "| book a cancellation for a date I choose |",
+    disposition: "proves"
+  },
+  {
+    line: 531,
+    text: "| revoke that booking                     |",
+    disposition: "proves"
+  },
+  {
+    line: 559,
+    text: "| no billing actions scheduled |",
+    disposition: "proves"
+  },
+  {
+    line: 591,
+    text: "| a reason and details | my reason and details travel with it       |",
+    disposition: "proves"
+  },
+  {
+    line: 592,
+    text: "| nothing              | nothing travels in their place             |",
+    disposition: "proves"
+  },
+  {
+    line: 637,
+    text: "| I open my products                       |",
+    disposition: "proves"
+  },
+  {
+    line: 638,
+    text: "| I open one of my products                |",
+    disposition: "proves"
+  },
+  {
+    line: 639,
+    text: "| I force one of my subscriptions to stop renewing |",
+    disposition: "proves"
+  },
+  {
+    line: 640,
+    text: "| I force a consolidation change           |",
+    disposition: "proves"
+  },
+  {
+    line: 661,
+    text: "| opening one of my products                      |",
+    disposition: "proves"
+  },
+  {
+    line: 662,
+    text: "| stopping one of my subscriptions renewing       |",
+    disposition: "proves"
+  },
+  {
+    line: 663,
+    text: "| changing whether one joins my consolidated invoice |",
+    disposition: "proves"
+  },
+  {
+    line: 664,
+    text: "| booking a cancellation for a date I choose      |",
+    disposition: "proves"
+  },
+  {
+    line: 665,
+    text: "| revoking that booking                           |",
+    disposition: "proves"
+  },
+  {
+    line: 145,
+    text: "Scenario: Clearing what I asked for brings all my products back",
+    disposition: "gap"
+  },
+  {
+    line: 168,
+    text: "| has chosen to hide  | nothing             | only my subscriptions come back |",
+    disposition: "gap"
+  },
+  {
+    line: 169,
+    text: "| has chosen to hide  | one-off purchases   | only my subscriptions come back — my brand's choice outranks mine |",
+    disposition: "gap"
+  },
+  {
+    line: 170,
+    text: "| has made no choice about | nothing        | all my products come back |",
+    disposition: "gap"
+  },
+  {
+    line: 171,
+    text: "| has made no choice about | one-off purchases | my one-off purchases come back |",
+    disposition: "gap"
+  },
+  {
+    line: 199,
+    text: "| first             | forward to the last page  | the last page comes back and I am told there is no further page to go to |",
+    disposition: "gap"
+  },
+  {
+    line: 227,
+    text: "| see    | the products delegated to me are included alongside my own |",
+    disposition: "gap"
+  },
+  {
+    line: 228,
+    text: "| hide   | only my own products come back                          |",
+    disposition: "gap"
+  },
+  {
+    line: 243,
+    text: "| see    |",
+    disposition: "gap"
+  },
+  {
+    line: 244,
+    text: "| hide   |",
+    disposition: "gap"
+  },
+  {
+    line: 263,
+    text: "| see    | my products still include the ones delegated to me          |",
+    disposition: "gap"
+  },
+  {
+    line: 264,
+    text: "| hide   | my products still leave out the ones delegated to me        |",
+    disposition: "gap"
+  },
+  {
+    line: 305,
+    text: "| see delegated     |",
+    disposition: "gap"
+  },
+  {
+    line: 306,
+    text: "| hide delegated    |",
+    disposition: "gap"
+  },
+  {
+    line: 351,
+    text: "And it tells me the date it will end, and that it is ending because I asked it to stop renewing",
+    disposition: "gap"
+  },
+  {
+    line: 502,
+    text: "And forcing a consolidation change anyway makes no request and is refused",
     disposition: "gap"
   }
 ];
@@ -390,6 +690,87 @@ describe("contract-product — every contract-product.feature @AC-n scenario is 
     ].map(match => match[0]);
     expect(found.length).toBeGreaterThan(0);
     expect(found.filter(marker => !declared.has(marker))).toEqual([]);
+  });
+
+  /**
+   * THE OUTLINE-ROW FLOOR — the detection mechanism the ledger above is not.
+   * `PARTIAL_PROMISES` is a hand-curated allow-list: it carries the
+   * disposition of a half-promise already found, and is blind to one nobody
+   * thought to write down. A `Scenario Outline` is where that blindness bites
+   * hardest, because each Examples row is a NAMED, independently falsifiable
+   * promise, and the id+scenario cardinality floor counts the whole Outline as
+   * ONE scenario — so an Outline proven on one row and silent on four passes
+   * every other check in this file.
+   *
+   * This check is DERIVED from the feature, not declared here: it parses every
+   * Examples data row out of `contract-product.feature` and fails when one has no
+   * ledger entry at its own line. Adding a row to the feature — or splitting a
+   * packed line into rows, which is exactly what the last repair did — makes
+   * this check fail until each new row is either proven (`proves` + a marker on
+   * the proving test) or reported with its cause (`gap` + a KNOWN GAP marker).
+   */
+  const exampleRowLines: number[] = (() => {
+    const rows: number[] = [];
+    let inExamples = false;
+    let headerPending = false;
+    featureLines.forEach((rawLine, index) => {
+      const line = rawLine.trim();
+      if (/^Scenario(?: Outline)?:/.test(line)) {
+        inExamples = false;
+        return;
+      }
+      if (/^Examples:/.test(line)) {
+        inExamples = true;
+        headerPending = true;
+        return;
+      }
+      if (inExamples && line.startsWith("|")) {
+        if (headerPending) {
+          headerPending = false;
+          return;
+        }
+        rows.push(index + 1);
+        return;
+      }
+      if (inExamples && line.length > 0 && !line.startsWith("#")) {
+        inExamples = false;
+      }
+    });
+    return rows;
+  })();
+
+  it("finds Examples rows to grade, so this check itself is not vacuous", () => {
+    expect(exampleRowLines.length).toBeGreaterThan(0);
+  });
+
+  it.each(exampleRowLines)(
+    "contract-product.feature:%s — this Examples row carries a disposition in the ledger",
+    line => {
+      const declared = new Set(PARTIAL_PROMISES.map(promise => promise.line));
+      expect(declared.has(line)).toBe(true);
+    }
+  );
+
+  /**
+   * The AC-18 disclaimer docblock `contract-product.utils.must-fail.patch`
+   * cites is anchored by the describe TITLE it opens, never by a line number:
+   * two earlier revisions of that header cited a line, and an insertion above
+   * the block orphaned both. This check fails if the title moves out of that
+   * file or is reworded, so the header cannot rot silently a third time.
+   */
+  it("the AC-18 disclaimer this patch header cites still opens resolveExcludeDelegated's describe", () => {
+    const utils = files.find(
+      entry => entry.file === "contract-product.utils.test.ts"
+    );
+    const patch = readFileSync(
+      join(TESTS_DIR, "contract-product.utils.must-fail.patch"),
+      "utf-8"
+    );
+    const title =
+      "resolveExcludeDelegated — the exclude_delegated flag the scope";
+    expect(utils?.content).toContain(`describe("${title} sends"`);
+    expect(patch).toContain(title);
+    expect(patch).not.toMatch(/contract-product\.utils\.test\.ts:\d+/);
   });
 
   it("names no test-TITLE AC-n claim absent from contract-product.feature (no stale/untethered test)", () => {
