@@ -39,7 +39,8 @@ import { useContractProduct, useContractProducts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   ContractProductCancelOption,
-  ContractProductFormTypes
+  ContractProductFormTypes,
+  type CancellationModel
 } from "../contract-product.types";
 import {
   assertClientIdentityTransport,
@@ -1260,34 +1261,50 @@ describe("useContractProduct — I ask for one of my products to be cancelled ou
     expect(observed.matching("/cancel/request")).toEqual([]);
     expect(observed.matching("/schedule-cancel")).toEqual([]);
     expect(manager.useMeta().hasError.value).toBe(true);
-    expect(
-      (manager.useContext().error.value as { code?: number } | undefined)?.code
-    ).toBe(422);
+    const invalidError = manager.useContext().error.value as
+      | { code?: number; message?: string }
+      | undefined;
+    expect(invalidError?.code).toBe(422);
+    expect(invalidError?.message).toBe(
+      "error.contract_product_validation_failed"
+    );
     // The form stays open on its own status node — the write never left it.
     expect(manager.useContext().cancellation.value).toBeTruthy();
     expect(manager.useMeta().isActive.value).toBe(true);
   });
 
   /**
-   * The validate-before-request guard on the hard-cancellation write: an empty
-   * `productIds` is rejected BEFORE the `POST cancel/request` fires, so NO
-   * request leaves and the 422 lands in the error region. Mutant:
-   * `contract-product.mutations.validation.must-fail.patch`.
+   * The validate-before-request guard on the hard-cancellation write. The
+   * combined cancellation schema is `additionalProperties: false` and declares
+   * only `option`, `futureCancellationDate`, `reason` and `customFields`, so a
+   * model carrying an undeclared field is rejected BEFORE the
+   * `POST cancel/request` fires: NO request leaves and the 422 lands in the
+   * error region. Mutant: `contract-product.mutations.validation.must-fail.patch`.
    */
-  it("AC-6 requestCancellation with an empty product list makes NO request and rejects with a 422 (validate-before-request)", async () => {
-    const { manager } = await openManager();
+  it("AC-6 a HARD model carrying a field the form does not declare is refused before any request (422, no POST)", async () => {
+    const { manager } = await openCancellationForm();
     const observed = observeAllRequests();
 
+    const undeclaredFieldModel: Partial<CancellationModel> & {
+      unexpected: boolean;
+    } = { option: ContractProductCancelOption.HARD, unexpected: true };
+    await manager
+      .useActions()
+      .set(ContractProductFormTypes.CANCELLATION, undeclaredFieldModel);
     await expect(
-      manager.useActions().requestCancellation({ productIds: [] })
+      manager.useActions().submitCancellation()
     ).rejects.toBeDefined();
 
     observed.stop();
     expect(observed.matching("/cancel/request")).toEqual([]);
     expect(manager.useMeta().hasError.value).toBe(true);
-    expect(
-      (manager.useContext().error.value as { code?: number } | undefined)?.code
-    ).toBe(422);
+    const refusalError = manager.useContext().error.value as
+      | { code?: number; message?: string }
+      | undefined;
+    expect(refusalError?.code).toBe(422);
+    expect(refusalError?.message).toBe(
+      "error.contract_product_validation_failed"
+    );
   });
 });
 
@@ -1372,6 +1389,47 @@ describe("useContractProduct — the cancellation form is hidden where legacy hi
   });
 
   /**
+   * The legacy whole-entry hide ported (o7 `:257-258`, ADR-27): a product with
+   * a scheduled future cancellation, and a product with a hard request already
+   * pending, are each refused the cancellation form outright — `openCancellation`
+   * leaves its slot empty. Mutant:
+   * `contract-product.mutations.cancellation-whole-entry-hide.must-fail.patch`.
+   */
+  it("AC-11 a product with a scheduled future cancellation is offered no cancellation form — the open is refused, its slot left empty", async () => {
+    const scheduled = {
+      ...(recorded.one().data as Record<string, unknown> & { id: string }),
+      contract_request: {
+        status: {
+          code: CancellationRequestStatusCodes.REQUEST_SCHEDULED_FUTURE_CANCELLATION
+        }
+      }
+    };
+    const { manager } = await openCancellationForm(scheduled);
+    expect(manager.useContext().cancellation.value).toBeFalsy();
+  });
+
+  it("AC-11 a product with a hard cancellation request already pending is offered no cancellation form — the open is refused, its slot left empty", async () => {
+    const { manager } = await openCancellationForm(cancellingRow());
+    expect(manager.useContext().cancellation.value).toBeFalsy();
+  });
+
+  /**
+   * The parity-loss direction of the auto-expire hide (`hasAutoExpireEnabled` is
+   * `!renew && calculated_cancel_date`): auto-renew off WITHOUT a calculated
+   * cancel date is NOT the expiring state legacy hides, so the cancellation form
+   * is still offered. An over-hiding surface silently withholds it.
+   */
+  it("AC-11 a subscription with auto-renew off but no calculated cancel date is still offered the cancellation form — legacy offers it", async () => {
+    const offered = {
+      ...(recorded.one().data as Record<string, unknown> & { id: string }),
+      renew: false,
+      calculated_cancel_date: null
+    };
+    const { manager } = await openCancellationForm(offered);
+    expect(manager.useContext().cancellation.value).toBeTruthy();
+  });
+
+  /**
    * The pending-contract eligibility gate: a product on a PENDING contract is
    * not yet cancellable at the end of a term, so the cancellation form offers
    * only the immediate (HARD) option — SCHEDULE_FUTURE and the soft end-of-term
@@ -1408,6 +1466,114 @@ describe("useContractProduct — the cancellation form is hidden where legacy hi
     expect(options).toBeDefined();
     expect(options).not.toContain(ContractProductCancelOption.SCHEDULE_FUTURE);
   });
+});
+
+/**
+ * Opens the manager over a REAL row whose owning-client consolidation
+ * preference (`contract.client.invoice_consolidation_enabled`) or catalogue
+ * product setting (`product.invoice_consolidation_enabled`) is overridden — one
+ * real scalar of that field replaced with another, the rest of the record real.
+ */
+async function openConsolidationManager(
+  row: Record<string, unknown> & { id: string }
+) {
+  const { accessToken } = await seedClientSession();
+  installProductHandler(server, row);
+  const manager = useContractProduct()
+    .as(ScopeActorTypes.CLIENT)
+    .withId(row.id);
+  await manager.useActions().isReady();
+  return { manager, accessToken };
+}
+
+type ConsolidationRow = Record<string, unknown> & {
+  id: string;
+  contract_id: string;
+  contract?: Record<string, unknown> & { client?: Record<string, unknown> };
+  product?: Record<string, unknown>;
+};
+
+function withClientConsolidation(value: number): ConsolidationRow {
+  const base = recorded.one().data as ConsolidationRow;
+  return {
+    ...base,
+    contract: {
+      ...(base.contract ?? {}),
+      client: {
+        ...(base.contract?.client ?? {}),
+        invoice_consolidation_enabled: value
+      }
+    }
+  };
+}
+
+function withProductConsolidation(value: number | null): ConsolidationRow {
+  const base = recorded.one().data as ConsolidationRow;
+  return {
+    ...base,
+    product: { ...(base.product ?? {}), invoice_consolidation_enabled: value }
+  };
+}
+
+/**
+ * The consolidation form is offered only where BOTH the owning client's
+ * consolidation preference is enabled or inherited (never DISABLED) AND the
+ * catalogue product carries the setting (legacy `cProdInvoiceConsolidationComp`
+ * :74-97, W1). A refused product leaves the form slot empty on open, and its
+ * `setConsolidation` resolves `false` with no request. Mutant:
+ * `contract-product.mutations.consolidation-open-guard.must-fail.patch`.
+ */
+describe("useContractProduct — the consolidation form is offered only where the client and the product both allow it (AC-9, R35)", () => {
+  it.each([
+    [
+      "the client's consolidation preference is disabled",
+      () => withClientConsolidation(InvoiceConsolidationTypes.DISABLED)
+    ],
+    [
+      "the product carries no consolidation setting",
+      () => withProductConsolidation(null)
+    ]
+  ])(
+    "AC-9 %s: openConsolidation leaves the form empty, and setConsolidation resolves false without a request",
+    async (_case, build) => {
+      const row = build();
+      const { manager } = await openConsolidationManager(row);
+
+      await manager.useActions().openConsolidation();
+      expect(manager.useContext().consolidation.value).toBeFalsy();
+
+      const observed = observeAllRequests();
+      const settled = await settlement(
+        manager.useActions().setConsolidation({
+          invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+        })
+      );
+      observed.stop();
+
+      expect(settled).toEqual({ resolved: false });
+      expect(
+        observed.matching(
+          `/contracts/${row.contract_id}/products/${row.id}/properties`
+        )
+      ).toEqual([]);
+    }
+  );
+
+  it.each([
+    ["enabled", InvoiceConsolidationTypes.ENABLED],
+    ["inherited", InvoiceConsolidationTypes.INHERIT]
+  ])(
+    "AC-9 a subscription whose client consolidation preference is %s, with the product setting present, IS offered the form — legacy offers it",
+    async (_case, clientValue) => {
+      const { manager } = await openConsolidationManager(
+        withClientConsolidation(clientValue)
+      );
+
+      await manager.useActions().openConsolidation();
+
+      expect(manager.useContext().consolidation.value).toBeTruthy();
+    }
+  );
 });
 
 describe("useContractProduct — every write runs through the one processing state (AC-25)", () => {

@@ -152,8 +152,10 @@ describe("useContract payment-method form — the stored-card enum (AC-8, D3)", 
         .filter(request => request.method === "PATCH")
     ).toEqual([]);
     expect(manager.useMeta().hasError.value).toBe(true);
-    expect(
-      (manager.useContext().error.value as { code?: number } | undefined)?.code
-    ).toBe(422);
+    const validationError = manager.useContext().error.value as
+      | { code?: number; message?: string }
+      | undefined;
+    expect(validationError?.code).toBe(422);
+    expect(validationError?.message).toBe("error.contract_validation_failed");
   });
 });
