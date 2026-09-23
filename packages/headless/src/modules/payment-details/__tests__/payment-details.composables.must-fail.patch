@@ -1,0 +1,37 @@
+# Negative-control mutant — the mapper stops reading a gap-keyed stored list (FE-3130)
+#
+# Scenario it must flip: the client's stored-card list arrives as a gap-keyed
+#   OBJECT (`data` keyed `0..5,13..19`, not an array — the API filtered rows
+#   server-side and did not reindex), and every card the client holds must still
+#   reach the page.
+# Test that goes red: payment-details.composables.int.test.ts >
+#   "AC-A1 shows the page one blank card where the client holds thirteen"
+#   — once re-anchored to the FIXED behaviour (the page holds the client's real
+#   thirteen cards, `data.value[0].id` defined). This mutant restores the old
+#   `[raw]` wrap, so the gap-keyed object collapses to ONE id-less record that
+#   `filterPaymentDetails` then drops, and the assertion flips.
+#   The `it.fails` receipt in payment-details.int.test.ts ("offers the client
+#   every method they hold, their default one first") and the AC-A1 default-method
+#   case flip as collateral.
+# Mutation: `mapPaymentDetails` drops the gap-keyed-object leg and re-wraps a
+#   non-array as `[raw]`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/payment-details/payment-details.mappers.ts b/packages/headless/src/modules/payment-details/payment-details.mappers.ts
+index 59ec2a9cd..4fe15c0ea 100644
+--- a/packages/headless/src/modules/payment-details/payment-details.mappers.ts
++++ b/packages/headless/src/modules/payment-details/payment-details.mappers.ts
+@@ -81,11 +81,7 @@ export function mapAccountCredit(
+ export function mapPaymentDetails(
+   raw: IPaymentDetail | IPaymentDetail[] | Record<string, IPaymentDetail>
+ ): PaymentDetail[] {
+-  const rawListings = isArray(raw)
+-    ? raw
+-    : has(raw, "id")
+-      ? [raw as IPaymentDetail]
+-      : values(raw as Record<string, IPaymentDetail>);
++  const rawListings = isArray(raw) ? raw : [raw];
+   return map(rawListings, mapPaymentDetail);
+ }
+ 
