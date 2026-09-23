@@ -66,16 +66,19 @@ export type ContractScopeMatrix = typeof CONTRACT_SCOPE_MATRIX;
 // MACHINE STATE — the eight reportable nodes of flow.md section 3
 // -----------------------------------------------------------------------------
 
-/** The typed state values of `contract.machine.ts`. */
+/** The typed state values of `contract.machine.ts`. `available` and
+ * `unavailable` are parallel over a `status` region and a
+ * `changingPaymentMethod` form region (R35), so every status node sits under
+ * `.status`. */
 export enum ContractState {
-  PENDING = "available.pending",
-  INACTIVE = "available.inactive",
-  ACTIVE = "available.active",
-  SUSPENDED = "available.suspended",
-  CANCELLING = "available.cancelling",
-  CANCELLED = "unavailable.cancelled",
-  LAPSED = "unavailable.lapsed",
-  FRAUD = "unavailable.fraud"
+  PENDING = "available.status.pending",
+  INACTIVE = "available.status.inactive",
+  ACTIVE = "available.status.active",
+  SUSPENDED = "available.status.suspended",
+  CANCELLING = "available.status.cancelling",
+  CANCELLED = "unavailable.status.cancelled",
+  LAPSED = "unavailable.status.lapsed",
+  FRAUD = "unavailable.status.fraud"
 }
 
 // -----------------------------------------------------------------------------
@@ -131,9 +134,16 @@ export type ContractLoaded = {
 /**
  * The model a write form carries — parsed and validated before its service
  * runs. The contract holds ONE payment-method form (R34), so the write model is
- * `SetPaymentMethodModel` alone (auth's single-`model` shape).
+ * `SetPaymentMethodModel` alone.
  */
 export type ContractWriteModel = SetPaymentMethodModel;
+
+/** One open write form — its own `context.paymentMethod` slot (R35). */
+export type ContractForm = {
+  schema?: JsonSchema7;
+  uischema?: UISchemaElement;
+  model?: Partial<ContractWriteModel>;
+};
 
 // -----------------------------------------------------------------------------
 // MACHINE CONTEXT — as `OrderContext` (R24); single form slot (auth shape)
@@ -159,14 +169,8 @@ export type ContractContext = {
   /** The reused lookups the payment-method form draws from (`loadLookups`). */
   lookups?: ContractLookups;
 
-  /** The open form's model — set on open (empty), re-set by `SET`, parsed against `schema`. */
-  model?: Partial<ContractWriteModel>;
-
-  /** The open form's schema — `parse` shapes against it and `validate` checks against it. */
-  schema?: JsonSchema7;
-
-  /** The open form's uischema — set on open, read by the labs editor. */
-  uischema?: UISchemaElement;
+  /** The open payment-method form's OWN slot: `schema`, `uischema` and `model` (R35). */
+  paymentMethod?: ContractForm;
 };
 
 // -----------------------------------------------------------------------------
@@ -217,16 +221,10 @@ export type ContractServices = {
 export type ContractMachineServices = {
   /** `loading` — the raw contract read plus its reused stored-cards lookup. */
   load: (context: ContractContext) => Promise<ContractLoaded>;
-  /** `paymentMethod.available.checking.parsing` — shapes the model against `schema`. */
-  parse: (
-    context: ContractContext,
-    event: AnyEventObject
-  ) => Promise<ContractWriteModel>;
-  /** `*.validating` — rejects with a 422 `DetailedError` on invalid. */
-  validate: (context: ContractContext, event: AnyEventObject) => Promise<void>;
-  /** `paymentMethod.processing.settingPaymentMethod.updating`. */
+  /** `changingPaymentMethod.available.checking` / `.processing.*.validating` — rejects with a 422 on invalid. */
+  validatePaymentMethod: (context: ContractContext) => Promise<void>;
+  /** `changingPaymentMethod.processing.settingPaymentMethod.updating`. */
   setPaymentMethod: (
-    context: ContractContext,
-    event: AnyEventObject
+    context: ContractContext
   ) => Promise<IContract | undefined>;
 };

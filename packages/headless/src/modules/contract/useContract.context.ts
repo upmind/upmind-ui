@@ -1,10 +1,9 @@
 import { computed } from "vue";
 import { useContext } from "../../utils";
 import { get } from "lodash-es";
-import type { Contract, ContractWriteModel } from "./contract.types";
+import type { Contract, ContractForm } from "./contract.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
@@ -16,9 +15,10 @@ import type {
  * @description Manager context — the reactive read side of the machine
  * context. Every member goes through the `useContext` state-read utility;
  * `state.value.context` is never read directly. `error` is the machine's
- * captured failure — read, never raised. The ONE write form is read off the
- * single `schema`/`uischema`/`model` slot (auth shape), which the machine sets
- * on the `PAYMENT_METHOD` open transition; nothing is fetched or composed here.
+ * captured failure — read, never raised. The ONE write form is read off its own
+ * `paymentMethod` slot (`schema`/`uischema`/`model`, R35), which the machine
+ * sets on the `PAYMENT_METHOD` open transition; nothing is fetched or composed
+ * here.
  *
  * @doctrine clause 2 — shared-only (armless).
  */
@@ -63,22 +63,17 @@ export function createContractContext(
     /** The id of the contract being managed. */
     id: useContext<IContract["id"]>(state, "contractId"),
 
-    /** The open form's parsed model — set on open, re-set by `SET`/`parse`. */
-    model: useContext<ContractWriteModel>(state, "model"),
+    /**
+     * The open payment-method form: `schema`, `uischema` and the parsed `model`
+     * (R35), set on the `PAYMENT_METHOD` open transition and offering the
+     * client's stored payment methods. A surface renders it and submits its
+     * model to `submitPaymentMethod`; the machine parses and validates against
+     * its schema.
+     */
+    paymentMethod: useContext<ContractForm | undefined>(state, "paymentMethod"),
 
     /** The raw `IContract` API response beside the view model. */
-    rawContract,
-
-    /**
-     * The open payment-method form's schema (auth shape), set on the
-     * `PAYMENT_METHOD` open transition and offering the client's stored payment
-     * methods. A surface renders it with {@link uischema} and submits its model
-     * to `submitPaymentMethod`; the machine parses and validates against it.
-     */
-    schema: useContext<JsonSchema7>(state, "schema"),
-
-    /** The open payment-method form's uischema (auth shape). */
-    uischema: useContext<UISchemaElement>(state, "uischema")
+    rawContract
   };
 }
 

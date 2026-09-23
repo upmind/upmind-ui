@@ -7,17 +7,15 @@ import { resolveClientId, useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { mapContracts, toPaymentMethodBody } from "./contract.mappers";
 import { useQuerySchema } from "./contract.schemas";
+import { validateForm } from "./contract.utils";
 import {
   DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   NotAuthenticatedError,
   responseCodes,
-  useModelParser,
-  useTime,
-  useValidation
+  useTime
 } from "../../utils";
-import { isEmpty } from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
   Contract,
@@ -27,7 +25,6 @@ import type {
   ContractMachineServices,
   ContractServices,
   ContractListQuery,
-  ContractWriteModel,
   QueryModel,
   SetPaymentMethodModel
 } from "./contract.types";
@@ -193,40 +190,17 @@ async function loadLookups(): Promise<ContractLookups> {
   return { storedPaymentMethods: payments.data.value };
 }
 
-/** `paymentMethod.available.checking.parsing` — shapes the model against `schema`. */
-async function parse({
-  model = {},
-  schema
-}: ContractContext): Promise<ContractWriteModel> {
-  if (!schema) return model as ContractWriteModel;
-
-  return useModelParser(
-    schema,
-    model as Record<string, unknown>
-  ) as ContractWriteModel;
+/** `changingPaymentMethod.*.validating` — rejects with a 422 on an invalid model. */
+async function validatePaymentMethod({
+  paymentMethod
+}: ContractContext): Promise<void> {
+  return validateForm(paymentMethod);
 }
 
-/** `*.validating` — rejects with a 422 carrying the AJV errors on invalid. */
-async function validate({ schema, model }: ContractContext): Promise<void> {
-  if (!schema) return;
-
-  const { validate: doValidate } = useValidation();
-  const errors = doValidate(schema, model);
-
-  if (!isEmpty(errors)) {
-    throw new DetailedError(
-      "Validation failed",
-      responseCodes.Unprocessable_Entity,
-      ErrorOrigin.Headless,
-      errors
-    );
-  }
-}
-
-/** `paymentMethod.processing.settingPaymentMethod.updating` — `PATCH contracts/{id}/payment_details` (design 8.3). */
+/** `changingPaymentMethod.processing.settingPaymentMethod.updating` — `PATCH contracts/{id}/payment_details` (design 8.3). */
 async function setPaymentMethod({
   contractId,
-  model
+  paymentMethod
 }: ContractContext): Promise<IContract | undefined> {
   if (!contractId) return Promise.reject(notAvailable(contractId));
 
@@ -235,7 +209,7 @@ async function setPaymentMethod({
   return patch<IContract>({
     mutationKey: [...queryKey, contractId, "payment-method"],
     url: useUrl(`contracts/${contractId}/payment_details`),
-    data: toPaymentMethodBody(model as SetPaymentMethodModel),
+    data: toPaymentMethodBody(paymentMethod?.model as SetPaymentMethodModel),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
@@ -243,8 +217,7 @@ async function setPaymentMethod({
 /** The XState services map `contract.machine.ts` passes as `services`. */
 export const contractMachineServices: ContractMachineServices = {
   load,
-  parse,
-  validate,
+  validatePaymentMethod,
   setPaymentMethod
 };
 

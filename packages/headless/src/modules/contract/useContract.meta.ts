@@ -35,8 +35,11 @@ export function createContractMeta(
       () => stateMatches(state, ["subscribing", "loading"]) && !hasError.value
     ),
 
-    /** True while a write is being processed. */
-    isSubmitting: useStateMatches(state, "processing"),
+    /** True while the payment-method write is being processed, from either parent. */
+    isSubmitting: useStateMatches(state, [
+      "available.changingPaymentMethod.processing",
+      "unavailable.changingPaymentMethod.processing"
+    ]),
 
     /** True in `available.pending`. */
     isPending: useStateMatches(state, ContractState.PENDING),

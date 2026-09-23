@@ -43,24 +43,38 @@ export function createContractActions(
     return waitForProcessing(service, ["available", "unavailable"]);
   }
 
-  async function settled(failureKey: string): Promise<Contract | false> {
-    if (!stateMatches(service, "paymentMethod.processing")) return false;
-
-    await waitForProcessing(service, ["available", "unavailable"]);
+  /**
+   * Resolves the re-read contract once the payment-method form write settles.
+   * @throws {DetailedError} when the model is invalid or the write failed.
+   */
+  async function resolveFormWrite(failureKey: string): Promise<Contract> {
+    const settled = await waitForProcessing(
+      service,
+      [
+        "available.changingPaymentMethod.idle",
+        "unavailable.changingPaymentMethod.idle"
+      ],
+      [
+        "available.changingPaymentMethod.available.error",
+        "unavailable.changingPaymentMethod.available.error"
+      ]
+    );
 
     const error = contextValue<ResponseError>(state, "error");
-    if (!isNil(error)) {
+    const contract = contextValue<Contract>(state, "contract");
+
+    if (!isNil(error) || !settled || isNil(contract)) {
       return Promise.reject(
         new DetailedError(
           t(failureKey),
-          error.status ?? responseCodes.Timeout,
+          error?.status ?? responseCodes.Timeout,
           ErrorOrigin.Headless,
           { error, state: state.value.value }
         )
       );
     }
 
-    return contextValue<Contract>(state, "contract") as Contract;
+    return contract;
   }
 
   /** Opens the payment-method form (AC8) — the machine builds its schema on entry. */
@@ -70,12 +84,12 @@ export function createContractActions(
 
   /** Feeds a model into the open form; the machine parses and validates it. */
   function set(model: Partial<SetPaymentMethodModel>): void {
-    send({ type: "SET", data: model });
+    send({ type: "SET.PAYMENT_METHOD", data: model });
   }
 
   /** Closes the open form and re-places the node, form cleared. */
   function cancelForm(): void {
-    send({ type: "CANCEL" });
+    send({ type: "CANCEL.PAYMENT_METHOD" });
   }
 
   /**
@@ -85,7 +99,14 @@ export function createContractActions(
   async function submitPaymentMethod(): Promise<Contract | false> {
     send({ type: "SET_PAYMENT_METHOD" });
 
-    return settled("error.contract_set_payment_method_failed");
+    if (
+      !stateMatches(state, "available.changingPaymentMethod.processing") &&
+      !stateMatches(state, "unavailable.changingPaymentMethod.processing")
+    ) {
+      return false;
+    }
+
+    return resolveFormWrite("error.contract_set_payment_method_failed");
   }
 
   /**

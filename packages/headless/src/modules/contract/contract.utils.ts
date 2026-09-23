@@ -3,8 +3,14 @@ import {
   ContractStatusCodes
 } from "@upmind-automation/types";
 import { ContractState } from "./contract.types";
-import { get } from "lodash-es";
-import type { Contract } from "./contract.types";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useValidation
+} from "../../utils";
+import { get, isEmpty } from "lodash-es";
+import type { Contract, ContractForm } from "./contract.types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract/contract.utils
@@ -45,5 +51,28 @@ export function selectContractStatusNode(
       return ContractState.SUSPENDED;
     default:
       return undefined;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Write form
+
+/** Rejects with a 422 carrying the AJV errors when the form's model is invalid. */
+export async function validateForm({
+  schema,
+  model
+}: ContractForm = {}): Promise<void> {
+  if (!schema) return;
+
+  const { validate } = useValidation();
+  const errors = validate(schema, model);
+
+  if (!isEmpty(errors)) {
+    throw new DetailedError(
+      "Validation failed",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      errors
+    );
   }
 }

@@ -15,46 +15,33 @@ import {
   ErrorOrigin,
   mapToHeadlessError,
   responseCodes,
+  useModelParser,
   useValidationParser
 } from "../../utils";
 import { isNil } from "lodash-es";
-import type { ContractContext, ContractLoaded } from "./contract.types";
+import type {
+  ContractContext,
+  ContractLoaded,
+  ContractWriteModel
+} from "./contract.types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract/contract.machine
- * @description The contract manager machine — flow.md section 3 on the house
- * spine of `orders/order.machine.ts` (R4, R20, R20a). Eight status nodes:
- * `available.{pending,inactive,active,suspended,cancelling}` and
- * `unavailable.{cancelled,lapsed,fraud}`. The contract keeps only contract
- * facts (R34): every cancellation write moved to `contract-product` with R33,
- * so the ONE write it owns is the payment-method form.
- *
- * @decision the payment-method write is a FORM (auth shape), not a bare
- *   `processing` transition (R33 form shape, operator ruling 2026-09-23).
- * what: `PAYMENT_METHOD` opens the form (the open transition sets its
- *   `schema`/`uischema`/`model` from the stored-card lookup), `SET` runs
- *   `parse` → `validate` (→ `valid`/`invalid`), `SET_PAYMENT_METHOD` submits
- *   through `processing.settingPaymentMethod` (`validating` → `updating`), and
- *   `CANCEL` closes the form back onto the status node.
- * why: house law (auth, account) renders and validates a write through a form
- *   node; the labs editor needs the single `schema`/`uischema` slot on context.
- * rejected: the `schemas` map on context (dropped with R28's amendment
- *   withdrawn); a bare status-node transition straight to `processing`.
+ * @description The contract manager machine (R4) on the house write spine of
+ * `orders/order.machine.ts` (R20, R20a). `available` and `unavailable` are each
+ * parallel over `status` and the `changingPaymentMethod` write form (R35), so an
+ * open form never leaves the status node. The contract keeps only contract facts
+ * (R34): every cancellation write moved to `contract-product` with R33, so the
+ * ONE write it owns is the payment-method form. That form is offered on every
+ * `available` status node and, per R13, on `unavailable.cancelled` and
+ * `unavailable.lapsed` (`canChangePaymentMethod` refuses `fraud` alone).
  */
 
 function isNode(node: ContractState) {
   return ({ contract }: ContractContext) =>
     !!contract && selectContractStatusNode(contract) === node;
 }
-
-/** The open + submit + cancel handlers every status node carries for the form. */
-const paymentMethodOn = {
-  PAYMENT_METHOD: {
-    target: "#paymentMethod",
-    actions: "setPaymentMethodSchemas"
-  }
-};
 
 export default createMachine(
   {
@@ -81,130 +68,207 @@ export default createMachine(
           onError: { actions: ["setError"] }
         },
         always: [
-          { target: "#unavailable.cancelled", cond: "isCancelled" },
-          { target: "#unavailable.lapsed", cond: "isLapsed" },
-          { target: "#unavailable.fraud", cond: "isFraud" },
-          { target: "#available.cancelling", cond: "isCancelling" },
-          { target: "#available.pending", cond: "isPending" },
-          { target: "#available.inactive", cond: "isInactive" },
-          { target: "#available.suspended", cond: "isSuspended" },
-          { target: "#available.active", cond: "isActive" },
+          { target: ContractState.CANCELLED, cond: "isCancelled" },
+          { target: ContractState.LAPSED, cond: "isLapsed" },
+          { target: ContractState.FRAUD, cond: "isFraud" },
+          { target: ContractState.CANCELLING, cond: "isCancelling" },
+          { target: ContractState.PENDING, cond: "isPending" },
+          { target: ContractState.INACTIVE, cond: "isInactive" },
+          { target: ContractState.SUSPENDED, cond: "isSuspended" },
+          { target: ContractState.ACTIVE, cond: "isActive" },
           { cond: "isUnrecognised", actions: ["setStatusError"] }
         ]
       },
 
       available: {
         id: "available",
+        type: "parallel",
         states: {
-          pending: { on: paymentMethodOn },
-          inactive: { on: paymentMethodOn },
-          active: { on: paymentMethodOn },
-          suspended: { on: paymentMethodOn },
-          cancelling: { on: paymentMethodOn }
+          status: {
+            states: {
+              pending: {},
+              inactive: {},
+              active: {},
+              suspended: {},
+              cancelling: {}
+            }
+          },
+
+          changingPaymentMethod: {
+            id: "changingPaymentMethod",
+            initial: "idle",
+            states: {
+              idle: {
+                on: {
+                  PAYMENT_METHOD: {
+                    target: "available",
+                    actions: "setPaymentMethodSchemas"
+                  }
+                }
+              },
+              available: {
+                initial: "checking",
+                on: {
+                  "SET.PAYMENT_METHOD": {
+                    target: ".checking",
+                    actions: "setPaymentMethodModel"
+                  },
+                  SET_PAYMENT_METHOD: {
+                    target:
+                      "#changingPaymentMethod.processing.settingPaymentMethod"
+                  }
+                },
+                states: {
+                  checking: {
+                    entry: ["clearError"],
+                    invoke: {
+                      src: "validatePaymentMethod",
+                      onDone: { target: "valid" },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {},
+                  error: {}
+                }
+              },
+              // Its own `processing`, unlike a formless write: a failed submit
+              // returns to this form's `error` node with the model kept, and the
+              // contract never leaves its status node.
+              processing: {
+                entry: ["clearError"],
+                states: {
+                  settingPaymentMethod: {
+                    initial: "validating",
+                    states: {
+                      validating: {
+                        invoke: {
+                          src: "validatePaymentMethod",
+                          onDone: { target: "updating" },
+                          onError: {
+                            target: "#changingPaymentMethod.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      },
+                      updating: {
+                        invoke: {
+                          src: "setPaymentMethod",
+                          onDone: { target: "#loading" },
+                          onError: {
+                            target: "#changingPaymentMethod.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            on: {
+              "CANCEL.PAYMENT_METHOD": {
+                target: ".idle",
+                actions: "clearPaymentMethod"
+              }
+            }
+          }
         }
       },
 
       unavailable: {
         id: "unavailable",
+        type: "parallel",
         states: {
-          cancelled: { on: paymentMethodOn },
-          lapsed: { on: paymentMethodOn },
-          fraud: {}
-        }
-      },
-
-      // The ONE write form (R34), copied from `auth.machine.ts`'s flow shape:
-      // `available` (SET → parse → validate → valid|invalid) beside its own
-      // `processing`.
-      /**
-       * @decision `CANCEL` closes the form to `#loading`, not to an idle node.
-       * what: the form's `CANCEL` targets `#loading`, which re-reads the record
-       *   and re-places the status node through its `always`.
-       * why: auth's `CANCEL` targets `#idle` because auth HAS a placement-free
-       *   idle node; this machine has none — every settled node lives under a
-       *   status placement, so the only re-entry point is `#loading`.
-       * rejected: a bare idle node with no placement (the machine has none).
-       */
-      paymentMethod: {
-        id: "paymentMethod",
-        initial: "available",
-        on: {
-          CANCEL: { target: "#loading", actions: ["clearForm"] }
-        },
-        states: {
-          available: {
-            initial: "checking",
-            on: {
-              SET: { target: ".checking", actions: "setModel" },
-              SET_PAYMENT_METHOD: {
-                target: "#paymentMethod.processing",
-                actions: "setModel"
-              }
-            },
+          status: {
             states: {
-              checking: {
-                entry: ["clearError"],
-                initial: "parsing",
-                states: {
-                  parsing: {
-                    invoke: {
-                      src: "parse",
-                      onDone: { target: "validating", actions: ["setModel"] }
-                    }
-                  },
-                  validating: {
-                    invoke: {
-                      src: "validate",
-                      onDone: { target: "#paymentMethod.available.valid" },
-                      onError: {
-                        target: "#paymentMethod.available.invalid",
-                        actions: ["setError"]
-                      }
-                    }
+              cancelled: {},
+              lapsed: {},
+              fraud: {}
+            }
+          },
+
+          changingPaymentMethod: {
+            id: "changingPaymentMethodUnavailable",
+            initial: "idle",
+            states: {
+              idle: {
+                on: {
+                  // R13: a cancelled or lapsed contract may still change its
+                  // payment method; `fraud` alone is refused.
+                  PAYMENT_METHOD: {
+                    target: "available",
+                    actions: "setPaymentMethodSchemas",
+                    cond: "canChangePaymentMethod"
                   }
                 }
               },
-              valid: {},
-              invalid: {},
-              error: {
+              available: {
+                initial: "checking",
                 on: {
-                  SET: {
-                    target: "#paymentMethod.available",
-                    actions: "setModel"
+                  "SET.PAYMENT_METHOD": {
+                    target: ".checking",
+                    actions: "setPaymentMethodModel"
                   },
                   SET_PAYMENT_METHOD: {
-                    target: "#paymentMethod.processing",
-                    actions: "setModel"
+                    target:
+                      "#changingPaymentMethodUnavailable.processing.settingPaymentMethod"
+                  }
+                },
+                states: {
+                  checking: {
+                    entry: ["clearError"],
+                    invoke: {
+                      src: "validatePaymentMethod",
+                      onDone: { target: "valid" },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {},
+                  error: {}
+                }
+              },
+              // Its own `processing`, unlike a formless write: a failed submit
+              // returns to this form's `error` node with the model kept, and the
+              // contract never leaves its status node.
+              processing: {
+                entry: ["clearError"],
+                states: {
+                  settingPaymentMethod: {
+                    initial: "validating",
+                    states: {
+                      validating: {
+                        invoke: {
+                          src: "validatePaymentMethod",
+                          onDone: { target: "updating" },
+                          onError: {
+                            target:
+                              "#changingPaymentMethodUnavailable.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      },
+                      updating: {
+                        invoke: {
+                          src: "setPaymentMethod",
+                          onDone: { target: "#loading" },
+                          onError: {
+                            target:
+                              "#changingPaymentMethodUnavailable.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
-            }
-          },
-          processing: {
-            initial: "settingPaymentMethod",
-            states: {
-              settingPaymentMethod: {
-                entry: ["clearError"],
-                initial: "validating",
-                states: {
-                  validating: {
-                    invoke: {
-                      src: "validate",
-                      onDone: { target: "updating" },
-                      onError: {
-                        target: "#paymentMethod.available.error",
-                        actions: ["setError"]
-                      }
-                    }
-                  },
-                  updating: {
-                    invoke: {
-                      src: "setPaymentMethod",
-                      onDone: { target: "#loading", actions: ["clearForm"] },
-                      onError: { target: "#loading", actions: ["setError"] }
-                    }
-                  }
-                }
+            },
+            on: {
+              "CANCEL.PAYMENT_METHOD": {
+                target: ".idle",
+                actions: "clearPaymentMethod"
               }
             }
           }
@@ -238,8 +302,8 @@ export default createMachine(
 
       // The open transition builds the payment-method form on context from the
       // loaded contract and stored-card lookup, then seeds an empty model.
-      setPaymentMethodSchemas: assign(
-        ({ contract, lookups }: ContractContext) => ({
+      setPaymentMethodSchemas: assign({
+        paymentMethod: ({ contract, lookups }: ContractContext) => ({
           schema: useSetPaymentMethodSchema({
             storedPaymentMethods: lookups?.storedPaymentMethods,
             paymentDetailsId: contract?.paymentDetailsId
@@ -247,18 +311,22 @@ export default createMachine(
           uischema: useSetPaymentMethodUischema(),
           model: {}
         })
-      ),
-
-      setModel: assign({
-        model: ({ model }: ContractContext, { data }: AnyEventObject) =>
-          data ?? model
       }),
 
-      clearForm: assign({
-        schema: undefined,
-        uischema: undefined,
-        model: undefined
+      setPaymentMethodModel: assign({
+        paymentMethod: (
+          { paymentMethod }: ContractContext,
+          { data }: AnyEventObject
+        ) => ({
+          ...paymentMethod,
+          model: useModelParser(
+            paymentMethod?.schema,
+            (data ?? {}) as Record<string, unknown>
+          ) as ContractWriteModel
+        })
       }),
+
+      clearPaymentMethod: assign({ paymentMethod: undefined }),
 
       setError: assign({
         error: (_context: ContractContext, { data }: AnyEventObject) => {
@@ -294,6 +362,10 @@ export default createMachine(
       isCancelled: isNode(ContractState.CANCELLED),
       isLapsed: isNode(ContractState.LAPSED),
       isFraud: isNode(ContractState.FRAUD),
+      // R13: not `fraud` — the one `unavailable` node the form is refused on.
+      canChangePaymentMethod: ({ contract }: ContractContext) =>
+        !!contract &&
+        selectContractStatusNode(contract) !== ContractState.FRAUD,
       // `!error` is what stops the targetless arm re-firing once it has run.
       isUnrecognised: ({ contract, error }: ContractContext) =>
         !error && !!contract && isNil(selectContractStatusNode(contract))
