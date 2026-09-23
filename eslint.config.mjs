@@ -841,39 +841,61 @@ const importGraphSettings = {
 // holds the import cycles the split exists to remove; arming `import/no-cycle`
 // on it would report them as this phase's work. The exclusion dies with the
 // package.
-const SHARED_BASE = "foundation";
-const SHARED_BASE_SPECIFIER = `@upmind-automation/${SHARED_BASE}`;
+const SCOPE = "@upmind-automation/";
+const SHARED_BASE_DIR = "modules-foundation";
+const SHARED_BASE_SPECIFIER = `${SCOPE}foundation`;
 const EXCLUDED_FROM_ROSTER = ["client-vue"];
 
-function dependsOnSharedBase(name) {
-  const manifest = resolve(PACKAGES_ROOT, name, "package.json");
-  if (!existsSync(manifest)) return false;
-  const { dependencies } = JSON.parse(readFileSync(manifest, "utf8"));
-  return Boolean(dependencies?.[SHARED_BASE_SPECIFIER]);
+function manifestOf(dir) {
+  const manifest = resolve(PACKAGES_ROOT, dir, "package.json");
+  if (!existsSync(manifest)) return null;
+  return JSON.parse(readFileSync(manifest, "utf8"));
 }
 
+function dependsOnSharedBase(dir) {
+  return Boolean(manifestOf(dir)?.dependencies?.[SHARED_BASE_SPECIFIER]);
+}
+
+// Each entry is { dir, name }: `dir` for path globs, `name` for specifiers. The
+// two were the same string until the `modules-` prefix; nothing may assume that
+// again.
 const DOMAIN_PACKAGES = readdirSync(PACKAGES_ROOT, { withFileTypes: true })
   .filter(entry => entry.isDirectory())
   .map(entry => entry.name)
-  .filter(name => !EXCLUDED_FROM_ROSTER.includes(name))
-  .filter(name => name === SHARED_BASE || dependsOnSharedBase(name))
-  .sort();
+  .filter(dir => !EXCLUDED_FROM_ROSTER.includes(dir))
+  .filter(dir => dir === SHARED_BASE_DIR || dependsOnSharedBase(dir))
+  .map(dir => ({ dir, name: manifestOf(dir)?.name }))
+  .sort((a, b) => a.dir.localeCompare(b.dir));
 
 // An absent shared base means the read failed, not that the repo has no domain
 // packages. Without this, both rules below arm on nothing and report green.
-if (!DOMAIN_PACKAGES.includes(SHARED_BASE)) {
+if (!DOMAIN_PACKAGES.some(p => p.dir === SHARED_BASE_DIR)) {
   throw new Error(
-    `ADR 023 roster is empty: no packages/${SHARED_BASE} under ${PACKAGES_ROOT}`
+    `ADR 023 roster is empty: no packages/${SHARED_BASE_DIR} under ${PACKAGES_ROOT}`
   );
 }
 
+// A full-but-misspelled roster is the failure the guard above cannot see: every
+// specifier-consuming rule below would arm on a package name nothing publishes
+// and report green. A directory rename that did not carry its manifest name
+// through lands here instead.
+for (const { dir, name } of DOMAIN_PACKAGES) {
+  if (!name?.startsWith(SCOPE)) {
+    throw new Error(
+      `ADR 023 roster: packages/${dir} has no usable package name`
+    );
+  }
+}
+
 const DOMAIN_PACKAGE_FILES = DOMAIN_PACKAGES.map(
-  p => `packages/${p}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`
+  p => `packages/${p.dir}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`
 );
 
 // Deep reach INTO a domain package, from anywhere. ADR 023 §6: a package barrel
 // exports only its own UI, so a consumer takes the barrel, never a file inside.
-const DOMAIN_PACKAGE_INTERNALS = `@upmind-automation/{${DOMAIN_PACKAGES.join(",")}}/**`;
+const DOMAIN_PACKAGE_INTERNALS = `${SCOPE}{${DOMAIN_PACKAGES.map(p =>
+  p.name.slice(SCOPE.length)
+).join(",")}}/**`;
 
 export default [
   // ---------------------------------------------------------------------------
@@ -954,6 +976,7 @@ export default [
   {
     files: [
       ".claude/scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
+      "scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
       "tests/fixtures/**/*.{mjs,js,ts}",
       "packages/eslint-plugin-scope-based/**/*.{js,mjs}",
