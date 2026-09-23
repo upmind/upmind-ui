@@ -5186,6 +5186,211 @@
       "id": "guide:packages/headless/src/modules/system/docs/usage",
       "path": "packages/headless/src/modules/system/docs/usage.md",
       "title": "System Usage"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/CHANGELOG": {
+      "crossRefs": [],
+      "headings": [
+        "Changelog",
+        "[Unreleased]",
+        "Changed",
+        "Added",
+        "The two composables",
+        "Collection surface",
+        "Manager surface",
+        "Behaviours worth naming",
+        "Changed (relative to the legacy implementation being migrated from)",
+        "Removed / deliberately absent",
+        "Recorded fixtures",
+        "Notes",
+        "Not captured",
+        "Migration Guide",
+        "Calling either surface",
+        "Narrowing the list",
+        "Reading the conversation",
+        "Replying",
+        "Attaching a file",
+        "Closing and reopening",
+        "Unlinking a product",
+        "Saving a preference",
+        "Reading the client's own id",
+        "Waiting for readiness"
+      ],
+      "id": "guide:packages/headless/src/modules/tickets/docs/CHANGELOG",
+      "path": "packages/headless/src/modules/tickets/docs/CHANGELOG.md",
+      "title": "Changelog"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/README": {
+      "crossRefs": [],
+      "headings": [
+        "tickets",
+        "What Is This?",
+        "Quick Start",
+        "Features",
+        "Key Concepts",
+        "Two surfaces, one client",
+        "The manager addresses a ticket, never a client",
+        "Some actions are refused, not hidden",
+        "Reschedule and change-department are deliberately absent",
+        "A reply that arrives late is a caution, not a failure",
+        "Attachments go through this module's own upload endpoint",
+        "The poll disarms itself, it doesn't just stop firing",
+        "Documentation",
+        "Playground"
+      ],
+      "id": "guide:packages/headless/src/modules/tickets/docs/README",
+      "path": "packages/headless/src/modules/tickets/docs/README.md",
+      "title": "tickets"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/architecture": {
+      "crossRefs": [],
+      "headings": [
+        "tickets — Architecture",
+        "Overview",
+        "Data Flow",
+        "Instantiation — the collection",
+        "Instantiation — the manager",
+        "Read flow (either surface)",
+        "The mutation idiom",
+        "The criteria-key translation — the module's one deliberate divergence",
+        "The merged feed",
+        "The poll",
+        "Sub-composables",
+        "Services",
+        "Cache keys",
+        "Two documented divergences from the shared request layer",
+        "Errors",
+        "Dependencies",
+        "This module reads from",
+        "Modules that read from this one",
+        "Platform additions this build required",
+        "Module boundary"
+      ],
+      "id": "guide:packages/headless/src/modules/tickets/docs/architecture",
+      "path": "packages/headless/src/modules/tickets/docs/architecture.md",
+      "title": "tickets — Architecture"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/foundation": {
+      "crossRefs": [],
+      "headings": [
+        "Module: tickets",
+        "What it is",
+        "Core concepts",
+        "State model",
+        "Operations",
+        "Data shape",
+        "The envelope",
+        "Ticket",
+        "Message",
+        "Status-change entry (hook log)",
+        "Attachment reference (upload response)",
+        "Brand desk (public)",
+        "Dependencies",
+        "Dependants",
+        "This module's own dependencies",
+        "API endpoints",
+        "GET /tickets",
+        "GET /tickets/{ticketId}",
+        "POST /tickets",
+        "PUT /tickets/{ticketId}",
+        "PUT /tickets/{ticketId}/status",
+        "GET /tickets/{ticketId}/messages",
+        "GET /tickets/{ticketId}/messages/{messageId}",
+        "POST /tickets/{ticketId}/replies",
+        "PUT /tickets/{ticketId}/replies/{replyId}",
+        "DELETE /tickets/{ticketId}/messages/{messageId}",
+        "DELETE /tickets/{ticketId}/messages/{messageId}/files/{fileId}",
+        "POST /ticket_messages/files",
+        "GET /ticket_messages/files/{fileId}/download",
+        "GET /hooks/logs/client/{clientId}",
+        "GET /brand/tickets/departments",
+        "GET /tickets/departments",
+        "GET /statuses?filter[object_type]=ticket",
+        "GET /clients/{clientId} · PUT /clients/{clientId}",
+        "Failure modes",
+        "No addressable client → no request at all",
+        "Per-record refusals happen before the request",
+        "A stale reply is not a failure",
+        "A create rejected for a missing body",
+        "A filter that never reaches the wire",
+        "Relations requested but not returned",
+        "Not captured",
+        "Flows",
+        "Reading the list with an accurate total",
+        "Opening a ticket and its conversation",
+        "Replying with an attachment",
+        "Saving a support preference without destroying its siblings",
+        "Lessons (hard-won)"
+      ],
+      "id": "guide:packages/headless/src/modules/tickets/docs/foundation",
+      "path": "packages/headless/src/modules/tickets/docs/foundation.md",
+      "title": "Module: tickets"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/gotchas": {
+      "crossRefs": [],
+      "headings": [
+        "tickets — Gotchas",
+        "1. The status filter is ONE tri-state boolean — and the query core never sees it",
+        "Why one leaf and not two",
+        "Why it cannot simply be spelled `\"status.code\"` in the schema",
+        "Why the branch is WITHHELD from the query core",
+        "The symptom you will actually see",
+        "The rule",
+        "2. Attachments do not go through `system-upload`",
+        "3. The department and status lookups are owned by `tickets`, not `system`",
+        "4. The FIRST thread load is `loadOlder()` — there is no public `loadFeed()`",
+        "5. The two composables are addressed differently — and neither takes a cast",
+        "6. There is no `reschedule` and no `changeDepartment`",
+        "7. The upload's allowed-file-**TYPE** rejection is CODED but UNPROVEN on this brand",
+        "8. Two department lookups, two different shapes — and the option key is not `id`",
+        "9. `body` is required on create **only when no files are attached**",
+        "10. Quick search covers subject and reference — message bodies are NOT searchable",
+        "11. `GET api/self` returns the client id on `actor_id`, NOT on `id`",
+        "12. Unlinking a product sends an explicit `null`, never an omitted key",
+        "13. The poll clears its interval on a hidden tab — it does not just skip a beat",
+        "14. Refusals are thrown, not returned — and they send nothing",
+        "15. Two exported form schemas are unreachable from outside the module",
+        "16. `loadRecentTickets` exists in the services layer and is wired to nothing",
+        "17. The manager's action docblock undercounts its own surface",
+        "18. Cache keys are shared, and invalidation is targeted",
+        "19. Attachment download bypasses the shared request layer — deliberately",
+        "20. Mappers are total on purpose",
+        "21. The recorded wire carries **no** `status` relation and **no** `settings` key",
+        "22. `PUT api/tickets/{id}/status` returns no ticket body"
+      ],
+      "id": "guide:packages/headless/src/modules/tickets/docs/gotchas",
+      "path": "packages/headless/src/modules/tickets/docs/gotchas.md",
+      "title": "tickets — Gotchas"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/usage": {
+      "crossRefs": [],
+      "headings": [
+        "tickets — Usage",
+        "Getting an instance",
+        "The collection — `useTickets`",
+        "Collection actions — `useActions()`",
+        "Reading and refreshing",
+        "Narrowing, sorting, paging",
+        "Writing",
+        "Lookups",
+        "Collection context — `useContext()`",
+        "Collection meta — `useMeta()`",
+        "Collection internals — `useInternals()`",
+        "The manager — `useTicket`",
+        "Manager actions — `useActions()`",
+        "Reading and refreshing",
+        "The conversation",
+        "Replying and editing",
+        "Attachments",
+        "Lifecycle",
+        "Manager context — `useContext()`",
+        "Manager meta — `useMeta()`",
+        "Manager internals — `useInternals()`",
+        "Errors are state, never announcements",
+        "Types"
+      ],
+      "id": "guide:packages/headless/src/modules/tickets/docs/usage",
+      "path": "packages/headless/src/modules/tickets/docs/usage.md",
+      "title": "tickets — Usage"
     }
   },
   "index": {
@@ -7691,6 +7896,18 @@
       "path": "packages/headless/src/modules/config/schema/types.ts",
       "title": "TERM_SELECTOR"
     },
+    "@upmind-automation/headless!TICKETS_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TICKETS_SCOPE_MATRIX"
+    },
+    "@upmind-automation/headless!TICKET_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TICKET_SCOPE_MATRIX"
+    },
     "@upmind-automation/headless!TaxesDisplay": {
       "kind": "symbol",
       "module": "config",
@@ -7732,6 +7949,108 @@
       "module": "theming",
       "path": "packages/headless/src/modules/theming/theming.types.ts",
       "title": "ThemeTokens"
+    },
+    "@upmind-automation/headless!Ticket": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "Ticket"
+    },
+    "@upmind-automation/headless!TicketAttachmentRef": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketAttachmentRef"
+    },
+    "@upmind-automation/headless!TicketCreateModel": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketCreateModel"
+    },
+    "@upmind-automation/headless!TicketDepartmentOption": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketDepartmentOption"
+    },
+    "@upmind-automation/headless!TicketFeedEntry": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketFeedEntry"
+    },
+    "@upmind-automation/headless!TicketMessage": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketMessage"
+    },
+    "@upmind-automation/headless!TicketMessageEditModel": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketMessageEditModel"
+    },
+    "@upmind-automation/headless!TicketScopeMatrix": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketScopeMatrix"
+    },
+    "@upmind-automation/headless!TicketStatusLog": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketStatusLog"
+    },
+    "@upmind-automation/headless!TicketSubjectModel": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketSubjectModel"
+    },
+    "@upmind-automation/headless!TicketSupportPrefs": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketSupportPrefs"
+    },
+    "@upmind-automation/headless!TicketsContextTypes": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketsContextTypes"
+    },
+    "@upmind-automation/headless!TicketsFilterModel": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketsFilterModel"
+    },
+    "@upmind-automation/headless!TicketsQueryModel": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketsQueryModel"
+    },
+    "@upmind-automation/headless!TicketsScopeMatrix": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketsScopeMatrix"
+    },
+    "@upmind-automation/headless!TicketsSortModel": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketsSortModel"
+    },
+    "@upmind-automation/headless!TicketsSortableProperties": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "title": "TicketsSortableProperties"
     },
     "@upmind-automation/headless!Token": {
       "kind": "symbol",
@@ -8806,6 +9125,66 @@
       "module": "brand-terms",
       "path": "packages/headless/src/modules/brand-terms/useBrandTermsAndConditions.ts",
       "title": "UseTermsAndConditions"
+    },
+    "@upmind-automation/headless!UseTicket": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTicket.ts",
+      "title": "UseTicket"
+    },
+    "@upmind-automation/headless!UseTicketActions": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTicket.actions.ts",
+      "title": "UseTicketActions"
+    },
+    "@upmind-automation/headless!UseTicketContext": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTicket.context.ts",
+      "title": "UseTicketContext"
+    },
+    "@upmind-automation/headless!UseTicketInternals": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTicket.internals.ts",
+      "title": "UseTicketInternals"
+    },
+    "@upmind-automation/headless!UseTicketMeta": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTicket.meta.ts",
+      "title": "UseTicketMeta"
+    },
+    "@upmind-automation/headless!UseTickets": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTickets.ts",
+      "title": "UseTickets"
+    },
+    "@upmind-automation/headless!UseTicketsActions": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTickets.actions.ts",
+      "title": "UseTicketsActions"
+    },
+    "@upmind-automation/headless!UseTicketsContext": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTickets.context.ts",
+      "title": "UseTicketsContext"
+    },
+    "@upmind-automation/headless!UseTicketsInternals": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTickets.internals.ts",
+      "title": "UseTicketsInternals"
+    },
+    "@upmind-automation/headless!UseTicketsMeta": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTickets.meta.ts",
+      "title": "UseTicketsMeta"
     },
     "@upmind-automation/headless!UseTracking": {
       "kind": "symbol",
@@ -10066,6 +10445,18 @@
       "module": "theming",
       "path": "packages/headless/src/modules/theming/useTheming.ts",
       "title": "useTheming"
+    },
+    "@upmind-automation/headless!useTicket": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTicket.ts",
+      "title": "useTicket"
+    },
+    "@upmind-automation/headless!useTickets": {
+      "kind": "symbol",
+      "module": "tickets",
+      "path": "packages/headless/src/modules/tickets/useTickets.ts",
+      "title": "useTickets"
     },
     "@upmind-automation/headless!useTracking": {
       "kind": "symbol",
@@ -17351,6 +17742,42 @@
       "path": "packages/headless/src/modules/system/docs/usage.md",
       "title": "System Usage"
     },
+    "guide:packages/headless/src/modules/tickets/docs/CHANGELOG": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/tickets/docs/CHANGELOG.md",
+      "title": "Changelog"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/README": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/tickets/docs/README.md",
+      "title": "tickets"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/architecture": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/tickets/docs/architecture.md",
+      "title": "tickets — Architecture"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/foundation": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/tickets/docs/foundation.md",
+      "title": "Module: tickets"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/gotchas": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/tickets/docs/gotchas.md",
+      "title": "tickets — Gotchas"
+    },
+    "guide:packages/headless/src/modules/tickets/docs/usage": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/tickets/docs/usage.md",
+      "title": "tickets — Usage"
+    },
     "invoice": {
       "kind": "term",
       "module": "",
@@ -17443,21 +17870,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-09-21T11:41:26.382Z",
-    "corpus_version": "1+4fd6117bd88e",
+    "built_at": "2026-09-23T07:03:47.090Z",
+    "corpus_version": "1+bb00da6ad70e",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
-      "guides": 156,
-      "indexEntries": 2042,
+      "guides": 162,
+      "indexEntries": 2079,
       "relationEdges": 5845,
       "relationsPruned": 1692,
-      "symbols": 820
+      "symbols": 851
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "56cdb0cfa7dc12b4b42d42e0ee6e66024cf0b9be"
+    "source_commit": "547ec63eb7519912205e6953f7b08431e5dfc086"
   },
   "relations": {
     "edges": [
@@ -68813,6 +69240,28 @@
       "sourceLine": 152,
       "tsdoc": null
     },
+    "@upmind-automation/headless!TICKETS_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!TICKETS_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TICKETS_SCOPE_MATRIX",
+      "signature": "TICKETS_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 112,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!TICKET_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!TICKET_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TICKET_SCOPE_MATRIX",
+      "signature": "TICKET_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 145,
+      "tsdoc": "Scope matrix for `useTicket` — every actor `never`.\n\nThe manager retargets NOTHING: the ticket it reads is its `.withId(id)`\ninstance, not a context, and `.for('client', id)` stays forbidden. An\nall-`never` matrix is what makes `.for(...)` unspellable on this composable\nfor every actor, which is the property that used to be carried by granting\n`client` a `ticket` context.\n\n`.as(ScopeActorTypes.CLIENT)` is still the client actor on their own\nsession — this IS the client×self cell. Actor and context are independent\naxes, and only the context axis is empty here."
+    },
     "@upmind-automation/headless!TaxesDisplay": {
       "id": "@upmind-automation/headless!TaxesDisplay",
       "kind": "2097152",
@@ -68889,6 +69338,193 @@
       "sourceFile": "packages/headless/src/modules/theming/theming.types.ts",
       "sourceLine": 47,
       "tsdoc": "Interface representing theme tokens, which are the fundamental design system values\nlike colours, typography, spacing, and border radii. These are typically inferred\nfrom a `tokens.json` file or a design system definition."
+    },
+    "@upmind-automation/headless!Ticket": {
+      "id": "@upmind-automation/headless!Ticket",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "Ticket",
+      "signature": "Symbol Ticket",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 257,
+      "tsdoc": "The mapped ticket row. `ITicket` already carries the corrected field names\n(`settings.lock`, `settings.scheduled_datetime`, `is_delegated_object`) the\nportal mock got wrong (`locked`, `scheduledAt`, `isDelegated`) — no rename\nis owed here. R4 extends `ITicket` additively with `contract_product` /\n`contract_product_id` / `invoice`."
+    },
+    "@upmind-automation/headless!TicketAttachmentRef": {
+      "id": "@upmind-automation/headless!TicketAttachmentRef",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketAttachmentRef",
+      "signature": "Symbol TicketAttachmentRef",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 338,
+      "tsdoc": "The `POST api/ticket_messages/files` upload-response row (FE-3226 R12\ncapture receipt, `tickets.services.ts:603`) — recorded RICHER than the\nlegacy `{id,hash}` reduction: the live row carries 26 fields, `hash`\nincluded (R14 — corrects R12's truncated-probe misreading; `hash` was\nnever absent, only unmodeled). This type models the subset the module\nconsumes; it is a deliberate narrowing, not a claim that the wire row\nhas only these members. `graphify query \"TicketAttachmentRef\"` against\n`graphify-out/graph.json` (2026-09-15) confirms this is the sole existing\ndeclaration (`L214`), so this is a correction, not a new type.\n`packages/types`' `ITicketMessagePayload.files` stays the separate\nrequest-side `{id,hash}` shape (`research.md` Q10) — this type is the\nresponse only, never forced into that request shape or the reverse."
+    },
+    "@upmind-automation/headless!TicketCreateModel": {
+      "id": "@upmind-automation/headless!TicketCreateModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketCreateModel",
+      "signature": "Symbol TicketCreateModel",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 372,
+      "tsdoc": "AC9 — the create-ticket form model. `body` is optional (R17(b)) — the\nserver requires it only when `files` is absent; `useCreateSchema()`\nenforces the same conditional. `graphify query \"TicketCreateModel\"`\nagainst `graphify-out/graph.json` (2026-09-15) confirms this is the\nsole existing declaration — a correction, not a new type."
+    },
+    "@upmind-automation/headless!TicketDepartmentOption": {
+      "id": "@upmind-automation/headless!TicketDepartmentOption",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketDepartmentOption",
+      "signature": "Symbol TicketDepartmentOption",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 349,
+      "tsdoc": "One selectable desk option for the create form (Z7 — keyed on `ticket_department_id`, never `id`)."
+    },
+    "@upmind-automation/headless!TicketFeedEntry": {
+      "id": "@upmind-automation/headless!TicketFeedEntry",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketFeedEntry",
+      "signature": "Symbol TicketFeedEntry",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 320,
+      "tsdoc": "The merged feed AC22 renders — messages and status-log rows in one ordered\nsequence, discriminated by `kind`."
+    },
+    "@upmind-automation/headless!TicketMessage": {
+      "id": "@upmind-automation/headless!TicketMessage",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketMessage",
+      "signature": "Symbol TicketMessage",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 307,
+      "tsdoc": "The mapped message row (no new type minted — confirmed existing at\ngraphify-out/ `TicketMessage tickets.types.ts:178`). `can_manage`,\n`deleted_at` and `client_actor_id` are already the corrected field names\n(AC-PM). `isDeleted` is a derived convenience boolean read off `is_log`\n(Q5, `research.md` §11, resolved by the recorded withdrawal fixture T2 —\nthe wire never populates `deleted_at`)."
+    },
+    "@upmind-automation/headless!TicketMessageEditModel": {
+      "id": "@upmind-automation/headless!TicketMessageEditModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketMessageEditModel",
+      "signature": "Symbol TicketMessageEditModel",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 385,
+      "tsdoc": "AC18 — the edit-own-message form model."
+    },
+    "@upmind-automation/headless!TicketScopeMatrix": {
+      "id": "@upmind-automation/headless!TicketScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketScopeMatrix",
+      "signature": "Symbol TicketScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 153,
+      "tsdoc": "Scope matrix type for `useTicket` (derived from the runtime const)."
+    },
+    "@upmind-automation/headless!TicketStatusLog": {
+      "id": "@upmind-automation/headless!TicketStatusLog",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketStatusLog",
+      "signature": "Symbol TicketStatusLog",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 314,
+      "tsdoc": "One status-log row, mapped from `IHookLog` for the merged feed (AC22)."
+    },
+    "@upmind-automation/headless!TicketSubjectModel": {
+      "id": "@upmind-automation/headless!TicketSubjectModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketSubjectModel",
+      "signature": "Symbol TicketSubjectModel",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 382,
+      "tsdoc": "AC27 — the change-subject form model."
+    },
+    "@upmind-automation/headless!TicketSupportPrefs": {
+      "id": "@upmind-automation/headless!TicketSupportPrefs",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketSupportPrefs",
+      "signature": "Symbol TicketSupportPrefs",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 545,
+      "tsdoc": "AC33 (R7) — the two client-owned support prefs plus the AC3 page size.\n`ui/support/messageSignature` (FE-1931's key) is preserved by the\nread-modify-write but never exposed here."
+    },
+    "@upmind-automation/headless!TicketsContextTypes": {
+      "id": "@upmind-automation/headless!TicketsContextTypes",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketsContextTypes",
+      "signature": "Enum TicketsContextTypes",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 71,
+      "tsdoc": "Context types for the COLLECTION — which entity the list is read ABOUT.\nThe context names the ENTITY, not its owner: the owning client falls\nthrough the same `resolveClientId` seam as every other call, exactly as\nTicketContextTypes does for the manager.\n\n`PRODUCT` is spelt `\"product\"` because that is the member ADR-001's own\n`ContextType` union already carries (`ADR-001:114` — beside `contract`,\n`invoice`, `order` and the `ticket` this module's manager uses at `:117`),\nand `ADR-001:138`'s availability matrix already grants it to the `client`\nactor (`contract`, `product`, `invoice`, `ticket`). No new vocabulary is\nminted — the enum binds this module to the platform's word for the thing.\n\nIt is a RETARGET member (a bare string, never `selector()`): the id is\nREQUIRED, because the id IS the answer to \"which product\" (ADR-001\namendment 2026-09-15, the retarget/selector split)."
+    },
+    "@upmind-automation/headless!TicketsFilterModel": {
+      "id": "@upmind-automation/headless!TicketsFilterModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketsFilterModel",
+      "signature": "Symbol TicketsFilterModel",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 235,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!TicketsQueryModel": {
+      "id": "@upmind-automation/headless!TicketsQueryModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketsQueryModel",
+      "signature": "Symbol TicketsQueryModel",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 223,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!TicketsScopeMatrix": {
+      "id": "@upmind-automation/headless!TicketsScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketsScopeMatrix",
+      "signature": "Symbol TicketsScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 120,
+      "tsdoc": "Scope matrix type for `useTickets` (derived from the runtime const)."
+    },
+    "@upmind-automation/headless!TicketsSortModel": {
+      "id": "@upmind-automation/headless!TicketsSortModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketsSortModel",
+      "signature": "Symbol TicketsSortModel",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 236,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!TicketsSortableProperties": {
+      "id": "@upmind-automation/headless!TicketsSortableProperties",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "tickets",
+      "name": "TicketsSortableProperties",
+      "signature": "Enum TicketsSortableProperties",
+      "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
+      "sourceLine": 160,
+      "tsdoc": "Properties the ticket list can be sorted by (`research.md` §2A-ii AC4)."
     },
     "@upmind-automation/headless!Token": {
       "id": "@upmind-automation/headless!Token",
@@ -70857,6 +71493,116 @@
       "signature": "Symbol UseTermsAndConditions",
       "sourceFile": "packages/headless/src/modules/brand-terms/useBrandTermsAndConditions.ts",
       "sourceLine": 103,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicket": {
+      "id": "@upmind-automation/headless!UseTicket",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicket",
+      "signature": "Symbol UseTicket",
+      "sourceFile": "packages/headless/src/modules/tickets/useTicket.ts",
+      "sourceLine": 96,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicketActions": {
+      "id": "@upmind-automation/headless!UseTicketActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicketActions",
+      "signature": "Symbol UseTicketActions",
+      "sourceFile": "packages/headless/src/modules/tickets/useTicket.actions.ts",
+      "sourceLine": 442,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicketContext": {
+      "id": "@upmind-automation/headless!UseTicketContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicketContext",
+      "signature": "Symbol UseTicketContext",
+      "sourceFile": "packages/headless/src/modules/tickets/useTicket.context.ts",
+      "sourceLine": 78,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicketInternals": {
+      "id": "@upmind-automation/headless!UseTicketInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicketInternals",
+      "signature": "Symbol UseTicketInternals",
+      "sourceFile": "packages/headless/src/modules/tickets/useTicket.internals.ts",
+      "sourceLine": 97,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicketMeta": {
+      "id": "@upmind-automation/headless!UseTicketMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicketMeta",
+      "signature": "Symbol UseTicketMeta",
+      "sourceFile": "packages/headless/src/modules/tickets/useTicket.meta.ts",
+      "sourceLine": 93,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTickets": {
+      "id": "@upmind-automation/headless!UseTickets",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTickets",
+      "signature": "Symbol UseTickets",
+      "sourceFile": "packages/headless/src/modules/tickets/useTickets.ts",
+      "sourceLine": 78,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicketsActions": {
+      "id": "@upmind-automation/headless!UseTicketsActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicketsActions",
+      "signature": "Symbol UseTicketsActions",
+      "sourceFile": "packages/headless/src/modules/tickets/useTickets.actions.ts",
+      "sourceLine": 237,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicketsContext": {
+      "id": "@upmind-automation/headless!UseTicketsContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicketsContext",
+      "signature": "Symbol UseTicketsContext",
+      "sourceFile": "packages/headless/src/modules/tickets/useTickets.context.ts",
+      "sourceLine": 96,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicketsInternals": {
+      "id": "@upmind-automation/headless!UseTicketsInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicketsInternals",
+      "signature": "Symbol UseTicketsInternals",
+      "sourceFile": "packages/headless/src/modules/tickets/useTickets.internals.ts",
+      "sourceLine": 23,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseTicketsMeta": {
+      "id": "@upmind-automation/headless!UseTicketsMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "tickets",
+      "name": "UseTicketsMeta",
+      "signature": "Symbol UseTicketsMeta",
+      "sourceFile": "packages/headless/src/modules/tickets/useTickets.meta.ts",
+      "sourceLine": 61,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseTracking": {
@@ -73168,6 +73914,28 @@
       "sourceFile": "packages/headless/src/modules/theming/useTheming.ts",
       "sourceLine": 25,
       "tsdoc": "Composable for consolidating brand theme information with any provided themes through the upmind initialisation"
+    },
+    "@upmind-automation/headless!useTicket": {
+      "id": "@upmind-automation/headless!useTicket",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "tickets",
+      "name": "useTicket",
+      "signature": "useTicket: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/tickets/useTicket.ts",
+      "sourceLine": 90,
+      "tsdoc": "Scoped composable for one client's support ticket."
+    },
+    "@upmind-automation/headless!useTickets": {
+      "id": "@upmind-automation/headless!useTickets",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "tickets",
+      "name": "useTickets",
+      "signature": "useTickets: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/tickets/useTickets.ts",
+      "sourceLine": 72,
+      "tsdoc": "Scoped composable for a client's own support tickets."
     },
     "@upmind-automation/headless!useTracking": {
       "id": "@upmind-automation/headless!useTracking",
