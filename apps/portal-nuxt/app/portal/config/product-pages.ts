@@ -42,8 +42,8 @@ import {
 import { GROUP_AXIS, PAGE_KEY } from "../types";
 import { NAV_EMPHASIS } from "../variants";
 import { CLIENT_VUE_STUB_TITLE, clientVueProse } from "./client-vue";
-import { assign } from "lodash-es";
 import { backLink, brandNoteRow, pagerFooter, panelControls } from "./pager";
+import { assign } from "lodash-es";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
 import type { ListModuleHeading } from "../modules/list/types";

@@ -27,11 +27,11 @@ import {
   values
 } from "lodash-es";
 import type { ContentConfig, ContentRowConfig } from "~/portal/types";
-import { ROW_SURFACE } from "~/portal/content/types";
 import { hostgridConfig } from "~/portal/config/hostgrid";
 import { brandNoteRow } from "~/portal/config/pager";
-import { BANNER_MODULE_ID } from "~/portal/registry";
+import { ROW_SURFACE } from "~/portal/content/types";
 import { DATA_REF_ID } from "~/portal/mock/data-refs";
+import { BANNER_MODULE_ID } from "~/portal/registry";
 
 /** Every row of every page the shape composes — `pages`, not the singular fallback. */
 function allRows(): ContentRowConfig[] {

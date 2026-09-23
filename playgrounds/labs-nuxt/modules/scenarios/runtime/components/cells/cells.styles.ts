@@ -28,3 +28,8 @@ export const cellIcon = cva("block", {
  * keeps a comfortable reading measure.
  */
 export const cellHtml = cva("text-sm leading-relaxed break-words");
+
+export const cellList = {
+  root: cva("flex flex-col gap-3"),
+  item: cva("border-border flex flex-col gap-1 rounded-md border p-3")
+};

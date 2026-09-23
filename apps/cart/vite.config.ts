@@ -2,11 +2,11 @@
 import { resolve } from "path";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
+import { upmindTokensCss } from "@upmind/tokens/vite";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig, loadEnv } from "vite";
 import vueDevTools from "vite-plugin-vue-devtools";
 import UpmindTransferPlugin from "./vite.plugin.transfer";
-import { upmindTokensCss } from "@upmind/tokens/vite";
 import { compact } from "lodash-es";
 
 export default defineConfig(({ mode, command }) => {

@@ -28,6 +28,20 @@
  *           `settings-04` for the control) — cheaper (no new import) but
  *           spends an existing glyph on a different meaning purely to avoid
  *           adding one import.
+ *
+ * @decision
+ * what:     `message-question-circle` and `users-01` (client-tickets
+ *           scenario) are mapped to their own real lucide glyphs
+ *           (`MessageCircleQuestionMark`, `Users`) rather than aliased to an
+ *           already-mapped, different-shaped name.
+ * why:      Both are genuine lucide v1 exports for the exact concept the
+ *           declared name names — a support/question bubble, a plural
+ *           group of people (the delegated-ticket indicator, distinct from
+ *           the singular `user-01`/`User`). Aliasing either to an in-map
+ *           name (`inbox-01`, `user-01`) would resolve but draw a
+ *           mismatched or wrong-cardinality glyph.
+ * rejected: (a) `inbox-01`/`user-01` — cheaper, no new import, but spends
+ *           an existing glyph on a different meaning.
  */
 import {
   ArrowLeft,
@@ -68,6 +82,7 @@ import {
   LogOut,
   Mail,
   MapPin,
+  MessageCircleQuestionMark,
   Moon,
   OctagonAlert,
   Paperclip,
@@ -98,6 +113,7 @@ import {
   Undo2,
   User,
   UserPlus,
+  Users,
   Wallet,
   X
 } from "lucide-vue-next";
@@ -181,6 +197,7 @@ export const ICON_MAP: Record<string, Component> = {
   "log-out-01": LogOut,
   "mail-01": Mail,
   "marker-pin-01": MapPin,
+  "message-question-circle": MessageCircleQuestionMark,
   moon: Moon,
   "pause-circle": CirclePause,
   "phone-01": Phone,
@@ -215,6 +232,7 @@ export const ICON_MAP: Record<string, Component> = {
   "user-03": User,
   "user-circle": CircleUser,
   "user-plus-01": UserPlus,
+  "users-01": Users,
   "wallet-01": Wallet,
   "x-close": X
 };
