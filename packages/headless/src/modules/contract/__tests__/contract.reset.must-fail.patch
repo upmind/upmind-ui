@@ -1,0 +1,21 @@
+Negative control for useContract.actions.ts reset() cache-drop.
+
+Spec that must flip: contract.reset.int.test.ts — the re-read request count
+(handler.reads() after reset() must exceed the count after open).
+
+Mutation: reset() skips the resetQueryByKey(queryKey)() cache drop and only
+sends REFRESH, so the module's cached read entry is NOT removed before the
+machine re-drives its load.
+
+diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
+index 2aec9c484..dff1fce0a 100644
+--- a/packages/headless/src/modules/contract/useContract.actions.ts
++++ b/packages/headless/src/modules/contract/useContract.actions.ts
+@@ -170,7 +170,6 @@ export function createContractActions(
+    * so the editor asks again rather than restoring stale rows from memory.
+    */
+   async function reset(): Promise<void> {
+-    await resetQueryByKey(queryKey)();
+     send({ type: "REFRESH", data: {} });
+   }
+ 

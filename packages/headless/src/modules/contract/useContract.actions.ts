@@ -1,5 +1,7 @@
+import { resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useI18n } from "../system-localisation";
+import { queryKey } from "./contract.services";
 import {
   contextValue,
   DetailedError,
@@ -163,6 +165,15 @@ export function createContractActions(
     send({ type: "REFRESH" });
   }
 
+  /**
+   * Drops the module's cache entries and re-drives the read through `REFRESH`,
+   * so the editor asks again rather than restoring stale rows from memory.
+   */
+  async function reset(): Promise<void> {
+    await resetQueryByKey(queryKey)();
+    send({ type: "REFRESH", data: {} });
+  }
+
   /** Stops the underlying machine, leaving the registry entry in place. */
   function stop(): void {
     stopService(service);
@@ -199,6 +210,12 @@ export function createContractActions(
      * @scenario-include
      */
     refresh,
+
+    /**
+     * Drops the module's cache entries and re-drives the read.
+     * @scenario-include
+     */
+    reset,
 
     /**
      * @scenario-include

@@ -439,7 +439,10 @@ export type QueryModel = {
     total_amount?: number | null;
   };
   sort?: SortEntry[];
-  pagination?: { limit?: number; offset?: number };
+  // `offset` alone is unspellable — with no page size the page index is NaN; `limit` alone stays the page-size door.
+  pagination?:
+    | { limit?: number; offset?: never }
+    | { limit: number; offset?: number };
 };
 
 /** The nested filter model — the `filters` branch of {@link QueryModel}. */

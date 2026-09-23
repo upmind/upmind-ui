@@ -193,7 +193,10 @@ export type SetPaymentMethodBody = {
 
 /** The collection's ONE request-state model — the instance `useQuerySchema()` validates. */
 export type QueryModel = {
-  pagination?: { limit?: number; offset?: number };
+  // `offset` alone is unspellable — with no page size the page index is NaN; `limit` alone stays the page-size door.
+  pagination?:
+    | { limit?: number; offset?: never }
+    | { limit: number; offset?: number };
 };
 
 /** The reactive list query, minted ONCE per scope in `useContracts.ts`. */

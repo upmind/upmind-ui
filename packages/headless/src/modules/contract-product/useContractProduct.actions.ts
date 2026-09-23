@@ -1,5 +1,7 @@
+import { resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useI18n } from "../system-localisation";
+import { queryKey } from "./contract-product.services";
 import {
   ContractProductCancelOption,
   ContractProductFormTypes
@@ -258,6 +260,15 @@ export function createContractProductActions(
     send({ type: "REFRESH" });
   }
 
+  /**
+   * Drops the module's cache entries and re-drives the read through `REFRESH`,
+   * so the editor asks again rather than restoring stale rows from memory.
+   */
+  async function reset(): Promise<void> {
+    await resetQueryByKey(queryKey)();
+    send({ type: "REFRESH", data: {} });
+  }
+
   function stop(): void {
     stopService(service);
   }
@@ -311,6 +322,12 @@ export function createContractProductActions(
      * @scenario-include
      */
     requestCancellation,
+
+    /**
+     * Drops the module's cache entries and re-drives the read.
+     * @scenario-include
+     */
+    reset,
 
     /**
      * Aborts a pending renewal stop (`PUT …/modify_renew`, `renew: true`).
