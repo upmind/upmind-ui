@@ -310,21 +310,11 @@ describe("useContract — nothing is sent when my selection changes nothing (AC-
  * empty selection, or the method the contract already uses, sends no request and
  * resolves `false` (mutant: `contract.payment-method-noop.must-fail.patch`).
  *
- * DECLARED GAP — the AJV-INVALID payment-method model (an id not among the
- * loaded stored cards → a 422 in the form's error region) is UNREACHABLE in this
- * manager's own harness, so `contract.mutations.validation.must-fail.patch`
- * cannot be pinned here. The `paymentDetailsId` enum is sourced (D3) from a
- * SEPARATELY-instantiated `usePaymentDetails()` that the contract manager never
- * stands up on its own (the contract read requests no stored-methods list —
- * confirmed on the wire), so the schema carries no enum here and no id is
- * schema-invalid; and `set({})`/`set({paymentDetailsId: null})` is coerced back
- * to the loaded default by the parser, so no missing-field case survives either.
- * The populated-enum invalid-id rejection is proven in the payment-details
- * module's own `payment-details.stored-methods-schema.test.ts`. Standing that
- * whole cross-module query up inside a contract test would be the shadow
- * implementation the integration rule bars. The mutant needs re-scoping to a
- * line the contract harness can exercise (e.g. the R31 no-op guard, already
- * pinned above), or the invalid-enum proof stays the payment-details suite's.
+ * The AJV-INVALID payment-method model (an id NOT among the loaded stored cards
+ * → a 422 in the form's error region, mutant
+ * `contract.mutations.validation.must-fail.patch`) is proven in
+ * `contract.payment-method-enum.int.test.ts`, which serves the payment-details
+ * module's OWN recorded stored-cards list so the form enum populates (D3).
  */
 describe("useContract — the payment-method FORM submits nothing when the selection changes nothing (AC-8, R31)", () => {
   it("AC-8 the form sends no PATCH and resolves false when I submit an empty selection", async () => {

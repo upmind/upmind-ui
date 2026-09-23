@@ -70,8 +70,26 @@ export const recorded = {
     ),
   /** `DELETE contracts/{id}/cancel/request` — the REAL 404 this sandbox answers. */
   withdrawRejected: () =>
-    getFixture("delete-contracts-id-cancel-request", { recordingsDir })
+    getFixture("delete-contracts-id-cancel-request", { recordingsDir }),
+  /** `GET clients/{id}/payment_details?active=true&…` — the client's real stored
+   * cards, recorded by the payment-details module. The contract manager draws its
+   * payment-method form enum from `usePaymentDetails().data` (D3), so its enum
+   * proof reuses that module's own recorded list rather than re-recording it. */
+  storedPaymentMethods: () =>
+    getFixture(
+      "get-clients-id-payment-details-active-true-brand-id-country-id",
+      {
+        recordingsDir: paymentDetailsRecordingsDir
+      }
+    )
 };
+
+/** The payment-details module's recordings — the stored-cards list the contract
+ * payment-method form's enum is sourced from (D3). */
+export const paymentDetailsRecordingsDir = join(
+  import.meta.dirname,
+  "../../payment-details/__tests__/fixtures"
+);
 
 // -----------------------------------------------------------------------------
 

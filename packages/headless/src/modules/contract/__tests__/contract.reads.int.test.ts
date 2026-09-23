@@ -132,19 +132,6 @@ describe("useContract — I open one of my contracts with everything the account
       row.status.code
     );
   });
-
-  /**
-   * DECLARED GAP — `contract.ac12-raw-status-code.must-fail.patch` is
-   * un-pinnable here. The mutant coerces an UNKNOWN status code, so only a
-   * recorded contract whose RAW status.code differs from the mapped vocabulary
-   * would flip it. The one recorded capture on disk carries a KNOWN code
-   * (`contract_active`) that maps to itself, and no capture with an unknown or
-   * differing raw code exists; recording is forbidden this pass, and
-   * fabricating a raw-vs-mapped mismatch is barred. The unknown-code branch is
-   * proven at unit with a LITERAL argument in `contract.utils.test.ts`
-   * (bdd.md A14). The mutant needs re-scoping to a line a recorded integration
-   * record can exercise, or the unknown-code proof stays the unit test's.
-   */
 });
 
 /** `design ✅.md` §8.1 R19/R30 — the list view model's own 3-member `with` list. */
