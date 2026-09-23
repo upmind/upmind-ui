@@ -4,7 +4,7 @@
   "compilerOptions": {
     "composite": true,
     "emitDeclarationOnly": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "declarationDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.build.tsbuildinfo",
@@ -12,13 +12,11 @@
     "paths": {
       "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
       "@upmind-automation/headless": ["../headless/src/index.ts"],
-      "@upmind-automation/foundation": ["../foundation/src/index.ts"],
-      "@upmind-automation/payment": ["../payment/src/index.ts"],
-      "@upmind-automation/recommendations": ["../recommendations/src/index.ts"],
-      "@upmind-automation/auth": ["../auth/src/index.ts"]
+      "@upmind-automation/foundation": ["../modules-foundation/src/index.ts"],
+      "#app": ["./node_modules/nuxt/dist/app"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "nuxt.ts"],
   "exclude": [
     "node_modules",
     "dist",
@@ -34,16 +32,7 @@
       "path": "../headless/tsconfig.build.json"
     },
     {
-      "path": "../foundation/tsconfig.build.json"
-    },
-    {
-      "path": "../payment/tsconfig.build.json"
-    },
-    {
-      "path": "../recommendations/tsconfig.build.json"
-    },
-    {
-      "path": "../auth/tsconfig.build.json"
+      "path": "../modules-foundation/tsconfig.build.json"
     }
   ]
 }

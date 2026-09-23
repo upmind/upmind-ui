@@ -41,7 +41,7 @@ function workspaceRoot() {
 const ROOT = workspaceRoot();
 
 /** A `.ts` file in the new package importing the SFC beside it. */
-const BARREL = "packages/auth/src/shell.ts";
+const BARREL = "packages/modules-auth/src/shell.ts";
 const BARREL_SOURCE = [
   'import Login from "./Login.vue";',
   "",

@@ -12,18 +12,22 @@
       "@upmind-automation/scenario-harness": [
         "./packages/scenario-harness/src/index.ts"
       ],
-      "@upmind-automation/foundation": ["./packages/foundation/src/index.ts"],
-      "@upmind-automation/product": ["./packages/product/src/index.ts"],
-      "@upmind-automation/recommendations": [
-        "./packages/recommendations/src/index.ts"
+      "@upmind-automation/foundation": [
+        "./packages/modules-foundation/src/index.ts"
       ],
-      "@upmind-automation/catalogue": ["./packages/catalogue/src/index.ts"],
-      "@upmind-automation/domain": ["./packages/domain/src/index.ts"],
-      "@upmind-automation/auth": ["./packages/auth/src/index.ts"],
-      "@upmind-automation/client": ["./packages/client/src/index.ts"],
-      "@upmind-automation/payment": ["./packages/payment/src/index.ts"],
-      "@upmind-automation/invoice": ["./packages/invoice/src/index.ts"],
-      "@upmind-automation/basket": ["./packages/basket/src/index.ts"]
+      "@upmind-automation/product": ["./packages/modules-product/src/index.ts"],
+      "@upmind-automation/recommendations": [
+        "./packages/modules-recommendations/src/index.ts"
+      ],
+      "@upmind-automation/catalogue": [
+        "./packages/modules-catalogue/src/index.ts"
+      ],
+      "@upmind-automation/domain": ["./packages/modules-domain/src/index.ts"],
+      "@upmind-automation/auth": ["./packages/modules-auth/src/index.ts"],
+      "@upmind-automation/client": ["./packages/modules-client/src/index.ts"],
+      "@upmind-automation/payment": ["./packages/modules-payment/src/index.ts"],
+      "@upmind-automation/invoice": ["./packages/modules-invoice/src/index.ts"],
+      "@upmind-automation/basket": ["./packages/modules-basket/src/index.ts"]
     }
   },
   "include": [],
@@ -33,16 +37,16 @@
     { "path": "./packages/headless/tsconfig.build.json" },
     { "path": "./design-system/packages/ui/tsconfig.build.json" },
     { "path": "./packages/client-vue/tsconfig.build.json" },
-    { "path": "./packages/foundation/tsconfig.build.json" },
-    { "path": "./packages/product/tsconfig.build.json" },
-    { "path": "./packages/recommendations/tsconfig.build.json" },
-    { "path": "./packages/catalogue/tsconfig.build.json" },
-    { "path": "./packages/domain/tsconfig.build.json" },
-    { "path": "./packages/auth/tsconfig.build.json" },
-    { "path": "./packages/client/tsconfig.build.json" },
-    { "path": "./packages/payment/tsconfig.build.json" },
-    { "path": "./packages/invoice/tsconfig.build.json" },
-    { "path": "./packages/basket/tsconfig.build.json" },
+    { "path": "./packages/modules-foundation/tsconfig.build.json" },
+    { "path": "./packages/modules-product/tsconfig.build.json" },
+    { "path": "./packages/modules-recommendations/tsconfig.build.json" },
+    { "path": "./packages/modules-catalogue/tsconfig.build.json" },
+    { "path": "./packages/modules-domain/tsconfig.build.json" },
+    { "path": "./packages/modules-auth/tsconfig.build.json" },
+    { "path": "./packages/modules-client/tsconfig.build.json" },
+    { "path": "./packages/modules-payment/tsconfig.build.json" },
+    { "path": "./packages/modules-invoice/tsconfig.build.json" },
+    { "path": "./packages/modules-basket/tsconfig.build.json" },
     { "path": "./apps/auth/tsconfig.build.json" }
   ]
 }

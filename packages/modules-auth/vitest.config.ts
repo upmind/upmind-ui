@@ -12,7 +12,7 @@ const alias = {
     new URL("../../design-system/packages/ui/src/index.ts", import.meta.url)
   ),
   "@upmind-automation/foundation": fileURLToPath(
-    new URL("../foundation/src/index.ts", import.meta.url)
+    new URL("../modules-foundation/src/index.ts", import.meta.url)
   ),
   "@upmind-automation/headless": fileURLToPath(
     new URL("../headless/src/index.ts", import.meta.url)

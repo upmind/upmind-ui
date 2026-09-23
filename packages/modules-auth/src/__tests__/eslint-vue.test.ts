@@ -39,8 +39,8 @@ const ROOT = workspaceRoot();
 
 /** One SFC home per new box the canary stands up. */
 const HOMES = {
-  authPackage: "packages/auth/src/Login.vue",
-  foundationPackage: "packages/foundation/src/modules/hero/Hero.vue",
+  authPackage: "packages/modules-auth/src/Login.vue",
+  foundationPackage: "packages/modules-foundation/src/modules/hero/Hero.vue",
   authApp: "apps/auth/src/SignedIn.vue"
 };
 

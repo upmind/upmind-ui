@@ -10,8 +10,8 @@
     "declarationDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.build.tsbuildinfo",
     "paths": {
-      "@upmind-automation/auth": ["../auth/src/index.ts"],
-      "@upmind-automation/foundation": ["../foundation/src/index.ts"],
+      "@upmind-automation/auth": ["../modules-auth/src/index.ts"],
+      "@upmind-automation/foundation": ["../modules-foundation/src/index.ts"],
       "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
       "@upmind/tokens": ["../../design-system/packages/tokens/src/index.ts"],
       "@/*": ["./src/*"]
@@ -28,8 +28,8 @@
   "references": [
     { "path": "../types/tsconfig.build.json" },
     { "path": "../headless/tsconfig.build.json" },
-    { "path": "../foundation/tsconfig.build.json" },
-    { "path": "../auth/tsconfig.build.json" },
+    { "path": "../modules-foundation/tsconfig.build.json" },
+    { "path": "../modules-auth/tsconfig.build.json" },
     { "path": "../../design-system/packages/ui/tsconfig.build.json" },
     { "path": "../../design-system/packages/tokens/tsconfig.build.json" }
   ]

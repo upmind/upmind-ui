@@ -934,7 +934,7 @@
       "count": 2
     }
   },
-  "packages/auth/src/components/Auth.vue": {
+  "packages/modules-auth/src/components/Auth.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
     },
@@ -1177,12 +1177,12 @@
       "count": 1
     }
   },
-  "packages/foundation/src/modules/forms/Form.vue": {
+  "packages/modules-foundation/src/modules/forms/Form.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
     }
   },
-  "packages/foundation/src/modules/forms/useFormI18n.ts": {
+  "packages/modules-foundation/src/modules/forms/useFormI18n.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
     }

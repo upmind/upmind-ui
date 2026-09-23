@@ -1,27 +1,27 @@
-diff --git a/packages/product/src/index.ts b/packages/product/src/index.ts
+diff --git a/packages/modules-product/src/index.ts b/packages/modules-product/src/index.ts
 index 986e17626e..34c4b17dac 100644
---- a/packages/product/src/index.ts
-+++ b/packages/product/src/index.ts
+--- a/packages/modules-product/src/index.ts
++++ b/packages/modules-product/src/index.ts
 @@ -1,2 +1,4 @@
  // Phase 0 shell. ADR 023 Amendment 1 populates this barrel in this package's own phase.
 -export {};
 +export * from "./tiers";
 +
 +export const PRODUCT = "product";
-diff --git a/packages/product/src/pricing.ts b/packages/product/src/pricing.ts
+diff --git a/packages/modules-product/src/pricing.ts b/packages/modules-product/src/pricing.ts
 new file mode 100644
 index 0000000000..581b5e166e
 --- /dev/null
-+++ b/packages/product/src/pricing.ts
++++ b/packages/modules-product/src/pricing.ts
 @@ -0,0 +1,3 @@
 +import { PRODUCT } from "./index";
 +
 +export const PRICING = `${PRODUCT}-pricing`;
-diff --git a/packages/product/src/tiers.ts b/packages/product/src/tiers.ts
+diff --git a/packages/modules-product/src/tiers.ts b/packages/modules-product/src/tiers.ts
 new file mode 100644
 index 0000000000..a13538c4a4
 --- /dev/null
-+++ b/packages/product/src/tiers.ts
++++ b/packages/modules-product/src/tiers.ts
 @@ -0,0 +1,3 @@
 +import { PRICING } from "./pricing";
 +

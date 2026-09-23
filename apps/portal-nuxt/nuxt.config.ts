@@ -105,43 +105,43 @@ export default defineNuxtConfig({
     // ADR 023 domain packages. Source-consumed, like every alias above.
     "@upmind-automation/foundation": resolve(
       __dirname,
-      "../../packages/foundation/src/index.ts"
+      "../../packages/modules-foundation/src/index.ts"
     ),
     "@upmind-automation/product": resolve(
       __dirname,
-      "../../packages/product/src/index.ts"
+      "../../packages/modules-product/src/index.ts"
     ),
     "@upmind-automation/recommendations": resolve(
       __dirname,
-      "../../packages/recommendations/src/index.ts"
+      "../../packages/modules-recommendations/src/index.ts"
     ),
     "@upmind-automation/catalogue": resolve(
       __dirname,
-      "../../packages/catalogue/src/index.ts"
+      "../../packages/modules-catalogue/src/index.ts"
     ),
     "@upmind-automation/domain": resolve(
       __dirname,
-      "../../packages/domain/src/index.ts"
+      "../../packages/modules-domain/src/index.ts"
     ),
     "@upmind-automation/auth": resolve(
       __dirname,
-      "../../packages/auth/src/index.ts"
+      "../../packages/modules-auth/src/index.ts"
     ),
     "@upmind-automation/client": resolve(
       __dirname,
-      "../../packages/client/src/index.ts"
+      "../../packages/modules-client/src/index.ts"
     ),
     "@upmind-automation/payment": resolve(
       __dirname,
-      "../../packages/payment/src/index.ts"
+      "../../packages/modules-payment/src/index.ts"
     ),
     "@upmind-automation/invoice": resolve(
       __dirname,
-      "../../packages/invoice/src/index.ts"
+      "../../packages/modules-invoice/src/index.ts"
     ),
     "@upmind-automation/basket": resolve(
       __dirname,
-      "../../packages/basket/src/index.ts"
+      "../../packages/modules-basket/src/index.ts"
     )
   },
 

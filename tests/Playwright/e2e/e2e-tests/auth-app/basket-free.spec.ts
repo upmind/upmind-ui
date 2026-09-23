@@ -32,7 +32,7 @@
  * banned literal appeared in the package. Then it failed on correct code,
  * because a comment named one of the terms in prose. The §7 import boundary it
  * was also standing in for is now held by resolution, in
- * `packages/auth/src/__tests__/basket-free.test.ts`.
+ * `packages/modules-auth/src/__tests__/basket-free.test.ts`.
  */
 
 import { expect, test } from "@playwright/test";

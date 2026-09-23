@@ -47,8 +47,13 @@ const ENTRY_PATHS = ["src/main.css", "app/main.css", "src/styles.css"];
 
 // -----------------------------------------------------------------------------
 
-/** Every directory under `packages/` that ships at least one `.vue` file. */
-function readComponentPackages(): string[] {
+/**
+ * Every package under `packages/` that ships at least one `.vue` file, as a
+ * `{ dir, name }` pair. A directory name and a package name are different
+ * strings since the `modules-` prefix: an `@source` glob is a path and needs
+ * `dir`, a host's `dependencies` key is a specifier and needs `name`.
+ */
+function readComponentPackages(): { dir: string; name: string }[] {
   const holdsVue = (dir: string): boolean =>
     readdirSync(dir, { withFileTypes: true }).some(entry => {
       if (entry.isDirectory()) return holdsVue(join(dir, entry.name));
@@ -58,9 +63,16 @@ function readComponentPackages(): string[] {
   return readdirSync(PACKAGES_ROOT, { withFileTypes: true })
     .filter(entry => entry.isDirectory())
     .map(entry => entry.name)
-    .filter(name => existsSync(join(PACKAGES_ROOT, name, "src")))
-    .filter(name => holdsVue(join(PACKAGES_ROOT, name, "src")))
-    .sort();
+    .filter(dir => existsSync(join(PACKAGES_ROOT, dir, "package.json")))
+    .filter(dir => existsSync(join(PACKAGES_ROOT, dir, "src")))
+    .filter(dir => holdsVue(join(PACKAGES_ROOT, dir, "src")))
+    .map(dir => ({
+      dir,
+      name: JSON.parse(
+        readFileSync(join(PACKAGES_ROOT, dir, "package.json"), "utf8")
+      ).name
+    }))
+    .sort((a, b) => a.dir.localeCompare(b.dir));
 }
 
 /** Every host with a Tailwind entry, paired with its manifest. */
@@ -88,13 +100,12 @@ function readHosts(): { name: string; entry: string; manifest: string }[] {
   return hosts.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** The scoped runtime dependencies a host declares, without the scope prefix. */
+/** The scoped runtime dependencies a host declares, as full specifiers. */
 function readScopedDependencies(manifest: string): string[] {
   const { dependencies = {} } = JSON.parse(readFileSync(manifest, "utf8"));
 
   return Object.keys(dependencies)
     .filter(name => name.startsWith(SCOPE))
-    .map(name => name.slice(SCOPE.length))
     .sort();
 }
 
@@ -133,10 +144,10 @@ describe("Tailwind source coverage", () => {
   });
 
   describe.each(HOSTS)("$name", ({ entry, manifest }) => {
-    const dependencies = readScopedDependencies(manifest);
-    const expected = dependencies.filter(name =>
-      COMPONENT_PACKAGES.includes(name)
-    );
+    const declared = readScopedDependencies(manifest);
+    const expected = COMPONENT_PACKAGES.filter(pkg =>
+      declared.includes(pkg.name)
+    ).map(pkg => pkg.dir);
     const sourced = readSourcedPackages(entry);
 
     it.each(expected)(

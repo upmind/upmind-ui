@@ -42,11 +42,11 @@ export default defineConfig({
       // else. No basket, no client, no client-vue — that is the proof.
       "@upmind-automation/foundation": resolve(
         __dirname,
-        "../../packages/foundation/src/index.ts"
+        "../../packages/modules-foundation/src/index.ts"
       ),
       "@upmind-automation/auth": resolve(
         __dirname,
-        "../../packages/auth/src/index.ts"
+        "../../packages/modules-auth/src/index.ts"
       )
     },
     dedupe: ["vue-router"]
