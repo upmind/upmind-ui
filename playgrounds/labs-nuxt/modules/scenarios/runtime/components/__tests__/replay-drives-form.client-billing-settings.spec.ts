@@ -30,13 +30,14 @@ import {
   runtimeFeature
 } from "../../force/corpus";
 import { createForceHandlers } from "../../force/handlers";
+import { trackedModuleOf } from "../../scenario.utils";
 import { ModuleRenderer } from "../index";
 import { filter, find, includes, keys, map } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
 
-const MODULE = declaration.tracks as string;
+const MODULE = trackedModuleOf(declaration.tracks)!;
 const ON = "Consolidate invoices";
 const OFF = "Do NOT consolidate invoices";
 

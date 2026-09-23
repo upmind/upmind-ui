@@ -53,7 +53,8 @@ const i18n = createI18n({
 function mountLockedList(
   table?: DeclaringTableChannel,
   actions: SurfaceActions = {},
-  criteria?: Awaited<ReturnType<typeof declaringCriteria>>
+  criteria?: Awaited<ReturnType<typeof declaringCriteria>>,
+  presentationOverride: typeof presentation = presentation
 ) {
   return mount(ListSurface, {
     attachTo: document.body,
@@ -64,7 +65,7 @@ function mountLockedList(
         meta: { isEmpty: false, isFiltered: false }
       },
       actions,
-      presentation,
+      presentation: presentationOverride,
       table,
       criteria,
       locked: true

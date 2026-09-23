@@ -60,6 +60,7 @@
   "notification_generate_preferences_link": "Generate preferences link",
   "notification_manage_preferences": "Manage preferences",
   "notification_revert_changes": "Revert changes",
+  "open_ticket": "Open ticket",
   "pay_now": "Pay now",
   "pay_today": "Pay {amount} today",
   "place_order": "Place order",
@@ -112,5 +113,6 @@
   "verify": "Verify",
   "view": "View",
   "view_credit_notes": "View credit notes",
-  "view_email": "View Email"
+  "view_email": "View Email",
+  "view_ticket": "View ticket"
 }

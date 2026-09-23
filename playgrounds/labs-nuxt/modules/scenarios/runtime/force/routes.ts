@@ -59,6 +59,18 @@ const IDENTIFIER =
 const SUBJECT_LINE = /^[^\S\n]*Feature:[^\S\n]*(.+)$/m;
 
 /**
+ * Every feature file's own leading line — `# <module-slug> — ...` — names the
+ * module by the SAME slug its endpoints are called under (`tickets`,
+ * `client-phone`). The `Feature:` line is free to phrase the subject in
+ * business prose that shares no word with the wire path it reads (`A client
+ * runs their own support conversations` reads `api/tickets`) — the header
+ * slug is the one anchor every feature file carries that is guaranteed to
+ * name the resource, so it widens the subject rather than replacing the
+ * `Feature:` line's own terms.
+ */
+const MODULE_HEADER = /^#\s*([a-z][a-z0-9-]*)\s+—/;
+
+/**
  * The ACTOR a subject line opens on, in the "A <actor> <verb>s <object>" form.
  * A line opening on no article names no actor, and every word of it is subject.
  */
@@ -114,7 +126,13 @@ function subjectOf(feature: string): Subject {
   const [, opener] = SUBJECT_ACTOR.exec(line) ?? [];
   const actor = opener ? stem(opener) : undefined;
 
-  return { terms: reject(termsOf(line), term => term === actor), actor };
+  const [, slug = ""] = MODULE_HEADER.exec(feature) ?? [];
+  const terms = uniq([
+    ...reject(termsOf(line), term => term === actor),
+    ...termsOf(slug)
+  ]);
+
+  return { terms, actor };
 }
 
 /** The resources a path addresses: its segments, ids and query dropped. */

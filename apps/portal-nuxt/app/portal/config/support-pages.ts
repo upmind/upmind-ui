@@ -27,7 +27,6 @@ import {
   SPEC_MODULE_ID
 } from "../registry";
 import { PAGE_KEY } from "../types";
-import { assign } from "lodash-es";
 import {
   backLink,
   brandNoteRow,
@@ -35,6 +34,7 @@ import {
   panelControls,
   statusRail
 } from "./pager";
+import { assign } from "lodash-es";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { ContentConfig, PageKey, SlotAssignment } from "../types";
 
