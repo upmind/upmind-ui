@@ -52,3 +52,4 @@ export * from "./system-places";
 export * from "./system-recaptcha";
 export * from "./system-upload";
 export * from "./theming";
+export * from "./tickets";

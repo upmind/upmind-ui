@@ -62,11 +62,21 @@ export const scenarioKeys = keys(registry);
 /**
  * The keys the harness can BOOT — a self-drawn module binds no collection and
  * no editor, so there is no thunk to build for it and asking for one throws.
+ *
+ * Unless it OPTS IN. A self-drawn page that boots the module itself and merely
+ * draws it by hand says so with `useManage`, and is bound here like any other
+ * (`scenario.types.ts`). The member is read LAST, so a declaration already
+ * binding a renderer keeps exactly the thunk it had, and a declaration naming
+ * none of the three is excluded exactly as before.
  */
 const boundKeys = filter(
   scenarioKeys,
   key =>
-    !!(get(registry, [key, "useList"]) ?? get(registry, [key, "useMutate"]))
+    !!(
+      get(registry, [key, "useList"]) ??
+      get(registry, [key, "useMutate"]) ??
+      get(registry, [key, "useManage"])
+    )
 );
 
 /**
@@ -129,9 +139,12 @@ export const scenarioRegistry: ScenarioRegistry<ScenarioKey, unknown> =
     map(boundKeys, key => [
       key,
       // The collection where the module publishes one, else its editor — the
-      // two the binding's own union guarantees at least one of.
+      // two the binding's own union guarantees at least one of — else the
+      // composable a self-drawn page opted in with. Same order as `boundKeys`,
+      // which is what keeps the set and the thunks one reading.
       () =>
         (get(registry, [key, "useList"]) ??
-          get(registry, [key, "useMutate"]))!()
+          get(registry, [key, "useMutate"]) ??
+          get(registry, [key, "useManage"]))!()
     ])
   );

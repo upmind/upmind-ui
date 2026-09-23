@@ -1,0 +1,19 @@
+# must-fail: 10-reference-equal-operator
+# Target assertion: AC5 "ticket list filters" — asserts setCriteria for reference emits the bare EQUAL wire key filter[reference]=, never a CONTAINS-shaped operator
+diff --git a/packages/headless/src/modules/tickets/tickets.schemas.ts b/packages/headless/src/modules/tickets/tickets.schemas.ts
+index 6c80c445d..01d6cf4c9 100644
+--- a/packages/headless/src/modules/tickets/tickets.schemas.ts
++++ b/packages/headless/src/modules/tickets/tickets.schemas.ts
+@@ -40,9 +40,10 @@ export function useQuerySchema(): TicketsQuerySchema {
+         additionalProperties: false,
+         properties: {
+           reference: {
+-            type: ["string", "null"],
++            type: "object",
+             title: "Reference",
+-            minLength: 1
++            additionalProperties: false,
++            properties: { like: { type: ["string", "null"], minLength: 1 } }
+           },
+           subject: {
+             type: ["string", "null"],

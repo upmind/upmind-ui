@@ -100,14 +100,8 @@ import ForcedCanvas from "./components/ForcedCanvas.vue";
 import PageHeader from "./components/PageHeader.vue";
 import ScenarioBar from "./components/ScenarioBar.vue";
 import { useCriteriaUrlSync } from "./composables/useCriteriaUrlSync";
-import { useFeatureTracks } from "./composables/useFeatureTracks";
-import { useForcedState } from "./composables/useForcedState";
 import { useModulePort } from "./composables/useModulePort";
-import { useScenarioPlayer } from "./composables/useScenarioPlayer";
-import { armCorpusModule, runtimeCorpus } from "./force/corpus";
-import { featureTextFor, featureTracksFor } from "./force/corpus.source";
-import { forcedStateGaps, offeredForcedStates } from "./force/offer";
-import { presetRefusal } from "./force/presets";
+import { useScenarioTransport } from "./composables/useScenarioTransport";
 import {
   scenarioRegistry,
   scenarioRouteOf,
@@ -119,16 +113,13 @@ import { scenarioPlayground } from "./ScenarioPlayground.styles";
 import {
   get,
   isArray,
-  isEmpty,
   isFunction,
-  map,
   mapValues,
   reduce,
   toPairs
 } from "lodash-es";
 import type { ActionSlotItem } from "./components";
 import type { ForceReset } from "./composables/useForcedState.types";
-import type { ForcedState } from "./force/states.types";
 import type {
   FourLayerComposable,
   RegisteredScenario,
@@ -292,134 +283,28 @@ const contextForm = get(
 if (port.scopeMatrix) registerContexts(port.scopeMatrix, contextForm);
 
 // --- Playlist and transport
-// `tracks` names the MODULE (`R6-37`); the seam hands back that module's own
-// committed playlist and the catalog that plays it, and a module it does not
-// reach leaves the page Live-only (`S12`).
-const trackedModule = scenario.tracks;
-
-const trackSource = trackedModule ? featureTracksFor(trackedModule) : undefined;
-
-const tracks = trackSource ? useFeatureTracks(trackSource).tracks : [];
-
-// The forced states THIS page offers: the ones its module's own `.feature`
-// declares (operator ruling, 2026-09-12), kept to those its own recordings can
-// answer — so a state with no evidence behind it is never offered and never
-// served from something authored (`S13`). Empty until the corpus lands, which
-// leaves the page Live in the meantime — the state it boots into anyway
-// (`S12`).
-const states = ref<ForcedState[]>([]);
-
-// Whether that offer has been MADE yet. Empty means "not measured" until this
-// turns, and disarming on a list nobody has filled in would drop a pasted link
-// before its own corpus had a chance to answer it.
-const isOffered = ref(false);
-
-// Read off the same recording the intercept answers a real write with, so the
-// row drawn refused and the request that would be refused say one thing.
-const refusal = ref<string | undefined>();
-
-// Arming is what loads the recordings — the seam's loaders are lazy — so both
-// the offer and the evidence check run after the corpus lands. It is also the
-// barrier the forced-state handle holds its first reconcile behind: a pasted
-// `force=` link arms in this same tick, and one that won the race would
-// register a worker with no handlers at all.
-const whenArmed = trackedModule
-  ? armCorpusModule(trackedModule).then(armed => {
-      const bodies = armed ? runtimeCorpus(trackedModule) : undefined;
-      if (!bodies) return;
-
-      const feature = featureTextFor(trackedModule);
-
-      states.value = offeredForcedStates(feature, bodies);
-      refusal.value = presetRefusal(bodies);
-      isOffered.value = true;
-
-      const gaps = forcedStateGaps(feature, bodies);
-
-      if (!isEmpty(gaps))
-        console.warn(
-          `[force] ${trackedModule} declares states its own recordings cannot answer — a capture gap, not a missing capability:\n` +
-            map(
-              gaps,
-              gap =>
-                `  - ${gap.title} [${gap.recipe.kind}/${gap.recipe.target}]`
-            ).join("\n")
-        );
-    })
-  : undefined;
-
-const player = useScenarioPlayer({ tracks, criteria: port.criteria });
-
-// A replay is a PLAYBACK, so while a track is armed the page's own controls are
-// the script's (`R6-23`). It reads the armed TRACK rather than the player's
-// status: `FAILED` and `PAUSED` are still a track holding the surface, and only
-// Live — which is `stop()` — hands it back.
-const isReplaying = computed(() => !!player.track.value);
-
-// The frame reads the worker's own preset rather than the player's status: a
-// pasted `force=` link arms with no track at all, and only the handle knows
-// what is actually being served (`AC8.4`).
+// The playlist, the forced-state offer and the page's ONE player (`S19`), built
+// by the composable a SELF-DRAWN page reaches for the same wiring
+// (`useScenarioTransport`) — one behaviour, two hosts.
 //
 // The cache clear the arm ends on is the booted module's OWN, handed in because
 // forcing may learn no query key (FE-3113): `reset` is already bound to the
 // domain this module caches under, which neither the url nor a recorded path
-// spells. `reset` and not `invalidate` — the latter keeps the rows, so a forced
-// `loading` redrew the data it already had and a forced failure drew its error
-// above rows the read never returned. A module publishing none leaves the arm
-// swapping the transport alone.
-//
-// The module's NAME rides with them so leaving it disarms (FE-3113 R): the two
-// are one module's, and so is the preset.
-const moduleReset = get(port.actions, "reset") as ForceReset | undefined;
-
-// Surfaced, never silent (`S14`): forcing swaps what the tab's NEXT request is
-// answered with, and a module that publishes no `reset` never asks again — so
-// every state this page offers would arm a worker nobody could see. The page
-// still offers them (the transport does change, and a manual refresh shows it),
-// but the reason the screen may not move is said out loud rather than left as a
-// dead control.
-if (trackedModule && !moduleReset)
-  console.warn(
-    `[force] ${trackedModule} publishes no \`reset\` action, so arming a forced state swaps the transport but the page keeps the answers it already holds — the state may not appear until the page is reloaded. Ship \`reset\` on the module's actions layer.`
-  );
-
+// spells. A module publishing none leaves the arm swapping the transport alone.
 const {
-  disarm,
-  preset,
-  state: forcedState,
-  requested,
-  isSettling
-} = useForcedState({
-  module: trackedModule,
+  tracks,
+  featureText,
   states,
-  reset: moduleReset,
-  whenArmed
+  player,
+  preset,
+  forcedState,
+  forcedRefusal,
+  isLocked
+} = useScenarioTransport({
+  module: scenario.tracks,
+  criteria: port.criteria,
+  reset: get(port.actions, "reset") as ForceReset | undefined
 });
-
-// A forced state is a fact about THIS module's own feature and corpus. A slug
-// reached by a pasted url — or by a sidebar navigation that carried the query
-// across — names a state this page does not offer and nothing here can honestly
-// answer, so the page lands Live rather than armed on nothing. It is read after
-// the offer has been MEASURED: before that, an unresolved slug is a link whose
-// corpus has simply not landed yet (`AC8.2`).
-watch([requested, isOffered, forcedState], ([slug, measured, armed]) => {
-  if (!measured || !slug || armed) return;
-  void disarm();
-});
-
-// Gated on the preset: a row marked under any other is a failure nobody armed.
-const forcedRefusal = computed(() =>
-  preset.value === "error-action" ? refusal.value : undefined
-);
-
-// A page mid-arm is no more the operator's to drive than one mid-replay, and
-// for the same reason (`R6-23`): the transport a write would answer through is
-// not yet the one the rows on screen came from. An ARMED forced state is a
-// replay too — the page is showing a state, not taking input — so it locks for
-// as long as it is armed; `Live` hands the page back.
-const isLocked = computed(
-  () => isReplaying.value || isSettling.value || !!forcedState.value
-);
 
 // --- Labs page actions: HEADER actions the declaration backs with its own
 // composables rather than the cell's port (`pageActions`). Each factory is
@@ -489,7 +374,7 @@ registerPane(PlaygroundSheetTypes.SCENARIO, () => {
 
   return {
     declaration: get(scenarioSources, scenarioRoute, ""),
-    featureText: trackSource?.feature,
+    featureText,
     trackName: armed?.name,
     // The armed track's own scenes and the transport that moves between them:
     // the pane's step list and the bar's scene rail are two views of the SAME

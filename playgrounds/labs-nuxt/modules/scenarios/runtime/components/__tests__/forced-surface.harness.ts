@@ -64,6 +64,7 @@ import { offeredForcedStates } from "../../force/offer";
 import { presetRefusal } from "../../force/presets";
 import { forcedStateRecipeId } from "../../force/states";
 import { ActionPlacementTypes } from "../../scenario.types";
+import { trackedModuleOf } from "../../scenario.utils";
 import { ModuleRenderer } from "../index";
 import {
   filter,
@@ -104,6 +105,13 @@ import type { VueWrapper } from "@vue/test-utils";
     finished: Promise.resolve(),
     addEventListener: () => undefined
   });
+
+// The same directive ALSO defers work on a timer that then calls
+// `requestAnimationFrame`. A stub HERE cannot help: jsdom defines
+// `requestAnimationFrame` for the whole of a test, so the guard never fired,
+// and vitest's jsdom teardown deletes the key outright, so an unconditional
+// assignment would not survive to the moment the stale timer lands either. The
+// lane cuts the timer instead (`modules/scenarios/testing/component.setup.ts`).
 
 const OVERFLOW_TRIGGER = "show-more-options";
 
@@ -262,7 +270,7 @@ const isDisabled = (control: { attributes: (name: string) => unknown }) =>
 export async function proveForcedSurface(
   declaration: ScenarioDeclaration
 ): Promise<void> {
-  const module = declaration.tracks as string;
+  const module = trackedModuleOf(declaration.tracks)!;
   const kit = (await integrationKits[module]()) as Record<string, unknown>;
   const { server } = (await integrationSetups[module]()) as {
     server: {
