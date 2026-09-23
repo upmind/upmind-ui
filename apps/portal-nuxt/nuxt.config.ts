@@ -152,6 +152,17 @@ export default defineNuxtConfig({
    */
 
   app: {
+    // The portal is mounted at /portal on the shared staging host. The
+    // Cloudflare `portal` snippet sends /portal/* here and everything else to
+    // the legacy admin app. baseURL prefixes routes and asset URLs with
+    // /portal, so a single prefix identifies our traffic.
+    baseURL: "/portal/",
+
+    // Build assets resolve to /portal/assets/. The snippet routes that path to
+    // GCS; every other /portal path goes to Firebase. Keep this in sync with
+    // the snippet's ASSET_PREFIX.
+    buildAssetsDir: "/assets/",
+
     head: {
       charset: "utf-8",
       viewport: "width=device-width, initial-scale=1.0",
