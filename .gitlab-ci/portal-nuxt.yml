@@ -1,0 +1,105 @@
+#-------------------------------------------------------------------------------
+# portal-nuxt: Nuxt SPA (design-system client portal)
+#
+# Deploy is split like cart/velia/hosting.
+#   - Firebase serves index.html and the SPA fallback.
+#   - GCS serves the build assets.
+#   - The `portal_subpath` Cloudflare snippet sends /assets/portal/* to GCS and
+#     everything else to the doc origin.
+#
+# NOTE: Jobs run only on `portal-v*` tags and manual web runs.
+#
+# NOTE: The `upmind-portal`/`upmind-portal-staging` buckets do not exist yet,
+#       so deploys uses the existing cart bucket under a `portal`/`portal-staging`
+#       prefix respectively.
+#-------------------------------------------------------------------------------
+
+.portal rules: &portal_rules
+  - if: $CI_COMMIT_TAG =~ /^portal-v\d+(\.\d+)+$/
+  - if: $CI_PIPELINE_SOURCE == "web"
+    when: manual
+
+#-------------------------------------------------------------------------------
+# 🛠️ Build
+#-------------------------------------------------------------------------------
+
+(apps/portal-nuxt) build:
+  extends: .pnpm
+  stage: build
+  interruptible: true
+  tags: [xl]
+  needs:
+    - dependencies
+  rules: *portal_rules
+  artifacts:
+    when: on_success
+    access: all
+    expire_in: "3 days"
+    paths:
+      - apps/portal-nuxt/.output/public
+  script:
+    # The design-system packages ship dist the app builds consume (tokens
+    # css + ui d.ts) — CI must build them first; a dev machine has them built.
+    - pnpm --filter @upmind/tokens build && pnpm --filter @upmind/ui build
+    - pnpm --dir apps/portal-nuxt run build:prod
+
+#-------------------------------------------------------------------------------
+# ☁️ GCS deployment - Cacheable assets (JS, CSS, fonts, images)
+#-------------------------------------------------------------------------------
+
+(apps/portal-nuxt) deploy gcs - staging:
+  stage: deploy
+  image: google/cloud-sdk:alpine
+  interruptible: true
+  needs:
+    - dependencies
+    - (apps/portal-nuxt) build
+  rules: *portal_rules
+  environment:
+    name: apps/portal-nuxt/gcs/staging
+    action: start
+  variables:
+    # Use the cart staging bucket and its service account until the upmind-portal
+    # bucket and GCP_SERVICE_ACCOUNT_JSON_PORTAL exist.
+    GCP_SERVICE_ACCOUNT_JSON: ${GCP_SERVICE_ACCOUNT_JSON_CART}
+    GCS_BUCKET: upmind-cart-staging
+    GCS_PREFIX: portal-staging
+    GCS_DIST: apps/portal-nuxt/.output/public
+  script:
+    - set -u
+    - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+    - bash "${CI_PROJECT_DIR}/etc/scripts/deploy-gcs.sh" --bucket "${GCS_BUCKET}" --prefix "${GCS_PREFIX}" --dist "${GCS_DIST}"
+
+#-------------------------------------------------------------------------------
+# 🔥 Firebase deployment - HTML entry + SPA fallback
+#-------------------------------------------------------------------------------
+
+(apps/portal-nuxt) deploy firebase - staging:
+  extends: .pnpm
+  stage: deploy
+  needs:
+    - dependencies
+    - (apps/portal-nuxt) build
+    - (apps/portal-nuxt) deploy gcs - staging
+  rules: *portal_rules
+  environment:
+    name: apps/portal-nuxt/firebase/staging
+    action: start
+  variables:
+    # The upmind-portal Firebase project needs its own deploy credentials.
+    # Both hosting sites (prod and staging) live in this one project.
+    GCP_SERVICE_ACCOUNT_JSON: ${GCP_SERVICE_ACCOUNT_JSON_PORTAL}
+  script:
+    - set -u
+    - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+    - |
+      if [ -n "${CI_COMMIT_TAG}" ]; then
+        message="${CI_COMMIT_TAG}"
+      else
+        message="${CI_COMMIT_SHORT_SHA}"
+      fi
+      pnpm --dir apps/portal-nuxt exec \
+        firebase deploy \
+          --project upmind-portal \
+          --only hosting:upmind-portal-staging \
+          --message "${message}"

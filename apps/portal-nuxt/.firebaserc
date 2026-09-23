@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "upmind-portal"
+  },
+  "targets": {
+    "upmind-portal": {
+      "hosting": {
+        "upmind-portal": ["upmind-portal"],
+        "upmind-portal-staging": ["upmind-portal-staging"]
+      }
+    }
+  }
+}

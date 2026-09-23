@@ -10,6 +10,9 @@ includes:
   hosting:
     taskfile: apps/hosting/Taskfile.yml
     dir: apps/hosting
+  portal:
+    taskfile: apps/portal-nuxt/Taskfile.yml
+    dir: apps/portal-nuxt
 
 vars:
   DEV_IMAGE: upmind/monorepo/node:dev
