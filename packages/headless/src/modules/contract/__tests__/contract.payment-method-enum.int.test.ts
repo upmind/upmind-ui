@@ -130,7 +130,7 @@ describe("useContract payment-method form — the stored-card enum (AC-8, D3)", 
    * The validate-before-request guard on the payment-method form: an id that is
    * NOT one of the client's stored cards is rejected before the PATCH fires, so
    * no request leaves and a 422 lands in the form's error region. Mutant:
-   * `contract.mutations.validation.must-fail.patch`.
+   * `contract.payment-method-enum.must-fail.patch`.
    */
   it("makes NO PATCH and lands a 422 in the error region when I submit an id outside my stored cards", async () => {
     const { manager, row } = await openWithCards();

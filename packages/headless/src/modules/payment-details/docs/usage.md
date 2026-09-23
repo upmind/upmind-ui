@@ -271,7 +271,7 @@ The flat list — no machine, no `PaymentDetailsArgs`, no currency/country filte
 import { usePaymentDetails } from "@upmind-automation/headless";
 
 const {
-  isReady, // always resolves true immediately — check meta.isLoading instead
+  isReady, // awaits the session settling, then the list query — see below
   meta, // { isLoading, hasError, isEmpty, isAvailable: true }
   data, // PaymentDetail[] — the full unfiltered list
   error,
@@ -283,6 +283,8 @@ const {
 ```
 
 This is the list a "My Payment Methods" management page reads — it is not currency- or country-filtered the way the capture flow's `storedPaymentMethods` is, because there is no amount in play to filter against.
+
+`isReady()` first awaits the active session's own `isReady()` — the same "settle the session before trusting its client id" order `useContracts` uses — and only then waits on the list query, resolving `true` once it has fetched with no error, `false` once it has fetched WITH an error, or once the session settles with no addressable client at all. There is no timeout on the query wait; a caller that awaits it gets a genuine settle signal rather than a fixed-delay guess.
 
 ## Lifecycle
 

@@ -4,6 +4,16 @@ All notable changes to the contract-product module.
 
 ## [Unreleased]
 
+### Changed
+
+- **Every cancellation write moved onto this module** — hard cancellation request (`requestCancellation`) and withdrawal (`withdrawCancellation`), alongside the soft (`stopRenewing`/`resumeRenewing`) and scheduled (`scheduleCancellation`/`revokeScheduledCancellation`) writes this module already owned. The sibling `contract` module keeps exactly one write of its own — changing the contract's payment method — because a contract only groups product ids; changing what happens to one product is this module's job.
+- **The cancellation form is now ONE combined form over three options** (soft / hard / scheduled), not three independent calls with no shared shape. `openCancellation()` builds the form's schema from the options the record currently allows; `submitCancellation()` routes to the matching write off `model.option`. The six existing direct-call actions (`stopRenewing`, `resumeRenewing`, `requestCancellation`, `withdrawCancellation`, `scheduleCancellation`, `revokeScheduledCancellation`) open + set + submit the form in one call each, so no existing caller has to change.
+- **The consolidation write is now a form too** (`openConsolidation`/`set`/`submitConsolidation`, or the direct `setConsolidation` call), matching the cancellation form's shape.
+- **Both write forms are now parallel regions of `available`** (`cancelling`, `consolidating`), each with its own `idle` → `available` (checking/valid/invalid/error) → `processing` cycle. Opening either form never moves the product off its current status node, and a failed submit returns to that form's own error state with the model kept, rather than to a machine-wide error.
+- **Cancel-form and consolidation eligibility now follow the legacy record rules exactly**: the whole cancellation form disappears (not just the HARD option) once auto-expire is already set, a hard request is pending, or a future cancellation is booked; the consolidation form opens only for a live, non-staged subscription whose client preference and catalogue product both allow it. Neither reads a brand setting or an actor permission — see gotchas.md for the known permission-check gap.
+- **`useContractProduct().useMeta()` gained `canRequestCancellation` and `canRequestEndOfTerm`**, alongside the existing `canScheduleFutureCancellation`, reporting each cancellation option's own eligibility independent of the combined form.
+- **The manager's read now settles the CANCEL_REQUEST custom-field catalogue alongside the product record**, in one load, so the cancellation form has its field definitions the moment it opens.
+
 ### Added
 
 - Initial module: `useContractProducts` (client's own contract-products collection, filter/sort/pagination, grouped counts, purchased-category read, delegated-product inclusion) and `useContractProduct` (per-product manager backed by `contract-product.machine.ts` — stop/resume renewal, invoice-consolidation preference, scheduled/future-dated cancellation booking and revocation, unpaid-invoice due/cancellable predicates, future-cancellation anniversary date maths).

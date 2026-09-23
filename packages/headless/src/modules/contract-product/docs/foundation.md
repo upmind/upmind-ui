@@ -2,18 +2,21 @@
 
 ## What it is
 
-The **contract-product** module is where a signed-in client reads and manages the individual products living inside their own contracts — the concrete, billable line items (a hosting plan, a domain, a service subscription) rather than the contract envelope that groups them. It offers two working surfaces over the same server resource: a **collection**, which lists and filters the client's own contract products for dashboards and browse views, and a **manager**, which loads one contract product in full detail and drives the small set of changes a client is allowed to make directly to it — pausing or resuming automatic renewal, choosing whether its invoices consolidate with the rest of the contract's billing, and booking or cancelling a future-dated cancellation.
+The **contract-product** module is where a signed-in client reads and manages the individual products living inside their own contracts — the concrete, billable line items (a hosting plan, a domain, a service subscription) rather than the contract envelope that groups them. It offers two working surfaces over the same server resource: a **collection**, which lists and filters the client's own contract products for dashboards and browse views, and a **manager**, which loads one contract product in full detail and drives every change a client is allowed to make directly to it — pausing or resuming automatic renewal, requesting or withdrawing an immediate cancellation, booking or revoking a future-dated cancellation, and choosing whether its invoices consolidate with the rest of the contract's billing.
 
-It never manages the contract itself (starting a contract, changing its payment method, requesting or withdrawing a hard cancellation) — that is a sibling capability living beside this one. It also never acts on behalf of another client or on a staff operator's authority; every read and write here resolves to the signed-in client's own identity, with one narrow exception: a client can be granted delegated access to another client's products, and the collection can choose whether or not to include those alongside the client's own — there is no dedicated view of only the delegated set.
+Cancellation of every kind is this module's responsibility, not the contract's: a contract only holds the list of product ids it groups, and every write that changes what happens to a product — including an immediate ("hard") cancellation request historically thought of as a contract-level action — is this module's write, addressed at one product at a time. The sibling **contract** module keeps exactly one write of its own: changing which stored payment method pays the contract's future invoices. It also never acts on behalf of another client or on a staff operator's authority; every read and write here resolves to the signed-in client's own identity, with one narrow exception: a client can be granted delegated access to another client's products, and the collection can choose whether or not to include those alongside the client's own — there is no dedicated view of only the delegated set.
 
 ## Core concepts
 
 - **Contract product** — one product instance inside a contract: what was bought, its billing cadence, whether it renews, and its current lifecycle status. A contract typically holds several contract products.
 - **Delegated product** — a contract product belonging to a different client that the signed-in client has been granted access to. A client who has explicitly set the preference gets it honoured in either direction (excluded when set to exclude, included when set to include); a client who has never touched the preference gets delegated products **included** by default — the preference storage this module reads always resolves an untouched preference to "not excluded" before the collection ever sees it, so there is no held-preference state in which delegated products are hidden without the client asking for that. A second selector on the same collection forces exclusion off outright regardless of preference, so the client's own products and their delegated products are returned together — it is not a dedicated delegated-only view.
 - **The status/setup/trial regions** — a contract product's lifecycle is reported as three simultaneous facts rather than one linear status: which of the published statuses it currently sits in (pending, awaiting activation, active, suspended, expiring, or mid-cancellation-request — outside these, the product is either staged, cancelled, lapsed, or flagged fraudulent and reported as unavailable for any action), whether its setup fields are still outstanding, and whether it is currently on a trial and how that trial is expected to end. All three are derived from one read and can be true at once — a product can be both "active" and "still in trial", for example.
-- **Soft cancellation (stop/resume renewal)** — a client can stop a subscription's automatic renewal (it keeps running to its already-paid-for end date and then lapses) and can resume that renewal before it takes effect. This is distinct from a hard cancellation request, which is not part of this module.
-- **Scheduled (future-dated) cancellation** — a subscription client can additionally book an exact future date on which the product will be cancelled, and can revoke that booking before it fires. A future date is only valid when it lands exactly on one of the product's own billing anniversaries (its next due date, or that date plus a whole number of billing cycles) and is not earlier than the next anniversary strictly after today; the module publishes the maths to compute and validate that date, it does not enumerate every valid date itself.
-- **Invoice consolidation** — a subscription client can choose whether this product's future invoices are billed together with the rest of the contract's invoices, or kept separate.
+- **The cancellation form is one combined form, not three separate calls.** A client picks one of up to three cancellation options — cancel at end of term ("soft"), cancel immediately ("hard"), or book a future date — and the ONE form's chosen option decides which write actually goes out. All three options are computed from the record itself: which of them is offered at all depends on the product's own facts, never on a brand setting or a separate permission read.
+  - **Soft cancellation (stop/resume renewal)** — a client can stop a subscription's automatic renewal (it keeps running to its already-paid-for end date and then lapses) and can resume that renewal before it takes effect.
+  - **Hard cancellation (immediate request)** — a client can ask staff to cancel a subscription product straight away, and can withdraw that request while it is still pending. This is a genuinely different capability from a scheduled cancellation: a hard request asks for review, a scheduled one books an exact date with no review at all.
+  - **Scheduled (future-dated) cancellation** — a subscription client can additionally book an exact future date on which the product will be cancelled, and can revoke that booking before it fires. A future date is only valid when it lands exactly on one of the product's own billing anniversaries (its next due date, or that date plus a whole number of billing cycles) and is not earlier than the next anniversary strictly after today; the module publishes the maths to compute and validate that date, it does not enumerate every valid date itself.
+  - **The whole form disappears, rather than offering a refused option, once**: the subscription has already stopped renewing with a calculated end date (auto-expiring), a hard request is already pending, or a future cancellation is already booked. Each of the three options additionally has its own narrower condition (a live subscription that is not already pending, for the soft and scheduled options; the platform's own cancellable flag, for the hard option; a computable billing anniversary, for the scheduled option).
+- **Invoice consolidation** — a subscription client can choose whether this product's future invoices are billed together with the rest of the contract's invoices, or kept separate. The form is offered only to a live (not staged), non-cancelled, non-lapsed subscription whose client-level consolidation preference is enabled or inherited and whose catalogue product itself allows consolidation.
 - **Unpaid invoices** — a contract product carries its own list of recurring invoices that are currently outstanding; each is independently reported as "still due" or "still eligible to be cancelled", which are overlapping but not identical states (an adjusted invoice, for example, is still due but is no longer cancellable).
 
 ## Operations
@@ -24,14 +27,17 @@ It never manages the contract itself (starting a contract, changing its payment 
 | 2   | **Read the dashboard's grouped counts**                                           | none                                                            | Counts of active contract products grouped by category and service                          |
 | 3   | **Read the categories the client has purchased into**                             | none                                                            | The distinct product categories represented across the client's own contract products        |
 | 4   | **Read one contract product in full detail**                                      | a contract-product id                                           | Its status/setup/trial facts, billing cycle, catalogue product, tags, and any related contract, scheduled actions and unpaid invoices |
-| 5   | **Stop automatic renewal** (a subscription product only)                          | an optional reason and custom fields                            | The renewal is stopped; the re-read product reflects the change                              |
-| 6   | **Resume automatic renewal** (undo a pending stop)                                | none                                                            | The renewal is resumed; the re-read product reflects the change                              |
-| 7   | **Set the invoice-consolidation preference** (a subscription product only)        | the desired consolidation setting                               | The preference is applied; the re-read product reflects it                                   |
-| 8   | **Book a future-dated cancellation**                                              | a valid future anniversary date, an optional reason and custom fields | The cancellation is scheduled; the re-read product reports it as booked                  |
-| 9   | **Revoke a booked future-dated cancellation**                                     | none                                                            | The booking is removed; the re-read product reports it as no longer booked                   |
-| 10  | **Compute the valid future-cancellation date range**                              | the product's billing facts, and (to validate one) a candidate date | The earliest bookable date, and whether a given date lands on a valid anniversary        |
-| 11  | **Judge an unpaid invoice's due/cancellable state**                               | one invoice                                                     | Whether it is still due, and whether it is still eligible to be included in a cancellation    |
-| 12  | **Include or exclude delegated products from the list**                           | a client-held preference, or an explicit request to turn exclusion off | The list scope changes accordingly — delegated products join the client's own, never replace them |
+| 5   | **Open the combined cancellation form and see which options it currently offers** | none                                                             | The options this product allows right now (some subset of soft / hard / scheduled), or none at all |
+| 6   | **Stop automatic renewal** (soft cancellation; a subscription product only)        | an optional reason and custom fields                             | The renewal is stopped; the re-read product reflects the change                              |
+| 7   | **Resume automatic renewal** (undo a pending stop)                                | none                                                            | The renewal is resumed; the re-read product reflects the change                              |
+| 8   | **Request an immediate cancellation** (hard cancellation)                         | an optional reason and custom fields                             | A cancellation request is opened against the product; the re-read product reports it as mid-request |
+| 9   | **Withdraw a pending immediate-cancellation request**                             | none                                                            | The pending request is withdrawn; the product returns to its prior status                    |
+| 10  | **Book a future-dated cancellation**                                              | a valid future anniversary date, an optional reason and custom fields | The cancellation is scheduled; the re-read product reports it as booked                  |
+| 11  | **Revoke a booked future-dated cancellation**                                     | none                                                            | The booking is removed; the re-read product reports it as no longer booked                   |
+| 12  | **Set the invoice-consolidation preference** (open the form, then set it)         | the desired consolidation setting                                | The preference is applied; the re-read product reflects it                                   |
+| 13  | **Compute the valid future-cancellation date range**                              | the product's billing facts, and (to validate one) a candidate date | The earliest bookable date, and whether a given date lands on a valid anniversary        |
+| 14  | **Judge an unpaid invoice's due/cancellable state**                               | one invoice                                                     | Whether it is still due, and whether it is still eligible to be included in a cancellation    |
+| 15  | **Include or exclude delegated products from the list**                           | a client-held preference, or an explicit request to turn exclusion off | The list scope changes accordingly — delegated products join the client's own, never replace them |
 
 **Additional always-on behaviours:**
 
@@ -39,6 +45,7 @@ It never manages the contract itself (starting a contract, changing its payment 
 - Resolving once the collection's first read has settled, or once a loaded product has been placed on a definite status.
 - Forcing a re-read of the list, or of one product.
 - Reporting live state flags for a loaded product — whether it is active, cancelling, staged, cancelled, lapsed, flagged fraudulent, mid-trial, mid-setup, submitting a write, or carrying an error — and reporting whether the collection's own read is loading, empty, filtered, paginated, or has failed.
+- Both the cancellation form and the consolidation form stay open, mid-edit or mid-submit, without moving the product off its current status — a client can be mid-way through cancelling a product that is still reported as, say, "active" until the write actually settles.
 
 ## Data shape
 
@@ -49,8 +56,11 @@ type ContractProduct = {
   id: string;
   contractId: string;
   status?: { code: ContractStatusCode }; // one of the published contract-product status codes
+  /** The owning contract's own status code — the hard-cancellation gate reads it (a hard request cannot be opened on a pending contract). */
+  contractStatus?: ContractStatusCode;
   stagedImport: boolean;
-  contractRequest?: { status?: { code: CancellationRequestStatusCode } };
+  /** `id` is the pending request's own id — withdrawing a hard cancellation sends it back. */
+  contractRequest?: { id?: string; status?: { code: CancellationRequestStatusCode } };
   renew: boolean;
   billingCycleMonths: number;
   calculatedCancelDate?: string;
@@ -77,8 +87,10 @@ type ContractProduct = {
   isSubscription: boolean;
   /** True once a future-dated cancellation is booked. */
   hasScheduledFutureCancellation: boolean;
-  /** `provision_blueprint` also stays in its WIRE (snake_case) form. */
-  product?: { id: string; name: string; image?: unknown; provision_blueprint?: unknown };
+  /** The owning CLIENT's (not the product's) invoice-consolidation preference — one of "enabled" / "disabled" / "inherit". The consolidation form is offered only when this is "enabled" or "inherit" AND the catalogue product below allows it. */
+  clientInvoiceConsolidationEnabled?: InvoiceConsolidationType;
+  /** `provision_blueprint` also stays in its WIRE (snake_case) form; `invoice_consolidation_enabled` is the catalogue product's own consolidation switch, read alongside the client preference above. */
+  product?: { id: string; name: string; image?: unknown; provision_blueprint?: unknown; invoice_consolidation_enabled?: boolean };
   brand?: { id: string; name: string; currency?: unknown };
   /** `show_to_customer` also stays in its WIRE (snake_case) form. */
   tags?: { id: string; name: string; colour?: string; show_to_customer: boolean }[];
@@ -114,13 +126,16 @@ type QueryModel = {
 };
 ```
 
-The write inputs:
+The write inputs. `SoftCancelModel`, `RequestCancellationModel` and `ScheduleCancellationModel` are the three shapes the ONE combined cancellation form can carry, routed by whichever option the client picked — a client never fills in more than one of them at a time:
 
 ```ts
 type SoftCancelModel = { renew: boolean; reason?: string; customFields?: CustomField[] };
-type SetConsolidationModel = { invoiceConsolidationEnabled: InvoiceConsolidationType };
+type RequestCancellationModel = { reason?: string; customFields?: CustomField[] }; // immediate ("hard") cancellation
 type ScheduleCancellationModel = { futureCancellationDate: string; reason?: string; customFields?: CustomField[] };
+type SetConsolidationModel = { invoiceConsolidationEnabled: InvoiceConsolidationType };
 ```
+
+`customFields` on every cancellation model is a plain `{ [fieldCode]: value }` map, not the definition-shaped list the platform's custom-field type uses elsewhere — the fields on offer come from the brand's own cancellation-request field catalogue, not from this module.
 
 The wire record underneath (`GET .../contract_products/{id}`) carries a `tags` array that the server returns but that is not yet declared on the shared platform contract-product interface; this module reads it through a local augmentation until the shared type catches up. Any `meta`/`object_meta` bag on the raw record is client-UI-specific and out of scope for this document.
 
@@ -177,7 +192,7 @@ curl "$API/contract_product_categories?exclude_delegated=1" \
 
 ### GET /contract_products/{id}
 
-Role: the manager's single-product read — every field and relation its detailed view needs, including the parent contract, tags, scheduled actions and unpaid invoices.
+Role: the manager's single-product read — every field and relation its detailed view needs, including the parent contract, its own pending cancellation-request custom fields, tags, scheduled actions and unpaid invoices. This read also settles the CANCEL_REQUEST custom-field catalogue alongside it, in the same load, so the cancellation form has its field definitions the moment it opens.
 
 ```bash
 curl "$API/contract_products/$CONTRACT_PRODUCT_ID?with=contract,contract.account,contract.address,contract.brand.currency,contract.cancellation_request.status,contract.cancellation_request.custom_fields.field,contract.client,contract.client.tags,contract.client.image,contract.gateway,contract.import.credentials,contract.import.source,contract.moved_to_contract,contract.moved_to_contract.products,contract.payment_details,contract.payment_details.gateway,contract.promotions,contract.status,allowed_migrations,attributes.product.image,brand,contract_request,contract_request.custom_fields.field,future_cancellation_request,options.product.image,product,product.brand.currency,product.image,product.images,product.provision_blueprint,product.provision_category,scheduled_actions,status,tags,unpaid_recurring_invoices" \
@@ -257,12 +272,40 @@ curl -X PUT "$API/contracts/$CONTRACT_ID/products/$CONTRACT_PRODUCT_ID/schedule-
 
 Fixture: `put-contracts-id-products-id-schedule-cancel-revoke.json` (`{}`, 200).
 
+### POST /contracts/{contractId}/cancel/request
+
+Role: requests an immediate ("hard") cancellation. Contract-scoped by URL, but this module addresses it for ONE product at a time — the body always names exactly one product id, this product's own.
+
+```bash
+curl -X POST "$API/contracts/$CONTRACT_ID/cancel/request" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"product_ids": ["<this product'"'"'s own id>"], "cancellation_reason": "no longer needed"}'
+```
+
+Fixture: `post-contracts-id-cancel-request.json` (200) — recorded under the sibling `contract` module's fixtures, since the URL is shared across both modules' test suites.
+
+### DELETE /contracts/{contractId}/cancel/request
+
+Role: withdraws a pending immediate-cancellation request, naming the request's own id (not the product's).
+
+```bash
+curl -X DELETE "$API/contracts/$CONTRACT_ID/cancel/request" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"contract_request_id": "<the pending request'"'"'s own id>"}'
+```
+
+Fixture: `delete-contracts-id-cancel-request.json` — recorded under the sibling `contract` module's fixtures; the recorded capture is a `404` (no live pending request to withdraw at capture time), so a 200 success shape is not yet on file.
+
 ## Failure modes
 
 - **An unauthenticated or unaddressable caller** — every read and write rejects rather than silently returning nothing, so a caller cannot mistake "not signed in" for "the client has no products".
 - **An unrecognised status code** — a product whose status does not match any of the module's published codes never resolves to any lifecycle node at all: the load step records the fact on the failure/error property but does not transition the product onward. A caller's readiness check therefore stalls for the full 60-second wait and then resolves `false`; every status/setup/trial flag stays at its initial not-yet-loaded value throughout. The product does not report itself as "active" or as anything else — it never finishes loading. This is a genuine gap rather than a design choice — an unexpected new server status silently strands the product instead of misreporting it, and nothing but the stuck error flag signals the caller.
 - **A write attempted from the wrong lifecycle point** — stopping/resuming renewal or setting consolidation on a one-time (non-subscription) product is refused rather than sent to the server; a caller checks the relevant state flag first. Booking a future-dated cancellation carries NO such client-side check: the module sends whatever date the caller supplies, valid anniversary or not, and the module publishes the maths (see Compute the valid future-cancellation date range) purely as a helper — a caller that wants to refuse an invalid date must call it and check the result itself before booking.
 - **A second write while one is already in flight** — the module resolves the product to one definite state before accepting the next write; a caller that fires a second write while the first is still processing is left to the same one-write-at-a-time discipline the platform enforces generally.
+- **Submitting the open form with an invalid selection** — the module validates the open form's model against its own schema before any request leaves; an invalid model (a missing required field, a `SCHEDULE_FUTURE` option with no date) never reaches the server at all, and the form's own error state reports the rejection.
+- **A permission check this module does not make** — the platform's own cancellation and consolidation permission model is not read here at all: the module offers every option its record facts allow, with no separate permission read behind it (see Lessons).
 
 ## Lessons (hard-won)
 
@@ -271,3 +314,5 @@ Fixture: `put-contracts-id-products-id-schedule-cancel-revoke.json` (`{}`, 200).
 - **A future cancellation date is only valid on a billing anniversary.** It is not simply "today or later" — a client-picked date has to land exactly on the product's next-due-date, or that date plus a whole number of billing cycles, and not fall before the next anniversary that is still strictly in the future. A caller building a date picker needs both the earliest bookable date and a per-date validity check, not just a minimum bound.
 - **Delegated-product visibility defaults to included, not excluded, when the client has never touched the preference.** The exclusion seam has a branch that would exclude delegated products by default whenever the client actually has any and no preference is held, but the preference this module actually reads is sourced from a store that coerces an untouched value to "not excluded" before it ever reaches that seam — so once the preference has loaded, that branch does not fire, and a client who has never opened the setting sees their delegated products alongside their own. One window escapes this. The list query is gated on the client id alone, not on the preference, so a request that fires before the personal-details manager has loaded passes an undefined preference into the seam and DOES take the exclude branch. A delegate-holding client can therefore see one list render without their delegated products, followed by a second request once the preference resolves. A caller that wants delegated products hidden by default has to set the preference itself; the module will not do it unasked.
 - **The billing-anniversary maths is a helper, not a gate.** The write that books a future cancellation sends whatever date it is given — the module never refuses an off-anniversary date itself. A caller that wants that refusal to be client-side (rather than discovered from the server's response) has to call the minimum-date and validity helpers and act on the result before sending the write.
+- **The whole cancellation form vanishes rather than degrading to a smaller offer.** Once auto-expire is already set up, a hard request is already pending, or a future date is already booked, the module offers NONE of the three cancellation options — not "whichever ones still make sense". A caller cannot assume seeing zero options means "cancellation is unsupported for this product" versus "cancellation is already in motion for this product"; the record's own request/schedule/renewal facts distinguish the two, the options list alone does not.
+- **The consolidation and cancellation forms read no permission and no brand setting.** Both are gated purely on the product/client record facts this module already reads — a live, non-staged subscription and the client's own consolidation preference for consolidation; the record's cancellation and scheduling facts alone for cancellation. The platform's own actor-permission model (whether this particular signed-in identity is allowed to modify this product at all) is a known gap, not a considered omission — a caller relying on this module to enforce that permission is relying on something it does not do.

@@ -68,37 +68,71 @@ destroy();          // stops the machine and deregisters it
 
 ### Writes
 
+Every write that touches the product record is available two ways: as a **direct call** (opens the form, feeds it a model, submits — all in one), or as the raw **form flow** (`open*` → `set` → `submit*`) for a consumer building an actual form UI that needs the form's schema/uischema before the client has decided anything.
+
+#### Cancellation — one combined form, three options
+
 ```typescript
 const {
+  openCancellation,
+  set,
+  cancelForm,
+  submitCancellation,
   stopRenewing,
   resumeRenewing,
-  setConsolidation,
+  requestCancellation,
+  withdrawCancellation,
   scheduleCancellation,
   revokeScheduledCancellation
 } = product.useActions();
 
-// Subscription products only — refused (event has no effect) otherwise
-await stopRenewing({ reason: "too expensive" });
-await resumeRenewing();
-await setConsolidation({ invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED });
+// Direct calls — subscription products only, refused (event has no effect) otherwise
+await stopRenewing({ reason: "too expensive" });          // soft: end of term
+await resumeRenewing();                                    // undo a pending soft cancel
+await requestCancellation({ reason: "no longer needed" }); // hard: immediate, needs staff review
+await withdrawCancellation();                               // withdraw a pending hard request
+await scheduleCancellation({ futureCancellationDate: "2026-10-21", reason: "downsizing" }); // must be a valid anniversary
+await revokeScheduledCancellation();                        // undo a booked scheduled cancellation
 
-// Any status; the date must be a valid future anniversary
-await scheduleCancellation({ futureCancellationDate: "2026-10-21", reason: "downsizing" });
-await revokeScheduledCancellation();
+// The raw form flow — same three options, driven through the ONE form
+openCancellation();
+const { cancellation } = product.useContext(); // { schema, uischema, model }
+set(ContractProductFormTypes.CANCELLATION, { option: ContractProductCancelOption.SOFT, reason: "too expensive" });
+await submitCancellation(); // routes off model.option to the matching write
+cancelForm(ContractProductFormTypes.CANCELLATION); // closes without submitting
 ```
 
-Every write resolves the re-read `ContractProduct`, or `false` when the machine refused the event outright (e.g. a subscription-only write sent on a one-time product). This is distinct from a write that reaches the server and fails, or whose re-read fails: either of those **rejects** the promise with a `DetailedError`, for the caller to catch and render:
+`submitCancellation()` reads `cancellation.model.option` and sends the matching event — an unset or unrecognised option resolves `false` with nothing sent. Which options `cancellation.schema` actually lists is computed from the product's own record facts (see gotchas.md); a caller renders whichever ones are present, never a fixed three.
+
+#### Consolidation — its own form
+
+```typescript
+const { openConsolidation, set, cancelForm, submitConsolidation, setConsolidation } = product.useActions();
+
+// Direct call
+await setConsolidation({ invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED });
+
+// Raw form flow
+openConsolidation();
+set(ContractProductFormTypes.CONSOLIDATION, { invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED });
+await submitConsolidation();
+cancelForm(ContractProductFormTypes.CONSOLIDATION);
+```
+
+Every write resolves the re-read `ContractProduct`, or `false` when the machine refused the event outright (e.g. a subscription-only write sent on a one-time product, or a form opened when the record does not currently allow it). This is distinct from a write that reaches the server and fails, or whose re-read fails, or a submitted model that fails validation: any of those **rejects** the promise with a `DetailedError` — an invalid model rejects with a 422 carrying the AJV errors, before any request is sent:
 
 ```typescript
 try {
   const result = await stopRenewing();
   if (result === false) {
-    // refused: not a subscription, or another write already in flight
+    // refused: not a subscription, the form isn't currently offered, or another write already in flight
   }
 } catch (error) {
-  // the write (or its re-read) reached the server and failed
+  // the model failed validation, or the write (or its re-read) reached the server and failed
 }
 ```
+
+An open form never moves the product off its current status node — a client can be mid-cancellation-form on a product still reporting `isActive`, right up until the write actually settles.
 
 ## Meta (State Flags)
 
@@ -127,7 +161,9 @@ All return Vue `ComputedRef<boolean>`.
 | `isSetupIncomplete` | Setup region |
 | `isSubmitting` | A write is in flight |
 | `isSubscription` | `billingCycleMonths > 0` |
-| `canCancel` | Platform-reported cancellable |
+| `canCancel` | Platform-reported cancellable (the hard-cancellation record fact) |
+| `canRequestCancellation` | May open a HARD (immediate) cancellation request: no hard request already pending, none scheduled |
+| `canRequestEndOfTerm` | May open a SOFT (end-of-term) cancellation: as above, plus the contract is not pending |
 | `canScheduleFutureCancellation` | Not cancelling, not pending, none booked, an anniversary exists |
 | `hasScheduledFutureCancellation` | A future cancellation is booked |
 | `hasAutoRenewDisabled` | `autoCreateRenewInvoice` is false |
@@ -163,12 +199,16 @@ const {
   contractId,                // the contract this product belongs to
   contractProduct,           // ComputedRef<ContractProduct | undefined> — the mapped view model
   contractProductId,         // the product this manager acts on
+  cancellation,              // the open cancellation form: { schema, uischema, model } | undefined
+  consolidation,             // the open consolidation form: { schema, uischema, model } | undefined
   error,                     // ComputedRef<ResponseError | undefined>
   minFutureCancellationDate, // instance-bound earliest selectable date, or null
   rawContractProduct,        // the raw wire record beside the view model
   scheduledActions           // ComputedRef<ScheduledAction[]> — [] until the read carries them (see hasFetchedScheduledActions)
 } = product.useContext();
 ```
+
+`cancellation` and `consolidation` are `undefined` until their `open*` action runs; each becomes `{ schema, uischema, model }` for the lifetime of that form and clears again on `cancelForm()` or on a successful submit (which re-reads the product and returns to `#loading`).
 
 ## Future-cancellation date helpers
 

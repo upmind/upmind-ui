@@ -312,7 +312,7 @@ describe("useContract — nothing is sent when my selection changes nothing (AC-
  *
  * The AJV-INVALID payment-method model (an id NOT among the loaded stored cards
  * → a 422 in the form's error region, mutant
- * `contract.mutations.validation.must-fail.patch`) is proven in
+ * `contract.payment-method-enum.must-fail.patch`) is proven in
  * `contract.payment-method-enum.int.test.ts`, which serves the payment-details
  * module's OWN recorded stored-cards list so the form enum populates (D3).
  */

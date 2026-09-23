@@ -56,6 +56,31 @@ Once a product is placed on `unavailable`, no event moves it — not even `REFRE
 
 ---
 
+## The cancellation form can vanish entirely, not just lose one option 🧪
+
+The form is not "always three options, some disabled". `cancellationOptions()` returns an **empty list** — the form itself has nothing to offer — the moment any ONE of these is true: the subscription has already auto-expired (stopped renewing with a calculated end date), a hard cancellation request is already pending, or a future cancellation is already booked. Only once none of those hold does each of the three options get evaluated on its own narrower condition (soft and scheduled: not a pending contract; hard: the platform's own `canCancel` flag; scheduled: additionally needs a computable billing anniversary).
+
+```typescript
+// ❌ Wrong — assumes the form always has at least the soft option
+const { cancellation } = product.useContext();
+render(cancellation.value.schema); // schema may have an EMPTY option enum
+
+// ✅ Correct — check there is something to offer before rendering the form at all
+if (!isEmpty(cancellationOptions(contractProduct))) {
+  product.useActions().openCancellation();
+}
+```
+
+**Test scenario:** load a product with a pending hard cancellation request, call `openCancellation()`, and assert the resulting form's `option` enum is empty rather than missing only the HARD entry.
+
+## The consolidation form reads no brand setting and no permission
+
+`canConsolidate()` is a pure function of the record: a live (not staged) subscription, the CLIENT's own `invoiceConsolidationEnabled` preference (`enabled` or `inherit`), and the catalogue PRODUCT's own `invoice_consolidation_enabled` flag. The brand-level `INVOICE_CONSOLIDATION_ENABLED` / `INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF` config is deliberately not read — see the `@decision` beside `canConsolidate` in `contract-product.utils.ts`.
+
+## No actor-permission check backs the cancellation or consolidation forms — a known limitation, not a design choice
+
+Neither form reads the platform's own actor-permission model (e.g. whether THIS signed-in identity specifically may modify THIS product) — both are gated on record and preference facts only. A consumer that needs to enforce "can this actor act on this product" beyond what the record itself already implies has to add that check itself; this module does not perform one.
+
 ## `hasScheduledFutureCancellation` and `canScheduleFutureCancellation` are not opposites
 
 `hasScheduledFutureCancellation` reports whether one is currently booked. `canScheduleFutureCancellation` reports whether booking a **new** one is currently allowed — which also requires not cancelling, not pending, and a computable anniversary. A product can have neither true (no anniversary computable, e.g. missing `nextDueDate`). While a write is in flight (`isSubmitting`), the machine has left the whole `available.status` region, so `isCancelling` and `isPending` both read `false` — this can make `canScheduleFutureCancellation` read `true` mid-write, even though no new booking can actually be sent until the write settles. Gate a "schedule cancellation" control on `!isSubmitting` too, not on `canScheduleFutureCancellation` alone.

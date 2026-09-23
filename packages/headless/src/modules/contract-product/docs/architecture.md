@@ -6,7 +6,7 @@ The module ships two scoped composables under one module name: `useContractProdu
 
 ## State Machine (`useContractProduct`)
 
-`contract-product.machine.ts` follows the house write-spine convention: every write runs through one `processing` state, which invokes one named service and returns to `#loading` to re-read and re-place the record. A failure is recorded on the `error` context property, never a distinct state.
+`contract-product.machine.ts` follows the house write-spine convention: every FORMLESS write (`RESUME`, `WITHDRAW`, `SCHEDULE_CANCEL_REVOKE`) runs through one top-level `processing` state, which invokes one named service and returns to `#loading`. Each write that takes a MODEL — the combined cancellation form and the consolidation form — is instead its own PARALLEL REGION of `available`, beside `status`/`setup`/`trial`: opening the form never leaves the status node, so every status flag stays live while the client edits it, and each form has its own `processing` child so a failed submit returns the client to the open form's `error` node with the model still in place, rather than to a machine-wide error. A failure is recorded on the `error` context property, never a distinct top-level state.
 
 ```mermaid
 stateDiagram-v2
@@ -19,15 +19,29 @@ stateDiagram-v2
     state available {
       [*] --> status
       state status {
-        pending --> processing_: SCHEDULE_CANCEL / SCHEDULE_CANCEL_REVOKE / SET_CONSOLIDATION*
-        inactive --> processing_: STOP_RENEWING* / SET_CONSOLIDATION* / SCHEDULE_CANCEL / SCHEDULE_CANCEL_REVOKE
-        active --> processing_: STOP_RENEWING* / SET_CONSOLIDATION* / SCHEDULE_CANCEL / SCHEDULE_CANCEL_REVOKE
-        suspended --> processing_: STOP_RENEWING* / SET_CONSOLIDATION* / SCHEDULE_CANCEL / SCHEDULE_CANCEL_REVOKE
-        expiring --> processing_: RESUME / SET_CONSOLIDATION* / SCHEDULE_CANCEL / SCHEDULE_CANCEL_REVOKE
-        cancelling --> processing_: SET_CONSOLIDATION* / SCHEDULE_CANCEL / SCHEDULE_CANCEL_REVOKE
+        pending --> processing_: SCHEDULE_CANCEL_REVOKE
+        inactive --> processing_: SCHEDULE_CANCEL_REVOKE
+        active --> processing_: SCHEDULE_CANCEL_REVOKE
+        suspended --> processing_: SCHEDULE_CANCEL_REVOKE
+        expiring --> processing_: RESUME / SCHEDULE_CANCEL_REVOKE
+        cancelling --> processing_: SCHEDULE_CANCEL_REVOKE / WITHDRAW
       }
       state "setup (parallel)" as setup
       state "trial (parallel)" as trial
+      state "cancelling FORM (parallel)" as cancellingForm {
+        idle --> available_: CANCELLATION (cond hasCancellationOptions)
+        available_ --> cancellingForm_processing: STOP_RENEWING* / SCHEDULE_CANCEL / REQUEST_CANCEL**
+        cancellingForm_processing --> "#loading": onDone
+        cancellingForm_processing --> available_.error: onError
+        available_ --> idle: CANCEL.CANCELLATION
+      }
+      state "consolidating FORM (parallel)" as consolidatingForm {
+        cidle --> cavailable: CONSOLIDATION (cond canConsolidate)
+        cavailable --> consolidatingForm_processing: SET_CONSOLIDATION (cond canConsolidate)
+        consolidatingForm_processing --> "#loading": onDone
+        consolidatingForm_processing --> cavailable.error: onError
+        cavailable --> cidle: CANCEL.CONSOLIDATION
+      }
     }
     state unavailable {
       staged
@@ -37,16 +51,18 @@ stateDiagram-v2
     }
 
     processing_ --> loading: onDone/onError
-    note right of processing_ : *cond: isSubscription
+    note right of processing_ : *cond: isSubscription; **cond: canRequestHardCancellation
 
     loading --> subscribing: UNAUTHENTICATED
     available --> loading: REFRESH
     unavailable --> loading: REFRESH
 ```
 
-`available` is `type: "parallel"` over three regions — `status`, `setup`, `trial` — evaluated simultaneously off one read. `unavailable` (staged/cancelled/lapsed/fraud) has no transition that leaves it; the only way out is a fresh `loading` cycle from `REFRESH` or re-subscription.
+`available` is `type: "parallel"` over five regions — `status`, `setup`, `trial`, `cancelling`, `consolidating` — evaluated simultaneously off one read. `unavailable` (staged/cancelled/lapsed/fraud) has no transition that leaves it; the only way out is a fresh `loading` cycle from `REFRESH` or re-subscription.
 
 The `loading` state's `always` array is the one place `selectStatusNode` is consulted; it runs a fixed priority order (staged → cancelled → lapsed → fraud → cancelling → expiring → the four published codes → unrecognised-error) so that, e.g., a staged-import record is never routed into a status-code branch at all.
+
+`cancelling` and `consolidating` are the write-form regions. Each has its own `idle` → `available` (`checking`/`valid`/`invalid`/`error`, re-entered on every `SET.<form>`) → `processing` (its own `validating` → `updating` children) cycle, entirely independent of the `status`/`setup`/`trial` regions beside it. Opening the cancellation form is itself guarded — `CANCELLATION` only transitions when `hasCancellationOptions` is true, i.e. the record currently offers at least one of the three cancellation options; opening the consolidation form is guarded the same way by `canConsolidate`.
 
 ## Data Flow
 
@@ -66,18 +82,18 @@ The `loading` state's `always` array is the one place `selectStatusNode` is cons
                         useMeta() / useContext() (readers)
 ```
 
-1. **`useActions().<write>()`** sends an event to the machine and waits for it to settle back on `available`/`unavailable`.
-2. **The machine's `processing.*` child** invokes the matching service from `contract-product.services.ts`, which issues the `PUT`, invalidates the `["contracts"]` cache key, and returns the raw updated record.
-3. **`setContractProduct`** maps the raw record through `contract-product.mappers.ts` and assigns both the raw record and the mapped view model onto context.
+1. **`useActions().<write>()`** — a formless write sends its event directly; a form write (cancellation, consolidation) opens the form, feeds it a model (parsed and validated against that form's own JSONForms schema), then submits — and waits for the machine to settle back on `available`/`unavailable`.
+2. **The invoked `processing` child** (top-level for a formless write, or the form's own region-scoped one) invokes the matching service from `contract-product.services.ts`, which issues the request, invalidates the `["contracts"]` cache key, and returns the raw updated record.
+3. **`setContractProduct`** maps the raw record through `contract-product.mappers.ts` and assigns both the raw record and the mapped view model onto context; the settled form's slot (`cancellation`/`consolidation`) is cleared as the machine returns to `#loading`.
 4. **`useMeta()`/`useContext()`** read the settled state and context reactively; every published flag is a `computed` over `state`/`context`, never a snapshot.
 
 ## Sub-Composables
 
 | Sub-composable | `useContractProducts` | `useContractProduct` |
 |----------------|------------------------|------------------------|
-| `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `stopRenewing`, `resumeRenewing`, `setConsolidation`, `scheduleCancellation`, `revokeScheduledCancellation`, `isReady`, `refresh`, `stop`, `destroy` |
-| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `context`, `contractId`, `contractProduct`, `contractProductId`, `error`, `minFutureCancellationDate`, `rawContractProduct`, `scheduledActions` |
-| `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen status/setup/trial node flags, the `isAvailable`/`isLoading`/`isSubmitting` state-derived flags, plus the record-fact flags (see usage.md) |
+| `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `openCancellation`, `openConsolidation`, `set`, `cancelForm`, `submitCancellation`, `submitConsolidation`, `stopRenewing`, `resumeRenewing`, `requestCancellation`, `withdrawCancellation`, `scheduleCancellation`, `revokeScheduledCancellation`, `setConsolidation`, `isReady`, `refresh`, `stop`, `destroy` |
+| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `context`, `contractId`, `contractProduct`, `contractProductId`, `cancellation`, `consolidation`, `error`, `minFutureCancellationDate`, `rawContractProduct`, `scheduledActions` |
+| `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen status/setup/trial node flags, the `isAvailable`/`isLoading`/`isSubmitting` state-derived flags, `canRequestCancellation`/`canRequestEndOfTerm`/`canScheduleFutureCancellation`, plus the other record-fact flags (see usage.md) |
 | `useInternals()` | raw query access | raw machine-state access |
 
 ## Services
@@ -89,11 +105,14 @@ The collection (`useContractProducts`) resolves its requests through `createCont
 | Collection list | `loadList` | `GET contracts_products` |
 | Grouped counts | `loadGroupedCounts` | `GET clients/{clientId}/contracts/products` |
 | Purchased categories | `loadPurchasedCategories` | `GET contract_product_categories` |
-| Manager read | `load` | `GET contract_products/{id}` |
-| Stop/resume renewal | `requestSoftCancel` / `abortSoftCancel` | `PUT contracts/{c}/products/{p}/modify_renew` |
+| Manager read | `load` | `GET contract_products/{id}` (also settles the CANCEL_REQUEST custom-field catalogue lookup for the cancellation form) |
+| Stop/resume renewal (soft) | `requestSoftCancel` / `abortSoftCancel` | `PUT contracts/{c}/products/{p}/modify_renew` |
+| Request/withdraw cancellation (hard) | `requestCancellation` / `withdrawCancellation` | `POST` / `DELETE contracts/{c}/cancel/request` — contract-scoped by URL, this product's own id in the body |
 | Consolidation | `setConsolidation` | `PUT contracts/{c}/products/{p}/properties` |
 | Schedule cancel | `scheduleCancellation` | `PUT contracts/{c}/products/{p}/schedule-cancel` |
 | Revoke schedule | `revokeScheduledCancellation` | `PUT contracts/{c}/products/{p}/schedule-cancel-revoke` |
+| Cancellation form validation | `validateCancellation` | none (local — rejects with a 422 on an invalid model) |
+| Consolidation form validation | `validateConsolidation` | none (local — rejects with a 422 on an invalid model) |
 
 ## Dependencies
 
@@ -103,6 +122,7 @@ The collection (`useContractProducts`) resolves its requests through `createCont
 |--------|-------|
 | `session-store` | `resolveClientId`, `useActiveSession`, `authSubscription` — identity resolution and the auth-lifecycle actor the machine spawns |
 | `client-personal-details` | The show-delegated-products preference, read via a fresh scoped instance the collection owns and destroys |
+| `client-custom-fields` | The brand's CANCEL_REQUEST field catalogue, reused as the cancellation form's `customFields`, settled alongside the manager's read |
 | `query` | `useQuery`, `translateQuery`, cache invalidation — the whole HTTP/query layer |
 | `system-localisation` | `useI18n` — write-failure messages |
 | `scope` | `createScopedComposable`, `ScopeActorTypes`, `ScopeContext`, the scope registry |
