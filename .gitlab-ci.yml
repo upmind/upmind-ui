@@ -91,16 +91,16 @@ dependencies:
         # The ADR 023 §3 roster. Each shell resolves `vue`/`vue-router` only
         # through its own node_modules — root has neither — so `vue-tsc -b`
         # reports TS2307 in any phase that has populated a shell without these.
-        - packages/foundation/node_modules
-        - packages/product/node_modules
-        - packages/recommendations/node_modules
-        - packages/catalogue/node_modules
-        - packages/domain/node_modules
-        - packages/auth/node_modules
-        - packages/client/node_modules
-        - packages/payment/node_modules
-        - packages/invoice/node_modules
-        - packages/basket/node_modules
+        - packages/modules-foundation/node_modules
+        - packages/modules-product/node_modules
+        - packages/modules-recommendations/node_modules
+        - packages/modules-catalogue/node_modules
+        - packages/modules-domain/node_modules
+        - packages/modules-auth/node_modules
+        - packages/modules-client/node_modules
+        - packages/modules-payment/node_modules
+        - packages/modules-invoice/node_modules
+        - packages/modules-basket/node_modules
         - docs/node_modules
 
   artifacts:
@@ -123,16 +123,16 @@ dependencies:
       # The ADR 023 §3 roster — see the matching cache note above. `vue-tsc -b`
       # builds every shell as a project reference, so a shell whose own
       # node_modules never reaches this job cannot resolve `vue`.
-      - packages/foundation/node_modules
-      - packages/product/node_modules
-      - packages/recommendations/node_modules
-      - packages/catalogue/node_modules
-      - packages/domain/node_modules
-      - packages/auth/node_modules
-      - packages/client/node_modules
-      - packages/payment/node_modules
-      - packages/invoice/node_modules
-      - packages/basket/node_modules
+      - packages/modules-foundation/node_modules
+      - packages/modules-product/node_modules
+      - packages/modules-recommendations/node_modules
+      - packages/modules-catalogue/node_modules
+      - packages/modules-domain/node_modules
+      - packages/modules-auth/node_modules
+      - packages/modules-client/node_modules
+      - packages/modules-payment/node_modules
+      - packages/modules-invoice/node_modules
+      - packages/modules-basket/node_modules
       - design-system/packages/ui/node_modules
       - design-system/packages/tokens/node_modules
       - packages/types
