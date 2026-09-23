@@ -1,0 +1,28 @@
+# Negative-control mutant — cancellation form ignores the live contract (AC-6, D9)
+#
+# Scenario it must flip: `requestCancellation`'s `productIds.items.enum` is
+#   exactly the loaded contract's product ids, so the form only offers products
+#   the contract actually holds.
+# Test that goes red: contract.action-schemas.int.test.ts >
+#   schemas.requestCancellation > "offers exactly the loaded contract's product
+#   ids as the required productIds enum"
+#   (the enum is now a fixed empty list, so the sorted-equality against the live
+#   product ids flips; the AJV compile test's valid model also stops validating).
+# Mutation: `useRequestCancellationSchema` builds `productIds.items.enum` from a
+#   fixed empty list instead of the contract's `products`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
+index 5fb7f9b35..b549dcddf 100644
+--- a/packages/headless/src/modules/contract/contract.schemas.ts
++++ b/packages/headless/src/modules/contract/contract.schemas.ts
+@@ -76,7 +76,7 @@ export function useRequestCancellationSchema({
+         uniqueItems: true,
+         items: {
+           type: "string",
+-          ...(!isEmpty(products) && { enum: map(products, "id") })
++          enum: []
+         }
+       },
+       reason: { type: "string", title: "Reason" },

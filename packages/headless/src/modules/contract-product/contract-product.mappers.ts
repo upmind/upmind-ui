@@ -1,6 +1,6 @@
 /** @internal */
 import { CancellationRequestStatusCodes } from "@upmind-automation/types";
-import { castArray, map, pick } from "lodash-es";
+import { castArray, isEmpty, map, pick } from "lodash-es";
 import type {
   ConsolidationBody,
   ContractProduct,
@@ -153,12 +153,28 @@ function mapUnpaidInvoice(raw: IInvoice): UnpaidInvoice {
 // -----------------------------------------------------------------------------
 // OUTBOUND — design 8.3, one mapper per write body
 
-/** `requestSoftCancel` / `abortSoftCancel` wire body. */
+/**
+ * `requestSoftCancel` / `abortSoftCancel` wire body.
+ *
+ * @decision
+ * what: `customFields` (a `CustomFieldModel` code→value map) is sent straight
+ *   through as `custom_fields`, not routed through
+ *   `mapCustomFieldValuesToRequest`.
+ * why: that helper is a DIRTY-DIFF updater against a base model; a cancellation
+ *   write is a fresh submission with no base, so diffing would silently strip
+ *   intended fields. Legacy sends the code→value object as-is
+ *   (`contractCancellation.ts:696-705`). Same call shared by the schedule body.
+ * rejected: `mapCustomFieldValuesToRequest(model.customFields)` — its
+ *   empty-diff `undefined` return and `""→null` coercion belong to the
+ *   value-editor edit flow, not a create.
+ */
 export function toSoftCancelBody(model: SoftCancelModel): SoftCancelBody {
   return {
     renew: model.renew,
     ...(model.reason ? { cancellation_reason: model.reason } : {}),
-    ...(model.customFields ? { custom_fields: model.customFields } : {})
+    ...(isEmpty(model.customFields)
+      ? {}
+      : { custom_fields: model.customFields })
   };
 }
 
@@ -176,6 +192,8 @@ export function toScheduleCancellationBody(
   return {
     future_cancellation_date: model.futureCancellationDate,
     ...(model.reason ? { cancellation_reason: model.reason } : {}),
-    ...(model.customFields ? { custom_fields: model.customFields } : {})
+    ...(isEmpty(model.customFields)
+      ? {}
+      : { custom_fields: model.customFields })
   };
 }

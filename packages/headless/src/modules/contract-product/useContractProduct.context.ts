@@ -1,4 +1,15 @@
 import { computed } from "vue";
+import {
+  ClientCustomFieldsContextTypes,
+  useClientCustomFields
+} from "../client-custom-fields";
+import { ScopeActorTypes } from "../scope/scope.types";
+import {
+  useScheduleCancellationSchema,
+  useScheduleCancellationUischema,
+  useSetConsolidationSchema,
+  useSetConsolidationUischema
+} from "./contract-product.schemas";
 import { minFutureCancellationDate as resolveMinFutureCancellationDate } from "./contract-product.utils";
 import { useContext } from "../../utils";
 import type {
@@ -7,7 +18,6 @@ import type {
   ScheduledAction
 } from "./contract-product.types";
 import type { ResponseError, UseActor } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type { IContractProduct } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
@@ -26,6 +36,11 @@ export function createContractProductContext(
   const { state } = actor;
 
   const contractProduct = useContext<ContractProduct>(state, "contractProduct");
+
+  const { data: cancellationFields } = useClientCustomFields()
+    .as(ScopeActorTypes.CLIENT)
+    .for(ClientCustomFieldsContextTypes.CANCEL_REQUEST)
+    .useContext();
 
   const scheduledActions = computed<ScheduledAction[]>(
     () => contractProduct.value?.scheduledActions ?? []
@@ -66,7 +81,31 @@ export function createContractProductContext(
     ),
 
     /** The product's scheduled actions, when the read carried them (AC15). */
-    scheduledActions
+    scheduledActions,
+
+    /**
+     * One schema + uischema pair per model-taking write (R28 amendment). A
+     * surface renders the pair and submits its model to the action of the
+     * same name. `scheduleCancellation` is floored at
+     * `minFutureCancellationDate`.
+     */
+    schemas: {
+      scheduleCancellation: {
+        schema: computed(() =>
+          useScheduleCancellationSchema({
+            minDate: minFutureCancellationDate.value,
+            customFields: cancellationFields.value
+          })
+        ),
+        uischema: computed(() =>
+          useScheduleCancellationUischema(cancellationFields.value)
+        )
+      },
+      setConsolidation: {
+        schema: computed(() => useSetConsolidationSchema()),
+        uischema: computed(() => useSetConsolidationUischema())
+      }
+    }
   };
 }
 

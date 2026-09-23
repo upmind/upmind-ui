@@ -1,6 +1,6 @@
 /** @internal */
 import { mapContractProduct } from "../contract-product";
-import { castArray, get, map } from "lodash-es";
+import { castArray, get, isEmpty, map } from "lodash-es";
 import type {
   Contract,
   RequestCancellationBody,
@@ -46,14 +46,32 @@ export function mapContracts(raw: IContract | IContract[]): Contract[] {
   return map(castArray(raw), mapContract);
 }
 
-/** Maps the cancellation-request model to the `POST cancel/request` body (design 8.3). */
+/**
+ * Maps the cancellation-request model to the `POST cancel/request` body
+ * (design 8.3).
+ *
+ * @decision
+ * what: `customFields` (a `CustomFieldModel` code→value map) is sent straight
+ *   through as `custom_fields`, not routed through
+ *   `mapCustomFieldValuesToRequest`.
+ * why: that helper is a DIRTY-DIFF updater — it compares a model against a
+ *   base model and drops unchanged keys. A cancellation request is a fresh
+ *   submission with no base model, so every field is intended; diffing would
+ *   silently strip fields whose value equals a `""`/`undefined` base. Legacy
+ *   sends the code→value object as-is (`contractCancellation.ts:696-705`).
+ * rejected: `mapCustomFieldValuesToRequest(model.customFields)` — its
+ *   empty-diff `undefined` return and `""→null` coercion belong to the
+ *   value-editor edit flow, not a create.
+ */
 export function toRequestCancellationBody(
   model: RequestCancellationModel
 ): RequestCancellationBody {
   return {
     product_ids: model.productIds,
     ...(model.reason ? { cancellation_reason: model.reason } : {}),
-    ...(model.customFields ? { custom_fields: model.customFields } : {})
+    ...(isEmpty(model.customFields)
+      ? {}
+      : { custom_fields: model.customFields })
   };
 }
 

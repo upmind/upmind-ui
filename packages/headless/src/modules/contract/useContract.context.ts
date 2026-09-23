@@ -1,9 +1,20 @@
 import { computed } from "vue";
+import {
+  ClientCustomFieldsContextTypes,
+  useClientCustomFields
+} from "../client-custom-fields";
+import { usePaymentDetails } from "../payment-details";
+import { ScopeActorTypes } from "../scope/scope.types";
+import {
+  useRequestCancellationSchema,
+  useRequestCancellationUischema,
+  useSetPaymentMethodSchema,
+  useSetPaymentMethodUischema
+} from "./contract.schemas";
 import { useContext } from "../../utils";
 import { get } from "lodash-es";
 import type { Contract } from "./contract.types";
 import type { ResponseError, UseActor } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
@@ -26,6 +37,12 @@ export function createContractContext(
   const { state } = actor;
 
   const rawContract = useContext<IContract>(state, "rawContract");
+  const contract = useContext<Contract>(state, "contract");
+  const { data: storedPaymentMethods } = usePaymentDetails();
+  const { data: cancellationFields } = useClientCustomFields()
+    .as(ScopeActorTypes.CLIENT)
+    .for(ClientCustomFieldsContextTypes.CANCEL_REQUEST)
+    .useContext();
 
   return {
     /** The cancellation-request status in the platform vocabulary; undefined when no request exists (AC12). */
@@ -40,7 +57,7 @@ export function createContractContext(
     ),
 
     /** The mapped contract view model. */
-    contract: useContext<Contract>(state, "contract"),
+    contract,
 
     /** The contract status in the platform vocabulary (AC12). */
     contractStatus: useContext<ContractStatusCodes>(
@@ -60,7 +77,39 @@ export function createContractContext(
     id: useContext<IContract["id"]>(state, "contractId"),
 
     /** The raw `IContract` API response beside the view model. */
-    rawContract
+    rawContract,
+
+    /**
+     * One schema + uischema pair per model-taking write (R28 amendment). A
+     * surface renders the pair and submits its model to the action of the
+     * same name. `requestCancellation` offers this contract's own products;
+     * `setPaymentMethod` offers the client's stored payment methods.
+     */
+    schemas: {
+      requestCancellation: {
+        schema: computed(() =>
+          useRequestCancellationSchema({
+            products: contract.value?.products,
+            customFields: cancellationFields.value
+          })
+        ),
+        uischema: computed(() =>
+          useRequestCancellationUischema({
+            products: contract.value?.products,
+            customFields: cancellationFields.value
+          })
+        )
+      },
+      setPaymentMethod: {
+        schema: computed(() =>
+          useSetPaymentMethodSchema({
+            storedPaymentMethods: storedPaymentMethods.value,
+            paymentDetailsId: contract.value?.paymentDetailsId
+          })
+        ),
+        uischema: computed(() => useSetPaymentMethodUischema())
+      }
+    }
   };
 }
 

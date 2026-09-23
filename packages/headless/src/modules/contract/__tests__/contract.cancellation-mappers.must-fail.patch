@@ -1,0 +1,28 @@
+# Negative-control mutant — contract cancellation-body custom fields (AC-6, R28-D6/D7)
+#
+# Scenario it must flip: an empty (or absent) customFields bag emits no
+#   `custom_fields` key, so the server is never handed a hollow bag.
+# Test that goes red: contract.cancellation-mappers.test.ts >
+#   "emits no custom_fields key when the model carries an empty object"
+#   (with the guard gone `custom_fields: {}` is always spread onto the body,
+#   so `"custom_fields" in body` resolves `true` and the `toBe(false)` flips).
+# Mutation: `toRequestCancellationBody` drops the `isEmpty` guard and always
+#   spreads `custom_fields`, even for an empty bag.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 833f809d3..9f9dedbca 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -69,9 +69,7 @@ export function toRequestCancellationBody(
+   return {
+     product_ids: model.productIds,
+     ...(model.reason ? { cancellation_reason: model.reason } : {}),
+-    ...(isEmpty(model.customFields)
+-      ? {}
+-      : { custom_fields: model.customFields })
++    ...{ custom_fields: model.customFields }
+   };
+ }
+

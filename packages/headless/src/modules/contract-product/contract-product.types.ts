@@ -2,6 +2,7 @@ import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { selector } from "../scope/scope.utils";
 import type { ResponseError } from "../../utils";
+import type { CustomFieldModel } from "../client-custom-fields";
 import type { ListQuery } from "../query";
 import type { JsonSchema7 } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
@@ -15,7 +16,6 @@ import type {
   IContractCancellationRequest,
   IContractProduct,
   IContractProductScheduledCancellation,
-  ICustomField,
   IInvoice,
   InvoiceConsolidationTypes,
   IProduct,
@@ -279,7 +279,7 @@ export type ContractProductContext = {
 export type SoftCancelModel = {
   renew: boolean;
   reason?: string;
-  customFields?: ICustomField[];
+  customFields?: CustomFieldModel;
 };
 
 /** The model `setConsolidation` takes. */
@@ -291,14 +291,14 @@ export type SetConsolidationModel = {
 export type ScheduleCancellationModel = {
   futureCancellationDate: string;
   reason?: string;
-  customFields?: ICustomField[];
+  customFields?: CustomFieldModel;
 };
 
 /** `PUT contracts/{c}/products/{p}/modify_renew` body. */
 export type SoftCancelBody = {
   renew: boolean;
   cancellation_reason?: string;
-  custom_fields?: ICustomField[];
+  custom_fields?: CustomFieldModel;
 };
 
 /** `PUT contracts/{c}/products/{p}/properties` body. */
@@ -310,7 +310,7 @@ export type ConsolidationBody = {
 export type ScheduleCancellationBody = {
   future_cancellation_date: string;
   cancellation_reason?: string;
-  custom_fields?: ICustomField[];
+  custom_fields?: CustomFieldModel;
 };
 
 // -----------------------------------------------------------------------------

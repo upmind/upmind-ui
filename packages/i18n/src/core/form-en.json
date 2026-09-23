@@ -140,25 +140,71 @@
     "name": "Company name",
     "created_at": "Date added"
   },
+  "contract_cancellation_products": {
+    "description": null,
+    "label": "Products",
+    "placeholder": null
+  },
+  "contract_cancellation_reason": {
+    "description": null,
+    "label": "Cancellation reason",
+    "placeholder": "Please tell us why you're cancelling..."
+  },
   "contract_lookup": {
     "description": null,
     "label": "Contract",
     "placeholder": "Select a contract"
+  },
+  "contract_payment_method": {
+    "description": null,
+    "label": "Payment method",
+    "placeholder": null
   },
   "contract_product": {
     "description": null,
     "label": "Linked product",
     "placeholder": "Select a product…"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
   "contract_product_filter": {
     "description": null,
     "label": "Product",
     "placeholder": "All products"
   },
+  "contract_product_future_cancellation_date": {
+    "description": null,
+    "label": "Future cancellation date",
+    "placeholder": "Select a date"
+  },
+  "contract_product_invoice_consolidation": {
+    "description": null,
+    "label": "Invoice consolidation",
+    "placeholder": null,
+    "0": "Exclude invoices when consolidating",
+    "1": "Include invoices when consolidating"
+  },
   "contract_product_lookup": {
     "description": null,
     "label": "Contract product",
     "placeholder": "Select a contract product"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by",
+    "status": "Status",
+    "created_at": "Date purchased",
+    "next_due_date": "Next due date",
+    "cancelled_date": "Date cancelled"
+  },
+  "contract_product_status": {
+    "label": "Status"
   },
   "country": {
     "description": null,
@@ -225,6 +271,9 @@
     "verified": "Verified",
     "bounced": "Bounced",
     "created_at": "Date added"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "description": null,

@@ -1,7 +1,14 @@
 /** @internal */
+import { InvoiceConsolidationTypes } from "@upmind-automation/types";
+import {
+  useCustomFieldsSchema,
+  useCustomFieldsUischema
+} from "../client-custom-fields";
 import { SortDirection } from "../query/query.types";
 import { DEFAULT_SORT } from "./contract-product.types";
 import { hidesOneTimePurchasesForced } from "./contract-product.utils";
+import { isEmpty } from "lodash-es";
+import type { CustomField } from "../client-custom-fields";
 import type { ContractProductsQuerySchema } from "./contract-product.types";
 import type {
   ControlElement,
@@ -13,11 +20,13 @@ import type {
  * @module contract-product/contract-product.schemas
  * @description The collection's QUERY schema family — its whole request state
  * (filters · sort · pagination) as ONE Draft-07 schema (design 8.2), the
- * filter-bar uischema and the sort uischema. The module has no form, so it
- * carries no form schema pair.
+ * filter-bar uischema and the sort uischema. Beside it, the manager's two
+ * WRITE pairs — one schema + uischema per model-taking write (R28 amendment,
+ * 2026-09-23).
  *
- * WARNING: Do not import directly. Consumers read the family off
- * `useContractProducts().useContext().schemas`.
+ * WARNING: Do not import directly. Consumers read the query family off
+ * `useContractProducts().useContext().schemas`, and the write pairs off
+ * `useContractProduct().useContext().schemas`.
  */
 
 /**
@@ -113,12 +122,7 @@ export function useQuerySchema(): ContractProductsQuerySchema {
           required: ["field", "dir"],
           properties: {
             field: {
-              oneOf: [
-                { const: "status", title: "text.status" },
-                { const: "created_at", title: "text.purchase_date" },
-                { const: "next_due_date", title: "text.next_due_date" },
-                { const: "cancelled_date", title: "text.date_cancelled" }
-              ]
+              enum: ["status", "created_at", "next_due_date", "cancelled_date"]
             },
             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
@@ -186,4 +190,105 @@ export function useSortUischema(): ControlElement {
     scope: "#/properties/sort",
     i18n: "form.contract_product_sort"
   };
+}
+
+// -----------------------------------------------------------------------------
+// WRITE SCHEMAS — one pair per model-taking write (R28 amendment)
+// -----------------------------------------------------------------------------
+
+/** The `setConsolidation` form over `SetConsolidationModel`. */
+export function useSetConsolidationSchema(): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    required: ["invoiceConsolidationEnabled"],
+    properties: {
+      invoiceConsolidationEnabled: {
+        type: "integer",
+        title: "Invoice consolidation",
+        // Legacy's two positions (`cProdInvoiceConsolidationForm.vue:43-52`);
+        // un-pressing writes INHERIT through `defaultOptionValue`.
+        enum: [
+          InvoiceConsolidationTypes.ENABLED,
+          InvoiceConsolidationTypes.DISABLED,
+          InvoiceConsolidationTypes.INHERIT
+        ]
+      }
+    }
+  } satisfies JsonSchema7;
+}
+
+export function useSetConsolidationUischema(): UISchemaElement {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/invoiceConsolidationEnabled",
+        i18n: "form.contract_product_invoice_consolidation",
+        options: {
+          format: "button-group",
+          defaultOptionValue: InvoiceConsolidationTypes.INHERIT,
+          optionalText: ""
+        }
+      }
+    ]
+  } as UISchemaElement;
+}
+
+/**
+ * The `scheduleCancellation` form (R18) over `ScheduleCancellationModel`.
+ * `futureCancellationDate` is floored at the product's earliest selectable
+ * anniversary, so the form refuses a date the endpoint refuses. `customFields`
+ * declares the brand's cancel-request field definitions as a nested object
+ * (one `properties.<code>` per field); it is omitted when none are defined.
+ */
+export function useScheduleCancellationSchema({
+  minDate,
+  customFields
+}: {
+  minDate?: string | null;
+  customFields?: CustomField[];
+}): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    required: ["futureCancellationDate"],
+    properties: {
+      futureCancellationDate: {
+        type: "string",
+        title: "Cancellation date",
+        format: "date",
+        ...(minDate ? { formatMinimum: minDate, default: minDate } : {})
+      },
+      reason: { type: "string", title: "Reason" },
+      ...(!isEmpty(customFields) && {
+        customFields: useCustomFieldsSchema(customFields)
+      })
+    }
+  } as JsonSchema7;
+}
+
+export function useScheduleCancellationUischema(
+  customFields?: CustomField[]
+): UISchemaElement {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/futureCancellationDate",
+        i18n: "form.contract_product_future_cancellation_date"
+      },
+      {
+        type: "Control",
+        scope: "#/properties/reason",
+        i18n: "form.contract_cancellation_reason",
+        options: { multi: true }
+      },
+      ...useCustomFieldsUischema(customFields)
+    ]
+  } as UISchemaElement;
 }

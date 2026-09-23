@@ -1,13 +1,13 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
+import type { CustomFieldModel } from "../client-custom-fields";
 import type { ContractProduct } from "../contract-product";
 import type { ListQuery } from "../query";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
-  ICustomField,
   IContract,
   IContractCancellationRequest,
   IContractProduct,
@@ -142,7 +142,7 @@ export type ContractContext = {
 export type RequestCancellationModel = {
   productIds: IContractProduct["id"][];
   reason?: string;
-  customFields?: ICustomField[];
+  customFields?: CustomFieldModel;
 };
 
 /** The model `setPaymentMethod` takes. */
