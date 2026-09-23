@@ -34,11 +34,11 @@ import { useMockBrandGates } from "~/portal/mock/gates";
 import { provideActiveMockData } from "~/portal/mock/injection";
 import PortalBrand from "~/portal/modules/brand/Brand.vue";
 import PortalFormIcon from "~/portal/shell/PortalFormIcon.vue";
+import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
 import {
   LOGGED_OUT_CARD_CONTENT_CLASS,
   LOGGED_OUT_COLUMN_CLASS,
   LOGGED_OUT_NOTE_CLASS,
-  PORTAL_FOOTER_LINK_CLASS,
   PORTAL_FOOTER_PROSE_CLASS
 } from "~/portal/shell/variants";
 import { RESERVED_PILLAR_SEGMENT } from "~/portal/types";
@@ -138,14 +138,7 @@ const store = computed(() => {
           :model-value="footerMarkdown"
           :class="PORTAL_FOOTER_PROSE_CLASS"
         />
-        <a
-          v-if="hasUpmindBranding"
-          :class="PORTAL_FOOTER_LINK_CLASS"
-          href="https://upmind.com"
-          target="_blank"
-          rel="noreferrer"
-          >Powered by Upmind</a
-        >
+        <PortalUpmind v-if="hasUpmindBranding" />
       </template>
     </AuthShell>
     <Toaster />
