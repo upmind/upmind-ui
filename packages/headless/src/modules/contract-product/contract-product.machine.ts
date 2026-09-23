@@ -187,8 +187,10 @@ export const contractProductMachine = createMachine(
               available: {
                 initial: "checking",
                 on: {
+                  // Re-enter the node: `.checking` would not restart an in-flight
+                  // validation, so a stale result would land.
                   "SET.CANCELLATION": {
-                    target: ".checking",
+                    target: "available",
                     actions: "setCancellationModel"
                   },
                   STOP_RENEWING: {
@@ -325,8 +327,10 @@ export const contractProductMachine = createMachine(
               available: {
                 initial: "checking",
                 on: {
+                  // Re-enter the node: `.checking` would not restart an in-flight
+                  // validation, so a stale result would land.
                   "SET.CONSOLIDATION": {
-                    target: ".checking",
+                    target: "available",
                     actions: "setConsolidationModel"
                   },
                   SET_CONSOLIDATION: {

@@ -33,6 +33,7 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
+import { ContractStatusCodes } from "@upmind-automation/types";
 import { ContractContextTypes, useContract } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -157,5 +158,128 @@ describe("useContract payment-method form — the stored-card enum (AC-8, D3)", 
       | undefined;
     expect(validationError?.code).toBe(422);
     expect(validationError?.message).toBe("error.contract_validation_failed");
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+/** Settles the REAL manager over the contract with the recorded stored-cards
+ * list served (so the form enum can populate on open), leaving the
+ * payment-method form CLOSED. */
+async function settleWithCards(row?: Record<string, unknown> & { id: string }) {
+  await seedClientSession();
+  const served = row ?? recorded.one().data;
+  installContractHandler(server, served);
+  server?.use(
+    http.get("*/clients/:id", () =>
+      HttpResponse.json({ status: "ok", data: { custom_fields: [] } })
+    )
+  );
+  const stored = recorded.storedPaymentMethods().response;
+  server?.use(
+    http.get("*/clients/:id/payment_details", () =>
+      HttpResponse.json(stored.body as Record<string, unknown>, {
+        status: stored.status
+      })
+    )
+  );
+  const manager = useContract()
+    .as(ScopeActorTypes.CLIENT)
+    .for(ContractContextTypes.CONTRACT, served.id);
+  await manager.useActions().isReady();
+  return { manager, row: served };
+}
+
+async function awaitEnum(
+  manager: Awaited<ReturnType<typeof settleWithCards>>["manager"]
+): Promise<void> {
+  await vi.waitFor(() => {
+    const enumValues = (
+      manager.useContext().paymentMethod.value?.schema as JsonSchema
+    )?.properties?.paymentDetailsId?.enum;
+    expect((enumValues ?? []).length).toBeGreaterThan(1);
+  });
+}
+
+describe("useContract — the payment-method form reports whether it is open and whether its model is valid (AC-8, R31/R35)", () => {
+  it("is closed and not valid before I open it, open once I do, and closed again when I cancel the form", async () => {
+    const { manager } = await settleWithCards();
+    const meta = manager.useMeta();
+
+    expect(meta.isPaymentMethodOpen.value).toBe(false);
+    expect(meta.isPaymentMethodValid.value).toBe(false);
+
+    await manager.useActions().openPaymentMethod();
+    await awaitEnum(manager);
+    expect(meta.isPaymentMethodOpen.value).toBe(true);
+
+    await manager.useActions().cancelForm();
+    expect(meta.isPaymentMethodOpen.value).toBe(false);
+  });
+
+  it("reports the open form valid for a stored-card id and invalid for one outside my stored cards, staying open either way", async () => {
+    const { manager } = await settleWithCards();
+    const meta = manager.useMeta();
+    await manager.useActions().openPaymentMethod();
+    await awaitEnum(manager);
+    const cardIds = recordedCardIds();
+    const outOfEnumId = "00000000-0000-0000-0000-000000000000";
+    expect(cardIds).not.toContain(outOfEnumId);
+
+    await manager.useActions().set({ paymentDetailsId: cardIds[0]! });
+    await vi.waitFor(() => {
+      expect(meta.isPaymentMethodValid.value).toBe(true);
+    });
+    expect(meta.isPaymentMethodOpen.value).toBe(true);
+
+    await manager.useActions().set({ paymentDetailsId: outOfEnumId });
+    await vi.waitFor(() => {
+      expect(meta.hasError.value).toBe(true);
+    });
+    expect(meta.isPaymentMethodValid.value).toBe(false);
+    expect(meta.isPaymentMethodOpen.value).toBe(true);
+  });
+
+  it("closes the form after a successful submit", async () => {
+    const { manager, row } = await settleWithCards();
+    const current = (row as { payment_details_id: string }).payment_details_id;
+    const other = recordedCardIds().find(id => id !== current);
+    expect(other).toBeDefined();
+    server?.use(
+      http.patch(`*/contracts/${row.id}/payment_details`, () =>
+        HttpResponse.json(recorded.paymentMethodSet(), { status: 200 })
+      )
+    );
+    await manager.useActions().openPaymentMethod();
+    await awaitEnum(manager);
+    await manager.useActions().set({ paymentDetailsId: other! });
+    expect(manager.useMeta().isPaymentMethodOpen.value).toBe(true);
+
+    await manager.useActions().submitPaymentMethod();
+
+    await vi.waitFor(() => {
+      expect(manager.useMeta().isPaymentMethodOpen.value).toBe(false);
+    });
+  });
+
+  it("still opens the form and validates a stored-card id on a cancelled contract (R13)", async () => {
+    const base = recorded.one().data as Record<string, unknown> & {
+      id: string;
+    };
+    const cancelled = {
+      ...base,
+      status: { code: ContractStatusCodes.CANCELLED }
+    };
+    const { manager } = await settleWithCards(cancelled);
+    const meta = manager.useMeta();
+
+    await manager.useActions().openPaymentMethod();
+    await awaitEnum(manager);
+    expect(meta.isPaymentMethodOpen.value).toBe(true);
+
+    await manager.useActions().set({ paymentDetailsId: recordedCardIds()[0]! });
+    await vi.waitFor(() => {
+      expect(meta.isPaymentMethodValid.value).toBe(true);
+    });
   });
 });

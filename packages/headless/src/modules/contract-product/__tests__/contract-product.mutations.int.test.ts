@@ -1627,3 +1627,180 @@ describe("useContractProduct — every write runs through the one processing sta
     expect(manager.useMeta().isAvailable.value).toBe(true);
   });
 });
+
+// -----------------------------------------------------------------------------
+
+/** Settles the REAL manager over the recorded product with the empty
+ * CANCEL_REQUEST catalogue stubbed, and leaves BOTH write forms closed. */
+async function settledFormManager(
+  row?: Record<string, unknown> & { id: string }
+) {
+  await seedClientSession();
+  const served =
+    row ??
+    (recorded.one().data as Record<string, unknown> & {
+      id: string;
+      contract_id: string;
+    });
+  installProductHandler(server, served);
+  server?.use(
+    http.get("*/clients/:id", () =>
+      HttpResponse.json({ status: "ok", data: { custom_fields: [] } })
+    )
+  );
+  const manager = useContractProduct()
+    .as(ScopeActorTypes.CLIENT)
+    .withId(served.id);
+  await manager.useActions().isReady();
+  return {
+    manager,
+    row: served as Record<string, unknown> & { id: string; contract_id: string }
+  };
+}
+
+describe("useContractProduct — the cancellation form reports whether it is open and whether its model is valid (AC-6/AC-11, R35)", () => {
+  it("is closed and not valid before I open it, open once I do, and closed again when I cancel the form", async () => {
+    const { manager } = await settledFormManager();
+    const meta = manager.useMeta();
+
+    expect(meta.isCancellationOpen.value).toBe(false);
+    expect(meta.isCancellationValid.value).toBe(false);
+
+    await manager.useActions().openCancellation();
+    expect(meta.isCancellationOpen.value).toBe(true);
+
+    await manager
+      .useActions()
+      .cancelForm(ContractProductFormTypes.CANCELLATION);
+    expect(meta.isCancellationOpen.value).toBe(false);
+  });
+
+  it("reports the open cancellation form valid for a complete model, staying open", async () => {
+    const { manager } = await settledFormManager();
+    const meta = manager.useMeta();
+    await manager.useActions().openCancellation();
+
+    await manager.useActions().set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.HARD
+    });
+
+    await vi.waitFor(() => {
+      expect(meta.isCancellationValid.value).toBe(true);
+    });
+    expect(meta.isCancellationOpen.value).toBe(true);
+  });
+
+  it("reports the open cancellation form invalid for a model the schema rejects, staying open", async () => {
+    const { manager } = await settledFormManager();
+    const meta = manager.useMeta();
+    await manager.useActions().openCancellation();
+    const beforeFloor = new Date(
+      new Date(
+        manager.useContext().minFutureCancellationDate.value as string
+      ).getTime() - 86400000
+    )
+      .toISOString()
+      .slice(0, 10);
+
+    await manager.useActions().set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.SCHEDULE_FUTURE,
+      futureCancellationDate: beforeFloor
+    });
+
+    await vi.waitFor(() => {
+      expect(meta.hasError.value).toBe(true);
+    });
+    expect(meta.isCancellationValid.value).toBe(false);
+    expect(meta.isCancellationOpen.value).toBe(true);
+  });
+
+  it("closes the cancellation form after a successful submit", async () => {
+    const { manager, row } = await settledFormManager();
+    server?.use(
+      http.post(`*/contracts/${row.contract_id}/cancel/request`, () =>
+        HttpResponse.json(recorded.cancellationRequested(), { status: 200 })
+      )
+    );
+    await manager.useActions().openCancellation();
+    await manager.useActions().set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.HARD
+    });
+    expect(manager.useMeta().isCancellationOpen.value).toBe(true);
+
+    await manager.useActions().submitCancellation();
+
+    await vi.waitFor(() => {
+      expect(manager.useMeta().isCancellationOpen.value).toBe(false);
+    });
+  });
+});
+
+describe("useContractProduct — the consolidation form reports whether it is open and whether its model is valid (AC-9, R35)", () => {
+  it("is closed and not valid before I open it, open once I do, and closed again when I cancel the form", async () => {
+    const { manager } = await settledFormManager();
+    const meta = manager.useMeta();
+
+    expect(meta.isConsolidationOpen.value).toBe(false);
+    expect(meta.isConsolidationValid.value).toBe(false);
+
+    await manager.useActions().openConsolidation();
+    expect(meta.isConsolidationOpen.value).toBe(true);
+
+    await manager
+      .useActions()
+      .cancelForm(ContractProductFormTypes.CONSOLIDATION);
+    expect(meta.isConsolidationOpen.value).toBe(false);
+  });
+
+  it("reports the open consolidation form valid for a value in the enum, staying open", async () => {
+    const { manager } = await settledFormManager();
+    const meta = manager.useMeta();
+    await manager.useActions().openConsolidation();
+
+    await manager.useActions().set(ContractProductFormTypes.CONSOLIDATION, {
+      invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+    });
+
+    await vi.waitFor(() => {
+      expect(meta.isConsolidationValid.value).toBe(true);
+    });
+    expect(meta.isConsolidationOpen.value).toBe(true);
+  });
+
+  it("reports the open consolidation form invalid for a value outside the enum, staying open", async () => {
+    const { manager } = await settledFormManager();
+    const meta = manager.useMeta();
+    await manager.useActions().openConsolidation();
+
+    await manager.useActions().set(ContractProductFormTypes.CONSOLIDATION, {
+      invoiceConsolidationEnabled: 7 as InvoiceConsolidationTypes
+    });
+
+    await vi.waitFor(() => {
+      expect(meta.hasError.value).toBe(true);
+    });
+    expect(meta.isConsolidationValid.value).toBe(false);
+    expect(meta.isConsolidationOpen.value).toBe(true);
+  });
+
+  it("closes the consolidation form after a successful submit", async () => {
+    const { manager, row } = await settledFormManager();
+    server?.use(
+      http.put(
+        `*/contracts/${row.contract_id}/products/${row.id}/properties`,
+        () => HttpResponse.json(recorded.consolidationSet(), { status: 200 })
+      )
+    );
+    await manager.useActions().openConsolidation();
+    await manager.useActions().set(ContractProductFormTypes.CONSOLIDATION, {
+      invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+    });
+    expect(manager.useMeta().isConsolidationOpen.value).toBe(true);
+
+    await manager.useActions().submitConsolidation();
+
+    await vi.waitFor(() => {
+      expect(manager.useMeta().isConsolidationOpen.value).toBe(false);
+    });
+  });
+});

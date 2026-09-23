@@ -109,8 +109,10 @@ export default createMachine(
               available: {
                 initial: "checking",
                 on: {
+                  // Re-enter the node: `.checking` would not restart an in-flight
+                  // validation, so a stale result would land.
                   "SET.PAYMENT_METHOD": {
-                    target: ".checking",
+                    target: "available",
                     actions: "setPaymentMethodModel"
                   },
                   SET_PAYMENT_METHOD: {
@@ -206,8 +208,10 @@ export default createMachine(
               available: {
                 initial: "checking",
                 on: {
+                  // Re-enter the node: `.checking` would not restart an in-flight
+                  // validation, so a stale result would land.
                   "SET.PAYMENT_METHOD": {
-                    target: ".checking",
+                    target: "available",
                     actions: "setPaymentMethodModel"
                   },
                   SET_PAYMENT_METHOD: {

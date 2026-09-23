@@ -136,11 +136,35 @@ export function createContractProductMeta(
       some(unpaidRecurringInvoices.value, isCancellable)
     ),
 
+    /** True while the cancellation form is open (available or processing). */
+    isCancellationOpen: useStateMatches(state, [
+      "available.cancelling.available",
+      "available.cancelling.processing"
+    ]),
+
+    /** True when the open cancellation form passes validation. */
+    isCancellationValid: useStateMatches(
+      state,
+      "available.cancelling.available.valid"
+    ),
+
     /** True on `unavailable.cancelled`. */
     isCancelled: useStateMatches(state, ContractProductState.CANCELLED),
 
     /** True on `available.status.cancelling`. */
     isCancelling,
+
+    /** True while the consolidation form is open (available or processing). */
+    isConsolidationOpen: useStateMatches(state, [
+      "available.consolidating.available",
+      "available.consolidating.processing"
+    ]),
+
+    /** True when the open consolidation form passes validation. */
+    isConsolidationValid: useStateMatches(
+      state,
+      "available.consolidating.available.valid"
+    ),
 
     /** True if the product is delegated to this client. */
     isDelegatedAccess: computed(

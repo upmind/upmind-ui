@@ -41,6 +41,20 @@ export function createContractMeta(
       "unavailable.changingPaymentMethod.processing"
     ]),
 
+    /** True while the payment-method form is open, from either parent. */
+    isPaymentMethodOpen: useStateMatches(state, [
+      "available.changingPaymentMethod.available",
+      "available.changingPaymentMethod.processing",
+      "unavailable.changingPaymentMethod.available",
+      "unavailable.changingPaymentMethod.processing"
+    ]),
+
+    /** True when the open payment-method form passes validation, from either parent. */
+    isPaymentMethodValid: useStateMatches(state, [
+      "available.changingPaymentMethod.available.valid",
+      "unavailable.changingPaymentMethod.available.valid"
+    ]),
+
     /** True in `available.status.pending`. */
     isPending: useStateMatches(state, ContractState.PENDING),
 
