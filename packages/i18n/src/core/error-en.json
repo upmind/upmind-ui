@@ -80,6 +80,8 @@
   "client_phone_validation_failed": "Phone validation failed",
   "client_phones_refresh_failed": "We experienced an error refreshing phones",
   "client_profile_validation_failed": "Profile details validation failed",
+  "contract_product_validation_failed": "Contract product validation failed",
+  "contract_validation_failed": "Contract validation failed",
   "countries_load_failed": "Failed to load countries",
   "countries_not_available": "Countries not available",
   "currency_not_available": "Currency not available",

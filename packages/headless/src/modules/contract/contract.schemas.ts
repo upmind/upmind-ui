@@ -18,8 +18,8 @@ import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
  *
  * WARNING: Do not import directly from another module. Resolve via
  * `useContracts.ts` only (`@internal/no-cross-module-imports`). The write pair
- * is set on the machine's `PAYMENT_METHOD` open transition and read off
- * `useContract().useContext()` (`schema`/`uischema`).
+ * is set on the machine's `PAYMENT_METHOD` open transition and read off the
+ * `paymentMethod` slot of `useContract().useContext()`.
  */
 
 export function useQuerySchema(): JsonSchema7 {

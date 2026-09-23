@@ -91,8 +91,16 @@ export function mapContractProduct(raw: IContractProduct): ContractProduct {
     hasScheduledFutureCancellation:
       contractRequest?.status?.code ===
       CancellationRequestStatusCodes.REQUEST_SCHEDULED_FUTURE_CANCELLATION,
+    clientInvoiceConsolidationEnabled:
+      raw.contract?.client?.invoice_consolidation_enabled,
     product: raw.product
-      ? pick(raw.product, ["id", "name", "image", "provision_blueprint"])
+      ? pick(raw.product, [
+          "id",
+          "name",
+          "image",
+          "provision_blueprint",
+          "invoice_consolidation_enabled"
+        ])
       : undefined,
     brand: raw.brand ? pick(raw.brand, ["id", "name", "currency"]) : undefined,
     tags: (raw as WireContractProduct).tags,

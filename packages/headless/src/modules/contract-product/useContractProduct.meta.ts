@@ -64,7 +64,8 @@ export function createContractProductMeta(
     canRequestCancellation: computed(
       () =>
         !!contractProduct.value &&
-        !hasHardCancellationRequest(contractProduct.value)
+        !hasHardCancellationRequest(contractProduct.value) &&
+        !hasScheduledFutureCancellation.value
     ),
 
     /**
@@ -75,6 +76,7 @@ export function createContractProductMeta(
       () =>
         !!contractProduct.value &&
         !hasHardCancellationRequest(contractProduct.value) &&
+        !hasScheduledFutureCancellation.value &&
         contractProduct.value.contractStatus !== ContractStatusCodes.PENDING
     ),
 

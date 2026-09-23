@@ -16,10 +16,10 @@ import type { IContractProduct } from "@upmind-automation/types";
  * @description Manager context — the reactive read side of the machine
  * context. Every member goes through the `useContext` state-read utility.
  * `scheduledActions` and `minFutureCancellationDate` are DERIVED off the view
- * model, never stored as their own context fields. The open write form is read
- * off the single `schema`/`uischema`/`model` slot (auth shape), which the
- * machine sets on the form's open transition; nothing is fetched or composed
- * here. Errors are state, not events.
+ * model, never stored as their own context fields. Each open write form is read
+ * off its own `cancellation` / `consolidation` slot, which the machine sets on
+ * that form's open transition; nothing is fetched or composed here. Errors are
+ * state, not events.
  *
  * @doctrine clause 2 — shared-only (armless).
  */

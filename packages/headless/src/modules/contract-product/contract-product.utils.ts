@@ -2,10 +2,12 @@ import dayjs from "dayjs";
 import {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
+  InvoiceConsolidationTypes,
   InvoiceStatus,
   InvoiceStatusGroups,
   TrialEndActionTypes
 } from "@upmind-automation/types";
+import { useI18n } from "../system-localisation";
 import {
   ContractProductCancelOption,
   ContractProductsContextTypes,
@@ -126,10 +128,33 @@ export function hasHardCancellationRequest(
 }
 
 /**
+ * True when the subscription is set to auto-expire: it is a live subscription
+ * (not cancelled, not lapsed) that has stopped renewing and carries a
+ * calculated cancel date — legacy `hasAutoExpireEnabled`
+ * (`store/modules/data/contracts/products.ts:175-182`).
+ */
+export function hasAutoExpireEnabled(
+  product: Pick<
+    ContractProduct,
+    "isSubscription" | "status" | "renew" | "calculatedCancelDate"
+  >
+): boolean {
+  if (!product.isSubscription) return false;
+  const code = product.status?.code;
+  if (code === ContractStatusCodes.CANCELLED) return false;
+  if (code === ContractStatusCodes.CLOSED) return false;
+  return !product.renew && !!product.calculatedCancelDate;
+}
+
+/**
  * The cancellation options this product allows (legacy `clientCancelOptions`,
  * `contractCancellation.ts:300-333`), derived from the record only. The brand
  * setting `SUBSCRIPTIONS_ALLOW_IMMEDIATE_CANCELLATION` is NOT read (design 8.3
  * — the module reads no brand setting), so HARD turns on the record facts alone.
+ *
+ * Legacy hides the WHOLE cancel entry (`cProdProvider.vue:252-275`) once the
+ * subscription auto-expires, a hard request is pending, or a future
+ * cancellation is scheduled — modelled here as the three early `[]` returns.
  */
 export function cancellationOptions(
   product: Pick<
@@ -138,6 +163,8 @@ export function cancellationOptions(
     | "contractStatus"
     | "isSubscription"
     | "renew"
+    | "status"
+    | "calculatedCancelDate"
     | "canCancel"
     | "hasScheduledFutureCancellation"
     | "nextDueDate"
@@ -145,25 +172,61 @@ export function cancellationOptions(
   >
 ): ContractProductCancelOption[] {
   const options: ContractProductCancelOption[] = [];
-  // Legacy hides the whole cancel entry once auto-renew is off (`cProdProvider.vue:265-267`).
-  if (!product.isSubscription || !product.renew) return options;
+  if (!product.isSubscription) return options;
+  if (hasAutoExpireEnabled(product)) return options;
+  if (hasHardCancellationRequest(product)) return options;
+  if (product.hasScheduledFutureCancellation) return options;
 
-  const hasHard = hasHardCancellationRequest(product);
   const isPending = product.contractStatus === ContractStatusCodes.PENDING;
-  const hasScheduled = !!product.hasScheduledFutureCancellation;
 
-  // SOFT — cancel at end of term; not while pending and not with a hard request.
-  if (!isPending && !hasHard) options.push(ContractProductCancelOption.SOFT);
-  // HARD — request immediate cancellation; needs `can_cancel`, no hard request, no scheduled future cancellation (ADR-25, ADR-27).
-  if (product.canCancel && !hasHard && !hasScheduled) {
-    options.push(ContractProductCancelOption.HARD);
-  }
-  // SCHEDULE_FUTURE — needs a live subscription, no hard request, no scheduled cancellation and an anniversary anchor.
-  if (!isPending && !hasHard && !hasScheduled && !!anniversaryAnchor(product)) {
+  // SOFT — cancel at end of term; not while the contract is pending.
+  if (!isPending) options.push(ContractProductCancelOption.SOFT);
+  // HARD — request immediate cancellation; needs `can_cancel` (ADR-25, ADR-27).
+  if (product.canCancel) options.push(ContractProductCancelOption.HARD);
+  // SCHEDULE_FUTURE — needs a live subscription and an anniversary anchor.
+  if (!isPending && !!anniversaryAnchor(product)) {
     options.push(ContractProductCancelOption.SCHEDULE_FUTURE);
   }
 
   return options;
+}
+
+/**
+ * True when the client may open the consolidation form on this product — legacy
+ * `cProdInvoiceConsolidationComp.vue:74-97` `isVisible`/`canConsolidate`, the
+ * record-level parts only. A live subscription that is not staged, whose client
+ * setting enables (or inherits) consolidation, and whose product allows it.
+ *
+ * @decision
+ *   what: brand `INVOICE_CONSOLIDATION_ENABLED` and the actor
+ *     `INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF` config are NOT read, and the
+ *     `update_contract_product` permission is not on the product read — so
+ *     `ENABLED` and `INHERIT` both collapse to the product fact alone.
+ *   why: design 8.3 — the module reads no brand setting, and no permission
+ *     channel reaches this pure selector.
+ *   rejected: adding a brand-config or permission request — outside the
+ *     module's read surface (reported instead).
+ */
+export function canConsolidate(
+  product: Pick<
+    ContractProduct,
+    | "isSubscription"
+    | "stagedImport"
+    | "clientInvoiceConsolidationEnabled"
+    | "product"
+  >
+): boolean {
+  if (!product.isSubscription) return false;
+  if (product.stagedImport) return false;
+
+  const clientType = product.clientInvoiceConsolidationEnabled;
+  if (
+    clientType !== InvoiceConsolidationTypes.ENABLED &&
+    clientType !== InvoiceConsolidationTypes.INHERIT
+  ) {
+    return false;
+  }
+  return !!product.product?.invoice_consolidation_enabled;
 }
 
 // -----------------------------------------------------------------------------
@@ -328,7 +391,7 @@ export async function validateForm({
 
   if (!isEmpty(errors)) {
     throw new DetailedError(
-      "Validation failed",
+      useI18n().t("error.contract_product_validation_failed"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       errors

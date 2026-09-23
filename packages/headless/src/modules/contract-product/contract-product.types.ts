@@ -131,7 +131,11 @@ export type UnpaidInvoice = Pick<IInvoice, "status">;
 /** The `product` relation this module reads (12-member products-list `with`, design 8.1). */
 export type ContractProductCatalogueProduct = Pick<
   IProduct,
-  "id" | "name" | "image" | "provision_blueprint"
+  | "id"
+  | "name"
+  | "image"
+  | "provision_blueprint"
+  | "invoice_consolidation_enabled"
 >;
 
 /** The `brand` relation this module reads — `brand.currency` (design 8.1). */
@@ -197,6 +201,8 @@ export type ContractProduct = {
   isSubscription: boolean;
   /** `contract_request.status.code === request_scheduled_future_cancellation`. */
   hasScheduledFutureCancellation: boolean;
+  /** The owning client's `invoice_consolidation_enabled` (`contract.client`) — the consolidation gate reads it (W1). */
+  clientInvoiceConsolidationEnabled?: IClient["invoice_consolidation_enabled"];
   /** The catalogue product (`product.image`, `product.provision_blueprint`). */
   product?: ContractProductCatalogueProduct;
   /** That product's brand (`brand.currency`). */

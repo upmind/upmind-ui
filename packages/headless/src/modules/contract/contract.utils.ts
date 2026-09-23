@@ -2,6 +2,7 @@ import {
   CancellationRequestStatusCodes,
   ContractStatusCodes
 } from "@upmind-automation/types";
+import { useI18n } from "../system-localisation";
 import { ContractState } from "./contract.types";
 import {
   DetailedError,
@@ -69,7 +70,7 @@ export async function validateForm({
 
   if (!isEmpty(errors)) {
     throw new DetailedError(
-      "Validation failed",
+      useI18n().t("error.contract_validation_failed"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       errors

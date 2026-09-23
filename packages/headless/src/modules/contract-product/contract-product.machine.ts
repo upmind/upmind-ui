@@ -12,6 +12,7 @@ import {
 import { contractProductMachineServices as services } from "./contract-product.services";
 import { ContractProductState } from "./contract-product.types";
 import {
+  canConsolidate,
   cancellationOptions,
   hasHardCancellationRequest,
   minFutureCancellationDate,
@@ -317,7 +318,7 @@ export const contractProductMachine = createMachine(
                   CONSOLIDATION: {
                     target: "available",
                     actions: "setConsolidationSchemas",
-                    cond: "isSubscription"
+                    cond: "canConsolidate"
                   }
                 }
               },
@@ -330,7 +331,7 @@ export const contractProductMachine = createMachine(
                   },
                   SET_CONSOLIDATION: {
                     target: "#consolidating.processing.settingConsolidation",
-                    cond: "isSubscription"
+                    cond: "canConsolidate"
                   }
                 },
                 states: {
@@ -554,6 +555,9 @@ export const contractProductMachine = createMachine(
 
       isSubscription: ({ contractProduct }: ContractProductContext) =>
         !!contractProduct?.isSubscription,
+
+      canConsolidate: ({ contractProduct }: ContractProductContext) =>
+        !!contractProduct && canConsolidate(contractProduct),
 
       // HARD request eligibility (ADR-25 subscription, ADR-27 no scheduled
       // future cancellation), derived from the record — no brand setting read.

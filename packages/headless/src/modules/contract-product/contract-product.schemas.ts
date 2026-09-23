@@ -26,12 +26,12 @@ import type {
  * (filters · sort · pagination) as ONE Draft-07 schema (design 8.2), the
  * filter-bar uischema and the sort uischema. Beside it, the manager's two
  * WRITE forms — the combined cancellation form and the consolidation form
- * (R33; auth form shape). Each form's builder runs in the machine's open
- * transition, which sets the single `schema`/`uischema` slot on context.
+ * (R33). Each form's builder runs in the machine's open transition, which sets
+ * that form's own `cancellation` / `consolidation` slot on context.
  *
  * WARNING: Do not import directly. Consumers read the query family off
- * `useContractProducts().useContext().schemas`, and the open form's pair off
- * `useContractProduct().useContext()` (`schema`/`uischema`).
+ * `useContractProducts().useContext().schemas`, and each open form off its own
+ * `cancellation` / `consolidation` slot of `useContractProduct().useContext()`.
  */
 
 /**

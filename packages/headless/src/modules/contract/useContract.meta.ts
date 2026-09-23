@@ -41,28 +41,28 @@ export function createContractMeta(
       "unavailable.changingPaymentMethod.processing"
     ]),
 
-    /** True in `available.pending`. */
+    /** True in `available.status.pending`. */
     isPending: useStateMatches(state, ContractState.PENDING),
 
-    /** True in `available.inactive` (awaiting activation). */
+    /** True in `available.status.inactive` (awaiting activation). */
     isInactive: useStateMatches(state, ContractState.INACTIVE),
 
-    /** True in `available.active`. */
+    /** True in `available.status.active`. */
     isActive: useStateMatches(state, ContractState.ACTIVE),
 
-    /** True in `available.suspended`. */
+    /** True in `available.status.suspended`. */
     isSuspended: useStateMatches(state, ContractState.SUSPENDED),
 
-    /** True in `available.cancelling` (a hard cancellation request exists). */
+    /** True in `available.status.cancelling` (a hard cancellation request exists). */
     isCancelling: useStateMatches(state, ContractState.CANCELLING),
 
-    /** True in `unavailable.cancelled`. */
+    /** True in `unavailable.status.cancelled`. */
     isCancelled: useStateMatches(state, ContractState.CANCELLED),
 
-    /** True in `unavailable.lapsed`. */
+    /** True in `unavailable.status.lapsed`. */
     isLapsed: useStateMatches(state, ContractState.LAPSED),
 
-    /** True in `unavailable.fraud`. */
+    /** True in `unavailable.status.fraud`. */
     isFraud: useStateMatches(state, ContractState.FRAUD)
   };
 }

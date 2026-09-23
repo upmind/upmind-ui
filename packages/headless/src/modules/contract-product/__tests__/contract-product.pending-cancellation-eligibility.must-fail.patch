@@ -3,11 +3,10 @@
 # Scenario it must flip: research.md:1496 names five eligibility conditions for
 #   booking a future cancellation: product cancellation, NOT a pending contract,
 #   no hard request, no existing scheduled request, an anniversary anchor. The
-#   cancellation form's `option` enum is built from `cancellationOptions`
-#   (contract-product.machine.ts:476), so the pending exclusion that governs what
-#   a page can offer lives on that pure selector — NOT on the
-#   useContractProduct.meta.ts convenience flag the previous version mutated,
-#   which no schema reads (that is why it was inert).
+#   cancellation form's `option` enum is built from `cancellationOptions`, so the
+#   pending exclusion that governs what a page can offer lives on that pure
+#   selector — NOT on the useContractProduct.meta.ts convenience flag the earlier
+#   version mutated, which no schema reads (that is why it was inert).
 # Test that goes red: contract-product.mutations.int.test.ts >
 #   "AC-11 a product whose contract is pending is not offered SCHEDULE_FUTURE in
 #   the cancellation form" — it overrides the recorded product's contract to
@@ -17,21 +16,21 @@
 #   enum now contains it and `expect(options).not.toContain(SCHEDULE_FUTURE)`
 #   flips.
 # Mutation: drops the `!isPending` guard from `cancellationOptions`'
-#   SCHEDULE_FUTURE branch, reverting to the four-condition read that offers a
-#   future-cancellation booking on a pending contract.
+#   SCHEDULE_FUTURE branch, offering a future-cancellation booking on a pending
+#   contract.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-index 088b7eca9..d8bccf14d 100644
+index e58e01dfb..6d2e07c8c 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -159,7 +159,7 @@ export function cancellationOptions(
-     options.push(ContractProductCancelOption.HARD);
-   }
-   // SCHEDULE_FUTURE — needs a live subscription, no hard request, no scheduled cancellation and an anniversary anchor.
--  if (!isPending && !hasHard && !hasScheduled && !!anniversaryAnchor(product)) {
-+  if (!hasHard && !hasScheduled && !!anniversaryAnchor(product)) {
+@@ -184,7 +184,7 @@ export function cancellationOptions(
+   // HARD — request immediate cancellation; needs `can_cancel` (ADR-25, ADR-27).
+   if (product.canCancel) options.push(ContractProductCancelOption.HARD);
+   // SCHEDULE_FUTURE — needs a live subscription and an anniversary anchor.
+-  if (!isPending && !!anniversaryAnchor(product)) {
++  if (!!anniversaryAnchor(product)) {
      options.push(ContractProductCancelOption.SCHEDULE_FUTURE);
    }
  
