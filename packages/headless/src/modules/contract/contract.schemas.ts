@@ -1,16 +1,10 @@
 /** @internal */
 import {
-  useCustomFieldsSchema,
-  useCustomFieldsUischema
-} from "../client-custom-fields";
-import {
   useStoredPaymentMethodsSchema,
   useStoredPaymentMethodsUischema
 } from "../payment-details";
 import { PAGINATION } from "../query";
-import { isEmpty, map } from "lodash-es";
 import type { Contract } from "./contract.types";
-import type { CustomField } from "../client-custom-fields";
 import type { PaymentDetail } from "../payment-details";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
@@ -19,12 +13,13 @@ import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
  * @description The collection's QUERY schema — its whole request state as ONE
  * Draft-07 schema over one model. The contracts list is pagination-only
  * (design 8.1, AC14): no filter and no sort column is declared. Beside it, the
- * manager's two WRITE pairs — one schema + uischema per model-taking write
- * (R28 amendment, 2026-09-23).
+ * manager's ONE write form — the payment-method pair (R34; cancellation moved
+ * to `contract-product` with R33).
  *
  * WARNING: Do not import directly from another module. Resolve via
- * `useContracts.ts` only (`@internal/no-cross-module-imports`). The write
- * pairs are read off `useContract().useContext().schemas`.
+ * `useContracts.ts` only (`@internal/no-cross-module-imports`). The write pair
+ * is set on the machine's `PAYMENT_METHOD` open transition and read off
+ * `useContract().useContext()` (`schema`/`uischema`).
  */
 
 export function useQuerySchema(): JsonSchema7 {
@@ -46,83 +41,8 @@ export function useQuerySchema(): JsonSchema7 {
 }
 
 // -----------------------------------------------------------------------------
-// WRITE SCHEMAS — one pair per model-taking write (R28 amendment)
+// WRITE SCHEMA — the ONE payment-method form (R34)
 // -----------------------------------------------------------------------------
-
-/**
- * The `requestCancellation` form (AC6) over `RequestCancellationModel`.
- * `productIds` offers the contract's own products as an `enum` pick list,
- * so a pick is always an id the endpoint accepts. `customFields` declares
- * the brand's cancel-request field definitions as a nested object (one
- * `properties.<code>` per field); it is omitted when none are defined.
- */
-export function useRequestCancellationSchema({
-  products,
-  customFields
-}: {
-  products?: Contract["products"];
-  customFields?: CustomField[];
-}): JsonSchema7 {
-  return {
-    $schema: "http://json-schema.org/draft-07/schema#",
-    type: "object",
-    additionalProperties: false,
-    required: ["productIds"],
-    properties: {
-      productIds: {
-        type: "array",
-        title: "Products",
-        minItems: 1,
-        uniqueItems: true,
-        items: {
-          type: "string",
-          ...(!isEmpty(products) && { enum: map(products, "id") })
-        }
-      },
-      reason: { type: "string", title: "Reason" },
-      ...(!isEmpty(customFields) && {
-        customFields: useCustomFieldsSchema(customFields)
-      })
-    }
-  } as JsonSchema7;
-}
-
-/**
- * The product tiles label each id with its product name through the
- * multi-enum renderer's `options.items` (`StringsRenderer.vue:42-44`); an
- * id is not an i18n key.
- */
-export function useRequestCancellationUischema({
-  products,
-  customFields
-}: {
-  products?: Contract["products"];
-  customFields?: CustomField[];
-}): UISchemaElement {
-  return {
-    type: "VerticalLayout",
-    elements: [
-      {
-        type: "Control",
-        scope: "#/properties/productIds",
-        i18n: "form.contract_cancellation_products",
-        options: {
-          items: map(products, product => ({
-            label: product.name,
-            value: product.id
-          }))
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/reason",
-        i18n: "form.contract_cancellation_reason",
-        options: { multi: true }
-      },
-      ...useCustomFieldsUischema(customFields)
-    ]
-  } as UISchemaElement;
-}
 
 /**
  * The `setPaymentMethod` form (AC8) over `SetPaymentMethodModel` — a pick of

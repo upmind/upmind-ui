@@ -3,9 +3,18 @@ import { assign, createMachine, spawn } from "xstate";
 import { authSubscription } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { mapContractProduct } from "./contract-product.mappers";
+import {
+  useCancellationSchema,
+  useCancellationUischema,
+  useSetConsolidationSchema,
+  useSetConsolidationUischema
+} from "./contract-product.schemas";
 import { contractProductMachineServices as services } from "./contract-product.services";
 import { ContractProductState } from "./contract-product.types";
 import {
+  cancellationOptions,
+  hasHardCancellationRequest,
+  minFutureCancellationDate,
   selectSetupNode,
   selectStatusNode,
   selectTrialNode
@@ -14,51 +23,29 @@ import {
   DetailedError,
   ErrorOrigin,
   mapToHeadlessError,
-  responseCodes
+  responseCodes,
+  useModelParser,
+  useValidationParser
 } from "../../utils";
-import type { ContractProductContext } from "./contract-product.types";
-import type { IContractProduct } from "@upmind-automation/types";
+import { isEmpty } from "lodash-es";
+import type {
+  ContractProductContext,
+  ContractProductLoaded,
+  ContractProductWriteModel
+} from "./contract-product.types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.machine
- * @description The LOCKED contract-product manager machine (R4), on the house
- * write spine of `data-manager.machine.ts` (R20, R20a). `available` is
- * `type: "parallel"` over `status`, `setup` and `trial`; `unavailable` holds
- * staged · cancelled · lapsed · fraud and nothing leaves it. Every write runs
- * through the one `processing` state, which invokes one named service and
- * re-reads on completion. A failure is the `error` context property, never a
- * state.
- *
- * @decision
- * what: `loading` clears the record pair on entry and hosts the ordered
- *   `always` entry list, which reads `context.contractProduct`.
- * why: an `always` list on `loading` is evaluated on entry as well as after
- *   the read lands, so a stale view model from the previous cycle would place
- *   the node before the request fired and cancel it. The chart is locked
- *   (R4), so no transient child state may host the list instead.
- * rejected: a `loading.placing` child state; guards that read the raw record
- *   off the `done.invoke` event with `setContractProduct` repeated per arm.
+ * @description The contract-product manager machine (R4) on the house write
+ * spine of `data-manager.machine.ts` (R20, R20a). `available` is parallel over
+ * `status`, `setup`, `trial`, `cancelling` and `consolidating`; the last two are
+ * the auth-shaped write forms, so an open form never leaves the status node.
+ * `unavailable` holds staged · cancelled · lapsed · fraud.
  */
 
 export const contractProductMachine = createMachine(
   {
-    /**
-     * @decision
-     * what: this chart carries NO boot guard on a missing `contractProductId`.
-     *   templates/SINGLE-READ.md's variant-delta table puts the missing-id
-     *   gate on the machine's own boot guard, before `loading`.
-     * why: the two machine charts of `flow.md` §3 are LOCKED by operator
-     *   ruling R4. Adding a boot guard adds a node and a transition to a
-     *   locked chart, and R4 makes a mismatch a HALT, never a redesign. The
-     *   capability is not lost: `load` rejects a missing id at
-     *   `contract-product.services.ts` before any request is built, so a
-     *   manager opened with no id issues NO request. The observable
-     *   difference is where it lands — an error node rather than an idle one.
-     * rejected: adding the guard anyway. That is exactly the silent chart
-     *   redesign R4 forbids, and the operator, not this file, moves that
-     *   chart.
-     */
     id: "contractProductManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -74,7 +61,7 @@ export const contractProductMachine = createMachine(
         entry: ["clearContractProduct"],
         invoke: {
           src: "load",
-          onDone: { actions: ["setContractProduct"] },
+          onDone: { actions: ["setContractProduct", "setLookups"] },
           onError: { actions: ["setError"] }
         },
         always: [
@@ -100,13 +87,6 @@ export const contractProductMachine = createMachine(
             states: {
               pending: {
                 on: {
-                  SET_CONSOLIDATION: {
-                    target: "#processing.settingConsolidation",
-                    cond: "isSubscription"
-                  },
-                  SCHEDULE_CANCEL: {
-                    target: "#processing.schedulingCancellation"
-                  },
                   SCHEDULE_CANCEL_REVOKE: {
                     target: "#processing.revokingScheduledCancellation"
                   }
@@ -114,17 +94,6 @@ export const contractProductMachine = createMachine(
               },
               inactive: {
                 on: {
-                  STOP_RENEWING: {
-                    target: "#processing.stoppingRenewal",
-                    cond: "isSubscription"
-                  },
-                  SET_CONSOLIDATION: {
-                    target: "#processing.settingConsolidation",
-                    cond: "isSubscription"
-                  },
-                  SCHEDULE_CANCEL: {
-                    target: "#processing.schedulingCancellation"
-                  },
                   SCHEDULE_CANCEL_REVOKE: {
                     target: "#processing.revokingScheduledCancellation"
                   }
@@ -132,17 +101,6 @@ export const contractProductMachine = createMachine(
               },
               active: {
                 on: {
-                  STOP_RENEWING: {
-                    target: "#processing.stoppingRenewal",
-                    cond: "isSubscription"
-                  },
-                  SET_CONSOLIDATION: {
-                    target: "#processing.settingConsolidation",
-                    cond: "isSubscription"
-                  },
-                  SCHEDULE_CANCEL: {
-                    target: "#processing.schedulingCancellation"
-                  },
                   SCHEDULE_CANCEL_REVOKE: {
                     target: "#processing.revokingScheduledCancellation"
                   }
@@ -150,17 +108,6 @@ export const contractProductMachine = createMachine(
               },
               suspended: {
                 on: {
-                  STOP_RENEWING: {
-                    target: "#processing.stoppingRenewal",
-                    cond: "isSubscription"
-                  },
-                  SET_CONSOLIDATION: {
-                    target: "#processing.settingConsolidation",
-                    cond: "isSubscription"
-                  },
-                  SCHEDULE_CANCEL: {
-                    target: "#processing.schedulingCancellation"
-                  },
                   SCHEDULE_CANCEL_REVOKE: {
                     target: "#processing.revokingScheduledCancellation"
                   }
@@ -169,13 +116,6 @@ export const contractProductMachine = createMachine(
               expiring: {
                 on: {
                   RESUME: { target: "#processing.resumingRenewal" },
-                  SET_CONSOLIDATION: {
-                    target: "#processing.settingConsolidation",
-                    cond: "isSubscription"
-                  },
-                  SCHEDULE_CANCEL: {
-                    target: "#processing.schedulingCancellation"
-                  },
                   SCHEDULE_CANCEL_REVOKE: {
                     target: "#processing.revokingScheduledCancellation"
                   }
@@ -183,15 +123,11 @@ export const contractProductMachine = createMachine(
               },
               cancelling: {
                 on: {
-                  SET_CONSOLIDATION: {
-                    target: "#processing.settingConsolidation",
-                    cond: "isSubscription"
-                  },
-                  SCHEDULE_CANCEL: {
-                    target: "#processing.schedulingCancellation"
-                  },
                   SCHEDULE_CANCEL_REVOKE: {
                     target: "#processing.revokingScheduledCancellation"
+                  },
+                  WITHDRAW: {
+                    target: "#processing.withdrawingCancellation"
                   }
                 }
               }
@@ -232,6 +168,225 @@ export const contractProductMachine = createMachine(
                 ]
               }
             }
+          },
+
+          cancelling: {
+            id: "cancelling",
+            initial: "idle",
+            states: {
+              idle: {
+                on: {
+                  CANCELLATION: {
+                    target: "available",
+                    actions: "setCancellationSchemas",
+                    cond: "hasCancellationOptions"
+                  }
+                }
+              },
+              available: {
+                initial: "checking",
+                on: {
+                  "SET.CANCELLATION": {
+                    target: ".checking",
+                    actions: "setCancellationModel"
+                  },
+                  STOP_RENEWING: {
+                    target: "#cancelling.processing.stoppingRenewal",
+                    cond: "isSubscription"
+                  },
+                  SCHEDULE_CANCEL: {
+                    target: "#cancelling.processing.schedulingCancellation"
+                  },
+                  REQUEST_CANCEL: {
+                    target: "#cancelling.processing.requestingCancellation",
+                    cond: "canRequestHardCancellation"
+                  }
+                },
+                states: {
+                  checking: {
+                    entry: ["clearError"],
+                    invoke: {
+                      src: "validateCancellation",
+                      onDone: { target: "valid" },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {},
+                  error: {}
+                }
+              },
+              // Its own `processing`, unlike the formless writes: a failed
+              // submit returns to this form's `error` node with the model kept,
+              // and the product never leaves its status node.
+              processing: {
+                entry: ["clearError"],
+                states: {
+                  stoppingRenewal: {
+                    initial: "validating",
+                    states: {
+                      validating: {
+                        invoke: {
+                          src: "validateCancellation",
+                          onDone: { target: "updating" },
+                          onError: {
+                            target: "#cancelling.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      },
+                      updating: {
+                        invoke: {
+                          src: "requestSoftCancel",
+                          onDone: { target: "#loading" },
+                          onError: {
+                            target: "#cancelling.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  schedulingCancellation: {
+                    initial: "validating",
+                    states: {
+                      validating: {
+                        invoke: {
+                          src: "validateCancellation",
+                          onDone: { target: "updating" },
+                          onError: {
+                            target: "#cancelling.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      },
+                      updating: {
+                        invoke: {
+                          src: "scheduleCancellation",
+                          onDone: { target: "#loading" },
+                          onError: {
+                            target: "#cancelling.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  requestingCancellation: {
+                    initial: "validating",
+                    states: {
+                      validating: {
+                        invoke: {
+                          src: "validateCancellation",
+                          onDone: { target: "updating" },
+                          onError: {
+                            target: "#cancelling.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      },
+                      updating: {
+                        invoke: {
+                          src: "requestCancellation",
+                          onDone: { target: "#loading" },
+                          onError: {
+                            target: "#cancelling.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            on: {
+              "CANCEL.CANCELLATION": {
+                target: ".idle",
+                actions: "clearCancellation"
+              }
+            }
+          },
+
+          consolidating: {
+            id: "consolidating",
+            initial: "idle",
+            states: {
+              idle: {
+                on: {
+                  CONSOLIDATION: {
+                    target: "available",
+                    actions: "setConsolidationSchemas",
+                    cond: "isSubscription"
+                  }
+                }
+              },
+              available: {
+                initial: "checking",
+                on: {
+                  "SET.CONSOLIDATION": {
+                    target: ".checking",
+                    actions: "setConsolidationModel"
+                  },
+                  SET_CONSOLIDATION: {
+                    target: "#consolidating.processing.settingConsolidation",
+                    cond: "isSubscription"
+                  }
+                },
+                states: {
+                  checking: {
+                    entry: ["clearError"],
+                    invoke: {
+                      src: "validateConsolidation",
+                      onDone: { target: "valid" },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {},
+                  error: {}
+                }
+              },
+              // Its own `processing`, unlike the formless writes: a failed
+              // submit returns to this form's `error` node with the model kept,
+              // and the product never leaves its status node.
+              processing: {
+                entry: ["clearError"],
+                states: {
+                  settingConsolidation: {
+                    initial: "validating",
+                    states: {
+                      validating: {
+                        invoke: {
+                          src: "validateConsolidation",
+                          onDone: { target: "updating" },
+                          onError: {
+                            target: "#consolidating.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      },
+                      updating: {
+                        invoke: {
+                          src: "setConsolidation",
+                          onDone: { target: "#loading" },
+                          onError: {
+                            target: "#consolidating.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            on: {
+              "CANCEL.CONSOLIDATION": {
+                target: ".idle",
+                actions: "clearConsolidation"
+              }
+            }
           }
         }
       },
@@ -250,13 +405,6 @@ export const contractProductMachine = createMachine(
         id: "processing",
         entry: ["clearError"],
         states: {
-          stoppingRenewal: {
-            invoke: {
-              src: "requestSoftCancel",
-              onDone: { target: "#loading" },
-              onError: { target: "#loading", actions: ["setError"] }
-            }
-          },
           resumingRenewal: {
             invoke: {
               src: "abortSoftCancel",
@@ -264,16 +412,9 @@ export const contractProductMachine = createMachine(
               onError: { target: "#loading", actions: ["setError"] }
             }
           },
-          settingConsolidation: {
+          withdrawingCancellation: {
             invoke: {
-              src: "setConsolidation",
-              onDone: { target: "#loading" },
-              onError: { target: "#loading", actions: ["setError"] }
-            }
-          },
-          schedulingCancellation: {
-            invoke: {
-              src: "scheduleCancellation",
+              src: "withdrawCancellation",
               onDone: { target: "#loading" },
               onError: { target: "#loading", actions: ["setError"] }
             }
@@ -303,7 +444,7 @@ export const contractProductMachine = createMachine(
 
       setContractProduct: assign(
         (context: ContractProductContext, { data }: AnyEventObject) => {
-          const raw = data as IContractProduct;
+          const raw = (data as ContractProductLoaded).record;
           return {
             rawContractProduct: raw,
             contractProduct: mapContractProduct(raw),
@@ -317,9 +458,79 @@ export const contractProductMachine = createMachine(
         contractProduct: undefined
       }),
 
+      setLookups: assign({
+        lookups: (_context: ContractProductContext, { data }: AnyEventObject) =>
+          (data as ContractProductLoaded).lookups
+      }),
+
+      // The open transition builds the combined cancellation form on context
+      // from the product's eligible options, its earliest anniversary and the
+      // CANCEL_REQUEST catalogue, then seeds an empty model.
+      setCancellationSchemas: assign({
+        cancellation: ({
+          contractProduct,
+          lookups
+        }: ContractProductContext) => ({
+          schema: useCancellationSchema({
+            options: contractProduct
+              ? cancellationOptions(contractProduct)
+              : [],
+            minDate: contractProduct
+              ? minFutureCancellationDate(contractProduct)
+              : null,
+            customFields: lookups?.customFields
+          }),
+          uischema: useCancellationUischema(lookups?.customFields),
+          model: {}
+        })
+      }),
+
+      setConsolidationSchemas: assign({
+        consolidation: () => ({
+          schema: useSetConsolidationSchema(),
+          uischema: useSetConsolidationUischema(),
+          model: {}
+        })
+      }),
+
+      setCancellationModel: assign({
+        cancellation: (
+          { cancellation }: ContractProductContext,
+          { data }: AnyEventObject
+        ) => ({
+          ...cancellation,
+          model: useModelParser(
+            cancellation?.schema,
+            (data ?? {}) as Record<string, unknown>
+          ) as ContractProductWriteModel
+        })
+      }),
+
+      setConsolidationModel: assign({
+        consolidation: (
+          { consolidation }: ContractProductContext,
+          { data }: AnyEventObject
+        ) => ({
+          ...consolidation,
+          model: useModelParser(
+            consolidation?.schema,
+            (data ?? {}) as Record<string, unknown>
+          ) as ContractProductWriteModel
+        })
+      }),
+
+      clearCancellation: assign({ cancellation: undefined }),
+
+      clearConsolidation: assign({ consolidation: undefined }),
+
       setError: assign({
-        error: (_context: ContractProductContext, { data }: AnyEventObject) =>
-          mapToHeadlessError(data)
+        error: (_context: ContractProductContext, { data }: AnyEventObject) => {
+          const error = mapToHeadlessError(data);
+          if (error?.status == responseCodes.Unprocessable_Entity) {
+            error.data = useValidationParser(error);
+          }
+          return error;
+        }
       }),
 
       setStatusError: assign({
@@ -338,8 +549,21 @@ export const contractProductMachine = createMachine(
     },
 
     guards: {
+      hasCancellationOptions: ({ contractProduct }: ContractProductContext) =>
+        !!contractProduct && !isEmpty(cancellationOptions(contractProduct)),
+
       isSubscription: ({ contractProduct }: ContractProductContext) =>
         !!contractProduct?.isSubscription,
+
+      // HARD request eligibility (ADR-25 subscription, ADR-27 no scheduled
+      // future cancellation), derived from the record — no brand setting read.
+      canRequestHardCancellation: ({
+        contractProduct
+      }: ContractProductContext) =>
+        !!contractProduct?.isSubscription &&
+        !!contractProduct?.canCancel &&
+        !hasHardCancellationRequest(contractProduct) &&
+        !contractProduct?.hasScheduledFutureCancellation,
 
       isStaged: ({ contractProduct }: ContractProductContext) =>
         !!contractProduct &&

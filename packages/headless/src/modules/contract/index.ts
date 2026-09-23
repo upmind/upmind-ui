@@ -35,7 +35,6 @@ export type {
 export type {
   Contract,
   ContractContext,
-  RequestCancellationModel,
   SetPaymentMethodModel
 } from "./contract.types";
 

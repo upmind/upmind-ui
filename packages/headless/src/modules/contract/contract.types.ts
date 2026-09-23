@@ -1,16 +1,16 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
-import type { CustomFieldModel } from "../client-custom-fields";
 import type { ContractProduct } from "../contract-product";
+import type { PaymentDetail } from "../payment-details";
 import type { ListQuery } from "../query";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
   IContract,
   IContractCancellationRequest,
-  IContractProduct,
   IStatus
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -113,7 +113,30 @@ export type Contract = {
 };
 
 // -----------------------------------------------------------------------------
-// MACHINE CONTEXT — as `OrderContext` (R24)
+// LOOKUPS & WRITE FORM — machine-owned form inputs (R34, auth form shape)
+// -----------------------------------------------------------------------------
+
+/** The reused lookups the machine loads on read, for the payment-method form. */
+export type ContractLookups = {
+  /** The client's stored payment methods (`usePaymentDetails`). */
+  storedPaymentMethods?: PaymentDetail[];
+};
+
+/** `load` returns the record and its reused lookups in one settle (R34). */
+export type ContractLoaded = {
+  record: IContract;
+  lookups: ContractLookups;
+};
+
+/**
+ * The model a write form carries — parsed and validated before its service
+ * runs. The contract holds ONE payment-method form (R34), so the write model is
+ * `SetPaymentMethodModel` alone (auth's single-`model` shape).
+ */
+export type ContractWriteModel = SetPaymentMethodModel;
+
+// -----------------------------------------------------------------------------
+// MACHINE CONTEXT — as `OrderContext` (R24); single form slot (auth shape)
 // -----------------------------------------------------------------------------
 
 /** Context for `contract.machine.ts`. */
@@ -132,29 +155,27 @@ export type ContractContext = {
 
   /** The mapped contract view model. */
   contract?: Contract;
+
+  /** The reused lookups the payment-method form draws from (`loadLookups`). */
+  lookups?: ContractLookups;
+
+  /** The open form's model — set on open (empty), re-set by `SET`, parsed against `schema`. */
+  model?: Partial<ContractWriteModel>;
+
+  /** The open form's schema — `parse` shapes against it and `validate` checks against it. */
+  schema?: JsonSchema7;
+
+  /** The open form's uischema — set on open, read by the labs editor. */
+  uischema?: UISchemaElement;
 };
 
 // -----------------------------------------------------------------------------
 // WRITE MODELS — design 8.3
 // -----------------------------------------------------------------------------
 
-/** The model `requestCancellation` takes. */
-export type RequestCancellationModel = {
-  productIds: IContractProduct["id"][];
-  reason?: string;
-  customFields?: CustomFieldModel;
-};
-
 /** The model `setPaymentMethod` takes. */
 export type SetPaymentMethodModel = {
   paymentDetailsId: string;
-};
-
-/** `POST contracts/{id}/cancel/request` wire body. */
-export type RequestCancellationBody = {
-  product_ids: RequestCancellationModel["productIds"];
-  cancellation_reason?: RequestCancellationModel["reason"];
-  custom_fields?: RequestCancellationModel["customFields"];
 };
 
 /** `PATCH contracts/{id}/payment_details` wire body. */
@@ -194,18 +215,16 @@ export type ContractServices = {
 
 /** The XState services map `contract.machine.ts` invokes — one key per `invoke.src`. */
 export type ContractMachineServices = {
-  /** `loading` — the raw contract read. */
-  load: (context: ContractContext) => Promise<IContract>;
-  /** `processing.requestingCancellation`. */
-  requestCancellation: (
+  /** `loading` — the raw contract read plus its reused stored-cards lookup. */
+  load: (context: ContractContext) => Promise<ContractLoaded>;
+  /** `paymentMethod.available.checking.parsing` — shapes the model against `schema`. */
+  parse: (
     context: ContractContext,
     event: AnyEventObject
-  ) => Promise<IContract | undefined>;
-  /** `processing.withdrawingCancellation`. */
-  withdrawCancellation: (
-    context: ContractContext
-  ) => Promise<IContract | undefined>;
-  /** `processing.settingPaymentMethod`. */
+  ) => Promise<ContractWriteModel>;
+  /** `*.validating` — rejects with a 422 `DetailedError` on invalid. */
+  validate: (context: ContractContext, event: AnyEventObject) => Promise<void>;
+  /** `paymentMethod.processing.settingPaymentMethod.updating`. */
   setPaymentMethod: (
     context: ContractContext,
     event: AnyEventObject

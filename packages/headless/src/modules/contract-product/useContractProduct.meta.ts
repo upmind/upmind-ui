@@ -1,7 +1,9 @@
 import { computed } from "vue";
+import { ContractStatusCodes } from "@upmind-automation/types";
 import { ContractProductState } from "./contract-product.types";
 import {
   anniversaryAnchor,
+  hasHardCancellationRequest,
   isCancellable,
   isDue
 } from "./contract-product.utils";
@@ -51,6 +53,29 @@ export function createContractProductMeta(
     /** True if the platform reports the product as cancellable. */
     canCancel: computed(
       () => !!contextValue<boolean>(state, "contractProduct.canCancel")
+    ),
+
+    /**
+     * True when the client may open a cancellation REQUEST (HARD): no hard
+     * request already pending (a pending contract is allowed). Derived from the
+     * record; the brand setting `SUBSCRIPTIONS_ALLOW_IMMEDIATE_CANCELLATION` is
+     * NOT read (design 8.3 — the module reads no brand setting).
+     */
+    canRequestCancellation: computed(
+      () =>
+        !!contractProduct.value &&
+        !hasHardCancellationRequest(contractProduct.value)
+    ),
+
+    /**
+     * True when the client may cancel at END OF TERM (SOFT): no hard request
+     * pending, and the contract is not pending. Derived from the record.
+     */
+    canRequestEndOfTerm: computed(
+      () =>
+        !!contractProduct.value &&
+        !hasHardCancellationRequest(contractProduct.value) &&
+        contractProduct.value.contractStatus !== ContractStatusCodes.PENDING
     ),
 
     /** True when a future cancellation can be booked: not cancelling, not pending, none booked, and an anniversary exists. */
@@ -171,7 +196,11 @@ export function createContractProductMeta(
     isStaged: useStateMatches(state, ContractProductState.STAGED),
 
     /** True while a write is in flight. */
-    isSubmitting: useStateMatches(state, "processing"),
+    isSubmitting: useStateMatches(state, [
+      "processing",
+      "available.cancelling.processing",
+      "available.consolidating.processing"
+    ]),
 
     /** True if the product is a subscription (`billing_cycle_months > 0`). */
     isSubscription: computed(

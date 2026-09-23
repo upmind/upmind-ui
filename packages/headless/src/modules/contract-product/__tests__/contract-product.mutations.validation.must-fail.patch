@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+index 32c355d52..beba9cc0f 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -357,7 +357,7 @@ export const contractProductMachine = createMachine(
+                   src: "validate",
+                   onDone: { target: "updating" },
+                   onError: {
+-                    target: "#loading.checking",
++                    target: "updating",
+                     actions: ["setError"]
+                   }
+                 }

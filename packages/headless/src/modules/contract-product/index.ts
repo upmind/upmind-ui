@@ -58,13 +58,18 @@ export type { ContractProductsScopeMatrix } from "./contract-product.types";
  */
 
 // --- Public model types (shared by both composables)
-export { ContractProductState } from "./contract-product.types";
+export {
+  ContractProductCancelOption,
+  ContractProductState
+} from "./contract-product.types";
 export type {
+  CancellationModel,
   ContractProduct,
   ContractProductContext,
   ContractProductRequest,
   ContractProductRequestStatus,
   ContractProductStatus,
+  RequestCancellationModel,
   ScheduleCancellationModel,
   ScheduledAction,
   SetConsolidationModel,

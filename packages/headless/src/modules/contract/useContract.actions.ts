@@ -10,21 +10,20 @@ import {
   waitForProcessing
 } from "../../utils";
 import { isNil } from "lodash-es";
-import type {
-  Contract,
-  RequestCancellationModel,
-  SetPaymentMethodModel
-} from "./contract.types";
+import type { Contract, SetPaymentMethodModel } from "./contract.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract/useContract.actions
- * @description Manager actions — the three contract-level writes (design 8.3)
- * and lifecycle. Each write sends its event, and a node that carries no such
- * transition refuses it (`false`, no request). It never raises feedback: a
- * failure rejects with a `DetailedError` for the CALLER to render, while the
- * machine keeps its own copy on context for `useContract.context.ts`.
+ * @description Manager actions — the ONE contract-level write the contract
+ * keeps (R34), the payment-method form, and lifecycle. The form is driven the
+ * auth way: `openPaymentMethod` opens it, `set` feeds a model, `cancelForm`
+ * closes it, `submitPaymentMethod` sends the write. `setPaymentMethod` is the
+ * direct call that opens + sets + submits in one, so every existing caller
+ * keeps working and every model is validated by the machine. It never raises
+ * feedback: a failure rejects with a `DetailedError` for the CALLER to render,
+ * while the machine keeps its own copy on context for `useContract.context.ts`.
  *
  * @doctrine clause 2 (fresh modules start armless).
  */
@@ -45,7 +44,7 @@ export function createContractActions(
   }
 
   async function settled(failureKey: string): Promise<Contract | false> {
-    if (!stateMatches(service, "processing")) return false;
+    if (!stateMatches(service, "paymentMethod.processing")) return false;
 
     await waitForProcessing(service, ["available", "unavailable"]);
 
@@ -64,30 +63,34 @@ export function createContractActions(
     return contextValue<Contract>(state, "contract") as Contract;
   }
 
-  /**
-   * Requests the cancellation of the named products (AC6).
-   * @returns the re-read contract, or `false` when the node refused the event.
-   */
-  async function requestCancellation(
-    model: RequestCancellationModel
-  ): Promise<Contract | false> {
-    send({ type: "REQUEST_CANCEL", data: model });
+  /** Opens the payment-method form (AC8) — the machine builds its schema on entry. */
+  function openPaymentMethod(): void {
+    send({ type: "PAYMENT_METHOD" });
+  }
 
-    return settled("error.contract_request_cancellation_failed");
+  /** Feeds a model into the open form; the machine parses and validates it. */
+  function set(model: Partial<SetPaymentMethodModel>): void {
+    send({ type: "SET", data: model });
+  }
+
+  /** Closes the open form and re-places the node, form cleared. */
+  function cancelForm(): void {
+    send({ type: "CANCEL" });
   }
 
   /**
-   * Withdraws the pending cancellation request (AC7).
+   * Submits the open payment-method form's current model (AC8).
    * @returns the re-read contract, or `false` when the node refused the event.
    */
-  async function withdrawCancellation(): Promise<Contract | false> {
-    send({ type: "WITHDRAW" });
+  async function submitPaymentMethod(): Promise<Contract | false> {
+    send({ type: "SET_PAYMENT_METHOD" });
 
-    return settled("error.contract_withdraw_cancellation_failed");
+    return settled("error.contract_set_payment_method_failed");
   }
 
   /**
-   * Sets which stored payment method pays the contract's future invoices (AC8).
+   * Sets which stored payment method pays the contract's future invoices (AC8)
+   * — opens the form, feeds the model, submits.
    * @returns the re-read contract, or `false` when nothing was sent — the
    *   model names no method or the one already in use, or the node refused
    *   the event.
@@ -97,18 +100,18 @@ export function createContractActions(
   ): Promise<Contract | false> {
     /**
      * @decision The no-op refusal lives here, in the action layer (R31).
-     * what: no `SET_PAYMENT_METHOD` event is sent when `model.paymentDetailsId`
-     *   is empty or equals `contract.paymentDetailsId`; the call resolves
-     *   `false`, the same channel as a node refusal.
+     * what: no form is opened when `model.paymentDetailsId` is empty or equals
+     *   `contract.paymentDetailsId`; the call resolves `false`, the same
+     *   channel as a node refusal.
      * why: legacy `changePaymentMethodModal.vue:114-117` returns early on
      *   `!isChanged`, and `isChanged` (`:82-89`) is true only when the
      *   selection differs from the contract's `payment_details_id` or
      *   `gateway_id`. Our model names a stored method only, so the id is the
      *   whole comparison. Design 8.3 keeps the locked chart guardless, so the
      *   refusal is the action's, as it is legacy's.
-     * rejected: a guard on the locked chart (R4, ADR-17); a distinct
-     *   return value for the no-op — the caller's question is "did anything
-     *   change", and `false` already answers it.
+     * rejected: a guard on the locked chart (R4, ADR-17); a distinct return
+     *   value for the no-op — the caller's question is "did anything change",
+     *   and `false` already answers it.
      */
     const current = contextValue<Contract["paymentDetailsId"]>(
       state,
@@ -118,9 +121,10 @@ export function createContractActions(
       return false;
     }
 
-    send({ type: "SET_PAYMENT_METHOD", data: model });
+    openPaymentMethod();
+    set(model);
 
-    return settled("error.contract_set_payment_method_failed");
+    return submitPaymentMethod();
   }
 
   /** Re-reads the contract from the server. */
@@ -143,6 +147,11 @@ export function createContractActions(
     /**
      * @scenario-include
      */
+    cancelForm,
+
+    /**
+     * @scenario-include
+     */
     destroy,
 
     /**
@@ -153,12 +162,17 @@ export function createContractActions(
     /**
      * @scenario-include
      */
+    openPaymentMethod,
+
+    /**
+     * @scenario-include
+     */
     refresh,
 
     /**
      * @scenario-include
      */
-    requestCancellation,
+    set,
 
     /**
      * @scenario-include
@@ -173,7 +187,7 @@ export function createContractActions(
     /**
      * @scenario-include
      */
-    withdrawCancellation
+    submitPaymentMethod
   };
 }
 

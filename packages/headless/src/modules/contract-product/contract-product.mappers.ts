@@ -7,6 +7,8 @@ import type {
   ContractProductClient,
   ContractProductRequest,
   MovedToContractProduct,
+  RequestCancellationBody,
+  RequestCancellationModel,
   ScheduleCancellationBody,
   ScheduleCancellationModel,
   ScheduledAction,
@@ -60,6 +62,9 @@ export function mapContractProduct(raw: IContractProduct): ContractProduct {
     status: raw.status
       ? { code: raw.status.code as ContractStatusCodes }
       : undefined,
+    contractStatus: raw.contract?.status?.code as
+      | ContractStatusCodes
+      | undefined,
     stagedImport: raw.staged_import,
     contractRequest,
     renew: raw.renew,
@@ -106,6 +111,7 @@ function mapContractRequest(
   raw: IContractCancellationRequest
 ): ContractProductRequest {
   return {
+    id: raw.id,
     status: raw.status
       ? { code: raw.status.code as CancellationRequestStatusCodes }
       : undefined
@@ -171,6 +177,22 @@ function mapUnpaidInvoice(raw: IInvoice): UnpaidInvoice {
 export function toSoftCancelBody(model: SoftCancelModel): SoftCancelBody {
   return {
     renew: model.renew,
+    ...(model.reason ? { cancellation_reason: model.reason } : {}),
+    ...(isEmpty(model.customFields)
+      ? {}
+      : { custom_fields: model.customFields })
+  };
+}
+
+/**
+ * The hard-cancellation request body (R33; moved from `contract`). `product_ids`
+ * is this one product; `customFields` is sent as-is (see `toSoftCancelBody`).
+ */
+export function toRequestCancellationBody(
+  model: RequestCancellationModel
+): RequestCancellationBody {
+  return {
+    product_ids: model.productIds,
     ...(model.reason ? { cancellation_reason: model.reason } : {}),
     ...(isEmpty(model.customFields)
       ? {}

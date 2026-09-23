@@ -12,8 +12,9 @@
  *  - `setConsolidation`: `invoiceConsolidationEnabled` is an INTEGER `enum` of
  *    exactly [ENABLED, DISABLED, INHERIT] — no `oneOf`, no `options` (D8, a real
  *    enum with i18n value labels; `oneOf` leaks memory); its uischema is a
- *    button-group control keyed to `form.contract_product_invoice_consolidation`
- *    whose `defaultOptionValue` is INHERIT (un-pressing writes INHERIT).
+ *    toggle-group control (an enum of more than two values draws as toggle-group)
+ *    keyed to `form.contract_product_invoice_consolidation` whose
+ *    `defaultOptionValue` is INHERIT (un-pressing writes INHERIT).
  *  - `scheduleCancellation`: `futureCancellationDate` is a required date whose
  *    `formatMinimum` and `default` are the manager's live
  *    `minFutureCancellationDate`; `reason` is a string.
@@ -137,7 +138,7 @@ describe("useContractProduct schemas.setConsolidation — a real enum, never a o
     expect(JSON.stringify(schema)).not.toContain("oneOf");
   });
 
-  it("lays out a button-group control whose un-pressed value is INHERIT", async () => {
+  it("lays out a toggle-group control whose un-pressed value is INHERIT", async () => {
     const manager = await openManager();
     const uischema = manager.useContext().schemas.setConsolidation.uischema
       .value as UiSchema;
@@ -146,7 +147,7 @@ describe("useContractProduct schemas.setConsolidation — a real enum, never a o
     );
 
     expect(control?.i18n).toBe("form.contract_product_invoice_consolidation");
-    expect(control?.options?.format).toBe("button-group");
+    expect(control?.options?.format).toBe("toggle-group");
     expect(control?.options?.defaultOptionValue).toBe(
       InvoiceConsolidationTypes.INHERIT
     );

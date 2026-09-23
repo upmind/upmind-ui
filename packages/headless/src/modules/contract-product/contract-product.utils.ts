@@ -7,10 +7,22 @@ import {
   TrialEndActionTypes
 } from "@upmind-automation/types";
 import {
+  ContractProductCancelOption,
   ContractProductsContextTypes,
   ContractProductState
 } from "./contract-product.types";
-import type { ContractProduct, UnpaidInvoice } from "./contract-product.types";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useValidation
+} from "../../utils";
+import { isEmpty } from "lodash-es";
+import type {
+  ContractProduct,
+  ContractProductForm,
+  UnpaidInvoice
+} from "./contract-product.types";
 import type { ScopeContext } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -94,6 +106,64 @@ export function selectTrialNode(
   return product.trialEndAction === TrialEndActionTypes.CANCEL
     ? ContractProductState.TRIAL_ENDING
     : ContractProductState.TRIAL_RUNNING;
+}
+
+// -----------------------------------------------------------------------------
+// Cancellation options — the ONE combined form (R33; legacy `clientCancelOptions`)
+
+/**
+ * True when the product carries a pending HARD cancellation request
+ * (`contract_request.status.code === request_cancellation_request`) — legacy
+ * `hasHardCancellationRequest` (`contractCancellation.ts:351-356`).
+ */
+export function hasHardCancellationRequest(
+  product: Pick<ContractProduct, "contractRequest">
+): boolean {
+  return (
+    product.contractRequest?.status?.code ===
+    CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST
+  );
+}
+
+/**
+ * The cancellation options this product allows (legacy `clientCancelOptions`,
+ * `contractCancellation.ts:300-333`), derived from the record only. The brand
+ * setting `SUBSCRIPTIONS_ALLOW_IMMEDIATE_CANCELLATION` is NOT read (design 8.3
+ * — the module reads no brand setting), so HARD turns on the record facts alone.
+ */
+export function cancellationOptions(
+  product: Pick<
+    ContractProduct,
+    | "contractRequest"
+    | "contractStatus"
+    | "isSubscription"
+    | "renew"
+    | "canCancel"
+    | "hasScheduledFutureCancellation"
+    | "nextDueDate"
+    | "billingCycleMonths"
+  >
+): ContractProductCancelOption[] {
+  const options: ContractProductCancelOption[] = [];
+  // Legacy hides the whole cancel entry once auto-renew is off (`cProdProvider.vue:265-267`).
+  if (!product.isSubscription || !product.renew) return options;
+
+  const hasHard = hasHardCancellationRequest(product);
+  const isPending = product.contractStatus === ContractStatusCodes.PENDING;
+  const hasScheduled = !!product.hasScheduledFutureCancellation;
+
+  // SOFT — cancel at end of term; not while pending and not with a hard request.
+  if (!isPending && !hasHard) options.push(ContractProductCancelOption.SOFT);
+  // HARD — request immediate cancellation; needs `can_cancel`, no hard request, no scheduled future cancellation (ADR-25, ADR-27).
+  if (product.canCancel && !hasHard && !hasScheduled) {
+    options.push(ContractProductCancelOption.HARD);
+  }
+  // SCHEDULE_FUTURE — needs a live subscription, no hard request, no scheduled cancellation and an anniversary anchor.
+  if (!isPending && !hasHard && !hasScheduled && !!anniversaryAnchor(product)) {
+    options.push(ContractProductCancelOption.SCHEDULE_FUTURE);
+  }
+
+  return options;
 }
 
 // -----------------------------------------------------------------------------
@@ -241,4 +311,27 @@ export function isDue(invoice: UnpaidInvoice): boolean {
 /** True while cancelling the invoice still means anything. */
 export function isCancellable(invoice: UnpaidInvoice): boolean {
   return CANCELLABLE_STATUSES.includes(invoice.status?.code as InvoiceStatus);
+}
+
+// -----------------------------------------------------------------------------
+// Write forms
+
+/** Rejects with a 422 carrying the AJV errors when the form's model is invalid. */
+export async function validateForm({
+  schema,
+  model
+}: ContractProductForm = {}): Promise<void> {
+  if (!schema) return;
+
+  const { validate } = useValidation();
+  const errors = validate(schema, model);
+
+  if (!isEmpty(errors)) {
+    throw new DetailedError(
+      "Validation failed",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      errors
+    );
+  }
 }

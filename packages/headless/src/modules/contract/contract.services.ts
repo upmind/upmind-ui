@@ -1,13 +1,11 @@
 /** @internal */
+import { until } from "@vueuse/core";
 import { computed } from "vue";
+import { usePaymentDetails } from "../payment-details";
 import { invalidateQueryByKey, useQuery } from "../query";
 import { resolveClientId, useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
-import {
-  mapContracts,
-  toPaymentMethodBody,
-  toRequestCancellationBody
-} from "./contract.mappers";
+import { mapContracts, toPaymentMethodBody } from "./contract.mappers";
 import { useQuerySchema } from "./contract.schemas";
 import {
   DEBOUNCE_DELAY,
@@ -15,23 +13,27 @@ import {
   ErrorOrigin,
   NotAuthenticatedError,
   responseCodes,
-  useTime
+  useModelParser,
+  useTime,
+  useValidation
 } from "../../utils";
+import { isEmpty } from "lodash-es";
 import type { ScopeContext } from "../scope";
 import type {
   Contract,
   ContractContext,
+  ContractLoaded,
+  ContractLookups,
   ContractMachineServices,
   ContractServices,
   ContractListQuery,
+  ContractWriteModel,
   QueryModel,
-  RequestCancellationModel,
   SetPaymentMethodModel
 } from "./contract.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IContract } from "@upmind-automation/types";
-import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract/contract.services
@@ -46,14 +48,27 @@ import type { AnyEventObject } from "xstate";
 /** The module's base cache key (design 8.4). */
 export const queryKey: QueryKey = ["contracts"];
 
+/**
+ * @decision The contract read drops the product cancellation `with` members
+ *   (R34); each product loads its own cancellation facts through
+ *   `useContractProduct` (R33).
+ * what: `products.contract_request*` and `products.future_cancellation_request`
+ *   are gone. The read keeps the contract's OWN `cancellation_request.status`
+ *   and each product's `status`, `tags`, `product.image` and
+ *   `product.brand.currency` — the contract page genuinely reads those per
+ *   product (`contract.reads.int.test.ts`, `contract.feature:144-166`), so the
+ *   wider `products` shape stays (R34's "if a wider shape is genuinely read,
+ *   keep that and report it").
+ * why: cancellation belongs to the product now (R33); the contract keeps only
+ *   contract facts and its own request status (R34).
+ * rejected: narrowing `products` to id/name/status — the reads oracle proves
+ *   the page shows each product's status, tags, image and brand currency, and
+ *   that oracle outranks a seat's reading (R31).
+ */
 const CONTRACT_WITH = [
-  "products.contract_request",
-  "products.contract_request.custom_fields.field",
-  "products.future_cancellation_request",
   "products.product.image",
   "products.product.brand.currency",
   "cancellation_request",
-  "cancellation_request.custom_fields.field",
   "products.status",
   "products.tags",
   "client.image",
@@ -134,61 +149,85 @@ function notAvailable(contractId?: IContract["id"]): DetailedError {
   );
 }
 
-/** `loading` — the raw contract read. The machine owns freshness (design 8.4). */
-async function load({ contractId }: ContractContext): Promise<IContract> {
+/**
+ * `loading` — the raw contract read plus its reused stored-cards lookup, settled
+ * together (design 8.4). The lookup degrades to an empty form on any failure and
+ * never fails the load.
+ */
+async function load({ contractId }: ContractContext): Promise<ContractLoaded> {
   if (!contractId) return Promise.reject(notAvailable(contractId));
 
   const { get, useUrl } = useQuery();
 
-  return get<IContract>({
-    queryKey: [...queryKey, contractId],
-    url: useUrl(`contracts/${contractId}`, {
-      with: CONTRACT_WITH,
-      with_staged_imports: 1
+  const [record, lookups] = await Promise.all([
+    get<IContract>({
+      queryKey: [...queryKey, contractId],
+      url: useUrl(`contracts/${contractId}`, {
+        with: CONTRACT_WITH,
+        with_staged_imports: 1
+      }),
+      withAccessToken: true,
+      staleTime: 0,
+      gcTime: 0
     }),
-    withAccessToken: true,
-    staleTime: 0,
-    gcTime: 0
+    loadLookups().catch(() => ({}) as ContractLookups)
+  ]);
+
+  return { record, lookups };
+}
+
+/**
+ * The payment-method form's stored cards, REUSED off the client's own
+ * `usePaymentDetails` so no new request is issued. That query settles on
+ * `isReady`, awaited through `meta`; the wait is bounded so a lookup that never
+ * settles degrades to an empty form rather than blocking the load.
+ */
+async function loadLookups(): Promise<ContractLookups> {
+  const payments = usePaymentDetails();
+
+  await until(() => !payments.meta.value.isLoading).toBe(true, {
+    timeout: useTime().SECOND,
+    throwOnTimeout: false
   });
+
+  return { storedPaymentMethods: payments.data.value };
 }
 
-/** `processing.requestingCancellation` — `POST contracts/{id}/cancel/request` (design 8.3). */
-async function requestCancellation(
-  { contractId }: ContractContext,
-  { data }: AnyEventObject
-): Promise<IContract | undefined> {
-  if (!contractId) return Promise.reject(notAvailable(contractId));
+/** `paymentMethod.available.checking.parsing` — shapes the model against `schema`. */
+async function parse({
+  model = {},
+  schema
+}: ContractContext): Promise<ContractWriteModel> {
+  if (!schema) return model as ContractWriteModel;
 
-  const { post, useUrl } = useQuery();
-
-  return post<IContract>({
-    mutationKey: [...queryKey, contractId, "cancel", "request"],
-    url: useUrl(`contracts/${contractId}/cancel/request`),
-    data: toRequestCancellationBody(data as RequestCancellationModel),
-    withAccessToken: true
-  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+  return useModelParser(
+    schema,
+    model as Record<string, unknown>
+  ) as ContractWriteModel;
 }
 
-/** `processing.withdrawingCancellation` — `DELETE contracts/{id}/cancel/request` (design 8.3). */
-async function withdrawCancellation({
-  contractId
+/** `*.validating` — rejects with a 422 carrying the AJV errors on invalid. */
+async function validate({ schema, model }: ContractContext): Promise<void> {
+  if (!schema) return;
+
+  const { validate: doValidate } = useValidation();
+  const errors = doValidate(schema, model);
+
+  if (!isEmpty(errors)) {
+    throw new DetailedError(
+      "Validation failed",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      errors
+    );
+  }
+}
+
+/** `paymentMethod.processing.settingPaymentMethod.updating` — `PATCH contracts/{id}/payment_details` (design 8.3). */
+async function setPaymentMethod({
+  contractId,
+  model
 }: ContractContext): Promise<IContract | undefined> {
-  if (!contractId) return Promise.reject(notAvailable(contractId));
-
-  const { del, useUrl } = useQuery();
-
-  return del<IContract>({
-    mutationKey: [...queryKey, contractId, "cancel", "withdraw"],
-    url: useUrl(`contracts/${contractId}/cancel/request`),
-    withAccessToken: true
-  }).then(invalidateQueryByKey(queryKey, { exact: false }));
-}
-
-/** `processing.settingPaymentMethod` — `PATCH contracts/{id}/payment_details` (design 8.3). */
-async function setPaymentMethod(
-  { contractId }: ContractContext,
-  { data }: AnyEventObject
-): Promise<IContract | undefined> {
   if (!contractId) return Promise.reject(notAvailable(contractId));
 
   const { patch, useUrl } = useQuery();
@@ -196,7 +235,7 @@ async function setPaymentMethod(
   return patch<IContract>({
     mutationKey: [...queryKey, contractId, "payment-method"],
     url: useUrl(`contracts/${contractId}/payment_details`),
-    data: toPaymentMethodBody(data as SetPaymentMethodModel),
+    data: toPaymentMethodBody(model as SetPaymentMethodModel),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
@@ -204,8 +243,8 @@ async function setPaymentMethod(
 /** The XState services map `contract.machine.ts` passes as `services`. */
 export const contractMachineServices: ContractMachineServices = {
   load,
-  requestCancellation,
-  withdrawCancellation,
+  parse,
+  validate,
   setPaymentMethod
 };
 

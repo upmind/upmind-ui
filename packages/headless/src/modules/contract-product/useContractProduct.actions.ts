@@ -1,6 +1,10 @@
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useI18n } from "../system-localisation";
 import {
+  ContractProductCancelOption,
+  ContractProductFormTypes
+} from "./contract-product.types";
+import {
   contextValue,
   DetailedError,
   ErrorOrigin,
@@ -10,7 +14,10 @@ import {
   waitForProcessing
 } from "../../utils";
 import type {
+  CancellationModel,
   ContractProduct,
+  ContractProductWriteModel,
+  RequestCancellationModel,
   ScheduleCancellationModel,
   SetConsolidationModel,
   SoftCancelModel
@@ -20,15 +27,27 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProduct.actions
- * @description Manager actions — the five writes of design 8.3 (the renewal
- * stop and its abort, the consolidation value, the two scheduled-cancellation
- * writes of R18) and lifecycle. Each write sends its event, waits for the
- * machine to settle back on a node, and resolves the re-read product; a
- * refused event (no transition entered `processing`) resolves `false`.
- * Nothing here raises feedback — a failure rejects for the CALLER to render.
+ * @description Manager actions — every cancellation write (R33) plus the
+ * consolidation write, driven the auth way: `openCancellation` /
+ * `openConsolidation` open a form, `set` feeds a model, `cancelForm` closes it,
+ * `submitCancellation` / `submitConsolidation` send the write (the cancellation
+ * submit routes off `model.option`). The legacy direct calls — `stopRenewing`,
+ * `resumeRenewing`, `scheduleCancellation`, `requestCancellation`,
+ * `setConsolidation` — open + set + submit in one, so every existing caller
+ * keeps working and every model is validated by the machine. `withdrawCancellation`
+ * and `revokeScheduledCancellation` are formless. Nothing here raises feedback —
+ * a failure rejects with a `DetailedError` for the CALLER to render.
  *
  * @doctrine clause 2 (fresh modules start armless).
  */
+
+/** The submit event each cancellation option routes to (routing lives here, R33). */
+const CANCEL_OPTION_EVENT: Record<ContractProductCancelOption, string> = {
+  [ContractProductCancelOption.SOFT]: "STOP_RENEWING",
+  [ContractProductCancelOption.SCHEDULE_FUTURE]: "SCHEDULE_CANCEL",
+  [ContractProductCancelOption.HARD]: "REQUEST_CANCEL"
+};
+
 export function createContractProductActions(
   _actorScope: ScopeActorTypes,
   actor: UseActor,
@@ -74,45 +93,153 @@ export function createContractProductActions(
     return contractProduct;
   }
 
+  /**
+   * Resolves the re-read product once a form write has settled.
+   * @throws {DetailedError} when the model is invalid or the write failed.
+   */
+  async function resolveFormWrite(
+    region: string,
+    message: string
+  ): Promise<ContractProduct> {
+    const settled = await waitForProcessing(
+      service,
+      [`available.${region}.idle`, "unavailable"],
+      [`available.${region}.available.error`]
+    );
+    const error = contextValue<ResponseError>(state, "error");
+    const contractProduct = contextValue<ContractProduct>(
+      state,
+      "contractProduct"
+    );
+
+    if (error || !settled || !contractProduct) {
+      throw new DetailedError(
+        message,
+        error?.status ?? responseCodes.Timeout,
+        ErrorOrigin.Headless,
+        { error, state: state.value.value }
+      );
+    }
+
+    return contractProduct;
+  }
+
+  /** Opens the combined cancellation form — the machine builds its schema on entry. */
+  function openCancellation(): void {
+    send({ type: "CANCELLATION" });
+  }
+
+  /** Opens the consolidation form — the machine builds its schema on entry. */
+  function openConsolidation(): void {
+    send({ type: "CONSOLIDATION" });
+  }
+
+  /** Feeds a model into an open form; the machine parses and validates it. */
+  function set(
+    form: ContractProductFormTypes,
+    model: Partial<ContractProductWriteModel>
+  ): void {
+    send({ type: `SET.${form}`, data: model });
+  }
+
+  /** Closes an open form, its model cleared. */
+  function cancelForm(form: ContractProductFormTypes): void {
+    send({ type: `CANCEL.${form}` });
+  }
+
+  /**
+   * Submits the open cancellation form, routed off `model.option`.
+   * @returns the re-read product, or `false` when the option is unknown or the
+   *   node refused the routed event.
+   */
+  async function submitCancellation(): Promise<ContractProduct | false> {
+    const model = contextValue<CancellationModel>(state, "cancellation.model");
+    const type = model?.option && CANCEL_OPTION_EVENT[model.option];
+    if (!type) return false;
+
+    send({ type });
+    if (!stateMatches(state, "available.cancelling.processing")) return false;
+
+    return resolveFormWrite(
+      "cancelling",
+      t("error.contract_product_cancel_failed")
+    );
+  }
+
+  /**
+   * Submits the open consolidation form.
+   * @returns the re-read product, or `false` when the node refused the event.
+   */
+  async function submitConsolidation(): Promise<ContractProduct | false> {
+    send({ type: "SET_CONSOLIDATION" });
+    if (!stateMatches(state, "available.consolidating.processing")) {
+      return false;
+    }
+
+    return resolveFormWrite(
+      "consolidating",
+      t("error.contract_product_set_consolidation_failed")
+    );
+  }
+
   async function stopRenewing(
     model?: Omit<SoftCancelModel, "renew">
   ): Promise<ContractProduct | false> {
-    send({ type: "STOP_RENEWING", data: model });
-    if (!stateMatches(state, "processing")) return false;
+    openCancellation();
+    set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.SOFT,
+      ...(model ?? {})
+    });
 
-    return resolveContractProduct(
-      t("error.contract_product_stop_renewing_failed")
-    );
+    return submitCancellation();
   }
 
   async function resumeRenewing(): Promise<ContractProduct | false> {
     send({ type: "RESUME" });
     if (!stateMatches(state, "processing")) return false;
 
-    return resolveContractProduct(
-      t("error.contract_product_resume_renewing_failed")
-    );
-  }
-
-  async function setConsolidation(
-    model: SetConsolidationModel
-  ): Promise<ContractProduct | false> {
-    send({ type: "SET_CONSOLIDATION", data: model });
-    if (!stateMatches(state, "processing")) return false;
-
-    return resolveContractProduct(
-      t("error.contract_product_set_consolidation_failed")
-    );
+    return resolveContractProduct(t("error.contract_product_cancel_failed"));
   }
 
   async function scheduleCancellation(
     model: ScheduleCancellationModel
   ): Promise<ContractProduct | false> {
-    send({ type: "SCHEDULE_CANCEL", data: model });
+    openCancellation();
+    set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.SCHEDULE_FUTURE,
+      ...model
+    });
+
+    return submitCancellation();
+  }
+
+  async function requestCancellation(
+    model?: Omit<RequestCancellationModel, "productIds">
+  ): Promise<ContractProduct | false> {
+    openCancellation();
+    set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.HARD,
+      ...(model ?? {})
+    });
+
+    return submitCancellation();
+  }
+
+  async function setConsolidation(
+    model: SetConsolidationModel
+  ): Promise<ContractProduct | false> {
+    openConsolidation();
+    set(ContractProductFormTypes.CONSOLIDATION, model);
+
+    return submitConsolidation();
+  }
+
+  async function withdrawCancellation(): Promise<ContractProduct | false> {
+    send({ type: "WITHDRAW" });
     if (!stateMatches(state, "processing")) return false;
 
     return resolveContractProduct(
-      t("error.contract_product_schedule_cancellation_failed")
+      t("error.contract_product_withdraw_cancellation_failed")
     );
   }
 
@@ -144,6 +271,12 @@ export function createContractProductActions(
 
   return {
     /**
+     * Closes the open form and re-places the node, form cleared.
+     * @scenario-include
+     */
+    cancelForm,
+
+    /**
      * Destroys this scoped instance — stops the machine and deregisters it.
      * @scenario-include
      */
@@ -156,10 +289,28 @@ export function createContractProductActions(
     isReady,
 
     /**
+     * Opens the combined cancellation form (R33).
+     * @scenario-include
+     */
+    openCancellation,
+
+    /**
+     * Opens the consolidation form.
+     * @scenario-include
+     */
+    openConsolidation,
+
+    /**
      * Re-reads the product.
      * @scenario-include
      */
     refresh,
+
+    /**
+     * Requests immediate cancellation of this product (HARD, R33).
+     * @scenario-include
+     */
+    requestCancellation,
 
     /**
      * Aborts a pending renewal stop (`PUT …/modify_renew`, `renew: true`).
@@ -180,6 +331,12 @@ export function createContractProductActions(
     scheduleCancellation,
 
     /**
+     * Feeds a model into the open form.
+     * @scenario-include
+     */
+    set,
+
+    /**
      * Sets the invoice consolidation value; a subscription only.
      * @scenario-include
      */
@@ -195,7 +352,25 @@ export function createContractProductActions(
      * Stops the renewal (`PUT …/modify_renew`, `renew: false`); a subscription only.
      * @scenario-include
      */
-    stopRenewing
+    stopRenewing,
+
+    /**
+     * Submits the open cancellation form, routed off `model.option`.
+     * @scenario-include
+     */
+    submitCancellation,
+
+    /**
+     * Submits the open consolidation form.
+     * @scenario-include
+     */
+    submitConsolidation,
+
+    /**
+     * Withdraws this product's pending cancellation request (R33).
+     * @scenario-include
+     */
+    withdrawCancellation
   };
 }
 

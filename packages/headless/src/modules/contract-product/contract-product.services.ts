@@ -1,6 +1,10 @@
 /** @internal */
 import { computed } from "vue";
 import { ContractStatusCodes } from "@upmind-automation/types";
+import {
+  ClientCustomFieldsContextTypes,
+  useClientCustomFields
+} from "../client-custom-fields";
 import { usePersonalDetailsManager } from "../client-personal-details";
 import { invalidateQueryByKey, RequestSortDirection, useQuery } from "../query";
 import { translateQuery } from "../query/query.utils";
@@ -10,12 +14,16 @@ import { useI18n } from "../system-localisation";
 import {
   mapContractProducts,
   toConsolidationBody,
+  toRequestCancellationBody,
   toScheduleCancellationBody,
   toSoftCancelBody
 } from "./contract-product.mappers";
 import { useQuerySchema } from "./contract-product.schemas";
 import { ContractProductsContextTypes } from "./contract-product.types";
-import { resolveExcludeDelegated } from "./contract-product.utils";
+import {
+  resolveExcludeDelegated,
+  validateForm
+} from "./contract-product.utils";
 import {
   DEBOUNCE_DELAY,
   DetailedError,
@@ -26,15 +34,16 @@ import {
 } from "../../utils";
 import { join, reject, startsWith } from "lodash-es";
 import type {
+  CancellationModel,
   ContractProduct,
   ContractProductContext,
   ContractProductListQuery,
+  ContractProductLoaded,
+  ContractProductLookups,
   ContractProductMachineServices,
   ContractProductServices,
   QueryModel,
-  ScheduleCancellationModel,
-  SetConsolidationModel,
-  SoftCancelModel
+  SetConsolidationModel
 } from "./contract-product.types";
 import type { ScopeContext } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
@@ -44,7 +53,6 @@ import type {
   IProductCategory
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
-import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.services
@@ -358,27 +366,62 @@ function notAvailable(context: ContractProductContext): DetailedError {
   );
 }
 
-/** `loading` — the 35-member client detail read (design 8.1, ADR-29). */
+/**
+ * `loading` — the 35-member client detail read (design 8.1, ADR-29) plus its
+ * reused CANCEL_REQUEST field lookups, settled together. The lookup degrades to
+ * an empty form on any failure and never fails the load.
+ */
 async function load(
   context: ContractProductContext
-): Promise<IContractProduct> {
+): Promise<ContractProductLoaded> {
   const { get, useUrl } = useQuery();
   if (!context.contractProductId) return Promise.reject(notAvailable(context));
 
-  return get<IContractProduct>({
-    queryKey: [
-      ...queryKey,
-      context.contractId,
-      "products",
-      context.contractProductId
-    ],
-    url: useUrl(`contract_products/${context.contractProductId}`, {
-      with: CONTRACT_PRODUCT_WITH
+  const [record, lookups] = await Promise.all([
+    get<IContractProduct>({
+      queryKey: [
+        ...queryKey,
+        context.contractId,
+        "products",
+        context.contractProductId
+      ],
+      url: useUrl(`contract_products/${context.contractProductId}`, {
+        with: CONTRACT_PRODUCT_WITH
+      }),
+      withAccessToken: true,
+      staleTime: 0,
+      gcTime: 0
     }),
-    withAccessToken: true,
-    staleTime: 0,
-    gcTime: 0
-  });
+    loadLookups().catch(() => ({}) as ContractProductLookups)
+  ]);
+
+  return { record, lookups };
+}
+
+/**
+ * The schedule-cancel form's fields, REUSED off the client's CANCEL_REQUEST
+ * definitions so no new request is issued.
+ */
+async function loadLookups(): Promise<ContractProductLookups> {
+  const cancelFields = useClientCustomFields()
+    .as(ScopeActorTypes.CLIENT)
+    .for(ClientCustomFieldsContextTypes.CANCEL_REQUEST);
+  const { isReady } = cancelFields.useActions();
+  const { data: customFields } = cancelFields.useContext();
+
+  await isReady();
+
+  return { customFields: customFields.value };
+}
+
+async function validateCancellation({ cancellation }: ContractProductContext) {
+  return validateForm(cancellation);
+}
+
+async function validateConsolidation({
+  consolidation
+}: ContractProductContext) {
+  return validateForm(consolidation);
 }
 
 /**
@@ -409,18 +452,21 @@ function productUrl(
   );
 }
 
-/** `processing.stoppingRenewal` — `{ renew: false }` plus what the client supplied. */
+/** `processing.stoppingRenewal.updating` (SOFT) — `{ renew: false }` plus what the form carried. */
 async function requestSoftCancel(
-  context: ContractProductContext,
-  event: AnyEventObject
+  context: ContractProductContext
 ): Promise<IContractProduct | undefined> {
   const { put } = useQuery();
-  const model = event.data as Omit<SoftCancelModel, "renew"> | undefined;
+  const model = context.cancellation?.model as CancellationModel;
 
   return put<IContractProduct>({
     mutationKey: [...queryKey, context.contractProductId, "modify-renew"],
     url: await productUrl(context, "modify_renew"),
-    data: toSoftCancelBody({ ...model, renew: false }),
+    data: toSoftCancelBody({
+      renew: false,
+      reason: model?.reason,
+      customFields: model?.customFields
+    }),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
@@ -439,13 +485,12 @@ async function abortSoftCancel(
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/** `processing.settingConsolidation`. */
+/** `processing.settingConsolidation.updating` — the model is parsed and validated first. */
 async function setConsolidation(
-  context: ContractProductContext,
-  event: AnyEventObject
+  context: ContractProductContext
 ): Promise<IContractProduct | undefined> {
   const { put } = useQuery();
-  const model = event.data as SetConsolidationModel;
+  const model = context.consolidation?.model as SetConsolidationModel;
 
   return put<IContractProduct>({
     mutationKey: [...queryKey, context.contractProductId, "consolidation"],
@@ -455,18 +500,69 @@ async function setConsolidation(
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/** `processing.schedulingCancellation` (R18). */
+/** `processing.schedulingCancellation.updating` (R18) — the cancellation model is parsed and validated first. */
 async function scheduleCancellation(
-  context: ContractProductContext,
-  event: AnyEventObject
+  context: ContractProductContext
 ): Promise<IContractProduct | undefined> {
   const { put } = useQuery();
-  const model = event.data as ScheduleCancellationModel;
+  const model = context.cancellation?.model as CancellationModel;
 
   return put<IContractProduct>({
     mutationKey: [...queryKey, context.contractProductId, "schedule-cancel"],
     url: await productUrl(context, "schedule-cancel"),
-    data: toScheduleCancellationBody(model),
+    data: toScheduleCancellationBody({
+      futureCancellationDate: model?.futureCancellationDate ?? "",
+      reason: model?.reason,
+      customFields: model?.customFields
+    }),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+/**
+ * `processing.requestingCancellation.updating` (HARD, R33) —
+ * `POST contracts/{contractId}/cancel/request` for this one product. The
+ * cancellation model is parsed and validated first.
+ */
+async function requestCancellation(
+  context: ContractProductContext
+): Promise<IContractProduct | undefined> {
+  const { post, useUrl } = useQuery();
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailable(context));
+  }
+  const model = context.cancellation?.model as CancellationModel;
+
+  return post<IContractProduct>({
+    mutationKey: [...queryKey, context.contractProductId, "cancel", "request"],
+    url: useUrl(`contracts/${context.contractId}/cancel/request`),
+    data: toRequestCancellationBody({
+      productIds: [context.contractProductId],
+      reason: model?.reason,
+      customFields: model?.customFields
+    }),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+/**
+ * `processing.withdrawingCancellation` (R33) —
+ * `DELETE contracts/{contractId}/cancel/request` with this product's own
+ * `contract_request` id (legacy `cProdProvider.vue:1327-1362`). No form.
+ */
+async function withdrawCancellation(
+  context: ContractProductContext
+): Promise<IContractProduct | undefined> {
+  const { del, useUrl } = useQuery();
+  const requestId = context.contractProduct?.contractRequest?.id;
+  if (!context.contractId || !requestId) {
+    return Promise.reject(notAvailable(context));
+  }
+
+  return del<IContractProduct>({
+    mutationKey: [...queryKey, context.contractProductId, "cancel", "withdraw"],
+    url: useUrl(`contracts/${context.contractId}/cancel/request`),
+    data: { contract_request_id: requestId },
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
@@ -491,8 +587,12 @@ async function revokeScheduledCancellation(
 /** The services map `contract-product.machine.ts` invokes, keyed by `invoke.src`. */
 export const contractProductMachineServices: ContractProductMachineServices = {
   load,
+  validateCancellation,
+  validateConsolidation,
   requestSoftCancel,
   abortSoftCancel,
+  requestCancellation,
+  withdrawCancellation,
   setConsolidation,
   scheduleCancellation,
   revokeScheduledCancellation

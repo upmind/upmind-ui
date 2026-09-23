@@ -2,9 +2,9 @@ import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { selector } from "../scope/scope.utils";
 import type { ResponseError } from "../../utils";
-import type { CustomFieldModel } from "../client-custom-fields";
+import type { CustomField, CustomFieldModel } from "../client-custom-fields";
 import type { ListQuery } from "../query";
-import type { JsonSchema7 } from "@jsonforms/core";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
   CancellationRequestStatusCodes,
@@ -112,12 +112,11 @@ export type ContractProductRequestStatus = Pick<IStatus, "code"> & {
   code: CancellationRequestStatusCodes;
 };
 
-/** The `status` member of `IContractCancellationRequest`, narrowed to its code. */
+/** The `status` and `id` members of `IContractCancellationRequest` this module reads. */
 export type ContractProductRequest = {
-  [K in keyof Pick<
-    IContractCancellationRequest,
-    "status"
-  >]?: ContractProductRequestStatus;
+  /** The request id — the `contract_request_id` a withdraw sends (R33). */
+  id?: IContractCancellationRequest["id"];
+  status?: ContractProductRequestStatus;
 };
 
 /** The `scheduled_actions` member this module reads. */
@@ -175,6 +174,8 @@ export type ContractProduct = {
   id: IContractProduct["id"];
   contractId: IContractProduct["contract_id"];
   status?: ContractProductStatus;
+  /** The owning contract's status code (`contract.status.code`) — the cancellation gate reads it (R33). */
+  contractStatus?: ContractStatusCodes;
   stagedImport: IContractProduct["staged_import"];
   contractRequest?: ContractProductRequest;
   renew: IContractProduct["renew"];
@@ -269,13 +270,91 @@ export type ContractProductContext = {
 
   /** The mapped contract product. */
   contractProduct?: ContractProduct;
+
+  /** The reused CANCEL_REQUEST lookups the cancellation form draws from (`loadLookups`). */
+  lookups?: ContractProductLookups;
+
+  /** The open cancellation form. */
+  cancellation?: ContractProductForm;
+
+  /** The open consolidation form. */
+  consolidation?: ContractProductForm;
+};
+
+/** The two write forms, each a parallel region of `available`. */
+export enum ContractProductFormTypes {
+  CANCELLATION = "CANCELLATION",
+  CONSOLIDATION = "CONSOLIDATION"
+}
+
+/** One open write form. */
+export type ContractProductForm = {
+  schema?: JsonSchema7;
+  uischema?: UISchemaElement;
+  model?: Partial<ContractProductWriteModel>;
 };
 
 // -----------------------------------------------------------------------------
-// WRITE MODELS — design 8.3, ADR-28
+// LOOKUPS & WRITE FORMS — machine-owned form inputs (R33; auth form shape)
 // -----------------------------------------------------------------------------
 
-/** The model the two `modify_renew` writes share; `renew` is set by the service. */
+/** The reused lookups the machine loads on read, for the cancellation form. */
+export type ContractProductLookups = {
+  /** The brand's CANCEL_REQUEST custom-field definitions (`useClientCustomFields`). */
+  customFields?: CustomField[];
+};
+
+/** `load` returns the record and its reused lookups in one settle (R33). */
+export type ContractProductLoaded = {
+  record: IContractProduct;
+  lookups: ContractProductLookups;
+};
+
+/**
+ * The model a write form carries — parsed and validated before its service
+ * runs. The cancellation form (ONE combined form, legacy `clientCancelOptions`)
+ * carries {@link CancellationModel}; the consolidation form carries
+ * {@link SetConsolidationModel}.
+ */
+export type ContractProductWriteModel =
+  | CancellationModel
+  | SetConsolidationModel;
+
+// -----------------------------------------------------------------------------
+// CANCELLATION — the ONE combined form (R33; legacy `clientCancelOptions`)
+// -----------------------------------------------------------------------------
+
+/**
+ * The client cancellation options a product may offer (legacy `CancelOptions`,
+ * `contractCancellation.ts:303-333`). The chosen option routes the submit to
+ * one of four writes.
+ */
+export enum ContractProductCancelOption {
+  /** Cancel at the end of the current term (stop auto-renew). */
+  SOFT = "soft",
+  /** Request immediate cancellation. */
+  HARD = "hard",
+  /** Schedule a cancellation for a future anniversary date. */
+  SCHEDULE_FUTURE = "schedule_future"
+}
+
+/**
+ * The ONE cancellation form model. `futureCancellationDate` is required only
+ * for `SCHEDULE_FUTURE` (the schema's `if`/`then`); `customFields` is the
+ * CANCEL_REQUEST catalogue.
+ */
+export type CancellationModel = {
+  option: ContractProductCancelOption;
+  reason?: string;
+  customFields?: CustomFieldModel;
+  futureCancellationDate?: string;
+};
+
+// -----------------------------------------------------------------------------
+// WRITE MODELS & BODIES — design 8.3, ADR-28
+// -----------------------------------------------------------------------------
+
+/** The mapper input the two `modify_renew` writes share; `renew` is set by the service. */
 export type SoftCancelModel = {
   renew: boolean;
   reason?: string;
@@ -287,9 +366,16 @@ export type SetConsolidationModel = {
   invoiceConsolidationEnabled: InvoiceConsolidationTypes;
 };
 
-/** The model `scheduleCancellation` takes (R18). */
+/** The mapper input `scheduleCancellation` builds from the cancellation model (R18). */
 export type ScheduleCancellationModel = {
   futureCancellationDate: string;
+  reason?: string;
+  customFields?: CustomFieldModel;
+};
+
+/** The mapper input the hard-cancellation request builds (R33). */
+export type RequestCancellationModel = {
+  productIds: IContractProduct["id"][];
   reason?: string;
   customFields?: CustomFieldModel;
 };
@@ -311,6 +397,18 @@ export type ScheduleCancellationBody = {
   future_cancellation_date: string;
   cancellation_reason?: string;
   custom_fields?: CustomFieldModel;
+};
+
+/** `POST contracts/{contractId}/cancel/request` body (R33). */
+export type RequestCancellationBody = {
+  product_ids: RequestCancellationModel["productIds"];
+  cancellation_reason?: RequestCancellationModel["reason"];
+  custom_fields?: RequestCancellationModel["customFields"];
+};
+
+/** `DELETE contracts/{contractId}/cancel/request` body (R33). */
+export type WithdrawCancellationBody = {
+  contract_request_id: NonNullable<ContractProductRequest["id"]>;
 };
 
 // -----------------------------------------------------------------------------
@@ -389,12 +487,28 @@ export type ContractProductServices = {
 
 /** The XState services map `contract-product.machine.ts` invokes; each returns the raw record. */
 export type ContractProductMachineServices = {
-  load: (context: ContractProductContext) => Promise<IContractProduct>;
+  /** `loading` — the client detail read plus its reused CANCEL_REQUEST field lookups. */
+  load: (context: ContractProductContext) => Promise<ContractProductLoaded>;
+  /** `cancelling.processing.validating` — rejects with a 422 on an invalid model. */
+  validateCancellation: (context: ContractProductContext) => Promise<void>;
+  /** `consolidating.processing.validating` — rejects with a 422 on an invalid model. */
+  validateConsolidation: (context: ContractProductContext) => Promise<void>;
+  /** `processing.stoppingRenewal.updating` (SOFT). */
   requestSoftCancel: (
     context: ContractProductContext,
     event: AnyEventObject
   ) => Promise<IContractProduct | undefined>;
+  /** `processing.resumingRenewal.updating` (ABORT). */
   abortSoftCancel: (
+    context: ContractProductContext
+  ) => Promise<IContractProduct | undefined>;
+  /** `processing.requestingCancellation.updating` (HARD, R33). */
+  requestCancellation: (
+    context: ContractProductContext,
+    event: AnyEventObject
+  ) => Promise<IContractProduct | undefined>;
+  /** `processing.withdrawingCancellation` (R33). */
+  withdrawCancellation: (
     context: ContractProductContext
   ) => Promise<IContractProduct | undefined>;
   setConsolidation: (

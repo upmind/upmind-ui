@@ -14,15 +14,15 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
-index 5fb7f9b35..b549dcddf 100644
+index a83546f91..fe797adb0 100644
 --- a/packages/headless/src/modules/contract/contract.schemas.ts
 +++ b/packages/headless/src/modules/contract/contract.schemas.ts
-@@ -76,7 +76,7 @@ export function useRequestCancellationSchema({
-         uniqueItems: true,
+@@ -80,7 +80,7 @@ export function useRequestCancellationSchema({
          items: {
            type: "string",
--          ...(!isEmpty(products) && { enum: map(products, "id") })
-+          enum: []
-         }
-       },
-       reason: { type: "string", title: "Reason" },
+           ...(!isEmpty(products) && {
+-            enum: map(products, "id"),
++            enum: [],
+             options: map(products, product => ({
+               label: product.name,
+               value: product.id

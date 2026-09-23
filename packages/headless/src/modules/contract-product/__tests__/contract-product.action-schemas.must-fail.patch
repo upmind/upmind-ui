@@ -1,25 +1,25 @@
-# Negative-control mutant — consolidation control un-presses to the wrong value (AC-9, D8)
+# Negative-control mutant — consolidation toggle un-presses to DISABLED, not INHERIT
 #
-# Scenario it must flip: the setConsolidation button-group un-presses to INHERIT
-#   (`defaultOptionValue`), so releasing a button writes INHERIT.
+# Scenario it must flip: the `setConsolidation` toggle-group's un-pressed value
+#   is INHERIT, so releasing the control writes INHERIT back to the model
+#   (legacy `cProdInvoiceConsolidationForm.vue` parity).
 # Test that goes red: contract-product.action-schemas.int.test.ts >
-#   schemas.setConsolidation > "lays out a button-group control whose un-pressed
-#   value is INHERIT"
-#   (`options.defaultOptionValue` is now DISABLED, so the
-#   `toBe(InvoiceConsolidationTypes.INHERIT)` assertion flips).
+#   "lays out a toggle-group control whose un-pressed value is INHERIT"
+#   (the control's `defaultOptionValue` is now DISABLED, so the INHERIT
+#   assertion flips).
 # Mutation: `useSetConsolidationUischema` sets `defaultOptionValue` to
 #   `InvoiceConsolidationTypes.DISABLED` instead of `INHERIT`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-index 8b210e93b..e380e2b9c 100644
+index dbf29fa61..6b706d239 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
 @@ -229,7 +229,7 @@ export function useSetConsolidationUischema(): UISchemaElement {
          i18n: "form.contract_product_invoice_consolidation",
          options: {
-           format: "button-group",
+           format: "toggle-group",
 -          defaultOptionValue: InvoiceConsolidationTypes.INHERIT,
 +          defaultOptionValue: InvoiceConsolidationTypes.DISABLED,
            optionalText: ""

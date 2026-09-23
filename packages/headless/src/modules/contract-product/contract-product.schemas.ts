@@ -1,11 +1,15 @@
 /** @internal */
+import { RuleEffect } from "@jsonforms/core";
 import { InvoiceConsolidationTypes } from "@upmind-automation/types";
 import {
   useCustomFieldsSchema,
   useCustomFieldsUischema
 } from "../client-custom-fields";
 import { SortDirection } from "../query/query.types";
-import { DEFAULT_SORT } from "./contract-product.types";
+import {
+  ContractProductCancelOption,
+  DEFAULT_SORT
+} from "./contract-product.types";
 import { hidesOneTimePurchasesForced } from "./contract-product.utils";
 import { isEmpty } from "lodash-es";
 import type { CustomField } from "../client-custom-fields";
@@ -21,12 +25,13 @@ import type {
  * @description The collection's QUERY schema family — its whole request state
  * (filters · sort · pagination) as ONE Draft-07 schema (design 8.2), the
  * filter-bar uischema and the sort uischema. Beside it, the manager's two
- * WRITE pairs — one schema + uischema per model-taking write (R28 amendment,
- * 2026-09-23).
+ * WRITE forms — the combined cancellation form and the consolidation form
+ * (R33; auth form shape). Each form's builder runs in the machine's open
+ * transition, which sets the single `schema`/`uischema` slot on context.
  *
  * WARNING: Do not import directly. Consumers read the query family off
- * `useContractProducts().useContext().schemas`, and the write pairs off
- * `useContractProduct().useContext().schemas`.
+ * `useContractProducts().useContext().schemas`, and the open form's pair off
+ * `useContractProduct().useContext()` (`schema`/`uischema`).
  */
 
 /**
@@ -228,7 +233,7 @@ export function useSetConsolidationUischema(): UISchemaElement {
         scope: "#/properties/invoiceConsolidationEnabled",
         i18n: "form.contract_product_invoice_consolidation",
         options: {
-          format: "button-group",
+          format: "toggle-group",
           defaultOptionValue: InvoiceConsolidationTypes.INHERIT,
           optionalText: ""
         }
@@ -238,16 +243,22 @@ export function useSetConsolidationUischema(): UISchemaElement {
 }
 
 /**
- * The `scheduleCancellation` form (R18) over `ScheduleCancellationModel`.
- * `futureCancellationDate` is floored at the product's earliest selectable
- * anniversary, so the form refuses a date the endpoint refuses. `customFields`
- * declares the brand's cancel-request field definitions as a nested object
- * (one `properties.<code>` per field); it is omitted when none are defined.
+ * The ONE combined cancellation form (R33; legacy `clientContractCancellationModal`
+ * + `contractCancellationOptions.vue`) over `CancellationModel`. `option` is a
+ * bare enum of the options this product allows — the control's `i18n` key is the
+ * option-key PREFIX, so each position labels via i18n (`tickets`/`client-email`
+ * enum pattern), never a `oneOf`/`options` array (operator ruling).
+ * `futureCancellationDate` is required only for `SCHEDULE_FUTURE` (the schema's
+ * `if`/`then`, as `payment-details` conditions its `oneOf`) and floored at the
+ * product's earliest selectable anniversary. `customFields` is the brand's
+ * CANCEL_REQUEST catalogue, omitted when none are defined.
  */
-export function useScheduleCancellationSchema({
+export function useCancellationSchema({
+  options,
   minDate,
   customFields
 }: {
+  options: ContractProductCancelOption[];
   minDate?: string | null;
   customFields?: CustomField[];
 }): JsonSchema7 {
@@ -255,8 +266,13 @@ export function useScheduleCancellationSchema({
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
     additionalProperties: false,
-    required: ["futureCancellationDate"],
+    required: ["option"],
     properties: {
+      option: {
+        type: "string",
+        title: "Cancellation option",
+        enum: options
+      },
       futureCancellationDate: {
         type: "string",
         title: "Cancellation date",
@@ -267,11 +283,17 @@ export function useScheduleCancellationSchema({
       ...(!isEmpty(customFields) && {
         customFields: useCustomFieldsSchema(customFields)
       })
-    }
+    },
+    if: {
+      properties: {
+        option: { const: ContractProductCancelOption.SCHEDULE_FUTURE }
+      }
+    },
+    then: { required: ["futureCancellationDate"] }
   } as JsonSchema7;
 }
 
-export function useScheduleCancellationUischema(
+export function useCancellationUischema(
   customFields?: CustomField[]
 ): UISchemaElement {
   return {
@@ -279,8 +301,28 @@ export function useScheduleCancellationUischema(
     elements: [
       {
         type: "Control",
+        scope: "#/properties/option",
+        i18n: "form.contract_product_cancellation_option",
+        options: { format: "radio" }
+      },
+      {
+        type: "Control",
         scope: "#/properties/futureCancellationDate",
-        i18n: "form.contract_product_future_cancellation_date"
+        i18n: "form.contract_product_future_cancellation_date",
+        // Only relevant to SCHEDULE_FUTURE; hidden for the other options
+        // (the `payment-gateways` SHOW-rule pattern).
+        rule: {
+          effect: RuleEffect.SHOW,
+          condition: {
+            scope: "#",
+            schema: {
+              required: ["option"],
+              properties: {
+                option: { const: ContractProductCancelOption.SCHEDULE_FUTURE }
+              }
+            }
+          }
+        }
       },
       {
         type: "Control",

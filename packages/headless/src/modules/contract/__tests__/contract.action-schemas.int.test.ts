@@ -11,9 +11,10 @@
  * the recorded contract capture and proves each pair reflects that record:
  *  - `requestCancellation`: `productIds` is a required array (minItems 1,
  *    uniqueItems) whose `items.enum` is exactly the loaded contract's product
- *    ids (D9); `reason` is a string; its uischema is a `productIds` control
- *    whose `options.items` label each product by name, then a multi `reason`
- *    control.
+ *    ids (D9) and whose `items.options` label each product by name (labels live
+ *    IN THE SCHEMA, like client-address countries); `reason` is a string; its
+ *    uischema is a `productIds` control carrying NO `options.items`, then a
+ *    multi `reason` control.
  *  - `setPaymentMethod`: `paymentDetailsId` is the payment-details module's
  *    stored-method schema (nullable), defaulted to the contract's OWN current
  *    `paymentDetailsId` (D3/D4); its uischema is the shared radio control keyed
@@ -123,26 +124,34 @@ describe("useContract schemas.requestCancellation — the cancellation form read
     expect(schema.properties?.reason?.type).toBe("string");
   });
 
-  it("lays out a productIds control labelling each product by name, then a multi reason control", async () => {
+  it("labels each product by name on the schema, leaving the productIds control with no items, then a multi reason control", async () => {
     const manager = await openManager();
     const products = manager.useContext().contract.value?.products ?? [];
+    const schema = manager.useContext().schemas.requestCancellation.schema
+      .value as JsonSchema;
     const uischema = manager.useContext().schemas.requestCancellation.uischema
       .value as UiSchema;
+
+    const productIdsProp = schema.properties?.productIds as {
+      items: {
+        enum: string[];
+        options: { label: string; value: string }[];
+      };
+    };
+    const options = productIdsProp.items.options;
+    expect(options.map(option => option.value).sort()).toEqual(
+      products.map(product => product.id).sort()
+    );
+    for (const product of products) {
+      const option = options.find(entry => entry.value === product.id);
+      expect(option?.label).toBe(product.name);
+    }
 
     const productControl = (uischema.elements ?? []).find(
       element => element.scope === "#/properties/productIds"
     );
     expect(productControl?.i18n).toBe("form.contract_cancellation_products");
-    const items = (productControl?.options?.items ?? []) as {
-      label: string;
-      value: string;
-    }[];
-    expect(items.map(item => item.value).sort()).toEqual(
-      products.map(product => product.id).sort()
-    );
-    for (const item of items) {
-      expect(item.label).toBeTruthy();
-    }
+    expect(productControl?.options?.items).toBeUndefined();
 
     const reasonControl = (uischema.elements ?? []).find(
       element => element.scope === "#/properties/reason"
