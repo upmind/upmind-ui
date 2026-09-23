@@ -1,23 +1,25 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview useContractProduct(s) action + query schemas — the labs editor's
- * forms for setConsolidation and scheduleCancellation, and the products query
- * schema (integration; ruling R28 amendment 2026-09-23, decisions D8/D12)
+ * @fileoverview useContractProduct(s) write-form + query schemas — the labs
+ * editor's consolidation and cancellation forms, and the products query schema
+ * (integration; rulings R33/R35, decisions D8/D12)
  *
  * ## Job To Be Done
- * Ruling R28 publishes one schema/uischema pair per model-taking write on
- * `useContractProduct().useContext().schemas.<action>`, and the products query
- * schema on `useContractProducts().useContext().schemas.query`. This suite
- * drives the REAL manager and collection against recorded captures and proves:
- *  - `setConsolidation`: `invoiceConsolidationEnabled` is an INTEGER `enum` of
+ * Ruling R35 fills each write form's OWN context slot on the open event —
+ * `useContext().consolidation` and `useContext().cancellation` each a
+ * `{ schema, uischema, model }` — and the products query schema stays on
+ * `useContractProducts().useContext().schemas.query`. This suite drives the
+ * REAL manager and collection against recorded captures and proves:
+ *  - the consolidation form: `invoiceConsolidationEnabled` is an INTEGER `enum` of
  *    exactly [ENABLED, DISABLED, INHERIT] — no `oneOf`, no `options` (D8, a real
  *    enum with i18n value labels; `oneOf` leaks memory); its uischema is a
  *    toggle-group control (an enum of more than two values draws as toggle-group)
  *    keyed to `form.contract_product_invoice_consolidation` whose
  *    `defaultOptionValue` is INHERIT (un-pressing writes INHERIT).
- *  - `scheduleCancellation`: `futureCancellationDate` is a required date whose
- *    `formatMinimum` and `default` are the manager's live
- *    `minFutureCancellationDate`; `reason` is a string.
+ *  - the cancellation form (ONE combined form, R33/R35): an `option` enum of
+ *    SOFT/HARD/SCHEDULE_FUTURE, a `futureCancellationDate` floored and defaulted
+ *    to the manager's live `minFutureCancellationDate` and required only for
+ *    SCHEDULE_FUTURE (schema `if`/`then`), and a `reason` string.
  *  - the products query schema's `sort.field` is a PLAIN `enum`
  *    [status, created_at, next_due_date, cancelled_date] with no `oneOf`
  *    anywhere (D12).
@@ -43,6 +45,7 @@ import { unref } from "vue";
 import { InvoiceConsolidationTypes } from "@upmind-automation/types";
 import { useContractProduct, useContractProducts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { ContractProductCancelOption } from "../contract-product.types";
 import {
   installBackgroundStubs,
   installProductHandler,
@@ -114,11 +117,12 @@ type UiSchema = {
 
 // -----------------------------------------------------------------------------
 
-describe("useContractProduct schemas.setConsolidation — a real enum, never a oneOf (AC-9, D8)", () => {
+describe("useContractProduct consolidation form — a real enum, never a oneOf (AC-9, D8)", () => {
   it("declares invoiceConsolidationEnabled as an integer enum of ENABLED/DISABLED/INHERIT, with no oneOf and no options", async () => {
     const manager = await openManager();
-    const schema = manager.useContext().schemas.setConsolidation.schema
-      .value as JsonSchema;
+    await manager.useActions().openConsolidation();
+    const schema = manager.useContext().consolidation.value
+      ?.schema as JsonSchema;
 
     expect(schema.required).toEqual(["invoiceConsolidationEnabled"]);
     const prop = schema.properties?.invoiceConsolidationEnabled as {
@@ -140,8 +144,9 @@ describe("useContractProduct schemas.setConsolidation — a real enum, never a o
 
   it("lays out a toggle-group control whose un-pressed value is INHERIT", async () => {
     const manager = await openManager();
-    const uischema = manager.useContext().schemas.setConsolidation.uischema
-      .value as UiSchema;
+    await manager.useActions().openConsolidation();
+    const uischema = manager.useContext().consolidation.value
+      ?.uischema as UiSchema;
     const control = (uischema.elements ?? []).find(
       element => element.scope === "#/properties/invoiceConsolidationEnabled"
     );
@@ -155,9 +160,8 @@ describe("useContractProduct schemas.setConsolidation — a real enum, never a o
 
   it("compiles: each of the three positions validates, a value outside the enum is rejected (AJV, D8)", async () => {
     const manager = await openManager();
-    const validate = compile(
-      manager.useContext().schemas.setConsolidation.schema.value
-    );
+    await manager.useActions().openConsolidation();
+    const validate = compile(manager.useContext().consolidation.value?.schema);
 
     for (const value of [
       InvoiceConsolidationTypes.ENABLED,
@@ -170,53 +174,112 @@ describe("useContractProduct schemas.setConsolidation — a real enum, never a o
   });
 });
 
-describe("useContractProduct schemas.scheduleCancellation — the floor the product allows (AC-22, D12)", () => {
-  it("requires futureCancellationDate as a date floored and defaulted to the live minFutureCancellationDate", async () => {
+describe("useContractProduct cancellation form — the ONE combined form (AC-6/AC-22, R33/R35, D12)", () => {
+  it("offers the option enum SOFT/HARD/SCHEDULE_FUTURE, floors futureCancellationDate to the live minFutureCancellationDate, and requires it only for SCHEDULE_FUTURE", async () => {
     const manager = await openManager();
+    await manager.useActions().openCancellation();
     const floor = manager.useContext().minFutureCancellationDate.value;
-    const schema = manager.useContext().schemas.scheduleCancellation.schema
-      .value as JsonSchema;
+    const form = manager.useContext().cancellation.value;
+    const schema = form?.schema as JsonSchema & {
+      if?: { properties?: Record<string, { const?: string }> };
+      then?: { required?: string[] };
+    };
 
     expect(floor).toBeTruthy();
-    expect(schema.required).toEqual(["futureCancellationDate"]);
-    const prop = schema.properties?.futureCancellationDate as {
-      type: string;
+    expect(schema.required).toEqual(["option"]);
+    expect((schema.properties?.option as { enum: string[] }).enum).toEqual([
+      ContractProductCancelOption.SOFT,
+      ContractProductCancelOption.HARD,
+      ContractProductCancelOption.SCHEDULE_FUTURE
+    ]);
+    const dateProp = schema.properties?.futureCancellationDate as {
       format: string;
       formatMinimum: string;
       default: string;
     };
-    expect(prop.format).toBe("date");
-    expect(prop.formatMinimum).toBe(floor);
-    expect(prop.default).toBe(floor);
+    expect(dateProp.format).toBe("date");
+    expect(dateProp.formatMinimum).toBe(floor);
+    expect(dateProp.default).toBe(floor);
     expect(schema.properties?.reason?.type).toBe("string");
+    expect(schema.if?.properties?.option?.const).toBe(
+      ContractProductCancelOption.SCHEDULE_FUTURE
+    );
+    expect(schema.then?.required).toEqual(["futureCancellationDate"]);
   });
 
   it("omits customFields without a CANCEL_REQUEST catalogue loaded (D5, D11)", async () => {
     const manager = await openManager();
-    const schema = manager.useContext().schemas.scheduleCancellation.schema
-      .value as JsonSchema;
+    await manager.useActions().openCancellation();
+    const schema = manager.useContext().cancellation.value
+      ?.schema as JsonSchema;
 
     expect(schema.properties?.customFields).toBeUndefined();
   });
 
-  it("compiles: a date on/after the floor validates, a date before it is rejected (AJV formatMinimum)", async () => {
+  it("lays out an option radio, a future-cancellation-date control shown only for SCHEDULE_FUTURE, and a multi reason control", async () => {
     const manager = await openManager();
+    await manager.useActions().openCancellation();
+    const uischema = manager.useContext().cancellation.value
+      ?.uischema as UiSchema;
+
+    const optionControl = (uischema.elements ?? []).find(
+      element => element.scope === "#/properties/option"
+    );
+    expect(optionControl?.i18n).toBe(
+      "form.contract_product_cancellation_option"
+    );
+    expect(optionControl?.options?.format).toBe("radio");
+
+    const dateControl = (uischema.elements ?? []).find(
+      element => element.scope === "#/properties/futureCancellationDate"
+    );
+    expect(dateControl?.i18n).toBe(
+      "form.contract_product_future_cancellation_date"
+    );
+    expect(
+      (dateControl as { rule?: { effect?: string } } | undefined)?.rule?.effect
+    ).toBe("SHOW");
+
+    const reasonControl = (uischema.elements ?? []).find(
+      element => element.scope === "#/properties/reason"
+    );
+    expect(reasonControl?.options?.multi).toBe(true);
+  });
+
+  it("compiles: SOFT/HARD need no date; SCHEDULE_FUTURE on/after the floor validates, before it is rejected, and an unknown option is rejected (AJV)", async () => {
+    const manager = await openManager();
+    await manager.useActions().openCancellation();
     const floor = manager.useContext().minFutureCancellationDate
       .value as string;
-    const validate = compile(
-      manager.useContext().schemas.scheduleCancellation.schema.value
-    );
+    const validate = compile(manager.useContext().cancellation.value?.schema);
     const before = new Date(new Date(floor).getTime() - 86400000)
       .toISOString()
       .slice(0, 10);
 
-    expect(validate({ futureCancellationDate: floor })).toBe(true);
-    expect(validate({ futureCancellationDate: before })).toBe(false);
+    expect(validate({ option: ContractProductCancelOption.SOFT })).toBe(true);
+    expect(validate({ option: ContractProductCancelOption.HARD })).toBe(true);
+    expect(
+      validate({
+        option: ContractProductCancelOption.SCHEDULE_FUTURE,
+        futureCancellationDate: floor
+      })
+    ).toBe(true);
+    expect(
+      validate({
+        option: ContractProductCancelOption.SCHEDULE_FUTURE,
+        futureCancellationDate: before
+      })
+    ).toBe(false);
+    expect(
+      validate({ option: ContractProductCancelOption.SCHEDULE_FUTURE })
+    ).toBe(false);
+    expect(validate({ option: "abort" })).toBe(false);
+    expect(validate({})).toBe(false);
   });
 });
 
 /**
- * REPORTED — the present-when-defined half of `scheduleCancellation`'s
+ * REPORTED — the present-when-defined half of the cancellation form's
  * `customFields` branch (ruling R28 / D5). Same disposition as
  * `contract.action-schemas.int.test.ts`: the CANCEL_REQUEST catalogue
  * (`GET custom_fields?filter[object_type]=contract_request`) was RECORDED

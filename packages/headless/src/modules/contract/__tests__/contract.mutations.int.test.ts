@@ -1,26 +1,20 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview useContract writes — payment method, cancel request, withdraw
- * (integration, AC-6/AC-7/AC-8)
+ * @fileoverview useContract writes — payment method (integration, AC-8)
  *
  * ## Job To Be Done
- * Drive the REAL `useContract()` manager actions against RECORDED staging
- * responses and prove each write reaches the wire exactly as `design ✅.md` §8.3
- * states: `setPaymentMethod` PATCHes `{ payment_details_id }` to the
- * contract's own `payment_details` endpoint; `requestCancellation` POSTs
- * `{ product_ids, cancellation_reason }` to `cancel/request`; `withdrawCancellation`
- * DELETEs the same path. Every response body is the module's OWN recorded
+ * Drive the REAL `useContract()` manager against RECORDED staging responses and
+ * prove its ONE remaining write reaches the wire exactly as `design ✅.md` §8.3
+ * states: `setPaymentMethod` PATCHes `{ payment_details_id }` to the contract's
+ * own `payment_details` endpoint, and sends nothing when the selection changes
+ * nothing (R31). The hard cancel request and its withdrawal moved to
+ * `useContractProduct` (R33). Every response body is the module's OWN recorded
  * capture (`contract.fixtures.ts`) — never a hand-rolled mock.
  *
- * `withdrawCancellation` is proven against the REAL response this sandbox
- * answers, a `404` (see `contract.fixtures.ts` fileoverview limit 2), not a
- * fabricated success — the module must surface that real failure as
- * `useMeta().hasError`, not silently swallow it or report a false success.
- *
  * ## What Breaks If These Fail
- * A client's payment-method change or cancel request is silently sent to the
- * wrong contract, with the wrong body, or under the wrong identity — or a
- * real withdrawal failure is reported to the client as a success.
+ * A client's payment-method change is silently sent to the wrong contract, with
+ * the wrong body, or under the wrong identity; or an unchanged selection still
+ * fires a needless write.
  */
 
 import { http, HttpResponse } from "msw";
@@ -79,11 +73,8 @@ async function openManager() {
  */
 const A_NON_STORED_PAYMENT_DETAILS_ID = "785d26e9-6783-d169-497f-314502e70439";
 
-/** The real product id `recorded.one()` carries — never a fabricated id. */
-const A_REAL_PRODUCT_ID = "785d26e9-6783-d169-678a-314502e70439";
-
 describe("useContract — I point my contract at a different stored payment method (AC-8)", () => {
-  /** `@proves contract.feature:198` — the `an active subscription` row of the
+  /** `@proves contract.feature:174` — the `an active subscription` row of the
    * AC-8 Outline: the recorded contract capture's own products are active
    * subscriptions, and this is the row every other row is compared against. */
   it("AC-8 PATCHes { payment_details_id } to my own contract's payment_details, under my own identity", async () => {
@@ -153,7 +144,7 @@ describe("useContract — I point my contract at a different stored payment meth
     });
   });
 
-  /** `@proves contract.feature:199` — the `a suspended subscription` row of
+  /** `@proves contract.feature:175` — the `a suspended subscription` row of
    * the AC-8 Outline amendment A13 creates. The parity-loss direction: an
    * over-refusing surface would silently withhold this contract-level change
    * on a contract whose product is merely suspended, which the legacy account
@@ -202,7 +193,7 @@ describe("useContract — I point my contract at a different stored payment meth
 });
 
 /**
- * `@proves contract.feature:200` — the `a one-off purchase` row of the AC-8
+ * `@proves contract.feature:176` — the `a one-off purchase` row of the AC-8
  * Outline (amendment A13 + A16). Ruling R11 withdrew the product-level gate,
  * so NO product state refuses this CONTRACT-level write; a module that
  * re-introduced a `isSubscription` read on this path would withhold from a
@@ -254,7 +245,7 @@ describe("useContract — a contract holding a one-off purchase is offered the p
 });
 
 /**
- * KNOWN GAP — `@gap contract.feature:201`, the `delegated to me` row of the
+ * KNOWN GAP — `@gap contract.feature:177`, the `delegated to me` row of the
  * AC-8 Outline. A delegated contract is one belonging to ANOTHER account that
  * my account has been granted access to; no such capture exists on disk in
  * this module's `fixtures/`, and the only way to fabricate one is to rewrite
@@ -269,7 +260,7 @@ describe("useContract — a contract holding a one-off purchase is offered the p
  * bdd.md amendment A22(d) — a `Scenario Outline` tagged `@AC-8 @manager
  * @mutation`, over ONE `<selection>` column with the rows "no method at
  * all" and "the method it already uses", whose outcome for BOTH rows is
- * that no request is sent. `contract.feature:143` states the same claim in
+ * that no request is sent. `contract.feature:188` states the same claim in
  * the host scenario ("nothing is sent when I have picked no method, or
  * picked the one it already uses"). This is the caller/action-layer
  * condition `design ✅.md` §8.3's AC8 row states in its condition column ("The
@@ -281,8 +272,8 @@ describe("useContract — nothing is sent when my selection changes nothing (AC-
   /**
    * The two rows of AC-8's "Nothing is sent when my selection changes nothing"
    * Outline (amendment A22(d)):
-   * - `@proves contract.feature:216` — no method at all
-   * - `@proves contract.feature:217` — the method it already uses
+   * - `@proves contract.feature:192` — no method at all
+   * - `@proves contract.feature:193` — the method it already uses
    */
   it("AC-8 sends nothing when I pick no method at all", async () => {
     const { manager, row } = await openManager();
@@ -313,207 +304,105 @@ describe("useContract — nothing is sent when my selection changes nothing (AC-
   });
 });
 
-describe("useContract — I ask for one of my contracts to be cancelled outright (AC-6)", () => {
-  /**
-   * The two rows of AC-6's `<what I supply>` Outline (amendment A22(c)):
-   * - `@proves contract.feature:171` — a reason and details
-   * - `@proves contract.feature:172` — nothing (proven by the sibling test
-   *   below, which asserts no cause field travels)
-   */
-  it("AC-6 POSTs { product_ids, cancellation_reason } to cancel/request, naming the product I asked for", async () => {
-    const { manager, row, accessToken } = await openManager();
-    const productId = A_REAL_PRODUCT_ID;
-    const captured: Captured = {};
-
-    server?.use(
-      http.post(`*/contracts/${row.id}/cancel/request`, async ({ request }) => {
-        capture(request, captured);
-        captured.body = await request.json();
-        return HttpResponse.json(recorded.cancellationRequested(), {
-          status: 200
-        });
-      })
-    );
-
-    await manager.useActions().requestCancellation({
-      productIds: [productId],
-      reason: "no longer needed"
-    });
-
-    expect(captured.request).toBeDefined();
-    expect(captured.request!.method).toBe("POST");
-    assertClientIdentityTransport(captured.request!, accessToken);
-    expect(captured.body).toEqual({
-      product_ids: [productId],
-      cancellation_reason: "no longer needed"
-    });
-  });
-
-  it("AC-6 sends no cause field when I supply none — nothing travels in its place", async () => {
-    const { manager, row } = await openManager();
-    const productId = A_REAL_PRODUCT_ID;
-    const captured: Captured = {};
-
-    server?.use(
-      http.post(`*/contracts/${row.id}/cancel/request`, async ({ request }) => {
-        captured.body = await request.json();
-        return HttpResponse.json(recorded.cancellationRequested(), {
-          status: 200
-        });
-      })
-    );
-
-    await manager.useActions().requestCancellation({ productIds: [productId] });
-
-    expect(captured.body).toEqual({ product_ids: [productId] });
-  });
-});
-
 /**
- * `useContract` only fires WITHDRAW from `available.cancelling` (flow.md §3),
- * and the recorded `contracts/{id}` capture is a plain `contract_active`
- * contract with no `cancellation_request` — the account state at capture
- * time. Both AC-7 tests below need a contract IN `cancelling`, so this seeds
- * one from two REAL captures: the recorded contract row, with its
- * `cancellation_request` replaced by the REAL `cancellation_request` object
- * `post-contracts-id-cancel-request.json` recorded — the server's own
- * post-effect of AC-6's write, assembled rather than hand-typed, the same
- * pattern `client-company.int-helpers`' zero-row list override uses.
- */
-function cancellingRow(): ReturnType<typeof recorded.one>["data"] {
-  const base = recorded.one().data;
-  const cancellationRequest = recorded.cancellationRequested().data;
-  return { ...base, cancellation_request: cancellationRequest };
-}
-
-/**
- * KNOWN GAP — `@gap contract.feature:178`
+ * The FORM path (`openPaymentMethod → set → submitPaymentMethod`) carries the
+ * SAME R31 no-op refusal as the direct `setPaymentMethod` action: submitting an
+ * empty selection, or the method the contract already uses, sends no request and
+ * resolves `false` (mutant: `contract.payment-method-noop.must-fail.patch`).
  *
- * "Then the request is removed and my contract carries on". Both tests below
- * drive the sandbox's own recorded refusal, so AC-7's FAILURE half is proven
- * and its SUCCESS half is not: no recorded `200` capture for
- * `DELETE contracts/{id}/cancel/request` exists on disk, and recording is
- * forbidden this pass (`receipts.md`). Hand-authoring a success body would
- * fabricate the very outcome this promise names, so the gap is registered in
- * `contract.traceability.test.ts`'s partial-promise ledger instead.
+ * DECLARED GAP — the AJV-INVALID payment-method model (an id not among the
+ * loaded stored cards → a 422 in the form's error region) is UNREACHABLE in this
+ * manager's own harness, so `contract.mutations.validation.must-fail.patch`
+ * cannot be pinned here. The `paymentDetailsId` enum is sourced (D3) from a
+ * SEPARATELY-instantiated `usePaymentDetails()` that the contract manager never
+ * stands up on its own (the contract read requests no stored-methods list —
+ * confirmed on the wire), so the schema carries no enum here and no id is
+ * schema-invalid; and `set({})`/`set({paymentDetailsId: null})` is coerced back
+ * to the loaded default by the parser, so no missing-field case survives either.
+ * The populated-enum invalid-id rejection is proven in the payment-details
+ * module's own `payment-details.stored-methods-schema.test.ts`. Standing that
+ * whole cross-module query up inside a contract test would be the shadow
+ * implementation the integration rule bars. The mutant needs re-scoping to a
+ * line the contract harness can exercise (e.g. the R31 no-op guard, already
+ * pinned above), or the invalid-enum proof stays the payment-details suite's.
  */
-describe("useContract — I change my mind about a cancellation I asked for (AC-7)", () => {
-  it("AC-7 DELETEs cancel/request under my own identity, exactly as `design ✅.md` §8.3 states", async () => {
-    const { accessToken } = await seedClientSession();
-    const row = cancellingRow();
-    installContractHandler(server, row);
-    const rejection = recorded.withdrawRejected();
-    const captured: Captured = {};
+describe("useContract — the payment-method FORM submits nothing when the selection changes nothing (AC-8, R31)", () => {
+  it("AC-8 the form sends no PATCH and resolves false when I submit an empty selection", async () => {
+    const { manager, row } = await openManager();
+    await manager.useActions().openPaymentMethod();
+    await manager.useActions().set({ paymentDetailsId: "" });
+    const observed = observeAllRequests();
 
-    server?.use(
-      http.delete(`*/contracts/${row.id}/cancel/request`, ({ request }) => {
-        capture(request, captured);
-        return HttpResponse.json(rejection.response.body as object, {
-          status: rejection.response.status
-        });
-      })
-    );
+    const result = await manager.useActions().submitPaymentMethod();
 
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, row.id);
-    await manager.useActions().isReady();
-    await expect(
-      manager.useActions().withdrawCancellation()
-    ).rejects.toBeDefined();
-
-    expect(captured.request).toBeDefined();
-    expect(captured.request!.method).toBe("DELETE");
-    assertClientIdentityTransport(captured.request!, accessToken);
+    expect(result).toBe(false);
+    expect(
+      observed.matching(`/contracts/${row.id}/payment_details`)
+    ).toHaveLength(0);
+    observed.stop();
   });
 
-  it("AC-7 the sandbox's real refusal lands as readable error state, not a silent success", async () => {
-    await seedClientSession();
-    const row = cancellingRow();
-    installContractHandler(server, row);
-    const rejection = recorded.withdrawRejected();
+  it("AC-8 the form sends no PATCH and resolves false when I submit the method already on the contract", async () => {
+    const { manager, row } = await openManager();
+    const current = (row as { payment_details_id: string }).payment_details_id;
+    await manager.useActions().openPaymentMethod();
+    await manager.useActions().set({ paymentDetailsId: current });
+    const observed = observeAllRequests();
 
-    server?.use(
-      http.delete(`*/contracts/${row.id}/cancel/request`, () =>
-        HttpResponse.json(rejection.response.body as object, {
-          status: rejection.response.status
-        })
-      )
-    );
+    const result = await manager.useActions().submitPaymentMethod();
 
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, row.id);
-    await manager.useActions().isReady();
-    await expect(
-      manager.useActions().withdrawCancellation()
-    ).rejects.toBeDefined();
-
-    expect(manager.useMeta().hasError.value).toBe(true);
-    expect(manager.useContext().error.value).toBeTruthy();
+    expect(result).toBe(false);
+    expect(
+      observed.matching(`/contracts/${row.id}/payment_details`)
+    ).toHaveLength(0);
+    observed.stop();
   });
 });
 
 /**
- * AC-16's negative controls. Every request this manager's three proven
- * writes (AC-6/AC-7/AC-8 above) actually send is captured and inspected —
- * never a synthetic request built to pass — so a regression that routes a
- * write through a staff endpoint, or leaks a `clientId` override, is caught
- * on the SAME real traffic the writes above already prove correct.
+ * The hard cancel request and its withdrawal moved to `useContractProduct`
+ * with ruling R33 — `useContract` no longer exposes `requestCancellation` or
+ * `withdrawCancellation`. AC-6 and AC-7 are proven in
+ * `contract-product.mutations.int.test.ts`; this file keeps `setPaymentMethod`
+ * (AC-8), the contract's only remaining write (R34).
+ */
+
+/**
+ * AC-16's negative control. Every request the ONE write this manager keeps
+ * (AC-8) actually sends is captured and inspected — never a synthetic request
+ * built to pass — so a regression that routes it through a staff endpoint, or
+ * leaks a `clientId` override, is caught on the SAME real traffic the write
+ * above already proves correct.
  */
 describe("useContract — no staff route is ever reachable from my contract surfaces (AC-16)", () => {
   /**
-   * The four rows of AC-16's staff-route Outline, all driven in this one
-   * observation window and held to a positive allow-list:
-   * - `@proves contract.feature:273` — opening one of my contracts
-   * - `@proves contract.feature:274` — changing how a contract is paid for
-   * - `@proves contract.feature:275` — asking for a cancellation
-   * - `@proves contract.feature:276` — withdrawing a cancellation request
+   * AC-16's staff-route scenario, for the contract's one remaining write:
+   * - `@proves contract.feature:248` — opening one of my contracts
+   * - `@proves contract.feature:249` — changing how a contract is paid for
+   *
+   * The cancel-request and withdraw rows moved to
+   * `contract-product.mutations.int.test.ts` with R33.
    */
-  it("AC-16 not one of the writes this module offers me is ever addressed to a staff route", async () => {
+  it("AC-16 the payment-method write and its re-read are never addressed to a staff route", async () => {
     const { manager, row } = await openManager();
     const observed = observeAllRequests();
 
     server?.use(
       http.patch(`*/contracts/${row.id}/payment_details`, () =>
         HttpResponse.json(recorded.paymentMethodSet(), { status: 200 })
-      ),
-      http.post(`*/contracts/${row.id}/cancel/request`, () =>
-        HttpResponse.json(recorded.cancellationRequested(), { status: 200 })
-      ),
-      http.delete(`*/contracts/${row.id}/cancel/request`, () => {
-        const rejection = recorded.withdrawRejected();
-        return HttpResponse.json(rejection.response.body as object, {
-          status: rejection.response.status
-        });
-      })
+      )
     );
 
     await manager.useActions().setPaymentMethod({
       paymentDetailsId: A_NON_STORED_PAYMENT_DETAILS_ID
     });
-    await manager.useActions().requestCancellation({
-      productIds: [A_REAL_PRODUCT_ID]
-    });
-    await manager
-      .useActions()
-      .withdrawCancellation()
-      .catch(() => undefined);
 
     const requests = observed.all();
-    // A positive allow-list, not only a negative ban: every request this
-    // block observes — each write AND the re-read it triggers (design.md
-    // §6.2/§8.4's re-read-after-write, AC-13) — lands on the exact client
-    // routes AC-6/AC-7/AC-8 name, or on the contract's own read. So a
-    // mutation that swapped one write (or its re-read) onto ANY other path
-    // (staff or not) fails here too, not only one that happens to spell
-    // "admin" or a cancel_requests approval verb.
     const allowed = [
       `/contracts/${row.id}/payment_details`,
-      `/contracts/${row.id}/cancel/request`,
       `/contracts/${row.id}`
     ];
-    expect(requests.length).toBeGreaterThanOrEqual(3);
+    expect(requests.length).toBeGreaterThanOrEqual(1);
     for (const request of requests) {
       const path = new URL(request.url).pathname;
       expect(allowed.some(allowedPath => path.endsWith(allowedPath))).toBe(

@@ -722,3 +722,31 @@ Feature: A client manages the products on their own contracts
     And it reports itself settled once the change has landed
     And it has re-read the product before it settles
 
+  # === MY PRODUCT'S HARD CANCELLATION (moved from the contract, ruling R33) ===
+
+  # AC-6/AC-7 moved here from `contract.feature` with ruling R33: "If it has to
+  # know about the contract product state, and it's changing the contract
+  # product, it's the job of the contract product." What I pick in the legacy
+  # cancellation modal — "cancel at the end of the term", "cancel immediately",
+  # "schedule a future cancellation" — is the ONE combined form's option (R35);
+  # only "cancel immediately" (HARD) lodges the request this scenario names.
+  # What is sent is this product's own id, plus my reason and details WHEN I
+  # SUPPLY THEM — the brand configuration decides whether I am PROMPTED for the
+  # fields, never what the body carries, and this module reads no brand setting.
+  @AC-6 @manager @mutation
+  Scenario: Ask for one of my products to be cancelled outright
+    Given an active product on my account
+    And I supply a reason and details with my request
+    When I ask for it to be cancelled immediately
+    Then my cancellation request is lodged, naming my product it is against
+    And my reason and details travel with the request, and nothing travels in their place when I supply none
+    And an invalid request is never sent, and its error is shown to me on the still-open form
+    And what I see afterwards is the server's answer, not an optimistic guess
+
+  @AC-7 @manager @mutation
+  Scenario: Change my mind about a cancellation I asked for
+    Given I have an outstanding cancellation request on one of my products
+    When I withdraw it
+    Then the withdrawal names the pending request on my product
+    And a refusal by the server is shown to me, not reported as a silent success
+

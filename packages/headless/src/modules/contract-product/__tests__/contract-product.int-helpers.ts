@@ -81,8 +81,29 @@ export const recorded = {
     getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(
       "put-contracts-id-products-id-schedule-cancel-revoke",
       { recordingsDir }
-    )
+    ),
+  /** `POST contracts/{id}/cancel/request` — a real 200 (AC-6, R33). The hard
+   * cancellation moved from `useContract` to this module; its recorded capture
+   * still lives beside the contract read that first recorded it. */
+  cancellationRequested: () =>
+    getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(
+      "post-contracts-id-cancel-request",
+      { recordingsDir: contractRecordingsDir }
+    ),
+  /** `DELETE contracts/{id}/cancel/request` — the REAL 404 this sandbox
+   * answers the withdraw with (AC-7, R33). */
+  withdrawRejected: () =>
+    getFixture("delete-contracts-id-cancel-request", {
+      recordingsDir: contractRecordingsDir
+    })
 };
+
+/** The sibling contract module's recordings — the hard cancel/request POST and
+ * withdraw DELETE captures the writes R33 moved here were recorded against. */
+export const contractRecordingsDir = join(
+  import.meta.dirname,
+  "../../contract/__tests__/fixtures"
+);
 
 // -----------------------------------------------------------------------------
 

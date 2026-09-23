@@ -8,9 +8,10 @@
  * AC-14 exactly as `contract.feature` states it — a client sees the reactive
  * page of contracts on their own account, told which page they are on and
  * how many there are; and AC-3 — opening one contract sends the real
- * 12-member `with` list `design ✅.md` §8.1 states (the 11-member client read
- * [o28] plus the one named `cancellation_request.status` addition), with
- * `with_staged_imports=1`, and asks for no member outside that set.
+ * 8-member `with` list ruling R34 states (the contract keeps only contract
+ * facts, dropping the product cancellation members each `useContractProduct`
+ * loads itself), with `with_staged_imports=1`, and asks for no member outside
+ * that set.
  * `contract.mutations.int.test.ts` proves the three writes; this file proves
  * the two reads.
  *
@@ -35,16 +36,15 @@ import { server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
 
-/** `design ✅.md` §8.1's 12-member client contract read — the 11-member oracle
- * caller [o28] plus the one named `cancellation_request.status` addition. */
+/** The 8-member client contract read after ruling R34: the contract keeps only
+ * contract facts, so the read DROPS the product cancellation members
+ * (`products.contract_request`, `products.contract_request.custom_fields.field`,
+ * `products.future_cancellation_request`) and `cancellation_request.custom_fields.field`.
+ * Each product loads its own cancellation state through `useContractProduct`. */
 const CONTRACT_WITH_MEMBERS = [
-  "products.contract_request",
-  "products.contract_request.custom_fields.field",
-  "products.future_cancellation_request",
   "products.product.image",
   "products.product.brand.currency",
   "cancellation_request",
-  "cancellation_request.custom_fields.field",
   "products.status",
   "products.tags",
   "client.image",
@@ -54,40 +54,33 @@ const CONTRACT_WITH_MEMBERS = [
 
 describe("useContract — I open one of my contracts with everything the account area needs (AC-3)", () => {
   /**
-   * The twelve one-record-per-line promises amendment A28(b) splits the AC-3
-   * `Then` block into are the twelve members asserted EXACTLY below, so a
-   * module that drops one — or asks for one this client read is not entitled
-   * to — fails one NAMED line:
+   * The eight one-record-per-line promises the AC-3 scenario carries after
+   * ruling R34 are the eight members asserted EXACTLY below, so a module that
+   * drops one — or asks for one this client read is not entitled to — fails
+   * one NAMED line:
    *
    * - `@proves contract.feature:138` — the cancellation request on it
    *   (`cancellation_request`)
-   * - `@proves contract.feature:139` — that request's custom fields
-   *   (`cancellation_request.custom_fields.field`)
-   * - `@proves contract.feature:140` — that request's state
+   * - `@proves contract.feature:139` — that request's state
    *   (`cancellation_request.status`)
-   * - `@proves contract.feature:141` — the contract's own status (`status`)
-   * - `@proves contract.feature:142` — my account's image (`client.image`)
-   * - `@proves contract.feature:143` — each product's status
+   * - `@proves contract.feature:140` — the contract's own status (`status`)
+   * - `@proves contract.feature:141` — my account's image (`client.image`)
+   * - `@proves contract.feature:142` — each product's status
    *   (`products.status`)
-   * - `@proves contract.feature:144` — each product's tags (`products.tags`)
-   * - `@proves contract.feature:145` — each product's pending contract request
-   *   (`products.contract_request`)
-   * - `@proves contract.feature:146` — that request's custom fields
-   *   (`products.contract_request.custom_fields.field`)
-   * - `@proves contract.feature:147` — any scheduled future cancellation
-   *   (`products.future_cancellation_request`)
-   * - `@proves contract.feature:148` — each product's catalogue product image
+   * - `@proves contract.feature:143` — each product's tags (`products.tags`)
+   * - `@proves contract.feature:144` — each product's catalogue product image
    *   (`products.product.image`)
-   * - `@proves contract.feature:149` — the currency of each product's brand
+   * - `@proves contract.feature:145` — the currency of each product's brand
    *   (`products.product.brand.currency`)
    */
-  /** `@proves contract.feature:150` — "with the products that are still being
+  /** `@proves contract.feature:146` — "with the products that are still being
    * imported included rather than hidden": the `with_staged_imports=1`
-   * assertion in the test below is that line's whole proof, and this marker
-   * is what makes the ledger see it. The comment at `contract.feature:128`
-   * says twelve `Then` lines; the scenario carries thirteen, and this is the
-   * thirteenth. */
-  it("AC-3 GETs contracts/{id} with_staged_imports=1 and exactly the 12-member client with-list — no staff-only member", async () => {
+   * assertion in the test below is that line's whole proof. The product
+   * cancellation members (`products.contract_request*`,
+   * `products.future_cancellation_request`) and
+   * `cancellation_request.custom_fields.field` are dropped by R34 — each
+   * `useContractProduct` loads its own cancellation state. */
+  it("AC-3 GETs contracts/{id} with_staged_imports=1 and exactly the 8-member client with-list — no product cancellation member", async () => {
     const { accessToken } = await seedClientSession();
     const row = recorded.one().data;
     let capturedUrl: string | undefined;
@@ -139,6 +132,19 @@ describe("useContract — I open one of my contracts with everything the account
       row.status.code
     );
   });
+
+  /**
+   * DECLARED GAP — `contract.ac12-raw-status-code.must-fail.patch` is
+   * un-pinnable here. The mutant coerces an UNKNOWN status code, so only a
+   * recorded contract whose RAW status.code differs from the mapped vocabulary
+   * would flip it. The one recorded capture on disk carries a KNOWN code
+   * (`contract_active`) that maps to itself, and no capture with an unknown or
+   * differing raw code exists; recording is forbidden this pass, and
+   * fabricating a raw-vs-mapped mismatch is barred. The unknown-code branch is
+   * proven at unit with a LITERAL argument in `contract.utils.test.ts`
+   * (bdd.md A14). The mutant needs re-scoping to a line a recorded integration
+   * record can exercise, or the unknown-code proof stays the unit test's.
+   */
 });
 
 /** `design ✅.md` §8.1 R19/R30 — the list view model's own 3-member `with` list. */

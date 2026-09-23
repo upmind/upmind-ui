@@ -125,57 +125,33 @@ Feature: A client manages their own contracts
 
   # === CHANGING ONE CONTRACT =================================================
 
-  # AMENDMENT A28(b). The twelve `Then` lines below are the twelve members of
-  # the client contract read (`design ✅.md` §8.1, ADR-29, [o28]) — one record
-  # per line, so a module that omits one fails one NAMED line. The payment
-  # method, its gateway, and each product's scheduled actions, allowed
-  # migrations, brand and unpaid recurring invoices are NOT members of this
-  # read: they ride the PRODUCT read, and amendment A20 lands the two
-  # payment-method lines on `contract-product.feature`'s `@AC-4` scenario.
+  # AMENDMENT A28(b) + ruling R34. The eight `Then` lines below are the eight
+  # members of the client contract read after R34 — one record per line, so a
+  # module that omits one fails one NAMED line. R34 keeps only contract facts,
+  # so the product cancellation members (`products.contract_request*`,
+  # `products.future_cancellation_request`) and
+  # `cancellation_request.custom_fields.field` are dropped: each product loads
+  # its own cancellation state through `useContractProduct`.
   @AC-3 @manager
   Scenario: Open one of my contracts with everything the account area needs
     When I open one of my contracts
     Then it arrives with the cancellation request on it
-    And with that cancellation request's custom fields
     And with that cancellation request's state
     And with the contract's own status
     And with my account's image
     And with each of its products' status
     And with each of its products' tags
-    And with each of its products' pending contract request
-    And with that contract request's custom fields
-    And with any cancellation scheduled against each of its products for a future date
     And with each of its products' catalogue product image
     And with the currency of each of its products' brand
     And with the products that are still being imported included rather than hidden
 
-  # What I pick in the legacy cancellation modal — "don't cancel", "cancel at
-  # the end of the term", "cancel immediately" — decides WHICH of two things
-  # happens, it is not part of what is sent. The first two are the product
-  # manager's soft cancel; only "cancel immediately" lodges a request here.
-  # What IS sent is which product the request is against, plus my reason and
-  # details WHEN I SUPPLY THEM. Amendment A22(c): the brand configuration
-  # decides whether I am PROMPTED, never what the body carries, and this
-  # module reads no brand setting — so the column is what I supply.
-  @AC-6 @manager @mutation
-  Scenario Outline: Ask for one of my contracts to be cancelled outright
-    Given a contract on my account with a product I want cancelled
-    And I supply <what I supply> with my request
-    When I ask for that product to be cancelled immediately
-    Then my cancellation request is lodged against that contract, naming the product it is against
-    And <outcome>
-    And what I see afterwards is the server's answer, not an optimistic guess
-
-    Examples:
-      | what I supply        | outcome                                       |
-      | a reason and details | my reason and details travel with the request |
-      | nothing              | nothing travels in their place                |
-
-  @AC-7 @manager @mutation
-  Scenario: Change my mind about a cancellation I asked for
-    Given I have an outstanding cancellation request on one of my contracts
-    When I withdraw it
-    Then the request is removed and my contract carries on
+  # THE HARD CANCELLATION REQUEST AND ITS WITHDRAWAL MOVED TO THE PRODUCT
+  # (ruling R33, 2026-09-23). "If it has to know about the contract product
+  # state, and it's changing the contract product, it's the job of the contract
+  # product." AC-6 (ask for a product to be cancelled outright) and AC-7 (change
+  # my mind about it) now live in `contract-product.feature`, and
+  # `contract-product.mutations.int.test.ts` holds their wire proof. `useContract`
+  # keeps only `setPaymentMethod` (R34).
 
   # Legacy gives a client no way to UNASSIGN a contract's payment method — its
   # one dispatch site sends the chosen method and nothing else, and the submit
@@ -249,7 +225,6 @@ Feature: A client manages their own contracts
       | I open my contracts                              |
       | I open one of my contracts                       |
       | I force a change to my contract's payment method |
-      | I force a cancellation request                   |
 
   # MUTANT (amendment A2): re-introducing a caller-supplied account-id option,
   # even for internal use only, must turn this scenario RED.
@@ -272,5 +247,3 @@ Feature: A client manages their own contracts
       | action                              |
       | opening one of my contracts         |
       | changing how a contract is paid for |
-      | asking for a cancellation           |
-      | withdrawing a cancellation request  |

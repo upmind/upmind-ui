@@ -1,7 +1,9 @@
 // -----------------------------------------------------------------------------
 /**
  * @fileoverview useContractProduct writes — renew stop/abort, consolidation,
- * scheduled cancellation (integration, AC-5/AC-9/AC-22/AC-23)
+ * scheduled cancellation, hard cancel request + withdraw (integration,
+ * AC-5/AC-6/AC-7/AC-9/AC-11/AC-22/AC-23; R33 moved the hard cancel request and
+ * its withdrawal here from useContract)
  *
  * ## Job To Be Done
  * Drive the REAL `useContractProduct()` manager actions against RECORDED
@@ -29,11 +31,16 @@
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import {
+  CancellationRequestStatusCodes,
   ContractStatusCodes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
 import { useContractProduct, useContractProducts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import {
+  ContractProductCancelOption,
+  ContractProductFormTypes
+} from "../contract-product.types";
 import {
   assertClientIdentityTransport,
   installBackgroundStubs,
@@ -1113,6 +1120,293 @@ describe("useContractProduct — the renewal-invoicing permission governs neithe
     expect(captured.request).toBeDefined();
     assertClientIdentityTransport(captured.request!, accessToken);
     expect(captured.body).toEqual({ renew: false });
+  });
+});
+
+/**
+ * Opens the cancellation form over a real product, stubbing the empty
+ * CANCEL_REQUEST catalogue read the form composes so the ABSENT-customFields
+ * shape is deterministic. Returns the settled manager plus its real ids.
+ */
+async function openCancellationForm(
+  row?: Record<string, unknown> & { id: string }
+) {
+  const { accessToken } = await seedClientSession();
+  const base = recorded.one().data as Record<string, unknown> & {
+    id: string;
+    contract_id: string;
+  };
+  const served = row ?? base;
+  installProductHandler(server, served);
+  server?.use(
+    http.get("*/clients/:id", () =>
+      HttpResponse.json({ status: "ok", data: { custom_fields: [] } })
+    )
+  );
+  const manager = useContractProduct()
+    .as(ScopeActorTypes.CLIENT)
+    .withId(served.id);
+  await manager.useActions().isReady();
+  await manager.useActions().openCancellation();
+  return { manager, row: served, accessToken };
+}
+
+/**
+ * A real product row moved into the `cancelling` node — its `contract_request`
+ * replaced with a REAL cancellation request whose status is
+ * `request_cancellation_request`, the ONE state that derives `status.cancelling`
+ * and offers a withdraw (probe-confirmed). Only `contract_request` is
+ * synthesised; every other member is the real recorded product.
+ */
+function cancellingRow() {
+  const base = recorded.one().data as Record<string, unknown> & {
+    id: string;
+    contract_id: string;
+  };
+  return {
+    ...base,
+    contract_request: {
+      id: "785d26e9-6783-d169-9c11-314502e70439",
+      status: {
+        code: CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST
+      }
+    }
+  };
+}
+
+describe("useContractProduct — I ask for one of my products to be cancelled outright (AC-6, R33)", () => {
+  /**
+   * The `<what I supply>` Outline of `contract-product.feature`'s hard-cancel
+   * scenario, driven through the ONE combined form's HARD option:
+   * - a reason and details travel with the request
+   * - nothing travels in their place
+   */
+  it("AC-6 submitting the form with the HARD option POSTs { product_ids, cancellation_reason } to cancel/request, naming my own product, under my own identity", async () => {
+    const { manager, row, accessToken } = await openCancellationForm();
+    const captured: Captured = {};
+
+    server?.use(
+      http.post(
+        `*/contracts/${row.contract_id}/cancel/request`,
+        async ({ request }) => {
+          capture(request, captured);
+          captured.body = await request.json();
+          return HttpResponse.json(recorded.cancellationRequested(), {
+            status: 200
+          });
+        }
+      )
+    );
+
+    await manager.useActions().set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.HARD,
+      reason: "no longer needed"
+    });
+    await manager.useActions().submitCancellation();
+
+    expect(captured.request).toBeDefined();
+    expect(captured.request!.method).toBe("POST");
+    assertClientIdentityTransport(captured.request!, accessToken);
+    expect(captured.body).toEqual({
+      product_ids: [row.id],
+      cancellation_reason: "no longer needed"
+    });
+  });
+
+  it("AC-6 sends no cause field when I supply none — nothing travels in its place", async () => {
+    const { manager, row } = await openCancellationForm();
+    const captured: Captured = {};
+
+    server?.use(
+      http.post(
+        `*/contracts/${row.contract_id}/cancel/request`,
+        async ({ request }) => {
+          captured.body = await request.json();
+          return HttpResponse.json(recorded.cancellationRequested(), {
+            status: 200
+          });
+        }
+      )
+    );
+
+    await manager.useActions().set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.HARD
+    });
+    await manager.useActions().submitCancellation();
+
+    expect(captured.body).toEqual({ product_ids: [row.id] });
+  });
+
+  it("AC-6 an invalid model makes NO request and lands a 422 in the form's error region, the form left open (R35)", async () => {
+    const { manager } = await openCancellationForm();
+    const before = new Date(
+      new Date(
+        manager.useContext().minFutureCancellationDate.value as string
+      ).getTime() - 86400000
+    )
+      .toISOString()
+      .slice(0, 10);
+    const observed = observeAllRequests();
+
+    await manager.useActions().set(ContractProductFormTypes.CANCELLATION, {
+      option: ContractProductCancelOption.SCHEDULE_FUTURE,
+      futureCancellationDate: before
+    });
+    await expect(
+      manager.useActions().submitCancellation()
+    ).rejects.toBeDefined();
+
+    observed.stop();
+    expect(observed.matching("/cancel/request")).toEqual([]);
+    expect(observed.matching("/schedule-cancel")).toEqual([]);
+    expect(manager.useMeta().hasError.value).toBe(true);
+    expect(
+      (manager.useContext().error.value as { code?: number } | undefined)?.code
+    ).toBe(422);
+    // The form stays open on its own status node — the write never left it.
+    expect(manager.useContext().cancellation.value).toBeTruthy();
+    expect(manager.useMeta().isActive.value).toBe(true);
+  });
+
+  /**
+   * The validate-before-request guard on the hard-cancellation write: an empty
+   * `productIds` is rejected BEFORE the `POST cancel/request` fires, so NO
+   * request leaves and the 422 lands in the error region. Mutant:
+   * `contract-product.mutations.validation.must-fail.patch`.
+   */
+  it("AC-6 requestCancellation with an empty product list makes NO request and rejects with a 422 (validate-before-request)", async () => {
+    const { manager } = await openManager();
+    const observed = observeAllRequests();
+
+    await expect(
+      manager.useActions().requestCancellation({ productIds: [] })
+    ).rejects.toBeDefined();
+
+    observed.stop();
+    expect(observed.matching("/cancel/request")).toEqual([]);
+    expect(manager.useMeta().hasError.value).toBe(true);
+    expect(
+      (manager.useContext().error.value as { code?: number } | undefined)?.code
+    ).toBe(422);
+  });
+});
+
+describe("useContractProduct — I change my mind about a cancellation I asked for (AC-7, R33)", () => {
+  /**
+   * KNOWN GAP — the success half of AC-7. This sandbox answers
+   * `DELETE contracts/{id}/cancel/request` with a REAL 404
+   * (`contract/__tests__/fixtures/delete-contracts-id-cancel-request.json`),
+   * and no recorded 200 for it exists on disk; recording is forbidden this
+   * pass (`receipts.md`). The REQUEST shape (`{ contract_request_id }`) and the
+   * real-failure surfacing are proven here; the removed-and-carries-on outcome
+   * is registered as a partial promise.
+   */
+  it("AC-7 DELETEs cancel/request with { contract_request_id } from my product's own request, under my own identity", async () => {
+    const { manager, row, accessToken } = await (async () => {
+      const r = cancellingRow();
+      const { accessToken } = await seedClientSession();
+      installProductHandler(server, r);
+      const m = useContractProduct().as(ScopeActorTypes.CLIENT).withId(r.id);
+      await m.useActions().isReady();
+      return { manager: m, row: r, accessToken };
+    })();
+    const rejection = recorded.withdrawRejected();
+    const captured: Captured = {};
+
+    server?.use(
+      http.delete(
+        `*/contracts/${row.contract_id}/cancel/request`,
+        async ({ request }) => {
+          capture(request, captured);
+          captured.body = await request.json().catch(() => undefined);
+          return HttpResponse.json(rejection.response.body as object, {
+            status: rejection.response.status
+          });
+        }
+      )
+    );
+
+    await expect(
+      manager.useActions().withdrawCancellation()
+    ).rejects.toBeDefined();
+
+    expect(captured.request).toBeDefined();
+    expect(captured.request!.method).toBe("DELETE");
+    assertClientIdentityTransport(captured.request!, accessToken);
+    expect(captured.body).toEqual({
+      contract_request_id: "785d26e9-6783-d169-9c11-314502e70439"
+    });
+  });
+
+  it("AC-7 the sandbox's real refusal lands as readable error state, not a silent success", async () => {
+    const r = cancellingRow();
+    await seedClientSession();
+    installProductHandler(server, r);
+    const rejection = recorded.withdrawRejected();
+    server?.use(
+      http.delete(`*/contracts/${r.contract_id}/cancel/request`, () =>
+        HttpResponse.json(rejection.response.body as object, {
+          status: rejection.response.status
+        })
+      )
+    );
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .withId(r.id);
+    await manager.useActions().isReady();
+
+    await expect(
+      manager.useActions().withdrawCancellation()
+    ).rejects.toBeDefined();
+
+    expect(manager.useMeta().hasError.value).toBe(true);
+    expect(manager.useContext().error.value).toBeTruthy();
+  });
+});
+
+describe("useContractProduct — the cancellation form is hidden where legacy hides it (AC-11, R35)", () => {
+  it("AC-11 an expiring subscription (auto-renew already off) is offered no cancellation form — the open is refused, its slot left empty", async () => {
+    const { manager } = await openExpiringManager();
+    await manager.useActions().openCancellation();
+    expect(manager.useContext().cancellation.value).toBeFalsy();
+  });
+
+  /**
+   * The pending-contract eligibility gate: a product on a PENDING contract is
+   * not yet cancellable at the end of a term, so the cancellation form offers
+   * only the immediate (HARD) option — SCHEDULE_FUTURE and the soft end-of-term
+   * option are withheld. This proves the correct behaviour.
+   *
+   * DECLARED GAP on its mutant — `contract-product.pending-cancellation-eligibility.must-fail.patch`
+   * applies cleanly but flips NO test in the whole contract-product suite
+   * (verified: full suite stayed green under it), and it changed no reachable
+   * behaviour under probing (the pending option enum, every cancellation-request
+   * status, every meta flag, and the direct scheduleCancellation refusal were
+   * all byte-identical with and without it). The mutant is inert against
+   * reachable behaviour and needs re-authoring so it actually breaks the
+   * pending-excludes-SCHEDULE_FUTURE rule this test asserts.
+   */
+  it("AC-11 a product whose contract is pending is not offered SCHEDULE_FUTURE in the cancellation form", async () => {
+    const base = recorded.one().data as Record<string, unknown> & {
+      id: string;
+      contract?: Record<string, unknown>;
+    };
+    const pending = {
+      ...base,
+      contract: {
+        ...(base.contract ?? {}),
+        status: { code: ContractStatusCodes.PENDING }
+      }
+    };
+    const { manager } = await openCancellationForm(pending);
+
+    const options = (
+      manager.useContext().cancellation.value?.schema as {
+        properties?: { option?: { enum?: string[] } };
+      }
+    )?.properties?.option?.enum;
+    expect(options).toBeDefined();
+    expect(options).not.toContain(ContractProductCancelOption.SCHEDULE_FUTURE);
   });
 });
 

@@ -1,28 +1,32 @@
-# Negative-control mutant — cancellation form ignores the live contract (AC-6, D9)
+# Negative-control mutant — payment-method form schema reads the live contract (AC-8, R34/R35, D3/D4)
 #
-# Scenario it must flip: `requestCancellation`'s `productIds.items.enum` is
-#   exactly the loaded contract's product ids, so the form only offers products
-#   the contract actually holds.
+# Scenario it must flip: `useSetPaymentMethodSchema` defaults `paymentDetailsId`
+#   to the loaded contract's OWN current `paymentDetailsId`, so the form
+#   round-trips the method the contract already uses (D3/D4). (Re-authored: the
+#   cancellation `productIds` enum this patch once guarded moved to
+#   `useContractProduct` with R33; the contract keeps only the payment-method
+#   form (R34), so the same "schema built from the live contract, not a fixed
+#   value" intent now guards the payment-method default.)
 # Test that goes red: contract.action-schemas.int.test.ts >
-#   schemas.requestCancellation > "offers exactly the loaded contract's product
-#   ids as the required productIds enum"
-#   (the enum is now a fixed empty list, so the sorted-equality against the live
-#   product ids flips; the AJV compile test's valid model also stops validating).
-# Mutation: `useRequestCancellationSchema` builds `productIds.items.enum` from a
-#   fixed empty list instead of the contract's `products`.
+#   "useContract payment-method form — reads the live contract (AC-8, R35, D3/D4)"
+#   > "defaults paymentDetailsId to the contract's own current method, nullable
+#   and required" (the schema property's `default` is now `undefined`, so
+#   `expect(prop.default).toBe(current)` flips).
+# Mutation: `useSetPaymentMethodSchema` hardwires the property `default` to
+#   `undefined` instead of the contract's current `paymentDetailsId`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
-index a83546f91..fe797adb0 100644
+index 379ebd1c5..7a8891eeb 100644
 --- a/packages/headless/src/modules/contract/contract.schemas.ts
 +++ b/packages/headless/src/modules/contract/contract.schemas.ts
-@@ -80,7 +80,7 @@ export function useRequestCancellationSchema({
-         items: {
-           type: "string",
-           ...(!isEmpty(products) && {
--            enum: map(products, "id"),
-+            enum: [],
-             options: map(products, product => ({
-               label: product.name,
-               value: product.id
+@@ -64,7 +64,7 @@ export function useSetPaymentMethodSchema({
+       paymentDetailsId: {
+         ...useStoredPaymentMethodsSchema(storedPaymentMethods),
+         title: "Payment method",
+-        default: paymentDetailsId ?? undefined
++        default: undefined
+       }
+     }
+   } as JsonSchema7;

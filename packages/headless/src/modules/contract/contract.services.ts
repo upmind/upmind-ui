@@ -1,5 +1,4 @@
 /** @internal */
-import { until } from "@vueuse/core";
 import { computed } from "vue";
 import { usePaymentDetails } from "../payment-details";
 import { invalidateQueryByKey, useQuery } from "../query";
@@ -175,17 +174,14 @@ async function load({ contractId }: ContractContext): Promise<ContractLoaded> {
 
 /**
  * The payment-method form's stored cards, REUSED off the client's own
- * `usePaymentDetails` so no new request is issued. That query settles on
- * `isReady`, awaited through `meta`; the wait is bounded so a lookup that never
- * settles degrades to an empty form rather than blocking the load.
+ * `usePaymentDetails` so no new request is issued. `isReady` settles when the
+ * reused query fetches, errors, or is disabled, so a lookup that never fetches
+ * degrades to an empty form rather than blocking the load.
  */
 async function loadLookups(): Promise<ContractLookups> {
   const payments = usePaymentDetails();
 
-  await until(() => !payments.meta.value.isLoading).toBe(true, {
-    timeout: useTime().SECOND,
-    throwOnTimeout: false
-  });
+  await payments.isReady();
 
   return { storedPaymentMethods: payments.data.value };
 }

@@ -1,0 +1,33 @@
+# Negative-control mutant — the payment-method form is refused on a fraud contract (AC-8, R13)
+#
+# Scenario it must flip: contract.feature > the @AC-8 form-eligibility scenario.
+#   R13 ports the payment-method change to a read-only contract (cancelled,
+#   lapsed), but `fraud` alone is refused: opening the form on a fraud contract
+#   leaves its `paymentMethod` slot empty.
+# Test that goes red: contract.action-schemas.int.test.ts >
+#   "useContract payment-method form — where legacy offers it, and where it
+#   refuses (AC-8, R13/R24)" >
+#   "refuses the payment-method form on a fraud contract — its slot stays empty
+#   (R13 excludes fraud)"
+#   (with the fraud exclusion gone the open fills the slot, so
+#   `expect(manager.useContext().paymentMethod.value).toBeFalsy()` flips).
+# Mutation: `canChangePaymentMethod` drops the `!== ContractState.FRAUD` check,
+#   so the `unavailable` open transition admits a fraud contract.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
+index 3da62308d..5d11bcb1e 100644
+--- a/packages/headless/src/modules/contract/contract.machine.ts
++++ b/packages/headless/src/modules/contract/contract.machine.ts
+@@ -363,9 +363,7 @@ export default createMachine(
+       isLapsed: isNode(ContractState.LAPSED),
+       isFraud: isNode(ContractState.FRAUD),
+       // R13: not `fraud` — the one `unavailable` node the form is refused on.
+-      canChangePaymentMethod: ({ contract }: ContractContext) =>
+-        !!contract &&
+-        selectContractStatusNode(contract) !== ContractState.FRAUD,
++      canChangePaymentMethod: ({ contract }: ContractContext) => !!contract,
+       // `!error` is what stops the targetless arm re-firing once it has run.
+       isUnrecognised: ({ contract, error }: ContractContext) =>
+         !error && !!contract && isNil(selectContractStatusNode(contract))

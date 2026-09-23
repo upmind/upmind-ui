@@ -1,56 +1,40 @@
-# Negative-control mutant — AC-12's raw-code members read the wire, not the
-# mapped view model (design 8.7's "as it arrived" clause)
+# Negative-control mutant — AC-12's status code is published as it arrived, never
+# a coerced substitute (design 8.7)
 #
-# What this mutant proves: `contractStatusCode` and
-# `cancellationRequestStatusCode` (`useContract.context.ts`) read the RAW
-# `rawContract` context member, genuinely distinct in SOURCE from
-# `contractStatus` / `cancellationRequestStatus`, which read the MAPPED
-# `contract` view model. Before this fix both pairs read the identical mapped
-# path, so the design-8.7 distinction ("this member carries it as it arrived")
-# was inert — the two members could never differ, by construction.
+# RE-AUTHORED (this pass). The previous version referenced `ContractStatusCodes`
+# as a runtime value inside `contract.mappers.ts`, where it is a TYPE-ONLY import
+# — so the coercion either threw at runtime or was stripped, and the prover saw
+# it flip nothing cleanly. This version coerces to a plain string literal cast to
+# the enum type, a valid runtime value that needs no new import.
 #
-# STATUS — landed, structurally sound, currently UNPROVEN. No unit/integration
-# test in either `useContract.context`'s consumers asserts the SOURCE the two
-# "Code" members read. Positive coverage is a prover-seat task. The prover's
-# AC-12 test should construct a machine-actor double where `rawContract.status
-# .code` and `contract.status.code` are deliberately different strings, and
-# assert `contractStatusCode.value` equals the RAW one, not the mapped one
-# (symmetrically for `cancellationRequestStatusCode` /
-# `rawContract.cancellation_request.status.code`). A test that only checks
-# both members hold the SAME string (the common case, since the mapper's cast
-# is a no-op at runtime) would pass against this mutant too and is not a
-# control — it must assert the SOURCE, per the header above.
+# Scenario it must flip: contract.feature > the @AC-12 status scenario.
+# Test that goes red: contract.reads.int.test.ts >
+#   "AC-12 the manager publishes the REAL record's own raw status.code, never a
+#   coerced substitute". The one recorded capture is `contract_active`
+#   (status.code === "contract_active"); `mapContract` now hardwires every
+#   contract's `status.code` to "contract_cancelled", so the published
+#   `contract.value.status.code` no longer equals `row.status.code` and
+#   `expect(...).toBe(row.status.code)` flips.
+# Mutation: `mapContract` coerces every contract's `status.code` to a fixed
+#   "contract_cancelled" instead of carrying the record's own code.
 #
-# Mutation: both raw-code members read `contract.status.code` /
-# `contract.cancellationRequest.status.code` again — the mapped view model,
-# not the raw wire record — re-collapsing them onto their sibling members.
+# NOTE: the DECLARED-GAP block below this test (contract.reads.int.test.ts
+#   :136-147) still describes the OLD unknown-code mutant and is now stale; the
+#   prover owns that comment. A separate raw-vs-mapped source-distinction proof
+#   (design 8.7's `rawContract.status.code` member) remains an unpinned unit gap.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
-index 0ad5bddfe..d6c1d1b69 100644
---- a/packages/headless/src/modules/contract/useContract.context.ts
-+++ b/packages/headless/src/modules/contract/useContract.context.ts
-@@ -35,8 +35,9 @@ export function createContractContext(
-     ),
-
-     /** The raw `cancellation_request.status.code` string, as it arrived off the wire — next to `cancellationRequestStatus` (AC12). */
--    cancellationRequestStatusCode: computed<string | undefined>(() =>
--      get(rawContract.value, "cancellation_request.status.code")
-+    cancellationRequestStatusCode: useContext<string>(
-+      state,
-+      "contract.cancellationRequest.status.code"
-     ),
-
-     /** The mapped contract view model. */
-@@ -49,9 +50,7 @@ export function createContractContext(
-     ),
-
-     /** The raw `status.code` string, as it arrived off the wire — next to `contractStatus` (AC12). */
--    contractStatusCode: computed<string | undefined>(() =>
--      get(rawContract.value, "status.code")
--    ),
-+    contractStatusCode: useContext<string>(state, "contract.status.code"),
-
-     /** Machine-captured error, if any — read, never raised. */
-     error: useContext<ResponseError>(state, "error"),
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 87aa4031d..a1fe19526 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -29,7 +29,7 @@ export function mapContract(raw: IContract): Contract {
+ 
+   return {
+     id: raw.id,
+-    status: { code: raw.status.code as ContractStatusCodes },
++    status: { code: "contract_cancelled" as ContractStatusCodes },
+     ...(requestCode
+       ? { cancellationRequest: { status: { code: requestCode } } }
+       : {}),

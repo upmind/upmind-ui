@@ -63,6 +63,9 @@ const TARGET_ID = "00000000-0000-0000-0000-000000000000";
  * - `@proves contract-product.feature:638` — I open one of my products
  * - `@proves contract-product.feature:639` — I force a renewal stop
  * - `@proves contract-product.feature:640` — I force a consolidation change
+ *
+ * The forced-cancellation-request row moved here from the contract with R33
+ * and is proven by its own test below.
  */
 describe("contract-product with no authenticated client session (AC-16)", () => {
   it("AC-16 makes no request against any product resource — forced or not", async () => {
@@ -151,6 +154,27 @@ describe("contract-product with no authenticated client session (AC-16)", () => 
     observed.stop();
     expect(
       observed.matching("/contract_products").map(request => request.url)
+    ).toEqual([]);
+  });
+
+  it("AC-16 refuses a forced requestCancellation without authenticating, sending no request (R33)", async () => {
+    await bootUnauthenticated();
+    const observed = observeAllRequests();
+
+    const manager = useContractProduct()
+      .as(ScopeActorTypes.CLIENT)
+      .withId(TARGET_ID);
+
+    await expect(
+      settlement(
+        manager.useActions().requestCancellation({ productIds: [TARGET_ID] })
+      ),
+      "requestCancellation"
+    ).resolves.toEqual({ resolved: false });
+
+    observed.stop();
+    expect(
+      observed.matching("/cancel/request").map(request => request.url)
     ).toEqual([]);
   });
 });

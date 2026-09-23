@@ -24,15 +24,22 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
-index f9de1acf0..a853c52a5 100644
+index ae2e92714..848dc8613 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.services.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
-@@ -353,7 +353,7 @@ async function load(
-       "products",
-       context.contractProductId
-     ],
--    url: useUrl(`contract_products/${context.contractProductId}`, {
-+    url: useUrl(`contract_products/${context.contractProductId}/scheduled_actions`, {
-       with: CONTRACT_PRODUCT_WITH
-     }),
-     withAccessToken: true,
+@@ -385,9 +385,12 @@ async function load(
+         "products",
+         context.contractProductId
+       ],
+-      url: useUrl(`contract_products/${context.contractProductId}`, {
+-        with: CONTRACT_PRODUCT_WITH
+-      }),
++      url: useUrl(
++        `contract_products/${context.contractProductId}/scheduled_actions`,
++        {
++          with: CONTRACT_PRODUCT_WITH
++        }
++      ),
+       withAccessToken: true,
+       staleTime: 0,
+       gcTime: 0

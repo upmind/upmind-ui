@@ -3,26 +3,29 @@
 # Scenario it must flip: contract.feature >
 #   "The account I act on is the one my scope resolved"
 # Test that goes red: contract.mutations.int.test.ts >
-#   "AC-16 the request is addressed to the contract `.for()` resolved, never to any clientId option or an unresolved id"
+#   "AC-16 the request is addressed to the contract `.for()` resolved, never to
+#   any clientId option or an unresolved id"
 #   (`pathname` no longer contains `/contracts/${row.id}`, and
 #   `searchParams.has("clientId")` reads true; the replay server also refuses
 #   the unmatched URL, so the write rejects).
 # Mutation: `setPaymentMethod` drops the resolved contract id out of the path
 #   and re-introduces it as a `clientId` query option — the id travels as a
-#   caller-shaped option instead of the scope-resolved target.
+#   caller-shaped option instead of the scope-resolved target (the FE-2824
+#   defect shape, re-authored onto the payment-method write that stayed on the
+#   contract after R34).
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract/contract.services.ts b/packages/headless/src/modules/contract/contract.services.ts
-index 22a13db00..51bd55af3 100644
+index c3bac80a3..d470ef7ad 100644
 --- a/packages/headless/src/modules/contract/contract.services.ts
 +++ b/packages/headless/src/modules/contract/contract.services.ts
-@@ -195,7 +195,7 @@ async function setPaymentMethod(
-
+@@ -208,7 +208,7 @@ async function setPaymentMethod({
+ 
    return patch<IContract>({
      mutationKey: [...queryKey, contractId, "payment-method"],
 -    url: useUrl(`contracts/${contractId}/payment_details`),
 +    url: useUrl("contracts/payment_details", { clientId: contractId }),
-     data: toPaymentMethodBody(data as SetPaymentMethodModel),
+     data: toPaymentMethodBody(paymentMethod?.model as SetPaymentMethodModel),
      withAccessToken: true
    }).then(invalidateQueryByKey(queryKey, { exact: false }));

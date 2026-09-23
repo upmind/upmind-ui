@@ -1,40 +1,37 @@
-# Negative-control mutant — canScheduleFutureCancellation drops the pending-contract condition (W1/B2)
+# Negative-control mutant — a pending contract is offered no SCHEDULE_FUTURE option (W1/B2, AC-11)
 #
 # Scenario it must flip: research.md:1496 names five eligibility conditions for
 #   booking a future cancellation: product cancellation, NOT a pending contract,
-#   no hard request, no existing scheduled request, an anniversary anchor.
-#   useContractProduct.meta.ts's `canScheduleFutureCancellation` omitted the
-#   second condition; this mutant reintroduces that omission.
-# Test that goes red: NONE EXISTS YET. `grep -rn "canScheduleFutureCancellation"
-#   packages/headless/src/modules/contract-product/__tests__/` hits no assertion
-#   at the time this patch is authored — this is a GAP, surfaced not hidden
-#   (the developer seat does not author tests; this is handed to the prover
-#   seat). Applying this patch and running the two-module suite should stay
-#   GREEN today, which is itself the proof of the gap. Once the prover lands a
-#   meta unit test that asserts `canScheduleFutureCancellation` is false while
-#   `isPending` is true (with the other four conditions held true), that test
-#   is the one this mutant must flip red.
-# Mutation: drops the `!isPending.value` guard from `canScheduleFutureCancellation`,
-#   reverting to the four-condition read that offers a future-cancellation
-#   booking on a pending contract.
+#   no hard request, no existing scheduled request, an anniversary anchor. The
+#   cancellation form's `option` enum is built from `cancellationOptions`
+#   (contract-product.machine.ts:476), so the pending exclusion that governs what
+#   a page can offer lives on that pure selector — NOT on the
+#   useContractProduct.meta.ts convenience flag the previous version mutated,
+#   which no schema reads (that is why it was inert).
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   "AC-11 a product whose contract is pending is not offered SCHEDULE_FUTURE in
+#   the cancellation form" — it overrides the recorded product's contract to
+#   PENDING, opens the cancellation form, and asserts the schema's `option.enum`
+#   does NOT contain SCHEDULE_FUTURE. Dropping `!isPending` from the
+#   SCHEDULE_FUTURE branch pushes that option for the pending product, so the
+#   enum now contains it and `expect(options).not.toContain(SCHEDULE_FUTURE)`
+#   flips.
+# Mutation: drops the `!isPending` guard from `cancellationOptions`'
+#   SCHEDULE_FUTURE branch, reverting to the four-condition read that offers a
+#   future-cancellation booking on a pending contract.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-index a2b98b2c3..10aebc316 100644
---- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-+++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -53,12 +53,11 @@ export function createContractProductMeta(
-       () => !!contextValue<boolean>(state, "contractProduct.canCancel")
-     ),
-
--    /** True when a future cancellation can be booked: not cancelling, not pending, none booked, and an anniversary exists. */
-+    /** True when a future cancellation can be booked: not cancelling, none booked, and an anniversary exists. */
-     canScheduleFutureCancellation: computed(
-       () =>
-         !!contractProduct.value &&
-         !isCancelling.value &&
--        !isPending.value &&
-         !hasScheduledFutureCancellation.value &&
-         !!anniversaryAnchor(contractProduct.value)
-     ),
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+index 088b7eca9..d8bccf14d 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -159,7 +159,7 @@ export function cancellationOptions(
+     options.push(ContractProductCancelOption.HARD);
+   }
+   // SCHEDULE_FUTURE — needs a live subscription, no hard request, no scheduled cancellation and an anniversary anchor.
+-  if (!isPending && !hasHard && !hasScheduled && !!anniversaryAnchor(product)) {
++  if (!hasHard && !hasScheduled && !!anniversaryAnchor(product)) {
+     options.push(ContractProductCancelOption.SCHEDULE_FUTURE);
+   }
+ 

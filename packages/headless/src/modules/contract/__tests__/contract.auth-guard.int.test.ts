@@ -58,11 +58,13 @@ const TARGET_ID = "00000000-0000-0000-0000-000000000000";
 // -----------------------------------------------------------------------------
 
 /**
- * The four rows of AC-16's unauthenticated Outline, one per `<use>`:
- * - `@proves contract.feature:249` — I open my contracts
- * - `@proves contract.feature:250` — I open one of my contracts
- * - `@proves contract.feature:251` — I force a payment-method change
- * - `@proves contract.feature:252` — I force a cancellation request
+ * AC-16's unauthenticated Outline, per `<use>` still on this module after R33:
+ * - `@proves contract.feature:225` — I open my contracts
+ * - `@proves contract.feature:226` — I open one of my contracts
+ * - `@proves contract.feature:227` — I force a payment-method change
+ *
+ * The forced-cancellation-request row moved to
+ * `contract-product.auth-guard.int.test.ts` with R33.
  */
 describe("contract with no authenticated client session (AC-16)", () => {
   it("AC-16 makes no request against any contract resource — forced or not", async () => {
@@ -126,27 +128,6 @@ describe("contract with no authenticated client session (AC-16)", () => {
         })
       ),
       "setPaymentMethod"
-    ).resolves.toEqual({ resolved: false });
-
-    observed.stop();
-    expect(observed.matching("/contracts").map(request => request.url)).toEqual(
-      []
-    );
-  });
-
-  it("AC-16 refuses a forced requestCancellation without authenticating, sending no request", async () => {
-    await bootUnauthenticated();
-    const observed = observeAllRequests();
-
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, TARGET_ID);
-
-    await expect(
-      settlement(
-        manager.useActions().requestCancellation({ productIds: [TARGET_ID] })
-      ),
-      "requestCancellation"
     ).resolves.toEqual({ resolved: false });
 
     observed.stop();

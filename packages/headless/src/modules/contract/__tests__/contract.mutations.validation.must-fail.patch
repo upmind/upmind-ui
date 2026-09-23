@@ -1,13 +1,46 @@
+# Negative-control mutant — the payment-method form validates before it writes (AC-8, R35)
+#
+# Target (correct line): `settingPaymentMethod.validating.onError` in the
+#   `changingPaymentMethod` region — an invalid model must land in the form's
+#   `available.error` node with NO `PATCH` leaving the module. This mutant routes
+#   that `onError` straight to `updating`, so a schema-invalid model is written
+#   anyway (validation skipped).
+#
+# STILL UNREACHABLE (re-checked this pass, AFTER the loadLookups isReady fix).
+#   Fix 1 makes `contract.services.ts` `loadLookups` await
+#   `usePaymentDetails().isReady()` and read its `data`, so the contract manager
+#   now DOES stand up the stored-cards query. But the contract integration
+#   harness (contract.int-helpers.ts) mocks only the `PATCH .../payment_details`
+#   — no stored-methods GET list is served — so that reused query resolves empty
+#   and the payment-method schema still carries NO `paymentDetailsId` enum. With
+#   no enum, no id is schema-invalid, and `set({})`/`set({paymentDetailsId:null})`
+#   is coerced back to the loaded default by the parser. So no invalid model can
+#   reach `validating`, `validatePaymentMethod` never rejects, `onError` never
+#   fires, and this mutation flips NOTHING in the contract suite. Confirmed: the
+#   whole suite carries no assertion that submits a schema-invalid payment method
+#   and expects a 422 in the form error region with no PATCH (grep over
+#   contract/__tests__). The populated-enum invalid-id rejection is proven in the
+#   payment-details module's own suite.
+#
+# To make this mutant pinnable, the prover must land a contract-harness test that
+#   (a) serves a stored payment_details LIST fixture so the schema enum populates,
+#   then (b) submits an id not in that enum and asserts `hasError`/422 with no
+#   `payment_details` PATCH. That test is the one this mutant then flips red.
+#   Until then the invalid-enum proof stays the payment-details suite's, and this
+#   remains a SURFACED gap, not a hidden one.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
-index ac2caf1c7..8d0ea0c10 100644
+index 3da62308d..f8480c084 100644
 --- a/packages/headless/src/modules/contract/contract.machine.ts
 +++ b/packages/headless/src/modules/contract/contract.machine.ts
-@@ -183,7 +183,7 @@ export default createMachine(
-                   src: "validate",
-                   onDone: { target: "updating" },
-                   onError: {
--                    target: "#loading.checking",
-+                    target: "updating",
-                     actions: ["setError"]
-                   }
-                 }
+@@ -146,7 +146,7 @@ export default createMachine(
+                           src: "validatePaymentMethod",
+                           onDone: { target: "updating" },
+                           onError: {
+-                            target: "#changingPaymentMethod.available.error",
++                            target: "updating",
+                             actions: ["setError"]
+                           }
+                         }

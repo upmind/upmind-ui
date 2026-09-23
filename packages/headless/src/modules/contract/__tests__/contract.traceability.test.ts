@@ -101,72 +101,6 @@ type PartialPromise = {
 
 const PARTIAL_PROMISES: PartialPromise[] = [
   {
-    line: 178,
-    text: "Then the request is removed and my contract carries on",
-    disposition: "gap"
-  },
-  {
-    line: 199,
-    text: "| a suspended subscription |",
-    disposition: "proves"
-  },
-  {
-    line: 138,
-    text: "Then it arrives with the cancellation request on it",
-    disposition: "proves"
-  },
-  {
-    line: 139,
-    text: "And with that cancellation request's custom fields",
-    disposition: "proves"
-  },
-  {
-    line: 140,
-    text: "And with that cancellation request's state",
-    disposition: "proves"
-  },
-  {
-    line: 141,
-    text: "And with the contract's own status",
-    disposition: "proves"
-  },
-  { line: 142, text: "And with my account's image", disposition: "proves" },
-  {
-    line: 143,
-    text: "And with each of its products' status",
-    disposition: "proves"
-  },
-  {
-    line: 144,
-    text: "And with each of its products' tags",
-    disposition: "proves"
-  },
-  {
-    line: 145,
-    text: "And with each of its products' pending contract request",
-    disposition: "proves"
-  },
-  {
-    line: 146,
-    text: "And with that contract request's custom fields",
-    disposition: "proves"
-  },
-  {
-    line: 147,
-    text: "And with any cancellation scheduled against each of its products for a future date",
-    disposition: "proves"
-  },
-  {
-    line: 148,
-    text: "And with each of its products' catalogue product image",
-    disposition: "proves"
-  },
-  {
-    line: 149,
-    text: "And with the currency of each of its products' brand",
-    disposition: "proves"
-  },
-  {
     line: 113,
     text: "| first             | forward to the next page  | the next page comes back                                                 |",
     disposition: "proves"
@@ -177,89 +111,105 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     disposition: "proves"
   },
   {
-    line: 150,
-    text: "And with the products that are still being imported included rather than hidden",
-    disposition: "proves"
-  },
-  {
-    line: 171,
-    text: "| a reason and details | my reason and details travel with the request |",
-    disposition: "proves"
-  },
-  {
-    line: 172,
-    text: "| nothing              | nothing travels in their place                |",
-    disposition: "proves"
-  },
-  {
-    line: 198,
-    text: "| an active subscription   |",
-    disposition: "proves"
-  },
-  {
-    line: 200,
-    text: "| a one-off purchase       |",
-    disposition: "proves"
-  },
-  {
-    line: 216,
-    text: "| no method at all           |",
-    disposition: "proves"
-  },
-  {
-    line: 217,
-    text: "| the method it already uses |",
-    disposition: "proves"
-  },
-  {
-    line: 249,
-    text: "| I open my contracts                              |",
-    disposition: "proves"
-  },
-  {
-    line: 250,
-    text: "| I open one of my contracts                       |",
-    disposition: "proves"
-  },
-  {
-    line: 251,
-    text: "| I force a change to my contract's payment method |",
-    disposition: "proves"
-  },
-  {
-    line: 252,
-    text: "| I force a cancellation request                   |",
-    disposition: "proves"
-  },
-  {
-    line: 273,
-    text: "| opening one of my contracts         |",
-    disposition: "proves"
-  },
-  {
-    line: 274,
-    text: "| changing how a contract is paid for |",
-    disposition: "proves"
-  },
-  {
-    line: 275,
-    text: "| asking for a cancellation           |",
-    disposition: "proves"
-  },
-  {
-    line: 276,
-    text: "| withdrawing a cancellation request  |",
-    disposition: "proves"
-  },
-  {
     line: 115,
     text: "| first             | forward to the last page  | the last page comes back and I am told there is no further page to go to |",
     disposition: "gap"
   },
   {
-    line: 201,
+    line: 138,
+    text: "Then it arrives with the cancellation request on it",
+    disposition: "proves"
+  },
+  {
+    line: 139,
+    text: "And with that cancellation request's state",
+    disposition: "proves"
+  },
+  {
+    line: 140,
+    text: "And with the contract's own status",
+    disposition: "proves"
+  },
+  { line: 141, text: "And with my account's image", disposition: "proves" },
+  {
+    line: 142,
+    text: "And with each of its products' status",
+    disposition: "proves"
+  },
+  {
+    line: 143,
+    text: "And with each of its products' tags",
+    disposition: "proves"
+  },
+  {
+    line: 144,
+    text: "And with each of its products' catalogue product image",
+    disposition: "proves"
+  },
+  {
+    line: 145,
+    text: "And with the currency of each of its products' brand",
+    disposition: "proves"
+  },
+  {
+    line: 146,
+    text: "And with the products that are still being imported included rather than hidden",
+    disposition: "proves"
+  },
+  {
+    line: 174,
+    text: "| an active subscription   |",
+    disposition: "proves"
+  },
+  {
+    line: 175,
+    text: "| a suspended subscription |",
+    disposition: "proves"
+  },
+  {
+    line: 176,
+    text: "| a one-off purchase       |",
+    disposition: "proves"
+  },
+  {
+    line: 177,
     text: "| delegated to me          |",
     disposition: "gap"
+  },
+  {
+    line: 192,
+    text: "| no method at all           |",
+    disposition: "proves"
+  },
+  {
+    line: 193,
+    text: "| the method it already uses |",
+    disposition: "proves"
+  },
+  {
+    line: 225,
+    text: "| I open my contracts                              |",
+    disposition: "proves"
+  },
+  {
+    line: 226,
+    text: "| I open one of my contracts                       |",
+    disposition: "proves"
+  },
+  {
+    line: 227,
+    text: "| I force a change to my contract's payment method |",
+    disposition: "proves"
+  },
+  {
+    line: 248,
+    text: "| opening one of my contracts         |",
+    disposition: "proves"
+  },
+  {
+    line: 249,
+    text: "| changing how a contract is paid for |",
+    disposition: "proves"
   }
 ];
 
