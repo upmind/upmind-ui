@@ -225,7 +225,7 @@ const EXHAUSTIVE = `Then report EVERY finding in ONE list — never stop at the 
 // ordering gate carries, so both lanes grade one contract one way. The
 // conformance lint stops at files and exports; this grades what each layer
 // factory RETURNS.
-const TEMPLATE_REGRADE = `Grade the landed module against the template set ${templateDir} MEMBER BY MEMBER, for EVERY composable the module ships or owes: every member each context, actions and meta factory returns, every machine state the template names, and the criteria channel. Grade what the module HAS, never what a run reported. A template member the module lacks, renames or reshapes is a drift row with the template file:line beside the module file:line. A row is excused ONLY by a \`template-departure:\` line in ${sddDir} that names BOTH the member AND the composable it excuses (for example \`template-departure: lookups (useContractProducts)\`); a departure line that names the module or nothing excuses nothing, and a departure for one composable never excuses another. DECIDE every row yourself wherever the answer is already given — by a ruling in review-notes.md, a decision in operator-review.md, a declared departure's reasoning, or a house exemplar. The answer "restore the template member" puts the row in \`driftRows\`. The answer "keep the landed shape" puts it in \`departRows\` as the exact departure line to file (\`template-departure: <member> (<composable>) — <reason> (<the ruling or exemplar that decides it>)\`). Put a row in \`rulingRows\` ONLY for a genuine architectural choice, or a contradiction between rulings whose answer is NOT obvious from any of those sources — and say why none of them decides it. A choice you can answer with a citation is never a ruling. Grade to the end: EVERY row in one list, never stop at the first; a row found next cycle that was there this cycle costs the run a whole round. Return the HEAD you graded as headSha.`;
+const TEMPLATE_REGRADE = `Grade the landed module against the template set ${templateDir} MEMBER BY MEMBER, for EVERY composable the module ships or owes: every member each context, actions and meta factory returns, every machine state the template names, and the criteria channel. Grade what the module HAS, never what a run reported. A template member the module lacks, renames or reshapes is a drift row with the template file:line beside the module file:line. A row is excused ONLY by a \`template-departure:\` line in ${sddDir} that names BOTH the member AND the composable it excuses (for example \`template-departure: lookups (useContractProducts)\`); a departure line that names the module or nothing excuses nothing, and a departure for one composable never excuses another. DECIDE every row yourself wherever the answer is already given — by a ruling in review-notes.md, a decision in operator-review.md, a declared departure's reasoning, or a house exemplar. The answer "restore the template member" puts the row in \`driftRows\`. The answer "keep the landed shape" puts it in \`departRows\` as the exact departure line to file (\`template-departure: <member> (<composable>) — <reason> (<the ruling or exemplar that decides it>)\`). Put a row in \`rulingRows\` ONLY for a genuine architectural choice, or a contradiction between rulings whose answer is NOT obvious from any of those sources — and say why none of them decides it. A choice you can answer with a citation is never a ruling. Grade module SOURCE only: a test or a doc that still reads an old member name is not a drift row — list it in \`consumerRows\` with its file:line, because the developer seat may not write tests or docs and the Prove and Document stages own them. Grade to the end: EVERY row in one list, never stop at the first; a row found next cycle that was there this cycle costs the run a whole round. Return the HEAD you graded as headSha.`;
 
 const GATE = {
   type: "object",
@@ -286,6 +286,7 @@ const TEMPLATE_GATE = {
     driftCount: { type: "number" },
     driftRows: { type: "array", items: { type: "string" } },
     departRows: { type: "array", items: { type: "string" } },
+    consumerRows: { type: "array", items: { type: "string" } },
     rulingRows: { type: "array", items: { type: "string" } },
     introducedByRepair: { type: "array", items: { type: "string" } }
   },
@@ -705,6 +706,9 @@ if (!skipTemplateReview) {
     // A row that needs an operator choice never blocks the repair of the
     // rest: it is carried to the end of the lane and reported there.
     results.rulingRows = raw.rulingRows ?? [];
+    // Stale tests and docs belong to the seats that own them: Prove and
+    // Document are handed this list, so the developer is never asked for them.
+    results.consumerRows = raw.consumerRows ?? [];
     // A row the grader decided as "keep the landed shape" is filed, not asked:
     // the planner writes each departure line and its decision row, and the
     // next cycle re-grades with them in place.
@@ -802,7 +806,7 @@ if (!skipProve) {
     worktree,
     size: "unset",
     scope: `story ${id} — the ${target} module (${variant} variant; cells: ${cells}). ${JTBD} ${BOUNDS} ${DOCTRINE}`,
-    inputs: `${sddDir}/design.md, the module's co-located .feature, the parity table, and the exported public surface only. Anchor every test to a scenario in the feature; an unmapped test means the feature gains the missing scenario, never that the test is dropped`,
+    inputs: `${sddDir}/design.md, the module's co-located .feature, the parity table, and the exported public surface only. Anchor every test to a scenario in the feature; an unmapped test means the feature gains the missing scenario, never that the test is dropped${results.consumerRows?.length ? `. These tests still read a member the Template review renamed or removed — update each one to the landed public surface:\n${results.consumerRows.join("\n")}` : ""}`,
     layers:
       "unit and integration only; never e2e — this lane proves the feature's journey scenarios at the integration altitude",
     controls: true,
@@ -1063,7 +1067,7 @@ if (!skipDocument) {
     id,
     worktree,
     scope: `story ${id} — the ${target} module's FULL documentation set (the /docs factory's required artefacts). ${BOUNDS} ${DOCTRINE}`,
-    inputs: `${sddDir}/review-notes.md (operator rulings, ADR-level, never silently overridden), ${sddDir}/research.md (the filed oracle sweep) and the verifier's verdict for this story — it returned PRESENT on the capability; describe as delivered nothing it did not confirm`
+    inputs: `${sddDir}/review-notes.md (operator rulings, ADR-level, never silently overridden), ${sddDir}/research.md (the filed oracle sweep) and the verifier's verdict for this story — it returned PRESENT on the capability; describe as delivered nothing it did not confirm${results.consumerRows?.length ? `. These docs still name a member the Template review renamed or removed — update each one to the landed public surface:\n${results.consumerRows.join("\n")}` : ""}`
   });
   if (!results.document) {
     results.stopped = "documenter-failed";
