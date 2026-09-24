@@ -6,7 +6,7 @@ The module ships two scoped composables under one module name: `useContractProdu
 
 ## State Machine (`useContractProduct`)
 
-`contract-product.machine.ts` follows the house write-spine convention: every FORMLESS write (`RESUME`, `WITHDRAW`, `SCHEDULE_CANCEL_REVOKE`) runs through one top-level `processing` state, which invokes one named service and returns to `#loading`. Each write that takes a MODEL — the combined cancellation form and the consolidation form — is instead its own PARALLEL REGION of `available`, beside `status`/`setup`/`trial`: opening the form never leaves the status node, so every status flag stays live while the client edits it, and each form has its own `processing` child so a failed submit returns the client to the open form's `error` node with the model still in place, rather than to a machine-wide error. A failure is recorded on the `error` context property, never a distinct top-level state.
+`contract-product.machine.ts` follows the house write-spine convention: every FORMLESS write (`RESUME`, `WITHDRAW`, `SCHEDULE_CANCEL_REVOKE`) runs through one top-level `processing` state, which invokes one named service and returns to `#loading`. Each write that takes a MODEL — the combined cancellation form and the consolidation form — is instead its own PARALLEL REGION of `available`, beside `status`/`setup`/`trial`: opening the form never leaves the status node, so every status flag stays live while the client edits it, and each form has its own `processing` child so a failed submit returns the client to the open form's `error` node with the model still in place, rather than to the machine's top-level one. A load failure, or an unrecognised status code, is instead routed to a distinct top-level `error` node (`id: "error"`); the only way out is `REFRESH`, which re-enters `#loading` from the top.
 
 ```mermaid
 stateDiagram-v2
@@ -15,6 +15,7 @@ stateDiagram-v2
 
     loading --> available: status resolved
     loading --> unavailable: staged/cancelled/lapsed/fraud
+    loading --> error: load failed / unrecognised status
 
     state available {
       [*] --> status
@@ -56,6 +57,7 @@ stateDiagram-v2
     loading --> subscribing: UNAUTHENTICATED
     available --> loading: REFRESH
     unavailable --> loading: REFRESH
+    error --> loading: REFRESH
 ```
 
 `available` is `type: "parallel"` over five regions — `status`, `setup`, `trial`, `cancelling`, `consolidating` — evaluated simultaneously off one read. `unavailable` (staged/cancelled/lapsed/fraud) has no transition that leaves it; the only way out is a fresh `loading` cycle from `REFRESH` or re-subscription.
@@ -91,9 +93,9 @@ The `loading` state's `always` array is the one place `selectStatusNode` is cons
 
 | Sub-composable | `useContractProducts` | `useContractProduct` |
 |----------------|------------------------|------------------------|
-| `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `openCancellation`, `openConsolidation`, `set`, `cancelForm`, `submitCancellation`, `submitConsolidation`, `stopRenewing`, `resumeRenewing`, `requestCancellation`, `withdrawCancellation`, `scheduleCancellation`, `revokeScheduledCancellation`, `setConsolidation`, `isReady`, `refresh`, `stop`, `destroy` |
-| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `context`, `contractId`, `contractProduct`, `contractProductId`, `cancellation`, `consolidation`, `error`, `minFutureCancellationDate`, `rawContractProduct`, `scheduledActions` |
-| `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen status/setup/trial node flags, the `isAvailable`/`isLoading`/`isSubmitting` state-derived flags, `canRequestCancellation`/`canRequestEndOfTerm`/`canScheduleFutureCancellation`, plus the other record-fact flags (see usage.md) |
+| `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `openCancellation`, `openConsolidation`, `set`, `cancelForm`, `submitCancellation`, `submitConsolidation`, `stopRenewing`, `resumeRenewing`, `requestCancellation`, `withdrawCancellation`, `scheduleCancellation`, `revokeScheduledCancellation`, `setConsolidation`, `isReady`, `onDone`, `refresh`, `stop`, `destroy` |
+| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `context`, `contractId`, `contractProduct`, `id`, `cancellation`, `consolidation`, `description`, `error`, `errors`, `lookups`, `minFutureCancellationDate`, `rawContractProduct`, `scheduledActions`, `title`, `validationErrors` |
+| `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen status/setup/trial node flags, the `isAvailable`/`isLoading`/`isProcessing` state-derived flags, `canRequestCancellation`/`canRequestEndOfTerm`/`canScheduleFutureCancellation`, plus the other record-fact flags (see usage.md) |
 | `useInternals()` | raw query access | raw machine-state access |
 
 ## Services

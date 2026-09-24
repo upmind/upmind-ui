@@ -58,9 +58,10 @@ destroy(); // deregisters the scope instance and stops the delegated-preference 
 ### Lifecycle
 
 ```typescript
-const { isReady, refresh, stop, destroy } = product.useActions();
+const { isReady, onDone, refresh, stop, destroy } = product.useActions();
 
 await isReady();  // resolves once the product is placed on `available` or `unavailable`
+await onDone();    // resolves once an in-flight write settles: true on available/unavailable, false on error or a timeout
 refresh();         // re-reads the product
 stop();            // stops the machine, keeps the registry entry
 destroy();          // stops the machine and deregisters it
@@ -159,7 +160,7 @@ All return Vue `ComputedRef<boolean>`.
 | `isStaged` / `isCancelled` / `isLapsed` / `isFraud` | Which unavailable node |
 | `isOnTrial` / `isOnTerminatingTrial` | Trial region |
 | `isSetupIncomplete` | Setup region |
-| `isSubmitting` | A write is in flight |
+| `isProcessing` | A write is in flight |
 | `isSubscription` | `billingCycleMonths > 0` |
 | `canCancel` | Platform-reported cancellable (the hard-cancellation record fact) |
 | `canRequestCancellation` | May open a HARD (immediate) cancellation request: no hard request already pending, none scheduled |
@@ -198,13 +199,18 @@ const {
   context,                  // the full machine context object
   contractId,                // the contract this product belongs to
   contractProduct,           // ComputedRef<ContractProduct | undefined> — the mapped view model
-  contractProductId,         // the product this manager acts on
+  id,                        // the product this manager acts on
   cancellation,              // the open cancellation form: { schema, uischema, model } | undefined
   consolidation,             // the open consolidation form: { schema, uischema, model } | undefined
+  description,               // ComputedRef<string | undefined> — the product's description, off the raw wire record
   error,                     // ComputedRef<ResponseError | undefined>
+  errors,                    // ComputedRef<ResponseError["message"] | undefined> — the machine-captured error message
+  lookups,                   // reference data the machine's `load` service resolved (the CANCEL_REQUEST custom fields)
   minFutureCancellationDate, // instance-bound earliest selectable date, or null
   rawContractProduct,        // the raw wire record beside the view model
-  scheduledActions           // ComputedRef<ScheduledAction[]> — [] until the read carries them (see hasFetchedScheduledActions)
+  scheduledActions,          // ComputedRef<ScheduledAction[]> — [] until the read carries them (see hasFetchedScheduledActions)
+  title,                     // ComputedRef<string | undefined> — the product's display title
+  validationErrors           // ErrorObject[] — field-level validation errors (AJV), read, never raised
 } = product.useContext();
 ```
 
@@ -247,7 +253,7 @@ contractProduct.unpaidRecurringInvoices.filter(isCancellable);
   <div v-if="isLoading">Loading...</div>
   <div v-else-if="hasError">{{ error?.message }}</div>
   <div v-else>
-    <button :disabled="!isSubscription || isSubmitting" @click="stopRenewing()">
+    <button :disabled="!isSubscription || isProcessing" @click="stopRenewing()">
       Stop renewing
     </button>
   </div>
@@ -256,7 +262,7 @@ contractProduct.unpaidRecurringInvoices.filter(isCancellable);
 <script setup>
 const product = useContractProduct().as("client").withId(props.id);
 const { contractProduct, error } = product.useContext();
-const { isLoading, isSubmitting, isSubscription, hasError } = product.useMeta();
+const { isLoading, isProcessing, isSubscription, hasError } = product.useMeta();
 const { stopRenewing } = product.useActions();
 </script>
 ```
