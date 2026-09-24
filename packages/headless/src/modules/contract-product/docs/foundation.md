@@ -23,7 +23,7 @@ Cancellation of every kind is this module's responsibility, not the contract's: 
 
 | #   | Capability                                                                        | Inputs                                                        | Outputs                                                                                     |
 | --- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 1   | **List the client's own contract products**                                       | optional filters (name, category, status, subscription/one-time, created/due date, amount), sort, pagination | A page of contract products, each with its status, product, tags, and cancellation facts |
+| 1   | **List the client's own contract products**                                       | an optional quick-search term (minimum 3 characters), optional filters (name, category, status, subscription/one-time, created/due date, amount), sort, pagination | A page of contract products, each with its status, product, tags, and cancellation facts |
 | 2   | **Read the dashboard's grouped counts**                                           | none                                                            | Counts of active contract products grouped by category and service                          |
 | 3   | **Read the categories the client has purchased into**                             | none                                                            | The distinct product categories represented across the client's own contract products        |
 | 4   | **Read one contract product in full detail**                                      | a contract-product id                                           | Its status/setup/trial facts, billing cycle, catalogue product, tags, and any related contract, scheduled actions and unpaid invoices |
@@ -121,6 +121,8 @@ type QueryModel = {
     next_due_date?: { gt?: string | null };
     total_amount?: number | null;
   };
+  /** The quick-search term — a sibling of `filters`, not a filter leaf; minimum 3 characters. */
+  query?: string | null;
   sort?: { field: "status" | "created_at" | "next_due_date" | "cancelled_date"; dir: "asc" | "desc" }[];
   pagination?: { limit?: number; offset?: number };
 };

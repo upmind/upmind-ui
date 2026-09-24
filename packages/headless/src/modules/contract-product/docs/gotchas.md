@@ -50,6 +50,22 @@ if (isSelectableFutureCancellationDate(contractProduct, pickedDate)) {
 
 ---
 
+## Quick search silently drops terms under three characters 🧪
+
+The collection's quick search (`query`) validates against the query model's own schema, which requires a minimum of 3 characters. A shorter term fails validation rather than being sent as a narrower (or looser) search — treat it the same as any other invalid `setCriteria` model, not as a filter that degrades gracefully.
+
+```typescript
+// ❌ Wrong — assumes any non-empty term is sent as-is
+setCriteria({ query: "ab" });
+
+// ✅ Correct — enforce the minimum length before setting criteria
+if (term.length >= 3) setCriteria({ query: term });
+```
+
+**Test scenario:** call `setCriteria({ query: "ab" })` and assert the model fails validation rather than issuing a request with `query=ab`.
+
+---
+
 ## `unavailable` (staged/cancelled/lapsed/fraud) has no way out except a fresh read
 
 Once a product is placed on `unavailable`, no event moves it — not even `REFRESH` targets a child of `unavailable` directly; `REFRESH` always re-enters `#loading` from the top, which then re-evaluates the `always` priority list from scratch. Do not attempt to `send()` a write event while `isStaged`/`isCancelled`/`isLapsed`/`isFraud` is true — none of those child states declare a handler for it.

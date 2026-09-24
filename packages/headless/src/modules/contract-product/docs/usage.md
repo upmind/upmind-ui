@@ -36,6 +36,14 @@ await nextPage();
 await prevPage();
 ```
 
+### Quick search
+
+`query` is a sibling of `filters` on the one query model, not a filter leaf — set it through `setCriteria`, not `filterBy`. A term under three characters fails the query model's own validation.
+
+```typescript
+setCriteria({ query: "widget" }); // minimum 3 characters
+```
+
 ### Extra reads
 
 ```typescript
@@ -187,7 +195,7 @@ const {
   findOne,     // finds a single product by a partial mapping
   getOne,      // finds a single product by id
   pagination,  // reactive pagination descriptor
-  query,       // this scope's active request state (filters/sort/pagination)
+  query,       // this scope's active request state (filters/quick search/sort/pagination)
   schemas      // the query schema family ({ query: { schema, uischema, sortUischema } })
 } = products.useContext();
 ```

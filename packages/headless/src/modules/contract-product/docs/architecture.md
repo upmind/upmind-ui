@@ -141,4 +141,4 @@ The collection (`useContractProducts`) resolves its requests through `createCont
 |--------|-------------|
 | **TanStack Query** | The collection's list query; keyed on `["contracts", { client }, "products", { excludeDelegated }]`, re-keys on client or preference change |
 | **XState** | `contractProductMachine`, one spawned instance per `useContractProduct` scope |
-| **JSON Schema (jsonforms)** | The collection's one Draft-07 query schema (`useQuerySchema`) — filters, sort and pagination as one instance |
+| **JSON Schema (jsonforms)** | The collection's one Draft-07 query schema (`useQuerySchema`) — filters, quick search, sort and pagination as one instance |
