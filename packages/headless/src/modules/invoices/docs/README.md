@@ -21,10 +21,20 @@ An invoice is a frozen bill. This module reads a client's invoices — the whole
 ## Quick Start
 
 ```ts
-import { useInvoices } from "@upmind-automation/headless";
+import {
+  InvoicesContextTypes,
+  ScopeActorTypes,
+  useInvoice,
+  useInvoices
+} from "@upmind-automation/headless";
+
+declare const clientId: string;
+declare const contractId: string;
+declare const contractsProductId: string;
+declare const invoiceId: string;
 
 // Your own invoices
-const invoices = useInvoices().as("self");
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
 await invoices.useActions().isReady();
 const { data, total } = invoices.useContext();
 
@@ -34,18 +44,24 @@ await invoice.useActions().isReady();
 const { data: one } = invoice.useContext();
 
 // An entitled client's invoices (parent account / accepted delegate)
-const subAccount = useInvoices().as("client").for("client", clientId);
+const subAccount = useInvoices()
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.CLIENT, clientId);
 
 // One contract's invoices
-const forContract = useInvoices().as("client").for("contract", contractId);
+const forContract = useInvoices()
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.CONTRACT, contractId);
 
 // One contract product's invoices
 const forProduct = useInvoices()
-  .as("client")
-  .for("contracts_product", contractsProductId);
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.CONTRACT_PRODUCT, contractsProductId);
 
 // One parent invoice's credit notes
-const forInvoice = useInvoices().as("client").for("invoice", invoiceId);
+const forInvoice = useInvoices()
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.INVOICE, invoiceId);
 ```
 
 See [Usage](./usage.md) for the full API.

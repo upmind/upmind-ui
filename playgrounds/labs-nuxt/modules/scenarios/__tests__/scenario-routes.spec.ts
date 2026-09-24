@@ -36,8 +36,8 @@ import {
   find,
   isArray,
   join as joinAll,
+  isEmpty,
   map,
-  find,
   some,
   uniq
 } from "lodash-es";
@@ -181,8 +181,23 @@ describe("@G3d the directory IS the route — nothing else names one", () => {
 
   it("only a declaration that names params gets an id segment", () => {
     for (const page of scenarioPages()) {
-      const hasParams = declaredParamsOf(page.name as string).length > 0;
-      expect(page.path.includes("/:oid")).toBe(hasParams);
+      // Read against the declaration's OWN param names. Pinning the literal
+      // `/:oid` held only while `useInvoice` was the single page declaring
+      // any; `useTicket` declares `id`, and a route carrying it would
+      // have read as "no params at all".
+      const declared = declaredParamsOf(page.name as string);
+      const segments = filter(
+        map(declared, p => `/:${p}`),
+        segment => page.path.includes(segment)
+      );
+
+      expect(segments.length).toBe(declared.length);
+      // A param may be OPTIONAL and PATTERNED (`params: ["id([0-9a-f-]{36})?"]`
+      // — the bare url is a picker state, and the scope suffix follows), so the
+      // segment reads `/:id(<pattern>)?/` as well as `/:oid/`.
+      expect(/\/:[A-Za-z]+(\([^)]*\))?\??\//.test(page.path)).toBe(
+        !isEmpty(declared)
+      );
     }
   });
 });

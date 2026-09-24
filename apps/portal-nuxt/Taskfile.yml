@@ -1,0 +1,83 @@
+version: "3"
+
+# Deploy is split like the other frontends. Firebase serves index.html and the
+# SPA fallback. GCS serves the build assets.
+#
+# The upmind-portal bucket does not exist yet, so staging uploads go to the cart
+# bucket under a portal-staging prefix. The production tasks already point at
+# upmind-portal, ready for when it exists.
+vars:
+  BUCKET: upmind-cart
+  BUCKET_STAGING: upmind-cart-staging
+  PREFIX_STAGING: portal-staging
+  DIST: .output/public
+  SCRIPTS_DIR: "{{.ROOT_DIR}}/etc/scripts"
+
+tasks:
+  build:
+    desc: Type-check and generate the static portal into .output/public
+    cmds:
+      # tokens ships dist/index.css, which @upmind/ui styles @import via the
+      # `@upmind/tokens/css` export. Build it first or the Tailwind step fails.
+      - pnpm tokens
+      - pnpm build:prod
+
+  build:tokens:
+    desc: Build the design-system packages the portal build consumes
+    cmds:
+      - pnpm --filter @upmind/tokens build
+      - pnpm --filter @upmind/ui build
+
+  deploy:staging:
+    desc: Build and deploy portal to staging (GCS + Firebase)
+    cmds:
+      - task: build
+      - task: deploy:gcs:staging
+      - task: deploy:firebase:staging
+
+  deploy:production:
+    desc: Build and deploy portal to production (GCS + Firebase)
+    cmds:
+      - task: build
+      - task: deploy:gcs:production
+      - task: deploy:firebase:production
+
+  deploy:gcs:staging:
+    desc: "Upload portal assets to GCS (staging: cart bucket, portal-staging prefix)"
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET_STAGING}} --prefix {{.PREFIX_STAGING}} --dist {{.DIST}}
+
+  deploy:gcs:staging:dry-run:
+    desc: Dry-run upload portal assets to GCS (staging)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET_STAGING}} --prefix {{.PREFIX_STAGING}} --dist {{.DIST}} --dry-run
+
+  verify:gcs:staging:
+    desc: Verify portal assets exist in GCS (staging)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/verify-gcs.sh --bucket {{.BUCKET_STAGING}} --prefix {{.PREFIX_STAGING}} --dist {{.DIST}}
+
+  deploy:gcs:production:
+    desc: "Upload portal assets to GCS (production: needs the upmind-portal bucket)"
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET}} --prefix production --dist {{.DIST}}
+
+  deploy:gcs:production:dry-run:
+    desc: Dry-run upload portal assets to GCS (production)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/deploy-gcs.sh --bucket {{.BUCKET}} --prefix production --dist {{.DIST}} --dry-run
+
+  verify:gcs:production:
+    desc: Verify portal assets exist in GCS (production)
+    cmds:
+      - bash {{.SCRIPTS_DIR}}/verify-gcs.sh --bucket {{.BUCKET}} --prefix production --dist {{.DIST}}
+
+  deploy:firebase:staging:
+    desc: Deploy portal HTML to Firebase staging (site upmind-portal-staging)
+    cmds:
+      - pnpm exec firebase deploy --project upmind-portal --only hosting:upmind-portal-staging
+
+  deploy:firebase:production:
+    desc: Deploy portal HTML to Firebase production (site upmind-portal)
+    cmds:
+      - pnpm exec firebase deploy --project upmind-portal --only hosting:upmind-portal

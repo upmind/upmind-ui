@@ -1,11 +1,11 @@
 {
   "additionalItems": "{title} må IKKE have mere end {limit} yderligere vare | {title} må IKKE have mere end {limit} yderligere varer",
   "allOf": "{title} skal matche alle skemaer i 'allOf'",
-  "anyOf": "{title} skal matche mindst ét ​​af skemaerne i 'anyOf'",
+  "anyOf": "{title} skal matche mindst ét af skemaerne i 'anyOf'",
   "const": "{title} skal være lig med den tilladte værdi",
   "contains": "{title} skal indeholde et gyldigt element",
   "dependencies": "{title} skal have ejendom {property} når ejendom {dependency} er til stede",
-  "enum": "{title} skal være lig med en af ​​de tilladte værdier",
+  "enum": "{title} skal være lig med en af de tilladte værdier",
   "exclusiveMaximum": "{title} skal være mindre end {exclusiveMaximum}",
   "exclusiveMinimum": "{title} skal være større end {exclusiveMinimum}",
   "format": "{title} skal matche formatet {format}",

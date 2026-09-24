@@ -16,6 +16,15 @@
     "label": "",
     "placeholder": "Road, street name etc."
   },
+  "address_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search addresses..."
+  },
+  "address_sort": {
+    "name": "Address name",
+    "created_at": "Date added"
+  },
   "allow_auto_payment": {
     "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
     "label": "Allow auto payment",
@@ -59,6 +68,14 @@
     "placeholder": "Password or passphrase",
     "show": "Show password"
   },
+  "bounced_filter": {
+    "description": null,
+    "label": "Bounced",
+    "placeholder": null,
+    "true": "Bounced",
+    "false": "Not bounced",
+    "null": "All"
+  },
   "card_cvv": {
     "description": null,
     "label": "CVV",
@@ -92,6 +109,11 @@
     "label": "City",
     "placeholder": "City, town etc."
   },
+  "client_id": {
+    "description": null,
+    "label": "Client",
+    "placeholder": "Client id"
+  },
   "company": {
     "description": null,
     "error": "Your company name is required",
@@ -109,140 +131,49 @@
     "label": "Company Number",
     "placeholder": "Company Identification Number"
   },
-  "taxNumber": {
+  "company_search": {
     "description": null,
-    "label": "Registered Tax ID",
-    "placeholder": "Tax ID/VAT/GST Number"
+    "label": null,
+    "placeholder": "Search companies..."
+  },
+  "company_sort": {
+    "name": "Company name",
+    "created_at": "Date added"
+  },
+  "contract_lookup": {
+    "description": null,
+    "label": "Contract",
+    "placeholder": "Select a contract"
+  },
+  "contract_product": {
+    "description": null,
+    "label": "Linked product",
+    "placeholder": "Select a product…"
+  },
+  "contract_product_filter": {
+    "description": null,
+    "label": "Product",
+    "placeholder": "All products"
+  },
+  "contract_product_lookup": {
+    "description": null,
+    "label": "Contract product",
+    "placeholder": "Select a contract product"
   },
   "country": {
     "description": null,
     "label": "Country",
     "placeholder": "Select a country"
   },
-  "email": {
+  "created_at_range": {
     "description": null,
-    "error": "A valid Email Address is required",
-    "label": "Email",
-    "placeholder": "name@email.com",
-    "title": "Add New Email | Update Email"
+    "label": "Date",
+    "placeholder": "Any date"
   },
-  "phone": {
+  "currency_id": {
     "description": null,
-    "error": "A valid Phone Number is required",
-    "label": "Phone",
-    "placeholder": null,
-    "title": "Add New Phone Number | Update Phone Number"
-  },
-  "domain_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search for a domain..."
-  },
-  "email_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search email addresses..."
-  },
-  "company_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search companies..."
-  },
-  "address_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search addresses..."
-  },
-  "phone_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search phone numbers..."
-  },
-  "subject_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search by subjects..."
-  },
-  "product_name_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search by product name..."
-  },
-  "bounced_filter": {
-    "description": null,
-    "label": "Bounced",
-    "placeholder": null,
-    "true": "Bounced",
-    "false": "Not bounced",
-    "null": "All"
-  },
-  "sent_filter": {
-    "description": null,
-    "label": "Sent",
-    "placeholder": null,
-    "true": "Sent",
-    "false": "Not sent",
-    "null": "All"
-  },
-  "default_filter": {
-    "description": null,
-    "label": "Default",
-    "placeholder": null,
-    "true": "Default",
-    "false": "Not Default",
-    "null": "All"
-  },
-  "verified_filter": {
-    "description": null,
-    "label": "Verified",
-    "placeholder": null,
-    "true": "Verified",
-    "false": "Unverified",
-    "null": "All"
-  },
-  "email_sort": {
-    "default": "Default",
-    "email": "Email address",
-    "verified": "Verified",
-    "bounced": "Bounced",
-    "created_at": "Date added"
-  },
-  "company_sort": {
-    "name": "Company name",
-    "created_at": "Date added"
-  },
-  "address_sort": {
-    "name": "Address name",
-    "created_at": "Date added"
-  },
-  "phone_sort": {
-    "created_at": "Date added"
-  },
-  "sent_email_sort": {
-    "created_at": "Date sent",
-    "subject": "Subject"
-  },
-  "type_filter": {
-    "description": null,
-    "label": "Field type",
-    "placeholder": "All types",
-    "1": "Text",
-    "2": "Password",
-    "3": "Select",
-    "4": "Radio",
-    "5": "Textarea",
-    "6": "Date",
-    "7": "Number",
-    "8": "Image",
-    "null": "All"
-  },
-  "required_filter": {
-    "description": null,
-    "label": "Required",
-    "placeholder": null,
-    "true": "Required",
-    "false": "Optional",
-    "null": "All"
+    "label": "Preferred currency",
+    "placeholder": null
   },
   "custom_field_search": {
     "description": null,
@@ -253,36 +184,47 @@
     "order": "Display order",
     "name": "Field name"
   },
-  "product_trial": {
+  "default_filter": {
     "description": null,
-    "label": null,
-    "placeholder": null
+    "label": "Default",
+    "placeholder": null,
+    "true": "Default",
+    "false": "Not Default",
+    "null": "All"
   },
-  "select_option": {
+  "department": {
     "description": null,
-    "label": null,
-    "placeholder": "Select an option"
-  },
-  "promocode": {
-    "description": null,
-    "error": "A valid promo code is required",
-    "label": null,
-    "placeholder": "Enter voucher code here"
-  },
-  "payment_details_id": {
-    "description": null,
-    "label": "",
-    "placeholder": null
-  },
-  "store_on_payment": {
-    "description": null,
-    "label": "Save payment details",
-    "placeholder": null
+    "label": "Department",
+    "placeholder": "Select a department..."
   },
   "domain": {
     "description": null,
     "label": null,
     "placeholder": "Enter your domain..."
+  },
+  "domain_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search for a domain..."
+  },
+  "email": {
+    "description": null,
+    "error": "A valid Email Address is required",
+    "label": "Email",
+    "placeholder": "name@email.com",
+    "title": "Add New Email | Update Email"
+  },
+  "email_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search email addresses..."
+  },
+  "email_sort": {
+    "default": "Default",
+    "email": "Email address",
+    "verified": "Verified",
+    "bounced": "Bounced",
+    "created_at": "Date added"
   },
   "field_notes": {
     "description": null,
@@ -294,6 +236,120 @@
     "error": "Your first name is required",
     "label": "First name",
     "placeholder": null
+  },
+  "guest_email": {
+    "description": "We'll send your order confirmation to this email",
+    "label": "Email for order receipt",
+    "placeholder": "name@email.com"
+  },
+  "invoice_category_filter": {
+    "description": null,
+    "label": "Category",
+    "placeholder": null,
+    "new_contract": "New contract",
+    "additional_service": "Additional service",
+    "one_time_service": "One-time service",
+    "migration_pro_rata": "Migration",
+    "recurrent": "Renewal",
+    "credit_note": "Credit note",
+    "credit_note_for_refund": "Credit note for refund",
+    "consolidation": "Consolidation"
+  },
+  "invoice_consolidation_base_rule": {
+    "description": null,
+    "label": "Consolidate on",
+    "placeholder": null
+  },
+  "invoice_consolidation_base_rule_date_of_month_day": {
+    "description": null,
+    "label": "Specific day of the month",
+    "placeholder": null
+  },
+  "invoice_consolidation_base_rule_day_of_week": {
+    "description": null,
+    "label": "Specific day of the week",
+    "placeholder": null
+  },
+  "invoice_consolidation_due_date_day": {
+    "description": "By default, consolidated invoices are due on the earliest due date within the batch.",
+    "label": "Consolidation invoice due date day",
+    "placeholder": null
+  },
+  "invoice_consolidation_enabled": {
+    "description": "Here you can control whether or not you'd like to consolidate renewal invoices for your recurring services. If enabled, we'll group your renewals into one invoice where possible, reducing the number of payments you'll need to make.",
+    "label": "Invoice consolidation",
+    "placeholder": null
+  },
+  "invoice_consolidation_filter": {
+    "description": null,
+    "label": "Consolidation",
+    "placeholder": null,
+    "true": "Consolidated",
+    "false": "Not consolidated"
+  },
+  "invoice_created_filter": {
+    "description": null,
+    "label": "Created",
+    "placeholder": null
+  },
+  "invoice_due_filter": {
+    "description": null,
+    "label": "Due",
+    "placeholder": null
+  },
+  "invoice_lookup": {
+    "description": null,
+    "label": "Parent invoice",
+    "placeholder": "Select an invoice"
+  },
+  "invoice_net_filter": {
+    "description": null,
+    "label": "Net amount",
+    "placeholder": null
+  },
+  "invoice_number_filter": {
+    "description": null,
+    "label": "Invoice number",
+    "placeholder": "Search invoice number"
+  },
+  "invoice_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "create_datetime": "Created",
+    "number": "Number",
+    "total_amount": "Total",
+    "net_amount": "Net amount",
+    "status": "Status",
+    "paid_datetime": "Paid",
+    "due_date": "Due",
+    "cancellation_datetime": "Cancelled"
+  },
+  "invoice_status_filter": {
+    "description": null,
+    "label": "Status",
+    "placeholder": null,
+    "invoice_adjusted": "Adjusted",
+    "invoice_cancelled": "Cancelled",
+    "invoice_draft": "Draft",
+    "invoice_overdue": "Overdue",
+    "invoice_paid": "Paid",
+    "invoice_refunded": "Refunded",
+    "invoice_replaced": "Replaced",
+    "invoice_unpaid": "Unpaid",
+    "invoice_cancellation_request": "Cancellation requested",
+    "invoice_allocated": "Allocated",
+    "invoice_unallocated": "Unallocated"
+  },
+  "invoice_total_filter": {
+    "description": null,
+    "label": "Total",
+    "placeholder": null
+  },
+  "label": {
+    "description": null,
+    "label": "Label",
+    "placeholder": "Enter a label…"
   },
   "language": {
     "description": null,
@@ -307,6 +363,22 @@
     "label": "Last name",
     "placeholder": null
   },
+  "message": {
+    "description": null,
+    "error": "A message is required",
+    "label": "Message",
+    "placeholder": "Write your message..."
+  },
+  "note": {
+    "description": null,
+    "label": "Note",
+    "placeholder": "Enter your note..."
+  },
+  "payment_details_id": {
+    "description": null,
+    "label": "",
+    "placeholder": null
+  },
   "payment_method_type": {
     "description": null,
     "label": "Select payment type",
@@ -316,10 +388,54 @@
     "partial-payment": "Make a partial payment",
     "pay-later": "Pay later"
   },
+  "phone": {
+    "description": null,
+    "error": "A valid Phone Number is required",
+    "label": "Phone",
+    "placeholder": null,
+    "title": "Add New Phone Number | Update Phone Number"
+  },
+  "phone_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search phone numbers..."
+  },
+  "phone_sort": {
+    "created_at": "Date added"
+  },
+  "pinned_filter": {
+    "description": null,
+    "label": "Pinned",
+    "placeholder": null,
+    "true": "Pinned",
+    "false": "Not pinned",
+    "null": "All"
+  },
   "postcode": {
     "description": null,
     "label": "Postcode",
     "placeholder": "eg. 10011"
+  },
+  "preferred_payment_currency_id": {
+    "description": null,
+    "label": "Preferred payment currency",
+    "placeholder": null
+  },
+  "product_name_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search by product name..."
+  },
+  "product_trial": {
+    "description": null,
+    "label": null,
+    "placeholder": null
+  },
+  "promocode": {
+    "description": null,
+    "error": "A valid promo code is required",
+    "label": null,
+    "placeholder": "Enter voucher code here"
   },
   "publicName": {
     "description": null,
@@ -327,20 +443,105 @@
     "label": "Public name",
     "placeholder": null
   },
+  "reference_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search by reference..."
+  },
   "region": {
     "description": null,
     "label": "Region",
     "placeholder": "Select a region…"
+  },
+  "related_product": {
+    "description": null,
+    "label": "Related product",
+    "placeholder": "Select a product..."
+  },
+  "required_filter": {
+    "description": null,
+    "label": "Required",
+    "placeholder": null,
+    "true": "Required",
+    "false": "Optional",
+    "null": "All"
+  },
+  "secret": {
+    "description": null,
+    "label": "Secret",
+    "placeholder": null
+  },
+  "select_option": {
+    "description": null,
+    "label": null,
+    "placeholder": "Select an option"
+  },
+  "send_later": {
+    "description": null,
+    "label": "Send later",
+    "placeholder": null
+  },
+  "sent_email_sort": {
+    "created_at": "Date sent",
+    "subject": "Subject"
+  },
+  "sent_filter": {
+    "description": null,
+    "label": "Sent",
+    "placeholder": null,
+    "true": "Sent",
+    "false": "Not sent",
+    "null": "All"
+  },
+  "store_on_payment": {
+    "description": null,
+    "label": "Save payment details",
+    "placeholder": null
   },
   "stored_payment_method": {
     "description": null,
     "label": "",
     "placeholder": null
   },
-  "guest_email": {
-    "description": "We'll send your order confirmation to this email",
-    "label": "Email for order receipt",
-    "placeholder": "name@email.com"
+  "subject": {
+    "description": null,
+    "error": "A subject is required",
+    "label": "Subject",
+    "placeholder": "What is this about?"
+  },
+  "subject_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search by subjects..."
+  },
+  "taxNumber": {
+    "description": null,
+    "label": "Registered Tax ID",
+    "placeholder": "Tax ID/VAT/GST Number"
+  },
+  "ticket_lookup": {
+    "description": null,
+    "label": "Find a ticket",
+    "placeholder": "Search by reference or subject"
+  },
+  "ticket_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search tickets..."
+  },
+  "ticket_sort": {
+    "reference": "Reference",
+    "subject": "Subject",
+    "created_at": "Date added",
+    "updated_at": "Date updated"
+  },
+  "ticket_status_filter": {
+    "description": null,
+    "label": "Status",
+    "placeholder": null,
+    "false": "Active",
+    "true": "Closed",
+    "null": "All"
   },
   "twofa": {
     "description": "This account is secured using two-factor authentication. Please enter your verification code.",
@@ -357,37 +558,18 @@
     "label": "Verification code",
     "placeholder": "123 456"
   },
-  "note": {
+  "type_filter": {
     "description": null,
-    "label": "Note",
-    "placeholder": "Enter your note..."
-  },
-  "label": {
-    "description": null,
-    "label": "Label",
-    "placeholder": "Enter a label…"
-  },
-  "secret": {
-    "description": null,
-    "label": "Secret",
-    "placeholder": null
-  },
-  "contract_product": {
-    "description": null,
-    "label": "Linked product",
-    "placeholder": "Select a product…"
-  },
-  "contract_product_filter": {
-    "description": null,
-    "label": "Product",
-    "placeholder": "All products"
-  },
-  "pinned_filter": {
-    "description": null,
-    "label": "Pinned",
-    "placeholder": null,
-    "true": "Pinned",
-    "false": "Not pinned",
+    "label": "Field type",
+    "placeholder": "All types",
+    "1": "Text",
+    "2": "Password",
+    "3": "Select",
+    "4": "Radio",
+    "5": "Textarea",
+    "6": "Date",
+    "7": "Number",
+    "8": "Image",
     "null": "All"
   },
   "vault_asset_search": {
@@ -408,133 +590,12 @@
     "false": "Notes",
     "null": "All"
   },
-  "invoice_consolidation_enabled": {
-    "description": "Here you can control whether or not you'd like to consolidate renewal invoices for your recurring services. If enabled, we'll group your renewals into one invoice where possible, reducing the number of payments you'll need to make.",
-    "label": "Invoice consolidation",
-    "placeholder": null
-  },
-  "invoice_consolidation_base_rule": {
+  "verified_filter": {
     "description": null,
-    "label": "Consolidate on",
-    "placeholder": null
-  },
-  "invoice_consolidation_base_rule_day_of_week": {
-    "description": null,
-    "label": "Specific day of the week",
-    "placeholder": null
-  },
-  "invoice_consolidation_base_rule_date_of_month_day": {
-    "description": null,
-    "label": "Specific day of the month",
-    "placeholder": null
-  },
-  "invoice_consolidation_due_date_day": {
-    "description": "By default, consolidated invoices are due on the earliest due date within the batch.",
-    "label": "Consolidation invoice due date day",
-    "placeholder": null
-  },
-  "currency_id": {
-    "description": null,
-    "label": "Preferred currency",
-    "placeholder": null
-  },
-  "preferred_payment_currency_id": {
-    "description": null,
-    "label": "Preferred payment currency",
-    "placeholder": null
-  },
-  "client_id": {
-    "description": null,
-    "label": "Client",
-    "placeholder": "Client id"
-  },
-  "contract_lookup": {
-    "description": null,
-    "label": "Contract",
-    "placeholder": "Select a contract"
-  },
-  "contract_product_lookup": {
-    "description": null,
-    "label": "Contract product",
-    "placeholder": "Select a contract product"
-  },
-  "invoice_lookup": {
-    "description": null,
-    "label": "Parent invoice",
-    "placeholder": "Select an invoice"
-  },
-  "invoice_number_filter": {
-    "description": null,
-    "label": "Invoice number",
-    "placeholder": "Search invoice number"
-  },
-  "invoice_status_filter": {
-    "description": null,
-    "label": "Status",
+    "label": "Verified",
     "placeholder": null,
-    "invoice_adjusted": "Adjusted",
-    "invoice_cancelled": "Cancelled",
-    "invoice_draft": "Draft",
-    "invoice_overdue": "Overdue",
-    "invoice_paid": "Paid",
-    "invoice_refunded": "Refunded",
-    "invoice_replaced": "Replaced",
-    "invoice_unpaid": "Unpaid",
-    "invoice_cancellation_request": "Cancellation requested",
-    "invoice_allocated": "Allocated",
-    "invoice_unallocated": "Unallocated"
-  },
-  "invoice_category_filter": {
-    "description": null,
-    "label": "Category",
-    "placeholder": null,
-    "new_contract": "New contract",
-    "additional_service": "Additional service",
-    "one_time_service": "One-time service",
-    "migration_pro_rata": "Migration",
-    "recurrent": "Renewal",
-    "credit_note": "Credit note",
-    "credit_note_for_refund": "Credit note for refund",
-    "consolidation": "Consolidation"
-  },
-  "invoice_consolidation_filter": {
-    "description": null,
-    "label": "Consolidation",
-    "placeholder": null,
-    "true": "Consolidated",
-    "false": "Not consolidated"
-  },
-  "invoice_total_filter": {
-    "description": null,
-    "label": "Total",
-    "placeholder": null
-  },
-  "invoice_net_filter": {
-    "description": null,
-    "label": "Net amount",
-    "placeholder": null
-  },
-  "invoice_created_filter": {
-    "description": null,
-    "label": "Created",
-    "placeholder": null
-  },
-  "invoice_due_filter": {
-    "description": null,
-    "label": "Due",
-    "placeholder": null
-  },
-  "invoice_sort": {
-    "description": null,
-    "label": "Sort",
-    "placeholder": null,
-    "create_datetime": "Created",
-    "number": "Number",
-    "total_amount": "Total",
-    "net_amount": "Net amount",
-    "status": "Status",
-    "paid_datetime": "Paid",
-    "due_date": "Due",
-    "cancellation_datetime": "Cancelled"
+    "true": "Verified",
+    "false": "Unverified",
+    "null": "All"
   }
 }

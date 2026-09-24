@@ -1,6 +1,6 @@
 // --- types
-import { type FunnelProps } from "@upmind-automation/client-vue";
 import { FUNNEL, ROUTE } from "./types";
+import type { FunnelProps } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 // The stepped checkout as a modeled funnel path. Both flows own the same pages

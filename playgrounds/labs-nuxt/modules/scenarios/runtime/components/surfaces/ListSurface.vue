@@ -436,6 +436,7 @@ import {
 } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { useFormI18n } from "@upmind-automation/client-vue";
 import { SortDirection } from "@upmind-automation/headless";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
@@ -692,6 +693,10 @@ const hasCardView = computed(
 // declaration, and the writer never touches the router (AC9.3).
 const url = usePlaygroundUrlState();
 
+// A navigate row action pushes a route the surface owns (never the module) —
+// resolved lazily so a mount without an installed router still sets up.
+const router = useRouter();
+
 const view = computed<ListViewTypes>(() =>
   url.view.value === ListViewTypes.CARD
     ? ListViewTypes.CARD
@@ -836,9 +841,15 @@ const contentColumns = computed<string[]>(() =>
 function headerSize(
   id: string
 ): "content" | "fluid" | "remainder" | TableColumnWidthTypes {
-  if (includes(contentColumns.value, id)) return "content";
+  // A DECLARED width wins over the inferred content sizing. `content` is
+  // `w-px`, a shrink-to-fit trick that only holds under an AUTO table: once any
+  // column declares a width the table turns FIXED, where `w-px` is honoured
+  // literally and a one-pixel column lets its header text overflow across its
+  // neighbours. A column that states its own share must therefore be able to
+  // say so even when its cell type infers CONTENT.
   const element = find(columnElements.value, el => columnId(el) === id);
   if (element?.options?.width) return element.options.width;
+  if (includes(contentColumns.value, id)) return "content";
   // Under a fixed table an undeclared column takes the REMAINDER (`w-auto`),
   // never `w-full` — see `headerCell` in the styles file.
   return tableLayout.value === "fixed" ? "remainder" : "fluid";
@@ -1044,6 +1055,10 @@ function isActionAvailable(action: ScenarioAction): boolean {
   // enriches what is shown, never gates whether it can be.
   if (action.detail) return true;
 
+  // A navigate control pushes a route the surface owns, keyed by the row's own
+  // id — it calls no module action, so it is available like a detail control.
+  if (action.navigate) return true;
+
   // A handoff control calls no action: what it needs is the target it opens,
   // and without one it would be a button that does nothing (C2).
   if (action.handoff) return !!get(props.handoffs, action.handoff);
@@ -1115,6 +1130,16 @@ function pressRowAction(action: ScenarioAction, row: ListRow): Promise<void> {
 
   if (action.handoff) {
     openHandoff(action, row);
+    return Promise.resolve();
+  }
+
+  if (action.navigate) {
+    router?.push(
+      action.navigate.replace(
+        ":id",
+        encodeURIComponent(toString(get(row, "id")))
+      )
+    );
     return Promise.resolve();
   }
 
