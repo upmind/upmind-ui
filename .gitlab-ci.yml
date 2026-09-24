@@ -88,9 +88,6 @@ dependencies:
         - packages/client-vue/node_modules
         - packages/icons/node_modules
         - packages/i18n/node_modules
-        # The ADR 023 §3 roster. Each shell resolves `vue`/`vue-router` only
-        # through its own node_modules — root has neither — so `vue-tsc -b`
-        # reports TS2307 in any phase that has populated a shell without these.
         - packages/modules-foundation/node_modules
         - packages/modules-product/node_modules
         - packages/modules-recommendations/node_modules
@@ -120,9 +117,6 @@ dependencies:
       - packages/client-vue/node_modules
       - packages/i18n/node_modules
       - packages/icons/node_modules
-      # The ADR 023 §3 roster — see the matching cache note above. `vue-tsc -b`
-      # builds every shell as a project reference, so a shell whose own
-      # node_modules never reaches this job cannot resolve `vue`.
       - packages/modules-foundation/node_modules
       - packages/modules-product/node_modules
       - packages/modules-recommendations/node_modules

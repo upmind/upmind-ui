@@ -7,10 +7,6 @@ import type { BrandThemeMeta, ColorScheme } from "./theming.types";
 
 const DEFAULT_THEME_ID = "default";
 
-/**
- * Selects the brand's theme from the themes `headless` serves and applies it
- * through `ui`'s engine. Reads the engine; never implements one.
- */
 export const useBrandTheme = () => {
   const { config, isReady } = useBrandConfig();
   const { themes, meta: themingMeta } = useTheming();
@@ -46,16 +42,12 @@ export const useBrandTheme = () => {
 
     themes,
 
-    /** Every theme id the brand bundle offers. */
     available,
 
-    /** The theme id the brand resolves to. */
     selected,
 
-    /** The brand's preferred colour scheme, when it declares one. */
     colorScheme,
 
-    /** Hands the selected theme to `ui`'s engine; warns when none is provided. */
     apply: () => engine.set(selected.value)
   };
 };

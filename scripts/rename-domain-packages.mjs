@@ -69,8 +69,6 @@ const EXCLUDED_FILES = [
   "pnpm-workspace.yaml",
   // pnpm rewrites the importer keys itself on the next install.
   "pnpm-lock.yaml",
-  // Its own boundary comment cites `packages/client` as the case the regex must
-  // not widen to `packages/client-vue`; rewriting it destroys the explanation.
   "scripts/rename-domain-packages.mjs"
 ];
 

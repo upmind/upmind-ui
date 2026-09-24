@@ -1,21 +1,12 @@
 /**
  * @internal
- * The brand-keyed cache of ADR 023 §10 Axis 1. Brand config is brand-invariant,
- * so one process-global map is safe under SSR, and keying by the settings-bundle
- * id keeps it bounded by the brand count — never by a client id, which is not.
- *
- * Reactive, so reading a key subscribes the reader's own derivation to it: that
- * is what makes `invalidate` observable to a cached read instead of silent.
+ * Brand config is brand-invariant, so one process-global map is SSR-safe.
  */
 import { shallowReactive } from "vue";
 import type { BrandConfig } from "./brand.types";
 
 const configs = shallowReactive(new Map<string, BrandConfig>());
 
-/**
- * The one chokepoint every brand read goes through, mirroring `headless`'s
- * `ensure(scopeKey, factory)` seam. Resolution is idempotent for a given id.
- */
 export function ensureBrandConfig(
   id: string,
   factory: () => BrandConfig
@@ -30,7 +21,6 @@ export function ensureBrandConfig(
   return resolved;
 }
 
-/** Busts one brand's entry, or every entry when no id is named. */
 export function invalidateBrandConfig(id?: string): void {
   if (id === undefined) {
     configs.clear();

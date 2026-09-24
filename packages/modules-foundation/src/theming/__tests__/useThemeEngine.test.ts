@@ -1,21 +1,11 @@
 /**
- * @fileoverview Theme-engine port — ADR 023 §2 layer table, §7 socket rule
+ * @fileoverview Theme-engine port.
  *
  * ## Job To Be Done
- * `useThemes` (the engine and active-theme store) stays in `ui` per §2, so
- * foundation reaches it through a port, never an import. Prove the port hands
- * back the provided engine, and that a caller with no provider — or none at all,
- * outside any injection context — gets a LOUD no-op instead of a throw: it
- * keeps booting, and it says on the console which theme it dropped and which
- * door wires the engine.
+ * The port returns the provided engine, else a no-op that warns instead of throwing.
  *
  * ## What Breaks If These Fail
- * A port that throws without a provider takes down every standalone consumer of
- * the theming glue: the auth and payment apps (Amendment 1 change 4) boot with
- * their own shell and no `ui` engine wired, and an SSR render has no component
- * instance to inject from at all. A port that degrades in SILENCE is the other
- * half of the same bug — the app boots unthemed, every primitive sits on base
- * tokens, and nothing anywhere says the brand's theme was thrown away.
+ * A throw takes down every shell with no engine wired; a silent no-op hides the loss.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";

@@ -1,9 +1,5 @@
 /**
- * @fileoverview Test scaffolding — run a read inside a child of a provider.
- *
- * Vue resolves `inject` against the PARENT chain, so a component never sees its
- * own `provide`. Foundation's provider doors (`provideThemeEngine`,
- * `provideFormRenderers`) therefore need two components to be exercised at all.
+ * @fileoverview Runs a read in a child of a provider: `inject` never sees its own `provide`.
  */
 
 import { createApp, defineComponent, h } from "vue";

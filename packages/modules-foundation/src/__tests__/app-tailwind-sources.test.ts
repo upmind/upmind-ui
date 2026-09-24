@@ -1,32 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview Every UI package a host mounts is named in that host's Tailwind
- * source list — ADR 023 constraint 1
+ * @fileoverview Every UI package a host mounts is named in its Tailwind `@source` list.
  *
  * ## Job To Be Done
- * Tailwind generates a utility class only where it reads the class in a source
- * file. It scans the app tree on its own; a package outside that tree is read
- * only where an `@source` line names it. One line covers `client-vue` today,
- * because every component lives there. This epic moves those components into ten
- * packages, and each move takes a package's classes out of the covered tree.
- *
- * Nothing else reports the omission. The app builds, the type-check passes, every
- * unit suite passes, and the page renders — with the classes missing. Measured on
- * the later phases of this stack: the catalogue category grid and the product grid
- * lost `md:grid-cols-*` and drew one column at every width, on a page a customer
- * opens, for every phase after the one that moved it.
- *
- * ## Where the expectation comes from
- * From the package manifests and the package tree, never from the CSS being
- * graded. WHICH packages a host must name is its own `dependencies` list
- * intersected with the packages that hold `.vue` files, both read at run time.
- * So a new package, or a new dependency edge, makes the host red until the line
- * exists, and a line pointing at a package the host does not depend on is an
- * orphan rather than a passing silence.
+ * A host names each dependency that ships `.vue` files in an `@source` line.
  *
  * ## What Breaks If These Fail
- * Silent layout loss on a customer-facing page: a grid collapses to one column,
- * a breakpoint never fires, a spacing scale falls back to the base value.
+ * Silent layout loss: the app builds and renders with the package's classes missing.
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
@@ -39,15 +19,12 @@ const REPO_ROOT = resolve(process.cwd(), "..", "..");
 const PACKAGES_ROOT = join(REPO_ROOT, "packages");
 const SCOPE = "@upmind-automation/";
 
-/** The trees that hold a host: an app or a playground. */
 const HOST_ROOTS = ["apps", "playgrounds"];
 
-/** Where a host keeps its Tailwind entry, by convention. */
 const ENTRY_PATHS = ["src/main.css", "app/main.css", "src/styles.css"];
 
 // -----------------------------------------------------------------------------
 
-/** Every directory under `packages/` that ships at least one `.vue` file. */
 function readComponentPackages(): string[] {
   const holdsVue = (dir: string): boolean =>
     readdirSync(dir, { withFileTypes: true }).some(entry => {
@@ -63,7 +40,6 @@ function readComponentPackages(): string[] {
     .sort();
 }
 
-/** Every host with a Tailwind entry, paired with its manifest. */
 function readHosts(): { name: string; entry: string; manifest: string }[] {
   const hosts: { name: string; entry: string; manifest: string }[] = [];
 
@@ -88,7 +64,6 @@ function readHosts(): { name: string; entry: string; manifest: string }[] {
   return hosts.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** The scoped runtime dependencies a host declares, without the scope prefix. */
 function readScopedDependencies(manifest: string): string[] {
   const { dependencies = {} } = JSON.parse(readFileSync(manifest, "utf8"));
 
@@ -98,10 +73,6 @@ function readScopedDependencies(manifest: string): string[] {
     .sort();
 }
 
-/**
- * The packages an `@source` list reaches, by resolving each glob against the
- * entry's own directory. A glob outside `packages/` is not a package line.
- */
 function readSourcedPackages(entry: string): string[] {
   const lines = readFileSync(entry, "utf8").matchAll(
     /@source\s+['"]([^'"]+)['"]/g
