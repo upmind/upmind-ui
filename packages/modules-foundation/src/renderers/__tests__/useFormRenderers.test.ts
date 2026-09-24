@@ -16,13 +16,12 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent } from "vue";
-import { readInChildOfProvider } from "../../../__tests__/component-context";
-import { provideFormRenderers, useFormRenderers } from "../../../index";
-import type { FormRendererEntry } from "../../../index";
+import { readInChildOfProvider } from "../../__tests__/component-context";
+import { provideFormRenderers, useFormRenderers } from "../../index";
+import type { FormRendererEntry } from "../../index";
 
 vi.mock("@upmind-automation/headless", async () => {
-  const { createHeadlessStub } =
-    await import("../../../__tests__/headless.stub");
+  const { createHeadlessStub } = await import("../../__tests__/headless.stub");
   return createHeadlessStub();
 });
 

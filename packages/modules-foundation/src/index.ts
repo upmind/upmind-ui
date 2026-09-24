@@ -13,43 +13,43 @@ export type {
   BrandConfig,
   BrandConfigMeta,
   TermsAndConditionsProps
-} from "./modules/brand";
-export { TermsAndConditions, useBrandConfig } from "./modules/brand";
-export type { UseBrandConfig } from "./modules/brand";
+} from "./brand";
+export { TermsAndConditions, useBrandConfig } from "./brand";
+export type { UseBrandConfig } from "./brand";
 
 export type {
   BrandThemeMeta,
   ColorScheme,
   ThemeEngine,
   UseBrandTheme
-} from "./modules/theming";
+} from "./theming";
 export {
   COLOR_SCHEME,
   THEME_ENGINE,
   provideThemeEngine,
   useThemeEngine,
   useBrandTheme
-} from "./modules/theming";
+} from "./theming";
 
-export type { FormRendererEntry, UseFormRenderers } from "./modules/renderers";
+export type { FormRendererEntry, UseFormRenderers } from "./renderers";
 export {
   FORM_RENDERERS,
   provideFormRenderers,
   useFormRenderers
-} from "./modules/renderers";
+} from "./renderers";
 
-export type { ShellComponents, UseShellComponents } from "./modules/shell";
+export type { ShellComponents, UseShellComponents } from "./shell";
 export {
   SHELL_COMPONENTS,
   provideShellComponents,
   useShellComponents
-} from "./modules/shell";
+} from "./shell";
 
 // --- The shared presentation glue. §2 admission is counted, not asserted: past
 // `auth`, Icon is imported by 12 client-vue modules, Hero by 9, Section by 8 and
 // Back by basket, billing and checkout — each of them a later box.
 
-export { Icon } from "./modules/icon";
+export { Icon } from "./icon";
 export {
   ICON_MAP,
   FALLBACK_ICON,
@@ -60,32 +60,32 @@ export {
   iconVariant,
   hasRegisteredIcons,
   getIconCount
-} from "./modules/icon";
+} from "./icon";
 export type {
   IconRef,
   IconProps,
   IconSize,
   IconImportMap,
   LoadIconOptions
-} from "./modules/icon";
+} from "./icon";
 
-export { Hero } from "./modules/hero";
-export type { HeroProps, HeroActionProps } from "./modules/hero";
+export { Hero } from "./hero";
+export type { HeroProps, HeroActionProps } from "./hero";
 
-export { Back } from "./modules/navigation";
-export type { BackProps, StorefrontRoute } from "./modules/navigation";
+export { Back } from "./navigation";
+export type { BackProps, StorefrontRoute } from "./navigation";
 
 // `Sections` earns its place on the barrel as a MULTI-section container, not as
 // `Section`'s body: `client-vue`'s BillingForm builds its tab set out of it, and
 // the same package re-publishes it as `UpmSections` for the labs playground.
 // `auth` takes `Section` alone.
-export { Section, Sections, useSection } from "./modules/section";
+export { Section, Sections, useSection } from "./section";
 export type {
   SectionItem,
   SectionActionProps,
   SectionsProps,
   UseSectionProps
-} from "./modules/section";
+} from "./section";
 
-export { Form, useFormI18n } from "./modules/forms";
-export type { FormI18n } from "./modules/forms";
+export { Form, useFormI18n } from "./forms";
+export type { FormI18n } from "./forms";

@@ -18,13 +18,12 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { computed, defineComponent, h, shallowRef } from "vue";
-import { provideShellComponents, useShellComponents } from "../../../index";
-import type { ShellComponents } from "../../../index";
+import { provideShellComponents, useShellComponents } from "../../index";
+import type { ShellComponents } from "../../index";
 import type { Component } from "vue";
 
 vi.mock("@upmind-automation/headless", async () => {
-  const { createHeadlessStub } =
-    await import("../../../__tests__/headless.stub");
+  const { createHeadlessStub } = await import("../../__tests__/headless.stub");
   return createHeadlessStub();
 });
 

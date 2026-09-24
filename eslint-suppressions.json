@@ -1177,12 +1177,12 @@
       "count": 1
     }
   },
-  "packages/modules-foundation/src/modules/forms/Form.vue": {
+  "packages/modules-foundation/src/forms/Form.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
     }
   },
-  "packages/modules-foundation/src/modules/forms/useFormI18n.ts": {
+  "packages/modules-foundation/src/forms/useFormI18n.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
     }
