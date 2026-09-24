@@ -1,18 +1,10 @@
-diff --git a/packages/foundation/src/modules/features/useFeatures.ts b/packages/foundation/src/modules/features/useFeatures.ts
-index 7f5390cf5e..7e8ba66ff8 100644
---- a/packages/foundation/src/modules/features/useFeatures.ts
-+++ b/packages/foundation/src/modules/features/useFeatures.ts
-@@ -1,11 +1,12 @@
- import { computed, shallowRef } from "vue";
-+import { productFeature } from "../../../../product/src/index";
- import { addRenderers, clearRenderers } from "../renderers";
- import { addRoutes, clearRouting, registerFlows } from "../routing";
- import type { FeatureContext, FeatureDefinition } from "./feature.types";
+diff --git a/packages/modules-foundation/src/renderers/useFormRenderers.ts b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+index a9e075a0d1..2990c17e4a 100644
+--- a/packages/modules-foundation/src/renderers/useFormRenderers.ts
++++ b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+@@ -1,4 +1,5 @@
+ import { hasInjectionContext, inject, provide } from "vue";
++import "../../../modules-product/src";
+ import type { FormRendererEntry } from "./renderer.types";
+ import type { InjectionKey } from "vue";
  
- // The singleton registry. Feature contributions are brand-invariant, so one
- // process-global set is safe under SSR (ADR 023 §10 Axis 1).
--const features = shallowRef<FeatureDefinition[]>([]);
-+const features = shallowRef<FeatureDefinition[]>([productFeature]);
- const setUp = new Set<string>();
- 
- const context: FeatureContext = { addRenderers, addRoutes, registerFlows };
