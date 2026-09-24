@@ -70,6 +70,8 @@
 //                 module off at a HEAD, and the door found no change to the
 //                 module since. Skips the ordering gate; the script cannot
 //                 read disk, so the door states what it found.
+//   codeDone    — optional boolean. The declaration is landed and committed;
+//                 skips the Code stage.
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
 export const meta = {
   name: "run-factory-scenario",
@@ -132,6 +134,9 @@ const templateDir =
     ? `${worktree}/.claude/skills/factory/composable/templates/${A.variant}`
     : `the variant's template set under ${worktree}/.claude/skills/factory/composable/templates/`;
 const skipRegrade = A.regradeDone === true;
+// The declaration is already landed and committed; the door states it, since
+// a re-run Code seat has nothing to diff and would halt on an empty diff.
+const skipCode = A.codeDone === true;
 
 // The 3-cycle cap (rules/code-reviews.md, the exhaustive-review law — "the cap
 // stays at three rounds"). Bounded by construction: this lane's own seats are
@@ -585,32 +590,36 @@ if (results.derive.undecidedFields !== 0) {
 // request this lane may not open) and cannot take the scenario templates or
 // this stage's gate (`handOffFiled`, `buildExit`). One developer seat, a
 // mechanical gate, no reviewer — nothing for the review law to bind.
-phase("Code");
-results.code = await agent(
-  `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Author the scenario directory from this lane's templates against the filled derivation table. Author the negative-control mutant patches yourself as *.must-fail.patch beside the spec each must flip — you know the mutated line; the prover applies them blind. File the declaration's public surface as the hand-off for the prover; withhold the diff. The hand-off IS the HANDOFF block in your reply (agents/developer.md step 5), never a file under docs/: set handOffFiled true once your reply carries it. A decision you may not file under docs/ goes in your reply under DECISIONS; the door files it. Run the FULL monorepo build and report its exit code. Commit.`,
-  {
-    agentType: "upmind-agent:developer",
-    model: "sonnet",
-    phase: "Code",
-    schema: CODE_GATE,
-    label: `scenario-code:${id}`
+if (!skipCode) {
+  phase("Code");
+  results.code = await agent(
+    `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Author the scenario directory from this lane's templates against the filled derivation table. Author the negative-control mutant patches yourself as *.must-fail.patch beside the spec each must flip — you know the mutated line; the prover applies them blind. File the declaration's public surface as the hand-off for the prover; withhold the diff. The hand-off IS the HANDOFF block in your reply (agents/developer.md step 5), never a file under docs/: set handOffFiled true once your reply carries it. A decision you may not file under docs/ goes in your reply under DECISIONS; the door files it. Run the FULL monorepo build and report its exit code. Commit.`,
+    {
+      agentType: "upmind-agent:developer",
+      model: "sonnet",
+      phase: "Code",
+      schema: CODE_GATE,
+      label: `scenario-code:${id}`
+    }
+  );
+  if (!results.code) {
+    results.stopped = "code-failed";
+    return results;
   }
-);
-if (!results.code) {
-  results.stopped = "code-failed";
-  return results;
-}
-if (!(results.code.diffFileCount > 0)) {
-  results.stopped = "code-empty-diff";
-  return results;
-}
-if (!results.code.handOffFiled) {
-  results.stopped = "code-handoff-unfiled";
-  return results;
-}
-if (results.code.buildExit !== 0) {
-  results.stopped = "build-red";
-  return results;
+  if (!(results.code.diffFileCount > 0)) {
+    results.stopped = "code-empty-diff";
+    return results;
+  }
+  if (!results.code.handOffFiled) {
+    results.stopped = "code-handoff-unfiled";
+    return results;
+  }
+  if (results.code.buildExit !== 0) {
+    results.stopped = "build-red";
+    return results;
+  }
+} else {
+  results.code = { skipped: true };
 }
 
 // --- Prove ---------------------------------------------------------------------------
