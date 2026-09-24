@@ -235,7 +235,7 @@ function loadList(
 async function loadGroupedCounts(
   scopeContext?: ScopeContext
 ): Promise<ICProdGroup[]> {
-  const { get, useUrl } = useQuery();
+  const { request, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
   if (!isAddressable(clientId.value)) {
@@ -246,9 +246,11 @@ async function loadGroupedCounts(
     schema: useGroupedCountsQuerySchema()
   });
 
-  return get<ICProdGroup[], ICProdGroup[]>({
-    queryKey: [...queryKey, { client: clientId.value }, "grouped"],
-    // `limit: "count"` is the API's count-mode switch, not a page size (R36).
+  // `limit: "count"` is the API's count-mode switch, not a page size (R36):
+  // it returns `data: []` and rides the grouped rows on the envelope's
+  // `total`, unreachable through `get`'s `select`. Read the whole envelope
+  // via `request` (legacy `products.ts` reads the same `total` channel).
+  const response = await request<ICProdGroup[]>({
     url: useUrl(`clients/${clientId.value}/contracts/products`, {
       limit: "count",
       group_count: "products.category_id,service_identifier",
@@ -258,6 +260,8 @@ async function loadGroupedCounts(
     filters: props.value.filters,
     withAccessToken: true
   });
+
+  return (response.total as unknown as ICProdGroup[] | null) ?? [];
 }
 
 /** The purchased categories (R10, ADR-20) — the SAME force-set the list sends. */

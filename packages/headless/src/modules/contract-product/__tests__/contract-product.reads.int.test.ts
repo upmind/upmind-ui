@@ -924,6 +924,79 @@ describe("useContractProducts — clearing what I asked for brings all my produc
 });
 
 /**
+ * AC-19 — the `@AC-19` grouped-counts Outline at `contract-product.feature:291`.
+ * The dashboard's per-category counts read (`design ✅.md` §8.1, ADR-4): a
+ * client id in the URL, `limit=count`, the category+service group, service
+ * order, and the active-status filter — and NO `exclude_delegated`, so the
+ * count is invariant to the delegation choice (§8.1 D4a). The recorded rows
+ * ride the envelope's `total`, not `data`.
+ */
+describe("useContractProducts — my products grouped by category, with a count for each (AC-19)", () => {
+  function installGroupedHandler(): { capturedUrl: () => string | undefined } {
+    let captured: string | undefined;
+    server?.use(
+      http.get("*/contracts_products", () =>
+        HttpResponse.json(recorded.list(), { status: 200 })
+      ),
+      http.get("*/clients/:clientId/contracts/products", ({ request }) => {
+        captured = request.url;
+        return HttpResponse.json(recorded.groupedCounts(), { status: 200 });
+      })
+    );
+    return { capturedUrl: () => captured };
+  }
+
+  it("AC-19 the grouped-counts read asks for limit=count, the category+service group, service order, and the active-status filter", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    const { capturedUrl } = installGroupedHandler();
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().loadGroupedCounts();
+
+    expect(capturedUrl()).toBeDefined();
+    const params = new URL(capturedUrl()!).searchParams;
+    expect(params.get("limit")).toBe("count");
+    expect(params.get("group_count")).toBe(
+      "products.category_id,service_identifier"
+    );
+    expect(params.get("order")).toBe("service_identifier");
+    expect(params.get("filter[status.code]")).toBe("contract_active");
+  });
+
+  /**
+   * @proves contract-product.feature:305
+   * @proves contract-product.feature:306
+   */
+  it("AC-19 the grouped-counts read applies no delegation rule, so one request answers whichever delegation choice I made", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    const { capturedUrl } = installGroupedHandler();
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().loadGroupedCounts();
+
+    expect(capturedUrl()).toBeDefined();
+    expect(new URL(capturedUrl()!).searchParams.has("exclude_delegated")).toBe(
+      false
+    );
+  });
+
+  it("AC-19 the recorded grouped rows come back as the action's result — one entry per category, each with its count", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    installGroupedHandler();
+
+    const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
+    const rows = await collection.useActions().loadGroupedCounts();
+
+    const recordedRows = recorded.groupedCounts().total;
+    expect(recordedRows.length).toBeGreaterThan(0);
+    expect(rows).toEqual(recordedRows);
+  });
+});
+
+/**
  * KNOWN GAPS — the Examples rows of this feature that no capture on disk can
  * drive, each named at its own line so the outline-row floor in
  * `contract-product.traceability.test.ts` can see it:
@@ -944,11 +1017,6 @@ describe("useContractProducts — clearing what I asked for brings all my produc
  * - `@gap contract-product.feature:244` — nothing delegated, asked to hide before
  * - `@gap contract-product.feature:263` — remembered "see"
  * - `@gap contract-product.feature:264` — remembered "hide"
- *
- * The AC-19 grouped-counts Outline — `loadGroupedCounts` has no capture on
- * disk, so neither delegation row can be driven:
- * - `@gap contract-product.feature:305` — see delegated
- * - `@gap contract-product.feature:306` — hide delegated
  *
  * Two feature-level defects, surfaced rather than resolved (R31 — the seat
  * shows both readings instead of picking one):

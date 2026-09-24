@@ -24,7 +24,7 @@ import {
   useSessionStore
 } from "../../session-store";
 import { recordingsDir, server } from "./setup.integration";
-import type { IToken } from "@upmind-automation/types";
+import type { ICProdGroup, IToken } from "@upmind-automation/types";
 import type { SetupServer } from "msw/node";
 
 // -----------------------------------------------------------------------------
@@ -37,6 +37,15 @@ export type ContractProductEnvelope<T> = {
   error: { code: number; message: string } | null;
   messages: unknown;
   meta: unknown;
+};
+
+/** The grouped-counts response envelope — the rows ride `total`, not `data` (AC-19). */
+export type GroupedCountsEnvelope = Omit<
+  ContractProductEnvelope<unknown[]>,
+  "total"
+> & {
+  data: unknown[];
+  total: ICProdGroup[];
 };
 
 /** The recorded bodies, by capture — the single source of every replay body. */
@@ -52,6 +61,11 @@ export const recorded = {
     getFixtureBody<
       ContractProductEnvelope<Record<string, unknown> & { id: string }>
     >("get-contract-products-id", { recordingsDir }),
+  /** `GET clients/{id}/contracts/products` grouped counts — the rows on `total` (AC-19). */
+  groupedCounts: () =>
+    getFixtureBody<GroupedCountsEnvelope>("get-clients-id-contracts-products", {
+      recordingsDir
+    }),
   /** `PUT .../modify_renew {renew:false}` — a real 200 (AC-5). */
   softCancelled: () =>
     getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(

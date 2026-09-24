@@ -93,6 +93,23 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
+/**
+ * The 9 `with` members of the dashboard grouped-counts read (`design ✅.md`
+ * §8.1): the products-list 12 minus the three `clients*` members `withParam`
+ * compacts away once a client id is supplied [o2 `:48`, o5 `:241`].
+ */
+const GROUPED_WITH = [
+  "status",
+  "product.image",
+  "brand.currency",
+  "product.provision_blueprint",
+  "contract_request",
+  "future_cancellation_request",
+  "moved_to_contract_product",
+  "moved_to_contract_product.clients",
+  "tags"
+].join(",");
+
 /** The 35 `with` members of the client product detail read (`design ✅.md` §8.1). */
 const PRODUCT_WITH = [
   "contract",
@@ -172,6 +189,7 @@ async function call(
 describe("Contract-Product API Fixtures Generator", () => {
   let generator: Generator;
   let clientToken: IToken;
+  let clientId: string;
   let contractId: string;
   let productId: string;
   let currentConsolidation: number;
@@ -185,6 +203,22 @@ describe("Contract-Product API Fixtures Generator", () => {
     });
 
     clientToken = await mintClientToken();
+
+    const selfResp = await call("GET", "/api/self", clientToken.access_token);
+    const selfData = (
+      selfResp.body as {
+        data?: { actor?: { id?: string }; actor_id?: string };
+      }
+    )?.data;
+    const actorId = selfData?.actor?.id ?? selfData?.actor_id;
+    if (!actorId) {
+      throw new Error(
+        `Could not resolve the client id from /api/self (status ${selfResp.status}); ` +
+          `data keys: ${JSON.stringify(Object.keys(selfData ?? {}))} — ` +
+          "the grouped-counts read is addressed by client id."
+      );
+    }
+    clientId = actorId;
 
     const productsResp = await call(
       "GET",
@@ -240,6 +274,22 @@ describe("Contract-Product API Fixtures Generator", () => {
     generator.clearBearerToken();
     if (status !== 200) {
       throw new Error(`Product read capture returned ${status}.`);
+    }
+  });
+
+  it("captures GET /api/clients/{clientId}/contracts/products grouped counts (AC-19)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/clients/${clientId}/contracts/products` +
+        `?limit=count` +
+        `&group_count=products.category_id,service_identifier` +
+        `&order=service_identifier` +
+        `&filter[status.code]=contract_active` +
+        `&with=${GROUPED_WITH}`
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      throw new Error(`Grouped-counts capture returned ${status}.`);
     }
   });
 

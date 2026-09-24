@@ -85,7 +85,6 @@ function testFileContents(): { file: string; content: string }[] {
  *
  * - AC-2 (both scenarios) and AC-18 need a `client-personal-details`
  *   preference-read capture that does not exist on disk.
- * - AC-19 needs a grouped-by-category capture that does not exist on disk.
  * - AC-1's two brand scenarios (the collection one and the AC-19 category-count
  *   one amendment A18(d) adds) need a recorded brand-settings capture carrying
  *   the hide-one-off-purchases flag; see the KNOWN GAP note beside
@@ -107,7 +106,6 @@ const SCENARIO_GAPS = new Set([
   "AC-18::My choice about delegated products is remembered",
   "AC-18::Having nothing delegated to me outranks what I chose before",
   "AC-18::My choice survives a profile I have open at the same time",
-  "AC-19::See my products grouped by category, with a count for each",
   "AC-19::A brand that hides one-off purchases hides them from my category counts too",
   "AC-1::A brand that hides one-off purchases hides them from me everywhere",
   "AC-15::An empty scheduled-actions result tells me why it is empty"
@@ -555,12 +553,12 @@ const PARTIAL_PROMISES: PartialPromise[] = [
   {
     line: 305,
     text: "| see delegated     |",
-    disposition: "gap"
+    disposition: "proves"
   },
   {
     line: 306,
     text: "| hide delegated    |",
-    disposition: "gap"
+    disposition: "proves"
   },
   {
     line: 351,
