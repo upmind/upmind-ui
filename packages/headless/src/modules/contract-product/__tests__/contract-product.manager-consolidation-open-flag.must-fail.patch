@@ -1,36 +1,31 @@
 # Negative-control mutant — the manager publishes a page-readable consolidation open flag (G3)
 #
-# Scenario it must flip: no spec exists yet for this member — it is new production
-#   surface closing playground-derivation.md gap G3 ("the manager meta publishes
-#   no flag for the consolidation form's open guard"). The prover authors the
-#   assertion from the public-surface hand-off: `useContractProduct().useMeta().canConsolidate`
-#   must read `false` on a subscription the machine's OWN `canConsolidate` guard
-#   refuses — a staged product, or a live subscription whose client or product
-#   `invoice_consolidation_enabled` is DISABLED — and `true` only when the
-#   record-level `canConsolidate()` predicate (contract-product.utils.ts) holds.
-# Test that must go red: a unit test over `createContractProductMeta` (or an
-#   integration test over `useContractProduct().useMeta()`) asserting
-#   `canConsolidate.value === false` for a staged or consolidation-disabled
-#   subscription. With the mutation below the flag collapses to bare
-#   `isSubscription`, so that assertion flips green regardless of eligibility —
-#   the SAME weakening the sibling machine-guard mutant applies
+# Scenario it must flip: contract-product.manager-open-gates.int.test.ts, the
+#   AC-9 outline rows for a subscription the machine's OWN `canConsolidate`
+#   guard refuses on an `available` node: "my account never consolidates"
+#   (feature:801) and "no consolidation setting on the product" (feature:802).
+#   Each expects `canConsolidate` false.
+# Mutation: the flag keeps the `isAvailable` gate but collapses the record
+#   predicate to bare `isSubscription` — the SAME weakening the sibling
+#   machine-guard mutant applies
 #   (`contract-product.mutations.consolidation-open-guard.must-fail.patch`),
-#   here against the meta member instead of the machine guard.
+#   here against the meta member. The gate itself has its own mutant
+#   (`contract-product.manager-consolidation-available-gate.must-fail.patch`).
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-index 354bddd98..c7d58b1a2 100644
+index f450389bc..66b2ef3d9 100644
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -62,9 +62,7 @@ export function createContractProductMeta(
-      * predicate the machine's `canConsolidate` guard evaluates (G3).
+@@ -66,9 +66,7 @@ export function createContractProductMeta(
       */
      canConsolidate: computed(
--      () =>
+       () =>
+-        isAvailable.value &&
 -        !!contractProduct.value &&
 -        isConsolidationEligible(contractProduct.value)
-+      () => !!contractProduct.value?.isSubscription
++        isAvailable.value && !!contractProduct.value?.isSubscription
      ),
-
+ 
      /**

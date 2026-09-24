@@ -1,44 +1,60 @@
-Negative control for useContractProduct.actions.ts `onDone` (R37 B7).
-
-Spec that must flip: contract-product.manager-on-done.test.ts (to be authored
-by the prover) — asserts `onDone()` resolves true once a write leaves
-`processing`/`available.<region>.processing` and settles on `available` or
-`unavailable`.
-
-Mutation: drops the `onDone` action entirely, so no member exists to await a
-write's settle.
-
+# Negative-control mutant — useContractProduct.actions.ts `onDone` (R37 B7)
+#
+# Scenario it must flip: a spec that awaits `useActions().onDone()` after a
+#   write and asserts it resolves true once the write leaves `processing` /
+#   `available.<region>.processing` and settles on `available` or
+#   `unavailable`. No spec calls `onDone` at 2c5d57957; the prover authors it.
+# Mutation: drops the `onDone` action entirely, so no member exists to await a
+#   write's settle.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+index 2945ad6e3..e03be01e5 100644
 --- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
-@@ -70,15 +70,5 @@ export function createContractProductActions(
+@@ -68,30 +68,6 @@ export function createContractProductActions(
+     return waitForProcessing(service, ["available", "unavailable"], "error");
    }
  
 -  /**
 -   * Resolves once a write leaves `processing` or `available.<region>.processing`
 -   * (region: `cancelling` | `consolidating`).
 -   * @returns true once the write settles on `available` or `unavailable`; false
--   *   on `error`, or if it never settled.
+-   *   on `error`, on `done`, or if it never settled.
 -   */
 -  function onDone(): Promise<boolean> {
--    return waitForProcessing(service, ["available", "unavailable"], "error");
+-    const transient = [
+-      "processing",
+-      "available.cancelling.processing",
+-      "available.consolidating.processing"
+-    ];
+-
+-    return waitFor(
+-      service,
+-      s =>
+-        !stateMatches(s, transient) &&
+-        (stateMatches(s, ["available", "unavailable", "error"]) || s.done),
+-      { timeout: 60_000 }
+-    )
+-      .then(s => !s.done && stateMatches(s, ["available", "unavailable"]))
+-      .catch(() => false);
 -  }
 -
    /**
     * Resolves the re-read product once a write has settled.
     * @throws {DetailedError} when the write or the re-read recorded an error.
-@@ -299,14 +290,7 @@ export function createContractProductActions(
+@@ -326,13 +302,6 @@ export function createContractProductActions(
+      */
      isReady,
  
-     /**
+-    /**
 -     * Resolves once a write leaves `processing`, settled on `available` or
 -     * `unavailable`; false on `error`.
 -     * @scenario-include
 -     */
 -    onDone,
 -
--    /**
+     /**
       * Opens the combined cancellation form (R33).
       * @scenario-include
-      */
-     openCancellation,

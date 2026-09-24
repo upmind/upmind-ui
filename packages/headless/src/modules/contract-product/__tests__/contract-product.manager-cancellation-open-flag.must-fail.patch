@@ -1,38 +1,30 @@
 # Negative-control mutant — the manager publishes a page-readable cancellation open flag (G2)
 #
-# Scenario it must flip: no spec exists yet for this member — it is new production
-#   surface closing playground-derivation.md gap G2 ("the manager meta publishes
-#   no flag for the cancellation form's open guard"). The prover authors the
-#   assertion from the public-surface hand-off: `useContractProduct().useMeta().hasCancellationOptions`
-#   must read `false` on a product the machine's OWN `hasCancellationOptions` guard
-#   refuses (e.g. an expiring subscription with auto-renew already off, or a
-#   pending hard cancellation request), and `true` once at least one option
-#   (`cancellationOptions()`) is non-empty.
-# Test that must go red: a unit test over `createContractProductMeta` (or an
-#   integration test over `useContractProduct().useMeta()`) asserting
-#   `hasCancellationOptions.value === false` for a product with no cancellation
-#   options — e.g. `hasScheduledFutureCancellation: true`, or a hard request
-#   already pending. With the mutation below the flag is `true` for ANY loaded
-#   product, so that assertion flips green regardless of eligibility.
-# Mutation: `hasCancellationOptions` drops the `!isEmpty(cancellationOptions(...))`
-#   check — the SAME shape as the machine's own `hasCancellationOptions` guard
-#   mutant (`contract-product.cancellation-eligibility.must-fail.patch`), applied
-#   to the meta member instead of the guard.
+# Scenario it must flip: contract-product.manager-open-gates.int.test.ts, the
+#   AC-11 outline rows for a product on an `available` node with no
+#   cancellation option: "already set to expire", "a cancellation booked for a
+#   future date" and "a cancellation request already pending". Each expects
+#   `hasCancellationOptions` false.
+# Mutation: the flag keeps the `isAvailable` gate but drops the
+#   `!isEmpty(cancellationOptions(...))` check — the SAME shape as the machine
+#   guard mutant (`contract-product.cancellation-eligibility.must-fail.patch`),
+#   applied to the meta member. The gate itself has its own mutant
+#   (`contract-product.manager-cancellation-available-gate.must-fail.patch`).
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-index 354bddd98..c7d58b1a2 100644
+index f450389bc..aac806b9c 100644
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -113,9 +113,7 @@ export function createContractProductMeta(
-      * predicate the machine's `hasCancellationOptions` guard evaluates (G2).
+@@ -119,9 +119,7 @@ export function createContractProductMeta(
       */
      hasCancellationOptions: computed(
--      () =>
+       () =>
+-        isAvailable.value &&
 -        !!contractProduct.value &&
 -        !isEmpty(cancellationOptions(contractProduct.value))
-+      () => !!contractProduct.value
++        isAvailable.value && !!contractProduct.value
      ),
-
+ 
      /** True if the machine captured an error. */
