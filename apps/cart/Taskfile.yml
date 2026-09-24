@@ -6,24 +6,39 @@ vars:
   SCRIPTS_DIR: "{{.ROOT_DIR}}/etc/scripts"
 
 tasks:
+  build:
+    desc: Build cart (production)
+    cmds:
+      - pnpm build
+
+  build:staging:
+    desc: Build cart (staging)
+    cmds:
+      - pnpm build:staging
+
+  build:sprighost:
+    desc: Build cart (sprighost — same output as the staging build)
+    cmds:
+      - pnpm build:staging
+
   deploy:production:
     desc: Build and deploy cart to production (GCS + Firebase)
     cmds:
-      - pnpm build
+      - task: build
       - task: deploy:gcs:production
       - task: deploy:firebase:production
 
   deploy:staging:
     desc: Build and deploy cart to staging (GCS + Firebase)
     cmds:
-      - pnpm build:staging
+      - task: build:staging
       - task: deploy:gcs:staging
       - task: deploy:firebase:staging
 
   deploy:sprighost:
     desc: Build and deploy cart to sprighost (Firebase only)
     cmds:
-      - pnpm build:staging
+      - task: build:sprighost
       - task: deploy:firebase:sprighost
 
   deploy:gcs:production:
