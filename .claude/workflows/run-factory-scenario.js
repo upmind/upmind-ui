@@ -72,6 +72,8 @@
 //                 read disk, so the door states what it found.
 //   codeDone    — optional boolean. The declaration is landed and committed;
 //                 skips the Code stage.
+//   proveDone   — optional boolean. The step catalog, replay and traceability
+//                 specs are landed and green; skips the Prove stage.
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
 export const meta = {
   name: "run-factory-scenario",
@@ -137,6 +139,7 @@ const skipRegrade = A.regradeDone === true;
 // The declaration is already landed and committed; the door states it, since
 // a re-run Code seat has nothing to diff and would halt on an empty diff.
 const skipCode = A.codeDone === true;
+const skipProve = A.proveDone === true;
 
 // The 3-cycle cap (rules/code-reviews.md, the exhaustive-review law — "the cap
 // stays at three rounds"). Bounded by construction: this lane's own seats are
@@ -642,30 +645,34 @@ if (!skipCode) {
 // run-test's `stopped` names are the halts this stage always emitted
 // (prover-failed, suite-red, test-review-failed, test-review-blocked,
 // developer-failed) plus test-review-no-progress; they surface verbatim.
-phase("Prove");
-results.prove = await workflow("upmind-agent:run-test", {
-  id,
-  worktree,
-  size: "unset",
-  scope: `the playground declaration of story ${id} — the ${target} module's page (cells: ${cells}). ${JTBD} ${BOUNDS}`,
-  inputs: `the declaration's public surface, the module's own .feature and its exported types only. Author the step catalog, its one replay spec and its one traceability test together, over the module's recorded corpus through the shared replay. A scenario is a track only when a real step drives every line of it; a scenario nothing can drive stays spec and gets no steps. A step that fires no real action id and presses no real control is FAKE`,
-  layers:
-    "the step catalog, the replay spec (the RED gate — a SKIP is a spec-only contract scenario by design, a RED is a halt) and the traceability test; a red that names an absent module capability is a module gap — say so rather than loosening the step",
-  controls: true,
-  checks: "the FULL monorepo build (never scoped down)"
-});
-if (!results.prove) {
-  results.stopped = "prover-failed";
-  return results;
-}
-results.cycles.testReview = results.prove.cycles;
-if (Array.isArray(results.prove.surfaced))
-  results.surfaced.push(
-    ...results.prove.surfaced.map(s => ({ stage: "Prove", ...s }))
-  );
-if (results.prove.stopped) {
-  results.stopped = results.prove.stopped;
-  return results;
+if (!skipProve) {
+  phase("Prove");
+  results.prove = await workflow("upmind-agent:run-test", {
+    id,
+    worktree,
+    size: "unset",
+    scope: `the playground declaration of story ${id} — the ${target} module's page (cells: ${cells}). ${JTBD} ${BOUNDS}`,
+    inputs: `the declaration's public surface, the module's own .feature and its exported types only. Author the step catalog, its one replay spec and its one traceability test together, over the module's recorded corpus through the shared replay. A scenario is a track only when a real step drives every line of it; a scenario nothing can drive stays spec and gets no steps. A step that fires no real action id and presses no real control is FAKE`,
+    layers:
+      "the step catalog, the replay spec (the RED gate — a SKIP is a spec-only contract scenario by design, a RED is a halt) and the traceability test; a red that names an absent module capability is a module gap — say so rather than loosening the step",
+    controls: true,
+    checks: "the FULL monorepo build (never scoped down)"
+  });
+  if (!results.prove) {
+    results.stopped = "prover-failed";
+    return results;
+  }
+  results.cycles.testReview = results.prove.cycles;
+  if (Array.isArray(results.prove.surfaced))
+    results.surfaced.push(
+      ...results.prove.surfaced.map(s => ({ stage: "Prove", ...s }))
+    );
+  if (results.prove.stopped) {
+    results.stopped = results.prove.stopped;
+    return results;
+  }
+} else {
+  results.prove = { skipped: true };
 }
 
 // --- Verify -----------------------------------------------------------------------------
