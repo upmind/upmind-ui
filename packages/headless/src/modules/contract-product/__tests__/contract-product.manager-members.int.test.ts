@@ -18,9 +18,12 @@
  * instead of showing the error, or never learns a change finished.
  */
 
+import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
+import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { useContractProduct } from "..";
+import { getRegistry, remove } from "../../scope/scope.registry";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installCancelRequestCatalogueHandler,
@@ -30,9 +33,33 @@ import {
 } from "./contract-product.int-helpers";
 import { server } from "./setup.integration";
 
+const clientCustomFieldsRecordingsDir = join(
+  import.meta.dirname,
+  "../../client-custom-fields/__tests__/fixtures"
+);
+
+// The catalogue scope outlives the contract-product evictions, so without
+// this a sibling test's read would satisfy the next test's catalogue count.
+function evictCatalogueScopes() {
+  for (const key of [...getRegistry().keys()]) {
+    if (key.startsWith("client-custom-fields:")) remove(key);
+  }
+}
+
 async function openManager() {
   await seedClientSession();
+  evictCatalogueScopes();
   installProductHandler(server);
+  server?.use(
+    http.get("*/clients/:id", () =>
+      HttpResponse.json(
+        getFixtureBody<Record<string, unknown>>("get-clients-id", {
+          recordingsDir: clientCustomFieldsRecordingsDir
+        }),
+        { status: 200 }
+      )
+    )
+  );
   const catalogue = installCancelRequestCatalogueHandler(server);
   const product = recorded.one().data;
   const manager = useContractProduct()
@@ -95,7 +122,7 @@ describe("useContractProduct — the product I have open (context members, R37)"
   it("The cancellation custom fields my brand defines are loaded ready for the form", async () => {
     const { manager, catalogue } = await openManager();
 
-    expect(catalogue.reads()).toBeGreaterThan(0);
+    await vi.waitFor(() => expect(catalogue.reads()).toBeGreaterThan(0));
     expect(manager.useContext().lookups.value).toEqual({
       customFields: recorded.cancelRequestCatalogue().data
     });

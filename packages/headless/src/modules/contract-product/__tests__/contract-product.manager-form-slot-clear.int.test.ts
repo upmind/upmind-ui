@@ -9,7 +9,8 @@
  * after `reset()` — even though the client never closed the form; that
  * `useMeta().isCancellationOpen` / `.isConsolidationOpen` then report the form
  * closed; and that opening the form again fills its slot with a whole
- * `{ schema, uischema, model }`, so no dialog opens empty.
+ * `{ schema, uischema, model }` whose model is the one a first open draws —
+ * no leftover choice, so the reopened form is not valid until a new choice.
  *
  * ## What Breaks If These Fail
  * A page that draws each form from its own slot keeps a dead form, with the
@@ -59,7 +60,8 @@ async function open(manager: Manager, form: ContractProductFormTypes) {
 async function openForm(form: ContractProductFormTypes) {
   const opened = await openManager();
   await open(opened.manager, form);
-  return opened;
+  const freshModel = structuredClone(slot(opened.manager, form)?.model);
+  return { ...opened, freshModel };
 }
 
 function slot(manager: Manager, form: ContractProductFormTypes) {
@@ -76,9 +78,32 @@ function isOpen(manager: Manager, form: ContractProductFormTypes) {
     : meta.isConsolidationOpen.value;
 }
 
-async function expectClosedThenDrawnInFull(
+function isValid(manager: Manager, form: ContractProductFormTypes) {
+  const meta = manager.useMeta();
+  return form === ContractProductFormTypes.CANCELLATION
+    ? meta.isCancellationValid.value
+    : meta.isConsolidationValid.value;
+}
+
+const leftoverChoice = {
+  [ContractProductFormTypes.CANCELLATION]: {
+    option: ContractProductCancelOption.HARD
+  },
+  [ContractProductFormTypes.CONSOLIDATION]: {
+    invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
+  }
+} as const;
+
+async function choose(manager: Manager, form: ContractProductFormTypes) {
+  await manager.useActions().set(form, leftoverChoice[form]);
+  expect(slot(manager, form)?.model).toMatchObject(leftoverChoice[form]);
+  await vi.waitFor(() => expect(isValid(manager, form)).toBe(true));
+}
+
+async function expectClosedThenDrawnFresh(
   manager: Manager,
-  form: ContractProductFormTypes
+  form: ContractProductFormTypes,
+  freshModel: unknown
 ) {
   expect(slot(manager, form)).toBeUndefined();
   expect(isOpen(manager, form)).toBe(false);
@@ -89,21 +114,23 @@ async function expectClosedThenDrawnInFull(
   const reopened = slot(manager, form);
   expect(reopened?.schema).toBeTruthy();
   expect(reopened?.uischema).toBeTruthy();
-  expect(reopened?.model).toBeTruthy();
+  expect(reopened?.model).toEqual(freshModel);
+  expect(reopened?.model).not.toMatchObject(leftoverChoice[form]);
+  expect(isValid(manager, form)).toBe(false);
 }
 
 async function rereadDropsForm(
   reread: "refresh" | "reset",
   form: ContractProductFormTypes
 ) {
-  const { manager, handler } = await openForm(form);
-  expect(slot(manager, form)).toBeTruthy();
+  const { manager, handler, freshModel } = await openForm(form);
+  await choose(manager, form);
   const readsBefore = handler.reads();
 
   await manager.useActions()[reread]();
 
   await settledAfterReread(manager, handler.reads, readsBefore);
-  await expectClosedThenDrawnInFull(manager, form);
+  await expectClosedThenDrawnFresh(manager, form, freshModel);
 }
 
 async function settledAfterReread(
@@ -121,7 +148,7 @@ async function settledAfterReread(
 describe("useContractProduct — a submitted form leaves no form behind once its change lands", () => {
   // @proves contract-product.feature:943
   it("A cancellation I submit leaves no cancellation form behind", async () => {
-    const { manager, row, handler } = await openForm(
+    const { manager, row, handler, freshModel } = await openForm(
       ContractProductFormTypes.CANCELLATION
     );
     server?.use(
@@ -129,24 +156,22 @@ describe("useContractProduct — a submitted form leaves no form behind once its
         HttpResponse.json(recorded.cancellationRequested(), { status: 200 })
       )
     );
-    await manager.useActions().set(ContractProductFormTypes.CANCELLATION, {
-      option: ContractProductCancelOption.HARD
-    });
-    expect(manager.useContext().cancellation.value).toBeTruthy();
+    await choose(manager, ContractProductFormTypes.CANCELLATION);
     const readsBefore = handler.reads();
 
     await manager.useActions().submitCancellation();
 
     await settledAfterReread(manager, handler.reads, readsBefore);
-    await expectClosedThenDrawnInFull(
+    await expectClosedThenDrawnFresh(
       manager,
-      ContractProductFormTypes.CANCELLATION
+      ContractProductFormTypes.CANCELLATION,
+      freshModel
     );
   });
 
   // @proves contract-product.feature:951
   it("A consolidation choice I submit leaves no consolidation form behind", async () => {
-    const { manager, row, handler } = await openForm(
+    const { manager, row, handler, freshModel } = await openForm(
       ContractProductFormTypes.CONSOLIDATION
     );
     server?.use(
@@ -155,18 +180,16 @@ describe("useContractProduct — a submitted form leaves no form behind once its
         () => HttpResponse.json(recorded.consolidationSet(), { status: 200 })
       )
     );
-    await manager.useActions().set(ContractProductFormTypes.CONSOLIDATION, {
-      invoiceConsolidationEnabled: InvoiceConsolidationTypes.ENABLED
-    });
-    expect(manager.useContext().consolidation.value).toBeTruthy();
+    await choose(manager, ContractProductFormTypes.CONSOLIDATION);
     const readsBefore = handler.reads();
 
     await manager.useActions().submitConsolidation();
 
     await settledAfterReread(manager, handler.reads, readsBefore);
-    await expectClosedThenDrawnInFull(
+    await expectClosedThenDrawnFresh(
       manager,
-      ContractProductFormTypes.CONSOLIDATION
+      ContractProductFormTypes.CONSOLIDATION,
+      freshModel
     );
   });
 });
