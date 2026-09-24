@@ -936,7 +936,6 @@ export default [
   {
     files: [
       ".claude/scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
-      "scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
       "tests/fixtures/**/*.{mjs,js,ts}",
       "packages/eslint-plugin-scope-based/**/*.{js,mjs}",

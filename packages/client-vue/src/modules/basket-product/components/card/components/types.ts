@@ -1,6 +1,8 @@
+import type { BadgeVariants } from "@upmind/ui";
 import type {
   ProductSummaryDetail,
   PriceDetail,
+  PromotionDetails,
   TermDetails,
   Product
 } from "@upmind-automation/headless";
@@ -16,6 +18,11 @@ export interface DetailsGroupProps {
 
 export interface DetailsItemProps extends ProductSummaryDetail {
   price?: PriceDetail;
+}
+
+export interface PromotionProps extends PromotionDetails {
+  disabled?: boolean;
+  size?: BadgeVariants["size"];
 }
 
 export interface QuantityFieldProps {

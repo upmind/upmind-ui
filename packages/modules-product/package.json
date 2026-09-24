@@ -4,10 +4,6 @@
   "description": "Upmind product domain package — read · configure · seat + the shared product rendering kit.",
   "type": "module",
   "license": "UNLICENSED",
-  "sideEffects": [
-    "**/feature.ts",
-    "**/*.css"
-  ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {

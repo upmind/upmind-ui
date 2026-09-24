@@ -4,10 +4,6 @@
   "description": "Upmind foundation domain package — brand · system · theming-glue · feedback · app-wiring.",
   "type": "module",
   "license": "UNLICENSED",
-  "sideEffects": [
-    "**/feature.ts",
-    "**/*.css"
-  ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {

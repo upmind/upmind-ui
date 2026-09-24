@@ -50,9 +50,9 @@ import {
   parseBillingCycle,
   PriceDisplayTypes
 } from "@upmind-automation/headless";
+import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 import PayToday from "../pricing/PayToday.vue";
 import Pricing from "../pricing/Pricing.vue";
-import Promotion from "../pricing/Promotion.vue";
 import type { TermCardProps } from "./types";
 
 // -----------------------------------------------------------------------------
