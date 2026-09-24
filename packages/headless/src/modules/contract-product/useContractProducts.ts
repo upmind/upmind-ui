@@ -1,3 +1,4 @@
+import { ref } from "vue";
 // Deep path, never the `../scope` barrel — the aggregator-barrel `export *`
 // hazard (code-quality.companion.md); `scope.builder` alone has no such cycle.
 import { createScopedComposable } from "../scope/scope.builder";
@@ -10,6 +11,7 @@ import { createContractProductsMeta } from "./useContractProducts.meta";
 import type { ContractProductsScopeMatrix } from "./contract-product.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ICProdGroup } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProducts
@@ -36,11 +38,17 @@ function createContractProductsForScope(
   // factory mints a second query, with its own refs, key and effect scope.
   const query = service.loadList();
 
+  // The dashboard's grouped counts (G1) — `loadGroupedCounts` is a promise
+  // action with no backing query, so this is the one reactive channel a page
+  // can read them off; minted once per scope, beside `query`.
+  const groupedCounts = ref<ICProdGroup[]>([]);
+
   const actions = createContractProductsActions(
     actorScope,
     service,
     query,
-    scopeKey
+    scopeKey,
+    groupedCounts
   );
 
   return {
@@ -49,7 +57,8 @@ function createContractProductsForScope(
     useActions: () => actions,
 
     /** Sub-composable for collection context (reactive list + schema family). */
-    useContext: () => createContractProductsContext(actorScope, service, query),
+    useContext: () =>
+      createContractProductsContext(actorScope, service, query, groupedCounts),
 
     /** Sub-composable for advanced debugging and internal access. */
     useInternals: () => createContractProductsInternals(actorScope, query),

@@ -3,12 +3,14 @@ import { ContractStatusCodes } from "@upmind-automation/types";
 import { ContractProductState } from "./contract-product.types";
 import {
   anniversaryAnchor,
+  cancellationOptions,
+  canConsolidate as isConsolidationEligible,
   hasHardCancellationRequest,
   isCancellable,
   isDue
 } from "./contract-product.utils";
 import { contextValue, useContext, useStateMatches } from "../../utils";
-import { isUndefined, some } from "lodash-es";
+import { isEmpty, isUndefined, some } from "lodash-es";
 import type { ContractProduct, UnpaidInvoice } from "./contract-product.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -56,6 +58,16 @@ export function createContractProductMeta(
     ),
 
     /**
+     * True when the consolidation form may be opened at all — the SAME
+     * predicate the machine's `canConsolidate` guard evaluates (G3).
+     */
+    canConsolidate: computed(
+      () =>
+        !!contractProduct.value &&
+        isConsolidationEligible(contractProduct.value)
+    ),
+
+    /**
      * True when the client may open a cancellation REQUEST (HARD): no hard
      * request already pending (a pending contract is allowed). Derived from the
      * record; the brand setting `SUBSCRIPTIONS_ALLOW_IMMEDIATE_CANCELLATION` is
@@ -94,6 +106,16 @@ export function createContractProductMeta(
     hasAutoRenewDisabled: computed(
       () =>
         !contextValue<boolean>(state, "contractProduct.autoCreateRenewInvoice")
+    ),
+
+    /**
+     * True when the cancellation form may be opened at all — the SAME
+     * predicate the machine's `hasCancellationOptions` guard evaluates (G2).
+     */
+    hasCancellationOptions: computed(
+      () =>
+        !!contractProduct.value &&
+        !isEmpty(cancellationOptions(contractProduct.value))
     ),
 
     /** True if the machine captured an error. */

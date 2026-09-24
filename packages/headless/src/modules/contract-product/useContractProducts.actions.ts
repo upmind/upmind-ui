@@ -10,6 +10,8 @@ import type {
   SortModel
 } from "./contract-product.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ICProdGroup } from "@upmind-automation/types";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProducts.actions
@@ -23,7 +25,8 @@ export function createContractProductsActions(
   _actorScope: ScopeActorTypes,
   service: ContractProductServices,
   query: ContractProductListQuery,
-  scopeKey: string
+  scopeKey: string,
+  groupedCounts: Ref<ICProdGroup[]>
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
@@ -106,6 +109,17 @@ export function createContractProductsActions(
     removeFromRegistry(scopeKey);
   }
 
+  /**
+   * Reads the dashboard's grouped counts and publishes them on
+   * `useContext().groupedCounts` (G1), so a page has a reactive channel and
+   * not only a promise to await.
+   */
+  async function loadGroupedCounts(): Promise<ICProdGroup[]> {
+    const groups = await service.loadGroupedCounts();
+    groupedCounts.value = groups;
+    return groups;
+  }
+
   // --- actor-specific actions: none earned (clause 2, design 8.8).
 
   return {
@@ -133,10 +147,11 @@ export function createContractProductsActions(
     isReady,
 
     /**
-     * The dashboard's grouped counts (design 8.1).
+     * The dashboard's grouped counts (design 8.1); publishes them on
+     * `useContext().groupedCounts` (G1).
      * @scenario-include
      */
-    loadGroupedCounts: service.loadGroupedCounts,
+    loadGroupedCounts,
 
     /**
      * The categories the client has purchased into (R10).

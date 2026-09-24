@@ -13,6 +13,8 @@ import type {
 } from "./contract-product.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ICProdGroup } from "@upmind-automation/types";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProducts.context
@@ -25,7 +27,8 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 export function createContractProductsContext(
   _actorScope: ScopeActorTypes,
   _service: ContractProductServices,
-  query: ContractProductListQuery
+  query: ContractProductListQuery,
+  groupedCounts: Ref<ICProdGroup[]>
 ) {
   const { findOne, getOne } = useCollection<ContractProduct>(query.data);
 
@@ -53,6 +56,12 @@ export function createContractProductsContext(
 
     /** Finds a single product by id. */
     getOne,
+
+    /**
+     * The dashboard's grouped counts, once `useActions().loadGroupedCounts`
+     * resolves — empty until then (G1).
+     */
+    groupedCounts,
 
     /** Reactive pagination descriptor for the list query. */
     pagination: query.pagination,
