@@ -923,3 +923,45 @@ Feature: A client manages the products on their own contracts
     Given I have a product of mine open in the manager
     When I stop one of my subscriptions renewing and wait for it to finish
     Then I am told the change is done
+
+  # === A FORM LEAVES NOTHING BEHIND WHEN MY PRODUCT IS READ AGAIN ============
+  # A page draws each form from its own slot, so no dialog opens empty. Once
+  # my product is read again — a change landed, a refresh or a reset — the
+  # manager holds no form I have not opened again, so no dead form sits beside
+  # the control that opens it (FE-3029 Verify repair).
+
+  @FE-3029 @manager @member
+  Scenario: A cancellation I submit leaves no cancellation form behind
+    Given I have the cancellation form open on one of my products, with an option it accepts
+    When my cancellation is submitted and lands
+    Then the manager holds no cancellation form
+
+  @FE-3029 @manager @member
+  Scenario: A consolidation choice I submit leaves no consolidation form behind
+    Given I have the consolidation form open on one of my subscriptions, with a choice it accepts
+    When my consolidation choice is submitted and lands
+    Then the manager holds no consolidation form
+
+  @FE-3029 @manager @member
+  Scenario: A refresh of my product drops the cancellation form I left open
+    Given I left the cancellation form open on one of my products without submitting it
+    When my product is read again through a refresh
+    Then the manager holds no cancellation form
+
+  @FE-3029 @manager @member
+  Scenario: A reset of my product drops the cancellation form I left open
+    Given I left the cancellation form open on one of my products without submitting it
+    When my product is read again through a reset
+    Then the manager holds no cancellation form
+
+  @FE-3029 @manager @member
+  Scenario: A refresh of my product drops the consolidation form I left open
+    Given I left the consolidation form open on one of my products without submitting it
+    When my product is read again through a refresh
+    Then the manager holds no consolidation form
+
+  @FE-3029 @manager @member
+  Scenario: A reset of my product drops the consolidation form I left open
+    Given I left the consolidation form open on one of my products without submitting it
+    When my product is read again through a reset
+    Then the manager holds no consolidation form
