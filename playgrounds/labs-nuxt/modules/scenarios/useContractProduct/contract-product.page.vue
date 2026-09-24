@@ -209,7 +209,8 @@
             <Button
               v-if="
                 meta?.hasCancellationOptions.value &&
-                !meta?.isCancellationOpen.value
+                !meta?.isCancellationOpen.value &&
+                !meta?.isConsolidationOpen.value
               "
               variant="outline"
               :disabled="pending"
@@ -277,7 +278,9 @@
             </span>
             <Button
               v-if="
-                meta?.canConsolidate.value && !meta?.isConsolidationOpen.value
+                meta?.canConsolidate.value &&
+                !meta?.isConsolidationOpen.value &&
+                !meta?.isCancellationOpen.value
               "
               variant="outline"
               :disabled="pending"
@@ -367,9 +370,13 @@
  * Both forms render from their OWN context slot
  * (`useContext().cancellation` / `.consolidation` = `{ schema, uischema,
  * model }`), which the machine fills on that form's open transition — no
- * dialog opens empty. Submit is gated on `useMeta().isCancellationValid` /
- * `isConsolidationValid`; an invalid model shows `useContext().validationErrors`
- * on the form. `submitCancellation` resolves `false` when the model carries no
+ * dialog opens empty. The two share ONE validation-error slot
+ * (`useContext().validationErrors`, D71), so each form's OWN "open" control
+ * hides while the OTHER form is open — the page draws one form at a time,
+ * which is what keeps the shared slot correct. Submit is gated on
+ * `useMeta().isCancellationValid` / `isConsolidationValid`; an invalid model
+ * shows `useContext().validationErrors` on the form. `submitCancellation`
+ * resolves `false` when the model carries no
  * option; `submitConsolidation` resolves `false` when the model carries no
  * `invoiceConsolidationEnabled`. Either submit REJECTS when the model has its
  * option but fails validation (the node's `.checking` refusal, a 422) — this
