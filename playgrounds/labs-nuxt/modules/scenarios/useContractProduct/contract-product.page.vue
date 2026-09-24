@@ -42,8 +42,13 @@
         </div>
       </Card>
 
-      <!-- Booting the addressed product. -->
-      <div v-else-if="booting" class="flex justify-center p-8">
+      <!-- Booting the addressed product, or re-reading it (a write, a
+           refresh or a reset all pass back through the machine's `loading`
+           node, which clears `contractProduct` on entry). -->
+      <div
+        v-else-if="booting || meta?.isLoading.value"
+        class="flex justify-center p-8"
+      >
         <Spinner :label="t('text.loading')" />
       </div>
 
@@ -364,8 +369,12 @@
  * model }`), which the machine fills on that form's open transition — no
  * dialog opens empty. Submit is gated on `useMeta().isCancellationValid` /
  * `isConsolidationValid`; an invalid model shows `useContext().validationErrors`
- * on the form and sends nothing (`submitCancellation`/`submitConsolidation`
- * resolve `false` when the node refused the event).
+ * on the form. `submitCancellation` resolves `false` when the model carries no
+ * option; `submitConsolidation` resolves `false` when the model carries no
+ * `invoiceConsolidationEnabled`. Either submit REJECTS when the model has its
+ * option but fails validation (the node's `.checking` refusal, a 422) — this
+ * page wraps both calls in `run()`, which catches the rejection and reports it
+ * as `actionError`.
  *
  * NOT drawn, and named rather than faked:
  *
@@ -463,7 +472,8 @@ const { tracks, states, player, isLocked } = useScenarioTransport({
     key: CONTRACT_PRODUCT_SCENARIO,
     id: productId.value
   }),
-  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor })
+  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor }),
+  reset: actions?.reset
 });
 
 const contractProduct = computed(() => context?.contractProduct.value);

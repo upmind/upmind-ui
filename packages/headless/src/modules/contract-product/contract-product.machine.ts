@@ -59,7 +59,14 @@ export const contractProductMachine = createMachine(
 
       loading: {
         id: "loading",
-        entry: ["clearContractProduct"],
+        // A form's context slot is the form's own — outliving the read that
+        // re-placed the product would leave a page drawing a dead form beside
+        // its re-shown "open" control.
+        entry: [
+          "clearContractProduct",
+          "clearCancellation",
+          "clearConsolidation"
+        ],
         invoke: {
           src: "load",
           onDone: { actions: ["setContractProduct", "setLookups"] },
