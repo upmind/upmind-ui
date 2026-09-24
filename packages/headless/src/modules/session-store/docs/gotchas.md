@@ -211,6 +211,15 @@ It looks like a bug. It is not. The child-account exclusion applies to the
 **invoice/order arm only**:
 
 ```typescript
+import {
+  isDelegated,
+  type DelegatableRecord
+} from "@upmind-automation/headless";
+
+declare const invoiceOfAChildAccount: DelegatableRecord;
+declare const contractProductOfAChildAccount: DelegatableRecord;
+declare const ticketOfAChildAccount: DelegatableRecord;
+
 isDelegated(invoiceOfAChildAccount); // false — excluded
 isDelegated(contractProductOfAChildAccount); // true  — NOT excluded
 isDelegated(ticketOfAChildAccount); // true  — NOT excluded

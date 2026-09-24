@@ -1,0 +1,15 @@
+# must-fail: 13-upload-attachment-brand-field
+# Target assertion: AC-23 public-surface spec (tickets.upload-attachment.int.test.ts) — asserts uploadAttachment() issues a real multipart POST carrying a truthy string `brand_id` field; renaming the FormData key drops it, so form.get("brand_id") is null
+diff --git a/packages/headless/src/modules/tickets/tickets.services.ts b/packages/headless/src/modules/tickets/tickets.services.ts
+index 80ff05ef7..701a79589 100644
+--- a/packages/headless/src/modules/tickets/tickets.services.ts
++++ b/packages/headless/src/modules/tickets/tickets.services.ts
+@@ -607,7 +607,7 @@ async function uploadFile(file: File): Promise<TicketAttachmentRef> {
+   const body = new FormData();
+   body.append("file", file);
+   const brandId = activeUser.value?.brandId;
+-  if (brandId) body.append("brand_id", brandId);
++  if (brandId) body.append("brand", brandId);
+
+   const result = await post<TicketAttachmentRef[]>({
+     mutationKey: [...queryKey, "upload"],

@@ -26,7 +26,8 @@ const phoneId = "825d96e7-63ed-0913-46c4-174825283406";
 // uses; see [gotchas.md](./gotchas.md#11-asselffor-does-not-typecheck-without-a-cast).
 type ScopedPhoneManager = ScopeBuilderActorWithContexts<
   ReturnType<UseClientPhoneManager["fresh"]>,
-  ClientPhoneContextTypes
+  ClientPhoneContextTypes,
+  never
 >;
 
 // The collection — the calling client's own phone numbers
@@ -195,7 +196,8 @@ import {
 
 type ScopedPhoneManager = ScopeBuilderActorWithContexts<
   ReturnType<UseClientPhoneManager["fresh"]>,
-  ClientPhoneContextTypes
+  ClientPhoneContextTypes,
+  never
 >;
 
 const phoneId = "825d96e7-63ed-0913-46c4-174825283406";

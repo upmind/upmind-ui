@@ -1,0 +1,15 @@
+# must-fail: 12-status-log-feed-object-type
+# Target assertion: AC22 "status-log feed" — asserts the status-log request carries filter[object_type]=ticket
+diff --git a/packages/headless/src/modules/tickets/tickets.services.ts b/packages/headless/src/modules/tickets/tickets.services.ts
+index 006566f81..aec2d0614 100644
+--- a/packages/headless/src/modules/tickets/tickets.services.ts
++++ b/packages/headless/src/modules/tickets/tickets.services.ts
+@@ -548,7 +548,7 @@ async function loadStatusLogs(ticketId: string): Promise<TicketStatusLog[]> {
+   const raw = await getRequest<IHookLog[]>({
+     queryKey: [...queryKey, "status-logs", ticketId],
+     url: useUrl(`hooks/logs/client/${clientId.value}`, {
+-      "filter[object_type]": "ticket",
++      "filter[object_type]": "invoice",
+       "filter[object_id]": ticketId,
+       "filter[hook.code]": TICKET_HOOK_CODES.join(","),
+       with: "hook,object.status",

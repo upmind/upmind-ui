@@ -51,17 +51,14 @@ tests/fixtures/recordings-*/
 .asset-registry/
 
 # ============================================
-# Graphify — commit graph.json + GRAPH_REPORT.md at the repo ROOT only; ignore
-# everything else it generates. Committing graph.json is what makes the graph
-# work in fresh worktrees, submodules, and cloud agents (they see tracked files
-# only). Keep the tooling in .claude/scripts/graphify/ versioned.
+# Graphify — the graph is a local, regenerated artifact and is never committed.
+# The husky post-commit / post-merge / post-checkout hooks rebuild it via
+# .claude/scripts/graphify/refresh.sh; a fresh clone or worktree runs
+# `pnpm graph` once. CI never reads it (the docs corpus reads the committed
+# docs/corpus/relations.json snapshot instead). Keep the tooling in
+# .claude/scripts/graphify/ versioned.
 # ============================================
-# Root graphify-out/: ignore ALL of it, then re-include exactly the two tracked
-# artifacts. Any future derived file (graph.html, graph-modules.*, wiki/, cache/,
-# manifest, cost, .graphify_*, .refresh_marker) is auto-ignored by the wildcard.
-graphify-out/*
-!graphify-out/graph.json
-!graphify-out/GRAPH_REPORT.md
+graphify-out/
 # Per-package graphs are local convenience only — never committed. Ignore each
 # workspace package's whole graphify-out/ (submodules keep their own copy clean
 # via .git/info/exclude, set by refresh.sh).

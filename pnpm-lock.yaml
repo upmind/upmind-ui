@@ -350,6 +350,9 @@ importers:
       lint-staged:
         specifier: ^15.5.2
         version: 15.5.2(supports-color@10.2.2)
+      node:
+        specifier: runtime:24.4
+        version: runtime:24.4.1
       playwright-bdd:
         specifier: ^9.2.0
         version: 9.2.0(@playwright/test@1.62.1)
@@ -972,6 +975,9 @@ importers:
       '@vue/test-utils':
         specifier: ^2.4.6
         version: 2.4.11(@vue/compiler-dom@3.5.39)(@vue/server-renderer@3.5.39(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))
+      firebase-tools:
+        specifier: ^14.12.0
+        version: 14.27.0(@types/node@22.19.3)(encoding@0.1.13)(supports-color@10.2.2)(typescript@5.9.3)
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0(supports-color@10.2.2)
@@ -1649,6 +1655,9 @@ importers:
       '@upmind-automation/scenario-harness':
         specifier: workspace:*
         version: link:../scenario-harness
+      '@upmind-automation/test-fixtures':
+        specifier: workspace:*
+        version: link:../../tests/fixtures
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
         version: 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
@@ -10672,6 +10681,116 @@ packages:
   node-stream-zip@1.15.0:
     resolution: {integrity: sha512-LN4fydt9TqhZhThkZIVQnF9cwjU3qmUH9h78Mx/K7d3VvfRqqwthLwJEUOEL0QPZ0XQmNN7be5Ggit5+4dq3Bw==}
     engines: {node: '>=0.12.0'}
+
+  node@runtime:24.4.1:
+    resolution:
+      type: variations
+      variants:
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-0rNJbDeVUVhEvY0tRUBNDo3bxxSFXOaOiVpkSmBZ/rM=
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-aix-ppc64.tar.gz
+          targets:
+            - cpu: ppc64
+              os: aix
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-VadypgC3va+0s1lFs5NQkOJ6/5k0tMEbKBIg/NmROdc=
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-darwin-arm64.tar.gz
+          targets:
+            - cpu: arm64
+              os: darwin
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-WfutlToHBeeNIgB5+20Q00HQphr9OutNsqhyB/3diUQ=
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-darwin-x64.tar.gz
+          targets:
+            - cpu: x64
+              os: darwin
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-/eVCHiZS5RGZvGeOHmxNgLu0xVM37AqCIGVoUX6Xku8=
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-linux-arm64.tar.gz
+          targets:
+            - cpu: arm64
+              os: linux
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-tO50Xk2KLD86eTpQaV12kyK4HHnyt7ecKjWbyokqDzY=
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-linux-ppc64le.tar.gz
+          targets:
+            - cpu: ppc64le
+              os: linux
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-jJpoDDrnyLSgL1X6oFXZYKtjmmeyV+/npGbUmTR0ZjA=
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-linux-s390x.tar.gz
+          targets:
+            - cpu: s390x
+              os: linux
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-Bj8uspm6YOP8m0JNjofQ4va+hLOb3q3EIe4oZZFMSYs=
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-linux-x64.tar.gz
+          targets:
+            - cpu: x64
+              os: linux
+        - resolution:
+            archive: zip
+            bin:
+              node: node.exe
+            integrity: sha256-jLmT2J0TEZ9YLHekxzS+W9/u5VV+bP6FDqGi8j+pRoY=
+            prefix: node-v24.4.1-win-arm64
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-win-arm64.zip
+          targets:
+            - cpu: arm64
+              os: win32
+        - resolution:
+            archive: zip
+            bin:
+              node: node.exe
+            integrity: sha256-BCimynVE3zEN5O0SwQ6EwLx8kCKUXcFt4i98DcSJPdI=
+            prefix: node-v24.4.1-win-x64
+            type: binary
+            url: https://nodejs.org/download/release/v24.4.1/node-v24.4.1-win-x64.zip
+          targets:
+            - cpu: x64
+              os: win32
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-yDQHSDid3+Ne5PQrWBBj/jrRZF35HA5aZL2gkhjPOqg=
+            type: binary
+            url: https://unofficial-builds.nodejs.org/download/release/v24.4.1/node-v24.4.1-linux-x64-musl.tar.gz
+          targets:
+            - cpu: x64
+              os: linux
+              libc: musl
+    version: 24.4.1
+    hasBin: true
 
   nopt@7.2.1:
     resolution: {integrity: sha512-taM24ViiimT/XntxbPyJQzCG+p4EKOpgD3mxFwW38mGjVUrfERQOeY4EDHjdnptttfHuHQXFx+lTP08Q+mLa/w==}
@@ -23410,6 +23529,8 @@ snapshots:
   node-releases@2.0.27: {}
 
   node-stream-zip@1.15.0: {}
+
+  node@runtime:24.4.1: {}
 
   nopt@7.2.1:
     dependencies:

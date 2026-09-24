@@ -21,8 +21,8 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { find, map, size } from "lodash-es";
-import PortalForm from "~/portal/modules/form/Form.vue";
 import type { VueWrapper } from "@vue/test-utils";
+import PortalForm from "~/portal/modules/form/Form.vue";
 
 const SCHEMA = {
   type: "object" as const,

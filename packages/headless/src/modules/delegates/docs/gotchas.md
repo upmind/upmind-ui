@@ -47,6 +47,10 @@ three would have been permanently `undefined` had they shipped — modelled
 from the type package rather than from what the wire actually returns.
 
 ```ts
+import { acceptDelegateInvite } from "@upmind-automation/headless";
+
+declare const hash: string;
+
 // ⚠️ Wrong: expecting a distinct "what did I just get" record
 // const { objectType } = await acceptDelegateInvite(hash); // no carrier for this
 
@@ -71,6 +75,10 @@ the wire, `active: false` looks like a disabled or switched-off row. All it
 actually records is whether the invitee has taken up the invitation yet.
 
 ```ts
+import { readClientDelegates } from "@upmind-automation/headless";
+
+declare const ownerId: string;
+
 // A row with isAccepted: false is a NORMAL, expected state — an invitation
 // still outstanding — not an error and not a disabled delegate.
 const pending = await readClientDelegates(ownerId);
@@ -102,6 +110,10 @@ reject the call. None of them is swallowed into "no delegates", "invited
 anyway", or "accepted anyway".
 
 ```ts
+import { readClientDelegates } from "@upmind-automation/headless";
+
+declare const namedId: string;
+
 // ⚠️ Wrong: treating a resolved call as success without checking
 // await readClientDelegates(someoneElsesId); // this REJECTS on a 403, it
 // does not resolve []

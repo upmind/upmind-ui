@@ -116,9 +116,9 @@ describe("forced states are read off the feature", () => {
       titled(statesOf("invoices"), /derives a pending state/),
       "a state the mapper computes is not one a fake network can answer"
     ).toEqual([]);
-    expect(kindsOf(titled(statesOf("invoices"), /A failed load/))).toEqual([
-      "refused/read"
-    ]);
+    expect(
+      kindsOf(titled(statesOf("invoices"), /A failed invoice load/))
+    ).toEqual(["refused/read"]);
   });
 
   it("reads a condition the sentence DENIES as denied", () => {

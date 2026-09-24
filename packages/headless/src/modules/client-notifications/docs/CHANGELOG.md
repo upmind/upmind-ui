@@ -49,12 +49,13 @@ Before (the oracle's page-local composable), the notification-preferences editor
 
 ```ts
 import {
+  ScopeActorTypes,
   useClientNotifications,
   useClientNotificationsManager
 } from "@upmind-automation/headless";
 
-const list = useClientNotifications().as("client");
-const editor = useClientNotificationsManager().as("client");
+const list = useClientNotifications().as(ScopeActorTypes.CLIENT);
+const editor = useClientNotificationsManager().as(ScopeActorTypes.CLIENT);
 ```
 
 ### Reading state — the four-layer destructure
@@ -62,6 +63,9 @@ const editor = useClientNotificationsManager().as("client");
 Both composables return `useActions()` / `useContext()` / `useMeta()` / `useInternals()` factories rather than a flat object — call the one you need:
 
 ```ts
+import type { UseClientNotifications } from "@upmind-automation/headless";
+declare const list: ReturnType<UseClientNotifications["fresh"]>;
+
 const { topics, channels, optOuts, isEnabled } = list.useContext();
 const { isAvailable, isLoading } = list.useMeta();
 ```

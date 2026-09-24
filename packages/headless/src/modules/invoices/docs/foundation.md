@@ -372,6 +372,7 @@ type InvoiceProduct = BasketProduct & {
 
 ```ts
 import type {
+  GatewayTypes,
   ICurrency as Currency,
   IPaymentDetail as PaymentDetails
 } from "@upmind-automation/types";

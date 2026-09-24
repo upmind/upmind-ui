@@ -44,6 +44,23 @@ export type ApiResponse = {
   headers?: Record<string, string>;
 };
 
+/**
+ * Renders a `FormData` request body into a plain, JSON-storable summary for
+ * the recorded fixture (a `FormData` instance itself cannot round-trip
+ * through `JSON.stringify`/sanitize). File/Blob entries are stored as a
+ * `<binary:name>` marker — never as their real bytes.
+ */
+function formDataToRecordable(form: FormData): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const [key, value] of form.entries()) {
+    result[key] =
+      value instanceof Blob
+        ? `<binary:${(value as File).name ?? "blob"}>`
+        : value;
+  }
+  return result;
+}
+
 export type GeneratorOptions = {
   /**
    * The unit's OWN co-located fixtures dir to write into, e.g.
@@ -151,9 +168,13 @@ export class Generator {
     path: string,
     body?: unknown,
     headers?: Record<string, string>,
-    forceStatus?: ForcedErrorCode
+    forceStatus?: ForcedErrorCode,
+    responseKind?: "json" | "binary"
   ): Promise<ApiResponse> {
     const requestHeaders = { ...this.defaultHeaders, ...headers };
+    // A FormData body sets its own multipart boundary; a manual
+    // Content-Type: application/json (the default) would corrupt it.
+    if (body instanceof FormData) delete requestHeaders["Content-Type"];
 
     const response = await fetch(this.buildUrl(path), {
       method,
@@ -163,13 +184,21 @@ export class Generator {
 
     // Raw body drives naming (needs the unsanitised `actor_type`); the
     // SANITISED body is what we store. This order is load-bearing.
-    const responseBody = await response.json().catch(() => null);
+    const responseBody =
+      responseKind === "binary"
+        ? await response
+            .arrayBuffer()
+            .then(buf => ({ __binary: true, byteLength: buf.byteLength }))
+            .catch(() => null)
+        : await response.json().catch(() => null);
     const sanitizedBody = this.shouldSanitize
       ? sanitize(responseBody)
       : responseBody;
+    const recordableRequestBody =
+      body instanceof FormData ? formDataToRecordable(body) : body;
     const sanitizedRequestBody = this.shouldSanitize
-      ? sanitize(body ?? null)
-      : (body ?? null);
+      ? sanitize(recordableRequestBody ?? null)
+      : (recordableRequestBody ?? null);
 
     // A forced fixture keeps the REAL request and overrides only the response —
     // status + a wire error envelope. The real body still drives naming below.
@@ -224,12 +253,20 @@ export class Generator {
   async get(
     path: string,
     headers?: Record<string, string>,
-    forceStatus?: ForcedErrorCode
+    forceStatus?: ForcedErrorCode,
+    responseKind?: "json" | "binary"
   ): Promise<ApiResponse> {
-    return this.capture("GET", path, undefined, headers, forceStatus);
+    return this.capture(
+      "GET",
+      path,
+      undefined,
+      headers,
+      forceStatus,
+      responseKind
+    );
   }
 
-  /** POST + capture. See `get` for `forced`. */
+  /** POST + capture. See `get` for `forced`. A `FormData` body is sent as multipart, never JSON-encoded. */
   async post(
     path: string,
     body?: unknown,
@@ -344,8 +381,9 @@ export class Generator {
   private encodeBody(
     body: unknown,
     headers: Record<string, string>
-  ): string | undefined {
+  ): BodyInit | undefined {
     if (body == null) return undefined;
+    if (body instanceof FormData) return body;
     const contentType =
       headers["Content-Type"] ?? headers["content-type"] ?? "";
     if (contentType.includes("application/x-www-form-urlencoded")) {

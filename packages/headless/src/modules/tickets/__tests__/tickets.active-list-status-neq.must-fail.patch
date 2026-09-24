@@ -1,0 +1,15 @@
+# must-fail: 11-active-list-status-neq
+# Target assertion: AC1 "active ticket list" — asserts the request carries filter[status.code|neq]=ticket_closed
+diff --git a/packages/headless/src/modules/tickets/tickets.schemas.ts b/packages/headless/src/modules/tickets/tickets.schemas.ts
+index 6c80c445d..320a72972 100644
+--- a/packages/headless/src/modules/tickets/tickets.schemas.ts
++++ b/packages/headless/src/modules/tickets/tickets.schemas.ts
+@@ -55,7 +55,7 @@ export function useQuerySchema(): TicketsQuerySchema {
+             additionalProperties: false,
+             properties: {
+               eq: { type: ["string", "null"] },
+-              neq: { type: ["string", "null"] }
++              neq: { type: "boolean" }
+             }
+           },
+           created_at: {

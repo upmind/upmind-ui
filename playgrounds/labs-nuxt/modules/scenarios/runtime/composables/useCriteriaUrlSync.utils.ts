@@ -48,6 +48,15 @@ export const SORT_PARAM = "sort";
 export const PAGINATION_PARAMS = ["limit", "offset"];
 
 /**
+/**
+ * The free-text quick-search param — the schema's own top-level `query` string
+ * (`tickets`/`client-notes`), which sits beside `filters` rather than under it
+ * and so was never walked by the filter pairs. Persisted only for a schema that
+ * declares it; every other collection has no `query` branch and is unaffected.
+ */
+export const QUERY_PARAM = "query";
+
+/**
  * The one statement of the filter param's format, read by both directions.
  *
  * A column declaring no operator sub-schema reaches the API as a bare
@@ -126,6 +135,11 @@ export function criteriaToParams(
       : toString(value);
   });
 
+  if (has(schema, ["properties", QUERY_PARAM])) {
+    const term = get(model, QUERY_PARAM);
+    if (!isNil(term) && term !== "") params[QUERY_PARAM] = toString(term);
+  }
+
   const sort = get(model, "sort", []) as QuerySortEntry[];
   if (!isEmpty(sort))
     params[SORT_PARAM] = join(
@@ -170,6 +184,14 @@ export function paramsToCriteria(
     if (!isNil(value) && !(isArray(value) && isEmpty(value)))
       set(criteria, leafPath(column, operator), value);
   });
+
+  if (has(schema, ["properties", QUERY_PARAM])) {
+    const raw = get(params, QUERY_PARAM);
+    if (isString(raw) && !isEmpty(raw)) {
+      const value = coerce(get(schema, ["properties", QUERY_PARAM]), raw);
+      if (!isNil(value)) set(criteria, QUERY_PARAM, value);
+    }
+  }
 
   const fields = declaredSortFields(schema as JsonSchema);
   const rawSort = get(params, SORT_PARAM);
