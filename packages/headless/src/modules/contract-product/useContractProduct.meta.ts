@@ -31,6 +31,8 @@ export function createContractProductMeta(
 
   const contractProduct = useContext<ContractProduct>(state, "contractProduct");
 
+  const isAvailable = useStateMatches(state, "available");
+
   const isCancelling = useStateMatches(state, ContractProductState.CANCELLING);
 
   const isPending = useStateMatches(state, ContractProductState.PENDING);
@@ -58,11 +60,13 @@ export function createContractProductMeta(
     ),
 
     /**
-     * True when the consolidation form may be opened at all — the SAME
-     * predicate the machine's `canConsolidate` guard evaluates (G3).
+     * True when the consolidation form may be opened at all: the product is on
+     * an `available` node (staged, cancelled, lapsed and fraud refuse, P4g) and
+     * passes the machine's `canConsolidate` guard (G3).
      */
     canConsolidate: computed(
       () =>
+        isAvailable.value &&
         !!contractProduct.value &&
         isConsolidationEligible(contractProduct.value)
     ),
@@ -148,7 +152,7 @@ export function createContractProductMeta(
     isActive: useStateMatches(state, ContractProductState.ACTIVE),
 
     /** True once the product is placed on any `available` node. */
-    isAvailable: useStateMatches(state, "available"),
+    isAvailable,
 
     /**
      * True while an outstanding invoice of this product can still be
