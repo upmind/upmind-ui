@@ -15,7 +15,7 @@ This lane **conducts**; it never authors an artefact itself. Every stage below d
 - Dispatched by the `/factory` door: on the `both` route once lane 1's Docs gate is green, and on the `page` route over a module that already exists. **Never user-invoked, never self-triggered.**
 - **Intake arrives parsed from the door.** This lane asks nothing — the module does not exist at intake on the default route, and the factory WRITES the page, so there is nothing for an author to pin. A field this lane cannot derive is a **halt** naming the row and the file it looked in — never a question, never a default.
 - The door has already graded the target M3 — template-conformant, build green (its Stage-0 audit and template contract, cited not restated). This lane never re-checks it and never half-derives from a module that failed it.
-- **A mid-run discovery that the module lacks a channel the page consumes is a HALT back to the door** — the module is regraded M2 and the composable lane runs first. It is NEVER derived around, repurposed around, or absorbed as a pass-and-surface decision: a surfaced decision may cover vocabulary lag, never an absent capability (2026-08-14 receipt: a repurposed `useMutate` and a missing criteria surface were both absorbed as surfaced decisions and shipped).
+- **A mid-run discovery that the module lacks a channel the page consumes goes to the lane's module repair** (operator ruling 2026-09-24, superseding the halt to the door): every gap in one list to a fresh developer, the repair proven by `run-test` over the module, then the gate grades again. It is NEVER derived around, repurposed around, or absorbed as a pass-and-surface decision: a surfaced decision may cover vocabulary lag, never an absent capability (2026-08-14 receipt: a repurposed `useMutate` and a missing criteria surface were both absorbed as surfaced decisions and shipped).
 
 ## Derivation contract
 
@@ -71,8 +71,8 @@ transport condition a scenario names, labelled with that scenario's own title
   request is answered with, so a module that never asks again shows nothing:
   the page warns loudly (`ScenarioPlayground.vue`) and every state reads as a
   dead control. `reset` ships from the composable lane's own templates
-  (`composable/templates/**`); a module without one is a **HALT back to the
-  door** (M2 regrade), exactly like an absent channel.
+  (`composable/templates/**`); a module without one goes to the **module
+  repair**, exactly like an absent channel.
 - **owes the rendered proof.** One 3-line spec per scenario the shared
   playground draws, named for the MODULE its `tracks` field carries and landed
   beside the harness in
@@ -168,9 +168,9 @@ Everything in the composable lane's "Dispatch contract" holds here unchanged and
 
 ## Failure states
 
-- **Any gate fails** → halt and surface the failing structured field verbatim; no silent retry.
+- **Any gate fails** → it grades to the end first and returns EVERY failing in one list; the list goes to one repair and the next cycle is a differential over it. The lane halts only on rows that need an operator choice (all shown at once), at the cycle cap, or on no progress — surfacing the failing structured field verbatim.
 - **A derived row with no `file:line`** → halt with that row named. A derivation over a promised module is a guess.
-- **An absent consumed channel (any D-row, D14–D16 above all)** → halt to the DOOR, module regraded M2, composable lane first. Never a derivation around it, never a pass-and-surface absorption — surfaced decisions cover vocabulary lag only, never absent capability.
+- **An absent consumed channel (any D-row, D14–D16 above all)** → the module repair, every gap at once, proven by `run-test`, then the gate grades again. Never a derivation around it, never a pass-and-surface absorption — surfaced decisions cover vocabulary lag only, never absent capability.
 - **Verify returns ABSENT** → the run does not advance to Review; the missing part named in the verifier's own filing routes back to the developer seat.
 - **A legitimately-red test is not a halt** — the repair loop is the composable lane's, cited: the failure routes back to a FRESH developer dispatch, never the authoring one. The cycle cap and the escalation are the script's.
 - **Doctrine-vs-template disagreement** — the doctrine wins and the disagreement is surfaced as a finding, never silently resolved toward the template or toward the one built page it cites as a reference.

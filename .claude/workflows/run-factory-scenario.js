@@ -10,7 +10,16 @@
 // PreToolUse payload, and hooks/seat-guard.sh keys its lanes on it.
 //
 // Shape: ordering gate -> derive -> code -> prove -> verify -> review ->
-// readback. No Docs stage, deliberately: the declaration is its own
+// readback.
+//
+// NO STAGE STOPS AT ITS FIRST FAILING (operator ruling 2026-09-24, FE-3029:
+// four runs halted at the ordering gate, each on the rows that one run happened
+// to see). Every gate grades to the end and returns EVERY failing in one list.
+// A module failing — a drift row, a module gap — no longer hands the run back
+// to the door: it goes to one developer repair with the whole list, run-test
+// proves that repair over the module, and the gate re-grades under the
+// differential. The lane halts only where a row needs an operator choice (every
+// such row shown at once), at the cycle cap, or on no progress. No Docs stage, deliberately: the declaration is its own
 // documentation surface, and the module doc set belongs to the composable lane.
 //
 // The `/factory` door dispatches it directly, after the composable lane (or
@@ -56,6 +65,11 @@
 //   jtbd      — the run's binding termination condition, verbatim
 //   module    — the LANDED module the page derives from
 //   cells     — optional; the ADR-001 actor x context cells, for the re-grade and readback briefs
+//   variant   — optional; machine | query | hybrid — the template set the re-grade grades against
+//   regradeDone — optional boolean. The composable lane's Review signed the
+//                 module off at a HEAD, and the door found no change to the
+//                 module since. Skips the ordering gate; the script cannot
+//                 read disk, so the door states what it found.
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
 export const meta = {
   name: "run-factory-scenario",
@@ -113,10 +127,16 @@ const { id, worktree, sddDir, jtbd, module: target } = A;
 const constraints =
   typeof A.constraints === "string" ? A.constraints : "none recorded";
 const cells = typeof A.cells === "string" ? A.cells : "as audited";
+const templateDir =
+  typeof A.variant === "string"
+    ? `${worktree}/.claude/skills/factory/composable/templates/${A.variant}`
+    : `the variant's template set under ${worktree}/.claude/skills/factory/composable/templates/`;
+const skipRegrade = A.regradeDone === true;
 
 // The 3-cycle cap (rules/code-reviews.md, the exhaustive-review law — "the cap
 // stays at three rounds"). Bounded by construction: this lane's own seats are
-// 1 + 1 + 1 + 3*2 + 3*2 + 1 = 16; run-test carries its own cap.
+// 3*2 (ordering gate) + 3*2 (Derive) + 1 + 3*2 + 3*2 + 1 = 26, plus one
+// run-test per module repair; run-test carries its own cap.
 const MAX_CYCLES = 3;
 
 const FACTS = `Story: ${id}. Worktree: ${worktree}. Module: ${target}. Cells: ${cells}.`;
@@ -128,7 +148,11 @@ const BOUNDS = `Run constraints: ${constraints}`;
 // is a HALT back to the door for an M2 regrade — never derived around. A page
 // built over a hole proves a capability the module does not have.
 const HALT_TO_DOOR =
-  "If the landed module has no criteria schema pair, no sort member, or no pagination descriptor, or a non-never scope-matrix cell a hand cannot drive from the acting-for bar (a RETARGET context with no schemas.lookups control keyed by its context value — a plain id text input counts ONLY where no list endpoint that actor's token can reach exists for the entity, stated in a one-line comment on the input; a SELECTOR context not choosable), HALT and say so — that is a module gap for the composable lane, never something to derive around or absorb as a surfaced decision.";
+  "If the landed module has no criteria schema pair, no sort member, or no pagination descriptor, or a non-never scope-matrix cell a hand cannot drive from the acting-for bar (a RETARGET context with no schemas.lookups control keyed by its context value — a plain id text input counts ONLY where no list endpoint that actor's token can reach exists for the entity, stated in a one-line comment on the input; a SELECTOR context not choosable), set moduleGap and list EVERY such gap in `gaps` with its file:line — that is a module gap the module repair closes, never something to derive around or absorb as a surfaced decision. Grade the whole module before you return; never stop at the first gap.";
+
+// The member-level template re-grade — the same brief the composable lane's
+// Template review carries, so both lanes grade one contract one way.
+const TEMPLATE_REGRADE = `Grade the landed module against the template set ${templateDir} MEMBER BY MEMBER, for EVERY composable the module ships or owes: every member each context, actions and meta factory returns, every machine state the template names, and the criteria channel. Grade what the module HAS, never what a run reported. A template member the module lacks, renames or reshapes is a drift row with the template file:line beside the module file:line. A row is excused ONLY by a \`template-departure:\` line in ${sddDir} that names BOTH the member AND the composable it excuses (for example \`template-departure: lookups (useContractProducts)\`); a departure line that names the module or nothing excuses nothing, and a departure for one composable never excuses another. Put a row in \`rulingRows\` ONLY when closing it needs an operator choice between keeping the landed shape as a declared departure and restoring the template — say which you recommend and why. Every other row goes in \`driftRows\`. Grade to the end: EVERY row in one list, never stop at the first; a row found next cycle that was there this cycle costs the run a whole round.`;
 
 // The exhaustive-review preamble every lane-local reviewer carries — the same
 // text the plugin's loops carry, so a lane-local reviewer is held to the same
@@ -142,7 +166,8 @@ const DERIVE_GATE = {
     pass: { type: "boolean" },
     summary: { type: "string" },
     undecidedFields: { type: "number" },
-    moduleGap: { type: "boolean" }
+    moduleGap: { type: "boolean" },
+    gaps: { type: "array", items: { type: "string" } }
   },
   required: ["pass", "summary", "undecidedFields"]
 };
@@ -204,11 +229,13 @@ const REVIEW_GATE = {
 const REGRADE_GATE = {
   type: "object",
   properties: {
-    pass: { type: "boolean" },
     summary: { type: "string" },
-    driftCount: { type: "number" }
+    driftCount: { type: "number" },
+    driftRows: { type: "array", items: { type: "string" } },
+    rulingRows: { type: "array", items: { type: "string" } },
+    introducedByRepair: { type: "array", items: { type: "string" } }
   },
-  required: ["pass", "summary", "driftCount"]
+  required: ["summary", "driftCount", "driftRows", "rulingRows"]
 };
 
 const READBACK_GATE = {
@@ -357,36 +384,120 @@ function stalled(previousFingerprint, verdict) {
 
 const results = { id, stopped: null, cycles: {}, surfaced: [] };
 
+// --- The module repair ------------------------------------------------------------
+// A module failing found by any gate of this lane — a drift row, a module gap —
+// closes HERE, in one round, instead of handing the run back to the door. A
+// FRESH developer closes the whole list and authors its mutants; run-test then
+// proves the repair over the module, diff withheld, exactly as the composable
+// lane proves its own. Returns a halt name, or null when the repair is proven.
+async function repairModule(stage, cycle, list) {
+  log(`factory-scenario ${id}: ${stage} cycle ${cycle} — module repair`);
+  const fixed = await agent(
+    `Invoke /upmind-agent:code for story ${id}. ${FACTS} ${BOUNDS} Template: ${templateDir}. The ${stage} found the MODULE short of its contract. Below is EVERY failing. Close ALL of them in this one pass by bringing the module to the template member or capability as named — a pass that closes some fails the next cycle on the rest. Author a .must-fail.patch for every member or behaviour you add or reshape, beside the spec that must flip; the prover applies them blind. File the public-surface hand-off for the prover. Green the suite and the full monorepo build, then commit:\n\n${list}`,
+    {
+      agentType: "upmind-agent:developer",
+      model: "sonnet",
+      phase: stage,
+      label: `fix-module:${stage}:${id}#${cycle}`
+    }
+  );
+  if (fixed === null) return "developer-failed";
+  const proved = await workflow("upmind-agent:run-test", {
+    id,
+    worktree,
+    size: "unset",
+    scope: `the module repair for story ${id} — every member and behaviour the ${stage} repair added or reshaped in ${target}. ${JTBD} ${BOUNDS}`,
+    inputs: `${sddDir}/design.md, the module's co-located .feature, the parity table, and the exported public surface only. Anchor every test to a scenario in the feature; an unmapped test means the feature gains the missing scenario, never that the test is dropped`,
+    layers: "unit and integration only; never e2e",
+    controls: true,
+    checks: "the FULL monorepo build (never scoped down)"
+  });
+  if (!proved) return "prover-failed";
+  if (Array.isArray(proved.surfaced))
+    results.surfaced.push(
+      ...proved.surfaced.map(x => ({ stage: `${stage} repair`, ...x }))
+    );
+  return proved.stopped ?? null;
+}
+
 // --- The ordering gate ----------------------------------------------------------------
-// DECISION (operator ruling 2026-09-22, rule 1): stays LANE-LOCAL. One planner
-// seat, one mechanical count, no reviewer, no artefact. `run-audit` grades a
-// target against a contract too, but it files a survey and pre-gates it over
-// up to three cycles — and the door already ran it at Stage 0. This gate only
-// re-confirms drift 0 on the module the composable lane LANDED. Nothing here
-// for the review law to bind.
+// DECISION (operator ruling 2026-09-22, rule 1): stays LANE-LOCAL. No plugin
+// workflow grades a module against the factory's templates; `run-audit` files
+// a survey and the door already ran it at Stage 0.
 //
 // This lane reads the LANDED module's mapper, schemas, criteria surface and
-// matrix, so a derivation over a still-partial module is a guess. A fresh
-// re-grade of what the module HAS — not of what the composable lane reported —
-// stands between the lanes. At M3 the audit's own grade is what this confirms.
-phase("Ordering gate");
-results.regrade = await agent(
-  `Re-grade the landed module for story ${id} against the current template contract. ${FACTS} ${BOUNDS} Return the drift count and name every drifted row with a file:line. Grade what the module HAS, not what the run reported.`,
-  {
-    agentType: "upmind-agent:planner",
-    model: "opus",
-    phase: "Ordering gate",
-    schema: REGRADE_GATE,
-    label: `regrade:${id}`
+// matrix, so a derivation over a still-partial module is a guess. A fresh,
+// member-level re-grade of what the module HAS stands between the lanes. It is
+// the composable lane's Template review run again, so a module that lane
+// signed off, unchanged since, skips it (`regradeDone`).
+//
+// DECISION (operator ruling 2026-09-24): drift no longer halts. Every row goes
+// to one module repair, and the next cycle is a differential over that list.
+// Only rows that need an operator choice stop the lane, all of them at once.
+if (!skipRegrade) {
+  phase("Ordering gate");
+  results.regrades = [];
+  let lastRegradeRows = "";
+  let regradePrior = [];
+  for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+    results.cycles.regrade = cycle;
+    const raw = await agent(
+      `Re-grade the landed module for story ${id} against the current template contract. ${FACTS} ${INPUTS} ${BOUNDS} ${TEMPLATE_REGRADE}${differentialBrief(
+        cycle,
+        regradePrior,
+        "developer"
+      )}`,
+      {
+        agentType: "upmind-agent:planner",
+        model: "opus",
+        phase: "Ordering gate",
+        schema: REGRADE_GATE,
+        label: `regrade:${id}#${cycle}`
+      }
+    );
+    if (!raw) {
+      results.regrades.push({ cycle, verdict: raw });
+      results.stopped = "regrade-failed";
+      return results;
+    }
+    const { verdict, surfaced } = applyDifferential(
+      { ...raw, blockers: raw.driftRows, warnings: raw.rulingRows },
+      regradePrior,
+      cycle
+    );
+    results.surfaced.push(
+      ...surfaced.map(x => ({ stage: "Ordering gate", ...x }))
+    );
+    results.regrades.push({ cycle, verdict: raw, gated: verdict });
+    const drift = verdict.blockers ?? [];
+    const rulings = verdict.warnings ?? [];
+    if (rulings.length) {
+      results.stopped = "ordering-gate-ruling";
+      results.rulingRows = rulings;
+      results.driftRows = drift;
+      return results;
+    }
+    if (!drift.length) break;
+    if (cycle === MAX_CYCLES) {
+      results.stopped = "ordering-gate-drift";
+      results.driftRows = drift;
+      return results;
+    }
+    if (stalled(lastRegradeRows, verdict)) {
+      results.stopped = "ordering-gate-no-progress";
+      results.driftRows = drift;
+      return results;
+    }
+    lastRegradeRows = blockerFingerprint(verdict);
+    regradePrior = priorList(verdict);
+    const halt = await repairModule("Ordering gate", cycle, gapList(verdict));
+    if (halt) {
+      results.stopped = halt;
+      return results;
+    }
   }
-);
-if (!results.regrade) {
-  results.stopped = "regrade-failed";
-  return results;
-}
-if (results.regrade.driftCount !== 0) {
-  results.stopped = "ordering-gate-drift";
-  return results;
+} else {
+  results.regrades = [{ skipped: true }];
 }
 
 // --- Derive -----------------------------------------------------------------------
@@ -400,25 +511,42 @@ if (results.regrade.driftCount !== 0) {
 // a promised module is a guess, which is why the door gates this lane behind a
 // drift-0 re-grade.
 phase("Derive");
-results.derive = await agent(
-  `Invoke /upmind-agent:plan (light route) for the playground declaration of story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Fill the scenario lane's derivation table off the LANDED module — every row cited with a file:line in that module, none invented. Resolve the icon from the module's subject against the published lucide set; an unreplaced placeholder is a red gate. ${HALT_TO_DOOR}`,
-  {
-    agentType: "upmind-agent:planner",
-    model: "opus",
-    phase: "Derive",
-    schema: DERIVE_GATE,
-    label: `derive:${id}`
+// A module gap is never derived around (receipt: 2026-08-14
+// client-email-history). Every gap goes to one module repair, then the table
+// is derived again over the repaired module.
+for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+  results.cycles.derive = cycle;
+  results.derive = await agent(
+    `Invoke /upmind-agent:plan (light route) for the playground declaration of story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Fill the scenario lane's derivation table off the LANDED module — every row cited with a file:line in that module, none invented. Resolve the icon from the module's subject against the published lucide set; an unreplaced placeholder is a red gate. Fill EVERY row before you return, and count every row you cannot decide. ${HALT_TO_DOOR}`,
+    {
+      agentType: "upmind-agent:planner",
+      model: "opus",
+      phase: "Derive",
+      schema: DERIVE_GATE,
+      label: `derive:${id}#${cycle}`
+    }
+  );
+  if (!results.derive) {
+    results.stopped = "derive-failed";
+    return results;
   }
-);
-if (!results.derive) {
-  results.stopped = "derive-failed";
-  return results;
-}
-// A module gap is the composable lane's work. Hand it back to the door rather
-// than landing a page around the hole (receipt: 2026-08-14 client-email-history).
-if (results.derive.moduleGap) {
-  results.stopped = "module-gap";
-  return results;
+  if (!results.derive.moduleGap) break;
+  if (cycle === MAX_CYCLES) {
+    results.stopped = "module-gap";
+    return results;
+  }
+  const gaps = results.derive.gaps?.length
+    ? results.derive.gaps
+    : [results.derive.summary];
+  const halt = await repairModule(
+    "Derive",
+    cycle,
+    `EVERY MODULE GAP, verbatim:\n${gaps.map((g, i) => `G${i + 1}. ${g}`).join("\n\n")}`
+  );
+  if (halt) {
+    results.stopped = halt;
+    return results;
+  }
 }
 if (results.derive.undecidedFields !== 0) {
   results.stopped = "derive-undecided";
@@ -543,14 +671,6 @@ for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
     results.stopped = "verify-failed";
     return results;
   }
-  // A gap in the MODULE is the composable lane's work, handed back to the door
-  // rather than patched around in the page. Mechanical, so it halts on every
-  // cycle before the differential is applied.
-  if (raw.moduleGap) {
-    results.verifies.push({ cycle, verdict: raw });
-    results.stopped = "module-gap";
-    return results;
-  }
   // An ABSENT with nothing itemised still carries its reason: the summary
   // stands in as the one finding, so the repair and the next differential
   // have a list to work from.
@@ -584,8 +704,17 @@ for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
   log(
     `factory-scenario ${id}: verify cycle ${cycle} ABSENT — developer landing the gap`
   );
+  // A gap in the MODULE is never patched around in the page: the module repair
+  // closes it, proven by run-test, in the same round as the page's own gaps.
+  if (raw.moduleGap) {
+    const halt = await repairModule("Verify", cycle, gapList(verdict));
+    if (halt) {
+      results.stopped = halt;
+      return results;
+    }
+  }
   const fixed = await agent(
-    `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${BOUNDS} The verifier found the page's capability ABSENT. Below is the WHOLE verdict — every blocker AND every warning the verifier found. Close ALL of it in this one pass: landing some of the list fails the next cycle on the rest. A warning you neither close nor disposition with a stated reason comes back next cycle as a blocker. Land each one verbatim as named, green the suite and the full monorepo build, then commit. If what is missing is the MODULE's capability rather than the page's, say so and stop:\n\n${gapList(verdict)}`,
+    `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${BOUNDS} The verifier found the page's capability ABSENT. Below is the WHOLE verdict — every blocker AND every warning the verifier found. Close ALL of it in this one pass: landing some of the list fails the next cycle on the rest. A warning you neither close nor disposition with a stated reason comes back next cycle as a blocker. Land each one verbatim as named, green the suite and the full monorepo build, then commit. ${raw.moduleGap ? "A module repair already landed the MODULE's part of this list; land the page's part over it." : ""}\n\n${gapList(verdict)}`,
     {
       agentType: "upmind-agent:developer",
       model: "sonnet",

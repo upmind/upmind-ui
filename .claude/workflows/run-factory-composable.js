@@ -11,7 +11,15 @@
 // session's max-price model and loses its write-lane enforcement
 // (rules/agent-orchestration.md §3, rules/agent-seat-separation.md).
 //
-// Shape: research -> plan -> code -> prove -> verify -> review -> document.
+// Shape: research -> plan -> code -> template review -> prove -> verify ->
+// review -> document.
+//   * Template review runs straight after Code, BEFORE Prove: every member a
+//     repair adds or renames is then proven by the prover like any other code.
+//     It is the member-level template re-grade the scenario lane's ordering
+//     gate runs, moved to where drift is made (Incident 2026-09-24, FE-3029:
+//     the conformance lint grades only files and exports, so 14 manager
+//     members drifted past every composable gate and surfaced at the scenario
+//     lane's first stage). A clean Review then signs the module off.
 //   * Verify runs BEFORE Review and Docs: an ABSENT verdict must not reach
 //     either, and the documenter takes the verdict as an input and may not
 //     certify a capability the verifier did not confirm.
@@ -84,7 +92,8 @@
 //                  review-notes.md in sddDir, which the planner reads first. The
 //                  Code stage still re-derives arms independently and reports a
 //                  mismatch either way.
-//   researchFiled, codeDone, proveDone, verifyDone, reviewDone, docsDone —
+//   researchFiled, codeDone, templateReviewDone, proveDone, verifyDone,
+//   reviewDone, docsDone —
 //                  optional booleans. Each one skips its stage. The door sets
 //                  them from what it finds on disk; the script cannot read disk.
 //   planApproved — optional boolean. The OPERATOR'S plan verdict, and the only
@@ -113,6 +122,12 @@ export const meta = {
       detail:
         "developer seat — invokes /code (scaffold, conformance, arms, scope, criteria)",
       model: "sonnet"
+    },
+    {
+      title: "Template review",
+      detail:
+        "reviewer seat — member-level template re-grade, every row in one list (pre-gate, differential)",
+      model: "opus"
     },
     {
       title: "Prove",
@@ -167,6 +182,7 @@ const planApproved = A.planApproved === true;
 const skipResearch = A.researchFiled === true;
 const skipPlan = planApproved;
 const skipCode = A.codeDone === true;
+const skipTemplateReview = A.templateReviewDone === true;
 const skipProve = A.proveDone === true;
 const skipVerify = A.verifyDone === true;
 const skipReview = A.reviewDone === true;
@@ -174,7 +190,8 @@ const skipDocument = A.docsDone === true;
 
 // The 3-cycle cap (rules/code-reviews.md, the exhaustive-review law — "the cap
 // stays at three rounds"). Bounded by construction: this lane's own seats are
-// 1 (Code) + 3*2 (Verify) + 3*2 (Review) = 13; run-research, run-plan, run-test
+// 1 (Code) + 3*2 (Template review) + 3*2 (Verify) + 3*2 (Review) = 19;
+// run-research, run-plan, run-test
 // and run-document each carry their own cap. A fourth failure of the same
 // behaviour escalates to the operator rather than cycling again.
 const MAX_CYCLES = 3;
@@ -203,6 +220,12 @@ const DOCTRINE = `Where doctrine and a template or worked example disagree, doct
 // law as a plugin one (rules/code-reviews.md, the exhaustive-review law and
 // "Severity is decided by CONSUMER IMPACT").
 const EXHAUSTIVE = `Then report EVERY finding in ONE list — never stop at the first defect. Stopping early costs the run a whole cycle per straggler and is itself a defect (rules/code-reviews.md, the exhaustive-review law; Incident 2026-09-18, FE-3029). If there are ten defects, your verdict carries ten.\n\nSEVERITY IS CONSUMER IMPACT. Before grading anything, ask: would a consumer of this module build the wrong thing, or lose a capability, because of this? A blocker means yes — the consumer is misled, a capability is lost, or a decision rests on a claim its source refutes. A warning means something real is wrong but the consumer can still build the right thing. A note is bookkeeping that changes nothing a consumer does: a count disagreeing with another count, a self-referential grep resolving to 2 instead of 1, a heading that says three over a table of four, a stale total, a cross-reference to a renumbered section. Put every note in \`notes\`. Notes DO NOT GATE. Filing bookkeeping as a blocker or a warning to force it through breaks this rule. Size is not severity: one wrong line anchor that sends a developer to the wrong function IS a blocker, and a whole table of stale counts is not.\n\nPass = no blocker AND no warning left unaddressed. A warning is a finding, not a suggestion — report it in \`warnings\` with its evidence, the same as a blocker. Praise and suggestions carry no gate and never block. File findings; emit no approval verdict.`;
+
+// The member-level template re-grade — the same brief the scenario lane's
+// ordering gate carries, so both lanes grade one contract one way. The
+// conformance lint stops at files and exports; this grades what each layer
+// factory RETURNS.
+const TEMPLATE_REGRADE = `Grade the landed module against the template set ${templateDir} MEMBER BY MEMBER, for EVERY composable the module ships or owes: every member each context, actions and meta factory returns, every machine state the template names, and the criteria channel. Grade what the module HAS, never what a run reported. A template member the module lacks, renames or reshapes is a drift row with the template file:line beside the module file:line. A row is excused ONLY by a \`template-departure:\` line in ${sddDir} that names BOTH the member AND the composable it excuses (for example \`template-departure: lookups (useContractProducts)\`); a departure line that names the module or nothing excuses nothing, and a departure for one composable never excuses another. Put a row in \`rulingRows\` ONLY when closing it needs an operator choice between keeping the landed shape as a declared departure and restoring the template — say which you recommend and why. Every other row goes in \`driftRows\`. Grade to the end: EVERY row in one list, never stop at the first; a row found next cycle that was there this cycle costs the run a whole round. Return the HEAD you graded as headSha.`;
 
 const GATE = {
   type: "object",
@@ -252,6 +275,22 @@ const CODE_GATE = {
   ]
 };
 
+// The template re-grade: rows, not findings — a drift row either names a real
+// gap or it does not, so severity does not apply. Rows that need a ruling stop
+// the lane with every row shown; the rest go to one repair.
+const TEMPLATE_GATE = {
+  type: "object",
+  properties: {
+    summary: { type: "string" },
+    headSha: { type: "string" },
+    driftCount: { type: "number" },
+    driftRows: { type: "array", items: { type: "string" } },
+    rulingRows: { type: "array", items: { type: "string" } },
+    introducedByRepair: { type: "array", items: { type: "string" } }
+  },
+  required: ["summary", "headSha", "driftCount", "driftRows", "rulingRows"]
+};
+
 // The findings lists every lane-local pre-gate verdict carries — the SAME gate
 // fields the plugin's loops carry (blockers / warnings / notes), plus the
 // differential's own field. A warning gates too; a note never does
@@ -288,6 +327,7 @@ const REVIEW_GATE = {
   properties: {
     blockerCount: { type: "number" },
     summary: { type: "string" },
+    headSha: { type: "string" },
     surfacedDecisions: { type: "array", items: { type: "string" } },
     ...FINDINGS
   },
@@ -592,11 +632,9 @@ if (!skipCode) {
     };
     return results;
   }
-  if (results.code.templateConformance.exit !== 0) {
-    results.stopped = "template-drift";
-    results.violations = results.code.templateConformance.violations;
-    return results;
-  }
+  // A red conformance lint does not halt: its rows go to the Template review,
+  // which grades every member and repairs them all in one round.
+  results.violations = results.code.templateConformance.violations ?? [];
   if (!(results.code.diffFileCount > 0)) {
     results.stopped = "code-empty-diff";
     return results;
@@ -611,6 +649,100 @@ if (!skipCode) {
   }
 } else {
   results.code = { skipped: true };
+}
+
+// --- Template review -------------------------------------------------------------
+// DECISION (operator ruling 2026-09-24): the member-level template re-grade
+// runs HERE, in the composable lane, not first at the scenario lane's ordering
+// gate. Lane-local for the same reason as Verify and Review: no plugin
+// workflow grades a module against the factory's templates. It obeys the same
+// law: every row in one list, the whole list to one repair, cycle 2+ a
+// differential over that list, a stalled loop escalates, the cap is three.
+// Rows that need an operator choice stop the lane with EVERY row shown, so a
+// ruling is asked once for the whole module, never row by row across runs.
+if (!skipTemplateReview) {
+  phase("Template review");
+  results.templateReviews = [];
+  let lastTemplateRows = "";
+  let templatePrior = [];
+  for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+    results.cycles.templateReview = cycle;
+    const lintRows =
+      cycle === 1 && results.violations?.length
+        ? `\n\nThe conformance lint at Code reported these rows; each is one of yours too:\n${results.violations.join("\n")}`
+        : "";
+    const raw = await agent(
+      `Invoke /upmind-agent:review (code lane) as the template re-grade for story ${id}. ${FACTS} ${INPUTS} ${BOUNDS} ${TEMPLATE_REGRADE}${lintRows}${differentialBrief(
+        cycle,
+        templatePrior,
+        "developer"
+      )}`,
+      {
+        agentType: "upmind-agent:reviewer",
+        model: "opus",
+        phase: "Template review",
+        schema: TEMPLATE_GATE,
+        label: `template-review:${id}#${cycle}`
+      }
+    );
+    if (!raw) {
+      results.templateReviews.push({ cycle, verdict: raw });
+      results.stopped = "template-review-failed";
+      return results;
+    }
+    const { verdict, surfaced } = applyDifferential(
+      { ...raw, blockers: raw.driftRows, warnings: raw.rulingRows },
+      templatePrior,
+      cycle
+    );
+    results.surfaced.push(
+      ...surfaced.map(s => ({ stage: "Template review", ...s }))
+    );
+    results.templateReviews.push({ cycle, verdict: raw, gated: verdict });
+    const drift = verdict.blockers ?? [];
+    const rulings = verdict.warnings ?? [];
+    if (rulings.length) {
+      results.stopped = "template-ruling";
+      results.rulingRows = rulings;
+      results.driftRows = drift;
+      return results;
+    }
+    if (!drift.length) {
+      results.templateSignedAt = raw.headSha;
+      break;
+    }
+    if (cycle === MAX_CYCLES) {
+      results.stopped = "template-drift";
+      results.driftRows = drift;
+      return results;
+    }
+    if (stalled(lastTemplateRows, verdict)) {
+      results.stopped = "template-review-no-progress";
+      results.driftRows = drift;
+      return results;
+    }
+    lastTemplateRows = blockerFingerprint(verdict);
+    templatePrior = priorList(verdict);
+
+    log(
+      `factory-composable ${id}: template review cycle ${cycle} — ${drift.length} drift rows, developer closing all`
+    );
+    const fixed = await agent(
+      `Invoke /upmind-agent:code for story ${id}. ${FACTS} ${BOUNDS} ${DOCTRINE} Template: ${templateDir}. The template re-grade found the module drifting from its template. Below is EVERY drift row. Close ALL of them in this one pass by bringing the module to the template member as named — a pass that closes some rows fails the next cycle on the rest. Author a .must-fail.patch for every member you add or reshape, beside the spec that must flip; the prover applies them blind. Green the suite and the full monorepo build, then commit:\n\n${gapList(verdict)}`,
+      {
+        agentType: "upmind-agent:developer",
+        model: "sonnet",
+        phase: "Template review",
+        label: `fix-template:${id}#${cycle}`
+      }
+    );
+    if (fixed === null) {
+      results.stopped = "developer-failed";
+      return results;
+    }
+  }
+} else {
+  results.templateReviews = [{ skipped: true }];
 }
 
 // --- Prove ---------------------------------------------------------------------------
@@ -811,7 +943,7 @@ if (!skipReview) {
     );
 
     const raw = await agent(
-      `Invoke /upmind-agent:review (code lane) over the diff for story ${id}. ${FACTS} ${INPUTS} ${BOUNDS} Hold the module to the variance law. A deviation carrying a complete @decision (what / why / rejected) is NOT a blocker — pass it and return it in surfacedDecisions so the run reports it rather than absorbing it silently. An override whose body is byte-equal to the shared implementation IS a blocker: it claims to override and delivers nothing. A conversion target's pre-existing unscoped structure is advisory, never a blocker, until this diff adds or modifies scoped structure.\n\nREAD THE WHOLE DIFF, every hunk start to finish, against the spec at ${sddDir}. ${EXHAUSTIVE} Return the blocker count beside the lists.${reviewDifferential}`,
+      `Invoke /upmind-agent:review (code lane) over the diff for story ${id}. ${FACTS} ${INPUTS} ${BOUNDS} Hold the module to the variance law. A deviation carrying a complete @decision (what / why / rejected) is NOT a blocker — pass it and return it in surfacedDecisions so the run reports it rather than absorbing it silently. An override whose body is byte-equal to the shared implementation IS a blocker: it claims to override and delivers nothing. A conversion target's pre-existing unscoped structure is advisory, never a blocker, until this diff adds or modifies scoped structure.\n\nREAD THE WHOLE DIFF, every hunk start to finish, against the spec at ${sddDir}. ${EXHAUSTIVE} Every member a repair since the Template review added, renamed or reshaped is held to the template too: a new drift row is a blocker. Return the blocker count beside the lists, and the HEAD you graded as headSha.${reviewDifferential}`,
       {
         agentType: "upmind-agent:reviewer",
         model: "opus",
@@ -845,7 +977,14 @@ if (!skipReview) {
 
     const blocked =
       (verdict.blockers ?? []).length + (verdict.warnings ?? []).length > 0;
-    if (!blocked) break;
+    if (!blocked) {
+      // The sign-off: the module is template-conformant at this HEAD. The door
+      // records it and passes `regradeDone` to the scenario lane when the
+      // module has no change since, so the ordering gate is not paid twice.
+      if (results.templateSignedAt || skipTemplateReview)
+        results.signoff = { module: target, sha: raw.headSha };
+      break;
+    }
     if (cycle === MAX_CYCLES) {
       results.stopped = "reviewer-blocked";
       return results;
