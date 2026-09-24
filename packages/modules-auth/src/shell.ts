@@ -5,7 +5,8 @@
  * Amendment 1 change 3 makes page/layouts/header/footer app-owned, and ADR 023
  * §3 puts `basket` ABOVE `auth`, so neither the page template nor the basket
  * summary may be imported here. Both arrive through `foundation`'s shell socket
- * instead; a host that provides nothing gets the bare template below.
+ * instead, and a host that registers no page for a template name gets an error
+ * rather than a page this package drew.
  */
 import { computed } from "vue";
 import { useShellComponents } from "@upmind-automation/foundation";
@@ -57,3 +58,32 @@ export const AUTH_TEMPLATE_SLOT: Record<AUTH_TEMPLATE, AuthShellSlot> = {
   [AUTH_TEMPLATE.TWO_COLUMN_RTL]: AUTH_SHELL.TEMPLATE_TWO_COLUMN_RTL,
   [AUTH_TEMPLATE.INSET]: AUTH_SHELL.TEMPLATE_INSET
 };
+
+/**
+ * The page template for a resolved auth template name. The host owns the page,
+ * so this yields the host's component or nothing at all.
+ */
+export function useAuthTemplate(template: () => AUTH_TEMPLATE): {
+  component: ComputedRef<Component>;
+} {
+  const shell = useShellComponents();
+
+  return {
+    component: computed(() => {
+      const slot = AUTH_TEMPLATE_SLOT[template()];
+      const provided = shell.resolve(slot);
+
+      // The host owns the page (ADR 023, Amendment 1 change 3). A name it
+      // registered no template for has no page, and a page drawn by nobody is
+      // indistinguishable from a working one, so this stops rather than draws.
+      if (!provided) {
+        throw new Error(
+          `[auth/shell] no template registered for "${slot}". Register one ` +
+            "with provideShellComponents at app root."
+        );
+      }
+
+      return provided;
+    })
+  };
+}

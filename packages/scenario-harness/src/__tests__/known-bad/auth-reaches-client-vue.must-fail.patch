@@ -1,5 +1,5 @@
 diff --git a/packages/modules-auth/src/views/Login.vue b/packages/modules-auth/src/views/Login.vue
-index 6d54121392..f7d66bd085 100644
+index 333ad771dc..8e8f56b4e3 100644
 --- a/packages/modules-auth/src/views/Login.vue
 +++ b/packages/modules-auth/src/views/Login.vue
 @@ -99,6 +99,7 @@
@@ -10,14 +10,28 @@ index 6d54121392..f7d66bd085 100644
  import { Hero } from "@upmind-automation/foundation";
  import { Back } from "@upmind-automation/foundation";
  import {
-@@ -177,7 +178,9 @@ const meta = computed(() => ({
+@@ -120,7 +121,12 @@ import {
+ } from "@upmind-automation/headless";
+ import { useAuthResolve, useAuthTemplates } from "../auth.utils";
+ import Auth from "../components/Auth.vue";
+-import { AUTH_SHELL, useAuthLoading, useAuthTemplate } from "../shell";
++import {
++  AUTH_SHELL,
++  AUTH_TEMPLATE_SLOT,
++  useAuthLoading,
++  useAuthTemplate
++} from "../shell";
+ import { type AuthProps, type AuthViewProps, AUTH_TEMPLATE } from "../types";
+ import { markdownVariants, sessionFormWidthVariants } from "../variants";
+ 
+@@ -175,7 +181,9 @@ const meta = computed(() => ({
+ 
  const shell = useShellComponents();
  
- const templateVariant = computed(
--  () => shell.resolve(AUTH_TEMPLATE_SLOT[template.value]) ?? AuthBareTemplate
-+  () =>
-+    SESSION_SHELL_COMPONENTS[AUTH_TEMPLATE_SLOT[template.value]] ??
-+    AuthBareTemplate
- );
+-const { component: templateVariant } = useAuthTemplate(() => template.value);
++const templateVariant = computed(
++  () => SESSION_SHELL_COMPONENTS[AUTH_TEMPLATE_SLOT[template.value]]
++);
  
  const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
+ const { component: loading } = useAuthLoading();

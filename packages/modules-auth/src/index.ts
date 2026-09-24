@@ -20,9 +20,8 @@ export { default as UpmAccount } from "./components/Account.vue";
 export { default as UpmAuth } from "./components/Auth.vue";
 
 // --- Export the shell contract a host fills
-export { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "./shell";
+export { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthTemplate } from "./shell";
 export type { AuthShellSlot } from "./shell";
-export { default as UpmAuthBareTemplate } from "./templates/AuthBare.template.vue";
 
 // --- Export the flows contract. The route records are the host's: this package
 // publishes the navigation rule that fires on them, not the paths.

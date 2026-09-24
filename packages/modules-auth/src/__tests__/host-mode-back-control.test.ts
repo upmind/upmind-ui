@@ -33,7 +33,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Suspense, computed, defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { provideThemeEngine } from "@upmind-automation/foundation";
+import {
+  provideShellComponents,
+  provideThemeEngine
+} from "@upmind-automation/foundation";
+import { AUTH_TEMPLATE_SLOT } from "../shell";
+import { AUTH_TEMPLATE } from "../types";
 import LoginView from "../views/Login.vue";
 import RecoverPasswordView from "../views/RecoverPassword.vue";
 import RegisterView from "../views/Register.vue";
@@ -117,6 +122,26 @@ const i18n = createI18n({
   fallbackWarn: false
 });
 
+/** The host's page, drawing every slot the screens fill. */
+const HostPage = defineComponent({
+  setup(_props, { slots }) {
+    return () =>
+      h("div", [
+        slots.back?.(),
+        slots.hero?.(),
+        slots.markdown?.(),
+        slots.form?.(),
+        slots.summary?.(),
+        slots.actions?.()
+      ]);
+  }
+});
+
+/** One page per template name, so no name the brand asks for is missing. */
+const HOST_PAGES = Object.fromEntries(
+  Object.values(AUTH_TEMPLATE).map(name => [AUTH_TEMPLATE_SLOT[name], HostPage])
+);
+
 async function render(view: Component) {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -134,6 +159,9 @@ async function render(view: Component) {
   const Host = defineComponent({
     setup() {
       provideThemeEngine({ set: () => undefined });
+      // The host owns the page: with nothing registered the view throws rather
+      // than drawing one itself, so this stands in for the app's own template.
+      provideShellComponents(computed(() => HOST_PAGES));
       return () =>
         h(Suspense, null, {
           default: () =>

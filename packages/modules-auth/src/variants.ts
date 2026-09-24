@@ -61,8 +61,6 @@ export const sessionSubtitleVariants = cva("font-normal");
 
 // The bare template's own stack — the only layout this package draws, and only
 // where the host provides no shell template of its own.
-export const bareRootVariants = cva("flex w-full flex-col gap-6");
-
 export const loadingRootVariants = cva(
   "flex w-full items-center justify-center"
 );

@@ -120,8 +120,7 @@ import {
 } from "@upmind-automation/headless";
 import { useAuthResolve, useAuthTemplates } from "../auth.utils";
 import Auth from "../components/Auth.vue";
-import { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthLoading } from "../shell";
-import AuthBareTemplate from "../templates/AuthBare.template.vue";
+import { AUTH_SHELL, useAuthLoading, useAuthTemplate } from "../shell";
 import { type AuthProps, type AuthViewProps, AUTH_TEMPLATE } from "../types";
 import { markdownVariants, sessionFormWidthVariants } from "../variants";
 
@@ -176,9 +175,7 @@ const meta = computed(() => ({
 
 const shell = useShellComponents();
 
-const templateVariant = computed(
-  () => shell.resolve(AUTH_TEMPLATE_SLOT[template.value]) ?? AuthBareTemplate
-);
+const { component: templateVariant } = useAuthTemplate(() => template.value);
 
 const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
 const { component: loading } = useAuthLoading();
