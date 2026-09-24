@@ -101,6 +101,11 @@ Removes this scoped instance from the registry.
 ## The editor — `useBillingSettingsManager`
 
 ```ts
+import {
+  ScopeActorTypes,
+  useBillingSettingsManager
+} from "@upmind-automation/headless";
+
 const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 
 await manager.useActions().isReady();
@@ -292,13 +297,20 @@ The editor's baseline model — what an untouched form holds before a key is pre
 ## Errors are state, never announcements
 
 ```ts
+import type {
+  UseBillingSettings,
+  UseBillingSettingsManager
+} from "@upmind-automation/headless";
+declare const settings: ReturnType<UseBillingSettings["fresh"]>;
+declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+
 // Read view
 const { error } = settings.useContext();
 const { hasErrors } = settings.useMeta();
 
 // Editor
 const { errors, validationErrors } = manager.useContext();
-const { hasErrors } = manager.useMeta();
+const { hasErrors: managerHasErrors } = manager.useMeta();
 
 // Success signal for the editor
 await manager.useActions().onDone();

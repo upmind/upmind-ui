@@ -19,7 +19,8 @@ import {
   toDataPath
 } from "@jsonforms/core";
 import { useValidation } from "@upmind-automation/headless";
-import { compact, get, split } from "lodash-es";
+import { compact, get, isString, split } from "lodash-es";
+import type { ScenarioTracks } from "./scenario.types";
 import type { Rule, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
@@ -85,4 +86,24 @@ export function isRuleVisible(
     useValidation().ajv,
     undefined
   );
+}
+
+/**
+ * The module name out of a declaration's `tracks`, whichever form it takes.
+ *
+ * `tracks` is the module's own NAME, except on a page PAIRED over one feature,
+ * where it also carries the lane that page does not play (`ScenarioTracks`).
+ * Every consumer that wants the name alone — the corpus seam, the integration
+ * kits, the traceability oracle — reads it through here, so widening the
+ * declaration did not put a cast at each of them.
+ */
+export function trackedModuleOf(tracks?: ScenarioTracks): string | undefined {
+  return isString(tracks) ? tracks : tracks?.module;
+}
+
+/** The scenario tags a declaration's page leaves OUT; none for an unpaired page. */
+export function excludedTagsOf(
+  tracks?: ScenarioTracks
+): readonly string[] | undefined {
+  return isString(tracks) ? undefined : tracks?.without;
 }

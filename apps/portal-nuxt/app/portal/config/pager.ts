@@ -9,6 +9,7 @@
  * pager also self-hides while its collection fits one page.
  */
 
+import { ArrowLeft } from "lucide-vue-next";
 import { ROW_LAYOUT, ROW_SURFACE } from "../content/types";
 import {
   PAGER_REF_BY_ITEMS_REF,
@@ -18,7 +19,6 @@ import {
 import { BUTTON_MODULE_VARIANT } from "../modules/button/types";
 import { LIST_CONTROLS_CONCERN } from "../modules/list-controls/types";
 import { PROSE_MODULE_VARIANT } from "../modules/prose/types";
-import { ArrowLeft } from "lucide-vue-next";
 import {
   BUTTON_MODULE_ID,
   PAGINATION_MODULE_ID,

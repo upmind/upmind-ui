@@ -1,0 +1,45 @@
+# Dev container for the monorepo, based on vue-app's etc/docker/dev.
+# glibc (bookworm-slim), not musl, to match the Playwright/Allure CI image.
+# pnpm 12 is a pinned npm global because corepack is unbundled from Node 25+.
+ARG BASE_IMAGE=node:24.4.1-bookworm-slim
+
+FROM ${BASE_IMAGE}
+
+LABEL environment="development"
+
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+
+USER root
+
+# Matches package.json packageManager. The Taskfile can override it.
+ARG PNPM_VERSION=12.3.4
+
+# Match the host user so bind-mounted files stay writable on both sides.
+ARG DOCKER_UID
+ARG DOCKER_GID
+ARG DOCKER_USERNAME=thedockeruser
+
+ENV DOCKER_UID=${DOCKER_UID}
+ENV DOCKER_GID=${DOCKER_GID}
+ENV DOCKER_USERNAME=${DOCKER_USERNAME}
+
+# git for the prepare/preinstall hooks and submodules. The rest for tooling and private deps.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends bash git curl ca-certificates openssh-client \
+  && rm -rf /var/lib/apt/lists/*
+
+# pnpm 12 as a pinned global (Node is present, so no corepack).
+RUN npm install -g pnpm@${PNPM_VERSION}
+
+# Match the host UID/GID so mounted files stay writable. GID 20 (dialout, the
+# macOS staff GID) may already exist, so reuse it rather than recreating it.
+RUN : "${DOCKER_UID:?DOCKER_UID is required}" \
+  && : "${DOCKER_GID:?DOCKER_GID is required}" \
+  && if ! getent group "${DOCKER_GID}" >/dev/null; then \
+       groupadd -g "${DOCKER_GID}" "${DOCKER_USERNAME}"; \
+     fi \
+  && groupname="$(getent group "${DOCKER_GID}" | cut -d: -f1)" \
+  && useradd -o -m -u "${DOCKER_UID}" -g "${groupname}" -s /bin/bash "${DOCKER_USERNAME}"
+
+USER ${DOCKER_USERNAME}
+WORKDIR /app

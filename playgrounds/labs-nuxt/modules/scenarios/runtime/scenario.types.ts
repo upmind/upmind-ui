@@ -319,6 +319,15 @@ export type TableCellBadges = TableCellElement & {
 };
 
 /**
+ * A nested collection on the record — a ticket's messages, an invoice's lines
+ * — each item drawn through its own declared cells, scoped to the ITEM.
+ */
+export type TableCellList = TableCellElement & {
+  type: "TableCellList";
+  options: TableCellElement["options"] & { elements: TableCell[] };
+};
+
+/**
  * One declared cell, under the renderer its `type` NAMES (`R6-36`) — each one a
  * registered JSONForms renderer with its own `uiTypeIs` tester, never a
  * discriminator a surface switches on.
@@ -328,7 +337,8 @@ export type TableCell =
   | TableCellHtml
   | TableCellDate
   | TableCellIcon
-  | TableCellBadges;
+  | TableCellBadges
+  | TableCellList;
 
 /**
  * The WHOLE table: its header labels, its column order, every cell's renderer
@@ -464,6 +474,20 @@ export type ScenarioAction = {
    * `ScenarioAction`, the read peer of its `handoff` member.
    */
   detail?: boolean;
+  /**
+   * This control NAVIGATES to another route instead of calling an action or
+   * opening an overlay — a route-path template where the `:id` placeholder is
+   * replaced with the row's own id. The surface owns the push (it never reaches
+   * the module), so it is the navigation twin of {@link ScenarioAction.detail}:
+   * a control the page handles itself, not a member bound off `useList`'s
+   * action map.
+   *
+   * @graphify-citation `graphify-out/graph.json` (query "ScenarioAction navigate
+   * row action router push") — no per-row navigation node exists in the tree;
+   * page-level navigation lives only on {@link ScenarioPageAction}
+   * (`usePreferencesLink`). This member extends the existing `ScenarioAction`.
+   */
+  navigate?: string;
   /** The control's label — an i18n key, never English. */
   i18n: string;
   icon?: string;
@@ -594,7 +618,28 @@ export type ScenarioPresentation = {
  * A scenario declaring none renders Live alone and no transport, which is the
  * state every page boots into anyway (`S12`).
  */
-export type ScenarioTracks = string;
+export type ScenarioTracks =
+  | string
+  | {
+      /** The module's own name, exactly as the bare-string form carries it. */
+      module: string;
+      /**
+       * Scenario tags this page does NOT play, for a module whose ONE feature
+       * serves two pages. `tickets` is the first such module: its feature tags
+       * every scenario `@collection` or `@manager`, and without this both pages
+       * listed all 24 driveable tracks — the collection offering "Reply to a
+       * ticket" and "Rename a ticket's subject", which belong to the manager.
+       *
+       * It names what a page is NOT rather than what it is, so there is no lane
+       * vocabulary to keep in step across two files, and a scenario carrying
+       * NEITHER lane tag stays on both pages — the honest default for behaviour
+       * two pages genuinely share. `tickets` has no such scenario: each of the
+       * three its feature left untagged turned out to fire a collection action,
+       * so the lane a scenario belongs to is read off the composable that
+       * implements it, never off how the title reads.
+       */
+      without?: readonly string[];
+    };
 
 // -----------------------------------------------------------------------------
 
@@ -618,9 +663,42 @@ export type ScenarioBinding = (
    * shared renderer never sees it. It still declares, still registers, still
    * carries its nav entry — a module whose composable is not four-layer yet
    * reaches the playground this way rather than as a page outside it.
+   *
+   * Such a page may still OPT IN to a playlist by naming {@link
+   * ScenarioBinding.useManage} — see that member.
    */
   | { useList?: never; useMutate?: never }
 ) & {
+  /**
+   * The composable a SELF-DRAWN page boots so its own scenario bar has a cell
+   * to drive — the third verb beside `useList` (the collection) and
+   * `useMutate` (the editor), and the one a module that renders itself needs.
+   *
+   * WHY IT EXISTS. `boundKeys` is the set of keys the harness can build a
+   * boot thunk for, and it was the two renderer bindings alone — so a
+   * self-drawn declaration was excluded from `scenarioRegistry`, and
+   * `World.boot` on its key threw. That is the correct answer for a page with
+   * nothing to boot; it is the wrong one for a page that boots the module
+   * ITSELF and simply draws it by hand, which is every manager whose thread,
+   * composer or wizard no generic surface can render.
+   *
+   * PURELY OPT-IN. A declaration that does not name it is unchanged in every
+   * respect: it stays out of `boundKeys`, out of `scenarioRegistry`, and
+   * asking the world to boot it still throws. Nothing here is inferred from a
+   * page file's presence — the declaration says it or it does not.
+   *
+   * It is read LAST, after `useList` and `useMutate`, so a declaration that
+   * binds a renderer cannot have its boot moved by naming one.
+   *
+   * @graphify-citation `graphify query "scenario binding self-drawn boot
+   * composable useManage"` (2026-09-17, `graphify-out/graph.json`, 482 nodes)
+   * — no self-drawn-boot node and no binding member of this name exist in the
+   * tree; the one `useManage*` hit is `useValidationKeywords.ts`'s
+   * `useManageKeyword`, an unrelated JSON-schema keyword. Nothing is minted:
+   * this member extends the existing `ScenarioBinding` and names the module's
+   * own exported builder, exactly as its two siblings do.
+   */
+  useManage?: FourLayerComposable;
   /**
    * The single-read composable a row opens READ-ONLY — the read twin of
    * `useMutate`. Omitted, the detail overlay renders the clicked row's own data

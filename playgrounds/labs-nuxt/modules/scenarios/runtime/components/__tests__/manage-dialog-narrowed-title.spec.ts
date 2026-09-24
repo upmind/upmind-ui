@@ -37,6 +37,7 @@ import {
   runtimeFeature
 } from "../../force/corpus";
 import { createForceHandlers } from "../../force/handlers";
+import { trackedModuleOf } from "../../scenario.utils";
 import { ModuleRenderer } from "../index";
 import { find, get, keys, kebabCase, mapValues } from "lodash-es";
 import type {
@@ -55,7 +56,7 @@ import type { VueWrapper } from "@vue/test-utils";
   });
 
 const settle = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
-const module = declaration.tracks as string;
+const module = trackedModuleOf(declaration.tracks)!;
 
 // Module scope, like `proveForcedSurface`: these bind the lane's msw lifecycle
 // hooks, which only register at collection time.

@@ -130,7 +130,7 @@
   "tax_valid": "Validerad {relative}",
   "taxes": "Skatter",
   "taxes_calculating": "Beräkning",
-  "term": "kalla",
+  "term": "period",
   "term_duration": "{duration} term",
   "terms_and_conditions": "Villkor",
   "terms_and_conditions_desc": "Genom att klicka på '{label}', Jag håller med om {action} av {brand}.",

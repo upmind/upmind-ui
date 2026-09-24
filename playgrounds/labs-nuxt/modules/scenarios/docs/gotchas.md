@@ -71,3 +71,11 @@ A response the force intercept serves can look, to the rest of the app, exactly 
 ## 18. Arming's own cleanup must never be reported as the module's failure
 
 Arming swaps the active transport and clears whatever the page had already fetched, which cancels any request that was still in flight at that moment. That cancellation is forcing tidying up after itself, not the module failing — but a cancelled request and a failed one can look identical to whatever is watching for errors. If the cancellation reaches the same channel a real failure would, the page draws a failure state for a module that is actually fine. This is easy to miss because it only shows up for whichever module's read happens to still be in flight when arming clears the cache — the rest look unaffected purely by timing, not because the underlying handling is correct.
+
+## 19. A self-drawn page plays nothing until it says it boots something
+
+Drawing your own page is not the same as declaring one. A declaration that names no collection and no editor is deliberately outside the set the harness can boot — that is the correct answer for a page with nothing behind it, and asking it to boot still fails loudly. A page that *does* boot its module and merely draws it by hand says so explicitly, and only then does it get a playlist. Nothing is inferred from the presence of a page file: if a self-drawn page's scenario picker reads empty, check the declaration before suspecting the seam.
+
+## 20. A self-drawn page's tracks declare an actor, never its record
+
+A page addressed by a record in its URL (one ticket, one invoice) cannot have that record named in a step catalog: one catalog serves every record, so a literal there would be a second target beside the URL's — the page showing one record while the script drove another. Such a page's tracks declare the ACTOR alone and the page completes the record from the URL it was opened on. If you find yourself wanting to put an id in a catalog, that is the fact you are actually reaching for.

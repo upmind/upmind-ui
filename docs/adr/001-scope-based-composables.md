@@ -61,7 +61,7 @@ useAuth()
 
 #### Convention: `.as()` before `.for()`
 
-The shipped builder offers `.for()` only after `.as()`, which is also the convention that reads best:
+The shipped builder also offers `.for()` before `.as()` (the actor then resolves to SELF), but `.as()` first is the convention that reads best:
 
 ```ts
 import {
@@ -77,7 +77,7 @@ useClientEmails()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientEmailsContextTypes.CLIENT, clientId)
 
-// @ts-expect-error — `.for()` is offered only after `.as()`
+// Discouraged: this compiles — the actor resolves to SELF — but it reads worse
 useClientEmails().for(ClientEmailsContextTypes.CLIENT, clientId)
 ```
 
@@ -207,7 +207,7 @@ import type { SessionState } from '@upmind-automation/headless'
 // One guest token alongside client and staff sessions, each keyed by session id.
 declare const sessions: SessionState
 
-export const guest = sessions.guestSession
+export const guest = sessions.guestSessions
 export const clients = sessions.clientSessions
 export const staff = sessions.staffSessions
 ```

@@ -169,9 +169,9 @@ Each `@ts-expect-error` above is the proof, not a workaround: delete a directive
 
 **This bites hardest in specs and playground files**, because `__tests__/**` and the labs playground both sit outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug. See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#2-as-and-for-take-enum-members-never-string-literals) for the fuller account — the same rule applies here.
 
-## 7. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.for()`/`.fresh()`
+## 7. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.for()`
 
-Both composables in this module share one scope matrix, which maps `self` to `null as never` (the same shape the sibling custom-fields module uses). `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but the type it produces cannot chain a further `.for()` or `.fresh()` — this is a distinct issue from gotcha 6 above: the code here typechecks fine, it just doesn't have the method you might reach for next.
+Both composables in this module share one scope matrix, which maps `self` to `null as never` (the same shape the sibling custom-fields module uses). `.as(ScopeActorTypes.SELF)` alone works and resolves to the calling client, but the type it produces cannot chain a further `.for()` — this is a distinct issue from gotcha 6 above: the code here typechecks fine, it just doesn't have the method you might reach for next.
 
 ```ts
 import {
@@ -182,11 +182,11 @@ import {
 // ✅ Right: .as(ScopeActorTypes.SELF) alone
 const selfScoped = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
 
-// ❌ Wrong: chaining .fresh() off SELF does not typecheck
-// @ts-expect-error — no .fresh() on the SELF branch's type
-usePersonalDetailsManager().as(ScopeActorTypes.SELF).fresh();
+// ❌ Wrong: chaining .for() off SELF does not typecheck
+// @ts-expect-error — no .for() on the SELF branch's type
+usePersonalDetailsManager().as(ScopeActorTypes.SELF).for();
 
-// ✅ Right: name the concrete actor when you need .for()/.fresh()
+// ✅ Right: name the concrete actor when you need .for()
 const manager = usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).fresh();
 ```
 
