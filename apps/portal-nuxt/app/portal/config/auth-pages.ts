@@ -1,12 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module portal/config/auth-pages
- * @description The logged-out pages this app composes. Sign-in, its second
- * step, registration and recovery are NOT among them: those four routes mount
- * the real `@upmind-automation/auth` organisms directly and name no page key.
- * What remains is the screens no organism covers — reset-with-token,
- * verification, organisation registration (each a stub, see `./client-vue`) —
- * and the two token-addressed preference pages, composed here.
+ * @description The logged-out pages this app composes.
  */
 
 import { ROW_LAYOUT } from "../content/types";
@@ -185,9 +180,6 @@ export function authPages(): Partial<Record<PageKey, ContentConfig>> {
     ]
   );
 
-  // Sign-in, its second step, registration and recovery are NOT here: those
-  // four routes mount the real `@upmind-automation/auth` organisms and pass no
-  // page key, so a composition for them would answer nothing.
   return {
     [PAGE_KEY.AUTH_REGISTER_ORG]: registerOrg,
     [PAGE_KEY.AUTH_RESET_PASSWORD]: reset,

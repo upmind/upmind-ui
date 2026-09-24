@@ -19,10 +19,6 @@
 </template>
 
 <script lang="ts" setup>
-// Two equal halves, the form leading — what the cart's split page draws, where
-// a surface form column sits beside a full-height canvas half. The shell paints
-// that second half with the brand, and tones the form column surface, so the
-// form takes no card.
 import { AuthShell } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import type { AuthRoutes } from "@upmind-automation/auth";

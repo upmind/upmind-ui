@@ -1,11 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module foundation/icon
- * @description The shared glyph resolver. UI glyphs resolve to lucide;
- * flags/providers/unmapped names fall back to the registered SVG asset loader.
- *
- * ADR 023 §2's deciding rule puts a presentational primitive in `ui`; `ui` is a
- * submodule outside this cut, so `foundation` is the lowest legal in-tree home.
+ * @description The shared glyph resolver.
  */
 
 // --- Component

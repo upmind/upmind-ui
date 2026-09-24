@@ -22,9 +22,6 @@
 </template>
 
 <script setup lang="ts">
-// Two equal halves — what develop's `SessionSplit.template.vue` draws on
-// the cart's SPLIT_HORIZONTAL layout: a surface form half beside a plain canvas
-// half at `md` and up. The second half carries nothing in the cart either.
 import PortalAuthNote from "../PortalAuthNote.vue";
 import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";

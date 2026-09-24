@@ -1,36 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The host-mode seam the session screens resolve through
+ * @fileoverview The host-mode seam the session screens resolve through.
  *
  * ## Job To Be Done
- * The three session screens ran their forward and back steps through the funnel
- * machine alone. A host that drives no funnel — portal-nuxt — has no funnel
- * service to resolve, so an accepted sign-in threw and the visitor stayed on
- * `/login`, signed in, looking at the form they had just filled in.
- * `useAuthResolve` is the seam that ends that: the HOST MODE picks the path,
- * `navigateNext`/`navigateBack` in a funnel host and the screen's own routes in
- * a funnel-free one.
- *
- * ## Why both directions of the mode are asserted
- * The mode has to decide, not a failure. A suite that only covered the
- * funnel-free side would pass against the broken code it replaced, because that
- * code took the funnel path unconditionally. So every claim here is made twice,
- * once per mode, and each is pinned on BOTH channels — the funnel call and the
- * router — so a path cannot be satisfied by doing nothing.
- *
- * ## Where no route is named
- * The mode is read before any route is. A funnel-free host that names no route
- * does nothing at all, rather than calling the funnel step and relying on it
- * throwing — which is what it used to do, with the view swallowing the error.
- * Recovery is the screen in that position: it ends on its own email-sent
- * message, and its type no longer declares a landing it would not honour. The
- * back control's absence is asserted separately in
- * `host-mode-back-control.test.ts`, and remains load-bearing.
+ * `useAuthResolve` takes the funnel step in a funnel host, else the screen's own routes.
  *
  * ## What Breaks If These Fail
- * Forward: a funnel host loses its funnel step and drops every buying customer
- * on a landing page instead of their basket, or a funnel-free host strands them
- * on the sign-in screen again. Back: the same, one control over.
+ * A funnel host drops buyers on a landing page, or a funnel-free host strands them on sign-in.
  */
 
 import { mount } from "@vue/test-utils";
@@ -61,7 +37,6 @@ vi.mock("@upmind-automation/headless", async importOriginal => {
 
 const Blank = { setup: () => () => h("div") };
 
-/** Neither `/login` nor `/dashboard`, so every landing is a real move. */
 const START = "/start";
 
 const CROSS_LINKS = {

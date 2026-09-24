@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts" setup>
-// The boundary seam — see `Login.vue` for why it lives in this package.
 import { useAuthLoading } from "./shell";
 import RegisterView from "./views/Register.vue";
 import type { AuthViewProps } from "./types";

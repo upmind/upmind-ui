@@ -12,10 +12,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module portal/auth/PortalAuthNote
- * @description The brand's own note for the sign-in and sign-up screens. It is
- * body content, not chrome, so each template places it where the cart places
- * the organism's `markdown` slot — and the templates the cart gives no markdown
- * to place none either.
+ * @description The brand's own note for the sign-in and sign-up screens.
  */
 import { Markdown } from "@upmind/ui";
 import { computed } from "vue";
@@ -27,7 +24,6 @@ import { RESERVED_PILLAR_SEGMENT } from "~/portal/types";
 const route = useRoute();
 const { loginMarkdown, registerMarkdown } = useMockBrandGates();
 
-/** Legacy authored one note for each of the two screens. */
 function screenNote(segment: string | undefined): string {
   if (segment === RESERVED_PILLAR_SEGMENT.LOGIN) return loginMarkdown.value;
   if (segment === RESERVED_PILLAR_SEGMENT.REGISTER) {

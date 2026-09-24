@@ -1,17 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The auth route records — ADR 023 §8 route contribution
+ * @fileoverview The auth route records.
  *
  * ## Job To Be Done
- * `authRoutes` is how this app mounts the login/register/2FA/recover flows.
- * Every published `AUTH_ROUTE` name must resolve in a real router, under the
- * app's own base, with the legacy `signup`/`signout` paths still answering —
- * and the return-target meta the flow registrar keys on must be on every
- * record, because this app owns the hand-back.
+ * Every `AUTH_ROUTE` resolves, legacy `signup`/`signout` answer, and each record carries return meta.
  *
  * ## What Breaks If These Fail
- * The standalone app boots to a 404 instead of a login screen, or it loses the
- * hand-back guard and leaves a signed-in customer on the login screen.
+ * The app boots to a 404, or leaves a signed-in customer on the login screen.
  */
 
 import { describe, expect, it } from "vitest";
@@ -20,7 +15,6 @@ import { AUTH_ROUTE, authRoutes } from "../src/routes";
 
 // -----------------------------------------------------------------------------
 
-/** The meta flag the flow registrar's guard keys on. */
 const RETURN_TARGET_META = "authReturnTarget";
 
 function routerFor() {
@@ -63,8 +57,6 @@ describe("authRoutes", () => {
     await router.push({ name: AUTH_ROUTE.ROOT });
 
     expect(router.currentRoute.value.name).toBe(AUTH_ROUTE.LOGIN);
-    // The flow registrar fires only on a record carrying the flag, so the
-    // redirect has to land on one.
     expect(router.currentRoute.value.meta).toMatchObject({
       [RETURN_TARGET_META]: true
     });

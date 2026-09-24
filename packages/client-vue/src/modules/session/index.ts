@@ -1,17 +1,11 @@
 // -----------------------------------------------------------------------------
 /**
  * @module modules/session
- * @description The organisms moved to `@upmind-automation/auth` in the ADR 023
- * cut; what stays here is the SHELL they render inside (Amendment 1 change 3).
- * The barrel keeps every export name it had, so an app that has not been
- * rewired to the package yet is unaffected.
+ * @description The shell the `@upmind-automation/auth` organisms render inside.
  */
 
-// --- Export Views (now owned by @upmind-automation/auth)
-// The `Session*` spelling survives HERE and nowhere else. `apps/velia` and
-// `apps/hosting` are separate repositories that import these names from this
-// package, and this package is deleted in the final phase — so the aliases are
-// a compatibility shim with a known end date, not a second vocabulary.
+// --- Export Views
+// `apps/velia` and `apps/hosting` still import the `Session*` names.
 export {
   UpmAuthAction,
   UpmAuthLogin as UpmSessionLogin,
@@ -23,7 +17,7 @@ export {
 // --- Export Components
 export { UpmAccount, UpmAuth } from "@upmind-automation/auth";
 
-// --- Export the shell entries the socket is filled with
+// --- Export Shell
 export { SESSION_SHELL_COMPONENTS } from "./shell";
 
 // --- Export Types

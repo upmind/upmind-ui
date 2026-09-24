@@ -19,8 +19,6 @@
 </template>
 
 <script lang="ts" setup>
-// The mirror of the LTR page: the narrow aside leads and the wide form column
-// follows, which is the default track order of the shell's offset pair.
 import { AuthShell } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import type { AuthRoutes } from "@upmind-automation/auth";

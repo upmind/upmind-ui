@@ -1,20 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The guest-checkout CTA at the socket — ADR 023 §7
+ * @fileoverview The guest-checkout CTA at the `auth:guest-checkout` shell socket.
  *
  * ## Job To Be Done
- * `checkout` sits ABOVE `auth`, so the offer cannot be imported into the session
- * views; it arrives through the `auth:guest-checkout` shell socket. The socket
- * has to carry the whole capability: the slot must be filled, the filler must
- * reach it from inside a descendant the way an organism does, the four gate
- * terms must each still withdraw the offer, and the published test key must
- * survive the move verbatim.
+ * The filled socket resolves, each gate term withdraws the offer, and the test key survives.
  *
  * ## What Breaks If These Fail
- * An unfilled socket renders nothing and raises nothing — a green build, a green
- * type gate, and no guest checkout for any visitor. The e2e page object reads
- * this offer by test key alone, so a renamed key or a dropped registration is
- * invisible until a customer cannot buy.
+ * An unfilled socket renders nothing and raises nothing: no guest checkout for any visitor.
  */
 
 import { RouterLinkStub, mount } from "@vue/test-utils";
@@ -25,7 +17,6 @@ import type { Component, ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
-/** The one combination that offers guest checkout. */
 const OFFERED = {
   isAuthenticated: false,
   canRegisterAsGuest: true,
@@ -72,11 +63,6 @@ vi.mock("@upmind-automation/headless", async importOriginal => {
 
 const CTA = '[data-test-key="guest-checkout-cta"]';
 
-/**
- * Sentinels, not the shipped copy: the offer's keys moved out of the `auth`
- * namespace into `cart` with it, so what is under test is which key path the
- * host catalogue is asked for.
- */
 const COPY = {
   question: "cart-namespace question",
   action: "cart-namespace action"
@@ -101,10 +87,6 @@ const HostTemplate = defineComponent({
   setup: () => () => h("div", { "data-host": "template" })
 });
 
-/**
- * Mounts the slot the way a session organism does: resolve it from inside a
- * descendant of the host that provides the shell, then render what came back.
- */
 async function offerUnderHost(
   host?: Record<string, Component>,
   props: Record<string, unknown> = { registerAsGuest: () => undefined }
@@ -150,7 +132,6 @@ async function shellComponents() {
 }
 
 describe("the guest-checkout offer at the auth socket", () => {
-  // The first mount pays for the whole client-vue + auth + foundation graph.
   beforeAll(async () => {
     await offerUnderHost(await shellComponents());
   }, 30000);

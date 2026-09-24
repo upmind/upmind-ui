@@ -64,9 +64,6 @@ import { ROUTE } from "~/funnels/types";
 const route = useRoute();
 const { storefrontRoute } = useStorefrontRoute();
 
-// This app builds its shell from the standalone parts rather than <Upm>, so it
-// fills `foundation`'s two ports itself: the live theme engine and the session
-// shell the auth organisms render inside (Amendment 1 change 3).
 provideThemeEngine({ set: useThemes().set });
 provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 

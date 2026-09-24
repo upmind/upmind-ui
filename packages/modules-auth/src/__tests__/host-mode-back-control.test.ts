@@ -1,31 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The back control the session screens withhold — and the ones
- * they keep
+ * @fileoverview The back control the session screens withhold, and the ones they keep.
  *
  * ## Job To Be Done
- * `useAuthResolve` does not gate the back step: asked, it falls through to the
- * funnel in either host (see `host-mode-resolve.test.ts`). The only thing that
- * keeps a funnel-free host off that call is that login and register RENDER NO
- * BACK CONTROL there — their back is the basket, and such a host has none.
- * Recovery's back is the login screen, which exists in every host, so recovery
- * keeps its control and routes with it. The absence is therefore a decision, and
- * a decision is what is graded here.
- *
- * ## Why the control is found by clicking, not by a selector
- * An absence assertion made with a selector nobody proved can see anything
- * passes on a typo. So the back control is identified by what it DOES: every
- * control on the screen is clicked on its own mount, and the one that reaches
- * the back step is the control. The funnel host proves the sweep finds it on the
- * very screens the funnel-free host is then asserted to be missing it from, and
- * the funnel-free inventory is compared whole — so a screen that rendered
- * nothing at all, or lost some other affordance, fails rather than passes.
+ * In a funnel-free host login and register render no back control; recovery keeps its own.
  *
  * ## What Breaks If These Fail
- * A visitor to a funnel-free host is offered a back that reaches for a funnel
- * that is not there: the click throws, the screen stays, and the control looks
- * broken. Or the reverse — the cart's own back disappears from a funnel host and
- * every customer loses their way to the basket.
+ * A funnel-free host offers a back that throws, or a funnel host loses its way back to the basket.
  */
 
 import { flushPromises, mount } from "@vue/test-utils";
@@ -104,7 +85,6 @@ vi.mock("@upmind-automation/headless", async importOriginal => {
 
 const Blank = { setup: () => () => h("div") };
 
-/** Neither the login screen nor the landing, so every arrival is a real move. */
 const START = "/start";
 
 const CONTROL = '[role="button"], button, a';
@@ -122,7 +102,6 @@ const i18n = createI18n({
   fallbackWarn: false
 });
 
-/** The host's page, drawing every slot the screens fill. */
 const HostPage = defineComponent({
   setup(_props, { slots }) {
     return () =>
@@ -137,7 +116,6 @@ const HostPage = defineComponent({
   }
 });
 
-/** One page per template name, so no name the brand asks for is missing. */
 const HOST_PAGES = Object.fromEntries(
   Object.values(AUTH_TEMPLATE).map(name => [AUTH_TEMPLATE_SLOT[name], HostPage])
 );
@@ -159,8 +137,6 @@ async function render(view: Component) {
   const Host = defineComponent({
     setup() {
       provideThemeEngine({ set: () => undefined });
-      // The host owns the page: with nothing registered the view throws rather
-      // than drawing one itself, so this stands in for the app's own template.
       provideShellComponents(computed(() => HOST_PAGES));
       return () =>
         h(Suspense, null, {
@@ -197,7 +173,6 @@ type Activation = {
   landedOn: string;
 };
 
-/** Clicks every control on its own mount, so one activation cannot mask another. */
 async function sweep(view: Component): Promise<Activation[]> {
   const opening = await render(view);
   const count = controlsIn(opening.wrapper).length;

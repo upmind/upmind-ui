@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts" setup>
-// The boundary seam — see `Login.vue` for why it lives in this package.
 import { useAuthLoading } from "./shell";
 import RecoverPasswordView from "./views/RecoverPassword.vue";
 import type { AuthRecoverViewProps } from "./types";

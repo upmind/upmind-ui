@@ -142,9 +142,7 @@ const {
 } = useAuthResolve(props);
 
 const { ui } = useConfig({
-  // The key must be PRESENT to opt out: useConfig calls useBasket() unless it
-  // is, which fetched an order and the basket-fields catalogue on every auth
-  // page. No ui.* definition resolves from the basket, so nothing is lost.
+  // The key must be present to opt out, or useConfig fetches the basket on every auth page.
   basket: undefined,
   context: UIContext.AUTH,
   provide: true

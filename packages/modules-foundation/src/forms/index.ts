@@ -1,8 +1,6 @@
 /**
  * @module foundation/forms
- * @description The form-host wrapper ADR 023 §2 assigns to this layer: it hands
- * `ui`'s engine the app's glyph, reference data, ajv instance and i18n, and
- * takes its Upmind-domain renderers from the §7 socket rather than an import.
+ * @description The form-host wrapper around `ui`'s engine.
  */
 
 export { default as Form } from "./Form.vue";

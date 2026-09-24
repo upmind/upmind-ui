@@ -47,12 +47,6 @@ const ENTRY_PATHS = ["src/main.css", "app/main.css", "src/styles.css"];
 
 // -----------------------------------------------------------------------------
 
-/**
- * Every package under `packages/` that ships at least one `.vue` file, as a
- * `{ dir, name }` pair. A directory name and a package name are different
- * strings since the `modules-` prefix: an `@source` glob is a path and needs
- * `dir`, a host's `dependencies` key is a specifier and needs `name`.
- */
 function readComponentPackages(): { dir: string; name: string }[] {
   const holdsVue = (dir: string): boolean =>
     readdirSync(dir, { withFileTypes: true }).some(entry => {
@@ -100,7 +94,6 @@ function readHosts(): { name: string; entry: string; manifest: string }[] {
   return hosts.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** The scoped runtime dependencies a host declares, as full specifiers. */
 function readScopedDependencies(manifest: string): string[] {
   const { dependencies = {} } = JSON.parse(readFileSync(manifest, "utf8"));
 

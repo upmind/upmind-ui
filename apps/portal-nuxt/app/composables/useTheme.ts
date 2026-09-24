@@ -48,7 +48,6 @@ const themeName = useLocalStorage<string>("upmind-portal-theme", "upmind");
 // useColorMode toggles the `.dark` class on <html> and persists for us.
 const mode = useColorMode({ storageKey: "upmind-portal-mode" });
 
-/** What the browser hands back, narrowed to the promises a caller must settle. */
 type ViewTransitionLike = {
   ready: Promise<void>;
   finished: Promise<void>;
@@ -76,10 +75,7 @@ function withThemeTransition(apply: () => void): void {
     await nextTick();
   });
 
-  // A second theme write skips the one in flight, and every promise the skipped
-  // transition handed out then rejects with AbortError. That is the API saying
-  // the crossfade was dropped, not that the theme failed — left unsettled it
-  // surfaces on the page as an unhandled rejection.
+  // A skipped transition rejects its promises with AbortError; unsettled, they surface as unhandled.
   const swallowSkip = (): void => {};
   void transition.ready.catch(swallowSkip);
   void transition.finished.catch(swallowSkip);

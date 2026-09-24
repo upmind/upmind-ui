@@ -1,18 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The auth loading interstitial — ADR 023 §7 shell socket
+ * @fileoverview The auth loading interstitial.
  *
  * ## Job To Be Done
- * Each session organism's body is async, so the package owns the `<Suspense>`
- * boundary at its own public export seam and takes the `#fallback` from this
- * seam. The seam must therefore ALWAYS yield a component: a host that fills
- * `AUTH_SHELL.LOADING` gets its own interstitial, and a host that fills nothing
- * — the standalone auth app, portal-nuxt — falls through to this package's own.
+ * The loading seam always yields a component: the host's interstitial, else this package's own.
  *
  * ## What Breaks If These Fail
- * The fallback resolves to `undefined`, so the visitor gets a blank page for the
- * whole of the organism's setup — the empty body the boundary exists to remove.
- * A green build cannot see it, because nothing about it fails to compile.
+ * The visitor gets a blank page for the whole of the organism's setup.
  */
 
 import { mount } from "@vue/test-utils";
@@ -27,7 +21,6 @@ import type { Component, ComputedRef, ShallowRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
-/** The interstitial's copy comes from the host's i18n; the catalogue is not. */
 const i18n = createI18n({
   legacy: false,
   locale: "en",
@@ -43,7 +36,6 @@ const HostTemplate = defineComponent({
   setup: () => () => h("div", { "data-host": "template" })
 });
 
-/** Reads the seam from inside a descendant, the way an organism does. */
 function loadingUnderHost(
   host?: ShallowRef<ShellComponents>
 ): ComputedRef<Component> {

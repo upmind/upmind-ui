@@ -1,18 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The shell socket — ADR 023 §7, Amendment 1 change 3
+ * @fileoverview The shell socket.
  *
  * ## Job To Be Done
- * The socket is how an app hands a domain organism the shell it renders inside
- * without the organism importing it. It must ship EMPTY, carry a host's map to
- * any descendant, answer an unknown name with `undefined` rather than throwing,
- * and follow the host when the offered map changes.
+ * The socket ships empty, reaches descendants, misses with `undefined`, and follows the host.
  *
  * ## What Breaks If These Fail
- * A socket that ships pre-filled puts domain entries in `foundation` and makes
- * the DAG cyclic; a socket that drops the host's map leaves every organism
- * unable to find its page, so the only way back is the import the socket exists
- * to remove.
+ * An organism cannot find its page, or domain entries in `foundation` make the graph cyclic.
  */
 
 import { flushPromises, mount } from "@vue/test-utils";
@@ -38,7 +32,6 @@ function stub(name: string): Component {
   });
 }
 
-/** Mounts a probe under an optional host and reports what the socket answered. */
 function probeUnder(host?: () => ShellComponents) {
   const seen: {
     components?: ShellComponents;
@@ -95,7 +88,6 @@ describe("the shell socket", () => {
   it("follows the host when the offered shell changes", async () => {
     const first = stub(PAGE);
     const second = stub(ASIDE);
-    // shallowRef: a deep ref would proxy the component objects and lose identity.
     const offered = shallowRef<ShellComponents>({ [PAGE]: first });
 
     const { seen } = probeUnder(() => offered.value);

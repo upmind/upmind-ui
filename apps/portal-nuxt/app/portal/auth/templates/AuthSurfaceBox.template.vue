@@ -24,9 +24,6 @@
 </template>
 
 <script setup lang="ts">
-// One centred box on the canvas — what develop's
-// `SessionSurfaceBox.template.vue` draws on the cart's SURFACE_BOX layout: the
-// hero above a single card holding the marketing copy and the form.
 import { Card } from "@upmind/ui";
 import PortalAuthNote from "../PortalAuthNote.vue";
 import PortalAuthBrand from "../PortalAuthBrand.vue";

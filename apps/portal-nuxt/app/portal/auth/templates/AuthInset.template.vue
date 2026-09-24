@@ -22,9 +22,6 @@
 </template>
 
 <script setup lang="ts">
-// The one-page flow's card — what develop's `SessionInset.template.vue`
-// draws on the cart's centred Inset layout with `:aside="false"`: a back row,
-// one card, and no summary beside it.
 import { Card } from "@upmind/ui";
 import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";

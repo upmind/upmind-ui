@@ -49,9 +49,6 @@ import {
 } from "~/portal/mock/store";
 import { PAGE_KEY, RESERVED_PILLAR_SEGMENT } from "~/portal/types";
 
-// The app draws these two screens itself, so they take the chrome-drawing
-// layout. The auth screens take the bare `logged-out` one, whose page comes
-// from the package's template slot instead.
 const LOGGED_OUT_LAYOUT = 'definePageMeta({ layout: "logged-out-page" })';
 
 const TOKEN = "eyJhbGciOiJIUzI1NiJ9.token-from-the-link";

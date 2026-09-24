@@ -3,9 +3,6 @@
 </template>
 
 <script setup lang="ts">
-// The real `@upmind-automation/auth` organism, replacing the stub this route
-// carried while the surface still lived in `client-vue`.
-//
 // Legacy served no registration screen at all for a brand that hides its
 // registration forms (`brand/hasRegistrationEnabled`), so a client arriving by
 // URL lands on the sign-in screen instead — the same in-setup redirect the

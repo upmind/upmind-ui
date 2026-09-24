@@ -45,9 +45,7 @@ export {
   useShellComponents
 } from "./shell";
 
-// --- The shared presentation glue. §2 admission is counted, not asserted: past
-// `auth`, Icon is imported by 12 client-vue modules, Hero by 9, Section by 8 and
-// Back by basket, billing and checkout — each of them a later box.
+// --- The shared presentation glue
 
 export { Icon } from "./icon";
 export {
@@ -75,10 +73,6 @@ export type { HeroProps, HeroActionProps } from "./hero";
 export { Back } from "./navigation";
 export type { BackProps, StorefrontRoute } from "./navigation";
 
-// `Sections` earns its place on the barrel as a MULTI-section container, not as
-// `Section`'s body: `client-vue`'s BillingForm builds its tab set out of it, and
-// the same package re-publishes it as `UpmSections` for the labs playground.
-// `auth` takes `Section` alone.
 export { Section, Sections, useSection } from "./section";
 export type {
   SectionItem,

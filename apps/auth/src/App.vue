@@ -5,10 +5,6 @@
 </template>
 
 <script lang="ts" setup>
-// The whole shell. Amendment 1 change 3 makes it app-owned, and this app owns
-// almost none of it: no header, no footer, no basket summary. It fills
-// `foundation`'s theme port, and hands the auth package the seven page
-// templates it can ask for.
 import { computed } from "vue";
 import {
   provideShellComponents,

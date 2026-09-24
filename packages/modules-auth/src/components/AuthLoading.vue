@@ -16,9 +16,6 @@ import { useI18n } from "vue-i18n";
 import { loadingRootVariants } from "../variants";
 import type { InterstitialAnimatedIcon } from "@upmind/ui";
 
-// The interstitial a host gets when it fills no `AUTH_SHELL.LOADING` slot. It
-// is deliberately a real spinner, not an empty node: this renders across the
-// whole async setup, so nothing here means a blank screen.
 const SPINNER: InterstitialAnimatedIcon = {
   icon: "loading",
   delay: 250,

@@ -9,10 +9,6 @@
 </template>
 
 <script lang="ts" setup>
-// The basket-summary aside `auth` asks for through `foundation`'s shell socket.
-// `basket` sits ABOVE `auth` in the ADR 023 §3 graph, so neither the summary nor
-// the question "is there a basket to show" can be answered there; the shell owns
-// the whole aside, its section chrome and its gate included.
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Section } from "@upmind-automation/foundation";

@@ -1,20 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview eslint reaches inside the new packages' SFCs — ADR 023 §3
+ * @fileoverview eslint reaches inside the new packages' SFCs.
  *
  * ## Job To Be Done
- * Nine domain packages and their apps arrive over Phases 3-9, and each one
- * brings `.vue` files to a repo whose flat config has to be told about every new
- * home. A config that does not cover a path lints it as zero files and EXITS 0,
- * so the lane it guards goes green over unlinted code. Coverage therefore has to
- * be asserted the only way it can be proved: plant a violation in an SFC at each
- * new home and require the rule to catch it — in the TEMPLATE, which only a real
- * SFC parser can see, and in the `<script setup lang="ts">` body.
+ * A violation planted in an SFC template and script at each new home is caught.
  *
  * ## What Breaks If These Fail
- * Every package lint in the repo passes while an entire new package goes
- * unchecked. A negative control that lints a whole package to prove itself green
- * proves nothing, because the files it was pointed at were never read.
+ * An uncovered path lints as zero files and exits 0, so a whole package goes unchecked.
  */
 
 import { existsSync } from "node:fs";
@@ -24,7 +16,6 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 // -----------------------------------------------------------------------------
 
-/** The flat config lives at the workspace root, wherever the runner started. */
 function workspaceRoot() {
   let candidate = resolve(process.cwd());
   while (!existsSync(join(candidate, "pnpm-workspace.yaml"))) {
@@ -37,7 +28,6 @@ function workspaceRoot() {
 
 const ROOT = workspaceRoot();
 
-/** One SFC home per new box the canary stands up. */
 const HOMES = {
   authPackage: "packages/modules-auth/src/Login.vue",
   foundationPackage: "packages/modules-foundation/src/modules/hero/Hero.vue",
@@ -57,7 +47,6 @@ const CLEAN = [
   ""
 ].join("\n");
 
-/** A `key`-less `v-for`: visible only to something that parsed the template. */
 const TEMPLATE_VIOLATION = CLEAN.replace(' :key="item"', "");
 
 const SCRIPT_VIOLATION = CLEAN.replace(

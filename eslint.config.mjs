@@ -825,11 +825,6 @@ const IMPORT_RESOLVE_EXTENSIONS = [
   ".vue"
 ];
 
-// eslint-plugin-import parses a RESOLVED dependency with the IMPORTING file's
-// parser, so an SFC reached from a `.ts` barrel was handed to the TS parser and
-// threw on `<template>`. It then treats the module as empty, and `import/no-cycle`
-// below cannot follow a cycle that runs through an SFC. Naming the SFC parser per
-// extension is the only channel eslint-plugin-import offers for that.
 const importGraphSettings = {
   "import/resolver": { node: { extensions: IMPORT_RESOLVE_EXTENSIONS } },
   "import/extensions": IMPORT_RESOLVE_EXTENSIONS,
@@ -1012,13 +1007,6 @@ export default [
 
   // ---------------------------------------------------------------------------
   // 5b. portal-nuxt's MOCK FACADES keep headless as a TYPES-ONLY dependency.
-  //     They alias @upmind-automation/headless to source so a facade can be
-  //     typed against the real composable contract; a VALUE import there would
-  //     execute the barrel to serve a mock, which is the coupling the facades
-  //     exist to avoid. Narrowed from the whole app to app/portal/mock/** by
-  //     the go-real step this block itself named: ADR 023 Phase 2 lands the
-  //     first real organism (@upmind-automation/auth), so the app runtime now
-  //     takes the runtime dependency deliberately, in app/plugins/.
   //     (docs/plans/portal-mock-composable-facades.md R3)
   // ---------------------------------------------------------------------------
   {
@@ -1047,10 +1035,6 @@ export default [
     files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: {
       parser: typescriptParser,
-      // `parser` is vue-eslint-parser's inner-script parser. It is set HERE, on
-      // the TS block, because eslint-plugin-import hands an SFC dependency the
-      // parserOptions of the `.ts` file that imported it; typescriptParser
-      // itself ignores the key.
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",

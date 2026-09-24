@@ -112,9 +112,6 @@ const props = defineProps<{
 const { set } = useThemes();
 const { meta: routingMeta } = useRoutingEngine();
 
-// The two ports `foundation` declares but never implements: this package still
-// owns the live theme engine (a Phase 10 residual) and the shell the auth
-// organisms render inside (Amendment 1 change 3).
 provideThemeEngine({ set });
 provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 const {

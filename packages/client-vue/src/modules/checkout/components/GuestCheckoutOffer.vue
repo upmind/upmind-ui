@@ -28,9 +28,6 @@
 </template>
 
 <script lang="ts" setup>
-// The offer `auth` asks for through `foundation`'s shell socket. The gate reads
-// the basket, which sits ABOVE `auth` in the ADR 023 §3 graph and so cannot be
-// read there; the verb arrives as a prop instead.
 import { Alert, Link, Spinner } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";

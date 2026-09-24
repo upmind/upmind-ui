@@ -13,15 +13,9 @@ export const provideShellComponents = (
 
 export type UseShellComponents = {
   components: ComputedRef<ShellComponents>;
-  /** The named shell component, or `undefined` when the host offers none. */
   resolve: (name: string) => Component | undefined;
 };
 
-/**
- * Reads the shell components a host offers. Ships EMPTY: a standalone consumer
- * with no shell wired — the auth and payment apps of Amendment 1 change 4 —
- * resolves `undefined` and renders its own content bare.
- */
 export const useShellComponents = (): UseShellComponents => {
   const provided = hasInjectionContext()
     ? inject(SHELL_COMPONENTS, null)

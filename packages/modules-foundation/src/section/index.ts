@@ -1,7 +1,6 @@
 /**
  * @module foundation/section
- * @description The shared section wrapper and the section-config store every
- * page template writes to (ADR 023 §2 — ≥2 domains, knows none of them).
+ * @description The shared section wrapper and its section-config store.
  */
 
 export { default as Section } from "./Section.vue";

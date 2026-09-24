@@ -1,19 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The shell slots this package asks its host for — ADR 023 §7
+ * @fileoverview The shell slots this package asks its host for.
  *
  * ## Job To Be Done
- * `basket` sits ABOVE `auth` and the page shell is app-owned, so neither the
- * session templates' surroundings nor the basket summary may be imported here.
- * Every session template must therefore name a slot the host can fill, the slot
- * names must be the published ones, and a host that fills them by those names
- * must be reachable from inside the package.
+ * Every session template names a published slot, and a host filling those names is reachable.
  *
  * ## What Breaks If These Fail
- * A template with no slot name has nowhere to come from but an import, and the
- * only package holding those templates is this one's own consumer — the DAG
- * inversion this extraction exists to remove. A host that fills the published
- * names and still resolves nothing renders auth with no page around it.
+ * A host that fills the published names still resolves nothing, and auth renders with no page.
  */
 
 import { mount } from "@vue/test-utils";
@@ -44,7 +37,6 @@ function hostFilling(slots: string[]): ShellComponents {
   return filled;
 }
 
-/** Resolves each slot from inside a descendant, the way an organism does. */
 function resolveUnderHost(slots: string[], host?: ShellComponents) {
   const resolved: Record<string, Component | undefined> = {};
   const Probe = defineComponent({

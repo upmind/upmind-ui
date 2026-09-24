@@ -1,21 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The package's own async boundary — ADR 023 §3 export seam
+ * @fileoverview The package's own async boundary.
  *
  * ## Job To Be Done
- * Each session organism's body awaits headless readiness, so the file the barrel
- * and the route records name must be a SYNC sibling that owns the `<Suspense>`
- * and takes its fallback from this package's loading seam. The async body stays
- * private under `views/`. Eight more domain packages clone this shape, so the
- * contract is pinned once, here: nothing on the barrel suspends, every async
- * body sits behind a boundary, and the body's prop contract crosses it intact.
+ * Nothing on the barrel suspends: each async body sits behind a sync `<Suspense>` owner.
  *
  * ## What Breaks If These Fail
- * An async organism published on the barrel suspends with no boundary above it,
- * so every host that forgets a `<Suspense>` of its own renders a blank page —
- * the empty body a green build cannot see. A boundary that re-declares props
- * rather than carrying them drops a prop silently on the package's main public
- * surface, and the host loses prop checking on the component it mounts.
+ * A host with no `<Suspense>` of its own renders a blank page, or a prop drops silently.
  */
 
 import { describe, expect, it } from "vitest";
@@ -31,7 +22,6 @@ import RegisterView from "../views/Register.vue";
 
 // -----------------------------------------------------------------------------
 
-/** `<script setup>` carrying a top-level await compiles to an async `setup`. */
 function setupKind(component: { setup?: unknown }) {
   const { setup } = component;
   if (typeof setup !== "function") return "none";

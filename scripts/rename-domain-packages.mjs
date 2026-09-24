@@ -81,14 +81,8 @@ const ABSOLUTE_REF = new RegExp(`packages/(${NAMES})(?![A-Za-z0-9_-])`, "g");
 // Sibling-relative project references BETWEEN the ten, e.g. `../foundation/…`
 // inside `packages/modules-auth/tsconfig.build.json`. The plan's §2 count misses
 // these because they carry no `packages/` prefix, and they break loudly (TS5083)
-// because the sibling's directory name moved. Scoped to files sitting at the
-// ROOT of any package — its tsconfigs, its vitest config — because there `../`
-// resolves to `packages/`, so `../auth` can only mean the sibling package. One
-// level down it cannot, and the repo proves it: the ten carry `../auth.utils`
-// inside `src/`, `packages/eslint-plugin-file-responsibility/rules/` documents
-// `../basket` as an intra-package barrel, and neither may be touched.
-// Consumers outside the ten reference them this way too — `packages/client-vue`
-// names four — so the scope is every package, not just the ten.
+// because the sibling's directory name moved. Scoped to package-root files: only
+// there does `../auth` mean the sibling package.
 const SIBLING_REF = new RegExp(`\\.\\./(${NAMES})(?![A-Za-z0-9_-])`, "g");
 const SIBLING_SCOPE = /^packages\/[^/]+\/[^/]+$/;
 

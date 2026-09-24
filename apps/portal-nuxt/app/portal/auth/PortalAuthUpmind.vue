@@ -1,6 +1,5 @@
 <template>
   <div v-if="hasUpmindBranding" :class="PORTAL_UPMIND_CLASS">
-    <!-- Inline so it inherits the text colour, as the cart's own mark does. -->
     <svg
       width="16"
       height="16"
@@ -34,10 +33,6 @@
 </template>
 
 <script setup lang="ts">
-// The platform's own line, ported from client-vue's footer `Content.vue`: the
-// mark inline so it takes the text colour, and only the word Upmind is the link.
-// The cart's footer sets `justifyRight: start`, so it sits at the foot of the
-// aside, opposite the brand's.
 import { Link } from "@upmind/ui";
 import { useMockBrandGates } from "~/portal/mock/gates";
 import { PORTAL_UPMIND_CLASS } from "~/portal/shell/variants";

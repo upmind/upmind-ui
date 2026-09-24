@@ -10,7 +10,6 @@ export type { FormI18n } from "./useFormI18n.types";
 
 // -----------------------------------------------------------------------------
 
-/** Interpolation data, and the shape a nested key answers with. */
 type TranslateValues = Record<string, any>;
 
 /**
@@ -26,11 +25,6 @@ export const useFormI18n = () => {
     // Create a translator using vue-i18n's t function and the current locale
 
     const createTranslator = (_locale: string): Translator => {
-      // Declared as an overload set, not one arrow: the engine's `Translator` is
-      // overloaded on `defaultMessage`, and the IMPLEMENTATION answers wider than
-      // either signature. A key naming a nested branch answers with that branch's
-      // whole object, which `ui`'s Form merges into the control's options — that
-      // is how a control's placeholder and hint copy reach it at all.
       function translate(
         key: string,
         defaultMessage: string,
@@ -86,8 +80,6 @@ export const useFormI18n = () => {
     return {
       locale: safeLocale,
       translate: createTranslator(safeLocale),
-      // ajv leaves `message` optional; the engine's ErrorTranslator promises a
-      // string, so the absent case takes the empty default it already rendered.
       translateError: (error, translate, schema) =>
         translate(`validation.${error.keyword}`, error.message ?? "", schema)
     };

@@ -1,21 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The basket-summary aside at the auth socket — ADR 023 §7
+ * @fileoverview The basket-summary aside at the `auth:summary` shell socket.
  *
  * ## Job To Be Done
- * The summary aside is a basket concern, which ADR 023 §3 puts ABOVE `auth`, so
- * it cannot be imported into the session views: it arrives through the
- * `auth:summary` shell socket. That makes the socket the whole capability. A
- * host with commerce fills it and the aside appears beside the login form; a
- * host with none — the standalone app, portal-nuxt — fills nothing and gets no
- * aside and no basket fetch.
+ * A host with commerce fills the socket and gets the aside; one without gets no aside or fetch.
  *
  * ## What Breaks If These Fail
- * An unfilled socket renders nothing and raises nothing. Measured: deleting the
- * registration left all 16 files / 157 tests of this package green, so the
- * summary aside could be dropped from every checkout screen with every gate
- * green and no error anywhere. The sibling `auth:guest-checkout` socket was
- * guarded; this one was not.
+ * An unfilled socket renders nothing and raises nothing: every checkout screen loses its summary.
  */
 
 import { mount } from "@vue/test-utils";
@@ -29,7 +20,6 @@ const HostFiller = defineComponent({
   setup: () => () => h("div", { "data-host": "filler" })
 });
 
-/** Resolves the slot from inside a descendant, exactly as an organism does. */
 async function summaryUnderHost(host?: Record<string, Component>) {
   let resolved: ComputedRef<Component | undefined> | undefined;
   const { AUTH_SHELL } = await import("@upmind-automation/auth");
@@ -60,7 +50,6 @@ async function shellComponents() {
 }
 
 describe("the basket-summary aside at the auth socket", () => {
-  // The first resolve pays for the whole client-vue + auth + foundation graph.
   beforeAll(async () => {
     await summaryUnderHost(await shellComponents());
   }, 30000);

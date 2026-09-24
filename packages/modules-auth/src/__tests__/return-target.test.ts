@@ -1,22 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The return-target gate — ADR 023 Amendment 1 change 4
+ * @fileoverview The return-target gate.
  *
  * ## Job To Be Done
- * The standalone auth app boots from a return target and hands back to it once
- * the visitor is authenticated. `readReturnTarget` is the only thing between
- * that hand-back and an attacker-chosen destination: it yields a bare
- * same-origin path and nothing else — no absolute URL, no protocol-relative
- * host, no non-string. What it yields is the target a browser would resolve,
- * normalised, not the raw query value, so a host smuggled past a `startsWith`
- * check has nowhere left to hide.
+ * `readReturnTarget` yields a normalised bare same-origin path and nothing else.
  *
  * ## What Breaks If These Fail
- * A login link carrying `?returnUrl=https://evil.example` walks a customer
- * off-origin the instant their session is minted — an open redirect on the one
- * screen that mints credentials. A prefix check alone lets
- * `?returnUrl=/\evil.example` through, and every browser reads that back as the
- * host `evil.example`.
+ * An open redirect on the screen that mints credentials: `/\evil.example` reads as a host.
  */
 
 import { describe, expect, it } from "vitest";
@@ -24,7 +14,6 @@ import { readReturnTarget } from "../index";
 
 // -----------------------------------------------------------------------------
 
-/** Vue Router hands a repeated query key over as an array, never a string. */
 const REPEATED_KEY = ["/basket", "//evil.example"];
 
 describe("readReturnTarget", () => {

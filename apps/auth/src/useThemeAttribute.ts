@@ -1,8 +1,6 @@
 /**
  * @module auth-app/useThemeAttribute
- * @description This app's implementation of `foundation`'s theme port. `ui`
- * publishes no engine yet, so the applier is the one line the tokens need: the
- * resolved id on `data-theme`.
+ * @description This app's implementation of `foundation`'s theme port.
  */
 export function useThemeAttribute() {
   return {

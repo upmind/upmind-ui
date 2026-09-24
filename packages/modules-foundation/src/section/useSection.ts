@@ -11,9 +11,6 @@ const defaultSectionProps: UseSectionProps = {
   inset: false
 };
 
-// A plain ref, not headless's `Store`. This layer's deciding rule (ADR 023 §2)
-// is that presentational glue knows no data layer, and the raw store was dead
-// public surface — no caller ever read `useSection().config`.
 const config = ref<UseSectionProps>({ ...defaultSectionProps });
 
 // -----------------------------------------------------------------------------

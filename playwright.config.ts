@@ -10,10 +10,6 @@ const TEST_PORT = 4000;
 const baseURL =
   process.env.PW_BASE_URL ?? `http://qa-automation.local:${TEST_PORT}/`;
 
-// The standalone auth app gets its own port on the SAME config, so its control
-// runs under the `chrome` project the CI lane names. A separate project would be
-// skipped: the lane invokes `--project=chrome`, so a spec outside that project
-// is filed, discovered by nothing, and proves nothing.
 const AUTH_APP_PORT = 4010;
 export const AUTH_APP_URL =
   process.env.PW_AUTH_APP_URL ?? `http://qa-automation.local:${AUTH_APP_PORT}/`;
@@ -118,8 +114,6 @@ export default defineConfig({
       reuseExistingServer: true
     },
     {
-      // Previews the app's own production build, not a dev server: the harm the
-      // auth-app control watches for is a request the built bundle makes.
       command: `pnpm exec vite build --mode test && pnpm exec vite preview --port ${AUTH_APP_PORT} --host qa-automation.local --strictPort`,
       cwd: "./apps/auth",
       url: AUTH_APP_URL,

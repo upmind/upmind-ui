@@ -74,8 +74,6 @@ const forwarded = useForwardPropsEmits(props, emits);
 
 const i18n = useFormI18n();
 
-// ADR 023 §7: the Upmind-domain renderers arrive through the socket, not an
-// import — an explicit prop still wins, so a host can pin its own set.
 const { renderers } = useFormRenderers();
 
 const additionalRenderers = computed(() => [

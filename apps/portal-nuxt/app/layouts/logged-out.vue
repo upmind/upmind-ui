@@ -9,10 +9,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module layouts/logged-out
- * @description The host seams the auth screens need, and nothing else. The page
- * itself comes from one of this app's seven auth templates, which the socket
- * below hands the `auth` package — the wordmark row, the narrow column and the
- * quiet footer all live in `PortalAuthShell` beside them.
+ * @description The host seams the auth screens need, and nothing else.
  *
  * None of the signed-in chrome reaches here: no sidebar, no topbar menus, no
  * impersonation ribbon. What it DOES carry is everything a form needs — the
@@ -49,11 +46,8 @@ provideActiveMockData();
 provideFormIcon(PortalFormIcon);
 provideFormEngineData(portalFormEngineData());
 
-// `foundation`'s theme port, filled with this app's own applier.
 provideThemeEngine({ set: setTheme });
 
-// Every template name the `auth` package can resolve has a page here. Without
-// this the package has no page to render into and says so.
 provideShellComponents(computed(() => PORTAL_AUTH_SHELL_COMPONENTS));
 
 // The shape's own brand, applied the same way the signed-in layout applies it.

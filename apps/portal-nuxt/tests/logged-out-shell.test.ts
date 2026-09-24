@@ -66,14 +66,9 @@ async function shellAt(path: string, datasetId: string): Promise<VueWrapper> {
   });
   usePortalConfig().setDataset(datasetId);
 
-  // The chrome moved into the COLUMNS when the pages took the cart's shape: the
-  // cart gives its header and footer the body's own ground and no border, so a
-  // bar would cut a two-column page in half. Every template composes the same
-  // four parts, so any one of them proves the set.
   const { default: page } =
     await import("~/portal/auth/templates/AuthEnclosed.template.vue");
   const wrapper = mount(page, {
-    // The organism hands every template the three routes it links between.
     props: {
       loginRoute: { name: "login" },
       registerRoute: { name: "register" },
@@ -85,10 +80,6 @@ async function shellAt(path: string, datasetId: string): Promise<VueWrapper> {
   return wrapper;
 }
 
-/**
- * The brand's note is BODY content, not chrome: the templates place it where
- * the cart places the organism's markdown slot, so it is proven where it lives.
- */
 async function noteAt(path: string, datasetId: string): Promise<VueWrapper> {
   stubMatchMedia();
   Object.assign(globalThis, {

@@ -1,13 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module modules/session/shell
- * @description The shell entries this package hands `@upmind-automation/auth`
- * through `foundation`'s shell socket: the seven page templates (Amendment 1
- * change 3 keeps layouts app-owned, and these are still app-side while the
- * shell lives here), the loading interstitial, the basket-summary aside, and
- * the guest-checkout offer. The last two are basket/checkout concerns, which
- * ADR 023 §3 puts ABOVE `auth`: a host with no commerce fills neither slot and
- * so shows neither, which is why the standalone auth app boots no basket.
+ * @description The shell entries this package hands `@upmind-automation/auth`.
  */
 
 import { AUTH_SHELL } from "@upmind-automation/auth";

@@ -20,9 +20,6 @@
 </template>
 
 <script setup lang="ts">
-// One full-width column on the surface — what develop's
-// `SessionEnclosed.template.vue` draws on the cart's SPLIT_VERTICAL layout:
-// stacked surface rows, no aside and no card.
 import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";
 import PortalAuthShell from "../PortalAuthShell.vue";

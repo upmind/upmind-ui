@@ -1,10 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module components/form
- * @description The form host moved down to `@upmind-automation/foundation` in
- * the ADR 023 cut, where it reads its Upmind-domain renderers from the §7
- * socket instead of importing them. `formRenderers` below is the set a host
- * provides into that socket at boot.
+ * @description Re-exports the form host from `@upmind-automation/foundation`.
  */
 
 export { Form as UpmForm } from "@upmind-automation/foundation";

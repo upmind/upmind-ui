@@ -1,24 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The landing this app names for its auth screens
+ * @fileoverview The landing this app names for its auth screens.
  *
  * ## Job To Be Done
- * The session organisms ask the routing engine for the next funnel step, and
- * this app runs no funnel. Without a landing named by the host, an accepted
- * sign-in had nowhere to go: the client authenticated and stayed on `/login`,
- * looking at the form they had just filled in. `AUTH_LANDING` is that
- * destination, and it only counts if it REACHES the organism — a constant the
- * page never hands over is the same defect with a name.
- *
- * ## Why recovery is asserted to get nothing
- * Recovery ends on its own screen with the email-sent message, so it is the one
- * screen that must NOT be given a landing. Asserting that is what separates a
- * deliberate carve-out from a page somebody forgot to wire.
+ * `AUTH_LANDING` reaches the sign-in and sign-up organisms; recovery gets none.
  *
  * ## What Breaks If These Fail
- * A client signs in and stays on the sign-in screen, signed in, with no way
- * forward but the address bar — and every gate stays green, because nothing
- * about a prop that is never passed fails to compile.
+ * A client signs in and stays on the sign-in screen with no way forward.
  */
 
 import { existsSync } from "node:fs";

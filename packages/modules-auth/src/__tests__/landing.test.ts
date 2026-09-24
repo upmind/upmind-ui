@@ -1,21 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The post-login landing — ADR 023 Amendment 1 change 4
+ * @fileoverview The post-login landing.
  *
  * ## Job To Be Done
- * The hand-back only has a destination while the query carries one. A visitor
- * who reaches the standalone app with no return target still ends up holding a
- * session, so `registerAuthFlows`' `fallback` is the somewhere they land. It has
- * to lose to a real target, fire when there is none, and be reachable when the
- * target was REFUSED — a refusal is not an absence, and the two must arrive
- * distinguishable so the landing can say which happened.
+ * The `fallback` loses to a real target, fires with none, and is reached when the target is refused.
  *
  * ## What Breaks If These Fail
- * The visitor signs in and stays on the login screen, now signed in, with the
- * form still asking for the credentials they just gave — the dead end the
- * fallback exists to remove. With the fallback winning over a real target
- * instead, every customer who signs in to buy is dropped on a landing page
- * rather than their basket.
+ * A signed-in visitor stays on login, or a buying customer lands on a landing, not the basket.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -46,7 +37,6 @@ vi.mock("@upmind-automation/headless", async importOriginal => {
 
 const Blank = { setup: () => () => h("div") };
 
-/** The route names a host picks; the package publishes none of its own. */
 const AUTH_ROUTE = {
   ROOT: "auth",
   LOGIN: "auth-login",
@@ -55,11 +45,6 @@ const AUTH_ROUTE = {
   END: "auth-end"
 } as const;
 
-/**
- * A host's own auth records, stood up here because the package no longer
- * publishes any. `returnTarget` is the meta the registrar's guard keys on: a
- * host that drives its own funnel omits it and the guard must stay silent.
- */
 function hostAuthRoutes(
   options: { returnTarget?: boolean } = {}
 ): RouteRecordRaw[] {
@@ -81,14 +66,12 @@ function hostAuthRoutes(
   ];
 }
 
-/** The host's own pages, including the one it nominates as the landing. */
 const HOST_ROUTES = [
   { path: "/", name: "home", component: Blank },
   { path: "/basket", name: "basket", component: Blank },
   { path: "/signed-in", name: "signed-in", component: Blank }
 ];
 
-/** The flow takes the fallback as a PATH, so a host names its landing by path. */
 const LANDING = "/signed-in";
 const LANDING_NAME = "signed-in";
 
@@ -104,7 +87,6 @@ function armedRouter(
   return router;
 }
 
-/** The hand-back watches the session flag, so it lands a tick after the flip. */
 async function signIn() {
   isAuthenticated.value = true;
   await new Promise(resolve => setTimeout(resolve, 0));

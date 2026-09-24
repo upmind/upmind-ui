@@ -1,20 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The return-target hand-back — ADR 023 Amendment 1 change 4
+ * @fileoverview The return-target hand-back.
  *
  * ## Job To Be Done
- * The standalone auth app boots on a return target and hands the visitor back
- * to it the moment a session is minted. `registerAuthFlows` is that hand-back.
- * It has to fire on the authentication itself — not on the next navigation the
- * visitor happens to make — honour only the routes a host opted in, and refuse
- * every target `readReturnTarget` rejects.
+ * `registerAuthFlows` hands back on session mint, on opted-in routes, never to a refused target.
  *
  * ## What Breaks If These Fail
- * A customer who signs in to buy is stranded on the login screen with their
- * basket one URL away and no link back to it. With the guard too eager instead,
- * a host that drives its own funnel loses control of its navigation, and a
- * hostile `?returnUrl=` walks the visitor off-origin at the one moment they
- * hold a fresh session.
+ * A customer is stranded on login, a funnel loses navigation, or `?returnUrl=` walks off-origin.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -44,7 +36,6 @@ vi.mock("@upmind-automation/headless", async importOriginal => {
 
 const Blank = { setup: () => () => h("div") };
 
-/** The route names a host picks; the package publishes none of its own. */
 const AUTH_ROUTE = {
   ROOT: "auth",
   LOGIN: "auth-login",
@@ -53,11 +44,6 @@ const AUTH_ROUTE = {
   END: "auth-end"
 } as const;
 
-/**
- * A host's own auth records, stood up here because the package no longer
- * publishes any. `returnTarget` is the meta the registrar's guard keys on: a
- * host that drives its own funnel omits it and the guard must stay silent.
- */
 function hostAuthRoutes(
   options: { returnTarget?: boolean } = {}
 ): RouteRecordRaw[] {
@@ -79,7 +65,6 @@ function hostAuthRoutes(
   ];
 }
 
-/** The host's own pages, so a hand-back has somewhere real to land. */
 const HOST_ROUTES = [
   { path: "/", name: "home", component: Blank },
   { path: "/basket", name: "basket", component: Blank }
@@ -94,7 +79,6 @@ function armedRouter(options?: { returnTarget?: boolean }) {
   return router;
 }
 
-/** The hand-back watches the session flag, so it lands a tick after the flip. */
 async function signIn() {
   isAuthenticated.value = true;
   await new Promise(resolve => setTimeout(resolve, 0));

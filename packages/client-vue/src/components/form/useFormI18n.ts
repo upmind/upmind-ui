@@ -1,9 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module components/form/useFormI18n
- * @description The form-engine i18n adapter moved down to
- * `@upmind-automation/foundation` in the ADR 023 cut. Its old address stays
- * resolvable so this package's own modules keep the import they had.
+ * @description Re-exports the form-engine i18n adapter from `@upmind-automation/foundation`.
  */
 
 export { useFormI18n } from "@upmind-automation/foundation";

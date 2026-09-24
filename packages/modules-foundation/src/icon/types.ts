@@ -1,9 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module foundation/icon/types
- * @description Types for the shared glyph resolver. UI glyphs resolve to
- * lucide components; flags/providers/unmapped names fall back to the
- * registered SVG asset loader.
+ * @description Types for the shared glyph resolver.
  */
 
 import type { HTMLAttributes } from "vue";

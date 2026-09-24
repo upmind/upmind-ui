@@ -5,8 +5,6 @@ import { workerPool } from "../../vitest.workers";
 
 const root = fileURLToPath(new URL("./", import.meta.url));
 
-// Source-consumption (ADR 023 constraint 1) means no package has a dist entry
-// to resolve; each workspace dependency is aliased at its src barrel.
 const alias = {
   "@upmind/ui": fileURLToPath(
     new URL("../../design-system/packages/ui/src/index.ts", import.meta.url)
@@ -32,8 +30,6 @@ export default defineConfig({
     ...workerPool("dom"),
     root,
     environment: "jsdom",
-    // This app's specs live in `tests/`; the package's two lanes are kept so a
-    // colocated spec runs without a config edit.
     include: [
       "tests/**/*.test.ts",
       "src/**/*.spec.ts",

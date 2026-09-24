@@ -1,24 +1,14 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The import graph reads an SFC reached from TypeScript
+ * @fileoverview The import graph reads an SFC reached from TypeScript.
  *
  * ## Job To Be Done
- * The new packages publish their organisms from `.ts` barrels, so every SFC in
- * them is reached by an `import` from TypeScript. The import plugin follows that
- * edge and parses what it finds — with the TypeScript parser unless the config
- * hands `.vue` to the SFC parser on that path too. When it does not, the plugin
- * reports the file unparseable, gives up on it, and says so on stderr while
- * still EXITING 0.
+ * eslint-plugin-import parses a `.vue` reached from `.ts` with the SFC parser; stderr stays clean.
  *
  * ## What Breaks If These Fail
- * Every import rule silently stops at the first SFC boundary: an unresolved
- * import, a cycle or an upward reach through a `.vue` file is no longer seen.
- * Three of the six negative controls guarding the ADR 023 boundary are eslint
- * controls, so the boundary they prove becomes unguarded — and nothing goes red,
- * because the plugin only warns on a stream nobody reads.
+ * Every import rule silently stops at the first SFC, and lint still exits 0.
  *
- * The assertion is on stderr because that is the only place the failure appears.
- * This file stays alone so the plugin's parse cache is cold when it runs.
+ * Kept in its own file so the plugin's parse cache is cold when it runs.
  */
 
 import { existsSync } from "node:fs";
@@ -40,7 +30,6 @@ function workspaceRoot() {
 
 const ROOT = workspaceRoot();
 
-/** A `.ts` file in the new package importing the SFC beside it. */
 const BARREL = "packages/modules-auth/src/shell.ts";
 const BARREL_SOURCE = [
   'import Login from "./Login.vue";',

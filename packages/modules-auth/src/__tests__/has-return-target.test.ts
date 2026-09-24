@@ -1,18 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview A refusal is not an absence — ADR 023 Amendment 1 change 4
+ * @fileoverview A refused return target is not an absent one.
  *
  * ## Job To Be Done
- * `readReturnTarget` answers `undefined` for BOTH "the query named nothing" and
- * "the query named something this app will not go to". Those are different
- * events for the visitor: one is a normal arrival, the other is a link that
- * tried to walk them off-origin. `hasReturnTarget` is the distinction, and it
- * has to be true for every vector the gate refuses.
+ * `hasReturnTarget` is true for every vector `readReturnTarget` refuses.
  *
  * ## What Breaks If These Fail
- * The landing cannot tell the two apart, so either every visitor with no
- * `returnUrl` is told their destination was refused, or nobody is — and the one
- * visitor who was walked at is told nothing happened.
+ * The landing cannot tell a refused target from none, so the visitor is told the wrong thing.
  */
 
 import { describe, expect, it } from "vitest";
@@ -20,7 +14,6 @@ import { AUTH_QUERY, hasReturnTarget, readReturnTarget } from "../index";
 
 // -----------------------------------------------------------------------------
 
-/** Every vector `readReturnTarget` refuses. Each one is PRESENT, not absent. */
 const REFUSED = [
   "//evil.example",
   "/\\evil.example",

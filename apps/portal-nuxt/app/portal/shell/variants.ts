@@ -180,12 +180,6 @@ export const PORTAL_UPMIND_MARK_CLASS =
 
 export const PORTAL_FOOTER_PROSE_CLASS = "[&_p]:m-0 [&_a]:underline";
 
-/**
- * The auth footer's own prose. `PORTAL_FOOTER_CLASS` already sets the tone and
- * size on the signed-in footer, so that one must stay unsized. The auth rows
- * carry no such wrapper, so they set what the cart's `footerCopyrightVariants`
- * sets — `text-muted text-sm`, the same as the platform's line beside it.
- */
 export const AUTH_FOOTER_PROSE_CLASS =
   "text-muted text-sm [&_p]:m-0 [&_a]:underline";
 
@@ -197,7 +191,6 @@ export const AUTH_FOOTER_PROSE_CLASS =
  */
 export const LOGGED_OUT_COLUMN_CLASS = "flex flex-col gap-4";
 
-/** `ShellHeader` lays its children in a row; the wordmark and the shortcut sit at the two ends. */
 export const LOGGED_OUT_HEADER_CLASS = "justify-between";
 
 /** The brand's own note above the screen — quieter than the form under it. */
@@ -207,67 +200,28 @@ export const LOGGED_OUT_NOTE_CLASS =
 /** The page inside the card brings `Page`'s own padding; a second one boxes it in. */
 export const LOGGED_OUT_CARD_CONTENT_CLASS = "p-0";
 
-/**
- * The canvas-card page's interior, ported from the cart's `canvasCardBodyVariants`
- * and `canvasCardContentHeaderVariants`: the copy sits beside the form at `lg`
- * and above it below that.
- */
 export const CANVAS_CARD_BODY_CLASS =
   "flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32";
 export const CANVAS_CARD_HEADER_CLASS = "w-full lg:max-w-sm";
 
-/**
- * The split page's two halves, ported from the cart's `splitRootVariants`,
- * `splitContainerVariants` and `splitAsideVariants`. The second half carries no
- * content in the cart either — it is the canvas the form is set against.
- */
 export const SPLIT_ROOT_CLASS = "flex min-h-full w-full flex-row";
 export const SPLIT_FORM_CLASS =
   "bg-surface flex w-full flex-col justify-center gap-6 px-6 py-7 md:w-1/2 lg:px-16 lg:py-24 2xl:px-32";
 export const SPLIT_ASIDE_CLASS = "bg-canvas hidden md:block md:w-1/2";
 
-/** Every auth page fills the viewport, so its ground reaches the fold. */
 export const PORTAL_AUTH_GROUND_CLASS = "flex min-h-dvh w-full flex-col";
 
-/**
- * The page rows, ported from main's `header.config.ts`: the header content is a
- * fixed `h-18 lg:h-24` with NO vertical padding, inside the same `max-w-app`
- * container the body uses — so the wordmark lands on the form column's edge and
- * the shortcut at the aside's far side. Each row splits into the SAME two
- * tracks the body does, so the surface edge is one line from top to bottom:
- * main's split is the column's own background, not the gradient behind it.
- */
 export const AUTH_ROW_CONTAINER_CLASS = "max-w-app mx-auto flex w-full min-w-0";
-/** The row's surface part, the same fluid track the form column is. */
 export const AUTH_ROW_MAIN_CLASS =
   "bg-surface flex w-full min-w-0 items-center px-6 lg:px-12";
-/**
- * The row's canvas part. Like the body's aside it takes NO width of its own:
- * the 448px measure sits on the track inside, so the box resolves to the same
- * 448px + `lg:px-12` the body's aside does, and the surface edge is one line.
- */
 export const AUTH_ROW_ASIDE_CLASS =
   "bg-canvas hidden items-center px-6 lg:flex lg:px-12";
-/** The aside row's own 448px track, matching `AUTH_TWO_COLUMN_ASIDE_TRACK_CLASS`. */
 export const AUTH_ROW_ASIDE_TRACK_CLASS =
   "flex w-full min-w-0 items-center lg:min-w-app-aside lg:max-w-app-aside";
 export const AUTH_HEADER_ROW_CLASS = "h-18 w-full py-0 lg:h-24 lg:py-0";
 export const AUTH_FOOTER_ROW_CLASS = "w-full";
-/**
- * The footer's vertical padding rides on the TRACKS, not the row. On the row it
- * would leave an unpainted band, and the ground's gradient turns at the
- * viewport's half — not at the container's column edge — so the band would step.
- */
 export const AUTH_FOOTER_TRACK_CLASS = "py-6 lg:py-8";
 
-/**
- * The two-column body, ported part for part from main's TWO_COLUMN_LTR layout.
- * The form column is `Column width=FULL` and the aside a bare `Column`, each
- * with the column default `p-12 px-6 lg:p-12` and `gap-6`. Neither paints its
- * own tone: the ground's gradient turns at 50% and the header and footer take
- * the same ground, so a column background would step the line. The 448px
- * `app-aside` track sits on the `Content` INSIDE the aside.
- */
 export const AUTH_LTR_GROUND_CLASS = "bg-surface lg:canvas-gradient";
 export const AUTH_RTL_GROUND_CLASS = "bg-surface lg:canvas-gradient-rtl";
 export const AUTH_TWO_COLUMN_CONTAINER_CLASS =
@@ -276,40 +230,21 @@ export const AUTH_TWO_COLUMN_FORM_CLASS =
   "bg-surface flex w-full min-w-0 flex-col gap-6 p-12 px-6 lg:p-12";
 export const AUTH_TWO_COLUMN_ASIDE_CLASS =
   "bg-canvas hidden flex-col gap-6 p-12 px-6 lg:flex lg:p-12";
-/**
- * `Content gap=LG`, `padding=false` — the rhythm inside a column, plus the
- * form's own `max-w-3xl` measure. The measure rides HERE, not on the `Section`:
- * `Sections.vue` puts a passed class on the section's CONTENT, so a width there
- * caps the form but not the header that draws the border above it. On the
- * column it bounds the hero, the header and the form as one.
- */
 export const AUTH_TWO_COLUMN_MAIN_CLASS =
   "w-full min-w-0 max-w-3xl flex-1 flex flex-col gap-18 [&>*]:min-w-0";
-/**
- * The inset page's main. It takes NO measure — main's `formWidth` sets
- * `max-w-none` there, because the card around the form already bounds it.
- */
 export const AUTH_INSET_MAIN_CLASS =
   "w-full min-w-0 flex-1 flex flex-col gap-18 [&>*]:min-w-0";
-/** `Content width=ASIDE` — the aside's own 448px track. */
 export const AUTH_TWO_COLUMN_ASIDE_TRACK_CLASS =
   "w-full min-w-0 flex flex-col gap-18 lg:min-w-app-aside lg:max-w-app-aside";
 
-/** The platform's line, as main's footer `Content.vue` sets it. */
 export const PORTAL_UPMIND_CLASS =
   "text-muted inline-flex items-center gap-2 text-sm";
 
-/**
- * The single-column auth pages. main gives enclosed a SURFACE ground and
- * canvas-card, surface-box and inset a CANVAS one; each bounds its content with
- * the same `max-w-app` container and takes the column default padding.
- */
 export const AUTH_SURFACE_GROUND_CLASS = "bg-surface";
 export const AUTH_CANVAS_GROUND_CLASS = "bg-canvas";
 export const AUTH_ONE_COLUMN_CONTAINER_CLASS =
   "max-w-app mx-auto flex w-full min-w-0 flex-1 flex-col gap-6 p-12 px-6 lg:p-12";
 
-/** A chrome row inside a column: the mark at one end, its partner at the other. */
 export const AUTH_TWO_COLUMN_ROW_CLASS = "flex items-center justify-between";
 export const AUTH_TWO_COLUMN_FOOT_CLASS = "mt-auto flex items-end";
 

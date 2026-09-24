@@ -29,9 +29,6 @@
 </template>
 
 <script setup lang="ts">
-// One wide card on the canvas — what develop's
-// `SessionCanvasCard.template.vue` draws on the cart's CANVAS_CARD layout in
-// centred mode: the hero and the copy beside the form at `lg`, stacked below.
 import { Card } from "@upmind/ui";
 import PortalAuthNote from "../PortalAuthNote.vue";
 import PortalAuthBrand from "../PortalAuthBrand.vue";

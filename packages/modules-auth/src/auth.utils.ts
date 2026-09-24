@@ -20,10 +20,7 @@ export function useAuthTemplates(template: Ref<AUTH_TEMPLATE>) {
   return { meta };
 }
 
-/**
- * How an accepted or an abandoned session leaves an auth screen. Call it before
- * the view's own `await`, as with any composable that injects.
- */
+/** Call it before the view's first `await`. */
 export function useAuthResolve(
   props: AuthViewProps,
   options: AuthResolveOptions = {}
@@ -36,31 +33,19 @@ export function useAuthResolve(
     hasReject: routingMeta.value.hasFunnels || !!toValue(options.rejectRoute)
   }));
 
-  /**
-   * The host mode decides first: a funnel host asks the engine for the step
-   * after this one, and a funnel-free host takes the landing it named. A screen
-   * with neither ends on itself, so the view holds its own step (`hasResolve`).
-   */
   function navigateResolved() {
     if (routingMeta.value.hasFunnels) return navigateNext();
 
     const landing = props.landingRoute;
-    // No funnel to ask and no landing named: this screen is the destination.
     if (!landing) return Promise.resolve();
 
     return router.push(landing);
   }
 
-  /**
-   * The same seam backwards: a funnel host takes the step before this one, and
-   * a funnel-free host takes the screen's own back target. A screen naming none
-   * renders no back control there (`hasReject`): its back is the basket.
-   */
   function navigateRejected() {
     if (routingMeta.value.hasFunnels) return navigateBack();
 
     const reject = toValue(options.rejectRoute);
-    // No funnel to ask and no back target: the control is not offered here.
     if (!reject) return Promise.resolve();
 
     return router.push(reject);

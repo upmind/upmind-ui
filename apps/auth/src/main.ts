@@ -7,8 +7,7 @@ import App from "./App.vue";
 import i18n from "./i18n";
 import router from "./router";
 
-// The glyph resolver takes its asset pack before init, exactly as the cart's
-// own client does — it is the same resolver, one layer lower now.
+// The glyph resolver takes its asset pack before init.
 registerIcons(
   import.meta.glob("@icons/**/*.svg", {
     query: "?raw",
@@ -29,10 +28,6 @@ void useUpmind.init({
   },
   i18n: {
     instance: i18n,
-    // This app keeps no Localazy-synced pack of its own, so the authored
-    // English source is the pack. A dev build has `headless` globbing the same
-    // files; a production build has only this, and the glob it replaced named
-    // a directory that does not exist.
     files: import.meta.glob<Record<string, string>>(
       "@upmind-automation/i18n/**/*-en.json",
       { import: "default" }
@@ -50,7 +45,6 @@ void useUpmind.init({
 
 const app = createApp(App).use(i18n).use(router);
 
-// Empty by declaration: auth's fields need only the engine's own controls.
 app.provide(FORM_RENDERERS, []);
 
 app.mount("#app");

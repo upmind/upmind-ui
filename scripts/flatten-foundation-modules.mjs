@@ -98,8 +98,6 @@ for (const [readPath, reportPath] of pairs) {
     writeFileSync(readPath, text.replace(/(["'])\.\.\/\.\.\/\.\.\//g, "$1../../"));
 }
 
-// 4. `eslint-suppressions.json` keys on the file path, so every suppression for
-//    a moved file goes stale silently — the rule fires again and reads as new.
 const SUPPRESSIONS = "eslint-suppressions.json";
 let suppressed = 0;
 if (existsSync(SUPPRESSIONS)) {

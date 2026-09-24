@@ -1,9 +1,6 @@
 /**
  * @module auth-app/routes
- * @description This app's own auth paths. It knows its base is `/`, so the
- * records carry their resolved shape directly rather than a builder's default,
- * and `meta.authReturnTarget` is unconditional: every route here is one the
- * package's flow registrar hands back from.
+ * @description This app's own auth paths.
  */
 import {
   UpmAuthLogin,
@@ -21,7 +18,6 @@ export const AUTH_ROUTE = {
   END: "auth-end"
 } as const;
 
-/** The cross-links every session screen offers, spread in as props. */
 const sessionRouteProps = {
   loginRoute: { name: AUTH_ROUTE.LOGIN },
   registerRoute: { name: AUTH_ROUTE.REGISTER },

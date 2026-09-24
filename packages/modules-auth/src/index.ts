@@ -1,11 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module auth
- * @description ADR 023 §3's `auth` box: login · register · 2FA · recover.
- * Imports `ui`, `headless` and `foundation` only — the page template and the
- * basket summary arrive through `foundation`'s shell socket (see `./shell`),
- * never an import, so the same organisms mount in a Vite app, a Nuxt app and
- * the standalone shell alike.
+ * @description The `auth` package: login · register · 2FA · recover.
  */
 
 // --- Export Views
@@ -19,12 +15,11 @@ export { default as UpmAuthRecoverPassword } from "./RecoverPassword.vue";
 export { default as UpmAccount } from "./components/Account.vue";
 export { default as UpmAuth } from "./components/Auth.vue";
 
-// --- Export the shell contract a host fills
+// --- Export Shell
 export { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthTemplate } from "./shell";
 export type { AuthShellSlot } from "./shell";
 
-// --- Export the flows contract. The route records are the host's: this package
-// publishes the navigation rule that fires on them, not the paths.
+// --- Export Flows
 export {
   AUTH_QUERY,
   hasReturnTarget,

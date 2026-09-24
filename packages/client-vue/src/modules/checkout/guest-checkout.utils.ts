@@ -1,11 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module modules/checkout/guest-checkout
- * @description The guest-checkout offer's own gate. The brand toggle behind it
- * is `invoices.guest_checkout.enabled` — the platform files it under invoices —
- * so the OFFER is commerce policy and belongs to checkout. `auth` keeps the
- * verb: it mints the guest session and hands `registerAsGuest` to this offer
- * through `foundation`'s shell socket (ADR 023 §7).
+ * @description The guest-checkout offer's own gate.
  */
 
 /**

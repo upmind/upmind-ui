@@ -14,8 +14,6 @@
 </template>
 
 <script setup lang="ts">
-// The store shortcut. The cart's LTR header sets `items: end`, so it sits at the
-// top of the aside, opposite the wordmark.
 import { Button } from "@upmind/ui";
 import { ShoppingBasket } from "lucide-vue-next";
 import { computed } from "vue";
@@ -24,7 +22,6 @@ import { useMockBrandGates } from "~/portal/mock/gates";
 
 const { storeShortcut } = useMockBrandGates();
 
-/** As the primitive's polymorphic `as` needs it: an in-app link or a plain anchor. */
 const store = computed(() => {
   const shortcut = storeShortcut.value;
   if (shortcut === undefined) return undefined;

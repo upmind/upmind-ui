@@ -1,8 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module components/section
- * @description The section wrapper and its config store moved down to
- * `@upmind-automation/foundation` in the ADR 023 cut.
+ * @description Re-exports the section wrapper and config store from `@upmind-automation/foundation`.
  */
 
 export {

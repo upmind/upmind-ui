@@ -446,10 +446,6 @@ export const PAGE_KEY = {
    * their link's own outcomes as separate positions, because a link that has
    * expired and one that still needs a password are different pages, not one
    * page with two moods.
-   *
-   * Sign-in, its second step, registration and recovery carry NO key: those
-   * four routes mount the real `@upmind-automation/auth` organisms, so they
-   * request no composed content and name no position.
    */
   AUTH_RESET_PASSWORD: "auth/reset-password",
   AUTH_VERIFY: "auth/verify",

@@ -53,8 +53,6 @@ export default defineNuxtConfig({
       // without a `?config=` on every URL.
       portalConfig: "",
 
-      // The headless runtime the ADR 023 `auth` organisms need, named exactly
-      // as cart-nuxt names it so one `.env` serves either app.
       API_NAME: process.env.VITE_API_NAME || "",
       API_URL: process.env.VITE_API_URL || "",
       API_REGION: process.env.VITE_API_REGION || "",
@@ -77,10 +75,6 @@ export default defineNuxtConfig({
     "@": resolve(__dirname, "./app"),
 
     // Monorepo packages
-    // headless resolves to SOURCE, mirroring cart-nuxt. This app's OWN files
-    // still reach it type-only — ESLint fences them (no-restricted-imports,
-    // allowTypeImports) in the root config — but the ADR 023 `auth` package
-    // brings it in as a value dependency, so the barrel does execute here.
     "@upmind-automation/headless": resolve(
       __dirname,
       "../../packages/headless/src/index.ts"
@@ -89,9 +83,7 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/types/src/index.ts"
     ),
-    // A directory, not a barrel: headless glob-imports the locale files, and a
-    // glob needs a path it can walk. Reachable from here since the ADR 023
-    // `auth` package brought headless in as a VALUE dependency.
+    // A directory, not a barrel: headless glob-imports the locale files.
     "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
     "@upmind/ui/styles": resolve(
       __dirname,

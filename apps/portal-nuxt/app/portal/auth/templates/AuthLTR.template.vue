@@ -6,8 +6,6 @@
           <PortalAuthBrand />
         </div>
         <div :class="AUTH_ROW_ASIDE_CLASS">
-          <!-- No `justify-end`: the shortcut heads the canvas column, so it
-               starts where the summary below it does, not at the page's edge. -->
           <div :class="AUTH_ROW_ASIDE_TRACK_CLASS">
             <PortalAuthStore />
           </div>
@@ -46,11 +44,6 @@
 </template>
 
 <script setup lang="ts">
-// Two columns, the form leading — what main's `SessionLTR.template.vue` draws on the cart's TWO_COLUMN_LTR
-// layout, part for part. `useHeader({ border: "none" })` and the matching
-// footer take the body's own ground, so the split runs the full height and the
-// rows read as the top and bottom of one page. The cart places no markdown
-// here, so this template places no note.
 import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";
 import PortalAuthShell from "../PortalAuthShell.vue";

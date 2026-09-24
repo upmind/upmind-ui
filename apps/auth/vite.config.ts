@@ -38,8 +38,6 @@ export default defineConfig({
         __dirname,
         "../../design-system/packages/tokens/src/index.ts"
       ),
-      // ADR 023: this app reaches `auth` plus the shared bases and nothing
-      // else. No basket, no client, no client-vue — that is the proof.
       "@upmind-automation/foundation": resolve(
         __dirname,
         "../../packages/modules-foundation/src/index.ts"

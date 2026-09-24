@@ -1,10 +1,6 @@
 /**
  * @module portal/auth/shell
- * @description The page templates this app hands `@upmind-automation/auth`
- * through `foundation`'s shell socket. Amendment 1 change 3 keeps the page
- * app-owned, so all seven of the package's template names are drawn here, on
- * this app's own chrome. A name with no entry has no page, which is what the
- * package's missing-slot error reports.
+ * @description The page templates this app hands `@upmind-automation/auth`.
  */
 
 import { AUTH_SHELL } from "@upmind-automation/auth";

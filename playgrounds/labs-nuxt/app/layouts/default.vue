@@ -131,11 +131,6 @@ import { useNavigation } from "~/composables/useNavigation";
 import { ROUTE } from "~/funnels";
 // -----------------------------------------------------------------------------
 
-// A host owes every package it mounts a page for every template name that
-// package can resolve (ADR 023 §7, Amendment 1 change 3). This playground
-// mounts `auth`'s views and draws no chrome of its own yet, so it hands over
-// the set `client-vue` already composes for cart and cart-nuxt. It swaps to
-// its own templates when the shell moves out of that package.
 provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 
 /** One destination as the rail draws it. */

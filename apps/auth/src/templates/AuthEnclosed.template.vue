@@ -16,9 +16,6 @@
 </template>
 
 <script lang="ts" setup>
-// One centred column, the form set plainly on the page. The centred
-// arrangement draws no rails, so every part the organism fills stacks in the
-// form column.
 import { AuthShell } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import type { AuthRoutes } from "@upmind-automation/auth";

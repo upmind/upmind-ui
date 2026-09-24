@@ -44,11 +44,6 @@
 </template>
 
 <script setup lang="ts">
-// Two columns, the aside leading — what main's `SessionRTL.template.vue` draws on the cart's TWO_COLUMN_RTL
-// layout, part for part. `useHeader({ border: "none" })` and the matching
-// footer take the body's own ground, so the split runs the full height and the
-// rows read as the top and bottom of one page. The cart places no markdown
-// here, so this template places no note.
 import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";
 import PortalAuthShell from "../PortalAuthShell.vue";
