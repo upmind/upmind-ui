@@ -74,6 +74,9 @@
 //                 skips the Code stage.
 //   proveDone   — optional boolean. The step catalog, replay and traceability
 //                 specs are landed and green; skips the Prove stage.
+//   verifyDone, reviewDone — optional booleans. The stage returned PRESENT /
+//                 clean on the current page and the door closed any last
+//                 finding directly; skips that stage.
 //   constraints — optional; run-scoped prohibitions, recorded verbatim
 export const meta = {
   name: "run-factory-scenario",
@@ -140,6 +143,8 @@ const skipRegrade = A.regradeDone === true;
 // a re-run Code seat has nothing to diff and would halt on an empty diff.
 const skipCode = A.codeDone === true;
 const skipProve = A.proveDone === true;
+const skipVerify = A.verifyDone === true;
+const skipReview = A.reviewDone === true;
 
 // The 3-cycle cap (rules/code-reviews.md, the exhaustive-review law — "the cap
 // stays at three rounds"). Bounded by construction: this lane's own seats are
@@ -688,86 +693,98 @@ if (!skipProve) {
 // Measured against the MODULE'S ORACLE surface, never the declaration's
 // self-report. A page that draws rows but cannot filter, sort or page what the
 // oracle offers is ABSENT.
-phase("Verify");
-results.verifies = [];
-let lastVerifyBlockers = "";
-let verifyPrior = [];
-for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
-  results.cycles.verify = cycle;
+if (!skipVerify) {
+  phase("Verify");
+  results.verifies = [];
+  let lastVerifyBlockers = "";
+  let verifyPrior = [];
+  for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+    results.cycles.verify = cycle;
 
-  const verifyDifferential = differentialBrief(cycle, verifyPrior, "developer");
+    const verifyDifferential = differentialBrief(
+      cycle,
+      verifyPrior,
+      "developer"
+    );
 
-  const raw = await agent(
-    `Invoke /upmind-agent:review (verify lane) over the playground page for story ${id}. ${FACTS} Bind to the CURRENT HEAD of the working branch — on a re-verify after a repair, grade the repaired commit, never the one you graded last cycle. ${JTBD} ${INPUTS} ${BOUNDS} PRESENT = the page boots and draws at every offered cell, its filter bar, sort control and pager render off the module's own criteria and pagination channels, and every drawn control presses a live member. Grade against the module's oracle surface, never the declaration's self-report.\n\nCHECK THE WHOLE SURFACE, every capability the oracle offers, start to finish. ${EXHAUSTIVE} Return verdict PRESENT or ABSENT — ABSENT only with the blockers that make it so itemised in \`blockers\` — and set moduleGap when what is missing is the MODULE's capability rather than the page's.${verifyDifferential}`,
-    {
-      agentType: "upmind-agent:verifier",
-      model: "opus",
-      phase: "Verify",
-      schema: VERDICT_GATE,
-      label: `scenario-verify:${id}#${cycle}`
+    const raw = await agent(
+      `Invoke /upmind-agent:review (verify lane) over the playground page for story ${id}. ${FACTS} Bind to the CURRENT HEAD of the working branch — on a re-verify after a repair, grade the repaired commit, never the one you graded last cycle. ${JTBD} ${INPUTS} ${BOUNDS} PRESENT = the page boots and draws at every offered cell, its filter bar, sort control and pager render off the module's own criteria and pagination channels, and every drawn control presses a live member. Grade against the module's oracle surface, never the declaration's self-report.\n\nCHECK THE WHOLE SURFACE, every capability the oracle offers, start to finish. ${EXHAUSTIVE} Return verdict PRESENT or ABSENT — ABSENT only with the blockers that make it so itemised in \`blockers\` — and set moduleGap when what is missing is the MODULE's capability rather than the page's.${verifyDifferential}`,
+      {
+        agentType: "upmind-agent:verifier",
+        model: "opus",
+        phase: "Verify",
+        schema: VERDICT_GATE,
+        label: `scenario-verify:${id}#${cycle}`
+      }
+    );
+
+    if (!raw) {
+      results.verifies.push({ cycle, verdict: raw });
+      results.stopped = "verify-failed";
+      return results;
     }
-  );
+    // An ABSENT with nothing itemised still carries its reason: the summary
+    // stands in as the one finding, so the repair and the next differential
+    // have a list to work from.
+    const itemised =
+      raw.verdict === "PRESENT" || (raw.blockers ?? []).length
+        ? raw
+        : { ...raw, blockers: [raw.summary] };
+    const { verdict, surfaced } = applyDifferential(
+      itemised,
+      verifyPrior,
+      cycle
+    );
+    results.surfaced.push(...surfaced.map(s => ({ stage: "Verify", ...s })));
+    results.verifies.push({ cycle, verdict: raw, gated: verdict, surfaced });
 
-  if (!raw) {
-    results.verifies.push({ cycle, verdict: raw });
-    results.stopped = "verify-failed";
-    return results;
-  }
-  // An ABSENT with nothing itemised still carries its reason: the summary
-  // stands in as the one finding, so the repair and the next differential
-  // have a list to work from.
-  const itemised =
-    raw.verdict === "PRESENT" || (raw.blockers ?? []).length
-      ? raw
-      : { ...raw, blockers: [raw.summary] };
-  const { verdict, surfaced } = applyDifferential(itemised, verifyPrior, cycle);
-  results.surfaced.push(...surfaced.map(s => ({ stage: "Verify", ...s })));
-  results.verifies.push({ cycle, verdict: raw, gated: verdict, surfaced });
+    // Cycle 1: the verifier's binary stands. Cycle 2+: ABSENT gates only on a
+    // finding inside the differential.
+    const gatingFindings =
+      (verdict.blockers ?? []).length + (verdict.warnings ?? []).length;
+    const absent =
+      cycle === 1 ? verdict.verdict !== "PRESENT" : gatingFindings > 0;
+    if (!absent) break;
+    if (cycle === MAX_CYCLES) {
+      results.stopped = "verify-absent";
+      return results;
+    }
+    if (stalled(lastVerifyBlockers, verdict)) {
+      results.stopped = "verify-no-progress";
+      return results;
+    }
+    lastVerifyBlockers = blockerFingerprint(verdict);
+    // The list the repair is handed IS the list the next differential judges.
+    verifyPrior = priorList(verdict);
 
-  // Cycle 1: the verifier's binary stands. Cycle 2+: ABSENT gates only on a
-  // finding inside the differential.
-  const gatingFindings =
-    (verdict.blockers ?? []).length + (verdict.warnings ?? []).length;
-  const absent =
-    cycle === 1 ? verdict.verdict !== "PRESENT" : gatingFindings > 0;
-  if (!absent) break;
-  if (cycle === MAX_CYCLES) {
-    results.stopped = "verify-absent";
-    return results;
-  }
-  if (stalled(lastVerifyBlockers, verdict)) {
-    results.stopped = "verify-no-progress";
-    return results;
-  }
-  lastVerifyBlockers = blockerFingerprint(verdict);
-  // The list the repair is handed IS the list the next differential judges.
-  verifyPrior = priorList(verdict);
-
-  log(
-    `factory-scenario ${id}: verify cycle ${cycle} ABSENT — developer landing the gap`
-  );
-  // A gap in the MODULE is never patched around in the page: the module repair
-  // closes it, proven by run-test, in the same round as the page's own gaps.
-  if (raw.moduleGap) {
-    const halt = await repairModule("Verify", cycle, gapList(verdict));
-    if (halt) {
-      results.stopped = halt;
+    log(
+      `factory-scenario ${id}: verify cycle ${cycle} ABSENT — developer landing the gap`
+    );
+    // A gap in the MODULE is never patched around in the page: the module repair
+    // closes it, proven by run-test, in the same round as the page's own gaps.
+    if (raw.moduleGap) {
+      const halt = await repairModule("Verify", cycle, gapList(verdict));
+      if (halt) {
+        results.stopped = halt;
+        return results;
+      }
+    }
+    const fixed = await agent(
+      `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${BOUNDS} The verifier found the page's capability ABSENT. Below is the WHOLE verdict — every blocker AND every warning the verifier found. Close ALL of it in this one pass: landing some of the list fails the next cycle on the rest. A warning you neither close nor disposition with a stated reason comes back next cycle as a blocker. Land each one verbatim as named, green the suite and the full monorepo build, then commit. ${raw.moduleGap ? "A module repair already landed the MODULE's part of this list; land the page's part over it." : ""}\n\n${gapList(verdict)}`,
+      {
+        agentType: "upmind-agent:developer",
+        model: "sonnet",
+        phase: "Verify",
+        label: `fix-scenario-verify:${id}#${cycle}`
+      }
+    );
+    if (fixed === null) {
+      results.stopped = "developer-failed";
       return results;
     }
   }
-  const fixed = await agent(
-    `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${BOUNDS} The verifier found the page's capability ABSENT. Below is the WHOLE verdict — every blocker AND every warning the verifier found. Close ALL of it in this one pass: landing some of the list fails the next cycle on the rest. A warning you neither close nor disposition with a stated reason comes back next cycle as a blocker. Land each one verbatim as named, green the suite and the full monorepo build, then commit. ${raw.moduleGap ? "A module repair already landed the MODULE's part of this list; land the page's part over it." : ""}\n\n${gapList(verdict)}`,
-    {
-      agentType: "upmind-agent:developer",
-      model: "sonnet",
-      phase: "Verify",
-      label: `fix-scenario-verify:${id}#${cycle}`
-    }
-  );
-  if (fixed === null) {
-    results.stopped = "developer-failed";
-    return results;
-  }
+} else {
+  results.verifies = [{ skipped: true }];
 }
 
 // --- Review pre-gate -----------------------------------------------------------------------
@@ -778,75 +795,87 @@ for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
 // loop obeys the same principles as the plugin loops: EVERY finding in one
 // list, the WHOLE verdict to the repair verbatim, cycle 2+ a DIFFERENTIAL
 // enforced by `applyDifferential`, a stalled loop escalates, the cap is three.
-phase("Review");
-results.reviews = [];
-let lastReviewBlockers = "";
-let reviewPrior = [];
-for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
-  results.cycles.review = cycle;
+if (!skipReview) {
+  phase("Review");
+  results.reviews = [];
+  let lastReviewBlockers = "";
+  let reviewPrior = [];
+  for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+    results.cycles.review = cycle;
 
-  const reviewDifferential = differentialBrief(cycle, reviewPrior, "developer");
+    const reviewDifferential = differentialBrief(
+      cycle,
+      reviewPrior,
+      "developer"
+    );
 
-  const raw = await agent(
-    `Invoke /upmind-agent:review (code lane) over the playground diff for story ${id}. ${FACTS} ${INPUTS} ${BOUNDS} A deviation carrying a complete @decision (what / why / rejected) is NOT a blocker — pass it and return it in surfacedDecisions so the run reports it rather than absorbing it silently.\n\nREAD THE WHOLE DIFF, every hunk start to finish, against the filled derivation table. ${EXHAUSTIVE} Return the blocker count beside the lists.${reviewDifferential}`,
-    {
-      agentType: "upmind-agent:reviewer",
-      model: "opus",
-      phase: "Review",
-      schema: REVIEW_GATE,
-      label: `scenario-review:${id}#${cycle}`
+    const raw = await agent(
+      `Invoke /upmind-agent:review (code lane) over the playground diff for story ${id}. ${FACTS} ${INPUTS} ${BOUNDS} A deviation carrying a complete @decision (what / why / rejected) is NOT a blocker — pass it and return it in surfacedDecisions so the run reports it rather than absorbing it silently.\n\nREAD THE WHOLE DIFF, every hunk start to finish, against the filled derivation table. ${EXHAUSTIVE} Return the blocker count beside the lists.${reviewDifferential}`,
+      {
+        agentType: "upmind-agent:reviewer",
+        model: "opus",
+        phase: "Review",
+        schema: REVIEW_GATE,
+        label: `scenario-review:${id}#${cycle}`
+      }
+    );
+
+    if (!raw) {
+      results.reviews.push({ cycle, verdict: raw });
+      results.stopped = "review-failed";
+      return results;
     }
-  );
+    if (Array.isArray(raw.surfacedDecisions))
+      results.surfaced.push(...raw.surfacedDecisions);
+    // A count with nothing itemised still carries its reason: the summary
+    // stands in as the one finding, so the repair and the next differential
+    // have a list to work from.
+    const itemised =
+      raw.blockerCount > 0 && !(raw.blockers ?? []).length
+        ? { ...raw, blockers: [raw.summary] }
+        : raw;
+    const { verdict, surfaced } = applyDifferential(
+      itemised,
+      reviewPrior,
+      cycle
+    );
+    results.surfaced.push(...surfaced.map(s => ({ stage: "Review", ...s })));
+    results.reviews.push({ cycle, verdict: raw, gated: verdict, surfaced });
 
-  if (!raw) {
-    results.reviews.push({ cycle, verdict: raw });
-    results.stopped = "review-failed";
-    return results;
-  }
-  if (Array.isArray(raw.surfacedDecisions))
-    results.surfaced.push(...raw.surfacedDecisions);
-  // A count with nothing itemised still carries its reason: the summary
-  // stands in as the one finding, so the repair and the next differential
-  // have a list to work from.
-  const itemised =
-    raw.blockerCount > 0 && !(raw.blockers ?? []).length
-      ? { ...raw, blockers: [raw.summary] }
-      : raw;
-  const { verdict, surfaced } = applyDifferential(itemised, reviewPrior, cycle);
-  results.surfaced.push(...surfaced.map(s => ({ stage: "Review", ...s })));
-  results.reviews.push({ cycle, verdict: raw, gated: verdict, surfaced });
-
-  const blocked =
-    (verdict.blockers ?? []).length + (verdict.warnings ?? []).length > 0;
-  if (!blocked) break;
-  if (cycle === MAX_CYCLES) {
-    results.stopped = "reviewer-blocked";
-    return results;
-  }
-  if (stalled(lastReviewBlockers, verdict)) {
-    results.stopped = "review-no-progress";
-    return results;
-  }
-  lastReviewBlockers = blockerFingerprint(verdict);
-  // The list the repair is handed IS the list the next differential judges.
-  reviewPrior = priorList(verdict);
-
-  log(
-    `factory-scenario ${id}: review cycle ${cycle} blocked — developer fixing`
-  );
-  const fixed = await agent(
-    `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${BOUNDS} The diff was reviewed and blocked. Below is the WHOLE verdict — every blocker AND every warning the reviewer found. Close ALL of it in this one pass: a fix that answers some of the list fails the next cycle on the rest. A warning you neither close nor disposition with a stated reason comes back next cycle as a blocker. Fix these findings, green the suite and the full monorepo build, then commit:\n\n${gapList(verdict)}`,
-    {
-      agentType: "upmind-agent:developer",
-      model: "sonnet",
-      phase: "Review",
-      label: `fix-scenario-review:${id}#${cycle}`
+    const blocked =
+      (verdict.blockers ?? []).length + (verdict.warnings ?? []).length > 0;
+    if (!blocked) break;
+    if (cycle === MAX_CYCLES) {
+      results.stopped = "reviewer-blocked";
+      return results;
     }
-  );
-  if (fixed === null) {
-    results.stopped = "developer-failed";
-    return results;
+    if (stalled(lastReviewBlockers, verdict)) {
+      results.stopped = "review-no-progress";
+      return results;
+    }
+    lastReviewBlockers = blockerFingerprint(verdict);
+    // The list the repair is handed IS the list the next differential judges.
+    reviewPrior = priorList(verdict);
+
+    log(
+      `factory-scenario ${id}: review cycle ${cycle} blocked — developer fixing`
+    );
+    const fixed = await agent(
+      `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${BOUNDS} The diff was reviewed and blocked. Below is the WHOLE verdict — every blocker AND every warning the reviewer found. Close ALL of it in this one pass: a fix that answers some of the list fails the next cycle on the rest. A warning you neither close nor disposition with a stated reason comes back next cycle as a blocker. Fix these findings, green the suite and the full monorepo build, then commit:\n\n${gapList(verdict)}`,
+      {
+        agentType: "upmind-agent:developer",
+        model: "sonnet",
+        phase: "Review",
+        label: `fix-scenario-review:${id}#${cycle}`
+      }
+    );
+    if (fixed === null) {
+      results.stopped = "developer-failed";
+      return results;
+    }
   }
+} else {
+  results.reviews = [{ skipped: true }];
 }
 
 // --- The terminal JTBD readback -----------------------------------------------------------
