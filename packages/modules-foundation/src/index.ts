@@ -9,27 +9,27 @@
 // has always had, and a registry in this package only sent the records on a
 // round trip to reach the app that already imported them.
 
-export type { BrandConfig, BrandConfigMeta } from "./modules/brand";
-export { useBrandConfig } from "./modules/brand";
-export type { UseBrandConfig } from "./modules/brand";
+export type { BrandConfig, BrandConfigMeta } from "./brand";
+export { useBrandConfig } from "./brand";
+export type { UseBrandConfig } from "./brand";
 
 export type {
   BrandThemeMeta,
   ColorScheme,
   ThemeEngine,
   UseBrandTheme
-} from "./modules/theming";
+} from "./theming";
 export {
   COLOR_SCHEME,
   THEME_ENGINE,
   provideThemeEngine,
   useThemeEngine,
   useBrandTheme
-} from "./modules/theming";
+} from "./theming";
 
-export type { FormRendererEntry, UseFormRenderers } from "./modules/renderers";
+export type { FormRendererEntry, UseFormRenderers } from "./renderers";
 export {
   FORM_RENDERERS,
   provideFormRenderers,
   useFormRenderers
-} from "./modules/renderers";
+} from "./renderers";

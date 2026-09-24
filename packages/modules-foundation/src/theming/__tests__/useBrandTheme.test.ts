@@ -18,22 +18,17 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { readInChildOfProvider } from "../../../__tests__/component-context";
+import { readInChildOfProvider } from "../../__tests__/component-context";
 import {
   resetHeadlessStub,
   setBrand,
   setThemes
-} from "../../../__tests__/headless.stub";
-import {
-  provideThemeEngine,
-  useBrandConfig,
-  useBrandTheme
-} from "../../../index";
-import type { ThemeEngine } from "../../../index";
+} from "../../__tests__/headless.stub";
+import { provideThemeEngine, useBrandConfig, useBrandTheme } from "../../index";
+import type { ThemeEngine } from "../../index";
 
 vi.mock("@upmind-automation/headless", async () => {
-  const { createHeadlessStub } =
-    await import("../../../__tests__/headless.stub");
+  const { createHeadlessStub } = await import("../../__tests__/headless.stub");
   return createHeadlessStub();
 });
 

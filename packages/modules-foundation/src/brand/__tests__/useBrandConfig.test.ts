@@ -16,12 +16,11 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { resetHeadlessStub, setBrand } from "../../../__tests__/headless.stub";
-import { useBrandConfig } from "../../../index";
+import { resetHeadlessStub, setBrand } from "../../__tests__/headless.stub";
+import { useBrandConfig } from "../../index";
 
 vi.mock("@upmind-automation/headless", async () => {
-  const { createHeadlessStub } =
-    await import("../../../__tests__/headless.stub");
+  const { createHeadlessStub } = await import("../../__tests__/headless.stub");
   return createHeadlessStub();
 });
 
