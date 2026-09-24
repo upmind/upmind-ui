@@ -319,3 +319,75 @@ describe("useContractProducts subscriptions/one-off toggle — a real two-value 
     });
   });
 });
+
+describe("useContractProducts control leaves — each control accepts only the value it produces (AC-1)", () => {
+  it("AC-1 the subscriptions-only toggle is a real two-value choice, not a free number box: 0 validates, an arbitrary count is rejected", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(validate({ filters: { billing_cycle_days: { neq: 0 } } })).toBe(
+      true
+    );
+    expect(validate({ filters: { billing_cycle_days: { neq: 5 } } })).toBe(
+      false
+    );
+  });
+
+  it("AC-1 the date-purchased leaf takes a picked date and rejects text that is not a date", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(validate({ filters: { created_at: { gt: "2024-01-01" } } })).toBe(
+      true
+    );
+    expect(validate({ filters: { created_at: { gt: "last spring" } } })).toBe(
+      false
+    );
+  });
+
+  it("AC-1 the next-due-date leaf takes a picked date and rejects text that is not a date", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(validate({ filters: { next_due_date: { gt: "2024-01-01" } } })).toBe(
+      true
+    );
+    expect(validate({ filters: { next_due_date: { gt: "next month" } } })).toBe(
+      false
+    );
+  });
+
+  it("AC-1 the price leaf takes an amount and rejects text that is not a number", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(validate({ filters: { total_amount: 100 } })).toBe(true);
+    expect(validate({ filters: { total_amount: "cheap" } })).toBe(false);
+  });
+
+  it("AC-1 the category-name leaf takes part of a name", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(
+      validate({ filters: { "product.category.name": { like: "Host" } } })
+    ).toBe(true);
+    expect(
+      validate({ filters: { "product.category.name": { like: 42 } } })
+    ).toBe(false);
+  });
+
+  it("AC-1 a quick search and a filter narrow together: both reach the one outbound request", async () => {
+    const { collection, urls } = await bootCollectionObservingUrls();
+    collection.useActions().setCriteria({
+      query: "hosting",
+      filters: { "product.category.name": { like: "Web" } }
+    });
+
+    await vi.waitFor(() => {
+      const params = latestParams(urls);
+      expect(params.get("query")).toBe("hosting");
+      expect(params.get("filter[product.category.name|like]")).toBe("%Web%");
+    });
+  });
+});
