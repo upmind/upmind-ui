@@ -168,7 +168,7 @@ Everything in the composable lane's "Dispatch contract" holds here unchanged and
 
 ## Failure states
 
-- **Any gate fails** → it grades to the end first and returns EVERY failing in one list; the list goes to one repair and the next cycle is a differential over it. The lane halts only on rows that need an operator choice (all shown at once), at the cycle cap, or on no progress — surfacing the failing structured field verbatim.
+- **Any gate fails** → it grades to the end first and returns EVERY failing in one list; the list goes to one repair and the next cycle is a differential over it. A row that needs an operator choice never blocks the others: the lane runs to the end and reports every such row as `rulings-pending`. The lane halts early only at the cycle cap or on no progress — surfacing the failing structured field verbatim.
 - **A derived row with no `file:line`** → halt with that row named. A derivation over a promised module is a guess.
 - **An absent consumed channel (any D-row, D14–D16 above all)** → the module repair, every gap at once, proven by `run-test`, then the gate grades again. Never a derivation around it, never a pass-and-surface absorption — surfaced decisions cover vocabulary lag only, never absent capability.
 - **Verify returns ABSENT** → the run does not advance to Review; the missing part named in the verifier's own filing routes back to the developer seat.

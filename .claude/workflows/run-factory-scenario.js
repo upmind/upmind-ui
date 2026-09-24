@@ -433,7 +433,8 @@ async function repairModule(stage, cycle, list) {
 //
 // DECISION (operator ruling 2026-09-24): drift no longer halts. Every row goes
 // to one module repair, and the next cycle is a differential over that list.
-// Only rows that need an operator choice stop the lane, all of them at once.
+// Rows that need an operator choice do not stop it either: the lane runs to
+// the end and reports them all as `rulings-pending`.
 if (!skipRegrade) {
   phase("Ordering gate");
   results.regrades = [];
@@ -461,7 +462,7 @@ if (!skipRegrade) {
       return results;
     }
     const { verdict, surfaced } = applyDifferential(
-      { ...raw, blockers: raw.driftRows, warnings: raw.rulingRows },
+      { ...raw, blockers: raw.driftRows, warnings: [] },
       regradePrior,
       cycle
     );
@@ -470,13 +471,9 @@ if (!skipRegrade) {
     );
     results.regrades.push({ cycle, verdict: raw, gated: verdict });
     const drift = verdict.blockers ?? [];
-    const rulings = verdict.warnings ?? [];
-    if (rulings.length) {
-      results.stopped = "ordering-gate-ruling";
-      results.rulingRows = rulings;
-      results.driftRows = drift;
-      return results;
-    }
+    // A row that needs an operator choice never blocks the repair of the
+    // rest: it is carried to the end of the lane and reported there.
+    results.rulingRows = raw.rulingRows ?? [];
     if (!drift.length) break;
     if (cycle === MAX_CYCLES) {
       results.stopped = "ordering-gate-drift";
@@ -838,5 +835,6 @@ if (!results.readback.pass) {
   results.stopped = "jtbd-failed";
   return results;
 }
+if (results.rulingRows?.length) results.stopped = "rulings-pending";
 
 return results;

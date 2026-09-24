@@ -658,8 +658,9 @@ if (!skipCode) {
 // workflow grades a module against the factory's templates. It obeys the same
 // law: every row in one list, the whole list to one repair, cycle 2+ a
 // differential over that list, a stalled loop escalates, the cap is three.
-// Rows that need an operator choice stop the lane with EVERY row shown, so a
-// ruling is asked once for the whole module, never row by row across runs.
+// Rows that need an operator choice do NOT stop the lane: every other row is
+// repaired and every later stage runs, and the lane ends with `rulings-pending`
+// and every such row shown, so a ruling is asked once for the whole module.
 if (!skipTemplateReview) {
   phase("Template review");
   results.templateReviews = [];
@@ -691,7 +692,7 @@ if (!skipTemplateReview) {
       return results;
     }
     const { verdict, surfaced } = applyDifferential(
-      { ...raw, blockers: raw.driftRows, warnings: raw.rulingRows },
+      { ...raw, blockers: raw.driftRows, warnings: [] },
       templatePrior,
       cycle
     );
@@ -700,13 +701,9 @@ if (!skipTemplateReview) {
     );
     results.templateReviews.push({ cycle, verdict: raw, gated: verdict });
     const drift = verdict.blockers ?? [];
-    const rulings = verdict.warnings ?? [];
-    if (rulings.length) {
-      results.stopped = "template-ruling";
-      results.rulingRows = rulings;
-      results.driftRows = drift;
-      return results;
-    }
+    // A row that needs an operator choice never blocks the repair of the
+    // rest: it is carried to the end of the lane and reported there.
+    results.rulingRows = raw.rulingRows ?? [];
     if (!drift.length) {
       results.templateSignedAt = raw.headSha;
       break;
@@ -1060,5 +1057,11 @@ if (!skipDocument) {
   }
 } else {
   results.document = { skipped: true };
+}
+// Every stage ran. A choice still open withholds the sign-off: the module is
+// not signed conformant until the operator rules.
+if (results.rulingRows?.length) {
+  results.stopped = "rulings-pending";
+  delete results.signoff;
 }
 return results;
