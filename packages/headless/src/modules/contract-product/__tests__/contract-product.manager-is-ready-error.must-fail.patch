@@ -1,0 +1,25 @@
+Negative control for useContractProduct.actions.ts `isReady` error-settle (D43 B10).
+
+Spec that must flip: contract-product.manager-is-ready-error.test.ts (to be
+authored by the prover) — asserts `isReady()` resolves `false` promptly once
+the machine settles on the top-level `error` node, rather than only after the
+60s default timeout.
+
+Mutation: drops the `"error"` error-states argument, so `isReady()` names no
+error state and can only resolve on a load failure via timeout.
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+@@ -60,10 +60,10 @@ export function createContractProductActions(
+ 
+   /**
+    * Resolves once the product is placed on a node.
+    * @returns true once `available` or `unavailable`; false on `error`, or if the
+    *   read never settled.
+    */
+   function isReady(): Promise<boolean> {
+-    return waitForProcessing(service, ["available", "unavailable"], "error");
++    return waitForProcessing(service, ["available", "unavailable"]);
+   }
+ 

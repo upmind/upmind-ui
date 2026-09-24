@@ -63,7 +63,7 @@ export const contractProductMachine = createMachine(
         invoke: {
           src: "load",
           onDone: { actions: ["setContractProduct", "setLookups"] },
-          onError: { actions: ["setError"] }
+          onError: { target: "#error", actions: ["setError"] }
         },
         always: [
           { target: ContractProductState.STAGED, cond: "isStaged" },
@@ -76,8 +76,16 @@ export const contractProductMachine = createMachine(
           { target: ContractProductState.INACTIVE, cond: "isInactive" },
           { target: ContractProductState.ACTIVE, cond: "isActive" },
           { target: ContractProductState.SUSPENDED, cond: "isSuspended" },
-          { cond: "isUnrecognised", actions: ["setStatusError"] }
+          {
+            target: "#error",
+            cond: "isUnrecognised",
+            actions: ["setStatusError"]
+          }
         ]
+      },
+
+      error: {
+        id: "error"
       },
 
       available: {

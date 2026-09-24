@@ -212,6 +212,13 @@ export function createContractProductMeta(
     /** True on `available.status.pending`. */
     isPending,
 
+    /** True while a write is in flight. */
+    isProcessing: useStateMatches(state, [
+      "processing",
+      "available.cancelling.processing",
+      "available.consolidating.processing"
+    ]),
+
     /** True on `available.setup.incomplete`. */
     isSetupIncomplete: useStateMatches(
       state,
@@ -220,13 +227,6 @@ export function createContractProductMeta(
 
     /** True on `unavailable.staged`. */
     isStaged: useStateMatches(state, ContractProductState.STAGED),
-
-    /** True while a write is in flight. */
-    isSubmitting: useStateMatches(state, [
-      "processing",
-      "available.cancelling.processing",
-      "available.consolidating.processing"
-    ]),
 
     /** True if the product is a subscription (`billing_cycle_months > 0`). */
     isSubscription: computed(

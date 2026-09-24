@@ -1,0 +1,22 @@
+Negative control for useContractProduct.meta.ts `isProcessing` rename (R37 B8).
+
+Spec that must flip: contract-product.manager-is-processing.test.ts (to be
+authored by the prover) — asserts `useContractProduct().useMeta().isProcessing`
+(the template name) is true on `processing` / `available.cancelling.processing`
+/ `available.consolidating.processing`.
+
+Mutation: reverts the meta flag back to the pre-restore `isSubmitting` name.
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -222,8 +222,8 @@ export function createContractProductMeta(
+     isPending,
+ 
+     /** True while a write is in flight. */
+-    isProcessing: useStateMatches(state, [
++    isSubmitting: useStateMatches(state, [
+       "processing",
+       "available.cancelling.processing",
+       "available.consolidating.processing"
+     ]),

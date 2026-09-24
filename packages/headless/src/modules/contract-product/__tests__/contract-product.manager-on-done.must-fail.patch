@@ -1,0 +1,44 @@
+Negative control for useContractProduct.actions.ts `onDone` (R37 B7).
+
+Spec that must flip: contract-product.manager-on-done.test.ts (to be authored
+by the prover) — asserts `onDone()` resolves true once a write leaves
+`processing`/`available.<region>.processing` and settles on `available` or
+`unavailable`.
+
+Mutation: drops the `onDone` action entirely, so no member exists to await a
+write's settle.
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+@@ -70,15 +70,5 @@ export function createContractProductActions(
+   }
+ 
+-  /**
+-   * Resolves once a write leaves `processing` or `available.<region>.processing`
+-   * (region: `cancelling` | `consolidating`).
+-   * @returns true once the write settles on `available` or `unavailable`; false
+-   *   on `error`, or if it never settled.
+-   */
+-  function onDone(): Promise<boolean> {
+-    return waitForProcessing(service, ["available", "unavailable"], "error");
+-  }
+-
+   /**
+    * Resolves the re-read product once a write has settled.
+    * @throws {DetailedError} when the write or the re-read recorded an error.
+@@ -299,14 +290,7 @@ export function createContractProductActions(
+     isReady,
+ 
+     /**
+-     * Resolves once a write leaves `processing`, settled on `available` or
+-     * `unavailable`; false on `error`.
+-     * @scenario-include
+-     */
+-    onDone,
+-
+-    /**
+      * Opens the combined cancellation form (R33).
+      * @scenario-include
+      */
+     openCancellation,

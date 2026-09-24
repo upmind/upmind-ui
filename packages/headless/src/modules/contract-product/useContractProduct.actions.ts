@@ -60,10 +60,21 @@ export function createContractProductActions(
 
   /**
    * Resolves once the product is placed on a node.
-   * @returns true once `available` or `unavailable`; false if the read never settled.
+   * @returns true once `available` or `unavailable`; false on `error`, or if the
+   *   read never settled.
    */
   function isReady(): Promise<boolean> {
-    return waitForProcessing(service, ["available", "unavailable"]);
+    return waitForProcessing(service, ["available", "unavailable"], "error");
+  }
+
+  /**
+   * Resolves once a write leaves `processing` or `available.<region>.processing`
+   * (region: `cancelling` | `consolidating`).
+   * @returns true once the write settles on `available` or `unavailable`; false
+   *   on `error`, or if it never settled.
+   */
+  function onDone(): Promise<boolean> {
+    return waitForProcessing(service, ["available", "unavailable"], "error");
   }
 
   /**
@@ -298,6 +309,13 @@ export function createContractProductActions(
      * @scenario-include
      */
     isReady,
+
+    /**
+     * Resolves once a write leaves `processing`, settled on `available` or
+     * `unavailable`; false on `error`.
+     * @scenario-include
+     */
+    onDone,
 
     /**
      * Opens the combined cancellation form (R33).

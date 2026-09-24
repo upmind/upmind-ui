@@ -10,6 +10,7 @@ import type {
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { IContractProduct } from "@upmind-automation/types";
+import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProduct.context
@@ -41,28 +42,13 @@ export function createContractProductContext(
       : null
   );
 
+  /** Display title of the product — derived off the view model, as `scheduledActions` is. */
+  const title = computed(() => contractProduct.value?.name);
+
+  /** Description of the product — derived off the raw wire record, as `scheduledActions` is. */
+  const description = computed(() => contractProduct.value?.raw?.description);
+
   return {
-    /** The full machine context object. */
-    context: useContext<ContractProductContext>(state),
-
-    /** The contract the product belongs to. */
-    contractId: useContext<string | undefined>(state, "contractId"),
-
-    /** The mapped contract product. */
-    contractProduct,
-
-    /** The product this manager acts on. */
-    contractProductId: useContext<string | undefined>(
-      state,
-      "contractProductId"
-    ),
-
-    /** Machine-captured error, if any — read, never raised. */
-    error: useContext<ResponseError | undefined>(state, "error"),
-
-    /** The earliest selectable future-cancellation date, as a wire date string. */
-    minFutureCancellationDate,
-
     /** The open cancellation form: `schema`, `uischema` and the parsed `model`. */
     cancellation: useContext<ContractProductForm | undefined>(
       state,
@@ -75,6 +61,33 @@ export function createContractProductContext(
       "consolidation"
     ),
 
+    /** The full machine context object. */
+    context: useContext<ContractProductContext>(state),
+
+    /** The contract the product belongs to. */
+    contractId: useContext<string | undefined>(state, "contractId"),
+
+    /** The mapped contract product. */
+    contractProduct,
+
+    /** Display description of the product. */
+    description,
+
+    /** Machine-captured error, if any — read, never raised. */
+    error: useContext<ResponseError | undefined>(state, "error"),
+
+    /** Machine-captured error message, if any — read, never raised. */
+    errors: useContext<ResponseError["message"]>(state, "error.message"),
+
+    /** The product this manager acts on (undefined for a new item). */
+    id: useContext<string | undefined>(state, "contractProductId"),
+
+    /** Reference data the machine's `load` service resolved (the CANCEL_REQUEST custom fields). */
+    lookups: useContext<ContractProductContext["lookups"]>(state, "lookups"),
+
+    /** The earliest selectable future-cancellation date, as a wire date string. */
+    minFutureCancellationDate,
+
     /** The raw wire record beside the view model. */
     rawContractProduct: useContext<IContractProduct | undefined>(
       state,
@@ -82,7 +95,13 @@ export function createContractProductContext(
     ),
 
     /** The product's scheduled actions, when the read carried them (AC15). */
-    scheduledActions
+    scheduledActions,
+
+    /** Display title of the product. */
+    title,
+
+    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+    validationErrors: useContext<ErrorObject[]>(state, "error.data")
   };
 }
 
