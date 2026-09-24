@@ -166,11 +166,6 @@ const nuxtAutoImportGlobals = {
 // directory under the importer's OWN `<package>/src/modules` is an error;
 // same-module wiring (a service importing its own mapper, basket.utils →
 // sibling machine) is fine.
-//
-// The modules root is resolved PER PACKAGE (ADR 023 §11), not hardcoded to
-// headless: every `packages/*/src/modules` tree gets the same barrier, so the
-// ten domain packages inherit it as they are populated. A cross-PACKAGE reach
-// is deliberately out of scope here — block 8g owns that lane.
 // -----------------------------------------------------------------------------
 
 const PACKAGES_ROOT = resolve(import.meta.dirname, "packages");
@@ -237,11 +232,8 @@ function isInternalFile(absPath) {
   return internal;
 }
 
-// Cache: package directory name → its `src/modules` root, or null when the
-// package has no modules tree. One disk check per package, not per file.
 const moduleRootCache = new Map();
 
-/** The `<package>/src/modules` root governing a file, resolved from its own package. */
 function moduleRootOf(absPath) {
   if (!absPath.startsWith(`${PACKAGES_ROOT}/`)) return null;
 
@@ -264,7 +256,7 @@ function moduleRootOf(absPath) {
   return found;
 }
 
-/** The module directory (immediate child of the governing modules/) a file lives in. */
+/** The module directory (immediate child of modules/) that a file lives in. */
 function moduleDirOf(absPath) {
   const root = moduleRootOf(absPath);
 
@@ -306,7 +298,6 @@ const internalBarrierPlugin = {
             const target = resolveRelativeTarget(importerFile, specifier);
 
             if (!target) return;
-            // A reach into ANOTHER package is block 8g's lane, not this one.
             if (moduleRootOf(target) !== importerRoot) return;
             if (!isInternalFile(target)) return;
 
@@ -799,19 +790,9 @@ const workspaceBoundaryPlugin = {
 };
 
 // -----------------------------------------------------------------------------
-// ADR 023 package-graph enforcement — `import/no-cycle` + `import/no-internal-modules`.
+// Package-graph enforcement — `import/no-cycle` + `import/no-internal-modules`.
 //
-// Both ship with the installed eslint-plugin-import, but neither resolves
-// anything under this repo's defaults: eslint-plugin-import's built-in node
-// resolver knows .js/.json only, so every .ts/.vue specifier goes unresolved
-// and BOTH rules pass vacuously. Naming the extensions is what gives them
-// teeth — without it, setting them to "error" measures nothing.
-//
-// No tsconfig-paths resolver is installed, so aliased specifiers
-// (`@upmind-automation/*`) stay unresolved for no-cycle. That is why the DAG
-// between packages is carried by project references + block 8g, and no-cycle
-// is armed on the WITHIN-package relative graph, which is the surface it can
-// actually see.
+// The node resolver knows .js/.json only; without these extensions both rules pass vacuously.
 // -----------------------------------------------------------------------------
 const IMPORT_RESOLVE_EXTENSIONS = [
   ".js",
@@ -831,16 +812,6 @@ const importGraphSettings = {
   "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx", ".mts"] }
 };
 
-// The ADR 023 §3 roster, read off the packages themselves rather than kept by
-// hand: a domain package is the shared base, plus every package that declares
-// the shared base as a dependency. A new one is armed the day its package.json
-// lands, and no list can drift from the packages on disk.
-//
-// `client-vue` is excluded by name, and by name only. The god package this
-// migration splits declares the shared base for the length of the split, and it
-// holds the import cycles the split exists to remove; arming `import/no-cycle`
-// on it would report them as this phase's work. The exclusion dies with the
-// package.
 const SCOPE = "@upmind-automation/";
 const SHARED_BASE_DIR = "modules-foundation";
 const SHARED_BASE_SPECIFIER = `${SCOPE}foundation`;
@@ -856,9 +827,6 @@ function dependsOnSharedBase(dir) {
   return Boolean(manifestOf(dir)?.dependencies?.[SHARED_BASE_SPECIFIER]);
 }
 
-// Each entry is { dir, name }: `dir` for path globs, `name` for specifiers. The
-// two were the same string until the `modules-` prefix; nothing may assume that
-// again.
 const DOMAIN_PACKAGES = readdirSync(PACKAGES_ROOT, { withFileTypes: true })
   .filter(entry => entry.isDirectory())
   .map(entry => entry.name)
@@ -867,18 +835,12 @@ const DOMAIN_PACKAGES = readdirSync(PACKAGES_ROOT, { withFileTypes: true })
   .map(dir => ({ dir, name: manifestOf(dir)?.name }))
   .sort((a, b) => a.dir.localeCompare(b.dir));
 
-// An absent shared base means the read failed, not that the repo has no domain
-// packages. Without this, both rules below arm on nothing and report green.
 if (!DOMAIN_PACKAGES.some(p => p.dir === SHARED_BASE_DIR)) {
   throw new Error(
     `ADR 023 roster is empty: no packages/${SHARED_BASE_DIR} under ${PACKAGES_ROOT}`
   );
 }
 
-// A full-but-misspelled roster is the failure the guard above cannot see: every
-// specifier-consuming rule below would arm on a package name nothing publishes
-// and report green. A directory rename that did not carry its manifest name
-// through lands here instead.
 for (const { dir, name } of DOMAIN_PACKAGES) {
   if (!name?.startsWith(SCOPE)) {
     throw new Error(
@@ -891,8 +853,6 @@ const DOMAIN_PACKAGE_FILES = DOMAIN_PACKAGES.map(
   p => `packages/${p.dir}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`
 );
 
-// Deep reach INTO a domain package, from anywhere. ADR 023 §6: a package barrel
-// exports only its own UI, so a consumer takes the barrel, never a file inside.
 const DOMAIN_PACKAGE_INTERNALS = `${SCOPE}{${DOMAIN_PACKAGES.map(p =>
   p.name.slice(SCOPE.length)
 ).join(",")}}/**`;
@@ -1074,11 +1034,8 @@ export default [
   // ---------------------------------------------------------------------------
   // 8. @internal barrier — custom marker-based rule, per-package resolver.
   //    A file is internal iff its head carries `@internal`; importing it from a
-  //    different module directory in the SAME package is an error. Same-module
-  //    wiring is allowed; a cross-package reach belongs to block 8g.
+  //    different module directory is an error. Same-module wiring is allowed.
   //    Replaces the coarse suffix-glob no-restricted-imports (FE-2820 ruling §3).
-  //    Widened from headless-only to every `packages/*/src/modules` tree per
-  //    ADR 023 §11, so the ten domain packages inherit it as they populate.
   // ---------------------------------------------------------------------------
   {
     files: ["packages/*/src/modules/**/*.{ts,tsx,mts,cts,vue}"],
@@ -1233,17 +1190,7 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8i. ADR 023 §11 — no deep reach INTO a domain package, from anywhere.
-  //     Repo-wide and at error on day one: a consumer takes the package barrel,
-  //     never a file inside it (§6). Measured at 0 violations across packages,
-  //     apps, playgrounds and tests, so it is armed with no suppressions and
-  //     grows teeth as each phase populates a shell.
-  //
-  //     `forbid` (not the rule's default) is deliberate: the default bans ALL
-  //     deep reach, including the 178 legitimate published subpaths this repo
-  //     has (@upmind-automation/i18n/core/*.json, test-fixtures/*), and 2,113
-  //     ordinary relative deep imports. Naming the ten targets is the boundary
-  //     the ADR asks for; banning everything would only buy a suppressions file.
+  // 8i. No deep reach INTO a domain package.
   // ---------------------------------------------------------------------------
   {
     files: [
@@ -1263,17 +1210,7 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8j. ADR 023 §11 — the acyclic guarantee for the new package graph.
-  //     Scoped to the ten domain packages, where it is green from day one.
-  //
-  //     NOT repo-wide, and that is a measurement, not a preference: at error
-  //     over the whole tree this reports 381 pre-existing cycles, 345 of them
-  //     inside packages/headless — protected core this seat may not edit, and
-  //     routed through the headless aggregator barrel that block 8c already
-  //     governs. The remaining 14 in client-vue run through the renderer barrel
-  //     (SmartDomainField -> components/form) and the billing <-> checkout pair;
-  //     ADR 023 §5 names neither, so neither is Phase 0's to break. Arming it
-  //     repo-wide would buy 381 bulk suppressions and enforce nothing.
+  // 8j. No import cycles in the domain packages.
   // ---------------------------------------------------------------------------
   {
     files: DOMAIN_PACKAGE_FILES,

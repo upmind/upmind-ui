@@ -31,8 +31,7 @@ import type { TermDetails } from "@upmind-automation/headless";
 // --- external
 
 // -----------------------------------------------------------------------------
-// Lazy: a static import puts the product module tree in every consumer of the
-// package barrel, regardless of whether a form ever renders a terms control.
+// Lazy: a static import pulls the product module tree into every barrel consumer.
 const TermsRadio = defineAsyncComponent(
   () => import("../../../modules/product/components/terms/TermsRadio.vue")
 );

@@ -1,9 +1,8 @@
 diff --git a/packages/modules-product/src/index.ts b/packages/modules-product/src/index.ts
-index 986e17626e..34c4b17dac 100644
+index cb0ff5c3b5..9d9cb99c01 100644
 --- a/packages/modules-product/src/index.ts
 +++ b/packages/modules-product/src/index.ts
-@@ -1,2 +1,4 @@
- // Phase 0 shell. ADR 023 Amendment 1 populates this barrel in this package's own phase.
+@@ -1 +1,3 @@
 -export {};
 +export * from "./tiers";
 +

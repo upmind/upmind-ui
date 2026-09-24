@@ -82,7 +82,6 @@ export default defineConfig(({ mode, command }) => {
           __dirname,
           "../../packages/client-vue/src/index.ts"
         ),
-        // ADR 023 domain packages. Source-consumed, like every alias above.
         "@upmind-automation/foundation": resolve(
           __dirname,
           "../../packages/modules-foundation/src/index.ts"

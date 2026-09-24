@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * FE-2976 deep-review cluster 7 — makes every `known-bad/*.must-fail.patch`
- * fixture a machine-enforced negative control instead of README prose.
+ * Makes every `known-bad/*.must-fail.patch` fixture a machine-enforced negative control.
  *
  * For each `*.must-fail.patch` under `src/__tests__/known-bad/`:
  *   1. `git apply --check` — if the patch no longer applies cleanly against
@@ -96,11 +95,6 @@ function extractPatchTargets(patchText) {
   );
 }
 
-/**
- * The workspace package root(s) a patch touches — the lint scope its control
- * needs. Package roots (not the touched files) so the scope survives the
- * revert, where a file the patch CREATED no longer exists.
- */
 function extractLintTargets(patchText) {
   const roots = new Set();
 
