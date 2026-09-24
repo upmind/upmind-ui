@@ -397,7 +397,7 @@ const results = { id, stopped: null, cycles: {}, surfaced: [] };
 async function repairModule(stage, cycle, list) {
   log(`factory-scenario ${id}: ${stage} cycle ${cycle} — module repair`);
   const fixed = await agent(
-    `Invoke /upmind-agent:code for story ${id}. ${FACTS} ${BOUNDS} Template: ${templateDir}. The ${stage} found the MODULE short of its contract. Below is EVERY failing. Close ALL of them in this one pass by bringing the module to the template member or capability as named — a pass that closes some fails the next cycle on the rest. Author a .must-fail.patch for every member or behaviour you add or reshape, beside the spec that must flip; the prover applies them blind. File the public-surface hand-off for the prover. Green the suite and the full monorepo build, then commit:\n\n${list}`,
+    `Invoke /upmind-agent:code for story ${id}. ${FACTS} ${BOUNDS} Template: ${templateDir}. The ${stage} found the MODULE short of its contract. Below is EVERY failing. Close ALL of them in this one pass by bringing the module to the template member or capability as named — a pass that closes some fails the next cycle on the rest. Author a .must-fail.patch for every member or behaviour you add or reshape, beside the spec that must flip; the prover applies them blind. File the public-surface hand-off for the prover. The hand-off IS the HANDOFF block in your reply (agents/developer.md step 5), never a file under docs/: set handOffFiled true once your reply carries it. A decision you may not file under docs/ goes in your reply under DECISIONS; the door files it. Green the suite and the full monorepo build, then commit:\n\n${list}`,
     {
       agentType: "upmind-agent:developer",
       model: "sonnet",
@@ -587,7 +587,7 @@ if (results.derive.undecidedFields !== 0) {
 // mechanical gate, no reviewer — nothing for the review law to bind.
 phase("Code");
 results.code = await agent(
-  `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Author the scenario directory from this lane's templates against the filled derivation table. Author the negative-control mutant patches yourself as *.must-fail.patch beside the spec each must flip — you know the mutated line; the prover applies them blind. File the declaration's public surface as the hand-off for the prover; withhold the diff. Run the FULL monorepo build and report its exit code. Commit.`,
+  `Invoke /upmind-agent:code for the playground declaration of story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} Author the scenario directory from this lane's templates against the filled derivation table. Author the negative-control mutant patches yourself as *.must-fail.patch beside the spec each must flip — you know the mutated line; the prover applies them blind. File the declaration's public surface as the hand-off for the prover; withhold the diff. The hand-off IS the HANDOFF block in your reply (agents/developer.md step 5), never a file under docs/: set handOffFiled true once your reply carries it. A decision you may not file under docs/ goes in your reply under DECISIONS; the door files it. Run the FULL monorepo build and report its exit code. Commit.`,
   {
     agentType: "upmind-agent:developer",
     model: "sonnet",
