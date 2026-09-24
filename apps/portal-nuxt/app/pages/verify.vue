@@ -1,7 +1,3 @@
-<template>
-  <PortalPageHost :page-keys="pageKeys" aside-label="Account verification" />
-</template>
-
 <script setup lang="ts">
 // Legacy's verification screen has three outcomes and no state of its own: the
 // link still wants a password, the link is past using, or the account is
@@ -27,3 +23,7 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_VERIFY];
 });
 </script>
+
+<template>
+  <PortalPageHost :page-keys="pageKeys" aside-label="Account verification" />
+</template>

@@ -1,10 +1,3 @@
-<template>
-  <PortalPageHost
-    :page-keys="[PAGE_KEY.ACCOUNT_CHILD_ACCOUNTS]"
-    aside-label="Account summary"
-  />
-</template>
-
 <script setup lang="ts">
 // Legacy served this page only to an account the relation actually applies to
 // — a parent with children, or a child under one. Neither, and the menu entry
@@ -24,3 +17,10 @@ if (!hasChildAccounts.value && !isChildAccount.value) {
   navigateTo("/account/profile", { replace: true });
 }
 </script>
+
+<template>
+  <PortalPageHost
+    :page-keys="[PAGE_KEY.ACCOUNT_CHILD_ACCOUNTS]"
+    aside-label="Account summary"
+  />
+</template>

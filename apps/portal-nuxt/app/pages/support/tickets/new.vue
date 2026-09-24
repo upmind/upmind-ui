@@ -1,10 +1,3 @@
-<template>
-  <PortalPageHost
-    :page-keys="[PAGE_KEY.SUPPORT_TICKET_NEW]"
-    aside-label="Account summary"
-  />
-</template>
-
 <script setup lang="ts">
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { useMockBrandGates } from "~/portal/mock/gates";
@@ -18,3 +11,10 @@ import { PAGE_KEY } from "~/portal/types";
 const { isSupportDisabled, homePath } = useMockBrandGates();
 if (isSupportDisabled.value) void navigateTo(homePath.value, { replace: true });
 </script>
+
+<template>
+  <PortalPageHost
+    :page-keys="[PAGE_KEY.SUPPORT_TICKET_NEW]"
+    aside-label="Account summary"
+  />
+</template>

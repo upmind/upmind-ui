@@ -1,7 +1,3 @@
-<template>
-  <PortalPageHost :page-keys="pageKeys" aside-label="Sign in" />
-</template>
-
 <script setup lang="ts">
 // Legacy asked for the second sign-in step on the login screen ITSELF, once
 // the credentials were accepted (`2faModal` over the same view). The
@@ -24,3 +20,7 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_LOGIN];
 });
 </script>
+
+<template>
+  <PortalPageHost :page-keys="pageKeys" aside-label="Sign in" />
+</template>

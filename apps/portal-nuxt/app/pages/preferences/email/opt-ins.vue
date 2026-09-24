@@ -1,11 +1,3 @@
-<template>
-  <PortalPageHost
-    :page-keys="pageKeys"
-    :route-context="routeContext"
-    aside-label="Email preferences"
-  />
-</template>
-
 <script setup lang="ts">
 // Legacy's `views/client/auth/emailOptIns`: the topics ONE address receives,
 // reached signed out from a link naming both the address and its token. Both
@@ -37,3 +29,11 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_EMAIL_OPT_INS];
 });
 </script>
+
+<template>
+  <PortalPageHost
+    :page-keys="pageKeys"
+    :route-context="routeContext"
+    aside-label="Email preferences"
+  />
+</template>
