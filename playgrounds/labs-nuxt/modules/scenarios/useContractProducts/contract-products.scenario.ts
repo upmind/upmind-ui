@@ -49,10 +49,11 @@ export default {
   persistCriteria: true,
   // The MODULE whose committed `.feature` and step catalog this page plays —
   // the same module the manager page tracks, because the catalog is keyed by
-  // module and serves both keys. The feature tags every scenario `@collection`,
+  // module and serves both keys. Most scenarios are tagged `@collection`,
   // `@manager`, `@meta` or `@machine`; this page leaves the manager's,
   // its meta open-gate outlines and its machine scenarios out — the writes,
-  // node flags and form gates are the manager page's own.
+  // node flags and form gates are the manager page's own. A handful of
+  // whole-module guarantees (`@module`) carry no lane and reach both pages.
   tracks: {
     module: "contract-product",
     without: ["@manager", "@meta", "@machine"]

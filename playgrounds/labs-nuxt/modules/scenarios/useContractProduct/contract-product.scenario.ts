@@ -31,9 +31,10 @@
  * build a boot thunk for its key, and `tracks` names the module whose
  * committed `.feature` and step catalog this page plays — the same module the
  * COLLECTION page tracks, since `stepCatalogs` is keyed by module and serves
- * both keys. The feature tags every scenario `@collection`, `@manager`,
- * `@meta` or `@machine`; this page leaves `@collection` out — paging, sorting,
- * filtering and the grouped-counts/categories reads are the listing page's.
+ * both keys. Most scenarios are tagged `@collection`, `@manager`, `@meta` or
+ * `@machine`; this page leaves `@collection` out — paging, sorting, filtering
+ * and the grouped-counts/categories reads are the listing page's. A handful of
+ * whole-module guarantees (`@module`) carry no lane and reach both pages.
  */
 
 import { useContractProduct } from "@upmind-automation/headless";

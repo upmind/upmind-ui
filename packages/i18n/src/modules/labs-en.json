@@ -220,8 +220,10 @@
   "contract_product_open": "Open product",
   "contract_product_unavailable": "Product unavailable",
   "contract_product_unavailable_text": "The product the url names could not be read for this session. Open it as the client (/as/client).",
+  "contract_product_description": "Description",
   "contract_product_future_cancellation_date": "Future cancellation date",
   "contract_product_min_future_cancellation_date": "Earliest selectable cancellation date",
+  "contract_product_calculated_cancel_date": "Calculated cancel date",
   "contract_product_scheduled_actions": "Scheduled actions",
   "contract_product_unpaid_invoices": "Has unpaid recurring invoices",
   "contract_product_withdraw": "Withdraw cancellation",
@@ -246,5 +248,10 @@
   "contract_product_meta_staged": "Staged",
   "contract_product_meta_on_trial": "On trial",
   "contract_product_meta_trial_ending": "Trial ending",
-  "contract_product_meta_delegated": "Delegated"
+  "contract_product_meta_delegated": "Delegated",
+  "contract_product_meta_inactive": "Inactive",
+  "contract_product_meta_setup_incomplete": "Setup incomplete",
+  "contract_product_meta_fraud": "Fraud",
+  "contract_product_meta_imported": "Imported",
+  "contract_product_meta_moved": "Moved"
 }

@@ -90,6 +90,14 @@
             </Badge>
           </div>
 
+          <p
+            v-if="description"
+            class="text-faint text-sm"
+            data-test-key="contract-product-description"
+          >
+            {{ description }}
+          </p>
+
           <dl class="grid grid-cols-2 gap-3 text-sm">
             <div>
               <dt class="text-faint">{{ t("text.next_due_date") }}</dt>
@@ -114,6 +122,14 @@
                 {{ t("labs.contract_product_min_future_cancellation_date") }}
               </dt>
               <dd>{{ minFutureCancellationDate }}</dd>
+            </div>
+            <div v-if="contractProduct?.calculatedCancelDate">
+              <dt class="text-faint">
+                {{ t("labs.contract_product_calculated_cancel_date") }}
+              </dt>
+              <dd data-test-key="contract-product-calculated-cancel-date">
+                {{ contractProduct.calculatedCancelDate }}
+              </dd>
             </div>
           </dl>
 
@@ -145,7 +161,7 @@
             <Button
               v-if="meta?.isCancelling.value"
               variant="outline"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               :data-attrs="{ 'data-test-key': 'contract-product-withdraw' }"
               @click="withdraw"
             >
@@ -154,7 +170,7 @@
             <Button
               v-if="meta?.isExpiring.value"
               variant="outline"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               :data-attrs="{ 'data-test-key': 'contract-product-resume' }"
               @click="resume"
             >
@@ -163,7 +179,7 @@
             <Button
               v-if="meta?.hasScheduledFutureCancellation.value"
               variant="outline"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               :data-attrs="{
                 'data-test-key': 'contract-product-revoke-scheduled'
               }"
@@ -173,7 +189,7 @@
             </Button>
             <Button
               variant="ghost"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               :data-attrs="{ 'data-test-key': 'contract-product-refresh' }"
               @click="refresh"
             >
@@ -181,7 +197,7 @@
             </Button>
             <Button
               variant="ghost"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               :data-attrs="{ 'data-test-key': 'contract-product-reset' }"
               @click="reset"
             >
@@ -213,7 +229,7 @@
                 !meta?.isConsolidationOpen.value
               "
               variant="outline"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               :data-attrs="{
                 'data-test-key': 'contract-product-cancellation-open'
               }"
@@ -234,7 +250,7 @@
               :model-value="cancellationForm.model"
               :additional-renderers="formRenderers"
               :additional-errors="validationErrors"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               no-actions
               size="sm"
               @update:model-value="onCancellationModelUpdate"
@@ -242,7 +258,7 @@
             <div class="flex justify-end gap-3">
               <Button
                 variant="ghost"
-                :disabled="pending"
+                :disabled="pending || meta?.isProcessing.value"
                 :data-attrs="{
                   'data-test-key': 'contract-product-cancellation-cancel'
                 }"
@@ -251,7 +267,11 @@
                 {{ t("action.cancel") }}
               </Button>
               <Button
-                :disabled="!meta?.isCancellationValid.value || pending"
+                :disabled="
+                  !meta?.isCancellationValid.value ||
+                  pending ||
+                  meta?.isProcessing.value
+                "
                 :data-attrs="{
                   'data-test-key': 'contract-product-cancellation-submit'
                 }"
@@ -283,7 +303,7 @@
                 !meta?.isCancellationOpen.value
               "
               variant="outline"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               :data-attrs="{
                 'data-test-key': 'contract-product-consolidation-open'
               }"
@@ -304,7 +324,7 @@
               :model-value="consolidationForm.model"
               :additional-renderers="formRenderers"
               :additional-errors="validationErrors"
-              :disabled="pending"
+              :disabled="pending || meta?.isProcessing.value"
               no-actions
               size="sm"
               @update:model-value="onConsolidationModelUpdate"
@@ -312,7 +332,7 @@
             <div class="flex justify-end gap-3">
               <Button
                 variant="ghost"
-                :disabled="pending"
+                :disabled="pending || meta?.isProcessing.value"
                 :data-attrs="{
                   'data-test-key': 'contract-product-consolidation-cancel'
                 }"
@@ -321,7 +341,11 @@
                 {{ t("action.cancel") }}
               </Button>
               <Button
-                :disabled="!meta?.isConsolidationValid.value || pending"
+                :disabled="
+                  !meta?.isConsolidationValid.value ||
+                  pending ||
+                  meta?.isProcessing.value
+                "
                 :data-attrs="{
                   'data-test-key': 'contract-product-consolidation-submit'
                 }"
@@ -393,6 +417,10 @@
  *
  * No forced-surface spec is owed: a self-drawing page carries none, exactly
  * as `useTicket` does.
+ *
+ * `nodeFlags` draws all thirteen reportable node flags (`useMeta`'s own
+ * count); busy state binds to `useMeta().isProcessing` alongside the local
+ * `pending` this page's own `run()` wrapper sets.
  */
 
 import {
@@ -429,12 +457,13 @@ import { scenarioPlayground } from "../runtime/ScenarioPlayground.styles";
 import scenario, {
   CONTRACT_PRODUCT_SCENARIO
 } from "./contract-product.scenario";
-import { isArray } from "lodash-es";
+import { filter, isArray } from "lodash-es";
+import type {
+  CancellationModel,
+  SetConsolidationModel
+} from "@upmind-automation/client-vue";
 import type { ScopeActor } from "@upmind-automation/scenario-harness";
 import { useActorScope } from "~/composables/scope";
-
-/** The generic model shape `UpmForm` emits on `@update:model-value`. */
-type WriteFormModel = Record<string, unknown>;
 
 // NO `name`, `path` or `nav` here: the registrar owns all three, off the
 // declaration beside this file.
@@ -459,8 +488,7 @@ const productId = computed(() => {
 });
 
 // Booted once per mount — the page remounts per url, so the id is fixed
-// here. `.as(CLIENT)` is the only actor the matrix serves any context for,
-// and this manager never takes one — `CONTRACT_PRODUCT_SCOPE_MATRIX` refuses
+// here. CLIENT is the only actor the manager resolves; the matrix refuses
 // every actor a `.for()` context, so `.as()` is the whole address.
 const manager = productId.value
   ? useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId.value)
@@ -484,6 +512,7 @@ const { tracks, states, player, isLocked } = useScenarioTransport({
 });
 
 const contractProduct = computed(() => context?.contractProduct.value);
+const description = computed(() => context?.description.value);
 const readError = computed(() => context?.error.value?.message);
 const validationErrors = computed(() => context?.validationErrors.value);
 const scheduledActions = computed(() => context?.scheduledActions.value ?? []);
@@ -506,7 +535,7 @@ const idInput = ref("");
 const nodeFlags = computed(() => {
   const m = meta;
   if (!m) return [];
-  return [
+  const flags = [
     {
       key: "pending",
       flag: m.isPending,
@@ -561,15 +590,52 @@ const nodeFlags = computed(() => {
       key: "delegated",
       flag: m.isDelegatedAccess,
       label: t("labs.contract_product_meta_delegated")
+    },
+    {
+      key: "inactive",
+      flag: m.isInactive,
+      label: t("labs.contract_product_meta_inactive")
+    },
+    {
+      key: "setup-incomplete",
+      flag: m.isSetupIncomplete,
+      label: t("labs.contract_product_meta_setup_incomplete")
+    },
+    {
+      key: "fraud",
+      flag: m.isFraud,
+      label: t("labs.contract_product_meta_fraud")
+    },
+    {
+      key: "imported",
+      flag: m.isImported,
+      label: t("labs.contract_product_meta_imported")
+    },
+    {
+      key: "moved",
+      flag: m.hasMoved,
+      label: t("labs.contract_product_meta_moved")
     }
-  ].filter(entry => entry.flag.value);
+  ];
+  return filter(flags, entry => entry.flag.value);
 });
 
-// A failed load runs `clearContractProduct`, so no product means the read did
-// not land. `hasError` is NOT read: a form's validation error raises it while
-// the product stays on `available`, and reading it would swap the form the
-// client edits for the alert.
-const isReadable = computed(() => !!contractProduct.value);
+// `hasError` is NOT read: a form's validation error raises it while the
+// product stays on `available`, and reading it would swap the form the
+// client edits for the alert. A product record alone is not enough — an
+// unrecognised status settles the machine on `#error` WITHOUT clearing it
+// (D67), so readability also requires the product to have landed on one of
+// the placed nodes.
+const isReadable = computed(
+  () =>
+    !!contractProduct.value &&
+    !!meta &&
+    (meta.isAvailable.value ||
+      meta.isStaged.value ||
+      meta.isCancelled.value ||
+      meta.isLapsed.value ||
+      meta.isFraud.value)
+);
 
 function report(error: unknown): void {
   actionError.value =
@@ -599,7 +665,9 @@ const closeCancellation = () =>
   actions?.cancelForm(ContractProductFormTypes.CANCELLATION);
 const submitCancellation = () => run(() => actions!.submitCancellation());
 
-function onCancellationModelUpdate(model: WriteFormModel | undefined): void {
+function onCancellationModelUpdate(
+  model: Partial<CancellationModel> | undefined
+): void {
   actions?.set(ContractProductFormTypes.CANCELLATION, model ?? {});
 }
 
@@ -608,7 +676,9 @@ const closeConsolidation = () =>
   actions?.cancelForm(ContractProductFormTypes.CONSOLIDATION);
 const submitConsolidation = () => run(() => actions!.submitConsolidation());
 
-function onConsolidationModelUpdate(model: WriteFormModel | undefined): void {
+function onConsolidationModelUpdate(
+  model: Partial<SetConsolidationModel> | undefined
+): void {
   actions?.set(ContractProductFormTypes.CONSOLIDATION, model ?? {});
 }
 
