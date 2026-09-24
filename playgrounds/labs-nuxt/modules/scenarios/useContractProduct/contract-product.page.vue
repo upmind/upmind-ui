@@ -548,14 +548,11 @@ const nodeFlags = computed(() => {
   ].filter(entry => entry.flag.value);
 });
 
-// The unavailable alert is for a record that did NOT load: no product, or the
-// top-level `error` node (D43). A form's validation error keeps the product on
-// `available` and only sets `error` on context, so the page stays drawn and
-// shows `validationErrors` on that form rather than swapping the form it edits
-// for the alert.
-const isReadable = computed(
-  () => !!contractProduct.value && !meta?.isErrored.value
-);
+// A failed load runs `clearContractProduct`, so no product means the read did
+// not land. `hasError` is NOT read: a form's validation error raises it while
+// the product stays on `available`, and reading it would swap the form the
+// client edits for the alert.
+const isReadable = computed(() => !!contractProduct.value);
 
 function report(error: unknown): void {
   actionError.value =
