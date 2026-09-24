@@ -44,7 +44,6 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { isMobile } from "../../../../../composables/isMobile";
-import Promotion from "../../../../product/components/pricing/Promotion.vue";
 import {
   productOptionDetailsVariants,
   productOptionTitleVariants,
@@ -53,6 +52,7 @@ import {
   productSummaryCategoryTextVariants,
   productSummaryTitleTextVariants
 } from "../basketProduct.variants";
+import Promotion from "./Promotion.vue";
 import type { BasketProductSummaryProps } from "../types";
 // -----------------------------------------------------------------------------
 

@@ -4,10 +4,6 @@
   "description": "Upmind domain domain package — domain search / DAC and its renderers (optional package).",
   "type": "module",
   "license": "UNLICENSED",
-  "sideEffects": [
-    "**/feature.ts",
-    "**/*.css"
-  ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
