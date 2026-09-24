@@ -1,6 +1,6 @@
 /**
  * @module foundation/theming
- * @description Brand→theme selection. ADR 023 §2 keeps the engine in `ui`.
+ * @description Brand→theme selection.
  */
 
 export const COLOR_SCHEME = {
@@ -10,10 +10,6 @@ export const COLOR_SCHEME = {
 
 export type ColorScheme = (typeof COLOR_SCHEME)[keyof typeof COLOR_SCHEME];
 
-/**
- * The theme engine and active-theme store `ui` owns. `foundation` selects a
- * theme id and hands it over; implementing `set` here would invert the layer.
- */
 export type ThemeEngine = {
   set: (id: string) => void;
 };

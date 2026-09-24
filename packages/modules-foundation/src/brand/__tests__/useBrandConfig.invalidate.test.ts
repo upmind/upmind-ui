@@ -1,19 +1,11 @@
 /**
- * @fileoverview Brand cache busting is observable to its readers — ADR 023 §10 Axis 1
+ * @fileoverview Brand cache busting is observable to its readers.
  *
  * ## Job To Be Done
- * `invalidate` is the only door a caller has when a settings bundle changes
- * under its own id. It is a door only if the next read of a `config` computed
- * that OUTLIVES the call re-resolves against current state. Every spec here
- * holds one computed for the whole case, warms the cache, busts it, and reads
- * again — through the named arm and the bare arm, and across two handles.
+ * After `invalidate`, a long-lived `config` computed re-resolves against current state.
  *
  * ## What Breaks If These Fail
- * A bust that empties the map but leaves every reader memoised is a silent
- * no-op: an app that re-fetches its brand settings keeps painting the old name,
- * the old theme and the old favicon until a full page reload. Reading
- * `cachedIds()` back cannot see this — the map really is empty; it is the
- * readers that never look again.
+ * A re-fetched brand keeps painting the old name, theme and favicon until reload.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";

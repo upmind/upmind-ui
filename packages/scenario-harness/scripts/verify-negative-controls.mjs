@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * FE-2976 deep-review cluster 7 — makes every `known-bad/*.must-fail.patch`
- * fixture a machine-enforced negative control instead of README prose.
+ * Makes every `known-bad/*.must-fail.patch` fixture a machine-enforced negative control.
  *
  * For each `*.must-fail.patch` under `src/__tests__/known-bad/`:
  *   1. `git apply --check` — if the patch no longer applies cleanly against
@@ -15,24 +14,9 @@
  *   3. Revert it (always, even on assertion failure — `finally`) and assert the
  *      gate that caught it returns to GREEN.
  *
- * TWO gates, cheapest first, because the boundary is enforced by two mechanisms
- * and neither sees the other's shapes. Lint sees specifier TEXT: relative
- * escapes and deep subpaths. The type gate sees RESOLUTION: a published
- * specifier a package's project references do not reach. A side-effect-only
- * import (`import "@upmind-automation/auth";`) is invisible to lint — no
- * specifier pattern bans a bare barrel, which is the legitimate consumer
- * shape — and was invisible to the type gate too until
- * `noUncheckedSideEffectImports` was armed in `tsconfig/base.json`. A patch is
- * verified when EITHER gate catches it; a patch no gate catches is the alarm.
- * Lint runs first, so the text-shape controls cost exactly what they did
- * before and never pay for a build.
- *
  * The lint arm mirrors `.claude/scripts/lint/eslint-workspace.mjs`'s own
  * invocation (cwd = repo root, same suppressions-ledger flags) so the verdict
- * this script reads is the exact one `pnpm --filter <pkg> lint` would report,
- * and its scope is derived per patch rather than pinned to this package. The
- * type arm is the repo-root `vue-tsc -b` gate itself: project references are
- * one graph, so there is no per-package scope to derive.
+ * this script reads is the exact one `pnpm --filter <pkg> lint` would report.
  */
 
 import { execFileSync, spawnSync } from "node:child_process";
@@ -111,11 +95,6 @@ function extractPatchTargets(patchText) {
   );
 }
 
-/**
- * The workspace package root(s) a patch touches — the lint scope its control
- * needs. Package roots (not the touched files) so the scope survives the
- * revert, where a file the patch CREATED no longer exists.
- */
 function extractLintTargets(patchText) {
   const roots = new Set();
 

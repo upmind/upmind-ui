@@ -1,30 +1,13 @@
 // -----------------------------------------------------------------------------
 /**
  * @module form/renderers/__tests__/TermsRenderer.lazy-chunk
- * @description The companion to `lazy-renderers.test.ts`, with NOTHING mocked:
- * `TermsRenderer` reaches `TermsRadio` / `TermsSelect` through
- * `defineAsyncComponent`, and this file mounts the real chunk.
+ * @description Mounts the real async `TermsRadio` / `TermsSelect` chunks, nothing mocked.
  *
  * ## Job To Be Done
- * A `Terms` control declared on the real `UpmForm` draws real, clickable term
- * tiles once its chunk resolves, and a click on one writes that term's billing
- * cycle into the caller's model. Both selector shapes the config cascade can
- * pick are separate loaders, so both are exercised.
+ * A `Terms` control draws clickable term tiles, and a click writes that term's billing cycle.
  *
  * ## What Breaks If These Fail
- * The lazy chunk resolves to something that renders no tile, or renders tiles
- * that no longer report their cycle back — a terms selector the user can see
- * but cannot use, or cannot see at all. `lazy-renderers.test.ts` proves the
- * renderer's side of the boundary; this proves the boundary's far side is a
- * real, usable field and not a resolved shell.
- *
- * PROVENANCE. The schema, uischema and product uiMeta are hand-authored generic
- * JSON Schema and generic config keys — caller-supplied INPUTS to the engine,
- * not recorded wire data, exactly as in `filter.harness.ts`. Nothing here stands
- * in for a captured response: the two terms carry only the fields `TermDetails`
- * makes mandatory, and every formatted price is a `ZZZ` SENTINEL no currency
- * formatter can produce — so the tile drawing one proves transport rather than
- * coincidence.
+ * The chunk resolves to a shell: a terms selector the user cannot see or use.
  */
 
 import { mount } from "@vue/test-utils";
@@ -93,11 +76,6 @@ const uischema = {
 
 const mounted: VueWrapper[] = [];
 
-/**
- * Mounts, then waits for the loader — never a fixed delay. A cold dynamic
- * import is slower than the first tick, and the wait timing out IS the failure
- * this file exists to catch.
- */
 const mountTerms = async (
   uiMeta: Record<string, string>,
   awaited: string,
@@ -145,8 +123,6 @@ const mountTerms = async (
   return { wrapper, model: () => model.value };
 };
 
-// The group and the tile's own description share the prefix, so only the
-// cycle-suffixed keys are terms.
 const TERM_TILE_KEY = /^option-tile-\d+$/;
 
 const tiles = (wrapper: VueWrapper) =>

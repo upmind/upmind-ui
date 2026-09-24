@@ -7,10 +7,6 @@ import {
 } from "./brand.cache";
 import type { BrandConfig, BrandConfigMeta } from "./brand.types";
 
-/**
- * Resolves the brand's invariant config and caches it under the BE
- * settings-bundle id (ADR 023 §10 Axis 1).
- */
 export const useBrandConfig = () => {
   const {
     brandId,
@@ -22,8 +18,7 @@ export const useBrandConfig = () => {
     meta: brandMeta
   } = useBrand();
 
-  // `basket: undefined` opts out of the per-user basket wiring, which would pull
-  // Axis 2 state into a brand-invariant read.
+  // `basket: undefined` opts out of the per-user basket wiring.
   const { ui } = useConfig({ brand: () => uiCart.value, basket: undefined });
 
   const config = computed((): BrandConfig | undefined => {
@@ -52,15 +47,12 @@ export const useBrandConfig = () => {
     isReady,
     meta,
 
-    /** The settings-bundle id the cache is keyed by. */
     id: computed(() => brandId.value),
 
     config,
 
-    /** Every brand id currently held, for cache inspection. */
     cachedIds: cachedBrandIds,
 
-    /** Busts one brand's cached config, or all of them. */
     invalidate: invalidateBrandConfig
   };
 };

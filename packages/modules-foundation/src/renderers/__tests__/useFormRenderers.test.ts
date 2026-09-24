@@ -1,17 +1,11 @@
 /**
- * @fileoverview useFormRenderers inject door — ADR 023 §7 socket rule
+ * @fileoverview useFormRenderers inject door.
  *
  * ## Job To Be Done
- * Prove the renderer seam has both arms. Absent a provider a form host reads an
- * empty set, which is a shipped state — `apps/auth` renders its forms with zero
- * domain renderers. With `provideFormRenderers` the host's own list is what the
- * form reads, handed through rather than copied.
+ * A form host reads an empty set with no provider, and its own list with one.
  *
  * ## What Breaks If These Fail
- * The empty arm broken means a host that wants no domain renderer cannot mount a
- * form at all. The provided arm broken means an app or a brand layer cannot
- * supply its set, so §7's "injected, not imported" escape hatch is gone and
- * `catalogue` has to import `domain`.
+ * A host with no domain renderer cannot mount a form, or an app cannot supply its set.
  */
 
 import { describe, expect, it, vi } from "vitest";

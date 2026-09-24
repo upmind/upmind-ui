@@ -1,19 +1,8 @@
 /**
- * @fileoverview Unit-layer stub of `@upmind-automation/headless`, foundation's
- * only downstream dependency (ADR 023 §2 layer table).
+ * @fileoverview Unit-layer stub of `@upmind-automation/headless`.
  *
  * ## Job To Be Done
- * Let the foundation specs drive brand + theming state as a reactive input, so
- * the derivations under test are exercised through their real code path with no
- * network and no XState machine.
- *
- * ## Provenance
- * AUTHORED, not recorded — and deliberately so. These are unit-layer stubs of a
- * package boundary, the same convention as
- * `packages/headless/src/modules/brand/__tests__/brand.context.test.ts`. No
- * journey or API-response data is claimed here: the brand payload shapes come
- * from headless's own published declarations (`useBrand`, `useTheming`), and the
- * recorded-fixture law binds the `*.int.test.ts` lane, which this is not.
+ * Drive brand and theming state as a reactive input, with no network and no machine.
  */
 
 import { computed, ref } from "vue";
@@ -48,11 +37,6 @@ export function resetHeadlessStub() {
   stubState.themes.value = undefined;
 }
 
-/**
- * `themeId` is published on the brand's UI meta `theme` and `colorSchemeVariant`
- * on `uiTheme.variant` — the same two channels legacy `client-vue`'s `useTheme`
- * read, kept apart so a spec cannot pass off one for the other.
- */
 export function setBrand(brand: Partial<StubBrand>) {
   stubState.brand.value = { ...stubState.brand.value, ...brand };
 }

@@ -1,20 +1,11 @@
 /**
- * @fileoverview useBrandTheme selection + apply — ADR 023 §2 brand→theme selection
+ * @fileoverview useBrandTheme selection and apply.
  *
  * ## Job To Be Done
- * Prove the brand→theme selection glue §2 assigns to `foundation`: read the
- * available themes from `headless`, pick the brand's own theme when the brand
- * ships one that exists, fall back down the chain when it does not, and hand the
- * pick to the `ui`-layer theme engine through the port rather than reaching into
- * it.
+ * Pick the brand's theme when it exists, else fall back, and hand it to the engine.
  *
  * ## What Breaks If These Fail
- * A brand whose configured theme is missing from the bundle paints an unthemed
- * cart instead of the next best theme; a selection that never reaches the engine
- * leaves every primitive on base tokens, so the brand's colour and font never
- * apply. Worse, an `apply` that drops the theme without a word gives an operator
- * nothing to search for: the shell boots, the brand looks wrong, and no signal
- * anywhere points at the missing engine.
+ * A brand paints unthemed, on base tokens, with no signal pointing at the cause.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -45,8 +36,6 @@ describe("useBrandTheme", () => {
 
   beforeEach(() => {
     resetHeadlessStub();
-    // The brand cache is keyed by brand id (§10 Axis 1), so re-configuring the
-    // SAME id without busting it would replay the previous case's theme.
     useBrandConfig().invalidate();
   });
 

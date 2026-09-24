@@ -1,17 +1,5 @@
 #!/usr/bin/env node
-// Flattens `packages/modules-foundation/src/modules/<unit>/` up one level, to
-// `src/<unit>/`. Discovers the units from disk, so it runs unchanged on every
-// phase branch. Idempotent: a second run reports nothing to do.
-//
-// Three edits, and nothing else:
-//   1. git mv each unit directory up one level
-//   2. the barrel's `./modules/<unit>` specifiers lose the `modules/` segment
-//   3. unit __tests__ files reaching `../../../` now reach `../../`
-//
-// Sibling imports are NOT rewritten and must not be: both ends move together,
-// so `../icon` keeps its meaning. There is no `../../` anywhere in the tree —
-// that is the one depth whose meaning would change silently — and the script
-// refuses to run if one appears, rather than guessing.
+// Flattens `packages/modules-foundation/src/modules/<unit>/` up one level to `src/<unit>/`.
 
 import { execFileSync } from "node:child_process";
 import {
@@ -46,7 +34,6 @@ try {
 
 const tracked = git("ls-files", MODULES).split("\n").filter(Boolean);
 
-// The refusal check, before any write.
 const twoLevel = tracked.filter((f) =>
   /from\s+["']\.\.\/\.\.\/(?!\.\.)/.test(readFileSync(f, "utf8"))
 );
@@ -62,7 +49,6 @@ if (twoLevel.length > 0) {
 console.log(`units: ${units.length} (${units.join(", ")})`);
 console.log(`tracked files under modules/: ${tracked.length}`);
 
-// 1. Move.
 for (const u of units) {
   const from = `${MODULES}/${u}`;
   const to = `${SRC}/${u}`;
@@ -70,7 +56,6 @@ for (const u of units) {
   if (!DRY) git("mv", from, to);
 }
 
-// 2. The barrel.
 const barrel = `${SRC}/index.ts`;
 const before = readFileSync(barrel, "utf8");
 const after = before.replace(/(["'])\.\/modules\//g, "$1./");
@@ -78,10 +63,7 @@ const barrelRefs = (before.match(/["']\.\/modules\//g) ?? []).length;
 console.log(`  ${barrel}: ${barrelRefs} refs`);
 if (!DRY && after !== before) writeFileSync(barrel, after);
 
-// 3. The escaping test imports, at their new paths.
 let escaped = 0;
-// On a dry run the files are still at their old paths, so read there and report
-// the path each one WILL have.
 const pairs = DRY
   ? tracked.map((f) => [f, f.replace(`${MODULES}/`, `${SRC}/`)])
   : git("ls-files", SRC)

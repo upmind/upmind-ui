@@ -1,38 +1,13 @@
 // -----------------------------------------------------------------------------
 /**
  * @module form/renderers/__tests__/lazy-renderers
- * @description Three renderers reach their field component through
- * `defineAsyncComponent` instead of a static import (ADR 023 §3/§11 — a static
- * import puts the product and domain module trees in every consumer of the
- * client-vue barrel, which is what stops `domain` being an optional package).
- * There is no `loadingComponent` and no Suspense boundary, so the whole field
- * lives or dies on that loader resolving and re-binding.
+ * @description Three renderers' async field loaders resolve, bind props and route emits.
  *
  * ## Job To Be Done
- * The user still gets a working field. Each renderer is dispatched through the
- * REAL `UpmForm` by a declaration its own exported `tester` matches, and then:
- * the field is in the tree once the chunk resolves, it carries every value the
- * renderer computes for it (uischema options, schema options, the caller's
- * model, sibling model state), and the change it emits reaches the caller's
- * model through JSON Forms.
+ * Each renderer draws its field through the real `UpmForm`, and its edits reach the model.
  *
  * ## What Breaks If These Fail
- * A terms selector, a subproduct group, or the domain field renders empty, or
- * renders and then silently drops every edit — the async boundary's two failure
- * modes. Both look identical to "the form has no such field" from the seat of
- * the user configuring a product.
- *
- * PROVENANCE. The schemas and uischemas are hand-authored generic JSON Schema —
- * a caller-supplied INPUT to the engine, not recorded wire data, exactly as in
- * `filter.harness.ts`. Nothing here stands in for a captured response. Every
- * value is a `Zzz`/`zzz` SENTINEL that can only have arrived from this file, so
- * a prop assertion cannot pass by coincidence with a real default.
- *
- * The field component behind each loader is the MOCKED SEAM: this file proves
- * the RENDERER's boundary to it — loader resolved, props bound, emit routed —
- * not the field's own rendering. `TermsRenderer.lazy-chunk.test.ts` covers the
- * real chunk drawing real DOM; `SubproductSelector` and `SmartDomainField` are
- * proven by their own suites.
+ * A terms, subproduct or domain field renders empty, or drops every edit.
  */
 
 import { mount } from "@vue/test-utils";
@@ -61,14 +36,6 @@ const STUB = {
   domain: "ZzzSmartDomainField"
 };
 
-/**
- * A field stub that declares the props its renderer binds, so vue-test-utils
- * normalises the kebab-cased bindings, and re-emits on demand.
- *
- * `__esModule` is load-bearing: `defineAsyncComponent` only unwraps `.default`
- * from a module it recognises as ESM, and without the flag it treats the mock
- * namespace itself as the component.
- */
 const fieldStub = async (name: string, props: string[]) => {
   const { defineComponent: define, h: render } = await import("vue");
 
@@ -126,7 +93,7 @@ vi.mock("../../../../modules/domain/SmartDomainField.vue", () =>
 );
 
 // -----------------------------------------------------------------------------
-// Declarations — see PROVENANCE.
+// Declarations
 // -----------------------------------------------------------------------------
 
 const TERM_MONTHLY = {
@@ -241,16 +208,7 @@ type Declaration = {
 
 const mounted: VueWrapper[] = [];
 
-/**
- * Mounts a declaration on the real `UpmForm`, with the config cascade provided
- * from an explicit product-scope uiMeta so no assertion here depends on an
- * unauthored default. `brand`/`basket` are declared-undefined to opt out of
- * `useBrand`/`useBasket` (the documented escape hatch in `useConfig`).
- *
- * Waits on the loader rather than a fixed delay: a cold dynamic import is
- * slower than the first tick, and the wait timing out IS the failure this file
- * exists to catch.
- */
+/** `brand`/`basket` declared undefined opt out of `useBrand`/`useBasket`. */
 const mountForm = async (
   declaration: Declaration,
   options: {
@@ -310,7 +268,6 @@ const drawn = (wrapper: VueWrapper, name: string) =>
   wrapper.find(`[data-test-key="${name}"]`).exists();
 
 beforeAll(() => {
-  // jsdom ships no scrollIntoView, and the engine calls it on highlight.
   Element.prototype.scrollIntoView = () => {};
 });
 

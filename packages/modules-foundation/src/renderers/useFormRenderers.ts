@@ -13,10 +13,6 @@ export type UseFormRenderers = {
   renderers: FormRendererEntry[];
 };
 
-/**
- * The renderers a form host injects in place of the `additionalRenderers` prop.
- * Reads an empty set when no host provided one.
- */
 export const useFormRenderers = (): UseFormRenderers => ({
   renderers: hasInjectionContext() ? inject(FORM_RENDERERS, []) : []
 });

@@ -1,18 +1,11 @@
 /**
- * @fileoverview useBrandConfig resolve + brand-keyed cache — ADR 023 §10 Axis 1
+ * @fileoverview useBrandConfig resolve and brand-keyed cache.
  *
  * ## Job To Be Done
- * Prove the brand-invariant half of the state model. Brand config is identical
- * for every user of a brand, so §10 Axis 1 resolves it from the settings bundle
- * the BE returns WITH ITS ID and caches it under that id. This spec drives the
- * id from unresolved to resolved, reads the cache keys back, and exercises both
- * arms of invalidation.
+ * Config resolves only once the bundle id does, and is cached under that id.
  *
  * ## What Breaks If These Fail
- * Reading config before the id resolves hands callers a half-brand — the wrong
- * theme and the wrong name paint on first render. Caching under anything but the
- * bundle id is the §10 leak: an SSR process serves one brand's settings to
- * another brand's visitor, or grows a key per client and leaks memory.
+ * A half-brand paints on first render, or SSR serves one brand's settings to another.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
