@@ -1,6 +1,9 @@
 /** @internal */
 import { RuleEffect } from "@jsonforms/core";
-import { InvoiceConsolidationTypes } from "@upmind-automation/types";
+import {
+  ContractStatusCodes,
+  InvoiceConsolidationTypes
+} from "@upmind-automation/types";
 import {
   useCustomFieldsSchema,
   useCustomFieldsUischema
@@ -195,6 +198,52 @@ export function useSortUischema(): ControlElement {
     scope: "#/properties/sort",
     i18n: "form.contract_product_sort"
   };
+}
+
+/**
+ * The dashboard grouped-count read's OWN request state (design 8.1, R36). No
+ * consumer narrows it: the active-status filter and the `service_identifier`
+ * ordering are the SHAPE of that read, so each is a forced leaf — a `const`
+ * AND a `default` (ADR-14) — and the read parses an empty model against it.
+ * `service_identifier` is declared ONLY here; `useQuerySchema()`'s
+ * client-facing sort vocabulary omits it, because the products list cannot
+ * honour a sort the client could then pick.
+ */
+export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          "status.code": {
+            type: "string",
+            const: ContractStatusCodes.ACTIVE,
+            default: ContractStatusCodes.ACTIVE
+          }
+        }
+      },
+      sort: {
+        type: "array",
+        default: [{ field: "service_identifier", dir: SortDirection.ASC }],
+        minItems: 1,
+        maxItems: 1,
+        uniqueItems: true,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["field", "dir"],
+          properties: {
+            field: { enum: ["service_identifier"] },
+            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+          }
+        }
+      }
+    }
+  } satisfies JsonSchema7;
 }
 
 // -----------------------------------------------------------------------------
