@@ -1,56 +1,3 @@
-<template>
-  <TooltipProvider>
-    <AuthShell variant="centered" skip-label="Skip to content">
-      <template #header>
-        <PortalBrand :label="brandName" to="/login" />
-        <Button
-          v-if="store"
-          variant="outline"
-          size="sm"
-          :as="store.as"
-          :to="store.to"
-          :href="store.href"
-          data-test-key="logged-out-store"
-        >
-          <ShoppingBasket />
-          Place new order
-        </Button>
-      </template>
-
-      <div :class="LOGGED_OUT_COLUMN_CLASS">
-        <Markdown
-          v-if="meta.isNoted"
-          tag="div"
-          :model-value="meta.note"
-          :class="LOGGED_OUT_NOTE_CLASS"
-          data-test-key="logged-out-note"
-        />
-        <Card :ui="{ content: LOGGED_OUT_CARD_CONTENT_CLASS }">
-          <slot />
-        </Card>
-      </div>
-
-      <template #footer>
-        <Markdown
-          v-if="footerMarkdown"
-          tag="div"
-          :model-value="footerMarkdown"
-          :class="PORTAL_FOOTER_PROSE_CLASS"
-        />
-        <a
-          v-if="hasUpmindBranding"
-          :class="PORTAL_FOOTER_LINK_CLASS"
-          href="https://upmind.com"
-          target="_blank"
-          rel="noreferrer"
-          >Powered by Upmind</a
-        >
-      </template>
-    </AuthShell>
-    <Toaster />
-  </TooltipProvider>
-</template>
-
 <script setup lang="ts">
 // -----------------------------------------------------------------------------
 /**
@@ -151,3 +98,56 @@ const store = computed(() => {
   return { as: NuxtLink, href: undefined, to: shortcut.to };
 });
 </script>
+
+<template>
+  <TooltipProvider>
+    <AuthShell variant="centered" skip-label="Skip to content">
+      <template #header>
+        <PortalBrand :label="brandName" to="/login" />
+        <Button
+          v-if="store"
+          variant="outline"
+          size="sm"
+          :as="store.as"
+          :to="store.to"
+          :href="store.href"
+          data-test-key="logged-out-store"
+        >
+          <ShoppingBasket />
+          Place new order
+        </Button>
+      </template>
+
+      <div :class="LOGGED_OUT_COLUMN_CLASS">
+        <Markdown
+          v-if="meta.isNoted"
+          tag="div"
+          :model-value="meta.note"
+          :class="LOGGED_OUT_NOTE_CLASS"
+          data-test-key="logged-out-note"
+        />
+        <Card :ui="{ content: LOGGED_OUT_CARD_CONTENT_CLASS }">
+          <slot />
+        </Card>
+      </div>
+
+      <template #footer>
+        <Markdown
+          v-if="footerMarkdown"
+          tag="div"
+          :model-value="footerMarkdown"
+          :class="PORTAL_FOOTER_PROSE_CLASS"
+        />
+        <a
+          v-if="hasUpmindBranding"
+          :class="PORTAL_FOOTER_LINK_CLASS"
+          href="https://upmind.com"
+          target="_blank"
+          rel="noreferrer"
+          >Powered by Upmind</a
+        >
+      </template>
+    </AuthShell>
+    <Toaster />
+  </TooltipProvider>
+</template>

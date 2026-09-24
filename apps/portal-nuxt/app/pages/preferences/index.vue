@@ -1,11 +1,3 @@
-<template>
-  <PortalPageHost
-    :page-keys="pageKeys"
-    :route-context="routeContext"
-    aside-label="Notification preferences"
-  />
-</template>
-
 <script setup lang="ts">
 // Legacy served its notification preferences to a signed-OUT reader too
 // (`views/client/auth/preferences`), reached from a link that carries a token
@@ -39,3 +31,11 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_PREFERENCES];
 });
 </script>
+
+<template>
+  <PortalPageHost
+    :page-keys="pageKeys"
+    :route-context="routeContext"
+    aside-label="Notification preferences"
+  />
+</template>
