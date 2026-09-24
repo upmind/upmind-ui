@@ -869,3 +869,57 @@ Feature: A client manages the products on their own contracts
     Given I have one of my active subscriptions open
     When I reset my product
     Then my product is read again and shown as active
+
+  # === WHAT THE MANAGER PUBLISHES ABOUT THE PRODUCT I HAVE OPEN =============
+  # One scenario per template context/action member ruling R37 restores, and
+  # per the failed-load settlement decisions D43/D44. Each is proven over the
+  # recorded corpus by contract-product.manager-members.int.test.ts. These are
+  # capability spec, driven by no step catalog entry.
+
+  @FE-3029 @manager @member
+  Scenario: The product I have open tells me which product it is
+    Given I have a product of mine open in the manager
+    When I read which product the manager is addressing
+    Then it is the very product I opened
+
+  @FE-3029 @manager @member
+  Scenario: The product I have open shows me its name
+    Given I have a product of mine open in the manager
+    When I read the title of the product I have open
+    Then it is the name of that product
+
+  @FE-3029 @manager @member
+  Scenario: The product I have open shows me its description
+    Given I have a product of mine open in the manager
+    When I read the description of the product I have open
+    Then it is the description of that product
+
+  @FE-3029 @manager @member
+  Scenario: The cancellation custom fields my product allows are loaded ready for the form
+    Given I have a product of mine open in the manager
+    When I read the loaded cancellation lookups
+    Then they are the cancellation custom fields my product carries
+
+  @FE-3029 @manager @member
+  Scenario: When reading my product fails I am shown why
+    Given reading one of my products fails
+    When I read the error the manager kept
+    Then it is the message the failed read returned
+
+  @FE-3029 @manager @member
+  Scenario: A failed read stops loading and settles on an error instead of hanging
+    Given reading one of my products fails
+    When I look at whether the manager is still loading
+    Then it has stopped loading and reports an error
+
+  @FE-3029 @manager @member
+  Scenario: A failed read tells me at once that my product is not ready
+    Given reading one of my products fails
+    When I wait to be told whether my product is ready
+    Then I am told at once that it is not ready
+
+  @FE-3029 @manager @member
+  Scenario: When a change I make finishes I am told it is done
+    Given I have a product of mine open in the manager
+    When I stop one of my subscriptions renewing and wait for it to finish
+    Then I am told the change is done

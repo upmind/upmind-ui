@@ -1803,4 +1803,24 @@ describe("useContractProduct — the consolidation form reports whether it is op
       expect(manager.useMeta().isConsolidationOpen.value).toBe(false);
     });
   });
+
+  it("AC-9 submitting an open consolidation form with an invalid model resolves false, sends no request, and leaves the validation errors set (D68)", async () => {
+    const { manager, row } = await settledFormManager();
+    await manager.useActions().openConsolidation();
+    expect(manager.useMeta().isConsolidationValid.value).toBe(false);
+
+    const observed = observeAllRequests();
+    const settled = await settlement(
+      manager.useActions().submitConsolidation()
+    );
+    observed.stop();
+
+    expect(settled).toEqual({ resolved: false });
+    expect(
+      observed.matching(
+        `/contracts/${row.contract_id}/products/${row.id}/properties`
+      )
+    ).toEqual([]);
+    expect(manager.useContext().validationErrors.value).not.toHaveLength(0);
+  });
 });

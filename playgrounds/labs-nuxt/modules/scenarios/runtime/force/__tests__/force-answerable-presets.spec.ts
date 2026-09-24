@@ -427,7 +427,13 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
     "client-notes": ["error-collection", "error-action"],
     // No labs scenario page and no force affordance, so a capture would prove
     // nothing — single-record reads only, with no absent-record read on file.
-    "session-store": ["empty"]
+    "session-store": ["empty"],
+    // contract.feature declares @guard (AC-16), but the recordings hold no
+    // refusal capture, and recording one needs a staging write this run forbids.
+    contract: ["error-collection", "error-action"],
+    // contract-product.feature declares @guard (AC-11/AC-16) too, and holds no
+    // refusal capture either; recording one needs the same forbidden staging write.
+    "contract-product": ["error-collection", "error-action"]
   };
 
   it("owes a capture only where one is on record as owed", () => {
