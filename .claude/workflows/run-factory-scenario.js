@@ -152,7 +152,7 @@ const HALT_TO_DOOR =
 
 // The member-level template re-grade — the same brief the composable lane's
 // Template review carries, so both lanes grade one contract one way.
-const TEMPLATE_REGRADE = `Grade the landed module against the template set ${templateDir} MEMBER BY MEMBER, for EVERY composable the module ships or owes: every member each context, actions and meta factory returns, every machine state the template names, and the criteria channel. Grade what the module HAS, never what a run reported. A template member the module lacks, renames or reshapes is a drift row with the template file:line beside the module file:line. A row is excused ONLY by a \`template-departure:\` line in ${sddDir} that names BOTH the member AND the composable it excuses (for example \`template-departure: lookups (useContractProducts)\`); a departure line that names the module or nothing excuses nothing, and a departure for one composable never excuses another. Put a row in \`rulingRows\` ONLY when closing it needs an operator choice between keeping the landed shape as a declared departure and restoring the template — say which you recommend and why. Every other row goes in \`driftRows\`. Grade to the end: EVERY row in one list, never stop at the first; a row found next cycle that was there this cycle costs the run a whole round.`;
+const TEMPLATE_REGRADE = `Grade the landed module against the template set ${templateDir} MEMBER BY MEMBER, for EVERY composable the module ships or owes: every member each context, actions and meta factory returns, every machine state the template names, and the criteria channel. Grade what the module HAS, never what a run reported. A template member the module lacks, renames or reshapes is a drift row with the template file:line beside the module file:line. A row is excused ONLY by a \`template-departure:\` line in ${sddDir} that names BOTH the member AND the composable it excuses (for example \`template-departure: lookups (useContractProducts)\`); a departure line that names the module or nothing excuses nothing, and a departure for one composable never excuses another. DECIDE every row yourself wherever the answer is already given — by a ruling in review-notes.md, a decision in operator-review.md, a declared departure's reasoning, or a house exemplar. The answer "restore the template member" puts the row in \`driftRows\`. The answer "keep the landed shape" puts it in \`departRows\` as the exact departure line to file (\`template-departure: <member> (<composable>) — <reason> (<the ruling or exemplar that decides it>)\`). Put a row in \`rulingRows\` ONLY for a genuine architectural choice, or a contradiction between rulings whose answer is NOT obvious from any of those sources — and say why none of them decides it. A choice you can answer with a citation is never a ruling. Grade to the end: EVERY row in one list, never stop at the first; a row found next cycle that was there this cycle costs the run a whole round.`;
 
 // The exhaustive-review preamble every lane-local reviewer carries — the same
 // text the plugin's loops carry, so a lane-local reviewer is held to the same
@@ -232,6 +232,7 @@ const REGRADE_GATE = {
     summary: { type: "string" },
     driftCount: { type: "number" },
     driftRows: { type: "array", items: { type: "string" } },
+    departRows: { type: "array", items: { type: "string" } },
     rulingRows: { type: "array", items: { type: "string" } },
     introducedByRepair: { type: "array", items: { type: "string" } }
   },
@@ -474,7 +475,29 @@ if (!skipRegrade) {
     // A row that needs an operator choice never blocks the repair of the
     // rest: it is carried to the end of the lane and reported there.
     results.rulingRows = raw.rulingRows ?? [];
-    if (!drift.length) break;
+    // A row the grader decided as "keep the landed shape" is filed, not asked:
+    // the planner writes each departure line and its decision row, and the
+    // next cycle re-grades with them in place.
+    if ((raw.departRows ?? []).length) {
+      const filed = await agent(
+        `File these template departures for story ${id}. ${FACTS} ${BOUNDS} Append each line VERBATIM to the template-departures section (9.x) of the design file in ${sddDir}, and one decision row per line to ${sddDir}/operator-review.md with the next free D id, citing the ruling or exemplar the line names. Touch nothing else:\n\n${raw.departRows.join("\n")}`,
+        {
+          agentType: "upmind-agent:planner",
+          model: "sonnet",
+          phase: "Ordering gate",
+          label: `file-departures:regrade:${id}#${cycle}`
+        }
+      );
+      if (filed === null) {
+        results.stopped = "planner-failed";
+        return results;
+      }
+      results.departuresFiled = [
+        ...(results.departuresFiled ?? []),
+        ...raw.departRows
+      ];
+    }
+    if (!drift.length && !(raw.departRows ?? []).length) break;
     if (cycle === MAX_CYCLES) {
       results.stopped = "ordering-gate-drift";
       results.driftRows = drift;
