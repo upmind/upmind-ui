@@ -1,7 +1,7 @@
 Negative control for contract-product.machine.ts top-level `error` node (D43 B9).
 
-Spec that must flip: contract-product.manager-error-node.test.ts (to be
-authored by the prover) — asserts a failed `load` (or an unrecognised status)
+Spec that must flip: contract-product.manager-members.int.test.ts
+(the "a read that fails settles on the error node" block) — asserts a failed `load` (or an unrecognised status)
 settles the machine on the top-level `error` state, and that a subsequent
 `REFRESH` leaves it back to `loading`.
 

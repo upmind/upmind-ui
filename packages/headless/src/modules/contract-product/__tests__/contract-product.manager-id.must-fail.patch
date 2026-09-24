@@ -1,7 +1,7 @@
 Negative control for useContractProduct.context.ts `id` rename (R37 B6).
 
-Spec that must flip: contract-product.manager-id.test.ts (to be authored by
-the prover) — asserts `useContractProduct().useContext().id` (the template
+Spec that must flip: contract-product.manager-members.int.test.ts
+("names the product it addresses through useContext().id") — asserts `useContractProduct().useContext().id` (the template
 name, not `contractProductId`) resolves the seeded product id.
 
 Mutation: reverts the context export back to the pre-restore `contractProductId`

@@ -1,7 +1,7 @@
 Negative control for useContractProduct.context.ts `lookups` (R37 B1).
 
-Spec that must flip: contract-product.manager-lookups.test.ts (to be authored
-by the prover) — asserts `useContractProduct().useContext().lookups` reflects
+Spec that must flip: contract-product.manager-members.int.test.ts
+("loads the CANCEL_REQUEST custom fields through useContext().lookups") — asserts `useContractProduct().useContext().lookups` reflects
 the machine's `setLookups`-assigned `context.lookups` after a read settles.
 
 Mutation: drops the `lookups` member from the manager context factory, so the

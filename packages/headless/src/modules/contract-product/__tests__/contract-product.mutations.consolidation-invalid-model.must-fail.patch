@@ -15,7 +15,7 @@
 # Test that goes red: contract-product.mutations.int.test.ts >
 #   the AC-9 consolidation submit driven with an empty (invalid) model:
 #   `submitConsolidation()` must resolve `false`, issue no
-#   `PUT .../modify_invoice_consolidation`, and leave `validationErrors` set.
+#   `PUT .../properties` (the consolidation write), and leave `validationErrors` set.
 #   With the guard removed the submit sends `SET_CONSOLIDATION` unconditionally,
 #   the machine's own `processing` re-validation lands in the form's `error`
 #   region, and `resolveFormWrite` REJECTS — so the resolve-`false` assertion

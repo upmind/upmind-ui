@@ -1,7 +1,7 @@
 Negative control for useContractProduct.context.ts `errors` (R37 B5).
 
-Spec that must flip: contract-product.manager-errors.test.ts (to be authored
-by the prover) — asserts `useContractProduct().useContext().errors` carries
+Spec that must flip: contract-product.manager-members.int.test.ts
+("carries the failed read's message through useContext().errors") — asserts `useContractProduct().useContext().errors` carries
 the machine's captured `error.message` beside `error`.
 
 Mutation: drops the `errors` member from the manager context factory.

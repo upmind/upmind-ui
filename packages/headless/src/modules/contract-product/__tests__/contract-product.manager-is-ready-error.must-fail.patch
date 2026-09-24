@@ -1,7 +1,7 @@
 Negative control for useContractProduct.actions.ts `isReady` error-settle (D43 B10).
 
-Spec that must flip: contract-product.manager-is-ready-error.test.ts (to be
-authored by the prover) — asserts `isReady()` resolves `false` promptly once
+Spec that must flip: contract-product.manager-members.int.test.ts
+("resolves isReady() false at once on the error node (D43)") — asserts `isReady()` resolves `false` promptly once
 the machine settles on the top-level `error` node, rather than only after the
 60s default timeout.
 

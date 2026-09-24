@@ -1,9 +1,9 @@
 # Negative-control mutant — useContractProduct.actions.ts `onDone` (R37 B7)
 #
-# Scenario it must flip: a spec that awaits `useActions().onDone()` after a
-#   write and asserts it resolves true once the write leaves `processing` /
-#   `available.<region>.processing` and settles on `available` or
-#   `unavailable`. No spec calls `onDone` at 2c5d57957; the prover authors it.
+# Scenario it must flip: contract-product.manager-members.int.test.ts, "resolves onDone() true
+#   once a change settles" — it awaits `useActions().onDone()` after a write
+#   and expects true once the write leaves `processing` /
+#   `available.<region>.processing` and settles on `available` or `unavailable`.
 # Mutation: drops the `onDone` action entirely, so no member exists to await a
 #   write's settle.
 #

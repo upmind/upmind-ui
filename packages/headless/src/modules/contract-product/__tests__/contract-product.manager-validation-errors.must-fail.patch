@@ -1,7 +1,7 @@
 Negative control for useContractProduct.context.ts `validationErrors` (R37 B2).
 
-Spec that must flip: contract-product.manager-validation-errors.test.ts (to be
-authored by the prover) — asserts `useContractProduct().useContext().validationErrors`
+Spec that must flip: contract-product.mutations.int.test.ts
+(the D68 AC-9 invalid-consolidation submit) — asserts `useContractProduct().useContext().validationErrors`
 carries the AJV `ErrorObject[]` the machine's `setError` parses off a 422.
 
 Mutation: drops the `validationErrors` member from the manager context

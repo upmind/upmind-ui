@@ -1,7 +1,7 @@
 Negative control for useContractProduct.meta.ts `isProcessing` rename (R37 B8).
 
-Spec that must flip: contract-product.manager-is-processing.test.ts (to be
-authored by the prover) — asserts `useContractProduct().useMeta().isProcessing`
+Spec that must flip: contract-product.mutations.int.test.ts
+(the AC-25 "every write runs through the one processing state" block) — asserts `useContractProduct().useMeta().isProcessing`
 (the template name) is true on `processing` / `available.cancelling.processing`
 / `available.consolidating.processing`.
 

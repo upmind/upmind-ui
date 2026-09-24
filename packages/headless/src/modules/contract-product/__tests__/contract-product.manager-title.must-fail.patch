@@ -1,7 +1,7 @@
 Negative control for useContractProduct.context.ts `title` (R37 B3).
 
-Spec that must flip: contract-product.manager-title.test.ts (to be authored by
-the prover) — asserts `useContractProduct().useContext().title` reflects the
+Spec that must flip: contract-product.manager-members.int.test.ts
+("shows the product's name through useContext().title") — asserts `useContractProduct().useContext().title` reflects the
 loaded product's `name`.
 
 Mutation: drops the `title` computed and its return entry, so the manager

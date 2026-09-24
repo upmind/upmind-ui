@@ -1,7 +1,7 @@
 Negative control for useContractProduct.context.ts `description` (R37 B4).
 
-Spec that must flip: contract-product.manager-description.test.ts (to be
-authored by the prover) — asserts `useContractProduct().useContext().description`
+Spec that must flip: contract-product.manager-members.int.test.ts
+("shows the product's description through useContext().description") — asserts `useContractProduct().useContext().description`
 reflects the raw record's `description` (`IContractProduct.description`).
 
 Mutation: drops the `description` computed and its return entry.

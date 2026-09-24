@@ -1,6 +1,6 @@
 Negative control for the manager's form-slot clear on re-read (B2, FE-3029).
 
-Spec that must flip: a prover spec on `#loading` entry asserting that
+Spec that must flip: contract-product.manager-form-slot-clear.int.test.ts, asserting that
 `context.cancellation` and `context.consolidation` are both `undefined` once
 the machine re-enters `loading` (a successful form submit, `REFRESH`, or
 `reset()`), even though neither `CANCEL.CANCELLATION` nor
