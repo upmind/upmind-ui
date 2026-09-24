@@ -1,8 +1,8 @@
-diff --git a/packages/auth/src/views/Login.vue b/packages/auth/src/views/Login.vue
-index 3f8589c536..e48268fc78 100644
---- a/packages/auth/src/views/Login.vue
-+++ b/packages/auth/src/views/Login.vue
-@@ -104,6 +104,7 @@
+diff --git a/packages/modules-auth/src/views/Login.vue b/packages/modules-auth/src/views/Login.vue
+index 6d54121392..f7d66bd085 100644
+--- a/packages/modules-auth/src/views/Login.vue
++++ b/packages/modules-auth/src/views/Login.vue
+@@ -99,6 +99,7 @@
  import { Link, Markdown } from "@upmind/ui";
  import { computed, ref } from "vue";
  import { useI18n } from "vue-i18n";
@@ -10,7 +10,7 @@ index 3f8589c536..e48268fc78 100644
  import { Hero } from "@upmind-automation/foundation";
  import { Back } from "@upmind-automation/foundation";
  import {
-@@ -183,7 +184,9 @@ const meta = computed(() => ({
+@@ -177,7 +178,9 @@ const meta = computed(() => ({
  const shell = useShellComponents();
  
  const templateVariant = computed(
