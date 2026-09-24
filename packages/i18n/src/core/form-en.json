@@ -165,6 +165,14 @@
     "label": "Linked product",
     "placeholder": "Select a product…"
   },
+  "contract_product_cancellation_option": {
+    "description": null,
+    "label": "Cancellation option",
+    "placeholder": null,
+    "soft": "Cancel at the end of the term",
+    "hard": "Cancel immediately",
+    "schedule_future": "Cancel on a future date"
+  },
   "contract_product_category": {
     "label": "Category"
   },
@@ -183,7 +191,8 @@
     "label": "Invoice consolidation",
     "placeholder": null,
     "0": "Exclude invoices when consolidating",
-    "1": "Include invoices when consolidating"
+    "1": "Include invoices when consolidating",
+    "2": "Follow my account setting"
   },
   "contract_product_lookup": {
     "description": null,
