@@ -764,7 +764,7 @@ Feature: A client manages the products on their own contracts
   Scenario: Asking for my grouped counts again replaces the ones I hold
     Given I already hold my products grouped by category
     When I ask for them again
-    Then I still hold one entry per category, never a second copy of any
+    Then I hold only the entries of the latest answer, never the earlier ones and never a second copy of any
 
   # Legacy hides the whole cancellation entry where it offers no option
   # (D27). A page must know that before it offers the form, so no form
@@ -783,6 +783,8 @@ Feature: A client manages the products on their own contracts
       | a subscription already set to expire                   | not offered |
       | a product with a cancellation booked for a future date | not offered |
       | a product with a cancellation request already pending  | not offered |
+      | a subscription still being imported                    | not offered |
+      | a cancelled subscription                               | not offered |
 
   # Legacy offers the consolidation choice on a live subscription that is not
   # being imported, whose product carries the setting and whose account does

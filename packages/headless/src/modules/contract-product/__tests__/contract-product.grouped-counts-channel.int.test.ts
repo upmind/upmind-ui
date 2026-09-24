@@ -6,7 +6,8 @@
  * Prove that the grouped counts a client asks for land on
  * `useContractProducts().useContext().groupedCounts`, the channel a labs or
  * portal page draws them from, and that a second ask replaces the held
- * entries. Every body is the module's recorded grouped-counts capture.
+ * entries. Every body is the module's recorded grouped-counts capture; the
+ * second answer in the replace case is that capture less its first category.
  *
  * ## What Breaks If These Fail
  * The products page asks for the grouped counts and shows nothing, because
@@ -25,24 +26,29 @@ import {
 } from "./contract-product.int-helpers";
 import { server } from "./setup.integration";
 
-function installGroupedHandlers(): { groupedReads: () => number } {
+type GroupedCountsBody = ReturnType<typeof recorded.groupedCounts>;
+
+function installGroupedHandlers(
+  bodies: GroupedCountsBody[] = [recorded.groupedCounts()]
+): { groupedReads: () => number } {
   let groupedReads = 0;
   server?.use(
     http.get("*/contracts_products", () =>
       HttpResponse.json(recorded.list(), { status: 200 })
     ),
     http.get("*/clients/:clientId/contracts/products", () => {
+      const body = bodies[Math.min(groupedReads, bodies.length - 1)];
       groupedReads += 1;
-      return HttpResponse.json(recorded.groupedCounts(), { status: 200 });
+      return HttpResponse.json(body, { status: 200 });
     })
   );
   return { groupedReads: () => groupedReads };
 }
 
-async function openCollection() {
+async function openCollection(bodies?: GroupedCountsBody[]) {
   await seedClientSession();
   installBackgroundStubs();
-  const handlers = installGroupedHandlers();
+  const handlers = installGroupedHandlers(bodies);
   const collection = useContractProducts().as(ScopeActorTypes.CLIENT);
   await collection.useActions().isReady();
   return { collection, ...handlers };
@@ -60,16 +66,17 @@ describe("useContractProducts — the grouped counts I asked for are kept for my
   });
 
   it("AC-19 asking for my grouped counts again replaces the held entries — one per category, never a second copy", async () => {
-    const { collection, groupedReads } = await openCollection();
-    const recordedRows = recorded.groupedCounts().total;
+    const first = recorded.groupedCounts();
+    const second = { ...first, total: first.total.slice(1) };
+    expect(second.total.length).toBeGreaterThan(0);
+    const { collection, groupedReads } = await openCollection([first, second]);
 
     await collection.useActions().loadGroupedCounts();
+    expect(collection.useContext().groupedCounts.value).toEqual(first.total);
+
     await collection.useActions().loadGroupedCounts();
 
     expect(groupedReads()).toBe(2);
-    expect(collection.useContext().groupedCounts.value).toHaveLength(
-      recordedRows.length
-    );
-    expect(collection.useContext().groupedCounts.value).toEqual(recordedRows);
+    expect(collection.useContext().groupedCounts.value).toEqual(second.total);
   });
 });

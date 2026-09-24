@@ -79,6 +79,8 @@ async function openManager(row: ProductRow) {
  * - `@proves contract-product.feature:783` — already set to expire
  * - `@proves contract-product.feature:784` — a cancellation booked for a future date
  * - `@proves contract-product.feature:785` — a cancellation request already pending
+ * - `@proves contract-product.feature:786` — still being imported
+ * - `@proves contract-product.feature:787` — a cancelled subscription
  */
 describe("useContractProduct — I am told whether the cancellation form is offered before I open it (AC-11)", () => {
   const stopped = () =>
@@ -127,6 +129,19 @@ describe("useContractProduct — I am told whether the cancellation form is offe
         }
       }),
       false
+    ],
+    [
+      "a subscription still being imported",
+      () => ({ ...baseRow(), staged_import: true }),
+      false
+    ],
+    [
+      "a cancelled subscription",
+      () => ({
+        ...baseRow(),
+        status: { code: ContractStatusCodes.CANCELLED }
+      }),
+      false
     ]
   ])(
     "AC-11 %s: hasCancellationOptions reports the form's offer, and matches whether openCancellation opens it",
@@ -145,13 +160,13 @@ describe("useContractProduct — I am told whether the cancellation form is offe
 });
 
 /**
- * - `@proves contract-product.feature:799` — my account consolidates
- * - `@proves contract-product.feature:800` — my account follows its default
- * - `@proves contract-product.feature:801` — my account never consolidates
- * - `@proves contract-product.feature:802` — no consolidation setting on the product
- * - `@proves contract-product.feature:803` — a one-off purchase
- * - `@proves contract-product.feature:804` — still being imported
- * - `@proves contract-product.feature:805` — a cancelled subscription
+ * - `@proves contract-product.feature:801` — my account consolidates
+ * - `@proves contract-product.feature:802` — my account follows its default
+ * - `@proves contract-product.feature:803` — my account never consolidates
+ * - `@proves contract-product.feature:804` — no consolidation setting on the product
+ * - `@proves contract-product.feature:805` — a one-off purchase
+ * - `@proves contract-product.feature:806` — still being imported
+ * - `@proves contract-product.feature:807` — a cancelled subscription
  */
 describe("useContractProduct — I am told whether the consolidation form is offered before I open it (AC-9)", () => {
   const consolidating = () =>

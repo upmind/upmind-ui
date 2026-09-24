@@ -596,37 +596,47 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     disposition: "proves"
   },
   {
-    line: 799,
-    text: "| a subscription, and my account consolidates                   | offered     |",
+    line: 786,
+    text: "| a subscription still being imported                    | not offered |",
     disposition: "proves"
   },
   {
-    line: 800,
-    text: "| a subscription, and my account follows its default            | offered     |",
+    line: 787,
+    text: "| a cancelled subscription                               | not offered |",
     disposition: "proves"
   },
   {
     line: 801,
-    text: "| a subscription, and my account never consolidates             | not offered |",
+    text: "| a subscription, and my account consolidates                   | offered     |",
     disposition: "proves"
   },
   {
     line: 802,
-    text: "| a subscription whose product carries no consolidation setting | not offered |",
+    text: "| a subscription, and my account follows its default            | offered     |",
     disposition: "proves"
   },
   {
     line: 803,
-    text: "| a one-off purchase                                            | not offered |",
+    text: "| a subscription, and my account never consolidates             | not offered |",
     disposition: "proves"
   },
   {
     line: 804,
-    text: "| a subscription still being imported                           | not offered |",
+    text: "| a subscription whose product carries no consolidation setting | not offered |",
     disposition: "proves"
   },
   {
     line: 805,
+    text: "| a one-off purchase                                            | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 806,
+    text: "| a subscription still being imported                           | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 807,
     text: "| a cancelled subscription                                      | not offered |",
     disposition: "proves"
   }
