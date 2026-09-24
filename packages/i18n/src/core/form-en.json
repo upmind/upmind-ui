@@ -176,6 +176,12 @@
   "contract_product_category": {
     "label": "Category"
   },
+  "contract_product_category_name": {
+    "placeholder": "Category name"
+  },
+  "contract_product_date_purchased": {
+    "label": "Product / Service date purchased"
+  },
   "contract_product_filter": {
     "description": null,
     "label": "Product",
@@ -202,8 +208,18 @@
   "contract_product_name_search": {
     "placeholder": "Search by product name..."
   },
+  "contract_product_next_due_date": {
+    "label": "Product / Service next due date"
+  },
   "contract_product_one_time_only": {
-    "label": "One-time purchases"
+    "label": "One-time purchases",
+    "0": "One-time only"
+  },
+  "contract_product_price": {
+    "label": "Product / Service price"
+  },
+  "contract_product_search": {
+    "placeholder": "Quick search"
   },
   "contract_product_sort": {
     "label": "Sort by",
@@ -214,6 +230,10 @@
   },
   "contract_product_status": {
     "label": "Status"
+  },
+  "contract_product_subscriptions_only": {
+    "label": "Subscriptions only",
+    "0": "Subscriptions only"
   },
   "country": {
     "description": null,

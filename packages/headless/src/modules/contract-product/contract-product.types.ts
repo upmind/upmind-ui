@@ -438,6 +438,8 @@ export type QueryModel = {
     next_due_date?: { gt?: string | null };
     total_amount?: number | null;
   };
+  /** The legacy quick search — a bare `query=<term>` param (design 8.2). */
+  query?: string | null;
   sort?: SortEntry[];
   // `offset` alone is unspellable — with no page size the page index is NaN; `limit` alone stays the page-size door.
   pagination?:

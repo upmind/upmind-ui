@@ -93,8 +93,8 @@ export function useQuerySchema(): ContractProductsQuerySchema {
             properties: {
               neq: forced
                 ? { type: "integer", const: 0, default: 0 }
-                : { type: ["integer", "null"] },
-              eq: { type: ["integer", "null"] }
+                : { type: ["integer", "null"], enum: [0, null] },
+              eq: { type: ["integer", "null"], enum: [0, null] }
             }
           },
           created_at: {
@@ -119,6 +119,7 @@ export function useQuerySchema(): ContractProductsQuerySchema {
           }
         }
       },
+      query: { type: ["string", "null"], minLength: 3 },
       sort: {
         type: "array",
         default: DEFAULT_SORT,
@@ -149,9 +150,13 @@ export function useQuerySchema(): ContractProductsQuerySchema {
 }
 
 /**
- * The collection's filter-bar presentation over `useQuerySchema()`'s
- * `filters` branch. No control for `billing_cycle_days.neq` — that leaf is
- * ADR-14's forced seam and draws no control by design.
+ * The collection's filter-bar presentation. The top-level `query` box is the
+ * legacy quick search; the rest scope operator leaves of `useQuerySchema()`'s
+ * `filters` branch, so each leaf's own write is the wire shape. Each
+ * `billing_cycle_days` toggle scopes a leaf carrying an `enum`, so the button
+ * group draws it and the option labels resolve through the element's `i18n`
+ * prefix. In the ADR-14 forced case `neq` is a const seam, and its toggle
+ * writes the one value that seam permits.
  */
 export function useQueryUischema(): UISchemaElement {
   return {
@@ -159,8 +164,31 @@ export function useQueryUischema(): UISchemaElement {
     elements: [
       {
         type: "Control",
+        scope: "#/properties/query",
+        i18n: "form.contract_product_search",
+        options: {
+          format: "search",
+          icon: "search-md",
+          noLabel: true,
+          optionalText: ""
+        }
+      },
+      {
+        type: "Control",
         scope: "#/properties/filters/properties/product.name/properties/like",
         i18n: "form.contract_product_name_search",
+        options: {
+          format: "search",
+          icon: "search-md",
+          noLabel: true,
+          optionalText: ""
+        }
+      },
+      {
+        type: "Control",
+        scope:
+          "#/properties/filters/properties/product.category.name/properties/like",
+        i18n: "form.contract_product_category_name",
         options: {
           format: "search",
           icon: "search-md",
@@ -179,6 +207,31 @@ export function useQueryUischema(): UISchemaElement {
         scope: "#/properties/filters/properties/status.code",
         i18n: "form.contract_product_status",
         options: { noLabel: true, optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/total_amount",
+        i18n: "form.contract_product_price",
+        options: { optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/created_at/properties/gt",
+        i18n: "form.contract_product_date_purchased",
+        options: { optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/next_due_date/properties/gt",
+        i18n: "form.contract_product_next_due_date",
+        options: { optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope:
+          "#/properties/filters/properties/billing_cycle_days/properties/neq",
+        i18n: "form.contract_product_subscriptions_only",
+        options: { format: "button-group", noLabel: true, optionalText: "" }
       },
       {
         type: "Control",

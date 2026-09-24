@@ -1,0 +1,35 @@
+# Negative-control mutant — the subscriptions-only filter draws a control (JTBD gap 6)
+#
+# Scenario / gap it must flip:
+# jtbd-readback gap 6 — `IsSubscriptionFilter` (`billing_cycle_days.neq`)
+# had a schema leaf but `useQueryUischema()` drew no control, so a hand
+# could not filter to subscriptions only.
+# What the prover asserts (public-surface hand-off — spec authored by the
+# prover seat, not the developer):
+# the prover asserts `useQueryUischema()` carries a control scoped to
+# `#/properties/filters/properties/billing_cycle_days/properties/neq`. With
+# the element gone the filter bar draws nothing for the leaf and the
+# capability is undriveable.
+# Mutation:
+# `useQueryUischema()` drops the subscriptions-only control.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+index 20c8a2ef6..601619a10 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -226,13 +226,6 @@ export function useQueryUischema(): UISchemaElement {
+         i18n: "form.contract_product_next_due_date",
+         options: { optionalText: "" }
+       },
+-      {
+-        type: "Control",
+-        scope:
+-          "#/properties/filters/properties/billing_cycle_days/properties/neq",
+-        i18n: "form.contract_product_subscriptions_only",
+-        options: { format: "button-group", noLabel: true, optionalText: "" }
+-      },
+       {
+         type: "Control",
+         scope:
