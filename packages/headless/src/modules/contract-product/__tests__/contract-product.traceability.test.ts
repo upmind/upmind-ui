@@ -569,6 +569,66 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     line: 502,
     text: "And forcing a consolidation change anyway makes no request and is refused",
     disposition: "gap"
+  },
+  {
+    line: 781,
+    text: "| an active subscription                                 | offered     |",
+    disposition: "proves"
+  },
+  {
+    line: 782,
+    text: "| a subscription with auto-renew off and no end date     | offered     |",
+    disposition: "proves"
+  },
+  {
+    line: 783,
+    text: "| a subscription already set to expire                   | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 784,
+    text: "| a product with a cancellation booked for a future date | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 785,
+    text: "| a product with a cancellation request already pending  | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 799,
+    text: "| a subscription, and my account consolidates                   | offered     |",
+    disposition: "proves"
+  },
+  {
+    line: 800,
+    text: "| a subscription, and my account follows its default            | offered     |",
+    disposition: "proves"
+  },
+  {
+    line: 801,
+    text: "| a subscription, and my account never consolidates             | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 802,
+    text: "| a subscription whose product carries no consolidation setting | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 803,
+    text: "| a one-off purchase                                            | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 804,
+    text: "| a subscription still being imported                           | not offered |",
+    disposition: "proves"
+  },
+  {
+    line: 805,
+    text: "| a cancelled subscription                                      | not offered |",
+    disposition: "proves"
   }
 ];
 

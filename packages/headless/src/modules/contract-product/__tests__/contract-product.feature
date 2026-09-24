@@ -750,3 +750,56 @@ Feature: A client manages the products on their own contracts
     Then the withdrawal names the pending request on my product
     And a refusal by the server is shown to me, not reported as a silent success
 
+  # === WHAT A PAGE READS BEFORE IT DRAWS A CONTROL (FE-3029 module repair) ====
+
+  # The grouped counts are a read I ask for. A page that shows them reads them
+  # off my products surface, the same way it reads my products.
+  @AC-19 @collection
+  Scenario: The grouped counts I asked for are kept for my page to show
+    Given I have opened my products
+    When I ask for my products grouped by category
+    Then my products surface holds the entries I was given, one per category, each with its count
+
+  @AC-19 @collection
+  Scenario: Asking for my grouped counts again replaces the ones I hold
+    Given I already hold my products grouped by category
+    When I ask for them again
+    Then I still hold one entry per category, never a second copy of any
+
+  # Legacy hides the whole cancellation entry where it offers no option
+  # (D27). A page must know that before it offers the form, so no form
+  # opens empty.
+  @AC-11 @manager @meta
+  Scenario Outline: I am told whether the cancellation form is offered before I open it
+    Given one of my products is <product kind and state>
+    When I look at whether I can cancel it
+    Then I am told the cancellation form is <offered>
+    And what I am told matches whether the form opens when I ask for it
+
+    Examples:
+      | product kind and state                                 | offered     |
+      | an active subscription                                 | offered     |
+      | a subscription with auto-renew off and no end date     | offered     |
+      | a subscription already set to expire                   | not offered |
+      | a product with a cancellation booked for a future date | not offered |
+      | a product with a cancellation request already pending  | not offered |
+
+  # Legacy offers the consolidation choice on a live subscription that is not
+  # being imported, whose product carries the setting and whose account does
+  # not refuse consolidation (D28).
+  @AC-9 @manager @meta
+  Scenario Outline: I am told whether the consolidation form is offered before I open it
+    Given one of my products is <product and account>
+    When I look at whether I can change how it is invoiced
+    Then I am told the consolidation form is <offered>
+    And what I am told matches whether the form opens when I ask for it
+
+    Examples:
+      | product and account                                           | offered     |
+      | a subscription, and my account consolidates                   | offered     |
+      | a subscription, and my account follows its default            | offered     |
+      | a subscription, and my account never consolidates             | not offered |
+      | a subscription whose product carries no consolidation setting | not offered |
+      | a one-off purchase                                            | not offered |
+      | a subscription still being imported                           | not offered |
+      | a cancelled subscription                                      | not offered |
