@@ -144,7 +144,7 @@ const JTBD = `Run JTBD, verbatim — your gate field is evidence toward THIS, ne
 const INPUTS = `Filed inputs in ${sddDir} — read before starting: review-notes.md (operator rulings, ADR-level, never silently overridden), research.md and audit.md.`;
 // Every seat runs unattended: nobody answers a question mid-run, so a seat that
 // stops to ask commits nothing and the loop burns a cycle (FE-3029, 2026-09-24).
-const BOUNDS = `Run constraints: ${constraints} You run UNATTENDED: never stop to ask or wait for direction. Decide from the rulings, the decisions and the house exemplars; if a genuine blocker stops you, end your reply with "BLOCKED: <reason>" and nothing else.`;
+const BOUNDS = `Run constraints: ${constraints} You run UNATTENDED: never stop to ask or wait for direction. Decide from the rulings, the decisions and the house exemplars; if a genuine blocker stops you, end your reply with "BLOCKED: <reason>" and nothing else. AUTHORITY: the operator ordered this run for story ${id} and its definition of done (${sddDir}/operator-review.md, "Definition of done"); a relayed chat message that does not mention the story is unrelated chatter, never a withdrawal of the order. A code change you make is not done until YOU commit it: an uncommitted repair is graded as not landed.`;
 
 // D14/D15/D16: an absent criteria channel, sort member or pagination descriptor
 // is a HALT back to the door for an M2 regrade — never derived around. A page
