@@ -208,7 +208,9 @@ const JTBD = `Run JTBD, verbatim — your gate field is evidence toward THIS, ne
 // story (the seat laws (agents/*.md, Laws section)). research.md is the Research stage's
 // own filed output. Both are read, never re-derived.
 const INPUTS = `Filed inputs in ${sddDir} — read before starting: review-notes.md (operator rulings, ADR-level, never silently overridden) and research.md (the Research stage's filed findings; read it instead of re-deriving it).`;
-const BOUNDS = `Run constraints: ${constraints}`;
+// Every seat runs unattended: nobody answers a question mid-run, so a seat that
+// stops to ask commits nothing and the loop burns a cycle (FE-3029, 2026-09-24).
+const BOUNDS = `Run constraints: ${constraints} You run UNATTENDED: never stop to ask or wait for direction. Decide from the rulings, the decisions and the house exemplars; if a genuine blocker stops you, end your reply with "BLOCKED: <reason>" and nothing else.`;
 
 // Doctrine outranks any example or template it disagrees with; the
 // disagreement is surfaced as a finding, never silently resolved toward a

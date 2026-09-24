@@ -142,7 +142,9 @@ const MAX_CYCLES = 3;
 const FACTS = `Story: ${id}. Worktree: ${worktree}. Module: ${target}. Cells: ${cells}.`;
 const JTBD = `Run JTBD, verbatim — your gate field is evidence toward THIS, never the goal itself; output that satisfies your gate while contradicting it must surface the contradiction rather than return green: "${jtbd}".`;
 const INPUTS = `Filed inputs in ${sddDir} — read before starting: review-notes.md (operator rulings, ADR-level, never silently overridden), research.md and audit.md.`;
-const BOUNDS = `Run constraints: ${constraints}`;
+// Every seat runs unattended: nobody answers a question mid-run, so a seat that
+// stops to ask commits nothing and the loop burns a cycle (FE-3029, 2026-09-24).
+const BOUNDS = `Run constraints: ${constraints} You run UNATTENDED: never stop to ask or wait for direction. Decide from the rulings, the decisions and the house exemplars; if a genuine blocker stops you, end your reply with "BLOCKED: <reason>" and nothing else.`;
 
 // D14/D15/D16: an absent criteria channel, sort member or pagination descriptor
 // is a HALT back to the door for an M2 regrade — never derived around. A page
