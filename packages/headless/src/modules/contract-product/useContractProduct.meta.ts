@@ -113,11 +113,13 @@ export function createContractProductMeta(
     ),
 
     /**
-     * True when the cancellation form may be opened at all — the SAME
-     * predicate the machine's `hasCancellationOptions` guard evaluates (G2).
+     * True when the cancellation form may be opened at all: the product is on
+     * an `available` node (staged, cancelled, lapsed and fraud refuse, P4g) and
+     * passes the machine's `hasCancellationOptions` guard (G2).
      */
     hasCancellationOptions: computed(
       () =>
+        isAvailable.value &&
         !!contractProduct.value &&
         !isEmpty(cancellationOptions(contractProduct.value))
     ),
