@@ -208,6 +208,14 @@ export function createContractProductMeta(
     /** True when no product is loaded. */
     isEmpty: computed(() => !contractProduct.value),
 
+    /**
+     * True on the machine's top-level `error` node — the load that did not
+     * land (D43). A form's validation error sets `error` on context but keeps
+     * the product on `available`, so this stays false: it names a record that
+     * failed to load, never a form the client is still editing.
+     */
+    isErrored: useStateMatches(state, "error"),
+
     /** True on `available.status.expiring`. */
     isExpiring: useStateMatches(state, ContractProductState.EXPIRING),
 

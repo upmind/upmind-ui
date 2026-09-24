@@ -548,11 +548,13 @@ const nodeFlags = computed(() => {
   ].filter(entry => entry.flag.value);
 });
 
-// Readable once the read has settled with a record and no error — the
-// manager resolves its target from `.withId()`, so an unaddressable scope
-// settles here instead of throwing.
+// The unavailable alert is for a record that did NOT load: no product, or the
+// top-level `error` node (D43). A form's validation error keeps the product on
+// `available` and only sets `error` on context, so the page stays drawn and
+// shows `validationErrors` on that form rather than swapping the form it edits
+// for the alert.
 const isReadable = computed(
-  () => !!contractProduct.value && !meta?.hasError.value
+  () => !!contractProduct.value && !meta?.isErrored.value
 );
 
 function report(error: unknown): void {

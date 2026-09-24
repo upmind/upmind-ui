@@ -16,6 +16,7 @@ import {
   stopService,
   waitForProcessing
 } from "../../utils";
+import { isNil } from "lodash-es";
 import type {
   CancellationModel,
   ContractProduct,
@@ -200,6 +201,12 @@ export function createContractProductActions(
    * @returns the re-read product, or `false` when the node refused the event.
    */
   async function submitConsolidation(): Promise<ContractProduct | false> {
+    const model = contextValue<SetConsolidationModel>(
+      state,
+      "consolidation.model"
+    );
+    if (isNil(model?.invoiceConsolidationEnabled)) return false;
+
     send({ type: "SET_CONSOLIDATION" });
     if (!stateMatches(state, "available.consolidating.processing")) {
       return false;
