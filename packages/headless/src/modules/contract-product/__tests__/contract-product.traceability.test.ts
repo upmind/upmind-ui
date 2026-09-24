@@ -19,6 +19,12 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
+import { stepCatalogs } from "../../../testing";
+import contractProductSteps, {
+  coveredActionIds
+} from "./contract-product.steps";
+import { includes, map, reject, some } from "lodash-es";
 
 const TESTS_DIR = import.meta.dirname;
 const FEATURE_FILE = "contract-product.feature";
@@ -845,5 +851,55 @@ describe("contract-product — every contract-product.feature @AC-n scenario is 
     const featureIds = new Set(scenarios.map(scenario => scenario.id));
     const untethered = [...allTitleIds].filter(id => !featureIds.has(id));
     expect(untethered).toEqual([]);
+  });
+});
+
+/**
+ * The spec-to-catalog drift gate: a half-matched scenario, an orphan or
+ * malformed step, a pattern another module's catalog claims, and an action id
+ * declared covered that no step fires each FAIL. A scenario nothing matches
+ * passes — it stays spec. The catalog fires through one constant per key.
+ */
+describe("contract-product — the step catalog drives only whole scenarios", () => {
+  const featureText = readFileSync(join(TESTS_DIR, FEATURE_FILE), "utf-8");
+  const unwrappedCatalog = readFileSync(
+    join(TESTS_DIR, "contract-product.steps.ts"),
+    "utf-8"
+  ).replace(/\s+/g, "");
+  const coveredActionMaps = [
+    "CONTRACT_PRODUCTS_COVERED_ACTIONS",
+    "CONTRACT_PRODUCT_COVERED_ACTIONS"
+  ];
+  const {
+    scenarios: playable,
+    driveable,
+    partial,
+    orphanStepDefs,
+    duplicatedPatterns,
+    malformedStepDefs
+  } = createTraceabilityCheck(featureText, contractProductSteps, stepCatalogs);
+
+  it(`drives ${driveable.length} of ${playable.length} scenarios`, () => {
+    expect(map(partial, "name"), "Half-matched scenarios").toEqual([]);
+    expect(
+      map(orphanStepDefs, "pattern"),
+      "Step definitions nothing calls"
+    ).toEqual([]);
+    expect(
+      map(malformedStepDefs, "pattern"),
+      "Patterns that do not compile"
+    ).toEqual([]);
+    expect(
+      duplicatedPatterns,
+      "Patterns another catalog already claims"
+    ).toEqual([]);
+    expect(
+      reject(coveredActionIds, id =>
+        some(coveredActionMaps, constant =>
+          includes(unwrappedCatalog, `fire(${constant}.${id}`)
+        )
+      ),
+      "Declared covered but fired by no step"
+    ).toEqual([]);
   });
 });

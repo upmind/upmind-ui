@@ -28,14 +28,14 @@
 #
 # DRIVEABILITY. The package eagerly glob-loads every modules/*/__tests__/*.feature
 # into the playback registry and pairs it with that module's ONE *.steps.ts.
-# `contract-product.steps.ts` documents, per ADR-020 Amendment 5, that every
-# scenario here sweeps to `notYet`: this module's `World` wiring (the
-# scenario-harness registration a driven catalog needs) is not among the
-# prover seat's contract-fed, Read-permitted inputs, so no catalog entry is
-# authored blind against an unverifiable action-id surface. The colocated
-# unit test (`contract-product.utils.test.ts`) and the integration suite
-# (`contract-product.mutations.int.test.ts`) are this module's executable
-# proof.
+# Which scenarios are driveable is the catalog's answer, never this header's
+# (ADR-020 Amendment 5): a scenario is a playable track only when a real step
+# drives every one of its lines, and one nothing drives stays spec. The
+# colocated unit test (`contract-product.utils.test.ts`), the integration
+# suite (`contract-product.*.int.test.ts`) and the replay
+# (`contract-product.replay.int.test.ts`, which runs every driveable scenario
+# over the recorded corpus) are this module's executable proof, and the
+# playground pages are where a hand drives the same capability.
 #
 # SEAT LANE. agent-seat-separation.companion.md puts the co-located feature in
 # the PROVER's lane. This revision was authored from `design ✅.md`, flow.md
@@ -757,7 +757,7 @@ Feature: A client manages the products on their own contracts
   @AC-19 @collection
   Scenario: The grouped counts I asked for are kept for my page to show
     Given I have opened my products
-    When I ask for my products grouped by category
+    When I ask for my grouped counts
     Then my products surface holds the entries I was given, one per category, each with its count
 
   @AC-19 @collection
@@ -805,3 +805,67 @@ Feature: A client manages the products on their own contracts
       | a one-off purchase                                            | not offered |
       | a subscription still being imported                           | not offered |
       | a cancelled subscription                                      | not offered |
+
+  # === WHAT A HAND DOES ON THE PLAYGROUND PAGES (FE-3029 scenario lane) ======
+
+  # The list page narrows, clears and pages my products through the same
+  # criteria surface the module publishes.
+  @FE-3029 @collection
+  Scenario: Narrow my products to the price one of them costs
+    Given I have opened my products
+    When I narrow my products to the price one of them costs
+    Then only the product at that price is listed
+
+  @FE-3029 @collection
+  Scenario: Clear a price narrowing to see every product again
+    Given I have narrowed my products to the price one of them costs
+    When I clear my price narrowing
+    Then every one of my products is listed again
+
+  @FE-3029 @collection
+  Scenario: Move forward to the next page of my products
+    Given I have opened my products
+    When I move to the next page of my products
+    Then I am on the second page of my products
+
+  @FE-3029 @collection
+  Scenario: Move back to the first page of my products
+    Given I have moved to the next page of my products
+    When I move back to the previous page of my products
+    Then I am on the first page of my products
+
+  # The manager page opens each form from its own slot, so no form opens
+  # empty, and it refuses a form the client has not completed.
+  @FE-3029 @manager
+  Scenario: Open the cancellation form with the options my product allows
+    Given I have one of my active subscriptions open
+    When I open the cancellation form
+    Then the cancellation form is open
+    And it offers cancelling at the end of the term, cancelling immediately, and cancelling on a future date I choose
+
+  @FE-3029 @manager
+  Scenario: A cancellation form I submit without a choice is not sent and tells me why
+    Given I have the cancellation form open on one of my products
+    When I submit the cancellation form without choosing an option
+    Then the cancellation form stays open and is not valid
+    And I am shown that an option is required
+
+  @FE-3029 @manager
+  Scenario: Close the cancellation form without cancelling
+    Given I have the cancellation form open on one of my products
+    When I close the cancellation form
+    Then the cancellation form is closed
+    And my product is still active
+
+  @FE-3029 @manager
+  Scenario: Open the consolidation form with the choices a subscription allows
+    Given I have one of my active subscriptions open
+    When I open the consolidation form
+    Then the consolidation form is open
+    And it offers opting in, opting out, or following my account
+
+  @FE-3029 @manager
+  Scenario: Reset my product to read it afresh
+    Given I have one of my active subscriptions open
+    When I reset my product
+    Then my product is read again and shown as active
