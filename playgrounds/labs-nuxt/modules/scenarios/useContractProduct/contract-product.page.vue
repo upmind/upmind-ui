@@ -418,8 +418,9 @@
  * No forced-surface spec is owed: a self-drawing page carries none, exactly
  * as `useTicket` does.
  *
- * `nodeFlags` draws all thirteen reportable node flags (`useMeta`'s own
- * count); busy state binds to `useMeta().isProcessing` alongside the local
+ * `nodeFlags` draws all thirteen reportable node flags plus three record
+ * facts (`isDelegatedAccess`, `isImported`, `hasMoved`) that read alongside
+ * them; busy state binds to `useMeta().isProcessing` alongside the local
  * `pending` this page's own `run()` wrapper sets.
  */
 
@@ -625,7 +626,8 @@ const nodeFlags = computed(() => {
 // client edits for the alert. A product record alone is not enough — an
 // unrecognised status settles the machine on `#error` WITHOUT clearing it
 // (D67), so readability also requires the product to have landed on one of
-// the placed nodes.
+// the placed nodes — including the top-level `processing` node a formless
+// write (withdraw/resume/revoke-scheduled) leaves `available` for.
 const isReadable = computed(
   () =>
     !!contractProduct.value &&
@@ -634,7 +636,8 @@ const isReadable = computed(
       meta.isStaged.value ||
       meta.isCancelled.value ||
       meta.isLapsed.value ||
-      meta.isFraud.value)
+      meta.isFraud.value ||
+      meta.isProcessing.value)
 );
 
 function report(error: unknown): void {

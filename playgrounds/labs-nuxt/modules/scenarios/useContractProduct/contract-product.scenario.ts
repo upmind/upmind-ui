@@ -33,8 +33,9 @@
  * COLLECTION page tracks, since `stepCatalogs` is keyed by module and serves
  * both keys. Most scenarios are tagged `@collection`, `@manager`, `@meta` or
  * `@machine`; this page leaves `@collection` out — paging, sorting, filtering
- * and the grouped-counts/categories reads are the listing page's. A handful of
- * whole-module guarantees (`@module`) carry no lane and reach both pages.
+ * and the grouped-counts/categories reads are the listing page's. Four
+ * scenarios carry no lane tag (three `@module`, one `@mapping`) and reach
+ * both pages.
  */
 
 import { useContractProduct } from "@upmind-automation/headless";

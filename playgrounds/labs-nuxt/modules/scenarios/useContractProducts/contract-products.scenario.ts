@@ -52,8 +52,8 @@ export default {
   // module and serves both keys. Most scenarios are tagged `@collection`,
   // `@manager`, `@meta` or `@machine`; this page leaves the manager's,
   // its meta open-gate outlines and its machine scenarios out — the writes,
-  // node flags and form gates are the manager page's own. A handful of
-  // whole-module guarantees (`@module`) carry no lane and reach both pages.
+  // node flags and form gates are the manager page's own. Four scenarios
+  // carry no lane tag (three `@module`, one `@mapping`) and reach both pages.
   tracks: {
     module: "contract-product",
     without: ["@manager", "@meta", "@machine"]

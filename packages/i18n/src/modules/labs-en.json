@@ -220,7 +220,6 @@
   "contract_product_open": "Open product",
   "contract_product_unavailable": "Product unavailable",
   "contract_product_unavailable_text": "The product the url names could not be read for this session. Open it as the client (/as/client).",
-  "contract_product_description": "Description",
   "contract_product_future_cancellation_date": "Future cancellation date",
   "contract_product_min_future_cancellation_date": "Earliest selectable cancellation date",
   "contract_product_calculated_cancel_date": "Calculated cancel date",
