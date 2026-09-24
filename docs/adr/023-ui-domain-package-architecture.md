@@ -296,6 +296,32 @@ Detailed batches, agent ownership, and codemod specifics come from the **full im
 
 ---
 
+## Amendment 11 (2026-09-24) — Phase 0 holds only what Phase 0 needs
+
+**Scope.** Narrows Amendment 1's "Unchanged and held" pre-flight list. The placements in §5 and in Amendment 1 change 6 stand; only the phase that lands them changes. Numbered after Amendment 10, which is recorded on a later phase's branch.
+
+**The test.** A change belongs to Phase 0 only if a Phase 0 gate needs it. When no Phase 0 gate needs it, or a later phase moves or replaces the same code, it lands in that later phase. A change that no phase needs lands nowhere.
+
+**Why three pre-flight items fail the test.** Phase 0 arms `import/no-cycle` on the ten domain packages only, and excludes `client-vue` by name. The two cycles and the eager renderer imports all sit inside `client-vue`, so at Phase 0 they fail no gate. Each of those files then moves again in the phase that extracts its package.
+
+| Change | Lands in | Reason |
+| --- | --- | --- |
+| Cycle break 1: `Promotion.vue` into `product`'s pricing kit | Phase 4 | Phase 4 extracts `product` and moves the file into it. |
+| Cycle break 2: the misfiled `product/Recommendations.vue` out of `product` | Phase 4 | `product` must leave it behind when it leaves `client-vue`. Phase 5 then moves it into `recommendations`. |
+| STEP 0 lazy loading in `TermsRenderer` and `SubProductRenderer` | Phase 4 | Both renderers move into `product` in Phase 4. |
+| STEP 0 lazy loading in `DomainRenderer` | Phase 6 | The renderer moves into `domain` in Phase 6, the phase that makes `domain` optional. |
+
+The tests for each change move with it.
+
+**Removed from Phase 0.**
+
+- `sideEffects` in the ten shells. Each package declares it in the phase that fills the package. The `**/feature.ts` pattern it carried was retired by Amendment 9.
+- The `*.tsbuildinfo` ignore. The stray files come from packages that develop already builds, so they are not a Phase 0 concern.
+- A trailing-newline change to `eslint-suppressions.json`.
+- `scripts/rename-domain-packages.mjs`. Its rename legs are complete on every branch, and the script stays in history. Its lint glob now lands with Phase 1's own script.
+
+**Phase 0 keeps** the ten shells, their aliases and project references, `import/no-cycle` and `import/no-internal-modules` at ERROR, the per-package `@internal` barrier, the `typecheck:packages` CI job, and the import-cycle negative control.
+
 ## References
 
 - Module-foundation docs: `<agent-runner>/workshop-bundle/02-module-foundations/*`

@@ -98,7 +98,7 @@ import { Markdown, NumberField, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon } from "../../../../components/icon";
-import Promotion from "../pricing/Promotion.vue";
+import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 import SubproductPrice from "./SubproductPrice.vue";
 import type { SubproductOption } from "./types";
 
