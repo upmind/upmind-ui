@@ -8,7 +8,8 @@
  * title's `AC-n` claim names an id no scenario in `contract-product.feature`
  * carries (a stale/untethered test asserting something the contract no
  * longer states). A `@todo`-tagged scenario is exempt from the first
- * direction.
+ * direction. A `@member` scenario, which carries no `@AC-n` id, must be proven
+ * by a test titled with its scenario name and carry a `@proves` marker.
  *
  * ## What Breaks If These Fail
  * `contract-product.feature` drifts from the suite silently — a capability
@@ -645,6 +646,86 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     line: 807,
     text: "| a cancelled subscription                                      | not offered |",
     disposition: "proves"
+  },
+  {
+    line: 868,
+    text: "Scenario: A consolidation form I submit without a choice is not sent and tells me why",
+    disposition: "proves"
+  },
+  {
+    line: 888,
+    text: "Scenario: The product I have open tells me which product it is",
+    disposition: "proves"
+  },
+  {
+    line: 894,
+    text: "Scenario: The product I have open shows me its name",
+    disposition: "proves"
+  },
+  {
+    line: 900,
+    text: "Scenario: The product I have open shows me its description",
+    disposition: "proves"
+  },
+  {
+    line: 906,
+    text: "Scenario: The cancellation custom fields my brand defines are loaded ready for the form",
+    disposition: "proves"
+  },
+  {
+    line: 913,
+    text: "Scenario: When reading my product fails I am shown why",
+    disposition: "proves"
+  },
+  {
+    line: 919,
+    text: "Scenario: A failed read stops loading and settles on an error instead of hanging",
+    disposition: "proves"
+  },
+  {
+    line: 925,
+    text: "Scenario: A failed read tells me at once that my product is not ready",
+    disposition: "proves"
+  },
+  {
+    line: 931,
+    text: "Scenario: When a change I make finishes I am told it is done",
+    disposition: "proves"
+  },
+  {
+    line: 943,
+    text: "Scenario: A cancellation I submit leaves no cancellation form behind",
+    disposition: "proves"
+  },
+  {
+    line: 951,
+    text: "Scenario: A consolidation choice I submit leaves no consolidation form behind",
+    disposition: "proves"
+  },
+  {
+    line: 959,
+    text: "Scenario: A refresh of my product drops the cancellation form I left open",
+    disposition: "proves"
+  },
+  {
+    line: 967,
+    text: "Scenario: A reset of my product drops the cancellation form I left open",
+    disposition: "proves"
+  },
+  {
+    line: 975,
+    text: "Scenario: A refresh of my product drops the consolidation form I left open",
+    disposition: "proves"
+  },
+  {
+    line: 983,
+    text: "Scenario: A reset of my product drops the consolidation form I left open",
+    disposition: "proves"
+  },
+  {
+    line: 910,
+    text: "And a cancellation custom field my brand defines is among them",
+    disposition: "gap"
   }
 ];
 
@@ -846,6 +927,56 @@ describe("contract-product — every contract-product.feature @AC-n scenario is 
     expect(patch).toContain(title);
     expect(patch).not.toMatch(/contract-product\.utils\.test\.ts:\d+/);
   });
+
+  /**
+   * THE @member FLOOR. A `@member` scenario carries no `@AC-n` id, so the id
+   * floor above never sees it. Each one must be proven by a test whose title
+   * IS the scenario name, and must carry a ledger entry at its own
+   * `Scenario:` line, so its `@proves` marker is checked like every other.
+   */
+  const memberScenarios: { line: number; name: string }[] = (() => {
+    const found: { line: number; name: string }[] = [];
+    let pendingTags: string[] = [];
+    featureLines.forEach((rawLine, index) => {
+      const line = rawLine.trim();
+      if (line.startsWith("@")) {
+        pendingTags.push(...line.split(/\s+/));
+        return;
+      }
+      const scenarioMatch = /^Scenario(?: Outline)?:\s*(.+)$/.exec(line);
+      if (scenarioMatch) {
+        if (
+          includes(pendingTags, "@member") &&
+          !includes(pendingTags, "@todo")
+        ) {
+          found.push({ line: index + 1, name: scenarioMatch[1] });
+        }
+        pendingTags = [];
+        return;
+      }
+      if (line.length > 0 && !line.startsWith("#")) pendingTags = [];
+    });
+    return found;
+  })();
+
+  it("finds @member scenarios to grade, so this check itself is not vacuous", () => {
+    expect(memberScenarios.length).toBeGreaterThan(0);
+  });
+
+  it.each(memberScenarios)(
+    "@member $line ($name) is proven by a test titled with its scenario name",
+    ({ name }) => {
+      expect(treeContent.includes(`it("${name}"`)).toBe(true);
+    }
+  );
+
+  it.each(memberScenarios)(
+    "@member $line ($name) carries a `proves` ledger entry at its Scenario line",
+    ({ line }) => {
+      const entry = PARTIAL_PROMISES.find(promise => promise.line === line);
+      expect(entry?.disposition).toBe("proves");
+    }
+  );
 
   it("names no test-TITLE AC-n claim absent from contract-product.feature (no stale/untethered test)", () => {
     const featureIds = new Set(scenarios.map(scenario => scenario.id));

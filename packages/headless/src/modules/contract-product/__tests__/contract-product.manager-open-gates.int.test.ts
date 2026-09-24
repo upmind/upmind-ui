@@ -42,6 +42,18 @@ function baseRow(): ProductRow {
   return recorded.one().data as ProductRow;
 }
 
+function recordedPendingRequest(): Record<string, unknown> {
+  const request = (
+    baseRow() as {
+      contract?: { cancellation_request?: Record<string, unknown> };
+    }
+  ).contract?.cancellation_request;
+  expect((request?.status as { code?: string } | undefined)?.code).toBe(
+    CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST
+  );
+  return request as Record<string, unknown>;
+}
+
 function withClientConsolidation(
   row: ProductRow,
   value: InvoiceConsolidationTypes
@@ -121,12 +133,7 @@ describe("useContractProduct — I am told whether the cancellation form is offe
       "a product with a cancellation request already pending",
       () => ({
         ...baseRow(),
-        contract_request: {
-          id: "785d26e9-6783-d169-9c11-314502e70439",
-          status: {
-            code: CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST
-          }
-        }
+        contract_request: recordedPendingRequest()
       }),
       false
     ],

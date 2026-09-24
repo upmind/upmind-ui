@@ -1804,7 +1804,8 @@ describe("useContractProduct — the consolidation form reports whether it is op
     });
   });
 
-  it("AC-9 submitting an open consolidation form with an invalid model resolves false, sends no request, and leaves the validation errors set (D68)", async () => {
+  // @proves contract-product.feature:868
+  it("AC-9 A consolidation form I submit without a choice is not sent and tells me why (D68)", async () => {
     const { manager, row } = await settledFormManager();
     await manager.useActions().openConsolidation();
     expect(manager.useMeta().isConsolidationValid.value).toBe(false);
@@ -1821,6 +1822,8 @@ describe("useContractProduct — the consolidation form reports whether it is op
         `/contracts/${row.contract_id}/products/${row.id}/properties`
       )
     ).toEqual([]);
+    expect(manager.useMeta().isConsolidationOpen.value).toBe(true);
+    expect(manager.useMeta().isConsolidationValid.value).toBe(false);
     expect(manager.useContext().validationErrors.value).not.toHaveLength(0);
   });
 });

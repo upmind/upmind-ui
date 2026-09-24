@@ -104,6 +104,14 @@ export const recorded = {
       "post-contracts-id-cancel-request",
       { recordingsDir: contractRecordingsDir }
     ),
+  /** `GET custom_fields?filter[object_type]=contract_request` — the brand's
+   * CANCEL_REQUEST custom-field catalogue, recorded beside the contract read.
+   * This brand defines none: the recorded `data` is empty. */
+  cancelRequestCatalogue: () =>
+    getFixtureBody<ContractProductEnvelope<Record<string, unknown>[]>>(
+      "get-custom-fields-brand-id-filter-object-type-contract-request",
+      { recordingsDir: contractRecordingsDir }
+    ),
   /** `DELETE contracts/{id}/cancel/request` — the REAL 404 this sandbox
    * answers the withdraw with (AC-7, R33). */
   withdrawRejected: () =>
@@ -316,6 +324,29 @@ export function installProductHandler(
       if (String(params.id) !== served.id) return undefined;
       reads += 1;
       return HttpResponse.json({ ...envelope, data: served }, { status: 200 });
+    })
+  );
+  return { reads: () => reads };
+}
+
+/**
+ * Serves the RECORDED CANCEL_REQUEST custom-field catalogue for every
+ * `GET custom_fields?filter[object_type]=contract_request` request, and counts
+ * the catalogue reads.
+ */
+export function installCancelRequestCatalogueHandler(
+  mswServer: SetupServer | undefined
+): { reads: () => number } {
+  const envelope = recorded.cancelRequestCatalogue();
+  let reads = 0;
+  mswServer?.use(
+    http.get("*/custom_fields", ({ request }) => {
+      const objectType = new URL(request.url).searchParams.get(
+        "filter[object_type]"
+      );
+      if (objectType !== "contract_request") return undefined;
+      reads += 1;
+      return HttpResponse.json(envelope, { status: 200 });
     })
   );
   return { reads: () => reads };

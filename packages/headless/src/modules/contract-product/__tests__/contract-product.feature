@@ -864,6 +864,14 @@ Feature: A client manages the products on their own contracts
     Then the consolidation form is open
     And it offers opting in, opting out, or following my account
 
+  @AC-9 @FE-3029 @manager
+  Scenario: A consolidation form I submit without a choice is not sent and tells me why
+    Given I have the consolidation form open on one of my subscriptions, with no choice made
+    When I submit the consolidation form without making a choice
+    Then my consolidation choice is not sent and I am told it did not go through
+    And the consolidation form stays open and is not valid
+    And I am shown why the consolidation form is not valid
+
   @FE-3029 @manager
   Scenario: Reset my product to read it afresh
     Given I have one of my active subscriptions open
@@ -895,10 +903,11 @@ Feature: A client manages the products on their own contracts
     Then it is the description of that product
 
   @FE-3029 @manager @member
-  Scenario: The cancellation custom fields my product allows are loaded ready for the form
+  Scenario: The cancellation custom fields my brand defines are loaded ready for the form
     Given I have a product of mine open in the manager
     When I read the loaded cancellation lookups
-    Then they are the cancellation custom fields my product carries
+    Then they are the cancellation custom fields my brand's catalogue holds, read when my product was opened
+    And a cancellation custom field my brand defines is among them
 
   @FE-3029 @manager @member
   Scenario: When reading my product fails I am shown why
@@ -935,33 +944,45 @@ Feature: A client manages the products on their own contracts
     Given I have the cancellation form open on one of my products, with an option it accepts
     When my cancellation is submitted and lands
     Then the manager holds no cancellation form
+    And the cancellation form is shown as closed
+    And opening the cancellation form again draws it in full
 
   @FE-3029 @manager @member
   Scenario: A consolidation choice I submit leaves no consolidation form behind
     Given I have the consolidation form open on one of my subscriptions, with a choice it accepts
     When my consolidation choice is submitted and lands
     Then the manager holds no consolidation form
+    And the consolidation form is shown as closed
+    And opening the consolidation form again draws it in full
 
   @FE-3029 @manager @member
   Scenario: A refresh of my product drops the cancellation form I left open
     Given I left the cancellation form open on one of my products without submitting it
     When my product is read again through a refresh
     Then the manager holds no cancellation form
+    And the cancellation form is shown as closed
+    And opening the cancellation form again draws it in full
 
   @FE-3029 @manager @member
   Scenario: A reset of my product drops the cancellation form I left open
     Given I left the cancellation form open on one of my products without submitting it
     When my product is read again through a reset
     Then the manager holds no cancellation form
+    And the cancellation form is shown as closed
+    And opening the cancellation form again draws it in full
 
   @FE-3029 @manager @member
   Scenario: A refresh of my product drops the consolidation form I left open
     Given I left the consolidation form open on one of my products without submitting it
     When my product is read again through a refresh
     Then the manager holds no consolidation form
+    And the consolidation form is shown as closed
+    And opening the consolidation form again draws it in full
 
   @FE-3029 @manager @member
   Scenario: A reset of my product drops the consolidation form I left open
     Given I left the consolidation form open on one of my products without submitting it
     When my product is read again through a reset
     Then the manager holds no consolidation form
+    And the consolidation form is shown as closed
+    And opening the consolidation form again draws it in full
