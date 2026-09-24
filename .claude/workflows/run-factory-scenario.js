@@ -887,27 +887,53 @@ if (!skipReview) {
 // never the goal: this is the gate the 2026-08-14 run lacked — five green gates,
 // and nobody was required to ask "can a hand actually do the job?"
 phase("Readback");
-results.readback = await agent(
-  `File the terminal JTBD readback for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} Write a two-column capability table to ${sddDir}/jtbd-readback.md, beside your own verify.md, BEFORE returning: the ORACLE's surface — what the legacy oracle lets a consumer do, filter, sort, page, search, open, act — beside the LANDED PAGE's driveable surface, row for row. Any oracle capability a hand cannot drive on the page means the run FAILED the JTBD, regardless of every lane gate being green. List those capabilities verbatim.`,
-  {
-    agentType: "upmind-agent:verifier",
-    model: "opus",
-    phase: "Readback",
-    schema: READBACK_GATE,
-    label: `readback:${id}`
+// DECISION (operator ruling 2026-09-24): a capability a hand cannot drive is
+// a failing like any other. It goes to one repair — module or page, whichever
+// owns it — proven by run-test, and the readback runs again. The run fails its
+// JTBD only at the cap or on no progress.
+let lastUndriveable = "";
+for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
+  results.cycles.readback = cycle;
+  results.readback = await agent(
+    `File the terminal JTBD readback for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} Write a two-column capability table to ${sddDir}/jtbd-readback.md, beside your own verify.md, BEFORE returning: the ORACLE's surface — what the legacy oracle lets a consumer do, filter, sort, page, search, open, act — beside the LANDED PAGE's driveable surface, row for row. Any oracle capability a hand cannot drive on the page means the run FAILED the JTBD, regardless of every lane gate being green. List those capabilities verbatim.`,
+    {
+      agentType: "upmind-agent:verifier",
+      model: "opus",
+      phase: "Readback",
+      schema: READBACK_GATE,
+      label: `readback:${id}#${cycle}`
+    }
+  );
+  if (!results.readback) {
+    results.stopped = "readback-failed";
+    return results;
   }
-);
-if (!results.readback) {
-  results.stopped = "readback-failed";
-  return results;
-}
-if (!results.readback.readbackFiled) {
-  results.stopped = "readback-unfiled";
-  return results;
-}
-if (!results.readback.pass) {
-  results.stopped = "jtbd-failed";
-  return results;
+  if (!results.readback.readbackFiled) {
+    results.stopped = "readback-unfiled";
+    return results;
+  }
+  if (results.readback.pass) break;
+  const undriveable = results.readback.undriveableCapabilities ?? [
+    results.readback.summary
+  ];
+  const fingerprint = undriveable
+    .map(u => normalise(u).slice(0, 160))
+    .sort()
+    .join(" | ");
+  if (cycle === MAX_CYCLES || fingerprint === lastUndriveable) {
+    results.stopped = "jtbd-failed";
+    return results;
+  }
+  lastUndriveable = fingerprint;
+  const halt = await repairModule(
+    "Readback",
+    cycle,
+    `EVERY CAPABILITY A HAND CANNOT DRIVE, verbatim — close each in the module or the page, whichever owns it:\n${undriveable.map((u, n) => `U${n + 1}. ${u}`).join("\n\n")}`
+  );
+  if (halt) {
+    results.stopped = halt;
+    return results;
+  }
 }
 if (results.rulingRows?.length) results.stopped = "rulings-pending";
 
