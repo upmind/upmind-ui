@@ -1,27 +1,20 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * FE-2976 deep-review cluster 7 — makes every `known-bad/*.must-fail.patch`
- * fixture a machine-enforced negative control instead of README prose.
+ * Makes every `known-bad/*.must-fail.patch` fixture a machine-enforced negative control.
  *
  * For each `*.must-fail.patch` under `src/__tests__/known-bad/`:
  *   1. `git apply --check` — if the patch no longer applies cleanly against
  *      HEAD, that IS the staleness alarm this script exists to raise; fail
  *      loudly rather than silently skipping it.
- *   2. Apply it, run lint scoped to the workspace package(s) the patch itself
- *      touches, and assert the run goes RED naming the specifier the patch
- *      itself adds (extracted from the patch's own `+import ... from
- *      "<specifier>"` line — never hardcoded, so a future patch is covered
- *      with no code change here).
+ *   2. Apply it, lint the workspace package(s) the patch touches, and assert
+ *      the run goes RED naming the specifier the patch's own `+import` adds.
  *   3. Revert it (always, even on assertion failure — `finally`) and assert the
  *      run returns to GREEN.
  *
  * Mirrors `.claude/scripts/lint/eslint-workspace.mjs`'s own invocation (cwd =
  * repo root, same suppressions-ledger flags) so the verdict this script reads
- * is the exact one `pnpm --filter <pkg> lint` would report. The lint scope is
- * derived per patch rather than pinned to this package, so a control for
- * another package's boundary (ADR 023 §11's acyclic guarantee) is graded by
- * this one runner instead of a second one.
+ * is the exact one `pnpm --filter <pkg> lint` would report.
  */
 
 import { execFileSync, spawnSync } from "node:child_process";
@@ -85,11 +78,6 @@ function extractPatchTargets(patchText) {
   );
 }
 
-/**
- * The workspace package root(s) a patch touches — the lint scope its control
- * needs. Package roots (not the touched files) so the scope survives the
- * revert, where a file the patch CREATED no longer exists.
- */
 function extractLintTargets(patchText) {
   const roots = new Set();
 

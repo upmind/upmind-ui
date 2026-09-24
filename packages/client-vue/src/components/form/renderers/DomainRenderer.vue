@@ -27,8 +27,7 @@ import type { RendererProps } from "@jsonforms/vue";
 // --- external
 
 // -----------------------------------------------------------------------------
-// Lazy: a static import puts the domain module tree in every consumer of the
-// package barrel, which is what stops `domain` being an optional package.
+// Lazy: a static import pulls the domain module tree into every barrel consumer.
 const SmartDomainField = defineAsyncComponent(
   () => import("../../../modules/domain/SmartDomainField.vue")
 );
