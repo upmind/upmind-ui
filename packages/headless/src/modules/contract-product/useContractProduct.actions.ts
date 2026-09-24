@@ -1,3 +1,4 @@
+import { waitFor } from "xstate/lib/waitFor";
 import { resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useI18n } from "../system-localisation";
@@ -71,10 +72,24 @@ export function createContractProductActions(
    * Resolves once a write leaves `processing` or `available.<region>.processing`
    * (region: `cancelling` | `consolidating`).
    * @returns true once the write settles on `available` or `unavailable`; false
-   *   on `error`, or if it never settled.
+   *   on `error`, on `done`, or if it never settled.
    */
   function onDone(): Promise<boolean> {
-    return waitForProcessing(service, ["available", "unavailable"], "error");
+    const transient = [
+      "processing",
+      "available.cancelling.processing",
+      "available.consolidating.processing"
+    ];
+
+    return waitFor(
+      service,
+      s =>
+        !stateMatches(s, transient) &&
+        (stateMatches(s, ["available", "unavailable", "error"]) || s.done),
+      { timeout: 60_000 }
+    )
+      .then(s => !s.done && stateMatches(s, ["available", "unavailable"]))
+      .catch(() => false);
   }
 
   /**
@@ -84,10 +99,11 @@ export function createContractProductActions(
   async function resolveContractProduct(
     message: string
   ): Promise<ContractProduct> {
-    const settled = await waitForProcessing(service, [
-      "available",
-      "unavailable"
-    ]);
+    const settled = await waitForProcessing(
+      service,
+      ["available", "unavailable"],
+      "error"
+    );
     const error = contextValue<ResponseError>(state, "error");
     const contractProduct = contextValue<ContractProduct>(
       state,
@@ -117,7 +133,7 @@ export function createContractProductActions(
     const settled = await waitForProcessing(
       service,
       [`available.${region}.idle`, "unavailable"],
-      [`available.${region}.available.error`]
+      [`available.${region}.available.error`, "error"]
     );
     const error = contextValue<ResponseError>(state, "error");
     const contractProduct = contextValue<ContractProduct>(
