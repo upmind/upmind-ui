@@ -986,3 +986,49 @@ Feature: A client manages the products on their own contracts
     Then the manager holds no consolidation form
     And the consolidation form is shown as closed
     And opening the consolidation form again draws it in full
+
+  # === THE LIST-PAGE FILTER CONTROLS (FE-3029 list-page repair) ==============
+  # The AC-1 narrowing Outline above proves each filter at the criteria
+  # channel. A hand also needs a CONTROL for each on the products page — a
+  # `useQuerySchema()` leaf and its `useQueryUischema()` FilterBar control — or
+  # the narrowing is unreachable, the gap the JTBD readback found ("draws no
+  # control for it"). One scenario per control the legacy client list
+  # (`cProdsListing.vue` and the client-route filters) gives a client acting on
+  # their own account. Proven over the recorded list capture by
+  # `contract-product.query-controls.int.test.ts`.
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: A quick-search box narrows my products by a search term
+    Given I am looking at my products
+    When I enter a search term of at least three characters in the quick-search box
+    Then my products are narrowed to the ones matching that term
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: A category-name box narrows my products by their category name
+    Given I am looking at my products
+    When I enter part of a category name in the category-name box
+    Then my products are narrowed to the ones whose category name contains it
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: A date control narrows my products to those bought after a date
+    Given I am looking at my products
+    When I pick a purchase date in the date-purchased control
+    Then my products are narrowed to the ones bought after that date
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: A date control narrows my products to those next due after a date
+    Given I am looking at my products
+    When I pick a date in the next-due-date control
+    Then my products are narrowed to the ones next due after that date
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: A price control narrows my products by price
+    Given I am looking at my products
+    When I enter a price in the price control
+    Then my products are narrowed to the ones at that price
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: A two-value choice narrows my products to subscriptions only or one-off only
+    Given I am looking at my products
+    When I ask to see only my subscriptions
+    Then only my subscriptions come back, and one-off only is the other choice I am offered
