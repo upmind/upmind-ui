@@ -1587,17 +1587,17 @@ describe("useContractProduct — every write runs through the one processing sta
         async () => {
           // Read the flag from inside the request, while the machine is in
           // `processing` — the whole point of the spine (R20).
-          inFlight = manager.useMeta().isSubmitting.value;
+          inFlight = manager.useMeta().isProcessing.value;
           return HttpResponse.json(recorded.softCancelled(), { status: 200 });
         }
       )
     );
 
-    expect(manager.useMeta().isSubmitting.value).toBe(false);
+    expect(manager.useMeta().isProcessing.value).toBe(false);
     await manager.useActions().stopRenewing();
 
     expect(inFlight).toBe(true);
-    expect(manager.useMeta().isSubmitting.value).toBe(false);
+    expect(manager.useMeta().isProcessing.value).toBe(false);
   });
 
   it("AC-25 comes back out of processing onto a settled node, having re-read the record", async () => {
@@ -1623,7 +1623,7 @@ describe("useContractProduct — every write runs through the one processing sta
     // re-read product, never `false`.
     expect(settled).not.toBe(false);
     expect(reads).toBeGreaterThan(before);
-    expect(manager.useMeta().isSubmitting.value).toBe(false);
+    expect(manager.useMeta().isProcessing.value).toBe(false);
     expect(manager.useMeta().isAvailable.value).toBe(true);
   });
 });
