@@ -726,6 +726,76 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     line: 910,
     text: "And a cancellation custom field my brand defines is among them",
     disposition: "gap"
+  },
+  {
+    line: 1004,
+    text: "Scenario: A quick-search box narrows my products by a search term",
+    disposition: "proves"
+  },
+  {
+    line: 1010,
+    text: "Scenario: A quick-search term shorter than three characters is never sent",
+    disposition: "proves"
+  },
+  {
+    line: 1016,
+    text: "Scenario: A product-name box narrows my products by their product name",
+    disposition: "proves"
+  },
+  {
+    line: 1022,
+    text: "Scenario: A category-name box narrows my products by their category name",
+    disposition: "proves"
+  },
+  {
+    line: 1028,
+    text: "Scenario: A date control narrows my products to those bought after a date",
+    disposition: "proves"
+  },
+  {
+    line: 1034,
+    text: "Scenario: A date control narrows my products to those next due after a date",
+    disposition: "proves"
+  },
+  {
+    line: 1040,
+    text: "Scenario: A price control narrows my products by price",
+    disposition: "proves"
+  },
+  {
+    line: 1049,
+    text: "Scenario Outline: A subscriptions-only toggle shows only my subscriptions, or all my products",
+    disposition: "proves"
+  },
+  {
+    line: 1056,
+    text: "| on       | only my subscriptions come back                             |",
+    disposition: "proves"
+  },
+  {
+    line: 1057,
+    text: "| all      | my products come back whether they are subscriptions or not |",
+    disposition: "proves"
+  },
+  {
+    line: 1060,
+    text: "Scenario Outline: A one-off-only toggle shows only my one-off purchases, or all my products",
+    disposition: "proves"
+  },
+  {
+    line: 1067,
+    text: "| on       | only my one-off purchases come back                   |",
+    disposition: "proves"
+  },
+  {
+    line: 1068,
+    text: "| all      | my products come back whether they are one-off or not |",
+    disposition: "proves"
+  },
+  {
+    line: 1071,
+    text: "Scenario: Every filter control on my products page is labelled in words",
+    disposition: "proves"
   }
 ];
 

@@ -994,14 +994,29 @@ Feature: A client manages the products on their own contracts
   # the narrowing is unreachable, the gap the JTBD readback found ("draws no
   # control for it"). One scenario per control the legacy client list
   # (`cProdsListing.vue` and the client-route filters) gives a client acting on
-  # their own account. Proven over the recorded list capture by
-  # `contract-product.query-controls.int.test.ts`.
+  # their own account. The leaf and the control are proven over the recorded
+  # list capture by `contract-product.query-controls.int.test.ts`; the value a
+  # DRIVEN control writes, read on the wire, by client-vue's
+  # `contract-products-filter-wire.test.ts`; the copy by
+  # `contract-product.i18n-keys.int.test.ts`.
 
   @AC-1 @collection @criteria @driveable
   Scenario: A quick-search box narrows my products by a search term
     Given I am looking at my products
     When I enter a search term of at least three characters in the quick-search box
     Then my products are narrowed to the ones matching that term
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: A quick-search term shorter than three characters is never sent
+    Given I am looking at my products
+    When I enter a two-character search term in the quick-search box
+    Then my products are not narrowed by it, and the term never reaches the request
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: A product-name box narrows my products by their product name
+    Given I am looking at my products
+    When I enter part of a product name in the product-name box
+    Then my products are narrowed to the ones whose product name contains it
 
   @AC-1 @collection @criteria @driveable
   Scenario: A category-name box narrows my products by their category name
@@ -1027,8 +1042,33 @@ Feature: A client manages the products on their own contracts
     When I enter a price in the price control
     Then my products are narrowed to the ones at that price
 
+  # AMENDMENT (FE-3029 cycle-2 W3). Subscriptions-only and one-off-only are two
+  # independent toggles on two leaves, so each gets its own Outline, and each
+  # position is its own row.
   @AC-1 @collection @criteria @driveable
-  Scenario: A two-value choice narrows my products to subscriptions only or one-off only
+  Scenario Outline: A subscriptions-only toggle shows only my subscriptions, or all my products
     Given I am looking at my products
-    When I ask to see only my subscriptions
-    Then only my subscriptions come back, and one-off only is the other choice I am offered
+    When I set the subscriptions-only toggle to <position>
+    Then <outcome>
+
+    Examples:
+      | position | outcome                                                     |
+      | on       | only my subscriptions come back                             |
+      | all      | my products come back whether they are subscriptions or not |
+
+  @AC-1 @collection @criteria @driveable
+  Scenario Outline: A one-off-only toggle shows only my one-off purchases, or all my products
+    Given I am looking at my products
+    When I set the one-off-only toggle to <position>
+    Then <outcome>
+
+    Examples:
+      | position | outcome                                               |
+      | on       | only my one-off purchases come back                   |
+      | all      | my products come back whether they are one-off or not |
+
+  @AC-1 @collection @criteria @driveable
+  Scenario: Every filter control on my products page is labelled in words
+    Given I am looking at my products
+    When the filter controls are drawn
+    Then each control, and each position a toggle offers, shows its copy and never a raw key

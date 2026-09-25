@@ -1,26 +1,31 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview useContractProducts query controls — the six list-page
+ * @fileoverview useContractProducts query controls — the list-page
  * narrowings a client drives on `useContractProducts` (integration; AC-1,
  * FE-3029 list-page repair, `design ✅.md` §8.2)
  *
  * ## Job To Be Done
- * The legacy client product list gives a hand six narrowings the criteria
- * channel alone cannot reach — each needs a DRIVEABLE control: a schema leaf
+ * The legacy client product list gives a hand narrowings the criteria channel
+ * alone cannot reach — each needs a DRIVEABLE control: a schema leaf
  * `useQuerySchema()` declares AND a matching `useQueryUischema()` control the
  * page's FilterBar draws. This suite drives the REAL collection against the
- * recorded list capture and proves, for each of quick search, category name,
- * date purchased, next due date, price and subscriptions/one-off, all three
- * facets on the public surface `useContractProducts().useContext().schemas.query`:
+ * recorded list capture and proves, for each of quick search, product name,
+ * category name, date purchased, next due date, price, subscriptions-only and
+ * one-off-only, on the public surface
+ * `useContractProducts().useContext().schemas.query`:
  *  - the SCHEMA LEAF (`schemas.query.schema`), compiled with the repo's own
  *    AJV and shown to accept a value the control produces and reject one it
- *    forbids — quick search floors the term at three characters; the
- *    subscriptions/one-off toggle is a real two-value enum `[0, null]`, never a
- *    free number box;
+ *    forbids — quick search floors the term at three characters; each toggle
+ *    is a real two-value enum `[0, null]`, never a free number box;
  *  - the UISCHEMA CONTROL (`schemas.query.uischema`) — the FilterBar element,
  *    at the leaf's scope, carrying the copy key the page labels it with;
- *  - the VALUE reaching the wire through the criteria channel — `setCriteria`
- *    lands the narrowing on the outbound `contracts_products` request.
+ *  - for the top-level quick search alone, the criteria CHANNEL: a term of
+ *    three characters reaches the request and a two-character one never does.
+ *
+ * The value a DRIVEN control writes, read on the wire, is proven where the
+ * control lives — client-vue's `contract-products-filter-wire.test.ts`. Each
+ * filter column's criteria-channel key is proven once, by the AC-1 narrowing
+ * Outline in `contract-product.reads.int.test.ts`, and is not re-proven here.
  *
  * ## Provenance
  * Every response body is the module's RECORDED `get-contracts-products-split-count-1`
@@ -121,6 +126,10 @@ function queryUischemaOf(
 
 // -----------------------------------------------------------------------------
 
+/**
+ * `@proves contract-product.feature:1004` — a quick-search box narrows my
+ * products by a search term.
+ */
 describe("useContractProducts quick search — a top-level query floored at three characters (AC-1)", () => {
   it("AC-1 declares the top-level query leaf: a three-character term validates, two characters is rejected", async () => {
     const { collection } = await bootCollectionObservingUrls();
@@ -149,233 +158,6 @@ describe("useContractProducts quick search — a top-level query floored at thre
       expect(latestParams(urls).get("query")).toBe("hosting");
     });
   });
-});
-
-describe("useContractProducts category-name filter — narrow by the category name (AC-1)", () => {
-  it("AC-1 lays out a category-name search control at the category-name leaf scope", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const control = controlAt(
-      queryUischemaOf(collection),
-      "#/properties/filters/properties/product.category.name/properties/like"
-    );
-
-    expect(control?.i18n).toBe("form.contract_product_category_name");
-    expect(control?.options?.format).toBe("search");
-  });
-
-  it("AC-1 the category-name narrowing reaches the wire as filter[product.category.name|like]", async () => {
-    const { collection, urls } = await bootCollectionObservingUrls();
-    collection.useActions().setCriteria({
-      filters: { "product.category.name": { like: "Hosting" } }
-    });
-
-    await vi.waitFor(() => {
-      expect(latestParams(urls).get("filter[product.category.name|like]")).toBe(
-        "%Hosting%"
-      );
-    });
-  });
-});
-
-describe("useContractProducts date-purchased filter — narrow by purchase date (AC-1)", () => {
-  it("AC-1 lays out a date-purchased control at the created_at.gt leaf scope", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const control = controlAt(
-      queryUischemaOf(collection),
-      "#/properties/filters/properties/created_at/properties/gt"
-    );
-
-    expect(control?.i18n).toBe("form.contract_product_date_purchased");
-  });
-
-  it("AC-1 the date-purchased narrowing reaches the wire as filter[created_at|gt]", async () => {
-    const { collection, urls } = await bootCollectionObservingUrls();
-    collection
-      .useActions()
-      .setCriteria({ filters: { created_at: { gt: "2024-01-01" } } });
-
-    await vi.waitFor(() => {
-      expect(latestParams(urls).get("filter[created_at|gt]")).toBe(
-        "2024-01-01"
-      );
-    });
-  });
-});
-
-describe("useContractProducts next-due-date filter — narrow by next due date (AC-1)", () => {
-  it("AC-1 lays out a next-due-date control at the next_due_date.gt leaf scope", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const control = controlAt(
-      queryUischemaOf(collection),
-      "#/properties/filters/properties/next_due_date/properties/gt"
-    );
-
-    expect(control?.i18n).toBe("form.contract_product_next_due_date");
-  });
-
-  it("AC-1 the next-due-date narrowing reaches the wire as filter[next_due_date|gt]", async () => {
-    const { collection, urls } = await bootCollectionObservingUrls();
-    collection
-      .useActions()
-      .setCriteria({ filters: { next_due_date: { gt: "2024-01-01" } } });
-
-    await vi.waitFor(() => {
-      expect(latestParams(urls).get("filter[next_due_date|gt]")).toBe(
-        "2024-01-01"
-      );
-    });
-  });
-});
-
-describe("useContractProducts price filter — narrow by price (AC-1)", () => {
-  it("AC-1 lays out a price control at the total_amount leaf scope", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const control = controlAt(
-      queryUischemaOf(collection),
-      "#/properties/filters/properties/total_amount"
-    );
-
-    expect(control?.i18n).toBe("form.contract_product_price");
-  });
-
-  it("AC-1 the price narrowing reaches the wire as filter[total_amount]", async () => {
-    const { collection, urls } = await bootCollectionObservingUrls();
-    collection.useActions().setCriteria({ filters: { total_amount: 100 } });
-
-    await vi.waitFor(() => {
-      expect(latestParams(urls).get("filter[total_amount]")).toBe("100");
-    });
-  });
-});
-
-describe("useContractProducts subscriptions/one-off toggle — a real two-value choice (AC-1)", () => {
-  it("AC-1 lays out a subscriptions-only button-group control at the billing_cycle_days.neq leaf scope", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const control = controlAt(
-      queryUischemaOf(collection),
-      "#/properties/filters/properties/billing_cycle_days/properties/neq"
-    );
-
-    expect(control?.i18n).toBe("form.contract_product_subscriptions_only");
-    expect(control?.options?.format).toBe("button-group");
-  });
-
-  it("AC-1 the subscriptions-only narrowing reaches the wire as filter[billing_cycle_days|neq]=0", async () => {
-    const { collection, urls } = await bootCollectionObservingUrls();
-    collection
-      .useActions()
-      .setCriteria({ filters: { billing_cycle_days: { neq: 0 } } });
-
-    await vi.waitFor(() => {
-      expect(latestParams(urls).get("filter[billing_cycle_days|neq]")).toBe(
-        "0"
-      );
-    });
-  });
-
-  it("AC-1 the one-off toggle is a real two-value enum, not a free number box: 0 validates, an arbitrary count is rejected", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const schema = querySchemaOf(collection) as unknown as {
-      properties: {
-        filters: {
-          properties: {
-            billing_cycle_days: {
-              properties: { eq: { enum?: unknown[] } };
-            };
-          };
-        };
-      };
-    };
-    const eq =
-      schema.properties.filters.properties.billing_cycle_days.properties.eq;
-    const validate = compile(querySchemaOf(collection));
-
-    expect(eq.enum).toEqual([0, null]);
-    expect(validate({ filters: { billing_cycle_days: { eq: 0 } } })).toBe(true);
-    expect(validate({ filters: { billing_cycle_days: { eq: 5 } } })).toBe(
-      false
-    );
-  });
-
-  it("AC-1 lays out a one-off button-group control at the billing_cycle_days.eq leaf scope", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const control = controlAt(
-      queryUischemaOf(collection),
-      "#/properties/filters/properties/billing_cycle_days/properties/eq"
-    );
-
-    expect(control?.i18n).toBe("form.contract_product_one_time_only");
-    expect(control?.options?.format).toBe("button-group");
-  });
-
-  it("AC-1 the one-off narrowing reaches the wire as filter[billing_cycle_days|eq]=0", async () => {
-    const { collection, urls } = await bootCollectionObservingUrls();
-    collection
-      .useActions()
-      .setCriteria({ filters: { billing_cycle_days: { eq: 0 } } });
-
-    await vi.waitFor(() => {
-      expect(latestParams(urls).get("filter[billing_cycle_days|eq]")).toBe("0");
-    });
-  });
-});
-
-describe("useContractProducts control leaves — each control accepts only the value it produces (AC-1)", () => {
-  it("AC-1 the subscriptions-only toggle is a real two-value choice, not a free number box: 0 validates, an arbitrary count is rejected", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const validate = compile(querySchemaOf(collection));
-
-    expect(validate({ filters: { billing_cycle_days: { neq: 0 } } })).toBe(
-      true
-    );
-    expect(validate({ filters: { billing_cycle_days: { neq: 5 } } })).toBe(
-      false
-    );
-  });
-
-  it("AC-1 the date-purchased leaf takes a picked date and rejects text that is not a date", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const validate = compile(querySchemaOf(collection));
-
-    expect(validate({ filters: { created_at: { gt: "2024-01-01" } } })).toBe(
-      true
-    );
-    expect(validate({ filters: { created_at: { gt: "last spring" } } })).toBe(
-      false
-    );
-  });
-
-  it("AC-1 the next-due-date leaf takes a picked date and rejects text that is not a date", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const validate = compile(querySchemaOf(collection));
-
-    expect(validate({ filters: { next_due_date: { gt: "2024-01-01" } } })).toBe(
-      true
-    );
-    expect(validate({ filters: { next_due_date: { gt: "next month" } } })).toBe(
-      false
-    );
-  });
-
-  it("AC-1 the price leaf takes an amount and rejects text that is not a number", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const validate = compile(querySchemaOf(collection));
-
-    expect(validate({ filters: { total_amount: 100 } })).toBe(true);
-    expect(validate({ filters: { total_amount: "cheap" } })).toBe(false);
-  });
-
-  it("AC-1 the category-name leaf takes part of a name", async () => {
-    const { collection } = await bootCollectionObservingUrls();
-    const validate = compile(querySchemaOf(collection));
-
-    expect(
-      validate({ filters: { "product.category.name": { like: "Host" } } })
-    ).toBe(true);
-    expect(
-      validate({ filters: { "product.category.name": { like: 42 } } })
-    ).toBe(false);
-  });
 
   it("AC-1 a quick search and a filter narrow together: both reach the one outbound request", async () => {
     const { collection, urls } = await bootCollectionObservingUrls();
@@ -391,3 +173,248 @@ describe("useContractProducts control leaves — each control accepts only the v
     });
   });
 });
+
+/**
+ * `@proves contract-product.feature:1010` — a quick-search term shorter than
+ * three characters is never sent.
+ */
+describe("useContractProducts quick search — a term under three characters never reaches the request (AC-1)", () => {
+  it("AC-1 a two-character term is never sent, and the next valid term still is", async () => {
+    const { collection, urls } = await bootCollectionObservingUrls();
+    collection.useActions().setCriteria({ query: "ho" });
+    collection.useActions().setCriteria({ query: "hosting" });
+
+    await vi.waitFor(() => {
+      expect(latestParams(urls).get("query")).toBe("hosting");
+    });
+    const sentTerms = urls.map(url => new URL(url).searchParams.get("query"));
+    expect(sentTerms).not.toContain("ho");
+  });
+});
+
+/**
+ * `@proves contract-product.feature:1016` — a product-name box narrows my
+ * products by their product name.
+ */
+describe("useContractProducts product-name filter — narrow by the product name (AC-1)", () => {
+  it("AC-1 lays out a product-name search control at the product-name leaf scope", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const control = controlAt(
+      queryUischemaOf(collection),
+      "#/properties/filters/properties/product.name/properties/like"
+    );
+
+    expect(control?.i18n).toBe("form.contract_product_name_search");
+    expect(control?.options?.format).toBe("search");
+  });
+
+  it("AC-1 the product-name leaf takes part of a name and rejects a value that is not text", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(validate({ filters: { "product.name": { like: "Host" } } })).toBe(
+      true
+    );
+    expect(validate({ filters: { "product.name": { like: 42 } } })).toBe(false);
+  });
+});
+
+/**
+ * `@proves contract-product.feature:1022` — a category-name box narrows my
+ * products by their category name.
+ */
+describe("useContractProducts category-name filter — narrow by the category name (AC-1)", () => {
+  it("AC-1 lays out a category-name search control at the category-name leaf scope", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const control = controlAt(
+      queryUischemaOf(collection),
+      "#/properties/filters/properties/product.category.name/properties/like"
+    );
+
+    expect(control?.i18n).toBe("form.contract_product_category_name");
+    expect(control?.options?.format).toBe("search");
+  });
+
+  it("AC-1 the category-name leaf takes part of a name and rejects a value that is not text", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(
+      validate({ filters: { "product.category.name": { like: "Host" } } })
+    ).toBe(true);
+    expect(
+      validate({ filters: { "product.category.name": { like: 42 } } })
+    ).toBe(false);
+  });
+});
+
+/**
+ * `@proves contract-product.feature:1028` — a date control narrows my products
+ * to those bought after a date.
+ */
+describe("useContractProducts date-purchased filter — narrow by purchase date (AC-1)", () => {
+  it("AC-1 lays out a date-purchased control at the created_at.gt leaf scope", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const control = controlAt(
+      queryUischemaOf(collection),
+      "#/properties/filters/properties/created_at/properties/gt"
+    );
+
+    expect(control?.i18n).toBe("form.contract_product_date_purchased");
+  });
+
+  it("AC-1 the date-purchased leaf takes a picked date and rejects text that is not a date", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(validate({ filters: { created_at: { gt: "2024-01-01" } } })).toBe(
+      true
+    );
+    expect(validate({ filters: { created_at: { gt: "last spring" } } })).toBe(
+      false
+    );
+  });
+});
+
+/**
+ * `@proves contract-product.feature:1034` — a date control narrows my products
+ * to those next due after a date.
+ */
+describe("useContractProducts next-due-date filter — narrow by next due date (AC-1)", () => {
+  it("AC-1 lays out a next-due-date control at the next_due_date.gt leaf scope", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const control = controlAt(
+      queryUischemaOf(collection),
+      "#/properties/filters/properties/next_due_date/properties/gt"
+    );
+
+    expect(control?.i18n).toBe("form.contract_product_next_due_date");
+  });
+
+  it("AC-1 the next-due-date leaf takes a picked date and rejects text that is not a date", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(validate({ filters: { next_due_date: { gt: "2024-01-01" } } })).toBe(
+      true
+    );
+    expect(validate({ filters: { next_due_date: { gt: "next month" } } })).toBe(
+      false
+    );
+  });
+});
+
+/**
+ * `@proves contract-product.feature:1040` — a price control narrows my products
+ * by price.
+ */
+describe("useContractProducts price filter — narrow by price (AC-1)", () => {
+  it("AC-1 lays out a price control at the total_amount leaf scope", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const control = controlAt(
+      queryUischemaOf(collection),
+      "#/properties/filters/properties/total_amount"
+    );
+
+    expect(control?.i18n).toBe("form.contract_product_price");
+  });
+
+  it("AC-1 the price leaf takes an amount and rejects text that is not a number", async () => {
+    const { collection } = await bootCollectionObservingUrls();
+    const validate = compile(querySchemaOf(collection));
+
+    expect(validate({ filters: { total_amount: 100 } })).toBe(true);
+    expect(validate({ filters: { total_amount: "cheap" } })).toBe(false);
+  });
+});
+
+const TOGGLES = [
+  {
+    toggle: "subscriptions-only",
+    operator: "neq",
+    i18n: "form.contract_product_subscriptions_only"
+  },
+  {
+    toggle: "one-off-only",
+    operator: "eq",
+    i18n: "form.contract_product_one_time_only"
+  }
+] as const;
+
+type Toggle = (typeof TOGGLES)[number];
+
+function billingCycleLeaf(operator: Toggle["operator"], value: unknown) {
+  return { filters: { billing_cycle_days: { [operator]: value } } };
+}
+
+/**
+ * `@proves contract-product.feature:1049` — a subscriptions-only toggle.
+ * `@proves contract-product.feature:1060` — a one-off-only toggle.
+ */
+describe.each(TOGGLES)(
+  "useContractProducts $toggle toggle — its own two-position control (AC-1)",
+  ({ operator, i18n }) => {
+    it(`AC-1 lays out a button-group control at the billing_cycle_days.${operator} leaf scope`, async () => {
+      const { collection } = await bootCollectionObservingUrls();
+      const control = controlAt(
+        queryUischemaOf(collection),
+        `#/properties/filters/properties/billing_cycle_days/properties/${operator}`
+      );
+
+      expect(control?.i18n).toBe(i18n);
+      expect(control?.options?.format).toBe("button-group");
+    });
+
+    it(`AC-1 the billing_cycle_days.${operator} leaf offers exactly two positions, on (0) and all (null), never a free number box`, async () => {
+      const { collection } = await bootCollectionObservingUrls();
+      const leaf = (
+        querySchemaOf(collection) as unknown as {
+          properties: {
+            filters: {
+              properties: {
+                billing_cycle_days: {
+                  properties: Record<string, { enum?: unknown[] }>;
+                };
+              };
+            };
+          };
+        }
+      ).properties.filters.properties.billing_cycle_days.properties[operator];
+      const validate = compile(querySchemaOf(collection));
+
+      expect(leaf?.enum).toEqual([0, null]);
+      expect(validate(billingCycleLeaf(operator, 5))).toBe(false);
+    });
+  }
+);
+
+/**
+ * The `on` rows of both toggle Outlines:
+ * - `@proves contract-product.feature:1056` — subscriptions-only on
+ * - `@proves contract-product.feature:1067` — one-off-only on
+ *
+ * The `all` rows:
+ * - `@proves contract-product.feature:1057` — subscriptions-only all
+ * - `@proves contract-product.feature:1068` — one-off-only all
+ *
+ * The leaf is graded here; the driven write of each position, read on the
+ * wire, is client-vue's `contract-products-filter-wire.test.ts`.
+ */
+describe.each(TOGGLES)(
+  "useContractProducts $toggle toggle — each position is a value the leaf accepts (AC-1)",
+  ({ operator }) => {
+    it(`AC-1 the on position (0) validates on billing_cycle_days.${operator}`, async () => {
+      const { collection } = await bootCollectionObservingUrls();
+      const validate = compile(querySchemaOf(collection));
+
+      expect(validate(billingCycleLeaf(operator, 0))).toBe(true);
+    });
+
+    it(`AC-1 the all position (null) validates on billing_cycle_days.${operator}`, async () => {
+      const { collection } = await bootCollectionObservingUrls();
+      const validate = compile(querySchemaOf(collection));
+
+      expect(validate(billingCycleLeaf(operator, null))).toBe(true);
+    });
+  }
+);
