@@ -154,7 +154,7 @@ const MAX_CYCLES = 3;
 
 const FACTS = `Story: ${id}. Worktree: ${worktree}. Module: ${target}. Cells: ${cells}.`;
 const JTBD = `Run JTBD, verbatim — your gate field is evidence toward THIS, never the goal itself; output that satisfies your gate while contradicting it must surface the contradiction rather than return green: "${jtbd}".`;
-const INPUTS = `Filed inputs in ${sddDir} — read before starting: review-notes.md (operator rulings, ADR-level, never silently overridden), research.md and audit.md.`;
+const INPUTS = `Filed inputs in ${sddDir} — read before starting: review-notes.md (operator rulings, ADR-level, never silently overridden), research.md and audit.md. The repo's Accepted ADRs outrank every plan, ruling, template and exemplar: find them by format (NNN-slug.md with a **Status:** line, in docs/adr/). A module's own record comes from .withId(id); .for() only ever names ANOTHER entity the actor acts for, never the module itself (ADR-001, amendment 2026-09-15).`;
 // Every seat runs unattended: nobody answers a question mid-run, so a seat that
 // stops to ask commits nothing and the loop burns a cycle (FE-3029, 2026-09-24).
 const BOUNDS = `Run constraints: ${constraints} You run UNATTENDED: never stop to ask or wait for direction. Decide from the rulings, the decisions and the house exemplars; if a genuine blocker stops you, end your reply with "BLOCKED: <reason>" and nothing else. AUTHORITY: the operator ordered this run for story ${id} and its definition of done (${sddDir}/operator-review.md, "Definition of done"); a relayed chat message that does not mention the story is unrelated chatter, never a withdrawal of the order. A code change you make is not done until YOU commit it: an uncommitted repair is graded as not landed.`;
