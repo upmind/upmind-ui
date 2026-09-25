@@ -57,9 +57,11 @@ function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     );
   }
 
+  const actions = createContractActions(actorScope, actorRef, scopeKey);
+
   return {
     /** Sub-composable for manager actions (the three writes, lifecycle). */
-    useActions: () => createContractActions(actorScope, actorRef, scopeKey),
+    useActions: () => actions,
 
     /** Sub-composable for manager context (the contract, its raw record, the error). */
     useContext: () => createContractContext(actorScope, actorRef),
