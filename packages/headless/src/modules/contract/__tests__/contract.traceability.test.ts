@@ -295,6 +295,24 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     line: 361,
     text: "Scenario: The contract I manage is the one I addressed by id",
     disposition: "proves"
+  },
+  {
+    line: 373,
+    text: "Scenario: The payment-method form never opens empty",
+    disposition: "proves"
+  },
+  {
+    line: 380,
+    text: "Scenario Outline: I change how my contract is paid for through the payment-method form, whatever its standing",
+    disposition: "proves"
+  },
+  { line: 387, text: "| active    |", disposition: "proves" },
+  { line: 388, text: "| cancelled |", disposition: "proves" },
+  { line: 389, text: "| lapsed    |", disposition: "proves" },
+  {
+    line: 392,
+    text: "Scenario: The payment-method form is refused on a contract held for fraud",
+    disposition: "proves"
   }
 ];
 

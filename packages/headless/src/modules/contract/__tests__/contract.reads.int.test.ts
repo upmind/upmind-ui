@@ -235,4 +235,30 @@ describe("useContracts — I see and page through the contracts on my own accoun
     });
     expect(meta.hasPrevPage.value).toBe(false);
   });
+
+  /** `contract.feature:401` — ruling R32: the list is pagination-only. */
+  it("AC-14 the page size I choose is the one my contracts are asked for, and the list offers no filter and no sort", async () => {
+    await seedClientSession();
+    installBackgroundStubs();
+    const limits: (string | null)[] = [];
+    server?.use(
+      http.get("*/contracts", ({ request }) => {
+        limits.push(new URL(request.url).searchParams.get("limit"));
+        return HttpResponse.json(recorded.list(), { status: 200 });
+      })
+    );
+
+    const collection = useContracts().as(ScopeActorTypes.CLIENT);
+    await collection.useActions().isReady();
+    const context = collection.useContext();
+
+    expect(Object.keys(context.schemas.query.schema.properties ?? {})).toEqual([
+      "pagination"
+    ]);
+
+    collection.useActions().setCriteria({ pagination: { limit: 5 } });
+
+    await vi.waitFor(() => expect(limits).toContain("5"));
+    expect(context.query.value.pagination?.limit).toBe(5);
+  });
 });

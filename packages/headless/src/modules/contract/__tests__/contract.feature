@@ -363,3 +363,43 @@ Feature: A client manages their own contracts
     When I open the manager on that id
     Then the manager reads that contract, and holds it as the contract I have open
     And a manager I open on another id never holds it
+
+  # === THE PAYMENT-METHOD FORM ACROSS MY CONTRACT'S STANDING ================
+  # Ruling R13 ports the one change to a cancelled or lapsed contract and
+  # excludes fraud; R35 draws the form from its own context slot. Proven over
+  # the recorded corpus by contract.payment-method-standing.int.test.ts.
+
+  @FE-3029 @manager @member
+  Scenario: The payment-method form never opens empty
+    Given I have a contract of mine open in the manager
+    When I open the payment-method form
+    Then it offers exactly my stored cards
+    And it starts on the card my contract already pays with
+
+  @FE-3029 @manager @member
+  Scenario Outline: I change how my contract is paid for through the payment-method form, whatever its standing
+    Given a contract of mine that is <standing>
+    When I choose a different stored card in the payment-method form and submit it
+    Then my contract is pointed at the card I chose
+
+    Examples:
+      | standing  |
+      | active    |
+      | cancelled |
+      | lapsed    |
+
+  @FE-3029 @manager @member
+  Scenario: The payment-method form is refused on a contract held for fraud
+    Given a contract of mine that is held for fraud
+    When I try to change how it is paid for
+    Then the payment-method form does not open
+    And no request is sent
+
+  # Ruling R32: the contracts list is pagination-only, so the page size is the
+  # one request state a client sets on it.
+  @AC-14 @collection
+  Scenario: My contracts list pages and offers nothing else
+    Given I have more contracts than fit on one page
+    When I choose how many of my contracts come on one page
+    Then my contracts are asked for that many at a time
+    And the list offers me no filter and no sort, only its pages
