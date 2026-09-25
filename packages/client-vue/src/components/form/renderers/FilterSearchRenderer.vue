@@ -53,12 +53,13 @@ import {
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon } from "../../icon";
-import { get, isEmpty } from "lodash-es";
+import { get, isEmpty, some } from "lodash-es";
 import type {
   ControlElement,
   CoreActions,
   Dispatch,
-  JsonFormsSubStates
+  JsonFormsSubStates,
+  UISchemaElement
 } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
@@ -125,8 +126,29 @@ function write(value?: string | number): void {
 </script>
 
 <script lang="ts">
+/** A filter column whose name carries a literal "." — one scope segment on ".". */
+const isDottedColumn = (uischema: UISchemaElement): boolean =>
+  some(toDataPathSegments((uischema as ControlElement).scope ?? ""), segment =>
+    segment.includes(".")
+  );
+
 export const tester = {
   rank: 3,
   controlType: and(isStringControl, optionIs("format", "search"))
+};
+
+// The `@upmind/ui` package ships its own search renderer at rank 3, and a rank
+// tie is awarded to the library default (registered first, `maxBy` first-wins),
+// whose `control.path` write nests a dotted column name on "." — where
+// `additionalProperties: false` strips it. This copy's literal-path write is the
+// correct one for a dotted column, so it outranks the default there and only
+// there; a plain column keeps the shared rank and either renderer serves it.
+export const dottedTester = {
+  rank: 4,
+  controlType: and(
+    isStringControl,
+    optionIs("format", "search"),
+    isDottedColumn
+  )
 };
 </script>

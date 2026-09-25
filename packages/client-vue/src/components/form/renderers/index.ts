@@ -14,7 +14,10 @@ import { tester as filterMultiSelectTest } from "./FilterMultiSelectRenderer.vue
 import FilterRangeRenderer from "./FilterRangeRenderer.vue";
 import { tester as filterRangeTest } from "./FilterRangeRenderer.vue";
 import FilterSearchRenderer from "./FilterSearchRenderer.vue";
-import { tester as filterSearchTest } from "./FilterSearchRenderer.vue";
+import {
+  dottedTester as filterSearchDottedTest,
+  tester as filterSearchTest
+} from "./FilterSearchRenderer.vue";
 import FilterToggleGroupRenderer from "./FilterToggleGroupRenderer.vue";
 import { tester as filterToggleGroupTest } from "./FilterToggleGroupRenderer.vue";
 import GatewaysRenderer from "./GatewaysRenderer.vue";
@@ -52,6 +55,7 @@ export const formRenderers = [
   registerEntry(FilterToggleGroupRenderer, filterToggleGroupTest),
   registerEntry(EnumToggleGroupRenderer, enumToggleGroupTest),
   registerEntry(FilterSearchRenderer, filterSearchTest),
+  registerEntry(FilterSearchRenderer, filterSearchDottedTest),
   registerEntry(FilterMultiSelectRenderer, filterMultiSelectTest),
   registerEntry(FilterRangeRenderer, filterRangeTest),
   registerEntry(FilterBarRenderer, filterBarTest)
