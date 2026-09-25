@@ -15,9 +15,11 @@
  * contract's products are `useContractProducts`' own page); `raw` as a whole
  * (its members are read individually below).
  *
- * The detail overlay draws the clicked row's OWN data: no `useDetail` is
- * declared (see `contracts.scenario.ts`), because the manager addresses its
- * contract through `.for('contract', id)`, never `.withId(id)`.
+ * The detail overlay fetches: `contracts.scenario.ts` declares
+ * `useDetail: useContract`, so `view` boots the manager `.withId(<row.id>)`.
+ * The manager publishes its record as `contract`, not `data`
+ * (`useContract.context.ts`), so the detail element list below reads
+ * `#/properties/contract/...` under the declared `siblings: ["contract"]`.
  *
  * NO EDITOR. The collection has no generic write — the ONE contract write,
  * the payment-method form, is the manager's own (`useContract().useActions()`),
@@ -112,39 +114,46 @@ export const cardUischema: CardUischema = {
   ]
 };
 
-/** ONE contract drawn READ-ONLY in the detail overlay, off the row the list already read. */
+/**
+ * ONE contract drawn READ-ONLY in the detail overlay — the manager's own fetch
+ * (`useDetail: useContract`), folded in under `contract` (`siblings`) rather
+ * than `data`, since the manager publishes its record under that name.
+ */
 export const detailUischema: DetailUischema = {
   type: "DetailLayout",
+  siblings: ["contract"],
   elements: [
     {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/name",
+      scope: "#/properties/contract/properties/raw/properties/name",
       i18n: "text.contract_name"
     },
     {
       type: "TableCellText",
-      scope: "#/properties/status/properties/code",
+      scope: "#/properties/contract/properties/status/properties/code",
       i18n: "text.status"
     },
     {
       type: "TableCellText",
       scope:
-        "#/properties/cancellationRequest/properties/status/properties/code",
+        "#/properties/contract/properties/cancellationRequest/properties/status/properties/code",
       i18n: "text.cancellation_request_status"
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/raw/properties/next_due_date",
+      scope: "#/properties/contract/properties/raw/properties/next_due_date",
       i18n: "text.next_due_date"
     },
     {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/billing_cycle_months",
+      scope:
+        "#/properties/contract/properties/raw/properties/billing_cycle_months",
       i18n: "text.billing_cycle"
     },
     {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/total_recurrent_amount_formatted",
+      scope:
+        "#/properties/contract/properties/raw/properties/total_recurrent_amount_formatted",
       i18n: "text.price"
     }
   ]
@@ -152,7 +161,7 @@ export const detailUischema: DetailUischema = {
 
 /**
  * The controls this scenario can actually drive: opening the row's own manager
- * page (`open`, a surface-owned `navigate`), opening the row READ-ONLY in the
+ * page (`open`, a surface-owned `navigate`), opening it READ-ONLY in the
  * detail overlay (`view`), and the collection's own `refresh`. Paging is the
  * list surface's own, off `useContext().pagination`. The payment-method write
  * lives on the MANAGER's action map, which the runtime never binds a row

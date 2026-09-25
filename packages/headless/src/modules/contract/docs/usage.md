@@ -4,7 +4,7 @@
 
 ```typescript
 const contracts = useContracts().as("client");
-const contract = useContract().as("client").for("contract", contractId);
+const contract = useContract().as("client").withId(contractId);
 
 // Sub-composables (both composables)
 const context = contracts.useContext();   // reactive query / computed values
@@ -171,7 +171,7 @@ const {
 </template>
 
 <script setup>
-const contract = useContract().as("client").for("contract", props.contractId);
+const contract = useContract().as("client").withId(props.contractId);
 const { error } = contract.useContext();
 const { isLoading, isProcessing, isFraud, hasError } = contract.useMeta();
 const { openPaymentMethod } = contract.useActions();

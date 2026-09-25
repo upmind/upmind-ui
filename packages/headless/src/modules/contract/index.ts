@@ -40,7 +40,7 @@ export type { ContractsScopeMatrix } from "./contract.types";
  * rejected: exporting `CONTRACT_SCOPE_MATRIX` and `ContractScopeMatrix` for
  *   symmetry with the collection. A consumer who imports them can only pass
  *   them where the factory already applies them, so the export advertises a
- *   choice that does not exist. (D93)
+ *   choice that does not exist. (D95)
  */
 
 // --- Public model types (shared by both composables)

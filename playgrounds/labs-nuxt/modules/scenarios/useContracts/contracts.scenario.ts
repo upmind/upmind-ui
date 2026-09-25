@@ -7,10 +7,10 @@
  * page, which reads one contract whole and drives its payment-method form.
  *
  * No `useMutate`: the collection has no generic write — see
- * `contracts.presentation.ts`'s module docblock. No `useDetail` either,
- * DELIBERATELY: the manager is its own self-drawn page (`contract.page.vue`),
- * so binding it here would double the read. The detail overlay draws the
- * clicked row's OWN data instead.
+ * `contracts.presentation.ts`'s module docblock. `useDetail: useContract`
+ * lets `view` fetch one contract's full record; the manager publishes it as
+ * `contract` rather than `data` (`useContract.context.ts`), so the detail
+ * presentation declares `siblings: ["contract"]` to reach it.
  *
  * The FILE is named for the module it declares and the DIRECTORY is the url
  * segment and the route name (`/useContracts`). No scope is declared: the page
@@ -19,7 +19,7 @@
  * `/as/client` segment.
  */
 
-import { useContracts } from "@upmind-automation/headless";
+import { useContract, useContracts } from "@upmind-automation/headless";
 import {
   actionsUischema,
   cardUischema,
@@ -36,6 +36,10 @@ export const CONTRACTS_SCENARIO = "contracts";
 export default {
   key: CONTRACTS_SCENARIO,
   useList: useContracts,
+  // The row's `view` fetches ONE contract by record id through the generic
+  // single-read overlay — the manager keyed by id, never by a scope context
+  // (templates/SINGLE-READ.md).
+  useDetail: useContract,
   persistCriteria: true,
   // The MODULE whose committed `.feature` and step catalog this page plays —
   // the same module the manager page tracks, because the catalog is keyed by

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The module ships two scoped composables under one module name: `useContracts` (a TanStack-query-backed collection, no machine) and `useContract` (a bespoke XState machine, one instance per contract). Both are armless — the parity table carries the one cell `client×self`, so there is no per-actor `.client.ts`/`.staff.ts` split. The two matrices resolve differently: the collection resolves a context for `client` alone (no `.for()` id — it is a plain list); the manager resolves a `contract` context that carries the id (`.for('contract', id)`). One services file, `contract.services.ts`, backs both composables and owns the module's cache key, `["contracts"]` — the same root the sibling `contract-product` module writes through, so a write on either module refreshes both.
+The module ships two scoped composables under one module name: `useContracts` (a TanStack-query-backed collection, no machine) and `useContract` (a bespoke XState machine, one instance per contract). Both are armless — the parity table carries the one cell `client×self`, so there is no per-actor `.client.ts`/`.staff.ts` split. The two matrices resolve differently: the collection resolves a context for `client` alone (no `.for()` id — it is a plain list); the manager declares no context at all and takes its contract id from `.withId(id)`, which the scope key folds in as `id:<value>` (D95). One services file, `contract.services.ts`, backs both composables and owns the module's cache key, `["contracts"]` — the same root the sibling `contract-product` module writes through, so a write on either module refreshes both.
 
 ## State Machine (`useContract`)
 

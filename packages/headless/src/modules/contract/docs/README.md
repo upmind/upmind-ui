@@ -20,7 +20,7 @@ const contracts = useContracts().as("client");
 await contracts.useActions().isReady();
 const { data } = contracts.useContext();
 
-const contract = useContract().as("client").for("contract", contractId);
+const contract = useContract().as("client").withId(contractId);
 await contract.useActions().isReady();
 const { isActive, isProcessing } = contract.useMeta();
 ```
@@ -52,7 +52,7 @@ Client-only by capability. `.as('staff')` and `.as('guest')` resolve no context 
 
 ```typescript
 const contracts = useContracts().as("client");
-const contract = useContract().as("client").for("contract", contractId);
+const contract = useContract().as("client").withId(contractId);
 ```
 
 ## Documentation

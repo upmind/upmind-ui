@@ -22,7 +22,7 @@ import type { ActorRef, AnyEventObject } from "xstate";
  * COLLECTION (`useContracts`) and the bespoke-machine MANAGER (`useContract`,
  * `contract.machine.ts`). The collection owns its own context enum and scope
  * matrix; the manager is a single-record read by id and declares no context
- * enum (D93, templates/SINGLE-READ.md). The view model, the services
+ * enum (D95, templates/SINGLE-READ.md). The view model, the services
  * contract and the mappers are shared.
  */
 
@@ -59,11 +59,12 @@ export type ContractsScopeMatrix = typeof CONTRACTS_SCOPE_MATRIX;
  *   so `MatrixHasAnyContexts` is `false` and `.for()` is a compile error for
  *   everyone.
  * rejected: minting a `ContractContextTypes.CONTRACT` and naming it in the
- *   CLIENT cell — the shape this module shipped before D93. It modelled a
+ *   CLIENT cell — the shape this module shipped before D95. It modelled a
  *   leaf record as an ADR-001 context with no oracle entity behind it, and
- *   only renamed the template's `.for('module-item', id)` /
- *   `ModuleContextTypes.ITEM`. See the exemplar `useContractProduct`
- *   (D46) and `tickets/useTicket` (2026-09-22 operator review).
+ *   only renamed the template's former `ModuleContextTypes.ITEM`, which the
+ *   hybrid template has since dropped for `.withId(id)`. See the exemplar
+ *   `useContractProduct` (D46) and `tickets/useTicket` (2026-09-22 operator
+ *   review).
  */
 export const CONTRACT_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,

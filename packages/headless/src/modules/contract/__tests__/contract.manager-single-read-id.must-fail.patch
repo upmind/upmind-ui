@@ -1,8 +1,8 @@
-# Negative control — useContract single-read id (B1/D93 repair).
+# Negative control — useContract single-read id (B1/D95 repair).
 #
 # Scenario it must flip: contract.feature >
 #   "The contract I manage is the one I addressed by id"
-# Spec that must flip (prover-authored, per the D93 hand-off): a
+# Spec that must flip (prover-authored, per the D95 hand-off): a
 #   contract.manager-*.int.test.ts assertion that
 #   `useContract().as(ScopeActorTypes.CLIENT).withId(id)` resolves and loads
 #   the SEEDED contract at that id — e.g. `useContext().contract.value.id`

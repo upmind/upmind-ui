@@ -3,7 +3,7 @@
 # Scenario it must flip: contract.feature >
 #   "The account I act on is the one my scope resolved"
 # Test that goes red: contract.mutations.int.test.ts >
-#   "AC-16 the request is addressed to the contract `.for()` resolved, never to
+#   "AC-16 the request is addressed to the contract `.withId()` named, never to
 #   any clientId option or an unresolved id"
 #   (`pathname` no longer contains `/contracts/${row.id}`, and
 #   `searchParams.has("clientId")` reads true; the replay server also refuses
