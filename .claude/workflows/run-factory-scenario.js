@@ -895,7 +895,7 @@ let lastUndriveable = "";
 for (let cycle = 1; cycle <= MAX_CYCLES; cycle++) {
   results.cycles.readback = cycle;
   results.readback = await agent(
-    `File the terminal JTBD readback for story ${id}. ${FACTS} ${JTBD} ${BOUNDS} Write a two-column capability table to ${sddDir}/jtbd-readback.md, beside your own verify.md, BEFORE returning: the ORACLE's surface — what the legacy oracle lets a consumer do, filter, sort, page, search, open, act — beside the LANDED PAGE's driveable surface, row for row. Any oracle capability a hand cannot drive on the page means the run FAILED the JTBD, regardless of every lane gate being green. List those capabilities verbatim.`,
+    `File the terminal JTBD readback for story ${id} (readback cycle ${cycle}). ${FACTS} Bind to the CURRENT HEAD of the working branch — after a repair, grade the repaired commit, never the one an earlier readback graded. ${JTBD} ${BOUNDS} Write a two-column capability table to ${sddDir}/jtbd-readback.md, beside your own verify.md, BEFORE returning: the ORACLE's surface — what the legacy oracle lets a consumer do, filter, sort, page, search, open, act — beside the LANDED PAGE's driveable surface, row for row. Any oracle capability a hand cannot drive on the page means the run FAILED the JTBD, regardless of every lane gate being green. List those capabilities verbatim.`,
     {
       agentType: "upmind-agent:verifier",
       model: "opus",
