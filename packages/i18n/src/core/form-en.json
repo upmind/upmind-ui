@@ -213,7 +213,8 @@
   },
   "contract_product_one_time_only": {
     "label": "One-time purchases",
-    "0": "One-time only"
+    "0": "One-time only",
+    "null": "All"
   },
   "contract_product_price": {
     "label": "Product / Service price"
@@ -233,7 +234,8 @@
   },
   "contract_product_subscriptions_only": {
     "label": "Subscriptions only",
-    "0": "Subscriptions only"
+    "0": "Subscriptions only",
+    "null": "All"
   },
   "country": {
     "description": null,
