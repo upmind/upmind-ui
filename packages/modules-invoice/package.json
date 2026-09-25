@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/invoice",
-  "version": "0.20.17",
+  "version": "0.20.18",
   "description": "Upmind invoice domain package — invoice / order view (useOrder = useInvoice).",
   "type": "module",
   "license": "UNLICENSED",
@@ -24,7 +24,6 @@
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
     "@upmind-automation/payment": "workspace:*",
-    "@upmind-automation/recommendations": "workspace:*",
     "@upmind-automation/auth": "workspace:*"
   },
   "peerDependencies": {

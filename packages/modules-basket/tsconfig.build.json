@@ -14,12 +14,7 @@
       "@upmind-automation/headless": ["../headless/src/index.ts"],
       "@upmind-automation/foundation": ["../modules-foundation/src/index.ts"],
       "@upmind-automation/product": ["../modules-product/src/index.ts"],
-      "@upmind-automation/recommendations": [
-        "../modules-recommendations/src/index.ts"
-      ],
-      "@upmind-automation/auth": ["../modules-auth/src/index.ts"],
-      "@upmind-automation/payment": ["../modules-payment/src/index.ts"],
-      "@upmind-automation/invoice": ["../modules-invoice/src/index.ts"]
+      "@upmind-automation/payment": ["../modules-payment/src/index.ts"]
     }
   },
   "include": ["src"],
@@ -44,16 +39,7 @@
       "path": "../modules-product/tsconfig.build.json"
     },
     {
-      "path": "../modules-recommendations/tsconfig.build.json"
-    },
-    {
-      "path": "../modules-auth/tsconfig.build.json"
-    },
-    {
       "path": "../modules-payment/tsconfig.build.json"
-    },
-    {
-      "path": "../modules-invoice/tsconfig.build.json"
     }
   ]
 }

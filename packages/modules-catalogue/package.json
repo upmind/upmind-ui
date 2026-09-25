@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/catalogue",
-  "version": "0.20.17",
+  "version": "0.20.18",
   "description": "Upmind catalogue domain package — browse: catalogue · categories.",
   "type": "module",
   "license": "UNLICENSED",
@@ -23,8 +23,7 @@
     "@upmind/ui": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
-    "@upmind-automation/product": "workspace:*",
-    "@upmind-automation/recommendations": "workspace:*"
+    "@upmind-automation/product": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.0.0"
