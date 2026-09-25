@@ -287,9 +287,9 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     disposition: "proves"
   },
   {
-    line: 355,
+    line: 354,
     text: "Scenario: A contract read whose status is none I know settles on an error instead of a state",
-    disposition: "gap"
+    disposition: "proves"
   }
 ];
 

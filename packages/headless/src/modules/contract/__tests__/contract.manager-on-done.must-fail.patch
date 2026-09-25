@@ -1,10 +1,12 @@
 Negative control for useContract.actions.ts `onDone` (R37 B9).
 
-Spec that must flip: contract.manager-members.int.test.ts
+Specs that must flip: contract.manager-members.int.test.ts
 ("When my payment-method change finishes I am told it is done",
 contract.feature:329) — awaits `useActions().onDone()` across a
 payment-method write and expects it to resolve true only once that write
-finishes, never while the form is idle.
+finishes; and ("With no payment-method change under way I am not told a
+change is done", contract.feature:348) — expects `onDone()` to stay pending
+while the form is idle.
 
 Mutation: keeps the `onDone` member but resolves true at once, without
 waiting for a write to leave `changingPaymentMethod.processing`.

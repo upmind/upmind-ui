@@ -350,8 +350,7 @@ Feature: A client manages their own contracts
     When I wait to be told a payment-method change is done
     Then I am not told it is done
 
-  # KNOWN GAP (D90): no recorded contract read carries a status code outside the seven the platform publishes.
-  @FE-3029 @manager @member @todo
+  @FE-3029 @manager @member
   Scenario: A contract read whose status is none I know settles on an error instead of a state
     Given reading one of my contracts returns a status that is not one of the known contract statuses
     When I look at my contract
