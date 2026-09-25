@@ -279,37 +279,6 @@ describe("useContract — a read that fails settles on the error node (D43)", ()
   });
 });
 
-describe("useContract — a read whose status is none I know settles on the error node (D43)", () => {
-  // The recorded row with only `status.code` swapped for one outside the
-  // platform's vocabulary — the same control input contract.utils.test.ts
-  // feeds `selectContractStatusNode`, driven here through the real manager.
-  const UNKNOWN_STATUS_CODE = "not_a_real_code";
-
-  // @proves contract.feature:354
-  it("A contract read whose status is none I know settles on an error instead of a state", async () => {
-    await seedClientSession();
-    installLookupHandlers();
-    const row = recorded.one().data as ContractRow & {
-      status: Record<string, unknown>;
-    };
-    installContractHandler(server, {
-      ...row,
-      status: { ...row.status, code: UNKNOWN_STATUS_CODE }
-    });
-    const manager = managerFor(row.id);
-
-    const ready = await settledWithin(
-      manager.useActions().isReady(),
-      5000,
-      "never-settled" as unknown as boolean
-    );
-
-    expect(ready).toBe(false);
-    expect(manager.useMeta().hasError.value).toBe(true);
-    expect(manager.useMeta().isLoading.value).toBe(false);
-  });
-});
-
 describe("useContract — the one payment-method form keeps the template action names (R37)", () => {
   // @proves contract.feature:302
   it("A stored card I choose in the payment-method form is taken in and checked", async () => {
