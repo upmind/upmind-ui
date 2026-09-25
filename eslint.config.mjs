@@ -248,8 +248,7 @@ function moduleRootOf(absPath) {
   if (cached !== undefined) return cached;
 
   const root = resolve(PACKAGES_ROOT, pkg, "src/modules");
-  const found =
-    existsSync(root) && statSync(root).isDirectory() ? root : null;
+  const found = existsSync(root) && statSync(root).isDirectory() ? root : null;
 
   moduleRootCache.set(pkg, found);
 
