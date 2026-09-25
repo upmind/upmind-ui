@@ -92,9 +92,9 @@ export const queryKey = ["module", "items"];
  * BOTH matrices flow through here: `ModulesContextTypes.CLIENT` and
  * `ModuleContextTypes.CLIENT` are the same enum VALUE
  * (`AccessRoleTypes.CLIENT`), so a manager scoped `.for('client', id)` is
- * retargeted by this comparison too, while a manager scoped
- * `.for('module-item', id)` falls through to the session — correct, because an
- * item context names the entity, not its owner.
+ * retargeted by this comparison too, while a manager with no context (a bare
+ * `.withId(id)`) falls through to the session — correct, because a record id
+ * names the entity, not its owner.
  *
  * A services file that ignores `scopeContext` and hardwires `activeUser` for
  * every call IS the FE-2824 defect. Do not "simplify" this away.

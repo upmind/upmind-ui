@@ -61,7 +61,7 @@ const { isReady, refresh } = list.useActions();
 await isReady();
 
 // --- manager (edit one item)
-const manager = useModuleManager().as("client").for("module-item", itemId);
+const manager = useModuleManager().as("client").withId(itemId);
 const { model, schema, uischema, errors, validationErrors } =
   manager.useContext();
 const { isValid, isDirty } = manager.useMeta();
@@ -78,7 +78,8 @@ const draft = useModuleManager().as("client").fresh();
 | --- | --- |
 | `useModules().as('self')` | The active session's own collection |
 | `useModules().as('staff').for('client', id)` | Staff reading a client's collection |
-| `useModuleManager().as('client').for('module-item', id)` | Edit one item; owner = the session's client |
+| `useModuleManager().as('client').withId(id)` | Edit one item; owner = the session's client |
+| `useModuleManager().as('staff').for('client', id).withId(itemId)` | Staff editing one of a named client's items |
 | `useModuleManager().as('client').fresh()` | A new item, isolated instance |
 | `useModuleManager().as('staff').for('client', id).fresh()` | Staff minting an item for a named client |
 
