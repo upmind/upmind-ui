@@ -1,5 +1,5 @@
 <template>
-  <FormField v-bind="fieldProps">
+  <FormField v-bind="formFieldProps">
     <!-- Field height (`lg` = Input's default h-9), and `self-start` so the
          group keeps its intrinsic width inside FormField's stretched column
          instead of spanning the form like a block. -->
@@ -41,7 +41,7 @@ import {
   useUpmindUIRenderer
 } from "@upmind/ui";
 import { computed } from "vue";
-import { find, get, isNil, map, omit, reject, toString } from "lodash-es";
+import { find, get, isNil, map, reject, toString } from "lodash-es";
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
@@ -123,22 +123,6 @@ const selected = computed(() => {
   if (isNil(data) || data === restValue.value) return undefined;
   return toString(data);
 });
-
-/**
- * `Form` merges the element's whole i18n block into its options (per-option
- * labels included), so `formFieldProps` carries a member keyed by each option
- * value. FormField spreads unrecognised props onto its root, and a numeric-enum
- * label key (`"0"`) is not a valid attribute name (`InvalidCharacterError`), so
- * the option keys are dropped here — the positions read their labels off
- * `control.options`, never this bag.
- */
-const fieldProps = computed(
-  () =>
-    omit(
-      formFieldProps.value,
-      map(options.value, option => toString(option.value))
-    ) as typeof formFieldProps.value
-);
 
 // --- methods
 
