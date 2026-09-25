@@ -36,7 +36,6 @@ import {
   ErrorOrigin,
   responseCodes
 } from "../../utils";
-import { ModuleContextTypes } from "./module.types";
 import type { ModuleScopeMatrix } from "./module.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
@@ -44,9 +43,9 @@ import type { ScopeConfig, ScopeKey } from "../scope";
  * @module module/useModuleManager
  * @description Scoped per-entity manager — a form editor backed by the shared
  * `dataManagerMachine`. One interpreter per concrete `(actor, context)` scope:
- * the item being edited comes from `.for('module-item', id)`, a new item is
- * minted with `.fresh()`, and `.for('client', id)` retargets the whole editor
- * at another client. Returns ONLY the four sub-composable factories — no
+ * the item being edited comes from `.withId(id)`, a new item is minted with
+ * `.fresh()`, and `.for('client', id)` retargets the whole editor at another
+ * client. Returns ONLY the four sub-composable factories — no
  * direct props.
  *
  * @doctrine clause 1 (uniform four-layer default) — identical return shape to
@@ -60,15 +59,12 @@ function createModuleManagerForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * The item being edited is carried by the scope context; absent (`.fresh()`,
-   * or a `.for('client', id)` scope) → a new item. Reading the id from the
-   * scope rather than an argument is what makes two concurrently-open editors
-   * two distinct registry entries instead of one shared machine.
+   * The item being edited is the builder's `.withId(id)`, never a `.for()`
+   * context; absent (`.fresh()`) → a new item. The id is part of the scope key,
+   * which is what makes two concurrently-open editors two distinct registry
+   * entries instead of one shared machine.
    */
-  const itemId =
-    config.context?.type === ModuleContextTypes.ITEM
-      ? config.context.id
-      : undefined;
+  const itemId = config.id;
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
@@ -85,8 +81,8 @@ function createModuleManagerForScope(config: ScopeConfig, scopeKey: ScopeKey) {
         id: itemId,
         /**
          * Identity, seeded from the ONE seam: `.for('client', id)` lands here
-         * as the resolved target; `.for('module-item', id)` and the bare self
-         * case fall through to the session's active user, which always supplies
+         * as the resolved target; with no context (a bare `.withId(id)` or the
+         * self case) it falls through to the session's active user, which always supplies
          * a client id. Never read `activeUser` directly in this file — that is
          * the FE-2824 shape.
          */
@@ -165,7 +161,7 @@ function createModuleManagerForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  * @example
  * ```ts
  * // Edit one existing item
- * const manager = useModuleManager().as('client').for('module-item', itemId)
+ * const manager = useModuleManager().as('client').withId(itemId)
  * await manager.useActions().isReady()
  * await manager.useActions().update({ name: 'new name' })
  *
@@ -174,6 +170,9 @@ function createModuleManagerForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  *
  * // Staff acting for another client
  * const forClient = useModuleManager().as('staff').for('client', clientId).fresh()
+ *
+ * // Staff editing one of that client's items
+ * const theirs = useModuleManager().as('staff').for('client', clientId).withId(itemId)
  * ```
  */
 export const useModuleManager = createScopedComposable<

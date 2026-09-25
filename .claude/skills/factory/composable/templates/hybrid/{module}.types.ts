@@ -92,29 +92,19 @@ export type ModulesScopeMatrix = typeof MODULES_SCOPE_MATRIX;
 
 /**
  * Context types for `module`'s per-entity MANAGER — a form editor over ONE
- * item. Two members, because the manager has two distinct things to address
- * and a scope carries exactly ONE `.for()` context (`scope.types.ts`
- * `ScopeConfig.context`):
+ * item. `.for()` always names ANOTHER entity the actor acts for — never this
+ * module's own record, which comes from `.withId(itemId)` (ADR-001, amendment
+ * 2026-09-15). With no context, the owner falls through to the session's
+ * active user, exactly as the collection's own `resolveClientId` seam does.
  *
- * - `ITEM` — edit an existing item: `.for('module-item', itemId)`. The owning
- *   client falls through to the session's active user (the self case), exactly
- *   as the collection's own `resolveClientId` seam does.
  * - `CLIENT` — act on a NAMED client's items: `.for('client', clientId)`,
  *   typically with `.fresh()` to mint a new one. This is the retargeting cell
  *   FE-2824 dropped; it is declared here, not omitted.
  *
- * @surfaced-finding ONE context per scope means a single manager instance
- * cannot simultaneously name a target client AND an item id — i.e.
- * "staff edits client X's item Y" has no expression in the platform today. Do
- * NOT silently drop that cell if this module's ADR-001 parity table names it:
- * surface it at Plan (the honest options are a composite context id, an
- * owner-resolving `loadOne`, or a platform change) and let the operator rule.
- * The live managers (`client-phone`, `client-address`) sidestep it by taking
- * `clientId` as a plain option, which is not available to a scoped composable.
+ * The two compose: `.for('client', clientId).withId(itemId)` edits client X's
+ * item Y. Add a member per OTHER entity this module's ADR-001 parity cells name.
  */
 export enum ModuleContextTypes {
-  /** Editing one existing item by id. */
-  ITEM = "module-item",
   /** Acting on a named client's items (retargeting; usually with `.fresh()`). */
   CLIENT = AccessRoleTypes.CLIENT
 }
@@ -124,16 +114,16 @@ export enum ModuleContextTypes {
  * two composables scope on different things, so they cannot share one matrix.
  *
  * The `as \`${ModuleContextTypes}\`` widening is the documented way to
- * declare a cell that accepts EITHER context type — `scope.types.ts`'s own
+ * declare a cell that accepts ANY context type the enum declares — `scope.types.ts`'s own
  * `ActorContextMatrix` example uses exactly this form. It is a widening to the
  * enum's string union, never an `as any`.
  */
 export const MODULE_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]:
-    ModuleContextTypes.ITEM as `${ModuleContextTypes}`,
+    ModuleContextTypes.CLIENT as `${ModuleContextTypes}`,
   [ScopeActorTypes.CLIENT]:
-    ModuleContextTypes.ITEM as `${ModuleContextTypes}`,
+    ModuleContextTypes.CLIENT as `${ModuleContextTypes}`,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
