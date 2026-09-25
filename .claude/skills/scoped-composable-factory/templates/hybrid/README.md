@@ -94,11 +94,11 @@ for an operator ruling; do not ship the module as if the cell did not exist.
 
 | Shared | Where | Why it matters |
 | --- | --- | --- |
-| Types + BOTH scope matrices | `module.types.ts` | One file, two matrices (`MODULES_SCOPE_MATRIX`, `MODULE_SCOPE_MATRIX`) — the composables scope on different things and cannot share one |
+| Types + BOTH scope matrices | `module.types.ts` | One file, two matrices (`MODULE_SCOPE_MATRIX`, `MODULE_MANAGER_SCOPE_MATRIX`) — the composables scope on different things and cannot share one |
 | Services factory | `module.services.ts` → `createModuleServices(actor, context)` | Each composable calls it ONCE with its OWN resolved scope; the collection uses `loadList`, the manager uses `loadOne`/`add`/`update`/`ensure`/`validate`/`refresh` |
 | Identity seam | `resolveClientId()` in `module.services.ts` | The single place a target client is derived. `.for('client', id)` wins; the session's `activeUser` supplies the self case. The manager seeds its machine from `service.clientId` — never a second session read (that is the FE-2824 shape) |
 | Cache key | `queryKey` in `module.services.ts` | The manager's mutations invalidate it; that, and nothing else, is how a save refreshes the collection. Neither composable holds a reference to the other's instance |
-| Mappers | `module.mappers.ts` | `map{Module}s`/`map{Module}` inbound (both halves), `mapI{Module}` outbound (manager only) |
+| Mappers | `module.mappers.ts` | `mapModuleItems`/`mapModuleItem` inbound (both halves), `mapModuleRequestData` outbound (manager only) |
 | Schemas | `module.schemas.ts` | Consumed ONLY by the manager's machine config (`setSchemas`) and by `validate`. Never re-exported bare from `index.ts` — consumers read them off `useModuleManager().useContext()` |
 
 ## Actor Arms
@@ -113,7 +113,7 @@ its arms are the same pattern under the manager's own filenames
 `.meta.{actor}.ts`), and each manager layer already carries the merge-seam
 comment showing where the spread goes. Services and schemas are shared by both
 halves, so their single arm serves both. See
-`.claude/skills/factory/composable/templates/ARMS.md` for the full
+`.claude/skills/scoped-composable-factory/templates/ARMS.md` for the full
 when/how/checker-gate decision tree; do not scaffold an arm un-earned.
 
 ## File Layout
@@ -122,10 +122,10 @@ when/how/checker-gate decision tree; do not scaffold an arm un-earned.
 module/
 ├── module.types.ts                 # BOTH scope matrices + shared item/model/service contracts
 ├── module.services.ts              # BOTH halves' services + the machine services adapter
-├── module.services.{actor}.ts      # opt-in — see .claude/skills/factory/composable/templates/ARMS.md
-├── module.mappers.ts               # inbound (both) + mapI{Module} (manager)
+├── module.services.{actor}.ts      # opt-in — see .claude/skills/scoped-composable-factory/templates/ARMS.md
+├── module.mappers.ts               # inbound (both) + mapModuleRequestData (manager)
 ├── module.schemas.ts               # consumed by the manager's machine config only
-├── module.schemas.{actor}.ts       # opt-in — see .claude/skills/factory/composable/templates/ARMS.md
+├── module.schemas.{actor}.ts       # opt-in — see .claude/skills/scoped-composable-factory/templates/ARMS.md
 │
 ├── useModules.ts                    # --- collection half (query-backed)
 ├── useModules.actions.ts
@@ -147,14 +147,14 @@ module/
 └── README.md            # this file
 ```
 
-(`.claude/skills/factory/composable/templates/ARMS.md` /
-`.claude/skills/factory/composable/templates/NOT-APPLICABLE.md` are this
+(`.claude/skills/scoped-composable-factory/templates/ARMS.md` /
+`.claude/skills/scoped-composable-factory/templates/NOT-APPLICABLE.md` are this
 template set's own factory-authoring guidance — they are not copied into a built
 module.)
 
 No `module.machine.ts` — the manager configures the SHARED `dataManagerMachine`
 rather than owning one (see
-`.claude/skills/factory/composable/templates/NOT-APPLICABLE.md`).
+`.claude/skills/scoped-composable-factory/templates/NOT-APPLICABLE.md`).
 
 ## Dependencies
 

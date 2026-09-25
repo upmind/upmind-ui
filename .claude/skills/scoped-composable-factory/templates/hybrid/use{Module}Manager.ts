@@ -36,8 +36,8 @@ import {
   ErrorOrigin,
   responseCodes
 } from "../../utils";
-import { ModuleContextTypes } from "./module.types";
-import type { ModuleScopeMatrix } from "./module.types";
+import { ModuleManagerContextTypes } from "./module.types";
+import type { ModuleManagerScopeMatrix } from "./module.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
@@ -66,7 +66,7 @@ function createModuleManagerForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    * two distinct registry entries instead of one shared machine.
    */
   const itemId =
-    config.context?.type === ModuleContextTypes.ITEM
+    config.context?.type === ModuleManagerContextTypes.ITEM
       ? config.context.id
       : undefined;
 
@@ -178,7 +178,8 @@ function createModuleManagerForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  */
 export const useModuleManager = createScopedComposable<
   ReturnType<typeof createModuleManagerForScope>,
-  ModuleScopeMatrix
+  ModuleManagerScopeMatrix
 >("module", createModuleManagerForScope);
 
+// Type export for consumers
 export type UseModuleManager = ReturnType<typeof useModuleManager>;

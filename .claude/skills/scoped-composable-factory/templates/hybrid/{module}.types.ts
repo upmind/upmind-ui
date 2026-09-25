@@ -27,23 +27,17 @@
  */
 
 import { AccessRoleTypes } from "@upmind-automation/types";
-// The wire type is the generated one — never hand-minted here. If
-// `@upmind-automation/types` has no `I{Module}` yet, that is a types-package
-// story to raise at Plan, not a placeholder to mint in this file.
-import type { I{Module} } from "@upmind-automation/types";
-// `SortDirection` is read at MODULE scope below (`DEFAULT_SORT`), so it comes
-// in as a VALUE import, never `import type`.
-import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { ListQuery, QueryParams } from "../query";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module module/module.types
  * @description Replace this line with the module's job to be done — the
- * factory intake's first answer. Never ship
+ * factory intake's first answer (`docs/sdd/<ID>/requirements.md`). Never ship
  * this placeholder description.
  *
  * HYBRID VARIANT — this one file carries the types for BOTH composables:
@@ -66,7 +60,7 @@ import type { AnyEventObject } from "xstate";
  * @doctrine clause 3 (per-actor arm ONLY for exclusive/overriding members) —
  * fix only the contexts this module's ADR-001 parity table actually needs.
  */
-export enum ModulesContextTypes {
+export enum ModuleContextTypes {
   /** Acting on a client's collection — rename/replace per this module's ADR-001 parity cells. */
   CLIENT = AccessRoleTypes.CLIENT
 }
@@ -78,15 +72,15 @@ export enum ModulesContextTypes {
  * @precedent `client-email/client-email.types.ts`
  * `CLIENT_EMAILS_SCOPE_MATRIX`.
  */
-export const MODULES_SCOPE_MATRIX = {
+export const MODULE_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
-  [ScopeActorTypes.STAFF]: ModulesContextTypes.CLIENT,
-  [ScopeActorTypes.CLIENT]: ModulesContextTypes.CLIENT,
+  [ScopeActorTypes.STAFF]: ModuleContextTypes.CLIENT,
+  [ScopeActorTypes.CLIENT]: ModuleContextTypes.CLIENT,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
 /** Collection scope matrix type (derived from the runtime const above). */
-export type ModulesScopeMatrix = typeof MODULES_SCOPE_MATRIX;
+export type ModuleScopeMatrix = typeof MODULE_SCOPE_MATRIX;
 
 // --- MANAGER SCOPE (hybrid half two) ----------------------------------------
 
@@ -112,7 +106,7 @@ export type ModulesScopeMatrix = typeof MODULES_SCOPE_MATRIX;
  * The live managers (`client-phone`, `client-address`) sidestep it by taking
  * `clientId` as a plain option, which is not available to a scoped composable.
  */
-export enum ModuleContextTypes {
+export enum ModuleManagerContextTypes {
   /** Editing one existing item by id. */
   ITEM = "module-item",
   /** Acting on a named client's items (retargeting; usually with `.fresh()`). */
@@ -123,38 +117,72 @@ export enum ModuleContextTypes {
  * Manager scope matrix (runtime value). Separate from the collection's: the
  * two composables scope on different things, so they cannot share one matrix.
  *
- * The `as \`${ModuleContextTypes}\`` widening is the documented way to
+ * The `as \`${ModuleManagerContextTypes}\`` widening is the documented way to
  * declare a cell that accepts EITHER context type — `scope.types.ts`'s own
  * `ActorContextMatrix` example uses exactly this form. It is a widening to the
  * enum's string union, never an `as any`.
  */
-export const MODULE_SCOPE_MATRIX = {
+export const MODULE_MANAGER_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]:
-    ModuleContextTypes.ITEM as `${ModuleContextTypes}`,
+    ModuleManagerContextTypes.ITEM as `${ModuleManagerContextTypes}`,
   [ScopeActorTypes.CLIENT]:
-    ModuleContextTypes.ITEM as `${ModuleContextTypes}`,
+    ModuleManagerContextTypes.ITEM as `${ModuleManagerContextTypes}`,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
 /** Manager scope matrix type (derived from the runtime const above). */
-export type ModuleScopeMatrix = typeof MODULE_SCOPE_MATRIX;
+export type ModuleManagerScopeMatrix = typeof MODULE_MANAGER_SCOPE_MATRIX;
 
 /**
- * One item in the module's collection — the view-model `map{Module}`
- * (`module.mappers.ts`) shapes from the wire type `I{Module}`
- * (`@upmind-automation/types`). Replace the fields with the real view-model.
+ * One item in the module's collection — replace with the real view-model.
  * No machine-context type exists in the query variant — the query itself IS
  * the state (`code-composables.md` Part B "State Machine vs TanStack Query").
  */
-export type {Module} = {
+export type ModuleItem = {
   id: string;
   /**
-   * Present because `use{Module}s.context.{actor}.ts`'s own client-exclusive
+   * Present because `use{Module}.context.{actor}.ts`'s own client-exclusive
    * `entitlements` computed reads it. Replace with the module's real
    * per-item fields at intake.
    */
   entitlements?: string[];
+};
+
+/**
+ * Placeholder wire shape for the list endpoint's raw response item — replace
+ * with the module's real request/response type.
+ * @doctrine `code-typescript.companion.md` "Types-module suffix" — types live
+ * in `*.types.ts`, never inline in a services/mappers file.
+ * @precedent `client-email/client-email.types.ts`'s `IEmail` import (the
+ * wire type comes from `@upmind-automation/types` there; this skeleton has no
+ * such generated type to cite, so `ModuleWireItem` stands in for it).
+ */
+export type ModuleWireItem = {
+  id: string;
+};
+
+/**
+ * The CLIENT surface's shape for the same record. This actor's arm reads
+ * collection from `clients/{id}/module-items`, which returns everything
+ * the shared read does PLUS its own extra fields — so it needs its own
+ * wire type and its own mapper (`mapClientModuleItems`, `module.mappers.ts`).
+ * Replace the illustrative extras with this module's real client-only fields.
+ */
+export type ClientModuleWireItem = ModuleWireItem & {
+  internal_notes?: string;
+  flagged_by?: string;
+};
+
+/**
+ * The view-model half of the pair. `mapClientModuleItems` maps
+ * `ClientModuleWireItem` to this; the arm's `loadList` names both as its
+ * `list<Wire[], View[]>` generics. A wire type without its view-model half does
+ * not build — add them together.
+ */
+export type ClientModuleItem = ModuleItem & {
+  internalNotes?: string;
+  flaggedBy?: string;
 };
 
 // --- Add the module's form/request/response model types below this line.
@@ -199,8 +227,8 @@ export type ModuleServices = {
    * @doctrine clause 3 — "overriding the shared implementation".
    */
   loadList: (
-    params?: Partial<QueryParams<I{Module}[], {Module}[]>>
-  ) => ListQuery<I{Module}[], {Module}[]>;
+    params?: Partial<QueryParams<ModuleWireItem[], ModuleItem[]>>
+  ) => ListQuery<ModuleWireItem[], ModuleItem[]>;
   /**
    * MANAGER MEMBER — per-entity read; the collection half never calls it.
    * Seeds the manager's initial model when the collection query has not been
@@ -208,20 +236,20 @@ export type ModuleServices = {
    * through the SAME `resolveClientId` seam as every other member, so
    * `.for('client', id)` retargets it too.
    */
-  loadOne: (id?: {Module}["id"]) => Promise<{Module} | undefined>;
+  loadOne: (id?: ModuleItem["id"]) => Promise<ModuleItem | undefined>;
   /** MANAGER MEMBER — creates an item, then invalidates the collection key. */
-  add: (model: ModuleModel) => Promise<I{Module} | undefined>;
+  add: (model: ModuleModel) => Promise<ModuleWireItem | undefined>;
   /** MANAGER MEMBER — updates an item, then invalidates the collection key. */
   update: (
-    id: {Module}["id"],
+    id: ModuleItem["id"],
     model: ModuleModel
-  ) => Promise<I{Module} | undefined>;
+  ) => Promise<ModuleWireItem | undefined>;
   /**
    * MANAGER MEMBER — find-or-create. The shared machine's `adding` state
    * invokes this instead of `add` when the module's parity table names an
    * idempotent create (`client-email`'s own `ensure` is the live precedent).
    */
-  ensure: (model: ModuleModel) => Promise<{Module}>;
+  ensure: (model: ModuleModel) => Promise<ModuleItem>;
   /**
    * MANAGER MEMBER — schema validation, rejecting with a `DetailedError` whose
    * `data` carries the AJV errors. The shared machine's `setError` action lands
@@ -266,58 +294,17 @@ export type ModuleServices = {
   registerAsGuest?: () => Promise<unknown>;
 };
 
-// --- The criteria models — the module's ONE request-state type -------------
-//
-// The queryCriteria schema owns ALL request state: filters, sort, pagination,
-// limit. These types are the shape `useQuerySchema()` validates, and the ONLY
-// legal route to the wire is `list({ criteria: { schema: useQuerySchema() } })`
-// in `module.services.ts`. A hand-rolled filter ref beside that channel, or a
-// raw sort string where `SortEntry["field"]` belongs, is the
-// criteria-subversion defect the door names.
-//
-// CONCRETISE all three for the real module: one property per filter the oracle
-// supports, and `SortEntry["field"]` narrowed to this module's OWN sortable
-// enum — the same list `useQuerySchema()`'s `sort.items.properties.field.enum`
-// declares. A bare `string` lets an unschematised field compile and reach ajv
-// only to be discarded silently on write.
-
 /**
- * The module's ONE request-state model — the instance validated against
- * `useQuerySchema()`. The query layer's translator maps it to the wire params.
+ * The common type `scopedSchemas()` in `module.schemas.ts` resolves to — same
+ * role as `ModuleServices` above, for the schemas layer. The three parsers are
+ * required because the shared factory always supplies them; an arm overriding
+ * one types its own export as `Partial<ModuleSchemas>`.
  */
-export type QueryModel = {
-  filters?: {
-    name?: { like?: string };
-  };
-  sort?: SortEntry[];
-  // `offset` alone is unspellable: an offset with no known page size cannot be
-  // resolved against a `limit: 0` (unpaged) collection without producing a NaN
-  // page index. `limit` alone stays legal — it is the module's documented
-  // page-size door, `setCriteria({ pagination: { limit } })`.
-  pagination?:
-    | { limit?: number; offset?: never }
-    | { limit: number; offset?: number };
+export type ModuleSchemas = {
+  useSchema: () => JsonSchema7;
+  useUischema: () => UISchemaElement;
+  useModuleModelParser: (model?: ModuleModel) => ModuleModel;
 };
-
-/** The nested filter model — the `filters` branch of {@link QueryModel}. */
-export type FilterModel = NonNullable<QueryModel["filters"]>;
-
-/**
- * One sort entry. Precedence is position — the first entry sorts first.
- * NARROW `field` to this module's own sortable enum; never leave it `string`.
- */
-export type SortEntry = { field: "name" | "created_at"; dir: SortDirection };
-
-/** The ordered sort model — the `sort` branch of {@link QueryModel}. */
-export type SortModel = NonNullable<QueryModel["sort"]>;
-
-/**
- * The order the list starts in. Declared as the query schema's `sort` default,
- * so an emptied sort refills itself on the next parse.
- */
-export const DEFAULT_SORT: SortModel = [
-  { field: "created_at", dir: SortDirection.ASC }
-];
 
 /**
  * The reactive list query. Minted ONCE per scope in `useModules.ts` and passed
@@ -329,7 +316,7 @@ export const DEFAULT_SORT: SortModel = [
  * verbatim (`modules/query/query.types.ts`). Platform seams law:
  * `code-composables.companion.md` "Platform seams every composable consumes".
  */
-export type ModuleListQuery = ListQuery<I{Module}[], {Module}[]>;
+export type ModuleListQuery = ListQuery<ModuleWireItem[], ModuleItem[]>;
 
 // -----------------------------------------------------------------------------
 // MANAGER (hybrid half two — the `dataManagerMachine`-backed form editor)

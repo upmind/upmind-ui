@@ -18,15 +18,14 @@
 import { computed } from "vue";
 import { useQuery, invalidateQueryByKey } from "../query";
 import { ScopeActorTypes } from "../scope";
-import { useQuerySchema } from "./module.schemas";
 import { useActiveSession } from "../session-store";
 import {
-  map{Module},
-  map{Module}s,
-  mapI{Module}
+  mapModuleItem,
+  mapModuleItems,
+  mapModuleRequestData
 } from "./module.mappers";
 import { useSchema } from "./module.schemas";
-import { ModulesContextTypes } from "./module.types";
+import { ModuleContextTypes } from "./module.types";
 import {
   useTime,
   useCollection,
@@ -41,15 +40,14 @@ import {
 import { isEmpty, omitBy } from "lodash-es";
 import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
-import type { QueryModel } from "./module.types";
 import type {
   ModuleContext,
-  {Module},
+  ModuleItem,
   ModuleManagerMachineServices,
   ModuleModel,
-  ModuleServices
+  ModuleServices,
+  ModuleWireItem
 } from "./module.types";
-import type { I{Module} } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
@@ -89,8 +87,8 @@ export const queryKey = ["module", "items"];
  * resolved, never the actor, so it is not a branch on `ScopeActorTypes.SELF`
  * (clause 4 / `scope-based/no-self-branch`).
  *
- * BOTH matrices flow through here: `ModulesContextTypes.CLIENT` and
- * `ModuleContextTypes.CLIENT` are the same enum VALUE
+ * BOTH matrices flow through here: `ModuleContextTypes.CLIENT` and
+ * `ModuleManagerContextTypes.CLIENT` are the same enum VALUE
  * (`AccessRoleTypes.CLIENT`), so a manager scoped `.for('client', id)` is
  * retargeted by this comparison too, while a manager scoped
  * `.for('module-item', id)` falls through to the session — correct, because an
@@ -103,7 +101,7 @@ function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ModulesContextTypes.CLIENT
+    scopeContext?.type === ModuleContextTypes.CLIENT
       ? scopeContext.id
       : activeUser.value?.id
   );
@@ -116,7 +114,7 @@ function resolveClientId(scopeContext?: ScopeContext) {
  * expected shape, not an exception. See `module.services.{actor}.ts`.
  */
 function loadList(
-  params: Partial<QueryParams<I{Module}[], {Module}[]>> = {
+  params: Partial<QueryParams<ModuleWireItem[], ModuleItem[]>> = {
     pagination: { limit: 0 }
   },
   scopeContext?: ScopeContext
@@ -125,15 +123,8 @@ function loadList(
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<I{Module}[], {Module}[], QueryModel>({
+  return list<ModuleWireItem[], ModuleItem[]>({
     ...params,
-    // THE criteria channel. The module's query schema owns ALL request state —
-    // filters, sort, pagination, limit — and `list()` builds the wire params
-    // from it. Nothing else may reach the wire: a hand-rolled filter ref, a
-    // `filter[...]` string or a raw sort/limit literal beside this line is the
-    // criteria-subversion defect (door SKILL.md). Deleting this line strips the
-    // module's whole filter/sort/page surface and the page that renders off it.
-    criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId.value }],
     url: useUrl(`clients/${clientId.value}/module-items`),
     // `enabled:` below only stops the query starting; this rejects a `refetch()`
@@ -148,7 +139,7 @@ function loadList(
         }
       }),
     withAccessToken: true,
-    select: map{Module}s,
+    select: mapModuleItems,
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () => isAuthenticated.value && !!clientId.value
@@ -165,9 +156,9 @@ function loadList(
  * `loading` state awaits it.
  */
 async function loadOne(
-  id?: {Module}["id"],
+  id?: ModuleItem["id"],
   scopeContext?: ScopeContext
-): Promise<{Module} | undefined> {
+): Promise<ModuleItem | undefined> {
   if (!id) return undefined;
 
   const { isAuthenticated } = useActiveSession().useMeta();
@@ -178,10 +169,10 @@ async function loadOne(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  return get<I{Module}, {Module}>({
+  return get<ModuleWireItem, ModuleItem>({
     queryKey: [...queryKey, { client: clientId.value }, id],
     url: useUrl(`clients/${clientId.value}/module-items/${id}`),
-    select: map{Module},
+    select: mapModuleItem,
     withAccessToken: true
   });
 }
@@ -190,7 +181,7 @@ async function loadOne(
 async function add(
   model: ModuleModel,
   scopeContext?: ScopeContext
-): Promise<I{Module} | undefined> {
+): Promise<ModuleWireItem | undefined> {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { post, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
@@ -199,20 +190,20 @@ async function add(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  return post<I{Module}>({
+  return post<ModuleWireItem>({
     mutationKey: [...queryKey, "add"],
     url: useUrl(`clients/${clientId.value}/module-items`),
-    data: mapI{Module}(model),
+    data: mapModuleRequestData(model),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 /** MANAGER SERVICE — update. Invalidates the shared key so the list refetches. */
 async function update(
-  id: {Module}["id"],
+  id: ModuleItem["id"],
   model: ModuleModel,
   scopeContext?: ScopeContext
-): Promise<I{Module} | undefined> {
+): Promise<ModuleWireItem | undefined> {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { put, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
@@ -221,10 +212,10 @@ async function update(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  return put<I{Module}>({
+  return put<ModuleWireItem>({
     mutationKey: [...queryKey, id],
     url: useUrl(`clients/${clientId.value}/module-items/${id}`),
-    data: mapI{Module}(model),
+    data: mapModuleRequestData(model),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
@@ -238,12 +229,12 @@ async function update(
 async function ensure(
   model: ModuleModel,
   scopeContext?: ScopeContext
-): Promise<{Module}> {
+): Promise<ModuleItem> {
   const query = loadList(undefined, scopeContext);
   await query.promise.value.finally();
 
-  const { findOne } = useCollection<{Module}>(query.data);
-  const found = findOne(omitBy(model, isEmpty) as Partial<{Module}>);
+  const { findOne } = useCollection<ModuleItem>(query.data);
+  const found = findOne(omitBy(model, isEmpty) as Partial<ModuleItem>);
   if (found) return found;
 
   return add(model, scopeContext).then(raw => {
@@ -255,7 +246,7 @@ async function ensure(
         { model }
       );
     }
-    return map{Module}(raw as I{Module});
+    return mapModuleItem(raw as ModuleWireItem);
   });
 }
 
