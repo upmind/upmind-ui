@@ -327,9 +327,9 @@ Feature: A client manages their own contracts
 
   @FE-3029 @manager @member
   Scenario: When my payment-method change finishes I am told it is done
-    Given I have a contract of mine open in the manager
-    When I point it at a different stored card and wait for the change to finish
-    Then I am told the change is done
+    Given I have the payment-method form open on one of my contracts, with a different card chosen
+    When I submit the payment-method form and wait to be told the change is done
+    Then I am told it is done only once the change has landed, never while it is still being sent
 
   @FE-3029 @manager @member
   Scenario: A payment-method choice outside my stored cards is not sent and tells me why
@@ -343,3 +343,17 @@ Feature: A client manages their own contracts
     Given I have the payment-method form open on one of my contracts
     When I choose a different stored card and submit the form at once
     Then my contract is pointed at the card I chose, not the one it had
+
+  @FE-3029 @manager @member
+  Scenario: With no payment-method change under way I am not told a change is done
+    Given I have the payment-method form open on one of my contracts and send no change
+    When I wait to be told a payment-method change is done
+    Then I am not told it is done
+
+  # KNOWN GAP (D90): no recorded contract read carries a status code outside the seven the platform publishes.
+  @FE-3029 @manager @member @todo
+  Scenario: A contract read whose status is none I know settles on an error instead of a state
+    Given reading one of my contracts returns a status that is not one of the known contract statuses
+    When I look at my contract
+    Then it has stopped loading and reports an error
+    And I am told at once that it is not ready

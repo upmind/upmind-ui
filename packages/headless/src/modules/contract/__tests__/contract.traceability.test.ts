@@ -280,6 +280,16 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     line: 342,
     text: "Scenario: A card I choose and submit straight away is the one that is sent",
     disposition: "proves"
+  },
+  {
+    line: 348,
+    text: "Scenario: With no payment-method change under way I am not told a change is done",
+    disposition: "proves"
+  },
+  {
+    line: 355,
+    text: "Scenario: A contract read whose status is none I know settles on an error instead of a state",
+    disposition: "gap"
   }
 ];
 

@@ -279,6 +279,9 @@ describe("useContract — a read that fails settles on the error node (D43)", ()
   });
 });
 
+// KNOWN GAP (D90) @gap contract.feature:355 — no recorded contract read carries a
+// status code outside the seven published ones, and a hand-built body is barred.
+
 describe("useContract — the one payment-method form keeps the template action names (R37)", () => {
   // @proves contract.feature:302
   it("A stored card I choose in the payment-method form is taken in and checked", async () => {
@@ -375,14 +378,47 @@ describe("useContract — the one payment-method form keeps the template action 
 
   // @proves contract.feature:329
   it("When my payment-method change finishes I am told it is done", async () => {
-    const { manager, row } = await openManager();
+    const { manager, row } = await openForm();
     const card = otherCard(row);
-    capturePaymentMethodWrites(row);
+    const held = gate();
+    capturePaymentMethodWrites(row, held.wait);
+    await manager.useActions().input({ paymentDetailsId: card });
+    await awaitModel(manager, card);
+    await vi.waitFor(() => expect(manager.useMeta().isValid.value).toBe(true));
+
+    const submitted = manager.useActions().update();
+    await vi.waitFor(() =>
+      expect(manager.useMeta().isProcessing.value).toBe(true)
+    );
+    const done = manager.useActions().onDone();
+
+    expect(
+      await settledWithin(
+        done.then(() => "settled"),
+        500,
+        "pending"
+      )
+    ).toBe("pending");
+
+    held.open();
+    await submitted;
+    expect(await settledWithin(done, 5000, false)).toBe(true);
+  });
+
+  // @proves contract.feature:348
+  it("With no payment-method change under way I am not told a change is done", async () => {
+    const { manager } = await openForm();
+    expect(manager.useMeta().isProcessing.value).toBe(false);
 
     const done = manager.useActions().onDone();
-    await manager.useActions().setPaymentMethod({ paymentDetailsId: card });
 
-    expect(await settledWithin(done, 5000, false)).toBe(true);
+    expect(
+      await settledWithin(
+        done.then(() => "settled"),
+        1000,
+        "pending"
+      )
+    ).toBe("pending");
   });
 
   // @proves contract.feature:335
