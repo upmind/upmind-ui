@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/client",
-  "version": "0.20.17",
+  "version": "0.20.18",
   "description": "Upmind client domain package — addresses · emails · companies · phones.",
   "type": "module",
   "license": "UNLICENSED",
@@ -22,8 +22,7 @@
   "dependencies": {
     "@upmind/ui": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
-    "@upmind-automation/foundation": "workspace:*",
-    "@upmind-automation/auth": "workspace:*"
+    "@upmind-automation/foundation": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.0.0"

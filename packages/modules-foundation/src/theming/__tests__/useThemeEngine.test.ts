@@ -11,7 +11,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readInChildOfProvider } from "../../__tests__/component-context";
 import { provideThemeEngine, useThemeEngine } from "../../index";
-import type { ThemeEngine } from "../../index";
+import type { ThemeEngine } from "../theming.types";
 
 vi.mock("@upmind-automation/headless", async () => {
   const { createHeadlessStub } = await import("../../__tests__/headless.stub");

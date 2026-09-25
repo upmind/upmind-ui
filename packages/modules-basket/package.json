@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/basket",
-  "version": "0.20.17",
+  "version": "0.20.18",
   "description": "Upmind basket domain package — in-flight order: basketProduct · billing · promo · currency · checkout flow.",
   "type": "module",
   "license": "UNLICENSED",
@@ -24,10 +24,7 @@
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
     "@upmind-automation/product": "workspace:*",
-    "@upmind-automation/recommendations": "workspace:*",
-    "@upmind-automation/auth": "workspace:*",
-    "@upmind-automation/payment": "workspace:*",
-    "@upmind-automation/invoice": "workspace:*"
+    "@upmind-automation/payment": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.0.0"

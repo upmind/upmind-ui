@@ -1,10 +1,6 @@
 import { computed } from "vue";
 import { useBrand, useConfig } from "@upmind-automation/headless";
-import {
-  cachedBrandIds,
-  ensureBrandConfig,
-  invalidateBrandConfig
-} from "./brand.cache";
+import { ensureBrandConfig } from "./brand.cache";
 import type { BrandConfig, BrandConfigMeta } from "./brand.types";
 
 export const useBrandConfig = () => {
@@ -49,11 +45,7 @@ export const useBrandConfig = () => {
 
     id: computed(() => brandId.value),
 
-    config,
-
-    cachedIds: cachedBrandIds,
-
-    invalidate: invalidateBrandConfig
+    config
   };
 };
 

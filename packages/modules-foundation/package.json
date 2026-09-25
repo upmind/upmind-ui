@@ -1,11 +1,10 @@
 {
   "name": "@upmind-automation/foundation",
-  "version": "0.20.17",
-  "description": "Upmind foundation domain package — brand · system · theming-glue · feedback · app-wiring.",
+  "version": "0.20.18",
+  "description": "Upmind foundation domain package — brand · theming-glue · app-wiring.",
   "type": "module",
   "license": "UNLICENSED",
   "sideEffects": [
-    "**/feature.ts",
     "**/*.css"
   ],
   "main": "./src/index.ts",

@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/product",
-  "version": "0.20.17",
+  "version": "0.20.18",
   "description": "Upmind product domain package — read · configure · seat + the shared product rendering kit.",
   "type": "module",
   "license": "UNLICENSED",

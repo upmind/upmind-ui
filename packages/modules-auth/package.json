@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/auth",
-  "version": "0.20.17",
+  "version": "0.20.18",
   "description": "Upmind auth domain package — login · register · 2FA · recover (the session module).",
   "type": "module",
   "license": "UNLICENSED",

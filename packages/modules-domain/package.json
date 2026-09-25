@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/domain",
-  "version": "0.20.17",
+  "version": "0.20.18",
   "description": "Upmind domain domain package — domain search / DAC and its renderers (optional package).",
   "type": "module",
   "license": "UNLICENSED",

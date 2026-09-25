@@ -9,9 +9,9 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent } from "vue";
+import { defineComponent, provide } from "vue";
 import { readInChildOfProvider } from "../../__tests__/component-context";
-import { provideFormRenderers, useFormRenderers } from "../../index";
+import { FORM_RENDERERS, useFormRenderers } from "../../index";
 import type { FormRendererEntry } from "../../index";
 
 vi.mock("@upmind-automation/headless", async () => {
@@ -41,7 +41,7 @@ describe("useFormRenderers", () => {
     const provided = entry(2);
 
     const renderers = readInChildOfProvider(
-      () => provideFormRenderers([provided]),
+      () => provide(FORM_RENDERERS, [provided]),
       () => useFormRenderers().renderers
     );
 
@@ -52,7 +52,7 @@ describe("useFormRenderers", () => {
     const provided = [entry(1), entry(2)];
 
     const renderers = readInChildOfProvider(
-      () => provideFormRenderers(provided),
+      () => provide(FORM_RENDERERS, provided),
       () => useFormRenderers().renderers
     );
 
