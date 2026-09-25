@@ -1,56 +1,47 @@
 Negative control for useContract.actions.ts `onDone` (R37 B9).
 
 Spec that must flip: contract.manager-members.int.test.ts
-("resolves onDone() true once a payment-method write settles") — awaits
-`useActions().onDone()` after a write and expects true once the write leaves
-`changingPaymentMethod.processing` (either status parent) and settles on
-`available` or `unavailable`.
+("When my payment-method change finishes I am told it is done",
+contract.feature:329) — awaits `useActions().onDone()` across a
+payment-method write and expects it to resolve true only once that write
+finishes, never while the form is idle.
 
-Mutation: drops the `onDone` action entirely, so no member exists to await a
-write's settle.
+Mutation: keeps the `onDone` member but resolves true at once, without
+waiting for a write to leave `changingPaymentMethod.processing`.
 
 diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
 --- a/packages/headless/src/modules/contract/useContract.actions.ts
 +++ b/packages/headless/src/modules/contract/useContract.actions.ts
-@@ -50,29 +50,6 @@
+@@ -60,31 +60,7 @@
+    *   the re-read, from either parent; false if the machine stops first.
     */
-   async function isReady(): Promise<boolean> {
-     return waitForProcessing(service, ["available", "unavailable"], "error");
--  }
--
--  /**
--   * Resolves once a payment-method write leaves `changingPaymentMethod.processing`,
--   * from either parent.
--   * @returns true once settled on `available` or `unavailable`; false on
--   *   `error`, on `done`, or if it never settled.
--   */
--  function onDone(): Promise<boolean> {
--    const transient = [
+   function onDone(): Promise<boolean> {
+-    const processing = [
 -      "available.changingPaymentMethod.processing",
 -      "unavailable.changingPaymentMethod.processing"
 -    ];
+-    const failed = [
+-      "available.changingPaymentMethod.available.error",
+-      "unavailable.changingPaymentMethod.available.error"
+-    ];
+-    let writing = false;
 -
 -    return waitFor(
 -      service,
--      s =>
--        !stateMatches(s, transient) &&
--        (stateMatches(s, ["available", "unavailable", "error"]) || s.done),
--      { timeout: 60_000 }
+-      s => {
+-        if (s.done) return true;
+-        if (stateMatches(s, processing)) {
+-          writing = true;
+-          return false;
+-        }
+-        if (writing && stateMatches(s, failed)) writing = false;
+-        return writing;
+-      },
+-      { timeout: Infinity }
 -    )
--      .then(s => !s.done && stateMatches(s, ["available", "unavailable"]))
+-      .then(s => !s.done)
 -      .catch(() => false);
++    return Promise.resolve(true);
    }
  
    /**
-@@ -277,11 +254,6 @@
-     /**
-      * @scenario-include
-      */
--    onDone,
--
--    /**
--     * @scenario-include
--     */
-     openPaymentMethod,
- 
-     /**

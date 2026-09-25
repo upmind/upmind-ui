@@ -1,14 +1,16 @@
 Negative control for contract.machine.ts top-level `error` node (D43 B14).
 
-Spec that must flip: contract.manager-members.int.test.ts
-(the "a read that fails settles on the error node" block) — asserts a
-failed `load` (or an unrecognised status) settles the machine on the
-top-level `error` state, and that a subsequent `REFRESH` leaves it back to
-`loading`.
+Specs that must flip: contract.manager-members.int.test.ts
+("A failed read of my contract stops loading and settles on an error instead
+of hanging", contract.feature:283; "A failed read tells me at once that my
+contract is not ready", contract.feature:289) — a failed `load` must leave
+`isLoading` false with `hasError` true, and `isReady()` must resolve false
+at once.
 
 Mutation: drops the `error` state node and re-targets `loading`'s invoke
 `onError` and the `isUnrecognised` branch back to leaving the machine parked
-in `loading` (no target), reproducing the pre-restore drift.
+in `loading` (no target). Only the failed-`load` half is asserted; no spec
+yet drives an unrecognised status code.
 
 diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
 --- a/packages/headless/src/modules/contract/contract.machine.ts

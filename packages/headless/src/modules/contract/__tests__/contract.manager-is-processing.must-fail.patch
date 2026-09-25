@@ -1,10 +1,9 @@
-Negative control for useContract.meta.ts `isProcessing` rename (R37 B11).
+Negative control for useContract.meta.ts `isProcessing` (R37 B11).
 
 Spec that must flip: contract.manager-members.int.test.ts
-("every payment-method write runs through the one processing flag") — asserts
-`useContract().useMeta().isProcessing` (the template name) is true on
-`available.changingPaymentMethod.processing` and
-`unavailable.changingPaymentMethod.processing`.
+("While my payment-method change is being sent I am told it is in
+progress", contract.feature:322) — expects `useMeta().isProcessing` false
+before the submit, true while the write is held, false once it lands.
 
 Mutation: reverts the meta flag back to the pre-restore `isSubmitting` name.
 

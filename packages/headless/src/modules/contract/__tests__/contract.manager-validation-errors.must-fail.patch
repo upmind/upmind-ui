@@ -1,12 +1,12 @@
 Negative control for useContract.context.ts `validationErrors` (R37 B5).
 
 Spec that must flip: contract.manager-members.int.test.ts
-(the AC-8 invalid payment-method submit) — asserts
-`useContract().useContext().validationErrors` carries the AJV `ErrorObject[]`
-the machine's `setError` parses off a 422.
+("A payment-method choice outside my stored cards is not sent and tells me
+why", contract.feature:335) — expects no request sent and
+`useContext().validationErrors` to name the `paymentDetailsId` field.
 
 Mutation: drops the `validationErrors` member from the manager context
-factory, so a 422's field-level errors never reach the consumer.
+factory.
 
 diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
 --- a/packages/headless/src/modules/contract/useContract.context.ts

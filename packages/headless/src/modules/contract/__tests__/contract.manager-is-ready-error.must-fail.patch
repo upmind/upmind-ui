@@ -1,12 +1,12 @@
 Negative control for useContract.actions.ts `isReady` error-settle (D43 B10).
 
 Spec that must flip: contract.manager-members.int.test.ts
-("resolves isReady() false at once on the error node (D43)") — asserts
-`isReady()` resolves `false` promptly once the machine settles on the
-top-level `error` node, rather than only after the 60s default timeout.
+("A failed read tells me at once that my contract is not ready",
+contract.feature:289) — expects `isReady()` to resolve false within 5s once
+a failed read settles on the top-level `error` node.
 
 Mutation: drops the `"error"` error-states argument, so `isReady()` names no
-error state and can only resolve on a load failure via timeout.
+error state and resolves only on its timeout.
 
 diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
 --- a/packages/headless/src/modules/contract/useContract.actions.ts

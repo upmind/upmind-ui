@@ -1,9 +1,10 @@
-Negative control for useContract.actions.ts `clear` rename (R37 B7).
+Negative control for useContract.actions.ts `clear` (R37 B7).
 
 Spec that must flip: contract.manager-members.int.test.ts
-("clear closes the open payment-method form") — asserts
-`useContract().useActions().clear()` (the template name) sends
-`CANCEL.PAYMENT_METHOD` and closes the form.
+("Close the payment-method form without changing how my contract is paid
+for", contract.feature:308) — calls `useActions().clear()` on an open form
+with a card chosen and expects the form closed, no request sent, and a
+re-open drawn in full with no leftover choice.
 
 Mutation: reverts the action back to the pre-restore `cancelForm` name.
 

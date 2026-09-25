@@ -1,9 +1,9 @@
 Negative control for useContract.context.ts `context` (R37 B1).
 
 Spec that must flip: contract.manager-members.int.test.ts
-("exposes the full machine context through useContext().context") — asserts
-`useContract().useContext().context` returns the machine's whole context
-object.
+("The contract I have open carries everything the manager read about it",
+contract.feature:259) — reads `useContext().context` and expects its
+`contractId`, `rawContract.id` and `contract.id` to name the opened contract.
 
 Mutation: drops the `context` member from the manager context factory.
 

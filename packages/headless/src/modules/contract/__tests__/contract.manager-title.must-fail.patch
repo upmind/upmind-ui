@@ -1,11 +1,10 @@
 Negative control for useContract.context.ts `title` (R37 B4).
 
 Spec that must flip: contract.manager-members.int.test.ts
-("shows the contract's name through useContext().title") — asserts
-`useContract().useContext().title` reflects the loaded record's `name`.
+("The contract I have open shows me its name", contract.feature:265) —
+expects `useContext().title` to equal the loaded record's `name`.
 
-Mutation: drops the `title` computed and its return entry, so the manager
-exposes no display title.
+Mutation: drops the `title` computed and its return entry.
 
 diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
 --- a/packages/headless/src/modules/contract/useContract.context.ts

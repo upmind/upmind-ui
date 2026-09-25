@@ -91,6 +91,7 @@
   "contract_products_grouped_counts_failed": "We experienced an error loading grouped counts",
   "contract_products_refresh_failed": "We experienced an error refreshing products",
   "contract_validation_failed": "Contract validation failed",
+  "contracts_refresh_failed": "We experienced an error refreshing contracts",
   "countries_load_failed": "Failed to load countries",
   "countries_not_available": "Countries not available",
   "currency_not_available": "Currency not available",

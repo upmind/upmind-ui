@@ -1,11 +1,9 @@
-Negative control for useContract.meta.ts `isValid` rename (R37 B12).
+Negative control for useContract.meta.ts `isValid` (R37 B12).
 
 Spec that must flip: contract.manager-members.int.test.ts
-("the payment-method form reports valid through the one-form isValid flag")
-— asserts `useContract().useMeta().isValid` (the template name; the manager
-holds ONE form, so no D42 two-form exemption applies) is true on
-`available.changingPaymentMethod.available.valid` or
-`unavailable.changingPaymentMethod.available.valid`.
+("A stored card I choose in the payment-method form is taken in and
+checked", contract.feature:302) — expects `useMeta().isValid` true once the
+chosen stored card is checked.
 
 Mutation: reverts the meta flag back to the pre-restore `isPaymentMethodValid`
 name.

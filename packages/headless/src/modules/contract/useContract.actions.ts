@@ -53,25 +53,37 @@ export function createContractActions(
   }
 
   /**
-   * Resolves once a payment-method write leaves `changingPaymentMethod.processing`,
-   * from either parent.
-   * @returns true once settled on `available` or `unavailable`; false on
-   *   `error`, on `done`, or if it never settled.
+   * Resolves once a payment-method write finishes — never on an idle form. A
+   * write that fails back to the form's `error` node keeps it waiting for the
+   * next one, as the template's `onDone` waits for `processed`.
+   * @returns true once a write leaves `changingPaymentMethod.processing` for
+   *   the re-read, from either parent; false if the machine stops first.
    */
   function onDone(): Promise<boolean> {
-    const transient = [
+    const processing = [
       "available.changingPaymentMethod.processing",
       "unavailable.changingPaymentMethod.processing"
     ];
+    const failed = [
+      "available.changingPaymentMethod.available.error",
+      "unavailable.changingPaymentMethod.available.error"
+    ];
+    let writing = false;
 
     return waitFor(
       service,
-      s =>
-        !stateMatches(s, transient) &&
-        (stateMatches(s, ["available", "unavailable", "error"]) || s.done),
-      { timeout: 60_000 }
+      s => {
+        if (s.done) return true;
+        if (stateMatches(s, processing)) {
+          writing = true;
+          return false;
+        }
+        if (writing && stateMatches(s, failed)) writing = false;
+        return writing;
+      },
+      { timeout: Infinity }
     )
-      .then(s => !s.done && stateMatches(s, ["available", "unavailable"]))
+      .then(s => !s.done)
       .catch(() => false);
   }
 

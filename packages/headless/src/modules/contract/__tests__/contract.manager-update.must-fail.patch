@@ -1,14 +1,15 @@
-Negative control for useContract.actions.ts `update` rename/reshape (R37 B8).
+Negative control for useContract.actions.ts `update` (R37 B8).
 
-Spec that must flip: contract.manager-members.int.test.ts
-("update(value?) flushes pending input and feeds the given value before
-submitting") — asserts `useContract().useActions().update(model)` flushes any
-pending debounced `input`, feeds `model` into the open form when given, then
-submits and resolves the re-read contract (or `false` on the R31 no-op).
+Specs that must flip: contract.manager-members.int.test.ts
+("Submit the payment-method form with the card I hand it",
+contract.feature:315; "A card I choose and submit straight away is the one
+that is sent", contract.feature:342) — `update(value)` must send the handed
+card and resolve the re-read contract, and `update()` must flush a pending
+`input` before it sends.
 
-Mutation: reverts `update(value?)` back to the pre-restore `submitPaymentMethod()`
-— no value parameter, no debounce flush — and updates `setPaymentMethod` to
-feed the model directly rather than routing through `update`.
+Mutation: reverts `update(value?)` back to the pre-restore
+`submitPaymentMethod()` — no value parameter, no debounce flush — and
+updates `setPaymentMethod` to feed the model directly.
 
 diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
 --- a/packages/headless/src/modules/contract/useContract.actions.ts
