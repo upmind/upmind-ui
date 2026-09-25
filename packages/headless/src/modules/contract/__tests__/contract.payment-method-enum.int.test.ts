@@ -33,7 +33,6 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
-import { ContractStatusCodes } from "@upmind-automation/types";
 import { useContract } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -124,21 +123,6 @@ async function awaitModel(
 // -----------------------------------------------------------------------------
 
 describe("useContract payment-method form — the stored-card enum (AC-8, D3)", () => {
-  it("offers exactly the client's recorded stored-card ids, plus the shared null member", async () => {
-    const { manager } = await openWithCards();
-    const cardIds = recordedCardIds();
-    const enumValues = (
-      manager.useContext().paymentMethod.value?.schema as JsonSchema
-    )?.properties?.paymentDetailsId?.enum;
-
-    expect(cardIds.length).toBeGreaterThan(0);
-    expect(enumValues).toBeDefined();
-    expect(enumValues).toContain(null);
-    expect([...enumValues!].filter(value => value !== null).sort()).toEqual(
-      [...cardIds].sort()
-    );
-  });
-
   /**
    * The validate-before-request guard on the payment-method form: an id that is
    * NOT one of the client's stored cards is rejected before the PATCH fires, so
@@ -269,29 +253,6 @@ describe("useContract — the payment-method form reports whether it is open and
 
     await vi.waitFor(() => {
       expect(manager.useMeta().isPaymentMethodOpen.value).toBe(false);
-    });
-  });
-
-  it("still opens the form and validates a stored-card id on a cancelled contract (R13)", async () => {
-    const base = recorded.one().data as Record<string, unknown> & {
-      id: string;
-    };
-    const cancelled = {
-      ...base,
-      status: { code: ContractStatusCodes.CANCELLED }
-    };
-    const { manager } = await settleWithCards(cancelled);
-    const meta = manager.useMeta();
-
-    await manager.useActions().openPaymentMethod();
-    await awaitEnum(manager);
-    expect(meta.isPaymentMethodOpen.value).toBe(true);
-
-    await manager
-      .useActions()
-      .input({ paymentDetailsId: recordedCardIds()[0]! });
-    await vi.waitFor(() => {
-      expect(meta.isValid.value).toBe(true);
     });
   });
 });

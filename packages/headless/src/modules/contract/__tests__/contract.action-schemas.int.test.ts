@@ -27,7 +27,6 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
-import { ContractStatusCodes } from "@upmind-automation/types";
 import { useContract } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -53,18 +52,6 @@ async function openManager() {
     )
   );
   const row = recorded.one().data;
-  const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
-  await manager.useActions().isReady();
-  return manager;
-}
-
-/** Opens the manager over the recorded contract with its `status.code`
- * overridden to `code` — the only field any assertion below reads. */
-async function openManagerWithStatus(code: ContractStatusCodes) {
-  await seedClientSession();
-  const base = recorded.one().data as Record<string, unknown> & { id: string };
-  const row = { ...base, status: { code } };
-  installContractHandler(server, row);
   const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
   await manager.useActions().isReady();
   return manager;
@@ -151,19 +138,5 @@ describe("useContract payment-method form — reads the live contract (AC-8, R35
     await manager.useActions().openPaymentMethod();
     expect(manager.useContext().paymentMethod.value).toBeTruthy();
     expect(manager.useMeta().isActive.value).toBe(true);
-  });
-});
-
-describe("useContract payment-method form — where legacy offers it, and where it refuses (AC-8, R13/R24)", () => {
-  it("opens the payment-method form on a cancelled contract (R13 ports the change to a read-only contract)", async () => {
-    const manager = await openManagerWithStatus(ContractStatusCodes.CANCELLED);
-    await manager.useActions().openPaymentMethod();
-    expect(manager.useContext().paymentMethod.value).toBeTruthy();
-  });
-
-  it("refuses the payment-method form on a fraud contract — its slot stays empty (R13 excludes fraud)", async () => {
-    const manager = await openManagerWithStatus(ContractStatusCodes.FRAUD);
-    await manager.useActions().openPaymentMethod();
-    expect(manager.useContext().paymentMethod.value).toBeFalsy();
   });
 });

@@ -73,14 +73,14 @@ describe("the ?init read-back bench — H1–H5 against recorded bytes", () => {
       const observed = observeRequests();
 
       const { useInvoice } = await import("@upmind-automation/headless");
-      const invoice = useInvoice(invoiceId);
+      const { data } = useInvoice().withId(invoiceId).useContext();
 
-      await vi.waitFor(() => expect(invoice.data.value?.id).toBe(invoiceId), {
+      await vi.waitFor(() => expect(data.value?.id).toBe(invoiceId), {
         timeout: 10000
       });
       observed.stop();
 
-      expect(invoice.data.value?.number).toBe(recorded.number);
+      expect(data.value?.number).toBe(recorded.number);
       expect(observed.count(`/api/invoices/${invoiceId}`)).toBeGreaterThan(0);
     },
     BEAT_TIMEOUT
@@ -95,13 +95,14 @@ describe("the ?init read-back bench — H1–H5 against recorded bytes", () => {
 
       serveInvoice("paid");
       const { useInvoice } = await import("@upmind-automation/headless");
-      const invoice = useInvoice(paidId);
+      const invoice = useInvoice().withId(paidId);
 
-      await vi.waitFor(() => expect(invoice.data.value?.id).toBe(paidId), {
-        timeout: 10000
-      });
+      await vi.waitFor(
+        () => expect(invoice.useContext().data.value?.id).toBe(paidId),
+        { timeout: 10000 }
+      );
 
-      expect(invoice.meta.value.isPaid).toBe(true);
+      expect(invoice.useMeta().isPaid.value).toBe(true);
     },
     BEAT_TIMEOUT
   );
@@ -114,7 +115,7 @@ describe("the ?init read-back bench — H1–H5 against recorded bytes", () => {
       const observed = observeRequests();
 
       const { useInvoice } = await import("@upmind-automation/headless");
-      useInvoice(recordedInvoiceId("unpaid"));
+      useInvoice().withId(recordedInvoiceId("unpaid")).useContext();
       await expectNoRequestTo(observed, "/api/invoices/");
       observed.stop();
     },

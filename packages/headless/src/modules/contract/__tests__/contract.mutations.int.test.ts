@@ -101,7 +101,7 @@ describe("useContract — I point my contract at a different stored payment meth
     expect(captured.body).toEqual({ payment_details_id: paymentDetailsId });
   });
 
-  it("AC-8 I can still change how a cancelled or lapsed contract is paid for (R13 self-transition)", async () => {
+  it("AC-8 I can still change how a cancelled contract is paid for (R13 self-transition)", async () => {
     const { accessToken } = await seedClientSession();
     const base = recorded.one().data as Record<string, unknown> & {
       id: string;
