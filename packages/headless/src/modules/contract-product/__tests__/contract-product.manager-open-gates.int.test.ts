@@ -44,7 +44,7 @@ function baseRow(): ProductRow {
 
 function recordedPendingRequest(): Record<string, unknown> {
   const request = (
-    baseRow() as {
+    recorded.pendingRequest().data as {
       contract?: { cancellation_request?: Record<string, unknown> };
     }
   ).contract?.cancellation_request;

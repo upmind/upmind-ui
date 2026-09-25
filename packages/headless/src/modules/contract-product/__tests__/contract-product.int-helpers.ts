@@ -61,6 +61,11 @@ export const recorded = {
     getFixtureBody<
       ContractProductEnvelope<Record<string, unknown> & { id: string }>
     >("get-contract-products-id", { recordingsDir }),
+  /** `GET contract_products/{id}` while a cancellation request is pending (AC-11). */
+  pendingRequest: () =>
+    getFixtureBody<
+      ContractProductEnvelope<Record<string, unknown> & { id: string }>
+    >("get-contract-products-id-case-pending-request", { recordingsDir }),
   /** `GET clients/{id}/contracts/products` grouped counts — the rows on `total` (AC-19). */
   groupedCounts: () =>
     getFixtureBody<GroupedCountsEnvelope>("get-clients-id-contracts-products", {
@@ -112,12 +117,20 @@ export const recorded = {
       "get-custom-fields-brand-id-filter-object-type-contract-request",
       { recordingsDir: contractRecordingsDir }
     ),
-  /** `DELETE contracts/{id}/cancel/request` — the REAL 404 this sandbox
-   * answers the withdraw with (AC-7, R33). */
-  withdrawRejected: () =>
+  /** `DELETE contracts/{id}/cancel/request` with `{ contract_request_id }` —
+   * the real 200 (AC-7, R33). */
+  withdrawn: () =>
     getFixture("delete-contracts-id-cancel-request", {
       recordingsDir: contractRecordingsDir
-    })
+    }),
+  /** The same DELETE naming a request that does not exist — the real 404. */
+  withdrawRefused: () =>
+    getFixture("delete-contracts-id-cancel-request-case-unknown-request", {
+      recordingsDir: contractRecordingsDir
+    }),
+  /** `GET contract_products/{id}` for an id the client does not own — the real 404. */
+  readNotFound: () =>
+    getFixture("get-contract-products-id-case-not-found", { recordingsDir })
 };
 
 /** The sibling contract module's recordings — the hard cancel/request POST and

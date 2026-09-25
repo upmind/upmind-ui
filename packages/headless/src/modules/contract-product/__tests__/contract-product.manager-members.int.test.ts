@@ -72,7 +72,7 @@ async function openManager() {
 async function openFailingManager() {
   await seedClientSession();
   const productId = recorded.one().data.id;
-  const failure = recorded.withdrawRejected().response;
+  const failure = recorded.readNotFound().response;
   server?.use(
     http.get("*/contract_products/:id", () =>
       HttpResponse.json(failure.body as Record<string, unknown>, {

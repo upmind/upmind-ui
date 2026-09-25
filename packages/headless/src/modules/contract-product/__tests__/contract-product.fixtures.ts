@@ -277,6 +277,56 @@ describe("Contract-Product API Fixtures Generator", () => {
     }
   });
 
+  it("captures GET /api/contract_products/{id} for an id I do not own (the real read failure)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/contract_products/00000000-0000-0000-0000-000000000000?case=not-found&with=${PRODUCT_WITH}`
+    );
+    generator.clearBearerToken();
+    if (status < 400) {
+      throw new Error(
+        `The unknown-product read answered ${status}, not a refusal.`
+      );
+    }
+  });
+
+  it("captures GET /api/contract_products/{id} while a cancellation request is pending (AC-11)", async () => {
+    // Lodge a real request (uncaptured), read the product in that state, then
+    // withdraw it the way the module does, so the sandbox stays clean.
+    await call(
+      "POST",
+      `/api/contracts/${contractId}/cancel/request`,
+      clientToken.access_token,
+      {
+        product_ids: [productId],
+        cancellation_reason: "fixture capture — withdrawn same run"
+      }
+    );
+    generator.setBearerToken(clientToken.access_token);
+    const { status, body } = await generator.get(
+      `/api/contract_products/${productId}?case=pending-request&with=${PRODUCT_WITH}`
+    );
+    generator.clearBearerToken();
+    const requestId = (
+      body as {
+        data?: { contract?: { cancellation_request?: { id?: string } } };
+      }
+    )?.data?.contract?.cancellation_request?.id;
+    if (requestId) {
+      await call(
+        "DELETE",
+        `/api/contracts/${contractId}/cancel/request`,
+        clientToken.access_token,
+        { contract_request_id: requestId }
+      );
+    }
+    if (status !== 200 || !requestId) {
+      throw new Error(
+        `The pending-request read returned ${status} without a lodged request.`
+      );
+    }
+  });
+
   it("captures GET /api/clients/{clientId}/contracts/products grouped counts (AC-19)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(

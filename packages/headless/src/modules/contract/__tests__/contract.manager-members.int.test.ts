@@ -130,7 +130,7 @@ async function openFailingManager() {
   await seedClientSession();
   installLookupHandlers();
   const row = recorded.one().data as ContractRow;
-  const failure = recorded.withdrawRejected().response;
+  const failure = recorded.readNotFound().response;
   server?.use(
     http.get("*/contracts/:id", () =>
       HttpResponse.json(failure.body as Record<string, unknown>, {
@@ -227,7 +227,7 @@ describe("useContract — the single read is addressed by `.withId(id)` (D95)", 
     installContractHandler(server);
     installLookupHandlers();
     const row = recorded.one().data as ContractRow;
-    const failure = recorded.withdrawRejected().response;
+    const failure = recorded.readNotFound().response;
     server?.use(
       http.get(`*/contracts/${OUT_OF_ENUM_ID}`, () =>
         HttpResponse.json(failure.body as Record<string, unknown>, {

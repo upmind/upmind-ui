@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/contract_products/785d26e9-6783-d169-497f-314502e70439?with=contract,contract.account,contract.address,contract.brand.currency,contract.cancellation_request.status,contract.cancellation_request.custom_fields.field,contract.client,contract.client.tags,contract.client.image,contract.gateway,contract.import.credentials,contract.import.source,contract.moved_to_contract,contract.moved_to_contract.products,contract.payment_details,contract.payment_details.gateway,contract.promotions,contract.status,allowed_migrations,attributes.product.image,brand,contract_request,contract_request.custom_fields.field,future_cancellation_request,options.product.image,product,product.brand.currency,product.image,product.images,product.provision_blueprint,product.provision_category,scheduled_actions,status,tags,unpaid_recurring_invoices",
+    "path": "/api/contract_products/785d26e9-6783-d169-497f-314502e70439?case=pending-request&with=contract,contract.account,contract.address,contract.brand.currency,contract.cancellation_request.status,contract.cancellation_request.custom_fields.field,contract.client,contract.client.tags,contract.client.image,contract.gateway,contract.import.credentials,contract.import.source,contract.moved_to_contract,contract.moved_to_contract.products,contract.payment_details,contract.payment_details.gateway,contract.promotions,contract.status,allowed_migrations,attributes.product.image,brand,contract_request,contract_request.custom_fields.field,future_cancellation_request,options.product.image,product,product.brand.currency,product.image,product.images,product.provision_blueprint,product.provision_category,scheduled_actions,status,tags,unpaid_recurring_invoices",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a40bd3f478067885-JNB",
+      "cf-ray": "a40bd4071b7c7885-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Fri, 25 Sep 2026 17:42:53 GMT",
+      "date": "Fri, 25 Sep 2026 17:42:56 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=aamfZsH2DyZzcxR0wX5gtnJ8QOCPGneF1d7mY8SCSiwFgMaCZndSlmsJd7dfWuIlgYuF1d%2Bu4tjyPiUl8GcIswKXCn%2BYh%2BX19j51LKPkzqlwcmS6xGT82jwiiHhf8FRHG0P%2FYJy4uA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=cVwbmHex2sWMf3uCAumTJKC9hHHFsh%2B6hnEw%2BQTKjcXJ%2BxMU3ntpQjcCyDBL9vZ0lWpmBvYbLHvTEvVPFGdTUSVEOC0i7eVTGwaXKZp0vTc%2BcKn7%2FAc6l2fruVWm7iQdHknDeZlMmw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -62,7 +62,7 @@
         "product_set_id": null,
         "product_group_id": null,
         "created_at": "2025-10-02 16:04:22",
-        "updated_at": "2026-09-25 17:36:20",
+        "updated_at": "2026-09-25 17:42:55",
         "deleted_at": null,
         "status_id": "4d036794-24d0-e710-94a3-153698d582e8",
         "start_date": "2025-10-02",
@@ -113,7 +113,7 @@
         "main_invoice_id": "63250798-065d-1e55-d24b-8174e234e98d",
         "main_invoice_number": "QAT-INV-03585",
         "manual_status": false,
-        "auto_create_renew_invoice": true,
+        "auto_create_renew_invoice": false,
         "payment_days_term": 0,
         "create_invoice_term": 0,
         "expire_notice_date": "2026-10-01",
@@ -131,10 +131,10 @@
         "invoice_consolidation_enabled": 2,
         "invoice_consolidation_enabled_calculated": true,
         "last_reconciled_at": "2026-09-02 00:40:32",
-        "retention_status_id": "825d96e7-63ed-0913-9dc4-174825283406",
+        "retention_status_id": "320e4357-95e7-8d18-38c3-1643202d9860",
         "retention_reason_id": null,
-        "retention_status_updated_at": "2026-09-25 17:36:20",
-        "retention_updated_at": "2026-09-25 17:36:20",
+        "retention_status_updated_at": "2026-09-25 17:42:55",
+        "retention_updated_at": "2026-09-25 17:42:55",
         "product_name": "Single Use Promo",
         "currency_code": "GBP",
         "cost_currency_code": "GBP",
@@ -180,7 +180,7 @@
         "attributes": [],
         "set_products": [],
         "is_due": false,
-        "can_create_next_invoice": true,
+        "can_create_next_invoice": false,
         "paid_future_invoices": false,
         "can_modify": true,
         "can_cancel": true,
@@ -438,7 +438,25 @@
               "manual": 0
             }
           },
-          "cancellation_request": null,
+          "cancellation_request": {
+            "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+            "contract_id": "89857426-4897-0122-24ef-21e325d0ed36",
+            "reason": "fixture capture — withdrawn same run",
+            "status_id": "3de78642-de53-9714-6ea2-1208469530d0",
+            "created_at": "2026-09-25 17:42:55",
+            "updated_at": "2026-09-25 17:42:55",
+            "deleted_at": null,
+            "product_ids": null,
+            "contract_product_id": "785d26e9-6783-d169-497f-314502e70439",
+            "status": {
+              "id": "3de78642-de53-9714-6ea2-1208469530d0",
+              "object_type": "request",
+              "code": "request_cancellation_request",
+              "order": 4,
+              "name": "Cancellation Request"
+            },
+            "custom_fields": []
+          },
           "client": {
             "id": "25d96e76-3ed0-913d-d52c-417482528340",
             "import_id": null,
@@ -2077,7 +2095,25 @@
           }
         },
         "allowed_migrations": [],
-        "contract_request": null,
+        "contract_request": {
+          "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+          "contract_id": "89857426-4897-0122-24ef-21e325d0ed36",
+          "reason": "fixture capture — withdrawn same run",
+          "status_id": "3de78642-de53-9714-6ea2-1208469530d0",
+          "created_at": "2026-09-25 17:42:55",
+          "updated_at": "2026-09-25 17:42:55",
+          "deleted_at": null,
+          "product_ids": null,
+          "contract_product_id": "785d26e9-6783-d169-497f-314502e70439",
+          "status": {
+            "id": "3de78642-de53-9714-6ea2-1208469530d0",
+            "object_type": "request",
+            "code": "request_cancellation_request",
+            "order": 4,
+            "name": "Cancellation Request"
+          },
+          "custom_fields": []
+        },
         "future_cancellation_request": null,
         "scheduled_actions": [],
         "tags": [],
@@ -2090,7 +2126,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T17:42:53.797Z",
+  "captured_at": "2026-09-25T17:42:56.889Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

@@ -8,10 +8,8 @@
  *
  * Every response body served here comes from a fixture captured by
  * `pnpm fixtures:generate contract` against real staging — no test builds a
- * wire body of its own. `recorded.withdrawRejected()` is the real 404 this
- * sandbox answers `DELETE .../cancel/request` with (`contract.fixtures.ts`
- * fileoverview limit 2) — shipped as the capture under test, not forced to a
- * fabricated 200.
+ * wire body of its own; a failure is a recorded refusal too
+ * (`recorded.readNotFound()`), never a hand-built one.
  */
 
 import { join } from "node:path";
@@ -68,9 +66,11 @@ export const recorded = {
       "post-contracts-id-cancel-request",
       { recordingsDir }
     ),
-  /** `DELETE contracts/{id}/cancel/request` — the REAL 404 this sandbox answers. */
-  withdrawRejected: () =>
-    getFixture("delete-contracts-id-cancel-request", { recordingsDir }),
+  /** `GET contracts/{id}` for an id the client does not own — the real 404. */
+  readNotFound: () =>
+    getFixture("get-contracts-id-case-not-found-with-staged-imports-1", {
+      recordingsDir
+    }),
   /** `GET clients/{id}/payment_details?active=true&…` — the client's real stored
    * cards, recorded by the payment-details module. The contract manager draws its
    * payment-method form enum from `usePaymentDetails().data` (D3), so its enum

@@ -31,24 +31,10 @@
  *    client to switch to — `contract.mutations.int.test.ts` documents the
  *    same limit and asserts the wire contract (body shape, URL, identity)
  *    against the idempotent real 200 rather than a value transition.
- * 2. **`withdrawCancellation`'s real capture is a 404, not a 200.** Reading
- *    the contract back straight after the POST above shows the
- *    `cancellation_request` object IS created and readable (a real id, a real
- *    `request_cancellation_request` status). `DELETE
- *    api/contracts/{id}/cancel/request` against that same contract, seconds
- *    later, answers `404 "Contract Request not found!"` — verbatim, and
- *    reproducible across repeat runs. A `PUT` probe against the same path
- *    (never captured, not part of design.md's contract) answers `405` naming
- *    `GET, HEAD, POST, DELETE` as the supported methods, so `DELETE` is a real
- *    route on this exact path — the object the withdraw handler looks up is
- *    the one that does not resolve, not the route. Two ids-in-path variants
- *    (`.../cancel/request/{requestId}`, `/api/cancel_requests/{id}`) were
- *    probed uncaptured and both 404 as unknown routes, so design.md's
- *    id-less path is the real route. **This 404 is shipped as the capture**
- *    rather than forced to a fabricated 200 — `contract.mutations.int.test.ts`
- *    asserts the module surfaces this real error rather than a happy-path
- *    withdrawal, and flags the `design ✅.md` AC-7 wire contract for operator
- *    review against this finding.
+ * 2. `withdrawCancellation` is recorded with the body the module sends,
+ *    `{ contract_request_id }` (legacy `cProdProvider.vue:1327-1362`), and
+ *    staging answers it with a real 200. A second capture names a request that
+ *    does not exist, which records the real 404 refusal.
  * 3. The staging client's real 422/409 refusal bodies for a cancel request on
  *    an already-cancelling product, or a payment-method write to a contract
  *    the client does not own, are NOT captured here — the token this run
@@ -58,11 +44,8 @@
  *    guard logic instead (`contract.utils.test.ts` deferral table).
  *
  * ## Staging hygiene
- * The cancellation request this run lodges is real and, per limit 2 above,
- * this run cannot withdraw it again through any route `design ✅.md` or this
- * generator's probes found. It is left as the account's real state; a
- * subsequent `pnpm fixtures:generate contract` run selects a different clean
- * subscription (one with no `contract_request`) rather than reusing this one.
+ * The run withdraws the request it lodges, and before it picks a candidate it
+ * withdraws any request an earlier run left behind, so the sandbox stays clean.
  */
 
 import { join } from "node:path";
@@ -159,6 +142,7 @@ describe("Contract API Fixtures Generator", () => {
   let contractId: string;
   let subscriptionProductId: string;
   let defaultPaymentDetailsId: string;
+  let lodgedRequestIdOf: (id: string) => Promise<string | undefined>;
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -198,18 +182,32 @@ describe("Contract API Fixtures Generator", () => {
     // request from an earlier recording run (see fileoverview limit 2) —
     // probe each real candidate, uncaptured, until one contract answers with
     // no existing request.
+    lodgedRequestIdOf = async (id: string) =>
+      (
+        (
+          await call(
+            "GET",
+            `/api/contracts/${id}?with=cancellation_request`,
+            clientToken.access_token
+          )
+        ).body as { data?: { cancellation_request?: { id?: string } } }
+      )?.data?.cancellation_request?.id;
+
     let resolved: WireContractProduct | undefined;
     for (const candidate of subscriptions) {
-      const probe = await call(
-        "GET",
-        `/api/contracts/${candidate.contract_id}?with=cancellation_request`,
-        clientToken.access_token
-      );
-      const hasRequest = Boolean(
-        (probe.body as { data?: { cancellation_request?: unknown } })?.data
-          ?.cancellation_request
-      );
-      if (!hasRequest) {
+      const lodged = await lodgedRequestIdOf(candidate.contract_id);
+      // A request an earlier run lodged is withdrawn the way the module does
+      // it (`DELETE …/cancel/request` with its `contract_request_id`), so the
+      // sandbox returns to a clean candidate.
+      if (lodged) {
+        await call(
+          "DELETE",
+          `/api/contracts/${candidate.contract_id}/cancel/request`,
+          clientToken.access_token,
+          { contract_request_id: lodged }
+        );
+      }
+      if (!(await lodgedRequestIdOf(candidate.contract_id))) {
         resolved = candidate;
         break;
       }
@@ -284,6 +282,19 @@ describe("Contract API Fixtures Generator", () => {
     }
   });
 
+  it("captures GET /api/contracts/{id} for an id I do not own (the real read failure)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.get(
+      `/api/contracts/00000000-0000-0000-0000-000000000000?case=not-found&with_staged_imports=1&with=${CONTRACT_WITH}`
+    );
+    generator.clearBearerToken();
+    if (status < 400) {
+      throw new Error(
+        `The unknown-contract read answered ${status}, not a refusal.`
+      );
+    }
+  });
+
   // --- mutations ----------------------------------------------------------
 
   it("captures PATCH /api/contracts/{id}/payment_details (AC-8, idempotent — see fileoverview limit 1)", async () => {
@@ -315,17 +326,35 @@ describe("Contract API Fixtures Generator", () => {
     }
   });
 
-  it("captures DELETE /api/contracts/{id}/cancel/request (AC-7 — a REAL 404, see fileoverview limit 2)", async () => {
+  it("captures DELETE /api/contracts/{id}/cancel/request (AC-7, with the request's contract_request_id)", async () => {
+    const requestId = await lodgedRequestIdOf(contractId);
+    if (!requestId) {
+      throw new Error("The request the AC-6 capture lodged is not readable.");
+    }
     generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.delete(
-      `/api/contracts/${contractId}/cancel/request`
+    const { status, body } = await generator.delete(
+      `/api/contracts/${contractId}/cancel/request`,
+      { contract_request_id: requestId }
     );
     generator.clearBearerToken();
-    // A real 404 is the capture under test here (limit 2) — shipped as-is,
-    // never forced to a fabricated 200. Only a genuine transport failure
-    // (5xx / network) fails this capture.
-    if (status >= 500) {
-      throw new Error(`Withdraw-cancellation capture returned ${status}.`);
+    if (status >= 400) {
+      throw new Error(
+        `Withdraw-cancellation capture returned ${status}: ${JSON.stringify(body)}`
+      );
+    }
+  });
+
+  it("captures DELETE /api/contracts/{id}/cancel/request naming a request that does not exist (the real refusal)", async () => {
+    generator.setBearerToken(clientToken.access_token);
+    const { status } = await generator.delete(
+      `/api/contracts/${contractId}/cancel/request?case=unknown-request`,
+      { contract_request_id: "00000000-0000-0000-0000-000000000000" }
+    );
+    generator.clearBearerToken();
+    if (status < 400) {
+      throw new Error(
+        `The unknown-request withdraw answered ${status}, not a refusal.`
+      );
     }
   });
 });

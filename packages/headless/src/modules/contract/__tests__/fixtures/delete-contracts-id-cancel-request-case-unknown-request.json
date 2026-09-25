@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "DELETE",
-    "path": "/api/contracts/89857426-4897-0122-24ef-21e325d0ed36/cancel/request",
+    "path": "/api/contracts/89857426-4897-0122-24ef-21e325d0ed36/cancel/request?case=unknown-request",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -10,39 +10,45 @@
       "Authorization": "mock-Authorization"
     },
     "body": {
-      "contract_request_id": "5d085e69-d562-3719-eef2-18e940d42370"
+      "contract_request_id": "00000000-0000-0000-0000-000000000000"
     }
   },
   "response": {
-    "status": 200,
+    "status": 404,
     "headers": {
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a40bca16be1cb910-JNB",
+      "cf-ray": "a40bca1e4d318a34-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Fri, 25 Sep 2026 17:36:09 GMT",
+      "date": "Fri, 25 Sep 2026 17:36:10 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=RBkAptVqLuVlgHTEaAQEieo%2FBmNyv6VnyU4vd5P4GRe5y8NmV7ZjVyJRks4eamnJmkYvhR%2FDbgfNK6exVndVN4krbTFSrjgCzHoXq7pRM%2BM27Ikt2PfoCpw5e%2F2vQcwVMddKrs2f7A%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=EXMOgzHO%2BBhqB1Umjk10e%2FcxzV8Lruv%2F1eJ8fS%2FHWK7pwVMzp4aWENZ8YNAHgzP4IGQR2cqIb3rQgrcAENGYfUf8S4I1%2BS%2BGqpeM3IunnMYsIzRGUbd8gl1DcNz6vKO5dmRdymTI3w%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
       "x-frame-options": "SAMEORIGIN"
     },
     "body": {
-      "status": "ok",
+      "status": "error",
       "data": null,
       "related": null,
       "total": null,
-      "error": null,
-      "messages": [],
+      "error": {
+        "id": "613e95826d4f4435ba31e7df5a80fc7f21bcb1d4",
+        "type": 0,
+        "code": 404,
+        "message": "Contract Request not found!",
+        "data": null
+      },
+      "messages": null,
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T17:36:09.695Z",
+  "captured_at": "2026-09-25T17:36:10.567Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

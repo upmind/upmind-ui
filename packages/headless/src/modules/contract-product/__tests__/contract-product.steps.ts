@@ -118,7 +118,7 @@ export const coveredActionIds: readonly string[] = uniq([
 /**
  * Values the recorded corpus carries.
  *
- * @see fixtures/get-contracts-products-split-count-1.json — `total: 993`, a
+ * @see fixtures/get-contracts-products-split-count-1.json — `total: 996`, a
  * page of 10, and the one row priced `total_amount: 4`.
  * @see fixtures/get-clients-id-contracts-products-e94263b1.json — the grouped
  * counts, carried on `total`.
@@ -127,7 +127,7 @@ export const coveredActionIds: readonly string[] = uniq([
  */
 const RECORDED = {
   list: {
-    total: 993,
+    total: 996,
     pageSize: 10,
     pricedAt: { id: "d6325079-8065-d1e3-5e9c-8174e234e98d", amount: 4 }
   },
@@ -136,7 +136,7 @@ const RECORDED = {
     { category_id: "78985742-6489-7012-0e4c-21e325d0ed36", total: 9 },
     { category_id: "2785d26e-9678-3d16-7d7a-314502e70439", total: 16 }
   ],
-  product: { id: "de78642d-e539-7147-e37a-21208469530d" }
+  product: { id: "785d26e9-6783-d169-497f-314502e70439" }
 } as const;
 
 const SETTLE_ATTEMPTS = 40;

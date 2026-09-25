@@ -1309,15 +1309,6 @@ describe("useContractProduct — I ask for one of my products to be cancelled ou
 });
 
 describe("useContractProduct — I change my mind about a cancellation I asked for (AC-7, R33)", () => {
-  /**
-   * KNOWN GAP — the success half of AC-7. This sandbox answers
-   * `DELETE contracts/{id}/cancel/request` with a REAL 404
-   * (`contract/__tests__/fixtures/delete-contracts-id-cancel-request.json`),
-   * and no recorded 200 for it exists on disk; recording is forbidden this
-   * pass (`receipts.md`). The REQUEST shape (`{ contract_request_id }`) and the
-   * real-failure surfacing are proven here; the removed-and-carries-on outcome
-   * is registered as a partial promise.
-   */
   it("AC-7 DELETEs cancel/request with { contract_request_id } from my product's own request, under my own identity", async () => {
     const { manager, row, accessToken } = await (async () => {
       const r = cancellingRow();
@@ -1327,7 +1318,7 @@ describe("useContractProduct — I change my mind about a cancellation I asked f
       await m.useActions().isReady();
       return { manager: m, row: r, accessToken };
     })();
-    const rejection = recorded.withdrawRejected();
+    const withdrawn = recorded.withdrawn();
     const captured: Captured = {};
 
     server?.use(
@@ -1336,8 +1327,8 @@ describe("useContractProduct — I change my mind about a cancellation I asked f
         async ({ request }) => {
           capture(request, captured);
           captured.body = await request.json().catch(() => undefined);
-          return HttpResponse.json(rejection.response.body as object, {
-            status: rejection.response.status
+          return HttpResponse.json(withdrawn.response.body as object, {
+            status: withdrawn.response.status
           });
         }
       )
@@ -1345,7 +1336,7 @@ describe("useContractProduct — I change my mind about a cancellation I asked f
 
     await expect(
       manager.useActions().withdrawCancellation()
-    ).rejects.toBeDefined();
+    ).resolves.toBeDefined();
 
     expect(captured.request).toBeDefined();
     expect(captured.request!.method).toBe("DELETE");
@@ -1359,7 +1350,7 @@ describe("useContractProduct — I change my mind about a cancellation I asked f
     const r = cancellingRow();
     await seedClientSession();
     installProductHandler(server, r);
-    const rejection = recorded.withdrawRejected();
+    const rejection = recorded.withdrawRefused();
     server?.use(
       http.delete(`*/contracts/${r.contract_id}/cancel/request`, () =>
         HttpResponse.json(rejection.response.body as object, {
