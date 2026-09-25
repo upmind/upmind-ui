@@ -1,0 +1,26 @@
+Negative control for useContract.actions.ts `input` (R37 B6).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("input resolves the parsed model once the form settles valid or invalid")
+— asserts `useContract().useActions().input(model)` resolves the
+parsed/validated `paymentMethod.model` once the open form settles
+`available.valid` or `.invalid` (either status parent).
+
+Mutation: replaces the debounced, promise-resolving `input` with the
+pre-restore fire-and-forget `set(model): void`, so no member resolves the
+parsed model back to the caller.
+
+diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
+--- a/packages/headless/src/modules/contract/useContract.actions.ts
++++ b/packages/headless/src/modules/contract/useContract.actions.ts
+@@ -267,7 +267,9 @@
+     /**
+      * @scenario-include
+      */
+-    input: debouncedInput,
++    set: (model: Partial<SetPaymentMethodModel>): void => {
++      send({ type: "SET.PAYMENT_METHOD", data: model });
++    },
+ 
+     /**
+      * @scenario-include

@@ -1,6 +1,6 @@
 import { computed } from "vue";
 import { ContractState } from "./contract.types";
-import { contextValue, stateMatches, useStateMatches } from "../../utils";
+import { contextValue, useStateMatches } from "../../utils";
 import { isNil } from "lodash-es";
 import type { ContractContext } from "./contract.types";
 import type { UseActor } from "../../utils";
@@ -30,13 +30,11 @@ export function createContractMeta(
     /** True once the contract sits in an `available` node. */
     isAvailable: useStateMatches(state, "available"),
 
-    /** True while the machine is waiting for the session or reading the contract; false once a read has failed. */
-    isLoading: computed(
-      () => stateMatches(state, ["subscribing", "loading"]) && !hasError.value
-    ),
+    /** True while the machine is waiting for the session or reading the contract. */
+    isLoading: useStateMatches(state, ["subscribing", "loading"]),
 
     /** True while the payment-method write is being processed, from either parent. */
-    isSubmitting: useStateMatches(state, [
+    isProcessing: useStateMatches(state, [
       "available.changingPaymentMethod.processing",
       "unavailable.changingPaymentMethod.processing"
     ]),
@@ -50,7 +48,7 @@ export function createContractMeta(
     ]),
 
     /** True when the open payment-method form passes validation, from either parent. */
-    isPaymentMethodValid: useStateMatches(state, [
+    isValid: useStateMatches(state, [
       "available.changingPaymentMethod.available.valid",
       "unavailable.changingPaymentMethod.available.valid"
     ]),

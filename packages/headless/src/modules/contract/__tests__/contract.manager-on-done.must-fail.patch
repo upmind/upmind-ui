@@ -1,0 +1,56 @@
+Negative control for useContract.actions.ts `onDone` (R37 B9).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("resolves onDone() true once a payment-method write settles") — awaits
+`useActions().onDone()` after a write and expects true once the write leaves
+`changingPaymentMethod.processing` (either status parent) and settles on
+`available` or `unavailable`.
+
+Mutation: drops the `onDone` action entirely, so no member exists to await a
+write's settle.
+
+diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
+--- a/packages/headless/src/modules/contract/useContract.actions.ts
++++ b/packages/headless/src/modules/contract/useContract.actions.ts
+@@ -50,29 +50,6 @@
+    */
+   async function isReady(): Promise<boolean> {
+     return waitForProcessing(service, ["available", "unavailable"], "error");
+-  }
+-
+-  /**
+-   * Resolves once a payment-method write leaves `changingPaymentMethod.processing`,
+-   * from either parent.
+-   * @returns true once settled on `available` or `unavailable`; false on
+-   *   `error`, on `done`, or if it never settled.
+-   */
+-  function onDone(): Promise<boolean> {
+-    const transient = [
+-      "available.changingPaymentMethod.processing",
+-      "unavailable.changingPaymentMethod.processing"
+-    ];
+-
+-    return waitFor(
+-      service,
+-      s =>
+-        !stateMatches(s, transient) &&
+-        (stateMatches(s, ["available", "unavailable", "error"]) || s.done),
+-      { timeout: 60_000 }
+-    )
+-      .then(s => !s.done && stateMatches(s, ["available", "unavailable"]))
+-      .catch(() => false);
+   }
+ 
+   /**
+@@ -277,11 +254,6 @@
+     /**
+      * @scenario-include
+      */
+-    onDone,
+-
+-    /**
+-     * @scenario-include
+-     */
+     openPaymentMethod,
+ 
+     /**

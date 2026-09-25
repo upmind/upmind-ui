@@ -1,0 +1,52 @@
+Negative control for useContract.actions.ts `update` rename/reshape (R37 B8).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("update(value?) flushes pending input and feeds the given value before
+submitting") — asserts `useContract().useActions().update(model)` flushes any
+pending debounced `input`, feeds `model` into the open form when given, then
+submits and resolves the re-read contract (or `false` on the R31 no-op).
+
+Mutation: reverts `update(value?)` back to the pre-restore `submitPaymentMethod()`
+— no value parameter, no debounce flush — and updates `setPaymentMethod` to
+feed the model directly rather than routing through `update`.
+
+diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
+--- a/packages/headless/src/modules/contract/useContract.actions.ts
++++ b/packages/headless/src/modules/contract/useContract.actions.ts
+@@ -159,15 +159,7 @@
+    *   form's model names no method or the one the contract already uses, or
+    *   the node refused the event.
+    */
+-  async function update(
+-    value?: Partial<SetPaymentMethodModel>
+-  ): Promise<Contract | false> {
+-    await debouncedInput.flush()?.catch(() => undefined);
+-
+-    if (value) {
+-      send({ type: "SET.PAYMENT_METHOD", data: value });
+-    }
+-
++  async function submitPaymentMethod(): Promise<Contract | false> {
+     /**
+      * @decision The no-op refusal lives here, in the action layer, guarding the
+      * submit (R31, moved from `setPaymentMethod` so the form path honours it too).
+@@ -222,8 +214,9 @@
+     model: SetPaymentMethodModel
+   ): Promise<Contract | false> {
+     openPaymentMethod();
++    send({ type: "SET.PAYMENT_METHOD", data: model });
+ 
+-    return update(model);
++    return submitPaymentMethod();
+   }
+ 
+   /** Re-reads the contract from the server. */
+@@ -308,7 +301,7 @@
+     /**
+      * @scenario-include
+      */
+-    update
++    submitPaymentMethod
+   };
+ }
+ 

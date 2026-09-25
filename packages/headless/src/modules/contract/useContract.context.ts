@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { useContext } from "../../utils";
 import { get } from "lodash-es";
-import type { Contract, ContractForm } from "./contract.types";
+import type { Contract, ContractContext, ContractForm } from "./contract.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type {
@@ -9,6 +9,7 @@ import type {
   ContractStatusCodes,
   IContract
 } from "@upmind-automation/types";
+import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 /**
  * @module contract/useContract.context
@@ -31,6 +32,9 @@ export function createContractContext(
   const rawContract = useContext<IContract>(state, "rawContract");
   const contract = useContext<Contract>(state, "contract");
 
+  /** Display title of the record — derived off the raw wire record, as `useContractProduct.context.ts`'s `title` is. */
+  const title = computed(() => rawContract.value?.name ?? undefined);
+
   return {
     /** The cancellation-request status in the platform vocabulary; undefined when no request exists (AC12). */
     cancellationRequestStatus: useContext<CancellationRequestStatusCodes>(
@@ -46,6 +50,9 @@ export function createContractContext(
     /** The mapped contract view model. */
     contract,
 
+    /** The full machine context object. */
+    context: useContext<ContractContext>(state),
+
     /** The contract status in the platform vocabulary (AC12). */
     contractStatus: useContext<ContractStatusCodes>(
       state,
@@ -60,20 +67,32 @@ export function createContractContext(
     /** Machine-captured error, if any — read, never raised. */
     error: useContext<ResponseError>(state, "error"),
 
+    /** Machine-captured error message, if any — read, never raised. */
+    errors: useContext<ResponseError["message"]>(state, "error.message"),
+
     /** The id of the contract being managed. */
     id: useContext<IContract["id"]>(state, "contractId"),
+
+    /** The reused lookups the payment-method form draws from (`loadLookups`). */
+    lookups: useContext<ContractContext["lookups"]>(state, "lookups"),
 
     /**
      * The open payment-method form: `schema`, `uischema` and the parsed `model`
      * (R35), set on the `PAYMENT_METHOD` open transition and offering the
      * client's stored payment methods. A surface renders it and submits its
-     * model to `submitPaymentMethod`; the machine parses and validates against
-     * its schema.
+     * model through `update`; the machine parses and validates against its
+     * schema.
      */
     paymentMethod: useContext<ContractForm | undefined>(state, "paymentMethod"),
 
     /** The raw `IContract` API response beside the view model. */
-    rawContract
+    rawContract,
+
+    /** Display title of the record. */
+    title,
+
+    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+    validationErrors: useContext<ErrorObject[]>(state, "error.data")
   };
 }
 

@@ -1,0 +1,22 @@
+Negative control for useContract.context.ts `errors` (R37 B2).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("carries the failed read's message through useContext().errors") — asserts
+`useContract().useContext().errors` carries the machine's captured
+`error.message` beside `error`.
+
+Mutation: drops the `errors` member from the manager context factory.
+
+diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
+--- a/packages/headless/src/modules/contract/useContract.context.ts
++++ b/packages/headless/src/modules/contract/useContract.context.ts
+@@ -71,9 +71,6 @@
+     /** Machine-captured error, if any — read, never raised. */
+     error: useContext<ResponseError>(state, "error"),
+ 
+-    /** Machine-captured error message, if any — read, never raised. */
+-    errors: useContext<ResponseError["message"]>(state, "error.message"),
+-
+     /** The id of the contract being managed. */
+     id: useContext<IContract["id"]>(state, "contractId"),
+ 

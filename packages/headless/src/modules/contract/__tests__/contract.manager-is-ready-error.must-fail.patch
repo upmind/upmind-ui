@@ -1,0 +1,22 @@
+Negative control for useContract.actions.ts `isReady` error-settle (D43 B10).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("resolves isReady() false at once on the error node (D43)") — asserts
+`isReady()` resolves `false` promptly once the machine settles on the
+top-level `error` node, rather than only after the 60s default timeout.
+
+Mutation: drops the `"error"` error-states argument, so `isReady()` names no
+error state and can only resolve on a load failure via timeout.
+
+diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
+--- a/packages/headless/src/modules/contract/useContract.actions.ts
++++ b/packages/headless/src/modules/contract/useContract.actions.ts
+@@ -49,7 +49,7 @@
+    *   it never settled.
+    */
+   async function isReady(): Promise<boolean> {
+-    return waitForProcessing(service, ["available", "unavailable"], "error");
++    return waitForProcessing(service, ["available", "unavailable"]);
+   }
+ 
+   /**

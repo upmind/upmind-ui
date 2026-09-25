@@ -65,7 +65,7 @@ export default createMachine(
         invoke: {
           src: "load",
           onDone: { actions: ["setContract", "setLookups"] },
-          onError: { actions: ["setError"] }
+          onError: { target: "#error", actions: ["setError"] }
         },
         always: [
           { target: ContractState.CANCELLED, cond: "isCancelled" },
@@ -76,8 +76,16 @@ export default createMachine(
           { target: ContractState.INACTIVE, cond: "isInactive" },
           { target: ContractState.SUSPENDED, cond: "isSuspended" },
           { target: ContractState.ACTIVE, cond: "isActive" },
-          { cond: "isUnrecognised", actions: ["setStatusError"] }
+          {
+            target: "#error",
+            cond: "isUnrecognised",
+            actions: ["setStatusError"]
+          }
         ]
+      },
+
+      error: {
+        id: "error"
       },
 
       available: {

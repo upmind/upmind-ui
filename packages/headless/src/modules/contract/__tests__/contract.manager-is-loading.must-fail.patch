@@ -1,0 +1,35 @@
+Negative control for useContract.meta.ts `isLoading` reshape (D43 B13).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("isLoading follows the template's subscribing/loading form once the error
+node lands") — asserts `useContract().useMeta().isLoading` is true through
+`subscribing` and `loading` and turns false the instant the machine settles
+on the top-level `error` node, matching the template form
+`stateMatches(state, ["subscribing", "loading"])` with no extra `hasError`
+guard.
+
+Mutation: reverts `isLoading` to the pre-restore workaround that ANDs in
+`!hasError.value`, needed only because a failed load had nowhere else to go.
+
+diff --git a/packages/headless/src/modules/contract/useContract.meta.ts b/packages/headless/src/modules/contract/useContract.meta.ts
+--- a/packages/headless/src/modules/contract/useContract.meta.ts
++++ b/packages/headless/src/modules/contract/useContract.meta.ts
+@@ -1,6 +1,6 @@
+ import { computed } from "vue";
+ import { ContractState } from "./contract.types";
+-import { contextValue, useStateMatches } from "../../utils";
++import { contextValue, stateMatches, useStateMatches } from "../../utils";
+ import { isNil } from "lodash-es";
+ import type { ContractContext } from "./contract.types";
+ import type { UseActor } from "../../utils";
+@@ -31,7 +31,9 @@ export function createContractMeta(
+     isAvailable: useStateMatches(state, "available"),
+
+     /** True while the machine is waiting for the session or reading the contract. */
+-    isLoading: useStateMatches(state, ["subscribing", "loading"]),
++    isLoading: computed(
++      () => stateMatches(state, ["subscribing", "loading"]) && !hasError.value
++    ),
+
+     /** True while the payment-method write is being processed, from either parent. */
+     isProcessing: useStateMatches(state, [

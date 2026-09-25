@@ -1,0 +1,24 @@
+Negative control for useContract.meta.ts `isValid` rename (R37 B12).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("the payment-method form reports valid through the one-form isValid flag")
+— asserts `useContract().useMeta().isValid` (the template name; the manager
+holds ONE form, so no D42 two-form exemption applies) is true on
+`available.changingPaymentMethod.available.valid` or
+`unavailable.changingPaymentMethod.available.valid`.
+
+Mutation: reverts the meta flag back to the pre-restore `isPaymentMethodValid`
+name.
+
+diff --git a/packages/headless/src/modules/contract/useContract.meta.ts b/packages/headless/src/modules/contract/useContract.meta.ts
+--- a/packages/headless/src/modules/contract/useContract.meta.ts
++++ b/packages/headless/src/modules/contract/useContract.meta.ts
+@@ -49,7 +49,7 @@ export function createContractMeta(
+     ]),
+
+     /** True when the open payment-method form passes validation, from either parent. */
+-    isValid: useStateMatches(state, [
++    isPaymentMethodValid: useStateMatches(state, [
+       "available.changingPaymentMethod.available.valid",
+       "unavailable.changingPaymentMethod.available.valid"
+     ]),

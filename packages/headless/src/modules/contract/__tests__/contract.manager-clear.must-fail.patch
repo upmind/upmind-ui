@@ -1,0 +1,30 @@
+Negative control for useContract.actions.ts `clear` rename (R37 B7).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("clear closes the open payment-method form") — asserts
+`useContract().useActions().clear()` (the template name) sends
+`CANCEL.PAYMENT_METHOD` and closes the form.
+
+Mutation: reverts the action back to the pre-restore `cancelForm` name.
+
+diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
+--- a/packages/headless/src/modules/contract/useContract.actions.ts
++++ b/packages/headless/src/modules/contract/useContract.actions.ts
+@@ -148,7 +148,7 @@
+   const debouncedInput = debounce(input, DEBOUNCE_DELAY);
+ 
+   /** Closes the open form and re-places the node, form cleared. */
+-  function clear(): void {
++  function cancelForm(): void {
+     send({ type: "CANCEL.PAYMENT_METHOD" });
+   }
+ 
+@@ -257,7 +257,7 @@
+     /**
+      * @scenario-include
+      */
+-    clear,
++    cancelForm,
+ 
+     /**
+      * @scenario-include
