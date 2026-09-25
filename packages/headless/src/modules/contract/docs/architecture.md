@@ -15,6 +15,7 @@ stateDiagram-v2
 
     loading --> available: pending/inactive/active/suspended/cancelling
     loading --> unavailable: cancelled/lapsed/fraud
+    loading --> error: load failed, or status unrecognised
 
     state available {
       [*] --> status
@@ -51,6 +52,7 @@ stateDiagram-v2
     loading --> subscribing: UNAUTHENTICATED
     available --> loading: REFRESH
     unavailable --> loading: REFRESH
+    error --> loading: REFRESH
 ```
 
 The `loading` state's `always` array is the one place `selectContractStatusNode` is consulted; it runs a fixed priority order (cancelled → lapsed → fraud → cancelling → the four published codes → unrecognised-error).
@@ -76,7 +78,7 @@ The form region's own `checking`/`valid`/`invalid`/`error` children validate the
                         useMeta() / useContext() (readers)
 ```
 
-1. **`useActions().setPaymentMethod(model)`** (or the raw `openPaymentMethod()` → `set()` → `submitPaymentMethod()` flow) sends events to the machine and waits for it to settle back on `available`/`unavailable`, unless the model is a no-op (see gotchas.md).
+1. **`useActions().setPaymentMethod(model)`** (or the raw `openPaymentMethod()` → `input()` → `update()` flow) sends events to the machine and waits for it to settle back on `available`/`unavailable`, unless the model is a no-op (see gotchas.md).
 2. **The form's own `processing` child** invokes `setPaymentMethod` from `contract.services.ts`, which issues the `PATCH`, invalidates the `["contracts"]` cache key, and returns the raw updated record.
 3. **`setContract`** maps the raw record through `contract.mappers.ts` and assigns both the raw record and the mapped view model onto context; the form's `paymentMethod` slot clears as the machine returns to `#loading`.
 4. **`useMeta()`/`useContext()`** read the settled state and context reactively; every published flag is a `computed` over `state`/`context`, never a snapshot.
@@ -85,9 +87,9 @@ The form region's own `checking`/`valid`/`invalid`/`error` children validate the
 
 | Sub-composable | `useContracts` | `useContract` |
 |----------------|------------------------|------------------------|
-| `useActions()` | `isReady`, `refresh`, `setCriteria`, `nextPage`, `prevPage`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `openPaymentMethod`, `set`, `cancelForm`, `submitPaymentMethod`, `setPaymentMethod`, `isReady`, `refresh`, `stop`, `destroy` |
-| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `cancellationRequestStatus`, `cancellationRequestStatusCode`, `contract`, `contractStatus`, `contractStatusCode`, `error`, `id`, `paymentMethod`, `rawContract` |
-| `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `hasPages`, `hasNextPage`, `hasPrevPage`, `hasError` | the eight status/unavailable node flags, `isAvailable`, `isLoading`, `isSubmitting`, `hasError` |
+| `useActions()` | `isReady`, `refresh`, `setCriteria`, `nextPage`, `prevPage`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `openPaymentMethod`, `input`, `clear`, `update`, `setPaymentMethod`, `onDone`, `isReady`, `refresh`, `stop`, `destroy` |
+| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `cancellationRequestStatus`, `cancellationRequestStatusCode`, `contract`, `context`, `contractStatus`, `contractStatusCode`, `error`, `errors`, `id`, `lookups`, `paymentMethod`, `rawContract`, `title`, `validationErrors` |
+| `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `hasPages`, `hasNextPage`, `hasPrevPage`, `hasError` | the eight status/unavailable node flags, `isAvailable`, `isLoading`, `isProcessing`, `isValid`, `hasError` |
 | `useInternals()` | raw query access | raw machine-state access |
 
 ## Services

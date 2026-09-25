@@ -22,7 +22,7 @@ const { data } = contracts.useContext();
 
 const contract = useContract().as("client").for("contract", contractId);
 await contract.useActions().isReady();
-const { isActive, isSubmitting } = contract.useMeta();
+const { isActive, isProcessing } = contract.useMeta();
 ```
 
 See [Usage](./usage.md) for the complete API reference.
@@ -33,7 +33,7 @@ See [Usage](./usage.md) for the complete API reference.
 |---------|--------|-------|
 | Page through the client's own contracts | ✅ | `useContracts` — pagination only, no filter or sort surface |
 | Load one contract in full detail | ✅ | `useContract` |
-| Set the contract's payment method | ✅ | `useContract` — `openPaymentMethod`/`set`/`submitPaymentMethod`, or the direct `setPaymentMethod` call; offered on every live status and on a cancelled/lapsed contract, refused only when fraudulent |
+| Set the contract's payment method | ✅ | `useContract` — `openPaymentMethod`/`input`/`update`, or the direct `setPaymentMethod` call; offered on every live status and on a cancelled/lapsed contract, refused only when fraudulent |
 | No-op refusal on an unchanged payment method | ✅ | Submitting the method the contract already uses, or none, sends nothing and resolves `false` |
 
 ## Key Concepts

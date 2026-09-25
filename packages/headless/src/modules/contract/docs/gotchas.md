@@ -8,7 +8,7 @@ Edge cases, known issues, and things to watch out for.
 
 ## Submitting the SAME payment method (or none) sends nothing — and that is correct 🧪
 
-`submitPaymentMethod()` (and `setPaymentMethod()`, which wraps it) compares the form's `paymentDetailsId` against the loaded contract's own `paymentDetailsId` BEFORE sending anything. An empty selection, or the method the contract already uses, resolves `false` with no `PATCH` sent at all — this mirrors the legacy screen it ports, which refuses to submit when nothing actually changed.
+`update()` (and `setPaymentMethod()`, which wraps it) compares the form's `paymentDetailsId` against the loaded contract's own `paymentDetailsId` BEFORE sending anything. An empty selection, or the method the contract already uses, resolves `false` with no `PATCH` sent at all — this mirrors the legacy screen it ports, which refuses to submit when nothing actually changed.
 
 ```typescript
 // ❌ Wrong — assumes a resolved `false` never happens on a "successful" call
@@ -73,9 +73,9 @@ They don't. The collection's list query and one manager instance's machine conte
 
 | Scenario | Expected Behavior | Notes |
 |----------|-------------------|-------|
-| Payment-method model names no method | `submitPaymentMethod`/`setPaymentMethod` resolves `false`, sends nothing | The no-op check treats an empty id the same as an unchanged one |
+| Payment-method model names no method | `update`/`setPaymentMethod` resolves `false`, sends nothing | The no-op check treats an empty id the same as an unchanged one |
 | Contract is flagged fraudulent | The payment-method form's open event is refused | The one `unavailable` node the form does not reach |
-| A contract's status code is outside the seven published codes | The contract never finishes loading; `isReady()` stalls the full wait then resolves `false` | The `isUnrecognised` guard records the failure but transitions nowhere |
+| A contract's status code is outside the seven published codes | The contract settles on the machine's top-level `error` node; `isReady()` resolves `false` once it lands there | The `isUnrecognised` guard captures a status error before the transition; a `REFRESH` leaves `error` and re-runs the load |
 | The reused stored-payment-methods lookup fails or is slow | The payment-method form still opens, with an empty options list | The lookup degrades rather than blocking or failing the contract's own load |
 
 ---

@@ -61,7 +61,7 @@ destroy();        // stops the machine and deregisters it
 Available two ways: a direct call (opens the form, feeds it a model, submits — all in one), or the raw form flow for a consumer building an actual form UI.
 
 ```typescript
-const { openPaymentMethod, set, cancelForm, submitPaymentMethod, setPaymentMethod } = contract.useActions();
+const { openPaymentMethod, input, clear, update, setPaymentMethod, onDone } = contract.useActions();
 
 // Direct call
 const result = await setPaymentMethod({ paymentDetailsId: storedCardId });
@@ -69,12 +69,15 @@ const result = await setPaymentMethod({ paymentDetailsId: storedCardId });
 // Raw form flow
 openPaymentMethod();
 const { paymentMethod } = contract.useContext(); // { schema, uischema, model }
-set({ paymentDetailsId: storedCardId });
-await submitPaymentMethod();
-cancelForm(); // closes without submitting
+input({ paymentDetailsId: storedCardId }); // debounced; feeds and validates the model against the form's schema
+await update();
+clear(); // closes without submitting
+
+// Waiting for a write to settle
+await onDone(); // resolves once a submitted write leaves processing; false if the machine stops first
 ```
 
-`submitPaymentMethod()` (and therefore `setPaymentMethod()`, which calls it) resolves `false` — sending nothing — when the model names no method, or names the method the contract already uses. This is a deliberate no-op, not a failure:
+`update()` (and therefore `setPaymentMethod()`, which calls it) resolves `false` — sending nothing — when the model names no method, or names the method the contract already uses. This is a deliberate no-op, not a failure:
 
 ```typescript
 try {
@@ -111,7 +114,8 @@ All return Vue `ComputedRef<boolean>`.
 | `isAvailable` | Placed on any `available` node |
 | `isPending` / `isInactive` / `isActive` / `isSuspended` / `isCancelling` | Which published status node |
 | `isCancelled` / `isLapsed` / `isFraud` | Which unavailable node |
-| `isSubmitting` | The payment-method write is being processed, from either parent (`available` or `unavailable`) |
+| `isProcessing` | The payment-method write is being processed, from either parent (`available` or `unavailable`) |
+| `isValid` | The open payment-method form passes validation, from either parent |
 | `hasError` | The machine captured an error |
 
 ## Context (Computed Values)
@@ -137,16 +141,21 @@ const {
   cancellationRequestStatus,     // the cancellation-request status, in the platform vocabulary; undefined when no request exists
   cancellationRequestStatusCode, // the raw wire string, next to the field above
   contract,                      // ComputedRef<Contract | undefined> — the mapped view model
+  context,                        // the full machine context object
   contractStatus,                // the contract status, in the platform vocabulary
   contractStatusCode,            // the raw wire string, next to the field above
-  error,                          // ComputedRef<ResponseError | undefined>
+  error,                          // ComputedRef<ResponseError | undefined> — machine-captured, read never raised
+  errors,                          // the machine-captured error message, if any
   id,                              // the id of the contract being managed
+  lookups,                         // the reused lookups the payment-method form draws from
   paymentMethod,                  // the open payment-method form: { schema, uischema, model } | undefined
-  rawContract                     // the raw wire record beside the view model
+  rawContract,                     // the raw wire record beside the view model
+  title,                           // display title of the record, derived off the raw wire record
+  validationErrors                 // field-level validation errors (AJV `ErrorObject[]`) — read, never raised
 } = contract.useContext();
 ```
 
-`paymentMethod` is `undefined` until `openPaymentMethod()` runs; it becomes `{ schema, uischema, model }` for the lifetime of the form and clears again on `cancelForm()` or on a successful submit (which re-reads the contract and returns to `#loading`).
+`paymentMethod` is `undefined` until `openPaymentMethod()` runs; it becomes `{ schema, uischema, model }` for the lifetime of the form and clears again on `clear()` or on a successful submit (which re-reads the contract and returns to `#loading`).
 
 ## Vue Component Integration
 
@@ -155,7 +164,7 @@ const {
   <div v-if="isLoading">Loading...</div>
   <div v-else-if="hasError">{{ error?.message }}</div>
   <div v-else>
-    <button :disabled="isFraud || isSubmitting" @click="openPaymentMethod()">
+    <button :disabled="isFraud || isProcessing" @click="openPaymentMethod()">
       Change payment method
     </button>
   </div>
@@ -164,7 +173,7 @@ const {
 <script setup>
 const contract = useContract().as("client").for("contract", props.contractId);
 const { error } = contract.useContext();
-const { isLoading, isSubmitting, isFraud, hasError } = contract.useMeta();
+const { isLoading, isProcessing, isFraud, hasError } = contract.useMeta();
 const { openPaymentMethod } = contract.useActions();
 </script>
 ```
