@@ -20,8 +20,10 @@ import type { ActorRef, AnyEventObject } from "xstate";
  * @module contract/contract.types
  * @description Types for a client's own contracts — the query-backed
  * COLLECTION (`useContracts`) and the bespoke-machine MANAGER (`useContract`,
- * `contract.machine.ts`). Each composable owns its own context enum and scope
- * matrix; the view model, the services contract and the mappers are shared.
+ * `contract.machine.ts`). The collection owns its own context enum and scope
+ * matrix; the manager is a single-record read by id and declares no context
+ * enum (D93, templates/SINGLE-READ.md). The view model, the services
+ * contract and the mappers are shared.
  */
 
 // -----------------------------------------------------------------------------
@@ -45,17 +47,28 @@ export const CONTRACTS_SCOPE_MATRIX = {
 /** Scope matrix type for `useContracts` (derived from the runtime const). */
 export type ContractsScopeMatrix = typeof CONTRACTS_SCOPE_MATRIX;
 
-/** Context types for the contract MANAGER — which contract is being addressed. */
-export enum ContractContextTypes {
-  /** Acting on one existing contract by id. */
-  CONTRACT = "contract"
-}
-
-/** Scope matrix for `useContract`. `.for('contract', id)` names the record. */
+/**
+ * Scope matrix for `useContract` — every actor refused.
+ *
+ * @decision
+ * what: the manager declares NO context enum, and every cell of its matrix is
+ *   `never`.
+ * why: `useContract` is a SINGLE-RECORD READ BY ID (templates/SINGLE-READ.md).
+ *   The contract id rides on `.withId(id)`, which `generateScopeKey` folds in
+ *   as `id:<value>`. `ContextsForActor` resolves `never` for all four actors,
+ *   so `MatrixHasAnyContexts` is `false` and `.for()` is a compile error for
+ *   everyone.
+ * rejected: minting a `ContractContextTypes.CONTRACT` and naming it in the
+ *   CLIENT cell — the shape this module shipped before D93. It modelled a
+ *   leaf record as an ADR-001 context with no oracle entity behind it, and
+ *   only renamed the template's `.for('module-item', id)` /
+ *   `ModuleContextTypes.ITEM`. See the exemplar `useContractProduct`
+ *   (D46) and `tickets/useTicket` (2026-09-22 operator review).
+ */
 export const CONTRACT_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
-  [ScopeActorTypes.CLIENT]: ContractContextTypes.CONTRACT,
+  [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
@@ -151,7 +164,7 @@ export type ContractForm = {
 
 /** Context for `contract.machine.ts`. */
 export type ContractContext = {
-  /** The contract being managed, seeded from `.for('contract', id)`. */
+  /** The contract being managed, seeded from `.withId(id)`. */
   contractId?: IContract["id"];
 
   /** Spawned auth subscription actor. */

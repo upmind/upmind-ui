@@ -17,10 +17,10 @@
  * The DIRECTORY is the url segment and route name (`/useContract`). The
  * contract is addressed by the `id` route param declared below —
  * `/useContract/<id>` — and the page boots
- * `.as(ScopeActorTypes.CLIENT).for(ContractContextTypes.CONTRACT, id)`:
- * `CONTRACT_SCOPE_MATRIX` names the record as a `contract` context, so the id
- * completes the scope rather than a `.withId()`. OPTIONAL, because the bare url
- * is the empty state — with no id the page offers an id input.
+ * `.as(ScopeActorTypes.CLIENT).withId(id)`, the single-record read form
+ * (templates/SINGLE-READ.md; `CONTRACT_SCOPE_MATRIX` refuses every actor a
+ * context). OPTIONAL, because the bare url is the empty state — with no id
+ * the page offers an id input.
  *
  * `useManage` is the opt-in a self-drawn declaration makes so the harness can
  * build a boot thunk for its key, and `tracks` names the module whose

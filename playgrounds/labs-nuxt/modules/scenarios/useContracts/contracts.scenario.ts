@@ -8,11 +8,9 @@
  *
  * No `useMutate`: the collection has no generic write — see
  * `contracts.presentation.ts`'s module docblock. No `useDetail` either,
- * DELIBERATELY: the manager addresses its contract through
- * `.for('contract', id)` (`CONTRACT_SCOPE_MATRIX`), and the runtime's generic
- * detail fetch (`useModulePort.ts`) only ever calls `scoped.withId(scope.id)`,
- * so binding `useContract` here would boot it with no contract at all. The
- * detail overlay draws the clicked row's OWN data instead.
+ * DELIBERATELY: the manager is its own self-drawn page (`contract.page.vue`),
+ * so binding it here would double the read. The detail overlay draws the
+ * clicked row's OWN data instead.
  *
  * The FILE is named for the module it declares and the DIRECTORY is the url
  * segment and the route name (`/useContracts`). No scope is declared: the page

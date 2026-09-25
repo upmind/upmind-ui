@@ -2,7 +2,6 @@ import { interpret } from "xstate";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import contractMachine from "./contract.machine";
-import { CONTRACT_SCOPE_MATRIX, ContractContextTypes } from "./contract.types";
 import { createContractActions } from "./useContract.actions";
 import { createContractContext } from "./useContract.context";
 import { createContractInternals } from "./useContract.internals";
@@ -21,9 +20,9 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * @module contract/useContract
  * @description Scoped manager for ONE contract, backed by the module's own
  * `contract.machine.ts`. One interpreter per concrete `(actor, contract)`
- * scope: the contract comes from `.for('contract', id)`. Registered under the
- * same module name as `useContracts`; the scope key carries the
- * differentiation.
+ * scope: the contract comes from `.withId(id)`, the single-record read form
+ * (templates/SINGLE-READ.md). Registered under the same module name as
+ * `useContracts`; the scope key carries the differentiation.
  *
  * @doctrine clause 1 (uniform four-layer default).
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete actor.
@@ -33,10 +32,9 @@ function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 
   const actorScope = config.actor as ScopeActorTypes;
 
-  const contractId =
-    config.context?.type === ContractContextTypes.CONTRACT
-      ? config.context.id
-      : undefined;
+  // SINGLE-READ step 3: the id comes from `.withId(id)` — `config.id` — and is
+  // never re-derived from `config.context` (templates/SINGLE-READ.md).
+  const contractId = config.id;
 
   const machineService = interpret(
     contractMachine.withContext({ contractId }),
@@ -79,7 +77,7 @@ function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  *
  * @example
  * ```ts
- * const manager = useContract().as('client').for('contract', contractId)
+ * const manager = useContract().as('client').withId(contractId)
  * await manager.useActions().isReady()
  * await manager.useActions().setPaymentMethod({ paymentDetailsId })
  * ```
@@ -87,6 +85,6 @@ function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useContract = createScopedComposable<
   ReturnType<typeof createContractForScope>,
   ContractScopeMatrix
->("contract", createContractForScope, CONTRACT_SCOPE_MATRIX);
+>("contract", createContractForScope);
 
 export type UseContract = ReturnType<typeof useContract>;

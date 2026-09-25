@@ -218,7 +218,7 @@
 /**
  * @module scenarios/useContract/contract.page
  * @description The client×self contract MANAGER, drawn directly. It boots
- * `useContract().as(ScopeActorTypes.CLIENT).for(ContractContextTypes.CONTRACT, id)`
+ * `useContract().as(ScopeActorTypes.CLIENT).withId(id)`
  * from the id the route param carries, and drives the manager's own members:
  * the contract and its status, the payment-method form
  * (`openPaymentMethod`/`input`/`clear`/`update`), `refresh` and the force
@@ -263,7 +263,6 @@ import {
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  ContractContextTypes,
   formRenderers,
   Icon,
   ScopeActorTypes,
@@ -300,9 +299,7 @@ const contractId = computed(() => {
 });
 
 const manager = contractId.value
-  ? useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, contractId.value)
+  ? useContract().as(ScopeActorTypes.CLIENT).withId(contractId.value)
   : undefined;
 
 const actions = manager?.useActions();
@@ -315,9 +312,7 @@ const { tracks, states, player, isLocked } = useScenarioTransport({
   module: scenario.tracks,
   world: useScenarioWorld(registry, {
     key: CONTRACT_SCENARIO,
-    context: contractId.value
-      ? { type: ContractContextTypes.CONTRACT, id: contractId.value }
-      : undefined
+    id: contractId.value
   }),
   scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor }),
   reset: actions?.reset
