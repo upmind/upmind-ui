@@ -34,7 +34,7 @@
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { ContractStatusCodes } from "@upmind-automation/types";
-import { ContractContextTypes, useContract } from "..";
+import { useContract } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installContractHandler,
@@ -95,9 +95,7 @@ async function openWithCards() {
     )
   );
   const row = recorded.one().data;
-  const manager = useContract()
-    .as(ScopeActorTypes.CLIENT)
-    .for(ContractContextTypes.CONTRACT, row.id);
+  const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
   await manager.useActions().isReady();
   await manager.useActions().openPaymentMethod();
   await vi.waitFor(() => {
@@ -196,9 +194,7 @@ async function settleWithCards(row?: Record<string, unknown> & { id: string }) {
       })
     )
   );
-  const manager = useContract()
-    .as(ScopeActorTypes.CLIENT)
-    .for(ContractContextTypes.CONTRACT, served.id);
+  const manager = useContract().as(ScopeActorTypes.CLIENT).withId(served.id);
   await manager.useActions().isReady();
   return { manager, row: served };
 }

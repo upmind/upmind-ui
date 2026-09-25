@@ -25,7 +25,7 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
-import { ContractContextTypes, useContract, useContracts } from "..";
+import { useContract, useContracts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installBackgroundStubs,
@@ -95,9 +95,7 @@ describe("useContract — I open one of my contracts with everything the account
       })
     );
 
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, row.id);
+    const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
     await manager.useActions().isReady();
 
     expect(capturedUrl).toBeDefined();
@@ -119,9 +117,7 @@ describe("useContract — I open one of my contracts with everything the account
       })
     );
 
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, row.id);
+    const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
     await manager.useActions().isReady();
 
     // The real capture's own status.code, read back off the manager's

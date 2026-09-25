@@ -22,7 +22,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { ContractContextTypes, useContract, useContracts } from "..";
+import { useContract, useContracts } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useSessionStore } from "../../session-store";
 import {
@@ -74,9 +74,7 @@ describe("contract with no authenticated client session (AC-16)", () => {
     const observed = observeAllRequests();
 
     useContracts().as(ScopeActorTypes.CLIENT);
-    useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, TARGET_ID);
+    useContract().as(ScopeActorTypes.CLIENT).withId(TARGET_ID);
     // Give an (incorrectly) enabled query/machine time to fire before
     // asserting absence.
     await new Promise(resolve => setTimeout(resolve, 400));
@@ -103,9 +101,7 @@ describe("contract with no authenticated client session (AC-16)", () => {
   it("AC-16 never reports the manager ready — it stays in `subscribing`", async () => {
     await bootUnauthenticated();
 
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, TARGET_ID);
+    const manager = useContract().as(ScopeActorTypes.CLIENT).withId(TARGET_ID);
 
     const settled = await Promise.race([
       manager.useActions().isReady(),
@@ -119,9 +115,7 @@ describe("contract with no authenticated client session (AC-16)", () => {
     await bootUnauthenticated();
     const observed = observeAllRequests();
 
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, TARGET_ID);
+    const manager = useContract().as(ScopeActorTypes.CLIENT).withId(TARGET_ID);
 
     await expect(
       settlement(

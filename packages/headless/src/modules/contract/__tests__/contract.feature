@@ -356,3 +356,10 @@ Feature: A client manages their own contracts
     When I look at my contract
     Then it has stopped loading and reports an error
     And I am told at once that it is not ready
+
+  @FE-3029 @manager @member
+  Scenario: The contract I manage is the one I addressed by id
+    Given I address one of my contracts by its id
+    When I open the manager on that id
+    Then the manager reads that contract, and holds it as the contract I have open
+    And a manager I open on another id never holds it

@@ -28,7 +28,7 @@
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import { ContractStatusCodes } from "@upmind-automation/types";
-import { ContractContextTypes, useContract } from "..";
+import { useContract } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installContractHandler,
@@ -53,9 +53,7 @@ async function openManager() {
     )
   );
   const row = recorded.one().data;
-  const manager = useContract()
-    .as(ScopeActorTypes.CLIENT)
-    .for(ContractContextTypes.CONTRACT, row.id);
+  const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
   await manager.useActions().isReady();
   return manager;
 }
@@ -67,9 +65,7 @@ async function openManagerWithStatus(code: ContractStatusCodes) {
   const base = recorded.one().data as Record<string, unknown> & { id: string };
   const row = { ...base, status: { code } };
   installContractHandler(server, row);
-  const manager = useContract()
-    .as(ScopeActorTypes.CLIENT)
-    .for(ContractContextTypes.CONTRACT, row.id);
+  const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
   await manager.useActions().isReady();
   return manager;
 }

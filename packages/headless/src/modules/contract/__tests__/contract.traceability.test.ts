@@ -290,6 +290,11 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     line: 354,
     text: "Scenario: A contract read whose status is none I know settles on an error instead of a state",
     disposition: "proves"
+  },
+  {
+    line: 361,
+    text: "Scenario: The contract I manage is the one I addressed by id",
+    disposition: "proves"
   }
 ];
 

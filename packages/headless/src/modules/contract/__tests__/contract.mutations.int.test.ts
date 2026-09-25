@@ -20,7 +20,7 @@
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import { ContractStatusCodes } from "@upmind-automation/types";
-import { ContractContextTypes, useContract } from "..";
+import { useContract } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   assertClientIdentityTransport,
@@ -49,9 +49,7 @@ async function openManager() {
   const { accessToken } = await seedClientSession();
   installContractHandler(server);
   const row = recorded.one().data;
-  const manager = useContract()
-    .as(ScopeActorTypes.CLIENT)
-    .for(ContractContextTypes.CONTRACT, row.id);
+  const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
   await manager.useActions().isReady();
   return { manager, row, accessToken };
 }
@@ -114,9 +112,7 @@ describe("useContract — I point my contract at a different stored payment meth
       status: { code: ContractStatusCodes.CANCELLED }
     };
     installContractHandler(server, row);
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, row.id);
+    const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
     await manager.useActions().isReady();
     const captured: Captured = {};
 
@@ -161,9 +157,7 @@ describe("useContract — I point my contract at a different stored payment meth
       status: { code: ContractStatusCodes.SUSPENDED }
     };
     installContractHandler(server, row);
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, row.id);
+    const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
     await manager.useActions().isReady();
     const captured: Captured = {};
 
@@ -213,9 +207,7 @@ describe("useContract — a contract holding a one-off purchase is offered the p
     }));
     const row = { ...base, products };
     installContractHandler(server, row);
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, row.id);
+    const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
     await manager.useActions().isReady();
     const captured: Captured = {};
 
@@ -408,7 +400,7 @@ describe("useContract — no staff route is ever reachable from my contract surf
 });
 
 describe("useContract — the account I act on is the one my scope resolved (AC-16, FE-2824)", () => {
-  it("AC-16 the request is addressed to the contract `.for()` resolved, never to any clientId option or an unresolved id", async () => {
+  it("AC-16 the request is addressed to the contract `.withId()` named, never to any clientId option or an unresolved id", async () => {
     const { manager, row } = await openManager();
     const observed = observeAllRequests();
 
@@ -426,8 +418,8 @@ describe("useContract — the account I act on is the one my scope resolved (AC-
     expect(requests.length).toBeGreaterThan(0);
     for (const request of requests) {
       // The load-bearing, falsifiable half: the URL is addressed to the REAL
-      // id `.for(CONTRACT, row.id)` resolved — a regression that dropped
-      // that retargeting and fell back to the session's own client id (or to
+      // id `.withId(row.id)` named — a regression that dropped
+      // that id and fell back to the session's own client id (or to
       // nothing) fails this line, where a bare "not clients/undefined/"
       // check never could, because this URL shape never carries a
       // "clients/" segment to begin with.

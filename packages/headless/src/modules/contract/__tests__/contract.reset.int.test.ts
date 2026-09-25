@@ -20,7 +20,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { ContractContextTypes, useContract } from "..";
+import { useContract } from "..";
 import { queryClient } from "../../query/client";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -51,9 +51,7 @@ describe("useContract — reset() drops the module cache before it redials", () 
     const row = recorded.one().data as { id: string; status: { code: string } };
     const handler = installContractHandler(server);
 
-    const manager = useContract()
-      .as(ScopeActorTypes.CLIENT)
-      .for(ContractContextTypes.CONTRACT, row.id);
+    const manager = useContract().as(ScopeActorTypes.CLIENT).withId(row.id);
     await manager.useActions().isReady();
     const readsAfterOpen = handler.reads();
     expect(readsAfterOpen).toBeGreaterThan(0);

@@ -28,7 +28,7 @@
 
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
-import { ContractContextTypes, useContract } from "..";
+import { useContract } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   installContractHandler,
@@ -95,9 +95,7 @@ function installLookupHandlers(): void {
 }
 
 function managerFor(id: string) {
-  return useContract()
-    .as(ScopeActorTypes.CLIENT)
-    .for(ContractContextTypes.CONTRACT, id);
+  return useContract().as(ScopeActorTypes.CLIENT).withId(id);
 }
 
 async function openManager() {
@@ -219,6 +217,36 @@ describe("useContract — the contract I have open (context members, R37)", () =
         [...cardIds].sort()
       );
     });
+  });
+});
+
+describe("useContract — the single read is addressed by `.withId(id)` (D95)", () => {
+  // @proves contract.feature:361
+  it("The contract I manage is the one I addressed by id", async () => {
+    await seedClientSession();
+    installContractHandler(server);
+    installLookupHandlers();
+    const row = recorded.one().data as ContractRow;
+    const failure = recorded.withdrawRejected().response;
+    server?.use(
+      http.get(`*/contracts/${OUT_OF_ENUM_ID}`, () =>
+        HttpResponse.json(failure.body as Record<string, unknown>, {
+          status: failure.status
+        })
+      )
+    );
+    const observed = observeAllRequests();
+
+    const addressed = managerFor(row.id);
+    const other = managerFor(OUT_OF_ENUM_ID);
+
+    expect(await addressed.useActions().isReady()).toBe(true);
+    expect(addressed.useContext().contract.value?.id).toBe(row.id);
+    expect(observed.matching(`/contracts/${row.id}`).length).toBeGreaterThan(0);
+
+    await vi.waitFor(() => expect(other.useMeta().hasError.value).toBe(true));
+    expect(other.useContext().contract.value?.id).not.toBe(row.id);
+    observed.stop();
   });
 });
 
