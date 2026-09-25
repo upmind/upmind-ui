@@ -10,7 +10,10 @@
 #   "refuses the payment-method form on a fraud contract — its slot stays empty
 #   (R13 excludes fraud)"
 #   (with the fraud exclusion gone the open fills the slot, so
-#   `expect(manager.useContext().paymentMethod.value).toBeFalsy()` flips).
+#   `expect(manager.useContext().paymentMethod.value).toBeFalsy()` flips);
+#   and contract.payment-method-standing.int.test.ts:202 "The payment-method
+#   form is refused on a contract held for fraud" (contract.feature:392 — the
+#   form opens, so `isPaymentMethodOpen` flips to true).
 # Mutation: `canChangePaymentMethod` drops the `!== ContractState.FRAUD` check,
 #   so the `unavailable` open transition admits a fraud contract.
 #

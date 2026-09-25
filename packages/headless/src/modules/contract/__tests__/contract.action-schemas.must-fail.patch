@@ -11,7 +11,11 @@
 #   "useContract payment-method form — reads the live contract (AC-8, R35, D3/D4)"
 #   > "defaults paymentDetailsId to the contract's own current method, nullable
 #   and required" (the schema property's `default` is now `undefined`, so
-#   `expect(prop.default).toBe(current)` flips).
+#   `expect(prop.default).toBe(current)` flips); and
+#   contract.payment-method-standing.int.test.ts:162 "The payment-method form
+#   never opens empty" (contract.feature:373 — the form's model no longer
+#   starts on the contract's card, so
+#   `expect(form?.model?.paymentDetailsId).toBe(row.payment_details_id)` flips).
 # Mutation: `useSetPaymentMethodSchema` hardwires the property `default` to
 #   `undefined` instead of the contract's current `paymentDetailsId`.
 #

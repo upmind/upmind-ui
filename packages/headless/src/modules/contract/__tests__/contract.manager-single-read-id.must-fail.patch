@@ -2,11 +2,11 @@
 #
 # Scenario it must flip: contract.feature >
 #   "The contract I manage is the one I addressed by id"
-# Spec that must flip (prover-authored, per the D95 hand-off): a
-#   contract.manager-*.int.test.ts assertion that
-#   `useContract().as(ScopeActorTypes.CLIENT).withId(id)` resolves and loads
-#   the SEEDED contract at that id — e.g. `useContext().contract.value.id`
-#   (or the machine's loaded record) equals the `.withId()` argument.
+# Test that goes red: contract.manager-members.int.test.ts:225
+#   "The contract I manage is the one I addressed by id" (contract.feature:361)
+#   — with no id the manager never reads the addressed contract, so
+#   `expect(addressed.useContext().contract.value?.id).toBe(row.id)` flips.
+#   Every other test that boots the manager by `.withId(id)` goes red with it.
 # Mutation: `createContractForScope` stops reading the id off `config.id`
 #   (the `.withId(id)` value) and hardcodes `undefined`, so the manager boots
 #   with no contract id at all regardless of what `.withId()` was called
