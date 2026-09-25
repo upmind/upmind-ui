@@ -11,6 +11,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resetHeadlessStub, setBrand } from "../../__tests__/headless.stub";
 import { useBrandConfig } from "../../index";
+import { cachedBrandIds, invalidateBrandConfig } from "../brand.cache";
 
 vi.mock("@upmind-automation/headless", async () => {
   const { createHeadlessStub } = await import("../../__tests__/headless.stub");
@@ -28,7 +29,7 @@ async function resolveBrand(id: string, extra = {}) {
 describe("useBrandConfig", () => {
   beforeEach(() => {
     resetHeadlessStub();
-    useBrandConfig().invalidate();
+    invalidateBrandConfig();
   });
 
   it("resolves nothing while the settings bundle has no id", () => {
@@ -40,10 +41,10 @@ describe("useBrandConfig", () => {
 
   it("caches the resolved bundle under the bundle's own id", async () => {
     const config = await resolveBrand("brand-eu");
-    const { cachedIds, meta } = useBrandConfig();
+    const { meta } = useBrandConfig();
 
     expect(config?.id).toBe("brand-eu");
-    expect(cachedIds()).toEqual(["brand-eu"]);
+    expect(cachedBrandIds()).toEqual(["brand-eu"]);
     expect(meta.value).toEqual({ isAvailable: true, isResolved: true });
   });
 
@@ -56,29 +57,8 @@ describe("useBrandConfig", () => {
   it("keeps one cache entry per brand id, not per read", async () => {
     await resolveBrand("brand-eu");
     const config = await resolveBrand("brand-us");
-    const { cachedIds } = useBrandConfig();
 
     expect(config?.id).toBe("brand-us");
-    expect([...cachedIds()].sort()).toEqual(["brand-eu", "brand-us"]);
-  });
-
-  it("drops only the named brand on invalidate(id)", async () => {
-    await resolveBrand("brand-eu");
-    await resolveBrand("brand-us");
-    const { cachedIds, invalidate } = useBrandConfig();
-
-    invalidate("brand-eu");
-
-    expect(cachedIds()).toEqual(["brand-us"]);
-  });
-
-  it("drops every brand on invalidate()", async () => {
-    await resolveBrand("brand-eu");
-    await resolveBrand("brand-us");
-    const { cachedIds, invalidate } = useBrandConfig();
-
-    invalidate();
-
-    expect(cachedIds()).toEqual([]);
+    expect([...cachedBrandIds()].sort()).toEqual(["brand-eu", "brand-us"]);
   });
 });
