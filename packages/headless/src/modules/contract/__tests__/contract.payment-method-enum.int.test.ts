@@ -109,6 +109,20 @@ async function openWithCards() {
   return { manager, row };
 }
 
+/** Waits out `input`'s debounce until the open form's model holds the id. The
+ * flush-on-submit path is proven on its own in
+ * `contract.manager-members.int.test.ts`. */
+async function awaitModel(
+  manager: Awaited<ReturnType<typeof openWithCards>>["manager"],
+  paymentDetailsId: string
+): Promise<void> {
+  await vi.waitFor(() => {
+    expect(manager.useContext().paymentMethod.value?.model).toEqual(
+      expect.objectContaining({ paymentDetailsId })
+    );
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 describe("useContract payment-method form — the stored-card enum (AC-8, D3)", () => {
@@ -139,12 +153,11 @@ describe("useContract payment-method form — the stored-card enum (AC-8, D3)", 
     const outOfEnumId = "00000000-0000-0000-0000-000000000000";
     expect(cardIds).not.toContain(outOfEnumId);
 
-    await manager.useActions().set({ paymentDetailsId: outOfEnumId });
+    await manager.useActions().input({ paymentDetailsId: outOfEnumId });
+    await awaitModel(manager, outOfEnumId);
     const observed = observeAllRequests();
 
-    await expect(
-      manager.useActions().submitPaymentMethod()
-    ).rejects.toBeDefined();
+    await expect(manager.useActions().update()).rejects.toBeDefined();
 
     observed.stop();
     expect(
@@ -207,13 +220,13 @@ describe("useContract — the payment-method form reports whether it is open and
     const meta = manager.useMeta();
 
     expect(meta.isPaymentMethodOpen.value).toBe(false);
-    expect(meta.isPaymentMethodValid.value).toBe(false);
+    expect(meta.isValid.value).toBe(false);
 
     await manager.useActions().openPaymentMethod();
     await awaitEnum(manager);
     expect(meta.isPaymentMethodOpen.value).toBe(true);
 
-    await manager.useActions().cancelForm();
+    await manager.useActions().clear();
     expect(meta.isPaymentMethodOpen.value).toBe(false);
   });
 
@@ -226,17 +239,17 @@ describe("useContract — the payment-method form reports whether it is open and
     const outOfEnumId = "00000000-0000-0000-0000-000000000000";
     expect(cardIds).not.toContain(outOfEnumId);
 
-    await manager.useActions().set({ paymentDetailsId: cardIds[0]! });
+    await manager.useActions().input({ paymentDetailsId: cardIds[0]! });
     await vi.waitFor(() => {
-      expect(meta.isPaymentMethodValid.value).toBe(true);
+      expect(meta.isValid.value).toBe(true);
     });
     expect(meta.isPaymentMethodOpen.value).toBe(true);
 
-    await manager.useActions().set({ paymentDetailsId: outOfEnumId });
+    await manager.useActions().input({ paymentDetailsId: outOfEnumId });
     await vi.waitFor(() => {
       expect(meta.hasError.value).toBe(true);
     });
-    expect(meta.isPaymentMethodValid.value).toBe(false);
+    expect(meta.isValid.value).toBe(false);
     expect(meta.isPaymentMethodOpen.value).toBe(true);
   });
 
@@ -252,10 +265,11 @@ describe("useContract — the payment-method form reports whether it is open and
     );
     await manager.useActions().openPaymentMethod();
     await awaitEnum(manager);
-    await manager.useActions().set({ paymentDetailsId: other! });
+    await manager.useActions().input({ paymentDetailsId: other! });
+    await awaitModel(manager, other!);
     expect(manager.useMeta().isPaymentMethodOpen.value).toBe(true);
 
-    await manager.useActions().submitPaymentMethod();
+    await manager.useActions().update();
 
     await vi.waitFor(() => {
       expect(manager.useMeta().isPaymentMethodOpen.value).toBe(false);
@@ -277,9 +291,11 @@ describe("useContract — the payment-method form reports whether it is open and
     await awaitEnum(manager);
     expect(meta.isPaymentMethodOpen.value).toBe(true);
 
-    await manager.useActions().set({ paymentDetailsId: recordedCardIds()[0]! });
+    await manager
+      .useActions()
+      .input({ paymentDetailsId: recordedCardIds()[0]! });
     await vi.waitFor(() => {
-      expect(meta.isPaymentMethodValid.value).toBe(true);
+      expect(meta.isValid.value).toBe(true);
     });
   });
 });

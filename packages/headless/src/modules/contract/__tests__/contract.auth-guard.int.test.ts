@@ -9,7 +9,9 @@
  * authenticates. Design.md §8.9 states the module's own shape for this case
  * — "The two machines stay in `subscribing`. No request (AC16)." — so
  * neither surface ever fires a request. The manager's `isReady()` genuinely
- * never settles while `subscribing` (proven below); a forced write settles
+ * never settles while `subscribing` (proven below) — only a failed load
+ * settles it `false`, on the top-level `error` node (D43), and a session that
+ * never authenticates never loads; a forced write settles
  * promptly to `false` with no request sent, which is this module's own
  * refusal shape, never a silent success and never a hang.
  *

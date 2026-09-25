@@ -3,21 +3,21 @@
 #
 # Naming: the meta read-state flags have no dedicated spec of their own, so this
 #   mutant takes the `<spec-basename>.<concern>` form beside the spec that drives
-#   the payment-method form to a validated node — `contract.mutations.int.test.ts`.
+#   the payment-method form to a validated node — `contract.payment-method-enum.int.test.ts`.
 #
-# Flag under test: `useContract().useMeta().isPaymentMethodValid` — `stateMatches`
+# Flag under test: `useContract().useMeta().isValid` — `stateMatches`
 #   over `available.changingPaymentMethod.available.valid` AND
 #   `unavailable.changingPaymentMethod.available.valid`. A consumer gates the
 #   payment-method submit on this flag, from either parent.
 #
-# NO TEST ASSERTS THIS FLAG YET. The prover adds the assertion. The intended
-#   scenario: open the payment-method form, drive it to `valid`, and assert
-#   `isPaymentMethodValid === true` (and `false` on `invalid`). With this mutation
+# The asserting scenario: open the payment-method form, drive it to `valid`, and assert
+#   `isValid === true` (and `false` on `invalid`). With this mutation
 #   the flag reads the sibling `invalid` nodes, so it is `false` on a valid form
 #   and the new assertion goes red.
-# Target spec (once the prover adds the row): contract.mutations.int.test.ts
+# Target spec: contract.payment-method-enum.int.test.ts ("the payment-method form
+#   reports whether it is open and whether its model is valid")
 #
-# Mutation: `isPaymentMethodValid` matches the `invalid` node of each parent
+# Mutation: `isValid` matches the `invalid` node of each parent
 #   instead of `.valid`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
@@ -29,7 +29,7 @@ index 85ec90bee..fa3312e62 100644
 @@ -51,8 +51,8 @@ export function createContractMeta(
 
      /** True when the open payment-method form passes validation, from either parent. */
-     isPaymentMethodValid: useStateMatches(state, [
+     isValid: useStateMatches(state, [
 -      "available.changingPaymentMethod.available.valid",
 -      "unavailable.changingPaymentMethod.available.valid"
 +      "available.changingPaymentMethod.available.invalid",

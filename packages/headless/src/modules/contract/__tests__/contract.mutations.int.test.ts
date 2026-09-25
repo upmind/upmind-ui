@@ -305,7 +305,7 @@ describe("useContract — nothing is sent when my selection changes nothing (AC-
 });
 
 /**
- * The FORM path (`openPaymentMethod → set → submitPaymentMethod`) carries the
+ * The FORM path (`openPaymentMethod → input → update`) carries the
  * SAME R31 no-op refusal as the direct `setPaymentMethod` action: submitting an
  * empty selection, or the method the contract already uses, sends no request and
  * resolves `false` (mutant: `contract.payment-method-noop.must-fail.patch`).
@@ -320,10 +320,10 @@ describe("useContract — the payment-method FORM submits nothing when the selec
   it("AC-8 the form sends no PATCH and resolves false when I submit an empty selection", async () => {
     const { manager, row } = await openManager();
     await manager.useActions().openPaymentMethod();
-    await manager.useActions().set({ paymentDetailsId: "" });
+    await manager.useActions().input({ paymentDetailsId: "" });
     const observed = observeAllRequests();
 
-    const result = await manager.useActions().submitPaymentMethod();
+    const result = await manager.useActions().update();
 
     expect(result).toBe(false);
     expect(
@@ -336,10 +336,10 @@ describe("useContract — the payment-method FORM submits nothing when the selec
     const { manager, row } = await openManager();
     const current = (row as { payment_details_id: string }).payment_details_id;
     await manager.useActions().openPaymentMethod();
-    await manager.useActions().set({ paymentDetailsId: current });
+    await manager.useActions().input({ paymentDetailsId: current });
     const observed = observeAllRequests();
 
-    const result = await manager.useActions().submitPaymentMethod();
+    const result = await manager.useActions().update();
 
     expect(result).toBe(false);
     expect(

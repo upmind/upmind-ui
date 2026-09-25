@@ -210,6 +210,76 @@ const PARTIAL_PROMISES: PartialPromise[] = [
     line: 249,
     text: "| changing how a contract is paid for |",
     disposition: "proves"
+  },
+  {
+    line: 259,
+    text: "Scenario: The contract I have open carries everything the manager read about it",
+    disposition: "proves"
+  },
+  {
+    line: 265,
+    text: "Scenario: The contract I have open shows me its name",
+    disposition: "proves"
+  },
+  {
+    line: 271,
+    text: "Scenario: My stored payment methods are loaded ready for the payment-method form",
+    disposition: "proves"
+  },
+  {
+    line: 277,
+    text: "Scenario: When reading my contract fails I am shown why",
+    disposition: "proves"
+  },
+  {
+    line: 283,
+    text: "Scenario: A failed read of my contract stops loading and settles on an error instead of hanging",
+    disposition: "proves"
+  },
+  {
+    line: 289,
+    text: "Scenario: A failed read tells me at once that my contract is not ready",
+    disposition: "proves"
+  },
+  {
+    line: 295,
+    text: "Scenario: A reset after a failed read reads my contract again",
+    disposition: "proves"
+  },
+  {
+    line: 302,
+    text: "Scenario: A stored card I choose in the payment-method form is taken in and checked",
+    disposition: "proves"
+  },
+  {
+    line: 308,
+    text: "Scenario: Close the payment-method form without changing how my contract is paid for",
+    disposition: "proves"
+  },
+  {
+    line: 315,
+    text: "Scenario: Submit the payment-method form with the card I hand it",
+    disposition: "proves"
+  },
+  {
+    line: 322,
+    text: "Scenario: While my payment-method change is being sent I am told it is in progress",
+    disposition: "proves"
+  },
+  {
+    line: 329,
+    text: "Scenario: When my payment-method change finishes I am told it is done",
+    disposition: "proves"
+  },
+  {
+    line: 335,
+    text: "Scenario: A payment-method choice outside my stored cards is not sent and tells me why",
+    disposition: "proves"
+  },
+  {
+    line: 342,
+    text: "Scenario: A card I choose and submit straight away is the one that is sent",
+    disposition: "proves"
   }
 ];
 
@@ -380,6 +450,53 @@ describe("contract — every contract.feature @AC-n scenario is anchored to a re
     line => {
       const declared = new Set(PARTIAL_PROMISES.map(promise => promise.line));
       expect(declared.has(line)).toBe(true);
+    }
+  );
+
+  /**
+   * THE @member FLOOR. A `@member` scenario carries no `@AC-n` id, so the id
+   * floor above never sees it. Each one must be proven by a test whose title
+   * IS the scenario name, and must carry a ledger entry at its own
+   * `Scenario:` line, so its `@proves` marker is checked like every other.
+   */
+  const memberScenarios: { line: number; name: string }[] = (() => {
+    const found: { line: number; name: string }[] = [];
+    let pendingTags: string[] = [];
+    featureLines.forEach((rawLine, index) => {
+      const line = rawLine.trim();
+      if (line.startsWith("@")) {
+        pendingTags.push(...line.split(/\s+/));
+        return;
+      }
+      const scenarioMatch = /^Scenario(?: Outline)?:\s*(.+)$/.exec(line);
+      if (scenarioMatch) {
+        if (pendingTags.includes("@member") && !pendingTags.includes("@todo")) {
+          found.push({ line: index + 1, name: scenarioMatch[1] });
+        }
+        pendingTags = [];
+        return;
+      }
+      if (line.length > 0 && !line.startsWith("#")) pendingTags = [];
+    });
+    return found;
+  })();
+
+  it("finds @member scenarios to grade, so this check itself is not vacuous", () => {
+    expect(memberScenarios.length).toBeGreaterThan(0);
+  });
+
+  it.each(memberScenarios)(
+    "@member $line ($name) is proven by a test titled with its scenario name",
+    ({ name }) => {
+      expect(treeContent.includes(`it("${name}"`)).toBe(true);
+    }
+  );
+
+  it.each(memberScenarios)(
+    "@member $line ($name) carries a `proves` ledger entry at its Scenario line",
+    ({ line }) => {
+      const entry = PARTIAL_PROMISES.find(promise => promise.line === line);
+      expect(entry?.disposition).toBe("proves");
     }
   );
 

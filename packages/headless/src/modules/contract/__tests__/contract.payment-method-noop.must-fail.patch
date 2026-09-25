@@ -2,7 +2,7 @@
 #
 # Scenario it must flip: contract.feature > "Nothing is sent when my selection
 #   changes nothing" (bdd.md A22(d)). The no-op refusal lives in the ACTION
-#   layer, guarding `submitPaymentMethod` (R31): no `SET_PAYMENT_METHOD` is sent
+#   layer, guarding `update` (R31): no `SET_PAYMENT_METHOD` is sent
 #   when the open form's model names no method or the method the contract
 #   already uses; the call resolves `false`, no request leaves the module.
 # Test that goes red: contract.mutations.int.test.ts >
@@ -13,8 +13,8 @@
 #   (with the guard gone the PATCH reaches the wire, so
 #   `observed.matching(.../payment_details)` is non-empty and each `toEqual([])`
 #   flips). Both rows drive `setPaymentMethod`, which opens + sets + submits and
-#   so routes through the guarded `submitPaymentMethod`.
-# Mutation: `submitPaymentMethod` drops its R31 no-op refusal (the model/current
+#   so routes through the guarded `update`.
+# Mutation: `update` drops its R31 no-op refusal (the model/current
 #   comparison never fires), so an empty or unchanged selection is written.
 #
 # Apply with:  git apply <this file>   (run from repo root)

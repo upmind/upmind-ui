@@ -247,3 +247,99 @@ Feature: A client manages their own contracts
       | action                              |
       | opening one of my contracts         |
       | changing how a contract is paid for |
+
+  # === WHAT THE MANAGER PUBLISHES ABOUT THE CONTRACT I HAVE OPEN ============
+  # One scenario per template member ruling R37 restores on `useContract`
+  # (the manager holds ONE form, so `input` / `clear` / `update` / `isValid`
+  # keep their template names), and per the failed-load settlement D43. Each
+  # is proven over the recorded corpus by contract.manager-members.int.test.ts.
+  # These are capability spec, driven by no step catalog entry.
+
+  @FE-3029 @manager @member
+  Scenario: The contract I have open carries everything the manager read about it
+    Given I have a contract of mine open in the manager
+    When I read everything the manager holds about my contract
+    Then it names the very contract I opened, as it was read
+
+  @FE-3029 @manager @member
+  Scenario: The contract I have open shows me its name
+    Given I have a contract of mine open in the manager
+    When I read the title of the contract I have open
+    Then it is the name that contract was read with
+
+  @FE-3029 @manager @member
+  Scenario: My stored payment methods are loaded ready for the payment-method form
+    Given I have a contract of mine open in the manager
+    When I read the loaded lookups
+    Then they are exactly my stored payment methods, read when my contract was opened
+
+  @FE-3029 @manager @member
+  Scenario: When reading my contract fails I am shown why
+    Given reading one of my contracts fails
+    When I read the error the manager kept
+    Then it is the message the failed read returned
+
+  @FE-3029 @manager @member
+  Scenario: A failed read of my contract stops loading and settles on an error instead of hanging
+    Given reading one of my contracts fails
+    When I look at whether the manager is still loading
+    Then it has stopped loading and reports an error
+
+  @FE-3029 @manager @member
+  Scenario: A failed read tells me at once that my contract is not ready
+    Given reading one of my contracts fails
+    When I wait to be told whether my contract is ready
+    Then I am told at once that it is not ready
+
+  @FE-3029 @manager @member
+  Scenario: A reset after a failed read reads my contract again
+    Given reading one of my contracts failed and the manager settled on an error
+    When I reset my contract
+    Then my contract is shown as loading while it is read again
+    And once the read lands my contract is shown to me with no error
+
+  @FE-3029 @manager @member
+  Scenario: A stored card I choose in the payment-method form is taken in and checked
+    Given I have the payment-method form open on one of my contracts
+    When I choose one of my stored cards in the form
+    Then the form holds the card I chose and reports it valid
+
+  @FE-3029 @manager @member
+  Scenario: Close the payment-method form without changing how my contract is paid for
+    Given I have the payment-method form open on one of my contracts, with a card chosen
+    When I close the payment-method form
+    Then the payment-method form is closed and no request is sent
+    And opening the payment-method form again draws it in full, with no leftover choice
+
+  @FE-3029 @manager @member
+  Scenario: Submit the payment-method form with the card I hand it
+    Given I have the payment-method form open on one of my contracts
+    When I submit the form with a different stored card handed straight to it
+    Then my contract is pointed at the card I handed it
+    And I am given my contract as it reads after the change
+
+  @FE-3029 @manager @member
+  Scenario: While my payment-method change is being sent I am told it is in progress
+    Given I have the payment-method form open on one of my contracts, with a different card chosen
+    When I submit the payment-method form and the change has not landed yet
+    Then I am told the change is in progress
+    And once it lands I am no longer told it is in progress
+
+  @FE-3029 @manager @member
+  Scenario: When my payment-method change finishes I am told it is done
+    Given I have a contract of mine open in the manager
+    When I point it at a different stored card and wait for the change to finish
+    Then I am told the change is done
+
+  @FE-3029 @manager @member
+  Scenario: A payment-method choice outside my stored cards is not sent and tells me why
+    Given I have the payment-method form open on one of my contracts
+    When I submit a card that is not one of my stored cards
+    Then no request is sent
+    And I am shown which field of the form is not valid
+
+  @FE-3029 @manager @member
+  Scenario: A card I choose and submit straight away is the one that is sent
+    Given I have the payment-method form open on one of my contracts
+    When I choose a different stored card and submit the form at once
+    Then my contract is pointed at the card I chose, not the one it had
