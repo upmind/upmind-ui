@@ -5,4 +5,3 @@
  */
 
 export { useFormI18n } from "@upmind-automation/foundation";
-export type { FormI18n } from "@upmind-automation/foundation";

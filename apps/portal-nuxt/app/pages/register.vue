@@ -14,7 +14,7 @@ import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 import { useMockBrandGates } from "~/portal/mock/gates";
 
 definePageMeta({
-  layout: "logged-out",
+  layout: "auth",
   middleware: "signed-in-redirect"
 });
 

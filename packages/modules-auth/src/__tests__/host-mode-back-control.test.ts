@@ -20,9 +20,9 @@ import {
 } from "@upmind-automation/foundation";
 import { AUTH_TEMPLATE_SLOT } from "../shell";
 import { AUTH_TEMPLATE } from "../types";
-import LoginView from "../views/Login.vue";
-import RecoverPasswordView from "../views/RecoverPassword.vue";
-import RegisterView from "../views/Register.vue";
+import LoginView from "../Login.vue";
+import RecoverPasswordView from "../RecoverPassword.vue";
+import RegisterView from "../Register.vue";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
 

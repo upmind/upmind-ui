@@ -191,62 +191,12 @@ export const AUTH_FOOTER_PROSE_CLASS =
  */
 export const LOGGED_OUT_COLUMN_CLASS = "flex flex-col gap-4";
 
-export const LOGGED_OUT_HEADER_CLASS = "justify-between";
-
 /** The brand's own note above the screen — quieter than the form under it. */
 export const LOGGED_OUT_NOTE_CLASS =
   "text-muted text-sm [&_p]:m-0 [&_a]:underline";
 
 /** The page inside the card brings `Page`'s own padding; a second one boxes it in. */
 export const LOGGED_OUT_CARD_CONTENT_CLASS = "p-0";
-
-export const CANVAS_CARD_BODY_CLASS =
-  "flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32";
-export const CANVAS_CARD_HEADER_CLASS = "w-full lg:max-w-sm";
-
-export const SPLIT_ROOT_CLASS = "flex min-h-full w-full flex-row";
-export const SPLIT_FORM_CLASS =
-  "bg-surface flex w-full flex-col justify-center gap-6 px-6 py-7 md:w-1/2 lg:px-16 lg:py-24 2xl:px-32";
-export const SPLIT_ASIDE_CLASS = "bg-canvas hidden md:block md:w-1/2";
-
-export const PORTAL_AUTH_GROUND_CLASS = "flex min-h-dvh w-full flex-col";
-
-export const AUTH_ROW_CONTAINER_CLASS = "max-w-app mx-auto flex w-full min-w-0";
-export const AUTH_ROW_MAIN_CLASS =
-  "bg-surface flex w-full min-w-0 items-center px-6 lg:px-12";
-export const AUTH_ROW_ASIDE_CLASS =
-  "bg-canvas hidden items-center px-6 lg:flex lg:px-12";
-export const AUTH_ROW_ASIDE_TRACK_CLASS =
-  "flex w-full min-w-0 items-center lg:min-w-app-aside lg:max-w-app-aside";
-export const AUTH_HEADER_ROW_CLASS = "h-18 w-full py-0 lg:h-24 lg:py-0";
-export const AUTH_FOOTER_ROW_CLASS = "w-full";
-export const AUTH_FOOTER_TRACK_CLASS = "py-6 lg:py-8";
-
-export const AUTH_LTR_GROUND_CLASS = "bg-surface lg:canvas-gradient";
-export const AUTH_RTL_GROUND_CLASS = "bg-surface lg:canvas-gradient-rtl";
-export const AUTH_TWO_COLUMN_CONTAINER_CLASS =
-  "max-w-app mx-auto flex w-full min-w-0 flex-1 flex-col lg:flex-row";
-export const AUTH_TWO_COLUMN_FORM_CLASS =
-  "bg-surface flex w-full min-w-0 flex-col gap-6 p-12 px-6 lg:p-12";
-export const AUTH_TWO_COLUMN_ASIDE_CLASS =
-  "bg-canvas hidden flex-col gap-6 p-12 px-6 lg:flex lg:p-12";
-export const AUTH_TWO_COLUMN_MAIN_CLASS =
-  "w-full min-w-0 max-w-3xl flex-1 flex flex-col gap-18 [&>*]:min-w-0";
-export const AUTH_INSET_MAIN_CLASS =
-  "w-full min-w-0 flex-1 flex flex-col gap-18 [&>*]:min-w-0";
-export const AUTH_TWO_COLUMN_ASIDE_TRACK_CLASS =
-  "w-full min-w-0 flex flex-col gap-18 lg:min-w-app-aside lg:max-w-app-aside";
-
-export const PORTAL_UPMIND_CLASS =
-  "text-muted inline-flex items-center gap-2 text-sm";
-
-export const AUTH_SURFACE_GROUND_CLASS = "bg-surface";
-export const AUTH_CANVAS_GROUND_CLASS = "bg-canvas";
-export const AUTH_ONE_COLUMN_CONTAINER_CLASS =
-  "max-w-app mx-auto flex w-full min-w-0 flex-1 flex-col gap-6 p-12 px-6 lg:p-12";
-
-export const AUTH_TWO_COLUMN_ROW_CLASS = "flex items-center justify-between";
-export const AUTH_TWO_COLUMN_FOOT_CLASS = "mt-auto flex items-end";
 
 /**
  * The chrome grid. `@upmind/ui`'s own `Shell` panel declares three rows and

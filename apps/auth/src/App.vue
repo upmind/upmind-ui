@@ -1,11 +1,20 @@
 <template>
   <main :class="appRootVariants()">
-    <RouterView />
+    <RouterView v-slot="{ Component }">
+      <Suspense>
+        <component :is="Component" />
+
+        <template #fallback>
+          <UpmAuthLoading />
+        </template>
+      </Suspense>
+    </RouterView>
   </main>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
+import { UpmAuthLoading } from "@upmind-automation/auth";
 import {
   provideShellComponents,
   provideThemeEngine

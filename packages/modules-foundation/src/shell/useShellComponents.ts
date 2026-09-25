@@ -12,7 +12,6 @@ export const provideShellComponents = (
 ) => provide(SHELL_COMPONENTS, components);
 
 export type UseShellComponents = {
-  components: ComputedRef<ShellComponents>;
   resolve: (name: string) => Component | undefined;
 };
 
@@ -24,7 +23,6 @@ export const useShellComponents = (): UseShellComponents => {
   const components = computed(() => provided?.value ?? NO_SHELL);
 
   return {
-    components,
     resolve: (name: string) => components.value[name]
   };
 };

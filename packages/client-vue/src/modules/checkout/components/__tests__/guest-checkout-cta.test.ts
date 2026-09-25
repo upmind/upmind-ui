@@ -64,8 +64,8 @@ vi.mock("@upmind-automation/headless", async importOriginal => {
 const CTA = '[data-test-key="guest-checkout-cta"]';
 
 const COPY = {
-  question: "cart-namespace question",
-  action: "cart-namespace action"
+  question: "auth-namespace question",
+  action: "auth-namespace action"
 };
 
 const i18n = createI18n({
@@ -75,7 +75,7 @@ const i18n = createI18n({
   fallbackWarn: false,
   messages: {
     en: {
-      cart: {
+      auth: {
         guest_checkout_qn: COPY.question,
         guest_checkout_action: COPY.action
       }
@@ -199,7 +199,7 @@ describe("the guest-checkout offer at the auth socket", () => {
     expect(warnings).toEqual([]);
   });
 
-  it("asks the host catalogue for the cart namespace, not auth's", async () => {
+  it("asks the host catalogue for the auth namespace, not cart's", async () => {
     const { wrapper } = await offerUnderHost(await shellComponents());
 
     expect(wrapper.find(CTA).text()).toContain(COPY.action);

@@ -14,11 +14,10 @@
 #   src/__tests__/basket-free.test.ts
 #     "keeps Nuxt core out of every organism"
 #     "speaks Nuxt in no file it ships"
-#     "reaches exactly the packages a §7 leaf may reach, and no others"
-diff --git a/packages/auth/src/components/Auth.vue b/packages/auth/src/components/Auth.vue
-index 781629ee0b..511474097e 100644
---- a/packages/auth/src/components/Auth.vue
-+++ b/packages/auth/src/components/Auth.vue
+diff --git a/packages/modules-auth/src/components/Auth.vue b/packages/modules-auth/src/components/Auth.vue
+index cc4e082d60..9e93c725b3 100644
+--- a/packages/modules-auth/src/components/Auth.vue
++++ b/packages/modules-auth/src/components/Auth.vue
 @@ -75,6 +75,7 @@
  </template>
  

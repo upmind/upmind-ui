@@ -1,8 +1,4 @@
-export type {
-  BrandConfig,
-  BrandConfigMeta,
-  TermsAndConditionsProps
-} from "./brand";
+export type { BrandConfig, BrandConfigMeta } from "./brand";
 export { TermsAndConditions, useBrandConfig } from "./brand";
 export type { UseBrandConfig } from "./brand";
 
@@ -27,48 +23,21 @@ export {
   useFormRenderers
 } from "./renderers";
 
-export type { ShellComponents, UseShellComponents } from "./shell";
-export {
-  SHELL_COMPONENTS,
-  provideShellComponents,
-  useShellComponents
-} from "./shell";
+export type { ShellComponents } from "./shell";
+export { provideShellComponents, useShellComponents } from "./shell";
 
 // --- The shared presentation glue
 
 export { Icon } from "./icon";
-export {
-  ICON_MAP,
-  FALLBACK_ICON,
-  resolveLucideIcon,
-  registerIcons,
-  loadIcon,
-  setIconVariant,
-  iconVariant,
-  hasRegisteredIcons,
-  getIconCount
-} from "./icon";
-export type {
-  IconRef,
-  IconProps,
-  IconSize,
-  IconImportMap,
-  LoadIconOptions
-} from "./icon";
+export { registerIcons, setIconVariant, iconVariant } from "./icon";
+export type { IconRef, IconProps, IconImportMap } from "./icon";
 
-export { Hero } from "./hero";
-export type { HeroProps, HeroActionProps } from "./hero";
+export { default as Hero } from "./hero/Hero.vue";
 
 export { Back } from "./navigation";
-export type { BackProps, StorefrontRoute } from "./navigation";
+export type { StorefrontRoute } from "./navigation";
 
 export { Section, Sections, useSection } from "./section";
-export type {
-  SectionItem,
-  SectionActionProps,
-  SectionsProps,
-  UseSectionProps
-} from "./section";
+export type { SectionItem } from "./section";
 
 export { Form, useFormI18n } from "./forms";
-export type { FormI18n } from "./forms";

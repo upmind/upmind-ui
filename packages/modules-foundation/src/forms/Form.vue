@@ -4,7 +4,7 @@
     v-bind="forwarded"
     :i18n="i18n"
     :ajv="ajv"
-    :additional-renderers="additionalRenderers"
+    :additional-renderers="renderers"
     :optional-text="t('text.optional')"
     :dataAttrs="{ 'data-test-key': 'form', ...props.dataAttrs }"
   >
@@ -27,7 +27,6 @@ import {
   provideFormIcon,
   useForwardPropsEmits
 } from "@upmind/ui";
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useSystem, useValidation } from "@upmind-automation/headless";
 import { Icon } from "../icon";
@@ -75,9 +74,4 @@ const forwarded = useForwardPropsEmits(props, emits);
 const i18n = useFormI18n();
 
 const { renderers } = useFormRenderers();
-
-const additionalRenderers = computed(() => [
-  ...(props.additionalRenderers ?? []),
-  ...renderers
-]);
 </script>

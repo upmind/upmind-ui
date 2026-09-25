@@ -14,22 +14,13 @@ export { default as UpmAuthRecoverPassword } from "./RecoverPassword.vue";
 // --- Export Components
 export { default as UpmAccount } from "./components/Account.vue";
 export { default as UpmAuth } from "./components/Auth.vue";
+export { default as UpmAuthLoading } from "./components/AuthLoading.vue";
 
 // --- Export Shell
-export { AUTH_SHELL, AUTH_TEMPLATE_SLOT, useAuthTemplate } from "./shell";
-export type { AuthShellSlot } from "./shell";
+export { AUTH_SHELL } from "./shell";
 
 // --- Export Flows
-export {
-  AUTH_QUERY,
-  hasReturnTarget,
-  readReturnTarget,
-  registerAuthFlows
-} from "./flows";
-export type { AuthFlowOptions } from "./flows";
-
-// --- Export utils
-export { useAuthTemplates } from "./auth.utils";
+export { AUTH_QUERY, readReturnTarget, registerAuthFlows } from "./flows";
 
 // --- Export Types
 export * from "./types";

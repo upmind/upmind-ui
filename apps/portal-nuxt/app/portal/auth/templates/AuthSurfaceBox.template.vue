@@ -1,47 +1,42 @@
 <template>
-  <PortalAuthShell :ground="AUTH_CANVAS_GROUND_CLASS">
-    <div :class="AUTH_ONE_COLUMN_CONTAINER_CLASS">
-      <header :class="AUTH_TWO_COLUMN_ROW_CLASS">
-        <PortalAuthBrand />
-        <PortalAuthStore />
-      </header>
+  <AuthShell skip-label="Skip to content">
+    <template #header>
+      <PortalAuthBrand />
+      <slot name="back" />
+      <PortalAuthStore />
+    </template>
 
-      <main id="portal-auth-main" :class="AUTH_TWO_COLUMN_MAIN_CLASS">
-        <slot name="hero" />
-        <Card :ui="{ content: LOGGED_OUT_CARD_CONTENT_CLASS }">
-          <PortalAuthNote />
-          <slot name="markdown" />
-          <slot name="form" />
-        </Card>
-      </main>
+    <slot name="hero" />
 
-      <footer :class="[AUTH_TWO_COLUMN_FOOT_CLASS, 'justify-between']">
-        <PortalAuthLegal />
-        <PortalAuthUpmind />
-      </footer>
-    </div>
-  </PortalAuthShell>
+    <Card>
+      <PortalAuthNote />
+      <slot name="markdown" />
+      <slot name="form" />
+    </Card>
+
+    <slot name="summary" />
+
+    <template #footer>
+      <PortalAuthLegal />
+      <PortalUpmind v-if="hasUpmindBranding" />
+      <slot name="actions" />
+    </template>
+  </AuthShell>
 </template>
 
 <script setup lang="ts">
-import { Card } from "@upmind/ui";
-import PortalAuthNote from "../PortalAuthNote.vue";
+import { AuthShell, Card } from "@upmind/ui";
 import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";
-import PortalAuthShell from "../PortalAuthShell.vue";
+import PortalAuthNote from "../PortalAuthNote.vue";
 import PortalAuthStore from "../PortalAuthStore.vue";
-import PortalAuthUpmind from "../PortalAuthUpmind.vue";
-import {
-  AUTH_CANVAS_GROUND_CLASS,
-  AUTH_ONE_COLUMN_CONTAINER_CLASS,
-  AUTH_TWO_COLUMN_FOOT_CLASS,
-  AUTH_TWO_COLUMN_MAIN_CLASS,
-  AUTH_TWO_COLUMN_ROW_CLASS,
-  LOGGED_OUT_CARD_CONTENT_CLASS
-} from "~/portal/shell/variants";
+import { useMockBrandGates } from "~/portal/mock/gates";
+import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
 import type { AuthRoutes } from "@upmind-automation/auth";
 
 defineProps<AuthRoutes>();
 
 defineOptions({ inheritAttrs: false });
+
+const { hasUpmindBranding } = useMockBrandGates();
 </script>

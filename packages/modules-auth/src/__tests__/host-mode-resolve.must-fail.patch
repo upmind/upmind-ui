@@ -20,41 +20,36 @@
 # line names. This mutant adds no import — its failure is behavioural, and the
 # two specs above are what grade it.
 
-diff --git a/packages/auth/src/auth.utils.ts b/packages/auth/src/auth.utils.ts
---- a/packages/auth/src/auth.utils.ts
-+++ b/packages/auth/src/auth.utils.ts
-@@ -42,13 +42,12 @@
-    * with neither ends on itself, so the view holds its own step (`hasResolve`).
-    */
+diff --git a/packages/modules-auth/src/auth.utils.ts b/packages/modules-auth/src/auth.utils.ts
+index a6e96eccde..f631d53269 100644
+--- a/packages/modules-auth/src/auth.utils.ts
++++ b/packages/modules-auth/src/auth.utils.ts
+@@ -34,21 +34,21 @@ export function useAuthResolve(
+   }));
+ 
    function navigateResolved() {
 -    if (routingMeta.value.hasFunnels) return navigateNext();
 -
      const landing = props.landingRoute;
--    // No funnel to ask and no landing named: this screen is the destination.
 -    if (!landing) return Promise.resolve();
 +    if (landing) return router.push(landing);
++
++    if (routingMeta.value.hasFunnels) return navigateNext();
  
 -    return router.push(landing);
-+    if (routingMeta.value.hasFunnels) return navigateNext();
-+
 +    return Promise.resolve();
    }
  
-   /**
-@@ -57,13 +56,12 @@
-    * renders no back control there (`hasReject`): its back is the basket.
-    */
    function navigateRejected() {
 -    if (routingMeta.value.hasFunnels) return navigateBack();
 -
      const reject = toValue(options.rejectRoute);
--    // No funnel to ask and no back target: the control is not offered here.
 -    if (!reject) return Promise.resolve();
 +    if (reject) return router.push(reject);
++
++    if (routingMeta.value.hasFunnels) return navigateBack();
  
 -    return router.push(reject);
-+    if (routingMeta.value.hasFunnels) return navigateBack();
-+
 +    return Promise.resolve();
    }
  

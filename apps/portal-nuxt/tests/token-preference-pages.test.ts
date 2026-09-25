@@ -49,7 +49,7 @@ import {
 } from "~/portal/mock/store";
 import { PAGE_KEY, RESERVED_PILLAR_SEGMENT } from "~/portal/types";
 
-const LOGGED_OUT_LAYOUT = 'definePageMeta({ layout: "logged-out-page" })';
+const LOGGED_OUT_LAYOUT = 'definePageMeta({ layout: "logged-out" })';
 
 const TOKEN = "eyJhbGciOiJIUzI1NiJ9.token-from-the-link";
 

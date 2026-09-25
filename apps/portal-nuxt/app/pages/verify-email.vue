@@ -1,7 +1,3 @@
-<template>
-  <PortalPageHost :page-keys="pageKeys" aside-label="Email verification" />
-</template>
-
 <script setup lang="ts">
 // The email-verification link's own two outcomes. A mock has no request to
 // wait on, so the progress bar arrives full rather than animating a wait that
@@ -11,7 +7,7 @@ import type { PageKey } from "~/portal/types";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { AUTH_QUERY_KEY, AUTH_QUERY_VALUE, PAGE_KEY } from "~/portal/types";
 
-definePageMeta({ layout: "logged-out-page" });
+definePageMeta({ layout: "logged-out" });
 
 const route = useRoute();
 
@@ -23,3 +19,7 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_VERIFY_EMAIL];
 });
 </script>
+
+<template>
+  <PortalPageHost :page-keys="pageKeys" aside-label="Email verification" />
+</template>

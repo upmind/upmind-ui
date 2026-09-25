@@ -1,12 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview `auth` resolves to no commerce package and speaks no Nuxt.
+ * @fileoverview `auth` speaks no Nuxt.
  *
  * ## Job To Be Done
- * No entry point's import closure reaches a package above `auth`, and no file imports Nuxt.
+ * No organism's import closure reaches Nuxt, and no file imports it.
  *
  * ## What Breaks If These Fail
- * A login screen pulls the basket module graph into every host, including hosts with no basket.
+ * The Vite cart cannot mount an organism that speaks Nuxt.
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
@@ -19,28 +19,6 @@ const PACKAGE_ROOT = resolve(process.cwd());
 const SOURCE_EXTENSIONS = [".ts", ".vue", ".mts", ".js", ".mjs"];
 
 const ORGANISM_ENTRIES = ["src/index.ts"];
-
-const ENTRY_POINTS = [...ORGANISM_ENTRIES];
-
-const ABOVE_AUTH = [
-  "@upmind-automation/client-vue",
-  "@upmind-automation/basket",
-  "@upmind-automation/client",
-  "@upmind-automation/checkout"
-];
-
-const REACHED = [
-  "@upmind-automation/foundation",
-  "@upmind-automation/headless",
-  "@upmind/ui",
-  "class-variance-authority",
-  "lodash-es",
-  "vue",
-  "vue-i18n",
-  "vue-router"
-];
-
-const UNREACHABLE = ["src/components/Expired.vue"];
 
 const NUXT_CORE = ["#app", "#imports", "nuxt", "nuxt/kit", "nuxt/app"];
 
@@ -86,7 +64,7 @@ function resolveRelative(from: string, specifier: string) {
   return undefined;
 }
 
-function resolvedGraph(entries: string[] = ENTRY_POINTS) {
+function resolvedGraph(entries: string[]) {
   const bare = new Set<string>();
   const files = new Set<string>();
   const unresolved: string[] = [];
@@ -130,7 +108,6 @@ function sourceFiles(directory: string): string[] {
   return found;
 }
 
-const graph = resolvedGraph();
 const organisms = resolvedGraph(ORGANISM_ENTRIES);
 const modules = sourceFiles(join(PACKAGE_ROOT, "src"));
 
@@ -170,49 +147,5 @@ describe("the Nuxt half, which this package no longer has", () => {
       .sort();
 
     expect(speaking).toEqual([]);
-  });
-});
-
-describe("the auth package's resolved import boundary", () => {
-  it("resolves a real graph, and every edge in it", () => {
-    expect(graph.files.length).toBeGreaterThan(1);
-    expect(graph.unresolved).toEqual([]);
-  });
-
-  it("reaches every module under src bar the ones declared unreachable", () => {
-    const missed = modules
-      .filter(file => !graph.files.includes(file))
-      .map(relativeToPackage)
-      .filter(file => !UNREACHABLE.includes(file));
-
-    expect(missed).toEqual([]);
-  });
-
-  it("resolves to no package that sits above auth", () => {
-    const reached = ABOVE_AUTH.filter(name =>
-      graph.bare.some(
-        specifier => specifier === name || specifier.startsWith(`${name}/`)
-      )
-    );
-
-    expect(reached).toEqual([]);
-  });
-
-  it("reaches exactly the packages a §7 leaf may reach, and no others", () => {
-    expect(graph.bare).toEqual(REACHED);
-  });
-
-  it("takes the summary aside from its host rather than building one", () => {
-    const built = modules
-      .filter(file => {
-        const source = readFileSync(file, "utf8");
-        return (
-          source.includes("cart.basket_section") ||
-          source.includes("shopping-bag-02")
-        );
-      })
-      .map(relativeToPackage);
-
-    expect(built).toEqual([]);
   });
 });

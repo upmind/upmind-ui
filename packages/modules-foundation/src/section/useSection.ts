@@ -1,4 +1,5 @@
 import { computed, ref } from "vue";
+import { Store } from "@upmind-automation/headless";
 import { isEmpty, isObject, merge } from "lodash-es";
 import type { UseSectionProps } from "./types";
 
@@ -11,7 +12,11 @@ const defaultSectionProps: UseSectionProps = {
   inset: false
 };
 
-const config = ref<UseSectionProps>({ ...defaultSectionProps });
+const sectionConfig = new Store<UseSectionProps>(defaultSectionProps);
+
+// NB: Create a reactive ref initialized with the store's current state.
+const config = ref<UseSectionProps>(sectionConfig.state);
+sectionConfig.subscribe(state => (config.value = state.currentVal));
 
 // -----------------------------------------------------------------------------
 /**
@@ -21,7 +26,9 @@ const config = ref<UseSectionProps>({ ...defaultSectionProps });
 export const useSection = (initial?: Partial<UseSectionProps>) => {
   // Reset to defaults and apply initial overrides if provided
   if (initial) {
-    config.value = merge({}, defaultSectionProps, initial) as UseSectionProps;
+    sectionConfig.setState(
+      merge({}, defaultSectionProps, initial) as UseSectionProps
+    );
   }
 
   // --- state
@@ -32,20 +39,25 @@ export const useSection = (initial?: Partial<UseSectionProps>) => {
   // --- methods
   function update(values: Partial<UseSectionProps>) {
     if (!isObject(values) || isEmpty(values)) return;
-    config.value = merge({}, config.value, values) as UseSectionProps;
+    sectionConfig.setState(
+      (prev: UseSectionProps) => merge({}, prev, values) as UseSectionProps
+    );
   }
 
   // ---------------------------------------------------------------------------
   return {
+    // --- state
+    config: sectionConfig,
+
     /**
-     * Whether sections render as cards.
-     * @type {ComputedRef<boolean>}
+     * The current layout variant.
+     * @type {ComputedRef<LAYOUT_VARIANTS>}
      */
     card,
 
     /**
-     * Whether sections draw a border.
-     * @type {ComputedRef<boolean>}
+     * The current layout mode.
+     * @type {ComputedRef<LayoutMode>}
      */
     border,
 
@@ -58,7 +70,7 @@ export const useSection = (initial?: Partial<UseSectionProps>) => {
     // --- methods
     /**
      * Updates the layout configuration.
-     * @param {Partial<UseSectionProps>} config - Partial configuration to update the layout state.
+     * @param {Partial<LayoutProps>} config - Partial configuration to update the layout state.
      * @returns {void}
      */
     update

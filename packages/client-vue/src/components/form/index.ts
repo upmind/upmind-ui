@@ -6,7 +6,6 @@
 
 export { Form as UpmForm } from "@upmind-automation/foundation";
 export { useFormI18n } from "@upmind-automation/foundation";
-export type { FormI18n } from "@upmind-automation/foundation";
 export * from "./renderers";
 
 // Form engine — a pass-through for @upmind/ui, which now hosts the JSONForms

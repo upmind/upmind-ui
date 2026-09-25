@@ -1,11 +1,3 @@
-<template>
-  <PortalPageHost
-    :page-keys="pageKeys"
-    :route-context="routeContext"
-    aside-label="Notification preferences"
-  />
-</template>
-
 <script setup lang="ts">
 // Legacy served its notification preferences to a signed-OUT reader too
 // (`views/client/auth/preferences`), reached from a link that carries a token
@@ -18,7 +10,7 @@ import type { PageKey } from "~/portal/types";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { AUTH_QUERY_KEY, PAGE_KEY } from "~/portal/types";
 
-definePageMeta({ layout: "logged-out-page" });
+definePageMeta({ layout: "logged-out" });
 
 const route = useRoute();
 
@@ -39,3 +31,11 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_PREFERENCES];
 });
 </script>
+
+<template>
+  <PortalPageHost
+    :page-keys="pageKeys"
+    :route-context="routeContext"
+    aside-label="Notification preferences"
+  />
+</template>

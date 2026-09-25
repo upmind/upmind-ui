@@ -6,21 +6,13 @@
 
 export {
   Icon,
-  ICON_MAP,
-  FALLBACK_ICON,
-  resolveLucideIcon,
   registerIcons,
-  loadIcon,
   setIconVariant,
-  iconVariant,
-  hasRegisteredIcons,
-  getIconCount
+  iconVariant
 } from "@upmind-automation/foundation";
 
 export type {
   IconRef,
   IconProps,
-  IconSize,
-  IconImportMap,
-  LoadIconOptions
+  IconImportMap
 } from "@upmind-automation/foundation";

@@ -2,7 +2,7 @@
   <Alert
     v-if="meta.offersGuestCheckout"
     variant="neutral"
-    :title="t('cart.guest_checkout_qn')"
+    :title="t('auth.guest_checkout_qn')"
     :class="props.class"
   >
     <template #icon><Icon icon="clock-fast-forward" /></template>
@@ -14,7 +14,7 @@
         :disabled="props.isRegistering"
         :data-attrs="{ 'data-test-key': 'guest-checkout-cta' }"
       >
-        {{ t("cart.guest_checkout_action") }}
+        {{ t("auth.guest_checkout_action") }}
         <Spinner
           :label="t('text.loading')"
           v-if="props.isRegistering"

@@ -34,7 +34,6 @@ function stub(name: string): Component {
 
 function probeUnder(host?: () => ShellComponents) {
   const seen: {
-    components?: ShellComponents;
     resolved: Record<string, Component | undefined>;
   } = {
     resolved: {}
@@ -43,7 +42,6 @@ function probeUnder(host?: () => ShellComponents) {
     setup() {
       const shell = useShellComponents();
       return () => {
-        seen.components = shell.components.value;
         seen.resolved[PAGE] = shell.resolve(PAGE);
         seen.resolved[ASIDE] = shell.resolve(ASIDE);
         return null;
@@ -65,7 +63,6 @@ describe("the shell socket", () => {
   it("ships empty when no host provides one", () => {
     const { seen } = probeUnder();
 
-    expect(seen.components).toEqual({});
     expect(seen.resolved[PAGE]).toBeUndefined();
   });
 

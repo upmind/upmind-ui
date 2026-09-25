@@ -7,7 +7,7 @@ import { UpmAuthLogin } from "@upmind-automation/auth";
 import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 
 definePageMeta({
-  layout: "logged-out",
+  layout: "auth",
   middleware: "signed-in-redirect"
 });
 </script>

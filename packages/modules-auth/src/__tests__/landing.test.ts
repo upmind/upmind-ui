@@ -13,7 +13,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, h, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { AUTH_QUERY, registerAuthFlows } from "../index";
-import type { AuthFlowOptions } from "../index";
+import type { AuthFlowOptions } from "../flows";
 import type { RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------

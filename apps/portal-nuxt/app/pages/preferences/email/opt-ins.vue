@@ -1,11 +1,3 @@
-<template>
-  <PortalPageHost
-    :page-keys="pageKeys"
-    :route-context="routeContext"
-    aside-label="Email preferences"
-  />
-</template>
-
 <script setup lang="ts">
 // Legacy's `views/client/auth/emailOptIns`: the topics ONE address receives,
 // reached signed out from a link naming both the address and its token. Both
@@ -18,7 +10,7 @@ import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { routeQueryContext } from "~/portal/mock/injection";
 import { PAGE_KEY } from "~/portal/types";
 
-definePageMeta({ layout: "logged-out-page" });
+definePageMeta({ layout: "logged-out" });
 
 const route = useRoute();
 
@@ -37,3 +29,11 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_EMAIL_OPT_INS];
 });
 </script>
+
+<template>
+  <PortalPageHost
+    :page-keys="pageKeys"
+    :route-context="routeContext"
+    aside-label="Email preferences"
+  />
+</template>

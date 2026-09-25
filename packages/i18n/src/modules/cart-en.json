@@ -33,8 +33,6 @@
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Looks like you haven't added anything to your basket yet.",
   "encrypted_and_secure_payments": "Encrypted and secure payments",
-  "guest_checkout_qn": "In a hurry?",
-  "guest_checkout_action": "Continue as a guest",
   "nothing_to_pay_msg": "Great news – there's nothing to pay!",
   "order_converting": "**Placing** your order",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",

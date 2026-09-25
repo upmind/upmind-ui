@@ -1,53 +1,42 @@
 <template>
-  <PortalAuthShell :ground="AUTH_CANVAS_GROUND_CLASS">
-    <div :class="AUTH_ONE_COLUMN_CONTAINER_CLASS">
-      <header :class="AUTH_TWO_COLUMN_ROW_CLASS">
-        <PortalAuthBrand />
-        <PortalAuthStore />
-      </header>
+  <AuthShell skip-label="Skip to content">
+    <template #header>
+      <PortalAuthBrand />
+      <slot name="back" />
+      <PortalAuthStore />
+    </template>
 
-      <main id="portal-auth-main" :class="AUTH_TWO_COLUMN_MAIN_CLASS">
-        <Card size="lg" :ui="{ content: CANVAS_CARD_BODY_CLASS }">
-          <section :class="CANVAS_CARD_HEADER_CLASS">
-            <slot name="hero" />
-            <PortalAuthNote />
-            <slot name="markdown" />
-          </section>
+    <slot name="hero" />
+    <PortalAuthNote />
+    <slot name="markdown" />
 
-          <section>
-            <slot name="form" />
-          </section>
-        </Card>
-      </main>
+    <Card>
+      <slot name="form" />
+    </Card>
 
-      <footer :class="[AUTH_TWO_COLUMN_FOOT_CLASS, 'justify-between']">
-        <PortalAuthLegal />
-        <PortalAuthUpmind />
-      </footer>
-    </div>
-  </PortalAuthShell>
+    <slot name="summary" />
+
+    <template #footer>
+      <PortalAuthLegal />
+      <PortalUpmind v-if="hasUpmindBranding" />
+      <slot name="actions" />
+    </template>
+  </AuthShell>
 </template>
 
 <script setup lang="ts">
-import { Card } from "@upmind/ui";
-import PortalAuthNote from "../PortalAuthNote.vue";
+import { AuthShell, Card } from "@upmind/ui";
 import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";
-import PortalAuthShell from "../PortalAuthShell.vue";
+import PortalAuthNote from "../PortalAuthNote.vue";
 import PortalAuthStore from "../PortalAuthStore.vue";
-import PortalAuthUpmind from "../PortalAuthUpmind.vue";
-import {
-  AUTH_CANVAS_GROUND_CLASS,
-  AUTH_ONE_COLUMN_CONTAINER_CLASS,
-  AUTH_TWO_COLUMN_FOOT_CLASS,
-  AUTH_TWO_COLUMN_MAIN_CLASS,
-  AUTH_TWO_COLUMN_ROW_CLASS,
-  CANVAS_CARD_BODY_CLASS,
-  CANVAS_CARD_HEADER_CLASS
-} from "~/portal/shell/variants";
+import { useMockBrandGates } from "~/portal/mock/gates";
+import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
 import type { AuthRoutes } from "@upmind-automation/auth";
 
 defineProps<AuthRoutes>();
 
 defineOptions({ inheritAttrs: false });
+
+const { hasUpmindBranding } = useMockBrandGates();
 </script>

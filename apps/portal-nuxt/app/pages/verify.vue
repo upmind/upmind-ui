@@ -1,7 +1,3 @@
-<template>
-  <PortalPageHost :page-keys="pageKeys" aside-label="Account verification" />
-</template>
-
 <script setup lang="ts">
 // Legacy's verification screen has three outcomes and no state of its own: the
 // link still wants a password, the link is past using, or the account is
@@ -12,7 +8,7 @@ import type { PageKey } from "~/portal/types";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { AUTH_QUERY_KEY, AUTH_QUERY_VALUE, PAGE_KEY } from "~/portal/types";
 
-definePageMeta({ layout: "logged-out-page" });
+definePageMeta({ layout: "logged-out" });
 
 const route = useRoute();
 
@@ -27,3 +23,7 @@ const pageKeys = computed<readonly PageKey[]>(() => {
   return [PAGE_KEY.AUTH_VERIFY];
 });
 </script>
+
+<template>
+  <PortalPageHost :page-keys="pageKeys" aside-label="Account verification" />
+</template>

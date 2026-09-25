@@ -4,13 +4,10 @@ import { useI18n } from "vue-i18n";
 import { useValidationTranslator } from "@upmind-automation/headless";
 import { isEmpty, isFunction, trimStart } from "lodash-es";
 import type { FormI18n } from "./useFormI18n.types";
-import type { Translator } from "@jsonforms/core";
 
 export type { FormI18n } from "./useFormI18n.types";
 
 // -----------------------------------------------------------------------------
-
-type TranslateValues = Record<string, any>;
 
 /**
  * The engine's own translator, as a plain library function. Read
@@ -24,22 +21,8 @@ export const useFormI18n = () => {
   return computed<FormI18n>((): FormI18n => {
     // Create a translator using vue-i18n's t function and the current locale
 
-    const createTranslator = (_locale: string): Translator => {
-      function translate(
-        key: string,
-        defaultMessage: string,
-        data?: TranslateValues
-      ): string;
-      function translate(
-        key: string,
-        defaultMessage?: string,
-        data?: TranslateValues
-      ): string | undefined;
-      function translate(
-        key: string,
-        defaultMessage?: string,
-        data?: TranslateValues
-      ): string | TranslateValues | undefined {
+    const createTranslator =
+      (_locale: string) => (key: string, defaultMessage: string, data: any) => {
         // No key names no message: `tm("")` answers with the WHOLE locale object,
         // which would ship as the translation.
         if (isEmpty(key)) return defaultMessage;
@@ -59,29 +42,26 @@ export const useFormI18n = () => {
             }
           }
 
-          return useValidationTranslator(key, defaultMessage ?? "", data ?? {});
+          return useValidationTranslator(key, defaultMessage, data ?? {});
         }
 
         //otherwise, try get the translation as an object for when the i18n key is nested
-        let value: string | TranslateValues | undefined = isFunction(tm)
+        let value: string | Record<string, any> | undefined = isFunction(tm)
           ? tm(key)
           : undefined;
 
         // then we fall back to a regular translation
-        if (isEmpty(value) && isFunction(t)) value = t(key, data ?? {});
+        if (isEmpty(value) && isFunction(t)) value = t(key, data);
         // finally we fall back to the default message if no translation is found or the key is the same as the value
         return !value || value == key ? defaultMessage : value;
-      }
-
-      return translate;
-    };
+      };
 
     const safeLocale: string = locale.value;
     return {
       locale: safeLocale,
       translate: createTranslator(safeLocale),
       translateError: (error, translate, schema) =>
-        translate(`validation.${error.keyword}`, error.message ?? "", schema)
-    };
+        translate(`validation.${error.keyword}`, error.message, schema)
+    } as FormI18n;
   });
 };

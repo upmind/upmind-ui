@@ -16,28 +16,34 @@
 # spec above is what grades it.
 
 diff --git a/apps/portal-nuxt/app/pages/login.vue b/apps/portal-nuxt/app/pages/login.vue
-index 317dd65546..b570466ce6 100644
+index 521ec475ac..89dfc826f9 100644
 --- a/apps/portal-nuxt/app/pages/login.vue
 +++ b/apps/portal-nuxt/app/pages/login.vue
-@@ -7,11 +7,11 @@
- // route. This app provides no shell components, so the organism renders its
- // bare template inside the logged-out layout's card.
- import { UpmAuthLogin } from "@upmind-automation/auth";
--import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
-+import { AUTH_ROUTES } from "~/portal/auth-routes";
- 
- definePageMeta({ layout: "logged-out" });
- </script>
- 
+@@ -1,10 +1,10 @@
  <template>
 -  <UpmAuthLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
 +  <UpmAuthLogin v-bind="AUTH_ROUTES" />
  </template>
+ 
+ <script setup lang="ts">
+ import { UpmAuthLogin } from "@upmind-automation/auth";
+-import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
++import { AUTH_ROUTES } from "~/portal/auth-routes";
+ 
+ definePageMeta({
+   layout: "auth",
 diff --git a/apps/portal-nuxt/app/pages/register.vue b/apps/portal-nuxt/app/pages/register.vue
-index bc07cf8430..91dfb18cb5 100644
+index d571838947..ba38c77c31 100644
 --- a/apps/portal-nuxt/app/pages/register.vue
 +++ b/apps/portal-nuxt/app/pages/register.vue
-@@ -9,7 +9,7 @@
+@@ -1,5 +1,5 @@
+ <template>
+-  <UpmAuthRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
++  <UpmAuthRegister v-bind="AUTH_ROUTES" />
+ </template>
+ 
+ <script setup lang="ts">
+@@ -10,7 +10,7 @@
  // a page that exists elsewhere.
  import { toast } from "@upmind/ui";
  import { UpmAuthRegister } from "@upmind-automation/auth";
@@ -45,11 +51,4 @@ index bc07cf8430..91dfb18cb5 100644
 +import { AUTH_ROUTES } from "~/portal/auth-routes";
  import { useMockBrandGates } from "~/portal/mock/gates";
  
- definePageMeta({ layout: "logged-out" });
-@@ -25,5 +25,5 @@ if (!isRegistrationEnabled.value) {
- </script>
- 
- <template>
--  <UpmAuthRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
-+  <UpmAuthRegister v-bind="AUTH_ROUTES" />
- </template>
+ definePageMeta({

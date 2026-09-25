@@ -22,9 +22,9 @@
 
 import { Form, provideFormIcon } from "@upmind/ui";
 import { DOMWrapper, mount } from "@vue/test-utils";
-import { defineComponent, h, ref } from "vue";
+import { defineComponent, h, provide, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import { provideFormRenderers } from "@upmind-automation/foundation";
+import { FORM_RENDERERS } from "@upmind-automation/foundation";
 import {
   PAGINATION,
   SortDirection,
@@ -365,7 +365,7 @@ export async function mountFilters(options: {
     setup() {
       const translator = useFormI18n();
       provideFormIcon(Icon);
-      provideFormRenderers(formRenderers);
+      provide(FORM_RENDERERS, formRenderers);
       const shared = {
         noActions: true,
         touched: true,

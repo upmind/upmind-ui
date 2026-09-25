@@ -16,7 +16,7 @@ import {
   provideShellComponents,
   useShellComponents
 } from "@upmind-automation/foundation";
-import { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "../index";
+import { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "../shell";
 import { AUTH_TEMPLATE } from "../types";
 import type { ShellComponents } from "@upmind-automation/foundation";
 import type { Component } from "vue";

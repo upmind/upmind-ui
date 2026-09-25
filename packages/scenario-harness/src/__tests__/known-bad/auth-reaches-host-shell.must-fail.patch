@@ -1,7 +1,7 @@
-diff --git a/packages/modules-auth/src/views/Login.vue b/packages/modules-auth/src/views/Login.vue
-index 333ad771dc..8e8f56b4e3 100644
---- a/packages/modules-auth/src/views/Login.vue
-+++ b/packages/modules-auth/src/views/Login.vue
+diff --git a/packages/modules-auth/src/Login.vue b/packages/modules-auth/src/Login.vue
+index 73647ca2c4..53c8c93171 100644
+--- a/packages/modules-auth/src/Login.vue
++++ b/packages/modules-auth/src/Login.vue
 @@ -99,6 +99,7 @@
  import { Link, Markdown } from "@upmind/ui";
  import { computed, ref } from "vue";
@@ -12,19 +12,19 @@ index 333ad771dc..8e8f56b4e3 100644
  import {
 @@ -120,7 +121,12 @@ import {
  } from "@upmind-automation/headless";
- import { useAuthResolve, useAuthTemplates } from "../auth.utils";
- import Auth from "../components/Auth.vue";
--import { AUTH_SHELL, useAuthLoading, useAuthTemplate } from "../shell";
+ import { useAuthResolve, useAuthTemplates } from "./auth.utils";
+ import Auth from "./components/Auth.vue";
+-import { AUTH_SHELL, useAuthLoading, useAuthTemplate } from "./shell";
 +import {
 +  AUTH_SHELL,
 +  AUTH_TEMPLATE_SLOT,
 +  useAuthLoading,
 +  useAuthTemplate
-+} from "../shell";
- import { type AuthProps, type AuthViewProps, AUTH_TEMPLATE } from "../types";
- import { markdownVariants, sessionFormWidthVariants } from "../variants";
++} from "./shell";
+ import { type AuthProps, type AuthViewProps, AUTH_TEMPLATE } from "./types";
+ import { markdownVariants, sessionFormWidthVariants } from "./variants";
  
-@@ -175,7 +181,9 @@ const meta = computed(() => ({
+@@ -173,7 +179,9 @@ const meta = computed(() => ({
  
  const shell = useShellComponents();
  

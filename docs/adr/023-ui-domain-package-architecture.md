@@ -2,7 +2,7 @@
 
 **Date:** June 15, 2026
 **Updated:** June 15, 2026 — §10 rewritten as a two-axis SSR-safe state model (brand-invariant shared cache + per-user request scope), after reviewing the `@next-legacy` scope-based composables (`modules/scope/`). They are built and SPA-correct; the SSR gap is that the scope registry, `QueryClient`, and session-store are module-level (per-process) rather than per-request — fixable at one chokepoint (`ensure()`). **Accepted 2026-06-16** — all Open Questions (Q1–Q4) resolved.
-**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave) and 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED). See the Amendments below.
+**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED) and 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25). See the Amendments below.
 **Authors:** Dom da Costa
 
 ---
@@ -110,6 +110,8 @@ A package *rendered inside* a lower one (which would force an upward import) is 
 
 ### 8. Feature wiring (`defineFeature`)
 
+> ⚠️ **RETIRED by [Amendment 9](#amendment-9-2026-09-21--the-feature-contract-is-retired-the-app-owns-its-list-its-routes-and-its-names) (2026-09-21, ratified 2026-09-25).** `defineFeature`, `useFeatures` and the three registries are gone, and with them every package's `feature.ts`, `nuxt.ts` and Nuxt plugin. An app now composes one renderer array from the published arrays of the packages it depends on, and provides it once. Read this section for the shape that was proposed, not for how a package reaches a host.
+
 Each package self-describes its contribution through one uniform contract:
 
 ```ts
@@ -148,6 +150,8 @@ Contributions land in the `foundation` registries (`useFeatures`, `useFormRender
 ### 9. Platform: Nuxt modules + layers
 
 Nuxt is the universal app platform. Composition aligns with Nuxt's own primitives rather than a parallel hand-rolled system:
+
+> ⚠️ **The loader claim no longer holds** — [Amendment 9](#amendment-9-2026-09-21--the-feature-contract-is-retired-the-app-owns-its-list-its-routes-and-its-names) (2026-09-21, ratified 2026-09-25). No package ships a Nuxt module. The first bullet below describes a mechanism that no longer exists; the layer and brand-variant halves of this section still bind.
 
 - **Features → thin per-package Nuxt modules.** Each package ships `@upmind-automation/<pkg>/nuxt` (a `defineNuxtModule`) that registers the package's `defineFeature` contribution (renderers, routes/funnels, plugins). The app's `nuxt.config` `modules: [...]` is the uniform feature list — Nuxt's module system *is* the loader. This also gives feature **route registration** natively (modules/layers contribute pages).
 - **Brand variants → Nuxt layers.** velia/hosting become **layers that `extends` the base `cart`** and override tokens/slots/components — the idiomatic no-fork variation mechanism (informs Open Q3).
@@ -293,6 +297,226 @@ Detailed batches, agent ownership, and codemod specifics come from the **full im
 2. **velia and hosting are retired in their own phase, before the delete.** Both still import `client-vue` (47 and 40 files), so the final phase's "no consumer imports `client-vue`" criterion cannot pass while they stand. A phase ahead of it re-homes velia's slot components and hosting's configuration into cart-nuxt per Open Question 1, then retires both apps.
 3. **The standalone `auth` and `payment` apps stay in their phases** (Amendment 1 change 4), rather than deferring to a follow-up.
 4. **`ui` means `design-system/packages/ui`.** Per ADR 024's 2026-08-19 amendment, the library's single home is the `design-system` submodule and the in-tree copies are deleted. The ten packages' project references target the submodule's workspace package; the leftover `packages/ui` working tree from the old library is removed.
+
+---
+
+## Amendment 9 (2026-09-21) — the feature contract is retired; the app owns its list, its routes and its names
+
+**Scope.** Retires §8 in full. Corrects §9's claim that the Nuxt module system is the loader.
+Corrects §2's `foundation` row and its parenthetical count of ports. The three layers, §2's
+admission rule, §7's socket rule for the *optional-package* case, the roster and the DAG are
+otherwise unchanged.
+
+> **Ratified by the operator on 2026-09-25.**
+
+**The ruling.** Two steps, the same day. First: routes and funnel flows belong to the app, not to
+a registry in `foundation`. Second, on the contract itself — *"I would rather get rid of it and
+avoid inventing new patterns/features/composables where possible."* Extended later the same day:
+a package holds **no route knowledge at all** — not the records, and not the route-name
+vocabulary.
+
+**Why it falls, measured rather than argued.** §8 was written as a proposal (*"The contract this
+ADR proposes"*), and the built article did not earn its own ceremony:
+
+1. **Four of the nine boxes contribute nothing.** `basket`, `catalogue`, `invoice` and
+   `recommendations` each shipped a `feature.ts` whose `setup` was empty, and each file said so in
+   prose. Each named the same justification: `useFeatures().has("<name>")` is "the fact a host can
+   read."
+2. **Nothing read that fact.** `useFeatures().has(...)` occurred seven times in the repo: four
+   package doc comments, one README line, and two lines of `apps/portal-nuxt/docs/`. There was no
+   runtime reader.
+3. **The route half had two contributors and two readers, and they were the same two boxes** —
+   the `auth` package feeding the `auth` app, the `payment` package feeding the `payment` app. No
+   third party sat between them. Every contributed record made a round trip through `foundation`
+   to reach an app that already imported it.
+4. **Cart registered a flow registrar and never drained it.** Nothing in `apps/cart` or
+   `apps/cart-nuxt` called `useRouting().register(router)`, and with `routes: false` no record
+   carried the `meta.authReturnTarget` the registrar's guard fired on. The contribution was inert
+   twice over.
+5. **The renderer half turned a one-line static import into a five-step round trip.** The engine's
+   own extension point is a prop (`design-system/packages/ui/src/form/Form.vue:113` defaults
+   `additionalRenderers: () => []`; `:190-193` concatenates it). `develop` fills that prop with one
+   static import (`packages/client-vue/src/components/form/Form.vue:33,7`). The registry had the
+   app build the list, wrap it in a feature, post it to a module-level `shallowRef`, `foundation`
+   read it back, and `foundation` pass the prop.
+6. **Three of the six hosts were already building the list themselves** —
+   `apps/cart/src/shell/components/form/renderers/index.ts` and its cart-nuxt and labs-nuxt twins
+   composed the whole array by hand, importing each package's entries by name. The registry carried
+   a list from the app to the app.
+
+None of this is a design failure. It is a contract that anticipated contributors who did not
+arrive: four packages had nothing to contribute, and the two that did had exactly one consumer
+each. The mechanism was sized for a plugin ecosystem and used by a fixed set of six apps that can
+each name what they want.
+
+**What replaces it.**
+
+1. **The app owns its renderer list.** Each host composes a `FormRendererEntry[]` by spreading the
+   *whole* published array of every renderer-publishing package it depends on — never picking an
+   entry by name — and hands the result to `foundation` once, at the app level, through the
+   injection seam that already exists: `provide(FORM_RENDERERS, …)`, read by `useFormRenderers()`.
+   `foundation`'s `Form.vue` keeps passing the design system's `additionalRenderers` prop; only
+   the source of the value changes. Four packages publish an array — `client`, `domain`, `payment`
+   and `product` — and a host spreads only the ones it depends on, so the set a host carries falls
+   straight out of its own manifest: `apps/auth` provides a deliberate `[]`, `apps/portal-nuxt`
+   spreads three (no `domain` dependency), and `apps/cart`, `apps/cart-nuxt` and
+   `playgrounds/labs-nuxt` each spread all four plus one control of their own.
+2. **The app owns its routes and its route names.** Both live in the app, which is where `develop`
+   has always kept them — `apps/cart/src/router/routes.ts` for the records,
+   `apps/cart/src/router/funnels/types.ts` for the names. `packages/client-vue` held neither. So
+   `AUTH_ROUTE`, `authRoutes()`, `PAYMENT_ROUTE` and `paymentRoutes()` were new knowledge, not
+   relocated knowledge, and they went back: `apps/auth/src/routes.ts` and
+   `apps/payment/src/routes.ts` now hold them, each package's own copy deleted.
+3. **A package that must send a visitor somewhere takes the destination as a prop.** Where such a
+   prop already existed it becomes required rather than defaulted. No package imports another
+   package's route names. `apps/portal-nuxt` is the proof this works the other way too: it names
+   its own three auth routes from Nuxt's own file-derived page names and imports only the
+   `AuthRoutes` **type** — a prop contract, not a name.
+4. **A package's flow registrar stays in the package and is called by the app.** `registerAuthFlows`
+   is behaviour — an origin-checked return-target reader and two navigation guards — not route
+   knowledge. `apps/auth` hands it the router directly, in `apps/auth/src/router.ts`.
+
+**Why the app, and not the package.** A single form can carry controls from a package its own
+owner may not import. The product configuration form is `product`'s own — it emits the `Terms`
+and `SubProducts` controls, both `product`'s by Amendment 3's test — alongside a provision field,
+`provision_field.sld`, that `domain`'s `SLDRenderer` claims. `product`, `basket` and
+`recommendations` all draw that form, and §3 grants none of the three an edge to `domain`.
+Measured by running the real JSON Forms testers against a schema built from a recorded staging
+fixture: the SLD field resolves only when `domain`'s entry is in the set the form is handed, and
+no package below the app can put it there without an edge §3 forbids. An app is the only layer §3
+permits to import every domain package, so an app is the only place such a set can be assembled —
+`foundation` cannot assemble it either, for the reason below.
+
+**Why the injection stays when the registry goes.** The static list cannot simply move into
+`foundation` the way it sits in `client-vue` on `develop`: a list there would make `foundation`
+import `payment`, `product`, `client` and `domain`, all four of which already import
+`foundation`. That is exactly the typed cycle §2's registry-ownership invariant exists to prevent.
+An app has no such problem, because an app may import any domain package. And a prop at each call
+site is not available either: there are 34 `<Form` mount sites across 20 files inside the nine
+packages, up to six components below the page — the indirection Amendment 7 refused for the manage
+rows, at greater depth. So the app owns the list and injects it once. That is the smallest shape
+that keeps the DAG.
+
+**§2's `foundation` row, corrected.** The row read:
+
+> `useFeatures`/`defineFeature` · the renderer registry + inject (`useFormRenderers`) · the
+> form-host wrapper · `useRouting` (funnels)
+
+It now reads: **the renderer inject (`FORM_RENDERERS`, `useFormRenderers`) · the form-host
+wrapper.** `useFeatures`, `defineFeature`, the renderer registry and `useRouting` are gone.
+`StorefrontRoute` — the only thing in `modules/routing/` that was not registry machinery — moved
+to `modules/navigation/`, beside `Back` and `useBreadcrumbs`, where two of its three in-package
+readers already lived.
+
+**§2's port count, corrected.** The Admission-rule note says `foundation` "already owns three
+ports that never met a count: the renderer registry, the routing socket and the shell socket."
+Two of the three no longer exist. One port remains beside the shell socket: the renderer
+**inject**, which is a different thing from the registry that sat behind it. The open question
+that note raises — whether ports are exempt from the count as a class — is **still open**, and now
+rests on two instances rather than three.
+
+**§2's registry-ownership invariant, narrower now.** The invariant read: renderer/route/flow
+entries live in the contributing package's `feature.ts`; `foundation` owns only the empty typed
+registries plus the inject API; entries living in `foundation` instead would make it import
+`product` and `domain`, and since every domain package already imports `foundation`, that is a
+real typed cycle. `feature.ts` is gone, and the registry it fed is gone with it — there is nothing
+left in `foundation` for an entry to "live in". What survives, narrower: **`foundation` may hold
+the inject seam and nothing that flows through it.** It forbids exactly what it always forbade —
+`foundation` importing a domain package in order to assemble a renderer, route or flow set on that
+package's behalf — for exactly the same reason: every domain package already imports `foundation`,
+so the reverse edge is a cycle whether the assembling code sits inside a registry or a plain
+function. The entries themselves now live in each package's own renderers barrel as a plain
+array; the app, which faces no such cycle, is what assembles the set (see "Why the app, and not
+the package," above).
+
+**§9, corrected.** The claim was *"The app's `nuxt.config` `modules: [...]` is the uniform feature
+list — Nuxt's module system **is** the loader."* There is no feature list and nothing to load. All
+nine per-package Nuxt modules and all nine plugins are removed; each plugin's only body was
+`register(defineXFeature(options)); install();`. A Nuxt host writes nothing in their place: it
+deletes the module from `modules`, deletes the `<pkg>: { … }` options block, deletes the
+`/nuxt` alias, and keeps the bare source alias it already had. No package ships a `/nuxt` export or
+a `nuxt` devDependency any more. Open Question 4's "starting shape" is answered by this amendment
+rather than by validation: it was validated against the build-out and did not survive it.
+
+The evidence that the one job those modules still did — pushing the package onto
+`nuxt.options.build.transpile` — was not load-bearing either: `apps/portal-nuxt`'s own production
+build. `nuxt build-only` runs with its type-check armed (`typescript.typeCheck: isBuild`, §3.5) and
+completes clean, and no `build.transpile` entry for any of the nine packages exists anywhere in
+the tree. `apps/cart-nuxt` is not this gate — its build is red before this work arrives, on
+pre-existing errors unrelated to it (§3.5) — so `portal-nuxt`'s clean, type-checked build is the
+one that stands as the measurement.
+
+**Optionality is not weakened by that — it is strengthened.** §9 made listing the module the way a
+Nuxt host declares it sells domain names. The declaration is now the dependency manifest plus the
+imports, which `tsc -b` and `pnpm` both see and a module list did not. `packages/modules-domain`'s own
+host-wiring spec already asserts the stronger half: `portal-nuxt` "declares no dependency on this
+package" and "imports nothing of it anywhere in its source." §7's socket rule for the optional
+`domain` case survives intact — `catalogue` still reaches the DAC widget through a typed port and
+never imports `domain`.
+
+**§7's DAC sentence, corrected.** §7 reads *"**`catalogue`'s DAC field uses the same socket** —
+`catalogue` does **not** import `domain` either."* The principle stands and the import is still
+absent, but the channel changes: the DAC widget is **not a form renderer** and no longer travels
+in the renderer set. It reads no `control`, never calls `useJsonFormsControl`, and no schema in the
+repo emits a `Dac` element — so its tester could never fire in production, while
+`@jsonforms/vue` ran it on every control dispatch of every form. It now arrives through a typed
+port of its own: `catalogue` publishes the key (`DAC_WIDGET: InjectionKey<Component>`), `domain`
+publishes the component, and each app that ships `domain` connects the two with one `provide`
+call. Still a socket; still no import; one fewer thing riding the form engine as transport. §7's
+sentence should name the widget port rather than the renderer socket.
+
+**A convention §8 never stated, now stated.** The design system's form host spreads its own
+built-in renderers **before** the injected ones, and JSON Forms resolves with `maxBy`, where a tie
+goes to the first entry. So a package renderer that ties a built-in on the same element silently
+loses. The rule: **for every element a published entry claims, no built-in may return an equal
+rank.** It is not a rank floor — `client`'s address renderer is correctly rank 2, matching the
+design system's own three layout renderers, all of which sit at 2 because the bare-`isLayout`
+renderer sits at 1. Measured across the whole set: no tie exists. The rule is recorded so the next
+entry is not filed by its neighbours, and a spec holds it.
+
+**One consequence worth naming: array order stops being load-bearing.** Several comments in the
+tree called the pre-move renderer order "this move's oracle." They are gone now: once no entry can
+tie a built-in, order cannot decide anything, and each host simply spreads the published array of
+every domain package it depends on — which is the idiomatic JSON Forms shape and what `develop`'s
+single static array was. A host cherry-picking entries by name was the only reason "an app could
+forget a control" was a failure mode at all.
+
+**§11's `sideEffects` caveat is discharged.** It warned that "§8's additive feature registration is
+a deliberate side effect — `sideEffects` must list the `feature.ts`/entry modules, or an
+over-eager `sideEffects: false` silently drops registered features from the bundle." With no
+registration there is no side effect to preserve, and the footgun goes with it.
+
+**What this does NOT change.**
+
+- §2's admission rule. `foundation` still earns a thing on a measured count of two or more domain
+  packages plus no single-domain knowledge.
+- §7's socket rule for optional and cross-cutting packages. The renderer **inject** is the socket;
+  only the registry behind it is gone.
+- The roster, the DAG and every grant in §3's matrix.
+- §10's state model, the SSR gate, and the scope-registry work. Untouched.
+- **Amendment 1 change 3.** The page, layouts, header and footer stay app-owned — copied into each
+  app that needs them, per Amendment 5's withdrawal. Nothing here reopens the shell question.
+- Amendment 1 change 1. Every phase stayed deployable, and the shape of the run was set by
+  honouring it: `packages/client-vue`'s `feature.ts` registered and installed itself as a
+  module-level side effect, which was the only thing feeding four shipped hosts their domain
+  renderers on every phase from Phase 2 to Phase 9a. So the **route** half retired per phase from
+  the Phase 1 → Phase 2 merge, and the **renderer** half retired in one commit at the tip, after
+  `client-vue` was deleted. A single sweeping deletion would have stranded `cart`, `cart-nuxt`,
+  `velia-nuxt` and `labs-nuxt` for nine phases.
+
+**Two things noted and deliberately not built.**
+
+1. **`@jsonforms/core` exports `NOT_APPLICABLE`.** Several specs in this tree redefine it as a
+   local `-1`. Use the export where a spec is being edited anyway; no sweep is opened for it.
+2. **JSON Forms has two more registries of the same shape — `cells` and `uischemas`.** Both carry
+   the same prop-plus-watcher wiring as `renderers`, and cells resolve by the same `maxBy`. The
+   design system's form host wires neither. **The same seam question returns the day one is
+   needed**, and it should be answered then, with a consumer in hand, rather than pre-built now.
+
+**A question this amendment does not answer.** With `useFeatures` gone, nothing in the tree reports
+which boxes a host has installed. Nothing asked for that today. If a surface ever needs to branch
+on a package's presence, the answer is a host-owned capability flag or a brand setting — not a
+revived registry, and not a lookup against a list the host itself wrote.
 
 ---
 
