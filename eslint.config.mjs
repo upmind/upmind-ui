@@ -63,7 +63,7 @@
  * ESLint with `--prune-suppressions` in a later FE-2842 step, never here.
  */
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import js from "@eslint/js";
 import eslintPluginTypescript from "@typescript-eslint/eslint-plugin";
@@ -813,41 +813,19 @@ const importGraphSettings = {
 };
 
 const SCOPE = "@upmind-automation/";
-const SHARED_BASE_DIR = "modules-foundation";
-const SHARED_BASE_SPECIFIER = `${SCOPE}foundation`;
-const EXCLUDED_FROM_ROSTER = ["client-vue"];
 
-function manifestOf(dir) {
-  const manifest = resolve(PACKAGES_ROOT, dir, "package.json");
-  if (!existsSync(manifest)) return null;
-  return JSON.parse(readFileSync(manifest, "utf8"));
-}
-
-function dependsOnSharedBase(dir) {
-  return Boolean(manifestOf(dir)?.dependencies?.[SHARED_BASE_SPECIFIER]);
-}
-
-const DOMAIN_PACKAGES = readdirSync(PACKAGES_ROOT, { withFileTypes: true })
-  .filter(entry => entry.isDirectory())
-  .map(entry => entry.name)
-  .filter(dir => !EXCLUDED_FROM_ROSTER.includes(dir))
-  .filter(dir => dir === SHARED_BASE_DIR || dependsOnSharedBase(dir))
-  .map(dir => ({ dir, name: manifestOf(dir)?.name }))
-  .sort((a, b) => a.dir.localeCompare(b.dir));
-
-if (!DOMAIN_PACKAGES.some(p => p.dir === SHARED_BASE_DIR)) {
-  throw new Error(
-    `ADR 023 roster is empty: no packages/${SHARED_BASE_DIR} under ${PACKAGES_ROOT}`
-  );
-}
-
-for (const { dir, name } of DOMAIN_PACKAGES) {
-  if (!name?.startsWith(SCOPE)) {
-    throw new Error(
-      `ADR 023 roster: packages/${dir} has no usable package name`
-    );
-  }
-}
+const DOMAIN_PACKAGES = [
+  { dir: "modules-auth", name: "@upmind-automation/auth" },
+  { dir: "modules-basket", name: "@upmind-automation/basket" },
+  { dir: "modules-catalogue", name: "@upmind-automation/catalogue" },
+  { dir: "modules-client", name: "@upmind-automation/client" },
+  { dir: "modules-domain", name: "@upmind-automation/domain" },
+  { dir: "modules-foundation", name: "@upmind-automation/foundation" },
+  { dir: "modules-invoice", name: "@upmind-automation/invoice" },
+  { dir: "modules-payment", name: "@upmind-automation/payment" },
+  { dir: "modules-product", name: "@upmind-automation/product" },
+  { dir: "modules-recommendations", name: "@upmind-automation/recommendations" }
+];
 
 const DOMAIN_PACKAGE_FILES = DOMAIN_PACKAGES.map(
   p => `packages/${p.dir}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`

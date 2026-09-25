@@ -1778,27 +1778,18 @@ importers:
 
   packages/modules-basket:
     dependencies:
-      '@upmind-automation/auth':
-        specifier: workspace:*
-        version: link:../modules-auth
       '@upmind-automation/foundation':
         specifier: workspace:*
         version: link:../modules-foundation
       '@upmind-automation/headless':
         specifier: workspace:*
         version: link:../headless
-      '@upmind-automation/invoice':
-        specifier: workspace:*
-        version: link:../modules-invoice
       '@upmind-automation/payment':
         specifier: workspace:*
         version: link:../modules-payment
       '@upmind-automation/product':
         specifier: workspace:*
         version: link:../modules-product
-      '@upmind-automation/recommendations':
-        specifier: workspace:*
-        version: link:../modules-recommendations
       '@upmind/ui':
         specifier: workspace:*
         version: link:../../design-system/packages/ui
@@ -1817,9 +1808,6 @@ importers:
       '@upmind-automation/product':
         specifier: workspace:*
         version: link:../modules-product
-      '@upmind-automation/recommendations':
-        specifier: workspace:*
-        version: link:../modules-recommendations
       '@upmind/ui':
         specifier: workspace:*
         version: link:../../design-system/packages/ui
@@ -1829,9 +1817,6 @@ importers:
 
   packages/modules-client:
     dependencies:
-      '@upmind-automation/auth':
-        specifier: workspace:*
-        version: link:../modules-auth
       '@upmind-automation/foundation':
         specifier: workspace:*
         version: link:../modules-foundation
@@ -1889,9 +1874,6 @@ importers:
       '@upmind-automation/payment':
         specifier: workspace:*
         version: link:../modules-payment
-      '@upmind-automation/recommendations':
-        specifier: workspace:*
-        version: link:../modules-recommendations
       '@upmind/ui':
         specifier: workspace:*
         version: link:../../design-system/packages/ui

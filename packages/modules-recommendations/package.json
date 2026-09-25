@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/recommendations",
-  "version": "0.20.17",
+  "version": "0.20.18",
   "description": "Upmind recommendations domain package — upsell / cross-sell widgets.",
   "type": "module",
   "license": "UNLICENSED",
