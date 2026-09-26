@@ -109,6 +109,20 @@ describe("typing in a search box reaches the wire", () => {
   });
 });
 
+describe("typing a plain column value reaches the wire", () => {
+  it("the category control sends filter[product.category.id] under its dotted column", async () => {
+    const wire = await drive(type("filters.product.category.id", "cat-1"));
+
+    expect(get(wire.filters, "filter[product.category.id]")).toBe("cat-1");
+  });
+
+  it("the status control sends filter[status.code] under its dotted column", async () => {
+    const wire = await drive(type("filters.status.code", "contract_active"));
+
+    expect(get(wire.filters, "filter[status.code]")).toBe("contract_active");
+  });
+});
+
 describe("picking a date or an amount reaches the wire", () => {
   it("the date-purchased control sends filter[created_at|gt]", async () => {
     const wire = await drive(type("filters.created_at.gt", "2024-01-01"));
