@@ -17,6 +17,7 @@ export * from "./client-email";
 export * from "./client-email-history";
 export * from "./client-notes";
 export * from "./client-notifications";
+export * from "./client-orders";
 export * from "./client-personal-details";
 export * from "./client-phone";
 export * from "./config";
