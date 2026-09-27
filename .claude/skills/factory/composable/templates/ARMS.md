@@ -23,7 +23,7 @@ Applying the test keeps the arm count honest: an arm exists because a scope earn
 
 **The schemas layer moves as a PAIR.** Its schema parser and uischema parser are one contract: an arm that overrides the schema — adding a field, or un-`readOnly`-ing one — must override the uischema too, or it ships a required field with no control to fill it. Override both, or neither.
 
-**`definitions` / `$ref` is the shape armed or armless.** The shared field and control definitions live in `useSchemaDefinitions()` / `useUischemaDefinitions()` from the start, and the shared parsers `$ref` / reference them — the same reason the resolution seam is always present: the file must not change shape the day a scope earns an arm. An arm `$ref`s the shared definition for every field it does not change and inlines a full object only where it genuinely differs, so the diff reads as `$ref` = inherited, inline = overridden.
+**`definitions` / `$ref` is the shape armed or armless.** The shared field and control definitions live in the shared schemas file from the start as FILE-PRIVATE helpers (`useSchemaDefinitions()` / `useUischemaDefinitions()` — a fresh module exports exactly its parsers, nothing else), and the shared parsers `$ref` / reference them; an arm reads them back off the shared parsers (`useSchema().definitions`, a control by `scope` off `useUischema().elements`) — the same reason the resolution seam is always present: the file must not change shape the day a scope earns an arm. An arm `$ref`s the shared definition for every field it does not change and inlines a full object only where it genuinely differs, so the diff reads as `$ref` = inherited, inline = overridden.
 
 ## When to arm
 
@@ -91,7 +91,8 @@ The only per-variant differences. Everything above applies to both.
 | **Services worked override** | `register` — real-cited from `auth/auth.services.{client,staff,guest}.ts`, reached through `moduleServices`' own `register!` dispatcher | `loadList` **and** `register` — `loadList` is the clearest case: same collection and same endpoint, but the arm asks for extra related fields, so the response shape and therefore the mapper differ |
 | **Schema parser names** | `useModuleSchemaParser` / `useModuleUischemaParser` (`*Parser` suffix — the machine-side convention, cf. `account/`) | `useSchema` / `useUischema` (unanimous across all 7 query-backed modules) |
 | **JSON Schema type** | `JsonSchema` | `JsonSchema7` |
-| **Actor-named mapper** | `mapClientModuleRequestData` — shapes a request payload | `mapClientModuleItems` — maps a richer client response |
+| **Actor-named mapper** | `mapClientModuleRequestData` — shapes a request payload | `mapClient{Module}s` — maps a richer client response |
+| **Where the actor-named mapper lives** | in the services arm until the arm is earned, then lifted into `module.mappers.ts` as an EXTRA export | same — the shared mappers file exports exactly what every module exports; the shape gate grades missing exports, never extra ones |
 | **`{module}.machine.ts`** | present, and carries the capability-guarded transition worked example (a seam — it ships with the services arm it invokes) | absent — the query is the state (Part B "State Machine vs TanStack Query") |
 
 These naming splits are **deliberate, not drift**: each follows the convention its own variant's real modules already use, which is why the schemas layer is not shared between variants even though its doctrine prose is ~95% identical. Forcing one naming on both would break `code-reviews.companion.md`'s repo-fit standard for whichever variant lost.

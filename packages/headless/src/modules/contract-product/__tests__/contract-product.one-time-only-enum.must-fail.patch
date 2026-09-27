@@ -1,0 +1,32 @@
+# Negative-control mutant — the one-time-only toggle carries an `enum` (JTBD one-time degraded)
+#
+# Scenario / gap it must flip:
+# jtbd-readback — the one-time-only control is `format: "button-group"` over
+# `billing_cycle_days.eq`, which had no `enum`, so both button-group testers
+# refuse it (`FilterButtonGroupRenderer` / `EnumToggleGroupRenderer` require
+# `isEnumControl`) and it falls to a plain number box a hand must type `0`
+# into.
+# What the prover asserts (public-surface hand-off — spec authored by the
+# prover seat, not the developer):
+# the prover asserts the `billing_cycle_days.eq` leaf of `useQuerySchema()`
+# declares `enum: [0, null]`. Without the enum the leaf is a bare integer,
+# the button-group tester never matches, and the segmented toggle degrades —
+# the exact defect the readback names.
+# Mutation:
+# `useQuerySchema()` drops the `enum` from `billing_cycle_days.eq`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+index 20c8a2ef6..293ffe6dc 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -94,7 +94,7 @@ export function useQuerySchema(): ContractProductsQuerySchema {
+               neq: forced
+                 ? { type: "integer", const: 0, default: 0 }
+                 : { type: ["integer", "null"], enum: [0, null] },
+-              eq: { type: ["integer", "null"], enum: [0, null] }
++              eq: { type: ["integer", "null"] }
+             }
+           },
+           created_at: {

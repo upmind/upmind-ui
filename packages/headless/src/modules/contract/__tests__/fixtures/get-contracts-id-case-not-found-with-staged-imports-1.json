@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/contracts/00000000-0000-0000-0000-000000000000?case=not-found&with_staged_imports=1&with=products.contract_request,products.contract_request.custom_fields.field,products.future_cancellation_request,products.product.image,products.product.brand.currency,cancellation_request,cancellation_request.custom_fields.field,products.status,products.tags,client.image,status,cancellation_request.status",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40bca08feb8b910-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 17:36:06 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=e%2BBd9R%2BgijM9Hdx8hiqfMSjgFk5EzhvcCGtgJzL81nv31isXk1BhJDlVnTNgYQdnWRm0ZxA%2BTXMsfSATNoguIbGYxXomjQ%2B9B7mggcuUf9Yt4DGoUVgInNcuGMsQe9pQscC3Oqq03A%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "4428905a4b50607289e69f916794b4ef4eba450b",
+        "type": 0,
+        "code": 404,
+        "message": "Contract not found!",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T17:36:06.859Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract"
+  }
+}

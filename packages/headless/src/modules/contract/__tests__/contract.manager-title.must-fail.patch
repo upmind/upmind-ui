@@ -1,0 +1,31 @@
+Negative control for useContract.context.ts `title` (R37 B4).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("The contract I have open shows me its name", contract.feature:265) —
+expects `useContext().title` to equal the loaded record's `name`.
+
+Mutation: drops the `title` computed and its return entry.
+
+diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
+--- a/packages/headless/src/modules/contract/useContract.context.ts
++++ b/packages/headless/src/modules/contract/useContract.context.ts
+@@ -36,9 +36,6 @@ export function createContractContext(
+   const rawContract = useContext<IContract>(state, "rawContract");
+   const contract = useContext<Contract>(state, "contract");
+
+-  /** Display title of the record — derived off the raw wire record, as `useContractProduct.context.ts`'s `title` is. */
+-  const title = computed(() => rawContract.value?.name ?? undefined);
+-
+   return {
+     /** The cancellation-request status in the platform vocabulary; undefined when no request exists (AC12). */
+     cancellationRequestStatus: useContext<CancellationRequestStatusCodes>(
+@@ -92,9 +89,6 @@ export function createContractContext(
+     /** The raw `IContract` API response beside the view model. */
+     rawContract,
+
+-    /** Display title of the record. */
+-    title,
+-
+     /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+     validationErrors: useContext<ErrorObject[]>(state, "error.data")
+   };

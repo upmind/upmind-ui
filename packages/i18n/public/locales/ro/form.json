@@ -91,6 +91,21 @@
     "label": "Numărul companiei",
     "placeholder": "Numărul de identificare al societății"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "Țara",
     "placeholder": "Selectați o țară"
@@ -106,6 +121,9 @@
     "label": "E-mail",
     "placeholder": "nume@email.com",
     "title": "Adăugați o adresă de e-mail nouă | Actualizați adresa de e-mail"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "Note de comandă"

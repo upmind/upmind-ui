@@ -1,0 +1,40 @@
+# Negative-control mutant — contract-product criteria travel one way (AC-1)
+#
+# Scenario it must flip: contract-product.feature >
+#   "Every narrowing I ask for travels one way only"
+#   ("patching a narrowing onto the request behind that contract turns this scenario red")
+# Test that goes red: contract-product.reads.int.test.ts >
+#   "AC-1 every narrowing I ask for travels one way only — the observed
+#   request carries no filter I never asked for"
+#   (the loop over `params.keys()` finds `filter[client_id]`, so
+#   `expect(key.startsWith("filter[")).toBe(false)` flips). The load-bearing
+#   assertion: the observed `GET contracts_products` URL carries no
+#   `filter[...]` key the caller never asked for.
+# Mutation: `loadList` bakes `filter[client_id]` into the base URL behind the
+#   query schema — an ACCOUNT narrowing the caller did not ask for, and the
+#   declared contract cannot see or reject it.
+#
+# Why an UNDECLARED column: `useQuery`'s request builder walks the criteria's
+#   translated filters and DELETES the url key of every DECLARED branch that
+#   holds an empty value (`useQuery.ts` — `url.searchParams.delete(key)`). A
+#   mutant that injected a column the schema DOES declare
+#   (`filter[status.code]`) is therefore scrubbed by that pipeline before the
+#   wire, flips nothing, and is a dead control. `client_id` is declared
+#   nowhere in `useQuerySchema()`, so nothing scrubs it, the injection reaches
+#   the observed request, and the scenario goes red — which is the parity risk
+#   this scenario actually names.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+index f9de1acf0..2c5ac7160 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -191,6 +191,7 @@ function loadList(
+   const excludeDelegated = excludeDelegatedFor(scopeContext, preference);
+   const url = useUrl("contracts_products", {
+     with: join(CONTRACT_PRODUCTS_LIST_WITH, ","),
++    "filter[client_id]": clientId.value ?? "",
+     split_count: 1
+   });
+ 

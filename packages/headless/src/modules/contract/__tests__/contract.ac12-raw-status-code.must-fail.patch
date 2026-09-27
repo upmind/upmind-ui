@@ -1,0 +1,40 @@
+# Negative-control mutant — AC-12's status code is published as it arrived, never
+# a coerced substitute (design 8.7)
+#
+# RE-AUTHORED (this pass). The previous version referenced `ContractStatusCodes`
+# as a runtime value inside `contract.mappers.ts`, where it is a TYPE-ONLY import
+# — so the coercion either threw at runtime or was stripped, and the prover saw
+# it flip nothing cleanly. This version coerces to a plain string literal cast to
+# the enum type, a valid runtime value that needs no new import.
+#
+# Scenario it must flip: contract.feature > the @AC-12 status scenario.
+# Test that goes red: contract.reads.int.test.ts >
+#   "AC-12 the manager publishes the REAL record's own raw status.code, never a
+#   coerced substitute". The one recorded capture is `contract_active`
+#   (status.code === "contract_active"); `mapContract` now hardwires every
+#   contract's `status.code` to "contract_cancelled", so the published
+#   `contract.value.status.code` no longer equals `row.status.code` and
+#   `expect(...).toBe(row.status.code)` flips.
+# Mutation: `mapContract` coerces every contract's `status.code` to a fixed
+#   "contract_cancelled" instead of carrying the record's own code.
+#
+# NOTE: the DECLARED-GAP block below this test (contract.reads.int.test.ts
+#   :136-147) still describes the OLD unknown-code mutant and is now stale; the
+#   prover owns that comment. A separate raw-vs-mapped source-distinction proof
+#   (design 8.7's `rawContract.status.code` member) remains an unpinned unit gap.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 87aa4031d..a1fe19526 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -29,7 +29,7 @@ export function mapContract(raw: IContract): Contract {
+ 
+   return {
+     id: raw.id,
+-    status: { code: raw.status.code as ContractStatusCodes },
++    status: { code: "contract_cancelled" as ContractStatusCodes },
+     ...(requestCode
+       ? { cancellationRequest: { status: { code: requestCode } } }
+       : {}),

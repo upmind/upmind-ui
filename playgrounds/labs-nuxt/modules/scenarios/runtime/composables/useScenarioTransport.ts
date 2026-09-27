@@ -100,11 +100,11 @@ export function useScenarioTransport(
 
         const feature = featureTextFor(trackedModule);
 
-        states.value = offeredForcedStates(feature, bodies);
+        states.value = offeredForcedStates(feature, bodies, withoutTags);
         refusal.value = presetRefusal(bodies);
         isOffered.value = true;
 
-        const gaps = forcedStateGaps(feature, bodies);
+        const gaps = forcedStateGaps(feature, bodies, withoutTags);
 
         if (!isEmpty(gaps))
           console.warn(

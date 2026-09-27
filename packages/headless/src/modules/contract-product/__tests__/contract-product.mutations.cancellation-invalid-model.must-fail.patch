@@ -1,0 +1,41 @@
+# Negative-control mutant — the SCHEDULE cancel submit validates before it writes (AC-6, R33/R35)
+#
+# Naming: the sibling spec `contract-product.mutations.int.test.ts` already owns
+#   `contract-product.mutations.validation.must-fail.patch` (the HARD-path
+#   control), so this second concern for the same spec takes the
+#   `<spec-basename>.<concern>` form:
+#   `contract-product.mutations.cancellation-invalid-model.must-fail.patch`.
+#
+# Scenario it must flip: the cancellation form's SCHEDULE_FUTURE path
+#   (`processing.schedulingCancellation`) runs `validating`
+#   (`validateCancellation`) BEFORE `updating`, so an invalid future date lands
+#   in the form's `error` node and NO `schedule-cancel` PUT / `cancel/request`
+#   POST leaves the module (R35's own-processing form shape).
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   "useContractProduct — I ask for one of my products to be cancelled outright
+#   (AC-6, R33)" >
+#   "AC-6 an invalid model makes NO request and lands a 422 in the form's error
+#   region, the form left open (R35)"
+#   (the test submits an out-of-range future date under SCHEDULE_FUTURE; with
+#   validation skipped the write fires, so
+#   `submitCancellation()` no longer rejects, `observed.matching(...)` is
+#   non-empty and the 422/hasError assertions flip).
+# Mutation: `schedulingCancellation.validating` routes its `onError` straight to
+#   `updating` instead of the form's `#cancelling.available.error` node — the
+#   invalid model is written anyway.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+index 86220f7bf..36a4f42ac 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -255,7 +255,7 @@ export const contractProductMachine = createMachine(
+                           src: "validateCancellation",
+                           onDone: { target: "updating" },
+                           onError: {
+-                            target: "#cancelling.available.error",
++                            target: "updating",
+                             actions: ["setError"]
+                           }
+                         }

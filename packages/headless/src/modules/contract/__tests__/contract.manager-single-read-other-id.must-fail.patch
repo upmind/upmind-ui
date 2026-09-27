@@ -1,0 +1,29 @@
+# Negative control — useContract single-read id, second clause (D95).
+#
+# Scenario it must flip: contract.feature:361 >
+#   "The contract I manage is the one I addressed by id" — the clause
+#   "another id never holds it".
+# Test that goes red: contract.manager-members.int.test.ts >
+#   "The contract I manage is the one I addressed by id"
+#   (the manager booted `.withId(<other id>)` is served the SAME cached
+#   instance as the addressed one, so it never reads its own id and
+#   `hasError` never turns true).
+# Mutation: `generateScopeKey` drops the `id:<value>` segment, so every
+#   `.withId()` of one actor shares one scope key and one interpreter.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/scope/scope.utils.ts b/packages/headless/src/modules/scope/scope.utils.ts
+index 8325521c41..f7698c83eb 100644
+--- a/packages/headless/src/modules/scope/scope.utils.ts
++++ b/packages/headless/src/modules/scope/scope.utils.ts
+@@ -115,9 +115,6 @@ export function generateScopeKey(name: string, config: ScopeConfig): ScopeKey {
+   // show the first row's email. Prefixed so it can never collide with a context
+   // segment, and appended only when set, so a composable that never calls
+   // `.withId()` keeps the key it had.
+-  if (config.id) {
+-    parts.push(`id:${config.id}`);
+-  }
+ 
+   if (config.brandId) {
+     parts.push(`brand:${config.brandId}`);

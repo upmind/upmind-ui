@@ -1,0 +1,36 @@
+# Negative-control mutant — the manager's lookups come from a catalogue read that happens (B1)
+#
+# Scenario it must flip: contract-product.manager-members.int.test.ts, "loads
+#   the CANCEL_REQUEST custom fields through useContext().lookups", once it
+#   serves the recorded CANCEL_REQUEST catalogue and counts that handler's
+#   reads. The expected lookups are derived from the served catalogue.
+# Mutation: `loadLookups` never asks `useClientCustomFields()` for the
+#   CANCEL_REQUEST catalogue and returns `{ customFields: [] }`. The recorded
+#   catalogue holds zero definitions, so the VALUE still matches; only the read
+#   count tells the load from the fake. Until the prover's B1 rework lands, no
+#   spec flips this mutant. Its sibling, contract-product.manager-lookups
+#   .must-fail.patch, drops the member itself.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+index 941703214..4960ba645 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -390,15 +390,7 @@ async function load(
+  * definitions so no new request is issued.
+  */
+ async function loadLookups(): Promise<ContractProductLookups> {
+-  const cancelFields = useClientCustomFields()
+-    .as(ScopeActorTypes.CLIENT)
+-    .for(ClientCustomFieldsContextTypes.CANCEL_REQUEST);
+-  const { isReady } = cancelFields.useActions();
+-  const { data: customFields } = cancelFields.useContext();
+-
+-  await isReady();
+-
+-  return { customFields: customFields.value };
++  return { customFields: [] };
+ }
+ 
+ async function validateCancellation({ cancellation }: ContractProductContext) {

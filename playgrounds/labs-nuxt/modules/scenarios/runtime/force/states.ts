@@ -47,6 +47,8 @@ import {
   find,
   flatMap,
   includes,
+  intersection,
+  isEmpty,
   kebabCase,
   map,
   size,
@@ -348,9 +350,20 @@ export function forcedStateRecipeId(recipe: ForceRecipe): ForceRecipeId {
  * Every forced state the feature describes, in feature order. A feature
  * naming no transport condition yields an empty list — the page offers
  * nothing, and is left Live.
+ *
+ * `without` are the lane tags THIS page leaves out (`ScenarioTracks.without`):
+ * a scenario tagged with one is another page's, so its forced states are not
+ * this page's to offer. A page that names no lane offers every scenario's,
+ * exactly as `useFeatureTracks` reads the same tags for its playlist.
  */
-export function featureForcedStates(featureText: string): ForcedState[] {
+export function featureForcedStates(
+  featureText: string,
+  without?: readonly string[]
+): ForcedState[] {
   const derived = flatMap(parseFeatureScenarios(featureText), scenario => {
+    if (!isEmpty(without) && !isEmpty(intersection(scenario.tags, without)))
+      return [];
+
     const recipes = recipesOf(scenario);
 
     return map(recipes, ({ phrase, ...recipe }) => ({
