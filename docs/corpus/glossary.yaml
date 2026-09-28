@@ -171,6 +171,19 @@ order:
     - { type: symbol, id: "@upmind-automation/headless!useOrder" }
     - { type: symbol, id: "@upmind-automation/headless!OrderContext" }
 
+order-history:
+  term: order history
+  kind: domain
+  definition: >-
+    The list of the invoices of the new-contract category that one client has
+    placed — one row per placed order, each an invoice the client can filter,
+    sort, search, and open. Distinct from "order", which names the broader
+    invoice-payment lifecycle; an order-history row is one narrowed reading of
+    that same record type.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!Invoice" }
+    - { type: adr, id: "adr:001-scope-based-composables" }
+
 invoice:
   term: invoice
   kind: domain
