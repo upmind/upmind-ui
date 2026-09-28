@@ -4,30 +4,21 @@
  * (unit, AC-23)
  *
  * ## Job To Be Done
- * AC-23 proves the cell stays `client x self` at COMPILE time, not just by
- * runtime convention: every `.for(...)` retarget is a type error, on every
- * actor, because design 5.2/8.6 declare `CLIENT_ORDERS_SCOPE_MATRIX` with
- * every cell `null as never` — there is no live `.for()` cell at all (unlike
- * a module with one delegated actor). `.as('self')` is the control line that
- * MUST stay clean, so a probe that simply fails to resolve the module can
- * never pass this test.
+ * AC-23 proves the cell stays `client x self` at COMPILE time, for both
+ * composables: every `.for(...)` retarget of `useClientOrders()` and of
+ * `useClientOrder()` is a type error on every actor, because design 5.2/8.6
+ * declare both scope matrices with every cell `null as never`. The two
+ * `.as('self')` lines are the controls that MUST stay clean, so a probe that
+ * fails to resolve the module can never pass this test.
  *
- * The compile probe itself ({@link compileProbe}) runs the real TypeScript
- * compiler over a throwaway file that imports the real barrel — not an inert
- * `@ts-expect-error`, which `__tests__/**` exclusion from both tsconfigs
- * would leave unchecked — mirroring
- * `client-address/__tests__/client-address.surface.test.ts` ([h24]).
- *
- * ## Scope of this pass
- * Only `useClientOrders` (the collection) is probed. `useClientOrder` (the
- * manager, T19/Phase 5) is not yet built — this pass does not claim manager
- * coverage.
+ * The compile probe runs the real TypeScript compiler over a throwaway file
+ * that imports the real barrel, as
+ * `client-address/__tests__/client-address.surface.test.ts` does ([h24]).
  *
  * ## What Breaks If These Fail
- * A future edit that flips one matrix cell from `null` to a context value
- * silently reopens `.for('client', id)` retargeting — the exact scope FE-3237
- * Out of Scope and ADR-001 forbid for this module — and nothing else in the
- * suite would catch it, because every other spec drives `.as('self')` only.
+ * A matrix cell flipped from `null` to a context value silently reopens
+ * `.for('client', id)` retargeting on the history or on one order, the scope
+ * FE-3237 Out of Scope and ADR-001 forbid for this module.
  */
 
 import { execFileSync } from "node:child_process";
@@ -35,7 +26,10 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { CLIENT_ORDERS_SCOPE_MATRIX, useClientOrders } from "..";
+import {
+  CLIENT_ORDERS_SCOPE_MATRIX,
+  CLIENT_ORDER_MANAGER_SCOPE_MATRIX
+} from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 
 // -----------------------------------------------------------------------------
@@ -77,32 +71,43 @@ function compileProbe(lines: string[]): number[] {
 // -----------------------------------------------------------------------------
 
 describe("client-orders public surface (AC-23)", () => {
-  it("offers the collection composable", () => {
-    expect(typeof useClientOrders).toBe("function");
-  });
-
-  it("declares every scope-matrix cell null — no live .for() cell exists at all", () => {
-    expect(CLIENT_ORDERS_SCOPE_MATRIX[ScopeActorTypes.SELF]).toBeNull();
-    expect(CLIENT_ORDERS_SCOPE_MATRIX[ScopeActorTypes.CLIENT]).toBeNull();
-    expect(CLIENT_ORDERS_SCOPE_MATRIX[ScopeActorTypes.STAFF]).toBeNull();
-    expect(CLIENT_ORDERS_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
+  it.each([
+    ["useClientOrders", CLIENT_ORDERS_SCOPE_MATRIX],
+    ["useClientOrder", CLIENT_ORDER_MANAGER_SCOPE_MATRIX]
+  ] as const)("%s declares every scope-matrix cell null", (_name, matrix) => {
+    for (const actor of [
+      ScopeActorTypes.SELF,
+      ScopeActorTypes.CLIENT,
+      ScopeActorTypes.STAFF,
+      ScopeActorTypes.GUEST
+    ]) {
+      expect(matrix[actor]).toBeNull();
+    }
   });
 });
 
 describe("client-orders refuses every .for() retarget at compile time (AC-23)", () => {
-  it("every actor's .for(...) is a type error, while .as('self') alone stays clean", () => {
+  it("every actor's .for(...) is a type error on both composables, while .as('self') alone stays clean", () => {
+    const actors = ["SELF", "CLIENT", "STAFF", "GUEST"];
     const diagnostics = compileProbe([
-      `import { useClientOrders } from ${JSON.stringify(MODULE_DIR)};`,
+      `import { useClientOrder, useClientOrders } from ${JSON.stringify(MODULE_DIR)};`,
       `import { ScopeActorTypes } from ${JSON.stringify(join(MODULE_DIR, "../scope/scope.types"))};`,
-      // 3 — the control: the one real cell this module serves must stay clean.
       `useClientOrders().as(ScopeActorTypes.SELF);`,
-      `useClientOrders().as(ScopeActorTypes.SELF).for("client", "x");`,
-      `useClientOrders().as(ScopeActorTypes.CLIENT).for("client", "x");`,
-      `useClientOrders().as(ScopeActorTypes.STAFF).for("client", "x");`,
-      `useClientOrders().as(ScopeActorTypes.GUEST).for("client", "x");`
+      `useClientOrder().as(ScopeActorTypes.SELF).withId("x");`,
+      ...actors.map(
+        actor =>
+          `useClientOrders().as(ScopeActorTypes.${actor}).for("client", "x");`
+      ),
+      ...actors.map(
+        actor =>
+          `useClientOrder().as(ScopeActorTypes.${actor}).for("client", "x");`
+      )
     ]);
 
     expect(diagnostics).not.toContain(3);
-    expect(diagnostics).toEqual(expect.arrayContaining([4, 5, 6, 7]));
+    expect(diagnostics).not.toContain(4);
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([5, 6, 7, 8, 9, 10, 11, 12])
+    );
   }, 60000);
 });

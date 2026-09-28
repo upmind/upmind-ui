@@ -21,9 +21,9 @@
  * cause — or a malformed string slips through to the wire and the API 422s.
  */
 
+import { describe, expect, it } from "vitest";
 import { useQuerySchema } from "../client-orders.schemas";
 import { useValidation } from "../../../utils";
-import { describe, expect, it } from "vitest";
 import type { ErrorObject } from "ajv";
 
 type Validator = ((data: unknown) => boolean) & {
@@ -132,6 +132,20 @@ describe.each(["created_at", "paid_datetime"] as const)(
           }
         })
       ).toBe(false);
+    });
+
+    it("the relative leaf refuses 7_days, a period with no sign, on after and on before", () => {
+      const validate = compileQuerySchema();
+      for (const op of ["after", "before"] as const) {
+        expect(
+          validate({
+            filters: {
+              "category.slug": "new_contract",
+              [column]: { [op]: "7_days" }
+            }
+          })
+        ).toBe(false);
+      }
     });
   }
 );

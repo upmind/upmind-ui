@@ -3,32 +3,30 @@
  * @fileoverview client-orders — the legacy status/condition rules (unit, AC-18)
  *
  * ## Job To Be Done
- * Pin the design 8.5 truth table's legacy-rule pure functions —
- * `isOverdue`, `isPaid`, `isCancelled`, `isPartiallyPaid`, `canPay`,
- * `canCancel` — against literal expected outputs. Every row this pass can
- * prove is driven by a REAL recorded order (`paid`, `cancelled`), pulled
- * from this module's own `pnpm fixtures:generate client-orders` capture, not
- * a hand-authored record. The design 8.5 table is explicit that the state is
- * a CAPTURE or a sanctioned CONSTRUCTION — never a hand-typed guess.
+ * Pin each row of the design 8.5 truth table on the six new pure functions
+ * `isOverdue`, `isPaid`, `isCancelled`, `isPartiallyPaid`, `canPay` and
+ * `canCancel`. Each expected value is a literal copied from that table.
  *
- * ## Capture-limitation disclosure (NFR-2)
- * This pass's real capture window carried NO `invoice_unpaid`,
- * `invoice_overdue`, or `invoice_refunded` row, and no way to distinguish
- * `part-paid` / `cancelled-part-paid` from the list alone (design 8.8's
- * recording-rule table: those three STOP and escalate rather than construct).
- * So the `unpaid`, `part-paid`, `overdue`, `refunded` and
- * `cancelled-part-paid` rows of design 8.5's table are NOT covered by this
- * file — escalated, not fabricated. The `cancellation request` row IS
- * covered: design 8.5 marks it explicitly "construction, unit only" — the
- * one row the design itself sanctions as a hand-built literal, over the
- * `InvoiceStatus` enum's own published member, not a guess.
+ * ## Provenance
+ * Captures (`pnpm fixtures:generate client-orders`): paid, cancelled
+ * (`paid_amount` 0), unpaid, part-paid, overdue, refunded. The
+ * `client-orders.captures` spec proves the state of each one. The staging
+ * refunded order carries `paid_amount` 0, not the `> 0` of the table state
+ * column. Every expected flag on that row is false either way.
+ *
+ * Declared constructions (design 8.8), each over a recorded record:
+ * - cancellation request: the recorded cancelled read with `status.code` set
+ *   to `invoice_cancellation_request` (unit only).
+ * - cancelled part-paid: the recorded cancelled read with `paid_amount` and
+ *   `unpaid_amount_converted` from the recorded part-paid read.
  *
  * ## What Breaks If These Fail
  * A client sees "Cancel" on an order that cannot be cancelled, or "Pay" on
- * one that is already settled — the exact class of bug the legacy vue-app
- * rules these functions port already fixed once.
+ * one that is already settled.
  */
 
+import { describe, expect, it } from "vitest";
+import { InvoiceStatus } from "@upmind-automation/types";
 import {
   canCancel,
   canPay,
@@ -37,65 +35,116 @@ import {
   isPaid,
   isPartiallyPaid
 } from "..";
-import { recordingsDir } from "./setup.integration";
-import { InvoiceStatus } from "@upmind-automation/types";
-import { getFixtureBody } from "@upmind-automation/test-fixtures";
-import { describe, expect, it } from "vitest";
+import { captured } from "./client-orders.captures";
+import type { IOrder } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-type OrderLike = {
-  status: { code: InvoiceStatus };
-  paid_amount: number;
-  unpaid_amount_converted: number;
+type OrderLike = Pick<
+  IOrder,
+  "status" | "paid_amount" | "unpaid_amount_converted"
+>;
+
+type Flags = {
+  isOverdue: boolean;
+  isPaid: boolean;
+  isCancelled: boolean;
+  isPartiallyPaid: boolean;
+  canPay: boolean;
+  canCancel: boolean;
 };
 
-function orderFixture(partialKey: string): OrderLike {
-  const body = getFixtureBody<{ data: OrderLike }>(partialKey, {
-    recordingsDir
-  });
-  return body.data;
+function capture(name: string): OrderLike {
+  return captured<{ data: OrderLike }>(name).data;
 }
+
+function flagsOf(order: OrderLike): Flags {
+  return {
+    isOverdue: isOverdue(order),
+    isPaid: isPaid(order),
+    isCancelled: isCancelled(order),
+    isPartiallyPaid: isPartiallyPaid(order),
+    canPay: canPay(order),
+    canCancel: canCancel(order)
+  };
+}
+
+const paid = capture("get-invoices-id-case-order-paid");
+const cancelled = capture("get-invoices-id-case-order-cancelled-none-paid");
+const unpaid = capture("get-invoices-id-case-order-unpaid");
+const partPaid = capture("get-invoices-id-case-order-part-paid");
+const overdue = capture("get-invoices-id-case-order-overdue");
+const refunded = capture("get-invoices-id-case-order-refunded");
+
+const ALL_FALSE: Flags = {
+  isOverdue: false,
+  isPaid: false,
+  isCancelled: false,
+  isPartiallyPaid: false,
+  canPay: false,
+  canCancel: false
+};
 
 // -----------------------------------------------------------------------------
 
-describe("client-orders legacy status rules — real captures (AC-18)", () => {
-  const paid = orderFixture("id-case-order-paid");
-  const cancelled = orderFixture("id-case-order-cancelled");
-
-  it("a real PAID order: isPaid true, everything else false", () => {
-    expect(paid.status.code).toBe(InvoiceStatus.PAID);
-    expect(isPaid(paid)).toBe(true);
-    expect(isOverdue(paid)).toBe(false);
-    expect(isCancelled(paid)).toBe(false);
-    expect(isPartiallyPaid(paid)).toBe(false);
-    expect(canPay(paid)).toBe(false);
-    expect(canCancel(paid)).toBe(false);
+describe("client-orders legacy status rules — recorded orders (AC-18)", () => {
+  it("paid: isPaid true, every other flag false", () => {
+    expect(flagsOf(paid)).toEqual({ ...ALL_FALSE, isPaid: true });
   });
 
-  it("a real CANCELLED order: isCancelled true, everything else false", () => {
-    expect(cancelled.status.code).toBe(InvoiceStatus.CANCELLED);
-    expect(isCancelled(cancelled)).toBe(true);
-    expect(isPaid(cancelled)).toBe(false);
-    expect(isOverdue(cancelled)).toBe(false);
-    expect(isPartiallyPaid(cancelled)).toBe(false);
-    expect(canPay(cancelled)).toBe(false);
-    expect(canCancel(cancelled)).toBe(false);
+  it("unpaid: canPay and canCancel true, isPartiallyPaid false", () => {
+    expect(flagsOf(unpaid)).toEqual({
+      ...ALL_FALSE,
+      canPay: true,
+      canCancel: true
+    });
+  });
+
+  it("part-paid: isPartiallyPaid, canPay and canCancel true", () => {
+    expect(flagsOf(partPaid)).toEqual({
+      ...ALL_FALSE,
+      isPartiallyPaid: true,
+      canPay: true,
+      canCancel: true
+    });
+  });
+
+  it("overdue: isOverdue, canPay and canCancel true", () => {
+    expect(flagsOf(overdue)).toEqual({
+      ...ALL_FALSE,
+      isOverdue: true,
+      canPay: true,
+      canCancel: true
+    });
+  });
+
+  it("cancelled with nothing paid: isCancelled true, every other flag false", () => {
+    expect(flagsOf(cancelled)).toEqual({ ...ALL_FALSE, isCancelled: true });
+  });
+
+  it("refunded: every flag false", () => {
+    expect(flagsOf(refunded)).toEqual(ALL_FALSE);
   });
 });
 
-describe("client-orders legacy status rules — the sanctioned construction (AC-18)", () => {
-  it("a CANCELLATION_REQUEST record: isCancelled true (design 8.5's one authored row)", () => {
+describe("client-orders legacy status rules — declared constructions (AC-18)", () => {
+  it("cancellation request: isCancelled true, every other flag false", () => {
     const record: OrderLike = {
-      status: { code: InvoiceStatus.CANCELLATION_REQUEST },
-      paid_amount: 0,
-      unpaid_amount_converted: 0
+      ...cancelled,
+      status: {
+        ...cancelled.status,
+        code: InvoiceStatus.CANCELLATION_REQUEST
+      }
     };
-    expect(isCancelled(record)).toBe(true);
-    expect(isPaid(record)).toBe(false);
-    expect(isOverdue(record)).toBe(false);
-    expect(isPartiallyPaid(record)).toBe(false);
-    expect(canPay(record)).toBe(false);
-    expect(canCancel(record)).toBe(false);
+    expect(flagsOf(record)).toEqual({ ...ALL_FALSE, isCancelled: true });
+  });
+
+  it("cancelled part-paid: isPartiallyPaid false, isCancelled true", () => {
+    const record: OrderLike = {
+      ...cancelled,
+      paid_amount: partPaid.paid_amount,
+      unpaid_amount_converted: partPaid.unpaid_amount_converted
+    };
+    expect(flagsOf(record)).toEqual({ ...ALL_FALSE, isCancelled: true });
   });
 });

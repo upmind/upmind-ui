@@ -1,77 +1,30 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview Client-orders API Fixtures Generator (ADR 025 §A1.3)
+ * @fileoverview Client-orders API fixtures generator (ADR 025 §A1.3, design 8.8)
  *
  * ## Job To Be Done
- * Capture REAL `api/invoices` responses this story's `client x self` cell
- * reads, into this module's own co-located `fixtures/` dir — the files the
- * `client-orders.dotted-operators.int.test.ts` and `client-orders.utils.test.ts`
- * specs replay. Run on demand:
+ * Record every design 8.8 capture of this module from staging, in one run, as
+ * the staging client:
  *
  *   pnpm fixtures:generate client-orders
  *
- * ## Scope of THIS pass
- * Operator ruling (4), 2026-09-23, names ONE mandatory proof: the dotted-key
- * operator-bag path for `status.code` (`eq`, `neq`) and the three
- * `products.*` columns (`like`, `eq`, `neq` each), reaching the wire through
- * the module's OWN criteria schema and `translateQuery` — no query-core
- * change, no side channel. This generator captures exactly that operator-form
- * set, plus a broad default list (to resolve real order ids and discover
- * which design 8.5 truth-table states the real corpus offers) — the minimum
- * a first REVISE pass can verify end-to-end. Design 8.8's fuller capture set
- * (paging, availability, one-order relations, items, images, gateways,
- * billing cycles, the AC20 engine-run) is NOT captured here — each is a
- * separate task (T13/T15/T20/T22) this pass does not claim to close.
+ * Each capture carries a `case=<label>` param. After `save()` the file is
+ * renamed to `<method>-<path>-case-<label>.json`, the design 8.8 capture name,
+ * so a spec loads it by that name. Every other `.json` in `fixtures/` is
+ * deleted: this run supersedes it.
  *
- * ## Why this is not a normal test
- * It makes REAL `fetch` calls against `VITE_API_URL` and needs staging
- * credentials — excluded from `*.test.ts` / `*.int.test.ts` by the
- * `*.fixtures.ts` suffix. No assertions beyond "the capture completed and
- * returned a usable body"; `save()` in `afterAll` writes every capture once.
- *
- * ## Case-name disambiguation
- * `getFixture`/`getFixtureBody` match by SUBSTRING on the FILENAME
- * (tests/fixtures/index.ts), and a filename over 100 chars collapses its
- * whole param tail to an opaque hash (`fixture-naming.mjs` `MAX_FIXTURE_NAME`)
- * — so the operator-form captures below carry NO extra `case=` param; the
- * `filter[<col>|<op>]` key itself is the identity, is short enough to stay
- * under the hash threshold, and is unambiguous by construction: `eq` is a
- * substring of `neq`, but `<col>-eq` (the column name immediately precedes
- * the operator in the cleaned filename) is never a substring of `<col>-neq`,
- * because the character right after `<col>-` differs (`e` vs `n`). The one
- * `gt`/`gte` and `lt`/`lte` PREFIX-collision case (`<col>-gt` IS a substring
- * of `<col>-gte`) does not arise here — ruling 4's mandated columns
- * (`status.code`, `products.*`) use only `eq`/`neq`/`like`.
- *
- * ## Capture-limitation disclosure (required by NFR-2)
- * The design 8.5 truth table's rarer states (part-paid, refunded,
- * cancelled-part-paid, overdue) may not exist in this staging client's real
- * order history in a given capture window. Design 8.8's recording-rule table
- * says: stop and tell the operator for those three, rather than construct
- * them. This generator logs which states it found and which it did not; it
- * constructs nothing.
- *
- * ## Captures
- * `get-invoices-case-orders-default-filter-category-slug-new-contract`
- * (broad real list, forced category) · one `get-invoices-filter-status-code-eq…`
- * / `-neq…` pair (AC9, ruling 4) · three `get-invoices-filter-products-product-name-<op>…`
- * / `-products-product-category-name-<op>…` / `-products-service-identifier-<op>…`
- * triples for `like`/`eq`/`neq` (AC7, ruling 4) ·
- * `get-invoices-id-case-order-<status>` (one order per real status found, AC18 truth table, T10) ·
- * one `get-invoices-filter-number-eq…` / `-like…` / `-neq…` triple and one
- * `get-invoices-filter-total_amount-eq…` / `-neq…` / `-gt…` / `-gte…` /
- * `-lt…` / `-lte…` sextet — ruling 3 names `number` and `total_amount`
- * explicitly as columns whose `|eq` acceptance a recorded staging fixture
- * must prove; the value `10` for `total_amount` is design.md 8.8's own
- * example value for this exact capture, not an authored literal.
+ * ## Recording rule (design 8.8)
+ * A state that staging cannot give stops the run, or is logged as a
+ * disclosure for the operator. Nothing is constructed here. Discovery reads
+ * carry `case=discover-*` and are dropped before `save()`.
  */
 
+import { readdirSync, renameSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
 // eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
 import { mintClientToken } from "../../auth/__tests__/auth.tokens";
-import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -79,8 +32,7 @@ const API_URL = process.env.VITE_API_URL
   ? process.env.VITE_API_URL.replace(/\/$/, "")
   : (() => {
       throw new Error(
-        "VITE_API_URL is required to generate fixtures (e.g. set it in " +
-          ".env.recording). Refusing to run against an unknown API."
+        "VITE_API_URL is required to generate fixtures (set it in .env.recording)."
       );
     })();
 
@@ -88,36 +40,124 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
   ? process.env.RECORDING_BRAND_ORIGIN.replace(/\/$/, "")
   : (() => {
       throw new Error(
-        "RECORDING_BRAND_ORIGIN is required to generate fixtures (e.g. set " +
-          "it in .env.recording). The API resolves the brand from the " +
-          'Origin header; without it every call returns 404 "Domain not found!".'
+        "RECORDING_BRAND_ORIGIN is required to generate fixtures (set it in .env.recording)."
       );
     })();
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
-const FORCED_CATEGORY = "filter[category.slug]=new_contract";
+const FORCED = "filter[category.slug]=new_contract";
+const LIST_WITH = "tags,client,client.image,status,products";
 
-/** A real order row, as returned by the default list capture. */
-type OrderListRow = {
+const SINGLE_READ =
+  "with_staged_imports=1&with=account.affiliate_referral.affiliate_account.account.client,affiliate_commissions,brand,client,client.tags,contract,contract_product_tags,custom_fields.field,payments,promotions,status,taxes,taxes.tax_tag_data";
+
+const ONLINE_GATEWAY_TYPES = "1,6,3,10,4";
+
+const DATE_ABSOLUTE = "2026-09-01 00:00:00";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+type Row = {
   id?: string;
   number?: string;
+  total_amount?: number;
+  paid_amount?: number;
+  unpaid_amount_converted?: number;
+  brand_id?: string;
   status?: { code?: string };
   products?: Array<{
+    service_identifier?: string | null;
     product?: { name?: string; category?: { name?: string } };
-    service_identifier?: string;
   }>;
 };
 
+type ListBody = { data?: Row[]; total?: number };
+
+type SnapshotItem = {
+  product?: { id?: string };
+  options?: unknown;
+  attributes?: unknown;
+};
+
+type SingleBody = {
+  data?: Row & {
+    contract?: { cancellation_reason?: string | null } | null;
+    account?: { affiliate_referral?: unknown } | null;
+    current_data?: { content?: { products?: SnapshotItem[] } } | null;
+  };
+};
+
+type ListOptions = {
+  filter?: string;
+  offset?: number;
+  order?: string;
+  withBrand?: boolean;
+  limit?: number;
+};
+
+/** One design 8.1 list read at the given window, sort and extra filter. */
+function listPath(label: string, options: ListOptions = {}): string {
+  const filter = options.filter ? `&${options.filter}` : "";
+  const relations = options.withBrand ? `${LIST_WITH},brand` : LIST_WITH;
+  return (
+    `/api/invoices?${FORCED}${filter}&with=${relations}&with_count=products` +
+    `&order=${options.order ?? "-created_at"}&limit=${options.limit ?? 10}` +
+    `&offset=${options.offset ?? 0}&case=${label}`
+  );
+}
+
+function filterPair(column: string, op: string, value: string): string {
+  return `filter[${column}|${op}]=${encodeURIComponent(value)}`;
+}
+
+/** The design 8.8 name of a capture: `<method>-<path>-case-<label>`. */
+function captureName(method: string, path: string, label: string): string {
+  const slug = new URL(path, "http://x").pathname
+    .replace(/^\/api\//, "")
+    .split("/")
+    .filter(Boolean)
+    .map(segment => (UUID.test(segment) ? "id" : segment))
+    .join("-")
+    .replace(/_/g, "-");
+  return `${method.toLowerCase()}-${slug}-case-${label}`;
+}
+
+function holdsSubItems(value: unknown): boolean {
+  if (Array.isArray(value)) return value.length > 0;
+  return !!value && typeof value === "object" && Object.keys(value).length > 0;
+}
+
 // -----------------------------------------------------------------------------
 
-describe("Client-orders API Fixtures Generator", () => {
+describe("Client-orders API fixtures generator (design 8.8)", () => {
   let generator: Generator;
-  let clientToken: IToken;
-  let sampleNumber: string | undefined;
-  let sampleProductName: string | undefined;
-  let sampleServiceIdentifier: string | undefined;
-  const statusIdByStatus = new Map<string, string>();
+  const disclosures: string[] = [];
+  const pool: Row[] = [];
+  const sample: {
+    number?: string;
+    total?: number;
+    productName?: string;
+    categoryName?: string;
+    serviceIdentifier?: string;
+    brandId?: string;
+  } = {};
+
+  async function mustGet(path: string): Promise<unknown> {
+    const { status, body } = await generator.get(path);
+    if (status !== 200) {
+      throw new Error(
+        `${path} returned ${status}. Stop and tell the operator.`
+      );
+    }
+    return body;
+  }
+
+  async function readOne(id: string, label: string): Promise<SingleBody> {
+    return (await mustGet(
+      `/api/invoices/${id}?${SINGLE_READ}&case=${label}`
+    )) as SingleBody;
+  }
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -126,276 +166,339 @@ describe("Client-orders API Fixtures Generator", () => {
       source: "case",
       name: "client-orders"
     });
-
-    clientToken = await mintClientToken();
+    generator.setBearerToken((await mintClientToken()).access_token);
   }, 30000);
 
   afterAll(() => {
+    const captured = generator.getCapturedFixtures();
+    for (const key of [...captured.keys()]) {
+      if (key.includes("case=discover-")) captured.delete(key);
+    }
     generator.save();
+
+    const kept = new Set<string>();
+    for (const { fixture, filename } of captured.values()) {
+      const label = new URL(fixture.request.path, "http://x").searchParams.get(
+        "case"
+      );
+      if (!label) continue;
+      const target = `${captureName(fixture.request.method, fixture.request.path, label)}.json`;
+      renameSync(join(recordingsDir, filename), join(recordingsDir, target));
+      kept.add(target);
+    }
+    for (const file of readdirSync(recordingsDir)) {
+      if (file.endsWith(".json") && !kept.has(file)) {
+        unlinkSync(join(recordingsDir, file));
+      }
+    }
+
+    console.log(
+      `[fixtures:generate client-orders] ${kept.size} captures written. ` +
+        `Disclosures:\n- ${disclosures.join("\n- ") || "none"}`
+    );
   });
 
-  it("captures GET api/invoices (broad real list, forced category, case=orders-default)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status, body } = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&with=status,products&limit=25&order=-created_at&case=orders-default`
-    );
-    generator.clearBearerToken();
-    if (status !== 200) {
+  it("records the default list, page 2 and the multi-brand relation read", async () => {
+    const body = (await mustGet(listPath("orders-default"))) as ListBody;
+    const rows = body.data ?? [];
+    if ((body.total ?? 0) <= 10 || rows.length !== 10) {
       throw new Error(
-        `List capture returned ${status} — refusing to ship a fixture that ` +
-          "does not represent a readable collection."
+        `the history holds ${body.total} orders; AC3 needs a second page. Stop and tell the operator.`
       );
     }
-    const rows = (body as { data?: OrderListRow[] })?.data ?? [];
-    if (rows.length === 0) {
-      throw new Error(
-        "The real list capture returned zero new_contract orders — this " +
-          "staging client has no order history to capture fixtures from. " +
-          "Escalate rather than hand-author a list."
-      );
-    }
-
     for (const row of rows) {
-      const code = row.status?.code;
-      if (code && row.id && !statusIdByStatus.has(code)) {
-        statusIdByStatus.set(code, row.id);
+      sample.number ??= row.number;
+      if (sample.total === undefined && (row.total_amount ?? 0) > 0) {
+        sample.total = row.total_amount;
       }
-      if (!sampleNumber && row.number) sampleNumber = row.number;
+      sample.brandId ??= row.brand_id;
       for (const item of row.products ?? []) {
-        if (!sampleProductName && item.product?.name) {
-          sampleProductName = item.product.name;
-        }
-        if (!sampleServiceIdentifier && item.service_identifier) {
-          sampleServiceIdentifier = item.service_identifier;
-        }
+        sample.productName ??= item.product?.name;
+        sample.categoryName ??= item.product?.category?.name;
+        sample.serviceIdentifier ??= item.service_identifier ?? undefined;
       }
     }
 
-    // Disclosure only — design 8.8's recording rule says STOP for a rarer
-    // truth-table state absent from the real corpus, never construct it. T10
-    // consumes only the statuses this log confirms present.
-    const wanted = [
+    await mustGet(listPath("orders-page-2", { offset: 10 }));
+    await mustGet(listPath("orders-multibrand", { withBrand: true }));
+  }, 60000);
+
+  it("discovers a service identifier when the default rows carry none", async () => {
+    if (sample.serviceIdentifier) return;
+    for (let offset = 0; offset < 1000; offset += 50) {
+      const body = (await mustGet(
+        listPath(`discover-service-identifier-${offset}`, { offset, limit: 50 })
+      )) as ListBody;
+      for (const row of body.data ?? []) {
+        for (const item of row.products ?? []) {
+          sample.serviceIdentifier ??= item.service_identifier ?? undefined;
+        }
+      }
+      if (sample.serviceIdentifier || (body.data ?? []).length < 50) break;
+    }
+    disclosures.push(
+      sample.serviceIdentifier
+        ? "the default rows carry no service identifier; the probe value comes from a later order of the same history"
+        : "no order of the history carries products.service_identifier; the service_identifier probes are not recorded (design 8.8: stop and tell the operator)"
+    );
+  }, 180000);
+
+  it("records the paging recovery reads (AC4, AC24 divergence 3)", async () => {
+    const probe = (await mustGet(
+      listPath("discover-total", { limit: 1 })
+    )) as ListBody;
+    const lastOffset = Math.floor(((probe.total ?? 0) - 1) / 10) * 10;
+
+    const past = (await mustGet(
+      listPath("orders-past-last-page", { offset: lastOffset + 100 })
+    )) as ListBody;
+    const last = (await mustGet(
+      listPath("orders-last-page", { offset: lastOffset })
+    )) as ListBody;
+    const empty = (await mustGet(
+      listPath("orders-empty-page", {
+        offset: 10,
+        filter: filterPair("created_at", "lt", "2000-01-01 00:00:00")
+      })
+    )) as ListBody;
+
+    if ((past.data ?? []).length !== 0 || (past.total ?? 0) === 0) {
+      throw new Error(
+        "the past-last-page read is not an empty page with a total above zero. Stop and tell the operator."
+      );
+    }
+    if ((last.data ?? []).length === 0) {
+      throw new Error(
+        "the last-page read holds no rows. Stop and tell the operator."
+      );
+    }
+    if ((empty.total ?? -1) !== 0) {
+      throw new Error(
+        "the empty-page read does not answer total 0. Stop and tell the operator."
+      );
+    }
+  }, 60000);
+
+  it("records the search and the two status reads (AC9, AC11)", async () => {
+    await mustGet(
+      listPath("orders-search", {
+        filter: filterPair("number", "eq", sample.number ?? "")
+      })
+    );
+    const csv = (await mustGet(
+      listPath("orders-status-eq-csv", {
+        filter: "filter[status.code|eq]=invoice_unpaid,invoice_adjusted"
+      })
+    )) as ListBody;
+    await mustGet(
+      listPath("orders-status-neq", {
+        filter: "filter[status.code|neq]=invoice_cancelled"
+      })
+    );
+    const codes = new Set((csv.data ?? []).map(row => row.status?.code));
+    if (!codes.has("invoice_unpaid") || !codes.has("invoice_adjusted")) {
+      const adjusted = (await mustGet(
+        listPath("discover-adjusted", {
+          filter: "filter[status.code|eq]=invoice_adjusted",
+          limit: 1
+        })
+      )) as ListBody;
+      disclosures.push(
+        `the status csv capture holds [${[...codes].join(",")}]; the history holds ${adjusted.total ?? 0} adjusted orders (design 8.8: stop and tell the operator)`
+      );
+    }
+  }, 60000);
+
+  it("records one operator-form probe for each comparison of design 8.3 (AC7, AC8)", async () => {
+    const probes: Array<[string, string, string | undefined]> = [
+      ["number", "like", sample.number],
+      ["number", "neq", sample.number]
+    ];
+    for (const op of ["eq", "neq", "gt", "gte", "lt", "lte"]) {
+      probes.push(["total_amount", op, String(sample.total)]);
+    }
+    for (const column of ["created_at", "paid_datetime"]) {
+      for (const op of ["gt", "gte", "lt", "lte"]) {
+        probes.push([column, op, DATE_ABSOLUTE]);
+      }
+      probes.push([column, "after", "-7_days"], [column, "before", "+7_days"]);
+    }
+    for (const [column, value] of [
+      ["products.product.name", sample.productName],
+      ["products.product.category.name", sample.categoryName],
+      ["products.service_identifier", sample.serviceIdentifier]
+    ] as const) {
+      for (const op of ["like", "eq", "neq"]) probes.push([column, op, value]);
+    }
+
+    for (const [column, op, value] of probes) {
+      if (value === undefined) {
+        disclosures.push(
+          `no value for the ${column}|${op} probe; not recorded`
+        );
+        continue;
+      }
+      const wire = op === "like" ? `%${value}%` : value;
+      const label = `orders-${column.replace(/\./g, "-")}-${op}-probe`;
+      const body = (await mustGet(
+        listPath(label, { filter: filterPair(column, op, wire) })
+      )) as ListBody;
+      if (op === "eq" && (body.total ?? 0) === 0) {
+        disclosures.push(
+          `${column}|eq "${value}" returned total 0 (design 8.8: stop and tell the operator)`
+        );
+      }
+    }
+  }, 240000);
+
+  it("records one read for each sort field (AC10)", async () => {
+    for (const field of ["id", "total_amount", "status_id", "created_at"]) {
+      await mustGet(listPath(`orders-sort-${field}`, { order: field }));
+    }
+  }, 60000);
+
+  it("discovers the single-read pool", async () => {
+    for (const code of [
       "invoice_paid",
       "invoice_unpaid",
       "invoice_overdue",
       "invoice_cancelled",
       "invoice_refunded"
+    ]) {
+      const body = (await mustGet(
+        listPath(`discover-${code}`, {
+          filter: `filter[status.code|eq]=${code}`,
+          limit: 50
+        })
+      )) as ListBody;
+      pool.push(...(body.data ?? []));
+    }
+  }, 60000);
+
+  it("records the truth-table single reads, the not-found read and the snapshot read (AC13 to AC21)", async () => {
+    const byCode = (code: string) =>
+      pool.filter(row => row.status?.code === code && row.id);
+
+    const paid = byCode("invoice_paid");
+    let paidId: string | undefined;
+    for (const row of paid.slice(0, 15)) {
+      const body = await readOne(row.id!, `discover-paid-${row.id}`);
+      if (body.data?.account?.affiliate_referral) {
+        paidId = row.id;
+        break;
+      }
+    }
+    if (!paidId) {
+      disclosures.push(
+        "no paid order of the first 15 carries an affiliate referrer; AC14 uses the design 8.8 referrer construction"
+      );
+      paidId = paid[0]?.id;
+    }
+    if (!paidId) throw new Error("no paid order. Stop and tell the operator.");
+    await readOne(paidId, "order-paid");
+
+    const due = (row: Row) => (row.unpaid_amount_converted ?? 0) > 0;
+    for (const [label, row] of [
+      [
+        "order-unpaid",
+        byCode("invoice_unpaid").find(r => r.paid_amount === 0 && due(r))
+      ],
+      [
+        "order-part-paid",
+        byCode("invoice_unpaid").find(r => (r.paid_amount ?? 0) > 0 && due(r))
+      ],
+      [
+        "order-overdue",
+        byCode("invoice_overdue").find(r => r.paid_amount === 0 && due(r))
+      ],
+      ["order-refunded", byCode("invoice_refunded")[0]]
+    ] as const) {
+      if (!row?.id)
+        throw new Error(`no ${label} order. Stop and tell the operator.`);
+      await readOne(row.id, label);
+    }
+
+    const cancelled = byCode("invoice_cancelled").filter(
+      r => r.paid_amount === 0
+    );
+    let cancelledId: string | undefined;
+    for (const row of cancelled) {
+      const body = await readOne(row.id!, `discover-cancelled-${row.id}`);
+      if (body.data?.contract?.cancellation_reason) {
+        cancelledId = row.id;
+        break;
+      }
+    }
+    if (!cancelledId) {
+      disclosures.push(
+        `no cancelled order of the ${cancelled.length} discovered with paid_amount 0 carries a contract cancellation_reason (AC14: stop and tell the operator)`
+      );
+      cancelledId = cancelled[0]?.id;
+    }
+    if (!cancelledId)
+      throw new Error("no cancelled order. Stop and tell the operator.");
+    await readOne(cancelledId, "order-cancelled-none-paid");
+
+    const notFound = await generator.get(
+      `/api/invoices/00000000-0000-4000-8000-000000000000?${SINGLE_READ}&case=order-not-found`
+    );
+    if (notFound.status < 400 || notFound.status >= 500) {
+      throw new Error(
+        `the not-found read returned ${notFound.status}. Stop and tell the operator.`
+      );
+    }
+
+    let best: { id: string; score: number; items: SnapshotItem[] } | undefined;
+    for (const row of pool.slice(0, 60)) {
+      const body = await readOne(row.id!, `discover-snapshot-${row.id}`);
+      const items = body.data?.current_data?.content?.products ?? [];
+      const nested = items.filter(
+        item => holdsSubItems(item.options) || holdsSubItems(item.attributes)
+      ).length;
+      const score = items.length + 10 * nested;
+      if (!best || score > best.score) best = { id: row.id!, score, items };
+    }
+    if (!best || best.items.length === 0) {
+      throw new Error(
+        "no order holds snapshot items. Stop and tell the operator."
+      );
+    }
+    await readOne(best.id, "order-snapshot");
+    if (best.score < 10) {
+      disclosures.push(
+        "no snapshot item of the pool holds options or attributes (design 8.8: stop and tell the operator)"
+      );
+    }
+
+    const productIds = [
+      ...new Set(
+        best.items
+          .map(item => item.product?.id)
+          .filter((id): id is string => !!id)
+      )
     ];
-    const found = wanted.filter(code => statusIdByStatus.has(code));
-    const missing = wanted.filter(code => !statusIdByStatus.has(code));
-    console.log(
-      "[fixtures:generate client-orders] real-corpus statuses in this " +
-        `capture window — found:[${found.join(",")}] missing:[${missing.join(",")}]. ` +
-        "part-paid and cancelled-part-paid cannot be detected from the list " +
-        "row alone (amount fields are on the single-order read only) — T20 " +
-        "resolves those against a single-order capture, not this generator."
-    );
-  });
-
-  it("captures GET api/invoices filter[status.code|eq] (AC9, ruling 4)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[status.code|eq]=invoice_unpaid,invoice_adjusted&limit=25`
-    );
-    generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(
-        `status.code|eq operator-form capture returned ${status} — ruling 4 ` +
-          "requires this form be provably accepted by staging."
-      );
-    }
-  });
-
-  it("captures GET api/invoices filter[status.code|neq] (AC9, ruling 4)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[status.code|neq]=invoice_cancelled&limit=25`
-    );
-    generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(
-        `status.code|neq operator-form capture returned ${status} — ruling 4 ` +
-          "requires this form be provably accepted by staging."
-      );
-    }
-  });
-
-  it("captures GET api/invoices filter[products.product.name|<op>] (AC7, ruling 4)", async () => {
-    const term = sampleProductName ?? "vps";
-    generator.setBearerToken(clientToken.access_token);
-    const like = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.product.name|like]=%25${encodeURIComponent(term)}%25&limit=25`
-    );
-    const eq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.product.name|eq]=${encodeURIComponent(term)}&limit=25`
-    );
-    const neq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.product.name|neq]=${encodeURIComponent(term)}&limit=25`
-    );
-    generator.clearBearerToken();
-    for (const [op, { status }] of [
-      ["like", like],
-      ["eq", eq],
-      ["neq", neq]
-    ] as const) {
-      if (status !== 200) {
-        throw new Error(
-          `products.product.name|${op} operator-form capture returned ` +
-            `${status} — ruling 4 requires this form be provably accepted.`
-        );
-      }
-    }
-  });
-
-  it("captures GET api/invoices filter[products.product.category.name|<op>] (AC7, ruling 4)", async () => {
-    // A short fixed literal — a real category name on this staging corpus
-    // runs long enough (with encoded spaces) to push the fixture filename
-    // over the 100-char collapse threshold (`fixture-naming.mjs`), losing
-    // the readable name this generator's captures rely on for lookup by
-    // `getFixture`. Ruling 4 only needs the operator FORM accepted (a 200),
-    // not a matching row.
-    const term = "hosting";
-    generator.setBearerToken(clientToken.access_token);
-    const like = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.product.category.name|like]=%25${encodeURIComponent(term)}%25&limit=25`
-    );
-    const eq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.product.category.name|eq]=${encodeURIComponent(term)}&limit=25`
-    );
-    const neq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.product.category.name|neq]=${encodeURIComponent(term)}&limit=25`
-    );
-    generator.clearBearerToken();
-    for (const [op, { status }] of [
-      ["like", like],
-      ["eq", eq],
-      ["neq", neq]
-    ] as const) {
-      if (status !== 200) {
-        throw new Error(
-          `products.product.category.name|${op} operator-form capture ` +
-            `returned ${status} — ruling 4 requires this form be provably accepted.`
-        );
-      }
-    }
-  });
-
-  it("captures GET api/invoices filter[products.service_identifier|<op>] (AC7, ruling 4)", async () => {
-    const term = sampleServiceIdentifier ?? sampleNumber ?? "svc-1";
-    generator.setBearerToken(clientToken.access_token);
-    const like = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.service_identifier|like]=%25${encodeURIComponent(term)}%25&limit=25`
-    );
-    const eq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.service_identifier|eq]=${encodeURIComponent(term)}&limit=25`
-    );
-    const neq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[products.service_identifier|neq]=${encodeURIComponent(term)}&limit=25`
-    );
-    generator.clearBearerToken();
-    for (const [op, { status }] of [
-      ["like", like],
-      ["eq", eq],
-      ["neq", neq]
-    ] as const) {
-      if (status !== 200) {
-        throw new Error(
-          `products.service_identifier|${op} operator-form capture returned ` +
-            `${status} — ruling 4 requires this form be provably accepted.`
-        );
-      }
-    }
-  });
-
-  it("captures GET api/invoices filter[number|<op>] (AC7, ruling 3)", async () => {
-    const term = sampleNumber ?? "0";
-    generator.setBearerToken(clientToken.access_token);
-    const eq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[number|eq]=${encodeURIComponent(term)}&limit=25`
-    );
-    const like = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[number|like]=%25${encodeURIComponent(term)}%25&limit=25`
-    );
-    const neq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[number|neq]=${encodeURIComponent(term)}&limit=25`
-    );
-    generator.clearBearerToken();
-    for (const [op, { status }] of [
-      ["eq", eq],
-      ["like", like],
-      ["neq", neq]
-    ] as const) {
-      if (status !== 200) {
-        throw new Error(
-          `number|${op} operator-form capture returned ${status} — ruling 3 ` +
-            "requires this form be provably accepted."
-        );
-      }
-    }
-  });
-
-  it("captures GET api/invoices filter[total_amount|<op>] (AC7, ruling 3)", async () => {
-    // design.md 8.8's own example value for this exact capture — not an
-    // authored literal.
-    const value = "10";
-    generator.setBearerToken(clientToken.access_token);
-    const eq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[total_amount|eq]=${value}&limit=25`
-    );
-    const neq = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[total_amount|neq]=${value}&limit=25`
-    );
-    const gt = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[total_amount|gt]=${value}&limit=25`
-    );
-    const gte = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[total_amount|gte]=${value}&limit=25`
-    );
-    const lt = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[total_amount|lt]=${value}&limit=25`
-    );
-    const lte = await generator.get(
-      `/api/invoices?${FORCED_CATEGORY}&filter[total_amount|lte]=${value}&limit=25`
-    );
-    generator.clearBearerToken();
-    for (const [op, { status }] of [
-      ["eq", eq],
-      ["neq", neq],
-      ["gt", gt],
-      ["gte", gte],
-      ["lt", lt],
-      ["lte", lte]
-    ] as const) {
-      if (status !== 200) {
-        throw new Error(
-          `total_amount|${op} operator-form capture returned ${status} — ` +
-            "ruling 3 requires this form be provably accepted."
-        );
-      }
-    }
-  });
-
-  it("captures GET api/invoices/{id} for one real order per status found (design 8.5 truth table, T10)", async () => {
-    if (statusIdByStatus.size === 0) {
-      console.log(
-        "[fixtures:generate client-orders] no status id resolved from the " +
-          "list capture — no per-status single-order fixtures captured."
+    if (productIds.length === 0) {
+      disclosures.push(
+        "the snapshot items carry no product id; no image read recorded"
       );
       return;
     }
-    generator.setBearerToken(clientToken.access_token);
-    for (const [code, id] of statusIdByStatus) {
-      const slug = code.replace(/^invoice_/, "");
-      const { status } = await generator.get(
-        `/api/invoices/${id}?with=status,products&case=order-${slug}`
+    await mustGet(
+      `/api/products?filter[id]=${productIds.join(",")}&with=image&limit=${productIds.length}&case=order-images`
+    );
+  }, 600000);
+
+  it("records the billing cycles and the online gateways of the order brand (AC15, AC19)", async () => {
+    await mustGet("/api/billing_cycles?limit=0&case=order-items");
+    if (!sample.brandId)
+      throw new Error("no brand id. Stop and tell the operator.");
+    const gateways = (await mustGet(
+      `/api/brands/${sample.brandId}/gateways?limit=count&filter[gateway.type]=${ONLINE_GATEWAY_TYPES}&case=online`
+    )) as ListBody;
+    if ((gateways.total ?? 0) === 0) {
+      throw new Error(
+        "the order brand has no online gateway. Stop and tell the operator."
       );
-      if (status !== 200) {
-        console.log(
-          `[fixtures:generate client-orders] single-order capture for ` +
-            `status "${code}" (id ${id}) returned ${status} — skipped, disclosed.`
-        );
-      }
     }
-    generator.clearBearerToken();
-  });
+  }, 60000);
 });
