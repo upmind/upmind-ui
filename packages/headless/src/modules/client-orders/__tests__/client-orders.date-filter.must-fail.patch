@@ -1,0 +1,17 @@
+diff --git a/packages/headless/src/modules/client-orders/client-orders.schemas.ts b/packages/headless/src/modules/client-orders/client-orders.schemas.ts
+index f017c15a51..cf42c9d7b0 100644
+--- a/packages/headless/src/modules/client-orders/client-orders.schemas.ts
++++ b/packages/headless/src/modules/client-orders/client-orders.schemas.ts
+@@ -42,7 +42,11 @@ function dateLeafSchema(): QuerySchema {
+       gte: { type: ["string", "null"], pattern: ABSOLUTE_DATE_PATTERN },
+       lt: { type: ["string", "null"], pattern: ABSOLUTE_DATE_PATTERN },
+       lte: { type: ["string", "null"], pattern: ABSOLUTE_DATE_PATTERN },
+-      after: { type: ["string", "null"], pattern: RELATIVE_DATE_PATTERN },
++      after: {
++        type: ["string", "null"],
++        pattern: RELATIVE_DATE_PATTERN,
++        format: "date-time"
++      },
+       before: { type: ["string", "null"], pattern: RELATIVE_DATE_PATTERN }
+     }
+   };

@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
+index d6ccd6b1ed..fa22bbb767 100644
+--- a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
++++ b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
+@@ -165,6 +165,7 @@ export function createClientOrdersActions(
+     ([isFetched, hasError, total, offset]) => {
+       if (!isFetched || hasError || total !== 0) return;
+       if (!offset) return;
++      if (offset) return;
+       query.setCriteria({
+         pagination: {
+           limit: query.criteria.value.pagination?.limit ?? 10,

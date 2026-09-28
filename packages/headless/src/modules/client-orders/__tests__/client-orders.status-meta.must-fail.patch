@@ -1,0 +1,22 @@
+diff --git a/packages/headless/src/modules/client-orders/client-orders.utils.ts b/packages/headless/src/modules/client-orders/client-orders.utils.ts
+index 512528568f..4b0b9fc8d9 100644
+--- a/packages/headless/src/modules/client-orders/client-orders.utils.ts
++++ b/packages/headless/src/modules/client-orders/client-orders.utils.ts
+@@ -1,4 +1,4 @@
+-import { InvoiceStatus } from "@upmind-automation/types";
++import { InvoiceStatus, InvoiceStatusGroups } from "@upmind-automation/types";
+ import { isCancellable, isDue } from "../contract-product";
+ import type { IOrder } from "@upmind-automation/types";
+ // -----------------------------------------------------------------------------
+@@ -17,10 +17,7 @@ type OrderCondition = Pick<
+   "status" | "paid_amount" | "unpaid_amount_converted"
+ >;
+ 
+-const CANCELLED_STATUSES: InvoiceStatus[] = [
+-  InvoiceStatus.CANCELLED,
+-  InvoiceStatus.CANCELLATION_REQUEST
+-];
++const CANCELLED_STATUSES: InvoiceStatus[] = InvoiceStatusGroups.CREDITED;
+ 
+ /** True while the order's status is `OVERDUE` (design 8.5). */
+ export function isOverdue(order: Pick<IOrder, "status">): boolean {

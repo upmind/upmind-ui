@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/client-orders/client-orders.services.ts b/packages/headless/src/modules/client-orders/client-orders.services.ts
+index 771b9009e9..6401580e2e 100644
+--- a/packages/headless/src/modules/client-orders/client-orders.services.ts
++++ b/packages/headless/src/modules/client-orders/client-orders.services.ts
+@@ -150,7 +150,6 @@ function loadOne(orderId?: IOrder["id"]): ClientOrderItemQuery {
+   return query<IOrder, IOrder>({
+     queryKey: [...queryKey, "order", orderId, { client: clientId }],
+     url: useUrl(`invoices/${orderId}`, {
+-      with_staged_imports: 1,
+       with: [
+         "account.affiliate_referral.affiliate_account.account.client",
+         "affiliate_commissions",

@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/client-orders/client-orders.services.ts b/packages/headless/src/modules/client-orders/client-orders.services.ts
+index 771b9009e9..e3f06b38cf 100644
+--- a/packages/headless/src/modules/client-orders/client-orders.services.ts
++++ b/packages/headless/src/modules/client-orders/client-orders.services.ts
+@@ -102,7 +102,6 @@ function loadList(): ClientOrdersListQuery {
+       }
+       if (!brandId.value) throw new NotAuthenticatedError();
+ 
+-      url.search = targetUrl().search;
+       return true;
+     },
+     enabled: () => brandSettled.value && isAddressable(clientId.value),

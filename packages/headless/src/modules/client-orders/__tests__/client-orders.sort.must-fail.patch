@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
+index d6ccd6b1ed..fa3fbda078 100644
+--- a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
++++ b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
+@@ -342,10 +342,7 @@ export function createClientOrdersActions(
+ 
+   /** Writes the whole `sort` branch. The page stays — `pagination` rides along unchanged (design 8.3, P4). */
+   function sortBy(intent: ClientOrdersSortModel): void {
+-    query.setCriteria({
+-      sort: intent,
+-      pagination: query.criteria.value.pagination
+-    } as never);
++    query.setCriteria({ sort: intent } as never);
+   }
+ 
+   /** Convenience single-column sort over {@link sortBy} (design 8.6). */

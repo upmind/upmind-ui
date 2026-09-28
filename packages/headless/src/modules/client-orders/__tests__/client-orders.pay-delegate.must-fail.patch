@@ -1,0 +1,14 @@
+diff --git a/packages/headless/src/modules/client-orders/useClientOrder.actions.ts b/packages/headless/src/modules/client-orders/useClientOrder.actions.ts
+index 0093f583d9..5940ff2737 100644
+--- a/packages/headless/src/modules/client-orders/useClientOrder.actions.ts
++++ b/packages/headless/src/modules/client-orders/useClientOrder.actions.ts
+@@ -122,8 +122,7 @@ export function createClientOrderActions(
+     watch(
+       () => engine.meta.value.isComplete,
+       isComplete => {
+-        if (isComplete)
+-          void invalidateQueryByKey(["invoices"], { exact: false })();
++        if (isComplete) return;
+       }
+     );
+ 

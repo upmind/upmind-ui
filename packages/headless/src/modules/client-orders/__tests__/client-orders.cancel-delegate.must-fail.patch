@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-orders/useClientOrder.actions.ts b/packages/headless/src/modules/client-orders/useClientOrder.actions.ts
+index 0093f583d9..67384b10e4 100644
+--- a/packages/headless/src/modules/client-orders/useClientOrder.actions.ts
++++ b/packages/headless/src/modules/client-orders/useClientOrder.actions.ts
+@@ -149,7 +149,7 @@ export function createClientOrderActions(
+    */
+   async function cancel(): Promise<void> {
+     const raw = query.data.value;
+-    if (!raw || !canCancel(raw)) return;
++    if (!raw) return;
+ 
+     const port = resolveOrderCancellationPort();
+     if (!port) throw new OrderCancellationUnavailableError();

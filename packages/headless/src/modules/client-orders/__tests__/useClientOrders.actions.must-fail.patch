@@ -1,0 +1,19 @@
+diff --git a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
+index d6ccd6b1ed..fcae326461 100644
+--- a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
++++ b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
+@@ -268,10 +268,10 @@ export function createClientOrdersActions(
+     values?: ClientOrderStatusChoice[],
+     op: "eq" | "neq" = "eq"
+   ): void {
+-    writeFilters(filters => {
+-      if (!values || values.length === 0) delete filters["status.code"];
+-      else filters["status.code"] = { [op]: values };
+-    });
++    const filters = query.criteria.value.filters ?? {};
++    if (!values || values.length === 0) delete filters["status.code"];
++    else filters["status.code"] = { [op]: values };
++    query.setCriteria({ filters });
+   }
+ 
+   function total(

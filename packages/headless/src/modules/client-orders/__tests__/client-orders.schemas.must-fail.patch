@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-orders/client-orders.schemas.ts b/packages/headless/src/modules/client-orders/client-orders.schemas.ts
+index f017c15a51..dda31c79f4 100644
+--- a/packages/headless/src/modules/client-orders/client-orders.schemas.ts
++++ b/packages/headless/src/modules/client-orders/client-orders.schemas.ts
+@@ -17,7 +17,7 @@ import type { ControlElement, UISchemaElement } from "@jsonforms/core";
+ // -----------------------------------------------------------------------------
+ 
+ const RELATIVE_DATE_PATTERN =
+-  "^[+-](?:[1-9][0-9]*|[0-9]+\\.[0-9]+)_(hours|days|weeks|months|years)$";
++  "^[+-]?(?:[1-9][0-9]*|[0-9]+\\.[0-9]+)_(hours|days|weeks|months|years)$";
+ const ABSOLUTE_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
+ 
+ /**

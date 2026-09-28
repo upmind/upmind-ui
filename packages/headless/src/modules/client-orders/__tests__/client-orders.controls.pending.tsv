@@ -1,0 +1,15 @@
+# patch	design 8.10 spec	why the row is not in client-orders.controls.tsv
+packages/headless/src/modules/client-orders/__tests__/client-orders.list-includes.must-fail.patch	client-orders.list-includes-late-brand	spec absent; the single-brand file cannot see a build-time with, because it equals the request-time with
+packages/headless/src/modules/client-orders/__tests__/client-orders.list-readiness.must-fail.patch	client-orders.list-readiness	spec absent
+packages/headless/src/modules/client-orders/__tests__/client-orders.availability.must-fail.patch	client-orders.availability-catalogue-disabled	spec absent; the red file of the group is not written
+packages/headless/src/modules/client-orders/__tests__/client-orders.date-filter.must-fail.patch	client-orders.date-filter	spec absent
+packages/headless/src/modules/client-orders/__tests__/client-orders.items.must-fail.patch	client-orders.items	spec absent
+packages/headless/src/modules/client-orders/__tests__/client-orders.item-images.must-fail.patch	client-orders.item-images	spec absent
+packages/headless/src/modules/client-orders/__tests__/client-orders.billing-cycle.must-fail.patch	client-orders.billing-cycle	spec absent
+packages/headless/src/modules/client-orders/__tests__/client-orders.pay-delegate.must-fail.patch	client-orders.pay-delegate	spec absent
+packages/headless/src/modules/client-orders/__tests__/client-orders.mappers.must-fail.patch	client-orders.mappers (unit)	spec absent
+packages/headless/src/modules/client-orders/__tests__/useClientOrders.actions.must-fail.patch	useClientOrders.actions (unit)	spec absent
+packages/headless/src/modules/client-orders/__tests__/useClientOrders.forced-leaf.must-fail.patch	useClientOrders.forced-leaf (unit)	spec absent
+packages/headless/src/modules/client-orders/__tests__/client-orders.cell-boundary.must-fail.patch	client-orders.cell-boundary	STILL GREEN; the spec boots with withBrandConfig false, so the brand never settles and the brand latch blocks the request before the client test runs
+packages/headless/src/modules/client-orders/__tests__/client-orders.schemas.must-fail.patch	client-orders.schemas (unit)	STILL GREEN; the spec refuses only '7 days ago', never the unsigned '7_days' that the design names
+-	tests/e2e/client-orders (lane)	no patch; the labs-nuxt scenario pages and the tests/e2e harness are absent, so no production target exists to mutate
