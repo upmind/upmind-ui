@@ -1,3 +1,4 @@
+import type { AUTH_SHELL } from "./shell";
 import type { ButtonVariants } from "@upmind/ui";
 import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
@@ -90,3 +91,5 @@ export enum AUTH_TEMPLATE {
   TWO_COLUMN_RTL = "two-column-rtl",
   INSET = "inset"
 }
+
+export type AuthShellSlot = (typeof AUTH_SHELL)[keyof typeof AUTH_SHELL];

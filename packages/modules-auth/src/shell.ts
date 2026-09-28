@@ -6,6 +6,7 @@ import { computed } from "vue";
 import { useShellComponents } from "@upmind-automation/foundation";
 import AuthLoading from "./components/AuthLoading.vue";
 import { AUTH_TEMPLATE } from "./types";
+import type { AuthShellSlot } from "./types";
 import type { Component, ComputedRef } from "vue";
 
 export const AUTH_SHELL = {
@@ -20,8 +21,6 @@ export const AUTH_SHELL = {
   TEMPLATE_TWO_COLUMN_RTL: "auth:template:two-column-rtl",
   TEMPLATE_INSET: "auth:template:inset"
 } as const;
-
-export type AuthShellSlot = (typeof AUTH_SHELL)[keyof typeof AUTH_SHELL];
 
 export function useAuthLoading(): { component: ComputedRef<Component> } {
   const shell = useShellComponents();

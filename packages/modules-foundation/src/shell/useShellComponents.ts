@@ -1,6 +1,6 @@
 import { computed, hasInjectionContext, inject, provide } from "vue";
-import type { ShellComponents } from "./shell.types";
-import type { Component, ComputedRef, InjectionKey } from "vue";
+import type { ShellComponents, UseShellComponents } from "./shell.types";
+import type { ComputedRef, InjectionKey } from "vue";
 
 const NO_SHELL: ShellComponents = {};
 
@@ -10,10 +10,6 @@ export const SHELL_COMPONENTS: InjectionKey<ComputedRef<ShellComponents>> =
 export const provideShellComponents = (
   components: ComputedRef<ShellComponents>
 ) => provide(SHELL_COMPONENTS, components);
-
-export type UseShellComponents = {
-  resolve: (name: string) => Component | undefined;
-};
 
 export const useShellComponents = (): UseShellComponents => {
   const provided = hasInjectionContext()

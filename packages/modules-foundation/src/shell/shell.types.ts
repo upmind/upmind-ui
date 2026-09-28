@@ -5,3 +5,7 @@
 import type { Component } from "vue";
 
 export type ShellComponents = Record<string, Component>;
+
+export type UseShellComponents = {
+  resolve: (name: string) => Component | undefined;
+};
