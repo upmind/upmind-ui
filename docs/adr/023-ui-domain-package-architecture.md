@@ -375,7 +375,7 @@ each name what they want.
 4. **A package's flow registrar stays in the package and is called by the app.** `registerAuthFlows`
    is behaviour — an origin-checked return-target reader and two navigation guards — not route
    knowledge. `apps/auth` hands it the router directly, in `apps/auth/src/router.ts`.
-   *(Amendment 13 moves the registrar to `headless`. The app still calls it.)*
+   *(Amendment 13 deletes the registrar. The app's own router holds the hand-back.)*
 
 **Why the app, and not the package.** A single form can carry controls from a package its own
 owner may not import. The product configuration form is `product`'s own — it emits the `Terms`
@@ -549,7 +549,7 @@ The tests for each change move with it.
 
 ## Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`
 
-**Scope.** Sharpens §2's `headless`, `foundation` and domain-package rows, and §6. It binds the ten `packages/modules-*` packages: `foundation` and the nine domain packages. Supersedes Amendment 9 point 4: a flow registrar is routing logic, so it lives in `headless`, and the app still calls it. `registerAuthFlows` is the only registrar. Ruled by the operator on 2026-09-25.
+**Scope.** Sharpens §2's `headless`, `foundation` and domain-package rows, and §6. It binds the ten `packages/modules-*` packages: `foundation` and the nine domain packages. Supersedes Amendment 9 point 4: routes, guards and flows live in the app, not in a package and not in `headless`. `registerAuthFlows` was the only registrar, and it is deleted. Ruled by the operator on 2026-09-25.
 
 > **Ratified by the operator on 2026-09-28.**
 
@@ -562,7 +562,7 @@ The tests for each change move with it.
 | Lands in | What changed | Result |
 | --- | --- | --- |
 | Phase 1 | `foundation`'s brand config read (`useBrandConfig`) and its brand-keyed cache | Deleted. `headless` `useBrand` and `useConfig` already serve every field; `apps/payment` reads its theme from `useConfig` (Phase 3). A §10 brand-keyed cache, when it is built, lives in `headless` `brand`. **Behaviour:** the payment app's theme follows a brand refresh; the cache kept the first value it saw. |
-| Phase 2 | `auth`'s return-target reader and flow registrar | `headless` `auth/auth.flows.ts` |
+| Phase 2 | `auth`'s return-target reader and flow registrar | Deleted. `apps/auth/src/router.ts` hands back with two route guards; the portal's sign-in guard sends a signed-in client to its landing. **Behaviour:** the router keeps every `returnUrl` on this origin, so no origin check runs, and a target outside the app ends on its landing with no refusal message. The portal ignores `returnUrl`, which nothing in the portal sets. |
 | Phase 2 | the funnel-or-route resolver the auth views share | `headless` `routing/useRoutingResolve.ts` |
 | Phase 2 | the pattern-example rule for validation messages | `headless` `utils/useValidation.ts` (`withPatternExample`) |
 | Phase 2 | the wait for the session to hold the user after a sign-in, which `Auth.vue` ran | `headless` `useAuth().resolve()`. `Account.vue`'s copy is deleted: `useAccount().register()` already settles after the user is written. **Behaviour:** `resolve()` settles once the session holds the signed-in user, and rejects when the user load fails. |

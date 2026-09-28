@@ -8,14 +8,15 @@ import {
   UpmAuthRecoverPassword,
   UpmAuthRegister
 } from "@upmind-automation/auth";
-import type { RouteRecordRaw } from "vue-router";
+import type { RouteLocationNormalized, RouteRecordRaw } from "vue-router";
 
 export const AUTH_ROUTE = {
   ROOT: "auth",
   LOGIN: "auth-login",
   REGISTER: "auth-register",
   RECOVER: "auth-recover",
-  END: "auth-end"
+  END: "auth-end",
+  LANDING: "signed-in"
 } as const;
 
 const sessionRouteProps = {
@@ -24,9 +25,22 @@ const sessionRouteProps = {
   recoverRoute: { name: AUTH_ROUTE.RECOVER }
 };
 
+// The landing takes the query, so it can hand the visitor back to `returnUrl`.
+function signInRouteProps(route: RouteLocationNormalized) {
+  const { loginRoute, registerRoute, recoverRoute } = sessionRouteProps;
+  const landingRoute = { name: AUTH_ROUTE.LANDING, query: route.query };
+
+  return { loginRoute, registerRoute, recoverRoute, landingRoute };
+}
+
 const meta = {
+  allowOverlays: false
+};
+
+// `router.ts` sends a signed-in visitor on from these.
+const signInMeta = {
   allowOverlays: false,
-  authReturnTarget: true
+  signIn: true
 };
 
 export const authRoutes: RouteRecordRaw[] = [
@@ -40,23 +54,23 @@ export const authRoutes: RouteRecordRaw[] = [
         path: "login",
         name: AUTH_ROUTE.LOGIN,
         component: UpmAuthLogin,
-        props: () => sessionRouteProps,
-        meta
+        props: signInRouteProps,
+        meta: signInMeta
       },
       {
         path: "register",
         name: AUTH_ROUTE.REGISTER,
         alias: ["signup"],
         component: UpmAuthRegister,
-        props: () => sessionRouteProps,
-        meta
+        props: signInRouteProps,
+        meta: signInMeta
       },
       {
         path: "recover",
         name: AUTH_ROUTE.RECOVER,
         component: UpmAuthRecoverPassword,
         props: () => sessionRouteProps,
-        meta
+        meta: signInMeta
       },
       {
         path: "logout",

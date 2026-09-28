@@ -3,7 +3,7 @@
  * @fileoverview The auth route records.
  *
  * ## Job To Be Done
- * Every `AUTH_ROUTE` resolves, legacy `signup`/`signout` answer, and each record carries return meta.
+ * Every `AUTH_ROUTE` resolves, legacy `signup`/`signout` answer, and the sign-in routes pass the landing on.
  *
  * ## What Breaks If These Fail
  * The app boots to a 404, or leaves a signed-in customer on the login screen.
@@ -14,8 +14,6 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import { AUTH_ROUTE, authRoutes } from "../src/routes";
 
 // -----------------------------------------------------------------------------
-
-const RETURN_TARGET_META = "authReturnTarget";
 
 function routerFor() {
   return createRouter({
@@ -57,9 +55,6 @@ describe("authRoutes", () => {
     await router.push({ name: AUTH_ROUTE.ROOT });
 
     expect(router.currentRoute.value.name).toBe(AUTH_ROUTE.LOGIN);
-    expect(router.currentRoute.value.meta).toMatchObject({
-      [RETURN_TARGET_META]: true
-    });
   });
 
   it("keeps answering the legacy signup and signout paths", () => {
@@ -77,19 +72,28 @@ describe("authRoutes", () => {
     expect(router.resolve("/auth/login").matched).toEqual([]);
   });
 
-  it("marks every record, because this app owns the hand-back", () => {
+  it("marks the sign-in routes, and not logout", () => {
     const router = routerFor();
-    const flows = [
-      AUTH_ROUTE.ROOT,
-      AUTH_ROUTE.LOGIN,
-      AUTH_ROUTE.REGISTER,
-      AUTH_ROUTE.RECOVER,
-      AUTH_ROUTE.END
-    ];
+    const signIn = [AUTH_ROUTE.LOGIN, AUTH_ROUTE.REGISTER, AUTH_ROUTE.RECOVER];
 
-    for (const name of flows) {
-      expect(router.resolve({ name }).meta).toMatchObject({
-        [RETURN_TARGET_META]: true
+    for (const name of signIn) {
+      expect(router.resolve({ name }).meta.signIn).toBe(true);
+    }
+    expect(
+      router.resolve({ name: AUTH_ROUTE.END }).meta.signIn
+    ).toBeUndefined();
+  });
+
+  it("hands login and register a landing that keeps the query", () => {
+    const router = routerFor();
+    const query = { returnUrl: "/basket" };
+
+    for (const name of [AUTH_ROUTE.LOGIN, AUTH_ROUTE.REGISTER]) {
+      const route = router.resolve({ name, query });
+      const props = route.matched.at(-1)?.props.default;
+
+      expect(typeof props === "function" && props(route)).toMatchObject({
+        landingRoute: { name: AUTH_ROUTE.LANDING, query }
       });
     }
   });

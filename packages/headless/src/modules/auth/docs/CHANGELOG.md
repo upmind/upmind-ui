@@ -9,18 +9,6 @@ All notable changes to the auth module are documented here. Format follows [Keep
 - **`resolve()` for login, 2FA and register** — settles only after the session store promotes the session, so `true` means the active session holds the signed-in user. Before, `true` arrived with the token, while the visitor was still a guest.
 - **`resolve()` can reject** — when the token is issued but the user load fails, the promise rejects. Before, it resolved `true`. Recover never waits and never rejects on this path.
 
-### Added
-
-- **`readReturnTarget(query)`** — the `returnUrl` query as a normalised same-origin path, or `undefined` when it is absent or refused.
-- **`hasReturnTarget(query)`** — whether the query names a `returnUrl` at all, accepted or refused.
-- **`registerAuthFlows(router, { fallback })`** — sends a signed-in visitor on a route with `meta.authReturnTarget` to its return target, else to the fallback.
-- **`AUTH_QUERY.RETURN_REFUSED`** — the query key that tells the fallback route a target was refused.
-- **`AuthFlowOptions`** type.
-
-### Notes
-
-- The return-target helpers moved into this module from the auth UI package. Their behaviour is unchanged. Import them from `@upmind-automation/headless`.
-
 ## [Unreleased] — migration baseline (FE-2826 / FE-2774)
 
 Baseline entry for the module as it exists after the @next structure adoption + hotfix transplant. Later entries describe changes against this state.

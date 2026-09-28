@@ -17,14 +17,6 @@ export type { UseAuthInternals } from "./useAuth.internals";
 // --- Email-verification link flow (M2)
 export { useVerifyEmail, type UseVerifyEmail } from "./useVerifyEmail";
 
-// --- Return-target hand-back
-export {
-  AUTH_QUERY,
-  hasReturnTarget,
-  readReturnTarget,
-  registerAuthFlows
-} from "./auth.flows";
-
 // --- Register form schema (reused by the client-lifecycle guest-upgrade form).
 export {
   useRegisterSchema,
