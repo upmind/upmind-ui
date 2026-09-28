@@ -405,6 +405,16 @@
     "due_date": "Due",
     "cancellation_datetime": "Cancelled"
   },
+  "client_orders_status_filter": {
+    "description": null,
+    "label": "Status",
+    "placeholder": null,
+    "invoice_paid": "Paid",
+    "invoice_unpaid": "Unpaid",
+    "invoice_overdue": "Overdue",
+    "invoice_cancelled": "Cancelled",
+    "invoice_refunded": "Refunded"
+  },
   "invoice_status_filter": {
     "description": null,
     "label": "Status",

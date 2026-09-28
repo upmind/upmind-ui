@@ -139,15 +139,16 @@ export default createClientOrdersServices;
 
 /**
  * The single-order read — `GET api/invoices/{id}` (design 8.1). Publishes
- * the RAW `IOrder` (D-2); the detail/item projections run in the context
- * layer over `client-orders.mappers.ts`, never a query `select`.
+ * the RAW `IOrder` (D-2), or `undefined` when no record resolves (design
+ * 8.11); the detail/item projections run in the context layer over
+ * `client-orders.mappers.ts`, never a query `select`.
  */
 function loadOne(orderId?: IOrder["id"]): ClientOrderItemQuery {
   const { query, useUrl } = useQuery();
   const { activeUser } = useActiveSession().useContext();
   const clientId = computed(() => activeUser.value?.id);
 
-  return query<IOrder, IOrder>({
+  const response = query<IOrder, IOrder>({
     queryKey: [...queryKey, "order", orderId, { client: clientId }],
     url: useUrl(`invoices/${orderId}`, {
       with_staged_imports: 1,
@@ -177,6 +178,15 @@ function loadOne(orderId?: IOrder["id"]): ClientOrderItemQuery {
     enabled: () => !!orderId && isAddressable(clientId.value),
     staleTime: 0
   });
+
+  // The query core substitutes `[]` for absent data; a single record has no
+  // empty-array form, so anything without an `id` publishes as `undefined`.
+  return {
+    ...response,
+    data: computed(() =>
+      response.data.value?.id ? response.data.value : undefined
+    )
+  };
 }
 
 /**

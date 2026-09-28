@@ -33,6 +33,30 @@ const STATUS_CHOICES = [
   "invoice_refunded"
 ] as const;
 
+/** The status control's options, in {@link STATUS_CHOICES} order, each with its own i18n key (design 8.3). */
+const STATUS_CHOICE_ITEMS = [
+  {
+    value: STATUS_CHOICES[0],
+    i18n: "form.client_orders_status_filter.invoice_paid"
+  },
+  {
+    value: STATUS_CHOICES[1],
+    i18n: "form.client_orders_status_filter.invoice_unpaid"
+  },
+  {
+    value: STATUS_CHOICES[2],
+    i18n: "form.client_orders_status_filter.invoice_overdue"
+  },
+  {
+    value: STATUS_CHOICES[3],
+    i18n: "form.client_orders_status_filter.invoice_cancelled"
+  },
+  {
+    value: STATUS_CHOICES[4],
+    i18n: "form.client_orders_status_filter.invoice_refunded"
+  }
+];
+
 function dateLeafSchema(): QuerySchema {
   return {
     type: "object",
@@ -169,7 +193,11 @@ export function useQueryUischema(): UISchemaElement {
         type: "Control",
         scope: "#/properties/filters/properties/status.code",
         i18n: "form.client_orders_status_filter",
-        options: { format: "multi-select", optionalText: "" }
+        options: {
+          format: "multi-select",
+          optionalText: "",
+          items: STATUS_CHOICE_ITEMS
+        }
       },
       {
         type: "Control",

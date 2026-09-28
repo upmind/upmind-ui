@@ -264,8 +264,13 @@ export type ClientOrdersServices = {
 // MANAGER — the single-order read (design 6.3, 8.1, 8.4 to 8.7)
 // -----------------------------------------------------------------------------
 
-/** The reactive single-order item query, minted once per scope. */
-export type ClientOrderItemQuery = SimpleQuery<IOrder, IOrder>;
+/**
+ * The reactive single-order item query, minted once per scope. `data` is
+ * `undefined` until a record resolves, and on a failed read (design 8.11).
+ */
+export type ClientOrderItemQuery = Omit<SimpleQuery<IOrder, IOrder>, "data"> & {
+  data: ComputedRef<IOrder | undefined>;
+};
 
 /**
  * The detail projection `mapOrderDetail` produces (design 8.7). Each field

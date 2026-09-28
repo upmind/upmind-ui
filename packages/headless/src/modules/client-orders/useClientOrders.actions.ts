@@ -73,7 +73,7 @@ export function createClientOrdersActions(
   async function whenFetched(): Promise<boolean> {
     await nextTick();
 
-    if (query.isFetched.value) return true;
+    if (query.isFetched.value) return !query.error.value;
 
     return new Promise<boolean>(resolve => {
       let settled = false;
@@ -88,15 +88,16 @@ export function createClientOrdersActions(
         settled = true;
         clearTimeout(timer);
         stop();
-        resolve(true);
+        resolve(!query.error.value);
       });
     });
   }
 
   /**
    * Resolves once the collection is ready to read.
-   * @returns true once the first fetch has settled, false if the session
-   * settles with no addressable client, or once the fetch itself times out.
+   * @returns true once the first fetch has settled with no error; false if
+   * it settled with an error (design 6.1 step 6), if the session settles
+   * with no addressable client, or once the fetch itself times out.
    * Always SETTLES.
    */
   async function isReady(): Promise<boolean> {
