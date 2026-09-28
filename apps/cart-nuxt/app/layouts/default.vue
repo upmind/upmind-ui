@@ -49,13 +49,9 @@ import {
   UpmBasketAction,
   UpmOverlayController,
   useOverlayRoute,
-  useRoutingEngine,
-  useThemes
+  useRoutingEngine
 } from "@upmind-automation/client-vue";
-import {
-  provideShellComponents,
-  provideThemeEngine
-} from "@upmind-automation/foundation";
+import { provideShellComponents } from "@upmind-automation/foundation";
 import { includes } from "lodash-es";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";
@@ -64,7 +60,6 @@ import { ROUTE } from "~/funnels/types";
 const route = useRoute();
 const { storefrontRoute } = useStorefrontRoute();
 
-provideThemeEngine({ set: useThemes().set });
 provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 
 const { meta: routingMeta } = useRoutingEngine();

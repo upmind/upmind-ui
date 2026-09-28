@@ -14,10 +14,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Suspense, computed, defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
-import {
-  provideShellComponents,
-  provideThemeEngine
-} from "@upmind-automation/foundation";
+import { provideShellComponents } from "@upmind-automation/foundation";
 import LoginView from "../Login.vue";
 import RecoverPasswordView from "../RecoverPassword.vue";
 import RegisterView from "../Register.vue";
@@ -140,7 +137,6 @@ async function render(view: Component) {
 
   const Host = defineComponent({
     setup() {
-      provideThemeEngine({ set: () => undefined });
       provideShellComponents(computed(() => HOST_PAGES));
       return () =>
         h(Suspense, null, {

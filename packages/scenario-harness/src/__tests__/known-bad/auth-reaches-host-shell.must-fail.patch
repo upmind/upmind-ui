@@ -1,5 +1,5 @@
 diff --git a/packages/modules-auth/src/Login.vue b/packages/modules-auth/src/Login.vue
-index 2e8dc3d..c41a93e 100644
+index 10e7aa7b72..74dc2659a4 100644
 --- a/packages/modules-auth/src/Login.vue
 +++ b/packages/modules-auth/src/Login.vue
 @@ -99,6 +99,7 @@
@@ -9,8 +9,8 @@ index 2e8dc3d..c41a93e 100644
 +import { SESSION_SHELL_COMPONENTS } from "@upmind-automation/client-vue";
  import { Hero } from "@upmind-automation/foundation";
  import { Back } from "@upmind-automation/foundation";
- import {
-@@ -121,7 +122,12 @@ import {
+ import { Section, useShellComponents } from "@upmind-automation/foundation";
+@@ -117,7 +118,12 @@ import {
  } from "@upmind-automation/headless";
  import { useAuthTemplates } from "./auth.utils";
  import Auth from "./components/Auth.vue";
@@ -24,7 +24,7 @@ index 2e8dc3d..c41a93e 100644
  import { type AuthProps, type AuthViewProps, AUTH_TEMPLATE } from "./types";
  import { markdownVariants, sessionFormWidthVariants } from "./variants";
  
-@@ -174,7 +180,9 @@ const meta = computed(() => ({
+@@ -167,7 +173,9 @@ const meta = computed(() => ({
  
  const shell = useShellComponents();
  

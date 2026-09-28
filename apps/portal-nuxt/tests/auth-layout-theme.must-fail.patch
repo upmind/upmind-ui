@@ -1,0 +1,25 @@
+# Negative control — the auth layout stops applying the portal theme. A direct
+# load of /login, /register or /forgotten-password then sets no `data-theme`,
+# so the sign-in screens never load the portal's brand CSS.
+#
+# Intended RED:
+#   apps/portal-nuxt/tests/auth-layout-theme.test.ts
+#     "applies the active config's theme when it mounts"
+#     "applies the new theme when the active config changes"
+#     "applies the upmind fallback when it mounts under a config with no theme"
+#     "applies the upmind fallback when the active config changes to one with no theme"
+
+diff --git a/apps/portal-nuxt/app/layouts/auth.vue b/apps/portal-nuxt/app/layouts/auth.vue
+index c67aaa4..4a077e0 100644
+--- a/apps/portal-nuxt/app/layouts/auth.vue
++++ b/apps/portal-nuxt/app/layouts/auth.vue
+@@ -20,9 +20,4 @@ const { activeConfig } = usePortalConfig();
+ const { setTheme } = useTheme();
+ 
+ provideShellComponents(computed(() => PORTAL_AUTH_SHELL_COMPONENTS));
+-
+-// The shape's own brand, applied the same way the signed-in layout applies it.
+-watch(activeConfig, config => setTheme(config.theme ?? "upmind"), {
+-  immediate: true
+-});
+ </script>

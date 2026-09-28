@@ -1,6 +1,6 @@
 /**
  * @module auth-app/useThemeAttribute
- * @description This app's implementation of `foundation`'s theme port.
+ * @description This app's brand-theme setter.
  */
 export function useThemeAttribute() {
   return {

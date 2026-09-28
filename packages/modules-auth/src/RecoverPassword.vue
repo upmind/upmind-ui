@@ -76,11 +76,7 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
 import { Back } from "@upmind-automation/foundation";
-import {
-  Section,
-  useShellComponents,
-  useThemeEngine
-} from "@upmind-automation/foundation";
+import { Section, useShellComponents } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   useRoutingResolve,
@@ -103,7 +99,6 @@ const props = defineProps<AuthRecoverViewProps>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const themeEngine = useThemeEngine();
 
 const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
@@ -124,8 +119,6 @@ const { ui } = useConfig({
 });
 
 await isReady();
-
-themeEngine.set(ui.theme.value);
 
 const isResolving = ref(false);
 

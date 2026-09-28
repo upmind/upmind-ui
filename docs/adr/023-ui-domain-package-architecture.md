@@ -2,7 +2,7 @@
 
 **Date:** June 15, 2026
 **Updated:** June 15, 2026 — §10 rewritten as a two-axis SSR-safe state model (brand-invariant shared cache + per-user request scope), after reviewing the `@next-legacy` scope-based composables (`modules/scope/`). They are built and SPA-correct; the SSR gap is that the scope registry, `QueryClient`, and session-store are module-level (per-process) rather than per-request — fixable at one chokepoint (`ensure()`). **Accepted 2026-06-16** — all Open Questions (Q1–Q4) resolved.
-**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs) and 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28). See the Amendments below.
+**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs) and 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28), and 2026-09-28 (Amendment 14: the theme belongs to the app; useAnnouncement lives in foundation; both ports are removed). See the Amendments below.
 **Authors:** Dom da Costa
 
 ---
@@ -583,6 +583,30 @@ The tests for each change move with it.
 | Phase 9 | the checkout's "next product to set up" | `headless` `useProductSetupCursor`, per caller. The setup page keeps its own rule. **Behaviour:** a product that needs setup after the checkout opens now shows its setup form. |
 
 **Kept as UI.** Six items only arrange values that `headless` already serves, so they stay in their packages: `useBreadcrumbs` (`foundation`), the `PricingList` row filter (`product`), the `OrderProducts` rows (`invoice`), the summary price lines (`basket`), the payment-order signed-out gate (`payment`) and the checkout payment gate (`basket`).
+
+## Amendment 14 (2026-09-28) — the theme belongs to the app; `useAnnouncement` lives in `foundation`; both ports are removed
+
+**Scope.** Corrects §2's `ui` and `foundation` rows for the theme, and makes one exception to §2's admission count. Ruled by the operator on 2026-09-28.
+
+**The rulings.**
+
+1. **The theme belongs to the app.** An app applies the brand theme one time, at startup. A page does not apply a theme, and no package holds theme code. The brand's `theme` setting has one value for every screen (brand scope, all contexts), so the page calls only applied the same value again. `apps/cart`, `apps/cart-nuxt`, `playgrounds/labs-nuxt` and `apps/payment` already apply it at startup. `apps/auth` now does the same.
+2. **`useAnnouncement` moves to `foundation` before it meets the count.** Today one domain package reads it: `invoice`'s `Order.vue`. The operator expects more readers, so it moves now. It knows no domain. The exception is for this composable only. The count stands for everything else.
+3. **Both ports are removed.** The theme-engine port (`provideThemeEngine`, `useThemeEngine`) and the announcer port (`provideAnnouncer`, `useAnnouncer`) are deleted. A package imports `useAnnouncement` from `foundation` directly. An app reads the same singleton to draw its announcement bar.
+
+**§2's rows, corrected.** The `ui` row keeps `useThemes` in `ui` because "primitives read the active theme config". The design-system `ui` has no `useThemes`, and no primitive reads the active theme. The `foundation` row lists "brand→theme selection". No package selects a theme now. Neither row lists theme code. The theme engine is app code.
+
+**Why singletons, not ports.** Develop runs `useAnnouncement` as a module-level singleton (`client-vue`'s `components/announcement/useAnnouncement.ts`). The migration moves it unchanged. The ports added a provide at each app root, and an app that left one out got only a console warning.
+
+**SSR.** An announcement is per-user state in module-level state. `cart-nuxt` runs with `ssr: false` today. Under SSR, the announcement state must move into the per-request context (§10).
+
+| Lands in | What changed | Result |
+| --- | --- | --- |
+| Phase 1 | the theme-engine port | Deleted. No Phase 1 file reads it. |
+| Phase 2 | the auth pages' theme calls, and each app's `provideThemeEngine` | Deleted. `apps/auth` applies the brand theme once in `App.vue`, as `apps/payment` does. The portal's `layouts/auth.vue` applies the portal theme at startup, as its sibling layouts `logged-out.vue` and `default.vue` do. **Behaviour:** the portal's sign-in pages no longer switch the portal's theme to the brand theme; they show the portal's own configured theme. |
+| Phase 4, 8, 5, 6, 9 | the theme calls in `product`, `invoice`, `recommendations`, `catalogue` and `basket`, and in `playgrounds/labs-nuxt`'s `OrderView.vue` (from Phase 8) | Deleted, each on the leg that moves its package. **Behaviour:** a brand `theme` rule that depends on product or basket state no longer switches the theme on those pages; the labs order page keeps the labs startup theme. |
+| Phase 8 | the announcer port | Deleted. `foundation` `announcements/useAnnouncement.ts` holds develop's singleton. `invoice`'s `Order.vue` and the app shell import it. |
+| Phase 9c | the app copies of `useAnnouncement` (`apps/cart`, `playgrounds/labs-nuxt`) | Deleted. The shells import it from `foundation`. |
 
 ## References
 

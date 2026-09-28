@@ -76,10 +76,7 @@ import { AnnouncementBar } from "@upmind/ui";
 import { Loading } from "@upmind/ui";
 import { computed, nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  provideShellComponents,
-  provideThemeEngine
-} from "@upmind-automation/foundation";
+import { provideShellComponents } from "@upmind-automation/foundation";
 import useUpmind, {
   UpmindStatus,
   useRoutingEngine
@@ -112,7 +109,6 @@ const props = defineProps<{
 const { set } = useThemes();
 const { meta: routingMeta } = useRoutingEngine();
 
-provideThemeEngine({ set });
 provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 const {
   announcement,
