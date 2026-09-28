@@ -1,5 +1,3 @@
-export { useBrandConfig } from "./brand";
-
 export { provideThemeEngine, useThemeEngine } from "./theming";
 
 export type { FormRendererEntry } from "./renderers";
