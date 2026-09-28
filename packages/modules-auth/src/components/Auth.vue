@@ -269,29 +269,13 @@ async function toggleForm(type: AuthProps["modelValue"]) {
 }
 
 function doResolve(model: unknown) {
-  // Capture at submit time — after a successful login/register the machine
-  // leaves the form state, so currentForm changes before the .then runs.
-  const authenticates = currentForm.value !== AUTH_FORMS.RECOVER;
-  resolve(model as AuthModel).then(async success => {
-    if (!success) return;
-    // The auth machine resolves as soon as it holds a token, but promoting the
-    // active session + loading the user is the session store's job and lands a
-    // beat later. Consumers of this emit (e.g. checkout registering inline)
-    // re-read session-scoped state on resolve, so hand control back only once
-    // the session is actually authenticated. RECOVER never authenticates, so
-    // it emits immediately.
-    if (authenticates) {
-      try {
-        await session.useActions().whenAuthenticated();
-      } catch {
-        // Token issued but the user load failed — escalate to the reject path
-        // rather than hang the overlay waiting for a user that never loads.
-        emit("reject");
-        return;
-      }
-    }
-    emit("resolve", model);
-  });
+  resolve(model as AuthModel).then(
+    success => {
+      if (success) emit("resolve", model);
+    },
+    // Token issued but the user load failed — escalate rather than hang.
+    () => emit("reject")
+  );
 }
 
 function doReject() {

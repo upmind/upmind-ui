@@ -25,7 +25,7 @@ import {
 } from "../../../__tests__/int-test-helpers";
 import { queryClient } from "../../query";
 import { ScopeActorTypes } from "../../scope";
-import { useSessionStore } from "../../session-store";
+import { useActiveSession, useSessionStore } from "../../session-store";
 import { AuthContextTypes, AuthFlowTypes } from "../auth.types";
 import { useAuth } from "../useAuth";
 import { useVerifyEmail } from "../useVerifyEmail";
@@ -124,7 +124,7 @@ async function bootSettledClientAuth(): Promise<
 
 /**
  * A successful `authenticate()` resolves the auth machine into "authenticated"
- * (so `isAuthenticated`/`resolve()` return immediately) before the
+ * (so `isAuthenticated` returns immediately) before the
  * session-store `add()` write it fires lands — `add()` awaits a background
  * `/self` load and is never awaited by the caller (auth.services.client.ts).
  * Left to settle on its own, that write can complete during the NEXT test's
@@ -146,28 +146,6 @@ async function settlePendingSessionWrites(): Promise<void> {
         useSessionStore().useMeta().hasStaffSession.value;
       if (!clientSettled || !staffSettled)
         throw new Error("session-store add() still settling");
-    },
-    { timeout: 2000, interval: 5 }
-  );
-}
-
-/**
- * A successful `authenticate()` resolves the auth machine into "authenticated"
- * before the session-store `add()` write it fires lands (see
- * `settlePendingSessionWrites`). A test that seeds a login and then boots a
- * FRESH instance must wait for that write first: the fresh instance's one-shot
- * `checkSession` reads `clientSessions` synchronously and never re-checks, so an
- * uncommitted seed reads as unauthenticated. Poll the store's own meta until the
- * client session lands — this also drains the pending write so it cannot leak
- * into the next test's `beforeEach` after `clear()` (the `add()` cross-test leak
- * that defeats `settlePendingSessionWrites` when the seeding instance is
- * destroyed before it settles).
- */
-async function awaitClientSessionCommitted(): Promise<void> {
-  await vi.waitFor(
-    () => {
-      if (!useSessionStore().useMeta().hasClientSession.value)
-        throw new Error("client session write still settling");
     },
     { timeout: 2000, interval: 5 }
   );
@@ -319,7 +297,6 @@ describe("auth integration (fixture replay)", () => {
     });
     expect(first.useMeta().isAuthenticated.value).toBe(true);
 
-    await awaitClientSessionCommitted();
     first.useActions().destroy();
     const spy = spyOnRequests("/oauth/access_token");
     const revisit = useAuth().as(ScopeActorTypes.CLIENT);
@@ -328,6 +305,22 @@ describe("auth integration (fixture replay)", () => {
     expect(revisit.useMeta().isAuthenticated.value).toBe(true);
     expect(revisit.useMeta().showLoginForm.value).toBe(false);
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("AU-I16: a client login resolves once the session store holds the signed-in client", async () => {
+    const auth = await bootSettledClientAuth();
+    overrideToken("post-oauth-access-token-client");
+    overrideSelf("get-self");
+
+    await auth.useActions().start(AuthFlowTypes.LOGIN);
+    const ok = await auth.useActions().resolve({
+      username: "jane@example.com",
+      password: "s3cret-pass"
+    });
+
+    expect(ok).toBe(true);
+    expect(useSessionStore().useMeta().hasClientSession.value).toBe(true);
+    expect(useActiveSession().useMeta().isAuthenticated.value).toBe(true);
   });
 
   it("AU-I7: a guest session is NOT authenticated — login flow proceeds", async () => {
@@ -352,7 +345,6 @@ describe("auth integration (fixture replay)", () => {
     });
     expect(first.useMeta().isAuthenticated.value).toBe(true);
 
-    await awaitClientSessionCommitted();
     first.useActions().destroy();
 
     // A plain revisit would short-circuit to authenticated (see AU-I6); .fresh()

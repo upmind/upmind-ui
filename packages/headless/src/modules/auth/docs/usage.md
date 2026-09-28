@@ -1,6 +1,6 @@
 # Auth Module Usage
 
-API reference for `useAuth`, `useVerifyEmail`, and the exported register schemas. All examples are copy-paste ready.
+API reference for `useAuth`, `useVerifyEmail`, the return-target helpers, and the exported register schemas. All examples are copy-paste ready.
 
 ## Getting an instance
 
@@ -64,11 +64,13 @@ const ok = await auth.useActions().resolve({
   username: "jane@example.com",
   password: "s3cret-pass"
 });
-// ok === true → authenticated (or, for recover, email sent)
+// ok === true → authenticated, and the active session holds the signed-in user (or, for recover, email sent)
 // ok === false → failed; read useContext().errors
 ```
 
-**Returns:** `Promise<boolean>` — resolves when the flow settles (success or error state), never rejects.
+**Returns:** `Promise<boolean>` — `false` when the attempt fails. Login, 2FA and register settle only after the session store promotes the session, and reject when the user load fails. Recover never waits.
+
+Catch the rejection when you await `resolve()`. An actor outside the host's `allowedScopes` is never promoted: while the active session stays a guest, its `resolve()` does not settle. When another signed-in session is already active, the wait ends at once.
 
 ### `set(model)`
 
@@ -235,6 +237,92 @@ useVerifyEmail().verifyFromLink();
 Fire-and-forget: it never throws, and the redirect happens synchronously — success or failure surfaces via the refreshed session state, not a return value.
 
 > **🧪 For Testers:** Opening a valid verification link marks the email verified (the account's unverified banner/standing clears after the session refreshes). Opening a link with missing or mangled params leaves the email unverified — and no verify request reaches the API when any param is absent.
+
+## Return-target hand-back
+
+An auth route can carry a `returnUrl` query. After sign-in, the visitor goes back to that target.
+
+### `readReturnTarget(query)`
+
+`(query: Record<string, unknown>) => string | undefined` — the `returnUrl` as a normalised same-origin path. It keeps the target's own query and hash. It returns `undefined` when the query names no target, and when it refuses the target.
+
+It refuses these targets:
+
+- an absolute URL, also one on this host
+- a protocol-relative host (`//evil.example`)
+- a host behind a backslash or a control character (`/\evil.example`)
+- a path with no leading `/`, or with leading whitespace
+- a value that is not a single string (a repeated key)
+
+```ts
+import { readReturnTarget } from "@upmind-automation/headless";
+
+readReturnTarget({ returnUrl: "/basket?step=2#summary" }); // "/basket?step=2#summary"
+readReturnTarget({ returnUrl: "/basket/../admin" }); // "/admin"
+readReturnTarget({ returnUrl: "//evil.example" }); // undefined
+```
+
+Navigate to the value it returns, never to the raw query value.
+
+### `hasReturnTarget(query)`
+
+`(query: Record<string, unknown>) => boolean` — `true` when the query names a non-empty `returnUrl`, accepted or refused. Use it with `readReturnTarget` to tell "refused" from "absent".
+
+```ts
+import { hasReturnTarget, readReturnTarget } from "@upmind-automation/headless";
+
+const query = { returnUrl: "//evil.example" };
+
+const isRefused = hasReturnTarget(query) && !readReturnTarget(query); // true
+```
+
+### `registerAuthFlows(router, options?)`
+
+`(engine: Router, options?: { fallback?: string }) => void` — hands a signed-in visitor on an opted-in auth route to its return target. A route opts in with `meta.authReturnTarget: true`. The app calls it once, on its own router.
+
+| Visitor on an opted-in route                    | Result                                                  |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| signs in; accepted target                       | replaces the route with the target                      |
+| signs in; refused target                        | replaces the route with `fallback` + `?returnRefused=1` |
+| signs in; no target                             | replaces the route with `fallback`                      |
+| arrives already signed in; accepted target      | redirects to the target                                 |
+| arrives already signed in; refused target       | redirects to `fallback` + `?returnRefused=1`            |
+| arrives already signed in; no target            | stays on the route                                      |
+| not signed in, or no `fallback` for the outcome | stays on the route                                      |
+
+Routes without the opt-in are never redirected, also when they carry a `returnUrl`.
+
+```ts
+import { createRouter, createWebHistory } from "vue-router";
+import { registerAuthFlows } from "@upmind-automation/headless";
+import type { Component } from "vue";
+
+declare const LoginPage: Component;
+declare const LandingPage: Component;
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: "/login", component: LoginPage, meta: { authReturnTarget: true } },
+    { path: "/signed-in", component: LandingPage }
+  ]
+});
+
+registerAuthFlows(router, { fallback: "/signed-in" });
+```
+
+### `AUTH_QUERY`
+
+`{ RETURN_REFUSED: "returnRefused" }` — the query key the fallback route reads to know that a target was refused. It carries the verdict only. It never echoes the refused string.
+
+```ts
+import { AUTH_QUERY } from "@upmind-automation/headless";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+
+const isReturnRefused = !!route.query[AUTH_QUERY.RETURN_REFUSED];
+```
 
 ## Register schemas — `useRegisterSchema` / `useRegisterUischema`
 

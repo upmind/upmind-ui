@@ -1,0 +1,25 @@
+# Negative control — a login hands back at the token. The attempt settles
+# `true` as soon as the machine reaches `authenticated`, while the session
+# store is still loading `/self` and the visitor is still a guest; a failed
+# user load still reads as success.
+#
+# Intended RED:
+#   packages/headless/src/modules/auth/__tests__/useAuth.actions.test.ts
+#     "useAuth resolve() hand-back timing > a login > stays pending until the session promotes, then gives true"
+#     "useAuth resolve() hand-back timing > a login > rejects when the user load fails"
+#   packages/headless/src/modules/auth/__tests__/auth.int.test.ts
+#     "AU-I16: a client login resolves once the session store holds the signed-in client"
+
+diff --git a/packages/headless/src/modules/auth/useAuth.actions.ts b/packages/headless/src/modules/auth/useAuth.actions.ts
+index 30474c9..00df457 100644
+--- a/packages/headless/src/modules/auth/useAuth.actions.ts
++++ b/packages/headless/src/modules/auth/useAuth.actions.ts
+@@ -65,7 +65,7 @@ export function createAuthActions(
+       service,
+       ["authenticated", "done"],
+       "login.available.error"
+-    ).then(whenPromoted);
++    );
+   }
+ 
+   /**

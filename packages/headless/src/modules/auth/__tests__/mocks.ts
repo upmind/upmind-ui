@@ -72,10 +72,15 @@ vi.mock("../../brand", () => ({
   })
 }));
 
+export const whenAuthenticatedMock = vi.fn(async () => ({ id: "client-1" }));
+
 vi.mock("../../session-store", () => ({
   useActiveSession: () => ({
     useContext: () => ({ activeUser: { value: undefined } }),
-    useActions: () => ({ onLogout: vi.fn(() => vi.fn()) })
+    useActions: () => ({
+      onLogout: vi.fn(() => vi.fn()),
+      whenAuthenticated: whenAuthenticatedMock
+    })
   }),
   useSessionStore: () => ({
     useActions: () => ({

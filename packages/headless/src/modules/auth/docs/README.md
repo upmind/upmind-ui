@@ -47,6 +47,7 @@ const { isAuthenticated, is2faRequired, hasErrors } = auth.useMeta();
 | Anonymous guest-token mint              | guest            | machine boots straight into it                   |
 | Email verification from a link          | any              | `useVerifyEmail().verifyFromLink()`              |
 | Form schemas (JSON Forms)               | all              | `useContext().schema` / `.uischema`              |
+| Return-target hand-back after sign-in   | any              | `registerAuthFlows(router, { fallback })`        |
 
 ## Key Concepts
 

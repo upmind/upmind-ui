@@ -2,7 +2,7 @@
 
 **Date:** June 15, 2026
 **Updated:** June 15, 2026 — §10 rewritten as a two-axis SSR-safe state model (brand-invariant shared cache + per-user request scope), after reviewing the `@next-legacy` scope-based composables (`modules/scope/`). They are built and SPA-correct; the SSR gap is that the scope registry, `QueryClient`, and session-store are module-level (per-process) rather than per-request — fixable at one chokepoint (`ensure()`). **Accepted 2026-06-16** — all Open Questions (Q1–Q4) resolved.
-**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs) and 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless`). See the Amendments below.
+**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs) and 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28). See the Amendments below.
 **Authors:** Dom da Costa
 
 ---
@@ -549,24 +549,40 @@ The tests for each change move with it.
 
 ## Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`
 
-**Scope.** Sharpens §2's `headless` and domain-package rows and §6. Supersedes Amendment 9 point 4 on where `registerAuthFlows` lives: it moves to `headless`, and the app still calls it. Decided by the operator on 2026-09-25.
+**Scope.** Sharpens §2's `headless`, `foundation` and domain-package rows, and §6. It binds the ten `packages/modules-*` packages: `foundation` and the nine domain packages. Supersedes Amendment 9 point 4: a flow registrar is routing logic, so it lives in `headless`, and the app still calls it. `registerAuthFlows` is the only registrar. Ruled by the operator on 2026-09-25.
 
-**The ruling.** *"It should only be in our packages if it is a UI concern."* A domain package holds markup, styles, variants, prop, emit and slot types, view state, presentation mapping, the wiring that passes `headless` values into components, and component gates that combine `headless` flags. Everything else lives in `headless`: a service or query, a cache, a machine or store, a domain rule, routing or funnel logic, static domain data, and a composable whose output is domain data.
+> **Ratified by the operator on 2026-09-28.**
+
+**The ruling.** *"It should only be in our packages if it is a UI concern."* A package holds markup, styles, variants, prop, emit and slot types, view state, presentation mapping, the wiring that passes `headless` values into components, and component gates that combine `headless` flags. Everything else lives in `headless`: a service or query, a cache, a machine or store, a domain rule, routing or funnel logic, static domain data, and a composable whose output is domain data.
 
 **The test.** Would a second surface with a different design need the logic to behave the same way? Then `headless` owns it. If only this component's look needs it, the package keeps it.
 
-**What moved.** An audit read every source file in the ten packages. Each move keeps its behaviour. Where two copies of a rule differ, the move does not unify them; unifying changes behaviour and waits for its own ruling.
+**What changed.** An audit read every source file in the ten packages. A move keeps its behaviour unless its row says **Behaviour**. Where two copies of a rule differed, the row names the rule that survives. Each row lands in the phase it names, so on a lower phase's branch the later rows describe work still to come.
 
-| Leg | What moved | Where it lives now |
+| Lands in | What changed | Result |
 | --- | --- | --- |
+| Phase 1 | `foundation`'s brand config read (`useBrandConfig`) and its brand-keyed cache | Deleted. `headless` `useBrand` and `useConfig` already serve every field; `apps/payment` reads its theme from `useConfig` (Phase 3). A §10 brand-keyed cache, when it is built, lives in `headless` `brand`. **Behaviour:** the payment app's theme follows a brand refresh; the cache kept the first value it saw. |
 | Phase 2 | `auth`'s return-target reader and flow registrar | `headless` `auth/auth.flows.ts` |
 | Phase 2 | the funnel-or-route resolver the auth views share | `headless` `routing/useRoutingResolve.ts` |
 | Phase 2 | the pattern-example rule for validation messages | `headless` `utils/useValidation.ts` (`withPatternExample`) |
+| Phase 2 | the wait for the session to hold the user after a sign-in, which `Auth.vue` ran | `headless` `useAuth().resolve()`. `Account.vue`'s copy is deleted: `useAccount().register()` already settles after the user is written. **Behaviour:** `resolve()` settles once the session holds the signed-in user, and rejects when the user load fails. |
+| Phase 3 | the account-credit default (the smaller of the amount due and the credit) | `headless` `defaultWalletAmount`, read by the schema, the parser and `usePaymentDetail().amountCreditDefault`. **Behaviour:** while the payment model is cleared, the default follows the invoice amount, not 0. |
+| Phase 3 | the pay-later choice | an option in `headless`'s gateway schema; the renderer only maps options |
 | Phase 4 | `canAddDirectly`, `isSingleSelection`, `toSubproductSelection`, `setSubproductQuantity` | `headless` `product/product.utils.ts` |
-| Phase 4 | the save-with-fallback rule that `product`, `recommendations` and `basket` each ran | `headless` `basket-product/basket-product.utils.ts` (`commitProductUpdate`) |
-| Phase 8 | the order-transfer URL | `headless` `session-transfer/session-transfer.utils.ts` |
+| Phase 4 | the save-with-fallback rule that `product`'s configure view ran | `headless` `basket-product/basket-product.utils.ts` (`commitProductUpdate`) |
+| Phase 4 | hiding promotions on a custom price | `headless` `parsePromotionDetails` returns none. **Behaviour:** the basket upsell card stops showing promotions beside a custom price. |
+| Phase 5 | `recommendations`' copy of the save-with-fallback rule | calls `commitProductUpdate` |
 | Phase 6 | the DAC's added-results flag and its cache refresh | `headless` `domain/useDac.ts` and `domain/domain.services.ts` |
-| Phase 9 | the guest-checkout gate, the currency-country table and two billing rules | `headless` `basket/basket.utils.ts`, `currency/currency.constants.ts`, `basket-billing/basket-billing.utils.ts` |
+| Phase 6 | two hand-written query keys, `"catid"` and `"returnUrl"` | `headless` `QUERY_PARAMS` (existing constants) |
+| Phase 8 | the order-transfer URL | `headless` `session-transfer/session-transfer.utils.ts` |
+| Phase 8 | `invoice`'s unused `PAYMENT_STATE` re-export | Deleted (§6). |
+| Phase 9 | the guest-checkout gate, the currency-country table and the billing form's two rules | `headless` `basket/basket.utils.ts`, `currency/currency.constants.ts`, `basket-billing/basket-billing.utils.ts`. The unused `currencies.json` copy is deleted. |
+| Phase 9 | the billing tabs' six model rules | `headless` `basket-billing/basket-billing.utils.ts`, each kept exact. They are not folded into the form's rule, which answers a different question. |
+| Phase 9 | `basket`'s copy of the save-with-fallback rule | calls `commitProductUpdate` |
+| Phase 9 | the basket card's save rules (500 ms wait, flush on teardown, cancel on remove, forced save when invalid) and its config-spawn and error rules | save methods and flags on `headless` `useBasketProductInline`; its unused old quantity methods are deleted. **Behaviour:** a save queued at teardown fires as the card unmounts, not after it. |
+| Phase 9 | the checkout's "next product to set up" | `headless` `useProductSetupCursor`, per caller. The setup page keeps its own rule. **Behaviour:** a product that needs setup after the checkout opens now shows its setup form. |
+
+**Kept as UI.** Six items only arrange values that `headless` already serves, so they stay in their packages: `useBreadcrumbs` (`foundation`), the `PricingList` row filter (`product`), the `OrderProducts` rows (`invoice`), the summary price lines (`basket`), the payment-order signed-out gate (`payment`) and the checkout payment gate (`basket`).
 
 ## References
 
