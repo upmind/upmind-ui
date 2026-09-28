@@ -7,3 +7,7 @@ import type { FormProps } from "@upmind/ui";
 export type FormRendererEntry = NonNullable<
   FormProps["additionalRenderers"]
 >[number];
+
+export type UseFormRenderers = {
+  renderers: FormRendererEntry[];
+};
