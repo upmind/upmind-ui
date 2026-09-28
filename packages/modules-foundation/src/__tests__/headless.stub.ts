@@ -32,15 +32,6 @@ export const stubState = {
   themes: ref<StubTheme[] | undefined>(undefined)
 };
 
-export function resetHeadlessStub() {
-  stubState.brand.value = { ...NO_BRAND };
-  stubState.themes.value = undefined;
-}
-
-export function setBrand(brand: Partial<StubBrand>) {
-  stubState.brand.value = { ...stubState.brand.value, ...brand };
-}
-
 export function setThemes(themes: StubTheme[] | undefined) {
   stubState.themes.value = themes;
 }

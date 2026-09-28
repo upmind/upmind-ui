@@ -1,4 +1,4 @@
-export { TermsAndConditions, useBrandConfig } from "./brand";
+export { TermsAndConditions } from "./brand";
 
 export { provideThemeEngine, useThemeEngine } from "./theming";
 

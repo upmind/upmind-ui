@@ -1,21 +1,7 @@
 /**
  * @module foundation/brand
- * @description The brand-invariant read.
+ * @description Props of the brand's terms-and-conditions link.
  */
-
-export type BrandConfig = {
-  id: string;
-  name?: string;
-  faviconUrl?: string;
-  themeId?: string;
-  brandColor?: string;
-  brandFont?: string;
-};
-
-export type BrandConfigMeta = {
-  isAvailable: boolean;
-  isResolved: boolean;
-};
 
 export type TermsAndConditionsProps = {
   class?: string;
