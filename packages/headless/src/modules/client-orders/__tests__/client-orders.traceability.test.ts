@@ -5,11 +5,11 @@
  * ## Job To Be Done
  * Parse the colocated `client-orders.feature` and enforce the anchor both
  * ways: each AC of a scenario that is not `@todo` is named by a test title,
- * and each AC a test title names is a scenario of the feature. Two proofs
- * live outside this directory, and each counts only through a test title:
- * AC-17 through the `brand.one-time-purchases*.int.test.ts` titles, never the
- * `brand.feature` tag, and AC-22 through a `test(` title of the labs-nuxt
- * lane spec that holds `@FE-3237` (bdd.md, deferral table).
+ * and each AC a test title names is a scenario of the feature. One proof
+ * lives outside this directory and counts only through a test title: AC-22
+ * through a `test(` title of the labs-nuxt lane spec that holds `@FE-3237`
+ * (bdd.md, deferral table). AC-17 is a colocated unit proof of the FE-3244
+ * interim gate `hidesOneTimePurchases()`.
  *
  * The feature is executable under ADR-020 Amendment 5: the labs-nuxt `bdd`
  * project drives the six design 8.12 scenarios. This spec also pins those six
@@ -29,10 +29,6 @@ import { describe, expect, it } from "vitest";
 const TEST_DIR = import.meta.dirname;
 const FEATURE = join(TEST_DIR, "client-orders.feature");
 const REPO_ROOT = join(TEST_DIR, "../../../../../..");
-const BRAND_TESTS = join(
-  REPO_ROOT,
-  "packages/headless/src/modules/brand/__tests__"
-);
 const LANE_SPEC = join(
   REPO_ROOT,
   "playgrounds/labs-nuxt/tests/e2e/client-orders.spec.ts"
@@ -45,12 +41,6 @@ const DRIVEN_TITLES = [
   "The newest order comes first, and a sort keeps the page",
   "Search and filters live together",
   "The forced category survives each writer"
-];
-
-const BRAND_STATE_FILES = [
-  "brand.one-time-purchases.int.test.ts",
-  "brand.one-time-purchases-shown.int.test.ts",
-  "brand.one-time-purchases-absent.int.test.ts"
 ];
 
 type Scenario = {
@@ -132,17 +122,6 @@ function colocatedProofs(): Map<string, string[]> {
   return proofs;
 }
 
-/** AC-17 is proven only when each brand state file names AC-17 in a test title. */
-function brandProvesAc17(): boolean {
-  return BRAND_STATE_FILES.every(file => {
-    const path = join(BRAND_TESTS, file);
-    return (
-      existsSync(path) &&
-      acIds(testTitles(readFileSync(path, "utf-8"))).has("AC-17")
-    );
-  });
-}
-
 /** AC-22 is proven only by a lane `test(` title that holds `@FE-3237`. */
 function laneProvesAc22(): boolean {
   if (!existsSync(LANE_SPEC)) return false;
@@ -153,7 +132,6 @@ function laneProvesAc22(): boolean {
 
 function provenAcs(): Set<string> {
   const proven = new Set(colocatedProofs().keys());
-  if (brandProvesAc17()) proven.add("AC-17");
   if (laneProvesAc22()) proven.add("AC-22");
   return proven;
 }
@@ -221,9 +199,8 @@ describe("client-orders traceability — the proofs", () => {
     );
   });
 
-  it("AC-17 counts only through the brand state test titles, never through the brand.feature tag", () => {
-    expect(brandProvesAc17()).toBe(true);
-    expect(colocatedProofs().has("AC-17")).toBe(false);
+  it("AC-17 is proven by a colocated test title, the FE-3244 interim gate", () => {
+    expect(colocatedProofs().has("AC-17")).toBe(true);
   });
 
   it("the title reader ignores an AC id outside a test title", () => {

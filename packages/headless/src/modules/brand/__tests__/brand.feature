@@ -58,11 +58,3 @@ Feature: Brand module
     Given raw brand settings with key-first i18n
     When mapBrandSettings is called
     Then i18n is transformed to locale-first structure
-
-  # The AC id is FE-3237 AC17 (design D-17), shared with the client-orders
-  # feature so both features trace to one criterion.
-  @AC-17 @FE-3237 @layer-integration
-  Scenario: The brand publishes the one-time-purchases condition for the order history
-    Given a brand that sets its one-time purchases to hidden, to shown, or not at all
-    When the order history reads the brand's one-time-purchases setting
-    Then the brand publishes the condition for the hidden, the shown and the absent value

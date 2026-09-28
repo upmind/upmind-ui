@@ -190,10 +190,10 @@ Feature: Client order history — the client self-service capability
     And an item with no catalogue image keeps its product image
 
   @AC-17 @FE-3237 @client
-  Scenario: The brand publishes the one-time-purchases condition
-    Given a brand that sets its one-time purchases to hidden, to shown, or not at all
-    When the order history reads the brand's one-time-purchases setting
-    Then the brand publishes the condition for the hidden, the shown and the absent value
+  Scenario: One-time purchases stay linkable until the brand portal setting lands
+    Given a client opens an order while the brand portal one-time-purchases setting is not yet exposed
+    When the order history reads the one-time-purchases gate
+    Then the gate reports one-time purchases as not hidden, so a one-time item keeps its link
 
   @AC-18 @FE-3237 @client
   Scenario: The legacy status rules give each condition

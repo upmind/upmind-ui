@@ -57,6 +57,7 @@ type SnapshotLine = Record<string, unknown> & {
   name: string;
   service_identifier: string | null;
   client_label: string | null;
+  contract_id: string | null;
   contracts_product_id: string;
   quantity: number;
   billing_cycle_months: number;
@@ -123,7 +124,7 @@ describe("client-orders — the order items project the snapshot lines (AC-15)",
       expect(item).toMatchObject({
         brandId: line.product.brand_id,
         contractProductId: line.contracts_product_id,
-        contractId: line.product.contract_id || SNAPSHOT.data.contract_id,
+        contractId: line.contract_id || SNAPSHOT.data.contract_id,
         name: [
           line.name,
           line.service_identifier ? `(${line.service_identifier})` : null
@@ -161,6 +162,7 @@ describe("client-orders — the order items project the snapshot lines (AC-15)",
     expect(first.isSubscription).toBe(true);
     expect(first.canLink).toBe(true);
     expect(second.isSubscription).toBe(true);
+    expect(second.canLink).toBe(true);
   });
 
   it("a thin recorded record publishes empty fields and no error (design 8.11)", async () => {

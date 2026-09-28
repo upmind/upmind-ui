@@ -1,9 +1,6 @@
-diff --git a/packages/headless/src/modules/client-orders/useClientOrder.ts b/packages/headless/src/modules/client-orders/useClientOrder.ts
-index 04c0e1e01f..735b18c3b2 100644
 --- a/packages/headless/src/modules/client-orders/useClientOrder.ts
 +++ b/packages/headless/src/modules/client-orders/useClientOrder.ts
-@@ -59,15 +59,6 @@ function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-   // `system` query is lazy, so this is the ONE call that loads it here.
+@@ -60,13 +60,4 @@
    // Not awaited: `isReady()` does not wait for it (D-25).
    const billingCycles = ref<IBillingCycle[]>([]);
 -  useSystem()
@@ -15,6 +12,5 @@ index 04c0e1e01f..735b18c3b2 100644
 -      // Kept `[]`, no error surfaced — the billing cycle name is a label,
 -      // not the order (D-25).
 -    });
- 
-   // D-17 — the one-time-purchases gate.
-   const { hideOneTimePurchases } = useBrand();
+
+   // D-17 — the one-time-purchases gate (client-orders.utils, @decision there).
