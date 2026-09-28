@@ -3,7 +3,7 @@ import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
-import { debounce } from "lodash-es";
+import { debounce, forEach, isEmpty, keys } from "lodash-es";
 import type {
   ClientOrderStatusChoice,
   ClientOrdersComparisonLeaf,
@@ -207,7 +207,7 @@ export function createClientOrdersActions(
       if (term) number.eq = term;
       else delete number.eq;
 
-      if (Object.keys(number).length === 0) delete filters.number;
+      if (isEmpty(number)) delete filters.number;
       else filters.number = number;
     });
   }, SEARCH_DEBOUNCE_MS);
@@ -235,12 +235,12 @@ export function createClientOrdersActions(
 
       if (value === undefined || value === null || value === "") {
         if (op) delete leaf[op];
-        else Object.keys(leaf).forEach(key => delete leaf[key]);
+        else forEach(keys(leaf), key => delete leaf[key]);
       } else {
         leaf[op ?? "eq"] = value;
       }
 
-      if (Object.keys(leaf).length === 0) delete filterBag[column];
+      if (isEmpty(leaf)) delete filterBag[column];
       else filterBag[column] = leaf;
     });
   }

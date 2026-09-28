@@ -367,6 +367,8 @@ export type ClientOrderGatewaysQuery = {
   error: ComputedRef<ResponseError | undefined>;
   isFetched: ComputedRef<boolean>;
   isLoading: ComputedRef<boolean>;
+  /** Stops the detached effect scope this read owns; a no-op when it reused an active scope. */
+  stop: () => void;
 };
 
 /**
@@ -387,6 +389,8 @@ export type ClientOrderExtras = {
   hideOneTimePurchases: ComputedRef<boolean>;
   /** True while a `cancel()` call that reached the port is pending (design 8.6). */
   isProcessing: Ref<boolean>;
+  /** Stops the online-gateway read's detached effect scope on `destroy()`. */
+  stopGatewaysScope: () => void;
 };
 
 /**

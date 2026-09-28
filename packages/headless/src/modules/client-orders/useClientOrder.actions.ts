@@ -103,8 +103,9 @@ export function createClientOrderActions(
     if (error instanceof NotAuthenticatedError) throw error;
   }
 
-  /** Destroys this scoped instance — removes it from the registry. */
+  /** Destroys this scoped instance — stops the gateway scope, then removes it from the registry. */
   function destroy(): void {
+    extras.stopGatewaysScope();
     removeFromRegistry(scopeKey);
   }
 
@@ -117,7 +118,8 @@ export function createClientOrderActions(
    * `invoices` root key once the engine completes (D-4).
    */
   function usePayment() {
-    const engine = useOrder(orderId as string);
+    if (!orderId) throw new NotAuthenticatedError();
+    const engine = useOrder(orderId);
 
     watch(
       () => engine.meta.value.isComplete,

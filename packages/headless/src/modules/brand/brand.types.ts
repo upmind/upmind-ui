@@ -152,14 +152,6 @@ export type BrandMeta = {
   icon_variant?: string; // the preferred icon variant to be used
   variant?: string; // the preferred variant/token id to be used
   theme?: string; // the preferred data-theme id to be used
-
-  /**
-   * Portal-scoped visibility flags (FE-3237 D-17). Read via
-   * `useBrand().hideOneTimePurchases`, never a second brand settings read.
-   */
-  portal?: {
-    "@context.oneTimePurchases"?: "hidden" | "shown";
-  };
 };
 
 // --- query model

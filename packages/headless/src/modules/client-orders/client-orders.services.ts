@@ -8,7 +8,7 @@ import { useActiveSession } from "../session-store";
 import { isMultibrand } from "./client-orders.mappers";
 import { useQuerySchema } from "./client-orders.schemas";
 import { NotAuthenticatedError, useTime } from "../../utils";
-import { isEmpty } from "lodash-es";
+import { isEmpty, reduce } from "lodash-es";
 import type {
   ClientOrderGatewaysQuery,
   ClientOrderItemImagesQuery,
@@ -201,6 +201,16 @@ function loadOne(orderId?: IOrder["id"]): ClientOrderItemQuery {
 function loadItemImages(productIds: Ref<string[]>): ClientOrderItemImagesQuery {
   const { query, useUrl } = useQuery();
 
+  /**
+   * @decision
+   * what: `filter[id]` addresses the exact catalogue product ids the snapshot
+   *   items name — an internal structural lookup, NOT a user-facing filter, so
+   *   it is written straight into `useUrl` and carries no criteria schema.
+   * why: the id set is derived by the module (D-14), never entered by a client;
+   *   a schema leaf would model a search surface that does not exist.
+   * rejected: routing this through a `list()` criteria schema (invents a public
+   *   filter for an id-batch fetch).
+   */
   const targetUrl = () =>
     useUrl("products", {
       "filter[id]": productIds.value.join(","),
@@ -222,10 +232,14 @@ function loadItemImages(productIds: Ref<string[]>): ClientOrderItemImagesQuery {
     },
     enabled: () => !isEmpty(productIds.value),
     select: rows =>
-      rows.reduce<Record<string, string>>((map, row) => {
-        if (row.image?.full_url) map[row.id] = row.image.full_url;
-        return map;
-      }, {}),
+      reduce(
+        rows,
+        (map, row) => {
+          if (row.image?.full_url) map[row.id] = row.image.full_url;
+          return map;
+        },
+        {} as Record<string, string>
+      ),
     staleTime: useTime().DAY
   });
 }
@@ -242,8 +256,11 @@ function loadOnlineGateways(
 ): ClientOrderGatewaysQuery {
   const { request, useUrl, queryClient } = useQuery();
 
+  // Own a detached scope only off the no-active-scope path; `destroy()` stops
+  // it through `stop` below, so it never outlives the manager (review finding).
   const currentScope = getCurrentScope();
-  const scope = currentScope?.active ? currentScope : effectScope(true);
+  const ownScope = currentScope?.active ? undefined : effectScope(true);
+  const scope = ownScope ?? currentScope!;
 
   const response = scope.run(() =>
     vueUseQuery<number, DefaultError, number>(
@@ -251,6 +268,16 @@ function loadOnlineGateways(
         queryKey: [...queryKey, "gateways", brandId],
         queryFn: async () => {
           const envelope = await request<unknown>({
+            /**
+             * @decision
+             * what: `filter[gateway.type]` names the online gateway `.type`
+             *   values (D-26) — an internal structural lookup, NOT a user
+             *   filter, so it is written straight into `useUrl` with no schema.
+             * why: this read counts online gateways for the order's brand; the
+             *   type set is a module constant, never client input.
+             * rejected: a criteria schema leaf (models a public filter that
+             *   this count read does not expose).
+             */
             url: useUrl(`brands/${brandId.value}/gateways`, {
               limit: "count",
               "filter[gateway.type]": ONLINE_GATEWAY_TYPES.join(",")
@@ -272,7 +299,8 @@ function loadOnlineGateways(
       () => response.error.value as unknown as ResponseError | undefined
     ),
     isFetched: computed(() => response.isFetched.value),
-    isLoading: computed(() => response.isLoading.value)
+    isLoading: computed(() => response.isLoading.value),
+    stop: () => ownScope?.stop()
   };
 }
 

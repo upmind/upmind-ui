@@ -55,3 +55,23 @@ export function canPay(order: OrderCondition): boolean {
 export function canCancel(order: Pick<IOrder, "status">): boolean {
   return isCancellable(order) && isDue(order);
 }
+
+/**
+ * D-17 — the one-time-purchases gate (oracle [o14], `meta.portal
+ * ["@context.oneTimePurchases"] === "hidden"`). Feeds `mapOrderItems`' `canLink`.
+ *
+ * @decision
+ * what: derive the gate inside client-orders instead of publishing it from
+ *   `useBrand`. The brand `portal` scope is NOT on `useBrand`'s public surface,
+ *   so the rule is not forced here — the same interim as
+ *   `contract-product.utils.ts:hidesOneTimePurchasesForced`, pending FE-3244
+ *   which owns the `portal` exposure.
+ * why: FE-3237 operator ruling (2026-09-28) keeps every source change inside
+ *   this module and reverts D-17's `useBrand.hideOneTimePurchases` addition.
+ * rejected: a `useBrand().hideOneTimePurchases` member (reverted per the
+ *   ruling); a second `brand/settings` read in this module (the D-17 rejected
+ *   alternative — a duplicate network fetch).
+ */
+export function hidesOneTimePurchases(): boolean {
+  return false;
+}

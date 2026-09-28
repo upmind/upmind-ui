@@ -12,7 +12,8 @@ import {
   get,
   groupBy,
   isArray,
-  values as lodashValues
+  values as lodashValues,
+  map
 } from "lodash-es";
 import type {
   ClientOrderDetail,
@@ -189,7 +190,7 @@ export function mapOrderItems(
     "contract_product_id"
   );
 
-  return source.map(item => {
+  return map(source, item => {
     const billingCycleMonths =
       item.billing_cycle_months || item.product?.billing_cycle_months || 0;
     const contractProductId = item.contracts_product_id;

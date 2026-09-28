@@ -1,10 +1,10 @@
 import { computed, ref } from "vue";
-import { useBrand } from "../brand";
 import { createScopedComposable } from "../scope";
 import { useSystem } from "../system";
 import { rawOrderItems } from "./client-orders.mappers";
 import { createClientOrderServices } from "./client-orders.services";
 import { CLIENT_ORDER_MANAGER_SCOPE_MATRIX } from "./client-orders.types";
+import { hidesOneTimePurchases } from "./client-orders.utils";
 import { createClientOrderActions } from "./useClientOrder.actions";
 import { createClientOrderContext } from "./useClientOrder.context";
 import { createClientOrderInternals } from "./useClientOrder.internals";
@@ -69,15 +69,16 @@ function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
       // not the order (D-25).
     });
 
-  // D-17 — the one-time-purchases gate.
-  const { hideOneTimePurchases } = useBrand();
+  // D-17 — the one-time-purchases gate (client-orders.utils, @decision there).
+  const hideOneTimePurchases = computed(() => hidesOneTimePurchases());
 
   const extras: ClientOrderExtras = {
     billingCycles,
     imageMap: imagesQuery.data,
     hasOnlineGateways: computed(() => gatewaysQuery.data.value > 0),
     hideOneTimePurchases,
-    isProcessing: ref(false)
+    isProcessing: ref(false),
+    stopGatewaysScope: gatewaysQuery.stop
   };
 
   /** ONE actions instance per scope; the layers below stay lazy. */
