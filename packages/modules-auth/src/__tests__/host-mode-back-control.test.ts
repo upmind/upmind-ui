@@ -33,16 +33,20 @@ const navigate = vi.fn(() => Promise.resolve());
 const navigateNext = vi.fn(() => Promise.resolve());
 const navigateBack = vi.fn(() => Promise.resolve());
 
+// Mocked at its source so headless's own `useRoutingResolve` reads the same engine.
+vi.mock("../../../headless/src/modules/routing/useRoutingEngine", () => ({
+  useRoutingEngine: () => ({
+    navigate,
+    navigateNext,
+    navigateBack,
+    meta: computed(() => ({ hasFunnels: hasFunnels.value }))
+  })
+}));
+
 vi.mock("@upmind-automation/headless", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    useRoutingEngine: () => ({
-      navigate,
-      navigateNext,
-      navigateBack,
-      meta: computed(() => ({ hasFunnels: hasFunnels.value }))
-    }),
     useActiveSession: () => ({
       useActions: () => ({ isReady: () => Promise.resolve(true) }),
       useContext: () => ({}),

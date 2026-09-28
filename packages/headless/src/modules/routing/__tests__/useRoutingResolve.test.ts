@@ -3,7 +3,7 @@
  * @fileoverview The host-mode seam the session screens resolve through.
  *
  * ## Job To Be Done
- * `useAuthResolve` takes the funnel step in a funnel host, else the screen's own routes.
+ * `useRoutingResolve` takes the funnel step in a funnel host, else the screen's own routes.
  *
  * ## What Breaks If These Fail
  * A funnel host drops buyers on a landing page, or a funnel-free host strands them on sign-in.
@@ -13,8 +13,8 @@ import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, defineComponent, h, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { useAuthResolve } from "../auth.utils";
-import type { AuthResolveOptions, AuthViewProps } from "../types";
+import { useRoutingResolve } from "../useRoutingResolve";
+import type { RoutingResolveOptions } from "../routing.types";
 import type { Router } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -23,33 +23,22 @@ const hasFunnels = ref(true);
 const navigateNext = vi.fn(() => Promise.resolve());
 const navigateBack = vi.fn(() => Promise.resolve());
 
-vi.mock("@upmind-automation/headless", async importOriginal => {
-  const actual = await importOriginal<Record<string, unknown>>();
-  return {
-    ...actual,
-    useRoutingEngine: () => ({
-      navigateNext,
-      navigateBack,
-      meta: computed(() => ({ hasFunnels: hasFunnels.value }))
-    })
-  };
-});
+vi.mock("../useRoutingEngine", () => ({
+  useRoutingEngine: () => ({
+    navigateNext,
+    navigateBack,
+    meta: computed(() => ({ hasFunnels: hasFunnels.value }))
+  })
+}));
 
 const Blank = { setup: () => () => h("div") };
 
 const START = "/start";
 
-const CROSS_LINKS = {
-  loginRoute: { name: "login" },
-  registerRoute: { name: "register" },
-  recoverRoute: { name: "recover" }
-} as const;
-
-type Seam = ReturnType<typeof useAuthResolve>;
+type Seam = ReturnType<typeof useRoutingResolve>;
 
 async function seatedSeam(
-  props: Partial<AuthViewProps>,
-  options: AuthResolveOptions = {}
+  options: RoutingResolveOptions = {}
 ): Promise<{ seam: Seam; router: Router }> {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -67,13 +56,13 @@ async function seatedSeam(
   let seam: Seam | undefined;
   const Probe = defineComponent({
     setup() {
-      seam = useAuthResolve({ ...CROSS_LINKS, ...props }, options);
+      seam = useRoutingResolve(options);
       return () => null;
     }
   });
   mount(Probe, { global: { plugins: [router] } });
 
-  if (!seam) throw new Error("the probe never reached useAuthResolve");
+  if (!seam) throw new Error("the probe never reached useRoutingResolve");
   return { seam, router };
 }
 
@@ -93,7 +82,7 @@ describe("the session screens' host-mode resolve", () => {
   describe("an accepted sign-in", () => {
     it("takes the funnel's next step in a host that drives funnels", async () => {
       const { seam, router } = await seatedSeam({
-        landingRoute: { name: "dashboard" }
+        resolveRoute: { name: "dashboard" }
       });
       await settle();
 
@@ -107,7 +96,7 @@ describe("the session screens' host-mode resolve", () => {
     it("routes to the landing route in a host that drives no funnel", async () => {
       hasFunnels.value = false;
       const { seam, router } = await seatedSeam({
-        landingRoute: { name: "dashboard" }
+        resolveRoute: { name: "dashboard" }
       });
       await settle();
 
@@ -148,10 +137,9 @@ describe("the session screens' host-mode resolve", () => {
     });
 
     it("keeps the funnel's back step even when the screen names a route", async () => {
-      const { seam, router } = await seatedSeam(
-        {},
-        { rejectRoute: { name: "login" } }
-      );
+      const { seam, router } = await seatedSeam({
+        rejectRoute: { name: "login" }
+      });
       await settle();
 
       await seam.navigateRejected();
@@ -163,10 +151,9 @@ describe("the session screens' host-mode resolve", () => {
 
     it("routes to the screen's own route in a host that drives no funnel", async () => {
       hasFunnels.value = false;
-      const { seam, router } = await seatedSeam(
-        {},
-        { rejectRoute: { name: "login" } }
-      );
+      const { seam, router } = await seatedSeam({
+        rejectRoute: { name: "login" }
+      });
       await settle();
 
       await seam.navigateRejected();
@@ -197,7 +184,7 @@ describe("the session screens' host-mode resolve", () => {
     it("reads a route the screen only names after setup", async () => {
       hasFunnels.value = false;
       const rejectRoute = ref<{ name: string } | undefined>(undefined);
-      const { seam, router } = await seatedSeam({}, { rejectRoute });
+      const { seam, router } = await seatedSeam({ rejectRoute });
       await settle();
       rejectRoute.value = { name: "login" };
 
@@ -212,7 +199,7 @@ describe("the session screens' host-mode resolve", () => {
   describe("whether the screen offers a back at all", () => {
     it("offers one in a funnel host whether or not a route is named", async () => {
       const bare = await seatedSeam({});
-      const routed = await seatedSeam({}, { rejectRoute: { name: "login" } });
+      const routed = await seatedSeam({ rejectRoute: { name: "login" } });
 
       expect(bare.seam.meta.value.hasReject).toBe(true);
       expect(routed.seam.meta.value.hasReject).toBe(true);
@@ -221,7 +208,7 @@ describe("the session screens' host-mode resolve", () => {
     it("offers one in a funnel-free host only when a route is named", async () => {
       hasFunnels.value = false;
       const bare = await seatedSeam({});
-      const routed = await seatedSeam({}, { rejectRoute: { name: "login" } });
+      const routed = await seatedSeam({ rejectRoute: { name: "login" } });
 
       expect(bare.seam.meta.value.hasReject).toBe(false);
       expect(routed.seam.meta.value.hasReject).toBe(true);

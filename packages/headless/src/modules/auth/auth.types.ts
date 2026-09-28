@@ -268,3 +268,8 @@ export type VerifyFromLinkParams = {
   emailId: string;
   hash: string;
 };
+
+/** Where an opted-in auth route lands a signed-in visitor that has no accepted return target. */
+export type AuthFlowOptions = {
+  fallback?: string;
+};

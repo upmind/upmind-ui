@@ -17,7 +17,7 @@ import { Interstitial } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { AUTH_QUERY } from "@upmind-automation/auth";
+import { AUTH_QUERY } from "@upmind-automation/headless";
 import { landingRootVariants } from "./variants";
 
 const { t } = useI18n();

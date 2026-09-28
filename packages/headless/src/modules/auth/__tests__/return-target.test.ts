@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { readReturnTarget } from "../index";
+import { readReturnTarget } from "../auth.flows";
 
 // -----------------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 import type { ButtonVariants } from "@upmind/ui";
 import type { CxOptions } from "class-variance-authority";
-import type { HTMLAttributes, MaybeRefOrGetter } from "vue";
+import type { HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
@@ -75,10 +75,6 @@ export type AuthRecoverViewProps = AuthRoutes & {
 
 export type AuthViewProps = AuthRecoverViewProps & {
   landingRoute?: RouteLocationAsRelativeGeneric;
-};
-
-export type AuthResolveOptions = {
-  rejectRoute?: MaybeRefOrGetter<RouteLocationAsRelativeGeneric | undefined>;
 };
 
 export type AuthActionProps = AuthRoutes & {

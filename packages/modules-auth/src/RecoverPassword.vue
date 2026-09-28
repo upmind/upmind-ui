@@ -83,11 +83,11 @@ import {
 } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
+  useRoutingResolve,
   useActiveSession,
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
-import { useAuthResolve } from "./auth.utils";
 import Auth from "./components/Auth.vue";
 import { AUTH_SHELL, useAuthTemplate } from "./shell";
 import {
@@ -112,7 +112,7 @@ const {
   meta: resolveMeta,
   navigateRejected,
   navigateResolved
-} = useAuthResolve(props, {
+} = useRoutingResolve({
   rejectRoute: () => props.loginRoute
 });
 

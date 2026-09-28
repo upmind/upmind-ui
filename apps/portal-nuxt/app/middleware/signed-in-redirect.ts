@@ -3,8 +3,10 @@
  * @module middleware/signed-in-redirect
  * @description Sends a signed-in client from the auth screens to its `returnUrl` or the landing.
  */
-import { readReturnTarget } from "@upmind-automation/auth";
-import { useActiveSession } from "@upmind-automation/headless";
+import {
+  readReturnTarget,
+  useActiveSession
+} from "@upmind-automation/headless";
 import { AUTH_LANDING } from "~/portal/auth-routes";
 
 export default defineNuxtRouteMiddleware(async to => {

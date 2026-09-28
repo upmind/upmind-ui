@@ -3,8 +3,10 @@
  * @description Mounts the auth organisms on this app's own paths.
  */
 import { createRouter, createWebHistory } from "vue-router";
-import { registerAuthFlows } from "@upmind-automation/auth";
-import { useActiveSession } from "@upmind-automation/headless";
+import {
+  registerAuthFlows,
+  useActiveSession
+} from "@upmind-automation/headless";
 import { AUTH_ROUTE, authRoutes } from "./routes";
 import SignedIn from "./SignedIn.vue";
 

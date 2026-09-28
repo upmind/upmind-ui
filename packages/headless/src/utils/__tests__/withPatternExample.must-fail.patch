@@ -1,0 +1,18 @@
+# Negative control — the generator takes the largest choice, not the smallest.
+#
+# Intended RED:
+#   packages/headless/src/utils/__tests__/withPatternExample.test.ts
+#     "generates the smallest choice at every repeat, class and branch"
+
+diff --git a/packages/headless/src/utils/useValidation.ts b/packages/headless/src/utils/useValidation.ts
+--- a/packages/headless/src/utils/useValidation.ts
++++ b/packages/headless/src/utils/useValidation.ts
+@@ -595,7 +595,7 @@
+   if (keyword === "pattern" && isString(data?.pattern) && data.pattern) {
+     try {
+       const randexp = new RandExp(data.pattern);
+-      randexp.randInt = (from: number) => from;
++      randexp.randInt = (_from: number, to: number) => to;
+       data = { ...data, pattern: randexp.gen() };
+     } catch {
+       // fallback: keep raw pattern if regex parsing fails

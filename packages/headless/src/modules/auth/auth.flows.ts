@@ -3,8 +3,10 @@
  * @description Hands an authenticated visitor on an opted-in auth route back to its return target.
  */
 import { watch } from "vue";
-import { QUERY_PARAMS, useActiveSession } from "@upmind-automation/headless";
+import { QUERY_PARAMS } from "@upmind-automation/types";
+import { useActiveSession } from "../session-store";
 import { every } from "lodash-es";
+import type { AuthFlowOptions } from "./auth.types";
 import type {
   RouteLocationNormalizedLoaded,
   RouteLocationRaw,
@@ -24,6 +26,7 @@ function isSameOrigin(target: string): boolean {
   });
 }
 
+/** The query's `returnUrl` as a normalised same-origin path, or undefined when it is refused or absent. */
 export function readReturnTarget(
   query: Record<string, unknown>
 ): string | undefined {
@@ -42,6 +45,7 @@ export function readReturnTarget(
   return target;
 }
 
+/** Whether the query names a `returnUrl` at all, accepted or refused. */
 export function hasReturnTarget(query: Record<string, unknown>): boolean {
   const raw = query[QUERY_PARAMS.RETURN_URL];
 
@@ -52,10 +56,6 @@ export function hasReturnTarget(query: Record<string, unknown>): boolean {
 export const AUTH_QUERY = {
   RETURN_REFUSED: "returnRefused"
 } as const;
-
-export type AuthFlowOptions = {
-  fallback?: string;
-};
 
 function handBackTarget(
   route: RouteLocationNormalizedLoaded,
@@ -80,6 +80,7 @@ function handBackTarget(
   return undefined;
 }
 
+/** Sends a signed-in visitor on an opted-in auth route to its return target, else to the fallback. */
 export function registerAuthFlows(
   engine: Router,
   options: AuthFlowOptions = {}

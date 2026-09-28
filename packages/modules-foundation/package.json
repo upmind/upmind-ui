@@ -30,8 +30,7 @@
     "@upmind-automation/headless": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "lodash-es": "^4.17.21",
-    "lucide-vue-next": "catalog:",
-    "randexp": "^0.5.3"
+    "lucide-vue-next": "catalog:"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",

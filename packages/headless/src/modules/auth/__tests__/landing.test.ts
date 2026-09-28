@@ -12,15 +12,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, h, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { AUTH_QUERY, registerAuthFlows } from "../index";
-import type { AuthFlowOptions } from "../flows";
+import { AUTH_QUERY, registerAuthFlows } from "../auth.flows";
+import type { AuthFlowOptions } from "../auth.types";
 import type { RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
 const isAuthenticated = ref(false);
 
-vi.mock("@upmind-automation/headless", async importOriginal => {
+vi.mock("../../session-store", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,

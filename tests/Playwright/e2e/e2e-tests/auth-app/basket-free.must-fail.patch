@@ -25,11 +25,11 @@
 # no other gate catches it.
 #
 diff --git a/packages/modules-auth/src/Login.vue b/packages/modules-auth/src/Login.vue
-index 73647ca2c4..1d8ed86d44 100644
+index 2e8dc3dcef..1430095939 100644
 --- a/packages/modules-auth/src/Login.vue
 +++ b/packages/modules-auth/src/Login.vue
-@@ -142,8 +142,6 @@ const {
- } = useAuthResolve(props);
+@@ -143,8 +143,6 @@ const {
+ } = useRoutingResolve({ resolveRoute: () => props.landingRoute });
  
  const { ui } = useConfig({
 -  // The key must be present to opt out, or useConfig fetches the basket on every auth page.
@@ -38,7 +38,7 @@ index 73647ca2c4..1d8ed86d44 100644
    provide: true
  });
 diff --git a/packages/modules-auth/src/RecoverPassword.vue b/packages/modules-auth/src/RecoverPassword.vue
-index 5315b8ed75..c2c65e1b61 100644
+index b9918d363d..2a333ad42c 100644
 --- a/packages/modules-auth/src/RecoverPassword.vue
 +++ b/packages/modules-auth/src/RecoverPassword.vue
 @@ -117,8 +117,6 @@ const {
@@ -51,10 +51,10 @@ index 5315b8ed75..c2c65e1b61 100644
    provide: true
  });
 diff --git a/packages/modules-auth/src/Register.vue b/packages/modules-auth/src/Register.vue
-index 4b9789f0d1..7194f3db25 100644
+index b0cfdb6341..fa06813417 100644
 --- a/packages/modules-auth/src/Register.vue
 +++ b/packages/modules-auth/src/Register.vue
-@@ -244,8 +244,6 @@ const {
+@@ -245,8 +245,6 @@ const {
  const { brandId } = useBrand();
  
  const { ui } = useConfig({

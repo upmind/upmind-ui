@@ -192,6 +192,7 @@ import {
 } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
+  useRoutingResolve,
   useActiveSession,
   useAuth,
   ScopeActorTypes,
@@ -204,7 +205,7 @@ import {
   useClientTemplate,
   useBrand
 } from "@upmind-automation/headless";
-import { useAuthResolve, useAuthTemplates } from "./auth.utils";
+import { useAuthTemplates } from "./auth.utils";
 import Account from "./components/Account.vue";
 import Auth from "./components/Auth.vue";
 import { AUTH_SHELL, useAuthLoading, useAuthTemplate } from "./shell";
@@ -240,7 +241,7 @@ const {
   meta: resolveMeta,
   navigateRejected,
   navigateResolved
-} = useAuthResolve(props);
+} = useRoutingResolve({ resolveRoute: () => props.landingRoute });
 const { brandId } = useBrand();
 
 const { ui } = useConfig({

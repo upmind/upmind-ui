@@ -2,7 +2,7 @@
 
 **Date:** June 15, 2026
 **Updated:** June 15, 2026 — §10 rewritten as a two-axis SSR-safe state model (brand-invariant shared cache + per-user request scope), after reviewing the `@next-legacy` scope-based composables (`modules/scope/`). They are built and SPA-correct; the SSR gap is that the scope registry, `QueryClient`, and session-store are module-level (per-process) rather than per-request — fixable at one chokepoint (`ensure()`). **Accepted 2026-06-16** — all Open Questions (Q1–Q4) resolved.
-**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25) and 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs). See the Amendments below.
+**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs) and 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless`). See the Amendments below.
 **Authors:** Dom da Costa
 
 ---
@@ -375,6 +375,7 @@ each name what they want.
 4. **A package's flow registrar stays in the package and is called by the app.** `registerAuthFlows`
    is behaviour — an origin-checked return-target reader and two navigation guards — not route
    knowledge. `apps/auth` hands it the router directly, in `apps/auth/src/router.ts`.
+   *(Amendment 13 moves the registrar to `headless`. The app still calls it.)*
 
 **Why the app, and not the package.** A single form can carry controls from a package its own
 owner may not import. The product configuration form is `product`'s own — it emits the `Terms`
@@ -545,6 +546,27 @@ The tests for each change move with it.
 - `scripts/rename-domain-packages.mjs`. Its rename legs are complete on every branch, and the script stays in history. Its lint glob now lands with Phase 1's own script.
 
 **Phase 0 keeps** the ten shells, their aliases and project references, `import/no-cycle` and `import/no-internal-modules` at ERROR, the per-package `@internal` barrier, the `typecheck:packages` CI job, and the import-cycle negative control.
+
+## Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`
+
+**Scope.** Sharpens §2's `headless` and domain-package rows and §6. Supersedes Amendment 9 point 4 on where `registerAuthFlows` lives: it moves to `headless`, and the app still calls it. Decided by the operator on 2026-09-25.
+
+**The ruling.** *"It should only be in our packages if it is a UI concern."* A domain package holds markup, styles, variants, prop, emit and slot types, view state, presentation mapping, the wiring that passes `headless` values into components, and component gates that combine `headless` flags. Everything else lives in `headless`: a service or query, a cache, a machine or store, a domain rule, routing or funnel logic, static domain data, and a composable whose output is domain data.
+
+**The test.** Would a second surface with a different design need the logic to behave the same way? Then `headless` owns it. If only this component's look needs it, the package keeps it.
+
+**What moved.** An audit read every source file in the ten packages. Each move keeps its behaviour. Where two copies of a rule differ, the move does not unify them; unifying changes behaviour and waits for its own ruling.
+
+| Leg | What moved | Where it lives now |
+| --- | --- | --- |
+| Phase 2 | `auth`'s return-target reader and flow registrar | `headless` `auth/auth.flows.ts` |
+| Phase 2 | the funnel-or-route resolver the auth views share | `headless` `routing/useRoutingResolve.ts` |
+| Phase 2 | the pattern-example rule for validation messages | `headless` `utils/useValidation.ts` (`withPatternExample`) |
+| Phase 4 | `canAddDirectly`, `isSingleSelection`, `toSubproductSelection`, `setSubproductQuantity` | `headless` `product/product.utils.ts` |
+| Phase 4 | the save-with-fallback rule that `product`, `recommendations` and `basket` each ran | `headless` `basket-product/basket-product.utils.ts` (`commitProductUpdate`) |
+| Phase 8 | the order-transfer URL | `headless` `session-transfer/session-transfer.utils.ts` |
+| Phase 6 | the DAC's added-results flag and its cache refresh | `headless` `domain/useDac.ts` and `domain/domain.services.ts` |
+| Phase 9 | the guest-checkout gate, the currency-country table and two billing rules | `headless` `basket/basket.utils.ts`, `currency/currency.constants.ts`, `basket-billing/basket-billing.utils.ts` |
 
 ## References
 

@@ -108,6 +108,7 @@ import {
 } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
+  useRoutingResolve,
   useActiveSession,
   UIContext,
   ClientTemplateSlotCodes
@@ -118,7 +119,7 @@ import {
   useClientTemplate,
   useBrand
 } from "@upmind-automation/headless";
-import { useAuthResolve, useAuthTemplates } from "./auth.utils";
+import { useAuthTemplates } from "./auth.utils";
 import Auth from "./components/Auth.vue";
 import { AUTH_SHELL, useAuthLoading, useAuthTemplate } from "./shell";
 import { type AuthProps, type AuthViewProps, AUTH_TEMPLATE } from "./types";
@@ -139,7 +140,7 @@ const {
   meta: resolveMeta,
   navigateRejected,
   navigateResolved
-} = useAuthResolve(props);
+} = useRoutingResolve({ resolveRoute: () => props.landingRoute });
 
 const { ui } = useConfig({
   // The key must be present to opt out, or useConfig fetches the basket on every auth page.

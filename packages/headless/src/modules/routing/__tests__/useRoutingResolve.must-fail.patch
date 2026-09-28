@@ -8,10 +8,10 @@
 # code this seam replaced.
 #
 # Intended RED:
-#   src/__tests__/host-mode-resolve.test.ts
+#   packages/headless/src/modules/routing/__tests__/useRoutingResolve.test.ts
 #     "takes the funnel's next step in a host that drives funnels"
 #     "keeps the funnel's back step even when the screen names a route"
-#   src/__tests__/host-mode-back-control.test.ts
+#   packages/modules-auth/src/__tests__/host-mode-back-control.test.ts
 #     "gives recovery exactly one control, and it takes the funnel's back step"
 #     "keeps recovery's control and sends it to the login screen instead"
 #
@@ -20,17 +20,17 @@
 # line names. This mutant adds no import — its failure is behavioural, and the
 # two specs above are what grade it.
 
-diff --git a/packages/modules-auth/src/auth.utils.ts b/packages/modules-auth/src/auth.utils.ts
-index a6e96eccde..f631d53269 100644
---- a/packages/modules-auth/src/auth.utils.ts
-+++ b/packages/modules-auth/src/auth.utils.ts
-@@ -34,21 +34,21 @@ export function useAuthResolve(
+diff --git a/packages/headless/src/modules/routing/useRoutingResolve.ts b/packages/headless/src/modules/routing/useRoutingResolve.ts
+index 976744a..ec5c255 100644
+--- a/packages/headless/src/modules/routing/useRoutingResolve.ts
++++ b/packages/headless/src/modules/routing/useRoutingResolve.ts
+@@ -26,21 +26,21 @@ export function useRoutingResolve(options: RoutingResolveOptions = {}) {
    }));
  
    function navigateResolved() {
 -    if (routingMeta.value.hasFunnels) return navigateNext();
 -
-     const landing = props.landingRoute;
+     const landing = toValue(options.resolveRoute);
 -    if (!landing) return Promise.resolve();
 +    if (landing) return router.push(landing);
 +

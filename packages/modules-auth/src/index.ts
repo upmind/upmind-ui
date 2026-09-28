@@ -19,8 +19,5 @@ export { default as UpmAuthLoading } from "./components/AuthLoading.vue";
 // --- Export Shell
 export { AUTH_SHELL } from "./shell";
 
-// --- Export Flows
-export { AUTH_QUERY, readReturnTarget, registerAuthFlows } from "./flows";
-
 // --- Export Types
 export * from "./types";
