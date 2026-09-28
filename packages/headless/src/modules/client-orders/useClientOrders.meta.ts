@@ -1,10 +1,6 @@
 import { computed } from "vue";
-import {
-  BrandConfigKeys,
-  StoreDisplayMode,
-  UUID
-} from "@upmind-automation/types";
 import { useBrand } from "../brand";
+import { isMultibrand, showStore } from "./client-orders.mappers";
 import { isEmpty } from "lodash-es";
 import type {
   ClientOrdersListQuery,
@@ -25,7 +21,7 @@ export function createClientOrdersMeta(
   service: ClientOrdersServices,
   query: ClientOrdersListQuery
 ) {
-  const { brandId, getConfigValue, uiCart } = useBrand();
+  const { uiCart } = useBrand();
 
   // Truthiness, not `isEmpty`: a TanStack error is an `Error` instance with
   // no own enumerable keys, which `isEmpty` reports as empty.
@@ -38,24 +34,6 @@ export function createClientOrdersMeta(
   const isLoading = computed(
     () => query.isLoading.value || !query.isFetched.value
   );
-
-  /** D-16 — the ORG placeholder brand id names the multi-brand org context. */
-  const isMultibrand = computed(() => brandId.value === UUID.ORG);
-
-  /**
-   * D-16 — the oracle rule (`vue-app` `brand/showStore` getter, `store/
-   * modules/brand/index.ts`): `SHOW` and the unset default always show;
-   * `HIDE` never shows; `SHOW_LOGGED_IN` shows when the viewer is
-   * authenticated — always true here, this module reads only while the
-   * session addresses a client.
-   */
-  const showStore = computed(() => {
-    const mode =
-      getConfigValue<StoreDisplayMode>(BrandConfigKeys.SHOW_CLIENT_STORE) ??
-      StoreDisplayMode.SHOW;
-
-    return mode !== StoreDisplayMode.HIDE;
-  });
 
   /** D-16 — the storefront target, from the brand's own cart meta. */
   const storefrontUrl = computed(() => uiCart.value?.storefront_url);
@@ -90,10 +68,10 @@ export function createClientOrdersMeta(
     isLoading,
 
     /** D-16 — true while the organisation brand serves this scope. */
-    isMultibrand,
+    isMultibrand: computed(isMultibrand),
 
     /** D-16 — true while the store CTA should render for this brand. */
-    showStore,
+    showStore: computed(showStore),
 
     /** D-16 — the store CTA's target url, when the brand configures one. */
     storefrontUrl

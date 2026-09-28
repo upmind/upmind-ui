@@ -1,10 +1,17 @@
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ResponseError } from "../../utils";
-import type { ListQuery } from "../query";
+import type { ListQuery, SimpleQuery } from "../query";
 import type { QueryKey } from "@tanstack/vue-query";
-import type { IOrder } from "@upmind-automation/types";
-import type { ComputedRef } from "vue";
+import type {
+  IBillingCycle,
+  IBrand,
+  IClient,
+  IContract,
+  IContractProduct,
+  IOrder
+} from "@upmind-automation/types";
+import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-orders/client-orders.types
@@ -63,6 +70,23 @@ export const CLIENT_ORDERS_SCOPE_MATRIX = {
 export type ClientOrdersCollectionScopeMatrix =
   typeof CLIENT_ORDERS_SCOPE_MATRIX;
 
+/**
+ * Scope matrix for `useClientOrder` (the single-order manager). The order
+ * being read is a RECORD ID (`.withId(id)`), never a scope context — there
+ * is no actor-context cell to declare, so every `.for()` cell here is `null
+ * as never` too (design 5.2, the `useClientReceivedEmail` precedent).
+ */
+export const CLIENT_ORDER_MANAGER_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/** Scope matrix type for `useClientOrder` (derived from the runtime const). */
+export type ClientOrderManagerScopeMatrix =
+  typeof CLIENT_ORDER_MANAGER_SCOPE_MATRIX;
+
 // -----------------------------------------------------------------------------
 // SORTING
 // -----------------------------------------------------------------------------
@@ -90,10 +114,15 @@ export const CLIENT_ORDERS_DEFAULT_SORT: ClientOrdersSortEntry[] = [
 // QUERY MODEL — the whole request state, owned by ONE schema (design 8.3)
 // -----------------------------------------------------------------------------
 
-/** The five status choices the `status.code` filter offers (design 8.3). */
+/**
+ * The five status choices the `status.code` filter offers (design 8.3, F15).
+ * Unpaid is ONE choice carrying TWO legacy statuses — `invoice_unpaid` and
+ * `invoice_adjusted` — sent as the single csv-joined wire value below, never
+ * as two enum values.
+ */
 export type ClientOrderStatusChoice =
   | "invoice_paid"
-  | "invoice_unpaid"
+  | "invoice_unpaid,invoice_adjusted"
   | "invoice_overdue"
   | "invoice_cancelled"
   | "invoice_refunded";
@@ -229,4 +258,158 @@ export type ClientOrdersServices = {
   error: ComputedRef<ResponseError | undefined>;
   /** Takes nothing: the request state is the declared query schema. */
   loadList: () => ClientOrdersListQuery;
+};
+
+// -----------------------------------------------------------------------------
+// MANAGER — the single-order read (design 6.3, 8.1, 8.4 to 8.7)
+// -----------------------------------------------------------------------------
+
+/** The reactive single-order item query, minted once per scope. */
+export type ClientOrderItemQuery = SimpleQuery<IOrder, IOrder>;
+
+/**
+ * The detail projection `mapOrderDetail` produces (design 8.7). Each field
+ * keeps its record name; the client, address and administrator blocks are
+ * not published.
+ */
+export type ClientOrderDetail = {
+  id: IOrder["id"] | undefined;
+  number: IOrder["number"] | undefined;
+  status: IOrder["status"] | undefined;
+  totalAmountFormatted: IOrder["total_amount_formatted"] | undefined;
+  createdAt: IOrder["created_at"] | undefined;
+  paidDatetime: IOrder["paid_datetime"] | undefined;
+  dueDate: IOrder["due_date"] | undefined;
+  refundChanged: IOrder["refund_changed"] | undefined;
+  cancellationDatetime: IOrder["cancellation_datetime"] | undefined;
+  cancellationReason: string | undefined;
+  notes: IOrder["notes"] | undefined;
+  customFields: IOrder["custom_fields"] | undefined;
+  contractId: IOrder["contract_id"] | undefined;
+  brandId: IOrder["brand_id"] | undefined;
+  referrer: IClient | undefined;
+};
+
+/** `mapOrderItems`'s resolved cross-cutting inputs (design 8.7, D-14, D-17, D-25). */
+export type MapOrderItemsOptions = {
+  /** The manager's resolved billing-cycle list (design 6.3, D-25). */
+  billingCycles: IBillingCycle[];
+  /** The catalogue image map, keyed by `item.product.id` (design 8.1, D-14). */
+  imageMap: Record<string, string>;
+  /** D-17 — gates `canLink` for a one-time item. */
+  hideOneTimePurchases: boolean;
+};
+
+/** One quantifiable or non-quantifiable sub-item row (design 8.7 rule 4). */
+export type ClientOrderSubItem = {
+  id: string;
+  name: string;
+  quantity: number;
+  price: string;
+  total: string;
+};
+
+/** The item projection `mapOrderItems` produces (design 8.7). */
+export type ClientOrderItem = {
+  id: string;
+  brandId: IBrand["id"] | undefined;
+  contractProductId: IContractProduct["id"] | null | undefined;
+  contractId: IContract["id"] | null | undefined;
+  name: string;
+  reference: string;
+  period: { from: string; to: string } | undefined;
+  quantity: number | undefined;
+  price: string | undefined;
+  total: string | undefined;
+  billingCycleMonths: number;
+  isSubscription: boolean;
+  billingCycle: IBillingCycle | undefined;
+  image: string | undefined;
+  tags: unknown[];
+  quantifiableItems: ClientOrderSubItem[];
+  nonQuantifiableItems: ClientOrderSubItem[];
+  hasSubItems: boolean;
+  canLink: boolean;
+};
+
+/**
+ * The injectable cancellation port (D-21). FE-3040 registers the live flow
+ * with `provideOrderCancellation`; until then `cancel()` rejects with
+ * {@link OrderCancellationUnavailableError} (`client-orders.errors.ts`).
+ */
+export type ClientOrderCancellationPort = (
+  contractId: IOrder["contract_id"]
+) => Promise<void>;
+
+/**
+ * The item-catalogue-image read's resolved shape — `GET api/products`
+ * (design 8.1, D-14), mapped to a `{ id -> full_url }` map keyed by the
+ * linked catalogue product id.
+ */
+export type ClientOrderItemImagesQuery = SimpleQuery<
+  { id: string; image?: { full_url?: string } }[],
+  Record<string, string>
+>;
+
+/**
+ * D-26 — the online-gateway count. Built directly over `useQuery().request`
+ * (never `query()`/`list()`, which both drop the response envelope's
+ * `total`), so this is its own light reactive shape, not a `SimpleQuery`
+ * (no declared criteria schema sits behind this read).
+ */
+export type ClientOrderGatewaysQuery = {
+  data: ComputedRef<number>;
+  error: ComputedRef<ResponseError | undefined>;
+  isFetched: ComputedRef<boolean>;
+  isLoading: ComputedRef<boolean>;
+};
+
+/**
+ * The manager's cross-cutting resolved state (design 6.3, 8.5, D-16, D-17,
+ * D-25) — minted ONCE in `useClientOrder.ts` and handed to the context,
+ * meta and actions layers, so all three read the SAME billing-cycle list,
+ * image map, gateway count and cancel-in-flight flag rather than each
+ * deriving its own copy.
+ */
+export type ClientOrderExtras = {
+  /** D-25 — the manager's own resolved billing-cycle list. */
+  billingCycles: Ref<IBillingCycle[]>;
+  /** D-14 — the catalogue image map, keyed by `item.product.id`. */
+  imageMap: ComputedRef<Record<string, string>>;
+  /** D-15, D-26 — the order brand's online-gateway count `> 0`. */
+  hasOnlineGateways: ComputedRef<boolean>;
+  /** D-17 — the brand's one-time-purchases visibility rule. */
+  hideOneTimePurchases: ComputedRef<boolean>;
+  /** True while a `cancel()` call that reached the port is pending (design 8.6). */
+  isProcessing: Ref<boolean>;
+};
+
+/**
+ * The contract `createClientOrderServices` resolves to — the manager's
+ * single read plus its three delegated reads (design 8.1, D-14, D-15, D-25,
+ * D-26). Armless, the same one-actor reasoning as {@link ClientOrdersServices}.
+ */
+export type ClientOrderServices = {
+  /** This scope's base cache key (design 8.4, D-4 — under the `invoices` root). */
+  queryKey: QueryKey;
+  /** True while this scope can address the given order id for the session client. */
+  isAvailable: ComputedRef<boolean>;
+  /** Always `undefined` — no services-level error state beyond the query's own. */
+  error: ComputedRef<ResponseError | undefined>;
+  /** The single-order read — `GET api/invoices/{id}` (design 8.1). */
+  loadOne: () => ClientOrderItemQuery;
+  /**
+   * The item-catalogue-image read — `GET api/products` (design 8.1, D-14).
+   * Reactive over the LIVE snapshot product ids, because they resolve only
+   * once the single read settles.
+   */
+  loadItemImages: (productIds: Ref<string[]>) => ClientOrderItemImagesQuery;
+  /**
+   * The online-gateway count read — `GET api/brands/{id}/gateways` (design
+   * 8.1, D-15, D-26). Reactive over the order's own `brand_id`, which
+   * resolves only once the single read settles.
+   */
+  loadOnlineGateways: (
+    brandId: Ref<string | undefined>
+  ) => ClientOrderGatewaysQuery;
 };

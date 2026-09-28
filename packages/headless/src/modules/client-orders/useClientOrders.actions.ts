@@ -3,11 +3,26 @@ import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
+import { debounce } from "lodash-es";
 import type {
+  ClientOrderStatusChoice,
+  ClientOrdersComparisonLeaf,
+  ClientOrdersDateLeaf,
+  ClientOrdersFilterActions,
+  ClientOrdersFilterModel,
   ClientOrdersListQuery,
-  ClientOrdersServices
+  ClientOrdersServices,
+  ClientOrdersSortEntry,
+  ClientOrdersSortModel,
+  ClientOrdersSortableColumn
 } from "./client-orders.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
+
+/** D-3 — every module writer re-asserts the forced leaf on its fresh copy (ADR-032 decision 5 rule 2). */
+const FORCED_CATEGORY = "new_contract" as const;
+
+/** D-8 — the oracle's own search debounce, distinct from the shared 350 ms constant. */
+const SEARCH_DEBOUNCE_MS = 250;
 // -----------------------------------------------------------------------------
 /**
  * @module client-orders/useClientOrders.actions
@@ -167,6 +182,180 @@ export function createClientOrdersActions(
     removeFromRegistry(scopeKey);
   }
 
+  // -----------------------------------------------------------------------
+  // The criteria surface (design 8.3). ONE state — every writer below
+  // composes a fresh copy of the LIVE `query.criteria.value.filters`, never
+  // a second module `ref` (D-7, ADR-032 decision 5). Every writer
+  // re-asserts `"category.slug"` on its own copy before it writes (D-3).
+
+  /** Composes a fresh filters copy, lets `mutate` change it, then writes it. */
+  function writeFilters(
+    mutate: (filters: ClientOrdersFilterModel) => void
+  ): void {
+    const filters: ClientOrdersFilterModel = {
+      ...(query.criteria.value.filters ?? {})
+    };
+    mutate(filters);
+    filters["category.slug"] = FORCED_CATEGORY;
+    query.setCriteria({ filters });
+  }
+
+  const searchDebounced = debounce((term?: string) => {
+    writeFilters(filters => {
+      const number = { ...(filters.number ?? {}) };
+      if (term) number.eq = term;
+      else delete number.eq;
+
+      if (Object.keys(number).length === 0) delete filters.number;
+      else filters.number = number;
+    });
+  }, SEARCH_DEBOUNCE_MS);
+
+  /** The quick search — writes `filters.number.eq` (design 8.3, D-8). Debounced 250 ms. */
+  function search(term?: string): void {
+    searchDebounced(term);
+  }
+
+  /** A comparison-keyed leaf (`{ eq?, neq?, gt?, ... }`), touched by column name only. */
+  type ComparisonLeafRecord = Partial<Record<string, unknown>>;
+
+  /** A many-comparison numeric/date column — adds or replaces ONE comparison, others stay (design 8.3). */
+  function writeComparison<TValue>(
+    column: "total_amount" | "created_at" | "paid_datetime",
+    value: TValue | undefined,
+    op?: string
+  ): void {
+    writeFilters(filters => {
+      const filterBag = filters as unknown as Record<
+        string,
+        ComparisonLeafRecord | undefined
+      >;
+      const leaf: ComparisonLeafRecord = { ...(filterBag[column] ?? {}) };
+
+      if (value === undefined || value === null || value === "") {
+        if (op) delete leaf[op];
+        else Object.keys(leaf).forEach(key => delete leaf[key]);
+      } else {
+        leaf[op ?? "eq"] = value;
+      }
+
+      if (Object.keys(leaf).length === 0) delete filterBag[column];
+      else filterBag[column] = leaf;
+    });
+  }
+
+  /** A one-filter text column — REPLACES the whole branch, so one filter stays on it (design 8.3 [o33]). */
+  function writeTextColumn(
+    column:
+      | "products.product.name"
+      | "products.product.category.name"
+      | "products.service_identifier",
+    value: string | undefined,
+    op: "like" | "eq" | "neq"
+  ): void {
+    writeFilters(filters => {
+      const filterBag = filters as unknown as Record<
+        string,
+        ComparisonLeafRecord | undefined
+      >;
+      if (!value) delete filterBag[column];
+      else filterBag[column] = { [op]: value };
+    });
+  }
+
+  /** The status filter — REPLACES the whole branch, so `maxProperties: 1` never fails a module write (design 8.3, D-24). */
+  function status(
+    values?: ClientOrderStatusChoice[],
+    op: "eq" | "neq" = "eq"
+  ): void {
+    writeFilters(filters => {
+      if (!values || values.length === 0) delete filters["status.code"];
+      else filters["status.code"] = { [op]: values };
+    });
+  }
+
+  function total(
+    value?: number,
+    op?: keyof ClientOrdersComparisonLeaf<number>
+  ): void {
+    writeComparison("total_amount", value, op);
+  }
+
+  function dateCreated(value?: string, op?: keyof ClientOrdersDateLeaf): void {
+    writeComparison("created_at", value, op);
+  }
+
+  function datePaid(value?: string, op?: keyof ClientOrdersDateLeaf): void {
+    writeComparison("paid_datetime", value, op);
+  }
+
+  function itemName(value?: string, op: "like" | "eq" | "neq" = "like"): void {
+    writeTextColumn("products.product.name", value, op);
+  }
+
+  function categoryName(
+    value?: string,
+    op: "like" | "eq" | "neq" = "like"
+  ): void {
+    writeTextColumn("products.product.category.name", value, op);
+  }
+
+  function serviceIdentifier(
+    value?: string,
+    op: "like" | "eq" | "neq" = "like"
+  ): void {
+    writeTextColumn("products.service_identifier", value, op);
+  }
+
+  const filters: ClientOrdersFilterActions = {
+    query: search,
+    status,
+    total,
+    dateCreated,
+    datePaid,
+    itemName,
+    categoryName,
+    serviceIdentifier
+  };
+
+  /**
+   * The raw-intent filter write (design 8.3 write rules). A FRESH copy of
+   * `intent`, never `intent` itself: keeps the live `number.eq` leaf when
+   * `intent` does not name `number`, and re-asserts the forced leaf (D-3).
+   */
+  function filterBy(intent: ClientOrdersFilterModel): void {
+    writeFilters(filters => {
+      Object.assign(filters, intent);
+
+      if (!("number" in intent)) {
+        const liveNumber = query.criteria.value.filters?.number;
+        if (liveNumber) filters.number = { ...liveNumber };
+        else delete filters.number;
+      }
+
+      const statusBranch = filters["status.code"];
+      if (statusBranch?.eq && statusBranch?.neq) {
+        filters["status.code"] = { eq: statusBranch.eq };
+      }
+    });
+  }
+
+  /** Writes the whole `sort` branch. The page stays — `pagination` rides along unchanged (design 8.3, P4). */
+  function sortBy(intent: ClientOrdersSortModel): void {
+    query.setCriteria({
+      sort: intent,
+      pagination: query.criteria.value.pagination
+    } as never);
+  }
+
+  /** Convenience single-column sort over {@link sortBy} (design 8.6). */
+  function sort(
+    property: ClientOrdersSortableColumn,
+    direction: ClientOrdersSortEntry["dir"]
+  ): void {
+    sortBy([{ field: property, dir: direction }]);
+  }
+
   // --- actor-specific actions: none earned yet (clause 2 — fresh modules
   // start armless). When a scope earns one, add
   // `useClientOrders.actions.{actor}.ts` and spread it LAST so it wins.
@@ -174,6 +363,12 @@ export function createClientOrdersActions(
   return {
     /** Destroys this scoped instance — removes it from the registry. */
     destroy,
+
+    /** The named filter setters of design 8.3 — each a fresh copy, forced leaf re-asserted. */
+    filters,
+
+    /** The raw-intent filter write — keeps the live search leaf, re-asserts the forced leaf. */
+    filterBy,
 
     /** Marks the shared cache key stale so the next read refetches. */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
@@ -202,7 +397,13 @@ export function createClientOrdersActions(
     setPage,
 
     /** Sets the page size and returns to page one (design 8.3). */
-    setLimit
+    setLimit,
+
+    /** Convenience single-column sort over {@link sortBy} (design 8.6). */
+    sort,
+
+    /** Writes the whole `sort` branch; the page stays (design 8.3, P4). */
+    sortBy
 
     // The arm merges in HERE, last.
     // ...actorActions

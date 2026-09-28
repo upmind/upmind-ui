@@ -1,4 +1,9 @@
 import { computed } from "vue";
+import {
+  useQuerySchema,
+  useQueryUischema,
+  useSortUischema
+} from "./client-orders.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
@@ -64,7 +69,19 @@ export function createClientOrdersContext(
      * criteria model, not a copy of it; read-only, write through
      * `useActions()`.
      */
-    query: query.criteria
+    query: query.criteria,
+
+    /**
+     * The query schema and its two uischemas (design 5.3, 8.6, ADR-032's
+     * 2026-08-18 amendment puts the sort uischema on the list context too).
+     */
+    schemas: {
+      query: {
+        schema: useQuerySchema(),
+        uischema: useQueryUischema(),
+        sortUischema: useSortUischema()
+      }
+    }
 
     // The arm merges in HERE, last.
     // ...actorContext

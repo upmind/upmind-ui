@@ -1,20 +1,30 @@
 /** @internal */
-import { keepPreviousData } from "@tanstack/vue-query";
-import { computed, ref, watch } from "vue";
-import { UUID } from "@upmind-automation/types";
+import { keepPreviousData, useQuery as vueUseQuery } from "@tanstack/vue-query";
+import { computed, effectScope, getCurrentScope, ref, watch } from "vue";
+import { OnlineGatewayTypes } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
+import { isMultibrand } from "./client-orders.mappers";
 import { useQuerySchema } from "./client-orders.schemas";
 import { NotAuthenticatedError, useTime } from "../../utils";
+import { isEmpty } from "lodash-es";
 import type {
+  ClientOrderGatewaysQuery,
+  ClientOrderItemImagesQuery,
+  ClientOrderItemQuery,
+  ClientOrderServices,
   ClientOrdersListQuery,
   ClientOrdersQueryModel,
   ClientOrdersServices
 } from "./client-orders.types";
 import type { ResponseError } from "../../utils";
-import type { QueryKey } from "@tanstack/vue-query";
+import type { DefaultError, QueryKey } from "@tanstack/vue-query";
 import type { IOrder } from "@upmind-automation/types";
+import type { Ref } from "vue";
+
+/** The gateway `.type` values the wire's `filter[gateway.type]` csv holds (D-26). */
+const ONLINE_GATEWAY_TYPES = OnlineGatewayTypes;
 // -----------------------------------------------------------------------------
 /**
  * @module client-orders/client-orders.services
@@ -57,24 +67,26 @@ function loadList(): ClientOrdersListQuery {
   const { activeUser } = useActiveSession().useContext();
   const clientId = computed(() => activeUser.value?.id);
   const { brandId, meta: brandMeta } = useBrand();
-  const isMultibrand = computed(() => brandId.value === UUID.ORG);
 
   const targetUrl = () =>
     useUrl("invoices", {
-      with: isMultibrand.value
-        ? `${LOAD_LIST_INCLUDES},brand`
-        : LOAD_LIST_INCLUDES,
+      with: isMultibrand() ? `${LOAD_LIST_INCLUDES},brand` : LOAD_LIST_INCLUDES,
       with_count: "products"
     });
   const url = targetUrl();
 
+  // `let` + a no-op initializer, not `const`: `{ immediate: true }` can
+  // invoke this callback SYNCHRONOUSLY, before `stop` would otherwise be
+  // assigned — calling `stop()` at that point hit a TDZ `ReferenceError`
+  // under `const` (F16, `client-custom-fields.services.ts:319-327`).
   const brandSettled = ref(false);
-  const stopBrandWatch = watch(
+  let stop: () => void = () => {};
+  stop = watch(
     () => brandId.value || brandMeta.value.isComplete,
     settled => {
       if (!settled) return;
       brandSettled.value = true;
-      stopBrandWatch();
+      stop();
     },
     { immediate: true }
   );
@@ -119,3 +131,158 @@ export const createClientOrdersServices = (): ClientOrdersServices => {
 };
 
 export default createClientOrdersServices;
+
+// -----------------------------------------------------------------------------
+// MANAGER — the single-order read and its three delegated reads
+// (design 6.3, 8.1, 8.4, D-14, D-15, D-25, D-26).
+// -----------------------------------------------------------------------------
+
+/**
+ * The single-order read — `GET api/invoices/{id}` (design 8.1). Publishes
+ * the RAW `IOrder` (D-2); the detail/item projections run in the context
+ * layer over `client-orders.mappers.ts`, never a query `select`.
+ */
+function loadOne(orderId?: IOrder["id"]): ClientOrderItemQuery {
+  const { query, useUrl } = useQuery();
+  const { activeUser } = useActiveSession().useContext();
+  const clientId = computed(() => activeUser.value?.id);
+
+  return query<IOrder, IOrder>({
+    queryKey: [...queryKey, "order", orderId, { client: clientId }],
+    url: useUrl(`invoices/${orderId}`, {
+      with_staged_imports: 1,
+      with: [
+        "account.affiliate_referral.affiliate_account.account.client",
+        "affiliate_commissions",
+        "brand",
+        "client",
+        "client.tags",
+        "contract",
+        "contract_product_tags",
+        "custom_fields.field",
+        "payments",
+        "promotions",
+        "status",
+        "taxes",
+        "taxes.tax_tag_data"
+      ].join(",")
+    }),
+    withAccessToken: true,
+    guard: async () => {
+      if (!orderId || !isAddressable(clientId.value)) {
+        throw new NotAuthenticatedError();
+      }
+      return true;
+    },
+    enabled: () => !!orderId && isAddressable(clientId.value),
+    staleTime: 0
+  });
+}
+
+/**
+ * The item-catalogue-image read — `GET api/products` (design 8.1, D-14).
+ * The linked catalogue product id (`item.product.id`), never the line
+ * `id`, is both the request filter and the returned map's key. Reactive
+ * over `productIds`, which resolves only once the single read settles —
+ * `guard` re-stamps the URL at request time, the same `useUrl`-freezes-at-
+ * build pattern `loadList` uses (D-22, [h27]), and the ref itself rides in
+ * `queryKey` so a new id list re-keys the query.
+ */
+function loadItemImages(productIds: Ref<string[]>): ClientOrderItemImagesQuery {
+  const { query, useUrl } = useQuery();
+
+  const targetUrl = () =>
+    useUrl("products", {
+      "filter[id]": productIds.value.join(","),
+      with: "image",
+      limit: productIds.value.length || 1
+    });
+  const url = targetUrl();
+
+  return query<
+    { id: string; image?: { full_url?: string } }[],
+    Record<string, string>
+  >({
+    queryKey: [...queryKey, "order", "images", productIds],
+    url,
+    withAccessToken: true,
+    guard: async () => {
+      url.search = targetUrl().search;
+      return true;
+    },
+    enabled: () => !isEmpty(productIds.value),
+    select: rows =>
+      rows.reduce<Record<string, string>>((map, row) => {
+        if (row.image?.full_url) map[row.id] = row.image.full_url;
+        return map;
+      }, {}),
+    staleTime: useTime().DAY
+  });
+}
+
+/**
+ * D-26 — the online-gateway count. `useQuery().query()` drops the response
+ * envelope's `total` through its own `select`, and `list()`'s page window
+ * refuses `limit=count`, so this reads over `useQuery().request` directly
+ * (the `client-billing-settings` `loadSettings` precedent, [h39]) and keeps
+ * the envelope `total` itself.
+ */
+function loadOnlineGateways(
+  brandId: Ref<string | undefined>
+): ClientOrderGatewaysQuery {
+  const { request, useUrl, queryClient } = useQuery();
+
+  const currentScope = getCurrentScope();
+  const scope = currentScope?.active ? currentScope : effectScope(true);
+
+  const response = scope.run(() =>
+    vueUseQuery<number, DefaultError, number>(
+      {
+        queryKey: [...queryKey, "gateways", brandId],
+        queryFn: async () => {
+          const envelope = await request<unknown>({
+            url: useUrl(`brands/${brandId.value}/gateways`, {
+              limit: "count",
+              "filter[gateway.type]": ONLINE_GATEWAY_TYPES.join(",")
+            }),
+            withAccessToken: true
+          });
+          return envelope.total ?? 0;
+        },
+        enabled: () => !!brandId.value,
+        staleTime: useTime().DAY
+      },
+      queryClient
+    )
+  )!;
+
+  return {
+    data: computed(() => response.data.value ?? 0),
+    error: computed(
+      () => response.error.value as unknown as ResponseError | undefined
+    ),
+    isFetched: computed(() => response.isFetched.value),
+    isLoading: computed(() => response.isLoading.value)
+  };
+}
+
+/**
+ * One manager services instance per `(actor, id)` scope. Armless — the same
+ * one-actor reasoning as {@link createClientOrdersServices}.
+ */
+export const createClientOrderServices = (
+  orderId?: IOrder["id"]
+): ClientOrderServices => {
+  const { activeUser } = useActiveSession().useContext();
+
+  return {
+    queryKey,
+    isAvailable: computed(
+      () => !!orderId && isAddressable(activeUser.value?.id)
+    ),
+    error: computed<ResponseError | undefined>(() => undefined),
+    loadOne: () => loadOne(orderId),
+    loadItemImages,
+    loadOnlineGateways
+  };
+};

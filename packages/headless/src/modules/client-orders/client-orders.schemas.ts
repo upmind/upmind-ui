@@ -20,10 +20,14 @@ const RELATIVE_DATE_PATTERN =
   "^[+-](?:[1-9][0-9]*|[0-9]+\\.[0-9]+)_(hours|days|weeks|months|years)$";
 const ABSOLUTE_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
 
-/** The five status choices the `status.code` filter offers (design 8.3). */
+/**
+ * The five status choices the `status.code` filter offers (design 8.3, F15).
+ * Unpaid is the ONE csv-joined wire value `invoice_unpaid,invoice_adjusted`,
+ * not two enum values — the parser sees it as one array item.
+ */
 const STATUS_CHOICES = [
   "invoice_paid",
-  "invoice_unpaid",
+  "invoice_unpaid,invoice_adjusted",
   "invoice_overdue",
   "invoice_cancelled",
   "invoice_refunded"
@@ -143,7 +147,7 @@ export function useQuerySchema(): QuerySchema {
         type: "object",
         additionalProperties: false,
         properties: {
-          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+          limit: { type: "integer", minimum: 1, default: PAGINATION.limit },
           offset: { type: "integer", minimum: 0 }
         }
       }

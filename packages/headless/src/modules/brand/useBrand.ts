@@ -149,6 +149,21 @@ export const useBrand = () => {
     () => get(brandSettings.value, "meta.cart") as BrandMeta["cart"]
   );
 
+  /**
+   * FE-3237 D-17 — the oracle's one-time-purchases visibility rule
+   * (`meta.portal["@context.oneTimePurchases"]`). Not published as `portal`
+   * itself: this is the one flag a consumer needs, read from the brand
+   * settings this composable already holds (no second read).
+   */
+  const hideOneTimePurchases = computed(
+    () =>
+      get(brandSettings.value, [
+        "meta",
+        "portal",
+        "@context.oneTimePurchases"
+      ]) === "hidden"
+  );
+
   const i18nMessages = computed<BrandMeta["i18n"]>(() =>
     get(brandSettings.value, "meta.i18n")
   );
@@ -431,6 +446,12 @@ export const useBrand = () => {
      * Cart-specific meta-information from the brand settings.
      */
     uiCart,
+
+    /**
+     * FE-3237 D-17 — true when the brand hides one-time-purchase items
+     * (`meta.portal["@context.oneTimePurchases"] === "hidden"`).
+     */
+    hideOneTimePurchases,
 
     /** The internationalisation (i18n) messages overrides for the brand. */
     i18nMessages,
