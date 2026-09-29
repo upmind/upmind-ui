@@ -1,0 +1,105 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/notifications/topics?limit=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a41c25cafbd40de1-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 27 Sep 2026 17:14:57 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=scYTvQIiuXuLYTyMJSxAVwSzLRun%2BpFcwDsEcTqQofPkG6lCtUYzlttuEtL7aopdlHDa7bXfBraRZvpXK87%2BGi487ydiTzmc8pOaZHbrA%2FoHAb61fAsIVyTjXs%2B8oG7ErXnNOVY5Kw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "6"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "name": "System",
+          "description": "System notifications are essential for the operation and security of your account and cannot be disabled",
+          "code": "system",
+          "can_opt_out": false,
+          "created_at": "2024-01-08 13:56:33",
+          "updated_at": "2024-11-22 12:36:42"
+        },
+        {
+          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+          "name": "Billing",
+          "description": "Stay informed with notifications about invoices, payments, and other billing-related events. Never miss a renewal again",
+          "code": "billing",
+          "can_opt_out": true,
+          "created_at": "2024-01-08 13:56:33",
+          "updated_at": "2024-11-22 12:36:42"
+        },
+        {
+          "id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "name": "Marketing",
+          "description": "Stay updated with seasonal offers, new product announcements, and exclusive promotions tailored just for you",
+          "code": "marketing",
+          "can_opt_out": true,
+          "created_at": "2024-01-08 13:56:33",
+          "updated_at": "2024-11-22 12:36:42"
+        },
+        {
+          "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "name": "Support",
+          "description": "Track the progress of your support tickets with updates on responses, status changes, and follow-ups from our support team",
+          "code": "support",
+          "can_opt_out": true,
+          "created_at": "2024-01-08 13:56:33",
+          "updated_at": "2024-11-22 12:36:42"
+        },
+        {
+          "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+          "name": "Service Updates",
+          "description": "Stay informed on changes to your service, including new features, maintenance schedules and other important updates",
+          "code": "service_updates",
+          "can_opt_out": true,
+          "created_at": "2024-01-08 13:56:33",
+          "updated_at": "2024-11-22 12:36:42"
+        },
+        {
+          "id": "45952098-d3de-4091-76a3-1578626e347e",
+          "name": "Security",
+          "description": "Receive important security alerts about your account activity, protection settings, and suspicious events",
+          "code": "security",
+          "can_opt_out": true,
+          "created_at": "2026-04-07 10:24:33",
+          "updated_at": "2026-04-07 10:24:33"
+        }
+      ],
+      "related": null,
+      "total": 6,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-27T17:14:57.328Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "the-editor-refuses-to-opt-out-of-an-essential-topic"
+  }
+}

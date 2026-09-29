@@ -37,7 +37,7 @@ Reading an entitled client's invoices (`.for('client', id)`) applies that client
 
 ## `isDelegated` does not need the reader's id; `isChildOfClient` does 🧪
 
-A row's delegated classification is a fact about the invoice's own client (does it have _any_ parent account at all), independent of who is reading. A row's sub-account classification needs to compare that parent against the reader's own id. Calling the mapper with only one argument — as `orders/order.machine.ts` does — still yields a correct delegated signal, but a conservative "not mine" sub-account signal. This is intentional, not a bug to fix in `orders`.
+A row's delegated classification is a fact about the invoice's own client (does it have _any_ parent account at all), independent of who is reading. A row's sub-account classification needs to compare that parent against the reader's own id. Calling the mapper with only one argument — as this module's own `invoice.machine.ts` does when it loads a single invoice — still yields a correct delegated signal, but a conservative "not mine" sub-account signal. This is intentional, not a bug.
 
 ```typescript
 import { mapInvoice } from "@upmind-automation/headless";
@@ -78,13 +78,13 @@ declare const id: string;
 declare function settle(): void;
 
 // ❌ Wrong — reads before the invoice has loaded
-const { isPaid } = useInvoice().withId(id).useMeta();
-if (isPaid.value) settle();
+const { isComplete } = useInvoice().withId(id).useMeta();
+if (isComplete.value) settle();
 
 // ✅ Correct — wait for readiness first
 const invoice = useInvoice().withId(id);
 await invoice.useActions().isReady();
-if (invoice.useMeta().isPaid.value) settle();
+if (invoice.useMeta().isComplete.value) settle();
 ```
 
 **Test scenario:** mount a component, assert it awaits `isReady()` before branching on `meta`.
@@ -122,8 +122,8 @@ The snapshot does not follow the live client record. Renames and address edits a
 | No addressable client (self or `.for()` target)      | zero requests fired; the scope reports unavailable         | guard rejects before the wire                            |
 | Unknown invoice id                                   | `404`; `error` populated                                   | `meta.hasError` after load                               |
 | An undeclared filter column                          | refused — a validation error                               | never a silent pass-through                              |
-| No payments, balance owed                            | `paymentState === "pending"`                               | fresh unpaid invoice                                     |
-| Payments, nothing owed                               | `paymentState === "complete"`                              | settled                                                  |
+| No payments, balance owed                            | `isPaymentDue === true`                                     | fresh unpaid invoice                                     |
+| Payments, nothing owed                               | `isComplete === true`                                       | settled                                                  |
 | Pending (uncaptured) attempt                         | contributes nothing to `paidAmount`                        | do not re-prompt while in flight                         |
 | A third-party sub-account's row on a co-mingled list | neither own, sub-account, nor delegated — stays settleable | the delegate gate is "any parent", not "reader's parent" |
 

@@ -102,19 +102,20 @@ export type ListSurfaceProps = SurfaceProps & {
    * @graphify-citation `graphify query "is there an existing contract naming
    * which row a forced refusal is drawn on"` (2026-08-29, FE-3113 Q) — the only
    * nodes are this prop itself (`ScenarioPlayground.vue` L272) and the test
-   * lane's `forced-surface.harness.ts`, which app runtime may not consume.
-   * Nothing is minted: the ruling narrows which row the EXISTING string is drawn
-   * on. See `graphify-out/GRAPH_REPORT.md`.
+   * lane's rendered-proof harness (since retired), which app runtime may not
+   * consume. Nothing is minted: the ruling narrows which row the EXISTING
+   * string is drawn on. See `graphify-out/GRAPH_REPORT.md`.
    *
    * Absent on Live and under every other preset.
    *
    * @graphify-citation `graphify query "is there an existing contract or field
    * carrying a recorded write refusal fixture or a refusal sentence for a forced
-   * row"` (2026-08-28, FE-3113 O) — the only matches are the test lane's
-   * `refusalSentences()` / `refusalsOf()` helpers, which app runtime may not
-   * consume. Nothing is minted: the sentence rides as a string on the props
-   * already here, derived by `force/presets.ts`'s `presetRefusal` off the
-   * `RecordedFixture` the corpus already carries. See
+   * row"` (2026-08-28, FE-3113 O) — the only matches were the test lane's
+   * former `refusalSentences()` (since retired) and `refusalsOf()`
+   * (`force/__tests__/force-presets-all-modules.spec.ts`) helpers, which app
+   * runtime may not consume. Nothing is minted: the sentence rides as a string
+   * on the props already here, derived by `force/presets.ts`'s `presetRefusal`
+   * off the `RecordedFixture` the corpus already carries. See
    * `graphify-out/GRAPH_REPORT.md`.
    */
   forcedRefusal?: string;

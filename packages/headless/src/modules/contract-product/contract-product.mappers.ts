@@ -5,8 +5,10 @@ import {
   ContractStatusCodes
 } from "@upmind-automation/types";
 import { parseBillingCycle } from "../product";
-import { useDate, useTranslateName } from "../../utils";
-import { castArray, isEmpty, map, pick } from "lodash-es";
+import { useProductName, useUischemaTitle } from "../product/product.utils";
+import { useI18n } from "../system-localisation";
+import { removeTrailingZeroes, useDate, useTranslateName } from "../../utils";
+import { castArray, compact, isEmpty, join, map, pick } from "lodash-es";
 import type { LookupItem } from "../lookup";
 import type {
   ConsolidationBody,
@@ -32,12 +34,25 @@ import type {
   IContractProductScheduledCancellation,
   IInvoice,
   IScheduledAction,
-  ITag
+  IStatus,
+  ITag,
+  ScheduledActionTypes
 } from "@upmind-automation/types";
 
 /** `tags` reaches the wire on this record but is undeclared on the shared
  * `IContractProduct` platform type (verify.md B1) — augmented locally. */
 type WireContractProduct = IContractProduct & { tags?: ITag[] };
+
+/** An `unpaid_recurring_invoices` row is the invoice's LINE for this product,
+ * not the invoice: its status arrives as `invoice_status`, never `status`,
+ * though the shared `IContractProduct` types the relation as `IInvoice[]`. */
+type WireUnpaidRecurringInvoice = IInvoice & { invoice_status?: IStatus };
+
+/** A `scheduled_actions` row carries its kind as `action`, never the
+ * `action_code` the shared `IScheduledAction` declares. */
+type WireScheduledAction = Omit<IScheduledAction, "action_code"> & {
+  action: ScheduledActionTypes;
+};
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.mappers
@@ -87,11 +102,11 @@ export function mapContractProductMeta(
  *
  * @decision
  * what: the price only — the billing-cycle label is its own `billingCycle`
- *   member, and legacy's trailing-zero trim and "Free" substitution are not
- *   applied.
+ *   member, and legacy's one-string term summary is its own
+ *   `priceTermSummary` member (`mapContractProductPriceTermSummary`).
  * why: R38 item 10 names price and billing cycle as separate view-model
- *   columns; trim and "Free" are locale display formatting over this figure,
- *   not a different figure.
+ *   columns; the summary is display formatting over this figure, not a
+ *   different figure.
  * rejected: composing legacy's one-string term summary into `priceFormatted`.
  */
 export function mapContractProductPrice(
@@ -116,6 +131,66 @@ export function mapContractProductPrice(
 export function mapContractProductBillingCycle(months: number): string {
   const cycle = parseBillingCycle(months);
   return months > 0 ? cycle.adverbial : cycle.descriptive;
+}
+
+/**
+ * Legacy `cProdMixin.getPriceTermSummary`: the `mapContractProductPrice`
+ * figure with its trailing zeros trimmed — "£4" for a one-time product; a
+ * subscription adds its lower-cased cycle, and "(estimated)" when the product
+ * is post-paid — "£4 monthly".
+ *
+ * @decision
+ * what: the figure is this module's own pick, not the shared basket
+ *   `parsePrice` / `parseTermSummary`.
+ * why: those read `configuration_*_converted` amounts the contract-product
+ *   wire does not carry, have no recurring amount, and blank a zero-priced
+ *   term (a basket price-override rule) — none of which legacy does here.
+ * rejected: `parseTermSummary(raw).price.currentPrice`.
+ */
+export function mapContractProductPriceTermSummary(
+  raw: IContractProduct,
+  taxType?: BrandTaxTypes
+): string {
+  const price = removeTrailingZeroes(mapContractProductPrice(raw, taxType));
+
+  if (!raw.billing_cycle_months) return price;
+
+  const { t } = useI18n();
+
+  return join(
+    compact([
+      price,
+      mapContractProductBillingCycle(
+        raw.billing_cycle_months
+      ).toLocaleLowerCase(),
+      raw.product?.post_paid
+        ? `(${t("term.estimated").toLocaleLowerCase()})`
+        : null
+    ]),
+    " "
+  );
+}
+
+/**
+ * The contract product's display name — the shared product title (its
+ * `meta.uischema.title` template, else `useProductName`) read over the
+ * contract product the basket product became. With no catalogue product it
+ * falls back to legacy's name: its own name, then its service identifier in
+ * brackets.
+ */
+export function mapContractProductTitle(raw: IContractProduct): string {
+  if (!raw.product) {
+    const identifier = raw.service_identifier
+      ? `(${raw.service_identifier})`
+      : null;
+    return join(compact([raw.name, identifier]), " ");
+  }
+
+  return useUischemaTitle(raw.product, {
+    basketProduct: raw,
+    valueKey: "meta.uischema.title",
+    fallback: useProductName(raw.product, raw)
+  });
 }
 
 /** Maps one wire record to the view model, deriving the two shared readings once. */
@@ -151,6 +226,7 @@ function toContractProduct(
     billingCycle: mapContractProductBillingCycle(raw.billing_cycle_months),
     createdAt: raw.created_at,
     priceFormatted: mapContractProductPrice(raw, taxType),
+    priceTermSummary: mapContractProductPriceTermSummary(raw, taxType),
     calculatedCancelDate: raw.calculated_cancel_date,
     provisionSetupFieldsConfirmed: raw.provision_setup_fields_confirmed,
     inTrial: raw.in_trial,
@@ -166,15 +242,20 @@ function toContractProduct(
     importId: raw.import_id,
     moved: raw.moved,
     name: raw.name,
+    title: mapContractProductTitle(raw),
     canCancel: raw.can_cancel,
+    proRataPending: !!raw.pro_rata_pending,
     isDelegatedObject: raw.is_delegated_object,
     autoCreateRenewInvoice: raw.auto_create_renew_invoice,
     unpaidRecurringInvoices: map(
-      raw.unpaid_recurring_invoices,
+      raw.unpaid_recurring_invoices as WireUnpaidRecurringInvoice[] | undefined,
       mapUnpaidInvoice
     ),
     scheduledActions: raw.scheduled_actions
-      ? map(raw.scheduled_actions, mapScheduledAction)
+      ? map(
+          raw.scheduled_actions as unknown as WireScheduledAction[],
+          mapScheduledAction
+        )
       : undefined,
     isSubscription: raw.billing_cycle_months > 0,
     hasScheduledFutureCancellation:
@@ -239,31 +320,28 @@ function mapClient(raw: IClient): ContractProductClient {
   return pick(raw, ["id", "fullname", "email", "image", "brand"]);
 }
 
-function mapScheduledAction(raw: IScheduledAction): ScheduledAction {
-  return pick(raw, [
-    "id",
-    "action_code",
-    "status",
-    "executed_at",
-    "created_at"
-  ]);
+function mapScheduledAction(raw: WireScheduledAction): ScheduledAction {
+  return {
+    ...pick(raw, ["id", "status", "executed_at", "created_at"]),
+    action_code: raw.action
+  };
 }
 
-function mapUnpaidInvoice(raw: IInvoice): UnpaidInvoice {
-  return pick(raw, ["status"]);
+function mapUnpaidInvoice(raw: WireUnpaidRecurringInvoice): UnpaidInvoice {
+  return { status: raw.invoice_status };
 }
 
 /**
  * One contract product as a picker option (R38 item 2, the `useTickets`
- * `mapContractProductLookupItem` sibling). A client recognises their own
- * product by its service identifier, falling back to the product's name.
+ * `mapContractProductLookupItem` sibling), labelled by its display name
+ * (`mapContractProductTitle`) — "Starter Hosting (testdomain.com)".
  */
 export function mapContractProductPickerItem(
   raw: IContractProduct
 ): LookupItem {
   return {
     value: raw.id,
-    label: raw.service_identifier || raw.product_name || raw.name || raw.id
+    label: mapContractProductTitle(raw) || raw.id
   };
 }
 

@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "PUT",
-    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails/0e435795-e78d-1804-02df-31643202d986",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails/d7382485-0793-157e-360c-81e642d59e06",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -10,8 +10,7 @@
       "Authorization": "mock-Authorization"
     },
     "body": {
-      "email": "mock-email-3@example.com",
-      "verified": 0
+      "email": "client-email-beta-edited@example.com"
     }
   },
   "response": {
@@ -20,14 +19,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf5738cd5c1dd-DUB",
+      "cf-ray": "a40be9409b97aa15-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:16:08 GMT",
+      "date": "Fri, 25 Sep 2026 17:57:25 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xgWsJuFjEq0qVFVfHtrYsNAxoncLAp5WbGqz0yFUoNB7fT6RQDRLRGMeMLThK2V5KsWTf1LqfYzd%2BdtjmJGYq937FUuP6yI8%2FakI7PrnZg29wbFMqMDSZ2kBnWwH9X5BxmkKuhnK%2Bw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=DvdQsblKKUvY%2BnVnVvUNSDT%2FlSxG8Zj23GvscA7cBkM69PB1K%2FQWj8ed%2FrGkNvW%2F36vMNbjMAgfETyzUqpiuJD30ckVOvO3Xso02n%2FPCDdWM9Wz4vC9uuLxMXObq9OaGNqe7cJJkgQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,7 +35,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "0e435795-e78d-1804-02df-31643202d986",
+        "id": "d7382485-0793-157e-360c-81e642d59e06",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -45,11 +44,11 @@
         "type": 1,
         "default": false,
         "verified": false,
-        "email": "mock-email-3@example.com",
+        "email": "client-email-beta-edited@example.com",
         "receive_emails": false,
         "bounced": false,
-        "created_at": "2026-09-10 05:16:06",
-        "updated_at": "2026-09-10 05:16:07",
+        "created_at": "2026-09-25 17:57:23",
+        "updated_at": "2026-09-25 17:57:25",
         "bounced_at": null,
         "can_delete": true
       },
@@ -60,7 +59,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:16:08.085Z",
+  "captured_at": "2026-09-25T17:57:25.853Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

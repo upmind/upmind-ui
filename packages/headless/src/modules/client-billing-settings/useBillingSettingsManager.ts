@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import { watch } from "vue";
 import { interpret } from "xstate";
 import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope";
@@ -82,7 +82,7 @@ function createBillingSettingsManagerForScope(
         // client seam.
         id: service.clientId.value,
         clientId: service.clientId.value,
-        lookups: { isStaged: [false] },
+        lookups: {},
         // Scoped instances are persistent editors — stay editable after a
         // save (the machine returns to `available` instead of the
         // `complete` final state) so a remounting form re-uses the same
@@ -121,15 +121,6 @@ function createBillingSettingsManagerForScope(
   });
 
   /**
-   * The consumer-lock flag (row C16) — ONE ref per scope, written by
-   * `useActions().setDisabled()` and read by both `input()`'s own guard and
-   * `useMeta().isEditable`. Lives here (not inside either sub-composable
-   * factory) because it must be the SAME ref across every `useActions()` /
-   * `useMeta()` call for this scope.
-   */
-  const consumerDisabled = ref(false);
-
-  /**
    * ONE actions instance per scope, not one per `useActions()` call: `input`
    * is debounced, so a debouncer minted per call gives two keystrokes two
    * independent timers.
@@ -137,8 +128,7 @@ function createBillingSettingsManagerForScope(
   const actions = createBillingSettingsManagerActions(
     actorScope,
     actorRef,
-    scopeKey,
-    consumerDisabled
+    scopeKey
   );
 
   return {
@@ -155,8 +145,7 @@ function createBillingSettingsManagerForScope(
       createBillingSettingsManagerInternals(actorScope, actorRef),
 
     /** Sub-composable for manager meta (state flags). */
-    useMeta: () =>
-      createBillingSettingsManagerMeta(actorScope, actorRef, consumerDisabled)
+    useMeta: () => createBillingSettingsManagerMeta(actorScope, actorRef)
   };
 }
 // -----------------------------------------------------------------------------

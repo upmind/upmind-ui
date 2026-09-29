@@ -229,13 +229,14 @@ import { useConfig } from "@upmind-automation/headless";
 import {
   useAccount,
   useTransfer,
-  useOrder,
+  useInvoice,
   useUrl,
   validateTemplate,
   QUERY_PARAMS,
   ScopeActorTypes,
   UIContext,
-  type Badge
+  type Badge,
+  type InvoicePaymentChallenge
 } from "@upmind-automation/headless";
 import { capitalize, first, get, omit, toString } from "lodash-es";
 import type { OrderProps } from "@upmind-automation/client-vue";
@@ -307,26 +308,40 @@ const { isGuest: isGuestClient } = useAccount()
   .as(ScopeActorTypes.CLIENT)
   .useMeta();
 const showGuestUpgrade = ref(false);
-const {
-  cancelChallenge,
-  errors,
-  invoice: orderData,
-  isReady,
-  meta: orderMeta,
-  paymentDetail,
-  refresh,
-  renderChallenge,
-  retry
-} = useOrder(toString(orderId));
+const invoiceCell = useInvoice().withId(toString(orderId));
+const { model: orderData, error: errors } = invoiceCell.useContext();
+const { paymentDetail } = invoiceCell.useInternals();
+const invoiceMeta = invoiceCell.useMeta();
+const { cancelChallenge, isReady, pay, refresh, renderChallenge, retry } =
+  invoiceCell.useActions();
 
 await isReady();
+
+// The template and script read a single meta object; the scoped composable now
+// publishes one computed per flag, so they are folded back into one here.
+const orderMeta = computed(() => ({
+  hasError: invoiceMeta.hasError.value,
+  isAuthenticated: invoiceMeta.isAuthenticated.value,
+  isAvailable: invoiceMeta.isAvailable.value,
+  isComplete: invoiceMeta.isComplete.value,
+  isFree: invoiceMeta.isFree.value,
+  isLoading: invoiceMeta.isLoading.value,
+  isLocked: invoiceMeta.isLocked.value,
+  isPartial: invoiceMeta.isPartial.value,
+  isPaymentDue: invoiceMeta.isPaymentDue.value,
+  isPending: invoiceMeta.isPending.value,
+  isProcessing: invoiceMeta.isProcessing.value,
+  isRenderingChallenge: invoiceMeta.isRenderingChallenge.value,
+  isUnavailable: invoiceMeta.isUnavailable.value,
+  needsApproval: invoiceMeta.needsApproval.value
+}));
 
 provide("usePaymentDetail", paymentDetail);
 provide("usePaymentChallenge", {
   renderChallenge,
   cancelChallenge,
   meta: orderMeta
-});
+} satisfies InvoicePaymentChallenge);
 provide("orderInvoice", orderData);
 
 const { show: showAnnouncement, dismiss: dismissAnnouncement } =

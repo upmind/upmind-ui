@@ -34,7 +34,10 @@ class DoubleWorld implements World<FixtureKey> {
     } else throw new Error(`double-world: unknown action "${actionId}"`);
   }
 
-  async expectMeta(expected: Partial<Record<string, boolean>>): Promise<void> {
+  async expectMeta(
+    expected: Record<string, boolean | number>,
+    _key?: FixtureKey
+  ): Promise<void> {
     for (const [flag, value] of Object.entries(expected)) {
       const live = this.flags.get(flag);
       if (live !== value) {

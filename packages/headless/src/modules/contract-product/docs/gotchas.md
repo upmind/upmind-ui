@@ -11,9 +11,16 @@ Edge cases, known issues, and things to watch out for.
 `stopRenewing`, `resumeRenewing` (implicitly — `resumeRenewing` is only reachable from `expiring`, which itself requires `isSubscription`) and `setConsolidation` all carry an `isSubscription` guard on the machine transition. Sending one of these on a one-time (non-subscription) product does not throw — the event is simply refused, the machine never enters `processing`, and the action resolves `false`.
 
 ```typescript
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+
+declare const productId: string;
+declare function showError(message: string): void;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
+
 // ❌ Wrong — assumes a thrown error is the ONLY failure signal, and never catches
-const result = await product.useActions().stopRenewing();
-if (result === false) showError("Cannot stop renewal");
+const unchecked = await product.useActions().stopRenewing();
+if (unchecked === false) showError("Cannot stop renewal");
 
 // ✅ Correct — both signals matter: a resolved `false` means the machine refused
 // the event outright (e.g. sent on a one-time product); a REJECTED promise means
@@ -35,13 +42,27 @@ try {
 `scheduleCancellation` does **not** accept "today or later". The date has to be an exact multiple of the product's billing cycle from its `nextDueDate`, and not earlier than the next anniversary strictly after today. Sending an off-anniversary date is a caller bug the machine does not itself reject at the transition level — validate first.
 
 ```typescript
+import {
+  ScopeActorTypes,
+  isSelectableFutureCancellationDate,
+  useContractProduct
+} from "@upmind-automation/headless";
+
+declare const productId: string;
+declare const pickedDate: string;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
+await product.useActions().isReady();
+const { contractProduct } = product.useContext();
+
 // ❌ Wrong — picks an arbitrary future date
 await product.useActions().scheduleCancellation({ futureCancellationDate: "2026-11-01" });
 
 // ✅ Correct — validate against the product's own anniversaries first
-import { isSelectableFutureCancellationDate } from "@upmind-automation/headless";
-
-if (isSelectableFutureCancellationDate(contractProduct, pickedDate)) {
+if (
+  contractProduct.value &&
+  isSelectableFutureCancellationDate(contractProduct.value, pickedDate)
+) {
   await product.useActions().scheduleCancellation({ futureCancellationDate: pickedDate });
 }
 ```
@@ -55,6 +76,12 @@ if (isSelectableFutureCancellationDate(contractProduct, pickedDate)) {
 The collection's quick search (`query`) validates against the query model's own schema, which requires a minimum of 3 characters. A shorter term fails validation rather than being sent as a narrower (or looser) search — treat it the same as any other invalid `setCriteria` model, not as a filter that degrades gracefully.
 
 ```typescript
+import { ScopeActorTypes, useContractProducts } from "@upmind-automation/headless";
+
+declare const term: string;
+
+const { setCriteria } = useContractProducts().as(ScopeActorTypes.CLIENT).useActions();
+
 // ❌ Wrong — assumes any non-empty term is sent as-is
 setCriteria({ query: "ab" });
 
@@ -68,21 +95,31 @@ if (term.length >= 3) setCriteria({ query: term });
 
 ## `unavailable` (staged/cancelled/lapsed/fraud) has no way out except a fresh read
 
-Once a product is placed on `unavailable`, no event moves it — not even `REFRESH` targets a child of `unavailable` directly; `REFRESH` always re-enters `#loading` from the top, which then re-evaluates the `always` priority list from scratch. Do not attempt to `send()` a write event while `isStaged`/`isCancelled`/`isLapsed`/`isFraud` is true — none of those child states declare a handler for it.
+Once a product is placed on `unavailable`, no event moves it — not even `REFRESH` targets a child of `unavailable` directly; `REFRESH` always re-enters `#loading` from the top, and the settled read walks the load's ordered list of status guards again from scratch. Do not attempt to `send()` a write event while `isStaged`/`isCancelled`/`isLapsed`/`isFraud` is true — none of those child states declare a handler for it.
 
 ---
 
 ## The cancellation form can vanish entirely, not just lose one option 🧪
 
-The form is not "always three options, some disabled". `cancellationOptions()` returns an **empty list** — the form itself has nothing to offer — the moment any ONE of these is true: the subscription has already auto-expired (stopped renewing with a calculated end date), a hard cancellation request is already pending, or a future cancellation is already booked. Only once none of those hold does each of the three options get evaluated on its own narrower condition (soft and scheduled: not a pending contract; hard: the platform's own `canCancel` flag; scheduled: additionally needs a computable billing anniversary).
+The form is not "always three options, some disabled". The offered option list is **empty** — the form itself has nothing to offer — the moment any ONE of these is true: the subscription has already auto-expired (stopped renewing with a calculated end date), a hard cancellation request is already pending, or a future cancellation is already booked. Only once none of those hold does each of the three options get evaluated on its own narrower condition (soft and scheduled: not a pending contract; hard: the platform's own `canCancel` flag; scheduled: additionally needs a computable billing anniversary).
 
 ```typescript
-// ❌ Wrong — assumes the form always has at least the soft option
-const { cancellation } = product.useContext();
-render(cancellation.value.schema); // schema may have an EMPTY option enum
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+import type { JsonSchema7 } from "@jsonforms/core";
 
-// ✅ Correct — check there is something to offer before rendering the form at all
-if (!isEmpty(cancellationOptions(contractProduct))) {
+declare const productId: string;
+declare function render(schema: JsonSchema7 | undefined): void;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
+
+// ❌ Wrong — assumes the form always has at least the soft option
+product.useActions().openCancellation();
+const { cancellation } = product.useContext();
+render(cancellation.value?.schema); // schema may have an EMPTY option enum
+
+// ✅ Correct — check there is something to offer before opening the form at all
+const { hasCancellationOptions } = product.useMeta();
+if (hasCancellationOptions.value) {
   product.useActions().openCancellation();
 }
 ```
@@ -121,10 +158,12 @@ They don't. The collection's list query and one manager instance's machine conte
 |----------|-------------------|-------|
 | Product has no `nextDueDate` | All anniversary helpers return `null`/`false` | No anchor at all to compute from |
 | Product has a `nextDueDate` but `billingCycleMonths <= 0` | `minFutureCancellationDate` returns the **`nextDueDate` string itself**, NOT `null`; the other anniversary helpers (`anniversaryCycleForDate`, `isSelectableFutureCancellationDate`) still return `null`/`false` | `minFutureCancellationCycle`/`anniversaryAnchor` return `null` for this input, and `minFutureCancellationDate` falls back to `product.nextDueDate` when its own cycle lookup is `null` — do not treat a falsy `minFutureCancellationDate` as the guard for "hide the date picker"; a one-time product still returns a truthy date string here |
-| Client explicitly sets the exclude preference to `true` | Delegated products are excluded | Preference wins in either direction whenever it is actually held |
-| Client explicitly sets the exclude preference to `false` | Delegated products are included | Preference wins in either direction whenever it is actually held |
-| Client has delegated products and holds no stored preference | Delegated products are **included**, not excluded | The preference store coerces an untouched preference to `false` before this module ever reads it, so once the preference has loaded the force-set's own "exclude by default when the client has any" branch does not fire. Before it loads, the preference reads as undefined and that branch DOES fire — one excluded render, then a refetch |
-| Client has no delegated products | Delegated products excluded is moot | No delegated rows exist to exclude |
+| Client has delegated products and holds the choice "exclude" | `exclude_delegated=1` | The held choice wins |
+| Client has delegated products and holds the choice "include" | `exclude_delegated=0` | The held choice wins |
+| Client has delegated products and holds no choice | `exclude_delegated=0` — delegated products are **included** | The default choice is "include" |
+| Client has delegated products, and the stored "exclude" choice has not loaded yet | The first list read can go out with `exclude_delegated=0` | The list read waits on the client id alone, not on the held choice |
+| Client has no delegated products | `exclude_delegated=1`, whatever choice is held | Nothing is delegated, so the held choice is not read into the request |
+| The brand's portal setting `@context.oneTimePurchases` is `"hidden"` | The list always sends `billing_cycle_days` `neq` `0`, and the filter bar does not offer the one-off position | A request that also asks for one-off purchases (`eq`) is rejected with a validation error. The category counts read does not carry the forced hide |
 | `.for('delegated')` selector context | The exclude-delegated force-set is always `0`, the held preference is never read | This turns exclusion OFF — the client's own products and their delegated products both come back. It is not a delegated-only view; nothing narrows the result to delegated items alone |
 | An invoice's status is `ADJUSTED` | `isDue` is true, `isCancellable` is false | The cancellable set is narrower than the due set |
 
@@ -135,6 +174,14 @@ They don't. The collection's list query and one manager instance's machine conte
 ### Destroy the Instance When Done
 
 ```typescript
+import { onUnmounted } from "vue";
+import { ScopeActorTypes, useContractProduct, useContractProducts } from "@upmind-automation/headless";
+
+declare const productId: string;
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
+
 onUnmounted(() => {
   products.useActions().destroy();  // also stops the delegated-preference reader
   product.useActions().destroy();
@@ -144,6 +191,13 @@ onUnmounted(() => {
 ### Wait for Ready State
 
 ```typescript
+import { ScopeActorTypes, useContractProduct, useContractProducts } from "@upmind-automation/headless";
+
+declare const productId: string;
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
+
 await products.useActions().isReady();
 await product.useActions().isReady();
 ```

@@ -1,21 +1,10 @@
 # Negative-control mutant — payment-method form schema reads the live contract (AC-8, R34/R35, D3/D4)
 #
-# Scenario it must flip: `useSetPaymentMethodSchema` defaults `paymentDetailsId`
-#   to the loaded contract's OWN current `paymentDetailsId`, so the form
-#   round-trips the method the contract already uses (D3/D4). (Re-authored: the
-#   cancellation `productIds` enum this patch once guarded moved to
-#   `useContractProduct` with R33; the contract keeps only the payment-method
-#   form (R34), so the same "schema built from the live contract, not a fixed
-#   value" intent now guards the payment-method default.)
-# Test that goes red: contract.action-schemas.int.test.ts >
-#   "useContract payment-method form — reads the live contract (AC-8, R35, D3/D4)"
-#   > "defaults paymentDetailsId to the contract's own current method, nullable
-#   and required" (the schema property's `default` is now `undefined`, so
-#   `expect(prop.default).toBe(current)` flips); and
-#   contract.payment-method-standing.int.test.ts:162 "The payment-method form
-#   never opens empty" (contract.feature:373 — the form's model no longer
-#   starts on the contract's card, so
-#   `expect(form?.model?.paymentDetailsId).toBe(row.payment_details_id)` flips).
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Nothing is sent when I select no method at all"
+#   contract.feature > "Nothing is sent when I select the method my contract already uses"
+#   contract.feature > "Close the payment-method form without changing how my contract is paid for"
+#
 # Mutation: `useSetPaymentMethodSchema` hardwires the property `default` to
 #   `undefined` instead of the contract's current `paymentDetailsId`.
 #

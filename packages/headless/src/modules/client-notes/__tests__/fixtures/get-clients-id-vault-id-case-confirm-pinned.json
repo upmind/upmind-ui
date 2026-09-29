@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/vault/78985742-6489-7012-0e4c-21e325d0ed36?case=confirm-pinned",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/vault/5d085e69-d562-3719-8edb-218e940d4237?case=confirm-pinned",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf646afc8be37-DUB",
+      "cf-ray": "a422b6c59c864c65-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:16:41 GMT",
+      "date": "Mon, 28 Sep 2026 12:22:30 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=wizNIU7%2Bkx2eOl1U4SRT2sk7Paed%2BAwvPmpsiQ2v2p8jMiVi6JNkuZt%2BDYA2xXx0Se3ll1kOx%2Fzjeo0edXn9MM76UqAQLTv4A5ud65h7VgFbF2qs685evwZrRE1UqT5s3vVSbZP4Eg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=hDZOA1156xHSEPBrcR9npHwsaJh%2BurDQnlOgpB5peROEmuWHFgiOQTeNVQszDSAnSkN1DitF%2Bp7K40WbqI%2Fu6Z7DKh5ZrXOb%2F0BvlFS%2B3CsHHgfvNVh3hKYNtWJlQRLG%2FE4ghXyVzQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -33,7 +33,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "78985742-6489-7012-0e4c-21e325d0ed36",
+        "id": "5d085e69-d562-3719-8edb-218e940d4237",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -42,13 +42,13 @@
         "user_id": "none",
         "label": null,
         "code": null,
-        "note": "prover fixture capture note 7383146",
+        "note": "prover fixture capture note 8129691",
         "pinned": true,
         "visible_for_client": true,
         "encrypted": false,
         "contract_product_id": null,
-        "created_at": "2026-09-10 05:16:28",
-        "updated_at": "2026-09-10 05:16:40",
+        "created_at": "2026-09-28 12:22:16",
+        "updated_at": "2026-09-28 12:22:29",
         "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
         "author_user_id": null,
         "editor_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
@@ -62,7 +62,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:16:41.517Z",
+  "captured_at": "2026-09-28T12:22:30.326Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

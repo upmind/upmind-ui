@@ -30,10 +30,10 @@ describe("@AC-4 World — type surface", () => {
       .toEqualTypeOf<WorldScope>();
   });
 
-  it("expectMeta() is a subset match over plain booleans — Record, never Partial<Record> (a typo'd/absent flag paired with undefined must be a compile error, not a vacuous pass)", () => {
+  it("expectMeta() is a subset match over booleans or numbers — Record, never Partial<Record> (a typo'd/absent flag paired with undefined must be a compile error, not a vacuous pass)", () => {
     expectTypeOf<World["expectMeta"]>()
       .parameter(0)
-      .toEqualTypeOf<Record<string, boolean>>();
+      .toEqualTypeOf<Record<string, boolean | number>>();
   });
 
   it("WorldScope.seed is a structural SeedRef, never a DOM/browser handle", () => {

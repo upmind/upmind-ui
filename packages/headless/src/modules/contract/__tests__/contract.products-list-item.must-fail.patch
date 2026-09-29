@@ -1,3 +1,6 @@
+STALE (FE-3145): `git apply --check` rejects this mutant against the
+  current source; it needs re-authoring before it can prove anything.
+
 diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
 index 68d0328713..ae47cd28ea 100644
 --- a/packages/headless/src/modules/contract/contract.mappers.ts

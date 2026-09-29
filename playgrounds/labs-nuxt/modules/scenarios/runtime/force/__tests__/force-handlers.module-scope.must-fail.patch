@@ -22,9 +22,8 @@ registers one handler per declared route and no catch-all beside them.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
-@@ -111,5 +111,8 @@ export function createForceHandlers(
-   // so the mutations a track played never outlive the arm that played them.
-   const resolve = presetResolver(preset, createCorpusSession(bodies), failure);
+@@ -108,4 +108,7 @@ export function createForceHandlers(
+   const resolve = presetResolver(preset, bodies, failure);
  
 -  return map(moduleRoutes(feature, bodies), route => http.all(route, resolve));
 +  return [

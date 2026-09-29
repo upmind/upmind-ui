@@ -326,12 +326,12 @@ function loadSettings(
 }
 
 /**
- * One-shot read of the SAME resource `loadSettings` reads, for the
- * MANAGER's `loadLookups` and `update`'s own staged-import check — NOT
- * through `queryClient`/the shared `["client", clientId, "record"]` cache
- * entry, for the same reason `client-personal-details.services.ts:184-215`
- * bypasses the wrapper: `useQuery().get()` bakes `select` inside `queryFn`
- * and poisons the entry for the other owners of this key.
+ * One-shot read of the SAME resource `loadSettings` reads, for the MANAGER's
+ * `loadLookups` base model — NOT through `queryClient`/the shared `["client",
+ * clientId, "record"]` cache entry, for the same reason
+ * `client-personal-details.services.ts:184-215` bypasses the wrapper:
+ * `useQuery().get()` bakes `select` inside `queryFn` and poisons the entry
+ * for the other owners of this key.
  */
 async function fetchSettingsOnce(
   clientId?: string
@@ -496,12 +496,23 @@ async function loadLookups(
     loadBrandGates()
   ]);
 
+  // Row O8 / AC17 — consolidation is a CLIENT-managed surface only when the
+  // brand has explicitly opted clients in (`restrict_to_staff === false`,
+  // matching legacy's `!(config[KEY] ?? true)`; absence keeps it staff-only).
+  // When it is not, the five consolidation fields are WITHHELD from the model
+  // entirely — the same shape the currency gate (row B6) uses to withhold
+  // `preferredPaymentCurrencyId`: absent reads as cleared (`enabled` null),
+  // and `baseModel` and `model` stay equal so the editor is not dirty on load.
+  const consolidationVisible = brandGates.restrictToStaff === false;
+
   const baseModel: BillingSettingsModel = {
-    enabled: record?.enabled,
-    baseRule: record?.baseRule,
-    dayOfWeek: record?.dayOfWeek,
-    dateOfMonthDay: record?.dateOfMonthDay,
-    dueDateDay: record?.dueDateDay,
+    ...(consolidationVisible && {
+      enabled: record?.enabled,
+      baseRule: record?.baseRule,
+      dayOfWeek: record?.dayOfWeek,
+      dateOfMonthDay: record?.dateOfMonthDay,
+      dueDateDay: record?.dueDateDay
+    }),
     // READ-ONLY, rules-only (legacy `showBasicRuleFields` /
     // `effectiveBaseRule` / `showDueDateDayField`): the brand's defaults and
     // the client's own `never_suspend`, in the data so the uischema rules can
@@ -532,13 +543,7 @@ async function loadLookups(
       ...context.lookups,
       // The currency pick-lists' source (rows B2/B3) — the schema reads it
       // off `lookups.currencies`; a genuine collection, so no wrapping.
-      currencies: currencyOptions(scopeContext).value,
-      // Array-wrapped — `DataManagerContext.lookups` is typed
-      // `Record<string, any[]>` (every other consumer stores a genuine
-      // collection there); this is the one scalar this module threads
-      // through it, so it travels as a single-element array rather than
-      // widening the shared, protected type.
-      isStaged: [!!record?.isStaged]
+      currencies: currencyOptions(scopeContext).value
     },
     config: {
       ...context.config,
@@ -665,9 +670,10 @@ async function validate(
  * Diff-only PUT (AC11, AC12, AC18). `mapIBillingSettingsFields` returns
  * `undefined` for an empty diff, which this short-circuits into a
  * zero-request resolve — legacy's own `formIsChanged` guard (`form:303`).
- * Refuses BEFORE the diff or any request when the record is a staged import
- * (row C14) — checked independently of the machine's own `isEditable` gate,
- * so a direct `service.update()` call cannot bypass the lockout.
+ * Refuses the write when the brand restricts consolidation to staff (row O8,
+ * AC-17): a missing `restrict_to_staff` counts as restricted, so only an
+ * explicit `false` opts the client in — placed after the empty-diff
+ * short-circuit so a currency-only save (no consolidation diff) is untouched.
  */
 async function update(
   model: BillingSettingsModel,
@@ -681,19 +687,18 @@ async function update(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  const current = await fetchSettingsOnce(clientId.value);
-  if (current?.isStaged) {
+  const diff = mapIBillingSettingsFields(model, baseModel);
+  if (diff === undefined) return {} as IClient;
+
+  if ((await loadBrandGates()).restrictToStaff !== false) {
     return Promise.reject(
       new DetailedError(
-        useI18n().t("error.client_billing_settings_staged_import"),
+        useI18n().t("error.client_billing_settings_not_available"),
         responseCodes.Forbidden,
         ErrorOrigin.Headless
       )
     );
   }
-
-  const diff = mapIBillingSettingsFields(model, baseModel);
-  if (diff === undefined) return {} as IClient;
 
   return put<IClient>({
     mutationKey: recordQueryKey(clientId.value),
@@ -760,9 +765,7 @@ function reconcileSessionAccount(
 
 /**
  * Diff-only `PUT accounts/{accountId}` (rows B4/B5/B9). Mirrors `update()`'s
- * shape and reuses its staged-import refusal (row C14 covers this form too —
- * `basicForm:191-193` is the same `!!client.staged_import` predicate) and its
- * `NotAuthenticatedError` gate.
+ * shape and reuses its `NotAuthenticatedError` gate.
  *
  * Refuses BEFORE any request when: the addressed client is not the
  * session's own (row X7 — `resolveAccount` resolves `undefined`); or when
@@ -798,17 +801,6 @@ async function updateAccountCurrencies(
         useI18n().t(
           "error.client_billing_settings_payment_currency_not_available"
         ),
-        responseCodes.Forbidden,
-        ErrorOrigin.Headless
-      )
-    );
-  }
-
-  const current = await fetchSettingsOnce(clientId.value);
-  if (current?.isStaged) {
-    return Promise.reject(
-      new DetailedError(
-        useI18n().t("error.client_billing_settings_staged_import"),
         responseCodes.Forbidden,
         ErrorOrigin.Headless
       )

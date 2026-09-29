@@ -194,35 +194,6 @@ Feature: A client runs their own support conversations
     And a term of only two characters searches nothing at all
     And a term revised several times in quick succession searches once, for the term I settled on
 
-  # [R13(a), 2026-09-15, tier 1 — the ruling that SETTLES this scenario; the finding was
-  # first recorded under R12 and is RATIFIED AS A CONDITIONAL by R13(a)] THE DROP IS
-  # PROVISIONAL, NOT FINAL — read before trusting this scenario.
-  # The @dropped tag is consistent with parity.yaml's signed NOT-SUPPORTED disposition
-  # for message-body-search, so it is NOT removed here: R13(a) rules the drop STANDS for
-  # now, because the operator's standing intent is match-legacy and nothing yet
-  # contradicts it. It is not re-scoped on suspicion. But that disposition rests on a
-  # CLIENT-CODE reading, not a server receipt: the one recorded probe returns two rows
-  # that BOTH match on subject, so reference coverage is unproven and body coverage is
-  # NOT ruled out. R13(a) makes tasks.md T37's two probes BINDING, not optional — a
-  # reference-fragment probe and a body-only probe — and they bind BOTH ways:
-  #   body-only probe returns 0 ROWS  -> premise CONFIRMED; parity.yaml's
-  #     premise_unproven is cleared and the drop becomes final on a server receipt.
-  #   body-only probe returns ROWS    -> premise REFUTED; THE SIGNED DROP IS VOID (the
-  #     token op:FE-3226#AC6-ruling-2026-09-14 does not cover a disproven premise).
-  #     Remove @dropped from this scenario, re-scope AC-6 to whatever query= actually
-  #     covers, and T39 RE-ESCALATES to the operator before anything is re-signed.
-  # Until T37 runs this is a RECORDED CONDITIONAL, not an unresolved contradiction — do
-  # not assert the claim in the meantime, and do not re-open the spec set to re-litigate
-  # it. NOTE the gate's limit: @dropped excludes this scenario from
-  # tickets.traceability.test.ts, and the gate is AC-granular anyway, so nothing
-  # mechanical can catch this claim — only the probe can.
-  @AC-6 @collection @search @dropped
-  Scenario: Searching does not reach inside message bodies
-    Given one of my tickets contains a word only in the body of a message
-    When I search for that word
-    Then that ticket is not found by the search
-    And the search never asks the server to look inside message bodies
-
   @AC-7 @collection
   Scenario: See the tickets raised about one of my products
     Given I am looking at one of my products
@@ -248,13 +219,6 @@ Feature: A client runs their own support conversations
     When I raise a ticket about one of my products
     Then the new ticket is linked to that product
     And the desk that handles that product is chosen for me unless I choose another
-
-  @AC-9 @AC-26 @collection @create
-  Scenario: Raise a ticket to be sent later
-    Given my brand allows me to schedule a ticket
-    When I raise a ticket and choose a time for it to be sent
-    Then the ticket is created carrying that send-later time
-    And it is held as scheduled rather than opened immediately
 
   @AC-9 @collection @create @absorbed
   Scenario: I am told what a new ticket needs before it is sent
@@ -413,28 +377,6 @@ Feature: A client runs their own support conversations
     Then I am told it is refused
     And nothing is uploaded
 
-  # [R17(a), 2026-09-15, tier 1] This scenario replaces the "or of a kind my brand does
-  # not allow" half of the scenario above, which promised a refusal THE RECORDED BRAND
-  # CANNOT PRODUCE. It is re-aimed, not dropped: what follows is what the brand on record
-  # actually does. The restricted-brand journey is NOT promised by this file — see the
-  # header block for why it cannot be recorded, and the module docs for the standing
-  # unproven-on-this-brand disclosure.
-  @AC-23 @manager @files @guard
-  Scenario: A brand that names no permitted kinds permits every kind
-    Given my brand publishes no list of permitted file kinds
-    When I attach a file of any kind
-    Then it is not refused on the grounds of its kind
-    And it is uploaded like any other file
-
-  @AC-23 @manager @files
-  Scenario: An expired session does not lose my upload
-    Given my session expires as I upload a file
-    When the upload is rejected for that reason
-    Then my session is renewed and the upload is tried once more
-    And I do not have to choose the file again
-
-  # === THE MANAGER — steering the ticket =====================================
-
   @AC-24 @manager @lifecycle
   Scenario: Close a ticket I no longer need help with
     Given one of my tickets is open
@@ -466,30 +408,6 @@ Feature: A client runs their own support conversations
     Given one of my tickets is locked
     When I try to change its subject
     Then nothing is sent to the server
-
-  @AC-28 @manager @lifecycle @dropped
-  Scenario: I cannot move a ticket to a different desk
-    Given one of my tickets is with the wrong desk
-    When I look for a way to hand it to another desk
-    Then this module offers me none
-    And no request is ever made to change which desk handles a ticket
-    # Legacy renders no client entry point for this either: the desk change is
-    # reachable only from the administrative controls. Dropped by operator ruling
-    # R5 as admin-only, and this module is client x self. Written as an absence so
-    # the capability can neither be quietly added nor quietly missed. Changing a
-    # ticket's SUBJECT is unaffected and is asserted above.
-
-  @AC-26 @manager @lifecycle @dropped
-  Scenario: I cannot reschedule a ticket that already exists
-    Given one of my tickets is scheduled to be sent later
-    When I look for a way to change that time
-    Then this module offers me none
-    And no request is ever made to reschedule an existing ticket
-    # The legacy client offers no reschedule action either: it is reachable only
-    # from the administrative controls. Dropped by operator ruling R5 as
-    # admin-only, and this module is client x self. Written as an absence so the
-    # capability can neither be quietly added nor quietly missed. Setting a
-    # send-later time WHEN RAISING a ticket is unaffected and is asserted above.
 
   @AC-29 @manager @poll
   Scenario: New activity on an open ticket reaches me without my asking

@@ -1,19 +1,15 @@
-# Negative-control mutant — the cancellation form is refused where legacy hides it (AC-11, R35)
+# Negative-control mutant — the cancellation form opens only where the product has options (AC-11)
 #
-# Scenario it must flip: contract-product.feature > the @AC-11 form-eligibility
-#   scenario. An expiring subscription (auto-renew already off) has no
-#   cancellation options left, so opening the form leaves its `cancellation`
-#   slot empty (legacy parity — the form is hidden).
-# Test that goes red: contract-product.mutations.int.test.ts >
-#   "useContractProduct — the cancellation form is hidden where legacy hides it
-#   (AC-11, R35)" >
-#   "AC-11 an expiring subscription (auto-renew already off) is offered no
-#   cancellation form — the open is refused, its slot left empty"
-#   (with the guard weakened the `CANCELLATION` open fills the slot, so
-#   `expect(manager.useContext().cancellation.value).toBeFalsy()` flips).
-# Mutation: `hasCancellationOptions` drops the
-#   `!isEmpty(cancellationOptions(...))` check, so the `idle -> available` open
-#   transition admits a product that has no cancellation options.
+# Scenario it must flip: contract-product.feature >
+#   "I am told whether the cancellation form is offered before I open it — a subscription already set to expire"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then what I am told matches whether the cancellation form opens when I ask for it" —
+#   the open lands `isCancellationOpen: true` on a product with no options left.
+# Mutation: `hasCancellationOptions` (the open guard) drops the
+#   `!isEmpty(cancellationOptions(...))` check, so the open admits a product
+#   that has no cancellation options.
+# Collateral: the other AC-11 "not offered" rows on an available node (booked for a future
+#   date, request already pending, live one-off purchase).
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>

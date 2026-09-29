@@ -47,7 +47,6 @@ import type { RecordedFixture } from "../corpus.source.types";
 // -----------------------------------------------------------------------------
 
 const MODULE_NAME = "client-email";
-const CLIENT_EMAIL_TRACK_COUNT = 11;
 
 const HEADLESS_ROOT = dirname(
   createRequire(import.meta.url).resolve(
@@ -73,6 +72,14 @@ const committedNames = (): string[] =>
     )
   );
 
+/** The scenario recording folders on disk — one per DRIVEN feature scenario. */
+const committedScenarioFolders = (): string[] =>
+  readdirSync(join(CLIENT_EMAIL_TESTS_DIR, "scenarios"), {
+    withFileTypes: true
+  })
+    .filter(entry => entry.isDirectory())
+    .map(entry => entry.name);
+
 const committedBody = (name: string): RecordedFixture =>
   JSON.parse(readFileSync(resolve(FIXTURES_DIR, `${name}.json`), "utf-8"));
 
@@ -81,8 +88,12 @@ const committedBody = (name: string): RecordedFixture =>
 describe("T1.5 the committed corpus — the oracle a resolved seam must serve", () => {
   const fixtureNames = committedNames();
 
-  it("holds exactly the ten recordings the committed fixtures declare", () => {
-    expect(fixtureNames.length).toBe(10);
+  it("serves exactly the flat recordings the committed fixtures declare", () => {
+    // Two independent enumerations of the one committed flat corpus — the disk
+    // dir and the published `recordedBodies` seam — so a fixture the glob misses
+    // or the dir loses diverges them, without pinning a literal count.
+    expect(fixtureNames).toStrictEqual(sortBy(getFixtureNames(MODULE_NAME)));
+    expect(fixtureNames.length).toBeGreaterThan(0);
   });
 
   it("carries a self-describing exchange in every recording (AC8.5)", () => {
@@ -109,9 +120,11 @@ describe("T1.5 the committed corpus — the oracle a resolved seam must serve", 
   });
 
   it("declares MORE scenarios than the playlist plays, and none of them is lost (K1)", () => {
-    expect(
-      parseFeatureScenarios(committedFeature()).length
-    ).toBeGreaterThanOrEqual(CLIENT_EMAIL_TRACK_COUNT);
+    // The feature holds its @todo scenarios too, so it declares strictly more
+    // than the recorded-and-driven subset (one folder per driven scenario).
+    expect(parseFeatureScenarios(committedFeature()).length).toBeGreaterThan(
+      committedScenarioFolders().length
+    );
   });
 });
 
@@ -140,9 +153,18 @@ describe("T1.5 the resolved seam — the recorded corpus, reached lawfully", () 
     const { feature, catalog } = tracks!;
     const scenarios = parseFeatureScenarios(feature);
 
-    expect(
-      createTraceabilityCheck(feature, catalog, {}).driveable
-    ).toHaveLength(CLIENT_EMAIL_TRACK_COUNT);
+    // The driveable subset the seam computes equals the recorded scenario
+    // folders on disk — the feature's driven scenarios and their recordings are
+    // two independent sources, so a driven scenario without a recording (or an
+    // orphan folder) diverges them, never a literal. A signed-out `@guard` boots
+    // under a guest session and issues no request, so it is driveable yet keeps
+    // no recording folder of its own — it is excluded from the correspondence.
+    const requestingDriveable = createTraceabilityCheck(
+      feature,
+      catalog,
+      {}
+    ).driveable.filter(scenario => !scenario.tags.includes("@guard"));
+    expect(requestingDriveable).toHaveLength(committedScenarioFolders().length);
     expect(map(scenarios, "name")).toStrictEqual(
       map(parseFeatureScenarios(committedFeature()), "name")
     );

@@ -69,6 +69,12 @@ type DeclaredScenario = {
   expansions: number;
   /** Each Examples row's FIRST cell — the value that names the row's track. */
   rows: string[];
+  /**
+   * True when a Background in this scenario's own container (feature-level or its
+   * `Rule:`) precedes it, so its steps prefix the track. A guard declared above
+   * the `Rule:` that carries the signed-in Background is not covered.
+   */
+  coveredByBackground: boolean;
 };
 
 /**
@@ -98,6 +104,8 @@ function readDeclarations(text: string): {
   let pendingTags: string[] = [];
   let featureTags: string[] = [];
   let inBackground = false;
+  let container = "feature";
+  let backgroundContainer: string | undefined;
 
   lines.forEach((source, index) => {
     const tags = TAG_LINE.exec(source);
@@ -112,8 +120,16 @@ function readDeclarations(text: string): {
       return;
     }
 
+    if (/^\s*Rule:/.test(source)) {
+      container = `rule:${index}`;
+      inBackground = false;
+      pendingTags = [];
+      return;
+    }
+
     if (/^\s*Background:/.test(source)) {
       inBackground = true;
+      backgroundContainer = container;
       pendingTags = [];
       return;
     }
@@ -126,7 +142,8 @@ function readDeclarations(text: string): {
         tags: pendingTags,
         line: index + 1,
         expansions: 1,
-        rows: []
+        rows: [],
+        coveredByBackground: backgroundContainer === container
       });
       pendingTags = [];
       return;
@@ -248,20 +265,38 @@ describe("T1.7 parseFeatureScenarios — a feature is a playlist of tracks", () 
     ).toStrictEqual([]);
   });
 
-  it("prefixes every track with the Background's steps, in run order", () => {
+  it("prefixes a covered track with the Background's steps in run order, and leaves a guard above the Rule bare", () => {
     const tracks = parseFeatureScenarios(clientEmailFeatureText);
 
     expect(clientEmail.background.length).toBeGreaterThan(0);
-    expect(uniq(map(tracks, "backgroundStepCount"))).toStrictEqual([
-      clientEmail.background.length
-    ]);
     expect(
-      uniq(
-        map(tracks, track =>
-          map(track.steps.slice(0, track.backgroundStepCount), "text").join("|")
+      uniq(map(clientEmail.scenarios, "coveredByBackground"))
+    ).toStrictEqual([false, true]);
+
+    const coverageByName = new Map(
+      flatMap(clientEmail.scenarios, declared =>
+        map(
+          expandedNames(declared),
+          name => [name, declared.coveredByBackground] as const
         )
       )
-    ).toStrictEqual([map(clientEmail.background, trim).join("|")]);
+    );
+
+    const backgroundText = map(clientEmail.background, trim).join("|");
+
+    const wrong = filter(tracks, track => {
+      const covered = coverageByName.get(track.name);
+      const expectedCount = covered ? clientEmail.background.length : 0;
+      const expectedPrefix = covered ? backgroundText : "";
+      return (
+        track.backgroundStepCount !== expectedCount ||
+        map(track.steps.slice(0, track.backgroundStepCount), "text").join(
+          "|"
+        ) !== expectedPrefix
+      );
+    });
+
+    expect(map(wrong, "name")).toStrictEqual([]);
   });
 
   it("expands a Scenario Outline into one track per Examples row", () => {

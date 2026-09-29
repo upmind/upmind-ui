@@ -16,7 +16,6 @@ import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { BillingSettingsModel } from "./client-billing-settings.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/useBillingSettingsManager.actions
@@ -32,8 +31,7 @@ import type { Ref } from "vue";
 export function createBillingSettingsManagerActions(
   _actorScope: ScopeActorTypes,
   actor: UseActor,
-  scopeKey: string,
-  consumerDisabled: Ref<boolean>
+  scopeKey: string
 ) {
   const { state, send, service: machineService } = actor;
   const { t } = useI18n();
@@ -62,18 +60,10 @@ export function createBillingSettingsManagerActions(
    * Inputs a model and resolves the parsed/validated model. Debounced on the
    * way out — the raw function stays private so `update`/`revert` can flush
    * it.
-   *
-   * A consumer-locked editor (row C16, `setDisabled(true)`) refuses the
-   * input entirely: the model resolves UNCHANGED, and no `SET` reaches the
-   * machine — AC15's "a set() while disabled leaves my preference unchanged".
    */
   async function input(
     model: BillingSettingsModel | Record<string, unknown>
   ): Promise<BillingSettingsModel> {
-    if (consumerDisabled.value) {
-      return contextValue<BillingSettingsModel>(state, "model") ?? {};
-    }
-
     send({ type: "SET", data: model });
 
     return waitFor(machineService, s =>
@@ -94,25 +84,14 @@ export function createBillingSettingsManagerActions(
   const debouncedInput = debounce(input, DEBOUNCE_DELAY);
 
   /**
-   * Saves the current (or provided) model and resolves the persisted one.
-   * Refuses while consumer-locked (row C16) — the same defence-in-depth
-   * `client-billing-settings.services.ts`'s own `update()` applies for the
-   * staged-import gate (row C14): the meta flag alone is not enough when a
-   * consumer can call this directly.
+   * Saves the current (or provided) model and resolves the persisted one. The
+   * consolidation write is refused at the service when the brand restricts
+   * consolidation to staff (row O8, AC-17); the account-currency write keeps
+   * its own row B6 gate.
    */
   async function update(
     value?: BillingSettingsModel | Record<string, unknown>
   ): Promise<BillingSettingsModel> {
-    if (consumerDisabled.value) {
-      return Promise.reject(
-        new DetailedError(
-          t("error.client_billing_settings_locked"),
-          responseCodes.Forbidden,
-          ErrorOrigin.Headless
-        )
-      );
-    }
-
     await debouncedInput.flush()?.catch(() => undefined);
 
     const model = contextValue<BillingSettingsModel>(state, "model");
@@ -154,29 +133,21 @@ export function createBillingSettingsManagerActions(
    * `usePersonalDetailsManager.actions.ts:139-142`.
    */
   async function revert(): Promise<BillingSettingsModel> {
-    debouncedInput.cancel();
+    await debouncedInput.flush()?.catch(() => undefined);
     const baseModel =
       contextValue<BillingSettingsModel>(state, "baseModel") ?? {};
     return input(baseModel);
   }
 
   /** Clears the current form context. */
-  function clear(): void {
+  async function clear(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     send({ type: "CLEAR" });
   }
 
-  /**
-   * Locks (or unlocks) every control from OUTSIDE this module's own gates
-   * (row C16) — independently of `isStaged`/`isProcessing`. Read by
-   * `useBillingSettingsManager.meta.ts`'s `isEditable` and enforced by
-   * `input()` above.
-   */
-  function setDisabled(disabled: boolean): void {
-    consumerDisabled.value = disabled;
-  }
-
   /** Stops the underlying machine, leaving the registry entry in place. */
-  function stop(): void {
+  async function stop(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
   }
 
@@ -184,7 +155,8 @@ export function createBillingSettingsManagerActions(
    * Destroys this scoped instance — stops the machine AND removes it from
    * the registry.
    */
-  function destroy(): void {
+  async function destroy(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
     removeFromRegistry(scopeKey);
   }
@@ -199,6 +171,7 @@ export function createBillingSettingsManagerActions(
    * removed redraws from scratch; one invalidated keeps stale rows on screen.
    */
   async function reset(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     await resetQueryByKey(queryKey)();
     send({ type: "REFRESH", data: {} });
   }
@@ -226,9 +199,6 @@ export function createBillingSettingsManagerActions(
 
     /** Restores the base model — row C9. */
     revert,
-
-    /** Locks or unlocks every control from outside this module's own gates (row C16). */
-    setDisabled,
 
     /** Stops the underlying machine. */
     stop,

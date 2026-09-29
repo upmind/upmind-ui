@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/config/brand/values?keys=invoices.consolidation.restrict_to_staff,billing.payment_currencies.enable_different_currency_payment,invoices.consolidation.enabled,invoices.consolidation.base_rule,invoices.consolidation.base_rule_day_of_week,invoices.consolidation.base_rule_date_of_month_day&lang=en",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a420d0cfea37ae35-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 06:50:45 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=mO9eFfo5NWw3v6uKRx7neFQ5WE%2FDauoXs2eFwBF6dCaIPOjEdvXm1oDYehq7f0zsnYZ4jBInXbw3dXFyahxU6vQ0M6BZuOQR26b8sPRxAZVnRJPXUujyZe89DgHHfdlaLs%2BCgpYVhA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "billing.payment_currencies.enable_different_currency_payment": true,
+        "invoices.consolidation.enabled": true,
+        "invoices.consolidation.restrict_to_staff": false,
+        "invoices.consolidation.base_rule": "daily",
+        "invoices.consolidation.base_rule_date_of_month_day": 1,
+        "invoices.consolidation.base_rule_day_of_week": "monday"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T06:50:45.349Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "after-i-save-a-new-preferred-payment-currency-that-is-what-i-and-the-rest-of-the-app-see-next"
+  }
+}

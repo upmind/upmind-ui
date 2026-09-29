@@ -65,7 +65,6 @@ import type {
   WorldScope
 } from "@upmind-automation/scenario-harness";
 
-const CLIENT_EMAIL_TRACK_COUNT = 11;
 const tracks = featureTracksFor("client-email");
 const featureText = tracks?.feature ?? "";
 const stepCatalog = tracks?.catalog ?? {};
@@ -442,14 +441,8 @@ describe("T4.1 an empty seam is Live-only, not an error (S12 · ESC6)", () => {
 });
 
 describe("T4.1 the REAL client-email feature, over the seam ESC6 opened (AC2.6 · K1)", () => {
-  /** The FE-2824 watch-point scenario, resolved by its own tag, never by name. */
-  const FE_2824 = "@fe-2824";
-
   const clientEmails = () =>
     useFeatureTracks({ feature: featureText, catalog: stepCatalog });
-
-  const clientEmailsTrack = (name: string) =>
-    find(clientEmails().tracks, track => track.name === name);
 
   /**
    * The playlist's own oracle, computed by the harness's OTHER reader of the
@@ -460,11 +453,12 @@ describe("T4.1 the REAL client-email feature, over the seam ESC6 opened (AC2.6 �
   const driveable = () =>
     createTraceabilityCheck(featureText, stepCatalog, {}).driveable;
 
-  const staffTrackName = () =>
-    find(driveable(), scenario => includes(scenario.tags, FE_2824))!.name;
-
   it("plays the driveable subset, named exactly as the committed feature declares them", () => {
-    expect(size(clientEmails().tracks)).toBe(CLIENT_EMAIL_TRACK_COUNT);
+    // Two independent readers of the same feature+catalog: the playlist builder
+    // (`useFeatureTracks`) and the traceability check. A drift in either diverges
+    // the count, so this is a real cross-check, never a literal that rots as the
+    // committed feature grows.
+    expect(size(clientEmails().tracks)).toBe(size(driveable()));
     expect(map(clientEmails().tracks, "name")).toStrictEqual(
       map(driveable(), "name")
     );
@@ -488,26 +482,22 @@ describe("T4.1 the REAL client-email feature, over the seam ESC6 opened (AC2.6 �
     ).toStrictEqual(map(driveable(), scenario => map(scenario.steps, "text")));
   });
 
-  it("boots every track at the Background's client scope, bar the staff one", () => {
-    const scoped = filter(
-      clientEmails().tracks,
-      track => track.name !== staffTrackName()
-    );
+  it("boots every track at the Background's client scope", () => {
+    const { tracks } = clientEmails();
 
-    expect(uniq(map(scoped, track => track.scope?.actor))).toStrictEqual([
+    expect(uniq(map(tracks, track => track.scope?.actor))).toStrictEqual([
       SCOPE_ACTOR.CLIENT
     ]);
-    expect(some(scoped, track => !!track.scope?.context)).toBe(false);
-  });
-
-  it("carries the staff track's FOREIGN scope — the ESC5 disagreement, made visible", () => {
-    const staff = clientEmailsTrack(staffTrackName());
-
-    expect(staff?.scope?.actor).toBe(SCOPE_ACTOR.STAFF);
-    expect(staff?.scope?.context?.type).toBe("client");
-    expect(staff?.scope?.context?.id).toEqual(expect.any(String));
-    expect(staff?.scope).not.toStrictEqual(
-      clientEmailsTrack(first(driveable())!.name)?.scope
+    // Editor scenarios opened on an existing record boot as a second scenario
+    // key `{ actor, context }` (ADR 035 Amendment 1), so some tracks now carry a
+    // context; every one that does boots on this module's OWN record type, never
+    // a foreign one — proven by the context types collapsing to a single value.
+    const contextTypes = uniq(
+      map(
+        filter(tracks, track => !!track.scope?.context),
+        track => (track.scope?.context as { type?: string } | undefined)?.type
+      )
     );
+    expect(contextTypes.length).toBeLessThanOrEqual(1);
   });
 });

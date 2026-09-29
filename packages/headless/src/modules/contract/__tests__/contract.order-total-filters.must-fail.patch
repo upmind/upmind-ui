@@ -1,11 +1,9 @@
 # Negative-control mutant — the filter bar carries legacy's order-id and
 # total-amount filters (G3, `vue-app/src/data/filters/contract.ts:6-17`)
 #
-# Scenario it must flip: `filterBy({ main_invoice_number: "QAT-INV-00001" })`
-#   and `filterBy({ total_amount: 42 })` both parse and both reach the
-#   request as `filter[main_invoice_number]` / `filter[total_amount]` — the
-#   two legacy contract filters (order, total) this collection's criteria
-#   schema was missing.
+# NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+#   green under it — no driven scenario pins this behaviour yet.
+#
 # Mutation: `useQuerySchema()` drops the `filters.main_invoice_number` and
 #   `filters.total_amount` branches, so a criteria model naming either is
 #   refused by the schema's `additionalProperties: false`, and

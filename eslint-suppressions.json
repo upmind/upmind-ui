@@ -1655,6 +1655,11 @@
       "count": 1
     }
   },
+  "packages/headless/src/modules/invoices/invoices.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/lookup/useLookup.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
@@ -1663,11 +1668,6 @@
       "count": 1
     },
     "file-responsibility/types-in-types-file": {
-      "count": 2
-    }
-  },
-  "packages/headless/src/modules/orders/order.types.ts": {
-    "@typescript-eslint/no-explicit-any": {
       "count": 2
     }
   },

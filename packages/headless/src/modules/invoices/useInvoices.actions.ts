@@ -1,14 +1,10 @@
-import { nextTick, watch } from "vue";
-import {
-  InvoiceCategoryCode,
-  InvoiceStatusGroups
-} from "@upmind-automation/types";
+import { until } from "@vueuse/core";
 import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
+import { CONSOLIDATABLE_FILTER, CREDIT_NOTE_FILTER } from "./invoices.types";
 import { NotAuthenticatedError } from "../../utils";
 import type {
-  Invoice,
   InvoiceFilterModel,
   InvoiceSortModel,
   InvoicesListQuery,
@@ -19,9 +15,11 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 /**
  * @module invoices/useInvoices.actions
  * @description Collection actions — list controls, the criteria presets AC2
- * and AC7 need, the assigned-method writer (AC4), the payment-outcome
- * refetch (AC3), and lifecycle. Query-backed: `destroy()` removes the
- * registry entry, because there is no service to stop.
+ * and AC7 apply (`CONSOLIDATABLE_FILTER` / `CREDIT_NOTE_FILTER`, defined in
+ * `invoices.types.ts`), and lifecycle. Query-backed: `destroy()` removes the
+ * registry entry, because there is no service to stop. The single invoice's
+ * payment-method write lives on `useInvoice` (the flat single-invoice
+ * composable), never on the list.
  *
  * @doctrine clause 2 (fresh modules start armless) — this factory returns
  * ONLY shared members; no `useInvoices.actions.{actor}.ts` file exists.
@@ -36,85 +34,26 @@ export function createInvoicesActions(
     useActiveSession().useMeta();
 
   /**
-   * A first fetch that never settles (a hung request, a dropped connection)
-   * would otherwise leave `isReady()` waiting forever — the uncapped 100ms
-   * poll at the pre-conversion `useInvoice.ts:46-59` this replaces. This
-   * bound is the fix: `isReady()` always SETTLES, resolving `false` on
-   * exhaustion rather than hanging a caller's `await`.
-   */
-  const READY_TIMEOUT_MS = 10_000;
-
-  /**
-   * This scope's settled ADDRESSABILITY outcome, or `undefined` while the
-   * session is still settling. Reads `service.isAvailable` — the same
-   * predicate the list query's `enabled` and `guard` call — so readiness
-   * cannot wait on a fetch that is not coming (a gated query may never
-   * fetch).
-   */
-  function addressableOutcome(): boolean | undefined {
-    if (service.isAvailable.value) return true;
-    if (isSessionInitialised.value || !isSessionSettling.value) return false;
-    return undefined;
-  }
-
-  /**
-   * Resolves the addressability outcome, waiting only while the session is
-   * still settling.
-   */
-  function whenSessionSettles(): Promise<boolean> {
-    const settled = addressableOutcome();
-    if (settled !== undefined) return Promise.resolve(settled);
-
-    return new Promise<boolean>(resolve => {
-      const stop = watch(
-        [service.isAvailable, isSessionInitialised, isSessionSettling],
-        () => {
-          const outcome = addressableOutcome();
-          if (outcome === undefined) return;
-          stop();
-          resolve(outcome);
-        }
-      );
-    });
-  }
-
-  /**
-   * Resolves once the list query has completed its first fetch, or `false`
-   * once {@link READY_TIMEOUT_MS} elapses with no settlement.
-   */
-  async function whenFetched(): Promise<boolean> {
-    await nextTick();
-
-    if (query.isFetched.value) return true;
-
-    return new Promise<boolean>(resolve => {
-      let settled = false;
-      const timer = setTimeout(() => {
-        if (settled) return;
-        settled = true;
-        stop();
-        resolve(false);
-      }, READY_TIMEOUT_MS);
-      const stop = watch(query.isFetched, fetched => {
-        if (!fetched || settled) return;
-        settled = true;
-        clearTimeout(timer);
-        stop();
-        resolve(true);
-      });
-    });
-  }
-
-  /**
-   * Resolves once the collection is ready to read.
+   * Resolves once the collection is ready to read. The session gate is
+   * load-bearing: the list query is disabled until this scope can address a
+   * client, so readiness first waits for the session to settle — either this
+   * scope becomes addressable, or the session finishes settling without one —
+   * then, only when addressable, for the first fetch to complete.
    * @returns true once the first fetch has settled, false if the session
-   * settles without an addressable client, or once the fetch itself times
-   * out. Always SETTLES.
+   * settles without an addressable client.
    */
   async function isReady(): Promise<boolean> {
-    if (!(await whenSessionSettles())) return false;
+    await until(
+      () =>
+        service.isAvailable.value ||
+        isSessionInitialised.value ||
+        !isSessionSettling.value
+    ).toBe(true);
 
-    return whenFetched();
+    if (!service.isAvailable.value) return false;
+
+    await until(query.isFetched).toBe(true);
+    return true;
   }
 
   /**
@@ -126,15 +65,6 @@ export function createInvoicesActions(
 
     const { error } = await query.refetch();
     if (error instanceof NotAuthenticatedError) throw error;
-  }
-
-  /**
-   * AC3 — the list-side refetch a payment outcome triggers. The module owns
-   * only the observe-and-refetch half; the payment flow itself is PN-1, out
-   * of scope.
-   */
-  async function refreshAfterPayment(): Promise<void> {
-    return refresh();
   }
 
   /**
@@ -157,40 +87,15 @@ export function createInvoicesActions(
   function filterConsolidatable(clientId?: string): void {
     query.setCriteria({
       filters: {
-        "status.code": InvoiceStatusGroups.UNPAID,
-        is_consolidation: false,
-        "category.slug": [InvoiceCategoryCode.RECURRENT],
-        client_id: clientId ?? service.clientId.value,
-        paid_amount: 0
+        ...CONSOLIDATABLE_FILTER,
+        client_id: clientId ?? service.clientId.value
       }
     });
   }
 
   /** AC7 — credit notes as a filtered view of this same collection. */
   function filterCreditNotes(): void {
-    query.setCriteria({
-      filters: {
-        "category.slug": [
-          InvoiceCategoryCode.CREDIT_NOTE,
-          InvoiceCategoryCode.CREDIT_NOTE_FOR_REFUND
-        ]
-      }
-    });
-  }
-
-  /**
-   * AC4 — assigns (or clears, with `null`) the payment method for one
-   * invoice, then invalidates the shared `invoices` cache key — which covers
-   * both the list and the single-read item key, since both are keyed under
-   * the same base (`invoices.services.ts`'s `queryKey`).
-   */
-  async function assignPaymentMethod(
-    invoiceId: Invoice["id"],
-    paymentDetailsId: string | null
-  ): Promise<unknown> {
-    return service
-      .updatePaymentDetails(invoiceId, { payment_details_id: paymentDetailsId })
-      .then(invalidateQueryByKey(service.queryKey, { exact: false }));
+    query.setCriteria({ filters: CREDIT_NOTE_FILTER });
   }
 
   /**
@@ -206,9 +111,6 @@ export function createInvoicesActions(
   // `useInvoices.actions.{actor}.ts` and spread it LAST so it wins.
 
   return {
-    /** AC4 — assigns or clears the payment method, then invalidates. */
-    assignPaymentMethod,
-
     /** Destroys this scoped instance — removes it from the registry. */
     destroy,
 
@@ -235,9 +137,6 @@ export function createInvoicesActions(
 
     /** Refetches the list from the server; rejects if it cannot address one. */
     refresh,
-
-    /** AC3 — the list-side refetch a payment outcome triggers. */
-    refreshAfterPayment,
 
     /**
      * Drops this collection's cached pages outright, so the next read starts

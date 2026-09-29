@@ -102,9 +102,17 @@ const RECORDED_PATH = get(
   ""
 );
 
-const BASE = `https://api.upmind.io${RECORDED_PATH}`;
+// The list recording carries the page's own boot query (`order`/`limit`), so the
+// base URL is split into its bare path and that query: an unfiltered `read()`
+// replays the recorded list, while a member write and a foreign path build off
+// the bare path without the list's query bleeding into them.
+const BASE = `https://api.upmind.io${RECORDED_PATH.split("?")[0]}`;
+const LIST_SEARCH = RECORDED_PATH.includes("?")
+  ? `?${RECORDED_PATH.split("?")[1]}`
+  : "";
 
-const read = (search = "") => ["GET", new URL(`${BASE}${search}`)] as const;
+const read = (search = LIST_SEARCH) =>
+  ["GET", new URL(`${BASE}${search}`)] as const;
 const write = () =>
   ["PUT", new URL(`${BASE}/20e43579-5e78-d184-430c-31643202d986`)] as const;
 
@@ -170,7 +178,10 @@ describe("S13 empty is the recording with its ROWS removed, never an invented bo
   });
 
   it("still narrows a filtered read, so the preset changes the answer and not the corpus", () => {
-    expect(rowsIn(answer("empty", read("?limit=1")))).toEqual([]);
+    // A real recorded filtered read (the committed `filter[verified|eq]=0`
+    // capture); empty strips its rows, proving the preset changes the answer, not
+    // the corpus.
+    expect(rowsIn(answer("empty", read("?filter[verified|eq]=0")))).toEqual([]);
   });
 });
 

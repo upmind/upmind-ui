@@ -48,13 +48,11 @@ const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
 
 > **🧪 For Testers:** Do not expect destroying one composable's instance to affect the other's — they are independent registry entries even though they act on the same client.
 
-## 3. Two independently-keyed reads of the same profile resource
+## 3. A shared cache key with client-billing-settings — safe, because both sides read reactively
 
-This module and the sibling custom-fields module both read the same underlying client record — this module for the profile itself, the sibling for the target client's own brand id. Both are built to key against it as closely to each other as each side's own transport allows, but a small asymmetry in how each one forms its own cache key means they end up as **two separate entries today, not one shared one**. That gap is left alone rather than closed by force: the underlying request platform bakes its own field-selection logic inside the cached fetch function itself, so a genuinely shared entry would be populated by whichever side's request happened to resolve first, silently corrupting the other side's read with the wrong shape.
+This module and the sibling `client-billing-settings` module both read the identical underlying `clients/{id}?with=custom_fields,custom_fields.field` resource, under the identical cache key — deliberately, so a page mounting both dedupes onto a single request rather than issuing one each. This is safe because both sides use the reactive query primitive, which applies its own field-selection **per observer**, in isolation — a second reactive observer on the same key gets its own independent projection at zero extra requests, and cannot change what the other observer sees. `client-custom-fields` used to read this same resource through a one-shot, field-selecting primitive that made a genuinely shared entry unsafe; it no longer reads this resource at all (its own definitions read is scoped by the access token instead), so that hazard no longer exists for this key.
 
-**Do not quote a specific number of requests per page load anywhere downstream of this doc.** The _mechanism_ (two distinct keys, so the two reads cannot dedupe today) is settled from source. The _count_ a real page load actually issues has been measured differently at different layers and is not settled — see [architecture.md](./architecture.md#two-independently-keyed-reads-of-the-same-profile-resource--and-why-they-stay-two).
-
-> **🧪 For Testers:** If you're asserting a request count for a page that mounts both this module and the sibling module together, scope your assertion to **this module's own cache key** specifically, not to every matching request observed on the wire — a sibling module's own independent read is not this module's request, and counting it against this module makes a deliberate, safe non-fix look like a regression.
+> **🧪 For Testers:** A test seeding this module alongside `client-billing-settings` should see exactly one `clients/{id}` request for the pair — assert request COUNT, not just response shape.
 
 ## 4. Cross-namespace test cleanup — evicting this module's own registry entries is not enough
 

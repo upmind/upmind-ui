@@ -6,6 +6,14 @@ All notable changes to the contract-product module.
 
 ### Changed
 
+- **The settled read places the status node directly.** The load's completion is one ordered list of guarded transitions over the record it returned. A record with no known status now lands on `error` at once, so `isReady()` resolves `false` without a wait.
+- **`exclude_delegated` follows whether anything is delegated.** It is `1` whenever nothing is delegated to the client; otherwise it is the held choice, `0` by default.
+- **A brand can hide one-off purchases.** When the portal setting `@context.oneTimePurchases` is `"hidden"`, the list always excludes one-off purchases and the filter bar does not offer them.
+- **New view-model fields `title` and `priceTermSummary`.** `title` is the shared product title; the picker's options use it too. `priceTermSummary` is the one price string ("£4 monthly", "£60").
+- **Unpaid recurring invoices read their status from `invoice_status`.**
+- **An unchanged consolidation choice is not sent.** `submitConsolidation()` resolves `false` and the form stays open.
+- **Paging forward keeps the split total**, and the count read waits on the list's own addressability check.
+
 - **Every cancellation write moved onto this module** — hard cancellation request (`requestCancellation`) and withdrawal (`withdrawCancellation`), alongside the soft (`stopRenewing`/`resumeRenewing`) and scheduled (`scheduleCancellation`/`revokeScheduledCancellation`) writes this module already owned. The sibling `contract` module keeps exactly one write of its own — changing the contract's payment method — because a contract only groups product ids; changing what happens to one product is this module's job.
 - **The cancellation form is now ONE combined form over three options** (soft / hard / scheduled), not three independent calls with no shared shape. `openCancellation()` builds the form's schema from the options the record currently allows; `submitCancellation()` routes to the matching write off `model.option`. The six existing direct-call actions (`stopRenewing`, `resumeRenewing`, `requestCancellation`, `withdrawCancellation`, `scheduleCancellation`, `revokeScheduledCancellation`) open + set + submit the form in one call each, so no existing caller has to change.
 - **The consolidation write is now a form too** (`openConsolidation`/`set`/`submitConsolidation`, or the direct `setConsolidation` call), matching the cancellation form's shape.

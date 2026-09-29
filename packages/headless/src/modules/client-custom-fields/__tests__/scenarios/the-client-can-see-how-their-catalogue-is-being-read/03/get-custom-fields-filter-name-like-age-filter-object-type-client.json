@@ -1,0 +1,112 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/custom_fields?filter[object_type]=client&limit=1&filter[name|like]=%25age%25&order=-name&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a41c61fa8b0f517e-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 27 Sep 2026 17:56:02 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=g9yf6e0wgsvcKCFUBCZvL1zjuGvqi4g522c%2BQIP0%2FHnQ%2BFV8rnhDpo7vfs69NxUOock8mU1FRGAXwoFPYlhh2rn4AtJbqg3AAlpy%2F7Onf4l44BejLL8h3YUbp7Vgt7xph9G83q97DQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "20403869-6e54-721d-29f5-18d9305e7d23",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Age",
+          "short_description": null,
+          "description": null,
+          "type": 7,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
+          "order": 1,
+          "values": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "created_at": "2025-12-19 12:58:10",
+          "updated_at": "2026-02-19 13:17:58",
+          "code": "age",
+          "user_only": false,
+          "show_on_order_form": false,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name_translated": "Age",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "type_code": "number",
+          "display_type": "Number",
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-27T17:56:02.484Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "the-client-can-see-how-their-catalogue-is-being-read"
+  }
+}

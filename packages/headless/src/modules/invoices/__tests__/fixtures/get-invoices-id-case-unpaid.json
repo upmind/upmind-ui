@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/invoices/85d26e96-783d-1652-de8a-314502e70439?with=brand,taxes,client,status,contract,payments,payments.payment_details,products,promotions,client.tags,products.tags,taxes.tax_tag_data,custom_fields.field,affiliate_commissions,products.product.image,account.affiliate_referral.affiliate_account.account.client,address,address.country,category,payments.gateway,payments.payment_type,payment_details,gateway,client.parent_client_config,last_payment_log&with_count=products&case=unpaid",
+    "path": "/api/invoices/52098d3d-e409-17e0-d782-c31578626e34?with=brand,taxes,client,status,contract,payments,payments.payment_details,products,promotions,client.tags,products.tags,taxes.tax_tag_data,custom_fields.field,affiliate_commissions,products.product.image,account.affiliate_referral.affiliate_account.account.client,address,address.country,category,payments.gateway,payments.payment_type,payment_details,gateway,client.parent_client_config,last_payment_log&with_count=products&case=unpaid",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a37c98bc1c7cae16-LHR",
+      "cf-ray": "a429a8115c334eca-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 08 Sep 2026 08:31:24 GMT",
+      "date": "Tue, 29 Sep 2026 08:35:48 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ZcPcyPYav2mW6kjW0bCCjSN71M2sijZLF%2F5rPAaN2X2UrOzO69Yw1eTJV0j7cyZ9eyeac1nwpdvq%2FYr%2Bt99JR5SMB%2BQ4vTlo0FCSGSva%2BPAlVv%2FCUcqQjFg7v4zonX2%2BO5Ol1%2Bawsg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xcu5AQ%2BfWwb0YDt68iVi4Co9X94jGa6tOwAz2BowJfU%2B8ZGakghefaLVta99YHz4mwU9BYswH14RU392DTysbdnsGa1ca5v7Qzp%2FYagcht%2F1lqNIo9zkXYAri%2FSCzO%2BLPW0Ll8XvSA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -33,12 +33,12 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "85d26e96-783d-1652-de8a-314502e70439",
+        "id": "52098d3d-e409-17e0-d782-c31578626e34",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
         "external_contract_id": null,
-        "number": "QA-INV-22142",
+        "number": "QA-INV-25252",
         "proforma": false,
         "proforma_number": null,
         "proforma_create_datetime": null,
@@ -47,24 +47,24 @@
         "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
         "gateway_id": null,
         "payment_details_id": null,
-        "status_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
-        "created_at": "2026-08-31 11:55:13",
-        "updated_at": "2026-09-03 03:00:20",
+        "status_id": "45952098-d3de-4091-76a3-1578626e347e",
+        "created_at": "2026-09-29 08:34:02",
+        "updated_at": "2026-09-29 08:34:06",
         "deleted_at": null,
-        "create_datetime": "2026-08-31 11:55:15",
-        "due_date": "2026-08-31",
+        "create_datetime": "2026-09-29 08:34:04",
+        "due_date": "2026-09-29",
         "paid_datetime": null,
-        "total_amount": 72,
+        "total_amount": 4.8,
         "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
         "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
         "total_discount_amount": 0,
         "net_global_discount_amount": 0,
         "net_product_discount_amount": 0,
-        "net_selling_price": 60,
-        "net_amount": 60,
-        "tax_amount": 12,
+        "net_selling_price": 4,
+        "net_amount": 4,
+        "tax_amount": 0.8,
         "paid_amount": 0,
-        "contract_id": "d7382485-0793-153d-552f-81e642d59e06",
+        "contract_id": "03679424-d0e7-1092-222c-3153698d582e",
         "user_id": "sys",
         "reseller_account_id": null,
         "address_id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
@@ -81,55 +81,55 @@
         "legacy": 0,
         "notes": "",
         "warning_notes": [],
-        "next_charge_date": "2026-09-01",
+        "next_charge_date": "2026-09-26",
         "payment_failed_attempts": 0,
         "locked": null,
         "temp_token_id": null,
-        "pre_due_notification_date": "2026-08-28",
-        "overdue_notification_date": "2026-09-04",
-        "overdue_left_attempts": 0,
+        "pre_due_notification_date": "2026-09-26",
+        "overdue_notification_date": "2026-09-30",
+        "overdue_left_attempts": 3,
         "fraud_status": 1,
         "fraud_score": null,
         "ip": "156.155.31.213",
         "abandoned": false,
-        "abandon_date": "2026-08-31 23:55:14",
+        "abandon_date": "2026-09-29 20:34:03",
         "currency_exchange_rate": 1,
         "cancellation_datetime": null,
         "cancellation_reason": null,
         "partial_amount_credited": 0,
         "duplicate_from_invoice_id": null,
         "duplicated_with_invoice_id": null,
-        "auto_cancel_date": "2026-09-14 00:00:00",
+        "auto_cancel_date": "2026-10-06 00:00:00",
         "auto_cancel_pro_rata_date": null,
         "to_be_credited": false,
         "today_exchange_rate": "1.000000",
         "meta": null,
         "is_consolidation": false,
-        "payment_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-        "payment_currency_exchange_rate": 1,
+        "payment_currency_id": null,
+        "payment_currency_exchange_rate": null,
         "products_count": 1,
-        "display_status": "Overdue",
-        "net_selling_price_formatted": "£60.00",
+        "display_status": "Unpaid",
+        "net_selling_price_formatted": "£4.00",
         "net_product_discount_amount_formatted": "£0.00",
         "net_global_discount_amount_formatted": "£0.00",
         "net_discount_amount_formatted": "£0.00",
         "net_discount_amount": 0,
         "total_discount_amount_formatted": "£0.00",
-        "net_amount_formatted": "£60.00",
-        "net_amount_converted": 60,
-        "tax_amount_formatted": "£12.00",
-        "tax_amount_converted": 12,
-        "total_amount_formatted": "£72.00",
-        "total_amount_converted": 72,
+        "net_amount_formatted": "£4.00",
+        "net_amount_converted": 4,
+        "tax_amount_formatted": "£0.80",
+        "tax_amount_converted": 0.8,
+        "total_amount_formatted": "£4.80",
+        "total_amount_converted": 4.8,
         "paid_amount_formatted": "£0.00",
         "paid_amount_converted": 0,
-        "balance": 72,
-        "balance_formatted": "£72.00",
-        "unpaid_amount": 72,
-        "unpaid_amount_formatted": "£72.00",
-        "unpaid_amount_converted": 72,
-        "partial_amount_to_credit_formatted": "£72.00",
-        "partial_amount_to_credit_converted": 72,
+        "balance": 4.8,
+        "balance_formatted": "£4.80",
+        "unpaid_amount": 4.8,
+        "unpaid_amount_formatted": "£4.80",
+        "unpaid_amount_converted": 4.8,
+        "partial_amount_to_credit_formatted": "£4.80",
+        "partial_amount_to_credit_converted": 4.8,
         "partial_amount_credited_formatted": "£0.00",
         "partial_amount_credited_converted": 0,
         "allow_product_credit": true,
@@ -144,7 +144,7 @@
           "suffix": "",
           "code": "GBP",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-23 13:41:01",
+          "updated_at": "2026-09-28 11:08:14",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -154,30 +154,19 @@
           "name": "New Contract",
           "slug": "new_contract"
         },
-        "payment_currency": {
-          "id": "3825d96e-763e-d091-3dc4-174825283406",
-          "name": "British Pound",
-          "prefix": "£",
-          "suffix": "",
-          "code": "GBP",
-          "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-23 13:41:01",
-          "base": true,
-          "decimals": true,
-          "manual": 0
-        },
+        "payment_currency": null,
         "object_meta_data": null,
         "current_data": {
-          "id": "e78642de-5397-145e-004c-21208469530d",
+          "id": "85d26e96-783d-16e0-e36f-314502e70439",
           "import_id": null,
           "staged_import": false,
           "external_id": null,
-          "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
-          "created_at": "2026-08-31 11:55:16",
-          "updated_at": "2026-08-31 11:55:16",
+          "invoice_id": "52098d3d-e409-17e0-d782-c31578626e34",
+          "created_at": "2026-09-29 08:34:06",
+          "updated_at": "2026-09-29 08:34:06",
           "content": {
-            "id": "85d26e96-783d-1652-de8a-314502e70439",
-            "number": "QA-INV-22142",
+            "id": "52098d3d-e409-17e0-d782-c31578626e34",
+            "number": "QA-INV-25252",
             "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
             "client_email": "mock-email-1@example.com",
             "client_fields": [],
@@ -186,7 +175,7 @@
               "id": "2785d26e-9678-3d16-999f-314502e70439",
               "name": "QA Automation Testing",
               "created_at": "2025-05-07 08:38:43",
-              "updated_at": "2026-08-31 11:55:11",
+              "updated_at": "2026-09-29 08:30:11",
               "code": "kn6x1dzbtcgb",
               "brand_type": 1,
               "reseller_account_id": null,
@@ -264,7 +253,7 @@
               "location_ip": null,
               "user_id": "sys",
               "created_at": "2025-06-02 16:00:34",
-              "updated_at": "2026-08-31 11:55:10",
+              "updated_at": "2026-09-29 08:32:56",
               "reseller_account_id": null,
               "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
               "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -281,7 +270,7 @@
               "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
               "picture": 0,
               "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-              "last_login": "2026-08-31 11:55:10",
+              "last_login": "2026-09-29 08:32:56",
               "last_password_change_at": "mock-last_password_change_at",
               "fraud_policy": 3,
               "fraud_status": 1,
@@ -289,11 +278,15 @@
               "failed_2fa_attempts": 0,
               "is_guest": false,
               "notifications_disabled": false,
-              "meta": null,
+              "meta": {
+                "ui/support/submitWithShortcut": true,
+                "ui/support/newLineKey": "mock-ui/support/newLineKey",
+                "ui/support/limit": 25
+              },
               "order_template_code": null,
               "invoice_consolidation_enabled": 1,
-              "invoice_consolidation_base_rule": null,
-              "invoice_consolidation_base_rule_date_of_month_day": null,
+              "invoice_consolidation_base_rule": "date_of_month",
+              "invoice_consolidation_base_rule_date_of_month_day": 1,
               "invoice_consolidation_base_rule_day_of_week": null,
               "invoice_consolidation_due_date_day": null,
               "block_new_tickets_from_email": false,
@@ -302,7 +295,7 @@
               "tax_exempt_number": null,
               "before_due_date_charge_interval": null,
               "before_due_date_charge_interval_dd": null,
-              "never_suspend": false,
+              "never_suspend": true,
               "never_cancel": false,
               "never_close": false,
               "status_id": "825d96e7-63ed-0913-0dc4-174825283406",
@@ -331,7 +324,7 @@
                 "receive_emails": false,
                 "bounced": false,
                 "created_at": "2025-06-02 16:00:35",
-                "updated_at": "2026-04-17 13:26:16",
+                "updated_at": "2026-09-25 17:57:52",
                 "bounced_at": null,
                 "can_delete": false
               },
@@ -355,7 +348,7 @@
               "county": null,
               "postcode": "GU4 8PH",
               "created_at": "2025-06-26 12:26:18",
-              "updated_at": "2026-08-23 12:34:25",
+              "updated_at": "2026-09-28 12:19:12",
               "deleted_at": null,
               "verified": 0,
               "region": {
@@ -372,7 +365,7 @@
                 "code": "GB",
                 "code3": "",
                 "created_at": "2017-10-18 14:16:22",
-                "updated_at": "2026-07-23 13:41:28",
+                "updated_at": "2026-09-28 11:08:35",
                 "vat": "20.00",
                 "eea": 1,
                 "phone_code": "+44",
@@ -389,7 +382,7 @@
               "default": true,
               "verified": 1,
               "created_at": "2025-07-04 12:37:15",
-              "updated_at": "2026-08-08 20:47:48",
+              "updated_at": "2026-09-25 18:03:52",
               "deleted_at": null,
               "name": "Spencer, Aufderhar and Willms",
               "vat_number": "",
@@ -420,7 +413,7 @@
                 "county": null,
                 "postcode": "GU4 8PH",
                 "created_at": "2025-06-26 12:26:18",
-                "updated_at": "2026-08-23 12:34:25",
+                "updated_at": "2026-09-28 12:19:12",
                 "deleted_at": null,
                 "verified": 0
               },
@@ -438,7 +431,7 @@
                 "receive_emails": false,
                 "bounced": false,
                 "created_at": "2025-06-02 16:00:35",
-                "updated_at": "2026-04-17 13:26:16",
+                "updated_at": "2026-09-25 17:57:52",
                 "bounced_at": null,
                 "can_delete": false
               },
@@ -458,7 +451,7 @@
                 "international_phone": "mock-phone-1",
                 "phone_country_code": "GB",
                 "created_at": "2025-06-26 08:32:10",
-                "updated_at": "2026-08-23 07:26:22",
+                "updated_at": "2026-09-25 18:43:23",
                 "deleted_at": null,
                 "full_phone": "mock-phone-1",
                 "can_delete": true
@@ -467,11 +460,11 @@
             "client_phone": null,
             "products": [
               {
-                "id": "98574264-8970-1258-703c-21e325d0ed36",
+                "id": "4038696e-5472-1d46-2ddb-518d9305e7d2",
                 "import_id": null,
                 "staged_import": false,
                 "external_id": null,
-                "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+                "invoice_id": "52098d3d-e409-17e0-d782-c31578626e34",
                 "product_id": "3de78642-de53-9714-76df-21208469530d",
                 "name": " Starter Hosting",
                 "service_identifier": null,
@@ -479,26 +472,26 @@
                 "description": " Shared Hosting -  Starter Hosting",
                 "cost": 0,
                 "cost_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-                "base_price": 60,
+                "base_price": 4,
                 "base_price_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-                "selling_price": 60,
-                "net_selling_price": "60.0000",
+                "selling_price": 4,
+                "net_selling_price": "4.0000",
                 "cost_exchange_rate": "1.000000",
                 "base_price_exchange_rate": "1.000000",
                 "quantity": 1,
                 "unit_quantity": null,
-                "net_amount": 60,
+                "net_amount": 4,
                 "vat_country_id": "320e4357-95e7-8d18-484f-31643202d986",
                 "vat_percentage": "20.00",
-                "tax_amount": 12,
-                "total_amount": 72,
-                "created_at": "2026-08-31 11:55:13",
-                "updated_at": "2026-08-31 11:55:16",
+                "tax_amount": 0.8,
+                "total_amount": 4.8,
+                "created_at": "2026-09-29 08:34:03",
+                "updated_at": "2026-09-29 08:34:06",
                 "deleted_at": null,
-                "billing_cycle_months": 24,
+                "billing_cycle_months": 1,
                 "product_set_id": null,
                 "product_group_id": null,
-                "contracts_product_id": "085e69d5-6237-1974-d62b-218e940d4237",
+                "contracts_product_id": "085e69d5-6237-1978-827f-218e940d4237",
                 "from_date": null,
                 "to_date": null,
                 "total_discount_amount": 0,
@@ -509,7 +502,7 @@
                 "provision_configuration_id": null,
                 "provision_server_id": null,
                 "provision_center_id": null,
-                "billing_cycle_days": 720,
+                "billing_cycle_days": 30,
                 "partial_amount_credited": 0,
                 "change_product_direction": null,
                 "calculated_contract_product_due_date": null,
@@ -523,30 +516,30 @@
                 "trial_pre_expire_notification": 0,
                 "trial_pre_expire_notification_date": null,
                 "trial_end_date": null,
-                "contract_id": "d7382485-0793-153d-552f-81e642d59e06",
+                "contract_id": "03679424-d0e7-1092-222c-3153698d582e",
                 "product_name": " Starter Hosting",
                 "cost_formatted": "£0.00",
                 "cost_currency_code": "GBP",
-                "base_price_formatted": "£60.00",
+                "base_price_formatted": "£4.00",
                 "base_currency_code": "GBP",
-                "selling_price_formatted": "£60.00",
-                "selling_price_converted": 60,
-                "net_selling_price_formatted": "£60.00",
-                "net_unit_selling_price_formatted": "£60.00",
+                "selling_price_formatted": "£4.00",
+                "selling_price_converted": 4,
+                "net_selling_price_formatted": "£4.00",
+                "net_unit_selling_price_formatted": "£4.00",
                 "net_product_discount_amount_formatted": "£0.00",
                 "net_global_discount_amount_formatted": "£0.00",
                 "total_discount_amount_formatted": "£0.00",
-                "net_amount_formatted": "£60.00",
-                "tax_amount_formatted": "£12.00",
-                "tax_amount_converted": "£12.00",
-                "total_amount_formatted": "£72.00",
-                "total_amount_converted": 72,
-                "configuration_selling_price_formatted": "£72.00",
-                "configuration_total_amount_formatted": "£72.00",
-                "configuration_total_amount_converted": 72,
-                "configuration_net_selling_price_formatted": "£60.00",
-                "configuration_net_amount_formatted": "£60.00",
-                "configuration_net_amount_converted": 60,
+                "net_amount_formatted": "£4.00",
+                "tax_amount_formatted": "£0.80",
+                "tax_amount_converted": "£0.80",
+                "total_amount_formatted": "£4.80",
+                "total_amount_converted": 4.8,
+                "configuration_selling_price_formatted": "£4.80",
+                "configuration_total_amount_formatted": "£4.80",
+                "configuration_total_amount_converted": 4.8,
+                "configuration_net_selling_price_formatted": "£4.00",
+                "configuration_net_amount_formatted": "£4.00",
+                "configuration_net_amount_converted": 4,
                 "configuration_selling_price_discount_converted": 0,
                 "configuration_selling_price_discount_formatted": "£0.00",
                 "configuration_total_discount_amount_formatted": "£0.00",
@@ -554,22 +547,22 @@
                 "configuration_net_amount_discount_formatted": "£0.00",
                 "configuration_net_amount_discount_converted": 0,
                 "configuration_net_selling_price_discount_formatted": "£0.00",
-                "configuration_selling_price_discounted_converted": 72,
-                "configuration_selling_price_discounted_formatted": "£72.00",
-                "configuration_total_discounted_amount_formatted": "£72.00",
-                "configuration_total_discounted_amount_converted": 72,
-                "configuration_net_amount_discounted_formatted": "£60.00",
-                "configuration_net_amount_discounted_converted": 60,
-                "configuration_net_selling_price_discounted_formatted": "£60.00",
-                "configuration_net_selling_price_discounted_converted": 60,
-                "partial_amount_to_credit_formatted": "£72.00",
-                "partial_amount_to_credit_converted": 72,
+                "configuration_selling_price_discounted_converted": 4.8,
+                "configuration_selling_price_discounted_formatted": "£4.80",
+                "configuration_total_discounted_amount_formatted": "£4.80",
+                "configuration_total_discounted_amount_converted": 4.8,
+                "configuration_net_amount_discounted_formatted": "£4.00",
+                "configuration_net_amount_discounted_converted": 4,
+                "configuration_net_selling_price_discounted_formatted": "£4.00",
+                "configuration_net_selling_price_discounted_converted": 4,
+                "partial_amount_to_credit_formatted": "£4.80",
+                "partial_amount_to_credit_converted": 4.8,
                 "partial_amount_credited_formatted": "£0.00",
                 "partial_amount_credited_converted": 0,
-                "invoice_create_datetime": "2026-08-31 11:55:15",
-                "invoice_total_amount": 72,
-                "invoice_total_amount_converted": 72,
-                "invoice_total_amount_formatted": "£72.00",
+                "invoice_create_datetime": "2026-09-29 08:34:04",
+                "invoice_total_amount": 4.8,
+                "invoice_total_amount_converted": 4.8,
+                "invoice_total_amount_formatted": "£4.80",
                 "attributes": [],
                 "options": [],
                 "set_products": [],
@@ -583,17 +576,17 @@
                   "order": 1,
                   "name": "Unpaid"
                 },
-                "invoice_number": "QA-INV-22142",
+                "invoice_number": "QA-INV-25252",
                 "can_cancel": true,
                 "client_label": null,
                 "payment_currency_id": null,
                 "payment_currency_exchange_rate": null,
-                "net_selling_price_base": 60,
-                "net_selling_price_base_formatted": "£60.00",
-                "net_selling_price_base_converted": 60,
-                "net_selling_price_discounted_formatted": "£60.00",
-                "net_selling_price_discounted_converted": 60,
-                "net_selling_price_discounted": 60,
+                "net_selling_price_base": 4,
+                "net_selling_price_base_formatted": "£4.00",
+                "net_selling_price_base_converted": 4,
+                "net_selling_price_discounted_formatted": "£4.00",
+                "net_selling_price_discounted_converted": 4,
+                "net_selling_price_discounted": 4,
                 "display_from_date": null,
                 "display_to_date": null,
                 "payment_total_amount_converted": 0,
@@ -603,20 +596,20 @@
                 "payment_partial_amount_to_credit_converted": 0,
                 "payment_partial_amount_to_credit_formatted": null,
                 "future_renewal_price": {
-                  "total_amount": 72,
-                  "total_amount_converted_formatted": "£72.00",
-                  "net_amount": 60,
-                  "net_amount_converted_formatted": "£60.00",
-                  "tax_amount": 12,
-                  "tax_amount_converted_formatted": "£12.00"
+                  "total_amount": 4.8,
+                  "total_amount_converted_formatted": "£4.80",
+                  "net_amount": 4,
+                  "net_amount_converted_formatted": "£4.00",
+                  "tax_amount": 0.8,
+                  "tax_amount_converted_formatted": "£0.80"
                 },
                 "configuration_future_renewal_price": {
-                  "total_amount": 72,
-                  "total_amount_converted_formatted": "£72.00",
-                  "net_amount": 60,
-                  "net_amount_converted_formatted": "£60.00",
-                  "tax_amount": 12,
-                  "tax_amount_converted_formatted": "£12.00"
+                  "total_amount": 4.8,
+                  "total_amount_converted_formatted": "£4.80",
+                  "net_amount": 4,
+                  "net_amount_converted_formatted": "£4.00",
+                  "tax_amount": 0.8,
+                  "tax_amount_converted_formatted": "£0.80"
                 },
                 "tags": [],
                 "promotions": [],
@@ -792,7 +785,7 @@
           "id": "2785d26e-9678-3d16-999f-314502e70439",
           "name": "QA Automation Testing",
           "created_at": "2025-05-07 08:38:43",
-          "updated_at": "2026-09-08 04:00:14",
+          "updated_at": "2026-09-29 08:35:10",
           "code": "kn6x1dzbtcgb",
           "brand_type": 1,
           "reseller_account_id": null,
@@ -824,30 +817,30 @@
         },
         "taxes": [
           {
-            "id": "d7382485-0793-1508-826c-81e642d59e06",
-            "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+            "id": "85d26e96-783d-1670-8746-b314502e7043",
+            "invoice_id": "52098d3d-e409-17e0-d782-c31578626e34",
             "tax_tag_id": "5d085e69-d562-3719-dea2-18e940d42370",
-            "amount": 12,
-            "created_at": "2026-08-31 11:55:16",
-            "updated_at": "2026-08-31 11:55:16",
+            "amount": 0.8,
+            "created_at": "2026-09-29 08:34:05",
+            "updated_at": "2026-09-29 08:34:05",
             "invoice_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
             "invoice_currency_exchange_rate": "1.000000",
-            "amount_formatted": "£12.00",
+            "amount_formatted": "£0.80",
             "tax_tag_data": [
               {
-                "id": "63250798-065d-1e54-2606-c8174e234e98",
-                "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
-                "invoice_product_id": "98574264-8970-1258-703c-21e325d0ed36",
+                "id": "52098d3d-e409-1793-5973-c31578626e34",
+                "invoice_id": "52098d3d-e409-17e0-d782-c31578626e34",
+                "invoice_product_id": "4038696e-5472-1d46-2ddb-518d9305e7d2",
                 "tax_tag_id": "5d085e69-d562-3719-dea2-18e940d42370",
-                "amount": 12,
+                "amount": 0.8,
                 "reason": [
                   "location_country",
                   "location_region",
                   "location_post_code",
                   "location_city"
                 ],
-                "created_at": "2026-08-31 11:55:15",
-                "updated_at": "2026-08-31 11:55:16",
+                "created_at": "2026-09-29 08:34:05",
+                "updated_at": "2026-09-29 08:34:05",
                 "tax_tag_type": 1,
                 "tax_tag_amount": 20,
                 "tax_tag_company_type": 1,
@@ -860,13 +853,13 @@
                 "for_company": true,
                 "tax_tag_require_company_vat_number": false,
                 "tax_tag_require_company_reg_number": false,
-                "invoice_tax_id": "d7382485-0793-1508-826c-81e642d59e06",
+                "invoice_tax_id": "85d26e96-783d-1670-8746-b314502e7043",
                 "tax_tag_apply_on_main_product_only": false,
                 "tax_tag_apply_based_on_product_quantity": false,
                 "tax_tag_fixed_amount_apply_on_zero": false,
                 "invoice_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
                 "invoice_currency_exchange_rate": "1.000000",
-                "amount_formatted": "£12.00",
+                "amount_formatted": "£0.80",
                 "invoice_currency": {
                   "id": "3825d96e-763e-d091-3dc4-174825283406",
                   "name": "British Pound",
@@ -874,7 +867,7 @@
                   "suffix": "",
                   "code": "GBP",
                   "created_at": "2017-10-18 14:16:22",
-                  "updated_at": "2026-07-23 13:41:01",
+                  "updated_at": "2026-09-28 11:08:14",
                   "base": true,
                   "decimals": true,
                   "manual": 0
@@ -888,7 +881,7 @@
               "suffix": "",
               "code": "GBP",
               "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
+              "updated_at": "2026-09-28 11:08:14",
               "base": true,
               "decimals": true,
               "manual": 0
@@ -914,7 +907,7 @@
           "location_ip": null,
           "user_id": "sys",
           "created_at": "2025-06-02 16:00:34",
-          "updated_at": "2026-09-08 08:31:21",
+          "updated_at": "2026-09-29 08:35:18",
           "reseller_account_id": null,
           "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
           "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -931,7 +924,7 @@
           "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
           "picture": 0,
           "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-          "last_login": "2026-09-08 08:31:21",
+          "last_login": "2026-09-29 08:35:18",
           "last_password_change_at": "mock-last_password_change_at",
           "fraud_policy": 3,
           "fraud_status": 1,
@@ -939,11 +932,15 @@
           "failed_2fa_attempts": 0,
           "is_guest": false,
           "notifications_disabled": false,
-          "meta": null,
+          "meta": {
+            "ui/support/submitWithShortcut": true,
+            "ui/support/newLineKey": "mock-ui/support/newLineKey",
+            "ui/support/limit": 25
+          },
           "order_template_code": null,
           "invoice_consolidation_enabled": 1,
-          "invoice_consolidation_base_rule": null,
-          "invoice_consolidation_base_rule_date_of_month_day": null,
+          "invoice_consolidation_base_rule": "date_of_month",
+          "invoice_consolidation_base_rule_date_of_month_day": 1,
           "invoice_consolidation_base_rule_day_of_week": null,
           "invoice_consolidation_due_date_day": null,
           "block_new_tickets_from_email": false,
@@ -952,7 +949,7 @@
           "tax_exempt_number": null,
           "before_due_date_charge_interval": null,
           "before_due_date_charge_interval_dd": null,
-          "never_suspend": false,
+          "never_suspend": true,
           "never_cancel": false,
           "never_close": false,
           "status_id": "825d96e7-63ed-0913-0dc4-174825283406",
@@ -981,7 +978,7 @@
             "receive_emails": false,
             "bounced": false,
             "created_at": "2025-06-02 16:00:35",
-            "updated_at": "2026-04-17 13:26:16",
+            "updated_at": "2026-09-25 17:57:52",
             "bounced_at": null,
             "can_delete": false
           },
@@ -989,21 +986,21 @@
           "tags": []
         },
         "status": {
-          "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+          "id": "45952098-d3de-4091-76a3-1578626e347e",
           "object_type": "invoice",
-          "code": "invoice_overdue",
-          "order": 2,
-          "name": "Overdue"
+          "code": "invoice_unpaid",
+          "order": 1,
+          "name": "Unpaid"
         },
         "contract": {
-          "id": "d7382485-0793-153d-552f-81e642d59e06",
+          "id": "03679424-d0e7-1092-222c-3153698d582e",
           "import_id": null,
           "staged_import": false,
           "finished_staged_import": null,
           "external_id": null,
           "name": null,
           "notes": null,
-          "start_date": "2026-08-31",
+          "start_date": "2026-09-29",
           "end_date": "0000-00-00",
           "next_due_date": null,
           "next_invoice_date": "0000-00-00",
@@ -1012,7 +1009,7 @@
           "activation_date": null,
           "status_id": "825d96e7-63ed-0913-ddf4-174825283406",
           "total_recurrent_amount": 0,
-          "total_amount": 72,
+          "total_amount": 4.8,
           "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
           "user_id": "sys",
           "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
@@ -1021,14 +1018,14 @@
           "address_id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
           "billing_cycle_months": 0,
           "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-          "main_invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
-          "main_invoice_number": "QA-INV-22142",
+          "main_invoice_id": "52098d3d-e409-17e0-d782-c31578626e34",
+          "main_invoice_number": "QA-INV-25252",
           "gateway_id": null,
           "payment_details_id": null,
           "promotion_id": null,
           "promotion_code": null,
-          "created_at": "2026-08-31 11:55:16",
-          "updated_at": "2026-08-31 11:55:16",
+          "created_at": "2026-09-29 08:34:05",
+          "updated_at": "2026-09-29 08:34:05",
           "reseller_account_id": null,
           "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
           "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
@@ -1043,7 +1040,7 @@
           "moved": false,
           "partially_moved": false,
           "total_recurrent_amount_formatted": "£0.00",
-          "total_amount_formatted": "£72.00",
+          "total_amount_formatted": "£4.80",
           "currency": {
             "id": "3825d96e-763e-d091-3dc4-174825283406",
             "name": "British Pound",
@@ -1051,2335 +1048,20 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
           }
         },
-        "payments": [
-          {
-            "id": "d6325079-8065-d1e4-50da-8174e234e98d",
-            "import_id": null,
-            "staged_import": false,
-            "external_id": null,
-            "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
-            "payment_details_id": null,
-            "voucher_id": null,
-            "payment_type_id": "9320e435-795e-78d1-88a3-1643202d9860",
-            "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "amount": 72,
-            "transaction_id": "AUK33tHs554eagEKoBdubi",
-            "pending": true,
-            "created_at": "2026-08-31 11:55:32",
-            "updated_at": "2026-08-31 11:55:32",
-            "deleted_at": null,
-            "captured": 0,
-            "amount_captured": "0.0000",
-            "first_date_time_captured": null,
-            "payment_log_id": "85d26e96-783d-167e-e75c-314502e70439",
-            "refunded": 0,
-            "amount_refunded": "0.0000",
-            "parent_id": null,
-            "currency_exchange_rate": "1.000000",
-            "shared_resource_token": null,
-            "document_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "document_currency_exchange_rate": 1,
-            "payment_method_type_deprecated": null,
-            "amount_formatted": "£72.00",
-            "amount_refunded_formatted": "£0.00",
-            "amount_for_refund_formatted": "£72.00",
-            "amount_converted": 72,
-            "amount_refunded_converted": 0,
-            "amount_for_refund_converted": 72,
-            "document_amount_converted": 72,
-            "document_amount_converted_formatted": "£72.00",
-            "payment_method_type": null,
-            "currency": {
-              "id": "3825d96e-763e-d091-3dc4-174825283406",
-              "name": "British Pound",
-              "prefix": "£",
-              "suffix": "",
-              "code": "GBP",
-              "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
-              "base": true,
-              "decimals": true,
-              "manual": 0
-            },
-            "payment_details": null,
-            "gateway": {
-              "id": "2785d26e-9678-3d16-e29a-314502e70439",
-              "import_id": null,
-              "staged_import": false,
-              "external_id": null,
-              "name": "BitPay",
-              "short_description": null,
-              "provider": "BitPay",
-              "created_at": "2025-11-24 09:14:38",
-              "updated_at": "2025-11-24 09:14:38",
-              "deleted_at": null,
-              "type": 10,
-              "auth_type": "settings",
-              "gateway_provider_id": "78985742-6489-7012-25b2-1e325d0ed369",
-              "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
-              "payment_instructions": "",
-              "hash": "b9e57a20dba499950782445925fd46ff",
-              "oauth_application_access_token_id": null,
-              "laravel_through_key": 17566,
-              "name_translated": "BitPay",
-              "short_description_translated": null,
-              "gateway_settings": [
-                {
-                  "id": "4d036794-24d0-e710-58da-3153698d582e",
-                  "private": true
-                },
-                {
-                  "id": "8d632507-9806-5d1e-e08a-8174e234e98d",
-                  "private": true
-                },
-                {
-                  "id": "47d73824-8507-9315-64dc-81e642d59e06",
-                  "import_id": null,
-                  "staged_import": false,
-                  "external_id": null,
-                  "gateway_id": "2785d26e-9678-3d16-e29a-314502e70439",
-                  "field": "stored",
-                  "value": "0",
-                  "private": false,
-                  "created_at": "2025-11-24 09:14:38",
-                  "updated_at": "2025-11-24 09:14:38",
-                  "deleted_at": null
-                }
-              ],
-              "payment_instructions_translated": "",
-              "is_stored": false,
-              "use_frontend_implementation": false,
-              "allow_manual_store": false,
-              "require_stored": false,
-              "provider_logo": null,
-              "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/2785d26e-9678-3d16-e29a-314502e70439",
-              "store_on_payment": false,
-              "store_on_payment_force": false,
-              "store_outside_payment": false,
-              "currencies": [
-                {
-                  "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
-                  "currency_code": "DZD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
-                  "currency_code": "AOA"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
-                  "currency_code": "ARS"
-                },
-                {
-                  "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
-                  "currency_code": "AUD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
-                  "currency_code": "AZN"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
-                  "currency_code": "BDT"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
-                  "currency_code": "BBD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
-                  "currency_code": "BOB"
-                },
-                {
-                  "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
-                  "currency_code": "BRL"
-                },
-                {
-                  "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-                  "currency_code": "GBP"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
-                  "currency_code": "BGN"
-                },
-                {
-                  "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
-                  "currency_code": "CAD"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
-                  "currency_code": "CVE"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
-                  "currency_code": "KYD"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
-                  "currency_code": "XAF"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
-                  "currency_code": "CLP"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
-                  "currency_code": "CNY"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
-                  "currency_code": "COP"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
-                  "currency_code": "CRC"
-                },
-                {
-                  "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
-                  "currency_code": "CZK"
-                },
-                {
-                  "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
-                  "currency_code": "DKK"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
-                  "currency_code": "DOP"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
-                  "currency_code": "EGP"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
-                  "currency_code": "ETB"
-                },
-                {
-                  "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
-                  "currency_code": "EUR"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
-                  "currency_code": "FJD"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
-                  "currency_code": "GEL"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
-                  "currency_code": "GHS"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
-                  "currency_code": "GTQ"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
-                  "currency_code": "HNL"
-                },
-                {
-                  "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
-                  "currency_code": "HKD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
-                  "currency_code": "HUF"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
-                  "currency_code": "ISK"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
-                  "currency_code": "INR"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
-                  "currency_code": "IDR"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
-                  "currency_code": "IQD"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
-                  "currency_code": "ILS"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
-                  "currency_code": "JPY"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
-                  "currency_code": "KES"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
-                  "currency_code": "MYR"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
-                  "currency_code": "MVR"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
-                  "currency_code": "MUR"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
-                  "currency_code": "MXN"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
-                  "currency_code": "MAD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
-                  "currency_code": "MZN"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
-                  "currency_code": "NPR"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
-                  "currency_code": "TWD"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
-                  "currency_code": "NZD"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
-                  "currency_code": "NIO"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
-                  "currency_code": "NGN"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
-                  "currency_code": "NOK"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
-                  "currency_code": "PEN"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
-                  "currency_code": "PKR"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
-                  "currency_code": "PGK"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
-                  "currency_code": "PYG"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
-                  "currency_code": "PHP"
-                },
-                {
-                  "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
-                  "currency_code": "PLN"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
-                  "currency_code": "RON"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
-                  "currency_code": "RUB"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
-                  "currency_code": "RWF"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
-                  "currency_code": "SAR"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
-                  "currency_code": "RSD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
-                  "currency_code": "SGD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
-                  "currency_code": "ZAR"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
-                  "currency_code": "LKR"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
-                  "currency_code": "SEK"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
-                  "currency_code": "CHF"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
-                  "currency_code": "TZS"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
-                  "currency_code": "THB"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
-                  "currency_code": "TTD"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
-                  "currency_code": "TND"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
-                  "currency_code": "TRY"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
-                  "currency_code": "UGX"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
-                  "currency_code": "UAH"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
-                  "currency_code": "AED"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
-                  "currency_code": "UYU"
-                },
-                {
-                  "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
-                  "currency_code": "USD"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
-                  "currency_code": "VND"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
-                  "currency_code": "XOF"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
-                  "currency_code": "ZMW"
-                }
-              ],
-              "card_types": [],
-              "translations": [],
-              "gateway_provider": {
-                "id": "78985742-6489-7012-25b2-1e325d0ed369",
-                "name": "BitPay",
-                "short_description": null,
-                "code": "BitPay",
-                "created_at": "2023-01-09 14:58:06",
-                "updated_at": "2024-10-03 14:59:48",
-                "display_fields": null,
-                "type": 10,
-                "store_type": "none",
-                "auth_type": "settings",
-                "oauth_application_code": null,
-                "external_payment": true,
-                "external_store": false,
-                "instructions": "",
-                "needs_address": false,
-                "requires_name": false,
-                "store_on_payment": false,
-                "supports_refund": false,
-                "supported_currencies": null,
-                "store_on_payment_force": false,
-                "external_billing_charge": false,
-                "supports_frontend_implementation": false,
-                "store_outside_payment": false,
-                "name_translated": "BitPay",
-                "short_description_translated": null,
-                "external": true,
-                "translations": []
-              }
-            },
-            "payment_type": {
-              "id": "9320e435-795e-78d1-88a3-1643202d9860",
-              "name": "payment_types.awaiting_client"
-            },
-            "document_currency": {
-              "id": "3825d96e-763e-d091-3dc4-174825283406",
-              "name": "British Pound",
-              "prefix": "£",
-              "suffix": "",
-              "code": "GBP",
-              "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
-              "base": true,
-              "decimals": true,
-              "manual": 0
-            }
-          },
-          {
-            "id": "7d738248-5079-3154-e59b-81e642d59e06",
-            "import_id": null,
-            "staged_import": false,
-            "external_id": null,
-            "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
-            "payment_details_id": null,
-            "voucher_id": null,
-            "payment_type_id": "9320e435-795e-78d1-88a3-1643202d9860",
-            "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "amount": 72,
-            "transaction_id": "3MPDAgvaruYoMLZA5V4UKAbGAN5Q9c7tZF",
-            "pending": true,
-            "created_at": "2026-08-31 11:55:35",
-            "updated_at": "2026-08-31 11:55:35",
-            "deleted_at": null,
-            "captured": 0,
-            "amount_captured": "0.0000",
-            "first_date_time_captured": null,
-            "payment_log_id": "5d96e763-ed09-13d6-663b-417482528340",
-            "refunded": 0,
-            "amount_refunded": "0.0000",
-            "parent_id": null,
-            "currency_exchange_rate": "1.000000",
-            "shared_resource_token": null,
-            "document_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "document_currency_exchange_rate": 1,
-            "payment_method_type_deprecated": null,
-            "amount_formatted": "£72.00",
-            "amount_refunded_formatted": "£0.00",
-            "amount_for_refund_formatted": "£72.00",
-            "amount_converted": 72,
-            "amount_refunded_converted": 0,
-            "amount_for_refund_converted": 72,
-            "document_amount_converted": 72,
-            "document_amount_converted_formatted": "£72.00",
-            "payment_method_type": null,
-            "currency": {
-              "id": "3825d96e-763e-d091-3dc4-174825283406",
-              "name": "British Pound",
-              "prefix": "£",
-              "suffix": "",
-              "code": "GBP",
-              "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
-              "base": true,
-              "decimals": true,
-              "manual": 0
-            },
-            "payment_details": null,
-            "gateway": {
-              "id": "825d96e7-63ed-0913-605a-417482528340",
-              "import_id": null,
-              "staged_import": false,
-              "external_id": null,
-              "name": "Blockonomics (BTC)",
-              "short_description": null,
-              "provider": "Blockonomics",
-              "created_at": "2025-11-24 09:16:24",
-              "updated_at": "2025-11-24 09:16:24",
-              "deleted_at": null,
-              "type": 10,
-              "auth_type": "settings",
-              "gateway_provider_id": "5952098d-3de4-0917-76b3-1578626e347e",
-              "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
-              "payment_instructions": "",
-              "hash": "339cee46530d823a23720a7213f3051d",
-              "oauth_application_access_token_id": null,
-              "laravel_through_key": 17567,
-              "name_translated": "Blockonomics (BTC)",
-              "short_description_translated": null,
-              "gateway_settings": [
-                {
-                  "id": "5952098d-3de4-0917-d8ea-31578626e347",
-                  "import_id": null,
-                  "staged_import": false,
-                  "external_id": null,
-                  "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
-                  "field": "testMode",
-                  "value": "0",
-                  "private": false,
-                  "created_at": "2025-11-24 09:16:24",
-                  "updated_at": "2025-11-24 09:16:24",
-                  "deleted_at": null
-                },
-                {
-                  "id": "20403869-6e54-721d-0e6b-518d9305e7d2",
-                  "import_id": null,
-                  "staged_import": false,
-                  "external_id": null,
-                  "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
-                  "field": "cryptoCurrency",
-                  "value": "btc",
-                  "private": false,
-                  "created_at": "2025-11-24 09:16:24",
-                  "updated_at": "2025-11-24 09:16:24",
-                  "deleted_at": null
-                },
-                {
-                  "id": "3de78642-de53-9714-8e7f-21208469530d",
-                  "private": true
-                },
-                {
-                  "id": "78985742-6489-7012-d97c-21e325d0ed36",
-                  "import_id": null,
-                  "staged_import": false,
-                  "external_id": null,
-                  "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
-                  "field": "xpub",
-                  "value": "zpub6rAkF1UuBrpaSHNbFSSsuZeZwhJjp66Rfi9ZgtUe9JhXnhHWkVre6rFMwGJH8txPvQhVPqgoyA8H9SE49m7m8k1ihcmhmhoWMNhs7s3JXjZ",
-                  "private": false,
-                  "created_at": "2025-11-24 09:16:24",
-                  "updated_at": "2025-11-24 09:16:24",
-                  "deleted_at": null
-                }
-              ],
-              "payment_instructions_translated": "",
-              "is_stored": false,
-              "use_frontend_implementation": false,
-              "allow_manual_store": false,
-              "require_stored": false,
-              "provider_logo": null,
-              "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/825d96e7-63ed-0913-605a-417482528340",
-              "store_on_payment": false,
-              "store_on_payment_force": false,
-              "store_outside_payment": false,
-              "currencies": [
-                {
-                  "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
-                  "currency_code": "DZD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
-                  "currency_code": "AOA"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
-                  "currency_code": "ARS"
-                },
-                {
-                  "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
-                  "currency_code": "AUD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
-                  "currency_code": "AZN"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
-                  "currency_code": "BDT"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
-                  "currency_code": "BBD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
-                  "currency_code": "BOB"
-                },
-                {
-                  "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
-                  "currency_code": "BRL"
-                },
-                {
-                  "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-                  "currency_code": "GBP"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
-                  "currency_code": "BGN"
-                },
-                {
-                  "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
-                  "currency_code": "CAD"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
-                  "currency_code": "CVE"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
-                  "currency_code": "KYD"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
-                  "currency_code": "XAF"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
-                  "currency_code": "CLP"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
-                  "currency_code": "CNY"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
-                  "currency_code": "COP"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
-                  "currency_code": "CRC"
-                },
-                {
-                  "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
-                  "currency_code": "CZK"
-                },
-                {
-                  "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
-                  "currency_code": "DKK"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
-                  "currency_code": "DOP"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
-                  "currency_code": "EGP"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
-                  "currency_code": "ETB"
-                },
-                {
-                  "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
-                  "currency_code": "EUR"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
-                  "currency_code": "FJD"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
-                  "currency_code": "GEL"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
-                  "currency_code": "GHS"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
-                  "currency_code": "GTQ"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
-                  "currency_code": "HNL"
-                },
-                {
-                  "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
-                  "currency_code": "HKD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
-                  "currency_code": "HUF"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
-                  "currency_code": "ISK"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
-                  "currency_code": "INR"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
-                  "currency_code": "IDR"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
-                  "currency_code": "IQD"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
-                  "currency_code": "ILS"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
-                  "currency_code": "JPY"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
-                  "currency_code": "KES"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
-                  "currency_code": "MYR"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
-                  "currency_code": "MVR"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
-                  "currency_code": "MUR"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
-                  "currency_code": "MXN"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
-                  "currency_code": "MAD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
-                  "currency_code": "MZN"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
-                  "currency_code": "NPR"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
-                  "currency_code": "TWD"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
-                  "currency_code": "NZD"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
-                  "currency_code": "NIO"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
-                  "currency_code": "NGN"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
-                  "currency_code": "NOK"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
-                  "currency_code": "PEN"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
-                  "currency_code": "PKR"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
-                  "currency_code": "PGK"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
-                  "currency_code": "PYG"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
-                  "currency_code": "PHP"
-                },
-                {
-                  "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
-                  "currency_code": "PLN"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
-                  "currency_code": "RON"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
-                  "currency_code": "RUB"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
-                  "currency_code": "RWF"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
-                  "currency_code": "SAR"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
-                  "currency_code": "RSD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
-                  "currency_code": "SGD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
-                  "currency_code": "ZAR"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
-                  "currency_code": "LKR"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
-                  "currency_code": "SEK"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
-                  "currency_code": "CHF"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
-                  "currency_code": "TZS"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
-                  "currency_code": "THB"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
-                  "currency_code": "TTD"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
-                  "currency_code": "TND"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
-                  "currency_code": "TRY"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
-                  "currency_code": "UGX"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
-                  "currency_code": "UAH"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
-                  "currency_code": "AED"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
-                  "currency_code": "UYU"
-                },
-                {
-                  "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
-                  "currency_code": "USD"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
-                  "currency_code": "VND"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
-                  "currency_code": "XOF"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
-                  "currency_code": "ZMW"
-                }
-              ],
-              "card_types": [],
-              "translations": [],
-              "gateway_provider": {
-                "id": "5952098d-3de4-0917-76b3-1578626e347e",
-                "name": "Blockonomics",
-                "short_description": null,
-                "code": "Blockonomics",
-                "created_at": "2024-06-06 11:31:48",
-                "updated_at": "2024-06-06 11:31:48",
-                "display_fields": null,
-                "type": 10,
-                "store_type": "none",
-                "auth_type": "settings",
-                "oauth_application_code": null,
-                "external_payment": false,
-                "external_store": false,
-                "instructions": "",
-                "needs_address": false,
-                "requires_name": false,
-                "store_on_payment": false,
-                "supports_refund": false,
-                "supported_currencies": [
-                  "AED",
-                  "AFN",
-                  "ALL",
-                  "AMD",
-                  "ANG",
-                  "AOA",
-                  "APE",
-                  "ARS",
-                  "AUD",
-                  "AWG",
-                  "AZN",
-                  "BAM",
-                  "BBD",
-                  "BCH",
-                  "BDT",
-                  "BGN",
-                  "BHD",
-                  "BIF",
-                  "BMD",
-                  "BND",
-                  "BOB",
-                  "BRL",
-                  "BSD",
-                  "BTN",
-                  "BUSD",
-                  "BUSD_m",
-                  "BWP",
-                  "BYN",
-                  "BZD",
-                  "CAD",
-                  "CDF",
-                  "CHF",
-                  "CLF",
-                  "CLP",
-                  "CNY",
-                  "COP",
-                  "CRC",
-                  "CUP",
-                  "CVE",
-                  "CZK",
-                  "DAI",
-                  "DAI_m",
-                  "DJF",
-                  "DKK",
-                  "DOGE",
-                  "DOP",
-                  "DZD",
-                  "EGP",
-                  "ETB",
-                  "ETH",
-                  "ETH_m",
-                  "EUR",
-                  "EUROC",
-                  "FJD",
-                  "FKP",
-                  "GBP",
-                  "GEL",
-                  "GHS",
-                  "GIP",
-                  "GMD",
-                  "GNF",
-                  "GTQ",
-                  "GUSD",
-                  "GYD",
-                  "HKD",
-                  "HNL",
-                  "HRK",
-                  "HTG",
-                  "HUF",
-                  "IDR",
-                  "ILS",
-                  "INR",
-                  "IQD",
-                  "IRR",
-                  "ISK",
-                  "JEP",
-                  "JMD",
-                  "JOD",
-                  "JPY",
-                  "KES",
-                  "KGS",
-                  "KHR",
-                  "KMF",
-                  "KPW",
-                  "KRW",
-                  "KWD",
-                  "KYD",
-                  "KZT",
-                  "LAK",
-                  "LBP",
-                  "LKR",
-                  "LRD",
-                  "LSL",
-                  "LTC",
-                  "LYD",
-                  "MAD",
-                  "MATIC",
-                  "MATIC_e",
-                  "MDL",
-                  "MGA",
-                  "MKD",
-                  "MMK",
-                  "MNT",
-                  "MOP",
-                  "MRU",
-                  "MUR",
-                  "MVR",
-                  "MWK",
-                  "MXN",
-                  "MYR",
-                  "MZN",
-                  "NAD",
-                  "NGN",
-                  "NIO",
-                  "NOK",
-                  "NPR",
-                  "NZD",
-                  "OMR",
-                  "PAB",
-                  "PAX",
-                  "PEN",
-                  "PGK",
-                  "PHP",
-                  "PKR",
-                  "PLN",
-                  "PYG",
-                  "PYUSD",
-                  "QAR",
-                  "RON",
-                  "RSD",
-                  "RUB",
-                  "RWF",
-                  "SAR",
-                  "SBD",
-                  "SCR",
-                  "SDG",
-                  "SEK",
-                  "SGD",
-                  "SHIB",
-                  "SHIB_m",
-                  "SHP",
-                  "SLL",
-                  "SOS",
-                  "SRD",
-                  "STN",
-                  "SVC",
-                  "SYP",
-                  "SZL",
-                  "THB",
-                  "TJS",
-                  "TMT",
-                  "TND",
-                  "TOP",
-                  "TRY",
-                  "TTD",
-                  "TWD",
-                  "TZS",
-                  "UAH",
-                  "UGX",
-                  "USD",
-                  "USDC",
-                  "USDC_m",
-                  "USDCn_m",
-                  "USDT",
-                  "USDT_m",
-                  "UYU",
-                  "UZS",
-                  "VES",
-                  "VND",
-                  "VUV",
-                  "WBTC",
-                  "WBTC_m",
-                  "WST",
-                  "XAF",
-                  "XAG",
-                  "XAU",
-                  "XCD",
-                  "XOF",
-                  "XPF",
-                  "XRP",
-                  "YER",
-                  "ZAR",
-                  "ZMW",
-                  "ZWL"
-                ],
-                "store_on_payment_force": false,
-                "external_billing_charge": false,
-                "supports_frontend_implementation": false,
-                "store_outside_payment": false,
-                "name_translated": "Blockonomics",
-                "short_description_translated": null,
-                "external": false,
-                "translations": []
-              }
-            },
-            "payment_type": {
-              "id": "9320e435-795e-78d1-88a3-1643202d9860",
-              "name": "payment_types.awaiting_client"
-            },
-            "document_currency": {
-              "id": "3825d96e-763e-d091-3dc4-174825283406",
-              "name": "British Pound",
-              "prefix": "£",
-              "suffix": "",
-              "code": "GBP",
-              "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
-              "base": true,
-              "decimals": true,
-              "manual": 0
-            }
-          },
-          {
-            "id": "952098d3-de40-9178-95df-31578626e347",
-            "import_id": null,
-            "staged_import": false,
-            "external_id": null,
-            "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
-            "payment_details_id": null,
-            "voucher_id": null,
-            "payment_type_id": "9320e435-795e-78d1-88a3-1643202d9860",
-            "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "amount": 36,
-            "transaction_id": "NrQ46jgqTcSBddEw4Mm1JU",
-            "pending": true,
-            "created_at": "2026-08-31 11:55:53",
-            "updated_at": "2026-08-31 11:55:53",
-            "deleted_at": null,
-            "captured": 0,
-            "amount_captured": "0.0000",
-            "first_date_time_captured": null,
-            "payment_log_id": "0e435795-e78d-1847-779f-31643202d986",
-            "refunded": 0,
-            "amount_refunded": "0.0000",
-            "parent_id": null,
-            "currency_exchange_rate": "1.000000",
-            "shared_resource_token": null,
-            "document_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "document_currency_exchange_rate": 1,
-            "payment_method_type_deprecated": null,
-            "amount_formatted": "£36.00",
-            "amount_refunded_formatted": "£0.00",
-            "amount_for_refund_formatted": "£36.00",
-            "amount_converted": 36,
-            "amount_refunded_converted": 0,
-            "amount_for_refund_converted": 36,
-            "document_amount_converted": 36,
-            "document_amount_converted_formatted": "£36.00",
-            "payment_method_type": null,
-            "currency": {
-              "id": "3825d96e-763e-d091-3dc4-174825283406",
-              "name": "British Pound",
-              "prefix": "£",
-              "suffix": "",
-              "code": "GBP",
-              "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
-              "base": true,
-              "decimals": true,
-              "manual": 0
-            },
-            "payment_details": null,
-            "gateway": {
-              "id": "2785d26e-9678-3d16-e29a-314502e70439",
-              "import_id": null,
-              "staged_import": false,
-              "external_id": null,
-              "name": "BitPay",
-              "short_description": null,
-              "provider": "BitPay",
-              "created_at": "2025-11-24 09:14:38",
-              "updated_at": "2025-11-24 09:14:38",
-              "deleted_at": null,
-              "type": 10,
-              "auth_type": "settings",
-              "gateway_provider_id": "78985742-6489-7012-25b2-1e325d0ed369",
-              "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
-              "payment_instructions": "",
-              "hash": "b9e57a20dba499950782445925fd46ff",
-              "oauth_application_access_token_id": null,
-              "laravel_through_key": 17576,
-              "name_translated": "BitPay",
-              "short_description_translated": null,
-              "gateway_settings": [
-                {
-                  "id": "4d036794-24d0-e710-58da-3153698d582e",
-                  "private": true
-                },
-                {
-                  "id": "8d632507-9806-5d1e-e08a-8174e234e98d",
-                  "private": true
-                },
-                {
-                  "id": "47d73824-8507-9315-64dc-81e642d59e06",
-                  "import_id": null,
-                  "staged_import": false,
-                  "external_id": null,
-                  "gateway_id": "2785d26e-9678-3d16-e29a-314502e70439",
-                  "field": "stored",
-                  "value": "0",
-                  "private": false,
-                  "created_at": "2025-11-24 09:14:38",
-                  "updated_at": "2025-11-24 09:14:38",
-                  "deleted_at": null
-                }
-              ],
-              "payment_instructions_translated": "",
-              "is_stored": false,
-              "use_frontend_implementation": false,
-              "allow_manual_store": false,
-              "require_stored": false,
-              "provider_logo": null,
-              "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/2785d26e-9678-3d16-e29a-314502e70439",
-              "store_on_payment": false,
-              "store_on_payment_force": false,
-              "store_outside_payment": false,
-              "currencies": [
-                {
-                  "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
-                  "currency_code": "DZD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
-                  "currency_code": "AOA"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
-                  "currency_code": "ARS"
-                },
-                {
-                  "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
-                  "currency_code": "AUD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
-                  "currency_code": "AZN"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
-                  "currency_code": "BDT"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
-                  "currency_code": "BBD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
-                  "currency_code": "BOB"
-                },
-                {
-                  "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
-                  "currency_code": "BRL"
-                },
-                {
-                  "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-                  "currency_code": "GBP"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
-                  "currency_code": "BGN"
-                },
-                {
-                  "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
-                  "currency_code": "CAD"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
-                  "currency_code": "CVE"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
-                  "currency_code": "KYD"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
-                  "currency_code": "XAF"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
-                  "currency_code": "CLP"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
-                  "currency_code": "CNY"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
-                  "currency_code": "COP"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
-                  "currency_code": "CRC"
-                },
-                {
-                  "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
-                  "currency_code": "CZK"
-                },
-                {
-                  "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
-                  "currency_code": "DKK"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
-                  "currency_code": "DOP"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
-                  "currency_code": "EGP"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
-                  "currency_code": "ETB"
-                },
-                {
-                  "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
-                  "currency_code": "EUR"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
-                  "currency_code": "FJD"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
-                  "currency_code": "GEL"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
-                  "currency_code": "GHS"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
-                  "currency_code": "GTQ"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
-                  "currency_code": "HNL"
-                },
-                {
-                  "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
-                  "currency_code": "HKD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
-                  "currency_code": "HUF"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
-                  "currency_code": "ISK"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
-                  "currency_code": "INR"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
-                  "currency_code": "IDR"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
-                  "currency_code": "IQD"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
-                  "currency_code": "ILS"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
-                  "currency_code": "JPY"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
-                  "currency_code": "KES"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
-                  "currency_code": "MYR"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
-                  "currency_code": "MVR"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
-                  "currency_code": "MUR"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
-                  "currency_code": "MXN"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
-                  "currency_code": "MAD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
-                  "currency_code": "MZN"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
-                  "currency_code": "NPR"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
-                  "currency_code": "TWD"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
-                  "currency_code": "NZD"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
-                  "currency_code": "NIO"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
-                  "currency_code": "NGN"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
-                  "currency_code": "NOK"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
-                  "currency_code": "PEN"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
-                  "currency_code": "PKR"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
-                  "currency_code": "PGK"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
-                  "currency_code": "PYG"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
-                  "currency_code": "PHP"
-                },
-                {
-                  "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
-                  "currency_code": "PLN"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
-                  "currency_code": "RON"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
-                  "currency_code": "RUB"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
-                  "currency_code": "RWF"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
-                  "currency_code": "SAR"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
-                  "currency_code": "RSD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
-                  "currency_code": "SGD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
-                  "currency_code": "ZAR"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
-                  "currency_code": "LKR"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
-                  "currency_code": "SEK"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
-                  "currency_code": "CHF"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
-                  "currency_code": "TZS"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
-                  "currency_code": "THB"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
-                  "currency_code": "TTD"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
-                  "currency_code": "TND"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
-                  "currency_code": "TRY"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
-                  "currency_code": "UGX"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
-                  "currency_code": "UAH"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
-                  "currency_code": "AED"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
-                  "currency_code": "UYU"
-                },
-                {
-                  "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
-                  "currency_code": "USD"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
-                  "currency_code": "VND"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
-                  "currency_code": "XOF"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
-                  "currency_code": "ZMW"
-                }
-              ],
-              "card_types": [],
-              "translations": [],
-              "gateway_provider": {
-                "id": "78985742-6489-7012-25b2-1e325d0ed369",
-                "name": "BitPay",
-                "short_description": null,
-                "code": "BitPay",
-                "created_at": "2023-01-09 14:58:06",
-                "updated_at": "2024-10-03 14:59:48",
-                "display_fields": null,
-                "type": 10,
-                "store_type": "none",
-                "auth_type": "settings",
-                "oauth_application_code": null,
-                "external_payment": true,
-                "external_store": false,
-                "instructions": "",
-                "needs_address": false,
-                "requires_name": false,
-                "store_on_payment": false,
-                "supports_refund": false,
-                "supported_currencies": null,
-                "store_on_payment_force": false,
-                "external_billing_charge": false,
-                "supports_frontend_implementation": false,
-                "store_outside_payment": false,
-                "name_translated": "BitPay",
-                "short_description_translated": null,
-                "external": true,
-                "translations": []
-              }
-            },
-            "payment_type": {
-              "id": "9320e435-795e-78d1-88a3-1643202d9860",
-              "name": "payment_types.awaiting_client"
-            },
-            "document_currency": {
-              "id": "3825d96e-763e-d091-3dc4-174825283406",
-              "name": "British Pound",
-              "prefix": "£",
-              "suffix": "",
-              "code": "GBP",
-              "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
-              "base": true,
-              "decimals": true,
-              "manual": 0
-            }
-          },
-          {
-            "id": "04038696-e547-21de-69dc-518d9305e7d2",
-            "import_id": null,
-            "staged_import": false,
-            "external_id": null,
-            "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
-            "payment_details_id": null,
-            "voucher_id": null,
-            "payment_type_id": "9320e435-795e-78d1-88a3-1643202d9860",
-            "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "amount": 36,
-            "transaction_id": "3KEGDKBvhRNDHh2WK1QiRhSBNXwKWKGQbr",
-            "pending": true,
-            "created_at": "2026-08-31 11:55:56",
-            "updated_at": "2026-08-31 11:55:56",
-            "deleted_at": null,
-            "captured": 0,
-            "amount_captured": "0.0000",
-            "first_date_time_captured": null,
-            "payment_log_id": "85d26e96-783d-167e-ee5f-314502e70439",
-            "refunded": 0,
-            "amount_refunded": "0.0000",
-            "parent_id": null,
-            "currency_exchange_rate": "1.000000",
-            "shared_resource_token": null,
-            "document_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "document_currency_exchange_rate": 1,
-            "payment_method_type_deprecated": null,
-            "amount_formatted": "£36.00",
-            "amount_refunded_formatted": "£0.00",
-            "amount_for_refund_formatted": "£36.00",
-            "amount_converted": 36,
-            "amount_refunded_converted": 0,
-            "amount_for_refund_converted": 36,
-            "document_amount_converted": 36,
-            "document_amount_converted_formatted": "£36.00",
-            "payment_method_type": null,
-            "currency": {
-              "id": "3825d96e-763e-d091-3dc4-174825283406",
-              "name": "British Pound",
-              "prefix": "£",
-              "suffix": "",
-              "code": "GBP",
-              "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
-              "base": true,
-              "decimals": true,
-              "manual": 0
-            },
-            "payment_details": null,
-            "gateway": {
-              "id": "825d96e7-63ed-0913-605a-417482528340",
-              "import_id": null,
-              "staged_import": false,
-              "external_id": null,
-              "name": "Blockonomics (BTC)",
-              "short_description": null,
-              "provider": "Blockonomics",
-              "created_at": "2025-11-24 09:16:24",
-              "updated_at": "2025-11-24 09:16:24",
-              "deleted_at": null,
-              "type": 10,
-              "auth_type": "settings",
-              "gateway_provider_id": "5952098d-3de4-0917-76b3-1578626e347e",
-              "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
-              "payment_instructions": "",
-              "hash": "339cee46530d823a23720a7213f3051d",
-              "oauth_application_access_token_id": null,
-              "laravel_through_key": 17577,
-              "name_translated": "Blockonomics (BTC)",
-              "short_description_translated": null,
-              "gateway_settings": [
-                {
-                  "id": "5952098d-3de4-0917-d8ea-31578626e347",
-                  "import_id": null,
-                  "staged_import": false,
-                  "external_id": null,
-                  "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
-                  "field": "testMode",
-                  "value": "0",
-                  "private": false,
-                  "created_at": "2025-11-24 09:16:24",
-                  "updated_at": "2025-11-24 09:16:24",
-                  "deleted_at": null
-                },
-                {
-                  "id": "20403869-6e54-721d-0e6b-518d9305e7d2",
-                  "import_id": null,
-                  "staged_import": false,
-                  "external_id": null,
-                  "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
-                  "field": "cryptoCurrency",
-                  "value": "btc",
-                  "private": false,
-                  "created_at": "2025-11-24 09:16:24",
-                  "updated_at": "2025-11-24 09:16:24",
-                  "deleted_at": null
-                },
-                {
-                  "id": "3de78642-de53-9714-8e7f-21208469530d",
-                  "private": true
-                },
-                {
-                  "id": "78985742-6489-7012-d97c-21e325d0ed36",
-                  "import_id": null,
-                  "staged_import": false,
-                  "external_id": null,
-                  "gateway_id": "825d96e7-63ed-0913-605a-417482528340",
-                  "field": "xpub",
-                  "value": "zpub6rAkF1UuBrpaSHNbFSSsuZeZwhJjp66Rfi9ZgtUe9JhXnhHWkVre6rFMwGJH8txPvQhVPqgoyA8H9SE49m7m8k1ihcmhmhoWMNhs7s3JXjZ",
-                  "private": false,
-                  "created_at": "2025-11-24 09:16:24",
-                  "updated_at": "2025-11-24 09:16:24",
-                  "deleted_at": null
-                }
-              ],
-              "payment_instructions_translated": "",
-              "is_stored": false,
-              "use_frontend_implementation": false,
-              "allow_manual_store": false,
-              "require_stored": false,
-              "provider_logo": null,
-              "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/825d96e7-63ed-0913-605a-417482528340",
-              "store_on_payment": false,
-              "store_on_payment_force": false,
-              "store_outside_payment": false,
-              "currencies": [
-                {
-                  "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
-                  "currency_code": "DZD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
-                  "currency_code": "AOA"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
-                  "currency_code": "ARS"
-                },
-                {
-                  "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
-                  "currency_code": "AUD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
-                  "currency_code": "AZN"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
-                  "currency_code": "BDT"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
-                  "currency_code": "BBD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
-                  "currency_code": "BOB"
-                },
-                {
-                  "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
-                  "currency_code": "BRL"
-                },
-                {
-                  "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-                  "currency_code": "GBP"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
-                  "currency_code": "BGN"
-                },
-                {
-                  "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
-                  "currency_code": "CAD"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
-                  "currency_code": "CVE"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
-                  "currency_code": "KYD"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
-                  "currency_code": "XAF"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
-                  "currency_code": "CLP"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
-                  "currency_code": "CNY"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
-                  "currency_code": "COP"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
-                  "currency_code": "CRC"
-                },
-                {
-                  "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
-                  "currency_code": "CZK"
-                },
-                {
-                  "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
-                  "currency_code": "DKK"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
-                  "currency_code": "DOP"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
-                  "currency_code": "EGP"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
-                  "currency_code": "ETB"
-                },
-                {
-                  "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
-                  "currency_code": "EUR"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
-                  "currency_code": "FJD"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
-                  "currency_code": "GEL"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
-                  "currency_code": "GHS"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
-                  "currency_code": "GTQ"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
-                  "currency_code": "HNL"
-                },
-                {
-                  "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
-                  "currency_code": "HKD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
-                  "currency_code": "HUF"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
-                  "currency_code": "ISK"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
-                  "currency_code": "INR"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
-                  "currency_code": "IDR"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
-                  "currency_code": "IQD"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
-                  "currency_code": "ILS"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
-                  "currency_code": "JPY"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
-                  "currency_code": "KES"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
-                  "currency_code": "MYR"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
-                  "currency_code": "MVR"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
-                  "currency_code": "MUR"
-                },
-                {
-                  "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
-                  "currency_code": "MXN"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
-                  "currency_code": "MAD"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
-                  "currency_code": "MZN"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
-                  "currency_code": "NPR"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
-                  "currency_code": "TWD"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
-                  "currency_code": "NZD"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
-                  "currency_code": "NIO"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
-                  "currency_code": "NGN"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
-                  "currency_code": "NOK"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
-                  "currency_code": "PEN"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
-                  "currency_code": "PKR"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
-                  "currency_code": "PGK"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
-                  "currency_code": "PYG"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
-                  "currency_code": "PHP"
-                },
-                {
-                  "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
-                  "currency_code": "PLN"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
-                  "currency_code": "RON"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
-                  "currency_code": "RUB"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
-                  "currency_code": "RWF"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
-                  "currency_code": "SAR"
-                },
-                {
-                  "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
-                  "currency_code": "RSD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
-                  "currency_code": "SGD"
-                },
-                {
-                  "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
-                  "currency_code": "ZAR"
-                },
-                {
-                  "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
-                  "currency_code": "LKR"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
-                  "currency_code": "SEK"
-                },
-                {
-                  "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
-                  "currency_code": "CHF"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
-                  "currency_code": "TZS"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
-                  "currency_code": "THB"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
-                  "currency_code": "TTD"
-                },
-                {
-                  "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
-                  "currency_code": "TND"
-                },
-                {
-                  "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
-                  "currency_code": "TRY"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
-                  "currency_code": "UGX"
-                },
-                {
-                  "currency_id": "4d036794-24d0-e710-84f3-153698d582e8",
-                  "currency_code": "UAH"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
-                  "currency_code": "AED"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
-                  "currency_code": "UYU"
-                },
-                {
-                  "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
-                  "currency_code": "USD"
-                },
-                {
-                  "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
-                  "currency_code": "VND"
-                },
-                {
-                  "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
-                  "currency_code": "XOF"
-                },
-                {
-                  "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
-                  "currency_code": "ZMW"
-                }
-              ],
-              "card_types": [],
-              "translations": [],
-              "gateway_provider": {
-                "id": "5952098d-3de4-0917-76b3-1578626e347e",
-                "name": "Blockonomics",
-                "short_description": null,
-                "code": "Blockonomics",
-                "created_at": "2024-06-06 11:31:48",
-                "updated_at": "2024-06-06 11:31:48",
-                "display_fields": null,
-                "type": 10,
-                "store_type": "none",
-                "auth_type": "settings",
-                "oauth_application_code": null,
-                "external_payment": false,
-                "external_store": false,
-                "instructions": "",
-                "needs_address": false,
-                "requires_name": false,
-                "store_on_payment": false,
-                "supports_refund": false,
-                "supported_currencies": [
-                  "AED",
-                  "AFN",
-                  "ALL",
-                  "AMD",
-                  "ANG",
-                  "AOA",
-                  "APE",
-                  "ARS",
-                  "AUD",
-                  "AWG",
-                  "AZN",
-                  "BAM",
-                  "BBD",
-                  "BCH",
-                  "BDT",
-                  "BGN",
-                  "BHD",
-                  "BIF",
-                  "BMD",
-                  "BND",
-                  "BOB",
-                  "BRL",
-                  "BSD",
-                  "BTN",
-                  "BUSD",
-                  "BUSD_m",
-                  "BWP",
-                  "BYN",
-                  "BZD",
-                  "CAD",
-                  "CDF",
-                  "CHF",
-                  "CLF",
-                  "CLP",
-                  "CNY",
-                  "COP",
-                  "CRC",
-                  "CUP",
-                  "CVE",
-                  "CZK",
-                  "DAI",
-                  "DAI_m",
-                  "DJF",
-                  "DKK",
-                  "DOGE",
-                  "DOP",
-                  "DZD",
-                  "EGP",
-                  "ETB",
-                  "ETH",
-                  "ETH_m",
-                  "EUR",
-                  "EUROC",
-                  "FJD",
-                  "FKP",
-                  "GBP",
-                  "GEL",
-                  "GHS",
-                  "GIP",
-                  "GMD",
-                  "GNF",
-                  "GTQ",
-                  "GUSD",
-                  "GYD",
-                  "HKD",
-                  "HNL",
-                  "HRK",
-                  "HTG",
-                  "HUF",
-                  "IDR",
-                  "ILS",
-                  "INR",
-                  "IQD",
-                  "IRR",
-                  "ISK",
-                  "JEP",
-                  "JMD",
-                  "JOD",
-                  "JPY",
-                  "KES",
-                  "KGS",
-                  "KHR",
-                  "KMF",
-                  "KPW",
-                  "KRW",
-                  "KWD",
-                  "KYD",
-                  "KZT",
-                  "LAK",
-                  "LBP",
-                  "LKR",
-                  "LRD",
-                  "LSL",
-                  "LTC",
-                  "LYD",
-                  "MAD",
-                  "MATIC",
-                  "MATIC_e",
-                  "MDL",
-                  "MGA",
-                  "MKD",
-                  "MMK",
-                  "MNT",
-                  "MOP",
-                  "MRU",
-                  "MUR",
-                  "MVR",
-                  "MWK",
-                  "MXN",
-                  "MYR",
-                  "MZN",
-                  "NAD",
-                  "NGN",
-                  "NIO",
-                  "NOK",
-                  "NPR",
-                  "NZD",
-                  "OMR",
-                  "PAB",
-                  "PAX",
-                  "PEN",
-                  "PGK",
-                  "PHP",
-                  "PKR",
-                  "PLN",
-                  "PYG",
-                  "PYUSD",
-                  "QAR",
-                  "RON",
-                  "RSD",
-                  "RUB",
-                  "RWF",
-                  "SAR",
-                  "SBD",
-                  "SCR",
-                  "SDG",
-                  "SEK",
-                  "SGD",
-                  "SHIB",
-                  "SHIB_m",
-                  "SHP",
-                  "SLL",
-                  "SOS",
-                  "SRD",
-                  "STN",
-                  "SVC",
-                  "SYP",
-                  "SZL",
-                  "THB",
-                  "TJS",
-                  "TMT",
-                  "TND",
-                  "TOP",
-                  "TRY",
-                  "TTD",
-                  "TWD",
-                  "TZS",
-                  "UAH",
-                  "UGX",
-                  "USD",
-                  "USDC",
-                  "USDC_m",
-                  "USDCn_m",
-                  "USDT",
-                  "USDT_m",
-                  "UYU",
-                  "UZS",
-                  "VES",
-                  "VND",
-                  "VUV",
-                  "WBTC",
-                  "WBTC_m",
-                  "WST",
-                  "XAF",
-                  "XAG",
-                  "XAU",
-                  "XCD",
-                  "XOF",
-                  "XPF",
-                  "XRP",
-                  "YER",
-                  "ZAR",
-                  "ZMW",
-                  "ZWL"
-                ],
-                "store_on_payment_force": false,
-                "external_billing_charge": false,
-                "supports_frontend_implementation": false,
-                "store_outside_payment": false,
-                "name_translated": "Blockonomics",
-                "short_description_translated": null,
-                "external": false,
-                "translations": []
-              }
-            },
-            "payment_type": {
-              "id": "9320e435-795e-78d1-88a3-1643202d9860",
-              "name": "payment_types.awaiting_client"
-            },
-            "document_currency": {
-              "id": "3825d96e-763e-d091-3dc4-174825283406",
-              "name": "British Pound",
-              "prefix": "£",
-              "suffix": "",
-              "code": "GBP",
-              "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
-              "base": true,
-              "decimals": true,
-              "manual": 0
-            }
-          }
-        ],
+        "payments": [],
         "products": [
           {
-            "id": "98574264-8970-1258-703c-21e325d0ed36",
+            "id": "4038696e-5472-1d46-2ddb-518d9305e7d2",
             "import_id": null,
             "staged_import": false,
             "external_id": null,
-            "invoice_id": "85d26e96-783d-1652-de8a-314502e70439",
+            "invoice_id": "52098d3d-e409-17e0-d782-c31578626e34",
             "product_id": "3de78642-de53-9714-76df-21208469530d",
             "name": " Starter Hosting",
             "service_identifier": null,
@@ -3387,26 +1069,26 @@
             "description": " Shared Hosting -  Starter Hosting",
             "cost": 0,
             "cost_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "base_price": 60,
+            "base_price": 4,
             "base_price_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "selling_price": 60,
-            "net_selling_price": "60.0000",
+            "selling_price": 4,
+            "net_selling_price": "4.0000",
             "cost_exchange_rate": "1.000000",
             "base_price_exchange_rate": "1.000000",
             "quantity": 1,
             "unit_quantity": null,
-            "net_amount": 60,
+            "net_amount": 4,
             "vat_country_id": "320e4357-95e7-8d18-484f-31643202d986",
             "vat_percentage": "20.00",
-            "tax_amount": 12,
-            "total_amount": 72,
-            "created_at": "2026-08-31 11:55:13",
-            "updated_at": "2026-08-31 11:55:16",
+            "tax_amount": 0.8,
+            "total_amount": 4.8,
+            "created_at": "2026-09-29 08:34:03",
+            "updated_at": "2026-09-29 08:34:06",
             "deleted_at": null,
-            "billing_cycle_months": 24,
+            "billing_cycle_months": 1,
             "product_set_id": null,
             "product_group_id": null,
-            "contracts_product_id": "085e69d5-6237-1974-d62b-218e940d4237",
+            "contracts_product_id": "085e69d5-6237-1978-827f-218e940d4237",
             "from_date": null,
             "to_date": null,
             "total_discount_amount": 0,
@@ -3417,7 +1099,7 @@
             "provision_configuration_id": null,
             "provision_server_id": null,
             "provision_center_id": null,
-            "billing_cycle_days": 720,
+            "billing_cycle_days": 30,
             "partial_amount_credited": 0,
             "change_product_direction": null,
             "calculated_contract_product_due_date": null,
@@ -3431,30 +1113,30 @@
             "trial_pre_expire_notification": 0,
             "trial_pre_expire_notification_date": null,
             "trial_end_date": null,
-            "contract_id": "d7382485-0793-153d-552f-81e642d59e06",
+            "contract_id": "03679424-d0e7-1092-222c-3153698d582e",
             "product_name": " Starter Hosting",
             "cost_formatted": "£0.00",
             "cost_currency_code": "GBP",
-            "base_price_formatted": "£60.00",
+            "base_price_formatted": "£4.00",
             "base_currency_code": "GBP",
-            "selling_price_formatted": "£60.00",
-            "selling_price_converted": 60,
-            "net_selling_price_formatted": "£60.00",
-            "net_unit_selling_price_formatted": "£60.00",
+            "selling_price_formatted": "£4.00",
+            "selling_price_converted": 4,
+            "net_selling_price_formatted": "£4.00",
+            "net_unit_selling_price_formatted": "£4.00",
             "net_product_discount_amount_formatted": "£0.00",
             "net_global_discount_amount_formatted": "£0.00",
             "total_discount_amount_formatted": "£0.00",
-            "net_amount_formatted": "£60.00",
-            "tax_amount_formatted": "£12.00",
-            "tax_amount_converted": "£12.00",
-            "total_amount_formatted": "£72.00",
-            "total_amount_converted": 72,
-            "configuration_selling_price_formatted": "£72.00",
-            "configuration_total_amount_formatted": "£72.00",
-            "configuration_total_amount_converted": 72,
-            "configuration_net_selling_price_formatted": "£60.00",
-            "configuration_net_amount_formatted": "£60.00",
-            "configuration_net_amount_converted": 60,
+            "net_amount_formatted": "£4.00",
+            "tax_amount_formatted": "£0.80",
+            "tax_amount_converted": "£0.80",
+            "total_amount_formatted": "£4.80",
+            "total_amount_converted": 4.8,
+            "configuration_selling_price_formatted": "£4.80",
+            "configuration_total_amount_formatted": "£4.80",
+            "configuration_total_amount_converted": 4.8,
+            "configuration_net_selling_price_formatted": "£4.00",
+            "configuration_net_amount_formatted": "£4.00",
+            "configuration_net_amount_converted": 4,
             "configuration_selling_price_discount_converted": 0,
             "configuration_selling_price_discount_formatted": "£0.00",
             "configuration_total_discount_amount_formatted": "£0.00",
@@ -3462,22 +1144,22 @@
             "configuration_net_amount_discount_formatted": "£0.00",
             "configuration_net_amount_discount_converted": 0,
             "configuration_net_selling_price_discount_formatted": "£0.00",
-            "configuration_selling_price_discounted_converted": 72,
-            "configuration_selling_price_discounted_formatted": "£72.00",
-            "configuration_total_discounted_amount_formatted": "£72.00",
-            "configuration_total_discounted_amount_converted": 72,
-            "configuration_net_amount_discounted_formatted": "£60.00",
-            "configuration_net_amount_discounted_converted": 60,
-            "configuration_net_selling_price_discounted_formatted": "£60.00",
-            "configuration_net_selling_price_discounted_converted": 60,
-            "partial_amount_to_credit_formatted": "£72.00",
-            "partial_amount_to_credit_converted": 72,
+            "configuration_selling_price_discounted_converted": 4.8,
+            "configuration_selling_price_discounted_formatted": "£4.80",
+            "configuration_total_discounted_amount_formatted": "£4.80",
+            "configuration_total_discounted_amount_converted": 4.8,
+            "configuration_net_amount_discounted_formatted": "£4.00",
+            "configuration_net_amount_discounted_converted": 4,
+            "configuration_net_selling_price_discounted_formatted": "£4.00",
+            "configuration_net_selling_price_discounted_converted": 4,
+            "partial_amount_to_credit_formatted": "£4.80",
+            "partial_amount_to_credit_converted": 4.8,
             "partial_amount_credited_formatted": "£0.00",
             "partial_amount_credited_converted": 0,
-            "invoice_create_datetime": "2026-08-31 11:55:15",
-            "invoice_total_amount": 72,
-            "invoice_total_amount_converted": 72,
-            "invoice_total_amount_formatted": "£72.00",
+            "invoice_create_datetime": "2026-09-29 08:34:04",
+            "invoice_total_amount": 4.8,
+            "invoice_total_amount_converted": 4.8,
+            "invoice_total_amount_formatted": "£4.80",
             "attributes": [],
             "options": [],
             "set_products": [],
@@ -3486,31 +1168,31 @@
             "invoice_client_email": null,
             "invoice_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
             "invoice_status": {
-              "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+              "id": "45952098-d3de-4091-76a3-1578626e347e",
               "object_type": "invoice",
-              "code": "invoice_overdue",
-              "order": 2,
-              "name": "Overdue"
+              "code": "invoice_unpaid",
+              "order": 1,
+              "name": "Unpaid"
             },
-            "invoice_number": "QA-INV-22142",
+            "invoice_number": "QA-INV-25252",
             "can_cancel": null,
             "client_label": null,
-            "payment_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-            "payment_currency_exchange_rate": 1,
-            "net_selling_price_base": 60,
-            "net_selling_price_base_formatted": "£60.00",
-            "net_selling_price_base_converted": 60,
-            "net_selling_price_discounted_formatted": "£60.00",
-            "net_selling_price_discounted_converted": 60,
-            "net_selling_price_discounted": 60,
+            "payment_currency_id": null,
+            "payment_currency_exchange_rate": null,
+            "net_selling_price_base": 4,
+            "net_selling_price_base_formatted": "£4.00",
+            "net_selling_price_base_converted": 4,
+            "net_selling_price_discounted_formatted": "£4.00",
+            "net_selling_price_discounted_converted": 4,
+            "net_selling_price_discounted": 4,
             "display_from_date": null,
             "display_to_date": null,
-            "payment_total_amount_converted": 72,
-            "payment_total_amount_formatted": "£72.00",
+            "payment_total_amount_converted": 0,
+            "payment_total_amount_formatted": null,
             "payment_partial_amount_credited_converted": 0,
-            "payment_partial_amount_credited_formatted": "£72.00",
-            "payment_partial_amount_to_credit_converted": 72,
-            "payment_partial_amount_to_credit_formatted": "£0.00",
+            "payment_partial_amount_credited_formatted": null,
+            "payment_partial_amount_to_credit_converted": 0,
+            "payment_partial_amount_to_credit_formatted": null,
             "future_renewal_price": null,
             "configuration_future_renewal_price": null,
             "product": {
@@ -3761,7 +1443,7 @@
           "user_id": "sys",
           "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
           "created_at": "2025-06-02 16:00:35",
-          "updated_at": "2026-02-25 11:47:13",
+          "updated_at": "2026-09-28 06:50:51",
           "name": "Default",
           "status_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
           "account_type_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -3796,7 +1478,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -3805,7 +1487,7 @@
             "id": "2785d26e-9678-3d16-999f-314502e70439",
             "name": "QA Automation Testing",
             "created_at": "2025-05-07 08:38:43",
-            "updated_at": "2026-09-08 04:00:14",
+            "updated_at": "2026-09-29 08:35:10",
             "code": "kn6x1dzbtcgb",
             "brand_type": 1,
             "reseller_account_id": null,
@@ -3841,7 +1523,7 @@
               "suffix": "",
               "code": "GBP",
               "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
+              "updated_at": "2026-09-28 11:08:14",
               "base": true,
               "decimals": true,
               "manual": 0
@@ -3866,7 +1548,7 @@
           "county": null,
           "postcode": "GU4 8PH",
           "created_at": "2025-06-26 12:26:18",
-          "updated_at": "2026-08-23 12:34:25",
+          "updated_at": "2026-09-28 12:19:12",
           "deleted_at": null,
           "verified": 0,
           "can_delete": false,
@@ -3876,7 +1558,7 @@
             "code": "GB",
             "code3": "",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:28",
+            "updated_at": "2026-09-28 11:08:35",
             "vat": "20.00",
             "eea": 1,
             "phone_code": "+44",
@@ -3893,7 +1575,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-08T08:31:24.091Z",
+  "captured_at": "2026-09-29T08:35:49.079Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

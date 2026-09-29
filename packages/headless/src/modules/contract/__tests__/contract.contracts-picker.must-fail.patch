@@ -3,6 +3,9 @@
 # `schemas.ticketPicker` shape: "the id is the value because that is what the
 # manager loads by").
 #
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.contracts-picker.test.ts
+#
 # Covering spec: contract.contracts-picker.test.ts (unit) — a RECORDED
 #   `get-contracts-case-named-first` row is given a `name`, then asserted:
 #   `option.value` is the row's id and `option.label` is that name. The named

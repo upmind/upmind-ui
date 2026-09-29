@@ -1,15 +1,11 @@
 Negative control for contract.machine.ts loading `isUnrecognised` arm (D89c).
 
-Spec that must flip: the test proving contract.feature:354 ("A contract read
-whose status is none I know settles on an error instead of a state") — an
-unrecognised status code must leave the machine settled on the `error` node,
-not parked in `loading`. A prover seat is moving that test to the unit or
-machine layer, so the spec is named by feature line rather than by file.
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.manager-unrecognised-status.test.ts
 
 Mutation: drops only `target: "#error"` from the `isUnrecognised` branch of
 the loading `always` list, so an unrecognised status no longer settles on the
 error node and the machine stays in `loading`.
-
 diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
 --- a/packages/headless/src/modules/contract/contract.machine.ts
 +++ b/packages/headless/src/modules/contract/contract.machine.ts

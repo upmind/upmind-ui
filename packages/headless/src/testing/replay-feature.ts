@@ -26,11 +26,12 @@
  * leaves the package.
  */
 
-import { describe, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   createStepMatcher,
   parseFeatureScenarios
 } from "@upmind-automation/scenario-harness";
+import { queryClient } from "../modules/query/client";
 import { createNodeWorld } from "./node-world";
 import {
   drop,
@@ -70,8 +71,21 @@ export type ReplayFeatureSource<K extends string> = {
   composables: Record<K, NodeComposable>;
   /** The recorded arrangements a `Given` may seed a boot with. */
   journeys?: NodeWorldJourneys;
-  /** The module's integration-kit arrangement, run before each scenario's first step. */
-  arrange?: () => Promise<void> | void;
+  /**
+   * The module's integration-kit arrangement, run before each scenario's first
+   * step. It is handed the scenario, so it can arm THAT scenario's own
+   * fixtures (FE-3145).
+   */
+  arrange?: (scenario: FeatureScenario) => Promise<void> | void;
+  /**
+   * Run before each step, Background steps included, with the step's 0-based
+   * place in `scenario.steps` — where a scenario arms the fixtures THAT step
+   * recorded.
+   */
+  beforeStep?: (
+    scenario: FeatureScenario,
+    index: number
+  ) => Promise<void> | void;
   /** Run after every scenario, passed or failed — the kit's own scope reset. */
   cleanup?: () => Promise<void> | void;
   /** Per-scenario timeout; absent, the runner's own. */
@@ -115,15 +129,18 @@ function isDriven(scenario: FeatureScenario, matcher: StepMatcher): boolean {
 async function runScenario(
   scenario: FeatureScenario,
   matcher: StepMatcher,
-  world: World
+  world: World,
+  beforeStep?: ReplayFeatureSource<string>["beforeStep"]
 ): Promise<void> {
-  for (const step of scenario.steps) {
+  for (const [index, step] of scenario.steps.entries()) {
     const matched = matcher.match(step.text);
 
     if (!matched)
       throw new Error(
         `replay-feature: no step matches "${step.kind} ${step.text}" (line ${step.line})`
       );
+
+    await beforeStep?.(scenario, index);
 
     try {
       await matched.def.handler(world, ...matched.args);
@@ -137,6 +154,18 @@ async function runScenario(
       );
     }
   }
+}
+
+/**
+ * Starts every scenario from a clean read state: an empty TanStack cache AND an
+ * empty localStorage persister, so a scenario reads its OWN recorded brand
+ * config rather than a `staleTime: "static"` entry an earlier scenario cached
+ * and persisted. Root-level here so every module's replay inherits it, not
+ * per-module (FE-3145).
+ */
+function resetReplayState(): void {
+  queryClient.clear();
+  localStorage.clear();
 }
 
 // -----------------------------------------------------------------------------
@@ -189,14 +218,20 @@ export function replayFeature<K extends string>(
             journeys: source.journeys
           });
 
-          await source.arrange?.();
+          resetReplayState();
+          await source.arrange?.(scenario);
 
           try {
-            await runScenario(scenario, matcher, world);
+            await runScenario(scenario, matcher, world, source.beforeStep);
           } finally {
             // Both always, even on a red: a live instance left in the scope
             // registry is the next scenario's silent adoption.
             await world.dispose();
+            // A scenario ends when its reads land: clearing the cache under a
+            // read in flight strands every singleton still awaiting it.
+            await vi.waitFor(() => expect(queryClient.isFetching()).toBe(0), {
+              timeout: 5000
+            });
             await source.cleanup?.();
           }
         },

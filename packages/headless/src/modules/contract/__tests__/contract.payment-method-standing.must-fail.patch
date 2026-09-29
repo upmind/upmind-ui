@@ -1,13 +1,9 @@
 # Negative-control mutant — the payment-method form on a cancelled or lapsed contract (AC-8, R13)
 #
-# Scenario it must flip: contract.feature:380 "I change how my contract is paid
-#   for through the payment-method form, whatever its standing", Examples rows
-#   cancelled (feature:388) and lapsed (feature:389).
-# Tests that go red: contract.payment-method-standing.int.test.ts:190
-#   "submits a different stored card through the form on a cancelled contract"
-#   and :195 "submits a different stored card through the form on a lapsed
-#   contract" (the form never opens, so
-#   `expect(manager.useMeta().isPaymentMethodOpen.value).toBe(true)` flips).
+# Proves: contract.feature > "Point my cancelled subscription at a different stored payment method"
+# NOT YET RED-VERIFIED: that scenario is red on the live defect where the
+#   manager keeps its first read after a re-read (FE-3145 prover hand-back).
+#
 # Mutation: the `unavailable.changingPaymentMethod.idle` node drops its
 #   `PAYMENT_METHOD` transition — the pre-R13 read-only contract, where a
 #   cancelled or lapsed contract refuses the form like fraud does.

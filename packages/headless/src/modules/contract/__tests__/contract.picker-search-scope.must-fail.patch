@@ -2,10 +2,9 @@
 # picker's OWN `query` leaf, not a `filters.name.like` branch its internal
 # lookup query no longer declares (G1)
 #
-# Scenario it must flip: typing into the `schemas.contractPicker` Lookup
-#   control's search box narrows the options `lookups.contract()` returns —
-#   the term must reach the internal lookup's `useContractLookupQuerySchema()`
-#   model at a leaf that schema actually declares.
+# NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+#   green under it — no driven scenario pins this behaviour yet.
+#
 # Mutation: `useContractPickerUischema`'s `searchScope` reverts to
 #   `"filters.name.like"`. `useContractLookupQuerySchema()` declares only
 #   `query` and `pagination` (no `filters` branch), so a typed term is

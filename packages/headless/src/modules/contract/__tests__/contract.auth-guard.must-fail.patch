@@ -1,3 +1,6 @@
+# STALE (FE-3145): `git apply --check` rejects this mutant against the
+#   current source; it needs re-authoring before it can prove anything.
+#
 # Negative-control mutant — contract auth guard (AC-16)
 #
 # Scenario it must flip: contract.feature >

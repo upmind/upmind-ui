@@ -1,5 +1,9 @@
 Negative control for useContract.actions.ts `update` (R37 B8).
 
+Proves: contract.feature > "Point my active subscription at a different stored payment method"
+NOT YET RED-VERIFIED: that scenario is red on the live defect where the
+  manager keeps its first read after a re-read (FE-3145 prover hand-back).
+
 Specs that must flip: contract.manager-members.int.test.ts
 ("Submit the payment-method form with the card I hand it",
 contract.feature:315; "A card I choose and submit straight away is the one
@@ -10,7 +14,6 @@ card and resolve the re-read contract, and `update()` must flush a pending
 Mutation: reverts `update(value?)` back to the pre-restore
 `submitPaymentMethod()` — no value parameter, no debounce flush — and
 updates `setPaymentMethod` to feed the model directly.
-
 diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
 --- a/packages/headless/src/modules/contract/useContract.actions.ts
 +++ b/packages/headless/src/modules/contract/useContract.actions.ts

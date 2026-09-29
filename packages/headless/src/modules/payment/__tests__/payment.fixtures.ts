@@ -298,15 +298,14 @@ describe("Payment API Fixtures Generator", () => {
   });
 
   it("captures GET /api/brands/{id}/gateways — the ways this brand can be paid", async () => {
-    const params = new URLSearchParams({
-      limit: "0",
-      order: "order",
-      active: "1"
-    });
+    // Match the identity `payment.services` actually asks: `active=true` (not
+    // `1`), no `country_id` and no `order`. The exact-identity matcher (ADR 035)
+    // rejects a recording that asks a different request, so the generator must
+    // ask the module's request verbatim.
+    const params = new URLSearchParams({ limit: "0", active: "true" });
     params.set("invoice_id", orderId);
     if (clientId) params.set("client_id", clientId);
     if (currencyCode) params.set("currency_code", currencyCode);
-    if (countryId) params.set("country_id", countryId);
     params.set("with", GATEWAY_WITH);
 
     await generator.get(`/api/brands/${brandId}/gateways?${params.toString()}`);

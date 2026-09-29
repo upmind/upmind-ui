@@ -3,8 +3,12 @@
 ## Composable Structure
 
 ```typescript
-const products = useContractProducts().as("client");
-const product = useContractProduct().as("client").withId(id);
+import { ScopeActorTypes, useContractProduct, useContractProducts } from "@upmind-automation/headless";
+
+declare const id: string;
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
 
 // Sub-composables (both composables)
 const context = products.useContext();   // reactive query / computed values
@@ -17,6 +21,9 @@ const actions = products.useActions();   // methods
 ### Reading & lifecycle
 
 ```typescript
+import { ScopeActorTypes, useContractProducts } from "@upmind-automation/headless";
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
 const { isReady, refresh } = products.useActions();
 
 await isReady();   // resolves once the first fetch has settled; false if the session settles unaddressable
@@ -26,6 +33,10 @@ await refresh();   // forces a re-read; throws NotAuthenticatedError when unaddr
 ### Filtering, sorting & paging
 
 ```typescript
+import { ScopeActorTypes, SortDirection, useContractProducts } from "@upmind-automation/headless";
+import { ContractStatusCodes } from "@upmind-automation/types";
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
 const { filterBy, sortBy, setCriteria, nextPage, prevPage } = products.useActions();
 
 filterBy({ "status.code": ContractStatusCodes.ACTIVE });
@@ -36,17 +47,27 @@ await nextPage();
 await prevPage();
 ```
 
+The list reads with a split count: the total arrives on a separate count read. Paging forward keeps that total. The count read waits on the same addressability check as the list itself, so it is not sent for a scope that cannot address a client.
+
 ### Quick search
 
 `query` is a sibling of `filters` on the one query model, not a filter leaf — set it through `setCriteria`, not `filterBy`. A term under three characters fails the query model's own validation.
 
 ```typescript
+import { ScopeActorTypes, useContractProducts } from "@upmind-automation/headless";
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
+const { setCriteria } = products.useActions();
+
 setCriteria({ query: "widget" }); // minimum 3 characters
 ```
 
 ### Extra reads
 
 ```typescript
+import { ScopeActorTypes, useContractProducts } from "@upmind-automation/headless";
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
 const { loadGroupedCounts, loadPurchasedCategories } = products.useActions();
 
 const groups = await loadGroupedCounts();          // dashboard counts by category/service
@@ -56,6 +77,9 @@ const categories = await loadPurchasedCategories(); // categories the client has
 ### Utility
 
 ```typescript
+import { ScopeActorTypes, useContractProducts } from "@upmind-automation/headless";
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
 const { destroy } = products.useActions();
 
 destroy(); // deregisters the scope instance and stops the delegated-preference reader
@@ -66,6 +90,11 @@ destroy(); // deregisters the scope instance and stops the delegated-preference 
 ### Lifecycle
 
 ```typescript
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+
+declare const id: string;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
 const { isReady, onDone, refresh, stop, destroy } = product.useActions();
 
 await isReady();  // resolves once the product is placed on `available` or `unavailable`
@@ -82,6 +111,16 @@ Every write that touches the product record is available two ways: as a **direct
 #### Cancellation — one combined form, three options
 
 ```typescript
+import {
+  ScopeActorTypes,
+  ContractProductCancelOption,
+  ContractProductFormTypes,
+  useContractProduct
+} from "@upmind-automation/headless";
+
+declare const id: string;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
 const {
   openCancellation,
   set,
@@ -116,6 +155,12 @@ cancelForm(ContractProductFormTypes.CANCELLATION); // closes without submitting
 #### Consolidation — its own form
 
 ```typescript
+import { ScopeActorTypes, ContractProductFormTypes, useContractProduct } from "@upmind-automation/headless";
+import { InvoiceConsolidationTypes } from "@upmind-automation/types";
+
+declare const id: string;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
 const { openConsolidation, set, cancelForm, submitConsolidation, setConsolidation } = product.useActions();
 
 // Direct call
@@ -128,9 +173,18 @@ await submitConsolidation();
 cancelForm(ContractProductFormTypes.CONSOLIDATION);
 ```
 
+`submitConsolidation()` (and so `setConsolidation()`) sends nothing and resolves `false` when the chosen value equals the product's current setting. The form stays open.
+
 Every write resolves the re-read `ContractProduct`, or `false` when the machine refused the event outright (e.g. a subscription-only write sent on a one-time product, or a form opened when the record does not currently allow it). This is distinct from a write that reaches the server and fails, or whose re-read fails, or a submitted model that fails validation: any of those **rejects** the promise with a `DetailedError` — an invalid model rejects with a 422 carrying the AJV errors, before any request is sent:
 
 ```typescript
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+
+declare const id: string;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
+const { stopRenewing } = product.useActions();
+
 try {
   const result = await stopRenewing();
   if (result === false) {
@@ -189,6 +243,9 @@ All return Vue `ComputedRef<boolean>`.
 ### `useContractProducts().useContext()`
 
 ```typescript
+import { ScopeActorTypes, useContractProducts } from "@upmind-automation/headless";
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
 const {
   data,        // ComputedRef<ContractProduct[]> — always an array
   error,       // ComputedRef<ResponseError | undefined>
@@ -200,9 +257,16 @@ const {
 } = products.useContext();
 ```
 
+Each `ContractProduct` in `data` carries a display `title` (the shared product title, e.g. "Starter Hosting (testdomain.com)") and a `priceTermSummary` (the price and, for a subscription, its lower-cased cycle — "£4 monthly", "£60"). The picker's options read the same title.
+
 ### `useContractProduct().useContext()`
 
 ```typescript
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+
+declare const productId: string;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
 const {
   context,                  // the full machine context object
   contractId,                // the contract this product belongs to
@@ -217,7 +281,7 @@ const {
   minFutureCancellationDate, // instance-bound earliest selectable date, or null
   rawContractProduct,        // the raw wire record beside the view model
   scheduledActions,          // ComputedRef<ScheduledAction[]> — [] until the read carries them (see hasFetchedScheduledActions)
-  title,                     // ComputedRef<string | undefined> — the product's display title
+  title,                     // ComputedRef<string | undefined> — the product's own name (the view model's `title` is the display title)
   validationErrors           // ErrorObject[] — field-level validation errors (AJV), read, never raised
 } = product.useContext();
 ```
@@ -234,14 +298,24 @@ import {
   isSelectableFutureCancellationDate,
   anniversaryCycleForDate
 } from "@upmind-automation/headless";
+import type { ContractProduct } from "@upmind-automation/headless";
+
+declare const contractProduct: ContractProduct;
+declare const pickedDate: string;
 
 const earliest = minFutureCancellationDate(contractProduct);
 const valid = isSelectableFutureCancellationDate(contractProduct, pickedDate);
+const cycle = anniversaryCycleForDate(contractProduct, pickedDate); // whole cycles from nextDueDate, or null
 ```
 
 A loaded manager instance also exposes its own instance-bound `minFutureCancellationDate`, computed off the loaded product — no import or manual argument needed:
 
 ```typescript
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+
+declare const id: string;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
 const { minFutureCancellationDate } = product.useContext();
 ```
 
@@ -249,6 +323,9 @@ const { minFutureCancellationDate } = product.useContext();
 
 ```typescript
 import { isDue, isCancellable } from "@upmind-automation/headless";
+import type { ContractProduct } from "@upmind-automation/headless";
+
+declare const contractProduct: ContractProduct;
 
 contractProduct.unpaidRecurringInvoices.filter(isDue);
 contractProduct.unpaidRecurringInvoices.filter(isCancellable);
@@ -268,7 +345,11 @@ contractProduct.unpaidRecurringInvoices.filter(isCancellable);
 </template>
 
 <script setup>
-const product = useContractProduct().as("client").withId(props.id);
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+
+const props = defineProps({ id: { type: String, required: true } });
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(props.id);
 const { contractProduct, error } = product.useContext();
 const { isLoading, isProcessing, isSubscription, hasError } = product.useMeta();
 const { stopRenewing } = product.useActions();

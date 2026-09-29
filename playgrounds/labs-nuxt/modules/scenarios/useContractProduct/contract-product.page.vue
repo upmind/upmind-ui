@@ -16,7 +16,7 @@
 
     <PageBody class="relative gap-8">
       <!-- No product in the url — FIND one. -->
-      <Card v-if="!productId" size="sm" class="gap-4">
+      <Card v-if="!subjectId" size="sm" class="gap-4">
         <EmptyState
           :title="t('labs.contract_product_needs_id')"
           :description="t('labs.contract_product_needs_id_text')"
@@ -253,6 +253,104 @@
           :data-attrs="{ 'data-test-key': 'contract-product-action-error' }"
         />
 
+        <!-- Direct writes — each opens, sets and submits its form in one call,
+             so they are offered only while neither form is open. -->
+        <Card
+          size="sm"
+          class="gap-4"
+          data-test-key="contract-product-direct-writes"
+        >
+          <span class="font-medium">
+            {{ t("labs.contract_product_direct_writes") }}
+          </span>
+
+          <label class="flex flex-col gap-1">
+            <span class="text-faint text-sm">
+              {{ t("labs.contract_product_reason_label") }}
+            </span>
+            <Input
+              v-model="reasonDraft"
+              :disabled="pending || meta?.isProcessing.value"
+              :data-attrs="{ 'data-test-key': 'contract-product-reason-input' }"
+            />
+          </label>
+
+          <div class="flex flex-wrap items-end gap-3">
+            <Button
+              variant="outline"
+              :disabled="
+                !meta?.hasCancellationOptions.value ||
+                meta?.isCancellationOpen.value ||
+                meta?.isConsolidationOpen.value ||
+                pending ||
+                meta?.isProcessing.value
+              "
+              :data-attrs="{
+                'data-test-key': 'contract-product-stop-renewing'
+              }"
+              @click="stopRenewing"
+            >
+              {{ t("labs.contract_product_stop_renewing") }}
+            </Button>
+          </div>
+
+          <div class="flex flex-wrap items-end gap-3">
+            <label class="flex-1">
+              <span class="text-faint text-sm">
+                {{ t("labs.contract_product_schedule_date_label") }}
+              </span>
+              <Input
+                v-model="scheduleDate"
+                type="date"
+                :min="minFutureCancellationDate ?? undefined"
+                :disabled="pending || meta?.isProcessing.value"
+                :data-attrs="{
+                  'data-test-key': 'contract-product-schedule-date'
+                }"
+              />
+            </label>
+            <Button
+              variant="outline"
+              :disabled="
+                !scheduleDate.trim() ||
+                !meta?.canScheduleFutureCancellation.value ||
+                !meta?.hasCancellationOptions.value ||
+                meta?.isCancellationOpen.value ||
+                meta?.isConsolidationOpen.value ||
+                pending ||
+                meta?.isProcessing.value
+              "
+              :data-attrs="{
+                'data-test-key': 'contract-product-schedule-cancellation'
+              }"
+              @click="scheduleCancellation"
+            >
+              {{ t("labs.contract_product_schedule_cancellation") }}
+            </Button>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <Button
+              v-for="choice in consolidationChoices"
+              :key="choice.key"
+              variant="outline"
+              :disabled="
+                !meta?.canConsolidate.value ||
+                meta?.isCancellationOpen.value ||
+                meta?.isConsolidationOpen.value ||
+                pending ||
+                meta?.isProcessing.value
+              "
+              :data-attrs="{
+                'data-test-key': `contract-product-set-consolidation-${choice.key}`
+              }"
+              @click="setConsolidation(choice.value)"
+            >
+              {{ choice.label }}
+            </Button>
+          </div>
+        </Card>
+
         <!-- Cancellation — the ONE combined form (R33). No dialog opens empty:
              it renders only while the machine has filled `context.cancellation`
              (its own open transition builds the schema/uischema/model). -->
@@ -429,8 +527,10 @@
  * combined cancellation form (`openCancellation`/`set`/`submitCancellation`/
  * `cancelForm`, R33 — soft/hard/schedule_future, reason, custom fields, the
  * date floor `minFutureCancellationDate`), the consolidation form (the same
- * shape), the formless writes (`withdrawCancellation`, `resumeRenewing`,
- * `revokeScheduledCancellation`), `refresh` and the force handle `reset`.
+ * shape), the direct writes (`stopRenewing`, `scheduleCancellation`,
+ * `setConsolidation` — open, set and submit in one call), the formless writes
+ * (`withdrawCancellation`, `resumeRenewing`, `revokeScheduledCancellation`),
+ * `refresh` and the force handle `reset`.
  *
  * Both forms render from their OWN context slot
  * (`useContext().cancellation` / `.consolidation` = `{ schema, uischema,
@@ -450,11 +550,16 @@
  *
  * NOT drawn, and named rather than faked:
  *
- * - `stopRenewing`, `scheduleCancellation`, `requestCancellation` and
- *   `setConsolidation` are the legacy DIRECT calls (open+set+submit in one) —
- *   this page drives the same writes through the form controls instead, so a
- *   hand can pick the option and see the schema the machine built for it.
+ * - `requestCancellation` is the direct HARD request; the cancellation form's
+ *   `hard` option drives the same write, and no scenario fires it.
  * - `isReady`/`onDone`/`stop`/`destroy` are lifecycle, not user capability.
+ *
+ * ## Which product a replay shows
+ * Every manager step boots the product ITS OWN recording addressed
+ * (`.withId(id)`), and that id wins over the url's: while a track is armed the
+ * page draws the cell the step booted — the same registry instance, so each
+ * fired action moves what is on screen. A new track, or Live, hands the page
+ * back to the url's product and releases every cell the replay opened.
  *
  * No forced-surface spec is owed: a self-drawing page carries none, exactly
  * as `useTicket` does.
@@ -480,7 +585,7 @@ import {
   Spinner,
   StatusBadge
 } from "@upmind/ui";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   ContractProductFormTypes,
@@ -491,6 +596,7 @@ import {
   useContractProducts
 } from "@upmind-automation/client-vue";
 import { Form, Icon } from "@upmind-automation/foundation";
+import { InvoiceConsolidationTypes } from "@upmind-automation/types";
 import ScenarioBar from "../runtime/components/ScenarioBar.vue";
 import { useScenarioTransport } from "../runtime/composables/useScenarioTransport";
 import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
@@ -504,7 +610,7 @@ import type {
   CancellationModel,
   SetConsolidationModel
 } from "@upmind-automation/client-vue";
-import type { ScopeActor } from "@upmind-automation/scenario-harness";
+import type { ScopeActor, World } from "@upmind-automation/scenario-harness";
 import { useActorScope } from "~/composables/scope";
 
 // NO `name`, `path` or `nav` here: the registrar owns all three, off the
@@ -529,44 +635,97 @@ const productId = computed(() => {
   return id || undefined;
 });
 
-// Booted once per mount — the page remounts per url, so the id is fixed
-// here. CLIENT is the only actor the manager resolves; the matrix refuses
-// every actor a `.for()` context, so `.as()` is the whole address.
-const manager = productId.value
-  ? useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId.value)
-  : undefined;
+/** The product the armed track's own recording booted; absent on Live. */
+const replayId = ref<string>();
 
-const actions = manager?.useActions();
-const context = manager?.useContext();
-const meta = manager?.useMeta();
+/** The product on screen — the replay's while a track is armed, else the url's. */
+const subjectId = computed(() => replayId.value ?? productId.value);
+
+// CLIENT is the only actor the manager resolves; the matrix refuses every
+// actor a `.for()` context, so `.as()` is the whole address.
+const openCell = (id: string) =>
+  useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
+
+/** Every cell this page has drawn, so each is destroyed exactly once. */
+const cells = new Map<string, ReturnType<typeof openCell>>();
+
+function cellFor(id: string): ReturnType<typeof openCell> {
+  const cell = cells.get(id) ?? openCell(id);
+  cells.set(id, cell);
+  return cell;
+}
+
+function release(keep?: string): void {
+  for (const [id, cell] of cells) {
+    if (id === keep) continue;
+    cell.useActions().destroy();
+    cells.delete(id);
+  }
+}
+
+if (productId.value) cellFor(productId.value);
+
+const manager = computed(() =>
+  subjectId.value ? cellFor(subjectId.value) : undefined
+);
+
+const actions = computed(() => manager.value?.useActions());
+const context = computed(() => manager.value?.useContext());
+const meta = computed(() => manager.value?.useMeta());
 
 // --- The page's own scenario transport (mirrors `ticket.page.vue`)
 const actorScope = useActorScope();
 
-const { tracks, states, player, isLocked } = useScenarioTransport({
-  module: scenario.tracks,
-  world: useScenarioWorld(registry, {
-    key: CONTRACT_PRODUCT_SCENARIO,
-    id: productId.value
-  }),
-  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor }),
-  reset: actions?.reset
+const hostWorld = useScenarioWorld(registry, {
+  key: CONTRACT_PRODUCT_SCENARIO,
+  id: productId.value
 });
 
-const contractProduct = computed(() => context?.contractProduct.value);
-const description = computed(() => context?.description.value);
-const readError = computed(() => context?.error.value?.message);
-const validationErrors = computed(() => context?.validationErrors.value);
-const scheduledActions = computed(() => context?.scheduledActions.value ?? []);
+/** The host world, reporting each product a step boots so the page draws it. */
+const world: World = {
+  ...hostWorld,
+  async boot(key, scope) {
+    await hostWorld.boot(key, scope);
+    if (key === CONTRACT_PRODUCT_SCENARIO && scope.id)
+      replayId.value = scope.id;
+  }
+};
+
+const { tracks, states, player, isLocked } = useScenarioTransport({
+  module: scenario.tracks,
+  world,
+  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor }),
+  reset: () => actions.value?.reset()
+});
+
+// Sync, so the release lands before the new track's first scene can boot; the
+// world is disposed BEFORE the cells go, so it never adopts one released here.
+watch(
+  () => player.track.value,
+  () => {
+    replayId.value = undefined;
+    void world.dispose();
+    release(productId.value);
+  },
+  { flush: "sync" }
+);
+
+const contractProduct = computed(() => context.value?.contractProduct.value);
+const description = computed(() => context.value?.description.value);
+const readError = computed(() => context.value?.error.value?.message);
+const validationErrors = computed(() => context.value?.validationErrors.value);
+const scheduledActions = computed(
+  () => context.value?.scheduledActions.value ?? []
+);
 const minFutureCancellationDate = computed(
-  () => context?.minFutureCancellationDate.value
+  () => context.value?.minFutureCancellationDate.value
 );
 const futureCancellationDate = computed(
   () =>
     contractProduct.value?.futureCancellationRequest?.future_cancellation_date
 );
-const cancellationForm = computed(() => context?.cancellation.value);
-const consolidationForm = computed(() => context?.consolidation.value);
+const cancellationForm = computed(() => context.value?.cancellation.value);
+const consolidationForm = computed(() => context.value?.consolidation.value);
 
 const booting = ref(true);
 const pending = ref(false);
@@ -607,7 +766,7 @@ function onContractProductPick(
 
 /** The node flags a hand reads at a glance, beside the status badge. */
 const nodeFlags = computed(() => {
-  const m = meta;
+  const m = meta.value;
   if (!m) return [];
   const flags = [
     {
@@ -704,13 +863,13 @@ const nodeFlags = computed(() => {
 const isReadable = computed(
   () =>
     !!contractProduct.value &&
-    !!meta &&
-    (meta.isAvailable.value ||
-      meta.isStaged.value ||
-      meta.isCancelled.value ||
-      meta.isLapsed.value ||
-      meta.isFraud.value ||
-      meta.isProcessing.value)
+    !!meta.value &&
+    (meta.value.isAvailable.value ||
+      meta.value.isStaged.value ||
+      meta.value.isCancelled.value ||
+      meta.value.isLapsed.value ||
+      meta.value.isFraud.value ||
+      meta.value.isProcessing.value)
 );
 
 function report(error: unknown): void {
@@ -736,42 +895,97 @@ function openProduct(): void {
   router.push(`/useContractProduct/${input}/as/client`);
 }
 
-const openCancellation = () => actions?.openCancellation();
+const openCancellation = () => actions.value?.openCancellation();
 const closeCancellation = () =>
-  actions?.cancelForm(ContractProductFormTypes.CANCELLATION);
-const submitCancellation = () => run(() => actions!.submitCancellation());
+  actions.value?.cancelForm(ContractProductFormTypes.CANCELLATION);
+const submitCancellation = () => run(() => actions.value!.submitCancellation());
 
 function onCancellationModelUpdate(
   model: Partial<CancellationModel> | undefined
 ): void {
-  actions?.set(ContractProductFormTypes.CANCELLATION, model ?? {});
+  actions.value?.set(ContractProductFormTypes.CANCELLATION, model ?? {});
 }
 
-const openConsolidation = () => actions?.openConsolidation();
+const openConsolidation = () => actions.value?.openConsolidation();
 const closeConsolidation = () =>
-  actions?.cancelForm(ContractProductFormTypes.CONSOLIDATION);
-const submitConsolidation = () => run(() => actions!.submitConsolidation());
+  actions.value?.cancelForm(ContractProductFormTypes.CONSOLIDATION);
+const submitConsolidation = () =>
+  run(() => actions.value!.submitConsolidation());
 
 function onConsolidationModelUpdate(
   model: Partial<SetConsolidationModel> | undefined
 ): void {
-  actions?.set(ContractProductFormTypes.CONSOLIDATION, model ?? {});
+  actions.value?.set(ContractProductFormTypes.CONSOLIDATION, model ?? {});
 }
 
-const withdraw = () => run(() => actions!.withdrawCancellation());
-const resume = () => run(() => actions!.resumeRenewing());
-const revokeScheduled = () => run(() => actions!.revokeScheduledCancellation());
-const refresh = () => run(async () => actions!.refresh());
-const reset = () => run(() => actions!.reset());
+// --- The direct writes
+const reasonDraft = ref("");
+const scheduleDate = ref("");
+
+watch(
+  minFutureCancellationDate,
+  date => {
+    if (date && !scheduleDate.value) scheduleDate.value = date;
+  },
+  { immediate: true }
+);
+
+/** The typed reason, omitted when blank so the write sends none. */
+function reasonModel(): { reason?: string } {
+  const reason = reasonDraft.value.trim();
+  return reason ? { reason } : {};
+}
+
+const consolidationChoices = computed(() => [
+  {
+    value: InvoiceConsolidationTypes.DISABLED,
+    key: "disabled",
+    label: t("labs.contract_product_consolidation_disabled")
+  },
+  {
+    value: InvoiceConsolidationTypes.ENABLED,
+    key: "enabled",
+    label: t("labs.contract_product_consolidation_enabled")
+  },
+  {
+    value: InvoiceConsolidationTypes.INHERIT,
+    key: "inherit",
+    label: t("labs.contract_product_consolidation_inherit")
+  }
+]);
+
+const stopRenewing = () =>
+  run(() => actions.value!.stopRenewing(reasonModel()));
+const scheduleCancellation = () =>
+  run(() =>
+    actions.value!.scheduleCancellation({
+      futureCancellationDate: scheduleDate.value.trim(),
+      ...reasonModel()
+    })
+  );
+const setConsolidation = (value: InvoiceConsolidationTypes) =>
+  run(() =>
+    actions.value!.setConsolidation({ invoiceConsolidationEnabled: value })
+  );
+
+const withdraw = () => run(() => actions.value!.withdrawCancellation());
+const resume = () => run(() => actions.value!.resumeRenewing());
+const revokeScheduled = () =>
+  run(() => actions.value!.revokeScheduledCancellation());
+const refresh = () => run(async () => actions.value!.refresh());
+const reset = () => run(() => actions.value!.reset());
 
 onMounted(async () => {
-  if (!actions) {
+  if (!actions.value) {
     booting.value = false;
     return;
   }
-  await actions.isReady();
+  await actions.value.isReady();
   booting.value = false;
 });
 
-onUnmounted(() => actions?.destroy());
+onUnmounted(() => {
+  void world.dispose();
+  release();
+});
 </script>

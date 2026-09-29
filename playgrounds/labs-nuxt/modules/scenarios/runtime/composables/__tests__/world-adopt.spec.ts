@@ -3,12 +3,16 @@
 /**
  * @module scenarios/runtime/composables/__tests__/world-adopt.spec
  * @description T4.3 — `boot` ADOPTS the page's own live cell (`AC2.5` ·
- * `AC2.6` · design §3.1 ruling 2 · §7.1). Two branches, one seam:
+ * `AC2.6` · design §3.1 ruling 2 · §7.1). The world holds ONE live cell PER
+ * scenario key. Three branches, one seam:
  *   1. booting the SAME key at the SAME scope adopts the live port — the
  *      page's own cached cell is never destroyed, and the world keeps driving
  *      the very cell the user is looking at;
- *   2. a DIFFERENT key or a DIFFERENT scope disposes exactly as it does today
- *      — without which a track drives an invisible second instance.
+ *   2. re-booting the SAME key at a DIFFERENT scope disposes that key's cell
+ *      exactly as it does today — without which a track drives an invisible
+ *      second instance;
+ *   3. booting a DIFFERENT key disposes NOTHING — its cell lives beside the
+ *      others, one per key.
  *
  * Scope sameness is by VALUE: the player hands `boot` a scope object it built
  * this tick, never the one the page booted with, so an identity check would
@@ -27,8 +31,7 @@
  * Arming a track either tears the rendered page down mid-track (unconditional
  * dispose) or plays it against a cell nobody can see (adopt across scopes).
  *
- * Negative controls: `world-adopt.dispose-shared-cell.must-fail.patch`,
- * `world-adopt.adopt-across-scope.must-fail.patch`.
+ * Negative control: `world-adopt.dispose-shared-cell.must-fail.patch`.
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
@@ -176,7 +179,7 @@ describe("T4.3 booting the same key+scope ADOPTS the page's live cell (§3.1 rul
   });
 });
 
-describe("T4.3 a different key or scope DISPOSES, exactly as today", () => {
+describe("T4.3 a DIFFERENT scope (same key) DISPOSES, exactly as today", () => {
   it("disposes the live cell when the actor changes", async () => {
     const live = world();
     await live.boot(COLLECTION, CLIENT);
@@ -196,16 +199,6 @@ describe("T4.3 a different key or scope DISPOSES, exactly as today", () => {
     expect(registry.destroyedKeys()).toStrictEqual([STAFF_CELL]);
   });
 
-  it("disposes the live cell when the key changes at the same scope", async () => {
-    const live = world();
-    await live.boot(COLLECTION, CLIENT);
-
-    await live.boot(EDITOR, { ...CLIENT });
-
-    expect(registry.destroyedKeys()).toStrictEqual([CLIENT_CELL]);
-    expect(registry.built()).toBe(2);
-  });
-
   it("drives the newly booted cell, and only it", async () => {
     const live = world();
     await live.boot(COLLECTION, CLIENT);
@@ -217,6 +210,34 @@ describe("T4.3 a different key or scope DISPOSES, exactly as today", () => {
     expect(registry.cell(STAFF_CELL)?.fired).toStrictEqual([
       "ensure:staff@example.com"
     ]);
+  });
+});
+
+describe("T4.3 a DIFFERENT key coexists — one live cell per key", () => {
+  it("keeps the live cell when a different key is booted at the same scope", async () => {
+    const live = world();
+    await live.boot(COLLECTION, CLIENT);
+
+    await live.boot(EDITOR, { ...CLIENT });
+
+    expect(registry.destroyedKeys()).toStrictEqual([]);
+    expect(registry.built()).toBe(2);
+  });
+
+  it("keeps driving each key's own cell after both are booted", async () => {
+    const live = world();
+    await live.boot(COLLECTION, CLIENT);
+    await live.boot(EDITOR, { ...CLIENT });
+
+    await live.fire("ensure", { email: "collection@example.com" }, COLLECTION);
+    await live.fire("ensure", { email: "editor@example.com" }, EDITOR);
+
+    expect(registry.cell(CLIENT_CELL)?.fired).toStrictEqual([
+      "ensure:collection@example.com"
+    ]);
+    expect(
+      registry.cell(`${EDITOR}/${ScopeActorTypes.CLIENT}`)?.fired
+    ).toStrictEqual(["ensure:editor@example.com"]);
   });
 });
 

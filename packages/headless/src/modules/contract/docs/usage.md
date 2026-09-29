@@ -3,8 +3,12 @@
 ## Composable Structure
 
 ```typescript
-const contracts = useContracts().as("client");
-const contract = useContract().as("client").withId(contractId);
+import { ScopeActorTypes, useContract, useContracts } from "@upmind-automation/headless";
+
+declare const contractId: string;
+
+const contracts = useContracts().as(ScopeActorTypes.CLIENT);
+const contract = useContract().as(ScopeActorTypes.CLIENT).withId(contractId);
 
 // Sub-composables (both composables)
 const context = contracts.useContext();   // reactive query / computed values
@@ -17,6 +21,9 @@ const actions = contracts.useActions();   // methods
 ### Reading & lifecycle
 
 ```typescript
+import { ScopeActorTypes, useContracts } from "@upmind-automation/headless";
+
+const contracts = useContracts().as(ScopeActorTypes.CLIENT);
 const { isReady, refresh } = contracts.useActions();
 
 await isReady();   // resolves once the first fetch has settled; false if the session settles unaddressable
@@ -26,22 +33,31 @@ await refresh();   // forces a re-read; throws NotAuthenticatedError when unaddr
 ### Filtering, sorting & paging
 
 ```typescript
+import { ScopeActorTypes, SortDirection, useContracts } from "@upmind-automation/headless";
+import { ContractStatusCodes } from "@upmind-automation/types";
+
+const contracts = useContracts().as(ScopeActorTypes.CLIENT);
 const { filterBy, sortBy, setCriteria, nextPage, prevPage } = contracts.useActions();
 
-filterBy({ "status.code": ["contract_active"] });
-sortBy([{ field: "next_due_date", dir: "asc" }]);
+filterBy({ "status.code": [ContractStatusCodes.ACTIVE] });
+sortBy([{ field: "next_due_date", dir: SortDirection.ASC }]);
 setCriteria({ pagination: { limit: 20 } });
 await nextPage();
 await prevPage();
 ```
 
-`filterBy` and `sortBy` each REPLACE their own branch of the one query model whole — a later call does not merge into an earlier one. `filterBy({ name: { like: "acme" } })` followed by `filterBy({ "status.code": ["contract_active"] })` drops the `name` filter, so pass the FULL filter (or sort) set on every call; `sort` and `pagination` are left standing by either call. `setCriteria` merges any branch directly, including `pagination`, under the same whole-branch-replace rule. A filter or sort write that carries no `pagination` branch of its own resets `pagination.offset` back to the first page — the page SIZE survives, the page POSITION does not. A write that fails validation is never committed: the previous criteria stay live, and the rejection surfaces on `useContext().error` / `useMeta().hasError` rather than as a thrown error. The collection's own filterable fields are name, status code, and the `created_at` / `next_due_date` date ranges; sortable fields are name, created_at, next_due_date, total_amount and status.
+`filterBy` and `sortBy` each REPLACE their own branch of the one query model whole — a later call does not merge into an earlier one. `filterBy({ name: { like: "acme" } })` followed by `filterBy({ "status.code": [ContractStatusCodes.ACTIVE] })` drops the `name` filter, so pass the FULL filter (or sort) set on every call; `sort` and `pagination` are left standing by either call. `setCriteria` merges any branch directly, including `pagination`, under the same whole-branch-replace rule. A filter or sort write that carries no `pagination` branch of its own resets `pagination.offset` back to the first page — the page SIZE survives, the page POSITION does not. A write that fails validation is never committed: the previous criteria stay live, and the rejection surfaces on `useContext().error` / `useMeta().hasError` rather than as a thrown error. The collection's own filterable fields are name, order number (`main_invoice_number`), status code, the `created_at` / `next_due_date` date ranges and the recurring total (`total_amount`); `query` is a quick search across the contract's title, name and order number. Sortable fields are created_at, next_due_date, total_amount and status.
+
+The list reads with a split count: the total arrives on a separate count read. Paging forward keeps that total. The count read waits on the same addressability check as the list itself, so it is not sent for a scope that cannot address a client.
 
 ### The contracts picker
 
 `useContext().schemas.contractPicker` is a `{ schema, uischema }` pair for a `Lookup` control that finds one of the client's own contracts by name — for a consumer who has no contract id yet (the same shape `useTickets` publishes as `schemas.ticketPicker`). Typing into the control searches `filters.name.like` and issues its own `GET contracts?with=status` request, keyed separately from the listing's own list query so a picker search never evicts the rows a listing is showing.
 
 ```typescript
+import { ScopeActorTypes, useContracts } from "@upmind-automation/headless";
+
+const contracts = useContracts().as(ScopeActorTypes.CLIENT);
 const { schemas } = contracts.useContext();
 const { schema, uischema } = schemas.contractPicker; // renders a Lookup control
 ```
@@ -49,6 +65,9 @@ const { schema, uischema } = schemas.contractPicker; // renders a Lookup control
 ### Utility
 
 ```typescript
+import { ScopeActorTypes, useContracts } from "@upmind-automation/headless";
+
+const contracts = useContracts().as(ScopeActorTypes.CLIENT);
 const { destroy } = contracts.useActions();
 
 destroy(); // deregisters the scope instance
@@ -59,7 +78,12 @@ destroy(); // deregisters the scope instance
 ### Lifecycle
 
 ```typescript
-const { isReady, refresh, stop, destroy } = contract.useActions();
+import { ScopeActorTypes, useContract } from "@upmind-automation/headless";
+
+declare const contractId: string;
+
+const contract = useContract().as(ScopeActorTypes.CLIENT).withId(contractId);
+const { isReady, refresh, reset, stop, destroy } = contract.useActions();
 
 await isReady();  // resolves once the contract is placed on `available` or `unavailable`
 refresh();        // re-reads the contract
@@ -73,7 +97,14 @@ destroy();        // stops the machine and deregisters it
 Available two ways: a direct call (opens the form, feeds it a model, submits — all in one), or the raw form flow for a consumer building an actual form UI.
 
 ```typescript
-const { openPaymentMethod, input, clear, update, setPaymentMethod, onDone, reset } = contract.useActions();
+import { ScopeActorTypes, useContract } from "@upmind-automation/headless";
+
+declare const contractId: string;
+
+const contract = useContract().as(ScopeActorTypes.CLIENT).withId(contractId);
+declare const storedCardId: string;
+
+const { openPaymentMethod, input, clear, update, setPaymentMethod, onDone } = contract.useActions();
 
 // Direct call
 const result = await setPaymentMethod({ paymentDetailsId: storedCardId });
@@ -92,6 +123,15 @@ await onDone(); // resolves once a submitted write leaves processing; false if t
 `update()` (and therefore `setPaymentMethod()`, which calls it) resolves `false` — sending nothing — when the model names no method, or names the method the contract already uses. This is a deliberate no-op, not a failure:
 
 ```typescript
+import { ScopeActorTypes, useContract } from "@upmind-automation/headless";
+
+declare const contractId: string;
+
+const contract = useContract().as(ScopeActorTypes.CLIENT).withId(contractId);
+declare const alreadyInUseId: string;
+
+const { setPaymentMethod } = contract.useActions();
+
 try {
   const result = await setPaymentMethod({ paymentDetailsId: alreadyInUseId });
   if (result === false) {
@@ -102,7 +142,7 @@ try {
 }
 ```
 
-The form is offered on every `available` status node and, unlike every other capability this module or its sibling exposes, on `unavailable.cancelled` and `unavailable.lapsed` too — refused only on `unavailable.fraud`. An open form never moves the contract off its current status node.
+The form is offered only for a subscription (`billingCycleMonths > 0`) the client owns: a one-off contract, or a contract with a product delegated to the client, refuses the open event. Within that, the form is offered on every `available` status node and, unlike every other capability this module or its sibling exposes, on `unavailable.cancelled` and `unavailable.lapsed` too — refused on `unavailable.fraud`. An open form never moves the contract off its current status node.
 
 ## Meta (State Flags)
 
@@ -137,6 +177,9 @@ All return Vue `ComputedRef<boolean>`.
 ### `useContracts().useContext()`
 
 ```typescript
+import { ScopeActorTypes, useContracts } from "@upmind-automation/headless";
+
+const contracts = useContracts().as(ScopeActorTypes.CLIENT);
 const {
   data,        // ComputedRef<Contract[]> — always an array
   error,       // ComputedRef<ResponseError | undefined>
@@ -151,6 +194,11 @@ const {
 ### `useContract().useContext()`
 
 ```typescript
+import { ScopeActorTypes, useContract } from "@upmind-automation/headless";
+
+declare const contractId: string;
+
+const manager = useContract().as(ScopeActorTypes.CLIENT).withId(contractId);
 const {
   cancellationRequestStatus,     // the cancellation-request status, in the platform vocabulary; undefined when no request exists
   cancellationRequestStatusCode, // the raw wire string, next to the field above
@@ -166,7 +214,7 @@ const {
   rawContract,                     // the raw wire record beside the view model
   title,                           // display title of the record, derived off the raw wire record
   validationErrors                 // field-level validation errors (AJV `ErrorObject[]`) — read, never raised
-} = contract.useContext();
+} = manager.useContext();
 ```
 
 `paymentMethod` is `undefined` until `openPaymentMethod()` runs; it becomes `{ schema, uischema, model }` and STAYS set even after a successful submit — the write re-reads the contract and returns the machine to its status node, but nothing clears the form's slot on that transition. Only `clear()` (which sends `CANCEL.PAYMENT_METHOD`) empties it. Gate the form's visibility on `useMeta().isPaymentMethodOpen`, not on whether `paymentMethod` is defined, and call `clear()` once a submit resolves if the form should close.
@@ -185,7 +233,11 @@ const {
 </template>
 
 <script setup>
-const contract = useContract().as("client").withId(props.contractId);
+import { ScopeActorTypes, useContract } from "@upmind-automation/headless";
+
+const props = defineProps({ contractId: { type: String, required: true } });
+
+const contract = useContract().as(ScopeActorTypes.CLIENT).withId(props.contractId);
 const { error } = contract.useContext();
 const { isLoading, isProcessing, isFraud, hasError } = contract.useMeta();
 const { openPaymentMethod } = contract.useActions();

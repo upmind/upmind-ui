@@ -6,7 +6,7 @@ The module ships two scoped composables under one module name: `useContracts` (a
 
 ## State Machine (`useContract`)
 
-`contract.machine.ts` follows the house write-spine convention: `available` and `unavailable` are each `type: "parallel"` over a `status` region and a `changingPaymentMethod` form region, so opening the payment-method form never leaves the contract's current status node. The form is its own parallel region under BOTH parents, not a single region shared across them — `unavailable`'s copy is guarded to exclude `fraud`.
+`contract.machine.ts` follows the house write-spine convention: `available` and `unavailable` are each `type: "parallel"` over a `status` region and a `changingPaymentMethod` form region, so opening the payment-method form never leaves the contract's current status node. The form is its own parallel region under BOTH parents, not a single region shared across them. Both copies guard the open event with `canChangePaymentMethod`: not `fraud`, a subscription (`billingCycleMonths > 0`), and no product delegated to the client.
 
 ```mermaid
 stateDiagram-v2
@@ -27,7 +27,7 @@ stateDiagram-v2
         cancelling
       }
       state "changingPaymentMethod FORM (parallel)" as form1 {
-        idle --> checking1: PAYMENT_METHOD
+        idle --> checking1: PAYMENT_METHOD (cond canChangePaymentMethod)
         checking1 --> processing1: SET_PAYMENT_METHOD
         processing1 --> "#loading": onDone
         processing1 --> checking1.error: onError
@@ -40,7 +40,7 @@ stateDiagram-v2
         lapsed
         fraud
       }
-      state "changingPaymentMethod FORM (parallel, guarded: not fraud)" as form2 {
+      state "changingPaymentMethod FORM (parallel)" as form2 {
         uidle --> uchecking: PAYMENT_METHOD (cond canChangePaymentMethod)
         uchecking --> uprocessing: SET_PAYMENT_METHOD
         uprocessing --> "#loading": onDone
@@ -55,7 +55,7 @@ stateDiagram-v2
     error --> loading: REFRESH
 ```
 
-The `loading` state's `always` array is the one place `selectContractStatusNode` is consulted; it runs a fixed priority order (cancelled → lapsed → fraud → cancelling → the four published codes → unrecognised-error).
+The `loading` state's `onDone` is an ordered list of guarded transitions over the record the settled read returned (the event, never the previous context). The order is cancelled → lapsed → fraud → cancelling → pending → inactive → suspended → active; each guard is a one-line check on a raw wire field. A record that matches none takes the last entry, records a status error and lands on `error`.
 
 The form region's own `checking`/`valid`/`invalid`/`error` children validate the model against the payment-method schema on every open and every `SET.PAYMENT_METHOD`; the form's own `processing` child re-validates before sending the write, so a model that became invalid between "opened" and "submitted" is still caught. A failed submit returns to that form's own `error` child with the model kept, never to a machine-wide error state — the contract never leaves its status node.
 

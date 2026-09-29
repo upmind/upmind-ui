@@ -1,5 +1,7 @@
+import { watch } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { remove as removeFromRegistry } from "../scope";
+import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import {
   DEBOUNCE_DELAY,
@@ -9,7 +11,8 @@ import {
   stopService,
   DetailedError,
   ErrorOrigin,
-  responseCodes
+  responseCodes,
+  NotAuthenticatedError
 } from "../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { ClientEmailServices, EmailModel } from "./client-email.types";
@@ -34,11 +37,63 @@ export function createClientEmailManagerActions(
   const { state, send, service: machineService } = actor;
   const { t } = useI18n();
 
+  const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
+    useActiveSession().useMeta();
+
+  /**
+   * This scope's settled ADDRESSABILITY outcome, or `undefined` while the
+   * session is still settling — the same three-branch shape the collection
+   * half (`useClientEmails.actions.ts`) uses.
+   */
+  function addressableOutcome(): boolean | undefined {
+    if (service.isAvailable.value) return true;
+    if (isSessionInitialised.value || !isSessionSettling.value) return false;
+    return undefined;
+  }
+
+  /**
+   * Resolves the addressability outcome, waiting only while the session is
+   * still settling; self-stopping.
+   *
+   * @decision gate the editor on the SESSION, not only the machine.
+   * what: `isReady()` and `update()` resolve their session outcome here before
+   *   waiting on the machine.
+   * why: with no addressable client the shared `dataManagerMachine`'s
+   *   `hasSubscription` guard holds it in `subscribing` forever — correct, no
+   *   unaddressed request fires — but `isReady()`'s `waitFor(available,
+   *   { timeout: Infinity })` then NEVER settles, hanging the caller for good.
+   *   Reading the session outcome directly settles it the instant the client is
+   *   known unaddressable, exactly as `client-address` / `client-company`
+   *   already do (the pre-conversion `timeout: Infinity` hang).
+   * rejected: moving the `subscribing → unavailable` transition into the
+   *   machine — it is the shared, protected `dataManagerMachine`; the gate
+   *   belongs in this caller.
+   */
+  function whenSessionSettles(): Promise<boolean> {
+    const settled = addressableOutcome();
+    if (settled !== undefined) return Promise.resolve(settled);
+
+    return new Promise<boolean>(resolve => {
+      const stop = watch(
+        [service.isAvailable, isSessionInitialised, isSessionSettling],
+        () => {
+          const outcome = addressableOutcome();
+          if (outcome === undefined) return;
+          stop();
+          resolve(outcome);
+        }
+      );
+    });
+  }
+
   /**
    * Resolves when the manager is ready to accept input.
-   * @returns true once `available`, false if the machine settled in error.
+   * @returns true once `available`, false if the machine settled in error or
+   * the session settles without an addressable client.
    */
   async function isReady(): Promise<boolean> {
+    if (!(await whenSessionSettles())) return false;
+
     return waitFor(machineService, s => stateMatches(s, "available"), {
       timeout: Infinity
     }).then(s => !stateMatches(s, "error"));
@@ -94,6 +149,13 @@ export function createClientEmailManagerActions(
   async function update(
     value?: EmailModel | Record<string, unknown>
   ): Promise<EmailModel> {
+    // No addressable client → the machine is held in `subscribing` and can
+    // never process a save; reject with the module's own typed error rather
+    // than hang on the `waitFor` below.
+    if (!(await whenSessionSettles())) {
+      return Promise.reject(new NotAuthenticatedError());
+    }
+
     // Commit any typed input still pending on the debounce before saving,
     // otherwise the save reads the pre-edit model.
     await debouncedInput.flush()?.catch(() => undefined);
@@ -137,12 +199,14 @@ export function createClientEmailManagerActions(
   }
 
   /** Clears the current form context. */
-  function clear(): void {
+  async function clear(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     send({ type: "CLEAR" });
   }
 
   /** Stops the underlying machine, leaving the registry entry in place. */
-  function stop(): void {
+  async function stop(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
   }
 
@@ -151,7 +215,8 @@ export function createClientEmailManagerActions(
    * registry. The collection's `destroy()` only does the second half, because
    * a query has no service to stop.
    */
-  function destroy(): void {
+  async function destroy(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
     removeFromRegistry(scopeKey);
   }

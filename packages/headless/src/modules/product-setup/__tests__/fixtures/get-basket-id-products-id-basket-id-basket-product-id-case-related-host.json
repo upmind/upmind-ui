@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/basket/85d26e96-783d-1670-7d53-c314502e7043/products/5d96e763-ed09-1340-e07a-417482528340?case=related-host&with=image,images,prices,products_attributes,products_options,products_options.prices,provision_blueprint.category&basket_id=85d26e96-783d-1670-7d53-c314502e7043&basket_product_id=5d96e763-ed09-1340-e07a-417482528340&currency_code=GBP",
+    "path": "/api/basket/e78642de-5397-145d-7867-c21208469530/products/98574264-8970-1254-475c-21e325d0ed36?case=related-host&with=image,images,prices,products_attributes,products_options,products_options.prices,provision_blueprint.category&basket_id=e78642de-5397-145d-7867-c21208469530&basket_product_id=98574264-8970-1254-475c-21e325d0ed36&currency_code=GBP",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
@@ -1914,6 +1914,10 @@
           "updated_at": "2022-11-11 12:58:35",
           "deleted_at": null,
           "service_name_code": "shared-hosting",
+          "service_name_translated": "web hosting",
+          "name_translated": "Web Hosting",
+          "description_translated": "This blueprint enables basic provisioning/management of web hosting accounts",
+          "translations": [],
           "category": {
             "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
             "code": "shared-hosting",
@@ -1935,7 +1939,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:20:21.478Z",
+  "captured_at": "2026-09-25T12:04:38.853Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

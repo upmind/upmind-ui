@@ -1,5 +1,9 @@
 /** @internal */
 import { assign, createMachine, spawn } from "xstate";
+import {
+  CancellationRequestStatusCodes,
+  ContractStatusCodes
+} from "@upmind-automation/types";
 import { authSubscription } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { mapContract } from "./contract.mappers";
@@ -9,7 +13,6 @@ import {
 } from "./contract.schemas";
 import { contractMachineServices as services } from "./contract.services";
 import { ContractState } from "./contract.types";
-import { selectContractStatusNode } from "./contract.utils";
 import {
   DetailedError,
   ErrorOrigin,
@@ -18,7 +21,7 @@ import {
   useModelParser,
   useValidationParser
 } from "../../utils";
-import { isNil } from "lodash-es";
+import { some } from "lodash-es";
 import type {
   ContractContext,
   ContractLoaded,
@@ -35,13 +38,9 @@ import type { AnyEventObject } from "xstate";
  * (R34): every cancellation write moved to `contract-product` with R33, so the
  * ONE write it owns is the payment-method form. That form is offered on every
  * `available` status node and, per R13, on `unavailable.cancelled` and
- * `unavailable.lapsed` (`canChangePaymentMethod` refuses `fraud` alone).
+ * `unavailable.lapsed` — only for a subscription the client owns, never a
+ * one-off or a delegated one, and never on `fraud` (`canChangePaymentMethod`).
  */
-
-function isNode(node: ContractState) {
-  return ({ contract }: ContractContext) =>
-    !!contract && selectContractStatusNode(contract) === node;
-}
 
 export default createMachine(
   {
@@ -57,31 +56,63 @@ export default createMachine(
         }
       },
 
-      // ONE `load` settles the record and its reused stored-card lookup, then
-      // the `always` places the status node in flow.md section 3 order:
-      // `unavailable` first, then `cancelling`, then the four `available` nodes.
       loading: {
         id: "loading",
         invoke: {
           src: "load",
-          onDone: { actions: ["setContract", "setLookups"] },
+          // The settled read places the status node, in flow.md section 3
+          // order: `unavailable` first, then `cancelling`, then the four
+          // `available` nodes. The guards read the record THIS read returned
+          // (the event), never the previous one held in context.
+          onDone: [
+            {
+              target: ContractState.CANCELLED,
+              cond: "isCancelled",
+              actions: ["setContract", "setLookups"]
+            },
+            {
+              target: ContractState.LAPSED,
+              cond: "isLapsed",
+              actions: ["setContract", "setLookups"]
+            },
+            {
+              target: ContractState.FRAUD,
+              cond: "isFraud",
+              actions: ["setContract", "setLookups"]
+            },
+            {
+              target: ContractState.CANCELLING,
+              cond: "isCancelling",
+              actions: ["setContract", "setLookups"]
+            },
+            {
+              target: ContractState.PENDING,
+              cond: "isPending",
+              actions: ["setContract", "setLookups"]
+            },
+            {
+              target: ContractState.INACTIVE,
+              cond: "isInactive",
+              actions: ["setContract", "setLookups"]
+            },
+            {
+              target: ContractState.SUSPENDED,
+              cond: "isSuspended",
+              actions: ["setContract", "setLookups"]
+            },
+            {
+              target: ContractState.ACTIVE,
+              cond: "isActive",
+              actions: ["setContract", "setLookups"]
+            },
+            {
+              target: "#error",
+              // No status this machine knows (AC12).
+              actions: ["setContract", "setLookups", "setStatusError"]
+            }
+          ],
           onError: { target: "#error", actions: ["setError"] }
-        },
-        always: [
-          { target: ContractState.CANCELLED, cond: "isCancelled" },
-          { target: ContractState.LAPSED, cond: "isLapsed" },
-          { target: ContractState.FRAUD, cond: "isFraud" },
-          { target: ContractState.CANCELLING, cond: "isCancelling" },
-          { target: ContractState.PENDING, cond: "isPending" },
-          { target: ContractState.INACTIVE, cond: "isInactive" },
-          { target: ContractState.SUSPENDED, cond: "isSuspended" },
-          { target: ContractState.ACTIVE, cond: "isActive" },
-          {
-            target: "#error",
-            cond: "isUnrecognised",
-            actions: ["setStatusError"]
-          }
-        ]
+        }
       },
 
       error: {
@@ -110,7 +141,8 @@ export default createMachine(
                 on: {
                   PAYMENT_METHOD: {
                     target: "available",
-                    actions: "setPaymentMethodSchemas"
+                    actions: "setPaymentMethodSchemas",
+                    cond: "canChangePaymentMethod"
                   }
                 }
               },
@@ -366,21 +398,31 @@ export default createMachine(
     },
 
     guards: {
-      isPending: isNode(ContractState.PENDING),
-      isInactive: isNode(ContractState.INACTIVE),
-      isActive: isNode(ContractState.ACTIVE),
-      isSuspended: isNode(ContractState.SUSPENDED),
-      isCancelling: isNode(ContractState.CANCELLING),
-      isCancelled: isNode(ContractState.CANCELLED),
-      isLapsed: isNode(ContractState.LAPSED),
-      isFraud: isNode(ContractState.FRAUD),
+      isPending: (_context: ContractContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.PENDING,
+      isInactive: (_context: ContractContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.AWAITING_ACTIVATION,
+      isActive: (_context: ContractContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.ACTIVE,
+      isSuspended: (_context: ContractContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.SUSPENDED,
+      isCancelling: (_context: ContractContext, { data }: AnyEventObject) =>
+        data.record.cancellation_request?.status?.code ===
+        CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST,
+      isCancelled: (_context: ContractContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.CANCELLED,
+      isLapsed: (_context: ContractContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.CLOSED,
+      isFraud: (_context: ContractContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.FRAUD,
       // R13: not `fraud` — the one `unavailable` node the form is refused on.
-      canChangePaymentMethod: ({ contract }: ContractContext) =>
+      // Legacy `cProdProvider.vue` canModifySettings (:337-341): only a
+      // subscription (billing cycle > 0) the client owns, never a delegated one.
+      canChangePaymentMethod: ({ contract, rawContract }: ContractContext) =>
         !!contract &&
-        selectContractStatusNode(contract) !== ContractState.FRAUD,
-      // `!error` is what stops the targetless arm re-firing once it has run.
-      isUnrecognised: ({ contract, error }: ContractContext) =>
-        !error && !!contract && isNil(selectContractStatusNode(contract))
+        rawContract?.status?.code !== ContractStatusCodes.FRAUD &&
+        contract.billingCycleMonths > 0 &&
+        !some(contract.products, "isDelegatedObject")
     },
 
     services

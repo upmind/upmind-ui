@@ -37,7 +37,7 @@
         "accounts": null,
         "analytics": {
           "environment": "staging",
-          "version": "staging-0.170.152",
+          "version": "staging-0.170.170",
           "language": "en",
           "clean_email": null,
           "sha_user_id": null,
@@ -54,7 +54,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:19:57.708Z",
+  "captured_at": "2026-09-25T12:04:15.523Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

@@ -42,9 +42,11 @@ const NATIVE_FIELD_META: CustomField["meta"] = {
 };
 
 /** `"1"` → true, `"0"` → false, absent → undefined (R26). */
+// The platform stores the choice as a string or a number; legacy reads both
+// (`views/client/products/index.vue` initForm: `parseInt(meta ?? "0")`).
 function mapExcludeDelegatedProducts(value: unknown): boolean | undefined {
-  if (value === "1") return true;
-  if (value === "0") return false;
+  if (value === "1" || value === 1) return true;
+  if (value === "0" || value === 0) return false;
   return undefined;
 }
 

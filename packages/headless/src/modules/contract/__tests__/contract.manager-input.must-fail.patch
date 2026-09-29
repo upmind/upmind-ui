@@ -1,5 +1,8 @@
 Negative control for useContract.actions.ts `input` (R37 B6).
 
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.feature > "Close the payment-method form without changing how my contract is paid for"
+
 Specs that must flip: contract.manager-members.int.test.ts
 ("A stored card I choose in the payment-method form is taken in and
 checked", contract.feature:302; "A card I choose and submit straight away is
@@ -9,7 +12,6 @@ following `update()` to send that card.
 
 Mutation: replaces the debounced `input` with the pre-restore
 fire-and-forget `set(model): void`, so no `input` member exists.
-
 diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
 --- a/packages/headless/src/modules/contract/useContract.actions.ts
 +++ b/packages/headless/src/modules/contract/useContract.actions.ts

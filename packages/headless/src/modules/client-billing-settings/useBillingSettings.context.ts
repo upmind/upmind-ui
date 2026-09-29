@@ -34,7 +34,7 @@ export function createBillingSettingsContext(
   // --- actor-specific context: none earned (arms: none — parity.yaml).
 
   return {
-    /** The five persisted consolidation fields, plus `isStaged`. */
+    /** The five persisted consolidation fields. */
     data,
 
     /** The query's own captured error — read, never raised. */

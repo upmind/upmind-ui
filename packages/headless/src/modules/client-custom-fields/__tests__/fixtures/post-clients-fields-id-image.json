@@ -18,14 +18,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf51d1f6ab7ca-DUB",
+      "cf-ray": "a41c6184d99273f9-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:15:54 GMT",
+      "date": "Sun, 27 Sep 2026 17:55:44 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=kTgSVo9%2BMvk6TBn76DbVWgpvh%2B%2FMJOjQDS6VFVoVmrHPaqKAn%2BG4pEuISoRveKbGK5hEJYMlfKA2Xk7xN6%2Bphh0ps%2Ft%2Fy21akIlZFZ0uCR0D0lYeZR%2BC9VqOL51eYHe2Ce%2Bg9N5j6w%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=TyzumL7uZrxWnh5NNfEd2C7SdroGzBvSJvaHiYbyd85tk125VhSTHUv95mguz04qh2H80AnU%2FIg0VHPzM1YLXecXhUbnAJld8d85dPI0VBzX3zuxr86jIG54KaToELFgNBuXKP1zMw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -34,16 +34,16 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "5952098d-3de4-0917-3e6b-31578626e347",
+        "id": "5d085e69-d562-3719-04ef-218e940d4237",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
         "field_id": "3de78642-de53-9714-7ec2-1208469530d0",
         "object_type": "client",
-        "value": "jV3hoK7vGdVv6zbBtIRt9frhE1eRdHZ7",
-        "created_at": "2026-09-10 05:15:53",
-        "updated_at": "2026-09-10 05:15:54",
-        "image_url": "https://api.staging.upmind.io/api/images/jV3hoK7vGdVv6zbBtIRt9frhE1eRdHZ7/download",
+        "value": "wbPzEoimnbD0H0jlUDx64GZHWFAKKMzo",
+        "created_at": "2026-09-27 17:55:43",
+        "updated_at": "2026-09-27 17:55:43",
+        "image_url": "https://api.staging.upmind.io/api/images/wbPzEoimnbD0H0jlUDx64GZHWFAKKMzo/download",
         "field": {
           "id": "3de78642-de53-9714-7ec2-1208469530d0",
           "import_id": null,
@@ -87,7 +87,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:15:54.407Z",
+  "captured_at": "2026-09-27T17:55:44.115Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

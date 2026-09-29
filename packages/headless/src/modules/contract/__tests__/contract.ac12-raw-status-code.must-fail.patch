@@ -1,3 +1,6 @@
+# STALE (FE-3145): `git apply --check` rejects this mutant against the
+#   current source; it needs re-authoring before it can prove anything.
+#
 # Negative-control mutant — AC-12's status code is published as it arrived, never
 # a coerced substitute (design 8.7)
 #

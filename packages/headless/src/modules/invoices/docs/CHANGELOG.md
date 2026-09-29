@@ -6,9 +6,9 @@ All notable changes to the invoices module.
 
 ### Added
 
-- Converted the module from a single unscoped read into a full scoped, query-backed
-  module: a filterable/sortable/paginated collection (`useInvoices`) and a scoped
-  single read (`useInvoice`), sharing one services factory.
+- Converted the module from a single unscoped read into a full scoped module: a
+  filterable/sortable/paginated, query-backed collection (`useInvoices`) and a
+  scoped, machine-backed single invoice (`useInvoice`), each with its own services.
 - Reading an entitled other client's invoices (`.for('client', id)`) — a parent
   account or an accepted delegate reads a sub-account's or delegator's invoices,
   addressed by the target client's id.
@@ -31,19 +31,34 @@ All notable changes to the invoices module.
 - Consolidation identity/credit fields, bundled line-item grouping by originating
   subscription, and a large-bundle flag derived from the server's reported item count.
 - The assigned-payment-method write, including clearing the assignment as an
-  explicit value rather than an omitted field.
-- A discriminated overall payment state (`complete` / `free` / `partial` / `pending`
-  / `failed`) replacing four booleans that could previously disagree with each other.
+  explicit value rather than an omitted field — lives on `useInvoice`, not the
+  collection.
+- **The former `orders` module's payment orchestration is merged into `useInvoice`.**
+  There is no `orders` module in this codebase any more. `useInvoice` is now
+  machine-backed (`invoiceManager`): `useActions().pay()` / `.retry()` trigger and
+  retry a payment attempt, `.renderChallenge()` / `.cancelChallenge()` drive an
+  inline 3DS challenge, `.downloadPdf()` saves the invoice (or credit note) PDF, and
+  `.setCurrency()` saves a pay-currency switch and re-reads the converted unpaid
+  amount. The machine spawns `payment`'s machine and a `payment-details` picker as
+  children rather than re-implementing submission.
+- `.as('client')` and `.as('guest')` both resolve on `useInvoice` (and `.as('self')`
+  resolves to whichever the active session is) — a guest checkout reads and pays its
+  own invoice with no client session.
 - Full test suite across both composables: unit (mappers, attribution, settlement)
   and integration (against recorded fixtures), the module `.feature` contract, and a
   fixture generator with recorded, PII-masked fixtures.
 
 ### Changed (breaking)
 
-- `useInvoice(invoiceId)` becomes `useInvoice().withId(invoiceId)` — the single read
-  is now a scoped composable. No consumer outside this module called the old flat
-  form at the time of this change.
+- `useInvoice(invoiceId)` becomes `useInvoice().withId(invoiceId)` — the single
+  invoice is now a scoped, machine-backed composable rather than a flat read. No
+  consumer outside this module called the old flat form at the time of this change.
 - `invoices.service.ts` is renamed `invoices.services.ts`.
+- **`useInvoices().useActions()` loses `assignPaymentMethod()` and
+  `refreshAfterPayment()`.** The payment-method write and its refresh move onto
+  `useInvoice` (`input()` + `updatePaymentDetails()`) — the collection is list-only.
+- `useInvoice().useContext()`'s published invoice key is renamed `model` (was `data`
+  on the pre-conversion flat read).
 
 ### Fixed
 

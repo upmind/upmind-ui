@@ -29,6 +29,10 @@ export class BridgeWorld implements World<ComposableKey> {
     throw new Error(BRIDGE_WORLD_NOT_IMPLEMENTED);
   }
 
+  async expectAbsent(_value: string, _key?: ComposableKey): Promise<void> {
+    throw new Error(BRIDGE_WORLD_NOT_IMPLEMENTED);
+  }
+
   async dispose(): Promise<void> {
     throw new Error(BRIDGE_WORLD_NOT_IMPLEMENTED);
   }

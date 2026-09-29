@@ -164,6 +164,8 @@ export type ContractProductListItem = {
   id: IContractProduct["id"];
   name: IContractProduct["name"];
   product?: Pick<IProduct, "name">;
+  /** The product is delegated to this client, not owned — legacy withholds settings changes on it. */
+  isDelegatedObject: IContractProduct["is_delegated_object"];
 };
 
 /** The view model `contract.mappers.ts` maps `IContract` into — only the fields this module reads. */

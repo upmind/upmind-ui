@@ -26,7 +26,6 @@ Both always operate on the **calling client's own** tickets. There is no staff o
 ```ts
 import {
   ScopeActorTypes,
-  TicketContextTypes,
   useTickets,
   useTicket
 } from "@upmind-automation/headless";

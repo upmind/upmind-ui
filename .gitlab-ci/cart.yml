@@ -35,6 +35,9 @@ build base:
       - packages/icons/dist
       - packages/i18n/dist
       - packages/types/dist
+      # The ADR 023 domain packages (modules-auth, modules-foundation, …) the
+      # apps reference by project reference — their d.ts must reach the app jobs.
+      - packages/modules-*/dist
 
       - apps/cart/dist
 

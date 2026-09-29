@@ -4,10 +4,16 @@ All notable changes to the contract module.
 
 ## [Unreleased]
 
+### Changed
+
+- **The settled read places the status node directly.** The load's completion is one ordered list of guarded transitions over the record it returned; a record with no known status lands on `error`.
+- **The payment-method form is offered only for a subscription the client owns** — never a one-off contract, never a contract holding a product delegated to the client. Each `products[]` stub now carries `isDelegatedObject`.
+- **Paging forward keeps the split total**, and the count read waits on the list's own addressability check.
+
 ### Added
 
 - Initial module: `useContracts` (client's own contract collection, filterable, sortable and pageable) and `useContract` (per-contract manager backed by `contract.machine.ts` — the one write this module keeps, changing which stored payment method pays the contract's future invoices).
-- `useContracts` ships a full criteria query schema — filters on name, status code, and the `created_at` / `next_due_date` date ranges; sort on name, created_at, next_due_date, total_amount and status; and pagination — plus a contracts-picker schema/uischema pair for the no-id manager case.
+- `useContracts` ships a full criteria query schema — filters on name, status code, and the `created_at` / `next_due_date` date ranges; sort on created_at, next_due_date, total_amount and status; and pagination — plus a contracts-picker schema/uischema pair for the no-id manager case.
 - Full documentation set: `foundation.md`, `README.md`, `usage.md`, `architecture.md`, `gotchas.md`, and this changelog.
 
 ### Design notes

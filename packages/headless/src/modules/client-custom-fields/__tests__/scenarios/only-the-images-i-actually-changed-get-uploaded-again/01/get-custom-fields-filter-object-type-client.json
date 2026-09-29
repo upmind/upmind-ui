@@ -1,0 +1,182 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/custom_fields?filter[object_type]=client&limit=0&order=order&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a41c63ba0d24517e-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 27 Sep 2026 17:57:14 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=6N5ZYaerbfapGVYYh9P2dKbP28%2BWPWSmQ6Xw%2FvC5ciG2BXdpTSIhpC1amJF9r0QQ14dC7LsOuD2H8zDgVzh2zazhYRkxRrtMbNw4it8fjVLyAHrTJtvYlZBkpxPdwjOxEVSso2wbPw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "3"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "20403869-6e54-721d-29f5-18d9305e7d23",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Age",
+          "short_description": null,
+          "description": null,
+          "type": 7,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
+          "order": 1,
+          "values": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "created_at": "2025-12-19 12:58:10",
+          "updated_at": "2026-02-19 13:17:58",
+          "code": "age",
+          "user_only": false,
+          "show_on_order_form": false,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name_translated": "Age",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "type_code": "number",
+          "display_type": "Number",
+          "translations": []
+        },
+        {
+          "id": "3de78642-de53-9714-7ec2-1208469530d0",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Profile Picture",
+          "short_description": null,
+          "description": null,
+          "type": 8,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
+          "order": 2,
+          "values": [],
+          "created_at": "2025-12-19 12:58:57",
+          "updated_at": "2025-12-19 12:58:57",
+          "code": "profile_picture",
+          "user_only": false,
+          "show_on_order_form": true,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name_translated": "Profile Picture",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": [],
+          "type_code": "image",
+          "display_type": "Image",
+          "translations": []
+        },
+        {
+          "id": "3de78642-de53-9714-9ef2-1208469530d0",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "FE-3145 second image field",
+          "short_description": null,
+          "description": null,
+          "type": 8,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "825d96e7-63ed-0913-de6c-417482528340",
+          "order": 3,
+          "values": [],
+          "created_at": "2026-09-27 17:57:02",
+          "updated_at": "2026-09-27 17:57:02",
+          "code": "fe3145_second_image_1790531821950",
+          "user_only": false,
+          "show_on_order_form": false,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name_translated": "FE-3145 second image field",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": [],
+          "type_code": "image",
+          "display_type": "Image",
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 3,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-27T17:57:14.076Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "only-the-images-i-actually-changed-get-uploaded-again"
+  }
+}

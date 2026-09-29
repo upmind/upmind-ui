@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/notifications/opt-outs?limit=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a41c25f3c8630de1-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 27 Sep 2026 17:15:03 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=H6TJQLzos6C3gXd84x6Vi%2FzokFi6EZtqHuA%2BAfJ6lJ30bw3KnLHmBTHmkhjo1cefmzpS1DIW1X7Oc3pTSXuDPYuWW5PKd9MtfVIZE4TwwBW0EXPW4Z%2BoEftR8PM7ItXU5H5dYsgsWw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "2"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "5952098d-3de4-0917-56a3-1578626e347e",
+          "topic_id": "45952098-d3de-4091-76a3-1578626e347e",
+          "channel_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "created_at": "2026-09-27 17:15:02",
+          "updated_at": "2026-09-27 17:15:02"
+        },
+        {
+          "id": "20403869-6e54-721d-99b5-18d9305e7d23",
+          "topic_id": "45952098-d3de-4091-76a3-1578626e347e",
+          "channel_id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "created_at": "2026-09-27 17:15:02",
+          "updated_at": "2026-09-27 17:15:02"
+        }
+      ],
+      "related": null,
+      "total": 2,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-27T17:15:03.863Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "be-told-when-my-save-fails-and-keep-the-work-to-retry"
+  }
+}

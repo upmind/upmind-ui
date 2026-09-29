@@ -1,15 +1,13 @@
 # Negative-control mutant — the payment-method form validates before it writes (AC-8, R35)
 #
+# NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+#   green under it — no driven scenario pins this behaviour yet.
+#
 # Target (correct line): `settingPaymentMethod.validating.onError` in the
 #   `changingPaymentMethod` region — an invalid model must land in the form's
 #   `available.error` node with NO `PATCH` leaving the module. This mutant routes
 #   that `onError` straight to `updating`, so a schema-invalid model is written
 #   anyway (validation skipped).
-#
-# Test that goes red: contract.payment-method-enum.int.test.ts >
-#   "makes NO PATCH and lands a 422 in the error region when I submit an id
-#   outside my stored cards" (the spec serves the recorded stored-card list, so
-#   the schema enum carries the real card ids).
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>

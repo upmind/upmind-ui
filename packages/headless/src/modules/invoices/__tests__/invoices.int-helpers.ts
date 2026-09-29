@@ -1,29 +1,28 @@
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/__tests__/invoices.int-helpers
- * @description Shared integration scaffolding for invoices' `*.int.test.ts`
- * files: seed a real authenticated client session, evict this module's scope
- * registry entries between tests, expose the RECORDED wire bodies every
- * handler serves, and capture outbound requests so the A7 read-backs (URL +
- * auth identity transport) assert on the real wire — mirrors
- * `client-email-history/__tests__/client-email-history.int-helpers.ts` and
- * `client-address/__tests__/client-address.int-helpers.ts`, this module's
- * sibling equivalents (public test-infrastructure, not this module's
- * implementation source).
+ * @description The scaffolding the scenario runner (`invoices.replay.int.test.ts`)
+ * needs: seed a real authenticated client session behind the OWNING modules'
+ * boot recordings, and evict this module's scope-registry entries between
+ * scenarios. Every module capability is proven by a driven `.feature` scenario
+ * replaying its own per-step recordings (FE-3145, ADR 035; operator ruling
+ * 2026-09-24), so this file carries no per-test handlers, no observers and no
+ * flat-body readers — the deleted capability `*.int.test.ts` files owned those.
  *
- * Every response body served here comes from a fixture captured by
- * `pnpm fixtures:generate invoices` against real staging — no test in this
- * module builds a wire body of its own, except where a REAL recorded row has
- * exactly one field toggled to construct a condition this staging account's
- * real history does not contain (disclosed at each call site — see
- * `invoices.fixtures.ts`'s own disclosure and the AC-5/6/7/13 test files).
+ * Every response a seeded session replays comes from a fixture captured against
+ * real staging — the owning modules' own recordings and this module's own
+ * `pnpm fixtures:generate invoices` scenario captures. The `Envelope` /
+ * `WireInvoice` types below are the shape the pure `invoices.mappers.test.ts`
+ * reads its recorded rows through.
  */
 
-import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { replayStep } from "@upmind-automation/test-fixtures/replay-server";
+import { AccessRoleTypes } from "@upmind-automation/types";
+import { useBrand } from "../../brand";
 import { queryClient } from "../../query/client";
 import { getRegistry, remove } from "../../scope/scope.registry";
 import {
@@ -31,7 +30,7 @@ import {
   useActiveSession,
   useSessionStore
 } from "../../session-store";
-import { server, recordingsDir } from "./setup.integration";
+import { server } from "./setup.integration";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -92,139 +91,38 @@ export type WireInvoice = {
   payment_details_id: string | null;
 };
 
-// -----------------------------------------------------------------------------
+/** The brand's own recordings — its boot reads (settings, config, modules). */
+const BRAND_RECORDINGS = join(
+  import.meta.dirname,
+  "../../brand/__tests__/fixtures"
+);
+
+/** The system module's own recordings — countries, billing cycles. */
+const SYSTEM_RECORDINGS = join(
+  import.meta.dirname,
+  "../../system/__tests__/fixtures"
+);
+
+/** The basket's own recordings — the claim a client sign-in makes. */
+const BASKET_RECORDINGS = join(
+  import.meta.dirname,
+  "../../basket/__tests__/fixtures"
+);
 
 /**
- * The recorded bodies, by capture — every file `invoices.fixtures.ts` wrote
- * from real staging (NFR-2). This account's real history carries NO
- * consolidation invoice, NO credit note, NO bundle over the large-bundle
- * threshold, and NO delegated/sub-account row — `invoices.fixtures.ts`'s own
- * disclosure log confirms this at capture time. Tests that need one of those
- * conditions construct it from `recorded.unpaid()` with ONE (or a small,
- * individually-labelled set of) field(s) toggled — the accepted precedent in
- * `client-email-history.mappers.test.ts`.
- */
-export const recorded = {
-  /** `GET /invoices` broad real list — 25 real rows, full list include set. */
-  list: () =>
-    getFixtureBody<Envelope<WireInvoice[]>>("get-invoices-case-default", {
-      recordingsDir
-    }),
-  /** `GET /invoices/{id}` — a real PAID invoice, full loadOne include set. */
-  paid: () =>
-    getFixtureBody<Envelope<WireInvoice>>("get-invoices-id-case-first", {
-      recordingsDir
-    }).data,
-  /**
-   * `GET /invoices/{id}` — a real UNPAID/OVERDUE invoice with 4 REAL pending
-   * payments, every one on a gateway whose `type` is
-   * {@link GatewayTypes.AWAITING_CLIENT} (`10`) — genuinely reachable from
-   * this staging account, not constructed (AC-8).
-   */
-  unpaid: () =>
-    getFixtureBody<Envelope<WireInvoice>>("get-invoices-id-case-unpaid", {
-      recordingsDir
-    }).data,
-  /** `GET /invoices/unpaid_amount/{id}` — real 200, real currency_id. */
-  unpaidAmount: () =>
-    getFixtureBody<{
-      status: string;
-      data: { unpaid_amount: number; unpaid_amount_formatted: string };
-    }>("get-invoices-unpaid-amount-id-currency-id", { recordingsDir }),
-  /** `GET /invoices/unpaid_amount/{id}` — real 422, missing currency. */
-  unpaidAmountMissingCurrency: () =>
-    getFixtureBody<{ status: string; error: { code: number } }>(
-      "get-invoices-unpaid-amount-id-case-missing-currency",
-      { recordingsDir }
-    ),
-  /** `GET /invoices/{id}` — real 404, control response (unknown id). */
-  notFound: () =>
-    getFixtureBody<{
-      status: string;
-      data: null;
-      error: { code: number; message: string } | null;
-    }>("get-invoices-id-case-not-found", { recordingsDir })
-};
-
-/**
- * Serves the module's collection/single-read endpoints from the RECORDED
- * bodies above. Bodies are overridable per test (`setListBody`/`setOneBody`)
- * so a test can point the collection/single-read at a different real (or
- * real-plus-one-toggle) body without hand-building a response from scratch.
- */
-export function installInvoiceHandlers(): {
-  setListBody: (body: Envelope<WireInvoice[]>) => void;
-  setOneBody: (body: Envelope<WireInvoice>) => void;
-  setUnpaidAmountBody: (body: unknown, status?: number) => void;
-  setPaymentDetailsAck: (status?: number) => void;
-} {
-  let listBody = recorded.list();
-  let oneBody: Envelope<WireInvoice> = {
-    status: "ok",
-    data: recorded.paid(),
-    total: null,
-    error: null,
-    messages: null,
-    meta: null
-  };
-  let unpaidAmountBody: unknown = recorded.unpaidAmount();
-  let unpaidAmountStatus = 200;
-  let paymentDetailsStatus = 200;
-
-  server?.use(
-    http.get("*/invoices/unpaid_amount/:id", () =>
-      HttpResponse.json(unpaidAmountBody as Record<string, unknown>, {
-        status: unpaidAmountStatus
-      })
-    ),
-    http.get("*/invoices/:id", () => HttpResponse.json(oneBody)),
-    http.get("*/invoices", () => HttpResponse.json(listBody)),
-    http.patch("*/invoices/:id/payment_details", () =>
-      HttpResponse.json(
-        { status: "ok", data: null, error: null },
-        { status: paymentDetailsStatus }
-      )
-    )
-  );
-
-  return {
-    setListBody: (body: Envelope<WireInvoice[]>) => {
-      listBody = body;
-    },
-    setOneBody: (body: Envelope<WireInvoice>) => {
-      oneBody = body;
-    },
-    setUnpaidAmountBody: (body: unknown, status = 200) => {
-      unpaidAmountBody = body;
-      unpaidAmountStatus = status;
-    },
-    setPaymentDetailsAck: (status = 200) => {
-      paymentDetailsStatus = status;
-    }
-  };
-}
-
-/**
- * Background bootstrap calls unrelated to any AC (brand/org config) fire as a
- * side effect of `initStore()`; stub them harmlessly so they never surface as
- * noise. Re-applied on every seed — the replay server resets handlers between
- * tests.
+ * The boot reads every signed-in scenario makes as a side effect of
+ * `initStore()` — the brand's settings and config, the system's country list and
+ * billing cycles, the basket's claim, session-store's own rich `/self` —
+ * answered by the RECORDINGS of the modules that OWN them, never by a body
+ * written here (FE-3145, ADR 035). Re-applied on every seed; the replay server
+ * resets handlers between tests.
  */
 export function installBackgroundStubs(): void {
-  server?.use(
-    http.get("*/org/modules", () =>
-      HttpResponse.json({ status: "ok", data: [] })
-    ),
-    http.get("*/config/brand/values", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    ),
-    http.get("*/config/organisation/values", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    ),
-    http.get("*/brand/settings", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    )
-  );
+  replayStep(server, BRAND_RECORDINGS);
+  replayStep(server, SYSTEM_RECORDINGS);
+  replayStep(server, BASKET_RECORDINGS);
+  replayStep(server, sessionStoreRecordingsDir);
+  installGuestTokenStub();
 }
 
 // -----------------------------------------------------------------------------
@@ -244,6 +142,7 @@ export function invoiceScopeKeys(): string[] {
 export function resetInvoiceScopes(): void {
   for (const key of invoiceScopeKeys()) remove(key);
   queryClient.clear();
+  useBrand().invalidate();
 }
 
 // -----------------------------------------------------------------------------
@@ -305,129 +204,28 @@ export async function seedClientSession(): Promise<{
 }
 
 /**
- * Boots the store to the guest floor — no client session is ever added. Logs
- * out any session a PRIOR test in the same file left active first: the
- * session store is a singleton, so skipping this leaks a previous test's
- * `activeUser` into a test that means to assert the signed-out floor.
+ * Seeds the guest floor a `@signed-out` scenario boots against: the owning
+ * modules' boot recordings are armed and the store settles on a guest session
+ * with NO client signed in, so the collection resolves `isAvailable:false` and
+ * any invoice request it makes anyway is an unmatched request the replay wall
+ * surfaces.
  */
-export async function bootUnauthenticated(): Promise<void> {
-  try {
-    useSessionStore().useActions().logout();
-  } catch {
-    // No active session to log out of.
-  }
+export async function seedGuestSession(): Promise<void> {
   resetInvoiceScopes();
   installBackgroundStubs();
-  installGuestTokenStub();
+
   await useSessionStore().initStore();
+  await Promise.resolve(useSessionStore().useActions().logout()).catch(
+    () => undefined
+  );
+  resetInvoiceScopes();
+
   await vi.waitFor(() => {
     expect(useActiveSession().useMeta().isAuthenticated.value).toBe(false);
   });
-}
-
-// -----------------------------------------------------------------------------
-
-/** One observed outbound request. */
-export type ObservedRequest = {
-  method: string;
-  url: string;
-  headers: Record<string, string>;
-  body: unknown;
-};
-
-/**
- * Passively observes every request whose URL contains `/invoices`. Passive
- * (an MSW `request:start` listener) rather than an override handler, so it
- * never races the fixture replay for the same route. The request is cloned
- * before its body is read so the real handler downstream still sees an
- * unconsumed stream.
- */
-export function observeInvoiceRequests(): {
-  all: () => ObservedRequest[];
-  first: () => ObservedRequest;
-  last: () => ObservedRequest;
-  matching: (fragment: string) => ObservedRequest[];
-  stop: () => void;
-} {
-  const seen: ObservedRequest[] = [];
-  const listener = ({ request }: { request: Request }): void => {
-    if (!request.url.includes("/invoices")) return;
-    const entry: ObservedRequest = {
-      method: request.method,
-      url: request.url,
-      headers: Object.fromEntries(request.headers.entries()),
-      body: undefined
-    };
-    seen.push(entry);
-    if (request.method !== "GET" && request.method !== "HEAD") {
-      request
-        .clone()
-        .text()
-        .then(text => {
-          entry.body = text ? JSON.parse(text) : undefined;
-        })
-        .catch(() => undefined);
-    }
-  };
-  server?.events.on("request:start", listener);
-
-  return {
-    all: () => seen,
-    first: () => seen[0],
-    last: () => seen[seen.length - 1],
-    matching: (fragment: string) =>
-      seen.filter(entry => entry.url.includes(fragment)),
-    stop: () => server?.events.removeListener("request:start", listener)
-  };
-}
-
-/** Every header key the identity-transport read-back must NOT carry (A7). */
-export function assertNoActingAsHeaders(headers: Record<string, string>): void {
-  const keys = Object.keys(headers).map(key => key.toLowerCase());
-  expect(keys).toEqual(
-    expect.not.arrayContaining([
-      "x-acting-as",
-      "x-impersonate",
-      "x-on-behalf-of",
-      "x-staff-id",
-      "x-admin-id",
-      "impersonation"
-    ])
-  );
-}
-
-/**
- * The full A7 identity read-back for one observed request: the token is the
- * scope-resolved client session's own, and no acting-as header is present.
- * The `client x client` retarget for this module is a declared `client_id`
- * FILTER COLUMN, never a path segment (design D-notes) — so the URL half of
- * A7 is asserted by the caller against the query string, not this helper.
- */
-export function assertClientIdentityTransport(
-  observed: ObservedRequest,
-  accessToken: string
-): void {
-  expect(observed.headers.authorization ?? observed.headers.Authorization).toBe(
-    `Bearer ${accessToken}`
-  );
-  assertNoActingAsHeaders(observed.headers);
-}
-
-/** Module files whose CODE (not prose) mentions `token` — comments excluded. */
-export function moduleFilesReferencing(token: string): string[] {
-  const moduleDir = join(import.meta.dirname, "..");
-  return readdirSync(moduleDir)
-    .filter(entry => entry.endsWith(".ts") && !entry.includes(".test."))
-    .filter(file =>
-      readFileSync(join(moduleDir, file), "utf-8")
-        .split("\n")
-        .some(line => {
-          const trimmed = line.trim();
-          const isComment =
-            trimmed.startsWith("//") ||
-            trimmed.startsWith("*") ||
-            trimmed.startsWith("/*");
-          return !isComment && line.includes(token);
-        })
-    );
+  await vi.waitFor(() => {
+    expect(
+      useSessionStore().useActions().get(AccessRoleTypes.GUEST)
+    ).toBeTruthy();
+  });
 }

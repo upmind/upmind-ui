@@ -30,9 +30,8 @@ export function createBillingSettingsManagerContext(
 ) {
   const { state } = actor;
 
-  // No state flags here — `isStaged`, `isVisible` and
-  // `hasPaymentCurrencyChoice` are meta (`useBillingSettingsManager.meta.ts`);
-  // context carries data only.
+  // No state flags here — `isVisible` and `hasPaymentCurrencyChoice` are
+  // meta (`useBillingSettingsManager.meta.ts`); context carries data only.
 
   // --- actor-specific context: none earned (arms: none — parity.yaml).
 

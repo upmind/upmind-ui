@@ -1,0 +1,86 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/custom_fields?filter[object_type]=client&limit=1&order=order&offset=1",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a41c6228e92d517e-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 27 Sep 2026 17:56:10 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=jTjXEDnO62VwU0%2F5QGGWrwaxYTkHNIyDl9TkVzLZxt4MNXjNRR1ZYwhU%2FrjqNNFXMlp7A%2Fdxk27BNNBU7ch7uunn82qr7rQPTRzkfFc4X%2B5t6WMIw8PD1mk71NEGwXnPAPW%2F9JxfEw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "2"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3de78642-de53-9714-7ec2-1208469530d0",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Profile Picture",
+          "short_description": null,
+          "description": null,
+          "type": 8,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "320e4357-95e7-8d18-42ef-31643202d986",
+          "order": 2,
+          "values": [],
+          "created_at": "2025-12-19 12:58:57",
+          "updated_at": "2025-12-19 12:58:57",
+          "code": "profile_picture",
+          "user_only": false,
+          "show_on_order_form": true,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name_translated": "Profile Picture",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": [],
+          "type_code": "image",
+          "display_type": "Image",
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 2,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-27T17:56:10.270Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-client-pages-the-catalogue-once-a-page-size-is-set"
+  }
+}

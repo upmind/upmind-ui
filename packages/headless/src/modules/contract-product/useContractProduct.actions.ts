@@ -197,8 +197,11 @@ export function createContractProductActions(
   }
 
   /**
-   * Submits the open consolidation form.
-   * @returns the re-read product, or `false` when the node refused the event.
+   * Submits the open consolidation form. As legacy's `formIsChanged` gate
+   * (`cProdInvoiceConsolidationForm.vue:58-61`), a choice equal to the
+   * product's current value is not sent and the form stays open.
+   * @returns the re-read product, or `false` when there is no changed choice
+   *   or the node refused the event.
    */
   async function submitConsolidation(): Promise<ContractProduct | false> {
     const model = contextValue<SetConsolidationModel>(
@@ -206,6 +209,15 @@ export function createContractProductActions(
       "consolidation.model"
     );
     if (isNil(model?.invoiceConsolidationEnabled)) return false;
+    if (
+      model.invoiceConsolidationEnabled ===
+      contextValue<number>(
+        state,
+        "rawContractProduct.invoice_consolidation_enabled"
+      )
+    ) {
+      return false;
+    }
 
     send({ type: "SET_CONSOLIDATION" });
     if (!stateMatches(state, "available.consolidating.processing")) {

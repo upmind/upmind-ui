@@ -1,6 +1,9 @@
 # Negative-control mutant — the payment-method form's read-state flag reports TRUE
 #   validation, not FALSE (R35 form region `changingPaymentMethod`, both parents)
 #
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Close the payment-method form without changing how my contract is paid for"
+#
 # Naming: the meta read-state flags have no dedicated spec of their own, so this
 #   mutant takes the `<spec-basename>.<concern>` form beside the spec that drives
 #   the payment-method form to a validated node — `contract.payment-method-enum.int.test.ts`.

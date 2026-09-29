@@ -2,14 +2,15 @@
 # tracks whether any filter is applied (R38 supersedes R28/R32's
 # pagination-only ruling; B3).
 #
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Narrow my contracts to the ones in one state"
+#   contract.feature > "Clear my narrowing to see my whole list again"
+#
 # No task/spec basename names this member yet — R38 (2026-09-28) postdates
 # `tasks.md`; this patch is authored against the ruling directly, for the
 # prover to anchor an `isFiltered` behavioural spec to (the `contract-product`
 # sibling: `useContractProducts().useMeta().isFiltered`).
 #
-# Scenario it must flip: `useContracts().useMeta().isFiltered` reflects the
-#   query's own live criteria — true once a filter is applied, false once it
-#   is cleared.
 # Mutation: `isFiltered` is hardcoded to `false`, so it never reports an
 #   applied filter no matter what the query's own criteria say.
 #

@@ -174,12 +174,10 @@ describe("negative controls — the alarm tells a landing mutant from a dead one
       specFor(
         join(
           renderedPresetTests,
-          "forced-surface.client-notifications.reset-refetch.must-fail.patch"
+          "manage-dialog-narrowed-title.generic-title.must-fail.patch"
         )
       )
-    ).toBe(
-      join(renderedPresetTests, "forced-surface.client-notifications.spec.ts")
-    );
+    ).toBe(join(renderedPresetTests, "manage-dialog-narrowed-title.spec.ts"));
   });
 
   it("found controls to grade — an empty corpus must never read as a pass", () => {

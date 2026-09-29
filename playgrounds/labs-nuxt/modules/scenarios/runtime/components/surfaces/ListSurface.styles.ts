@@ -220,7 +220,7 @@ export const listSurface = {
   // The filter block: facets on one line, refinement chips on the next, Clear
   // all with the chips (G5/H1). The bottom border marks where steering ends
   // and what the collection amounts to begins.
-  filterBlock: cva("border-line flex flex-col gap-2 border-b pb-3"),
+  filterBlock: cva("border-stroke flex flex-col gap-2 border-b pb-3"),
 
   // The whole table's rhythm, in one place so the header, the data rows, the
   // skeleton and the empty frame are measured the same way.

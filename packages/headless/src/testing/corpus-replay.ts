@@ -8,10 +8,7 @@
  * no echo written twice. What the page would be answered, the test is answered.
  */
 
-import {
-  createCorpusReplayHandlers,
-  createCorpusSession
-} from "@upmind-automation/test-fixtures/corpus-replay";
+import { createCorpusReplayHandlers } from "@upmind-automation/test-fixtures/corpus-replay";
 import { recordedBodies } from "./fixtures";
 import { keys, map, zipObject } from "lodash-es";
 import type {
@@ -47,7 +44,5 @@ export function installCorpusReplay(
   bodies: CorpusBodies,
   routes?: readonly string[]
 ): void {
-  server?.use(
-    ...createCorpusReplayHandlers(createCorpusSession(bodies), routes)
-  );
+  server?.use(...createCorpusReplayHandlers(bodies, routes));
 }

@@ -32,28 +32,27 @@ import {
   featureTextFor,
   getCorpusBodies,
   isModuleResolved,
-  loadCorpusBodies
+  loadCorpusBodies,
+  loadStepFixtures,
+  recordsScenarios
 } from "./corpus.source";
 import { armsForceableSurface } from "./routes";
+import type { RecordedFixture } from "./corpus.source.types";
 import type { CorpusBodies } from "@upmind-automation/test-fixtures/corpus-replay";
 
-// The replay itself — resolver, rows, session, handlers — is the ONE shared
+// The replay itself — resolver, rows, handlers — is the ONE shared
 // implementation in `@upmind-automation/test-fixtures/corpus-replay`; this
 // module keeps only the page's seam (which module is armed) and re-exports the
 // replay under the names the runtime always imported from here.
 export {
-  corpusRows,
   createCorpusReplayHandlers,
-  createCorpusSession,
   resolveCorpusAbsence,
   resolveCorpusRefusal,
-  resolveCorpusRequest,
-  servedRows
+  resolveCorpusRequest
 } from "@upmind-automation/test-fixtures/corpus-replay";
 export type {
   CorpusBodies,
   CorpusResponse,
-  CorpusSession,
   WireEnvelope,
   WireRecord
 } from "@upmind-automation/test-fixtures/corpus-replay";
@@ -129,4 +128,29 @@ export function runtimeFeature(
   module: string | undefined = armedModule
 ): string {
   return module ? featureTextFor(module) : "";
+}
+
+/**
+ * Whether the armed module replays its tracks from its own scenario
+ * recordings (FE-3145) rather than its shared corpus.
+ */
+export function runtimeRecordsScenarios(
+  module: string | undefined = armedModule
+): boolean {
+  return !!module && recordsScenarios(module);
+}
+
+/**
+ * The fixtures one step of one of the armed module's scenarios recorded.
+ *
+ * @param scenario The scenario's `.feature` title, verbatim.
+ * @param index The step's 0-based place in the scenario, Background first.
+ */
+export function runtimeStepFixtures(
+  scenario: string,
+  index: number
+): Promise<Record<string, RecordedFixture>> {
+  return armedModule
+    ? loadStepFixtures(armedModule, scenario, index)
+    : Promise.resolve({});
 }

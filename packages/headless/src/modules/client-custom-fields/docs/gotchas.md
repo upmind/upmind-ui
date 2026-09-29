@@ -227,21 +227,13 @@ useClientCustomFields()
 
 > **🧪 For Testers:** `.for(ClientCustomFieldsContextTypes.CLIENT, id)` is a compile-time refusal for `staff` and `guest`, not a runtime one — write a type-level check (an `@ts-expect-error`), not a runtime assertion.
 
-## 7. The definitions read targets the CLIENT's brand, never the session's own
+## 7. The definitions request is scoped by the access token — never by a resolved brand or client id
 
-The brand used to scope the definitions request is the **target client's** brand, resolved through the same identity seam every other request in this module uses — never the calling session's own brand from the ambient brand context.
+The request carries no `brand_id` and no client identifier of its own; the API returns whichever brand's definitions the bearer token belongs to. The `clientId` resolved from the scope still gates whether the request fires at all (`isAvailable` / addressability), but it plays no part in which brand's definitions come back. A `.for(ClientCustomFieldsContextTypes.CLIENT, otherClientId)` retarget changes addressability and cache keying, never the brand scope of the response.
 
-In a multi-brand organisation, the calling session's own brand and a targeted entity's brand can legitimately differ; this module always resolves the latter, off the same client id every other request in this module uses — never off the ambient session brand.
+> **🧪 For Testers:** Do not assert on an outbound `brand_id` parameter or a `clients/{id}` request as part of this module's own definitions read — neither exists. Assert the request shape captured in `__tests__/fixtures/`.
 
-> **🧪 For Testers:** Seed a target client whose brand differs from the ambient session brand and assert the outbound definitions request carries the **client's** brand id, not the session's.
-
-## 8. This module's own brand-id read and the profile module's read are two cache entries, not one
-
-Both this module and the client's own profile module read the identical underlying client record. Each is built to key against it as closely to the other as its own transport allows, but a small asymmetry in how each side forms its own key leaves them as two separate cache entries rather than one shared one — and that gap is left alone deliberately, not fixed by force, because forcing a shared entry risks one side's selected shape silently overwriting the other's.
-
-**Do not quote a specific per-boot request count anywhere downstream of this doc.** See the profile module's own [gotchas.md](../../client-personal-details/docs/gotchas.md#3-two-independently-keyed-reads-of-the-same-profile-resource) for the full account.
-
-## 9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
+## 8. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
 
 `pnpm lint` at the repo root aborts inside the `packages/types` submodule before it ever reaches this module, and its `--fix` flag mutates that submodule as a side effect. `pnpm install` at the repo root is unsafe in a sparse worktree that is missing one or more app-level `package.json` files — it silently drops those apps' entries from the shared lockfile. Neither is a safe verification step for a change scoped to this module; use the module's own targeted test commands instead.
 

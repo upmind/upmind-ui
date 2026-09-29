@@ -16,11 +16,15 @@ Every cancellation write — soft (stop/resume renewal), hard (immediate request
 ## Quick Start
 
 ```typescript
-const products = useContractProducts().as("client");
+import { ScopeActorTypes, useContractProduct, useContractProducts } from "@upmind-automation/headless";
+
+declare const productId: string;
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
 await products.useActions().isReady();
 const { data } = products.useContext();
 
-const product = useContractProduct().as("client").withId(productId);
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
 await product.useActions().isReady();
 const { isActive, isSubscription } = product.useMeta();
 ```
@@ -32,7 +36,9 @@ See [Usage](./usage.md) for the complete API reference.
 | Feature | Status | Notes |
 |---------|--------|-------|
 | List / filter / sort the client's own contract products | ✅ | `useContractProducts` |
-| Include/exclude delegated products | ✅ | Preference-driven; **included** by default when no preference is held (the underlying store coerces an untouched preference to `false`, so a "hide by default" outcome does not occur once the preference has loaded; before it loads the first request can still exclude them, then refetch); forced OFF (included) on the `DELEGATED` selector context, which does not narrow to delegated-only |
+| Include/exclude delegated products | ✅ | `exclude_delegated` is always `1` when nothing is delegated to the client. Otherwise it follows the held choice, which defaults to `0` (included). Forced OFF (included) on the `DELEGATED` selector context, which does not narrow to delegated-only |
+| Hide one-off purchases for a brand | ✅ | When the brand's portal setting `@context.oneTimePurchases` is `"hidden"`, the list always excludes one-off purchases and the filter bar does not offer them |
+| Display title and price summary per row | ✅ | `title` (the shared product title) and `priceTermSummary` ("£4 monthly", "£60") on every mapped product |
 | Dashboard grouped counts | ✅ | `loadGroupedCounts` |
 | Purchased-category read | ✅ | `loadPurchasedCategories` |
 | Load one contract product in detail | ✅ | `useContractProduct` |
@@ -40,7 +46,7 @@ See [Usage](./usage.md) for the complete API reference.
 | Stop / resume automatic renewal (soft cancellation) | ✅ | Subscription products only; `stopRenewing` / `resumeRenewing` |
 | Request / withdraw an immediate cancellation (hard cancellation) | ✅ | `requestCancellation` / `withdrawCancellation` — moved here from the contract module (a contract only groups product ids) |
 | Book / revoke a scheduled (future-dated) cancellation | ✅ | `scheduleCancellation` / `revokeScheduledCancellation`. The module sends whatever date it is given — it does not validate the date itself. Anniversary validation is a separate helper the caller must call and check before booking |
-| Consolidation form | ✅ | `openConsolidation`, `set`, `submitConsolidation` (or `setConsolidation` directly) — offered only to a live, non-staged subscription whose client preference and catalogue product both allow it |
+| Consolidation form | ✅ | `openConsolidation`, `set`, `submitConsolidation` (or `setConsolidation` directly) — offered only to a live, non-staged subscription whose client preference and catalogue product both allow it. A choice equal to the current value is not sent |
 | Unpaid-invoice due/cancellable predicates | ✅ | Pure functions over `unpaidRecurringInvoices` |
 
 ## Key Concepts
@@ -48,6 +54,8 @@ See [Usage](./usage.md) for the complete API reference.
 ### The status/setup/trial parallel regions
 
 A loaded contract product's lifecycle is reported as three simultaneous facts, not one status string: which published status it sits in (or `staged`/`cancelled`/`lapsed`/`fraud`, reported as `unavailable`), whether setup is complete, and whether it's on a trial. All three are exposed as independent meta flags.
+
+The settled read places the status node directly: the load's completion walks one ordered list of guards over the record that read returned (staged, cancelled, lapsed, fraud, cancelling, expiring, then the four published codes). A record that matches none lands on `error`.
 
 ### One cancellation form, three options
 
@@ -58,11 +66,20 @@ A loaded contract product's lifecycle is reported as three simultaneous facts, n
 Client-only by capability, and the two composables enforce it differently. On the COLLECTION, `.as('staff')`, `.as('guest')` and `.as('self')` resolve no context — `self` is not a shorthand for `client` here, it is its own non-resolving entry. On the MANAGER, the matrix refuses every actor, so `.for()` is a compile error for all four; `.as()` compiles for any actor and the services reject a caller the session cannot address:
 
 ```typescript
-const products = useContractProducts().as("client");
+import {
+  ContractProductsContextTypes,
+  ScopeActorTypes,
+  useContractProduct,
+  useContractProducts
+} from "@upmind-automation/headless";
+
+declare const id: string;
+
+const products = useContractProducts().as(ScopeActorTypes.CLIENT);
 // "delegated" turns the exclude-delegated preference OFF — it returns the
 // client's own products together with any delegated ones, not a delegated-only list.
-const withDelegated = useContractProducts().as("client").for("delegated");
-const product = useContractProduct().as("client").withId(id);
+const withDelegated = useContractProducts().as(ScopeActorTypes.CLIENT).for(ContractProductsContextTypes.DELEGATED);
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
 ```
 
 ## Documentation

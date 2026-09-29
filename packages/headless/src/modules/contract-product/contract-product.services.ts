@@ -26,7 +26,8 @@ import {
 import { ContractProductsContextTypes } from "./contract-product.types";
 import {
   resolveExcludeDelegated,
-  validateForm
+  validateForm,
+  whenPreferenceSettles
 } from "./contract-product.utils";
 import {
   DEBOUNCE_DELAY,
@@ -84,6 +85,7 @@ const CONTRACT_PRODUCTS_LIST_WITH = [
   "product.image",
   "brand.currency",
   "product.provision_blueprint",
+  "product.provision_blueprint.category",
   "contract_request",
   "future_cancellation_request",
   "moved_to_contract_product",
@@ -128,6 +130,7 @@ const CONTRACT_PRODUCT_WITH = join(
     "product.image",
     "product.images",
     "product.provision_blueprint",
+    "product.provision_blueprint.category",
     "product.provision_category",
     "scheduled_actions",
     "status",
@@ -153,10 +156,15 @@ function isAddressable(clientId?: string): boolean {
  */
 function createShowDelegatedPreference(scopeContext?: ScopeContext): {
   preference: ComputedRef<boolean | undefined>;
+  isSettled: ComputedRef<boolean>;
   destroy: () => void;
 } {
   if (scopeContext?.type === ContractProductsContextTypes.DELEGATED) {
-    return { preference: computed(() => undefined), destroy: () => undefined };
+    return {
+      preference: computed(() => undefined),
+      isSettled: computed(() => true),
+      destroy: () => undefined
+    };
   }
 
   const manager = usePersonalDetailsManager()
@@ -168,6 +176,7 @@ function createShowDelegatedPreference(scopeContext?: ScopeContext): {
     preference: computed(
       () => manager.useContext().model.value?.excludeDelegatedProducts
     ),
+    isSettled: computed(() => !manager.useMeta().isLoading.value),
     destroy: () => manager.useActions().destroy()
   };
 }
@@ -199,7 +208,8 @@ function excludeDelegatedFor(
  */
 function loadList(
   scopeContext: ScopeContext | undefined,
-  preference: ComputedRef<boolean | undefined>
+  preference: ComputedRef<boolean | undefined>,
+  isPreferenceSettled: ComputedRef<boolean>
 ): ContractProductListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
@@ -220,21 +230,20 @@ function loadList(
     ],
     url,
     // Must stay an `async` function — `list()` detects a guard by `isPromise`.
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (!isAddressable(clientId.value)) {
-          reject(new NotAuthenticatedError());
-          return;
-        }
-        url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
-        resolve(true);
-      }),
+    // The split count reads through this guard un-gated by `enabled`, so it
+    // waits here for the stored preference the page read is enabled on.
+    guard: async () => {
+      if (!isAddressable(clientId.value)) throw new NotAuthenticatedError();
+      await whenPreferenceSettles(isPreferenceSettled);
+      url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
+      return true;
+    },
     withAccessToken: true,
     withSplitCount: true,
     select: raw => mapContractProducts(raw, taxType.value),
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value)
+    enabled: () => isAddressable(clientId.value) && isPreferenceSettled.value
   });
 }
 
@@ -379,14 +388,17 @@ export const createContractProductServices = (
   scopeContext?: ScopeContext
 ): ContractProductServices => {
   const clientId = resolveClientId(scopeContext);
-  const { preference, destroy: destroyPreference } =
-    createShowDelegatedPreference(scopeContext);
+  const {
+    preference,
+    isSettled: isPreferenceSettled,
+    destroy: destroyPreference
+  } = createShowDelegatedPreference(scopeContext);
 
   return {
     queryKey,
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
-    loadList: () => loadList(scopeContext, preference),
+    loadList: () => loadList(scopeContext, preference, isPreferenceSettled),
     loadGroupedCounts: () => loadGroupedCounts(scopeContext),
     loadPurchasedCategories: () =>
       loadPurchasedCategories(scopeContext, preference),
