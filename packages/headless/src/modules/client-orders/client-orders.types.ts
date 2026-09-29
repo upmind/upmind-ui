@@ -240,9 +240,12 @@ export type ClientOrdersListQuery = ListQuery<
 >;
 
 /**
- * The contract `createClientOrdersServices` resolves to. Armless (clause 2
- * — one actor, `client`, resolves; no second actor has an exclusive or
- * overriding member, so no `.{actor}.ts` arm is earned).
+ * The contract `createClientOrdersServices` resolves to — the ONE services
+ * file both `useClientOrders` (the collection) and `useClientOrder` (the
+ * manager) consume, so the two composables can never disagree about whose
+ * order history, or which order, is being read. Armless (clause 2 — one
+ * actor, `client`, resolves; no second actor has an exclusive or overriding
+ * member, so no `.{actor}.ts` arm is earned).
  */
 export type ClientOrdersServices = {
   /** The module's base cache key (design 8.4, D-4 — under the `invoices` root). */
@@ -258,6 +261,22 @@ export type ClientOrdersServices = {
   error: ComputedRef<ResponseError | undefined>;
   /** Takes nothing: the request state is the declared query schema. */
   loadList: () => ClientOrdersListQuery;
+  /** The single-order read — `GET api/invoices/{id}` (design 8.1). */
+  loadOne: (id?: IOrder["id"]) => ClientOrderItemQuery;
+  /**
+   * The item-catalogue-image read — `GET api/products` (design 8.1, D-14).
+   * Reactive over the LIVE snapshot product ids, because they resolve only
+   * once the single read settles.
+   */
+  loadItemImages: (productIds: Ref<string[]>) => ClientOrderItemImagesQuery;
+  /**
+   * The online-gateway count read — `GET api/brands/{id}/gateways` (design
+   * 8.1, D-15, D-26). Reactive over the order's own `brand_id`, which
+   * resolves only once the single read settles.
+   */
+  loadOnlineGateways: (
+    brandId: Ref<string | undefined>
+  ) => ClientOrderGatewaysQuery;
 };
 
 // -----------------------------------------------------------------------------
@@ -393,32 +412,7 @@ export type ClientOrderExtras = {
   stopGatewaysScope: () => void;
 };
 
-/**
- * The contract `createClientOrderServices` resolves to — the manager's
- * single read plus its three delegated reads (design 8.1, D-14, D-15, D-25,
- * D-26). Armless, the same one-actor reasoning as {@link ClientOrdersServices}.
- */
-export type ClientOrderServices = {
-  /** This scope's base cache key (design 8.4, D-4 — under the `invoices` root). */
-  queryKey: QueryKey;
-  /** True while this scope can address the given order id for the session client. */
-  isAvailable: ComputedRef<boolean>;
-  /** Always `undefined` — no services-level error state beyond the query's own. */
-  error: ComputedRef<ResponseError | undefined>;
-  /** The single-order read — `GET api/invoices/{id}` (design 8.1). */
-  loadOne: () => ClientOrderItemQuery;
-  /**
-   * The item-catalogue-image read — `GET api/products` (design 8.1, D-14).
-   * Reactive over the LIVE snapshot product ids, because they resolve only
-   * once the single read settles.
-   */
-  loadItemImages: (productIds: Ref<string[]>) => ClientOrderItemImagesQuery;
-  /**
-   * The online-gateway count read — `GET api/brands/{id}/gateways` (design
-   * 8.1, D-15, D-26). Reactive over the order's own `brand_id`, which
-   * resolves only once the single read settles.
-   */
-  loadOnlineGateways: (
-    brandId: Ref<string | undefined>
-  ) => ClientOrderGatewaysQuery;
-};
+// The manager's single read and its three delegated reads are members of
+// {@link ClientOrdersServices} above — ONE services type for both composables
+// (`useClientReceivedEmail`/`useClientReceivedEmails` precedent). No second
+// services type is minted here.

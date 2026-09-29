@@ -328,9 +328,10 @@
  * `useClientOrders().as(ScopeActorTypes.SELF)` and draws each published
  * member under its own `client-orders-<member>` test key (design 8.12): the
  * meta flags, the raw rows, the page window, the live criteria model, the
- * filter bar over `schemas.query` (written through the raw setter
- * `useInternals().query.setCriteria` [h17]), each named filter setter,
- * `filterBy`, `sortBy`, `sort`, the page moves, `refresh` and `invalidate`.
+ * filter bar over `schemas.query` (written through the module writer
+ * `actions.setCriteria`, never the raw `useInternals().query.setCriteria`),
+ * each named filter setter, `filterBy`, `sortBy`, `sort`, the page moves,
+ * `refresh` and `invalidate`.
  *
  * NOT drawn, and named rather than faked: `isReady`/`destroy` are lifecycle,
  * and `reset` is `@scenario-exclude`.
@@ -411,7 +412,7 @@ const criteria = {
   schema: context.schemas.query.schema,
   uischema: context.schemas.query.uischema,
   model: computed(() => query.criteria.value as Record<string, unknown>),
-  set: (next: Record<string, unknown>) => query.setCriteria(next)
+  set: (next: Record<string, unknown>) => actions.setCriteria(next)
 };
 
 const searchTerm = ref("");
@@ -433,6 +434,7 @@ const metaFlags = computed(() =>
     [
       ["client-orders-is-available", meta.isAvailable],
       ["client-orders-is-empty", meta.isEmpty],
+      ["client-orders-is-filtered", meta.isFiltered],
       ["client-orders-is-loading", meta.isLoading],
       ["client-orders-has-error", meta.hasError],
       ["client-orders-has-next-page", meta.hasNextPage],

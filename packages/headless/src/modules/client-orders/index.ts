@@ -19,11 +19,12 @@
 export { useClientOrders, type UseClientOrders } from "./useClientOrders";
 export { useClientOrder, type UseClientOrder } from "./useClientOrder";
 
-// --- Scope matrices
+// --- Scope matrices. The manager's `CLIENT_ORDER_MANAGER_SCOPE_MATRIX` /
+// `ClientOrderManagerScopeMatrix` stay INTERNAL: the order being read is a
+// record id (`.withId(id)`), never a context a consumer can spell, so
+// neither is re-exported here (`templates/SINGLE-READ.md`).
 export { CLIENT_ORDERS_SCOPE_MATRIX } from "./client-orders.types";
 export type { ClientOrdersCollectionScopeMatrix } from "./client-orders.types";
-export { CLIENT_ORDER_MANAGER_SCOPE_MATRIX } from "./client-orders.types";
-export type { ClientOrderManagerScopeMatrix } from "./client-orders.types";
 
 // --- Sub-composable type exports for consumers — collection
 export type { UseClientOrdersCollectionActions } from "./useClientOrders.actions";

@@ -10,7 +10,7 @@ import { NotAuthenticatedError } from "../../utils";
 import type {
   ClientOrderExtras,
   ClientOrderItemQuery,
-  ClientOrderServices
+  ClientOrdersServices
 } from "./client-orders.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { IOrder } from "@upmind-automation/types";
@@ -26,7 +26,7 @@ import type { IOrder } from "@upmind-automation/types";
  */
 export function createClientOrderActions(
   _actorScope: ScopeActorTypes,
-  service: ClientOrderServices,
+  service: ClientOrdersServices,
   query: ClientOrderItemQuery,
   scopeKey: string,
   orderId: IOrder["id"] | undefined,

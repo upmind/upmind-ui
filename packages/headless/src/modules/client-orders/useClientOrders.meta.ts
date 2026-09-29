@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { useBrand } from "../brand";
 import { isMultibrand, showStore } from "./client-orders.mappers";
-import { isEmpty } from "lodash-es";
+import { isEmpty, omit } from "lodash-es";
 import type {
   ClientOrdersListQuery,
   ClientOrdersServices
@@ -35,6 +35,16 @@ export function createClientOrdersMeta(
     () => query.isLoading.value || !query.isFetched.value
   );
 
+  /**
+   * True while any filter OTHER than the forced `category.slug` leaf
+   * applies — design 8.3 forces that leaf on every write, so the core
+   * pass-through `query.isFiltered` is always true and cannot distinguish
+   * an empty-because-filtered list from a genuinely empty one.
+   */
+  const isFiltered = computed(
+    () => !isEmpty(omit(query.criteria.value.filters, "category.slug"))
+  );
+
   /** D-16 — the storefront target, from the brand's own cart meta. */
   const storefrontUrl = computed(() => uiCart.value?.storefront_url);
 
@@ -63,6 +73,9 @@ export function createClientOrdersMeta(
 
     /** True if this scope has no orders. */
     isEmpty: isEmptyList,
+
+    /** True while any filter other than the forced `category.slug` leaf applies. */
+    isFiltered,
 
     /** True while the list is loading or has not completed its first fetch. */
     isLoading,

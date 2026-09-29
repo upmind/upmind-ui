@@ -27,8 +27,12 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 function createClientOrdersForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
 
-  /** ONE services instance for this scope. */
-  const service = createClientOrdersServices();
+  /**
+   * ONE services instance for this scope. `config.context` goes in here and
+   * nowhere else, so every request the collection issues resolves the same
+   * target client.
+   */
+  const service = createClientOrdersServices(actorScope, config.context);
 
   /** Mint the list query ONCE per scope. */
   const query = service.loadList();

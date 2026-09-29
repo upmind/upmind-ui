@@ -2,8 +2,7 @@ import { computed, ref } from "vue";
 import { createScopedComposable } from "../scope";
 import { useSystem } from "../system";
 import { rawOrderItems } from "./client-orders.mappers";
-import { createClientOrderServices } from "./client-orders.services";
-import { CLIENT_ORDER_MANAGER_SCOPE_MATRIX } from "./client-orders.types";
+import createClientOrdersServices from "./client-orders.services";
 import { hidesOneTimePurchases } from "./client-orders.utils";
 import { createClientOrderActions } from "./useClientOrder.actions";
 import { createClientOrderContext } from "./useClientOrder.context";
@@ -36,11 +35,15 @@ function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
   const orderId = config.id as IOrder["id"] | undefined;
 
-  /** ONE services instance for this scope. */
-  const service = createClientOrderServices(orderId);
+  /**
+   * ONE services instance for this scope — the same factory
+   * `useClientOrders.ts` calls, so both composables share one identity seam.
+   */
+  const service = createClientOrdersServices(actorScope, config.context);
 
-  /** Mint the item query ONCE per scope. */
-  const query = service.loadOne();
+  // Mint the item query ONCE per scope. `config.id` is the builder's own
+  // `.withId(id)`, already folded into the scope key.
+  const query = service.loadOne(orderId);
 
   // D-14 — reactive over the snapshot items, which resolve only once the
   // single read settles.
@@ -121,11 +124,7 @@ function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useClientOrder = createScopedComposable<
   ReturnType<typeof createClientOrderForScope>,
   ClientOrderManagerScopeMatrix
->(
-  "client-orders",
-  createClientOrderForScope,
-  CLIENT_ORDER_MANAGER_SCOPE_MATRIX
-);
+>("client-orders", createClientOrderForScope);
 
 // Type export for consumers
 export type UseClientOrder = ReturnType<typeof useClientOrder>;

@@ -4,7 +4,7 @@ import { mapToHeadlessError } from "../../utils";
 import type {
   ClientOrderExtras,
   ClientOrderItemQuery,
-  ClientOrderServices
+  ClientOrdersServices
 } from "./client-orders.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -21,7 +21,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  */
 export function createClientOrderContext(
   _actorScope: ScopeActorTypes,
-  service: ClientOrderServices,
+  service: ClientOrdersServices,
   query: ClientOrderItemQuery,
   extras: ClientOrderExtras
 ) {

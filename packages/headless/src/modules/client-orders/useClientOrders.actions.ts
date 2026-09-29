@@ -11,6 +11,7 @@ import type {
   ClientOrdersFilterActions,
   ClientOrdersFilterModel,
   ClientOrdersListQuery,
+  ClientOrdersQueryModel,
   ClientOrdersServices,
   ClientOrdersSortEntry,
   ClientOrdersSortModel,
@@ -341,6 +342,35 @@ export function createClientOrdersActions(
     });
   }
 
+  /**
+   * The raw-intent criteria write (design 8.3 write rules, ADR-032 decision
+   * 5 rule 2). A MODULE WRITER, not the bare `query.setCriteria`: the
+   * `filters` branch routes through {@link writeFilters}, so every write
+   * re-asserts the forced `category.slug` leaf on a fresh copy of the live
+   * filters; `sort` and `pagination` pass through as given.
+   */
+  function setCriteria(intent: Partial<ClientOrdersQueryModel>): void {
+    if (intent.filters) {
+      writeFilters(filters => {
+        Object.assign(filters, intent.filters);
+
+        const statusBranch = filters["status.code"];
+        if (statusBranch?.eq && statusBranch?.neq) {
+          filters["status.code"] = { eq: statusBranch.eq };
+        }
+      });
+    }
+
+    if (intent.sort !== undefined || intent.pagination !== undefined) {
+      query.setCriteria({
+        ...(intent.sort !== undefined && { sort: intent.sort }),
+        ...(intent.pagination !== undefined && {
+          pagination: intent.pagination
+        })
+      } as never);
+    }
+  }
+
   /** Writes the whole `sort` branch. The page stays — `pagination` rides along unchanged (design 8.3, P4). */
   function sortBy(intent: ClientOrdersSortModel): void {
     query.setCriteria({
@@ -399,6 +429,13 @@ export function createClientOrdersActions(
 
     /** Sets the page size and returns to page one (design 8.3). */
     setLimit,
+
+    /**
+     * Applies a criteria intent — merges `filters` / `sort` / `pagination`
+     * into the ONE query model; the `filters` branch re-asserts the forced
+     * `category.slug` leaf (D-3, ADR-032 decision 5 rule 2).
+     */
+    setCriteria,
 
     /** Convenience single-column sort over {@link sortBy} (design 8.6). */
     sort,

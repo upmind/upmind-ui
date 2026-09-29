@@ -13,12 +13,13 @@ import type {
   ClientOrderGatewaysQuery,
   ClientOrderItemImagesQuery,
   ClientOrderItemQuery,
-  ClientOrderServices,
   ClientOrdersListQuery,
   ClientOrdersQueryModel,
   ClientOrdersServices
 } from "./client-orders.types";
 import type { ResponseError } from "../../utils";
+import type { ScopeContext } from "../scope";
+import type { ScopeActorTypes } from "../scope/scope.types";
 import type { DefaultError, QueryKey } from "@tanstack/vue-query";
 import type { IOrder } from "@upmind-automation/types";
 import type { Ref } from "vue";
@@ -28,12 +29,15 @@ const ONLINE_GATEWAY_TYPES = OnlineGatewayTypes;
 // -----------------------------------------------------------------------------
 /**
  * @module client-orders/client-orders.services
- * @description The order list read — `GET api/invoices`, forced to the
- * `new_contract` category by the query schema's `const` (design 8.1, 8.3,
- * D-3). Client `self` only (FE-3237 Out of Scope).
+ * @description The ONE services file both halves consume — the order list
+ * read (`GET api/invoices`, forced to the `new_contract` category by the
+ * query schema's `const`, design 8.1, 8.3, D-3) and the single-order manager's
+ * read plus its three delegated reads (design 6.3, 8.1, 8.4). Client `self`
+ * only (FE-3237 Out of Scope).
  *
  * WARNING: Do not import directly from another module. Resolve via
- * `useClientOrders.ts` only (`@internal/no-cross-module-imports`).
+ * `useClientOrders.ts` / `useClientOrder.ts` only
+ * (`@internal/no-cross-module-imports`).
  */
 // -----------------------------------------------------------------------------
 
@@ -110,27 +114,6 @@ function loadList(): ClientOrdersListQuery {
     placeholderData: keepPreviousData
   });
 }
-
-// -----------------------------------------------------------------------------
-// Scope-Ready Services
-
-/**
- * One services instance per scope. Armless — one actor (`client`) resolves
- * for this `client x self` module (FE-3237 Out of Scope); no second actor
- * has an exclusive or overriding member, so no `.{actor}.ts` arm is earned.
- */
-export const createClientOrdersServices = (): ClientOrdersServices => {
-  const { activeUser } = useActiveSession().useContext();
-
-  return {
-    queryKey,
-    isAvailable: computed(() => isAddressable(activeUser.value?.id)),
-    error: computed<ResponseError | undefined>(() => undefined),
-    loadList
-  };
-};
-
-export default createClientOrdersServices;
 
 // -----------------------------------------------------------------------------
 // MANAGER — the single-order read and its three delegated reads
@@ -304,23 +287,51 @@ function loadOnlineGateways(
   };
 }
 
+// -----------------------------------------------------------------------------
+// Scope-Ready Services
+
 /**
- * One manager services instance per `(actor, id)` scope. Armless — the same
- * one-actor reasoning as {@link createClientOrdersServices}.
+ * Actor-specific overrides, resolved by scope actor. Armless — one actor
+ * (`client`) resolves for this `client x self` module (FE-3237 Out of
+ * Scope); no second actor has an exclusive or overriding member, so no
+ * `.{actor}.ts` arm is earned. The shape is the same armed or armless — an
+ * armless module has only the `default:` case — so nothing here or
+ * downstream changes when an arm is earned (ARMS.md).
  */
-export const createClientOrderServices = (
-  orderId?: IOrder["id"]
-): ClientOrderServices => {
+function scopedServices(
+  scopeActor: ScopeActorTypes,
+  _scopeContext?: ScopeContext
+): Partial<ClientOrdersServices> {
+  switch (scopeActor) {
+    // case ScopeActorTypes.CLIENT:
+    //   return createClientClientOrdersServices(scopeContext);
+    default:
+      return {};
+  }
+}
+
+/**
+ * One services instance per scope — the ONE factory both `useClientOrders`
+ * (the collection) and `useClientOrder` (the manager) consume, so the two
+ * composables share one identity seam, one cache key and one arm-resolution
+ * switch (`useClientReceivedEmails`/`useClientReceivedEmail` precedent).
+ */
+export const createClientOrdersServices = (
+  scopeActor: ScopeActorTypes,
+  scopeContext?: ScopeContext
+): ClientOrdersServices => {
   const { activeUser } = useActiveSession().useContext();
 
   return {
     queryKey,
-    isAvailable: computed(
-      () => !!orderId && isAddressable(activeUser.value?.id)
-    ),
+    isAvailable: computed(() => isAddressable(activeUser.value?.id)),
     error: computed<ResponseError | undefined>(() => undefined),
-    loadOne: () => loadOne(orderId),
+    loadList,
+    loadOne: id => loadOne(id),
     loadItemImages,
-    loadOnlineGateways
+    loadOnlineGateways,
+    ...scopedServices(scopeActor, scopeContext)
   };
 };
+
+export default createClientOrdersServices;

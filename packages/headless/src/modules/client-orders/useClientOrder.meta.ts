@@ -14,7 +14,7 @@ import { some } from "lodash-es";
 import type {
   ClientOrderExtras,
   ClientOrderItemQuery,
-  ClientOrderServices
+  ClientOrdersServices
 } from "./client-orders.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  */
 export function createClientOrderMeta(
   _actorScope: ScopeActorTypes,
-  service: ClientOrderServices,
+  service: ClientOrdersServices,
   query: ClientOrderItemQuery,
   extras: ClientOrderExtras
 ) {
@@ -110,7 +110,7 @@ export function createClientOrderMeta(
     /** True while the order's brand has an online gateway (design 8.1, D-15, D-26). */
     hasOnlineGateways: extras.hasOnlineGateways,
 
-    /** True while this scope can address the given order id for the session client. */
+    /** True while this scope can address a client. */
     isAvailable: service.isAvailable,
 
     /** True once the single read has settled with no error. */

@@ -2,16 +2,16 @@ diff --git a/packages/headless/src/modules/client-orders/useClientOrders.actions
 index d6ccd6b1ed..bfba9d20da 100644
 --- a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
 +++ b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
-@@ -201,14 +201,7 @@ export function createClientOrdersActions(
+@@ -203,14 +203,7 @@ export function createClientOrdersActions(
    }
- 
+
    const searchDebounced = debounce((term?: string) => {
 -    writeFilters(filters => {
 -      const number = { ...(filters.number ?? {}) };
 -      if (term) number.eq = term;
 -      else delete number.eq;
 -
--      if (Object.keys(number).length === 0) delete filters.number;
+-      if (isEmpty(number)) delete filters.number;
 -      else filters.number = number;
 -    });
 +    query.setCriteria({ filters: { number: { eq: term } } } as never);
