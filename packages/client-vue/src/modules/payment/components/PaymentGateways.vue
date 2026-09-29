@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import Form from "../../../components/form/Form.vue";
+import { Form } from "@upmind-automation/foundation";
 import type { PaymentGatewaysProps } from "../types";
 
 // -----------------------------------------------------------------------------

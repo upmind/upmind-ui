@@ -36,13 +36,13 @@ import { NumberField } from "@upmind/ui";
 import { Button } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useConfig,
   useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import { productActionsVariants } from "../variants";
 import { isString } from "lodash-es";
 

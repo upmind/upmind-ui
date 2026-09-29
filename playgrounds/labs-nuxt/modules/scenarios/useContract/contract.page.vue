@@ -28,7 +28,7 @@
              — the same shape `useTicket` draws for `schemas.ticketPicker`. The
              pick IS the write: selecting a row navigates to it. -->
         <div v-if="pickerForm" class="w-full" data-test-key="contract-lookup">
-          <UpmForm
+          <Form
             :schema="pickerForm.schema"
             :uischema="pickerForm.uischema"
             :model-value="pickerModel"
@@ -224,7 +224,7 @@
             class="flex flex-col gap-3"
             data-test-key="contract-payment-method-form"
           >
-            <UpmForm
+            <Form
               :schema="paymentMethodForm.schema"
               :uischema="paymentMethodForm.uischema"
               :model-value="paymentMethodForm.model"
@@ -332,13 +332,12 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formRenderers,
-  Icon,
   ScopeActorTypes,
-  UpmForm,
   resolveSelfActor,
   useContract,
   useContracts
 } from "@upmind-automation/client-vue";
+import { Form, Icon } from "@upmind-automation/foundation";
 import ScenarioBar from "../runtime/components/ScenarioBar.vue";
 import { useScenarioTransport } from "../runtime/composables/useScenarioTransport";
 import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";

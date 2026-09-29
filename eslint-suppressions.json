@@ -934,6 +934,17 @@
       "count": 2
     }
   },
+  "packages/modules-auth/src/components/Auth.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "no-fallthrough": {
+      "count": 3
+    },
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
   "packages/client-vue/src/components/emailHistory/EmailHistoryListing.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1164,6 +1175,16 @@
   "packages/client-vue/src/modules/system/Error.vue": {
     "no-fallthrough": {
       "count": 1
+    }
+  },
+  "packages/modules-foundation/src/forms/Form.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/modules-foundation/src/forms/useFormI18n.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
     }
   },
   "packages/headless/src/modules/account/account.types.ts": {

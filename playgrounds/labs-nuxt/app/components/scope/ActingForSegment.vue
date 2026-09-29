@@ -52,7 +52,7 @@
       @keydown.stop
       @keydown.enter="applyPendingClient"
     >
-      <UpmForm
+      <Form
         :schema="contextForm.schema"
         :uischema="contextForm.uischema"
         :model-value="contextModel"
@@ -204,7 +204,8 @@ import {
 } from "@upmind/ui";
 import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
+import { formRenderers } from "@upmind-automation/client-vue";
+import { Form, Icon } from "@upmind-automation/foundation";
 import {
   ScopeActorTypes,
   ScopeContextPatterns,

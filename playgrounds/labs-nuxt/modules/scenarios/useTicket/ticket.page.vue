@@ -40,7 +40,7 @@
              the same form. The pick IS the write: selecting a row writes the
              ticket's id, and this page navigates to it. -->
         <div v-if="pickerForm" class="w-full" data-test-key="ticket-lookup">
-          <UpmForm
+          <Form
             :schema="pickerForm.schema"
             :uischema="pickerForm.uischema"
             :model-value="pickerModel"
@@ -211,7 +211,7 @@
             class="pt-2"
             data-test-key="ticket-product-lookup"
           >
-            <UpmForm
+            <Form
               :schema="productForm.schema"
               :uischema="productForm.uischema"
               :model-value="productModel"
@@ -730,13 +730,12 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formRenderers,
-  Icon,
   ScopeActorTypes,
-  UpmForm,
   resolveSelfActor,
   useTicket,
   useTickets
 } from "@upmind-automation/client-vue";
+import { Form, Icon } from "@upmind-automation/foundation";
 import ScenarioBar from "../runtime/components/ScenarioBar.vue";
 import { useScenarioTransport } from "../runtime/composables/useScenarioTransport";
 import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";

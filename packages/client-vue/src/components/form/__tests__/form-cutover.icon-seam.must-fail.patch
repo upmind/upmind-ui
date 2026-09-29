@@ -19,10 +19,9 @@ one passing on ambient state. Both country assertions stay green.
 APPLIED BY HAND. No superproject lane scans `packages/client-vue` for
 `*.must-fail.patch`, so no runner applies this file. That gap is FE-3131.
 
-diff --git a/packages/client-vue/src/components/form/Form.vue b/packages/client-vue/src/components/form/Form.vue
-index f826961..f1d6092 100644
---- a/packages/client-vue/src/components/form/Form.vue
-+++ b/packages/client-vue/src/components/form/Form.vue
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
 @@ -24,12 +24,10 @@
  import {
    Form,
@@ -33,10 +32,10 @@ index f826961..f1d6092 100644
  import { useI18n } from "vue-i18n";
  import { useSystem, useValidation } from "@upmind-automation/headless";
 -import { Icon } from "../icon";
- import { formRenderers } from "./renderers";
- import { useFormI18n } from ".";
- import type {
-@@ -48,7 +46,6 @@ const { countries, ensureCountries } = useSystem();
+ import { useFormRenderers } from "../renderers";
+ import { useFormI18n } from "./useFormI18n";
+ import { assign } from "lodash-es";
+@@ -49,7 +47,6 @@ const { countries, ensureCountries } = useSystem();
  
  // The engine takes its glyph and its reference data from the host: it resolves
  // neither an app icon name-map nor a BE country list itself.

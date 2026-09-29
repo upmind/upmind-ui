@@ -1,8 +1,8 @@
 <template>
-  <UpmSessionLogout :storefront-route="storefrontRoute" />
+  <UpmAuthLogout :storefront-route="storefrontRoute" />
 </template>
 <script lang="ts" setup>
-import { UpmSessionLogout } from "@upmind-automation/client-vue";
+import { UpmAuthLogout } from "@upmind-automation/auth";
 import { useStorefrontRoute } from "../../router/useStorefrontRoute";
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();

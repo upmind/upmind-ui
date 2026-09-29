@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { useTestAttrs } from "@upmind/ui";
 import { computed } from "vue";
-import { Icon } from "../../../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import {
   productOptionBenefitsListVariants,
   productOptionBenefitsItemVariants,

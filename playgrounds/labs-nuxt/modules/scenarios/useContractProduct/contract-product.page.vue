@@ -34,7 +34,7 @@
           class="w-full"
           data-test-key="contract-product-lookup"
         >
-          <UpmForm
+          <Form
             :schema="pickerForm.schema"
             :uischema="pickerForm.uischema"
             :model-value="pickerModel"
@@ -284,7 +284,7 @@
             class="flex flex-col gap-3"
             data-test-key="contract-product-cancellation-form"
           >
-            <UpmForm
+            <Form
               :schema="cancellationForm.schema"
               :uischema="cancellationForm.uischema"
               :model-value="cancellationForm.model"
@@ -359,7 +359,7 @@
             class="flex flex-col gap-3"
             data-test-key="contract-product-consolidation-form"
           >
-            <UpmForm
+            <Form
               :schema="consolidationForm.schema"
               :uischema="consolidationForm.uischema"
               :model-value="consolidationForm.model"
@@ -485,13 +485,12 @@ import { useI18n } from "vue-i18n";
 import {
   ContractProductFormTypes,
   formRenderers,
-  Icon,
   ScopeActorTypes,
-  UpmForm,
   resolveSelfActor,
   useContractProduct,
   useContractProducts
 } from "@upmind-automation/client-vue";
+import { Form, Icon } from "@upmind-automation/foundation";
 import ScenarioBar from "../runtime/components/ScenarioBar.vue";
 import { useScenarioTransport } from "../runtime/composables/useScenarioTransport";
 import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";

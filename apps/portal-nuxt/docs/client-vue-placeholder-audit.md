@@ -97,9 +97,9 @@ Counted from the callers of `clientVuePage` and `clientVueRow` on `develop`.
 
 | Page key | Placeholder names | On develop | On the stack |
 | --- | --- | --- | --- |
-| `AUTH_LOGIN` (and `AUTH_LOGIN_TWOFA`) | `UpmSessionLogin` | **Live.** `pages/login.vue` renders it through `PortalPageHost`. | `pages/login.vue` mounts `UpmSessionLogin` directly. Key orphaned. |
-| `AUTH_REGISTER` | `UpmSessionRegister` | **Live.** | `pages/register.vue` mounts the organism. Key orphaned. |
-| `AUTH_FORGOTTEN_PASSWORD` | `UpmSessionRecoverPassword` | **Live.** | `pages/forgotten-password.vue` mounts the organism. Key orphaned. |
+| `AUTH_LOGIN` (and `AUTH_LOGIN_TWOFA`) | `UpmAuthLogin` | **Live.** `pages/login.vue` renders it through `PortalPageHost`. | `pages/login.vue` mounts `UpmAuthLogin` directly. Key orphaned. |
+| `AUTH_REGISTER` | `UpmAuthRegister` | **Live.** | `pages/register.vue` mounts the organism. Key orphaned. |
+| `AUTH_FORGOTTEN_PASSWORD` | `UpmAuthRecoverPassword` | **Live.** | `pages/forgotten-password.vue` mounts the organism. Key orphaned. |
 
 **Action: delete them on the stack, not on develop.** Develop carries none of the ADR 023
 packages, so those three routes there have nothing else to render. Removing the configs on

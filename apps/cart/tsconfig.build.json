@@ -17,6 +17,8 @@
     { "path": "../../packages/types/tsconfig.build.json" },
     { "path": "../../packages/headless/tsconfig.build.json" },
     { "path": "../../design-system/packages/ui/tsconfig.build.json" },
-    { "path": "../../packages/client-vue/tsconfig.build.json" }
+    { "path": "../../packages/client-vue/tsconfig.build.json" },
+    { "path": "../../packages/modules-foundation/tsconfig.build.json" },
+    { "path": "../../packages/modules-auth/tsconfig.build.json" }
   ]
 }

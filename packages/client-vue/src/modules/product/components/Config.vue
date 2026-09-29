@@ -78,13 +78,13 @@ import { Link } from "@upmind/ui";
 import { Button } from "@upmind/ui";
 import { computed, inject, onUpdated, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { Form } from "@upmind-automation/foundation";
 import {
   type UseProductConfig,
   DetailedError,
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import Form from "../../../components/form/Form.vue";
 import {
   productConfigRootVariants,
   productConfigContentVariants,

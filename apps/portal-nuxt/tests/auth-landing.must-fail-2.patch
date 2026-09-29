@@ -1,0 +1,18 @@
+# Negative control — the forgotten-password page stops listening for the
+# screen's `reject`. The portal runs no funnel, so recovery's back control then
+# does nothing at all.
+#
+# Intended RED (tests/auth-landing.test.ts):
+#   "sends recovery's back to the sign-in screen"
+
+diff --git a/apps/portal-nuxt/app/pages/forgotten-password.vue b/apps/portal-nuxt/app/pages/forgotten-password.vue
+--- a/apps/portal-nuxt/app/pages/forgotten-password.vue
++++ b/apps/portal-nuxt/app/pages/forgotten-password.vue
+@@ -2,7 +2,6 @@
+   <UpmAuthRecoverPassword
+     v-bind="AUTH_ROUTES"
+     :templates="PORTAL_AUTH_TEMPLATES"
+-    @reject="onReject"
+   />
+ </template>
+ 

@@ -257,13 +257,13 @@ import {
 } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useSection } from "@upmind-automation/foundation";
 import {
   parseBillingCycle,
   useBasket,
   useConfig,
   useMoney
 } from "@upmind-automation/headless";
-import { useSection } from "../../../components/section/useSection";
 import BasketTotal from "./BasketTotal.vue";
 import BasketPromotions from "./Promotions.vue";
 import {

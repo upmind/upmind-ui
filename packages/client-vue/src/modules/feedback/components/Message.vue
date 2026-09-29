@@ -12,8 +12,8 @@
 
 <script lang="ts" setup>
 import { Alert } from "@upmind/ui";
+import { Icon } from "@upmind-automation/foundation";
 import { useMessage } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(

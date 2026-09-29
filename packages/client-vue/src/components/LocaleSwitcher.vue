@@ -30,8 +30,8 @@
 import { Combobox } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { useLocale } from "@upmind-automation/headless";
-import { Icon } from "./icon";
 import { map, last, split } from "lodash-es";
 // -----------------------------------------------------------------------------
 

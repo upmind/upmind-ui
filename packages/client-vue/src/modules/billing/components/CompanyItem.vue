@@ -60,7 +60,7 @@ import { Link } from "@upmind/ui";
 import { Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import type { Company } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

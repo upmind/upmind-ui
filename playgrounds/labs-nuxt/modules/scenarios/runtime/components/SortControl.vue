@@ -72,7 +72,7 @@
 
 import { Button, Select } from "@upmind/ui";
 import { computed } from "vue";
-import { Icon, useFormI18n } from "@upmind-automation/client-vue";
+import { Icon, useFormI18n } from "@upmind-automation/foundation";
 import { SORT_DIRECTION } from "@upmind-automation/scenario-harness";
 import { sortControl } from "./SortControl.styles";
 import { find, first } from "lodash-es";

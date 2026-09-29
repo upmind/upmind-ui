@@ -61,7 +61,7 @@
 import { Button, Tooltip } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { transport } from "./Transport.styles";
 import { TRANSPORT_CONTROL } from "./Transport.types";
 import type {

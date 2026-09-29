@@ -49,11 +49,11 @@ import { Badge } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
+import { Icon } from "@upmind-automation/foundation";
 import {
   type ProductCategory,
   QUERY_PARAMS
 } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import {
   categoriesItemRootVariants,
   categoriesItemActionVariants,

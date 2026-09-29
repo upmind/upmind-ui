@@ -1,7 +1,6 @@
 export * from "./basket";
 export * from "./basket-product";
 export * from "./billing";
-export * from "./brand";
 export * from "./catalogue";
 export * from "./checkout";
 export * from "./domain";

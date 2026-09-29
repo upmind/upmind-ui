@@ -72,7 +72,7 @@
       data-test-key="form-region"
       :data-test-value="locked ? 'locked' : undefined"
     >
-      <UpmForm
+      <Form
         :schema="schema"
         :uischema="uischema"
         :model-value="model"
@@ -112,7 +112,8 @@ import { isControlElement, RuleEffect } from "@jsonforms/core";
 import { Alert, Button, Skeleton } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
+import { formRenderers } from "@upmind-automation/client-vue";
+import { Form, Icon } from "@upmind-automation/foundation";
 import {
   clearScenarioStage,
   useScenarioStage

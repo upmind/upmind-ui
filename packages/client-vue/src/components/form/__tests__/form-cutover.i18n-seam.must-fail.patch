@@ -8,10 +8,10 @@ at all. The mount was changed to match how an app actually mounts it.
 
 MUST red: translator > "labels and prompts a control from the catalogue
 key its uischema names". The bare-engine twin MUST stay green.
-diff --git a/packages/client-vue/src/components/form/Form.vue b/packages/client-vue/src/components/form/Form.vue
-index f8269612c8..26bb2c7b77 100644
---- a/packages/client-vue/src/components/form/Form.vue
-+++ b/packages/client-vue/src/components/form/Form.vue
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+index 5aff2af4a4..c9b8f566e3 100644
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
 @@ -2,7 +2,7 @@
    <Form
      :key="locale"
@@ -19,5 +19,5 @@ index f8269612c8..26bb2c7b77 100644
 -    :i18n="i18n"
 +
      :ajv="ajv"
-     :additional-renderers="formRenderers"
+     :additional-renderers="renderers"
      :optional-text="t('text.optional')"

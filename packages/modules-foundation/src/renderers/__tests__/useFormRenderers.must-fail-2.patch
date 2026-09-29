@@ -1,0 +1,17 @@
+# Negative control — useFormRenderers hands each reader a copy of the list: a reader never sees a later registration.
+#
+# Intended RED:
+#   packages/modules-foundation/src/renderers/__tests__/useFormRenderers.test.ts
+#     "shows a reader a package that registers after it read the list"
+
+diff --git a/packages/modules-foundation/src/renderers/useFormRenderers.ts b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+--- a/packages/modules-foundation/src/renderers/useFormRenderers.ts
++++ b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+@@ -9,4 +9,6 @@
+   renderers.value = concat(renderers.value, entries);
+ };
+ 
+-export const useFormRenderers = (): UseFormRenderers => ({ renderers });
++export const useFormRenderers = (): UseFormRenderers => ({
++  renderers: shallowRef(renderers.value)
++});

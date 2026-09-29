@@ -1,9 +1,9 @@
 /**
  * @module form/renderers/__tests__/filter.harness
  * @description Mounts the REAL surface the filter renderers are bound through —
- * client-vue's `UpmForm`, which is where `formRenderers` is registered — against
- * the two consumer query declarations and the real `packages/i18n` `src/core`
- * catalogue.
+ * foundation's `UpmForm`, which reads the controls client-vue's entry registers —
+ * against the two consumer query declarations and the real `packages/i18n`
+ * `src/core` catalogue.
  *
  * PROVENANCE. `clientEmailQuery()` / `clientEmailHistoryQuery()` are transcribed
  * verbatim from the shipped declarations at
@@ -24,6 +24,7 @@ import { Form, provideFormIcon } from "@upmind/ui";
 import { DOMWrapper, mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
+import { Icon, useFormI18n } from "@upmind-automation/foundation";
 import {
   PAGINATION,
   SortDirection,
@@ -31,10 +32,8 @@ import {
   useI18n as useLocalisation,
   useInvoices
 } from "@upmind-automation/headless";
-import { Icon } from "../../../icon";
-import { UpmForm } from "../../index";
-import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
+import "../../../../index";
 import {
   cloneDeep,
   compact,
@@ -59,6 +58,9 @@ export type QueryDeclaration = {
   schema: JsonSchema7;
   uischema: UISchemaElement;
 };
+
+// `@upmind/ui` also exports a `Form` (the bare engine), so the wrapper is read by name.
+const { Form: UpmForm } = await import("@upmind-automation/foundation");
 
 /**
  * The SHIPPED catalogue, loaded the way the app loads it: headless's own
@@ -357,7 +359,7 @@ export type FilterMount = {
 };
 
 /**
- * Mounts a declaration through the renderer registry `UpmForm` binds.
+ * Mounts a declaration through the control registry `UpmForm` reads.
  *
  * @param options.translate - `false` swaps `UpmForm` for `@upmind/ui`'s bare
  *   engine `Form` carrying the same renderer set and NO `i18n` prop, so the

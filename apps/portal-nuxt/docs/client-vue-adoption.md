@@ -14,10 +14,10 @@ Ruled 2026-09-07: "we don't need to mock the client-vue components, as they are 
 
 | Route(s)                                                             | client-vue                                                                                   | headless                                                           | Stub                                  |
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------- |
-| `/login` (+ two-factor step)                                         | `UpmSessionLogin`                                                                            | `auth`                                                             | `config/auth-pages.ts`                |
-| `/register`                                                          | `UpmSessionRegister`                                                                         | `auth`                                                             | `config/auth-pages.ts`                |
-| `/forgotten-password`                                                | `UpmSessionRecoverPassword`                                                                  | `auth`                                                             | `config/auth-pages.ts`                |
-| `/logout`                                                            | `UpmSessionLogout`                                                                           | `auth`                                                             | `config/auth-pages.ts`                |
+| `/login` (+ two-factor step)                                         | `UpmAuthLogin` (`@upmind-automation/auth`)                                                   | `auth`                                                             | none: `pages/login.vue` mounts it     |
+| `/register`                                                          | `UpmAuthRegister` (`@upmind-automation/auth`)                                                | `auth`                                                             | none: `pages/register.vue` mounts it  |
+| `/forgotten-password`                                                | `UpmAuthRecoverPassword` (`@upmind-automation/auth`)                                         | `auth`                                                             | none: `pages/forgotten-password.vue` mounts it |
+| `/logout`                                                            | none: `pages/logout.vue` calls `useActiveSession().useActions().logout()`                    | `session-store`                                                    | none                                  |
 | `/billing/payment-methods`                                           | `PaymentDetails`, `StoredPaymentMethods`                                                     | `payment-details`, `payment-gateways`                              | `config/billing-pages.ts`             |
 | invoice Pay (document control, list row, `?init=pay`)                | `PaymentDetails`, `PaymentAmount`, `AccountCredit`, `PaymentGateways`                        | `payment`, `invoices`                                              | `MOCK_ACTION.PAY_INVOICE` → prose     |
 | product settings — payment method                                    | `StoredPaymentMethods`                                                                       | `payment-details`                                                  | `config/product-pages.ts`             |
@@ -115,8 +115,8 @@ Mocked since 11 September 2026. The reset link's new password (with the second-s
 while two-factor is on), the verification link's outcomes (activated, first password, expired),
 the email-verification outcomes, and the organisation sign-up under "Get started for free"
 are pages of their own (`config/auth-pages.ts`, `mock/contracts/auth.schemas.{reset,register-org}.ts`,
-`tests/auth-steps.test.ts`). Sign-in, registration and password recovery still mount the real
-client-vue organisms.
+`tests/auth-steps.test.ts`). Sign-in, registration and password recovery mount the real
+`@upmind-automation/auth` organisms.
 
 ### Product setup
 

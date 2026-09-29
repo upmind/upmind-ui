@@ -25,8 +25,8 @@
 import { Button } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { useColorMode } from "../../modules/theming";
-import { Icon } from "../icon";
 
 const { isDark, toggle } = useColorMode();
 const { t } = useI18n();

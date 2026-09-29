@@ -1,8 +1,8 @@
 import { ref, computed } from "vue";
+import { setIconVariant } from "@upmind-automation/foundation";
 import { useBrand, useTheming } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import { setIconVariant } from "../../components/icon";
 import { COLOR_MODE } from "./types";
 import { useColorMode } from "./useColorMode";
 import {

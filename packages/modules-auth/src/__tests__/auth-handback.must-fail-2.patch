@@ -1,0 +1,20 @@
+# Negative control — the sign-in hands back as soon as the token lands, before
+# the session holds the user. The host re-reads session state and still sees a
+# guest.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/auth-handback.test.ts
+#     "holds the hand-back until the session holds the user, then resolves once with the model"
+
+diff --git a/packages/modules-auth/src/components/Auth.vue b/packages/modules-auth/src/components/Auth.vue
+--- a/packages/modules-auth/src/components/Auth.vue
++++ b/packages/modules-auth/src/components/Auth.vue
+@@ -273,7 +273,7 @@ function doResolve(model: unknown) {
+     // it emits immediately.
+     if (authenticates) {
+       try {
+-        await session.useActions().whenAuthenticated();
++        void session.useActions().whenAuthenticated();
+       } catch {
+         // Token issued but the user load failed — escalate to the reject path
+         // rather than hang the overlay waiting for a user that never loads.

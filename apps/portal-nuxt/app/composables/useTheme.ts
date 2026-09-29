@@ -48,8 +48,16 @@ const themeName = useLocalStorage<string>("upmind-portal-theme", "upmind");
 // useColorMode toggles the `.dark` class on <html> and persists for us.
 const mode = useColorMode({ storageKey: "upmind-portal-mode" });
 
+type ViewTransitionLike = {
+  ready: Promise<void>;
+  finished: Promise<void>;
+  updateCallbackDone: Promise<void>;
+};
+
 type DocumentWithViewTransition = Document & {
-  startViewTransition?: (update: () => void | Promise<void>) => unknown;
+  startViewTransition?: (
+    update: () => void | Promise<void>
+  ) => ViewTransitionLike;
 };
 
 /** Run a theme mutation inside a crossfade, falling back under reduced motion. */
@@ -62,10 +70,16 @@ function withThemeTransition(apply: () => void): void {
     apply();
     return;
   }
-  doc.startViewTransition(async () => {
+  const transition = doc.startViewTransition(async () => {
     apply();
     await nextTick();
   });
+
+  // A skipped transition rejects its promises with AbortError; unsettled, they surface as unhandled.
+  const swallowSkip = (): void => {};
+  void transition.ready.catch(swallowSkip);
+  void transition.finished.catch(swallowSkip);
+  void transition.updateCallbackDone.catch(swallowSkip);
 }
 
 // Keep the <html> brand attribute in sync with the stored name.

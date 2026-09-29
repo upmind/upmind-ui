@@ -10,6 +10,7 @@ The sharp edges. Every entry below is a thing a reader hits in practice, and eve
 
 The criteria schema declares the active/closed split as **`isClosed`**, a single tri-state boolean leaf:
 
+<!-- corpus-example: skip — the `filters` property of useQuerySchema() in tickets.schemas.ts, cut out of its enclosing schema object; it is an object property, not a statement -->
 ```ts
 // tickets.schemas.ts — useQuerySchema()
 filters: {
@@ -201,6 +202,7 @@ The label falls back through four candidates in order: `name_translated` → `na
 
 The create schema's requirement is conditional, matching the server exactly:
 
+<!-- corpus-example: skip — the two top-level keys of the create schema in tickets.schemas.ts, cut out of their schema object; they are object properties, not statements -->
 ```ts
 required: ["subject"],
 anyOf: [{ required: ["body"] }, { required: ["files"] }]

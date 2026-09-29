@@ -1,11 +1,12 @@
-import { hasInjectionContext, inject } from "vue";
-import type { FormRendererEntry, UseFormRenderers } from "./renderer.types";
-import type { InjectionKey } from "vue";
+import { shallowRef } from "vue";
+import { concat } from "lodash-es";
+import type { FormRendererEntry, UseFormRenderers } from "./types";
 
-export const FORM_RENDERERS: InjectionKey<FormRendererEntry[]> = Symbol(
-  "upmind-form-renderers"
-);
+const renderers = shallowRef<FormRendererEntry[]>([]);
 
-export const useFormRenderers = (): UseFormRenderers => ({
-  renderers: hasInjectionContext() ? inject(FORM_RENDERERS, []) : []
-});
+/** Adds a package's form controls to every `Form`; call it from the package entry. */
+export const registerFormRenderers = (entries: FormRendererEntry[]): void => {
+  renderers.value = concat(renderers.value, entries);
+};
+
+export const useFormRenderers = (): UseFormRenderers => ({ renderers });

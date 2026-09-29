@@ -1,0 +1,21 @@
+# Negative control — a failed funnel step leaves the registration page on its
+# interstitial. The visitor is stuck on a spinner with no form to retry.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/auth-loading.test.ts
+#     "the register page > returns to the template when the next step fails"
+
+diff --git a/packages/modules-auth/src/components/Register.vue b/packages/modules-auth/src/components/Register.vue
+--- a/packages/modules-auth/src/components/Register.vue
++++ b/packages/modules-auth/src/components/Register.vue
+@@ -305,9 +305,7 @@ function doResolve() {
+   if (isResolving.value) return;
+   if (routingMeta.value.hasFunnels) {
+     isResolving.value = true;
+-    navigateNext().catch(() => {
+-      isResolving.value = false;
+-    });
++    navigateNext().catch(() => undefined);
+   } else {
+     emit("resolve");
+   }

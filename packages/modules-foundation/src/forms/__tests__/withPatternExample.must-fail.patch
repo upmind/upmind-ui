@@ -1,0 +1,18 @@
+# Negative control — the generator takes the largest choice, not the smallest.
+#
+# Intended RED:
+#   packages/modules-foundation/src/forms/__tests__/withPatternExample.test.ts
+#     "takes the smallest choice at every repeat, class and branch"
+
+diff --git a/packages/modules-foundation/src/forms/useFormI18n.ts b/packages/modules-foundation/src/forms/useFormI18n.ts
+--- a/packages/modules-foundation/src/forms/useFormI18n.ts
++++ b/packages/modules-foundation/src/forms/useFormI18n.ts
+@@ -35,7 +35,7 @@ export const useFormI18n = () => {
+           if (validationKey === "pattern" && data?.pattern) {
+             try {
+               const randexp = new RandExp(data.pattern);
+-              randexp.randInt = (from: number) => from;
++              randexp.randInt = (_from: number, to: number) => to;
+               data = assign({}, data, { pattern: randexp.gen() });
+             } catch {
+               // fallback: keep raw pattern if regex parsing fails

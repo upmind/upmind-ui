@@ -1,0 +1,19 @@
+# Negative control — the sign-in page ignores the brand's chosen arrangement
+# and draws only the one its host names.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/shell-contract.test.ts
+#     "the login page > draws the host's template when the brand picks <name>"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -161,7 +161,7 @@ const isResolving = ref(false);
+ 
+ const template = computed(() =>
+   validateTemplate(
+-    ui.template.value || props.template,
++    props.template,
+     AUTH_TEMPLATE,
+     AUTH_TEMPLATE.TWO_COLUMN_LTR
+   )

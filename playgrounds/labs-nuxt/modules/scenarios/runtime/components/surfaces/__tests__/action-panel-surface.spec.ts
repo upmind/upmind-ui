@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { UpmForm } from "@upmind-automation/client-vue";
+import { Form } from "@upmind-automation/foundation";
 import { ActionPanelSurface } from "../index";
 
 describe("@AC3 ActionPanelSurface — one slot per action", () => {
@@ -53,7 +53,7 @@ describe("@AC3 ActionPanelSurface — input form driven by context.{schema,uisch
   it("has no input form when context.schema is absent", () => {
     const { wrapper } = mountPanel(["resend"], {});
 
-    expect(wrapper.findComponent(UpmForm).exists()).toBe(false);
+    expect(wrapper.findComponent(Form).exists()).toBe(false);
   });
 
   it("renders the input form from context.schema/uischema/model when context.schema is present", () => {
@@ -62,7 +62,7 @@ describe("@AC3 ActionPanelSurface — input form driven by context.{schema,uisch
       uischema,
       model
     });
-    const upmForm = wrapper.findComponent(UpmForm);
+    const upmForm = wrapper.findComponent(Form);
 
     expect(upmForm.exists()).toBe(true);
     expect(upmForm.props("schema")).toEqual(schema);
@@ -76,7 +76,7 @@ describe("@AC3 ActionPanelSurface — input form driven by context.{schema,uisch
       uischema,
       model
     });
-    const upmForm = wrapper.findComponent(UpmForm);
+    const upmForm = wrapper.findComponent(Form);
 
     await upmForm.vm.$emit("update:modelValue", { subject: "world" });
 
@@ -89,7 +89,7 @@ describe("@AC3 ActionPanelSurface — input form driven by context.{schema,uisch
       uischema,
       model
     });
-    const upmForm = wrapper.findComponent(UpmForm);
+    const upmForm = wrapper.findComponent(Form);
 
     await upmForm.vm.$emit("resolve", model);
 
@@ -103,6 +103,6 @@ describe("@AC3 ActionPanelSurface — input form driven by context.{schema,uisch
       model
     });
 
-    expect(wrapper.findAllComponents(UpmForm)).toHaveLength(1);
+    expect(wrapper.findAllComponents(Form)).toHaveLength(1);
   });
 });

@@ -1,0 +1,23 @@
+# Negative control — foundation ships a catch-all control that draws nothing, so a field no package claims loses the engine's notice.
+#
+# Intended RED:
+#   packages/modules-foundation/src/__tests__/ships-no-renderers.test.ts
+#     "registers no form control in a 'development' build"
+#     "registers no form control in a 'production' build"
+#   packages/modules-foundation/src/forms/__tests__/form-controls.test.ts
+#     "shows the engine's notice on a field no control claims"
+
+diff --git a/packages/modules-foundation/src/renderers/useFormRenderers.ts b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+--- a/packages/modules-foundation/src/renderers/useFormRenderers.ts
++++ b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+@@ -2,7 +2,9 @@
+ import { concat } from "lodash-es";
+ import type { FormRendererEntry, UseFormRenderers } from "./types";
+ 
+-const renderers = shallowRef<FormRendererEntry[]>([]);
++const renderers = shallowRef<FormRendererEntry[]>([
++  { renderer: { render: () => null }, tester: () => 0 }
++]);
+ 
+ /** Adds a package's form controls to every `Form`; call it from the package entry. */
+ export const registerFormRenderers = (entries: FormRendererEntry[]): void => {

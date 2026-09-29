@@ -105,6 +105,8 @@ import { Markdown } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Back } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useBasket,
   useQueryParams,
@@ -119,9 +121,7 @@ import {
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
-import Back from "../../components/navigation/Back.vue";
 import { useThemes } from "../theming";
 import BasketAlerts from "./components/BasketAlerts.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
@@ -136,7 +136,7 @@ import BasketLTRTemplate from "./templates/BasketLTR.template.vue";
 import BasketRTLTemplate from "./templates/BasketRTL.template.vue";
 import { BASKET_TEMPLATE } from "./types";
 import { get, includes } from "lodash-es";
-import type { StorefrontRoute } from "../../types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 const supportedTemplates = {

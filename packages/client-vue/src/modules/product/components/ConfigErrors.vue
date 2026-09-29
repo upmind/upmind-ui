@@ -30,8 +30,8 @@ import { Link } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { toSafeControlId } from "../../../components/form";
-import { Icon } from "../../../components/icon";
 import { compact, join, size, split, take, trimStart } from "lodash-es";
 import type { ErrorObject } from "@upmind-automation/headless";
 

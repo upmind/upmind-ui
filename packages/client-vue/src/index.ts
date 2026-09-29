@@ -1,9 +1,10 @@
+import { registerFormRenderers } from "@upmind-automation/foundation";
+import { formRenderers } from "./components/form/renderers";
 import useUpmindClient from "./useUpmindClient";
 
-export * from "@upmind-automation/headless";
+registerFormRenderers(formRenderers);
 
-// --- expose shared types
-export type { StorefrontRoute } from "./types";
+export * from "@upmind-automation/headless";
 
 // --- expose composables
 export {

@@ -1,0 +1,71 @@
+# Negative control — the split template draws the portal's own note again,
+# beside the brand's note the sign-in page hands it in the `markdown` slot. The
+# visitor reads the note twice.
+#
+# Intended RED (tests/logged-out-shell.test.ts):
+#   "AuthSplit shows the note the page hands it once, beside no portal note"
+
+diff --git a/apps/portal-nuxt/app/portal/auth/templates/AuthSplit.template.vue b/apps/portal-nuxt/app/portal/auth/templates/AuthSplit.template.vue
+--- a/apps/portal-nuxt/app/portal/auth/templates/AuthSplit.template.vue
++++ b/apps/portal-nuxt/app/portal/auth/templates/AuthSplit.template.vue
+@@ -7,6 +7,7 @@
+     </template>
+ 
+     <slot name="hero" />
++    <PortalAuthNote />
+     <slot name="markdown" />
+     <slot name="form" />
+ 
+@@ -27,6 +28,7 @@ import { AuthShell } from "@upmind/ui";
+ import { useBrand } from "@upmind-automation/headless";
+ import PortalAuthBrand from "../PortalAuthBrand.vue";
+ import PortalAuthLegal from "../PortalAuthLegal.vue";
++import PortalAuthNote from "../PortalAuthNote.vue";
+ import PortalAuthStore from "../PortalAuthStore.vue";
+ import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
+ import type { AuthRoutes } from "@upmind-automation/auth";
+diff --git a/apps/portal-nuxt/app/portal/auth/PortalAuthNote.vue b/apps/portal-nuxt/app/portal/auth/PortalAuthNote.vue
+new file mode 100644
+--- /dev/null
++++ b/apps/portal-nuxt/app/portal/auth/PortalAuthNote.vue
+@@ -0,0 +1,40 @@
++<template>
++  <Markdown
++    v-if="meta.isNoted"
++    tag="div"
++    :model-value="meta.note"
++    :class="LOGGED_OUT_NOTE_CLASS"
++    data-test-key="logged-out-note"
++  />
++</template>
++
++<script setup lang="ts">
++// -----------------------------------------------------------------------------
++/**
++ * @module portal/auth/PortalAuthNote
++ * @description The brand's own note for the sign-in and sign-up screens.
++ */
++import { Markdown } from "@upmind/ui";
++import { computed } from "vue";
++import { compact } from "lodash-es";
++import { useMockBrandGates } from "~/portal/mock/gates";
++import { LOGGED_OUT_NOTE_CLASS } from "~/portal/shell/variants";
++import { RESERVED_PILLAR_SEGMENT } from "~/portal/types";
++
++const route = useRoute();
++const { loginMarkdown, registerMarkdown } = useMockBrandGates();
++
++function screenNote(segment: string | undefined): string {
++  if (segment === RESERVED_PILLAR_SEGMENT.LOGIN) return loginMarkdown.value;
++  if (segment === RESERVED_PILLAR_SEGMENT.REGISTER) {
++    return registerMarkdown.value;
++  }
++  return "";
++}
++
++const meta = computed(() => {
++  const [segment] = compact(route.path.split("/"));
++  const note = screenNote(segment);
++  return { note, isNoted: note !== "" };
++});
++</script>

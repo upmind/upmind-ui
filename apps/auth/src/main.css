@@ -1,0 +1,5 @@
+@import "@upmind/ui/styles";
+@import "@upmind-automation/auth/styles";
+@import "@upmind-automation/foundation/styles";
+
+@source './**/*.{html,vue,js,tsx,ts}';

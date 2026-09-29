@@ -7,7 +7,7 @@
 
 import { computed } from "vue";
 import { useBrand } from "@upmind-automation/client-vue";
-import type { StorefrontRoute } from "@upmind-automation/client-vue";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------

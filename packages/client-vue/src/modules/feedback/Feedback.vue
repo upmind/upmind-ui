@@ -45,7 +45,7 @@ import Error from "../system/Error.vue";
 import Message from "./components/Message.vue";
 import { rootVariants, bannersVariants } from "./variants";
 import { get, some, forEach } from "lodash-es";
-import type { StorefrontRoute } from "../../types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{

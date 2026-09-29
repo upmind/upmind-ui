@@ -15,10 +15,10 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import { UpmAuthAction } from "@upmind-automation/auth";
 import {
   Upm,
   UpmBasketAction,
-  UpmAuthAction,
   useOverlayRoute
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "./router";

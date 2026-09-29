@@ -184,7 +184,7 @@
         >
           <template #icon><Icon icon="user-plus-01" /></template>
         </Alert>
-        <Auth
+        <UpmAuth
           v-else
           no-tabs
           no-header
@@ -205,6 +205,7 @@ import { Alert, type AlertProps } from "@upmind/ui";
 import { computed, onUnmounted, provide, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
+import { UpmAuth } from "@upmind-automation/auth";
 import {
   detailsTotalRootVariants,
   detailsTotalLabelVariants,
@@ -213,20 +214,17 @@ import {
   detailsSkeletonRowVariants,
   detailsSkeletonTotalRowVariants,
   detailsSkeletonItemVariants,
-  Icon,
   useAnnouncement,
   useThemes,
   ORDER_TEMPLATE,
-  UpmAuth as Auth,
-  UpmHero as Hero,
   UpmOrderEnclosedTemplate as OrderEnclosedTemplate,
   UpmOrderFullTemplate as OrderFullTemplate,
   UpmOrderInsetTemplate as OrderInsetTemplate,
   UpmOrderLTRTemplate as OrderLTRTemplate,
   UpmOrderProducts as OrderProducts,
-  UpmOrderRTLTemplate as OrderRTLTemplate,
-  UpmSection as Section
+  UpmOrderRTLTemplate as OrderRTLTemplate
 } from "@upmind-automation/client-vue";
+import { Hero, Icon, Section } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
 import {
   useAccount,

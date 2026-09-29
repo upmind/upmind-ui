@@ -182,7 +182,7 @@ import {
 } from "@upmind/ui";
 import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { parseFeatureScenarios } from "@upmind-automation/scenario-harness";
 import { buildScopePath } from "../../composables/scope";
 import { stepRow, stepIcon } from "./ScenarioPane.styles";

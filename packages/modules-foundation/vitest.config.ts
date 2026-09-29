@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import vue from "@vitejs/plugin-vue";
 import { defineConfig, configDefaults } from "vitest/config";
 import { workerPool } from "../../vitest.workers";
 
@@ -20,6 +21,7 @@ const alias = {
 };
 
 export default defineConfig({
+  plugins: [vue()],
   resolve: { alias },
   test: {
     ...workerPool("dom"),

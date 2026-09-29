@@ -26,7 +26,7 @@
 import { Input } from "@upmind/ui";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import {
   productsFacetRootVariants,
   productsFacetSearchInputVariants,

@@ -55,6 +55,8 @@ import { Alert } from "@upmind/ui";
 import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
 // --- internal
+import { Form } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
 import {
   DetailedError,
   ErrorOrigin,
@@ -65,8 +67,6 @@ import {
   useProductSetup
 } from "@upmind-automation/headless";
 // --- components
-import Form from "../../../components/form/Form.vue";
-import { Icon } from "../../../components/icon";
 import { formFullVariants, formRootVariants } from "../variants";
 import ApplyToOthers from "./ApplyToOthers.vue";
 // --- types

@@ -6,7 +6,7 @@
   />
   <div v-else :class="actionPanelSurface.root()">
     <ActionSlots :actions="slotItems" />
-    <UpmForm
+    <Form
       v-if="schema"
       :class="actionPanelSurface.form()"
       :schema="schema"
@@ -31,7 +31,8 @@
  */
 
 import { computed } from "vue";
-import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
+import { formRenderers } from "@upmind-automation/client-vue";
+import { Form } from "@upmind-automation/foundation";
 import { ActionPlacementTypes } from "../../scenario.types";
 import ActionSlots from "../ActionSlots.vue";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";

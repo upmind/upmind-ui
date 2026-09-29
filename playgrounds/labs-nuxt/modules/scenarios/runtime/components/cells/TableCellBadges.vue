@@ -17,8 +17,7 @@
 import { uiTypeIs } from "@jsonforms/core";
 import { StatusBadge } from "@upmind/ui";
 import { computed } from "vue";
-import { useFormI18n } from "@upmind-automation/client-vue";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon, useFormI18n } from "@upmind-automation/foundation";
 import { resolveScope } from "../../scenario.utils";
 import { filter, get } from "lodash-es";
 import type { TableCellProps } from "./cells.types";

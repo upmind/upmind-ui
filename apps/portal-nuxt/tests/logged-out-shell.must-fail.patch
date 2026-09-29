@@ -3,16 +3,17 @@
 # on every screen a signed-out visitor sees.
 #
 # Intended RED: "names the platform only where the brand allows it to be named"
-# (tests/logged-out-shell.test.ts).
+# (tests/logged-out-shell.test.ts), the layout frame.
 
 diff --git a/apps/portal-nuxt/app/layouts/logged-out.vue b/apps/portal-nuxt/app/layouts/logged-out.vue
 --- a/apps/portal-nuxt/app/layouts/logged-out.vue
 +++ b/apps/portal-nuxt/app/layouts/logged-out.vue
-@@ -139,7 +139,6 @@
+@@ -81,7 +81,7 @@ watch(activeConfig, config => setTheme(config.theme ?? "upmind"), {
+           :model-value="footerMarkdown"
            :class="PORTAL_FOOTER_PROSE_CLASS"
          />
-         <a
--          v-if="hasUpmindBranding"
-           :class="PORTAL_FOOTER_LINK_CLASS"
-           href="https://upmind.com"
-           target="_blank"
+-        <PortalUpmind v-if="hasUpmindBranding" />
++        <PortalUpmind />
+       </template>
+     </AuthShell>
+     <Toaster />

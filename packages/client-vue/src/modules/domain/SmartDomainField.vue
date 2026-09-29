@@ -143,6 +143,7 @@
 import { Input, RadioGroup, Select } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useBasket,
   useDomain,
@@ -151,7 +152,6 @@ import {
   type DomainChoice
 } from "@upmind-automation/headless";
 import { FormControl, FormMessage } from "../../components/form";
-import { Icon } from "../../components/icon";
 import SmartDomainDrawer from "./components/SmartDomainDrawer.vue";
 import SmartDomainExisting from "./components/SmartDomainExisting.vue";
 import SmartDomainSummary from "./components/SmartDomainSummary.vue";
