@@ -54,12 +54,12 @@
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { Skeleton } from "@upmind/ui";
 import { computed, inject, provide } from "vue";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useProductCategories,
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import { categoriesRootVariants, categoriesGridVariants } from "../variants";
 import CategoriesHeader from "./CategoriesHeader.vue";
 import CategoryItem from "./CategoryItem.vue";

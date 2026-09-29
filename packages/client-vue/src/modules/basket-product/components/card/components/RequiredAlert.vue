@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 import { Alert } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import { isMobile } from "../../../../../composables/isMobile";
 import type { RequiredAlertProps } from "./types";
 

@@ -1,106 +1,126 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The auth loading interstitial.
+ * @fileoverview The `loading` slot the sign-in and registration pages draw while they hand on.
  *
  * ## Job To Be Done
- * The loading seam always yields a component: the host's interstitial, else this package's own.
+ * Once a sign-in hands on to the funnel's next step, the page draws the host's
+ * `loading` fill, or this package's own interstitial when the host fills none,
+ * and returns to its template if the step fails.
  *
  * ## What Breaks If These Fail
- * The visitor gets a blank page for the whole of the organism's setup.
+ * The visitor watches the sign-in form sit there after a successful sign-in, or
+ * gets a blank page for the whole hand-on.
  */
 
-import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
-import { computed, defineComponent, h, shallowRef } from "vue";
-import { createI18n } from "vue-i18n";
-import { provideShellComponents } from "@upmind-automation/foundation";
-import { AUTH_SHELL } from "../index";
-import { useAuthLoading } from "../shell";
-import type { ShellComponents } from "@upmind-automation/foundation";
-import type { Component, ComputedRef, ShallowRef } from "vue";
+import { flushPromises } from "@vue/test-utils";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { h } from "vue";
+import LoginView from "../Login.vue";
+import RegisterView from "../Register.vue";
+import {
+  navigateNext,
+  renderPage,
+  resetHost,
+  submit,
+  templateDrawn
+} from "./support/auth-host";
 
 // -----------------------------------------------------------------------------
 
-const i18n = createI18n({
-  legacy: false,
-  locale: "en",
-  missingWarn: false,
-  fallbackWarn: false
+vi.mock("../../../headless/src/modules/routing/useRoutingEngine", () =>
+  import("./support/auth-host").then(support => support.routingEngine())
+);
+
+vi.mock("@upmind-automation/headless", async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  const support = await import("./support/auth-host");
+  const { assign } = await import("lodash-es");
+  return assign({}, actual, support.headlessOverrides());
 });
 
-const HostLoading = defineComponent({
-  setup: () => () => h("div", { "data-host": "loading" })
+vi.mock("@upmind-automation/foundation", async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  const support = await import("./support/auth-host");
+  const { assign } = await import("lodash-es");
+  return assign({}, actual, { Form: support.FormStub });
 });
 
-const HostTemplate = defineComponent({
-  setup: () => () => h("div", { "data-host": "template" })
-});
+const SCREENS = [
+  { name: "login", view: LoginView },
+  { name: "register", view: RegisterView }
+] as const;
 
-function loadingUnderHost(
-  host?: ShallowRef<ShellComponents>
-): ComputedRef<Component> {
-  let captured: ComputedRef<Component> | undefined;
-  const Probe = defineComponent({
-    setup() {
-      captured = useAuthLoading().component;
-      return () => null;
-    }
-  });
-  const Harness = defineComponent({
-    setup() {
-      if (host) provideShellComponents(computed(() => host.value));
-      return () => h(Probe);
-    }
-  });
+const HOST_LOADING = "[data-host-loading]";
 
-  mount(Harness);
-  if (!captured) throw new Error("the probe never reached useAuthLoading");
-  return captured;
+const hostLoading = () =>
+  h("div", { "data-host-loading": "" }, "Taking you on");
+
+function holdTheNextStep(): () => void {
+  let fail: () => void = () => undefined;
+  navigateNext.mockImplementation(
+    () =>
+      new Promise((_resolve, reject) => {
+        fail = () => reject(new Error("the next step failed"));
+      })
+  );
+  return () => fail();
 }
 
-describe("the auth loading interstitial", () => {
-  it("yields this package's own interstitial when the host offers no shell", () => {
-    const { value } = loadingUnderHost();
+// -----------------------------------------------------------------------------
 
-    expect(value).toBeTruthy();
+describe("the loading slot while a sign-in hands on", () => {
+  beforeEach(() => {
+    resetHost();
   });
 
-  it("renders content a visitor can see, not an empty node", () => {
-    const { value } = loadingUnderHost();
+  for (const screen of SCREENS) {
+    describe(`the ${screen.name} page`, () => {
+      it("draws the template, not the fill, before the visitor signs in", async () => {
+        const rendered = await renderPage(screen.view, {
+          slots: { loading: hostLoading }
+        });
 
-    const rendered = mount(value, { global: { plugins: [i18n] } });
+        expect(templateDrawn(rendered)).toBeDefined();
+        expect(rendered.wrapper.find(HOST_LOADING).exists()).toBe(false);
+      });
 
-    expect(rendered.html().trim()).not.toBe("");
-  });
+      it("draws the host's fill in place of the template while the next step runs", async () => {
+        holdTheNextStep();
+        const rendered = await renderPage(screen.view, {
+          slots: { loading: hostLoading }
+        });
 
-  it("hands over to the host's interstitial when the host fills the slot", () => {
-    const host = shallowRef({ [AUTH_SHELL.LOADING]: HostLoading });
+        await submit(rendered);
 
-    const { value } = loadingUnderHost(host);
+        expect(navigateNext).toHaveBeenCalledTimes(1);
+        expect(rendered.wrapper.find(HOST_LOADING).exists()).toBe(true);
+        expect(templateDrawn(rendered)).toBeUndefined();
+      });
 
-    expect(value).toBe(HostLoading);
-  });
+      it("draws this package's own interstitial when the host fills none", async () => {
+        holdTheNextStep();
+        const rendered = await renderPage(screen.view);
 
-  it("falls through when the host fills every other slot but this one", () => {
-    const host = shallowRef({
-      [AUTH_SHELL.TEMPLATE_SPLIT]: HostTemplate,
-      [AUTH_SHELL.SUMMARY]: HostTemplate
+        await submit(rendered);
+
+        expect(templateDrawn(rendered)).toBeUndefined();
+        expect(rendered.wrapper.html().trim()).not.toBe("");
+        expect(rendered.wrapper.text()).not.toBe("");
+      });
+
+      it("returns to the template when the next step fails", async () => {
+        const fail = holdTheNextStep();
+        const rendered = await renderPage(screen.view, {
+          slots: { loading: hostLoading }
+        });
+        await submit(rendered);
+
+        fail();
+        await flushPromises();
+
+        expect(rendered.wrapper.find(HOST_LOADING).exists()).toBe(false);
+        expect(templateDrawn(rendered)).toBeDefined();
+      });
     });
-
-    const { value } = loadingUnderHost(host);
-
-    expect(value).toBeTruthy();
-    expect(value).not.toBe(HostTemplate);
-  });
-
-  it("follows the host's shell as it changes", () => {
-    const host: ShallowRef<ShellComponents> = shallowRef({});
-
-    const component = loadingUnderHost(host);
-    const fallback = component.value;
-    host.value = { [AUTH_SHELL.LOADING]: HostLoading };
-
-    expect(fallback).toBeTruthy();
-    expect(component.value).toBe(HostLoading);
-  });
+  }
 });

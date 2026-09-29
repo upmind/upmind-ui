@@ -76,7 +76,6 @@ import { AnnouncementBar } from "@upmind/ui";
 import { Loading } from "@upmind/ui";
 import { computed, nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { provideShellComponents } from "@upmind-automation/foundation";
 import useUpmind, {
   UpmindStatus,
   useRoutingEngine
@@ -89,12 +88,11 @@ import Main from "./components/main/Main.vue";
 import UpmOverlayController from "./components/overlays/OverlayController.vue";
 import Page from "./components/page/Page.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
-import { SESSION_SHELL_COMPONENTS } from "./modules/session/shell";
 import AsyncLoading from "./modules/system/Loading.vue";
 import UpmRouteView from "./modules/system/RouteView.vue";
 import { useTheme, useThemes } from "./modules/theming";
 import type { LoadingProps } from "./modules/system/types";
-import type { StorefrontRoute } from "./types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -108,8 +106,6 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 const { set } = useThemes();
 const { meta: routingMeta } = useRoutingEngine();
-
-provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 const {
   announcement,
   isVisible: announcementVisible,

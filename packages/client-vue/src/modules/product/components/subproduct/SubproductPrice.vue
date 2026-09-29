@@ -68,7 +68,7 @@
 import { Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
 import ExPrice from "../pricing/ExPrice.vue";
 import { lowerCase } from "lodash-es";

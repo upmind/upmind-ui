@@ -208,12 +208,11 @@ onAfterEnter(() => scrollToTop());
 
 ## Integration Points
 
-| Component           | Role                                       | File                                         |
-| ------------------- | ------------------------------------------ | -------------------------------------------- |
-| `useRoutingEngine`  | Composable API for apps                    | `useRoutingEngine.ts`                        |
-| `useRouting`        | Router integration                         | `useRouting.ts`                              |
-| `useOverlayRoute`   | Overlay close/dismiss                      | `packages/client-vue/.../useOverlayRoute.ts` |
-| `useQueryParams`    | Type-safe query access                     | `useQueryParams.ts`                          |
-| `useRoutingResolve` | Resolve/reject: funnel step or given route | `useRoutingResolve.ts`                       |
-| `useShell`          | Shell component tracking                   | `packages/client-vue/.../useShell.ts`        |
-| Funnel watchers     | Reactive navigation                        | `apps/cart/src/router/funnels/watchers.ts`   |
+| Component          | Role                     | File                                         |
+| ------------------ | ------------------------ | -------------------------------------------- |
+| `useRoutingEngine` | Composable API for apps  | `useRoutingEngine.ts`                        |
+| `useRouting`       | Router integration       | `useRouting.ts`                              |
+| `useOverlayRoute`  | Overlay close/dismiss    | `packages/client-vue/.../useOverlayRoute.ts` |
+| `useQueryParams`   | Type-safe query access   | `useQueryParams.ts`                          |
+| `useShell`         | Shell component tracking | `packages/client-vue/.../useShell.ts`        |
+| Funnel watchers    | Reactive navigation      | `apps/cart/src/router/funnels/watchers.ts`   |

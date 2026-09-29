@@ -24,11 +24,11 @@
 import { Button, InputGroup, Select } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import {
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
-import { Icon } from "../../../../components/icon";
 import { find, isEmpty } from "lodash-es";
 import type { ProductSortProps } from "../types";
 

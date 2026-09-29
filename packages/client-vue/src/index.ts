@@ -2,9 +2,6 @@ import useUpmindClient from "./useUpmindClient";
 
 export * from "@upmind-automation/headless";
 
-// --- expose shared types
-export type { StorefrontRoute } from "./types";
-
 // --- expose composables
 export {
   useConfig,

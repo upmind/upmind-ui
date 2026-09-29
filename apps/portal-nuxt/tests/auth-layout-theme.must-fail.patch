@@ -10,13 +10,12 @@
 #     "applies the upmind fallback when the active config changes to one with no theme"
 
 diff --git a/apps/portal-nuxt/app/layouts/auth.vue b/apps/portal-nuxt/app/layouts/auth.vue
-index c67aaa4..4a077e0 100644
 --- a/apps/portal-nuxt/app/layouts/auth.vue
 +++ b/apps/portal-nuxt/app/layouts/auth.vue
-@@ -20,9 +20,4 @@ const { activeConfig } = usePortalConfig();
- const { setTheme } = useTheme();
+@@ -16,9 +16,4 @@ import { useTheme } from "~/composables/useTheme";
  
- provideShellComponents(computed(() => PORTAL_AUTH_SHELL_COMPONENTS));
+ const { activeConfig } = usePortalConfig();
+ const { setTheme } = useTheme();
 -
 -// The shape's own brand, applied the same way the signed-in layout applies it.
 -watch(activeConfig, config => setTheme(config.theme ?? "upmind"), {

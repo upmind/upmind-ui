@@ -1,92 +1,56 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The back control the session screens withhold, and the ones they keep.
+ * @fileoverview How the session screens hand back: the funnel's step, or an event.
  *
  * ## Job To Be Done
- * In a funnel-free host login and register render no back control; recovery keeps its own.
+ * With a funnel running, a screen takes the funnel's next and back steps and
+ * emits nothing. With none, login and register render no back control, every
+ * screen emits `resolve` or `reject` for its host to act on, and none navigates.
  *
  * ## What Breaks If These Fail
- * A funnel-free host offers a back that throws, or a funnel host loses its way back to the basket.
+ * A funnel-free host offers a back that throws, a funnel host loses its way back
+ * to the basket, or a host that listens for the hand-back never hears it.
  */
 
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Suspense, computed, defineComponent, h, ref } from "vue";
-import { createI18n } from "vue-i18n";
-import { createMemoryHistory, createRouter } from "vue-router";
-import { provideShellComponents } from "@upmind-automation/foundation";
 import LoginView from "../Login.vue";
 import RecoverPasswordView from "../RecoverPassword.vue";
 import RegisterView from "../Register.vue";
-import { AUTH_TEMPLATE_SLOT } from "../shell";
-import { AUTH_TEMPLATE } from "../types";
-import type { VueWrapper } from "@vue/test-utils";
+import {
+  START,
+  host,
+  navigate,
+  navigateBack,
+  navigateNext,
+  renderPage,
+  resetHost,
+  submit
+} from "./support/auth-host";
+import { filter, find, map, size } from "lodash-es";
+import type { Rendered } from "./support/auth-host";
 import type { Component } from "vue";
 
 // -----------------------------------------------------------------------------
 
-const hasFunnels = ref(true);
-const navigate = vi.fn(() => Promise.resolve());
-const navigateNext = vi.fn(() => Promise.resolve());
-const navigateBack = vi.fn(() => Promise.resolve());
-
-// Mocked at its source so headless's own `useRoutingResolve` reads the same engine.
-vi.mock("../../../headless/src/modules/routing/useRoutingEngine", () => ({
-  useRoutingEngine: () => ({
-    navigate,
-    navigateNext,
-    navigateBack,
-    meta: computed(() => ({ hasFunnels: hasFunnels.value }))
-  })
-}));
+// Mocked at its source so every reader inside `headless` sees the same engine.
+vi.mock("../../../headless/src/modules/routing/useRoutingEngine", () =>
+  import("./support/auth-host").then(support => support.routingEngine())
+);
 
 vi.mock("@upmind-automation/headless", async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
-  return {
-    ...actual,
-    useActiveSession: () => ({
-      useActions: () => ({ isReady: () => Promise.resolve(true) }),
-      useContext: () => ({}),
-      useInternals: () => ({}),
-      useMeta: () => ({ isAuthenticated: computed(() => false) })
-    }),
-    useBrand: () => ({
-      isReady: () => Promise.resolve(true),
-      meta: computed(() => ({ isAvailable: true })),
-      brandId: computed(() => "brand-1"),
-      name: computed(() => "Brand"),
-      image: computed(() => null),
-      styles: computed(() => null),
-      uiTheme: computed(() => ({ tokens: "", variant: undefined })),
-      uischema_Route: computed(() => ({})),
-      hasUpmindBranding: computed(() => false),
-      getConfig: () => ({}),
-      getConfigValue: () => undefined
-    }),
-    useClientTemplate: () => ({
-      isReady: () => Promise.resolve(true),
-      meta: computed(() => ({ isAvailable: false })),
-      data: computed(() => undefined),
-      template: computed(() => undefined),
-      content: computed(() => undefined)
-    }),
-    useConfig: () => ({
-      data: {},
-      ui: {
-        theme: computed(() => ""),
-        template: computed(() => undefined),
-        variant: computed(() => undefined),
-        iconVariant: computed(() => "outline"),
-        basketSummary: { isVisible: false },
-        guestCheckout: { isVisible: false }
-      }
-    })
-  };
+  const support = await import("./support/auth-host");
+  const { assign } = await import("lodash-es");
+  return assign({}, actual, support.headlessOverrides());
 });
 
-const Blank = { setup: () => () => h("div") };
-
-const START = "/start";
+vi.mock("@upmind-automation/foundation", async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  const support = await import("./support/auth-host");
+  const { assign } = await import("lodash-es");
+  return assign({}, actual, { Form: support.FormStub });
+});
 
 const CONTROL = '[role="button"], button, a';
 
@@ -96,70 +60,8 @@ const SCREENS = [
   { name: "recovery", view: RecoverPasswordView }
 ] as const;
 
-const i18n = createI18n({
-  legacy: false,
-  locale: "en",
-  missingWarn: false,
-  fallbackWarn: false
-});
-
-const HostPage = defineComponent({
-  setup(_props, { slots }) {
-    return () =>
-      h("div", [
-        slots.back?.(),
-        slots.hero?.(),
-        slots.markdown?.(),
-        slots.form?.(),
-        slots.summary?.(),
-        slots.actions?.()
-      ]);
-  }
-});
-
-const HOST_PAGES = Object.fromEntries(
-  Object.values(AUTH_TEMPLATE).map(name => [AUTH_TEMPLATE_SLOT[name], HostPage])
-);
-
-async function render(view: Component) {
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [
-      { path: START, name: "start", component: Blank },
-      { path: "/login", name: "login", component: Blank },
-      { path: "/register", name: "register", component: Blank },
-      { path: "/recover", name: "recover", component: Blank },
-      { path: "/dashboard", name: "dashboard", component: Blank }
-    ]
-  });
-  await router.push(START);
-  await router.isReady();
-
-  const Host = defineComponent({
-    setup() {
-      provideShellComponents(computed(() => HOST_PAGES));
-      return () =>
-        h(Suspense, null, {
-          default: () =>
-            h(view, {
-              loginRoute: { name: "login" },
-              registerRoute: { name: "register" },
-              recoverRoute: { name: "recover" },
-              landingRoute: { name: "dashboard" }
-            }),
-          fallback: () => h("div", { "data-suspended": "" })
-        });
-    }
-  });
-
-  const wrapper = mount(Host, { global: { plugins: [router, i18n] } });
-  await flushPromises();
-  await flushPromises();
-  return { wrapper, router };
-}
-
-function controlsIn(wrapper: VueWrapper) {
-  return wrapper.findAll(CONTROL);
+function controlsIn(rendered: Rendered) {
+  return rendered.wrapper.findAll(CONTROL);
 }
 
 function signatureOf(control: ReturnType<typeof controlsIn>[number]) {
@@ -170,18 +72,19 @@ function signatureOf(control: ReturnType<typeof controlsIn>[number]) {
 type Activation = {
   signature: string;
   reachedFunnelBack: boolean;
+  rejected: number;
   landedOn: string;
 };
 
 async function sweep(view: Component): Promise<Activation[]> {
-  const opening = await render(view);
-  const count = controlsIn(opening.wrapper).length;
+  const count = size(controlsIn(await renderPage(view)));
   const activations: Activation[] = [];
 
   for (let index = 0; index < count; index += 1) {
     navigateBack.mockClear();
-    const { wrapper, router } = await render(view);
-    const control = controlsIn(wrapper)[index];
+    const rendered = await renderPage(view);
+    const control = controlsIn(rendered)[index];
+    if (!control) continue;
     const signature = signatureOf(control);
 
     await control.trigger("click");
@@ -189,8 +92,9 @@ async function sweep(view: Component): Promise<Activation[]> {
 
     activations.push({
       signature,
-      reachedFunnelBack: navigateBack.mock.calls.length > 0,
-      landedOn: router.currentRoute.value.path
+      reachedFunnelBack: size(navigateBack.mock.calls) > 0,
+      rejected: size(rendered.page.emitted("reject")),
+      landedOn: rendered.router.currentRoute.value.path
     });
   }
 
@@ -198,21 +102,18 @@ async function sweep(view: Component): Promise<Activation[]> {
 }
 
 function inventoryOf(activations: Activation[]) {
-  return activations.map(activation => activation.signature);
+  return map(activations, "signature");
 }
 
 function backStepIn(activations: Activation[]) {
-  return activations.filter(activation => activation.reachedFunnelBack);
+  return filter(activations, "reachedFunnelBack");
 }
 
 // -----------------------------------------------------------------------------
 
 describe("the session screens' back control", () => {
   beforeEach(() => {
-    hasFunnels.value = true;
-    navigate.mockClear();
-    navigateNext.mockClear();
-    navigateBack.mockClear();
+    resetHost();
   });
 
   describe("in a host that drives funnels", () => {
@@ -223,6 +124,7 @@ describe("the session screens' back control", () => {
 
         expect(back).toHaveLength(1);
         expect(back[0]?.landedOn).toBe(START);
+        expect(back[0]?.rejected).toBe(0);
       });
     }
   });
@@ -232,12 +134,13 @@ describe("the session screens' back control", () => {
       it(`takes ${screen.name}'s control away and leaves the rest of the screen alone`, async () => {
         const withFunnels = await sweep(screen.view);
         const [back] = backStepIn(withFunnels);
-        hasFunnels.value = false;
+        host.hasFunnels = false;
         const withoutFunnels = await sweep(screen.view);
 
         expect(back).toBeDefined();
         expect(inventoryOf(withoutFunnels)).toEqual(
-          inventoryOf(withFunnels).filter(
+          filter(
+            inventoryOf(withFunnels),
             signature => signature !== back?.signature
           )
         );
@@ -245,19 +148,46 @@ describe("the session screens' back control", () => {
       });
     }
 
-    it("keeps recovery's control and sends it to the login screen instead", async () => {
+    it("keeps recovery's control, and it hands back to the host as a reject", async () => {
       const withFunnels = await sweep(SCREENS[2].view);
       const [back] = backStepIn(withFunnels);
-      hasFunnels.value = false;
+      host.hasFunnels = false;
       const withoutFunnels = await sweep(SCREENS[2].view);
+      const control = find(withoutFunnels, { signature: back?.signature });
 
       expect(inventoryOf(withoutFunnels)).toEqual(inventoryOf(withFunnels));
       expect(backStepIn(withoutFunnels)).toEqual([]);
-      expect(
-        withoutFunnels.find(
-          activation => activation.signature === back?.signature
-        )?.landedOn
-      ).toBe("/login");
+      expect(control?.rejected).toBe(1);
+      expect(control?.landedOn).toBe(START);
     });
   });
+});
+
+describe("the session screens' hand-back after a successful submit", () => {
+  beforeEach(() => {
+    resetHost();
+  });
+
+  for (const screen of SCREENS) {
+    it(`takes the funnel's next step from ${screen.name}, and emits nothing`, async () => {
+      const rendered = await renderPage(screen.view);
+
+      await submit(rendered);
+
+      expect(navigateNext).toHaveBeenCalledTimes(1);
+      expect(rendered.page.emitted("resolve")).toBeUndefined();
+    });
+
+    it(`emits resolve from ${screen.name} in a funnel-free host, and stays put`, async () => {
+      host.hasFunnels = false;
+      const rendered = await renderPage(screen.view);
+
+      await submit(rendered);
+
+      expect(rendered.page.emitted("resolve")).toEqual([[]]);
+      expect(navigateNext).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+      expect(rendered.router.currentRoute.value.path).toBe(START);
+    });
+  }
 });

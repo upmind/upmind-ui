@@ -1,5 +1,5 @@
 <template>
-  <component :is="templateVariant" v-bind="props" v-if="!isResolving">
+  <component :is="templateVariant" v-bind="templateProps" v-if="!isResolving">
     <template #back>
       <slot name="back">
         <!-- One-page uses the compact "← Back" per the designs; other templates
@@ -63,9 +63,7 @@
     </template>
 
     <template #summary>
-      <slot name="summary">
-        <component :is="summaryComponent" v-if="summaryComponent" />
-      </slot>
+      <slot name="summary" v-bind="summarySlot" />
     </template>
   </component>
 </template>
@@ -76,40 +74,41 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
 import { Back } from "@upmind-automation/foundation";
-import { Section, useShellComponents } from "@upmind-automation/foundation";
+import { Section } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
-  useRoutingResolve,
   useActiveSession,
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import Auth from "./components/Auth.vue";
-import { AUTH_SHELL, useAuthTemplate } from "./shell";
+import { useAuthTemplate } from "./shell";
 import {
   type AuthProps,
   type AuthRecoverViewProps,
+  type AuthSummarySlotProps,
+  type AuthViewEmits,
   AUTH_TEMPLATE
 } from "./types";
 import { sessionFormWidthVariants } from "./variants";
+import { omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<AuthRecoverViewProps>();
+const emit = defineEmits<AuthViewEmits>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
 const { isAuthenticated } = useActiveSession().useMeta();
 const { isReady } = useActiveSession().useActions();
-const { navigate } = useRoutingEngine();
 const {
-  meta: resolveMeta,
-  navigateRejected,
-  navigateResolved
-} = useRoutingResolve({
-  rejectRoute: () => props.loginRoute
-});
+  navigateNext,
+  navigateBack,
+  navigate,
+  meta: routingMeta
+} = useRoutingEngine();
 
 const { ui } = useConfig({
   // The key must be present to opt out, or useConfig fetches the basket on every auth page.
@@ -134,11 +133,13 @@ const meta = computed(() => ({
   isInset: template.value === AUTH_TEMPLATE.INSET
 }));
 
-const shell = useShellComponents();
+const { component: templateVariant } = useAuthTemplate(
+  () => template.value,
+  () => props.templates
+);
+const templateProps = computed(() => omit(props, ["templates"]));
 
-const { component: templateVariant } = useAuthTemplate(() => template.value);
-
-const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
+const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
 
 function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {
@@ -154,17 +155,24 @@ function doUpdate(value: AuthProps["modelValue"]) {
 }
 
 function doReject() {
-  isResolving.value = true;
-  navigateRejected().catch(() => {
-    isResolving.value = false;
-  });
+  if (routingMeta.value.hasFunnels) {
+    isResolving.value = true;
+    navigateBack().catch(() => {
+      isResolving.value = false;
+    });
+  } else {
+    emit("reject");
+  }
 }
 
 function doResolve() {
-  if (!resolveMeta.value.hasResolve) return;
-  isResolving.value = true;
-  navigateResolved().catch(() => {
-    isResolving.value = false;
-  });
+  if (routingMeta.value.hasFunnels) {
+    isResolving.value = true;
+    navigateNext().catch(() => {
+      isResolving.value = false;
+    });
+  } else {
+    emit("resolve");
+  }
 }
 </script>

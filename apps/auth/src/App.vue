@@ -13,11 +13,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, watchEffect } from "vue";
+import { watchEffect } from "vue";
 import { UpmAuthLoading } from "@upmind-automation/auth";
-import { provideShellComponents } from "@upmind-automation/foundation";
 import { useBrand, useConfig } from "@upmind-automation/headless";
-import { AUTH_SHELL_COMPONENTS } from "./shell";
 import { useThemeAttribute } from "./useThemeAttribute";
 import { appRootVariants } from "./variants";
 
@@ -32,6 +30,4 @@ watchEffect(() => {
 
   if (brandId.value && themeId) set(themeId);
 });
-
-provideShellComponents(computed(() => AUTH_SHELL_COMPONENTS));
 </script>

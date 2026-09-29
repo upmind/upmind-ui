@@ -64,13 +64,11 @@ const ok = await auth.useActions().resolve({
   username: "jane@example.com",
   password: "s3cret-pass"
 });
-// ok === true → authenticated, and the active session holds the signed-in user (or, for recover, email sent)
+// ok === true → authenticated (or, for recover, email sent)
 // ok === false → failed; read useContext().errors
 ```
 
-**Returns:** `Promise<boolean>` — `false` when the attempt fails. Login, 2FA and register settle only after the session store promotes the session, and reject when the user load fails. Recover never waits.
-
-Catch the rejection when you await `resolve()`. An actor outside the host's `allowedScopes` is never promoted: while the active session stays a guest, its `resolve()` does not settle. When another signed-in session is already active, the wait ends at once.
+**Returns:** `Promise<boolean>` — resolves when the flow settles (success or error state), never rejects.
 
 ### `set(model)`
 

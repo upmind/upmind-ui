@@ -12,7 +12,7 @@ export default defineNuxtPlugin(() => {
   const { public: config } = useRuntimeConfig();
 
   void useUpmind.init({
-    allowedScopes: [AccessRoleTypes.CLIENT, AccessRoleTypes.GUEST],
+    allowedScopes: [AccessRoleTypes.CLIENT],
     debug: import.meta.dev,
     // No `platformUrl`: it sends every route to upmind.com when no brand resolves.
     pop: {

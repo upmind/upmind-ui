@@ -1,0 +1,18 @@
+# Negative control — the sign-in page draws its own interstitial over the
+# host's `loading` fill. A host that supplies its own hand-on screen never
+# sees it.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/auth-loading.test.ts
+#     "the login page > draws the host's fill in place of the template while the next step runs"
+
+diff --git a/packages/modules-auth/src/Login.vue b/packages/modules-auth/src/Login.vue
+--- a/packages/modules-auth/src/Login.vue
++++ b/packages/modules-auth/src/Login.vue
+@@ -1,5 +1,5 @@
+ <template>
+-  <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
++  <AuthLoading v-if="isResolving" />
+   <component :is="templateVariant" v-bind="templateProps" v-else>
+     <template #back>
+       <slot name="back">

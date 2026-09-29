@@ -40,8 +40,8 @@ import { Button } from "@upmind/ui";
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
+import { Icon } from "@upmind-automation/foundation";
 import { QUERY_PARAMS } from "@upmind-automation/headless";
-import { Icon } from "../../../../components/icon";
 import {
   productsFacetDrillDownItemsVariants,
   productsFacetDrillDownActionVariants,

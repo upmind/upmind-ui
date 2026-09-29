@@ -52,7 +52,7 @@ import { Button, Markdown } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import { TermsAndConditions } from "@upmind-automation/foundation";
-import { Icon } from "../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import {
   footerRootVariants,
   footerActionsVariants,

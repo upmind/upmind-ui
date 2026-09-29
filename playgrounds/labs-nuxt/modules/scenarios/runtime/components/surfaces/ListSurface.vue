@@ -437,7 +437,7 @@ import {
 import { computed, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { useFormI18n } from "@upmind-automation/client-vue";
+import { useFormI18n } from "@upmind-automation/foundation";
 import { SortDirection } from "@upmind-automation/headless";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
 import {

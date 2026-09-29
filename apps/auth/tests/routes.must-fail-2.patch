@@ -1,0 +1,21 @@
+# Negative control — the sign-in routes hand the pages a landing again. The
+# stand-alone sign-in app does nothing after a sign-in (O4); a landing here is
+# the navigation that ruling removed.
+#
+# Intended RED:
+#   apps/auth/tests/routes.test.ts
+#     "hands every sign-in route this app's templates, its three routes, and no landing"
+
+diff --git a/apps/auth/src/routes.ts b/apps/auth/src/routes.ts
+--- a/apps/auth/src/routes.ts
++++ b/apps/auth/src/routes.ts
+@@ -24,7 +24,8 @@ const authRouteProps = {
+   loginRoute: { name: AUTH_ROUTE.LOGIN },
+   registerRoute: { name: AUTH_ROUTE.REGISTER },
+   recoverRoute: { name: AUTH_ROUTE.RECOVER },
+-  templates: AUTH_TEMPLATES
++  templates: AUTH_TEMPLATES,
++  landingRoute: { name: AUTH_ROUTE.LANDING }
+ };
+ 
+ const meta = {

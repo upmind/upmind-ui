@@ -1,6 +1,6 @@
-import type { IconProps } from "../../../components/icon";
 import type { ButtonVariants } from "@upmind/ui";
 import type { AnimatedIconVariants } from "@upmind/ui";
+import type { IconProps } from "@upmind-automation/foundation";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // Mirrors @upmind/ui AnimatedIcon's public props (the lib doesn't

@@ -97,7 +97,7 @@ Key structural facts:
 
 ### Uses
 
-- `session-store` — `persistTokenToStorage`, `useSessionStore` (session check, `onLogout`, impersonation registry), `useActiveSession` (`resolve()` waits for the promoted session). Static one-way import.
+- `session-store` — `persistTokenToStorage`, `useSessionStore` (session check, `onLogout`, impersonation registry). Static one-way import.
 - `scope` — `createScopedComposable`, `ScopeActorTypes`, scope registry.
 - `query` — all HTTP (services only, never composables).
 - `brand` — `GUEST_CHECKOUT_ENABLED` config for the guest-register guard.

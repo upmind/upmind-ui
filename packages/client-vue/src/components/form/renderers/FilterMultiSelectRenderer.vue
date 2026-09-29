@@ -59,7 +59,7 @@ import {
   useUpmindUIRenderer
 } from "@upmind/ui";
 import { computed, inject, ref } from "vue";
-import { Icon } from "../../icon";
+import { Icon } from "@upmind-automation/foundation";
 import { filterMultiSelect } from "./FilterMultiSelectRenderer.styles";
 import { get, includes, isEmpty, size, without } from "lodash-es";
 import type {

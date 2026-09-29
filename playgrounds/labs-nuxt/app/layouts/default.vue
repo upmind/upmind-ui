@@ -111,13 +111,11 @@ import {
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  SESSION_SHELL_COMPONENTS,
   UpmOverlayController,
   useRoutingEngine,
   useActiveSession,
   useSessionStore
 } from "@upmind-automation/client-vue";
-import { provideShellComponents } from "@upmind-automation/foundation";
 import { filter, flatMap, includes, map, startsWith } from "lodash-es";
 import type { Component } from "vue";
 import type { RouteLocationRaw } from "vue-router";
@@ -130,8 +128,6 @@ import { SheetHost, usePlaygroundSheet } from "~/components/sheets";
 import { useNavigation } from "~/composables/useNavigation";
 import { ROUTE } from "~/funnels";
 // -----------------------------------------------------------------------------
-
-provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 
 /** One destination as the rail draws it. */
 type RailLink = {

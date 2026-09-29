@@ -14,11 +14,11 @@ import { useI18n } from "vue-i18n";
 import { Section } from "@upmind-automation/foundation";
 import { useBasket } from "@upmind-automation/headless";
 import Summary from "../../basket/components/Summary.vue";
-import type { SessionSummaryProps } from "./types";
+import type { AuthSummarySlotProps } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<SessionSummaryProps>();
+const props = defineProps<AuthSummarySlotProps>();
 
 const { t } = useI18n();
 const { meta: basketMeta } = useBasket();

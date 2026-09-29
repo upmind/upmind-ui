@@ -9,15 +9,13 @@
 #     "follows a theme change under the same brand id"
 
 diff --git a/apps/auth/src/App.vue b/apps/auth/src/App.vue
-index 7d0b8cfd31..c14cc4e7f8 100644
 --- a/apps/auth/src/App.vue
 +++ b/apps/auth/src/App.vue
-@@ -30,7 +30,7 @@ const { ui } = useConfig({ basket: undefined });
+@@ -28,6 +28,6 @@ const { ui } = useConfig({ basket: undefined });
  watchEffect(() => {
    const themeId = ui.theme.value;
  
 -  if (brandId.value && themeId) set(themeId);
 +  if (brandId.value && themeId) return;
  });
- 
- provideShellComponents(computed(() => AUTH_SHELL_COMPONENTS));
+ </script>

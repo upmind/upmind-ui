@@ -117,13 +117,15 @@ import {
   wrapperVariants
 } from "./variants";
 import {
+  assign,
   find,
   first,
   isFunction,
   isString,
   isNil,
   isEmpty,
-  kebabCase
+  kebabCase,
+  map
 } from "lodash-es";
 import type { SectionActionProps, SectionsProps } from "./types";
 import type { TabItem } from "@upmind/ui";
@@ -177,14 +179,14 @@ const meta = computed(() => {
 // The tab-{label} keys are the e2e contract; a section's own dataAttrs win.
 // A lone section degrades to a heading and keeps these hooks (Tabs routes them).
 const tabItems = computed<TabItem[]>(() =>
-  props.sections.map(section => ({
+  map(props.sections, section => ({
     value: section.value,
     label: section.label,
     eager: section.eager,
-    dataAttrs: {
-      "data-test-key": `tab-${kebabCase(section.label)}`,
-      ...section.dataAttrs
-    }
+    dataAttrs: assign(
+      { "data-test-key": `tab-${kebabCase(section.label)}` },
+      section.dataAttrs
+    )
   }))
 );
 

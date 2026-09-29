@@ -203,6 +203,7 @@ import { useRoute, useRouter } from "vue-router";
 import { UpmAuth as Auth } from "@upmind-automation/auth";
 import { Hero } from "@upmind-automation/foundation";
 import { Section } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useAccount,
   useTransfer,
@@ -216,7 +217,6 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 import { useAnnouncement } from "../../components/announcement/useAnnouncement";
-import { Icon } from "../../components/icon";
 import PaymentDetails from "../payment/components/PaymentDetails.vue";
 import PaymentProcessing from "../payment/components/PaymentProcessing.vue";
 import { useThemes } from "../theming";

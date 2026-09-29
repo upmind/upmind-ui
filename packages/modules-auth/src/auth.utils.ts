@@ -1,5 +1,6 @@
 import { computed, type Ref } from "vue";
 import { AUTH_TEMPLATE } from "./types";
+import { includes } from "lodash-es";
 
 const INACTIVE_SECTION_TEMPLATES: AUTH_TEMPLATE[] = [
   AUTH_TEMPLATE.SPLIT,
@@ -9,8 +10,8 @@ const INACTIVE_SECTION_TEMPLATES: AUTH_TEMPLATE[] = [
 
 export function useAuthTemplates(template: Ref<AUTH_TEMPLATE>) {
   const meta = computed(() => ({
-    hasActiveSection: !INACTIVE_SECTION_TEMPLATES.includes(template.value),
-    hasMarkdownSlot: INACTIVE_SECTION_TEMPLATES.includes(template.value),
+    hasActiveSection: !includes(INACTIVE_SECTION_TEMPLATES, template.value),
+    hasMarkdownSlot: includes(INACTIVE_SECTION_TEMPLATES, template.value),
     isSplit: template.value === AUTH_TEMPLATE.SPLIT
   }));
 

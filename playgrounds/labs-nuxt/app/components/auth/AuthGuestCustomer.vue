@@ -53,7 +53,7 @@
 import { Alert } from "@upmind/ui";
 import { computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import {
   ScopeActorTypes,
   useAuth,

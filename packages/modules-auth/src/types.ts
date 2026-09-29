@@ -1,7 +1,6 @@
-import type { AUTH_SHELL } from "./shell";
 import type { ButtonVariants } from "@upmind/ui";
 import type { CxOptions } from "class-variance-authority";
-import type { HTMLAttributes } from "vue";
+import type { Component, HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
@@ -70,13 +69,31 @@ export type AuthRoutes = {
   recoverRoute: RouteLocationAsRelativeGeneric;
 };
 
+/** The page templates the host hands the organisms, one per `AUTH_TEMPLATE`. */
+export type AuthTemplates = Record<AUTH_TEMPLATE, Component>;
+
 export type AuthRecoverViewProps = AuthRoutes & {
   template?: AUTH_TEMPLATE;
+  templates: AuthTemplates;
 };
 
-export type AuthViewProps = AuthRecoverViewProps & {
-  landingRoute?: RouteLocationAsRelativeGeneric;
+export type AuthViewProps = AuthRecoverViewProps;
+
+/** Emitted only when the host runs no funnel; with one, the page takes the funnel step. */
+export type AuthViewEmits = {
+  resolve: [];
+  reject: [];
 };
+
+export interface AuthSummarySlotProps {
+  showWhileLoading: boolean;
+}
+
+export interface AuthGuestCheckoutSlotProps {
+  registerAsGuest: () => void;
+  isRegistering?: boolean;
+  class?: string;
+}
 
 export type AuthActionProps = AuthRoutes & {
   shape?: string;
@@ -91,5 +108,3 @@ export enum AUTH_TEMPLATE {
   TWO_COLUMN_RTL = "two-column-rtl",
   INSET = "inset"
 }
-
-export type AuthShellSlot = (typeof AUTH_SHELL)[keyof typeof AUTH_SHELL];

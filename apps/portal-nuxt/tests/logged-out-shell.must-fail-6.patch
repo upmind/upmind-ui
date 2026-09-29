@@ -1,0 +1,19 @@
+# Negative control — the logged-out layout draws its own copy of the store
+# shortcut again instead of the one component the auth templates draw. The two
+# drift: a fix to one frame's shortcut misses the other.
+#
+# Intended RED (tests/logged-out-shell.test.ts):
+#   "the logged-out layout > the store shortcut > draws the one store component both frames share"
+
+diff --git a/apps/portal-nuxt/app/layouts/logged-out.vue b/apps/portal-nuxt/app/layouts/logged-out.vue
+--- a/apps/portal-nuxt/app/layouts/logged-out.vue
++++ b/apps/portal-nuxt/app/layouts/logged-out.vue
+@@ -65,7 +65,7 @@ watch(activeConfig, config => setTheme(config.theme ?? "upmind"), {
+     <AuthShell variant="centered" skip-label="Skip to content">
+       <template #header>
+         <PortalBrand :label="brandName" to="/login" />
+-        <PortalAuthStore />
++        <a data-test-key="logged-out-store" href="/order">Place new order</a>
+       </template>
+ 
+       <div :class="LOGGED_OUT_COLUMN_CLASS">

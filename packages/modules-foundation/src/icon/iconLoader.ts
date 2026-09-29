@@ -20,7 +20,11 @@ import {
   last,
   includes,
   every,
-  find
+  find,
+  forEach,
+  indexOf,
+  isUndefined,
+  size
 } from "lodash-es";
 import type { IconEntry, IconImportMap, LoadIconOptions } from "./types";
 // -----------------------------------------------------------------------------
@@ -67,7 +71,7 @@ export function registerIcons(importMap: IconImportMap): void {
   iconMap.value = [];
   iconsByName.value = {};
 
-  toPairs(importMap).forEach(([fullPath, loader]) => {
+  forEach(toPairs(importMap), ([fullPath, loader]) => {
     const filename = last(split(fullPath, /[/\\]/));
     if (!filename || !filename.endsWith(".svg")) return;
 
@@ -75,7 +79,7 @@ export function registerIcons(importMap: IconImportMap): void {
     const name = filename.slice(0, -4);
 
     const segments = split(fullPath, /[/\\]/);
-    const packsIndex = segments.indexOf("packs");
+    const packsIndex = indexOf(segments, "packs");
 
     // "packs/<variant>/…" → variant; anything else (flags, providers) is root
     const pack =
@@ -107,8 +111,8 @@ export const hasRegisteredIcons: ComputedRef<boolean> = computed(
 );
 
 /** Reactive count of registered icons. */
-export const getIconCount: ComputedRef<number> = computed(
-  () => iconMap.value.length
+export const getIconCount: ComputedRef<number> = computed(() =>
+  size(iconMap.value)
 );
 
 /**
@@ -200,7 +204,7 @@ const findIcon = (
     if (pack) {
       if (entry.pack !== pack) return false;
     } else {
-      if (entry.pack !== undefined) return false;
+      if (!isUndefined(entry.pack)) return false;
     }
 
     if (path) {

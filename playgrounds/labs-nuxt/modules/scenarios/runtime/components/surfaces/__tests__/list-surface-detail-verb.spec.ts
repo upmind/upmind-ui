@@ -20,7 +20,7 @@
 
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { UpmForm } from "@upmind-automation/client-vue";
+import { Form } from "@upmind-automation/foundation";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { RESOLVED_HANDOFFS } from "../../__tests__/resolved-handoffs";
@@ -104,7 +104,7 @@ describe("the detail verb opens the read overlay", () => {
     await openView(wrapper, 0);
 
     expect(editors(wrapper)).toHaveLength(0);
-    expect(overlays(wrapper)[0].findComponent(UpmForm).exists()).toBe(false);
+    expect(overlays(wrapper)[0].findComponent(Form).exists()).toBe(false);
     expect(document.body.querySelector('[data-test-value="save"]')).toBeNull();
   });
 

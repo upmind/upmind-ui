@@ -88,8 +88,7 @@ import { enumToEnumOptionMapper, toDataPath } from "@jsonforms/core";
 import { Badge, Button, Link } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
-import { useFormI18n } from "@upmind-automation/client-vue";
+import { Icon, useFormI18n } from "@upmind-automation/foundation";
 import { declaredPairs } from "../composables/useCriteriaUrlSync.utils";
 import { refinementsRow } from "./RefinementsRow.styles";
 import {

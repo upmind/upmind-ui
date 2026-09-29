@@ -40,11 +40,11 @@ import {
 } from "@upmind-automation/headless";
 import { offersGuestCheckout } from "../guest-checkout.utils";
 // --- types
-import type { GuestCheckoutOfferProps } from "../types";
+import type { AuthGuestCheckoutSlotProps } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<GuestCheckoutOfferProps>();
+const props = defineProps<AuthGuestCheckoutSlotProps>();
 
 // -----------------------------------------------------------------------------
 

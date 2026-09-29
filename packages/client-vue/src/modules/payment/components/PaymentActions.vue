@@ -32,7 +32,7 @@ import { Button, Markdown } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { TermsAndConditions } from "@upmind-automation/foundation";
-import { Icon } from "../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import {
   footerRootVariants,
   footerActionsVariants,

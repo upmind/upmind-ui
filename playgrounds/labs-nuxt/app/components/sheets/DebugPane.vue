@@ -104,7 +104,7 @@ import {
 } from "@upmind/ui";
 import { computed, unref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { ScopeContextPatterns } from "@upmind-automation/headless";
 import ContextPanel from "../../../modules/scenarios/runtime/components/ContextPanel.vue";
 import MetaPanel from "../../../modules/scenarios/runtime/components/MetaPanel.vue";

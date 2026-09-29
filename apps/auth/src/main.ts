@@ -1,6 +1,6 @@
 import "./main.css";
 import { createApp } from "vue";
-import { FORM_RENDERERS, registerIcons } from "@upmind-automation/foundation";
+import { registerIcons } from "@upmind-automation/foundation";
 import useUpmind from "@upmind-automation/headless";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import App from "./App.vue";
@@ -44,7 +44,5 @@ void useUpmind.init({
 });
 
 const app = createApp(App).use(i18n).use(router);
-
-app.provide(FORM_RENDERERS, []);
 
 app.mount("#app");

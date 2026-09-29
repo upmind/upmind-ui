@@ -1,16 +1,5 @@
 # Changelog — Routing Module
 
-## [Resolve and reject routes] - 2026-09-26
-
-### Added
-
-- **`useRoutingResolve(options?)`** — takes the funnel step (`navigateNext` / `navigateBack`) when the host registers funnels, else pushes the given `resolveRoute` / `rejectRoute`. Its `meta.hasResolve` / `meta.hasReject` tell a view whether to show the control.
-- **`RoutingResolveOptions`** type.
-
-### Notes
-
-- The auth views used this logic from the auth UI package. It moved here unchanged, with the resolve route passed as an option.
-
 ## [Unreleased] - 2026-07-27
 
 ### Added

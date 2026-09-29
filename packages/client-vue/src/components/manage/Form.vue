@@ -65,7 +65,7 @@ import { Alert } from "@upmind/ui";
 import { onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { Form as UpmForm } from "@upmind-automation/foundation";
-import { Icon } from "../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import OverlayContainer from "../overlays/OverlayContainer.vue";
 import Actions from "./Actions.vue";
 import Skeleton from "./Skeleton.vue";

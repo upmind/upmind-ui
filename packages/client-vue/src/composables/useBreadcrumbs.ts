@@ -2,7 +2,7 @@ import { computed, type MaybeRefOrGetter, toValue } from "vue";
 import { useI18n } from "vue-i18n";
 import { BreadcrumbVariant, QUERY_PARAMS } from "@upmind-automation/headless";
 import { has } from "lodash-es";
-import type { StorefrontRoute } from "../types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // The new UI lib's Breadcrumb is compositional and exposes no variant type, so

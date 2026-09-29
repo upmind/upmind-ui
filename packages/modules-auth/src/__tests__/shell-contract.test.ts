@@ -1,109 +1,118 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The shell slots this package asks its host for.
+ * @fileoverview The page templates each auth page takes from the page that mounts it.
  *
  * ## Job To Be Done
- * Every session template names a published slot, and a host filling those names is reachable.
+ * Each page draws the host's template for the brand's chosen arrangement, hands
+ * it the page's props but not the record, and names the arrangement when the
+ * record has no entry for it.
  *
  * ## What Breaks If These Fail
- * A host that fills the published names still resolves nothing, and auth renders with no page.
+ * A page draws the wrong arrangement, leaks the record onto the template, or
+ * renders nothing with no clue which template the host left out.
  */
 
-import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
-import { computed, defineComponent, h } from "vue";
-import {
-  provideShellComponents,
-  useShellComponents
-} from "@upmind-automation/foundation";
-import { AUTH_SHELL, AUTH_TEMPLATE_SLOT } from "../shell";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import LoginView from "../Login.vue";
+import RecoverPasswordView from "../RecoverPassword.vue";
+import RegisterView from "../Register.vue";
 import { AUTH_TEMPLATE } from "../types";
-import type { ShellComponents } from "@upmind-automation/foundation";
-import type { Component } from "vue";
+import {
+  FormStub,
+  ROUTES,
+  host,
+  recordWithout,
+  renderPage,
+  resetHost,
+  seen,
+  templateDrawn
+} from "./support/auth-host";
+import { find, includes, isError, some, values } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const TEMPLATES = Object.values(AUTH_TEMPLATE);
-const PUBLISHED_SLOTS = Object.values(AUTH_SHELL);
-const TEMPLATE_SLOTS = TEMPLATES.map(template => AUTH_TEMPLATE_SLOT[template]);
+vi.mock("../../../headless/src/modules/routing/useRoutingEngine", () =>
+  import("./support/auth-host").then(support => support.routingEngine())
+);
 
-function hostFilling(slots: string[]): ShellComponents {
-  const filled: ShellComponents = {};
-  for (const slot of slots) {
-    filled[slot] = defineComponent({
-      setup: () => () => h("div", { "data-slot": slot })
+vi.mock("@upmind-automation/headless", async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  const support = await import("./support/auth-host");
+  const { assign } = await import("lodash-es");
+  return assign({}, actual, support.headlessOverrides());
+});
+
+vi.mock("@upmind-automation/foundation", async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  const support = await import("./support/auth-host");
+  const { assign } = await import("lodash-es");
+  return assign({}, actual, { Form: support.FormStub });
+});
+
+const SCREENS = [
+  { name: "login", view: LoginView },
+  { name: "register", view: RegisterView },
+  { name: "recovery", view: RecoverPasswordView }
+] as const;
+
+const ARRANGEMENTS = values(AUTH_TEMPLATE);
+
+// -----------------------------------------------------------------------------
+
+describe("the page templates an auth page takes from its host", () => {
+  beforeEach(() => {
+    resetHost();
+  });
+
+  for (const screen of SCREENS) {
+    describe(`the ${screen.name} page`, () => {
+      it.each(ARRANGEMENTS)(
+        "draws the host's template when the brand picks %s",
+        async arrangement => {
+          host.brandTemplate = arrangement;
+
+          const rendered = await renderPage(screen.view);
+
+          expect(templateDrawn(rendered)).toBe(arrangement);
+          expect(rendered.errors).toEqual([]);
+        }
+      );
+
+      it("hands the template its routes, and not the record", async () => {
+        host.brandTemplate = AUTH_TEMPLATE.SPLIT;
+
+        await renderPage(screen.view);
+        const drawn = find(seen, { name: AUTH_TEMPLATE.SPLIT });
+
+        expect(drawn?.props).toMatchObject(ROUTES);
+        expect(drawn?.attrs).not.toHaveProperty("templates");
+      });
+
+      it("draws the page's own form inside the template", async () => {
+        host.brandTemplate = AUTH_TEMPLATE.ENCLOSED;
+
+        const rendered = await renderPage(screen.view);
+
+        expect(rendered.wrapper.findComponent(FormStub).exists()).toBe(true);
+      });
+
+      it("names the arrangement the host left out of its record", async () => {
+        host.brandTemplate = AUTH_TEMPLATE.CANVAS_CARD;
+
+        const rendered = await renderPage(screen.view, {
+          templates: recordWithout(AUTH_TEMPLATE.CANVAS_CARD)
+        });
+
+        expect(templateDrawn(rendered)).toBeUndefined();
+        expect(
+          some(
+            rendered.errors,
+            error =>
+              isError(error) &&
+              includes(error.message, AUTH_TEMPLATE.CANVAS_CARD)
+          )
+        ).toBe(true);
+      });
     });
   }
-  return filled;
-}
-
-function resolveUnderHost(slots: string[], host?: ShellComponents) {
-  const resolved: Record<string, Component | undefined> = {};
-  const Probe = defineComponent({
-    setup() {
-      const shell = useShellComponents();
-      for (const slot of slots) resolved[slot] = shell.resolve(slot);
-      return () => null;
-    }
-  });
-  const Harness = defineComponent({
-    setup() {
-      if (host) provideShellComponents(computed(() => host));
-      return () => h(Probe);
-    }
-  });
-
-  mount(Harness);
-  return resolved;
-}
-
-describe("the auth shell contract", () => {
-  it("names a slot for every session template", () => {
-    for (const template of TEMPLATES) {
-      expect(AUTH_TEMPLATE_SLOT[template]).toBeTruthy();
-    }
-  });
-
-  it("names only published slots", () => {
-    for (const slot of TEMPLATE_SLOTS) {
-      expect(PUBLISHED_SLOTS).toContain(slot);
-    }
-  });
-
-  it("gives each template its own slot", () => {
-    expect(new Set(TEMPLATE_SLOTS).size).toBe(TEMPLATES.length);
-  });
-
-  it("keeps the interstitial and the basket summary off the template map", () => {
-    expect(TEMPLATE_SLOTS).not.toContain(AUTH_SHELL.LOADING);
-    expect(TEMPLATE_SLOTS).not.toContain(AUTH_SHELL.SUMMARY);
-  });
-
-  it("reaches the host component behind every published slot", () => {
-    const host = hostFilling(PUBLISHED_SLOTS);
-
-    const resolved = resolveUnderHost(PUBLISHED_SLOTS, host);
-
-    for (const slot of PUBLISHED_SLOTS) {
-      expect(resolved[slot]).toBe(host[slot]);
-    }
-  });
-
-  it("resolves nothing when the host offers no shell", () => {
-    const resolved = resolveUnderHost(PUBLISHED_SLOTS);
-
-    for (const slot of PUBLISHED_SLOTS) {
-      expect(resolved[slot]).toBeUndefined();
-    }
-  });
-
-  it("resolves nothing for a slot this package never publishes", () => {
-    const host = hostFilling(["auth:template:not-a-slot"]);
-
-    const resolved = resolveUnderHost(PUBLISHED_SLOTS, host);
-
-    for (const slot of PUBLISHED_SLOTS) {
-      expect(resolved[slot]).toBeUndefined();
-    }
-  });
 });

@@ -25,13 +25,15 @@ import { mount } from "@vue/test-utils";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { createI18n } from "vue-i18n";
+import { useFormI18n } from "@upmind-automation/foundation";
 import { useValidation } from "@upmind-automation/headless";
-import { UpmForm } from "../index";
 import { catalogue, messages } from "../renderers/__tests__/filter.harness";
-import { useFormI18n } from "../useFormI18n";
 import { cloneDeep, map, set } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { VueWrapper } from "@vue/test-utils";
+
+// `@upmind/ui` also exports a `Form` (the bare engine), so the wrapper is read by name.
+const { Form: UpmForm } = await import("@upmind-automation/foundation");
 
 const sentinel = vi.hoisted(() => ({
   countries: [

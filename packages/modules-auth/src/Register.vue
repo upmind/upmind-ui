@@ -1,12 +1,12 @@
 <template>
-  <component :is="loading" v-if="isResolving" />
-  <component :is="templateVariant" v-bind="props" v-else>
+  <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
+  <component :is="templateVariant" v-bind="templateProps" v-else>
     <template #back>
       <slot name="back">
         <!-- One-page uses the compact "← Back" per the designs; other templates
              keep the default "Back to basket". -->
         <Back
-          v-if="resolveMeta.hasReject"
+          v-if="routingMeta.hasFunnels"
           :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
           :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
           size="md"
@@ -81,13 +81,7 @@
             :model-value="registerTemplate.body"
           />
 
-          <component
-            :is="guestCheckout"
-            v-if="guestCheckout"
-            :class="guestCheckoutVariants({ template })"
-            :register-as-guest="registerAsGuest"
-            :is-registering="isRegisteringAsGuest"
-          />
+          <slot name="guest-checkout" v-bind="guestCheckoutSlot" />
 
           <Account
             v-if="isGuestClient"
@@ -156,13 +150,7 @@
     </template>
 
     <template v-if="ui.basketSummary.isVisible" #summary>
-      <slot name="summary">
-        <component
-          :is="summaryComponent"
-          v-if="summaryComponent"
-          show-while-loading
-        />
-      </slot>
+      <slot name="summary" v-bind="summarySlot" />
     </template>
 
     <template
@@ -185,10 +173,9 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
 import { Back } from "@upmind-automation/foundation";
-import { Section, useShellComponents } from "@upmind-automation/foundation";
+import { Section } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
-  useRoutingResolve,
   useActiveSession,
   useAuth,
   ScopeActorTypes,
@@ -204,18 +191,28 @@ import {
 import { useAuthTemplates } from "./auth.utils";
 import Account from "./components/Account.vue";
 import Auth from "./components/Auth.vue";
-import { AUTH_SHELL, useAuthLoading, useAuthTemplate } from "./shell";
-import { type AuthProps, type AuthViewProps, AUTH_TEMPLATE } from "./types";
+import AuthLoading from "./components/AuthLoading.vue";
+import { useAuthTemplate } from "./shell";
+import {
+  type AuthGuestCheckoutSlotProps,
+  type AuthProps,
+  type AuthSummarySlotProps,
+  type AuthViewEmits,
+  type AuthViewProps,
+  AUTH_TEMPLATE
+} from "./types";
 import {
   guestCheckoutVariants,
   markdownVariants,
   sessionFormWidthVariants,
   sessionSubtitleVariants
 } from "./variants";
+import { omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<AuthViewProps>();
+const emit = defineEmits<AuthViewEmits>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
@@ -231,12 +228,12 @@ function registerAsGuest() {
   if ("registerAsGuest" in authActions)
     return authActions?.registerAsGuest().then(() => doResolve());
 }
-const { navigate } = useRoutingEngine();
 const {
-  meta: resolveMeta,
-  navigateRejected,
-  navigateResolved
-} = useRoutingResolve({ resolveRoute: () => props.landingRoute });
+  navigateNext,
+  navigateBack,
+  navigate,
+  meta: routingMeta
+} = useRoutingEngine();
 const { brandId } = useBrand();
 
 const { ui } = useConfig({
@@ -266,13 +263,18 @@ const meta = computed(() => ({
   isInset: template.value === AUTH_TEMPLATE.INSET
 }));
 
-const shell = useShellComponents();
+const { component: templateVariant } = useAuthTemplate(
+  () => template.value,
+  () => props.templates
+);
+const templateProps = computed(() => omit(props, ["templates"]));
 
-const { component: templateVariant } = useAuthTemplate(() => template.value);
-
-const summaryComponent = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
-const guestCheckout = computed(() => shell.resolve(AUTH_SHELL.GUEST_CHECKOUT));
-const { component: loading } = useAuthLoading();
+const summarySlot: AuthSummarySlotProps = { showWhileLoading: true };
+const guestCheckoutSlot = computed<AuthGuestCheckoutSlotProps>(() => ({
+  registerAsGuest,
+  isRegistering: isRegisteringAsGuest.value,
+  class: guestCheckoutVariants({ template: template.value })
+}));
 const { meta: templateMeta } = useAuthTemplates(template);
 
 function doUpdate(value: AuthProps["modelValue"]) {
@@ -289,18 +291,25 @@ function doUpdate(value: AuthProps["modelValue"]) {
 }
 
 function doReject() {
-  isResolving.value = true;
-  navigateRejected().catch(() => {
-    isResolving.value = false;
-  });
+  if (routingMeta.value.hasFunnels) {
+    isResolving.value = true;
+    navigateBack().catch(() => {
+      isResolving.value = false;
+    });
+  } else {
+    emit("reject");
+  }
 }
 
 function doResolve() {
-  if (!resolveMeta.value.hasResolve) return;
   if (isResolving.value) return;
-  isResolving.value = true;
-  navigateResolved().catch(() => {
-    isResolving.value = false;
-  });
+  if (routingMeta.value.hasFunnels) {
+    isResolving.value = true;
+    navigateNext().catch(() => {
+      isResolving.value = false;
+    });
+  } else {
+    emit("resolve");
+  }
 }
 </script>

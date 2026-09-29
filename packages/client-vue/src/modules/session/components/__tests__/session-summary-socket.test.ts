@@ -1,100 +1,49 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The basket-summary aside at the `auth:summary` shell socket.
+ * @fileoverview The session templates and the basket-summary aside the cart hands the auth pages.
  *
  * ## Job To Be Done
- * A host with commerce fills the socket and gets the aside; one without gets no aside or fetch.
+ * The record holds one template for every arrangement a brand can pick and
+ * nothing else; the aside the cart puts in the `summary` slot is this package's
+ * own component, not a template.
  *
  * ## What Breaks If These Fail
- * An unfilled socket renders nothing and raises nothing: every checkout screen loses its summary.
+ * A brand's chosen arrangement has no page, or the basket summary is drawn as a
+ * page template.
  */
 
-import { mount } from "@vue/test-utils";
-import { beforeAll, describe, expect, it } from "vitest";
-import { computed, defineComponent, h } from "vue";
-import type { Component, ComputedRef } from "vue";
+import { describe, expect, it } from "vitest";
+import { AUTH_TEMPLATE } from "@upmind-automation/auth";
+import { includes, keys, sortBy, values } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const HostFiller = defineComponent({
-  setup: () => () => h("div", { "data-host": "filler" })
-});
-
-async function summaryUnderHost(host?: Record<string, Component>) {
-  let resolved: ComputedRef<Component | undefined> | undefined;
-  const { AUTH_SHELL } = await import("@upmind-automation/auth");
-  const { provideShellComponents, useShellComponents } =
-    await import("@upmind-automation/foundation");
-
-  const Organism = defineComponent({
-    setup() {
-      const shell = useShellComponents();
-      resolved = computed(() => shell.resolve(AUTH_SHELL.SUMMARY));
-      return () => null;
-    }
-  });
-  const Host = defineComponent({
-    setup() {
-      if (host) provideShellComponents(computed(() => host));
-      return () => h(Organism);
-    }
-  });
-
-  mount(Host);
-  return () => resolved?.value;
+async function sessionBarrel() {
+  return import("../../index");
 }
 
-async function shellComponents() {
-  const { SESSION_SHELL_COMPONENTS } = await import("../../shell");
-  return SESSION_SHELL_COMPONENTS;
-}
+describe("the session templates and the summary aside", () => {
+  it("holds a template for every arrangement a brand can pick", async () => {
+    const { SESSION_TEMPLATES } = await sessionBarrel();
 
-describe("the basket-summary aside at the auth socket", () => {
-  beforeAll(async () => {
-    await summaryUnderHost(await shellComponents());
+    for (const arrangement of values(AUTH_TEMPLATE)) {
+      expect(SESSION_TEMPLATES[arrangement], arrangement).toBeTruthy();
+    }
   }, 30000);
 
-  it("fills the slot the session views ask for", async () => {
-    const { AUTH_SHELL } = await import("@upmind-automation/auth");
+  it("holds nothing but the arrangements", async () => {
+    const { SESSION_TEMPLATES } = await sessionBarrel();
 
-    expect((await shellComponents())[AUTH_SHELL.SUMMARY]).toBeTruthy();
+    expect(sortBy(keys(SESSION_TEMPLATES))).toEqual(
+      sortBy(values(AUTH_TEMPLATE))
+    );
   });
 
-  it("hands the organism this package's own aside, not a template", async () => {
+  it("hands the summary slot this package's own aside, not a template", async () => {
+    const { SESSION_TEMPLATES, UpmSessionSummary } = await sessionBarrel();
     const { default: SessionSummary } = await import("../SessionSummary.vue");
 
-    const slot = await summaryUnderHost(await shellComponents());
-
-    expect(slot()).toBe(SessionSummary);
-  });
-
-  it("resolves nothing when the host fills every other auth slot but this one", async () => {
-    const { AUTH_SHELL } = await import("@upmind-automation/auth");
-    const partial: Record<string, Component> = {};
-    for (const name of Object.values(AUTH_SHELL)) {
-      if (name === AUTH_SHELL.SUMMARY) continue;
-      partial[name] = HostFiller;
-    }
-
-    const slot = await summaryUnderHost(partial);
-
-    expect(slot()).toBeUndefined();
-  });
-
-  it("resolves nothing when the host offers no shell at all", async () => {
-    const slot = await summaryUnderHost();
-
-    expect(slot()).toBeUndefined();
-  });
-
-  it("lets a host override the aside with its own", async () => {
-    const { AUTH_SHELL } = await import("@upmind-automation/auth");
-
-    const slot = await summaryUnderHost({
-      ...(await shellComponents()),
-      [AUTH_SHELL.SUMMARY]: HostFiller
-    });
-
-    expect(slot()).toBe(HostFiller);
+    expect(UpmSessionSummary).toBe(SessionSummary);
+    expect(includes(values(SESSION_TEMPLATES), UpmSessionSummary)).toBe(false);
   });
 });

@@ -29,7 +29,7 @@ import {
   headerImageVariants,
   headerNameVariants
 } from "./variants";
-import type { StorefrontRoute } from "../../types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 
 const { name, image } = useBrand();
 

@@ -1,5 +1,5 @@
 import { computed, ref } from "vue";
-import { isEmpty, isObject, merge } from "lodash-es";
+import { clone, isEmpty, isObject, merge } from "lodash-es";
 import type { UseSectionProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -11,7 +11,7 @@ const defaultSectionProps: UseSectionProps = {
   inset: false
 };
 
-const config = ref<UseSectionProps>({ ...defaultSectionProps });
+const config = ref<UseSectionProps>(clone(defaultSectionProps));
 
 // -----------------------------------------------------------------------------
 /**

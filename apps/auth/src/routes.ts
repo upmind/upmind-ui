@@ -8,7 +8,10 @@ import {
   UpmAuthRecoverPassword,
   UpmAuthRegister
 } from "@upmind-automation/auth";
-import type { RouteLocationNormalized, RouteRecordRaw } from "vue-router";
+// `./router` imports this file; headless holds the same router instance.
+import { router } from "@upmind-automation/headless";
+import { AUTH_TEMPLATES } from "./shell";
+import type { RouteRecordRaw } from "vue-router";
 
 export const AUTH_ROUTE = {
   ROOT: "auth",
@@ -19,19 +22,23 @@ export const AUTH_ROUTE = {
   LANDING: "signed-in"
 } as const;
 
-const sessionRouteProps = {
+const authRouteProps = {
   loginRoute: { name: AUTH_ROUTE.LOGIN },
   registerRoute: { name: AUTH_ROUTE.REGISTER },
-  recoverRoute: { name: AUTH_ROUTE.RECOVER }
+  recoverRoute: { name: AUTH_ROUTE.RECOVER },
+  templates: AUTH_TEMPLATES
 };
 
-// The landing takes the query, so it can hand the visitor back to `returnUrl`.
-function signInRouteProps(route: RouteLocationNormalized) {
-  const { loginRoute, registerRoute, recoverRoute } = sessionRouteProps;
-  const landingRoute = { name: AUTH_ROUTE.LANDING, query: route.query };
+const { loginRoute, registerRoute, recoverRoute, templates } = authRouteProps;
 
-  return { loginRoute, registerRoute, recoverRoute, landingRoute };
-}
+// No funnel runs here, so this listener is the recovery page's only way back to login.
+const recoverRouteProps = {
+  loginRoute,
+  registerRoute,
+  recoverRoute,
+  templates,
+  onReject: () => router.push(loginRoute)
+};
 
 const meta = {
   allowOverlays: false
@@ -54,7 +61,7 @@ export const authRoutes: RouteRecordRaw[] = [
         path: "login",
         name: AUTH_ROUTE.LOGIN,
         component: UpmAuthLogin,
-        props: signInRouteProps,
+        props: authRouteProps,
         meta: signInMeta
       },
       {
@@ -62,14 +69,14 @@ export const authRoutes: RouteRecordRaw[] = [
         name: AUTH_ROUTE.REGISTER,
         alias: ["signup"],
         component: UpmAuthRegister,
-        props: signInRouteProps,
+        props: authRouteProps,
         meta: signInMeta
       },
       {
         path: "recover",
         name: AUTH_ROUTE.RECOVER,
         component: UpmAuthRecoverPassword,
-        props: () => sessionRouteProps,
+        props: recoverRouteProps,
         meta: signInMeta
       },
       {

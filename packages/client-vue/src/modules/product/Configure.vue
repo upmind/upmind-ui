@@ -235,6 +235,7 @@ import { useClipboard } from "@vueuse/core";
 import { computed, onUnmounted, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { Section } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   useBasketProductsPending,
@@ -248,7 +249,6 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { BreadcrumbVariant } from "@upmind-automation/headless";
-import { Icon } from "../../components/icon";
 import { isMobile } from "../../composables/isMobile";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";

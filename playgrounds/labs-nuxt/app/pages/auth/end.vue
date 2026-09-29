@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmAuthLogout } from "@upmind-automation/client-vue";
+import { UpmAuthLogout } from "@upmind-automation/auth";
 import { ROUTE } from "~/funnels/types";
 
 const { t } = useI18n();

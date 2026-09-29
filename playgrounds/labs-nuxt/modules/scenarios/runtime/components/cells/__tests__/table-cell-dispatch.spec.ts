@@ -20,7 +20,7 @@ import { Badge } from "@upmind/ui";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { createI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import text from "@upmind-automation/i18n/core/text-en.json";
 import { defaultRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";

@@ -1,5 +1,5 @@
 @import "@upmind/ui/styles";
+@import "@upmind-automation/auth/styles";
+@import "@upmind-automation/foundation/styles";
 
 @source './**/*.{html,vue,js,tsx,ts}';
-@source '../../../packages/modules-auth/src/**/*.{html,vue,js,tsx,ts}';
-@source '../../../packages/modules-foundation/src/**/*.{html,vue,js,tsx,ts}';

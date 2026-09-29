@@ -61,6 +61,7 @@ import { Interstitial, Button } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useProductRecommendations,
   useQueryParams,
@@ -68,7 +69,6 @@ import {
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
-import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Configure from "../recommendations/components/Configure.vue";

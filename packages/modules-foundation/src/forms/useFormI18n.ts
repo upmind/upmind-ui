@@ -1,10 +1,8 @@
+import RandExp from "randexp";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  useValidationTranslator,
-  withPatternExample
-} from "@upmind-automation/headless";
-import { isEmpty, isFunction, trimStart } from "lodash-es";
+import { useValidationTranslator } from "@upmind-automation/headless";
+import { assign, isEmpty, isFunction, trimStart } from "lodash-es";
 import type { FormI18n } from "./useFormI18n.types";
 
 export type { FormI18n } from "./useFormI18n.types";
@@ -33,7 +31,16 @@ export const useFormI18n = () => {
         if (key.startsWith("validation.")) {
           const validationKey = trimStart(key, "validation.");
 
-          data = withPatternExample(validationKey, data);
+          // Handle pattern errors: show a human-readable example instead of the raw regex
+          if (validationKey === "pattern" && data?.pattern) {
+            try {
+              const randexp = new RandExp(data.pattern);
+              randexp.randInt = (from: number) => from;
+              data = assign({}, data, { pattern: randexp.gen() });
+            } catch {
+              // fallback: keep raw pattern if regex parsing fails
+            }
+          }
 
           return useValidationTranslator(key, defaultMessage, data ?? {});
         }

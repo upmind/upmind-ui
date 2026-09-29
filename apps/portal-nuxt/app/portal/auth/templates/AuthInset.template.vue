@@ -20,10 +20,10 @@
 
 <script setup lang="ts">
 import { AuthShell, Card } from "@upmind/ui";
+import { useBrand } from "@upmind-automation/headless";
 import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";
 import PortalAuthStore from "../PortalAuthStore.vue";
-import { useMockBrandGates } from "~/portal/mock/gates";
 import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
 import type { AuthRoutes } from "@upmind-automation/auth";
 
@@ -31,5 +31,5 @@ defineProps<AuthRoutes>();
 
 defineOptions({ inheritAttrs: false });
 
-const { hasUpmindBranding } = useMockBrandGates();
+const { hasUpmindBranding } = useBrand();
 </script>

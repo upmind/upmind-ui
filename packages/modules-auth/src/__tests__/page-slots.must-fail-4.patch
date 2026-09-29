@@ -1,0 +1,19 @@
+# Negative control — the offer never learns that a guest registration runs,
+# so it keeps taking clicks and starts a second one.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/page-slots.test.ts
+#     "tells the offer while the guest registration runs"
+
+diff --git a/packages/modules-auth/src/Register.vue b/packages/modules-auth/src/Register.vue
+--- a/packages/modules-auth/src/Register.vue
++++ b/packages/modules-auth/src/Register.vue
+@@ -272,7 +272,7 @@ const templateProps = computed(() => omit(props, ["templates"]));
+ const summarySlot: AuthSummarySlotProps = { showWhileLoading: true };
+ const guestCheckoutSlot = computed<AuthGuestCheckoutSlotProps>(() => ({
+   registerAsGuest,
+-  isRegistering: isRegisteringAsGuest.value,
++  isRegistering: false,
+   class: guestCheckoutVariants({ template: template.value })
+ }));
+ const { meta: templateMeta } = useAuthTemplates(template);

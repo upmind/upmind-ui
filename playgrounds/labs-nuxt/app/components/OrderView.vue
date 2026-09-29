@@ -184,7 +184,7 @@
         >
           <template #icon><Icon icon="user-plus-01" /></template>
         </Alert>
-        <Auth
+        <UpmAuth
           v-else
           no-tabs
           no-header
@@ -205,7 +205,8 @@ import { Alert, type AlertProps } from "@upmind/ui";
 import { computed, onUnmounted, provide, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { Icon } from "@upmind-automation/client-vue";
+import { UpmAuth } from "@upmind-automation/auth";
+import { Hero, Icon, Section } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
 import {
   useAccount,
@@ -219,8 +220,6 @@ import {
   type Badge
 } from "@upmind-automation/headless";
 import { useAnnouncement } from "../../../../packages/client-vue/src/components/announcement/useAnnouncement";
-import Hero from "../../../../packages/client-vue/src/components/hero/Hero.vue";
-import Section from "../../../../packages/client-vue/src/components/section/Section.vue";
 import OrderProducts from "../../../../packages/client-vue/src/modules/order/components/OrderProducts.vue";
 import OrderEnclosedTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderEnclosed.template.vue";
 import OrderFullTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderFull.template.vue";
@@ -237,7 +236,6 @@ import {
   detailsSkeletonTotalRowVariants,
   detailsSkeletonItemVariants
 } from "../../../../packages/client-vue/src/modules/order/variants";
-import Auth from "../../../../packages/client-vue/src/modules/session/components/Auth.vue";
 import { useThemes } from "../../../../packages/client-vue/src/modules/theming";
 import { capitalize, first, get, omit, toString } from "lodash-es";
 import type { OrderProps } from "../../../../packages/client-vue/src/modules/order/types";

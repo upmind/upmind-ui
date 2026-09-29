@@ -1,6 +1,5 @@
 import { createAjv } from "@jsonforms/core";
 import ajvErrors from "ajv-errors";
-import RandExp from "randexp";
 import { useI18n } from "../modules/system-localisation";
 import { compactDeep } from "./isDeepEmpty";
 import { parseError, type ResponseError } from "./useError";
@@ -586,24 +585,6 @@ export const useModelParser = <
 };
 
 // -----------------------------------------------------------------------------
-
-/** A `pattern` error shows an example that matches the pattern, not the raw regex. */
-export function withPatternExample(
-  keyword: string,
-  data: Record<string, unknown> | undefined
-): Record<string, unknown> | undefined {
-  if (keyword === "pattern" && isString(data?.pattern) && data.pattern) {
-    try {
-      const randexp = new RandExp(data.pattern);
-      randexp.randInt = (from: number) => from;
-      data = { ...data, pattern: randexp.gen() };
-    } catch {
-      // fallback: keep raw pattern if regex parsing fails
-    }
-  }
-
-  return data;
-}
 
 /**
  * Translates a validation i18n key using the same logic as jsonforms `createTranslator`.

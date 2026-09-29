@@ -1709,9 +1709,6 @@ importers:
       psl:
         specifier: ^1.15.0
         version: 1.15.0
-      randexp:
-        specifier: ^0.5.3
-        version: 0.5.3
       tiny-cookie:
         specifier: ^2.5.1
         version: 2.5.1
@@ -1999,6 +1996,9 @@ importers:
       lucide-vue-next:
         specifier: 'catalog:'
         version: 1.0.0(vue@3.5.39(typescript@5.9.3))
+      randexp:
+        specifier: ^0.5.3
+        version: 0.5.3
       vue:
         specifier: 3.5.39
         version: 3.5.39(typescript@5.9.3)
@@ -2181,6 +2181,9 @@ importers:
       '@tanstack/vue-table':
         specifier: ^8.21.3
         version: 8.21.3(vue@3.5.39(typescript@5.9.3))
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../../packages/modules-auth
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue

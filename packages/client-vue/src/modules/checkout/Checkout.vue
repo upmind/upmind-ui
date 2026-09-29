@@ -90,7 +90,7 @@ import CheckoutLTRTemplate from "./templates/CheckoutLTR.template.vue";
 import CheckoutRTLTemplate from "./templates/CheckoutRTL.template.vue";
 import { CHECKOUT_TEMPLATE } from "./types";
 import { get, isEqual, includes } from "lodash-es";
-import type { StorefrontRoute } from "../../types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 const supportedTemplates = {

@@ -41,7 +41,7 @@ import {
   PageTitle
 } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 
 // NO `name`, `path` or `nav` here: the registrar owns all three, off the
 // declaration beside this file.

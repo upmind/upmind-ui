@@ -28,8 +28,8 @@ import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
+import { Icon } from "@upmind-automation/foundation";
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(

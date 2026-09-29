@@ -1,11 +1,9 @@
 // -----------------------------------------------------------------------------
 /**
  * @module components/form
- * @description Re-exports the form host from `@upmind-automation/foundation`.
+ * @description The form renderers and the `@upmind/ui` form-engine pass-through.
  */
 
-export { Form as UpmForm } from "@upmind-automation/foundation";
-export { useFormI18n } from "@upmind-automation/foundation";
 export * from "./renderers";
 
 // Form engine — a pass-through for @upmind/ui, which now hosts the JSONForms

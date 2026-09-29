@@ -6,7 +6,7 @@
     :ajv="ajv"
     :additional-renderers="renderers"
     :optional-text="t('text.optional')"
-    :dataAttrs="{ 'data-test-key': 'form', ...props.dataAttrs }"
+    :dataAttrs="assign({ 'data-test-key': 'form' }, props.dataAttrs)"
   >
     <template #additional="{ meta }">
       <slot name="additional" v-bind="{ meta }"></slot>
@@ -32,6 +32,7 @@ import { useSystem, useValidation } from "@upmind-automation/headless";
 import { Icon } from "../icon";
 import { useFormRenderers } from "../renderers";
 import { useFormI18n } from "./useFormI18n";
+import { assign } from "lodash-es";
 import type {
   FormProps,
   FormAdditionalProps,

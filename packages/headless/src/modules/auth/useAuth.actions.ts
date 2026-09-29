@@ -1,7 +1,6 @@
 import { unref } from "vue";
 import { ScopeActorTypes } from "../scope";
 import { remove } from "../scope";
-import { useActiveSession } from "../session-store";
 import { createClientAuthActions } from "./useAuth.actions.client";
 import { createStaffAuthActions } from "./useAuth.actions.staff";
 import {
@@ -42,19 +41,6 @@ export function createAuthActions(
   const { send, service, state } = actor;
 
   /**
-   * Holds a successful attempt until the session store promotes it.
-   * Rejects when the user load fails. A scope outside `allowedScopes` never promotes.
-   * @private
-   */
-  async function whenPromoted(authenticated: boolean): Promise<boolean> {
-    if (!authenticated) return false;
-
-    await useActiveSession().useActions().whenAuthenticated();
-
-    return true;
-  }
-
-  /**
    * Authenticate with username/password.
    * @private
    */
@@ -65,7 +51,7 @@ export function createAuthActions(
       service,
       ["authenticated", "done"],
       "login.available.error"
-    ).then(whenPromoted);
+    );
   }
 
   /**
@@ -79,7 +65,7 @@ export function createAuthActions(
       service,
       ["authenticated", "done"],
       "login.challenging.invalid"
-    ).then(whenPromoted);
+    );
   }
 
   /**
@@ -93,7 +79,7 @@ export function createAuthActions(
       service,
       ["authenticated", "done"],
       "register.available.error"
-    ).then(whenPromoted);
+    );
   }
 
   /**
@@ -132,7 +118,6 @@ export function createAuthActions(
 
   /**
    * Smart resolve function that routes to the correct action based on current state.
-   * Login, 2FA and register settle once the session holds the signed-in user.
    */
   async function resolve(model?: AuthModel | undefined): Promise<boolean> {
     const data = unref(model) ?? {};

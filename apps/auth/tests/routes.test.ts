@@ -3,15 +3,18 @@
  * @fileoverview The auth route records.
  *
  * ## Job To Be Done
- * Every `AUTH_ROUTE` resolves, legacy `signup`/`signout` answer, and the sign-in routes pass the landing on.
+ * Every `AUTH_ROUTE` resolves, legacy `signup`/`signout` answer, and the sign-in routes pass
+ * this app's templates and the three routes, and no landing: nothing navigates after a sign-in.
  *
  * ## What Breaks If These Fail
- * The app boots to a 404, or leaves a signed-in customer on the login screen.
+ * The app boots to a 404, a sign-in page has no arrangement to draw, or its cross-links lead nowhere.
  */
 
 import { describe, expect, it } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
+import { AUTH_TEMPLATE } from "@upmind-automation/auth";
 import { AUTH_ROUTE, authRoutes } from "../src/routes";
+import { AUTH_TEMPLATES } from "../src/shell";
 
 // -----------------------------------------------------------------------------
 
@@ -84,17 +87,27 @@ describe("authRoutes", () => {
     ).toBeUndefined();
   });
 
-  it("hands login and register a landing that keeps the query", () => {
+  it("hands every sign-in route this app's templates, its three routes, and no landing", () => {
     const router = routerFor();
-    const query = { returnUrl: "/basket" };
+    const signIn = [AUTH_ROUTE.LOGIN, AUTH_ROUTE.REGISTER, AUTH_ROUTE.RECOVER];
 
-    for (const name of [AUTH_ROUTE.LOGIN, AUTH_ROUTE.REGISTER]) {
-      const route = router.resolve({ name, query });
-      const props = route.matched.at(-1)?.props.default;
+    for (const name of signIn) {
+      const props = router.resolve({ name }).matched.at(-1)?.props.default;
 
-      expect(typeof props === "function" && props(route)).toMatchObject({
-        landingRoute: { name: AUTH_ROUTE.LANDING, query }
+      expect(props, name).toMatchObject({
+        templates: AUTH_TEMPLATES,
+        loginRoute: { name: AUTH_ROUTE.LOGIN },
+        registerRoute: { name: AUTH_ROUTE.REGISTER },
+        recoverRoute: { name: AUTH_ROUTE.RECOVER }
       });
+      expect(props, name).not.toHaveProperty("landingRoute");
+    }
+  });
+
+  // This app declares no lodash-es, so the enum is read natively.
+  it("passes a template for every arrangement a brand can pick", () => {
+    for (const arrangement of Object.values(AUTH_TEMPLATE)) {
+      expect(AUTH_TEMPLATES[arrangement], arrangement).toBeTruthy();
     }
   });
 });

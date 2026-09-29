@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { Icon } from "../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import {
   benefitRootVariants,
   benefitIconVariants,

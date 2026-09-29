@@ -30,7 +30,7 @@ diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHead
 @@ -39,7 +39,7 @@
  import { Button, Heading, Tooltip } from "@upmind/ui";
  import { useI18n } from "vue-i18n";
- import { Icon } from "@upmind-automation/client-vue";
+ import { Icon } from "@upmind-automation/foundation";
 -import { kebabCase } from "lodash-es";
 +import { kebabCase, startCase } from "lodash-es";
  import type { PageHeaderProps } from "./PageHeader.types";

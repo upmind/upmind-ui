@@ -1,5 +1,9 @@
 <template>
-  <UpmAuthRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
+  <UpmAuthRegister
+    v-bind="AUTH_ROUTES"
+    :templates="PORTAL_AUTH_TEMPLATES"
+    @resolve="onResolve"
+  />
 </template>
 
 <script setup lang="ts">
@@ -10,6 +14,7 @@
 // a page that exists elsewhere.
 import { toast } from "@upmind/ui";
 import { UpmAuthRegister } from "@upmind-automation/auth";
+import { PORTAL_AUTH_TEMPLATES } from "~/portal/auth/shell";
 import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 import { useMockBrandGates } from "~/portal/mock/gates";
 
@@ -25,5 +30,9 @@ if (!isRegistrationEnabled.value) {
     description: "Ask your account manager and we will set one up."
   });
   void navigateTo("/login", { replace: true });
+}
+
+function onResolve() {
+  return navigateTo(AUTH_LANDING);
 }
 </script>

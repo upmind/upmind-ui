@@ -102,8 +102,8 @@ import { Link } from "@upmind/ui";
 import { Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { QUERY_PARAMS } from "@upmind-automation/headless";
-import { Icon } from "../../../../components/icon";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "./ProductDescription.vue";
 import {

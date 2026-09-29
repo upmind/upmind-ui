@@ -1,0 +1,19 @@
+# Negative control — with no funnel, a successful sign-in hands nothing back.
+# A host that navigates on `resolve` (the portal) leaves the client on the
+# sign-in screen after they signed in.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/host-mode-back-control.test.ts
+#     "emits resolve from login in a funnel-free host, and stays put"
+
+diff --git a/packages/modules-auth/src/Login.vue b/packages/modules-auth/src/Login.vue
+--- a/packages/modules-auth/src/Login.vue
++++ b/packages/modules-auth/src/Login.vue
+@@ -211,7 +211,6 @@ function doResolve() {
+       isResolving.value = false;
+     });
+   } else {
+-    emit("resolve");
+   }
+ }
+ </script>

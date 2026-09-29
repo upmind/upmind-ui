@@ -77,11 +77,11 @@ import { Badge, Tooltip } from "@upmind/ui";
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Form } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useBasketPromotions,
   type PromotionDetails
 } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import { set } from "lodash-es";
 import type { FormActionProps } from "../../../components/form";
 // -----------------------------------------------------------------------------

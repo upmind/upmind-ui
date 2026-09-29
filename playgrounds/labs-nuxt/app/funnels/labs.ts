@@ -1,10 +1,10 @@
+import { AUTH_FORMS } from "@upmind-automation/auth";
 import {
   type AnyEventObject,
   assign,
   type FunnelContext,
   type FunnelProps,
-  QUERY_PARAMS,
-  AUTH_FORMS
+  QUERY_PARAMS
 } from "@upmind-automation/client-vue";
 import {
   AUTH_SCOPE_MATRIX,

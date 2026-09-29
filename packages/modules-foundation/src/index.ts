@@ -3,9 +3,6 @@ export { TermsAndConditions } from "./brand";
 export type { FormRendererEntry } from "./renderers";
 export { FORM_RENDERERS, useFormRenderers } from "./renderers";
 
-export type { ShellComponents } from "./shell";
-export { provideShellComponents, useShellComponents } from "./shell";
-
 // --- The shared presentation glue
 
 export { Icon } from "./icon";

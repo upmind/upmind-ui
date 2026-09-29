@@ -5,6 +5,9 @@
 /* client-vue's own layer: the max-w-app utilities and the .prose font rule. */
 @import "@upmind-automation/client-vue/styles";
 
+@import "@upmind-automation/auth/styles";
+@import "@upmind-automation/foundation/styles";
+
 /* This file lives in `app/`, so the relative glob below reaches nothing under
    `modules/` — every local Nuxt module needs its own line or its classes are
    silently never generated and its `.styles.ts` is inert in the browser. */
@@ -12,4 +15,3 @@
 @source '../modules/**/*.{html,vue,js,tsx,ts}';
 @source '../../../design-system/packages/ui/src/**/*.{html,vue,js,tsx,ts}';
 @source '../../../packages/client-vue/src/**/*.{html,vue,js,tsx,ts}';
-@source '../../../packages/modules-foundation/src/**/*.{html,vue,js,tsx,ts}';

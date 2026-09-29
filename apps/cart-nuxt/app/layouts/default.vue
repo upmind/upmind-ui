@@ -38,7 +38,6 @@
  */
 import { UpmAuthAction } from "@upmind-automation/auth";
 import {
-  SESSION_SHELL_COMPONENTS,
   UpmPage,
   UpmHeader,
   UpmFooter,
@@ -51,7 +50,6 @@ import {
   useOverlayRoute,
   useRoutingEngine
 } from "@upmind-automation/client-vue";
-import { provideShellComponents } from "@upmind-automation/foundation";
 import { includes } from "lodash-es";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";
@@ -59,8 +57,6 @@ import { ROUTE } from "~/funnels/types";
 // -----------------------------------------------------------------------------
 const route = useRoute();
 const { storefrontRoute } = useStorefrontRoute();
-
-provideShellComponents(computed(() => SESSION_SHELL_COMPONENTS));
 
 const { meta: routingMeta } = useRoutingEngine();
 

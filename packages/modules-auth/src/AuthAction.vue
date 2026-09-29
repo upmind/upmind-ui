@@ -42,6 +42,7 @@ import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession, QUERY_PARAMS } from "@upmind-automation/headless";
 import AuthDetailsDropdown from "./components/DetailsDropdown.vue";
 import AuthLoginPopover from "./components/LoginPopover.vue";
+import { assign } from "lodash-es";
 import type { AuthActionProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -62,12 +63,12 @@ const route = useRoute();
 
 function goToRegister() {
   if (!props.registerRoute) return;
-  router.push({
-    ...props.registerRoute,
-    query: {
-      ...props.registerRoute.query,
-      [QUERY_PARAMS.RETURN_URL]: route.fullPath
-    }
-  });
+  router.push(
+    assign({}, props.registerRoute, {
+      query: assign({}, props.registerRoute.query, {
+        [QUERY_PARAMS.RETURN_URL]: route.fullPath
+      })
+    })
+  );
 }
 </script>

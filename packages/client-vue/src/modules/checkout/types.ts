@@ -36,9 +36,3 @@ export interface CheckoutPricingProps {
 export interface GuestEmailProps {
   disabled?: boolean;
 }
-
-export interface GuestCheckoutOfferProps {
-  registerAsGuest: () => void;
-  isRegistering?: boolean;
-  class?: string;
-}

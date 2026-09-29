@@ -38,9 +38,17 @@ export default defineConfig({
         __dirname,
         "../../design-system/packages/tokens/src/index.ts"
       ),
+      "@upmind-automation/foundation/styles": resolve(
+        __dirname,
+        "../../packages/modules-foundation/src/styles.css"
+      ),
       "@upmind-automation/foundation": resolve(
         __dirname,
         "../../packages/modules-foundation/src/index.ts"
+      ),
+      "@upmind-automation/auth/styles": resolve(
+        __dirname,
+        "../../packages/modules-auth/src/styles.css"
       ),
       "@upmind-automation/auth": resolve(
         __dirname,

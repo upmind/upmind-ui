@@ -7,19 +7,15 @@
 // -----------------------------------------------------------------------------
 /**
  * @module layouts/auth
- * @description The host seams the auth organisms need; their templates draw the page.
+ * @description The frame the auth pages render in; their templates draw the page.
  */
 import { Toaster } from "@upmind/ui";
-import { computed, watch } from "vue";
-import { provideShellComponents } from "@upmind-automation/foundation";
+import { watch } from "vue";
 import { usePortalConfig } from "~/composables/usePortalConfig";
 import { useTheme } from "~/composables/useTheme";
-import { PORTAL_AUTH_SHELL_COMPONENTS } from "~/portal/auth/shell";
 
 const { activeConfig } = usePortalConfig();
 const { setTheme } = useTheme();
-
-provideShellComponents(computed(() => PORTAL_AUTH_SHELL_COMPONENTS));
 
 // The shape's own brand, applied the same way the signed-in layout applies it.
 watch(activeConfig, config => setTheme(config.theme ?? "upmind"), {

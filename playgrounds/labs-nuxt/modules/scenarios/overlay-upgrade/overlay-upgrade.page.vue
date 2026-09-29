@@ -28,7 +28,8 @@
 
 import { Interstitial } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { Icon, OverlayType } from "@upmind-automation/client-vue";
+import { OverlayType } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------

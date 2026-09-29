@@ -6,17 +6,18 @@
     :as="store.as"
     :to="store.to"
     :href="store.href"
-    data-test-key="logged-out-store"
+    :data-attrs="{ 'data-test-key': 'logged-out-store' }"
   >
-    <ShoppingBasket />
+    <Icon icon="basket" />
     Place new order
   </Button>
 </template>
 
 <script setup lang="ts">
 import { Button } from "@upmind/ui";
-import { ShoppingBasket } from "lucide-vue-next";
 import { computed } from "vue";
+import { Icon } from "@upmind-automation/foundation";
+import { isUndefined } from "lodash-es";
 import { NuxtLink } from "#components";
 import { useMockBrandGates } from "~/portal/mock/gates";
 
@@ -24,7 +25,7 @@ const { storeShortcut } = useMockBrandGates();
 
 const store = computed(() => {
   const shortcut = storeShortcut.value;
-  if (shortcut === undefined) return undefined;
+  if (isUndefined(shortcut)) return undefined;
   if ("href" in shortcut) {
     return { as: "a", href: shortcut.href, to: undefined };
   }

@@ -94,7 +94,7 @@
 import { Button, ContextMenu, DropdownMenu, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { ActionPlacementTypes } from "../scenario.types";
 import { actionSlots } from "./ActionSlots.styles";
 import { filter, kebabCase, map, reject } from "lodash-es";

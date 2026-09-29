@@ -46,7 +46,7 @@ import {
 } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../icon";
+import { Icon } from "@upmind-automation/foundation";
 import { isEmpty } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

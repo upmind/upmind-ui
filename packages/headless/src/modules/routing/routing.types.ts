@@ -1,6 +1,4 @@
 import type { ResponseError } from "../../utils";
-import type { MaybeRefOrGetter } from "vue";
-import type { RouteLocationRaw } from "vue-router";
 import type {
   RouteLocation,
   RouteLocationNormalized,
@@ -290,12 +288,6 @@ export type OverlayDefinition = {
   defaultType: OverlayType;
   /** Guard service name to invoke when this overlay route is matched by the funnel */
   guard?: string;
-};
-
-/** The routes a host that drives no funnel resolves and rejects to. */
-export type RoutingResolveOptions = {
-  resolveRoute?: MaybeRefOrGetter<RouteLocationRaw | undefined>;
-  rejectRoute?: MaybeRefOrGetter<RouteLocationRaw | undefined>;
 };
 
 // --- Vue Router meta extension

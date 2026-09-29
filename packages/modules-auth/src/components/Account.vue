@@ -119,6 +119,7 @@ import { TermsAndConditions } from "@upmind-automation/foundation";
 import {
   ScopeActorTypes,
   useAccount,
+  useActiveSession,
   useRoutingEngine,
   type VerifyEmailModel,
   type CompleteRegistrationModel
@@ -138,6 +139,7 @@ import {
   transitionsFadeLeaveFromVariants,
   transitionsFadeLeaveToVariants
 } from "../variants";
+import { assign } from "lodash-es";
 import type { AuthProps } from "../types";
 import type { FormActionProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
@@ -156,6 +158,7 @@ const { navigate } = useRoutingEngine();
 
 // --- Account for verify-email / guest-upgrade / resend (state-driven forms)
 const account = useAccount().as(ScopeActorTypes.CLIENT);
+const session = useActiveSession();
 const {
   canResend,
   canShowForms,
@@ -227,19 +230,19 @@ const formActions = computed(() => {
         : t("action.cancel"),
       block: true,
       size: "lg",
-      variant: "link",
-      ...(showVerifyEmailForm.value
-        ? { dataAttrs: { "data-test-key": "link-back-to-basket" } }
-        : (props.cancelRoute ?? {}))
+      variant: "link"
     };
+    assign(
+      actions.cancel,
+      showVerifyEmailForm.value
+        ? { dataAttrs: { "data-test-key": "link-back-to-basket" } }
+        : (props.cancelRoute ?? {})
+    );
 
     // add the storefront route to the cancel action if its provided
     //  usually only use din verify email but its a possibility for others as well
     if (props.cancelRoute) {
-      actions.cancel = {
-        ...actions.cancel,
-        to: props.cancelRoute
-      } as FormActionProps;
+      actions.cancel = assign({}, actions.cancel, { to: props.cancelRoute });
     }
   }
   return actions;
@@ -283,10 +286,19 @@ function doResolve(model: unknown) {
       }
     });
   } else if (showGuestUpgradeForm.value) {
-    register(model as CompleteRegistrationModel).then(success => {
-      if (success) {
-        emit("resolve", model);
+    register(model as CompleteRegistrationModel).then(async success => {
+      if (!success) return;
+      // Guest→client promotion (loadUser + actor flip) lands a beat after
+      // register() resolves; wait for it so consumers re-reading session state
+      // on resolve see the promoted client. Escalate rather than hang if the
+      // user load fails.
+      try {
+        await session.useActions().whenAuthenticated();
+      } catch {
+        emit("reject");
+        return;
       }
+      emit("resolve", model);
     });
   }
 }

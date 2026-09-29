@@ -1,54 +1,34 @@
-# Negative control — the landing stops reaching the organisms. Both sign-in
-# pages drop `:landing-route="AUTH_LANDING"`, restoring the original defect: the
-# constant is still declared and still correct, the screens still mount, and a
-# client who signs in stays on the screen they signed in from.
+# Negative control — the sign-in pages stop listening for the hand-back. Both
+# drop `@resolve`, restoring the original defect: `AUTH_LANDING` is still
+# declared and still correct, the screens still mount, and a client who signs
+# in stays on the screen they signed in from.
 #
 # The pages are the whole wiring, so a suite that only graded `AUTH_LANDING`'s
 # own value would stay green through this.
 #
 # Intended RED (tests/auth-landing.test.ts):
-#   "hands the sign-in screen the landing, alongside its cross-links"
-#   "hands the registration screen the same landing"
-#
-# Not gradeable by packages/scenario-harness/scripts/verify-negative-controls.mjs:
-# that lane grades import-boundary mutants, whose failure its own added `import`
-# line names. This mutant REMOVES an import — its failure is behavioural, and the
-# spec above is what grades it.
+#   "lands a client who signs in on the landing"
+#   "lands a client who registers on the same landing"
 
 diff --git a/apps/portal-nuxt/app/pages/login.vue b/apps/portal-nuxt/app/pages/login.vue
-index 521ec475ac..89dfc826f9 100644
 --- a/apps/portal-nuxt/app/pages/login.vue
 +++ b/apps/portal-nuxt/app/pages/login.vue
-@@ -1,10 +1,10 @@
- <template>
--  <UpmAuthLogin v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
-+  <UpmAuthLogin v-bind="AUTH_ROUTES" />
+@@ -2,7 +2,6 @@
+   <UpmAuthLogin
+     v-bind="AUTH_ROUTES"
+     :templates="PORTAL_AUTH_TEMPLATES"
+-    @resolve="onResolve"
+   />
  </template>
  
- <script setup lang="ts">
- import { UpmAuthLogin } from "@upmind-automation/auth";
--import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
-+import { AUTH_ROUTES } from "~/portal/auth-routes";
- 
- definePageMeta({
-   layout: "auth",
 diff --git a/apps/portal-nuxt/app/pages/register.vue b/apps/portal-nuxt/app/pages/register.vue
-index d571838947..ba38c77c31 100644
 --- a/apps/portal-nuxt/app/pages/register.vue
 +++ b/apps/portal-nuxt/app/pages/register.vue
-@@ -1,5 +1,5 @@
- <template>
--  <UpmAuthRegister v-bind="AUTH_ROUTES" :landing-route="AUTH_LANDING" />
-+  <UpmAuthRegister v-bind="AUTH_ROUTES" />
+@@ -2,7 +2,6 @@
+   <UpmAuthRegister
+     v-bind="AUTH_ROUTES"
+     :templates="PORTAL_AUTH_TEMPLATES"
+-    @resolve="onResolve"
+   />
  </template>
  
- <script setup lang="ts">
-@@ -10,7 +10,7 @@
- // a page that exists elsewhere.
- import { toast } from "@upmind/ui";
- import { UpmAuthRegister } from "@upmind-automation/auth";
--import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
-+import { AUTH_ROUTES } from "~/portal/auth-routes";
- import { useMockBrandGates } from "~/portal/mock/gates";
- 
- definePageMeta({

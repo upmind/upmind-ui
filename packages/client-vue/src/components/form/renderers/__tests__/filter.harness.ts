@@ -24,16 +24,17 @@ import { Form, provideFormIcon } from "@upmind/ui";
 import { DOMWrapper, mount } from "@vue/test-utils";
 import { defineComponent, h, provide, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import { FORM_RENDERERS } from "@upmind-automation/foundation";
+import {
+  FORM_RENDERERS,
+  Icon,
+  useFormI18n
+} from "@upmind-automation/foundation";
 import {
   PAGINATION,
   SortDirection,
   useI18n as useLocalisation,
   useInvoices
 } from "@upmind-automation/headless";
-import { Icon } from "../../../icon";
-import { UpmForm } from "../../index";
-import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
 import {
   cloneDeep,
@@ -59,6 +60,9 @@ export type QueryDeclaration = {
   schema: JsonSchema7;
   uischema: UISchemaElement;
 };
+
+// `@upmind/ui` also exports a `Form` (the bare engine), so the wrapper is read by name.
+const { Form: UpmForm } = await import("@upmind-automation/foundation");
 
 /**
  * The SHIPPED catalogue, loaded the way the app loads it: headless's own

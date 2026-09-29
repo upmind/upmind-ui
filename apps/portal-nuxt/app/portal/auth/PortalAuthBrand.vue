@@ -1,10 +1,10 @@
 <template>
-  <PortalBrand :label="brandName" to="/login" />
+  <PortalBrand :label="name ?? ''" to="/login" />
 </template>
 
 <script setup lang="ts">
-import { useMockBrandGates } from "~/portal/mock/gates";
+import { useBrand } from "@upmind-automation/headless";
 import PortalBrand from "~/portal/modules/brand/Brand.vue";
 
-const { brandName } = useMockBrandGates();
+const { name } = useBrand();
 </script>

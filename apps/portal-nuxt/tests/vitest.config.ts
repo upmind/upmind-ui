@@ -40,6 +40,9 @@ export default defineConfig({
       // Nuxt's build-time virtual module — see support/nuxt-components-stub.ts.
       "#components": fileURLToPath(
         new URL("../tests/support/nuxt-components-stub.ts", import.meta.url)
+      ),
+      "#app": fileURLToPath(
+        new URL("../tests/support/nuxt-app-stub.ts", import.meta.url)
       )
     }
   },

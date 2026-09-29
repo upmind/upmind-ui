@@ -97,7 +97,7 @@ import {
   authFormVariants,
   authActionsVariants
 } from "../variants";
-import { find, get, map } from "lodash-es";
+import { assign, find, get, map } from "lodash-es";
 import type { AuthProps } from "../types";
 import type { FormActionProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
@@ -154,23 +154,17 @@ const interstitialText = computed(() => t(`${twofaI18nKey.value}.description`));
 const modal2faUischema = computed(() => {
   if (!show2fa.value || !uischema.value) return uischema.value;
   const elements = (uischema.value as { elements?: unknown[] }).elements ?? [];
-  return {
-    ...uischema.value,
+  return assign({}, uischema.value, {
     elements: map(elements, (el: Record<string, unknown>) =>
       el.scope === "#/properties/token"
-        ? {
-            ...el,
+        ? assign({}, el, {
             i18n: undefined,
             label: "",
-            options: {
-              ...(el.options as Record<string, unknown>),
-              size: "lg",
-              align: "center"
-            }
-          }
+            options: assign({}, el.options, { size: "lg", align: "center" })
+          })
         : el
     )
-  };
+  });
 });
 
 const formUischema = computed(() =>
@@ -213,15 +207,12 @@ const formActions = computed(() => {
       label: t("action.cancel"),
       block: true,
       size: "lg",
-      variant: "link",
-      ...(props.cancelRoute ?? {})
+      variant: "link"
     };
+    assign(actions.cancel, props.cancelRoute ?? {});
 
     if (props.cancelRoute) {
-      actions.cancel = {
-        ...actions.cancel,
-        to: props.cancelRoute
-      } as FormActionProps;
+      actions.cancel = assign({}, actions.cancel, { to: props.cancelRoute });
     }
   }
   return actions;
@@ -269,13 +260,29 @@ async function toggleForm(type: AuthProps["modelValue"]) {
 }
 
 function doResolve(model: unknown) {
-  resolve(model as AuthModel).then(
-    success => {
-      if (success) emit("resolve", model);
-    },
-    // Token issued but the user load failed — escalate rather than hang.
-    () => emit("reject")
-  );
+  // Capture at submit time — after a successful login/register the machine
+  // leaves the form state, so currentForm changes before the .then runs.
+  const authenticates = currentForm.value !== AUTH_FORMS.RECOVER;
+  resolve(model as AuthModel).then(async success => {
+    if (!success) return;
+    // The auth machine resolves as soon as it holds a token, but promoting the
+    // active session + loading the user is the session store's job and lands a
+    // beat later. Consumers of this emit (e.g. checkout registering inline)
+    // re-read session-scoped state on resolve, so hand control back only once
+    // the session is actually authenticated. RECOVER never authenticates, so
+    // it emits immediately.
+    if (authenticates) {
+      try {
+        await session.useActions().whenAuthenticated();
+      } catch {
+        // Token issued but the user load failed — escalate to the reject path
+        // rather than hang the overlay waiting for a user that never loads.
+        emit("reject");
+        return;
+      }
+    }
+    emit("resolve", model);
+  });
 }
 
 function doReject() {

@@ -2,13 +2,6 @@
 
 All notable changes to the auth module are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/); the module versions with the `@upmind-automation/headless` package.
 
-## [Session-held sign-in] - 2026-09-26
-
-### Changed
-
-- **`resolve()` for login, 2FA and register** — settles only after the session store promotes the session, so `true` means the active session holds the signed-in user. Before, `true` arrived with the token, while the visitor was still a guest.
-- **`resolve()` can reject** — when the token is issued but the user load fails, the promise rejects. Before, it resolved `true`. Recover never waits and never rejects on this path.
-
 ## [Unreleased] — migration baseline (FE-2826 / FE-2774)
 
 Baseline entry for the module as it exists after the @next structure adoption + hotfix transplant. Later entries describe changes against this state.

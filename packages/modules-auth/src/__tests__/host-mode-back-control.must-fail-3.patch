@@ -1,0 +1,18 @@
+# Negative control — registration shows its back control with no funnel to go
+# back through.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/host-mode-back-control.test.ts
+#     "takes register's control away and leaves the rest of the screen alone"
+
+diff --git a/packages/modules-auth/src/Register.vue b/packages/modules-auth/src/Register.vue
+--- a/packages/modules-auth/src/Register.vue
++++ b/packages/modules-auth/src/Register.vue
+@@ -6,7 +6,6 @@
+         <!-- One-page uses the compact "← Back" per the designs; other templates
+              keep the default "Back to basket". -->
+         <Back
+-          v-if="routingMeta.hasFunnels"
+           :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
+           :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
+           size="md"

@@ -129,7 +129,7 @@ import {
   StatGroup
 } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { filter, includes, isEmpty, reduce, toLower, trim } from "lodash-es";
 import type { StatItem } from "@upmind/ui";
 import type { LabFamily } from "~/composables/useNavigation.types";

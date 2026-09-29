@@ -323,43 +323,6 @@ onResolved(() => {
 });
 ```
 
-## `useRoutingResolve(options?)`
-
-A view that ends in a resolve or a reject calls it. When the host registers funnels, it takes the funnel step. Else it pushes the route the view was given. Call it before the view's first `await`.
-
-`(options?: RoutingResolveOptions) => { meta, navigateResolved, navigateRejected }`
-
-| Option         | Type                                              | Used when the host has no funnels |
-| -------------- | ------------------------------------------------- | --------------------------------- |
-| `resolveRoute` | `MaybeRefOrGetter<RouteLocationRaw \| undefined>` | `navigateResolved()` pushes it    |
-| `rejectRoute`  | `MaybeRefOrGetter<RouteLocationRaw \| undefined>` | `navigateRejected()` pushes it    |
-
-| Return               | With funnels     | Without funnels                                   |
-| -------------------- | ---------------- | ------------------------------------------------- |
-| `meta.hasResolve`    | `true`           | `true` when `resolveRoute` has a value            |
-| `meta.hasReject`     | `true`           | `true` when `rejectRoute` has a value             |
-| `navigateResolved()` | `navigateNext()` | pushes `resolveRoute`; resolves at once when none |
-| `navigateRejected()` | `navigateBack()` | pushes `rejectRoute`; resolves at once when none  |
-
-```typescript
-import { useRoutingResolve } from "@upmind-automation/headless";
-
-const { meta, navigateResolved, navigateRejected } = useRoutingResolve({
-  resolveRoute: () => "/dashboard",
-  rejectRoute: "/login"
-});
-
-export async function onSignedIn() {
-  if (!meta.value.hasResolve) return;
-  await navigateResolved();
-}
-
-export async function onBack() {
-  if (!meta.value.hasReject) return;
-  await navigateRejected();
-}
-```
-
 ## Usage Examples
 
 ### Basic Navigation Setup

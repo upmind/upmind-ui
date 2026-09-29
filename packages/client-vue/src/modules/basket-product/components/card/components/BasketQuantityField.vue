@@ -39,7 +39,7 @@
 import { NumberField } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import { isNil } from "lodash-es";
 import type { QuantityFieldProps } from "./types";
 

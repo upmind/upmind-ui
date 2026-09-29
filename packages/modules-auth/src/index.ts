@@ -16,8 +16,5 @@ export { default as UpmAccount } from "./components/Account.vue";
 export { default as UpmAuth } from "./components/Auth.vue";
 export { default as UpmAuthLoading } from "./components/AuthLoading.vue";
 
-// --- Export Shell
-export { AUTH_SHELL } from "./shell";
-
 // --- Export Types
 export * from "./types";

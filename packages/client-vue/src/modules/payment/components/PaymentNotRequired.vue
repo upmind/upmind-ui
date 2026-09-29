@@ -27,7 +27,7 @@
 <script lang="ts" setup>
 import { Alert } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import PaymentActions from "./PaymentActions.vue";
 import type { PaymentNotRequiredProps } from "../types";
 
