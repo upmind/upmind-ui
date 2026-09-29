@@ -1,0 +1,38 @@
+# Negative-control mutant — the filter bar carries legacy's order-id and
+# total-amount filters (G3, `vue-app/src/data/filters/contract.ts:6-17`)
+#
+# Scenario it must flip: `filterBy({ main_invoice_number: "QAT-INV-00001" })`
+#   and `filterBy({ total_amount: 42 })` both parse and both reach the
+#   request as `filter[main_invoice_number]` / `filter[total_amount]` — the
+#   two legacy contract filters (order, total) this collection's criteria
+#   schema was missing.
+# Mutation: `useQuerySchema()` drops the `filters.main_invoice_number` and
+#   `filters.total_amount` branches, so a criteria model naming either is
+#   refused by the schema's `additionalProperties: false`, and
+#   `useQueryUischema()`'s matching FilterBar controls scope leaves that no
+#   longer exist.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.schemas.ts
++++ b/packages/headless/src/modules/contract/contract.schemas.ts
+@@ -46,7 +46,6 @@
+             additionalProperties: false,
+             properties: { like: { type: ["string", "null"], minLength: 1 } }
+           },
+-          main_invoice_number: { type: ["string", "null"], minLength: 1 },
+           "status.code": {
+             type: ["array", "null"],
+             items: { type: "string", enum: values(ContractStatusCodes) },
+@@ -67,8 +66,7 @@
+               gte: { type: ["string", "null"], format: "date-time" },
+               lte: { type: ["string", "null"], format: "date-time" }
+             }
+-          },
+-          total_amount: { type: ["number", "null"] }
++          }
+         }
+       },
+       sort: {

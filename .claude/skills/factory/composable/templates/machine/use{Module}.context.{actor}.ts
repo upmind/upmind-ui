@@ -105,5 +105,4 @@ export function createClientModuleContext(actor: UseActor) {
   };
 }
 
-// Type export for consumers
 export type ClientModuleContext = ReturnType<typeof createClientModuleContext>;

@@ -1,0 +1,36 @@
+# Negative-control mutant — the cancellation form's read-state flag reports TRUE
+#   validation, not FALSE (R35 form region `available.cancelling.available`)
+#
+# Naming: the meta read-state flags have no dedicated spec of their own, so this
+#   mutant takes the `<spec-basename>.<concern>` form beside the spec that drives
+#   the cancellation form to a validated node — `contract-product.mutations.int.test.ts`.
+#
+# Flag under test: `useContractProduct().useMeta().isCancellationValid` —
+#   `stateMatches` over `available.cancelling.available.valid`. A consumer gates
+#   the cancellation submit on this flag.
+#
+# NO TEST ASSERTS THIS FLAG YET. The prover adds the assertion. The intended
+#   scenario: open the cancellation form, drive it to `valid`, and assert
+#   `isCancellationValid === true` (and `false` on `invalid`). With this mutation
+#   the flag reads the sibling `invalid` node, so it is `false` on a valid form
+#   and the new assertion goes red.
+# Target spec (once the prover adds the row): contract-product.mutations.int.test.ts
+#
+# Mutation: `isCancellationValid` matches `available.cancelling.available.invalid`
+#   instead of `.valid`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+index 3d214fa21..9e663b60f 100644
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -145,7 +145,7 @@ export function createContractProductMeta(
+     /** True when the open cancellation form passes validation. */
+     isCancellationValid: useStateMatches(
+       state,
+-      "available.cancelling.available.valid"
++      "available.cancelling.available.invalid"
+     ),
+
+     /** True on `unavailable.cancelled`. */

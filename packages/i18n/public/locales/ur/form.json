@@ -91,6 +91,21 @@
     "label": "کمپنی نمبر",
     "placeholder": "کمپنی کا شناختی نمبر"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "ملک",
     "placeholder": "ایک ملک منتخب کریں۔"
@@ -106,6 +121,9 @@
     "label": "ای میل",
     "placeholder": "naam@email.com",
     "title": "نیا ای میل شامل کریں | ای میل کو اپ ڈیٹ کریں۔"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "آرڈر نوٹس"

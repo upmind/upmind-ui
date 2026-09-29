@@ -87,6 +87,7 @@ export const useSchema = (context: ProfileContext): JsonSchema7 => {
       enum: isEmpty(languageEnum) ? undefined : languageEnum,
       options: isEmpty(languageOpts) ? undefined : languageOpts
     },
+    excludeDelegatedProducts: { type: "boolean" },
     customFields
   };
 
@@ -133,6 +134,14 @@ export const useUischema = (context: ProfileContext): UISchemaElement => {
     { type: "Control", scope: "#/properties/language", i18n: "form.language" },
     ...useCustomFieldsUischema(lookupFields)
   ];
+
+  if (includes(filterFields, "excludeDelegatedProducts")) {
+    elements.push({
+      type: "Control",
+      scope: "#/properties/excludeDelegatedProducts",
+      i18n: "form.exclude_delegated_products"
+    });
+  }
 
   return {
     type: "VerticalLayout",

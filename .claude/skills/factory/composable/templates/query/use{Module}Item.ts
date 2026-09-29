@@ -15,7 +15,7 @@
  *
  * THE FOUR LAYER FILES this imports are NOT shipped separately: copy the
  * collection's `use{Module}.actions.ts` / `.context.ts` / `.internals.ts` /
- * `.meta.ts` and rename `Module` to `ModuleItem` in the filename and the
+ * `.meta.ts` and rename `Module` to `{Module}` in the filename and the
  * factory name. The single read's layers are the collection's shape over an
  * item query, not a different contract, so a second near-identical template set
  * would only drift (the same reason `ARMS.md` lives at `templates/` root).
@@ -117,5 +117,4 @@ export const useModuleItem = createScopedComposable<
   ModuleItemScopeMatrix
 >("module", createModuleItemForScope);
 
-// Type export for consumers
 export type UseModuleItem = ReturnType<typeof useModuleItem>;

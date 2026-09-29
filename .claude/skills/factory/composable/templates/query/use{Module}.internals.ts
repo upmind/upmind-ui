@@ -35,5 +35,4 @@ export function createModuleInternals(
   };
 }
 
-// Type export for consumers
 export type UseModuleInternals = ReturnType<typeof createModuleInternals>;

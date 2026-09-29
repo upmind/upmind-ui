@@ -198,14 +198,35 @@
 
 <script lang="ts" setup>
 // LABS copy of client-vue Order.vue (UpmOrder) with the pay CONTROLS removed —
-// the status stays, a Pay button opens the pay modal. Client-vue is untouched.
+// the status stays, a Pay button opens the pay modal. UpmOrder is untouched.
 import { Button } from "@upmind/ui";
 import { DescriptionListRoot, DescriptionItem, Skeleton } from "@upmind/ui";
 import { Alert, type AlertProps } from "@upmind/ui";
 import { computed, onUnmounted, provide, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { Icon } from "@upmind-automation/client-vue";
+import {
+  detailsTotalRootVariants,
+  detailsTotalLabelVariants,
+  detailsTotalValueVariants,
+  detailsSkeletonRootVariants,
+  detailsSkeletonRowVariants,
+  detailsSkeletonTotalRowVariants,
+  detailsSkeletonItemVariants,
+  Icon,
+  useAnnouncement,
+  useThemes,
+  ORDER_TEMPLATE,
+  UpmAuth as Auth,
+  UpmHero as Hero,
+  UpmOrderEnclosedTemplate as OrderEnclosedTemplate,
+  UpmOrderFullTemplate as OrderFullTemplate,
+  UpmOrderInsetTemplate as OrderInsetTemplate,
+  UpmOrderLTRTemplate as OrderLTRTemplate,
+  UpmOrderProducts as OrderProducts,
+  UpmOrderRTLTemplate as OrderRTLTemplate,
+  UpmSection as Section
+} from "@upmind-automation/client-vue";
 import { useConfig } from "@upmind-automation/headless";
 import {
   useAccount,
@@ -218,29 +239,8 @@ import {
   UIContext,
   type Badge
 } from "@upmind-automation/headless";
-import { useAnnouncement } from "../../../../packages/client-vue/src/components/announcement/useAnnouncement";
-import Hero from "../../../../packages/client-vue/src/components/hero/Hero.vue";
-import Section from "../../../../packages/client-vue/src/components/section/Section.vue";
-import OrderProducts from "../../../../packages/client-vue/src/modules/order/components/OrderProducts.vue";
-import OrderEnclosedTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderEnclosed.template.vue";
-import OrderFullTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderFull.template.vue";
-import OrderInsetTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderInset.template.vue";
-import OrderLTRTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderLTR.template.vue";
-import OrderRTLTemplate from "../../../../packages/client-vue/src/modules/order/templates/OrderRTL.template.vue";
-import { ORDER_TEMPLATE } from "../../../../packages/client-vue/src/modules/order/types";
-import {
-  detailsTotalRootVariants,
-  detailsTotalLabelVariants,
-  detailsTotalValueVariants,
-  detailsSkeletonRootVariants,
-  detailsSkeletonRowVariants,
-  detailsSkeletonTotalRowVariants,
-  detailsSkeletonItemVariants
-} from "../../../../packages/client-vue/src/modules/order/variants";
-import Auth from "../../../../packages/client-vue/src/modules/session/components/Auth.vue";
-import { useThemes } from "../../../../packages/client-vue/src/modules/theming";
 import { capitalize, first, get, omit, toString } from "lodash-es";
-import type { OrderProps } from "../../../../packages/client-vue/src/modules/order/types";
+import type { OrderProps } from "@upmind-automation/client-vue";
 import { PAYMENT_OVERLAY_ID } from "~/funnels/labs.constants";
 
 interface OrderItem {
@@ -315,7 +315,6 @@ const {
   invoice: orderData,
   isReady,
   meta: orderMeta,
-  pay,
   paymentDetail,
   refresh,
   renderChallenge,

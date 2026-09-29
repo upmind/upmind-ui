@@ -1,0 +1,28 @@
+# Negative-control mutant — a subscription shows its recurring price (B4, legacy cProdMixin.ts:35-59)
+#
+# Scenario it must flip: contract-product.list-rows-and-picker.int.test.ts,
+#   "AC-1 a subscription shows what it costs each time it renews, as my brand's
+#   tax rule prices it".
+# The spec asserts each EXCLUDE_TAX subscription's `priceFormatted` equals its
+#   `configuration_total_recurring_net_amount_formatted`, and that at least one
+#   subscription's net recurring figure differs from its gross recurring figure.
+#   Dropping the subscription branch left net-recurring untouched (it equalled
+#   the discounted net in the capture), so that mutant survived.
+# Mutation: the subscription branch returns the GROSS recurring figure under
+#   EXCLUDE_TAX, so a subscription whose net and gross differ no longer shows
+#   its net recurring price and the assertion breaks.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -103,7 +103,7 @@ export function mapContractProductPrice(
+
+   if (raw.billing_cycle_months > 0) {
+     return excludesTax
+-      ? raw.configuration_total_recurring_net_amount_formatted
++      ? raw.configuration_total_recurring_amount_formatted
+       : raw.configuration_total_recurring_amount_formatted;
+   }
+

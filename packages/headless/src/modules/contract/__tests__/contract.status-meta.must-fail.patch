@@ -1,0 +1,42 @@
+# Negative-control mutant — the row status is a translated-badge-ready `meta`
+# group, not a bare `{ code }` (G2, R38 item 9)
+#
+# Scenario it must flip: a contract's `meta` carries exactly one truthy flag —
+#   the one matching its own `status.code` — so the `TableCellBadges` renderer
+#   (`playgrounds/labs-nuxt/.../cells/TableCellBadges.vue:31-37`, one badge per
+#   truthy flag of a scoped object) can draw a translated status badge, the
+#   same `meta` idiom `tickets.mappers.ts` publishes for its own status.
+# Mutation: `mapContractMeta` ignores the contract's OWN `status.code` and
+#   returns every flag `false` — no badge is ever true, so a hand sees a
+#   contract with no status at all.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -35,15 +35,15 @@
+ }
+ 
+ /** The translated-badge flags for a contract's own `status.code` (R38 item 9, G2). */
+-export function mapContractMeta(code: ContractStatusCodes): ContractMeta {
++export function mapContractMeta(_code: ContractStatusCodes): ContractMeta {
+   return {
+-    isActive: code === ContractStatusCodes.ACTIVE,
+-    isAwaitingActivation: code === ContractStatusCodes.AWAITING_ACTIVATION,
+-    isCancelled: code === ContractStatusCodes.CANCELLED,
+-    isClosed: code === ContractStatusCodes.CLOSED,
+-    isFraud: code === ContractStatusCodes.FRAUD,
+-    isPending: code === ContractStatusCodes.PENDING,
+-    isSuspended: code === ContractStatusCodes.SUSPENDED
++    isActive: false,
++    isAwaitingActivation: false,
++    isCancelled: false,
++    isClosed: false,
++    isFraud: false,
++    isPending: false,
++    isSuspended: false
+   };
+ }
+ 

@@ -6,7 +6,8 @@ import {
 import { concat, uniq } from "lodash-es";
 import type {
   ProfileContext,
-  ProfileModel
+  ProfileModel,
+  UischemaForOptions
 } from "./client-personal-details.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { CustomField } from "../client-custom-fields";
@@ -29,16 +30,6 @@ import type { ErrorObject } from "ajv";
  *
  * @doctrine clause 2 — shared-only (armless).
  */
-/** Options for `uischemaFor`. */
-export type UischemaForOptions = {
-  /**
-   * When true (the default), validation errors outside the requested fields
-   * are included — pulling invalid fields into the view is what lets a save
-   * proceed when full-schema validation refuses a save while a required field
-   * outside the view is empty.
-   */
-  includeInvalid?: boolean;
-};
 
 export function createPersonalDetailsManagerContext(
   _actorScope: ScopeActorTypes,

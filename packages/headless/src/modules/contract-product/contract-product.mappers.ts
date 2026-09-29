@@ -1,0 +1,339 @@
+/** @internal */
+import {
+  BrandTaxTypes,
+  CancellationRequestStatusCodes,
+  ContractStatusCodes
+} from "@upmind-automation/types";
+import { parseBillingCycle } from "../product";
+import { useDate, useTranslateName } from "../../utils";
+import { castArray, isEmpty, map, pick } from "lodash-es";
+import type { LookupItem } from "../lookup";
+import type {
+  ConsolidationBody,
+  ContractProduct,
+  ContractProductClient,
+  ContractProductMeta,
+  ContractProductRequest,
+  MovedToContractProduct,
+  RequestCancellationBody,
+  RequestCancellationModel,
+  ScheduleCancellationBody,
+  ScheduleCancellationModel,
+  ScheduledAction,
+  SetConsolidationModel,
+  SoftCancelBody,
+  SoftCancelModel,
+  UnpaidInvoice
+} from "./contract-product.types";
+import type {
+  IClient,
+  IContractCancellationRequest,
+  IContractProduct,
+  IContractProductScheduledCancellation,
+  IInvoice,
+  IScheduledAction,
+  ITag
+} from "@upmind-automation/types";
+
+/** `tags` reaches the wire on this record but is undeclared on the shared
+ * `IContractProduct` platform type (verify.md B1) — augmented locally. */
+type WireContractProduct = IContractProduct & { tags?: ITag[] };
+// -----------------------------------------------------------------------------
+/**
+ * @module contract-product/contract-product.mappers
+ * @description Wire ↔ view-model shaping for contract products (design 8.10,
+ * R19). Inbound: `mapContractProducts` / `mapContractProduct`. Outbound: one
+ * body mapper per write of design 8.3. No HTTP; the billing-cycle label reads
+ * the brand's term designation through `parseBillingCycle`.
+ *
+ * WARNING: Do not import directly from another module. Resolve via
+ * `useContractProducts.ts` / `useContractProduct.ts`, or the barrel's curated
+ * `mapContractProduct` export (`@internal/no-cross-module-imports`).
+ */
+
+/**
+ * Maps the list response to the view-model collection.
+ *
+ * @param taxType - the portal brand's tax type; a list row carries no `brand`.
+ */
+export function mapContractProducts(
+  raw: IContractProduct | IContractProduct[],
+  taxType?: BrandTaxTypes
+): ContractProduct[] {
+  return map(castArray(raw), record => toContractProduct(record, taxType));
+}
+
+/** The translated-badge flags for a contract product's own `status.code` (R38 item 9, G4). */
+export function mapContractProductMeta(
+  code?: ContractStatusCodes
+): ContractProductMeta {
+  return {
+    isActive: code === ContractStatusCodes.ACTIVE,
+    isAwaitingActivation: code === ContractStatusCodes.AWAITING_ACTIVATION,
+    isCancelled: code === ContractStatusCodes.CANCELLED,
+    isClosed: code === ContractStatusCodes.CLOSED,
+    isFraud: code === ContractStatusCodes.FRAUD,
+    isPending: code === ContractStatusCodes.PENDING,
+    isSuspended: code === ContractStatusCodes.SUSPENDED
+  };
+}
+
+/**
+ * The row's price, as legacy `cProdMixin.getPriceTermSummary` picks it: a
+ * subscription shows its recurring price, a one-time product its discounted
+ * price, each tax-inclusive or net per the brand's tax type (B4). The
+ * record's own `brand.tax_type` wins; else `taxType`; else tax-inclusive, as
+ * legacy `showPricesExcTax` reads an unset tax type.
+ *
+ * @decision
+ * what: the price only — the billing-cycle label is its own `billingCycle`
+ *   member, and legacy's trailing-zero trim and "Free" substitution are not
+ *   applied.
+ * why: R38 item 10 names price and billing cycle as separate view-model
+ *   columns; trim and "Free" are locale display formatting over this figure,
+ *   not a different figure.
+ * rejected: composing legacy's one-string term summary into `priceFormatted`.
+ */
+export function mapContractProductPrice(
+  raw: IContractProduct,
+  taxType?: BrandTaxTypes
+): string {
+  const excludesTax =
+    (raw.brand?.tax_type ?? taxType) === BrandTaxTypes.EXCLUDE_TAX;
+
+  if (raw.billing_cycle_months > 0) {
+    return excludesTax
+      ? raw.configuration_total_recurring_net_amount_formatted
+      : raw.configuration_total_recurring_amount_formatted;
+  }
+
+  return excludesTax
+    ? raw.configuration_net_amount_discounted_formatted
+    : raw.configuration_total_discounted_amount_formatted;
+}
+
+/** The translated billing-cycle label (R38 item 10, G5) — legacy's cycle name; "One time" for a one-time product. */
+export function mapContractProductBillingCycle(months: number): string {
+  const cycle = parseBillingCycle(months);
+  return months > 0 ? cycle.adverbial : cycle.descriptive;
+}
+
+/** Maps one wire record to the view model, deriving the two shared readings once. */
+export function mapContractProduct(raw: IContractProduct): ContractProduct {
+  return toContractProduct(raw);
+}
+
+function toContractProduct(
+  raw: IContractProduct,
+  taxType?: BrandTaxTypes
+): ContractProduct {
+  const contractRequest = raw.contract_request
+    ? mapContractRequest(raw.contract_request)
+    : undefined;
+
+  return {
+    id: raw.id,
+    contractId: raw.contract_id,
+    status: raw.status
+      ? {
+          code: raw.status.code as ContractStatusCodes,
+          name: useTranslateName(raw.status)
+        }
+      : undefined,
+    meta: mapContractProductMeta(raw.status?.code as ContractStatusCodes),
+    contractStatus: raw.contract?.status?.code as
+      | ContractStatusCodes
+      | undefined,
+    stagedImport: raw.staged_import,
+    contractRequest,
+    renew: raw.renew,
+    billingCycleMonths: raw.billing_cycle_months,
+    billingCycle: mapContractProductBillingCycle(raw.billing_cycle_months),
+    createdAt: raw.created_at,
+    priceFormatted: mapContractProductPrice(raw, taxType),
+    calculatedCancelDate: raw.calculated_cancel_date,
+    provisionSetupFieldsConfirmed: raw.provision_setup_fields_confirmed,
+    inTrial: raw.in_trial,
+    trialEndAction: raw.trial_end_action,
+    nextDueDate: raw.next_due_date,
+    dateCreated: useDate(raw.created_at, undefined, "MMM Do, YYYY"),
+    dateNextDue: useDate(raw.next_due_date, undefined, "MMM Do, YYYY"),
+    dateCalculatedCancel: useDate(
+      raw.calculated_cancel_date,
+      undefined,
+      "MMM Do, YYYY"
+    ),
+    importId: raw.import_id,
+    moved: raw.moved,
+    name: raw.name,
+    canCancel: raw.can_cancel,
+    isDelegatedObject: raw.is_delegated_object,
+    autoCreateRenewInvoice: raw.auto_create_renew_invoice,
+    unpaidRecurringInvoices: map(
+      raw.unpaid_recurring_invoices,
+      mapUnpaidInvoice
+    ),
+    scheduledActions: raw.scheduled_actions
+      ? map(raw.scheduled_actions, mapScheduledAction)
+      : undefined,
+    isSubscription: raw.billing_cycle_months > 0,
+    hasScheduledFutureCancellation:
+      contractRequest?.status?.code ===
+      CancellationRequestStatusCodes.REQUEST_SCHEDULED_FUTURE_CANCELLATION,
+    clientInvoiceConsolidationEnabled:
+      raw.contract?.client?.invoice_consolidation_enabled,
+    product: raw.product
+      ? pick(raw.product, [
+          "id",
+          "name",
+          "image",
+          "provision_blueprint",
+          "invoice_consolidation_enabled"
+        ])
+      : undefined,
+    brand: raw.brand ? pick(raw.brand, ["id", "name", "currency"]) : undefined,
+    tags: (raw as WireContractProduct).tags,
+    futureCancellationRequest: raw.future_cancellation_request
+      ? mapFutureCancellation(raw.future_cancellation_request)
+      : undefined,
+    movedToContractProduct: raw.moved_to_contract_product
+      ? mapMovedToContractProduct(raw.moved_to_contract_product)
+      : undefined,
+    delegatingClients: raw.clients ? map(raw.clients, mapClient) : undefined,
+    raw
+  };
+}
+
+function mapContractRequest(
+  raw: IContractCancellationRequest
+): ContractProductRequest {
+  return {
+    id: raw.id,
+    status: raw.status
+      ? { code: raw.status.code as CancellationRequestStatusCodes }
+      : undefined
+  };
+}
+
+function mapFutureCancellation(
+  raw: IContractProductScheduledCancellation
+): NonNullable<ContractProduct["futureCancellationRequest"]> {
+  return pick(raw, [
+    "id",
+    "future_cancellation_date",
+    "scheduled_for",
+    "executed_at"
+  ]);
+}
+
+function mapMovedToContractProduct(
+  raw: IContractProduct
+): MovedToContractProduct {
+  return {
+    ...pick(raw, ["id", "name", "status"]),
+    clients: raw.clients ? map(raw.clients, mapClient) : undefined
+  };
+}
+
+function mapClient(raw: IClient): ContractProductClient {
+  return pick(raw, ["id", "fullname", "email", "image", "brand"]);
+}
+
+function mapScheduledAction(raw: IScheduledAction): ScheduledAction {
+  return pick(raw, [
+    "id",
+    "action_code",
+    "status",
+    "executed_at",
+    "created_at"
+  ]);
+}
+
+function mapUnpaidInvoice(raw: IInvoice): UnpaidInvoice {
+  return pick(raw, ["status"]);
+}
+
+/**
+ * One contract product as a picker option (R38 item 2, the `useTickets`
+ * `mapContractProductLookupItem` sibling). A client recognises their own
+ * product by its service identifier, falling back to the product's name.
+ */
+export function mapContractProductPickerItem(
+  raw: IContractProduct
+): LookupItem {
+  return {
+    value: raw.id,
+    label: raw.service_identifier || raw.product_name || raw.name || raw.id
+  };
+}
+
+/** The picker's lookup query `select` — every row as a selectable option. */
+export function mapContractProductPickerItems(
+  raw: IContractProduct[] = []
+): LookupItem[] {
+  return map(raw, mapContractProductPickerItem);
+}
+
+// -----------------------------------------------------------------------------
+// OUTBOUND — design 8.3, one mapper per write body
+
+/**
+ * `requestSoftCancel` / `abortSoftCancel` wire body.
+ *
+ * @decision
+ * what: `customFields` (a `CustomFieldModel` code→value map) is sent straight
+ *   through as `custom_fields`, not routed through
+ *   `mapCustomFieldValuesToRequest`.
+ * why: that helper is a DIRTY-DIFF updater against a base model; a cancellation
+ *   write is a fresh submission with no base, so diffing would silently strip
+ *   intended fields. Legacy sends the code→value object as-is
+ *   (`contractCancellation.ts:696-705`). Same call shared by the schedule body.
+ * rejected: `mapCustomFieldValuesToRequest(model.customFields)` — its
+ *   empty-diff `undefined` return and `""→null` coercion belong to the
+ *   value-editor edit flow, not a create.
+ */
+export function toSoftCancelBody(model: SoftCancelModel): SoftCancelBody {
+  return {
+    renew: model.renew,
+    ...(model.reason ? { cancellation_reason: model.reason } : {}),
+    ...(isEmpty(model.customFields)
+      ? {}
+      : { custom_fields: model.customFields })
+  };
+}
+
+/**
+ * The hard-cancellation request body (R33; moved from `contract`). `product_ids`
+ * is this one product; `customFields` is sent as-is (see `toSoftCancelBody`).
+ */
+export function toRequestCancellationBody(
+  model: RequestCancellationModel
+): RequestCancellationBody {
+  return {
+    product_ids: model.productIds,
+    ...(model.reason ? { cancellation_reason: model.reason } : {}),
+    ...(isEmpty(model.customFields)
+      ? {}
+      : { custom_fields: model.customFields })
+  };
+}
+
+/** `setConsolidation` wire body. */
+export function toConsolidationBody(
+  model: SetConsolidationModel
+): ConsolidationBody {
+  return { invoice_consolidation_enabled: model.invoiceConsolidationEnabled };
+}
+
+/** `scheduleCancellation` wire body (R18). */
+export function toScheduleCancellationBody(
+  model: ScheduleCancellationModel
+): ScheduleCancellationBody {
+  return {
+    future_cancellation_date: model.futureCancellationDate,
+    ...(model.reason ? { cancellation_reason: model.reason } : {}),
+    ...(isEmpty(model.customFields)
+      ? {}
+      : { custom_fields: model.customFields })
+  };
+}

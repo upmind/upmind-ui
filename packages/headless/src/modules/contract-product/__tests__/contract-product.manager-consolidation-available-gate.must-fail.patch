@@ -1,0 +1,24 @@
+# Negative-control mutant — the consolidation open flag refuses an unavailable product (G3, P4g, AC-9)
+#
+# Scenario it must flip: contract-product.manager-open-gates.int.test.ts, the
+#   AC-9 outline row "a cancelled subscription" (contract-product.feature:805).
+#   It expects `canConsolidate` false, matching `openConsolidation` opening
+#   nothing.
+# Mutation: `canConsolidate` drops the `isAvailable` gate added in 54d6ee599, so
+#   the flag reads the record predicate alone and reports the form as offered
+#   on a cancelled product whose `unavailable` node never receives CONSOLIDATION.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+index f450389bc..9cb7aa4d4 100644
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -66,7 +66,6 @@ export function createContractProductMeta(
+      */
+     canConsolidate: computed(
+       () =>
+-        isAvailable.value &&
+         !!contractProduct.value &&
+         isConsolidationEligible(contractProduct.value)
+     ),

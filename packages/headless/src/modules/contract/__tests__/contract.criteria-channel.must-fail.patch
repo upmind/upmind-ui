@@ -1,0 +1,31 @@
+# Negative-control mutant — the collection's criteria schema owns ALL request
+# state (R38 item 13, supersedes R28/R32's pagination-only ruling): filters,
+# sort AND pagination reach the wire only through `list({ criteria: { schema } })`.
+# No task/spec basename named this control yet — R38 (2026-09-28) postdates
+# `tasks.md`; this patch is authored against the ruling directly, for the
+# prover to anchor a schema-validation spec to.
+#
+# Scenario it must flip: `useContracts` rejects a criteria write carrying an
+#   undeclared top-level key (a hand-rolled `filter[...]` string riding beside
+#   the channel, per the doctrine clause "a raw sort/limit literal beside the
+#   channel is a defect here").
+# Mutation: `useQuerySchema`'s top-level `additionalProperties` flips from
+#   `false` to `true`, so an AJV validation against the schema silently admits
+#   any extra top-level key instead of rejecting it — the schema no longer
+#   OWNS the request state, it merely describes part of it.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
+index e20d028e7..9314c23a1 100644
+--- a/packages/headless/src/modules/contract/contract.schemas.ts
++++ b/packages/headless/src/modules/contract/contract.schemas.ts
+@@ -34,7 +34,7 @@ export function useQuerySchema(): QuerySchema {
+   return {
+     $schema: "http://json-schema.org/draft-07/schema#",
+     type: "object",
+-    additionalProperties: false,
++    additionalProperties: true,
+     properties: {
+       filters: {
+         type: "object",

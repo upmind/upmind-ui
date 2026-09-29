@@ -1,0 +1,59 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/contracts/89857426-4897-0122-24ef-21e325d0ed36/products/785d26e9-6783-d169-497f-314502e70439/schedule-cancel?case=past-date",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "future_cancellation_date": "2026-09-27"
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4232abbea360de1-JNB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 13:41:40 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=tNg9UK5K0pzG9SqM8v1uRtayau2Up17sq8hmDxEd3SdSeYL%2FTPTtNXJ5A6eQXN1zn2gAZ%2Be5d%2B6ltGXm6%2FwjzfjECh15srlOYEbVk6lBVq5uv%2BX%2Fvw1%2F9nhHBQDoNIAexMyH5ImO9w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "c28ab9ce8ba54eda495f3a54fac00d2309c646ac",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "future_cancellation_date": [
+            "Future cancellation date is in the past!"
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T13:41:40.511Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

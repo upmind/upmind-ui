@@ -12,35 +12,41 @@
  * a surfaced finding, never silently resolved toward either.
  */
 
-import { ScopeActorTypes } from "../scope";
 import { PAGINATION, SortDirection } from "../query";
-// import { createClientModuleSchemas } from "./module.schemas.client";
-import type { ModuleModel, ModuleSchemas } from "./module.types";
 import type { ControlElement, JsonSchema7, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module module/module.schemas
  * @description The module's schema family: the FORM pair
- * (`useSchema`/`useUischema`) plus its model parser, for the edit form if this
- * module has one, and the collection's QUERY schema pair
- * (`useQuerySchema`/`useQueryUischema`) — the whole of its request state.
- * @precedent `client-email/client-email.schemas.ts` (single-file,
- * armless).
+ * (`useSchema`/`useUischema`) for the edit form if this module has one, and
+ * the collection's QUERY trio (`useQuerySchema`/`useQueryUischema`/
+ * `useSortUischema`) — the whole of its request state. Exactly these five are
+ * exported; the field and control definitions below are file-private.
+ *
+ * AN EARNED SCHEMAS ARM (clause 3, `module.schemas.{actor}.ts`) is resolved
+ * where the shared pair is consumed, through a `scopedSchemas(scopeActor)`
+ * switch of the same matrix-lookup shape as `module.services.ts`'s
+ * `scopedServices`, added the day the arm is earned. Nothing is pre-built for
+ * it here (clause 2 — fresh modules start armless).
+ * @precedent `client-email/client-email.schemas.ts` (single-file, armless,
+ * the same five exports).
  */
 
 /**
  * Shared field definitions — the single source of truth for any field an ARM
- * may also need. An arm `$ref`s these rather than re-declaring them, so a
- * change here propagates to every arm instead of drifting.
+ * may also need. File-private: an arm reads them off `useSchema().definitions`
+ * and `$ref`s them rather than re-declaring them, so a change here propagates
+ * to every arm instead of drifting.
  *
  * @doctrine `code-ui.companion.md` (Uischema/JSONForms).
  * @worked-example `client-address/client-address.schemas.ts`'s own
- * `useSchemaDefinitions()` (exported, returns `JsonSchema7["definitions"]`,
- * consumed via `definitions:` + `$ref: "#/definitions/<name>"`) — the live
- * precedent in this codebase; `client-company` and `payment-details` consume
- * it the same way.
+ * `useSchemaDefinitions()` (returns `JsonSchema7["definitions"]`, consumed via
+ * `definitions:` + `$ref: "#/definitions/<name>"`) — the live precedent in
+ * this codebase. It exports the helper because `client-company` and
+ * `payment-details` import it; a fresh module has no such consumer, so the
+ * helper stays private until one exists.
  */
-export function useSchemaDefinitions(): JsonSchema7["definitions"] {
+function useSchemaDefinitions(): JsonSchema7["definitions"] {
   return {
     // `id` is a real, valid model value — every actor's form knows the field.
     // What differs per actor is whether that actor may SET it, which is why
@@ -82,9 +88,10 @@ export const useSchema = (): JsonSchema7 => {
 
 /**
  * Shared control definitions — the uischema counterpart of
- * `useSchemaDefinitions()`. JSONForms has no `$ref` for uischema, so reuse is
- * by named element: an arm REFERENCES the shared control for any field it
- * renders identically, and writes a full inline control only for the fields it
+ * `useSchemaDefinitions()`, file-private for the same reason. JSONForms has no
+ * `$ref` for uischema, so reuse is by element: an arm takes the shared control
+ * off `useUischema().elements` (by `scope`) for any field it renders
+ * identically, and writes a full inline control only for the fields it
  * renders differently. Same read as the schema layer:
  * referenced = inherited, inline control = overridden.
  *
@@ -108,7 +115,7 @@ export const useSchema = (): JsonSchema7 => {
  *   this tree precedents the keyed map: it is derived from doctrine, and the
  *   first real module to earn a schemas arm is the receipt to cite here.
  */
-export function useUischemaDefinitions() {
+function useUischemaDefinitions() {
   return {
     name: {
       type: "Control",
@@ -142,9 +149,6 @@ export const useUischema = (): UISchemaElement => {
   } as UISchemaElement;
 };
 
-export const useModuleModelParser = (model?: ModuleModel): ModuleModel => {
-  return { ...model };
-};
 
 // -----------------------------------------------------------------------------
 // Query schema — the collection's request state
@@ -321,43 +325,3 @@ export function useSortUischema(): ControlElement {
   };
 }
 
-// -----------------------------------------------------------------------------
-// Schemas Factory
-
-/**
- * Schema matrix: maps scopeActor types to their parser implementations.
- * Actor-specific parsers are created via factories, shared parsers are spread in
- * below. The shape is the same armed or armless — an armless module has only the
- * `default:` case, so nothing here or downstream changes when an arm is earned.
- *
- * Resolve the schema and uischema parsers TOGETHER — they are ONE contract. An
- * arm that overrides the schema (adding a field, or un-`readOnly`-ing one)
- * without overriding the uischema ships a required field with no control.
- */
-function scopedSchemas(scopeActor: ScopeActorTypes): Partial<ModuleSchemas> {
-  switch (scopeActor) {
-    // case ScopeActorTypes.CLIENT:
-    //   return createClientModuleSchemas();
-    default:
-      // Empty because this module is armless: no actor has earned an arm yet, so
-      // there is nothing to merge over the shared parsers. Only arm-specific
-      // members ever appear here — the shared ones are spread in below.
-      return {};
-  }
-}
-
-/**
- * Parsers factory — same shape as `module.services.ts`'s own
- * `createModuleServices`: the concrete actor arrives first, at construction, and
- * the form that owns this module's edit surface calls it once.
- */
-export const createModuleSchemas = (
-  scopeActor: ScopeActorTypes
-): ModuleSchemas => ({
-  useSchema,
-  useUischema,
-  useModuleModelParser,
-  ...scopedSchemas(scopeActor)
-});
-
-export default createModuleSchemas;

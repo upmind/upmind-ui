@@ -1,0 +1,32 @@
+# Negative-control mutant — `useContracts().useActions().sortBy` actually
+# reorders the list (R38 supersedes R28/R32's pagination-only ruling; B2).
+#
+# No task/spec basename names this member yet — R38 (2026-09-28) postdates
+# `tasks.md`; this patch is authored against the ruling directly, for the
+# prover to anchor a `sortBy` behavioural spec to (the `contract-product` /
+# `tickets` siblings each publish the same member).
+#
+# Scenario it must flip: calling `useContracts().useActions().sortBy(intent)`
+#   merges `intent` into the `sort` branch of the ONE query model, so the next
+#   request carries it.
+# Mutation: `sortBy` becomes a no-op — it no longer calls `query.setCriteria`,
+#   so a caller's sort intent never reaches the query's criteria and never
+#   reaches the wire.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/useContracts.actions.ts b/packages/headless/src/modules/contract/useContracts.actions.ts
+index 809be732a..2b1a3c9d3 100644
+--- a/packages/headless/src/modules/contract/useContracts.actions.ts
++++ b/packages/headless/src/modules/contract/useContracts.actions.ts
+@@ -96,8 +96,8 @@ export function createContractsActions(
+     query.setCriteria({ filters: intent });
+   }
+
+-  function sortBy(intent: SortModel): void {
+-    query.setCriteria({ sort: intent });
++  function sortBy(_intent: SortModel): void {
++    // no-op — the mutant this control catches
+   }
+
+   return {

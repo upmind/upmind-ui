@@ -27,6 +27,7 @@ import { createI18n } from "vue-i18n";
 import {
   PAGINATION,
   SortDirection,
+  useContractProducts,
   useI18n as useLocalisation,
   useInvoices
 } from "@upmind-automation/headless";
@@ -279,6 +280,19 @@ export const clientEmailHistoryQuery = (): QueryDeclaration => ({
  */
 export const invoicesQuery = (): QueryDeclaration => {
   const { schemas } = useInvoices().as("self").useContext();
+  return {
+    schema: schemas.query.schema as JsonSchema7,
+    uischema: schemas.query.uischema as UISchemaElement
+  };
+};
+
+/**
+ * The `contract-products` collection's live-published query declaration, pulled
+ * off `useContractProducts().as("self").useContext().schemas.query` for the same
+ * reason as `invoicesQuery`: a transcription cannot go stale unnoticed here.
+ */
+export const contractProductsQuery = (): QueryDeclaration => {
+  const { schemas } = useContractProducts().as("self").useContext();
   return {
     schema: schemas.query.schema as JsonSchema7,
     uischema: schemas.query.uischema as UISchemaElement

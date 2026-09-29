@@ -69,18 +69,6 @@ function isRead(fixture: RecordedFixture): boolean {
 
 // -----------------------------------------------------------------------------
 
-/** At or above it the server refused; below it the exchange succeeded. */
-const REFUSED_FROM = 400;
-
-/**
- * The refusal the app's own session machinery ACTS on: it cannot tell one the
- * force intercept produced from a real expired token, so it tears the session
- * down and the operator is signed out of a page they only asked for a picture of
- * (FE-3113 P, browser-verified).
- */
-
-/** The refusal a read for a record that is not there comes back at. */
-
 /** A Gherkin tag line: `@tag` tokens and nothing else. */
 const TAG_LINE = /^@[\w:.-]+(\s+@[\w:.-]+)*$/;
 

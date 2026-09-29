@@ -64,7 +64,7 @@ import { offeredForcedStates } from "../../force/offer";
 import { presetRefusal } from "../../force/presets";
 import { forcedStateRecipeId } from "../../force/states";
 import { ActionPlacementTypes } from "../../scenario.types";
-import { trackedModuleOf } from "../../scenario.utils";
+import { excludedTagsOf, trackedModuleOf } from "../../scenario.utils";
 import { ModuleRenderer } from "../index";
 import {
   filter,
@@ -293,7 +293,11 @@ export async function proveForcedSurface(
   // module's feature names, answerable from its recordings — never the corpus
   // measured on its own, which offers a form an `empty` its feature never
   // claimed (client-billing-settings, 2026-09-12).
-  const states = offeredForcedStates(feature, bodies);
+  const states = offeredForcedStates(
+    feature,
+    bodies,
+    excludedTagsOf(declaration.tracks)
+  );
   const offered = uniq(
     map(states, state => forcedStateRecipeId(state.recipe))
   ) as ForcePreset[];

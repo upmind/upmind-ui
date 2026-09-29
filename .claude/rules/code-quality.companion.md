@@ -31,4 +31,4 @@ Two exceptions:
 
 ## Gate bindings (graphify-gate.sh)
 
-- per-module-names: Context, ContextTypes, Actions, Meta, Internals, Props, ScopeMatrix
+- per-module-names: Context, ContextTypes, Actions, Meta, Internals, Props, ScopeMatrix, QueryModel, FilterModel, SortEntry, SortModel, ListQuery

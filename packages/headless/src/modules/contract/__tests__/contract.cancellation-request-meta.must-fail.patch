@@ -1,0 +1,34 @@
+# Negative-control mutant — the cancellation request's own status is ALSO a
+# translated-badge-ready `meta` group, not a bare `{ code }` (G2, R38 item 9)
+#
+# Scenario it must flip: a contract carrying a `cancellation_request` whose
+#   `status.code` is one of the five `CancellationRequestStatusCodes` gets a
+#   `cancellationRequest.meta` with exactly the matching flag true, the same
+#   `TableCellBadges` channel the row's own status uses.
+# Mutation: `mapContract` drops `mapContractCancellationRequestMeta(requestCode)`
+#   off the `cancellationRequest` branch, reverting it to the bare
+#   `{ status: { code } }` shape — no badge channel for the cancellation
+#   request survives.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -76,14 +76,7 @@
+     id: raw.id,
+     status: { code: raw.status.code as ContractStatusCodes },
+     meta: mapContractMeta(raw.status.code as ContractStatusCodes),
+-    ...(requestCode
+-      ? {
+-          cancellationRequest: {
+-            status: { code: requestCode },
+-            meta: mapContractCancellationRequestMeta(requestCode)
+-          }
+-        }
+-      : {}),
++    ...(requestCode ? { cancellationRequest: { status: { code: requestCode } } } : {}),
+     paymentDetailsId: raw.payment_details_id,
+     products: map(raw.products, mapContractProduct),
+     name: raw.name,

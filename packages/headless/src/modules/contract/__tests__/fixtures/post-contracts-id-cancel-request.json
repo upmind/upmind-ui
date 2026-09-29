@@ -1,0 +1,69 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/contracts/89857426-4897-0122-24ef-21e325d0ed36/cancel/request",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "product_ids": ["785d26e9-6783-d169-497f-314502e70439"],
+      "cancellation_reason": "prover fixture capture — withdrawn same run"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a42274f85fce1d20-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 11:37:36 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=vLqWwc7yQNQNlur1Xn6aWBIu72j5jLBXnYWfd7ohCVfkUZwVsMnjOUP2o3bE2UDYbk0xlwCjo%2F9dshmbygdG1EsFbZ%2BcqS489akPWmmUOlxSD0J22wUPc7PSfc6nWYG6GcOHEYlCkw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "5952098d-3de4-0917-96f3-1578626e347e",
+        "contract_id": "89857426-4897-0122-24ef-21e325d0ed36",
+        "reason": "prover fixture capture — withdrawn same run",
+        "status_id": "3de78642-de53-9714-6ea2-1208469530d0",
+        "created_at": "2026-09-28 11:37:35",
+        "updated_at": "2026-09-28 11:37:35",
+        "deleted_at": null,
+        "product_ids": null,
+        "contract_product_id": "785d26e9-6783-d169-497f-314502e70439",
+        "status": {
+          "id": "3de78642-de53-9714-6ea2-1208469530d0",
+          "object_type": "request",
+          "code": "request_cancellation_request",
+          "order": 4,
+          "name": "Cancellation Request"
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T11:37:36.027Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract"
+  }
+}

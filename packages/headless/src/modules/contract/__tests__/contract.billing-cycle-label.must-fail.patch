@@ -1,0 +1,23 @@
+# Negative-control mutant — the billing cycle is a translated LABEL, not the
+# raw month count (operator ruling 2, GAP-02).
+#
+# Scenario it must flip: `billingCycleLabel` reads the same `parseBillingCycle`
+#   helper `contract-product.mappers.ts` uses — a subscription's adverbial cycle
+#   name ("Monthly", "Annually"), "One time" for a one-time contract — so a page
+#   draws the label, never "1" or "0".
+# Mutation: `mapContractBillingCycle` always returns the DESCRIPTIVE form, so a
+#   monthly subscription reads "1 month" instead of its adverbial "Monthly".
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -75,5 +75,5 @@
+  */
+ export function mapContractBillingCycle(months: number): string {
+   const cycle = parseBillingCycle(months);
+-  return months > 0 ? cycle.adverbial : cycle.descriptive;
++  return cycle.descriptive;
+ }

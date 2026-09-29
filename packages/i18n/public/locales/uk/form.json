@@ -91,6 +91,21 @@
     "label": "Номер компанії",
     "placeholder": "Ідентифікаційний номер підприємства"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "Країна",
     "placeholder": "Виберіть країну"
@@ -106,6 +121,9 @@
     "label": "Електронна пошта",
     "placeholder": "ім'я@email.com",
     "title": "Додати нову електронну пошту | Оновити електронну пошту"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "Примітки до замовлення"
