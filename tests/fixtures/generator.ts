@@ -296,13 +296,14 @@ export class Generator {
     return this.capture("PATCH", path, body, headers, forceStatus);
   }
 
-  /** DELETE + capture. See `get` for `forced`. */
+  /** DELETE + capture. See `get` for `forced`. Some routes take a body (`cancel/request`). */
   async delete(
     path: string,
+    body?: unknown,
     headers?: Record<string, string>,
     forceStatus?: ForcedErrorCode
   ): Promise<ApiResponse> {
-    return this.capture("DELETE", path, undefined, headers, forceStatus);
+    return this.capture("DELETE", path, body, headers, forceStatus);
   }
 
   /** Set the bearer token sent on every subsequent request. */

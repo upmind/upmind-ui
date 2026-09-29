@@ -1,0 +1,36 @@
+# Negative-control mutant — `useContracts().useMeta().isFiltered` actually
+# tracks whether any filter is applied (R38 supersedes R28/R32's
+# pagination-only ruling; B3).
+#
+# No task/spec basename names this member yet — R38 (2026-09-28) postdates
+# `tasks.md`; this patch is authored against the ruling directly, for the
+# prover to anchor an `isFiltered` behavioural spec to (the `contract-product`
+# sibling: `useContractProducts().useMeta().isFiltered`).
+#
+# Scenario it must flip: `useContracts().useMeta().isFiltered` reflects the
+#   query's own live criteria — true once a filter is applied, false once it
+#   is cleared.
+# Mutation: `isFiltered` is hardcoded to `false`, so it never reports an
+#   applied filter no matter what the query's own criteria say.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/useContracts.meta.ts b/packages/headless/src/modules/contract/useContracts.meta.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/useContracts.meta.ts
++++ b/packages/headless/src/modules/contract/useContracts.meta.ts
+@@ -1,4 +1,5 @@
+ import { computed } from "vue";
++import { computed as constant } from "vue";
+ import { isEmpty } from "lodash-es";
+ import type { ContractServices, ContractListQuery } from "./contract.types";
+ import type { ScopeActorTypes } from "../scope/scope.types";
+@@ -43,7 +44,7 @@ export function createContractsMeta(
+     isEmpty: isEmptyList,
+
+     /** True while ANY filter is applied. */
+-    isFiltered: query.isFiltered,
++    isFiltered: constant(() => false),
+
+     /** True while the list is loading or has not completed its first fetch. */
+     isLoading

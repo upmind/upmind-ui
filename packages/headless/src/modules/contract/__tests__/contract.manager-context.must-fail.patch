@@ -1,0 +1,22 @@
+Negative control for useContract.context.ts `context` (R37 B1).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("The contract I have open carries everything the manager read about it",
+contract.feature:259) — reads `useContext().context` and expects its
+`contractId`, `rawContract.id` and `contract.id` to name the opened contract.
+
+Mutation: drops the `context` member from the manager context factory.
+
+diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
+--- a/packages/headless/src/modules/contract/useContract.context.ts
++++ b/packages/headless/src/modules/contract/useContract.context.ts
+@@ -54,9 +54,6 @@ export function createContractContext(
+     /** The mapped contract view model. */
+     contract,
+
+-    /** The full machine context object. */
+-    context: useContext<ContractContext>(state),
+-
+     /** The contract status in the platform vocabulary (AC12). */
+     contractStatus: useContext<ContractStatusCodes>(
+       state,

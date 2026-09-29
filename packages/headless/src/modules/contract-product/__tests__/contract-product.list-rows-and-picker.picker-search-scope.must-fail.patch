@@ -1,0 +1,24 @@
+# Negative-control mutant — the picker's search reaches its lookup (B3)
+#
+# Scenario it must flip: a picker spec that types a term into the
+#   `contractProductPicker` lookup (useLookup's `setCriteria` at the control's
+#   `searchScope`) and asserts `GET contracts_products` carries
+#   `filter[service_identifier][like]=<term>`.
+# Mutation: the control's `searchScope` is `query`, a branch the picker's
+#   criteria schema does not declare, so ajv strips the term and the search
+#   is dead.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -345,7 +345,7 @@ export function useContractProductPickerUischema(
+         options: {
+           lookup: {
+             service: lookups.contractProduct,
+-            searchScope: "filters.service_identifier.like"
++            searchScope: "query"
+           },
+           optionalText: ""
+         }

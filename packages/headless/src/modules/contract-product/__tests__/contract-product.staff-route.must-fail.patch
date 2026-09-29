@@ -1,0 +1,28 @@
+# Negative-control mutant — contract-product staff route (AC-16)
+#
+# Scenario it must flip: contract-product.feature >
+#   "No staff route is ever reachable from my product surfaces"
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   "AC-16 not one of the writes this module offers me is ever addressed to a staff route"
+#   (the positive allow-list `allowed.some(path.endsWith)` reads false and
+#   `not.toMatch(/\/(terms|activate|manual_status|currency|transfer|scheduled_actions)\b/)`
+#   flips; the replay server also refuses the unmatched URL).
+# Mutation: `setConsolidation` PUTs to the staff `manual_status` route instead
+#   of the client `properties` route.
+# Collateral: AC-9 in the same file (consolidation PUT) goes red too.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+index f9de1acf0..f23c8d6b2 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -429,7 +429,7 @@ async function setConsolidation(
+
+   return put<IContractProduct>({
+     mutationKey: [...queryKey, context.contractProductId, "consolidation"],
+-    url: await productUrl(context, "properties"),
++    url: await productUrl(context, "manual_status"),
+     data: toConsolidationBody(model),
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));

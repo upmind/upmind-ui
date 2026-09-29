@@ -1,0 +1,121 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/contracts?case=status-contract_cancelled&with=status,cancellation_request,cancellation_request.status&filter[status.code]=contract_cancelled&limit=1&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4239b722e1a2571-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 14:58:36 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=TeofuOCMl%2FigmYv%2FUfTmM8SkNL0RjWmWoOpIbb7mncTOz1pWVN2Il1FPy9ZL7LvfR6%2FGXKX8IfkHLTD36HjjvjjSNM1qgyCw5GYR6RlDsbvB3L7wQVqVlAJ4a8MYWHeUp%2B5wPHTZ6g%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "03679424-d0e7-1092-333f-3153698d582e",
+          "import_id": null,
+          "staged_import": false,
+          "finished_staged_import": null,
+          "external_id": null,
+          "name": null,
+          "notes": null,
+          "start_date": "2026-09-26",
+          "end_date": "0000-00-00",
+          "next_due_date": null,
+          "next_invoice_date": "0000-00-00",
+          "cancellation_date": "2026-09-26",
+          "cancellation_reason": null,
+          "activation_date": "2026-09-26",
+          "status_id": "47d73824-8507-9315-36f8-1e642d59e063",
+          "total_recurrent_amount": 0,
+          "total_amount": 0,
+          "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+          "user_id": "sys",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "company_id": "47d73824-8507-9315-362c-81e642d59e06",
+          "phone_id": null,
+          "address_id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
+          "billing_cycle_months": 1,
+          "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "main_invoice_id": "d7382485-0793-153d-70d2-f81e642d59e0",
+          "main_invoice_number": "QAT-FR-24827",
+          "gateway_id": null,
+          "payment_details_id": null,
+          "promotion_id": null,
+          "promotion_code": null,
+          "created_at": "2026-09-26 07:56:55",
+          "updated_at": "2026-09-26 08:00:39",
+          "reseller_account_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+          "fraud_status": 1,
+          "currency_exchange_rate": "1.000000",
+          "locked": null,
+          "billing_cycle_days": 30,
+          "reconciliation_strict": 0,
+          "tax_type": 0,
+          "moved_from_contract_id": null,
+          "moved_to_contract_id": null,
+          "moved": false,
+          "partially_moved": false,
+          "total_recurrent_amount_formatted": "£0.00",
+          "total_amount_formatted": "£0.00",
+          "currency": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "British Pound",
+            "prefix": "£",
+            "suffix": "",
+            "code": "GBP",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-09-28 11:08:14",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          "status": {
+            "id": "47d73824-8507-9315-36f8-1e642d59e063",
+            "object_type": "contract",
+            "code": "contract_cancelled",
+            "order": 5,
+            "name": "Cancelled"
+          },
+          "cancellation_request": null
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T14:58:36.761Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract"
+  }
+}

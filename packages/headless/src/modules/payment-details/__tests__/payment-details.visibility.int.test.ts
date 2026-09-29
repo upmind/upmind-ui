@@ -13,7 +13,7 @@
  * row through the real composable over the real machine and asserts the
  * published TABLE, never what the code happens to return.
  *
- * ## The oracle — the published table, verbatim
+ * ## The oracle — the published table
  * ```
  * | Scenario                       | Section | Gateways | Stored | Actions | Complete |
  * | Normal order, no selection     | YES     | YES      | YES*   | NO      | NO       |
@@ -23,16 +23,22 @@
  * | ADD context (save card)        | YES     | YES      | NO     | NO      | NO       |
  * | Wallet fully covers            | YES     | NO       | NO     | YES     | NO       |
  * ```
+ * The starred rows are written for the EMPTY wallet — "no selection" holds only
+ * while the client has no method on file.
  *
- * ## Why both starred cells read FALSE — the recording, not a weakened cell
- * `showStored` is starred "only when stored methods exist", and in this harness
- * none do. The recording client's real 13-record stored list collapses to a
- * SINGLE `gatewayId`-less record through the module's mapper — the defect already
- * pinned by an `it.fails` in `payment-details.int.test.ts` — and the module then
- * drops that record for matching no offered gateway. So `hasStoredPaymentMethods`
- * is false throughout, and both starred cells take their documented "no methods
- * on file" leg. Recording a client whose list survives the mapper is what would
- * flip them, never a softer expectation here.
+ * ## Why the two starred rows now read as a PRESELECTED default (FE-3130)
+ * `mapPaymentDetails` reads the recording client's gap-keyed 13-record stored
+ * list as its full list of cards (fixed on FE-3130), and twelve match an offered
+ * gateway, so `hasStoredPaymentMethods` is true. With a default card now on file
+ * the unchanged machine preselects it (`context.paymentDetail` is set at boot —
+ * proven in `payment-details.machine.int.test.ts`). So "Normal order, no
+ * selection" and "Free, capture needed" are no longer reached with an empty
+ * choice: the default IS the selection. `showStored` takes its "methods on file"
+ * leg, and the preselected default drives `showPaymentActions` on — and, for the
+ * free-capture row, closes the gateway list and reads `isComplete`. This is the
+ * contract's "default card preselected" at checkout, not a weakened cell. The
+ * ADD context still withholds the stored methods — that guard is proven below,
+ * unchanged.
  *
  * ## Why no acceptance-criterion id is named
  * The co-located `payment-details.feature` tags no scenario for this table, and
@@ -295,14 +301,14 @@ describe("paymentDetails visibility contract — the published table", () => {
     });
   }
 
-  it("a normal order with nothing chosen offers the gateways and withholds the actions", async () => {
+  it("a normal order preselects the client's default card and opens the pay actions", async () => {
     const { cells } = await held();
 
     expect(cells()).toEqual({
       showPaymentSection: true,
       showGatewaySelection: true,
-      showStoredPaymentMethods: false,
-      showPaymentActions: false,
+      showStoredPaymentMethods: true,
+      showPaymentActions: true,
       isComplete: false
     });
   });
@@ -341,7 +347,7 @@ describe("paymentDetails visibility contract — the published table", () => {
     });
   });
 
-  it("a free order that still needs a card kept offers the gateways again", async () => {
+  it("a free order that still needs a card kept is completed by the preselected default", async () => {
     const { cells } = await held(
       {
         amount: 0,
@@ -353,10 +359,10 @@ describe("paymentDetails visibility contract — the published table", () => {
 
     expect(cells()).toEqual({
       showPaymentSection: true,
-      showGatewaySelection: true,
-      showStoredPaymentMethods: false,
-      showPaymentActions: false,
-      isComplete: false
+      showGatewaySelection: false,
+      showStoredPaymentMethods: true,
+      showPaymentActions: true,
+      isComplete: true
     });
   });
 

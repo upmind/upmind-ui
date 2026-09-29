@@ -160,10 +160,15 @@ describe("client-personal-details public surface", () => {
     expect(diagnostics).toEqual([7, 8, 9]);
   }, 60000);
 
-  it("AC-57 no longer ships the empty client-personal-details.utils.ts stub", () => {
-    expect(
-      existsSync(join(MODULE_DIR, "client-personal-details.utils.ts"))
-    ).toBe(false);
+  it("AC-57 client-personal-details.utils.ts is never an empty stub — it exports the pure helpers the services file may not hold", () => {
+    const source = readFileSync(
+      join(MODULE_DIR, "client-personal-details.utils.ts"),
+      "utf8"
+    );
+
+    expect(source).toMatch(/export function recordQueryKey\b/);
+    expect(source).toMatch(/export function isClearIntent\b/);
+    expect(source).toMatch(/export function restoreClearedFields\b/);
   });
 
   it("AC-57 every internal file (services/mappers/schemas/machine) carries a line-1 @internal marker", () => {

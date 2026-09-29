@@ -330,6 +330,22 @@ describe("paymentDetails machine — the capture lifecycle", () => {
     await vi.waitFor(() => {
       expect(service?.state.matches("available")).toBe(false);
     });
+  });
+
+  // The machine is untouched by this story (money path, risk floor). With the
+  // client's real default card now preselected at boot, sign-out leaves that
+  // stale card in context. Pinned as an it.fails so the gap is visible, not
+  // hidden — it must fail today.
+  it.fails("a stale preselected card survives sign-out", async () => {
+    service = await boot();
+    expect(service.state.matches("available")).toBe(true);
+    expect(service.state.context.paymentDetail).toBeDefined();
+
+    service.send({ type: "UNAUTHENTICATED" });
+
+    await vi.waitFor(() => {
+      expect(service?.state.matches("available")).toBe(false);
+    });
     expect(service.state.context.paymentDetail).toBeUndefined();
   });
 

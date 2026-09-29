@@ -1,4 +1,6 @@
 export * from "./section";
+export { default as UpmHero } from "./hero/Hero.vue";
+export { useAnnouncement } from "./announcement/useAnnouncement";
 export * from "./form";
 // Expose the Icon resolver so app consumers (velia/hosting) can drop the
 // old-lib <Icon> — the new lib is lucide-only and has no string-name resolver.

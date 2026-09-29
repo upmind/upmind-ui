@@ -1,0 +1,30 @@
+# Negative-control mutant — the contracts picker's VALUE is the id `useContract`
+# loads by, never the label a hand reads (R38 item 7, the `useTicket` /
+# `schemas.ticketPicker` shape: "the id is the value because that is what the
+# manager loads by").
+#
+# Covering spec: contract.contracts-picker.test.ts (unit) — a RECORDED
+#   `get-contracts-case-named-first` row is given a `name`, then asserted:
+#   `option.value` is the row's id and `option.label` is that name. The named
+#   case is the ONLY place a name-derived value can diverge from the id;
+#   `contract.criteria.int.test.ts`'s picker case holds unnamed rows only.
+# Mutation: `mapContractLookupItem` publishes the option's `value` as the
+#   contract's `name` (falling back to `id` only when unnamed) instead of its
+#   `id`. A named row's value then becomes its name, so `useContract().withId`
+#   loads by a string the platform does not accept as an id.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 48ab6c0af0..dcb90ad8e2 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -122,7 +122,7 @@ export function mapContracts(raw: IContract | IContract[]): Contract[] {
+  */
+ export function mapContractLookupItem(raw: IContract): LookupItem {
+   return {
+-    value: raw.id,
++    value: raw.name || raw.id,
+     label: mapContractTitle(raw) ?? raw.id,
+     description: raw.status?.code ?? undefined
+   };

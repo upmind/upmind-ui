@@ -108,5 +108,4 @@ export function createModuleActions(
   };
 }
 
-// Type export for consumers
 export type UseModuleActions = ReturnType<typeof createModuleActions>;

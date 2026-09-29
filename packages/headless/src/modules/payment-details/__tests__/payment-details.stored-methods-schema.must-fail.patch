@@ -1,0 +1,28 @@
+# Negative-control mutant — stored-method schema loses its null member (R28-D2)
+#
+# Scenario it must flip: the shared stored-card pick list offers every card id
+#   PLUS a `null` member, so the schema can validate the clear/none choice.
+# Test that goes red: payment-details.stored-methods-schema.test.ts >
+#   useStoredPaymentMethodsSchema > "offers every stored card id, plus a null
+#   member, as its enum"
+#   (`schema.enum` no longer contains `null` and is one shorter, so both
+#   `toContain(null)` and `toHaveLength(cards.length + 1)` flip; the PAY-machine
+#   byte-identity regression guard flips as collateral).
+# Mutation: `useStoredPaymentMethodsSchema` drops the `null` member from the id
+#   enum.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/payment-details/payment-details.schemas.ts b/packages/headless/src/modules/payment-details/payment-details.schemas.ts
+index 5708e3f67..032190489 100644
+--- a/packages/headless/src/modules/payment-details/payment-details.schemas.ts
++++ b/packages/headless/src/modules/payment-details/payment-details.schemas.ts
+@@ -37,7 +37,7 @@ export function useStoredPaymentMethodsSchema(
+     type: ["string", "null"],
+     enum: isEmpty(storedPaymentMethods)
+       ? undefined
+-      : [...map(storedPaymentMethods, "id"), null],
++      : [...map(storedPaymentMethods, "id")],
+     options: map(
+       storedPaymentMethods,
+       ({ id, name, cardType, cardExpireDate, meta }) => {

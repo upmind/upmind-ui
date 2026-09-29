@@ -105,5 +105,4 @@ export function createClientModuleMeta(query: ModuleListQuery) {
   };
 }
 
-// Type export for consumers
 export type ClientModuleMeta = ReturnType<typeof createClientModuleMeta>;

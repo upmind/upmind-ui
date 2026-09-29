@@ -39,4 +39,4 @@ export type { UseModuleMeta } from "./useModule.meta";
 export type { UseModuleInternals } from "./useModule.internals";
 
 // --- Public item/model types
-export type { ModuleItem, ModuleModel } from "./module.types";
+export type { {Module}, ModuleModel } from "./module.types";

@@ -1,5 +1,6 @@
 /** @internal */
 import {
+  type ControlElement,
   type JsonSchema7,
   RuleEffect,
   type JsonSchema,
@@ -16,8 +17,58 @@ import {
 import { useI18n } from "../system-localisation";
 import { useTranslateName } from "../../utils";
 import { map, values, includes, isEmpty, size, compact } from "lodash-es";
-import type { PaymentDetailsContext } from "./payment-details.types";
+import type {
+  PaymentDetail,
+  PaymentDetailsContext
+} from "./payment-details.types";
 
+/**
+ * The stored-card pick list — one `enum` member per stored payment method,
+ * each with its labelled `option`. `null` stays a member so a form may pick
+ * a gateway instead. Shared by the PAY form and any surface that only picks
+ * a stored card (e.g. a contract's payment method).
+ */
+export function useStoredPaymentMethodsSchema(
+  storedPaymentMethods?: PaymentDetail[]
+): JsonSchema7 {
+  const { t } = useI18n();
+
+  return {
+    type: ["string", "null"],
+    enum: isEmpty(storedPaymentMethods)
+      ? undefined
+      : [...map(storedPaymentMethods, "id"), null],
+    options: map(
+      storedPaymentMethods,
+      ({ id, name, cardType, cardExpireDate, meta }) => {
+        return {
+          value: id,
+          label: name,
+          text: cardExpireDate
+            ? `${t("text.expires_abbr")} ${cardExpireDate}`
+            : "",
+          appendIcon: { name: cardType, path: "payment-providers" },
+          isDefault: meta.isDefault
+        };
+      }
+    )
+  } as JsonSchema7;
+}
+
+/** The stored-card control — a radio over {@link useStoredPaymentMethodsSchema}. */
+export function useStoredPaymentMethodsUischema(
+  scope = "#/properties/payment_details_id",
+  i18n = "form.payment_details_id"
+): ControlElement {
+  return {
+    type: "Control",
+    scope,
+    i18n,
+    options: {
+      format: "radio"
+    }
+  };
+}
 // -----------------------------------------------------------------------------
 
 export function useSchemaDefinitions({
@@ -25,8 +76,6 @@ export function useSchemaDefinitions({
   amount,
   model
 }: PaymentDetailsContext): JsonSchema7["definitions"] {
-  const { t } = useI18n();
-
   const definitions = {
     type: {
       type: "string",
@@ -66,26 +115,9 @@ export function useSchemaDefinitions({
       }))
     },
 
-    payment_details_id: {
-      type: ["string", "null"],
-      enum: isEmpty(lookups.storedPaymentMethods)
-        ? undefined
-        : [...map(lookups.storedPaymentMethods, "id"), null],
-      options: map(
-        lookups.storedPaymentMethods,
-        ({ id, name, cardType, cardExpireDate, meta }) => {
-          return {
-            value: id,
-            label: name,
-            text: cardExpireDate
-              ? `${t("text.expires_abbr")} ${cardExpireDate}`
-              : "",
-            appendIcon: { name: cardType, path: "payment-providers" },
-            isDefault: meta.isDefault
-          };
-        }
-      )
-    }
+    payment_details_id: useStoredPaymentMethodsSchema(
+      lookups.storedPaymentMethods
+    )
   };
 
   return definitions;
@@ -229,14 +261,7 @@ export const usePayUischemaDefinitions = ({
   // Visibility is controlled by the Vue template conditions (meta.hasStoredPaymentMethods, meta.hasGateways).
   // This prevents layout shifts during refresh/transitions.
   if (!isEmpty(lookups?.storedPaymentMethods)) {
-    definitions.payment_details_id = {
-      type: "Control",
-      scope: "#/properties/payment_details_id",
-      i18n: "form.payment_details_id",
-      options: {
-        format: "radio"
-      }
-    };
+    definitions.payment_details_id = useStoredPaymentMethodsUischema();
   }
 
   if (!isEmpty(lookups?.gateways)) {

@@ -91,6 +91,21 @@
     "label": "Şirket Numarası",
     "placeholder": "Şirket Kimlik Numarası"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "Ülke",
     "placeholder": "Bir ülke seçin"
@@ -106,6 +121,9 @@
     "label": "E-posta",
     "placeholder": "isim@e-posta.com",
     "title": "Yeni E-posta Ekle | E-postayı Güncelle"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "Sipariş Notları"

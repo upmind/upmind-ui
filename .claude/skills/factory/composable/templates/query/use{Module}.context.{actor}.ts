@@ -38,8 +38,7 @@
 
 import { computed } from "vue";
 import { castArray, flatMap } from "lodash-es";
-import { baseLookups } from "./useModule.context";
-import type { ModuleItem, ModuleListQuery } from "./module.types";
+import type { {Module}, ModuleListQuery } from "./module.types";
 // -----------------------------------------------------------------------------
 /**
  * @module module/useModule.context.client
@@ -47,7 +46,15 @@ import type { ModuleItem, ModuleListQuery } from "./module.types";
  * when this module has earned a context arm (clause 3). Shared context stays
  * in `useModule.context.ts`.
  */
-export function createClientModuleContext(query: ModuleListQuery) {
+/**
+ * `baseLookups` arrives from the shared factory (`useModule.context.ts`
+ * keeps it file-private) so the A+B override below spreads the SAME array the
+ * shared `lookups` returns.
+ */
+export function createClientModuleContext(
+  query: ModuleListQuery,
+  baseLookups: { key: string }[]
+) {
   /**
    * EXCLUSIVE MEMBER worked example — a value only this actor's context
    * exposes; absent from the shared factory entirely (nothing to justify
@@ -63,7 +70,7 @@ export function createClientModuleContext(query: ModuleListQuery) {
   const entitlements = computed<string[]>(() =>
     flatMap(
       castArray(query.data.value ?? []),
-      (item: ModuleItem) => item.entitlements ?? []
+      (item: {Module}) => item.entitlements ?? []
     )
   );
 
@@ -77,9 +84,9 @@ export function createClientModuleContext(query: ModuleListQuery) {
    * @doctrine clause 3 (`code-composables.md` Part B "Actor-Specific
    * Sub-Composables") — "overriding the shared implementation".
    * @decision
-   * what: this arm's `lookups` spreads the shared factory's exported
-   *   `baseLookups` AND appends the client-only reference data this actor's
-   *   forms need — imported, never re-declared, so the base cannot drift.
+   * what: this arm's `lookups` spreads the shared factory's own
+   *   `baseLookups` (passed in) AND appends the client-only reference data this actor's
+   *   forms need — received, never re-declared, so the base cannot drift.
    * why: the extra lookups are meaningless to a staff actor and would be a
    *   wasted fetch there; putting them in the shared factory would either
    *   over-fetch for every actor or force the shared file to branch on
@@ -102,5 +109,4 @@ export function createClientModuleContext(query: ModuleListQuery) {
   };
 }
 
-// Type export for consumers
 export type ClientModuleContext = ReturnType<typeof createClientModuleContext>;

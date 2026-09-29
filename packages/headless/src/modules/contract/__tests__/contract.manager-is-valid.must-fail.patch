@@ -1,0 +1,22 @@
+Negative control for useContract.meta.ts `isValid` (R37 B12).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("A stored card I choose in the payment-method form is taken in and
+checked", contract.feature:302) — expects `useMeta().isValid` true once the
+chosen stored card is checked.
+
+Mutation: reverts the meta flag back to the pre-restore `isPaymentMethodValid`
+name.
+
+diff --git a/packages/headless/src/modules/contract/useContract.meta.ts b/packages/headless/src/modules/contract/useContract.meta.ts
+--- a/packages/headless/src/modules/contract/useContract.meta.ts
++++ b/packages/headless/src/modules/contract/useContract.meta.ts
+@@ -49,7 +49,7 @@ export function createContractMeta(
+     ]),
+
+     /** True when the open payment-method form passes validation, from either parent. */
+-    isValid: useStateMatches(state, [
++    isPaymentMethodValid: useStateMatches(state, [
+       "available.changingPaymentMethod.available.valid",
+       "unavailable.changingPaymentMethod.available.valid"
+     ]),

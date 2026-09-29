@@ -1,0 +1,38 @@
+# Negative-control mutant — the HARD cancel submit validates before it writes (AC-6, R33/R35)
+#
+# Scenario it must flip: the cancellation form's HARD path
+#   (`processing.requestingCancellation`) runs `validating`
+#   (`validateCancellation`) BEFORE `updating`, so an invalid model lands in the
+#   form's `error` node and NO `cancel/request` POST leaves the module (R35's
+#   own-processing form shape). (Re-authored: the pre-R33 single write region
+#   this patch once targeted moved with R33; the cancelling region is the
+#   contract product's now.)
+# Test that goes red: NONE EXISTS YET for the HARD path. The AC-6 invalid->422
+#   test (`contract-product.mutations.int.test.ts`) drives the SCHEDULE_FUTURE
+#   option, whose control is
+#   `contract-product.mutations.cancellation-invalid-model.must-fail.patch`; no
+#   test submits an INVALID model under the HARD option and asserts the 422
+#   lands with no POST. This is a GAP, surfaced not hidden (the developer seat
+#   does not author tests; handed to the prover). Applying this patch and
+#   running the sibling spec stays GREEN today — the proof of the gap. Once the
+#   prover lands a HARD-option invalid-model test, that test is the one this
+#   mutant must flip red.
+# Mutation: `requestingCancellation.validating` routes its `onError` straight to
+#   `updating` instead of the form's `#cancelling.available.error` node — the
+#   invalid model is POSTed anyway.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+index 86220f7bf..04c08d02c 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -280,7 +280,7 @@ export const contractProductMachine = createMachine(
+                           src: "validateCancellation",
+                           onDone: { target: "updating" },
+                           onError: {
+-                            target: "#cancelling.available.error",
++                            target: "updating",
+                             actions: ["setError"]
+                           }
+                         }

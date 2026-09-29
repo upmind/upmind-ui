@@ -61,5 +61,4 @@ export function createModuleMeta(actorScope: ScopeActorTypes, actor: UseActor) {
   };
 }
 
-// Type export for consumers
 export type UseModuleMeta = ReturnType<typeof createModuleMeta>;

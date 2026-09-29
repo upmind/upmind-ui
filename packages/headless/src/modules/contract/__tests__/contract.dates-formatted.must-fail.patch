@@ -1,0 +1,32 @@
+# Negative-control mutant — the contract's DRAWN dates are `useDate` descriptors
+# beside the ISO wire fields (operator ruling 1, GAP-01/GAP-03; tickets/invoices
+# `date*` shape).
+#
+# Scenario it must flip: `dateNextDue` and `datePurchased` on the mapped view
+#   model are `{ date, relative }` `useDate` descriptors over their OWN wire
+#   fields, so the labs `TableCellDate` renderer draws the right formatted date;
+#   the ISO `nextDueDate` / `purchaseDate` stay for logic.
+# Mutation: the two display descriptors format each OTHER's wire field, so the
+#   next-due column draws the purchase date and the purchase column draws the
+#   next-due date.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -101,10 +101,10 @@
+     name: raw.name,
+     title: mapContractTitle(raw),
+     nextDueDate: raw.next_due_date,
+-    dateNextDue: useDate(raw.next_due_date, undefined, "MMM Do, YYYY"),
++    dateNextDue: useDate(raw.start_date, undefined, "MMM Do, YYYY"),
+     billingCycleMonths: raw.billing_cycle_months,
+     billingCycleLabel: mapContractBillingCycle(raw.billing_cycle_months),
+     purchaseDate: raw.start_date,
+-    datePurchased: useDate(raw.start_date, undefined, "MMM Do, YYYY"),
++    datePurchased: useDate(raw.next_due_date, undefined, "MMM Do, YYYY"),
+     totalAmountFormatted: raw.total_amount_formatted,
+     raw
+   };

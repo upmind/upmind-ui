@@ -9,6 +9,8 @@ import FilterBarRenderer from "./FilterBarRenderer.vue";
 import { tester as filterBarTest } from "./FilterBarRenderer.vue";
 import FilterButtonGroupRenderer from "./FilterButtonGroupRenderer.vue";
 import { tester as filterButtonGroupTest } from "./FilterButtonGroupRenderer.vue";
+import FilterExclusiveToggleGroupRenderer from "./FilterExclusiveToggleGroupRenderer.vue";
+import { tester as filterExclusiveToggleGroupTest } from "./FilterExclusiveToggleGroupRenderer.vue";
 import FilterMultiSelectRenderer from "./FilterMultiSelectRenderer.vue";
 import { tester as filterMultiSelectTest } from "./FilterMultiSelectRenderer.vue";
 import FilterRangeRenderer from "./FilterRangeRenderer.vue";
@@ -49,6 +51,10 @@ export const formRenderers = [
   registerEntry(TermsRenderer, termsTest),
   registerEntry(SubProductRenderer, subProductTest),
   registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
+  registerEntry(
+    FilterExclusiveToggleGroupRenderer,
+    filterExclusiveToggleGroupTest
+  ),
   registerEntry(FilterToggleGroupRenderer, filterToggleGroupTest),
   registerEntry(EnumToggleGroupRenderer, enumToggleGroupTest),
   registerEntry(FilterSearchRenderer, filterSearchTest),

@@ -19,6 +19,11 @@ import {
 import { useSchema } from "./client-personal-details.schemas";
 import { ClientPersonalDetailsContextTypes } from "./client-personal-details.types";
 import {
+  recordQueryKey,
+  restoreClearedFields,
+  RECORD_QUERY_KEY_SEGMENT
+} from "./client-personal-details.utils";
+import {
   ErrorOrigin,
   useTime,
   compactDeep,
@@ -42,6 +47,7 @@ import type {
 import type { ResponseError } from "../../utils";
 import type { DefaultError, QueryKey } from "@tanstack/vue-query";
 import type { IClient } from "@upmind-automation/types";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/client-personal-details.services
@@ -62,22 +68,6 @@ import type { IClient } from "@upmind-automation/types";
 
 /** The module's base cache key prefix. */
 export const queryKey: QueryKey = ["client"];
-
-/**
- * The last segment of the shared client-record key. MUST stay byte-identical
- * to `client-custom-fields.services.ts`'s own private
- * `CLIENT_RECORD_QUERY_KEY_SEGMENT` — A resolves `brand_id` off the SAME
- * `clients/{id}?with=custom_fields,custom_fields.field` resource under the
- * SAME key (design.md §3.3/T-B2), so the two dedupe onto one request per
- * boot instead of two. Not imported from A's `@internal` services file
- * (B "imports nothing else from A", design.md §4) — mirrored as a literal.
- */
-const RECORD_QUERY_KEY_SEGMENT = "record" as const;
-
-/** Builds the shared client-record key for a resolved id. */
-function recordQueryKey(clientId?: string): QueryKey {
-  return ["client", clientId, RECORD_QUERY_KEY_SEGMENT];
-}
 
 /**
  * Derives the target client id from the RESOLVED scope — the ONE seam every
@@ -194,7 +184,7 @@ function loadProfile(
  * @decision bypass the TanStack cache for this one call — raw `request()`,
  * never `useQuery().get()`.
  * what:    fetches `clients/{id}?with=custom_fields,custom_fields.field`
- *          directly via `request()` and maps it locally, instead of going
+ *          directly via `request()` and returns the raw record, instead of going
  *          through `get()` (`query.services.ts`'s `getRequest`) under the
  *          shared `recordQueryKey`.
  * why:     `get()` BAKES its `select` INSIDE `queryFn` — the value `select`
@@ -238,9 +228,7 @@ function loadProfile(
  *          poisoning onto A's `loadClientBrandId`, corrupting `brand_id`
  *          for AC-1/AC-2's definitions request instead of `baseModel` here.
  */
-async function fetchProfileOnce(
-  clientId?: string
-): Promise<ProfileRecord | undefined> {
+async function fetchProfileOnce(clientId?: string): Promise<IClient> {
   if (!isAddressable(clientId)) {
     return Promise.reject(new NotAuthenticatedError());
   }
@@ -252,7 +240,7 @@ async function fetchProfileOnce(
       with: "custom_fields,custom_fields.field"
     }),
     withAccessToken: true
-  }).then(response => mapProfile(response.data as IClient));
+  }).then(response => response.data as IClient);
 }
 
 /**
@@ -263,11 +251,13 @@ async function fetchProfileOnce(
  * `customFields` branch. `languages` stays `useBrand()`'s session list: for
  * the ONLY resolving cell (`client x self`) the session brand IS the target
  * client's brand (parity.yaml D11), so no per-client brand-settings fetch is
- * needed or built.
+ * needed or built. The raw record lands in `record` — the merge base
+ * `update()` writes the `meta` bag back against.
  */
 async function loadLookups(
   context: ProfileContext,
-  scopeContext?: ScopeContext
+  scopeContext: ScopeContext | undefined,
+  record: Ref<IClient | undefined>
 ): Promise<Partial<ProfileContext>> {
   const clientId = resolveClientId(scopeContext);
 
@@ -285,10 +275,12 @@ async function loadLookups(
   const { isReady } = customFieldsScope.useActions();
   const { data: definitions } = customFieldsScope.useContext();
 
-  const [, profile] = await Promise.all([
+  const [, raw] = await Promise.all([
     isReady(),
     fetchProfileOnce(clientId.value)
   ]);
+  record.value = raw;
+  const profile = mapProfile(raw);
 
   /**
    * @decision `baseModel` is compacted here, the same way `parse()`'s final
@@ -335,12 +327,17 @@ async function loadLookups(
    */
   const baseModel = compactDeep(
     {
-      firstName: profile?.firstName,
-      lastName: profile?.lastName,
-      publicName: profile?.publicName,
-      language: profile?.language,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      publicName: profile.publicName,
+      language: profile.language,
+      // `useModelParser` casts an unset boolean to `false` on every parse
+      // (`useValidation.ts` — "we dont want null or undefined for booleans"),
+      // so the diff floor must hold the same value or the toggle reads dirty
+      // on load and every unrelated save carries a `meta` bag.
+      excludeDelegatedProducts: profile.excludeDelegatedProducts ?? false,
       customFields: mapCustomFieldValues(
-        profile?.customFieldValues,
+        profile.customFieldValues,
         definitions.value
       )
     },
@@ -356,112 +353,6 @@ async function loadLookups(
       languages: languages.value
     }
   };
-}
-
-const NATIVE_MODEL_KEYS = [
-  "firstName",
-  "lastName",
-  "publicName",
-  "language"
-] as const;
-
-/** `true` for the two wire representations of "the caller cleared this field". */
-function isClearIntent(value: unknown): boolean {
-  return value === "" || value === null;
-}
-
-/**
- * Re-instates every key the caller explicitly cleared (AC-46/AC-47) that
- * `useModelParser`'s own final `compactDeep` step just dropped.
- *
- * @decision restore cleared keys HERE, in `parse()`, rather than in
- * `useValidation.ts`/`isDeepEmpty.ts` or by reintroducing an `omitBy` in
- * `mapIProfileFields` — and restore the NATIVE and CUSTOM-FIELD halves to
- * DIFFERENT wire values, matching the oracle rather than one convenient
- * shape for both.
- * what:    for every native key `incoming` carries as `""`/`null`, restore
- *          that key to `""` on `parsed` if `useModelParser` dropped it. For
- *          every `customFields` code `incoming.customFields` carries as
- *          `""`/`null`, restore that code to `null`. A key `incoming` never
- *          mentions is left alone — this never invents a clear, only
- *          preserves one the caller already stated.
- * why:     `useModelParser`'s final step (`compactDeep(model, {preserveContainers:true})`,
- *          run on BOTH `allowExtraProps` branches, not only the `false` one
- *          this file passes) treats an empty string as "not meaningful"
- *          (`utils/isDeepEmpty.ts`'s `isMeaningful`) and OMITS the key
- *          entirely — never sets it to `""` or `null`, just removes it.
- *          `null` fails the SAME `isNil` check and is dropped too. So
- *          `mapIProfileFields` (AC-46/AC-47) never sees the clear at all:
- *          `model.firstName` reads `undefined` (indistinguishable from
- *          "untouched"), the native-field diff still fires
- *          (`undefined !== baseModel.firstName`) and sets
- *          `diff.firstname = undefined`, which `JSON.stringify` drops from
- *          the wire body — a PUT that "succeeds" and clears nothing. For a
- *          custom field the loss is total: `mapCustomFieldValuesToRequest`
- *          (A-7) reduces over `model.customFields`'s OWN keys, so a
- *          stripped code produces no diff entry at all, not even a
- *          `key: undefined`. AC-45's empty-diff no-op is UNAFFECTED by this
- *          fix — it short-circuits on `mapIProfileFields`'s own diff being
- *          empty, which restoring a GENUINE clear does not change (an
- *          untouched field was never in `incoming` and is never restored).
- *          The NATIVE value restores as `""`, not `null`: legacy's own
- *          profile form sends the blanked form value straight through
- *          (`clientProfileBasicConfigurationForm.vue:260-269`,
- *          `omitBy(form, (v,k) => initForm()[k] === v)` — no `"" -> null`
- *          coercion), and the recorded capture
- *          (`put-clients-id-case-native-falsy.json`) is `{"public_name":""}`.
- *          Legacy maps `"" -> null` ONLY for custom fields
- *          (`clientCustomFieldsForm.vue:78-80`), matching
- *          `put-clients-id-case-clear-custom-field.json`'s recorded
- *          `{"custom_fields":{"age":null}}`. `schemas.ts`'s native
- *          properties type as `["string","null"]` with no `minLength` /
- *          `format` / `pattern` keyword on any of the four, so `""` passes
- *          AJV the same as `null` would.
- * rejected: restoring the native value as `null` (this function's earlier
- *          shape) — it passed validation and produced a green pipeline
- *          spec, but MSW replays the recorded 200 regardless of request
- *          body, so nothing proved the API accepts `null` on a native
- *          string field; the ONE recorded capture for this case is
- *          `{"public_name":""}`, not `null` — proving a value the fixture
- *          never recorded is exactly Blocker 1's own lesson from the other
- *          direction. Fixing this in `useValidation.ts` (`useModelParser`)
- *          or `isDeepEmpty.ts` (`compactDeep`/`isMeaningful`) — both outside
- *          this module's write lane, and `compactDeep`'s "empty is not
- *          meaningful" contract is used far beyond this one call site, so
- *          changing it there is a platform-wide behaviour change this run
- *          does not own. Reintroducing `omitBy(..., isNil)` /
- *          `omitBy(..., isEmpty)` in `mapIProfileFields` — rejected
- *          outright, it is the exact defect AC-46/AC-47 exist to close, and
- *          the earlier `@decision` there already explains why.
- */
-function restoreClearedFields(
-  parsed: ProfileModel,
-  incoming?: Partial<ProfileModel>
-): ProfileModel {
-  if (!incoming) return parsed;
-
-  const restored: ProfileModel = { ...parsed };
-
-  for (const key of NATIVE_MODEL_KEYS) {
-    if (isClearIntent(incoming[key]) && !(key in restored)) {
-      restored[key] = "";
-    }
-  }
-
-  if (incoming.customFields) {
-    const clearedCodes = Object.entries(incoming.customFields).filter(
-      ([, value]) => isClearIntent(value)
-    );
-    if (clearedCodes.length) {
-      const customFields = { ...(restored.customFields ?? {}) };
-      for (const [code] of clearedCodes) {
-        if (!(code in customFields)) customFields[code] = null;
-      }
-      restored.customFields = customFields;
-    }
-  }
-
-  return restored;
 }
 
 /**
@@ -514,12 +405,16 @@ async function validate(
 /**
  * Diff-only PUT (AC-45..AC-49). `mapIProfileFields` returns `undefined` for
  * an empty diff, which this short-circuits into a zero-request resolve —
- * legacy's own `_.isEmpty(this.formValues)` guard.
+ * legacy's own `_.isEmpty(this.formValues)` guard. A `meta` diff is merged
+ * over the held record's bag — the PUT replaces the bag wholesale, so the
+ * other UI keys must ride along (section 8.5); with no record held it
+ * rejects rather than send a bare one-key bag.
  */
 async function update(
   model: ProfileModel,
   baseModel: ProfileModel = {},
-  scopeContext?: ScopeContext
+  scopeContext: ScopeContext | undefined,
+  record: Ref<IClient | undefined>
 ): Promise<IClient> {
   const { put, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
@@ -530,6 +425,20 @@ async function update(
 
   const diff = mapIProfileFields(model, baseModel);
   if (diff === undefined) return {} as IClient;
+
+  if (diff.meta) {
+    if (!record.value) {
+      return Promise.reject(
+        new DetailedError(
+          useI18n().t("error.client_personal_details_update_failed"),
+          responseCodes.Conflict,
+          ErrorOrigin.Headless,
+          { meta: diff.meta }
+        )
+      );
+    }
+    diff.meta = { ...record.value.meta, ...diff.meta };
+  }
 
   return put<IClient>({
     mutationKey: recordQueryKey(clientId.value),
@@ -543,6 +452,7 @@ async function update(
     )
     .then(client => {
       const saved = client as IClient | undefined;
+      if (saved?.id) record.value = saved;
       // The save already succeeded — this locale refresh is a follow-on
       // side effect, not part of the transaction. `setLocale` throws when
       // no i18n instance is registered (`system-localisation/useI18n.ts`);
@@ -598,6 +508,7 @@ export const createClientPersonalDetailsServices = (
   scopeContext?: ScopeContext
 ): ClientPersonalDetailsServices => {
   const mutationError = ref<ResponseError | undefined>(undefined);
+  const record = ref<IClient | undefined>(undefined);
   const clientId = resolveClientId(scopeContext);
 
   return {
@@ -606,10 +517,11 @@ export const createClientPersonalDetailsServices = (
     isAvailable: computed(() => isAddressable(clientId.value)),
     error: computed(() => mutationError.value),
     loadProfile: () => loadProfile(scopeContext),
-    loadLookups: context => loadLookups(context, scopeContext),
+    loadLookups: context => loadLookups(context, scopeContext, record),
     parse: (context, data) => parse(context, data),
     validate,
-    update: (model, baseModel) => update(model, baseModel, scopeContext),
+    update: (model, baseModel) =>
+      update(model, baseModel, scopeContext, record),
     refresh: () => refresh(scopeContext),
     ...scopedServices(scopeActor, scopeContext)
   };
