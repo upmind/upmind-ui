@@ -234,6 +234,13 @@ Feature: Client order history — the client self-service capability
     But a refused cancel gate sends nothing
     And cancelling with no connected flow fails with a named error and sends nothing
 
+  # Known gap (operator ruling 2026-09-29): the labs-nuxt lane holds the filter
+  # bar status-control proof for filter[status.code|eq] as test.fixme. The
+  # design-system form renderer (design-system/packages/ui/src/form/renderers/
+  # utils.ts) writes the eq/neq child of the dotted status.code object one level
+  # too deep, so the write drops. The data layer is correct: the headless
+  # dotted-operators int tests prove the wire. No design-system change here. The
+  # other AC-22 lane proofs still run, so the AC keeps a live proof.
   @AC-22 @FE-3237 @client
   Scenario: A hand drives the two composables
     Given the operator opens the playground

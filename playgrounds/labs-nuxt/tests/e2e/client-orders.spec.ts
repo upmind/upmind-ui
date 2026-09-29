@@ -88,7 +88,12 @@ test("@FE-3237 AC-22 A hand drives the two composables — every published membe
   expect(unreachable).toEqual([]);
 });
 
-test("@FE-3237 AC-22 A hand drives the two composables — the filter bar status control sends filter[status.code|eq]=invoice_paid", async ({
+// KNOWN GAP — operator ruling 2026-09-29, known gap. The design-system form
+// renderer (design-system/packages/ui/src/form/renderers/utils.ts) writes the
+// eq/neq child of the dotted status.code object one level too deep, so the write
+// is dropped. The data layer is correct: the headless dotted-operators int tests
+// prove the wire. No design-system change in this story.
+test.fixme("@FE-3237 AC-22 A hand drives the two composables — the filter bar status control sends filter[status.code|eq]=invoice_paid", async ({
   page
 }) => {
   const orders = new ClientOrdersPage(page);

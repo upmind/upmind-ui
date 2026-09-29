@@ -230,6 +230,25 @@ describe("client-orders traceability — the proofs", () => {
   });
 });
 
+describe("client-orders traceability — the AC-22 known gap", () => {
+  const laneSource = existsSync(LANE_SPEC)
+    ? readFileSync(LANE_SPEC, "utf-8")
+    : "";
+
+  it("AC-22 keeps a live lane proof besides the one known-gap fixme", () => {
+    expect(laneProvesAc22()).toBe(true);
+    expect([...laneSource.matchAll(/\btest\.fixme\(/g)]).toHaveLength(1);
+    expect(laneSource).not.toMatch(/\btest\.skip\(/);
+  });
+
+  it("the known gap names the design-system renderer cause and the operator ruling", () => {
+    expect(laneSource).toMatch(
+      /design-system\/packages\/ui\/src\/form\/renderers\/utils\.ts/
+    );
+    expect(laneSource).toMatch(/operator ruling 2026-09-29, known gap/);
+  });
+});
+
 describe("client-orders traceability — the step catalog", () => {
   const featureText = readFileSync(FEATURE, "utf-8");
   const catalogSource = readFileSync(
