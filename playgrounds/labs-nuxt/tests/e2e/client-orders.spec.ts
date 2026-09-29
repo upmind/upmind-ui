@@ -58,7 +58,7 @@ test.beforeEach(async ({ page }) => {
 
 // -----------------------------------------------------------------------------
 
-test("@FE-3237 AC-22 every published member of the collection is reachable on its page", async ({
+test("@FE-3237 AC-22 A hand drives the two composables — every published member of the collection is reachable on its page", async ({
   page
 }) => {
   const orders = new ClientOrdersPage(page);
@@ -72,7 +72,7 @@ test("@FE-3237 AC-22 every published member of the collection is reachable on it
   expect(unreachable).toEqual([]);
 });
 
-test("@FE-3237 AC-22 every published member of the manager is reachable in the order view", async ({
+test("@FE-3237 AC-22 A hand drives the two composables — every published member of the manager is reachable in the order view", async ({
   page
 }) => {
   const order = new ClientOrderPage(page);
@@ -88,7 +88,7 @@ test("@FE-3237 AC-22 every published member of the manager is reachable in the o
   expect(unreachable).toEqual([]);
 });
 
-test("@FE-3237 AC-22 the filter bar status control sends filter[status.code|eq]=invoice_paid", async ({
+test("@FE-3237 AC-22 A hand drives the two composables — the filter bar status control sends filter[status.code|eq]=invoice_paid", async ({
   page
 }) => {
   const orders = new ClientOrdersPage(page);
@@ -106,7 +106,7 @@ test("@FE-3237 AC-22 the filter bar status control sends filter[status.code|eq]=
   expect(query.getAll("filter[category.slug]")).toEqual(["new_contract"]);
 });
 
-test("@FE-3237 AC-22 a page move sends the next window, and a search sends filter[number|eq] on the first window", async ({
+test("@FE-3237 AC-22 A hand drives the two composables — a page move sends the next window, and a search sends filter[number|eq] on the first window", async ({
   page
 }) => {
   const orders = new ClientOrdersPage(page);
@@ -136,7 +136,7 @@ test("@FE-3237 AC-22 a page move sends the next window, and a search sends filte
   expect(search.has("query")).toBe(false);
 });
 
-test("@FE-3237 AC-22 each enter of the order view reads the order again", async ({
+test("@FE-3237 AC-22 A hand drives the two composables — each enter of the order view reads the order again", async ({
   page
 }) => {
   const reads: Request[] = [];
