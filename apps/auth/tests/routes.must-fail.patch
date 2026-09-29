@@ -8,11 +8,11 @@
 diff --git a/apps/auth/src/routes.ts b/apps/auth/src/routes.ts
 --- a/apps/auth/src/routes.ts
 +++ b/apps/auth/src/routes.ts
-@@ -63,7 +63,6 @@ export const authRoutes: RouteRecordRaw[] = [
+@@ -76,7 +76,6 @@ export const authRoutes: RouteRecordRaw[] = [
          path: "recover",
          name: AUTH_ROUTE.RECOVER,
          component: UpmAuthRecoverPassword,
--        props: authRouteProps,
+-        props: recoverRouteProps,
          meta: signInMeta
        },
        {

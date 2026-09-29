@@ -5,11 +5,11 @@
  */
 
 // --- Export Views
-export { default as UpmAuthAction } from "./AuthAction.vue";
-export { default as UpmAuthLogin } from "./Login.vue";
-export { default as UpmAuthRegister } from "./Register.vue";
-export { default as UpmAuthLogout } from "./Logout.vue";
-export { default as UpmAuthRecoverPassword } from "./RecoverPassword.vue";
+export { default as UpmAuthAction } from "./components/AuthAction.vue";
+export { default as UpmAuthLogin } from "./components/Login.vue";
+export { default as UpmAuthRegister } from "./components/Register.vue";
+export { default as UpmAuthLogout } from "./components/Logout.vue";
+export { default as UpmAuthRecoverPassword } from "./components/RecoverPassword.vue";
 
 // --- Export Components
 export { default as UpmAccount } from "./components/Account.vue";

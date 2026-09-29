@@ -5,9 +5,9 @@
 #   packages/modules-auth/src/__tests__/page-slots.test.ts
 #     "the register page > puts the host's summary in the template's summary region when the brand shows it"
 
-diff --git a/packages/modules-auth/src/Register.vue b/packages/modules-auth/src/Register.vue
---- a/packages/modules-auth/src/Register.vue
-+++ b/packages/modules-auth/src/Register.vue
+diff --git a/packages/modules-auth/src/components/Register.vue b/packages/modules-auth/src/components/Register.vue
+--- a/packages/modules-auth/src/components/Register.vue
++++ b/packages/modules-auth/src/components/Register.vue
 @@ -269,7 +269,7 @@ const { component: templateVariant } = useAuthTemplate(
  );
  const templateProps = computed(() => omit(props, ["templates"]));

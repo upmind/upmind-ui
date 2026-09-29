@@ -1,6 +1,6 @@
-diff --git a/packages/modules-auth/src/Login.vue b/packages/modules-auth/src/Login.vue
---- a/packages/modules-auth/src/Login.vue
-+++ b/packages/modules-auth/src/Login.vue
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
 @@ -97,6 +97,7 @@
  import { Link, Markdown } from "@upmind/ui";
  import { computed, ref } from "vue";

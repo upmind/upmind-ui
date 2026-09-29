@@ -1,7 +1,8 @@
 /**
  * @module foundation/renderers
- * @description The form-renderer socket.
+ * @description The form-control registry.
  */
+import type { UISchemaElement } from "@jsonforms/core";
 import type { FormProps } from "@upmind/ui";
 
 export type FormRendererEntry = NonNullable<
@@ -10,4 +11,8 @@ export type FormRendererEntry = NonNullable<
 
 export type UseFormRenderers = {
   renderers: FormRendererEntry[];
+};
+
+export type MissingControlRendererProps = {
+  uischema: UISchemaElement;
 };

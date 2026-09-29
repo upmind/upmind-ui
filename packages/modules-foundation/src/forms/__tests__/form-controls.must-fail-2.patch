@@ -1,0 +1,20 @@
+# Negative control — the missing-control fallback renders nothing and says nothing.
+#
+# Intended RED:
+#   packages/modules-foundation/src/forms/__tests__/form-controls.test.ts
+#     "warns in development about a field no control claims, naming the field"
+
+diff --git a/packages/modules-foundation/src/renderers/MissingControlRenderer.ts b/packages/modules-foundation/src/renderers/MissingControlRenderer.ts
+--- a/packages/modules-foundation/src/renderers/MissingControlRenderer.ts
++++ b/packages/modules-foundation/src/renderers/MissingControlRenderer.ts
+@@ -7,10 +7,6 @@ export const missingControlTester = { rank: 0, controlType: stubTrue };
+ 
+ export const MissingControlRenderer = defineComponent(
+   (props: MissingControlRendererProps) => {
+-    console.warn(
+-      `[Form] No registered control renders "${props.uischema.type}" — import the package that registers it at startup.`,
+-      props.uischema
+-    );
+     return () => null;
+   },
+   { name: "MissingControlRenderer", props: ["uischema"], inheritAttrs: false }

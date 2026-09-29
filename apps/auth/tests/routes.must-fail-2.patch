@@ -9,7 +9,7 @@
 diff --git a/apps/auth/src/routes.ts b/apps/auth/src/routes.ts
 --- a/apps/auth/src/routes.ts
 +++ b/apps/auth/src/routes.ts
-@@ -24,7 +24,8 @@ const authRouteProps = {
+@@ -26,7 +26,8 @@ const authRouteProps = {
    loginRoute: { name: AUTH_ROUTE.LOGIN },
    registerRoute: { name: AUTH_ROUTE.REGISTER },
    recoverRoute: { name: AUTH_ROUTE.RECOVER },
@@ -18,4 +18,4 @@ diff --git a/apps/auth/src/routes.ts b/apps/auth/src/routes.ts
 +  landingRoute: { name: AUTH_ROUTE.LANDING }
  };
  
- const meta = {
+ const { loginRoute, registerRoute, recoverRoute, templates } = authRouteProps;

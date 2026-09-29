@@ -12,8 +12,7 @@ import { PORTAL_AUTH_TEMPLATES } from "~/portal/auth/shell";
 import { AUTH_ROUTES } from "~/portal/auth-routes";
 
 definePageMeta({
-  layout: "auth",
-  middleware: "signed-in-redirect"
+  layout: "auth"
 });
 
 function onReject() {

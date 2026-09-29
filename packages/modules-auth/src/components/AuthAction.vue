@@ -40,10 +40,10 @@ import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession, QUERY_PARAMS } from "@upmind-automation/headless";
-import AuthDetailsDropdown from "./components/DetailsDropdown.vue";
-import AuthLoginPopover from "./components/LoginPopover.vue";
+import AuthDetailsDropdown from "./DetailsDropdown.vue";
+import AuthLoginPopover from "./LoginPopover.vue";
 import { assign } from "lodash-es";
-import type { AuthActionProps } from "./types";
+import type { AuthActionProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<AuthActionProps>();

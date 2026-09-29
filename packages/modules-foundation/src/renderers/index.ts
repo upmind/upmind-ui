@@ -1,2 +1,2 @@
-export * from "./renderer.types";
+export * from "./types";
 export * from "./useFormRenderers";

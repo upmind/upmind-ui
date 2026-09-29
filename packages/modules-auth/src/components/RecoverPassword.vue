@@ -1,14 +1,12 @@
 <template>
-  <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
-  <component :is="templateVariant" v-bind="templateProps" v-else>
+  <component :is="templateVariant" v-bind="templateProps" v-if="!isResolving">
     <template #back>
       <slot name="back">
         <!-- One-page uses the compact "← Back" per the designs; other templates
-             keep the default "Back to basket". -->
+             keep the default "Back to login". -->
         <Back
-          v-if="routingMeta.hasFunnels"
-          :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
-          :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
+          :label="meta.isInset ? t('action.back') : t('action.back_to_login')"
+          :icon="meta.isInset ? 'arrow-narrow-left' : 'arrow-left'"
           size="md"
           :color="meta.isInset ? 'muted' : 'default'"
           @click.prevent="doReject"
@@ -18,16 +16,20 @@
 
     <template #hero>
       <slot name="hero">
-        <Hero :title="t('auth.login_title')">
+        <Hero :title="t('text.forgot_your_password_qn')">
           <template #subtitle>
-            <i18n-t keypath="auth.login_description" scope="global" tag="span">
-              <template #[`login_description_action`]>
+            <i18n-t
+              keypath="auth.forgot_password_help"
+              scope="global"
+              tag="span"
+            >
+              <template #[`log_in_here`]>
                 <Link
-                  :to="props.registerRoute"
+                  :to="props.loginRoute"
                   size="inherit"
                   color="inherit"
                   class="font-normal"
-                  >{{ t("auth.login_description_action") }}</Link
+                  >{{ t("action.log_in_here") }}</Link
                 >
               </template>
             </i18n-t>
@@ -38,37 +40,21 @@
 
     <template #form>
       <slot name="form">
-        <!-- One-page titles the form "Log in" as a card with a "Create Account"
-             header cross-link (one-page drops the hero); other templates keep the
-             plain section. -->
+        <!-- One-page renders the form as a titled card; other templates keep the
+             plain section. The Back button already returns to login, so no header
+             cross-link is needed either way. -->
         <Section
           :card="meta.isInset"
-          :label="t('action.login')"
-          value="log-in"
+          :label="t('action.recover_password')"
           icon="user-03"
           v-show="!isAuthenticated"
           :class="sessionFormWidthVariants({ inset: meta.isInset })"
-          :active="templateMeta.hasActiveSection"
         >
-          <template v-if="meta.isInset" #actions>
-            <Link
-              color="muted"
-              size="sm"
-              @click.prevent="doUpdate('register')"
-              >{{ t("action.create_account") }}</Link
-            >
-          </template>
-
-          <Markdown
-            v-if="templateMeta.hasActiveSection && loginTemplate?.body"
-            tag="section"
-            :model-value="loginTemplate.body"
-          />
           <Auth
             class="rounded-card w-full max-w-5xl items-start"
             no-tabs
             no-header
-            model-value="login"
+            model-value="recover"
             @update:model-value="doUpdate"
             @resolve="doResolve"
           />
@@ -76,25 +62,14 @@
       </slot>
     </template>
 
-    <template v-if="ui.basketSummary.isVisible" #summary>
+    <template #summary>
       <slot name="summary" v-bind="summarySlot" />
-    </template>
-
-    <template
-      v-if="loginTemplate?.body && templateMeta.hasMarkdownSlot"
-      #markdown
-    >
-      <Markdown
-        tag="section"
-        :class="templateMeta.isSplit ? '' : markdownVariants()"
-        :model-value="loginTemplate.body"
-      />
     </template>
   </component>
 </template>
 
 <script lang="ts" setup>
-import { Link, Markdown } from "@upmind/ui";
+import { Link } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
@@ -103,32 +78,24 @@ import { Section } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   useActiveSession,
-  UIContext,
-  ClientTemplateSlotCodes
+  UIContext
 } from "@upmind-automation/headless";
-import {
-  useConfig,
-  validateTemplate,
-  useClientTemplate,
-  useBrand
-} from "@upmind-automation/headless";
-import { useAuthTemplates } from "./auth.utils";
-import Auth from "./components/Auth.vue";
-import AuthLoading from "./components/AuthLoading.vue";
-import { useAuthTemplate } from "./shell";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import Auth from "./Auth.vue";
+import { useAuthTemplate } from "../shell";
 import {
   type AuthProps,
+  type AuthRecoverViewProps,
   type AuthSummarySlotProps,
   type AuthViewEmits,
-  type AuthViewProps,
   AUTH_TEMPLATE
-} from "./types";
-import { markdownVariants, sessionFormWidthVariants } from "./variants";
+} from "../types";
+import { sessionFormWidthVariants } from "../variants";
 import { omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<AuthViewProps>();
+const props = defineProps<AuthRecoverViewProps>();
 const emit = defineEmits<AuthViewEmits>();
 // -----------------------------------------------------------------------------
 
@@ -148,11 +115,6 @@ const { ui } = useConfig({
   basket: undefined,
   context: UIContext.AUTH,
   provide: true
-});
-const { brandId } = useBrand();
-const { data: loginTemplate } = useClientTemplate({
-  code: ClientTemplateSlotCodes.LOGIN_PAGE,
-  objectId: brandId.value
 });
 
 await isReady();
@@ -178,7 +140,6 @@ const { component: templateVariant } = useAuthTemplate(
 const templateProps = computed(() => omit(props, ["templates"]));
 
 const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
-const { meta: templateMeta } = useAuthTemplates(template);
 
 function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {

@@ -16,9 +16,9 @@
 import { flushPromises } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { h } from "vue";
-import LoginView from "../Login.vue";
-import RecoverPasswordView from "../RecoverPassword.vue";
-import RegisterView from "../Register.vue";
+import LoginView from "../components/Login.vue";
+import RecoverPasswordView from "../components/RecoverPassword.vue";
+import RegisterView from "../components/Register.vue";
 import {
   host,
   navigateNext,

@@ -1,10 +1,7 @@
-diff --git a/packages/modules-foundation/src/renderers/useFormRenderers.ts b/packages/modules-foundation/src/renderers/useFormRenderers.ts
-index 1363926da3..c098a8b1c4 100644
---- a/packages/modules-foundation/src/renderers/useFormRenderers.ts
-+++ b/packages/modules-foundation/src/renderers/useFormRenderers.ts
-@@ -1,4 +1,5 @@
- import { hasInjectionContext, inject } from "vue";
+diff --git a/packages/modules-foundation/src/renderers/index.ts b/packages/modules-foundation/src/renderers/index.ts
+--- a/packages/modules-foundation/src/renderers/index.ts
++++ b/packages/modules-foundation/src/renderers/index.ts
+@@ -1,2 +1,3 @@
 +import "../../../modules-product/src";
- import type { FormRendererEntry, UseFormRenderers } from "./renderer.types";
- import type { InjectionKey } from "vue";
- 
+ export * from "./types";
+ export * from "./useFormRenderers";

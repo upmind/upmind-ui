@@ -1,0 +1,18 @@
+# Negative control — client-vue's entry stops registering its controls, so the Nuxt cart starts without them.
+#
+# Intended RED:
+#   apps/cart-nuxt/tests/form-controls.test.ts
+#     "holds the form controls of 'client-vue'"
+
+diff --git a/packages/client-vue/src/index.ts b/packages/client-vue/src/index.ts
+--- a/packages/client-vue/src/index.ts
++++ b/packages/client-vue/src/index.ts
+@@ -2,8 +2,6 @@ import { registerFormRenderers } from "@upmind-automation/foundation";
+ import { formRenderers } from "./components/form/renderers";
+ import useUpmindClient from "./useUpmindClient";
+ 
+-registerFormRenderers(formRenderers);
+-
+ export * from "@upmind-automation/headless";
+ 
+ // --- expose composables

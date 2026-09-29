@@ -1,4 +1,8 @@
+import { registerFormRenderers } from "@upmind-automation/foundation";
+import { formRenderers } from "./components/form/renderers";
 import useUpmindClient from "./useUpmindClient";
+
+registerFormRenderers(formRenderers);
 
 export * from "@upmind-automation/headless";
 

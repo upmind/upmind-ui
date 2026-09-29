@@ -1,0 +1,18 @@
+# Negative control — the registry is a plain array: a reader never sees a later registration.
+#
+# Intended RED:
+#   packages/modules-foundation/src/renderers/__tests__/useFormRenderers.test.ts
+#     "shows a reader a package that registers after it read the list"
+
+diff --git a/packages/modules-foundation/src/renderers/useFormRenderers.ts b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+--- a/packages/modules-foundation/src/renderers/useFormRenderers.ts
++++ b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+@@ -7,7 +7,7 @@ import {
+ import { forEach } from "lodash-es";
+ import type { FormRendererEntry, UseFormRenderers } from "./types";
+ 
+-const registry = shallowReactive<FormRendererEntry[]>([]);
++const registry: FormRendererEntry[] = [];
+ 
+ /** Adds a package's form controls to every `Form`; call it from the package entry. */
+ export const registerFormRenderers = (entries: FormRendererEntry[]): void => {

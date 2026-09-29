@@ -1,0 +1,24 @@
+# Negative control — registerFormRenderers drops the entries: no package control reaches the registry.
+#
+# Intended RED:
+#   packages/modules-foundation/src/renderers/__tests__/useFormRenderers.test.ts
+#     "keeps every package's controls, in the order the packages register"
+#     "serves the registered controls to a component with no provider"
+#     "shows a reader a package that registers after it read the list"
+#   packages/modules-foundation/src/forms/__tests__/form-controls.test.ts
+#     "draws the control a package registered for its field"
+#     "warns in development about a field no control claims, naming the field"
+#   packages/modules-foundation/src/__tests__/ships-no-renderers.test.ts
+#     "registers only the missing-control fallback in development"
+
+diff --git a/packages/modules-foundation/src/renderers/useFormRenderers.ts b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+--- a/packages/modules-foundation/src/renderers/useFormRenderers.ts
++++ b/packages/modules-foundation/src/renderers/useFormRenderers.ts
+@@ -12,7 +12,6 @@ const registry = shallowReactive<FormRendererEntry[]>([]);
+ /** Adds a package's form controls to every `Form`; call it from the package entry. */
+ export const registerFormRenderers = (entries: FormRendererEntry[]): void => {
+   forEach(entries, entry => {
+-    registry.push(entry);
+   });
+ };
+ 

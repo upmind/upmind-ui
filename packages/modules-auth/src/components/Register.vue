@@ -188,11 +188,11 @@ import {
   useClientTemplate,
   useBrand
 } from "@upmind-automation/headless";
-import { useAuthTemplates } from "./auth.utils";
-import Account from "./components/Account.vue";
-import Auth from "./components/Auth.vue";
-import AuthLoading from "./components/AuthLoading.vue";
-import { useAuthTemplate } from "./shell";
+import { useAuthTemplates } from "../auth.utils";
+import Account from "./Account.vue";
+import Auth from "./Auth.vue";
+import AuthLoading from "./AuthLoading.vue";
+import { useAuthTemplate } from "../shell";
 import {
   type AuthGuestCheckoutSlotProps,
   type AuthProps,
@@ -200,13 +200,13 @@ import {
   type AuthViewEmits,
   type AuthViewProps,
   AUTH_TEMPLATE
-} from "./types";
+} from "../types";
 import {
   guestCheckoutVariants,
   markdownVariants,
   sessionFormWidthVariants,
   sessionSubtitleVariants
-} from "./variants";
+} from "../variants";
 import { omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------

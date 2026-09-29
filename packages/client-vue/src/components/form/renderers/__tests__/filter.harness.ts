@@ -1,9 +1,9 @@
 /**
  * @module form/renderers/__tests__/filter.harness
  * @description Mounts the REAL surface the filter renderers are bound through —
- * client-vue's `UpmForm`, which is where `formRenderers` is registered — against
- * the two consumer query declarations and the real `packages/i18n` `src/core`
- * catalogue.
+ * foundation's `UpmForm`, which reads the controls client-vue's entry registers —
+ * against the two consumer query declarations and the real `packages/i18n`
+ * `src/core` catalogue.
  *
  * PROVENANCE. `clientEmailQuery()` / `clientEmailHistoryQuery()` are transcribed
  * verbatim from the shipped declarations at
@@ -22,13 +22,9 @@
 
 import { Form, provideFormIcon } from "@upmind/ui";
 import { DOMWrapper, mount } from "@vue/test-utils";
-import { defineComponent, h, provide, ref } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
-import {
-  FORM_RENDERERS,
-  Icon,
-  useFormI18n
-} from "@upmind-automation/foundation";
+import { Icon, useFormI18n } from "@upmind-automation/foundation";
 import {
   PAGINATION,
   SortDirection,
@@ -36,6 +32,7 @@ import {
   useInvoices
 } from "@upmind-automation/headless";
 import { formRenderers } from "../index";
+import "../../../../index";
 import {
   cloneDeep,
   compact,
@@ -348,7 +345,7 @@ export type FilterMount = {
 };
 
 /**
- * Mounts a declaration through the renderer socket `UpmForm` reads.
+ * Mounts a declaration through the control registry `UpmForm` reads.
  *
  * @param options.translate - `false` swaps `UpmForm` for `@upmind/ui`'s bare
  *   engine `Form` carrying the same renderer set and NO `i18n` prop, so the
@@ -369,7 +366,6 @@ export async function mountFilters(options: {
     setup() {
       const translator = useFormI18n();
       provideFormIcon(Icon);
-      provide(FORM_RENDERERS, formRenderers);
       const shared = {
         noActions: true,
         touched: true,

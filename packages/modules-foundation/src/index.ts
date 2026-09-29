@@ -1,7 +1,7 @@
 export { TermsAndConditions } from "./brand";
 
 export type { FormRendererEntry } from "./renderers";
-export { FORM_RENDERERS, useFormRenderers } from "./renderers";
+export { registerFormRenderers, useFormRenderers } from "./renderers";
 
 // --- The shared presentation glue
 

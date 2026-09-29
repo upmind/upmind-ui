@@ -1,0 +1,46 @@
+/**
+ * @fileoverview The labs playground's startup registers every package's form controls.
+ *
+ * ## Job To Be Done
+ * Once every plugin the playground boots with has loaded, the form-control
+ * registry holds the controls of every package the app depends on, before any
+ * form renders.
+ *
+ * ## What Breaks If These Fail
+ * A playground form draws a field with no control, because the package that
+ * registers it was not loaded at startup.
+ */
+
+import { beforeAll, describe, expect, it, vi } from "vitest";
+import { clone, map } from "lodash-es";
+import type { FormRendererEntry } from "@upmind-automation/foundation";
+
+const PACKAGES = [
+  {
+    name: "client-vue",
+    controls: async () =>
+      (await import("@upmind-automation/client-vue")).formRenderers
+  }
+];
+
+let registered: FormRendererEntry[] = [];
+
+beforeAll(async () => {
+  vi.stubGlobal("defineNuxtPlugin", <T>(plugin: T): T => plugin);
+  const plugins = import.meta.glob("../*.ts");
+  await Promise.all(map(plugins, load => load()));
+  const { useFormRenderers } = await import("@upmind-automation/foundation");
+  registered = clone(useFormRenderers().renderers);
+}, 60000);
+
+describe("the labs playground after startup", () => {
+  it.each(PACKAGES)(
+    "holds the form controls of $name",
+    async ({ controls }) => {
+      const expected = await controls();
+
+      expect(expected).not.toHaveLength(0);
+      expect(registered).toEqual(expect.arrayContaining(expected));
+    }
+  );
+});

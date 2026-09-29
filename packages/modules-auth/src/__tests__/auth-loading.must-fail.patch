@@ -6,9 +6,9 @@
 #   packages/modules-auth/src/__tests__/auth-loading.test.ts
 #     "the login page > draws the host's fill in place of the template while the next step runs"
 
-diff --git a/packages/modules-auth/src/Login.vue b/packages/modules-auth/src/Login.vue
---- a/packages/modules-auth/src/Login.vue
-+++ b/packages/modules-auth/src/Login.vue
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
 @@ -1,5 +1,5 @@
  <template>
 -  <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
