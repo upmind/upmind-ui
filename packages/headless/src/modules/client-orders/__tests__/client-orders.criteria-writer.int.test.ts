@@ -4,9 +4,11 @@
  * filtered flag (AC-7)
  *
  * ## Job To Be Done
- * Prove `useActions().setCriteria` merges ONE branch of the query model and
+ * Prove `useActions().setCriteria` writes ONE branch of the query model and
  * leaves the others as they stand: a `filters` write keeps the boot order
- * `-created_at`, and a `sort` write keeps the forced category. Prove
+ * `-created_at`, and a `sort` write keeps the forced category. A `filters`
+ * write replaces that branch whole, so a filter the write leaves out is
+ * cleared while the forced category stays. Prove
  * `useMeta().isFiltered` tells a client filter apart from the forced
  * category: false on the boot model, true once the client searches, false
  * again when the client clears the search (design 8.3 "an absent value").
@@ -54,7 +56,7 @@ async function bootSelfCollection() {
 let orders: Awaited<ReturnType<typeof bootSelfCollection>>;
 let observer: ReturnType<typeof observeOrderRequests>;
 
-describe("client-orders — useActions().setCriteria merges one branch (AC-7)", () => {
+describe("client-orders — useActions().setCriteria writes one branch (AC-7)", () => {
   beforeEach(async () => {
     orders = await bootSelfCollection();
     observer = observeOrderRequests();
@@ -88,6 +90,34 @@ describe("client-orders — useActions().setCriteria merges one branch (AC-7)", 
       "new_contract"
     ]);
     expect(observer.latestParams().has("filter[number|eq]")).toBe(false);
+    await vi.waitFor(() =>
+      expect(orders.useMeta().isLoading.value).toBe(false)
+    );
+    expect(orders.useContext().error.value).toBeUndefined();
+  });
+
+  it("a filters write replaces the filters branch, so the number an earlier write set leaves the wire (AC-7)", async () => {
+    orders.useActions().setCriteria({ filters: { number: { eq: NUMBER } } });
+    await vi.waitFor(() =>
+      expect(observer.latestParams().get("filter[number|eq]")).toBe(NUMBER)
+    );
+    await vi.waitFor(() =>
+      expect(orders.useMeta().isLoading.value).toBe(false)
+    );
+
+    orders.useActions().setCriteria({
+      filters: {},
+      sort: [{ field: ClientOrdersSortableColumn.ID, dir: SortDirection.ASC }]
+    });
+
+    await vi.waitFor(() =>
+      expect(observer.latestParams().get("order")).toBe(SORT_ID_ORDER)
+    );
+    expect(observer.latestParams().has("filter[number|eq]")).toBe(false);
+    expect(observer.latestParams().getAll("filter[category.slug]")).toEqual([
+      "new_contract"
+    ]);
+    expect(orders.useContext().query.value.filters?.number).toBeUndefined();
     await vi.waitFor(() =>
       expect(orders.useMeta().isLoading.value).toBe(false)
     );

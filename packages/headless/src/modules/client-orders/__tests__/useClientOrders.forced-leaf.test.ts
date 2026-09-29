@@ -4,8 +4,8 @@
  * category (unit, AC-12, ADR-032 decision 5, D-3)
  *
  * ## Job To Be Done
- * Prove the composable side of D-3: `filterBy`, each named setter and the
- * search pass criteria to the raw setter `useInternals().query.setCriteria`
+ * Prove the composable side of D-3: `filterBy`, `setCriteria`, each named
+ * setter and the search pass criteria to the raw setter `useInternals().query.setCriteria`
  * whose `category.slug` is `"new_contract"`, for an intent with no category
  * leaf and for an intent with `"renewal"`, and for each setter while the live
  * model holds `"renewal"`. The parser `const` is the second
@@ -52,6 +52,19 @@ describe("useClientOrders — the module writers re-assert the forced category (
 
   it("filterBy with no category leaf adds category.slug new_contract", () => {
     orders.useActions().filterBy({ number: { eq: "QA-1" } });
+    expect(lastWrite().filters?.["category.slug"]).toBe("new_contract");
+  });
+
+  it('the object that setCriteria passes to the raw setter holds category.slug equal to "new_contract" for a filters intent with "renewal"', () => {
+    orders
+      .useActions()
+      .setCriteria({ filters: { ...RENEWAL, number: { eq: "QA-1" } } });
+    expect(lastWrite().filters?.["category.slug"]).toBe("new_contract");
+    expect(lastWrite().filters?.number).toEqual({ eq: "QA-1" });
+  });
+
+  it("setCriteria with a filters intent that holds no category leaf adds category.slug new_contract", () => {
+    orders.useActions().setCriteria({ filters: { number: { eq: "QA-1" } } });
     expect(lastWrite().filters?.["category.slug"]).toBe("new_contract");
   });
 

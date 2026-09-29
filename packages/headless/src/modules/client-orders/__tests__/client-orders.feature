@@ -97,6 +97,7 @@ Feature: Client order history — the client self-service capability
     When the client searches the order history and then clears the search
     Then the order history reads as filtered only while the search applies
     And a criteria write on one branch leaves the order and the forced order category as they stand
+    And a filters write clears each order history filter that it leaves out
 
   @AC-8 @FE-3237 @client
   Scenario: A date filter takes both value forms
