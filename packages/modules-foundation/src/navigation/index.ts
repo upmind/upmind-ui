@@ -4,4 +4,4 @@
  */
 
 export { default as Back } from "./Back.vue";
-export * from "./types";
+export type { StorefrontRoute } from "./types";

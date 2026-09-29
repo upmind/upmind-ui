@@ -34,7 +34,7 @@
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
     "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "test": "vitest run",
-    "test:unit": "vitest run --project unit",
+    "test:unit": "vitest run --project unit && vitest run --project component app/plugins/",
     "test:component": "vitest run --project component",
     "test:e2e": "bddgen --config=playwright.config.ts && playwright test --config=playwright.config.ts",
     "format": "prettier --write .",

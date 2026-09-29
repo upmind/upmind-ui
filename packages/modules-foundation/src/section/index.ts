@@ -6,5 +6,4 @@
 export { default as Section } from "./Section.vue";
 export { default as Sections } from "./Sections.vue";
 export { useSection } from "./useSection";
-export * from "./types";
-export * from "./variants";
+export type { SectionItem } from "./types";

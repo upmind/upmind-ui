@@ -34,6 +34,8 @@
     "postinstall": "nuxt prepare",
     "type-check": "nuxt typecheck",
     "preview": "nuxt preview",
+    "test": "vitest run --config tests/vitest.config.ts",
+    "test:unit": "vitest run --config tests/vitest.config.ts",
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
     "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "format": "prettier --write .",

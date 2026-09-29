@@ -113,9 +113,6 @@ import {
   useBrand
 } from "@upmind-automation/headless";
 import { useAuthTemplates } from "../auth.utils";
-import Auth from "./Auth.vue";
-import AuthLoading from "./AuthLoading.vue";
-import { useAuthTemplate } from "../shell";
 import {
   type AuthProps,
   type AuthSummarySlotProps,
@@ -124,7 +121,9 @@ import {
   AUTH_TEMPLATE
 } from "../types";
 import { markdownVariants, sessionFormWidthVariants } from "../variants";
-import { omit } from "lodash-es";
+import Auth from "./Auth.vue";
+import AuthLoading from "./AuthLoading.vue";
+import { get, omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -171,10 +170,7 @@ const meta = computed(() => ({
   isInset: template.value === AUTH_TEMPLATE.INSET
 }));
 
-const { component: templateVariant } = useAuthTemplate(
-  () => template.value,
-  () => props.templates
-);
+const templateVariant = computed(() => get(props.templates, template.value));
 const templateProps = computed(() => omit(props, ["templates"]));
 
 const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };

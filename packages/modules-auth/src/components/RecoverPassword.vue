@@ -81,8 +81,6 @@ import {
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
-import Auth from "./Auth.vue";
-import { useAuthTemplate } from "../shell";
 import {
   type AuthProps,
   type AuthRecoverViewProps,
@@ -91,7 +89,8 @@ import {
   AUTH_TEMPLATE
 } from "../types";
 import { sessionFormWidthVariants } from "../variants";
-import { omit } from "lodash-es";
+import Auth from "./Auth.vue";
+import { get, omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -133,10 +132,7 @@ const meta = computed(() => ({
   isInset: template.value === AUTH_TEMPLATE.INSET
 }));
 
-const { component: templateVariant } = useAuthTemplate(
-  () => template.value,
-  () => props.templates
-);
+const templateVariant = computed(() => get(props.templates, template.value));
 const templateProps = computed(() => omit(props, ["templates"]));
 
 const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };

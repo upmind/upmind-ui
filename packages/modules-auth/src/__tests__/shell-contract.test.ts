@@ -3,13 +3,11 @@
  * @fileoverview The page templates each auth page takes from the page that mounts it.
  *
  * ## Job To Be Done
- * Each page draws the host's template for the brand's chosen arrangement, hands
- * it the page's props but not the record, and names the arrangement when the
- * record has no entry for it.
+ * Each page draws the host's template for the brand's chosen arrangement and
+ * hands it the page's props but not the record.
  *
  * ## What Breaks If These Fail
- * A page draws the wrong arrangement, leaks the record onto the template, or
- * renders nothing with no clue which template the host left out.
+ * A page draws the wrong arrangement or leaks the record onto the template.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -21,13 +19,12 @@ import {
   FormStub,
   ROUTES,
   host,
-  recordWithout,
   renderPage,
   resetHost,
   seen,
   templateDrawn
 } from "./support/auth-host";
-import { find, includes, isError, some, values } from "lodash-es";
+import { find, values } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -94,24 +91,6 @@ describe("the page templates an auth page takes from its host", () => {
         const rendered = await renderPage(screen.view);
 
         expect(rendered.wrapper.findComponent(FormStub).exists()).toBe(true);
-      });
-
-      it("names the arrangement the host left out of its record", async () => {
-        host.brandTemplate = AUTH_TEMPLATE.CANVAS_CARD;
-
-        const rendered = await renderPage(screen.view, {
-          templates: recordWithout(AUTH_TEMPLATE.CANVAS_CARD)
-        });
-
-        expect(templateDrawn(rendered)).toBeUndefined();
-        expect(
-          some(
-            rendered.errors,
-            error =>
-              isError(error) &&
-              includes(error.message, AUTH_TEMPLATE.CANVAS_CARD)
-          )
-        ).toBe(true);
       });
     });
   }

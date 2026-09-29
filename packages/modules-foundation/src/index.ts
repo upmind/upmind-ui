@@ -1,20 +1,10 @@
-export { TermsAndConditions } from "./brand";
-
-export type { FormRendererEntry } from "./renderers";
-export { registerFormRenderers, useFormRenderers } from "./renderers";
+export * from "./brand";
+export * from "./renderers";
 
 // --- The shared presentation glue
 
-export { Icon } from "./icon";
-export { registerIcons, setIconVariant, iconVariant } from "./icon";
-export type { IconRef, IconProps, IconImportMap } from "./icon";
-
-export { default as Hero } from "./hero/Hero.vue";
-
-export { Back } from "./navigation";
-export type { StorefrontRoute } from "./navigation";
-
-export { Section, Sections, useSection } from "./section";
-export type { SectionItem } from "./section";
-
-export { Form, useFormI18n } from "./forms";
+export * from "./icon";
+export * from "./hero";
+export * from "./navigation";
+export * from "./section";
+export * from "./forms";

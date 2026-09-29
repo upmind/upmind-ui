@@ -20,7 +20,6 @@ import {
   includes,
   isString,
   map,
-  omit,
   startsWith
 } from "lodash-es";
 import type { AuthTemplates } from "../../types";
@@ -277,11 +276,6 @@ export function recordingTemplates(): AuthTemplates {
   };
 }
 
-/** The same record with one name left out. */
-export function recordWithout(name: AUTH_TEMPLATE): Partial<AuthTemplates> {
-  return omit(recordingTemplates(), name);
-}
-
 // -----------------------------------------------------------------------------
 
 const i18n = createI18n({
@@ -303,7 +297,7 @@ export type Rendered = {
 export async function renderPage(
   view: Component,
   options: {
-    templates?: Partial<AuthTemplates>;
+    templates?: AuthTemplates;
     slots?: Record<string, Slot>;
     props?: Record<string, unknown>;
   } = {}

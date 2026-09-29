@@ -9,10 +9,10 @@
 diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
 --- a/packages/modules-auth/src/components/Login.vue
 +++ b/packages/modules-auth/src/components/Login.vue
-@@ -175,7 +175,7 @@ const { component: templateVariant } = useAuthTemplate(
-   () => template.value,
-   () => props.templates
- );
+@@ -171,7 +171,7 @@ const meta = computed(() => ({
+ }));
+ 
+ const templateVariant = computed(() => get(props.templates, template.value));
 -const templateProps = computed(() => omit(props, ["templates"]));
 +const templateProps = computed(() => props);
  
