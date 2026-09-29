@@ -1,9 +1,12 @@
 {
   "name": "@upmind-automation/foundation",
   "version": "0.20.18",
-  "description": "Upmind foundation domain package — brand · theming-glue · app-wiring.",
+  "description": "Upmind foundation domain package — brand · app-wiring.",
   "type": "module",
   "license": "UNLICENSED",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
@@ -15,6 +18,8 @@
   "scripts": {
     "reset": "rm -rf {node_modules,dist,*.tsbuildinfo}",
     "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run",
     "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
     "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
     "format": "prettier --write src/"
@@ -23,7 +28,12 @@
     "@upmind/ui": "workspace:*",
     "@upmind-automation/headless": "workspace:*"
   },
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.4"
+  },
   "peerDependencies": {
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "vue-router": "^4.5.0"
   }
 }
