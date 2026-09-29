@@ -702,7 +702,11 @@
         "Amendment (2026-08-25) — `ui` hosts the vendored form engine; constraint 5 narrows to `src/components/`",
         "Amendment 1 (2026-09-07) — a phased strangler replaces the big-bang wave",
         "Amendment 2 (2026-09-08) — four scope rulings before the run",
+        "Amendment 9 (2026-09-21) — the feature contract is retired; the app owns its list, its routes and its names",
         "Amendment 11 (2026-09-24) — Phase 0 holds only what Phase 0 needs",
+        "Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`",
+        "Amendment 14 (2026-09-28) — the theme belongs to the app; `useAnnouncement` lives in `foundation`; both ports are removed",
+        "Amendment 15 (2026-09-28) — a page takes its templates from the page that mounts it; `catalogue` imports `domain` when a category needs it; `headless` stays as `develop` has it; the shell socket and the DAC port are removed",
         "References"
       ],
       "id": "adr:023-ui-domain-package-architecture",
@@ -12520,12 +12524,6 @@
       "path": "packages/client-vue/src/components/footer/useFooter.ts",
       "title": "useFooter.ts"
     },
-    "file:packages/client-vue/src/components/form/Form.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/form/Form.vue",
-      "title": "Form.vue"
-    },
     "file:packages/client-vue/src/components/form/FormModal.vue": {
       "kind": "file",
       "module": "",
@@ -12610,12 +12608,6 @@
       "path": "packages/client-vue/src/components/form/types.ts",
       "title": "types.ts"
     },
-    "file:packages/client-vue/src/components/form/useFormI18n.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/form/useFormI18n.ts",
-      "title": "useFormI18n.ts"
-    },
     "file:packages/client-vue/src/components/header/Header.vue": {
       "kind": "file",
       "module": "",
@@ -12639,18 +12631,6 @@
       "module": "",
       "path": "packages/client-vue/src/components/header/useHeader.ts",
       "title": "useHeader.ts"
-    },
-    "file:packages/client-vue/src/components/hero/Hero.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/hero/Hero.vue",
-      "title": "Hero.vue"
-    },
-    "file:packages/client-vue/src/components/hero/types.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/hero/types.ts",
-      "title": "types.ts"
     },
     "file:packages/client-vue/src/components/index.ts": {
       "kind": "file",
@@ -12886,12 +12866,6 @@
       "path": "packages/client-vue/src/components/manage/types.ts",
       "title": "types.ts"
     },
-    "file:packages/client-vue/src/components/navigation/Back.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/navigation/Back.vue",
-      "title": "Back.vue"
-    },
     "file:packages/client-vue/src/components/navigation/Share.vue": {
       "kind": "file",
       "module": "",
@@ -12921,30 +12895,6 @@
       "module": "",
       "path": "packages/client-vue/src/components/page/Page.vue",
       "title": "Page.vue"
-    },
-    "file:packages/client-vue/src/components/section/Section.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/section/Section.vue",
-      "title": "Section.vue"
-    },
-    "file:packages/client-vue/src/components/section/Sections.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/section/Sections.vue",
-      "title": "Sections.vue"
-    },
-    "file:packages/client-vue/src/components/section/types.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/section/types.ts",
-      "title": "types.ts"
-    },
-    "file:packages/client-vue/src/components/section/useSection.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/section/useSection.ts",
-      "title": "useSection.ts"
     },
     "file:packages/client-vue/src/components/shell/types.ts": {
       "kind": "file",
@@ -13352,18 +13302,6 @@
       "kind": "file",
       "module": "billing",
       "path": "packages/client-vue/src/modules/billing/types.ts",
-      "title": "types.ts"
-    },
-    "file:packages/client-vue/src/modules/brand/TermsAndConditions.vue": {
-      "kind": "file",
-      "module": "brand",
-      "path": "packages/client-vue/src/modules/brand/TermsAndConditions.vue",
-      "title": "TermsAndConditions.vue"
-    },
-    "file:packages/client-vue/src/modules/brand/types.ts": {
-      "kind": "file",
-      "module": "brand",
-      "path": "packages/client-vue/src/modules/brand/types.ts",
       "title": "types.ts"
     },
     "file:packages/client-vue/src/modules/catalogue/Catalogue.vue": {
@@ -14134,71 +14072,11 @@
       "path": "packages/client-vue/src/modules/recommendations/types.ts",
       "title": "types.ts"
     },
-    "file:packages/client-vue/src/modules/session/AuthAction.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/AuthAction.vue",
-      "title": "AuthAction.vue"
-    },
-    "file:packages/client-vue/src/modules/session/Login.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/Login.vue",
-      "title": "Login.vue"
-    },
-    "file:packages/client-vue/src/modules/session/Logout.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/Logout.vue",
-      "title": "Logout.vue"
-    },
-    "file:packages/client-vue/src/modules/session/Register.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/Register.vue",
-      "title": "Register.vue"
-    },
-    "file:packages/client-vue/src/modules/session/components/Account.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/components/Account.vue",
-      "title": "Account.vue"
-    },
-    "file:packages/client-vue/src/modules/session/components/Auth.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/components/Auth.vue",
-      "title": "Auth.vue"
-    },
-    "file:packages/client-vue/src/modules/session/components/DetailsDropdown.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/components/DetailsDropdown.vue",
-      "title": "DetailsDropdown.vue"
-    },
-    "file:packages/client-vue/src/modules/session/components/Expired.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/components/Expired.vue",
-      "title": "Expired.vue"
-    },
-    "file:packages/client-vue/src/modules/session/components/LoginPopover.vue": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-      "title": "LoginPopover.vue"
-    },
     "file:packages/client-vue/src/modules/session/index.ts": {
       "kind": "file",
       "module": "session",
       "path": "packages/client-vue/src/modules/session/index.ts",
       "title": "index.ts"
-    },
-    "file:packages/client-vue/src/modules/session/session.utils.ts": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/session.utils.ts",
-      "title": "session.utils.ts"
     },
     "file:packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue": {
       "kind": "file",
@@ -14235,18 +14113,6 @@
       "module": "session",
       "path": "packages/client-vue/src/modules/session/templates/SessionSurfaceBox.template.vue",
       "title": "SessionSurfaceBox.template.vue"
-    },
-    "file:packages/client-vue/src/modules/session/types.ts": {
-      "kind": "file",
-      "module": "session",
-      "path": "packages/client-vue/src/modules/session/types.ts",
-      "title": "types.ts"
-    },
-    "file:packages/client-vue/src/modules/system/Empty.vue": {
-      "kind": "file",
-      "module": "system",
-      "path": "packages/client-vue/src/modules/system/Empty.vue",
-      "title": "Empty.vue"
     },
     "file:packages/client-vue/src/modules/system/Error.vue": {
       "kind": "file",
@@ -14301,12 +14167,6 @@
       "module": "theming",
       "path": "packages/client-vue/src/modules/theming/utils.ts",
       "title": "utils.ts"
-    },
-    "file:packages/client-vue/src/types.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/types.ts",
-      "title": "types.ts"
     },
     "file:packages/client-vue/src/useUpmindClient.ts": {
       "kind": "file",
@@ -18552,21 +18412,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-09-29T15:23:45.279Z",
-    "corpus_version": "1+2300ee008a62",
+    "built_at": "2026-09-29T15:40:14.368Z",
+    "corpus_version": "1+42f71c1f0522",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
       "guides": 174,
-      "indexEntries": 2151,
-      "relationEdges": 5845,
-      "relationsPruned": 1692,
+      "indexEntries": 2127,
+      "relationEdges": 5649,
+      "relationsPruned": 1888,
       "symbols": 911
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "339b940560651cc85de53e3a7eee36c3230c0183"
+    "source_commit": "42bb43662ecf530d5b730b0d3af52b3783a2c6b0"
   },
   "relations": {
     "edges": [
@@ -20708,14 +20568,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/cart-nuxt/app/composables/useStorefrontRoute.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/cart-nuxt/app/composables/useStorefrontRoute.ts",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/cart-nuxt/app/error.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -21260,14 +21112,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/cart-nuxt/app/pages/overlays/AccountOverlay.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/cart-nuxt/app/pages/overlays/AccountOverlay.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/cart-nuxt/app/pages/overlays/AuthOverlay.vue",
         "granularity": "file",
         "relation": "contains",
@@ -21281,14 +21125,6 @@
         "relation": "imports_from",
         "sourceFile": "apps/cart-nuxt/app/pages/overlays/AuthOverlay.vue",
         "to": "file:packages/client-vue/src/modules/session/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:apps/cart-nuxt/app/pages/overlays/AuthOverlay.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/cart-nuxt/app/pages/overlays/AuthOverlay.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -21724,14 +21560,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/cart/src/pages/overlays/AccountOverlay.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/cart/src/pages/overlays/AccountOverlay.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/cart/src/pages/overlays/AuthOverlay.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -21745,14 +21573,6 @@
         "relation": "imports_from",
         "sourceFile": "apps/cart/src/pages/overlays/AuthOverlay.vue",
         "to": "file:packages/client-vue/src/modules/session/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:apps/cart/src/pages/overlays/AuthOverlay.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/cart/src/pages/overlays/AuthOverlay.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -22420,14 +22240,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/cart/src/router/useStorefrontRoute.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/cart/src/router/useStorefrontRoute.ts",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/cart/src/transfer.ts",
         "granularity": "file",
         "relation": "imports_from",
@@ -22844,14 +22656,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/hosting/src/pages/overlays/AccountOverlay.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/hosting/src/pages/overlays/AccountOverlay.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/hosting/src/pages/overlays/AuthOverlay.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -22865,14 +22669,6 @@
         "relation": "imports_from",
         "sourceFile": "apps/hosting/src/pages/overlays/AuthOverlay.vue",
         "to": "file:packages/client-vue/src/modules/session/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:apps/hosting/src/pages/overlays/AuthOverlay.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/hosting/src/pages/overlays/AuthOverlay.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -23020,14 +22816,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/hosting/src/pages/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/hosting/src/pages/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/hosting/src/pages/session/Recover.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -23057,14 +22845,6 @@
         "relation": "imports_from",
         "sourceFile": "apps/hosting/src/pages/session/Register.vue",
         "to": "file:packages/client-vue/src/modules/session/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:apps/hosting/src/pages/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/hosting/src/pages/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -23569,14 +23349,6 @@
         "relation": "imports_from",
         "sourceFile": "apps/hosting/src/router/useStorefrontRoute.ts",
         "to": "file:packages/client-vue/src/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:apps/hosting/src/router/useStorefrontRoute.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/hosting/src/router/useStorefrontRoute.ts",
-        "to": "file:packages/client-vue/src/types.ts"
       },
       {
         "confidence": 1,
@@ -24156,14 +23928,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/velia/src/pages/overlays/AccountOverlay.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/velia/src/pages/overlays/AccountOverlay.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/velia/src/pages/overlays/AuthOverlay.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -24177,14 +23941,6 @@
         "relation": "imports_from",
         "sourceFile": "apps/velia/src/pages/overlays/AuthOverlay.vue",
         "to": "file:packages/client-vue/src/modules/session/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:apps/velia/src/pages/overlays/AuthOverlay.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/velia/src/pages/overlays/AuthOverlay.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -24364,14 +24120,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/velia/src/pages/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/velia/src/pages/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/velia/src/pages/session/Recover.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -24388,14 +24136,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/velia/src/pages/session/Recover.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/velia/src/pages/session/Recover.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/velia/src/pages/session/Register.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -24409,14 +24149,6 @@
         "relation": "imports_from",
         "sourceFile": "apps/velia/src/pages/session/Register.vue",
         "to": "file:packages/client-vue/src/modules/session/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:apps/velia/src/pages/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/velia/src/pages/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -24924,14 +24656,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/velia/src/router/useStorefrontRoute.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/velia/src/router/useStorefrontRoute.ts",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/velia/src/transfer.ts",
         "granularity": "file",
         "relation": "imports_from",
@@ -25049,14 +24773,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/Upmind.vue",
         "to": "file:packages/client-vue/src/modules/theming/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/Upmind.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/Upmind.vue",
-        "to": "file:packages/client-vue/src/types.ts"
       },
       {
         "confidence": 1,
@@ -25380,38 +25096,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/Form.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/Form.vue",
-        "to": "file:packages/client-vue/src/components/form/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/Form.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/Form.vue",
-        "to": "file:packages/client-vue/src/components/form/renderers/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/Form.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/Form.vue",
-        "to": "file:packages/headless/src/utils/useValidation.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/FormModal.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/FormModal.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/components/form/FormModal.vue",
         "granularity": "file",
         "relation": "contains",
@@ -25652,22 +25336,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/useFormI18n.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/form/useFormI18n.ts",
-        "to": "file:packages/client-vue/src/components/form/useFormI18n.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/useFormI18n.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/useFormI18n.ts",
-        "to": "file:packages/headless/src/utils/useValidation.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/components/header/Header.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -25748,22 +25416,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/components/header/Header.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/header/Header.vue",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/header/HeaderBrand.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/header/HeaderBrand.vue",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/components/header/HeaderBrand.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -25833,14 +25485,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/header/useHeader.ts",
         "to": "file:packages/headless/src/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/hero/Hero.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/hero/Hero.vue",
-        "to": "file:packages/client-vue/src/components/hero/types.ts"
       },
       {
         "confidence": 1,
@@ -26065,14 +25709,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/layout/components/column/Column.vue",
         "to": "file:packages/client-vue/src/components/layout/components/column/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/layout/components/column/Column.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/layout/components/column/Column.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
       },
       {
         "confidence": 1,
@@ -26316,14 +25952,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/components/layout/layouts/SplitVertical.layout.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/layout/layouts/SplitVertical.layout.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/components/layout/layouts/SurfaceBox.layout.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -26337,14 +25965,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/layout/layouts/SurfaceBox.layout.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/layout/layouts/SurfaceBox.layout.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/layout/layouts/SurfaceBox.layout.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
       },
       {
         "confidence": 1,
@@ -26601,14 +26221,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/main/Main.vue",
         "to": "file:packages/client-vue/src/components/main/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Form.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Form.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
       },
       {
         "confidence": 1,
@@ -26876,62 +26488,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/components/section/Section.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/section/Section.vue",
-        "to": "file:packages/client-vue/src/components/section/Sections.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/section/Section.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/section/Section.vue",
-        "to": "file:packages/client-vue/src/components/section/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/section/Sections.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/section/Sections.vue",
-        "to": "file:packages/client-vue/src/components/section/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/section/Sections.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/section/Sections.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/section/useSection.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/section/useSection.ts",
-        "to": "file:packages/client-vue/src/components/section/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/section/useSection.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/section/useSection.ts",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/section/useSection.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/section/useSection.ts",
-        "to": "file:packages/headless/src/index.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/components/shell/useShell.ts",
         "granularity": "file",
         "relation": "imports_from",
@@ -26953,14 +26509,6 @@
         "relation": "contains",
         "sourceFile": "packages/client-vue/src/composables/useBreadcrumbs.ts",
         "to": "file:packages/client-vue/src/composables/useBreadcrumbs.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/composables/useBreadcrumbs.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/composables/useBreadcrumbs.ts",
-        "to": "file:packages/client-vue/src/types.ts"
       },
       {
         "confidence": 1,
@@ -26993,14 +26541,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket-product/Edit.vue",
         "to": "file:packages/client-vue/src/components/layout/components/transition/Transition.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket-product/Edit.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket-product/Edit.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -27820,14 +27360,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket-product/templates/BasketProductEnclosed.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket-product/templates/BasketProductEnclosed.template.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/basket-product/templates/BasketProductFull.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -27948,14 +27480,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket-product/types.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket-product/types.ts",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/basket/Basket.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -27977,14 +27501,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket/Basket.vue",
         "to": "file:packages/client-vue/src/components/layout/useLayout.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/Basket.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/Basket.vue",
-        "to": "file:packages/client-vue/src/components/navigation/Back.vue"
       },
       {
         "confidence": 1,
@@ -28073,14 +27589,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket/Basket.vue",
         "to": "file:packages/client-vue/src/modules/basket/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/Basket.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/Basket.vue",
-        "to": "file:packages/client-vue/src/types.ts"
       },
       {
         "confidence": 1,
@@ -28184,31 +27692,7 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket/components/BasketFieldsSection.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketFieldsSection.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketFieldsSection.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketFieldsSection.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketFieldsSection.vue",
         "to": "file:packages/headless/src/modules/basket-fields/useBasketFields.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketPricing.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketPricing.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -28233,14 +27717,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket/components/BasketPricing.vue",
         "to": "file:packages/client-vue/src/modules/basket/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/BasketProducts.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/BasketProducts.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -28352,14 +27828,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket/components/Promotions.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/components/Promotions.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/components/Promotions.vue",
         "to": "file:packages/headless/src/modules/basket-promotions/useBasketPromotions.ts"
       },
       {
@@ -28457,14 +27925,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/basket/templates/BasketEnclosed.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/basket/templates/BasketEnclosed.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/basket/templates/BasketEnclosed.template.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
       },
       {
         "confidence": 1,
@@ -28590,14 +28050,6 @@
         "confidence": 1,
         "from": "file:packages/client-vue/src/modules/billing/Billing.vue",
         "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/Billing.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/Billing.vue",
-        "granularity": "file",
         "relation": "contains",
         "sourceFile": "packages/client-vue/src/modules/billing/Billing.vue",
         "to": "file:packages/client-vue/src/modules/billing/Billing.vue"
@@ -28704,14 +28156,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/billing/components/BillingForm.vue",
-        "to": "file:packages/client-vue/src/components/section/Sections.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/BillingForm.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/BillingForm.vue",
         "to": "file:packages/client-vue/src/modules/billing/components/TabBusiness.vue"
       },
       {
@@ -28785,14 +28229,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/billing/components/BillingForm.vue",
         "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/BillingSummary.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/BillingSummary.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -29084,14 +28520,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/templates/BillingEnclosed.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/templates/BillingEnclosed.template.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/billing/templates/BillingFull.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -29209,30 +28637,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/billing/types.ts",
         "to": "file:packages/headless/src/modules/basket-billing/basket-billing.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/brand/TermsAndConditions.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/brand/TermsAndConditions.vue",
-        "to": "file:packages/client-vue/src/modules/brand/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/brand/TermsAndConditions.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/brand/TermsAndConditions.vue",
-        "to": "file:packages/headless/src/modules/brand-terms/useBrandTermsAndConditions.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/brand/TermsAndConditions.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/brand/TermsAndConditions.vue",
-        "to": "file:packages/headless/src/modules/brand/useBrand.ts"
       },
       {
         "confidence": 1,
@@ -29449,22 +28853,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/catalogue/categories/Categories.vue",
         "to": "file:packages/headless/src/modules/product-categories/useProductCategories.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/catalogue/categories/CategoriesHeader.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/catalogue/categories/CategoriesHeader.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/catalogue/categories/CategoriesHeader.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/catalogue/categories/CategoriesHeader.vue",
-        "to": "file:packages/client-vue/src/components/hero/types.ts"
       },
       {
         "confidence": 1,
@@ -29752,14 +29140,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/Checkout.vue",
-        "to": "file:packages/client-vue/src/components/navigation/Back.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/Checkout.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/Checkout.vue",
         "to": "file:packages/client-vue/src/modules/checkout/components/CheckoutContent.vue"
       },
       {
@@ -29832,14 +29212,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/Checkout.vue",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/Checkout.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/Checkout.vue",
         "to": "file:packages/headless/src/modules/basket/useBasket.ts"
       },
       {
@@ -29881,22 +29253,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/Checkout.vue",
         "to": "file:packages/headless/src/utils/validateTemplate.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/CheckoutContent.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutContent.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/CheckoutContent.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutContent.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -30000,14 +29356,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutPricing.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/CheckoutPricing.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutPricing.vue",
         "to": "file:packages/client-vue/src/modules/basket/components/Summary.vue"
       },
       {
@@ -30041,22 +29389,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutProcessing.vue",
         "to": "file:packages/headless/src/modules/basket/useBasketPaymentDetails.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/GuestEmail.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/GuestEmail.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/GuestEmail.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/GuestEmail.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -30113,14 +29445,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/templates/CheckoutEnclosed.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/templates/CheckoutEnclosed.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/templates/CheckoutEnclosed.template.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
       },
       {
         "confidence": 1,
@@ -30688,14 +30012,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/domain/components/DomainHero.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/domain/components/DomainHero.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/domain/components/DomainHero.vue",
         "to": "file:packages/client-vue/src/modules/domain/components/DomainSearch.vue"
       },
       {
@@ -30912,14 +30228,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/feedback/Feedback.vue",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/feedback/Feedback.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/feedback/Feedback.vue",
         "to": "file:packages/headless/src/modules/feedback/feedback.types.ts"
       },
       {
@@ -30945,22 +30253,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
         "to": "file:packages/client-vue/src/components/announcement/useAnnouncement.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -31032,14 +30324,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
         "to": "file:packages/headless/src/modules/account/useAccount.ts"
       },
       {
@@ -31097,14 +30381,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
         "to": "file:packages/headless/src/utils/useUrl.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -31204,14 +30480,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/templates/OrderEnclosed.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/templates/OrderEnclosed.template.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/order/templates/OrderFull.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -31337,14 +30605,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/order/templates/OrderRTL.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/types.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/types.ts",
-        "to": "file:packages/client-vue/src/types.ts"
       },
       {
         "confidence": 1,
@@ -31438,14 +30698,6 @@
         "confidence": 1,
         "from": "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue",
         "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentActions.vue",
-        "to": "file:packages/client-vue/src/modules/brand/TermsAndConditions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue",
-        "granularity": "file",
         "relation": "contains",
         "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentActions.vue",
         "to": "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue"
@@ -31473,14 +30725,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentAmount.vue",
         "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -31590,14 +30834,6 @@
         "confidence": 1,
         "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
         "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "granularity": "file",
         "relation": "contains",
         "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
         "to": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue"
@@ -31648,23 +30884,7 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateways.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateways.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateways.vue",
         "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGatewaysUnavailable.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGatewaysUnavailable.vue",
-        "to": "file:packages/client-vue/src/modules/brand/TermsAndConditions.vue"
       },
       {
         "confidence": 1,
@@ -31705,14 +30925,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentProcessing.vue",
         "to": "file:packages/headless/src/utils/useError.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/StoredPaymentMethods.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/StoredPaymentMethods.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
       },
       {
         "confidence": 1,
@@ -31808,31 +31020,7 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/product-setup/components/Setup.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product-setup/components/Setup.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product-setup/components/Setup.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product-setup/components/Setup.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product-setup/components/Setup.vue",
         "to": "file:packages/client-vue/src/components/layout/components/transition/Transition.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product-setup/components/Setup.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product-setup/components/Setup.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -32004,14 +31192,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product-setup/templates/ProductSetupEnclosed.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product-setup/templates/ProductSetupEnclosed.template.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/product-setup/templates/ProductSetupFull.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -32153,14 +31333,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/product-setup/templates/ProductSetupRTL.template.vue",
         "to": "file:packages/client-vue/src/components/layout/useLayout.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product/Configure.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product/Configure.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
       },
       {
         "confidence": 1,
@@ -32404,22 +31576,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product/NotFound.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product/NotFound.vue",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product/Recommendations.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/product/Recommendations.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -32529,14 +31685,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/product/Recommendations.vue",
         "to": "file:packages/headless/src/utils/validateTemplate.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product/components/Config.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product/components/Config.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
       },
       {
         "confidence": 1,
@@ -32825,22 +31973,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/product/components/card/types.ts",
         "to": "file:packages/headless/src/modules/product/product.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product/components/hero/ProductHero.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product/components/hero/ProductHero.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product/components/hero/ProductHero.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product/components/hero/ProductHero.vue",
-        "to": "file:packages/client-vue/src/components/hero/types.ts"
       },
       {
         "confidence": 1,
@@ -33188,14 +32320,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product/templates/ProductEnclosed.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product/templates/ProductEnclosed.template.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/product/templates/ProductFull.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -33320,23 +32444,7 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/product/types.ts",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/product/types.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/product/types.ts",
         "to": "file:packages/headless/src/modules/config/config.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
       },
       {
         "confidence": 1,
@@ -33644,758 +32752,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/AuthAction.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/AuthAction.vue",
-        "to": "file:packages/client-vue/src/modules/session/AuthAction.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/AuthAction.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/AuthAction.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/DetailsDropdown.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/AuthAction.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/AuthAction.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/AuthAction.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/AuthAction.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/AuthAction.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/AuthAction.vue",
-        "to": "file:packages/headless/src/modules/routing/routing.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/AuthAction.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/AuthAction.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/basket/components/Summary.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/Login.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/Login.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/Login.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionEnclosed.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionLTR.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionRTL.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionSplit.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionSurfaceBox.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/system/Loading.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/headless/src/modules/basket/useBasket.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/headless/src/modules/brand/useBrand.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/headless/src/modules/config/schema/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/headless/src/modules/config/useConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/headless/src/modules/routing/useRoutingEngine.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/headless/src/modules/system-client-area/template-render/useClientTemplate.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Login.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/headless/src/utils/validateTemplate.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Logout.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Logout.vue",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Logout.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Logout.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/components/hero/Hero.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/components/section/Section.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/basket/components/Summary.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Account.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionEnclosed.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionLTR.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionRTL.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionSplit.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/templates/SessionSurfaceBox.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/system/Loading.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/auth/useAuth.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/basket/useBasket.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/brand/useBrand.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/config/schema/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/config/useConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/routing/useRoutingEngine.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/scope/scope.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/modules/system-client-area/template-render/useClientTemplate.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/Register.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/headless/src/utils/validateTemplate.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/client-vue/src/modules/brand/TermsAndConditions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Account.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Account.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Account.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/headless/src/modules/account/account.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/headless/src/modules/account/useAccount.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/headless/src/modules/scope/scope.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Account.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Account.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/client-vue/src/components/form/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/client-vue/src/modules/brand/TermsAndConditions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/headless/src/modules/auth/auth.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/headless/src/modules/auth/useAuth.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/headless/src/modules/scope/scope.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Auth.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Auth.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/DetailsDropdown.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/DetailsDropdown.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "file:packages/client-vue/src/modules/session/components/Expired.vue",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Expired.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Expired.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Expired.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Expired.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Expired.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Expired.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/Expired.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/Expired.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/Auth.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/headless/src/modules/auth/auth.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/headless/src/modules/auth/useAuth.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/headless/src/modules/routing/useRoutingEngine.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/headless/src/modules/scope/scope.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/components/LoginPopover.vue",
-        "to": "file:packages/headless/src/modules/session-store/useActiveSession.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/session.utils.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts",
-        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/session.utils.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -34425,14 +32781,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -34484,14 +32832,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/templates/SessionEnclosed.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/templates/SessionEnclosed.template.vue",
-        "to": "file:packages/client-vue/src/components/section/useSection.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/session/templates/SessionLTR.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -34537,14 +32877,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/templates/SessionLTR.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/templates/SessionLTR.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/templates/SessionLTR.template.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -34596,14 +32928,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/templates/SessionRTL.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/templates/SessionRTL.template.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/session/templates/SessionSplit.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -34633,14 +32957,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/templates/SessionSplit.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/templates/SessionSplit.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/templates/SessionSplit.template.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
         "confidence": 1,
@@ -34681,30 +32997,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/templates/SessionSurfaceBox.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/templates/SessionSurfaceBox.template.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/templates/SessionSurfaceBox.template.vue",
-        "to": "file:packages/client-vue/src/modules/session/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/system/Empty.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/system/Empty.vue",
-        "to": "file:packages/client-vue/src/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/system/Error.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/system/Error.vue",
-        "to": "file:packages/client-vue/src/types.ts"
       },
       {
         "confidence": 1,
@@ -65331,7 +63623,7 @@
         "to": "file:packages/types/src/models/images.ts"
       }
     ],
-    "prunedCount": 1692,
+    "prunedCount": 1888,
     "sourcedAt": ""
   },
   "symbols": {
