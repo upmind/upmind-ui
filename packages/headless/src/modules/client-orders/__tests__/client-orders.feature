@@ -91,6 +91,13 @@ Feature: Client order history — the client self-service capability
     And the order history returns to page one
     And a second filter on the same text column of the order history replaces the first
 
+  @AC-7 @FE-3237 @client
+  Scenario: The history tells a client filter from the forced order category
+    Given a signed-in client reads the order history with no filter chosen
+    When the client searches the order history and then clears the search
+    Then the order history reads as filtered only while the search applies
+    And a criteria write on one branch leaves the order and the forced order category as they stand
+
   @AC-8 @FE-3237 @client
   Scenario: A date filter takes both value forms
     Given a signed-in client with placed orders

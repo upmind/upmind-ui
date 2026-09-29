@@ -26,11 +26,11 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   CLIENT_ORDERS_SCOPE_MATRIX,
   CLIENT_ORDER_MANAGER_SCOPE_MATRIX
-} from "..";
-import { ScopeActorTypes } from "../../scope/scope.types";
+} from "../client-orders.types";
 
 // -----------------------------------------------------------------------------
 

@@ -82,6 +82,14 @@ describe("client-orders — filter[category.slug]=new_contract survives each wri
       "filter[number|eq]"
     ],
     [
+      "the actions setCriteria writer the playground filter bar drives",
+      () =>
+        orders
+          .useActions()
+          .setCriteria({ filters: { ...RENEWAL, number: { eq: NUMBER } } }),
+      "filter[number|eq]"
+    ],
+    [
       "a raw write with no category leaf",
       () =>
         orders
