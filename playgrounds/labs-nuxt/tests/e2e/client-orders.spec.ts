@@ -64,6 +64,9 @@ test("@FE-3237 AC-22 A hand drives the two composables — every published membe
   const orders = new ClientOrdersPage(page);
   await orders.open();
 
+  // control-flow guard — the list must settle before the snapshot sweep
+  await expect(orders.member("data")).toBeVisible({ timeout: 150000 });
+
   const unreachable: string[] = [];
   for (const member of COLLECTION_MEMBERS) {
     if (!(await orders.member(member).isVisible())) unreachable.push(member);
