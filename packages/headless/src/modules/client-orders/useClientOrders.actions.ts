@@ -3,7 +3,14 @@ import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
-import { debounce, forEach, isEmpty, keys } from "lodash-es";
+import {
+  debounce,
+  forEach,
+  isEmpty,
+  isUndefined,
+  keys,
+  omitBy
+} from "lodash-es";
 import type {
   ClientOrderStatusChoice,
   ClientOrdersComparisonLeaf,
@@ -344,31 +351,29 @@ export function createClientOrdersActions(
 
   /**
    * The raw-intent criteria write (design 8.3 write rules, ADR-032 decision
-   * 5 rule 2). A MODULE WRITER, not the bare `query.setCriteria`: the
-   * `filters` branch routes through {@link writeFilters}, so every write
-   * re-asserts the forced `category.slug` leaf on a fresh copy of the live
-   * filters; `sort` and `pagination` pass through as given.
+   * 5 rule 2). Branch-level like the core `setCriteria`: a `filters` intent
+   * REPLACES the whole `filters` branch, so a key it leaves out clears. The
+   * fresh copy of `intent.filters` re-asserts the forced `category.slug`
+   * leaf and keeps only `eq` of a `status.code` eq+neq pair. Branches left
+   * out stand; `sort` and `pagination` pass through as given, in ONE write.
    */
   function setCriteria(intent: Partial<ClientOrdersQueryModel>): void {
+    const next: Partial<ClientOrdersQueryModel> = omitBy(
+      { ...intent },
+      isUndefined
+    );
+
     if (intent.filters) {
-      writeFilters(filters => {
-        Object.assign(filters, intent.filters);
-
-        const statusBranch = filters["status.code"];
-        if (statusBranch?.eq && statusBranch?.neq) {
-          filters["status.code"] = { eq: statusBranch.eq };
-        }
-      });
+      const filters: ClientOrdersFilterModel = { ...intent.filters };
+      const statusBranch = filters["status.code"];
+      if (statusBranch?.eq && statusBranch?.neq) {
+        filters["status.code"] = { eq: statusBranch.eq };
+      }
+      filters["category.slug"] = FORCED_CATEGORY;
+      next.filters = filters;
     }
 
-    if (intent.sort !== undefined || intent.pagination !== undefined) {
-      query.setCriteria({
-        ...(intent.sort !== undefined && { sort: intent.sort }),
-        ...(intent.pagination !== undefined && {
-          pagination: intent.pagination
-        })
-      } as never);
-    }
+    query.setCriteria(next as never);
   }
 
   /** Writes the whole `sort` branch. The page stays — `pagination` rides along unchanged (design 8.3, P4). */
@@ -431,8 +436,9 @@ export function createClientOrdersActions(
     setLimit,
 
     /**
-     * Applies a criteria intent — merges `filters` / `sort` / `pagination`
-     * into the ONE query model; the `filters` branch re-asserts the forced
+     * Applies a criteria intent — merges the given `filters` / `sort` /
+     * `pagination` branches into the ONE query model at branch level; a
+     * `filters` intent replaces that branch and re-asserts the forced
      * `category.slug` leaf (D-3, ADR-032 decision 5 rule 2).
      */
     setCriteria,

@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
+--- a/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
++++ b/packages/headless/src/modules/client-orders/useClientOrders.actions.ts
+@@ -358,6 +358,8 @@
+    * out stand; `sort` and `pagination` pass through as given, in ONE write.
+    */
+   function setCriteria(intent: Partial<ClientOrdersQueryModel>): void {
++    query.setCriteria(intent as never);
++    return;
+     const next: Partial<ClientOrdersQueryModel> = omitBy(
+       { ...intent },
+       isUndefined

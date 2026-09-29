@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/client-orders/useClientOrders.meta.ts b/packages/headless/src/modules/client-orders/useClientOrders.meta.ts
+index 2d2a0aeaea..1fffe944ba 100644
+--- a/packages/headless/src/modules/client-orders/useClientOrders.meta.ts
++++ b/packages/headless/src/modules/client-orders/useClientOrders.meta.ts
+@@ -42,7 +42,7 @@ export function createClientOrdersMeta(
+    * an empty-because-filtered list from a genuinely empty one.
+    */
+   const isFiltered = computed(
+-    () => !isEmpty(omit(query.criteria.value.filters, "category.slug"))
++    () => !isEmpty(query.criteria.value.filters)
+   );
+ 
+   /** D-16 — the storefront target, from the brand's own cart meta. */
