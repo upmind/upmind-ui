@@ -171,7 +171,7 @@
               }"
               @click="actions.sort(column, direction)"
             >
-              {{ column }} {{ direction }}
+              {{ sortFieldLabel(column) }} {{ direction }}
             </Button>
           </template>
         </div>
@@ -337,6 +337,7 @@
  * and `reset` is `@scenario-exclude`.
  */
 
+import { enumToEnumOptionMapper } from "@jsonforms/core";
 import {
   Alert,
   Badge,
@@ -358,7 +359,8 @@ import {
   Icon,
   ScopeActorTypes,
   resolveSelfActor,
-  useClientOrders
+  useClientOrders,
+  useFormI18n
 } from "@upmind-automation/client-vue";
 import FilterBar from "../runtime/components/FilterBar.vue";
 import ScenarioBar from "../runtime/components/ScenarioBar.vue";
@@ -367,7 +369,7 @@ import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
 import { registry } from "../runtime/registry";
 import { scenarioPlayground } from "../runtime/ScenarioPlayground.styles";
 import scenario, { CLIENT_ORDERS_SCENARIO } from "./client-orders.scenario";
-import { map, toNumber, values } from "lodash-es";
+import { find, map, toNumber, values } from "lodash-es";
 import type { ClientOrderStatusChoice } from "@upmind-automation/client-vue";
 import type { ScopeActor } from "@upmind-automation/scenario-harness";
 import type { IOrder } from "@upmind-automation/types";
@@ -392,12 +394,28 @@ const SORT_DIRECTIONS = ["asc", "desc"] as const;
 const RELATIVE_DATE = /^[+-]/;
 
 const { t } = useI18n();
+const formI18n = useFormI18n();
 
 const orders = useClientOrders().as(ScopeActorTypes.SELF);
 const actions = orders.useActions();
 const context = orders.useContext();
 const meta = orders.useMeta();
 const { query } = orders.useInternals();
+
+/** The column labels off the sort uischema's `i18n` prefix (`<i18n>.<field>`), never the raw enum. */
+const sortFields = computed(() =>
+  map(SORT_COLUMNS, column =>
+    enumToEnumOptionMapper(
+      column,
+      formI18n.value.translate,
+      context.schemas.query.sortUischema.i18n
+    )
+  )
+);
+
+function sortFieldLabel(column: string): string {
+  return find(sortFields.value, { value: column })?.label ?? column;
+}
 
 const actorScope = useActorScope();
 

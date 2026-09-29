@@ -405,6 +405,15 @@
     "due_date": "Due",
     "cancellation_datetime": "Cancelled"
   },
+  "client_orders_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "id": "Number",
+    "total_amount": "Total",
+    "status_id": "Status",
+    "created_at": "Date created"
+  },
   "client_orders_status_filter": {
     "description": null,
     "label": "Status",
