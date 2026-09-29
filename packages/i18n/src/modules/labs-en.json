@@ -298,6 +298,7 @@
   "client_orders_page": "Page",
   "client_orders_limit": "Page size",
   "client_orders_invalidate": "Invalidate",
+  "client_orders_is_ready": "Wait until ready",
   "client_order_title": "Order",
   "client_order_description": "One of a client's placed orders, re-read on each enter of the order view.",
   "client_order_needs_id": "No order named",

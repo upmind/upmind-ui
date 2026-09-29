@@ -32,6 +32,20 @@ export default defineNuxtConfig({
   // EBADF (same failure class the typeCheck-in-dev comment above dodges).
   ignore: ["**/.output/**", "**/test-results/**"],
 
+  // Nitro's default `root` mount ignores `**/node_modules/**`, a glob whose `**`
+  // cannot cross a dot segment — so under `.claude/worktrees/` its watcher
+  // crawls node_modules through the workspace symlinks and dies with EMFILE.
+  nitro: {
+    devStorage: {
+      root: {
+        driver: "fs",
+        readOnly: true,
+        base: __dirname,
+        watchOptions: { ignored: [/[\\/]node_modules[\\/]/] }
+      }
+    }
+  },
+
   /**
    * ---------------------------------------------------------------------------
    * MODULES

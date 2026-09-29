@@ -26,10 +26,20 @@
         >
           {{ flag.label }}
         </Badge>
+        <Badge
+          v-for="readout in readouts"
+          :key="readout.key"
+          size="sm"
+          appearance="outline"
+          :data-test-key="readout.key"
+          :data-test-value="readout.value"
+        >
+          {{ readout.label }}
+        </Badge>
         <a
           v-if="meta.showStore.value && meta.storefrontUrl.value"
           :href="meta.storefrontUrl.value"
-          data-test-key="client-orders-storefront-url"
+          data-test-key="client-orders-storefront-link"
         >
           {{ t("labs.client_orders_store") }}
         </a>
@@ -186,7 +196,7 @@
           context.error.value?.message ||
           t('error.something_went_wrong')
         "
-        :data-attrs="{ 'data-test-key': 'client-orders-error' }"
+        :data-attrs="{ 'data-test-key': 'client-orders-alert' }"
       />
 
       <div v-if="meta.isLoading.value" class="flex justify-center p-8">
@@ -301,6 +311,33 @@
         >
           {{ t("labs.client_orders_invalidate") }}
         </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          :data-attrs="{
+            'data-test-key': 'client-orders-is-ready',
+            'data-test-value': String(readiness ?? '')
+          }"
+          @click="run(async () => (readiness = await actions.isReady()))"
+        >
+          {{ t("labs.client_orders_is_ready") }}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          :data-attrs="{ 'data-test-key': 'client-orders-reset' }"
+          @click="run(() => actions.reset())"
+        >
+          {{ t("action.reset") }}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          :data-attrs="{ 'data-test-key': 'client-orders-destroy' }"
+          @click="run(() => actions.destroy())"
+        >
+          {{ t("action.destroy") }}
+        </Button>
       </div>
 
       <pre
@@ -331,10 +368,7 @@
  * filter bar over `schemas.query` (written through the module writer
  * `actions.setCriteria`, never the raw `useInternals().query.setCriteria`),
  * each named filter setter, `filterBy`, `sortBy`, `sort`, the page moves,
- * `refresh` and `invalidate`.
- *
- * NOT drawn, and named rather than faked: `isReady`/`destroy` are lifecycle,
- * and `reset` is `@scenario-exclude`.
+ * `refresh`, `invalidate`, `isReady`, `reset` and `destroy`.
  */
 
 import { enumToEnumOptionMapper } from "@jsonforms/core";
@@ -446,6 +480,20 @@ const pageInput = ref("");
 const limitInput = ref("");
 const picked = ref<IOrder>();
 const actionError = ref<string>();
+const readiness = ref<boolean>();
+
+const readouts = computed(() => [
+  {
+    key: "client-orders-error",
+    label: "error",
+    value: context.error.value?.message ?? ""
+  },
+  {
+    key: "client-orders-storefront-url",
+    label: "storefront-url",
+    value: meta.storefrontUrl.value ?? ""
+  }
+]);
 
 const metaFlags = computed(() =>
   map(

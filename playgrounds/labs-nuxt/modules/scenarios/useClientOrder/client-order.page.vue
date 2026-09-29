@@ -51,6 +51,16 @@
             >
               {{ flag.label }}
             </Badge>
+            <Badge
+              v-for="readout in readouts"
+              :key="readout.key"
+              size="sm"
+              appearance="outline"
+              :data-test-key="readout.key"
+              :data-test-value="readout.value"
+            >
+              {{ readout.label }}
+            </Badge>
           </div>
 
           <div v-if="meta!.isLoading.value" class="flex justify-center p-8">
@@ -66,7 +76,7 @@
               context!.error.value?.message ||
               t('error.something_went_wrong')
             "
-            :data-attrs="{ 'data-test-key': 'client-order-error' }"
+            :data-attrs="{ 'data-test-key': 'client-order-alert' }"
           />
 
           <Card v-if="context!.data.value" size="sm" class="gap-3">
@@ -137,6 +147,30 @@
               {{ t("labs.client_orders_invalidate") }}
             </Button>
             <Button
+              variant="ghost"
+              :data-attrs="{
+                'data-test-key': 'client-order-is-ready',
+                'data-test-value': String(readiness ?? '')
+              }"
+              @click="run(async () => (readiness = await actions!.isReady()))"
+            >
+              {{ t("labs.client_orders_is_ready") }}
+            </Button>
+            <Button
+              variant="ghost"
+              :data-attrs="{ 'data-test-key': 'client-order-reset' }"
+              @click="run(() => actions!.reset())"
+            >
+              {{ t("action.reset") }}
+            </Button>
+            <Button
+              variant="ghost"
+              :data-attrs="{ 'data-test-key': 'client-order-destroy' }"
+              @click="run(() => actions!.destroy())"
+            >
+              {{ t("action.destroy") }}
+            </Button>
+            <Button
               variant="outline"
               :disabled="meta!.isProcessing.value"
               :data-attrs="{ 'data-test-key': 'client-order-cancel' }"
@@ -165,9 +199,6 @@
  * its own `client-order-<member>` test key. The payment component mounts
  * only while `canPay` is true and calls `usePayment()` in its own setup
  * (design 6.4).
- *
- * NOT drawn, and named rather than faked: `isReady`/`destroy` are lifecycle,
- * and `reset` is `@scenario-exclude`.
  */
 
 import {
@@ -215,6 +246,15 @@ const meta = manager?.useMeta();
 
 const isOpen = ref(false);
 const actionError = ref<string>();
+const readiness = ref<boolean>();
+
+const readouts = computed(() => [
+  {
+    key: "client-order-error",
+    label: "error",
+    value: context?.error.value?.message ?? ""
+  }
+]);
 
 const metaFlags = computed(() => {
   if (!meta) return [];
