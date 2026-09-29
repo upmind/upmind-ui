@@ -20,7 +20,7 @@ import {
 } from "./module.schemas";
 import { useCollection } from "../../utils";
 import { castArray } from "lodash-es";
-import type { ModuleItem, ModuleListQuery } from "./module.types";
+import type { {Module}, ModuleListQuery } from "./module.types";
 // -----------------------------------------------------------------------------
 /**
  * @module module/useModule.context
@@ -34,18 +34,20 @@ import type { ModuleItem, ModuleListQuery } from "./module.types";
  */
 
 /**
- * The base reference-data set, at module scope and exported so an arm's
- * `lookups` override SPREADS it rather than re-declaring its entries — the same
- * reason `module.services.ts` exports `queryKey`. Re-declaring is how the two
- * copies silently drift the day a base entry changes.
+ * The base reference-data set, at module scope and FILE-PRIVATE: the shared
+ * factory hands it to an arm's factory as an argument so the arm's `lookups`
+ * override SPREADS it rather than re-declaring its entries. Re-declaring is how
+ * the two copies silently drift the day a base entry changes. (`queryKey` in
+ * `module.services.ts` is exported instead because the arm's services factory
+ * has no such call seam — the services switch passes only the scope context.)
  */
-export const baseLookups = [{ key: "currencies" }, { key: "languages" }];
+const baseLookups = [{ key: "currencies" }, { key: "languages" }];
 
 export function createModuleContext(
   actorScope: ScopeActorTypes,
   query: ModuleListQuery
 ) {
-  const { findOne, getOne } = useCollection<ModuleItem>(query.data);
+  const { findOne, getOne } = useCollection<{Module}>(query.data);
 
   const data = computed(() => castArray(query.data.value ?? []));
 
@@ -62,7 +64,7 @@ export function createModuleContext(
   // it wins, exactly as `auth/useAuth.actions.ts:196-201` does:
   //   const actorContext =
   //     actorScope === ScopeActorTypes.CLIENT
-  //       ? createClientModuleContext(query)
+  //       ? createClientModuleContext(query, baseLookups)
   //       : {};
   // Never a `.base.ts` file (Part B "NO .base Files"); attach a `@decision`
   // block adjacent to the spread the day an arm overrides a shared member.
@@ -117,5 +119,4 @@ export function createModuleContext(
   };
 }
 
-// Type export for consumers
 export type UseModuleContext = ReturnType<typeof createModuleContext>;

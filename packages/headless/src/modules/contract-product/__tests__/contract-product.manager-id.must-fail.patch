@@ -1,0 +1,26 @@
+Negative control for useContractProduct.context.ts `id` rename (R37 B6).
+
+Spec that must flip: contract-product.manager-members.int.test.ts
+("names the product it addresses through useContext().id") — asserts `useContractProduct().useContext().id` (the template
+name, not `contractProductId`) resolves the seeded product id.
+
+Mutation: reverts the context export back to the pre-restore `contractProductId`
+name, dropping the template-named `id` member.
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
+@@ -79,8 +79,11 @@ export function createContractProductContext(
+     /** Machine-captured error message, if any — read, never raised. */
+     errors: useContext<ResponseError["message"]>(state, "error.message"),
+ 
+-    /** The product this manager acts on (undefined for a new item). */
+-    id: useContext<string | undefined>(state, "contractProductId"),
++    /** The product this manager acts on. */
++    contractProductId: useContext<string | undefined>(
++      state,
++      "contractProductId"
++    ),
+ 
+     /** Reference data the machine's `load` service resolved (the CANCEL_REQUEST custom fields). */
+     lookups: useContext<ContractProductContext["lookups"]>(state, "lookups"),

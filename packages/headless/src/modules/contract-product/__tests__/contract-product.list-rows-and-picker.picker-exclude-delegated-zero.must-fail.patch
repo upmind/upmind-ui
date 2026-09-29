@@ -1,0 +1,24 @@
+# Negative-control mutant — the picker sends the list's own hide-delegated force-set (W1)
+#
+# Scenario it must flip: contract-product.list-rows-and-picker.int.test.ts,
+#   "The product picker offers the delegated products my list offers".
+# The spec asserts the picker's `GET contracts_products` carries the SAME
+#   `exclude_delegated` value the list request sends. At the session default the
+#   list sends `exclude_delegated=0`, so a hardcoded `0` matched and survived.
+# Mutation: the picker hardcodes `exclude_delegated=1`, so its value diverges
+#   from the list's `0` and the equality assertion breaks.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -343,7 +343,7 @@ function loadContractProductPickerLookup(
+           reject(new NotAuthenticatedError());
+           return;
+         }
+-        url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
++        url.searchParams.set("exclude_delegated", "1");
+         resolve(true);
+       }),
+     select: mapContractProductPickerItems,

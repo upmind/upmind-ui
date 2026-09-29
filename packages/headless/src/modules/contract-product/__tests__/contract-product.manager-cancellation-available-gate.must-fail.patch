@@ -1,0 +1,25 @@
+# Negative-control mutant — the cancellation open flag refuses an unavailable product (G2, P4g, AC-11)
+#
+# Scenario it must flip: contract-product.manager-open-gates.int.test.ts, the
+#   AC-11 outline — a row for a product placed on `unavailable` (a cancelled or
+#   lapsed subscription) that expects `hasCancellationOptions` false, matching
+#   `openCancellation` opening nothing. The prover adds that row; the outline has
+#   none at 54d6ee599, so this mutant stays green until it lands.
+# Mutation: `hasCancellationOptions` drops the `isAvailable` gate, so the flag
+#   reads the record predicate alone and reports the form as offered on a
+#   cancelled product whose `unavailable` node never receives CANCELLATION.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+index f450389bc..9cbbdcf14 100644
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -119,7 +119,6 @@ export function createContractProductMeta(
+      */
+     hasCancellationOptions: computed(
+       () =>
+-        isAvailable.value &&
+         !!contractProduct.value &&
+         !isEmpty(cancellationOptions(contractProduct.value))
+     ),

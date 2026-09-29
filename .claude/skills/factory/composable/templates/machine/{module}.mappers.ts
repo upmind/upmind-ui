@@ -21,10 +21,12 @@ import type { ModuleModel } from "./module.types";
  * a pure function — input in, output out — so an arm would hold nothing, and
  * every caller would have to resolve an arm just to pick a function. When a
  * services arm posts to a different surface and that surface expects a
- * different payload, this file exports an ACTOR-NAMED mapper for it
- * (`mapClientModuleRequestData` beside `mapModuleRequestData`) and the arm
- * chooses at its own call site — where the actor is already known. Same
- * convention for any `{module}.utils.ts`.
+ * different payload, the arm carries its ACTOR-NAMED mapper
+ * (`mapClientModuleRequestData` in `module.services.{actor}.ts`) and chooses
+ * it at its own call site — where the actor is already known. The day the arm
+ * is earned, lift that mapper into THIS file as an extra export (the shape
+ * gate grades missing exports, never extra ones) so mappers stay in one place.
+ * Same convention for any `{module}.utils.ts`.
  *
  * @doctrine `code-quality.md`'s Lodash mandate (`map`/`filter`/`find`/`reduce`
  * from `lodash-es`; never native array methods here).
@@ -42,27 +44,3 @@ export function mapModuleRequestData(
   return { ...model };
 }
 
-/**
- * ACTOR-NAMED MAPPER — the client surface expects a different payload for the
- * same operation, so a staff services arm maps with THIS instead of
- * `mapModuleRequestData`.
- *
- * Mappers stay in this one shared util file rather than getting their own
- * `{module}.mappers.{actor}.ts` arm — see this file's top note and `.claude/skills/factory/composable/templates/ARMS.md`'s
- * "Which files can earn an arm" test. Operator ruling, 2026-07-28.
- *
- * @doctrine `code-quality.md`'s Lodash mandate.
- * @doctrine `code-composables.companion.md` "Variance law" clause 3 — the
- * per-actor divergence is expressed at the services arm's call site, not by
- * scoping this util.
- */
-export function mapClientModuleRequestData(
-  model: ModuleModel,
-  actingAsClientId: string
-): Record<string, unknown> {
-  return {
-    ...mapModuleRequestData(model),
-    // --- the client surface's extra envelope: who this is being done for
-    client_id: actingAsClientId
-  };
-}

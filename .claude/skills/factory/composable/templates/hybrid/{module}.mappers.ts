@@ -13,13 +13,8 @@
  */
 
 import { map, castArray } from "lodash-es";
-import type {
-  ClientModuleItem,
-  ClientModuleWireItem,
-  ModuleItem,
-  ModuleModel,
-  ModuleWireItem
-} from "./module.types";
+import type { {Module}, ModuleModel } from "./module.types";
+import type { I{Module} } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module module/module.mappers
@@ -31,11 +26,13 @@ import type {
  * holds actor-scoped state or behaviour the scope builder resolves. A mapper is
  * a pure function — input in, output out — so an arm would hold nothing, and
  * every caller would have to resolve an arm just to pick a function. When a
- * services arm reads a different endpoint and gets a different shape back, this
- * file exports an ACTOR-NAMED mapper for it (`mapClientModuleItems` beside
- * `mapModuleItems`, each with its own wire type) and the arm chooses at its own
- * `select:` call site — where the actor is already known. Same convention for
- * any `{module}.utils.ts`.
+ * services arm reads a different endpoint and gets a different shape back, the
+ * arm carries its ACTOR-NAMED mapper (`mapClient{Module}s` in
+ * `module.services.{actor}.ts`, with its own wire type) and chooses it at its
+ * own `select:` call site — where the actor is already known. The day the arm
+ * is earned, lift that mapper into THIS file as an extra export (the shape
+ * gate grades missing exports, never extra ones) so mappers stay in one place.
+ * Same convention for any `{module}.utils.ts`.
  *
  * @doctrine `code-quality.md`'s Lodash mandate (`map`/`filter`/`find`/`reduce`
  * from `lodash-es`; never native array methods here).
@@ -43,21 +40,20 @@ import type {
  * only when justified inline. `client-email/client-email.mappers.ts` types
  * its raw parameter as the real wire type (`IEmail | IEmail[]`, from
  * `@upmind-automation/types`) rather than `unknown`/`any`; this
- * module-agnostic skeleton has no real wire type to import yet, so
- * `ModuleWireItem` (`module.types.ts`) is the placeholder to replace with the
- * module's real request/response type — never widen either mapper back to
+ * `I{Module}` here is that generated wire type (`@upmind-automation/types`),
+ * never a hand-minted placeholder — and never widen either mapper back to
  * `any`.
  * @precedent `client-email/client-email.mappers.ts` (armless — plain
  * functions, no per-actor mapper split; same `T | T[]` input shape).
  */
 
-export const mapModuleItems = (
-  raw: ModuleWireItem | ModuleWireItem[]
-): ModuleItem[] => {
-  return map(castArray(raw), mapModuleItem);
+export const map{Module}s = (
+  raw: I{Module} | I{Module}[]
+): {Module}[] => {
+  return map(castArray(raw), map{Module});
 };
 
-export const mapModuleItem = (raw: ModuleWireItem): ModuleItem => {
+export const map{Module} = (raw: I{Module}): {Module} => {
   return { id: raw.id };
 };
 
@@ -67,46 +63,15 @@ export const mapModuleItem = (raw: ModuleWireItem): ModuleItem => {
  * manager writes: `module.services.ts`'s `add`/`update` send THIS, never the
  * raw form model, so a rename on the wire never leaks into the form.
  *
- * @precedent `client-email/client-email.mappers.ts`'s `mapIEmail` — same role,
- * same file, same direction.
+ * @precedent `client-email/client-email.mappers.ts`'s `mapIEmail`,
+ * `client-phone/client-phone.mappers.ts`'s `mapIPhone` — same role, same
+ * file, same direction, same `mapI<Entity>` name.
  */
-export const mapModuleRequestData = (
+export const mapI{Module} = (
   model: ModuleModel
-): Partial<ModuleWireItem> => {
+): Partial<I{Module}> => {
   // Replace with this module's real form → wire shaping (snake_case keys,
   // dropped read-only fields, flattened nested objects).
-  return { ...model } as Partial<ModuleWireItem>;
+  return { ...model } as Partial<I{Module}>;
 };
 
-/**
- * ACTOR-NAMED MAPPER — the client arm asks for extra fields, so its `loadList`
- * maps with THIS instead of `mapModuleItems`.
- *
- * Mappers stay in this one shared util file rather than getting their own
- * `{module}.mappers.{actor}.ts` arm: a mapper is a pure function with no
- * actor-scoped state, so there is nothing for an arm to hold. The divergence
- * is which mapper the services arm CALLS, and that choice already lives in
- * `module.services.{actor}.ts` (its `select:`). Operator ruling, 2026-07-28.
- *
- * @doctrine `code-quality.md`'s Lodash mandate.
- * @doctrine `code-composables.companion.md` "Variance law" clause 3 — the
- * per-actor divergence is expressed at the services arm's call site, not by
- * scoping this util.
- */
-export const mapClientModuleItems = (
-  raw: ClientModuleWireItem | ClientModuleWireItem[]
-): ClientModuleItem[] => {
-  return map(castArray(raw), mapClientModuleItem);
-};
-
-export const mapClientModuleItem = (
-  raw: ClientModuleWireItem
-): ClientModuleItem => {
-  return {
-    ...mapModuleItem(raw),
-    // --- the extra fields only the client surface returns (absent from the
-    // shared read, which never asks for them)
-    internalNotes: raw.internal_notes,
-    flaggedBy: raw.flagged_by
-  };
-};

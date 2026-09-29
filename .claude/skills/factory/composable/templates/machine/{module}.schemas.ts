@@ -10,12 +10,15 @@
 
 import { ScopeActorTypes } from "../scope";
 // import { createClientModuleSchemas } from "./module.schemas.client";
-import type { ModuleContext, ModuleModel, ModuleSchemas } from "./module.types";
+import type { ModuleContext, ModuleSchemas } from "./module.types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module module/module.schemas
- * @description Schema / uischema / model parsers owned by the module. Split
+ * @description Schema / uischema parsers owned by the module — exported as
+ * the two parsers plus the `moduleSchemas` object `module.machine.ts`'s
+ * `setSchemas` consumes (the same shape as `module.services.ts`'s
+ * `moduleServices`). The field and control definitions are file-private. Split
  * into `module.schemas.{flow}.ts` (Part A "File Naming") once this file hosts
  * more than one form flow — see `auth.schemas.login.ts` / `.recover.ts` /
  * `.register.ts` / `.twofa.ts` for the earned split.
@@ -25,17 +28,20 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 /**
  * Shared field definitions — the single source of truth for any field an ARM
- * may also need. An arm `$ref`s these rather than re-declaring them, so a
- * change here propagates to every arm instead of drifting.
+ * may also need. File-private: an arm reads them off
+ * `useModuleSchemaParser().definitions` and `$ref`s them rather than
+ * re-declaring them, so a change here propagates to every arm instead of
+ * drifting.
  *
  * @doctrine `code-ui.companion.md` (Uischema/JSONForms).
  * @worked-example `client-address/client-address.schemas.ts`'s own
- * `useSchemaDefinitions()` (exported, returns `JsonSchema7["definitions"]`,
- * consumed via `definitions:` + `$ref: "#/definitions/<name>"`) — the live
- * precedent in this codebase; `client-company` and `payment-details` consume
- * it the same way.
+ * `useSchemaDefinitions()` (returns `JsonSchema7["definitions"]`, consumed via
+ * `definitions:` + `$ref: "#/definitions/<name>"`) — the live precedent in
+ * this codebase. It exports the helper because `client-company` and
+ * `payment-details` import it; a fresh module has no such consumer, so the
+ * helper stays private until one exists.
  */
-export function useSchemaDefinitions(): JsonSchema["definitions"] {
+function useSchemaDefinitions(): JsonSchema["definitions"] {
   return {
     // `id` is a real, valid model value — every actor's form knows the field.
     // What differs per actor is whether that actor may SET it, which is why
@@ -77,8 +83,9 @@ export const useModuleSchemaParser = (): JsonSchema => {
 
 /**
  * Shared control definitions — the uischema counterpart of
- * `useSchemaDefinitions()`. JSONForms has no `$ref` for uischema, so reuse is
- * by named element: an arm REFERENCES the shared control for any field it
+ * `useSchemaDefinitions()`, file-private for the same reason. JSONForms has no
+ * `$ref` for uischema, so reuse is by element: an arm takes the shared control
+ * off `useModuleUischemaParser().elements` (by `scope`) for any field it
  * renders identically, and writes a full inline control only for the fields it
  * renders differently. Same read as the schema layer:
  * referenced = inherited, inline control = overridden.
@@ -103,7 +110,7 @@ export const useModuleSchemaParser = (): JsonSchema => {
  *   this tree precedents the keyed map: it is derived from doctrine, and the
  *   first real module to earn a schemas arm is the receipt to cite here.
  */
-export function useUischemaDefinitions() {
+function useUischemaDefinitions() {
   return {
     name: {
       type: "Control",
@@ -137,9 +144,6 @@ export const useModuleUischemaParser = (): UISchemaElement => {
   } as UISchemaElement;
 };
 
-export const useModuleModelParser = (model?: ModuleModel): ModuleModel => {
-  return { ...model };
-};
 
 // -----------------------------------------------------------------------------
 // Schemas Factory
@@ -174,8 +178,6 @@ function scopedSchemas(scopeActor: ScopeActorTypes): Partial<ModuleSchemas> {
  * which is what makes an arm's parser an override.
  */
 export const moduleSchemas = {
-  useModuleModelParser,
-
   useModuleSchemaParser: ({ scopeActor }: ModuleContext): JsonSchema =>
     scopedSchemas(scopeActor as ScopeActorTypes).useModuleSchemaParser?.() ??
     useModuleSchemaParser(),

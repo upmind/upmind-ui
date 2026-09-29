@@ -2,6 +2,7 @@ import {
   type AnyEventObject,
   assign,
   type FunnelContext,
+  type FunnelTarget,
   QUERY_PARAMS,
   useBasket,
   useBasketProductsPending,
@@ -54,7 +55,7 @@ const SKIP_BID_ROUTES: string[] = [
  * Skips injection for ORDER, ERROR, BASKET_UNAVAILABLE, SESSION_END.
  */
 function injectBid(
-  route: FunnelContext["targetRoute"] | RouteLocation
+  route: FunnelContext["targetRoute"]
 ): FunnelContext["targetRoute"] {
   if (!route) return route;
 
@@ -202,7 +203,7 @@ export default {
 
       const { router } = useRoutingEngine();
       const resolved = router.resolve(returnUrl);
-      return injectBid(resolved);
+      return injectBid(resolved as FunnelTarget);
     },
     resolved: true
   })

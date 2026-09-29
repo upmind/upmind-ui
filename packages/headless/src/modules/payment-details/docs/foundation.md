@@ -790,10 +790,11 @@ then carries `data` as an **object whose keys are the surviving original
 positions**: a real 13-record response has come back keyed `0…5` and `13…19`,
 with `total: 13` beside it.
 
-Any caller that branches on "is this an array" silently treats that object as a
-single record and shows one blank method where the client holds thirteen. Read
-the values of `data` rather than testing it for array-ness, on this and on every
-other listing the platform filters.
+A caller that branches on "is this an array" silently treats that object as a
+single record and shows one blank method where the client holds thirteen — this
+module reads the values of `data` rather than testing it for array-ness, and
+any other caller of this or another listing the platform filters should do the
+same.
 
 ### Deleting the last card silently changes platform behaviour
 

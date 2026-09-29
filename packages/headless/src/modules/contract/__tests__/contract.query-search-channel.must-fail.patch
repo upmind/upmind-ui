@@ -1,0 +1,35 @@
+# Negative-control mutant — the top-level quick-search `query` branch reaches
+# the wire (G1, R38 items 8/13)
+#
+# Scenario it must flip: a client types a term into the contracts list's
+#   quick-search box (`#/properties/query`, `useQueryUischema()`'s first
+#   FilterBar control) and the term reaches `GET contracts` as a bare
+#   `query=<term>` param — the ONLY channel that can ever match a contract by
+#   its title, because every recorded contract carries `name: null` and the
+#   `filters.name.like` branch alone never matches
+#   (`__tests__/fixtures/get-contracts-pagination-limit-10.json`). The
+#   contracts picker's own internal lookup (`useContractLookupQuerySchema`)
+#   reads the SAME term through its own `query` leaf (`searchScope: "query"`,
+#   `contract.schemas.ts`).
+# Mutation: `useQuerySchema()` drops the top-level `query` branch. With the
+#   branch gone, ajv strips the term (root `additionalProperties: false`), the
+#   param never reaches the wire, and `useQueryUischema()`'s
+#   `#/properties/query` control scopes a leaf that does not exist — the box
+#   vanishes.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.schemas.ts
++++ b/packages/headless/src/modules/contract/contract.schemas.ts
+@@ -95,8 +95,7 @@
+           limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+           offset: { type: "integer", minimum: 0 }
+         }
+-      },
+-      query: { type: ["string", "null"] }
++      }
+     }
+   } satisfies QuerySchema;
+ }

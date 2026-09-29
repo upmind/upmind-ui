@@ -261,7 +261,19 @@ export const usePaymentDetail = (
 
     // SHOW stored methods when user needs to pick, methods exist, and no
     // gateway is already selected.
+    // @decision
+    // what: Gate showStoredPaymentMethods behind isPayContext.
+    // why: The FE-3130 mapper fix now lets a client's real stored cards flow, so
+    //   hasStoredPaymentMethods can turn true in the ADD context too. The
+    //   published meta table above says ADD (save a card) shows stored methods
+    //   ❌, and payment-details.visibility.int.test.ts asserts the same. Gating
+    //   on isPayContext restores that contract while the PAY rows still show
+    //   stored ✅ when methods exist.
+    // rejected: Narrowing needsPayment to exclude ADD — needsPayment is a shared
+    //   payment-state flag other meta flags read, so changing it there would
+    //   ripple beyond this row.
     const showStoredPaymentMethods =
+      isPayContext &&
       needsPayment &&
       hasStoredPaymentMethods &&
       !hasSelectedGateway &&

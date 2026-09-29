@@ -1,0 +1,28 @@
+# Negative-control mutant — the payment-method form validates before it writes (AC-8, R35)
+#
+# Target (correct line): `settingPaymentMethod.validating.onError` in the
+#   `changingPaymentMethod` region — an invalid model must land in the form's
+#   `available.error` node with NO `PATCH` leaving the module. This mutant routes
+#   that `onError` straight to `updating`, so a schema-invalid model is written
+#   anyway (validation skipped).
+#
+# Test that goes red: contract.payment-method-enum.int.test.ts >
+#   "makes NO PATCH and lands a 422 in the error region when I submit an id
+#   outside my stored cards" (the spec serves the recorded stored-card list, so
+#   the schema enum carries the real card ids).
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
+index 3da62308d..f8480c084 100644
+--- a/packages/headless/src/modules/contract/contract.machine.ts
++++ b/packages/headless/src/modules/contract/contract.machine.ts
+@@ -146,7 +146,7 @@ export default createMachine(
+                           src: "validatePaymentMethod",
+                           onDone: { target: "updating" },
+                           onError: {
+-                            target: "#changingPaymentMethod.available.error",
++                            target: "updating",
+                             actions: ["setError"]
+                           }
+                         }

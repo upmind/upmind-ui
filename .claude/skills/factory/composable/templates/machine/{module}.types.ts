@@ -142,12 +142,11 @@ export type ModuleServices = {
 
 /**
  * The common type `scopedSchemas()` in `module.schemas.ts` resolves to — same
- * role as `ModuleServices` above, for the schemas layer. The three parsers are
+ * role as `ModuleServices` above, for the schemas layer. The two parsers are
  * required because the shared factory always supplies them; an arm overriding
  * one types its own export as `Partial<ModuleSchemas>`.
  */
 export type ModuleSchemas = {
   useModuleSchemaParser: () => JsonSchema;
   useModuleUischemaParser: () => UISchemaElement;
-  useModuleModelParser: (model?: ModuleModel) => ModuleModel;
 };

@@ -1,0 +1,23 @@
+Negative control for useContractProduct.context.ts `validationErrors` (R37 B2).
+
+Spec that must flip: contract-product.mutations.int.test.ts
+(the D68 AC-9 invalid-consolidation submit) — asserts `useContractProduct().useContext().validationErrors`
+carries the AJV `ErrorObject[]` the machine's `setError` parses off a 422.
+
+Mutation: drops the `validationErrors` member from the manager context
+factory, so a 422's field-level errors never reach the consumer.
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
+@@ -99,9 +99,6 @@ export function createContractProductContext(
+     scheduledActions,
+ 
+     /** Display title of the product. */
+-    title,
+-
+-    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+-    validationErrors: useContext<ErrorObject[]>(state, "error.data")
++    title
+   };
+ }

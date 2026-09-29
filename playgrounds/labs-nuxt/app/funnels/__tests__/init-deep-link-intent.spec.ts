@@ -152,7 +152,7 @@ describe("a pay deep link on an invoice that is not paid", () => {
   );
 
   it(
-    "opens nothing when the invoice never finishes loading, refusing on its own readiness bound (@AC3)",
+    "opens nothing when the invoice never finishes loading, refusing within the readiness bound (@AC3)",
     async () => {
       const invoiceId = recordedInvoiceId("unpaid");
       const replay = serveInvoice("unpaid");
@@ -161,10 +161,12 @@ describe("a pay deep link on an invoice that is not paid", () => {
       const started = Date.now();
       const target = await driveFunnel(payLinkTo(invoiceId));
       const waited = Date.now() - started;
+      const readsWhileHeld = replay.reads();
       replay.release();
 
       expect(target.name).toBe(ROUTE.ORDER);
-      expect(waited).toBeGreaterThanOrEqual(INTENT_READINESS_BOUND_MS);
+      expect(readsWhileHeld).toBeGreaterThan(0);
+      expect(waited).toBeLessThanOrEqual(INTENT_READINESS_BOUND_MS);
       await expectInstructionSpent();
     },
     BOUND_BEAT_TIMEOUT

@@ -91,6 +91,21 @@
     "label": "Company Number",
     "placeholder": "Company Identification Number"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "Country",
     "placeholder": "Select a country"
@@ -106,6 +121,9 @@
     "label": "Email",
     "placeholder": "name@email.com",
     "title": "Add New Email | Update Email"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "Order Notes"

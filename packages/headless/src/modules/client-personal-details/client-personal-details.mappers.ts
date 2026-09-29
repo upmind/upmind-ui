@@ -1,4 +1,5 @@
 /** @internal */
+import { UserMetaKeys } from "@upmind-automation/types";
 // `mapCustomFieldValue`, `resolveFieldByValue` and `mapCustomFieldValuesToRequest`
 // live in `client-custom-fields` (A-6/A-7/A-8, R2) — consumed here, never
 // re-implemented (AC-59).
@@ -8,7 +9,7 @@ import {
   resolveFieldByValue
 } from "../client-custom-fields";
 import { useI18n } from "../system-localisation";
-import { find, map, reduce } from "lodash-es";
+import { find, isBoolean, map, reduce } from "lodash-es";
 import type { CustomField } from "../client-custom-fields";
 import type {
   ProfileField,
@@ -40,6 +41,13 @@ const NATIVE_FIELD_META: CustomField["meta"] = {
   displayContexts: { invoice: false, order_form: false }
 };
 
+/** `"1"` → true, `"0"` → false, absent → undefined (R26). */
+function mapExcludeDelegatedProducts(value: unknown): boolean | undefined {
+  if (value === "1") return true;
+  if (value === "0") return false;
+  return undefined;
+}
+
 /** Maps the raw client record into the read half's own view-model. */
 export function mapProfile(raw: IClient): ProfileRecord {
   return {
@@ -48,6 +56,9 @@ export function mapProfile(raw: IClient): ProfileRecord {
     lastName: raw.lastname,
     publicName: raw.public_name,
     language: raw.interface_language_id,
+    excludeDelegatedProducts: mapExcludeDelegatedProducts(
+      raw.meta?.[UserMetaKeys.UI_PRODUCTS_EXCLUDE_DELEGATES]
+    ),
     customFieldValues: raw.custom_fields ?? []
   };
 }
@@ -276,6 +287,16 @@ export function mapIProfileFields(
     baseModel.customFields
   );
   if (customFields !== undefined) diff.custom_fields = customFields;
+
+  if (
+    isBoolean(model.excludeDelegatedProducts) &&
+    model.excludeDelegatedProducts !== baseModel.excludeDelegatedProducts
+  ) {
+    diff.meta = {
+      [UserMetaKeys.UI_PRODUCTS_EXCLUDE_DELEGATES]:
+        model.excludeDelegatedProducts ? "1" : "0"
+    };
+  }
 
   return Object.keys(diff).length ? diff : undefined;
 }

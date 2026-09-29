@@ -29,6 +29,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { parseScopeSuffix } from "../../../app/composables/scope";
 import routerOptions from "../../../app/router.options";
+import { scanDeclaredParams } from "../declared-params";
 import { SCENARIO_ROUTE_META_KEY } from "../runtime/scenario.constants";
 import { registerScenarioRoutes } from "./nuxt-build-context";
 import {
@@ -75,13 +76,8 @@ function declaredParamsOf(name: string): string[] {
   const file = find(readdirSync(join(MODULE_DIR, name)), entry =>
     entry.endsWith(".scenario.ts")
   );
-  const match = file
-    ? readFileSync(join(MODULE_DIR, name, file), "utf-8").match(
-        /params\s*:\s*\[([^\]]*)\]/
-      )
-    : null;
-  return match
-    ? map([...match[1]!.matchAll(/["']([^"']+)["']/g)], hit => hit[1]!)
+  return file
+    ? scanDeclaredParams(readFileSync(join(MODULE_DIR, name, file), "utf-8"))
     : [];
 }
 
@@ -289,5 +285,30 @@ describe("@G3d amendment 2 — a repeated route name is a build failure, not a s
     const { resolve } = await registerScenarioRoutes();
 
     await expect(resolve()).resolves.toBeUndefined();
+  });
+});
+
+describe("a patterned param reaches the page (useTicket)", () => {
+  const TICKET_ID = "0a1b2c3d-4e5f-6789-abcd-ef0123456789";
+
+  it("reads a `]` inside a quoted param as part of the param", () => {
+    expect(scanDeclaredParams(`params: ["id([0-9a-fA-F-]{36})?"],`)).toEqual([
+      "id([0-9a-fA-F-]{36})?"
+    ]);
+  });
+
+  it("serves /useTicket/:id/as/:actor with the id on the route", () => {
+    const { params } = router.resolve(`/useTicket/${TICKET_ID}/as/client`);
+
+    expect(params.id).toBe(TICKET_ID);
+    expect(resolvedScope(`/useTicket/${TICKET_ID}/as/client`).scope.actor).toBe(
+      "client"
+    );
+  });
+
+  it("serves the bare /useTicket/as/:actor with no id, so the picker shows", () => {
+    const { params } = router.resolve(`/useTicket/as/client`);
+
+    expect(params.id ?? "").toBe("");
   });
 });

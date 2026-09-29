@@ -1,39 +1,31 @@
 # payment-details Gotchas
 
-## OPEN DEFECT: a filtered stored-method listing arrives keyed, not indexed 🧪
+## RESOLVED: a filtered stored-method listing used to arrive keyed, not indexed
 
-`GET /clients/{clientId}/payment_details` normally returns `data` as an array. When the platform filters rows out server-side, it does not reindex what's left — a real 13-record capture on staging comes back as `data` keyed `0…5, 13…19`, an **object**, not an array, with `total: 13` beside it.
+`GET /clients/{clientId}/payment_details` normally returns `data` as an array. When the platform filters rows out server-side, it does not reindex what's left — a real 13-record capture on staging came back as `data` keyed `0…5, 13…19`, an **object**, not an array, with `total: 13` beside it.
 
-`mapPaymentDetails` (`payment-details.mappers.ts`) does `isArray(raw) ? raw : [raw]`. A keyed object fails `isArray`, so the whole response is wrapped as a single element and mapped as **one blank record** — the client is offered one empty card where they hold thirteen.
+`mapPaymentDetails` (`payment-details.mappers.ts`) now reads the listing regardless of shape — an array is used as-is, a single record (an object carrying its own `id`) is wrapped, and a gap-keyed object is read with `Object.values()`:
 
 ```ts
-import { isArray, map } from "lodash-es";
-import type { PaymentDetail } from "@upmind-automation/headless";
-import type { IPaymentDetail } from "@upmind-automation/types";
-
-declare function mapPaymentDetail(raw: IPaymentDetail): PaymentDetail;
-
-// WRONG — what the module ships today: a gap-keyed object fails `isArray`, so
-// the whole response is wrapped and mapped as one blank record.
 export function mapPaymentDetails(
-  raw: IPaymentDetail | IPaymentDetail[]
+  raw: IPaymentDetail | IPaymentDetail[] | Record<string, IPaymentDetail>
 ): PaymentDetail[] {
-  const rawListings = isArray(raw) ? raw : [raw];
-  return map(rawListings, mapPaymentDetail);
-}
-
-// the fix reads the values regardless of array-ness:
-export function mapPaymentDetailsFixed(
-  raw: IPaymentDetail[] | Record<string, IPaymentDetail>
-): PaymentDetail[] {
-  const rawListings = isArray(raw) ? raw : Object.values(raw ?? {});
+  const rawListings = isArray(raw)
+    ? raw
+    : has(raw, "id")
+      ? [raw as IPaymentDetail]
+      : values(raw as Record<string, IPaymentDetail>);
   return map(rawListings, mapPaymentDetail);
 }
 ```
 
-Two tests pin this as current, not hypothetical, behaviour, and they pull in opposite directions on purpose. [`payment-details.int.test.ts`](../__tests__/payment-details.int.test.ts) carries the single `it.fails` receipt: it states the capability the module should deliver, and passes today only because it fails. [`payment-details.composables.int.test.ts`](../__tests__/payment-details.composables.int.test.ts) is an ordinary green test asserting what the page actually gets — one record, with no id. Tracked on **FE-3130**. Neither changes production code. When the fix lands, the `it.fails` starts failing (delete the `.fails`, keep the assertion) and the page-side test goes red (invert it).
+Before the fix, a keyed object failed `isArray`, so the whole response was wrapped as a single element and mapped as **one blank record** — a client holding thirteen stored cards was offered one empty one. Verified live on staging checkout: the API sent 13 cards, the page went from showing 0 to showing 12, with the default card preselected (see the ADD-context note below). `existing-method.spec.ts` passes both before and after.
 
-**Workaround today:** any caller reading `data` off this endpoint (or any other listing this platform filters server-side) should read `Object.values(data)` rather than testing `Array.isArray(data)` first.
+**Any caller reading a listing this platform filters server-side should still expect either shape.** The lesson generalises beyond this one endpoint — do not assume `Array.isArray(data)` is the only shape a filtered listing can take.
+
+## The ADD context never shows stored cards, even though the mapper now reads them
+
+Fixing the mapper (above) makes `hasStoredPaymentMethods` turn true in the **ADD** context too — a client's real stored cards now flow through where before they silently didn't. `showStoredPaymentMethods` (`usePaymentDetail.ts`) is gated explicitly behind `isPayContext` to keep that meta flag's published contract unchanged: ADD (saving a new card) never offers to pick an existing stored one, only PAY does. A consumer that widens `showStoredPaymentMethods` to cover ADD as well is choosing new product behaviour, not restoring an old default — ADD has never shown stored cards.
 
 ## `PAY_IN_FULL` is `"stored-card"` on the wire — and it collides
 

@@ -99,5 +99,4 @@ export const useModule = createScopedComposable<
   ModuleScopeMatrix
 >("module", createModuleForScope);
 
-// Type export for consumers
 export type UseModule = ReturnType<typeof useModule>;
