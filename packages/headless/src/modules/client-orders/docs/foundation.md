@@ -50,6 +50,7 @@ Additional always-on behaviours (not endpoints):
 | Item sub-items | one order item's own options and attributes | Two lists — quantifiable and non-quantifiable sub-items — each row named, quantified and priced from the same item. |
 | Store visibility and storefront address | the operating brand's configuration | Whether a "browse the store" call-to-action should render for this brand, and the storefront address to send it to. |
 | Multi-brand flag | the operating brand's identity | Whether the current deployment spans more than one brand — decides whether the history read also expands the brand relation on each row. |
+| Filtered state | the history's own live filter set | Whether any filter other than the forced "new contract" category applies — distinguishes an empty result caused by a customer's own filter choice from a genuinely empty history. |
 
 ## Data shape
 

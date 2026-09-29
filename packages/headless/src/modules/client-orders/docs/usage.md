@@ -18,6 +18,7 @@ const {
   hasPrevPage,
   isAvailable,
   isEmpty,
+  isFiltered,
   isLoading,
   isMultibrand,
   showStore,
@@ -35,6 +36,7 @@ const {
   reset,
   setPage,
   setLimit,
+  setCriteria,
   sort,
   sortBy
 } = orders.useActions();
@@ -72,6 +74,22 @@ filters.query("QA-INV-25144");
 
 // Clear a filter by passing no value.
 filters.status(undefined);
+```
+
+### Setting several criteria in one write
+
+`setCriteria` applies a `filters` / `sort` / `pagination` intent as one write, branch by branch — a `filters` intent you pass **replaces** the whole filters branch, the same way the named setters above do, and re-asserts the forced `category.slug` leaf on the copy it writes:
+
+```ts
+import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+
+const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const { setCriteria } = orders.useActions();
+
+setCriteria({
+  filters: { total_amount: { gte: 50 } },
+  sort: [{ field: "total_amount", dir: "desc" }]
+});
 ```
 
 ### Paging and sorting
@@ -212,6 +230,7 @@ All return Vue `ComputedRef`:
 | `hasError` | both | The read failed. |
 | `isAvailable` | both | This scope can address the signed-in client. |
 | `isEmpty` | history: no rows / order: no record resolved | |
+| `isFiltered` | history | True while any filter other than the forced `category.slug` leaf applies. |
 | `hasNextPage` / `hasPrevPage` / `hasPages` | history | Pagination state. |
 | `isMultibrand` | history | Whether the deployment spans more than one brand. |
 | `showStore` / `storefrontUrl` | history | Store call-to-action visibility + target. |

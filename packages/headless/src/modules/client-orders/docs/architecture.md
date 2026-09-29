@@ -52,12 +52,13 @@ Both roots are **armless** — one actor (`client`) resolves for this client-sel
 
 ## Services
 
-There is no per-actor service split — the module resolves `client` only, so `client-orders.services.ts` is a single factory:
+There is no per-actor service split — the module resolves `client` only. `client-orders.services.ts` exports **one** factory, `createClientOrdersServices(scopeActor, scopeContext)`, consumed by both composables so the collection and the manager share one identity seam and one cache key:
 
 | Factory | Reads | Endpoints |
 | --- | --- | --- |
-| `createClientOrdersServices` | `loadList` | `GET /invoices` |
-| `createClientOrderServices` | `loadOne`, `loadItemImages`, `loadOnlineGateways` | `GET /invoices/{id}`, `GET /products`, `GET /brands/{id}/gateways` |
+| `createClientOrdersServices` | `loadList`, `loadOne(id)`, `loadItemImages`, `loadOnlineGateways` | `GET /invoices`, `GET /invoices/{id}`, `GET /products`, `GET /brands/{id}/gateways` |
+
+`useClientOrders.ts` calls `service.loadList()`; `useClientOrder.ts` calls the same instance's `service.loadOne(orderId)`, `service.loadItemImages(productIds)` and `service.loadOnlineGateways(brandId)`. Neither root instantiates its own services factory.
 
 The billing-cycle reference list is read by the `system` module's own lazy singleton query (`useSystem().ensureBillingCycles()`); this module's manager root calls it once per scope and keeps the resolved list in its own ref — it never issues that request itself and never awaits it as part of readiness.
 

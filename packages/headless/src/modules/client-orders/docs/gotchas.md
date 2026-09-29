@@ -72,6 +72,28 @@ const { pay } = order.useActions().usePayment();
 
 ---
 
+## Known gap — the playground filter-bar status control sends no request
+
+On the labs-nuxt playground page, clicking a status choice in the filter-bar control sends no request at all. The gap is in the shared design-system form renderer (`design-system/packages/ui/src/form/renderers/utils.ts`), not in this module: a filter column name that carries a dot, such as `status.code`, is a control whose JSON Forms scope segments are `["status", "code"]`. The renderer's write path dispatches the update against those segments cast to a single string instead of writing through them one at a time, so the value lands one level too deep in the form's own data tree and the control's change never reaches this module's criteria write at all.
+
+This module's own data layer is not implicated. The dotted-operators integration coverage drives `useInternals().query.setCriteria` directly — bypassing the form renderer — and proves that a `filter[status.code|eq]` and a `filter[status.code|neq]` write each reach the wire correctly once they reach this module's criteria writer. The gap is entirely upstream of this module, in the control that is supposed to hand it the write.
+
+The browser-driven proof for this control is marked as a known failure until the design-system defect is fixed.
+
+```ts
+// ❌ Clicking a status choice on the labs-nuxt playground page — no request
+// is sent; the write lands one level too deep in the form's own data tree.
+
+// ✅ Writing the same filter directly through the module's own criteria
+// writer reaches the wire correctly — proven by the dotted-operators
+// integration coverage, independent of the form renderer.
+orders.useActions().filters.status(["invoice_paid"]);
+```
+
+**Test scenario:** N/A for this module's own suite — the defect is in the shared form renderer, not in this module's criteria writer or wire translation.
+
+---
+
 ## findOne on the history context
 
 `findOne` on the history's context matches rows by a **strict** comparison against the partial object you pass it — it does not match a nested field inside a partial the way you might expect a "loose" partial match to. A lookup keyed on a nested field (for example, matching on a value inside `status` rather than on the row's own top-level fields) can silently miss a row that is genuinely on the page.
