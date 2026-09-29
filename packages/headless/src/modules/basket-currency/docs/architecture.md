@@ -121,7 +121,6 @@ On login the server claims the guest basket onto the account and resets it to th
 | Consumer                   | How it integrates                                                                                                                                               |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `basket` machine           | Spawns `basketCurrencyManager` as a child actor; receives `PREFRESH`/`REFRESH` on update                                                                        |
-| `apps/cart` funnel actions | [`actions.ts::setCurrency`](../../../../apps/cart/src/router/funnels/engine/actions.ts) reads `?currency=` and calls `useBasket().setCurrency()` on route entry |
 | `brand` module             | Provides supported currencies list, `validateCurrency`, `BASKET_DEFAULT_CURRENCY` config                                                                        |
 | `session-store`            | `authSubscription` actor provides `AUTHENTICATED`/`UNAUTHENTICATED` events; `useActiveSession` provides account currency                                        |
 | `system-localisation`      | `SupportedLocaleCodes`/`WIPLocaleCodes` drive the locale → currency mapping in `localeCurrencyCandidates`                                                       |

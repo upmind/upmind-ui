@@ -125,7 +125,7 @@ const wrongManager = useBillingSettingsManager().as("client");
 const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 ```
 
-**This bites hardest in specs and playground files**, because `__tests__/**` and any future playground page both sit outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug.
+**This bites hardest in specs**, because `__tests__/**` sits outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug.
 
 ## 9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
 

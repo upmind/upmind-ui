@@ -40,7 +40,7 @@ import {
 import { watch } from "vue";
 import type { FunnelWatcher } from "@upmind-automation/headless";
 
-// The app owns its route-name enum — see `apps/cart/src/router/funnels/types.ts`.
+// The app owns its route-name enum.
 enum ROUTE {
   SESSION_END = "session-end"
 }
@@ -165,7 +165,6 @@ export const basketEmpty: FunnelWatcher = {
 Watchers are registered **once, engine-wide** on the `register()` call — not per funnel. `FunnelProps` has no `watchers` key; the engine holds the list in its own context and passes it into whichever funnel is active, so every funnel gets the same set.
 
 ```typescript
-// apps/cart/src/router/funnels/index.ts
 import { useRoutingEngine } from "@upmind-automation/headless";
 import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
 

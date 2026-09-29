@@ -167,7 +167,7 @@ const manager = usePersonalDetailsManager()
 
 Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real.
 
-**This bites hardest in specs and playground files**, because `__tests__/**` and the labs playground both sit outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug. See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#2-as-and-for-take-enum-members-never-string-literals) for the fuller account — the same rule applies here.
+**This bites hardest in specs**, because `__tests__/**` sits outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug. See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#2-as-and-for-take-enum-members-never-string-literals) for the fuller account — the same rule applies here.
 
 ## 7. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.for()`
 
@@ -190,7 +190,7 @@ usePersonalDetailsManager().as(ScopeActorTypes.SELF).for();
 const manager = usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).fresh();
 ```
 
-This module's own composables don't strictly need `.for()`/`.fresh()` for the everyday case — a client's profile has only one context to address — but the real playground consumer still names `.as(ScopeActorTypes.CLIENT)` rather than `SELF`, specifically to reach `.fresh()` (minting an independent editor instance per mount). See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#3-asscopeactortypesself-compiles-and-works-but-the-result-carries-no-forfresh) for the full explanation — the same rule applies here.
+This module's own composables don't strictly need `.for()`/`.fresh()` for the everyday case — a client's profile has only one context to address — but a caller that needs an independent editor instance per mount still names `.as(ScopeActorTypes.CLIENT)` rather than `SELF`, specifically to reach `.fresh()` (minting an independent editor instance per mount). See the sibling module's own [gotchas.md](../../client-custom-fields/docs/gotchas.md#3-asscopeactortypesself-compiles-and-works-but-the-result-carries-no-forfresh) for the full explanation — the same rule applies here.
 
 > **🧪 For Testers:** A reader who hits gotcha 6 (a bare string rejected) and "fixes" it by dropping the `.for()`/`.fresh()` call entirely has changed the wrong thing — that only compiles because the chained call is gone, not because the string-literal problem was addressed.
 

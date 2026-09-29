@@ -120,14 +120,3 @@ Filters, sort, and pagination all travel through one declared query model. There
 | [Gotchas](./gotchas.md)           | All                | Edge cases, known issues           |
 | [Changelog](./CHANGELOG.md)       | All                | Version history                    |
 | [Foundation](./foundation.md)     | Rebuild / external | Framework-neutral spec             |
-
-## Playground
-
-A runnable demo lives in the labs playground:
-
-```bash
-cd playgrounds/labs
-pnpm dev
-```
-
-Then open the invoices pages (`playgrounds/labs/src/pages/invoices/` — `Invoices.vue`, `Invoice.vue`). Neither page has yet been updated to drive the scoped collection/single-read surface this module now exposes (the list page reads session state directly; the detail page reads through `orders`), and `labs-nuxt` has no invoices scenario page at all — this module's capabilities are proven at the request-contract level in its own test suite rather than through a driveable page today.

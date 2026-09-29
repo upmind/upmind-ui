@@ -149,7 +149,3 @@ The editor's `isDirty` flag compares the live model against its persisted baseli
 | [gotchas.md](./gotchas.md)           | All                                                         | The sharp edges — the diff-only save, `default()`, `ensure()`, region clearing, scope   |
 | [foundation.md](./foundation.md)     | Teams building against the Upmind back end on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes                     |
 | [CHANGELOG.md](./CHANGELOG.md)       | All                                                         | Change history and porting notes                                                        |
-
-## Playground
-
-None yet. Drive the collection and the editor through wherever a client manages their own postal addresses — the personal-details form, the billing-detail step of checkout, or the address picker composed into the client-company form.

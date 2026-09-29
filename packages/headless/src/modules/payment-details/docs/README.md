@@ -94,8 +94,6 @@ A capture names exactly one instrument: `payment_details_id` for a method alread
 | [gotchas.md](./gotchas.md)           | The traps — the keyed listing, the wire-value collision, the two-halves gateway payload. |
 | [CHANGELOG.md](./CHANGELOG.md)       | What changed and how to migrate.                                                         |
 
-## Playground
-
-The ADD flow has a page at `playgrounds/labs/src/pages/paymentDetailAdd/`. The PAY flow has none — driving it needs a spawning parent actor (`basket` or `orders`); the closest driveable proof is the e2e checkout suite under `tests/Playwright/e2e/e2e-tests/checkout/payment-gateways/`.
+## Tests
 
 The module's own behaviour is proven by its co-located suite — 76 tests across `__tests__/`, replaying fixtures recorded from real staging by `pnpm fixtures:generate payment-details`. Seven of the module's 29 documented scenarios are recorded as owed rather than proven — see [gotchas.md](./gotchas.md) for what's blocked and why.

@@ -179,7 +179,7 @@ Fixture: `__tests__/fixtures/get-clients-id-emails.json`
 
 Fixtures: `__tests__/fixtures/get-clients-id-emails-case-page-1.json`, `__tests__/fixtures/get-clients-id-emails-case-page-2.json`
 
-Two notes on reading these captures together: the record counts differ between the unpaged and paged samples because the captures were recorded across a sequence that created and deleted addresses, not because the two reads disagree. And filtering/sorting are further query parameters on this same endpoint — only the paging parameters appear in these particular capture files, but the `filter[column|operator]` / `order=` grammar itself is evidenced independently: it is the same grammar already live on other endpoints (e.g. `filter[provision_blueprint.category.code|neq]` on the product catalogue), and this collection's own client library asserts the literal outbound params it produces against a recorded corpus and shows them taking effect in a live rendering (see [README.md](./README.md#playground)).
+Two notes on reading these captures together: the record counts differ between the unpaged and paged samples because the captures were recorded across a sequence that created and deleted addresses, not because the two reads disagree. And filtering/sorting are further query parameters on this same endpoint — only the paging parameters appear in these particular capture files, but the `filter[column|operator]` / `order=` grammar itself is evidenced independently: it is the same grammar already live on other endpoints (e.g. `filter[provision_blueprint.category.code|neq]` on the product catalogue), and this collection's own client library asserts the literal outbound params it produces against a recorded corpus.
 
 ### GET /clients/{clientId}/emails/{emailId}
 

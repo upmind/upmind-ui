@@ -22,7 +22,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `REFRESH` event handler with `hasChanged` guard — avoids thrash loop on every basket refresh
 - `update` service debounced with `@tanstack/pacer` `asyncDebounce` (1 s, leading) to prevent rapid PUT calls
 - `useBasketCurrency` composable exposing `isReady`, `meta`, context refs (`currencies`, `currency`, `currencyCode`, `currencyId`, `model`, `schema`, `uischema`, `errors`, `context`), and methods (`clear`, `input`, `update`)
-- `setCurrency` funnel action in `apps/cart` reads `?currency=` query param on route entry and forwards to the currency machine
 - 25 unit tests in `__tests__/basket-currency.utils.test.ts` covering resolver precedence (a–f), store-on-compute caching, unsupported-candidate rejection, and all storage helpers
 
 ### Design decisions

@@ -213,9 +213,3 @@ Each `.fresh()` call mints its own editor instance with its own model. Two new
 | [gotchas.md](./gotchas.md)           | All                                                         | The sharp edges — paging, the default() contract, scope, error handling                 |
 | [foundation.md](./foundation.md)     | Teams building against the Upmind back end on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes                     |
 | [CHANGELOG.md](./CHANGELOG.md)       | All                                                         | Change history and porting notes                                                        |
-
-## Playground
-
-`playgrounds/labs/src/pages/client/Companies.vue` and
-`.../billing/components/ClientBillingAddresses.vue` drive the collection and
-editor pair against a live client session.

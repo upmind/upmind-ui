@@ -102,7 +102,3 @@ No toast, no notification. Every failure is captured where the consumer can read
 | [foundation.md](./foundation.md) | Teams building against the platform on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes |
 | [dropped-capabilities.md](./dropped-capabilities.md) | All | The staff-administration surface this module deliberately does not build, and where it is tracked |
 | [CHANGELOG.md](./CHANGELOG.md) | All | Change history |
-
-## Playground
-
-No playground page exists yet for this module. It is a newly introduced sibling module; the client-billing page a playground would drive also mounts the not-yet-built sibling capability this module's own scope forwards to (brand-default resolution and the combined multi-panel save) — a playground page is expected once that capability lands.

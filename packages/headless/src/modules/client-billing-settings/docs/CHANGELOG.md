@@ -26,7 +26,6 @@ All notable changes to the `client-billing-settings` module are documented here.
 - **A staff-administration surface for reading or writing another client's preference is not built.** The scope matrix refuses `staff` and `guest` a `.for()` context at compile time — see [dropped-capabilities.md](./dropped-capabilities.md#the-refusal-and-where-it-is-enforced). A legacy administrative surface over this same preference exists and is recorded, capability by capability, with its own tracked issue — see [dropped-capabilities.md](./dropped-capabilities.md).
 - **A wider client-billing-settings surface this module is named for is not built here.** Resolving what a `null` field displays as (the brand's own default), deciding which fields are visible for a given cadence-rule selection, and coordinating a combined save/revert across other billing panels on the same page are all a separate, not-yet-built capability. This module writes the preference and reports its own persisted values only.
 - **`clear()` still carries a debounce race that `revert()` was fixed against.** A pending, still-debounced form input can fire after `clear()` has already reset the model, silently repopulating the field `clear()` just emptied. This is a known, open, one-line gap — see [gotchas.md](./gotchas.md#5-clear-still-races-a-pending-debounced-input--revert-does-not).
-- **No playground page exists yet.** One is expected once the wider billing-settings surface this module forwards to lands.
 
 ### Recorded fixtures
 

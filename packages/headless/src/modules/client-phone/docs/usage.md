@@ -416,7 +416,7 @@ The editor's baseline model — what an untouched form holds before a key is pre
 Notes for the paste:
 
 - **One control, one nested object.** Unlike a flat form, the whole `phone` object is bound to a single control — the four parts are derived from and re-derived into one typed value, not four independent inputs.
-- **`i18n: "form.phone"`** names a translation key. With no translator registered, the control falls back to the schema's `title` — so the label reads "Phone Number" in the playground and the localised string in the app.
+- **`i18n: "form.phone"`** names a translation key. With no translator registered, the control falls back to the schema's `title` — so the label reads "Phone Number" by default and the localised string once a translator is registered.
 - **The pair moves together.** A schema field with no matching control renders as a required-but-invisible input, which is why these two blocks are never edited apart.
 
 > **🧪 For Testers:** The barrel exposes no bare schema-pair export. The only supported way to obtain the form definition is the editor's context — a consumer reaching for a bare export is reaching for something the module does not offer.

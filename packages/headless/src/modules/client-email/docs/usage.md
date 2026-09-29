@@ -394,7 +394,7 @@ The editor's baseline model — what an untouched form holds before a key is pre
 Notes for the paste:
 
 - **The `id` control renders nothing.** Its `HIDE` rule is unconditional and deliberate: without it, the auto-generated id renders in the email field's place. One visible field is the correct result.
-- **`i18n: "form.email"`** names a translation key. With no translator registered, the control falls back to the schema's `title` — so the label reads "Email" in the playground and the localised string in the app.
+- **`i18n: "form.email"`** names a translation key. With no translator registered, the control falls back to the schema's `title` — so the label reads "Email" by default and the localised string once a translator is registered.
 - **The pair moves together.** A schema field with no matching control renders as a required-but-invisible input, which is why these two blocks are never edited apart.
 
 > **🧪 For Testers:** The barrel exposes no `useSchema` / `useUischema`. The only supported way to obtain the form definition is the editor's context — a consumer reaching for a bare export is reaching for something the module does not offer.
@@ -540,7 +540,6 @@ Notes for the paste:
 
 - **No `query` property.** `GET /clients/{id}/emails` does not honour a bare search term, so the search box binds `filters.email.like` instead — pasting a `{ "query": "…" }` instance against this schema fails validation, by design.
 - **`sort` and `pagination` carry no element here** — this uischema only draws the filter bar. Pagination is driven by the pager; sort has its own uischema, below.
-- **See it fully wired** — the switches, the full-width search, the sortable columns, and the live outbound request — in the `labs-nuxt` playground: see this module's [README](./README.md#playground) for the exact command and url.
 
 ### Sort UI schema
 
