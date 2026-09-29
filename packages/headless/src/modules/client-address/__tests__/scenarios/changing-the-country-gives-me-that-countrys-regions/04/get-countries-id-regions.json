@@ -1,0 +1,323 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/countries/3825d96e-763e-d091-3dc4-174825283406/regions?limit=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a422b1876f0173ea-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 12:18:55 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Yc4M0vX1nlEGfSlEXjX%2FQjPT4njIgBSUqHLO8ebXNDwT9xkqGXRY1lOG%2BWmp%2BZK5yVdZEaxH6Yt8Ntvn%2FZajYXtC9gXFW4IAjIDPbz6XPNAT3RlEZHlnJ3poQ3Y7GEHb249M2fkAhg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "34"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BAL",
+          "name": "Balkh",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BAM",
+          "name": "Bamyan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BDG",
+          "name": "Badghis",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BDS",
+          "name": "Badakhshan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "BGL",
+          "name": "Baghlan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "45952098-d3de-4091-76a3-1578626e347e",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "DAY",
+          "name": "Daykundi",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "FRA",
+          "name": "Farah",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "FYB",
+          "name": "Faryab",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "57898574-2648-9701-25c2-1e325d0ed369",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "GHA",
+          "name": "Ghazni",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "9320e435-795e-78d1-88a3-1643202d9860",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "GHO",
+          "name": "Ghor",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "2785d26e-9678-3d16-70b3-14502e70439d",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "HEL",
+          "name": "Helmand",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "825d96e7-63ed-0913-ddf4-174825283406",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "HER",
+          "name": "Herat",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "5d085e69-d562-3719-7ec2-18e940d42370",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "JOW",
+          "name": "Jowzjan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "4d036794-24d0-e710-94a3-153698d582e8",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "KAB",
+          "name": "Kabul",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "KAN",
+          "name": "Kandahar",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "47d73824-8507-9315-36f8-1e642d59e063",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "KAP",
+          "name": "Kapisa",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "3de78642-de53-9714-5eb2-1208469530d0",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "KDZ",
+          "name": "Kunduz",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "5952098d-3de4-0917-e6c3-1578626e347e",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "KHO",
+          "name": "Khost",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "KNR",
+          "name": "Kunar",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "78985742-6489-7012-05f2-1e325d0ed369",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "LAG",
+          "name": "Laghman",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "320e4357-95e7-8d18-48c3-1643202d9860",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "LOW",
+          "name": "Logar",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "825d96e7-63ed-0913-6db4-174825283406",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "NAN",
+          "name": "Nangarhar",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "5d085e69-d562-3719-eef2-18e940d42370",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "NIM",
+          "name": "Nimruz",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "4d036794-24d0-e710-24c3-153698d582e8",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "NUR",
+          "name": "Nuristan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "2785d26e-9678-3d16-90c3-14502e70439d",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "ORU",
+          "name": "Urozgan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "5952098d-3de4-0917-96f3-1578626e347e",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "PAN",
+          "name": "Panjshir",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "20403869-6e54-721d-69c5-18d9305e7d23",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "PAR",
+          "name": "Parwan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "PIA",
+          "name": "Paktia",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "47d73824-8507-9315-e6b8-1e642d59e063",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "PKA",
+          "name": "Paktika",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "3de78642-de53-9714-6ea2-1208469530d0",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "SAM",
+          "name": "Samangan",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "78985742-6489-7012-25b2-1e325d0ed369",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "SAR",
+          "name": "Sar-e Pol",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "320e4357-95e7-8d18-78f3-1643202d9860",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "TAK",
+          "name": "Takhar",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "WAR",
+          "name": "Maidan Wardak",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        },
+        {
+          "id": "825d96e7-63ed-0913-7da4-174825283406",
+          "country_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "code": "ZAB",
+          "name": "Zabul",
+          "created_at": "2019-10-31 17:51:14",
+          "updated_at": "2019-10-31 17:51:14"
+        }
+      ],
+      "related": null,
+      "total": 34,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T12:18:55.501Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "changing-the-country-gives-me-that-countrys-regions"
+  }
+}

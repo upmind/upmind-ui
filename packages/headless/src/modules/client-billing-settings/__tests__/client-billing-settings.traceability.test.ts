@@ -1,132 +1,220 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview client-billing-settings traceability — AC <-> test, both ways
+ * @module client-billing-settings/__tests__/client-billing-settings.traceability
+ * @description The module's ONE traceability test, carrying both jobs the module
+ * owes its ONE `.feature`: the AC link (a tagged scenario has a proving spec —
+ * a driven scenario's own `@AC-N` tag, or a unit test naming the id — and a spec
+ * claims no AC the feature never tagged), and the spec-to-catalog gate (an
+ * orphan definition, a half-matched scenario, a duplicated phrasing, an
+ * uncompilable pattern and an over-reported covered action all fail; a scenario
+ * nothing matches passes, because a capability written down and not yet driven
+ * is a legitimate state).
  *
- * ## Job To Be Done
- * Enforce the AC <-> proving-spec link over the CO-LOCATED
- * `client-billing-settings.feature` — the SOLE source of truth for this
- * module's 26 acceptance criteria (`requirements.md` §5's anchor list,
- * WIDENED 2026-09-09 by the account-currency fold-in). This file reads NO
- * path outside `__tests__/` — exactly three assertions, mirroring the
- * `client-personal-details` exemplar's own shape:
+ * Generic by construction — it reads the WHOLE feature and the WHOLE catalog, so
+ * no scenario count, no per-scenario list and no AC list is written down here.
  *
- *   1. every non-`@todo` scenario has >=1 sibling spec naming its `AC-<n>`;
- *   2. every AC a test names is a scenario the feature actually tags
- *      (coverage never silently falls);
- *   3. the hard count — the distinct `@AC-<n>` tag set has exactly 26
- *      members, matching this module's AC set, and no member has an empty
- *      proving-file list.
+ * The co-located `client-billing-settings.feature` is the only truth this file
+ * knows.
  *
  * ## What Breaks If These Fail
- * A capability silently loses its proof — shape present, behaviour unproven —
- * the exact gap the manager amputation (client-email, 2026-08-05) slipped
- * through.
+ * A capability silently loses its proof — shape present, behaviour unproven — or
+ * the spec and the catalog that drives it drift apart and the playlist plays
+ * scenarios nobody implemented.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
+import { stepCatalogs } from "../../../testing";
+import {
+  clientBillingSettingsSteps,
+  coveredActionIds
+} from "./client-billing-settings.steps";
+import {
+  difference,
+  filter,
+  flatMap,
+  includes,
+  map,
+  reject,
+  union,
+  uniq
+} from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const TEST_DIR = import.meta.dirname;
-const COLOCATED_FEATURE = join(TEST_DIR, "client-billing-settings.feature");
-const SELF_FILENAME = "client-billing-settings.traceability.test.ts";
+const SELF = "client-billing-settings.traceability.test.ts";
 
-/**
- * The `@AC-*` tags on every scenario in the feature. `includeTodo` controls
- * whether a scenario ALSO carrying `@todo` (its proof lives at a different
- * altitude or a later stage — not "no sibling spec proves this" left
- * unexplained) is counted: `false` for "needs a proving spec here",
- * `true` for the module's total AC catalogue (a `@todo` AC is still one of
- * this module's 19 ACs; it just isn't proven by THIS seat).
- */
-function featureAcTags(path: string, includeTodo: boolean): Set<string> {
-  const lines = readFileSync(path, "utf-8").split("\n");
-  const tagged = new Set<string>();
+const featureText = readFileSync(
+  join(TEST_DIR, "client-billing-settings.feature"),
+  "utf-8"
+);
+const catalogSource = readFileSync(
+  join(TEST_DIR, "client-billing-settings.steps.ts"),
+  "utf-8"
+);
 
-  for (let index = 0; index < lines.length; index++) {
-    const match = lines[index].match(/@AC-(\d+)/);
-    if (!match) continue;
+const {
+  scenarios,
+  driveable,
+  partial,
+  orphanStepDefs,
+  duplicatedPatterns,
+  malformedStepDefs
+} = createTraceabilityCheck(
+  featureText,
+  clientBillingSettingsSteps,
+  stepCatalogs
+);
 
-    let cursor = index;
-    let isTodo = false;
-    while (cursor < lines.length && !/^\s*Scenario/.test(lines[cursor])) {
-      if (/@todo/.test(lines[cursor])) isTodo = true;
-      cursor++;
-    }
-    if (includeTodo || !isTodo) tagged.add(`AC-${match[1]}`);
-  }
-
-  return tagged;
-}
-
-/** AC ids named by a sibling spec's `describe`/`it` titles -> the files naming them. */
-function provingTests(): Map<string, string[]> {
-  const files = readdirSync(TEST_DIR).filter(
+/** The `AC-<n>` ids a sibling spec claims in a `describe`/`it` title. */
+function acsNamedBySiblingSpecs(directory: string): string[] {
+  const specs = filter(
+    readdirSync(directory),
     file =>
       (file.endsWith(".test.ts") || file.endsWith(".int.test.ts")) &&
-      file !== SELF_FILENAME
+      file !== SELF
   );
 
-  const mentions = new Map<string, string[]>();
-  for (const file of files) {
-    const content = readFileSync(join(TEST_DIR, file), "utf-8");
-    for (const title of content.matchAll(
-      /(?:describe|it)\(\s*["'`]([^"'`]*)["'`]/g
-    )) {
-      for (const ac of title[1].matchAll(/AC-?(\d+)/g)) {
-        const key = `AC-${ac[1]}`;
-        const seen = mentions.get(key) ?? [];
-        if (!seen.includes(file)) seen.push(file);
-        mentions.set(key, seen);
+  return uniq(
+    flatMap(specs, file => {
+      const titles = readFileSync(join(directory, file), "utf-8").matchAll(
+        /(?:describe|it)\(\s*["'`]([^"'`]*)["'`]/g
+      );
+
+      return flatMap([...titles], title =>
+        map([...title[1].matchAll(/AC-(\d+)/g)], ac => `AC-${ac[1]}`)
+      );
+    })
+  );
+}
+
+/**
+ * The `AC-<n>` ids the feature tags, optionally only those whose scenario is
+ * EXEMPT from driven proof (`@todo` = a named blocker, `@moved` = proven in
+ * another module). `@moved` is exempt exactly as `@todo` is — a capability that
+ * belongs to a platform seam this module only consumes.
+ */
+function acTagsWhere(
+  feature: string,
+  keep: (exempt: boolean) => boolean
+): string[] {
+  let pending: string[] = [];
+  let exempt = false;
+
+  return uniq(
+    flatMap(feature.split("\n"), raw => {
+      const line = raw.trim();
+      if (line.startsWith("@")) {
+        pending = [...pending, ...(line.match(/@AC-\d+/g) ?? [])];
+        if (/@todo|@moved/.test(line)) exempt = true;
+        return [];
       }
-    }
-  }
-  return mentions;
+      if (/^Scenario(?: Outline)?:/.test(line)) {
+        const acs = keep(exempt) ? map(pending, tag => tag.slice(1)) : [];
+        pending = [];
+        exempt = false;
+        return acs;
+      }
+      if (line === "" || line.startsWith("#")) return [];
+      pending = [];
+      exempt = false;
+      return [];
+    })
+  );
+}
+
+/** Every `AC-<n>` the feature tags, exempt or not. */
+const allAcTags = (feature: string): string[] =>
+  acTagsWhere(feature, () => true);
+
+/** The `AC-<n>` ids that need driven/unit proof — i.e. NOT `@todo`/`@moved`. */
+const provableAcTags = (feature: string): string[] =>
+  acTagsWhere(feature, exempt => !exempt);
+
+/** The `AC-<n>` ids tagged on the NAMED scenarios, read from the feature text. */
+function acTagsForScenarioNames(feature: string, names: string[]): string[] {
+  const wanted = new Set(names);
+  let pending: string[] = [];
+
+  return uniq(
+    flatMap(feature.split("\n"), raw => {
+      const line = raw.trim();
+      if (line.startsWith("@")) {
+        pending = [...pending, ...(line.match(/@AC-\d+/g) ?? [])];
+        return [];
+      }
+      const scenario = line.match(/^Scenario(?: Outline)?:\s*(.+)$/);
+      if (scenario) {
+        const acs = wanted.has(scenario[1].trim())
+          ? map(pending, tag => tag.slice(1))
+          : [];
+        pending = [];
+        return acs;
+      }
+      if (line === "" || line.startsWith("#")) return [];
+      pending = [];
+      return [];
+    })
+  );
 }
 
 // -----------------------------------------------------------------------------
 
-describe("client-billing-settings traceability — co-located feature vs proving tests", () => {
-  it("every non-@todo scenario has at least one proving test", () => {
-    const tests = provingTests();
-    const unproven = [...featureAcTags(COLOCATED_FEATURE, false)].filter(
-      ac => !tests.has(ac)
+describe("client-billing-settings traceability — the module's one feature, both jobs", () => {
+  it("proves every non-exempt AC by a driven scenario or a unit test, and back", () => {
+    const provable = provableAcTags(featureText);
+    const drivenAcs = acTagsForScenarioNames(
+      featureText,
+      map(driveable, "name")
     );
+    const named = acsNamedBySiblingSpecs(TEST_DIR);
+    const proven = union(drivenAcs, named);
 
+    expect(provable.length).toBeGreaterThan(0);
     expect(
-      unproven,
-      `Unproven scenarios (no test names this AC): ${unproven.join(", ")}`
-    ).toEqual([]);
+      difference(provable, proven),
+      "AC(s) the feature tags (not @todo/@moved) that no driven scenario carries and no unit test names — shape present, behaviour unproven"
+    ).toStrictEqual([]);
+    expect(
+      difference(named, allAcTags(featureText)),
+      "unit test(s) naming an AC the feature does not tag — the feature gains the scenario, coverage never falls"
+    ).toStrictEqual([]);
   });
 
-  it("every AC a test names is a scenario the feature actually tags", () => {
-    const tagged = featureAcTags(COLOCATED_FEATURE, true);
-    const orphaned = [...provingTests().keys()].filter(ac => !tagged.has(ac));
-
+  it(`drives ${driveable.length} of ${scenarios.length} scenarios`, () => {
     expect(
-      orphaned,
-      "Test(s) name an AC the feature does not tag (the feature gains the " +
-        `scenario — coverage never falls): ${orphaned.join(", ")}`
-    ).toEqual([]);
+      map(partial, "name"),
+      "scenario(s) matched only in part — they read as driveable and silently are not"
+    ).toStrictEqual([]);
+    expect(
+      map(orphanStepDefs, "pattern"),
+      "step definition(s) no scenario uses"
+    ).toStrictEqual([]);
+    expect(
+      duplicatedPatterns,
+      "phrasing(s) another module's catalog also claims"
+    ).toStrictEqual([]);
+    expect(
+      map(malformedStepDefs, "pattern"),
+      "step pattern(s) that do not compile as a cucumber expression"
+    ).toStrictEqual([]);
+    expect(driveable.length).toBeGreaterThan(0);
   });
 
-  it("the distinct @AC-<n> tag set has exactly 26 members, and every non-@todo member has a proving file", () => {
-    const tests = provingTests();
-    const allTagged = [...featureAcTags(COLOCATED_FEATURE, true)].sort(
-      (a, b) => Number(a.slice(3)) - Number(b.slice(3))
-    );
-    const provable = featureAcTags(COLOCATED_FEATURE, false);
-    const map = allTagged.map(ac => ({
-      ac,
-      todo: !provable.has(ac),
-      files: tests.get(ac) ?? []
-    }));
-
-    expect(allTagged).toHaveLength(26);
+  // A handler is a closure, so the only way a catalog admits which ids it fires
+  // is its own source.
+  it("fires every action it declares as covered", () => {
     expect(
-      map.filter(entry => !entry.todo && entry.files.length === 0)
-    ).toEqual([]);
+      reject(coveredActionIds, id =>
+        includes(
+          catalogSource,
+          `fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.${id}`
+        )
+      ),
+      "declared covered but fired by no step"
+    ).toStrictEqual([]);
   });
 });

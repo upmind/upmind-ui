@@ -1,7 +1,6 @@
 /** @internal */
 import { computed, ref } from "vue";
 import { BrandConfigKeys } from "@upmind-automation/types";
-import { useBrand } from "../brand";
 import { useFeedback } from "../feedback";
 import { useQuery, invalidateQueryByKey } from "../query";
 import { useActiveSession } from "../session-store";
@@ -126,11 +125,34 @@ function resolveClientId(scopeContext?: ScopeContext) {
   );
 }
 
-/** Reads the brand's `security.ui.allow_vault` gate off the config the brand module already fetches (`brand.services.ts:31`). */
-function isVaultEnabled(): boolean {
-  return !!useBrand().getConfigValue<boolean>(
-    BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED
-  );
+/**
+ * The vault gate (`security.ui.allow_vault`), read FRESH through a raw request —
+ * never `useBrand().getConfigValue`, whose query is `staleTime:"static"` +
+ * localStorage-persisted and serves a stale value that survives a cache clear
+ * (the `client-billing-settings.loadBrandGates` precedent, 2026-09-09). Held in
+ * a ref so the sync gates (`enabled`, `isAvailable`) read it reactively.
+ */
+const vaultGate = ref(false);
+
+/** Fetches the gate fresh and publishes it on {@link vaultGate}; a rejection reads as OFF. */
+async function refreshVaultGate(): Promise<boolean> {
+  const { request, useUrl } = useQuery();
+  try {
+    const response = await request<Partial<Record<BrandConfigKeys, unknown>>>({
+      url: useUrl("config/brand/values", {
+        keys: BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED
+      }),
+      withAccessToken: true,
+      withoutLocale: true
+    });
+    vaultGate.value = !!get(
+      response.data,
+      BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED
+    );
+  } catch {
+    vaultGate.value = false;
+  }
+  return vaultGate.value;
 }
 
 /**
@@ -147,74 +169,19 @@ function isVaultEnabled(): boolean {
 function isAddressable(clientId?: string): boolean {
   const { isAuthenticated } = useActiveSession().useMeta();
 
-  return isAuthenticated.value && !!clientId && isVaultEnabled();
+  return isAuthenticated.value && !!clientId && vaultGate.value;
 }
 
 /**
- * The awaited form of `isAddressable`, for the one-shot read/write functions
- * below. `isVaultEnabled` reads the brand config SYNCHRONOUSLY off whatever
- * is cached, and a freshly-minted scope (collection or manager alike) has no
- * guarantee the config fetch `useBrand()` just kicked off has resolved yet —
- * a call issued immediately after mint can race it and see it still
- * unresolved. Awaiting `ensureConfig` here removes the dependency on
- * incidental timing. `loadOne` uses this too (see its own `@decision`): it is
- * the manager's FIRST boot operation, so there is no earlier call to
- * incidentally absorb the wait.
- *
- * **Scope note (R8 / D12):** the await above closes the TIMING race only — a
- * freshly-minted scope calling before the config fetch lands. A genuine
- * CONFIG-FETCH REJECTION (a 500) is a separate failure mode, closed by this
- * function's own `@decision` below.
- *
- * @decision D12
- * what: guards the `ensureConfig` await — a rejection resolves to `false`
- *   ("not addressable YET") rather than propagating out of this function as
- *   an exception.
- * why: (row C20 / AC-39). `loadOne` — the manager's `loading` invoke's first
- *   operation — calls `ensureAddressable` unguarded. An unhandled rejection
- *   from `ensureConfig` propagated out of `ensureAddressable` as a RAW,
- *   unmapped error, rather than the module's own typed `NotAuthenticatedError`
- *   every other "not addressable" outcome raises — an inconsistency in what
- *   `context.error` ends up holding, not a difference in which state the
- *   machine lands in (both paths still route `loading.onError → unavailable`
- *   for THIS call). Guarding it keeps `ensureAddressable`'s own contract
- *   uniform: it always RESOLVES a boolean, never throws.
- * rejected: leaving the await unguarded — the resulting exception is
- *   indistinguishable, at `context.error`, from an unrelated crash; this row
- *   does not re-open the surrounding await's own `@decision` (its note above).
+ * The awaited form of `isAddressable` for the one-shot read/write functions:
+ * refreshes the gate first so a freshly-minted scope cannot race an unresolved
+ * value. `refreshVaultGate` never throws (its catch reads OFF), so this always
+ * resolves a boolean — a config-fetch rejection lands as "not addressable"
+ * (D12), never a raw error out of `loadOne`'s boot path.
  */
 async function ensureAddressable(clientId?: string): Promise<boolean> {
-  const configReady = await useBrand()
-    .ensureConfig(BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED)
-    .then(() => true)
-    .catch(() => false);
-
-  return configReady && isAddressable(clientId);
-}
-
-/**
- * Resolves true for a staged-import client — gates WRITES only; reads still
- * work (row C15, matching `views/client/account/vault/index.vue:33-35`,
- * where `isDisabled` is passed down as a prop and the list still renders).
- *
- * @decision
- * what: reads `staged_import` off `useActiveSession().useContext().activeUser`
- *   defensively (`get(...)`), rather than a typed field access.
- * why: `session-store`'s `SessionUser` type (`session-store.types.ts`) does
- *   not currently declare or populate `staged_import` — `mapSessionUser`
- *   builds a curated shape with no raw passthrough of the client record.
- *   `session-store` is outside this module's write lane, so this predicate
- *   is wired to the correct field name and the correct seam now, ready the
- *   day `SessionUser` carries it, rather than inventing a second identity
- *   read elsewhere in this module.
- * rejected: fetching a second, full `IClient` record (e.g. via
- *   `client-personal-details`) just to read one flag — an extra request per
- *   AC-15's read-back names none, and a second identity source the module
- *   would then have to keep in sync with `resolveClientId`.
- */
-function isStagedImport(): boolean {
-  const { activeUser } = useActiveSession().useContext();
-  return !!get(activeUser.value, "staged_import");
+  await refreshVaultGate();
+  return isAddressable(clientId);
 }
 
 /**
@@ -239,6 +206,13 @@ function loadList(scopeContext?: ScopeContext): ClientNoteListQuery {
     });
   const url = targetUrl();
 
+  // Hold the query shut until the gate has been read FRESH (AC-14): the gate is
+  // read once per scope here, and `enabled`/`guard` stay false until it lands.
+  const configReady = ref(false);
+  refreshVaultGate().then(() => {
+    configReady.value = true;
+  });
+
   return list<IVaultAsset[], VaultAsset[], QueryModel>({
     criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId }],
@@ -247,7 +221,7 @@ function loadList(scopeContext?: ScopeContext): ClientNoteListQuery {
     // which tests for an AsyncFunction.
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (!isAddressable(clientId.value)) {
+        if (!configReady.value || !isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
           return;
         }
@@ -262,7 +236,7 @@ function loadList(scopeContext?: ScopeContext): ClientNoteListQuery {
     // lets the retry budget exhaust and `isFetched`/`isLoading` settle inside
     // a normal test/UI wait instead of hanging on the default ramp (AC-16).
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value)
+    enabled: () => configReady.value && isAddressable(clientId.value)
   });
 }
 
@@ -270,30 +244,9 @@ function loadList(scopeContext?: ScopeContext): ClientNoteListQuery {
  * MANAGER — per-asset read. A one-shot promise rather than a reactive query:
  * the manager holds a machine, and its `loading` state awaits this.
  *
- * @decision
- * what: gates on `ensureAddressable` (awaited), not the synchronous
- *   `isAddressable`.
- * why: this is the FIRST thing the manager's `loading` state invokes
- *   (`loadLookups` calls it before anything else), so there is no earlier
- *   round-trip to incidentally give the brand-config fetch time to land.
- *   `isAddressable` reads `isVaultEnabled()` synchronously off whatever is
- *   already cached; on a freshly-minted manager the config fetch this same
- *   `useBrand()` call kicks off cannot possibly have resolved yet, so the
- *   synchronous read always loses that race, `loadOne` rejects before any
- *   request fires, and the shared machine's `onError` lands it in the
- *   terminal `unavailable` state with no transition back out — `isAvailable`
- *   then never becomes true (AC-18/M2). The collection's `enabled`/`guard`
- *   don't have this failure mode because TanStack re-evaluates them
- *   reactively once the config resolves; this one-shot `invoke` does not.
- *   The collection's OWN one-shot door, `useActions().isReady()`
- *   (`useClientNotes.actions.ts`), is not TanStack either and carried the
- *   identical race (B5, fixed 2026-08-28): `whenSessionSettles()` now awaits
- *   this same `ensureConfig` lever before its first settled read, so the
- *   "collection is safe" claim below holds for `enabled`/`guard` only, no
- *   longer as a blanket claim over every one-shot read on this module.
- * rejected: leaving `isAddressable` as-is — correct once *something* has
- *   already awaited the config (e.g. a write following a prior `.for(id)`
- *   read), but wrong at the exact point the manager's OWN boot read calls it.
+ * Gates on `ensureAddressable` (awaited), not the sync `isAddressable`: this is
+ * the manager's FIRST boot read, so it must refresh the gate itself rather than
+ * race a value nothing has fetched yet.
  */
 async function loadOne(
   id?: string,
@@ -331,7 +284,7 @@ async function add(
   const { post, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!(await ensureAddressable(clientId.value)) || isStagedImport()) {
+  if (!(await ensureAddressable(clientId.value))) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -352,7 +305,7 @@ async function update(
   const { put, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!(await ensureAddressable(clientId.value)) || isStagedImport()) {
+  if (!(await ensureAddressable(clientId.value))) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -378,7 +331,7 @@ async function remove(
   const { del, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value) || isStagedImport()) {
+  if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -417,7 +370,7 @@ async function setPinned(
   const { put, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value) || isStagedImport()) {
+  if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -448,7 +401,7 @@ async function setEncrypted(
   const { put, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  if (!isAddressable(clientId.value) || isStagedImport()) {
+  if (!isAddressable(clientId.value)) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -848,6 +801,10 @@ export const createClientNoteServices = (
   const mutationError = ref<ResponseError | undefined>(undefined);
   const clientId = resolveClientId(scopeContext);
 
+  // Read the gate fresh at construction so `isAvailable` reflects it without a
+  // request having to be issued first.
+  void refreshVaultGate();
+
   const captureError: ClientNoteErrorCapture = error => {
     mutationError.value = mapToHeadlessError(error);
   };
@@ -856,7 +813,6 @@ export const createClientNoteServices = (
     queryKey,
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
-    isDisabled: computed(() => isStagedImport()),
     error: computed(() => mutationError.value),
     loadList: () => loadList(scopeContext),
     loadOne: id => loadOne(id, scopeContext),

@@ -93,7 +93,8 @@ export function mapContractProductListItem(
   return {
     id: raw.id,
     name: raw.name,
-    ...(raw.product ? { product: { name: raw.product.name } } : {})
+    ...(raw.product ? { product: { name: raw.product.name } } : {}),
+    isDelegatedObject: !!raw.is_delegated_object
   };
 }
 

@@ -1,12 +1,14 @@
-Negative control for useContractProduct.context.ts `id` rename (R37 B6).
-
-Spec that must flip: contract-product.manager-members.int.test.ts
-("names the product it addresses through useContext().id") — asserts `useContractProduct().useContext().id` (the template
-name, not `contractProductId`) resolves the seeded product id.
-
-Mutation: reverts the context export back to the pre-restore `contractProductId`
-name, dropping the template-named `id` member.
-
+# Negative-control mutant — the manager names the product it addresses as `id` (AC-4)
+#
+# Scenario it must flip: contract-product.feature >
+#   "Open one of my products with what its detail view needs"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then it is the very product I opened, under its own name and description" —
+#   the manager context publishes no `id` member.
+# Mutation: reverts the context export to `contractProductId`, dropping `id`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts

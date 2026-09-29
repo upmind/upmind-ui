@@ -8,6 +8,8 @@
  *
  * Usage:
  *   pnpm fixtures:generate <unit>      # e.g. pnpm fixtures:generate query
+ *   pnpm fixtures:generate <unit> --scenario "<title>"
+ *                                      # re-record ONE scenario, by its title
  *
  * <unit> is the unit's path under `src/modules`. It is a bare name for a flat
  * module (`query`), and a path for one nested below a parent module
@@ -36,6 +38,24 @@ const REPO_ROOT = join(__dirname, "..", "..");
 const HEADLESS = join(REPO_ROOT, "packages", "headless");
 
 const unit = process.argv[2];
+
+// `--scenario "<title>"` re-records ONE scenario: the generator's `describe`
+// for a scenario is named by that scenario's title, so the title (escaped to a
+// literal) is the vitest name filter. Every other test is skipped, and each
+// scenario's `prepareScenarioDirs` clears only its OWN folders, so the other
+// recordings are left exactly as they are.
+const scenarioFlag = process.argv.indexOf("--scenario");
+const scenario =
+  scenarioFlag === -1 ? undefined : process.argv[scenarioFlag + 1];
+
+if (scenarioFlag !== -1 && !scenario) {
+  console.error('[fixtures:generate] --scenario needs a title: --scenario "<title>"');
+  process.exit(1);
+}
+
+const nameFilter = scenario
+  ? ["-t", scenario.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")]
+  : [];
 
 if (!unit) {
   console.error("[fixtures:generate] Usage: pnpm fixtures:generate <unit>");
@@ -96,7 +116,9 @@ if (!env.VITE_API_URL) {
 
 // --- run the generator headlessly via the fixtures-only vitest config.
 
-console.log(`[fixtures:generate] Capturing "${unit}" against ${env.VITE_API_URL}`);
+console.log(
+  `[fixtures:generate] Capturing "${unit}"${scenario ? ` scenario "${scenario}"` : ""} against ${env.VITE_API_URL}`
+);
 
 const run = spawnSync(
   "pnpm",
@@ -106,6 +128,7 @@ const run = spawnSync(
     "run",
     "--config",
     "vitest.fixtures.config.ts",
+    ...nameFilter,
     relFixtureFile
   ],
   { cwd: HEADLESS, env, stdio: "inherit" }

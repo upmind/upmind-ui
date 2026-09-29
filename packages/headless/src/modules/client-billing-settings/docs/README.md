@@ -28,7 +28,7 @@ import {
 
 // --- The read view
 const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
-const { data } = settings.useContext(); // the five persisted values + isStaged
+const { data } = settings.useContext(); // the five persisted values
 await settings.useActions().isReady();
 
 // --- The editor: change a value and save
@@ -42,13 +42,12 @@ await manager.useActions().update();
 
 | Capability | Surface | What it does |
 | --- | --- | --- |
-| Read own preference | `useBillingSettings().useContext().data` | The five persisted values, plus `isStaged` |
+| Read own preference | `useBillingSettings().useContext().data` | The five persisted values |
 | Know whether to show the surface at all | `useBillingSettings().useMeta().isVisible` (and the manager's own `isVisible`) | `true` only when the brand has explicitly opted clients in — defaults hidden |
-| Edit the preference | `useBillingSettingsManager().useActions().input()` + `.update()` | Validated form input, diff-only save |
+| Edit the preference | `useBillingSettingsManager().useActions().input()` + `.update()` | Validated form input, diff-only save — also persists the account's currency choices when they changed |
 | Revert unsaved changes | `…useActions().revert()` | Restores the last-saved values |
 | Clear the form | `…useActions().clear()` | Resets the editor to its starting state |
-| Lock the editor externally | `…useActions().setDisabled(true)` | Refuses input/save independent of the record's own state |
-| Know whether a save is safe right now | `…useMeta().isEditable` | `false` while staged, processing, or externally locked |
+| Know whether the editor is open for input | `…useMeta().isAvailable` | `false` until the brand has opted clients into managing consolidation themselves |
 | Validate as the client edits | `…useActions().input()` + `useMeta().isValid` | Reports acceptance and which field is wrong |
 
 ## Key Concepts
@@ -71,11 +70,13 @@ The read view and the editor share one scope matrix and one identity seam — wh
 
 > **🧪 For Testers:** Set `enabled: 0` and assert the outgoing body carries the literal key `invoice_consolidation_enabled: 0` — not an omitted key, and not `false`.
 
-### The visibility gate defaults to hidden
+### The visibility gate defaults to hidden — and the same key gates whether the editor is open at all
 
 `useBillingSettings().useMeta().isVisible` and the manager's own `isVisible` are both `true` only when the brand has explicitly configured the surface to show for clients. An absent or unreadable configuration value, or a fetch that fails outright, all resolve to hidden — never to shown.
 
-> **🧪 For Testers:** Seed the brand config key absent, `true`, and `false` and confirm only the `false` case reports `isVisible: true`, on BOTH composables.
+The editor's `isAvailable` reads the identical brand configuration: the form only reports itself available once the machine has settled **and** the brand has explicitly opted clients into managing this preference themselves. A brand that never sets the key, or sets it in the staff-only direction, leaves the editor permanently unavailable — the same failure-closed default as `isVisible`.
+
+> **🧪 For Testers:** Seed the brand config key absent, `true`, and `false` and confirm only the `false` case reports `isVisible: true`, on BOTH composables — and that only the `false` case ever lets the editor's `isAvailable` settle `true`.
 
 ### Saves are diff-only, and an empty diff is a genuine no-op
 
@@ -83,9 +84,9 @@ The read view and the editor share one scope matrix and one identity seam — wh
 
 > **🧪 For Testers:** Change nothing and call `update()` — assert zero network activity, not a request with an empty body.
 
-### A staged, unprocessed import locks the editor
+### Saving also writes the account's own currency choices, in the same call
 
-While the owning client record is a staged, not-yet-processed import, every save is refused before any request is sent — a check independent of the machine's own general edit-lock, so calling the service directly cannot bypass it.
+`update()` persists two different records in one call when both are dirty: the five consolidation fields, and the account's own billing currency / preferred payment currency. Each is diffed and sent independently — a save touching only one of the two issues exactly one request, never a second, empty one for the other. The preferred-payment-currency field can only ever be written when the brand has separately opted clients into paying in a different currency; the model does not offer the field at all when that choice is closed.
 
 ### Errors are state — the module raises nothing
 

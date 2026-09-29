@@ -1,0 +1,24 @@
+# Negative-control mutant — each list row shows the date the product was bought (R38 items 8, 10; B7)
+#
+# Spec it must flip: contract-product.replay.int.test.ts,
+#   "Each of my products shows the date I bought it".
+# RED-verified 2026-09-29.
+#
+# Mutation: the `createdAt` field carries `raw.updated_at` (the last-modified
+#   date), so the purchase-date column shows the wrong date and the array
+#   equality breaks.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -149,7 +149,7 @@ function toContractProduct(
+     renew: raw.renew,
+     billingCycleMonths: raw.billing_cycle_months,
+     billingCycle: mapContractProductBillingCycle(raw.billing_cycle_months),
+-    createdAt: raw.created_at,
++    createdAt: raw.updated_at,
+     priceFormatted: mapContractProductPrice(raw, taxType),
+     calculatedCancelDate: raw.calculated_cancel_date,
+     provisionSetupFieldsConfirmed: raw.provision_setup_fields_confirmed,

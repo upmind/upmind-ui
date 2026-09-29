@@ -146,7 +146,7 @@ describe("client-notes traceability — co-located feature vs proving tests", ()
       ([, reason]) => reason === "blocked-on-platform"
     );
 
-    expect(blocked.map(([ac]) => ac).sort()).toEqual(["AC-15", "AC-29"]);
+    expect(blocked.map(([ac]) => ac).sort()).toEqual(["AC-29"]);
     // Still present in the full tag set — the exemption removes the
     // "needs a proving test" obligation, not the scenario itself.
     for (const [ac] of blocked) {
@@ -189,7 +189,7 @@ describe("client-notes traceability — co-located feature vs proving tests", ()
         .filter(entry => entry.exemptReason === "blocked-on-platform")
         .map(entry => entry.ac)
         .sort()
-    ).toEqual(["AC-15", "AC-29"]);
+    ).toEqual(["AC-29"]);
   });
 });
 

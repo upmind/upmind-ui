@@ -1,12 +1,9 @@
 Negative control for useContract.context.ts `lookups` (R37 B3).
 
-Spec that must flip: contract.manager-members.int.test.ts
-("My stored payment methods are loaded ready for the payment-method form",
-contract.feature:271) — expects `useContext().lookups.storedPaymentMethods`
-to hold exactly the recorded stored cards.
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.feature > "Open one of my contracts with everything the account area needs"
 
 Mutation: drops the `lookups` member from the manager context factory.
-
 diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
 --- a/packages/headless/src/modules/contract/useContract.context.ts
 +++ b/packages/headless/src/modules/contract/useContract.context.ts

@@ -1,5 +1,8 @@
 # Negative control for useContract.context.ts `title` (R38 item 8, R37 B4).
 #
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Open one of my contracts with everything the account area needs"
+#
 # Covering spec: contract.manager-members.int.test.ts
 #   ("The contract I have open is titled by the order it was bought under",
 #   contract.feature:265) — asserts `useContext().title.value` contains the

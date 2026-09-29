@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/self/email_history?with=recipient,recipient_type,recipient.image&order=-created_at&limit=10",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40bff1e4bfaee10-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 18:12:21 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=eUlSIv3pmZCwiqR7s7blOz9GDzRArZ9kGDoTYR1saVs00tSfUM77wIetxurGbxusZG6oVisqJuplrw9sDbK8rTbTzI9B7Evl1MtHCusD5XNmJviLLcN1XwNqQVsEdKMo2nQJh%2F02Iw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "3492"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": null,
+        "type": 0,
+        "code": 500,
+        "message": "Forced error response for negative-path coverage",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T18:12:21.268Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "know-when-my-email-history-has-errored"
+  }
+}

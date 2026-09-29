@@ -150,6 +150,14 @@ function create(): ForcedStateHandle {
   // re-read on load — only a genuine change of transport invalidates.
   let served: ForcePreset | undefined;
 
+  // The scenario a `replay` arm plays (FE-3145) — whose first step's answers
+  // the arm installs, and whose steps `replayStep` arms after it.
+  let replayed: string | undefined;
+
+  // The capture gaps the armed scenario has hit — requests no step of it
+  // recorded. Emptied on every arm.
+  const gaps: string[] = [];
+
   /**
    * Returns the tab to Live. `stop()` alone leaves the service worker
    * registered, so a read-back in the SAME tab would still find one — which is
@@ -161,6 +169,30 @@ function create(): ForcedStateHandle {
 
     await registration?.unregister();
     registration = undefined;
+  }
+
+  /**
+   * The handler list `preset` is armed with. A track replaying a module that
+   * records its scenarios one by one (FE-3145) starts on the scenario wall, and
+   * each scene then arms its own step (`replayStep`); every other preset is
+   * answered from the module's corpus.
+   */
+  async function handlersFor(preset: ForcePreset): Promise<unknown[]> {
+    const { createForceHandlers, createScenarioWall, createStepHandlers } =
+      await import("../force/handlers");
+    const { runtimeRecordsScenarios, runtimeStepFixtures } =
+      await import("../force/corpus");
+
+    if (preset !== REPLAY || !replayed || !runtimeRecordsScenarios())
+      return createForceHandlers(preset);
+
+    // The scenario's FIRST step armed with the wall, ahead of it: the clear
+    // every arm ends on re-reads the page at once, and that read is the
+    // scenario's opening one — answered by the wall alone, it fails.
+    return [
+      ...createStepHandlers(await runtimeStepFixtures(replayed, 0)),
+      ...createScenarioWall(gaps)
+    ];
   }
 
   async function reconcile(next: ForcePreset | undefined): Promise<void> {
@@ -175,8 +207,7 @@ function create(): ForcedStateHandle {
       // the page then reports armed while every request reaches staging.
       await armed;
 
-      const { createForceHandlers } = await import("../force/handlers");
-      const handlers = createForceHandlers(next);
+      const handlers = await handlersFor(next);
 
       if (worker) worker.resetHandlers(...handlers);
       else {
@@ -268,16 +299,20 @@ function create(): ForcedStateHandle {
 
     await armed;
 
-    const { createForceHandlers } = await import("../force/handlers");
-    worker.resetHandlers(...createForceHandlers(served));
+    worker.resetHandlers(...(await handlersFor(served)));
 
     // After the swap, for the same reason `reconcile` clears after it: the
     // answers this tab holds are the collection the last pass moved to.
     clear();
   }
 
-  async function arm(next: ForcedState | "replay"): Promise<void> {
+  async function arm(
+    next: ForcedState | "replay",
+    scenario?: string
+  ): Promise<void> {
     const armed = next === "replay" ? undefined : next;
+    replayed = armed ? undefined : scenario;
+    gaps.length = 0;
 
     // Read BEFORE the write: a state already armed leaves the watcher nothing
     // to reconcile, so the session that has been REPLAYED INTO would carry the
@@ -309,6 +344,20 @@ function create(): ForcedStateHandle {
     transient.value = undefined;
 
     await whenReady();
+  }
+
+  async function replayStep(index: number): Promise<void> {
+    await whenReady();
+
+    const { runtimeRecordsScenarios, runtimeStepFixtures } =
+      await import("../force/corpus");
+    if (!worker || served !== REPLAY || !replayed || !runtimeRecordsScenarios())
+      return;
+
+    const { createStepHandlers } = await import("../force/handlers");
+    worker.use(
+      ...createStepHandlers(await runtimeStepFixtures(replayed, index))
+    );
   }
 
   /**
@@ -391,6 +440,8 @@ function create(): ForcedStateHandle {
       isSettling: computed(() => unsettled.value > 0),
       arm,
       disarm,
+      replayStep,
+      captureGaps: () => [...gaps],
       whenReady
     }
   };

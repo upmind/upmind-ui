@@ -15,7 +15,7 @@
     />
 
     <PageBody class="relative gap-8">
-      <Card v-if="!contractId" size="sm" class="gap-4">
+      <Card v-if="!subjectId" size="sm" class="gap-4">
         <EmptyState
           :title="t('labs.contract_needs_id')"
           :description="t('labs.contract_needs_id_text')"
@@ -311,6 +311,13 @@
  * `hasError` is NOT read for readability: a refused model raises it while
  * the contract stays on its status node, and reading it would swap the form
  * the client edits for the alert.
+ *
+ * ## Which contract a replay shows
+ * Every manager step boots the contract ITS OWN recording addressed
+ * (`.withId(id)`), and that id wins over the url's: while a track is armed the
+ * page draws the cell the step booted — the same registry instance, so each
+ * fired action moves what is on screen. A new track, or Live, hands the page
+ * back to the url's contract and releases every cell the replay opened.
  */
 
 import {
@@ -328,7 +335,7 @@ import {
   Spinner,
   StatusBadge
 } from "@upmind/ui";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formRenderers,
@@ -346,7 +353,7 @@ import { scenarioPlayground } from "../runtime/ScenarioPlayground.styles";
 import scenario, { CONTRACT_SCENARIO } from "./contract.scenario";
 import { filter, isArray } from "lodash-es";
 import type { SetPaymentMethodModel } from "@upmind-automation/client-vue";
-import type { ScopeActor } from "@upmind-automation/scenario-harness";
+import type { ScopeActor, World } from "@upmind-automation/scenario-harness";
 import { useActorScope } from "~/composables/scope";
 
 // Keyed by PATH, never `fullPath`: the contract id is a ROUTE PARAM, so the
@@ -366,36 +373,87 @@ const contractId = computed(() => {
   return id || undefined;
 });
 
-const manager = contractId.value
-  ? useContract().as(ScopeActorTypes.CLIENT).withId(contractId.value)
-  : undefined;
+/** The contract the armed track's own recording booted; absent on Live. */
+const replayId = ref<string>();
 
-const actions = manager?.useActions();
-const context = manager?.useContext();
-const meta = manager?.useMeta();
+/** The contract on screen — the replay's while a track is armed, else the url's. */
+const subjectId = computed(() => replayId.value ?? contractId.value);
+
+const openCell = (id: string) =>
+  useContract().as(ScopeActorTypes.CLIENT).withId(id);
+
+/** Every cell this page has drawn, so each is destroyed exactly once. */
+const cells = new Map<string, ReturnType<typeof openCell>>();
+
+function cellFor(id: string): ReturnType<typeof openCell> {
+  const cell = cells.get(id) ?? openCell(id);
+  cells.set(id, cell);
+  return cell;
+}
+
+function release(keep?: string): void {
+  for (const [id, cell] of cells) {
+    if (id === keep) continue;
+    cell.useActions().destroy();
+    cells.delete(id);
+  }
+}
+
+if (contractId.value) cellFor(contractId.value);
+
+const manager = computed(() =>
+  subjectId.value ? cellFor(subjectId.value) : undefined
+);
+
+const actions = computed(() => manager.value?.useActions());
+const context = computed(() => manager.value?.useContext());
+const meta = computed(() => manager.value?.useMeta());
 
 const actorScope = useActorScope();
 
-const { tracks, states, player, isLocked } = useScenarioTransport({
-  module: scenario.tracks,
-  world: useScenarioWorld(registry, {
-    key: CONTRACT_SCENARIO,
-    id: contractId.value
-  }),
-  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor }),
-  reset: actions?.reset
+const hostWorld = useScenarioWorld(registry, {
+  key: CONTRACT_SCENARIO,
+  id: contractId.value
 });
 
-const contract = computed(() => context?.contract.value);
+/** The host world, reporting each contract a step boots so the page draws it. */
+const world: World = {
+  ...hostWorld,
+  async boot(key, scope) {
+    await hostWorld.boot(key, scope);
+    if (key === CONTRACT_SCENARIO && scope.id) replayId.value = scope.id;
+  }
+};
+
+const { tracks, states, player, isLocked } = useScenarioTransport({
+  module: scenario.tracks,
+  world,
+  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor }),
+  reset: () => actions.value?.reset()
+});
+
+// Sync, so the release lands before the new track's first scene can boot; the
+// world is disposed BEFORE the cells go, so it never adopts one released here.
+watch(
+  () => player.track.value,
+  () => {
+    replayId.value = undefined;
+    void world.dispose();
+    release(contractId.value);
+  },
+  { flush: "sync" }
+);
+
+const contract = computed(() => context.value?.contract.value);
 const products = computed(() => contract.value?.products ?? []);
-const title = computed(() => context?.title.value);
+const title = computed(() => context.value?.title.value);
 const contractStatus = computed(() => contract.value?.status?.name);
 const cancellationRequestStatus = computed(
   () => contract.value?.cancellationRequest?.status?.name
 );
-const readError = computed(() => context?.errors.value);
-const validationErrors = computed(() => context?.validationErrors.value);
-const paymentMethodForm = computed(() => context?.paymentMethod.value);
+const readError = computed(() => context.value?.errors.value);
+const validationErrors = computed(() => context.value?.validationErrors.value);
+const paymentMethodForm = computed(() => context.value?.paymentMethod.value);
 
 const booting = ref(true);
 const pending = ref(false);
@@ -403,7 +461,7 @@ const actionError = ref<string>();
 const idInput = ref("");
 
 const nodeFlags = computed(() => {
-  const m = meta;
+  const m = meta.value;
   if (!m) return [];
   const flags = [
     {
@@ -441,11 +499,11 @@ const nodeFlags = computed(() => {
 const isReadable = computed(
   () =>
     !!contract.value &&
-    !!meta &&
-    (meta.isAvailable.value ||
-      meta.isCancelled.value ||
-      meta.isLapsed.value ||
-      meta.isFraud.value)
+    !!meta.value &&
+    (meta.value.isAvailable.value ||
+      meta.value.isCancelled.value ||
+      meta.value.isLapsed.value ||
+      meta.value.isFraud.value)
 );
 
 function report(error: unknown): void {
@@ -503,30 +561,31 @@ function onContractPick(next: { contract?: string | null } | undefined): void {
   if (picked) router.push(`/useContract/${picked}/as/client`);
 }
 
-const openPaymentMethod = () => actions?.openPaymentMethod();
-const closePaymentMethod = () => actions?.clear();
-const submitPaymentMethod = () => run(() => actions!.update());
+const openPaymentMethod = () => actions.value?.openPaymentMethod();
+const closePaymentMethod = () => actions.value?.clear();
+const submitPaymentMethod = () => run(() => actions.value!.update());
 
 function onPaymentMethodModelUpdate(
   model: Partial<SetPaymentMethodModel> | undefined
 ): void {
-  void actions?.input(model ?? {})?.catch(report);
+  void actions.value?.input(model ?? {})?.catch(report);
 }
 
-const refresh = () => run(async () => actions!.refresh());
-const reset = () => run(() => actions!.reset());
+const refresh = () => run(async () => actions.value!.refresh());
+const reset = () => run(() => actions.value!.reset());
 
 onMounted(async () => {
-  if (!actions) {
+  if (!actions.value) {
     booting.value = false;
     return;
   }
-  await actions.isReady();
+  await actions.value.isReady();
   booting.value = false;
 });
 
 onUnmounted(() => {
-  actions?.destroy();
+  void world.dispose();
+  release();
   picker?.useActions().destroy();
 });
 </script>

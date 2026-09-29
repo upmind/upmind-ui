@@ -101,11 +101,6 @@ export type ObservedRequest = {
 export type IntegrationKit = {
   recorded: Record<string, () => { data: unknown[] }>;
   seedClientSession: () => Promise<{ clientId: string; accessToken: string }>;
-  installFilteredEmailsHandler: (
-    server: unknown,
-    clientId: string,
-    options?: { delayMs?: number | ((params: URLSearchParams) => number) }
-  ) => { reads: () => number };
   observeEmailRequests: () => {
     all: () => ObservedRequest[];
     first: () => ObservedRequest;
@@ -184,3 +179,11 @@ export {
   type NodeWorldSource
 } from "./node-world";
 export { installCorpusReplay, loadModuleCorpus } from "./corpus-replay";
+
+/**
+ * The `@signed-out` seed switch a module's `arrangeScenario` reads to boot a
+ * scenario behind the guest session only. Inert — a pure function over the
+ * scenario's own tags — so it rides this entry rather than sitting behind the
+ * replay-lifecycle loaders above.
+ */
+export { seedSessionFor, SIGNED_OUT_TAG } from "./session-seed";

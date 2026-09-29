@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PATCH",
+    "path": "/api/delegate_access/accept/75fd17c8aa642b6372ed7ff87f19d15ad7b00eadc8574792b08321e44740ad4f98d2b713dfd2d9da?case=ticket-comingle-accept",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a425e5763a94b288-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 21:38:40 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=VHNEF3%2BbXId3XQqMfrGkfSrd6%2BBa2ITbQzNQQtIBtuWjW%2BnG2BniJr02SN8tUTgsi7DODhL6iIDOIVCSBLEPu4J7VMK3N6c0NGhyfvumz2BWzTrzwHDw%2FOOCxIgIHk45%2BQC5jHdvfA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "4d036794-24d0-e710-74b3-153698d582e8",
+        "owner_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "invite_email": "mock-email-3@example.com",
+        "is_full_delegate": true,
+        "active": true,
+        "created_at": "2026-09-28 21:38:33",
+        "updated_at": "2026-09-28 21:38:40",
+        "public_name": "Delegate M.",
+        "email": "mock-email-3@example.com",
+        "image_url": "https://www.gravatar.com/avatar/a925eb218fa3f6a55761d04674c380fb?d=blank&s=200",
+        "num_delegated_cps": 1119,
+        "num_delegated_tickets": 133,
+        "notification_subscriptions": []
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T21:38:40.338Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

@@ -1,11 +1,14 @@
-Negative control for useContractProduct.context.ts `errors` (R37 B5).
-
-Spec that must flip: contract-product.manager-members.int.test.ts
-("carries the failed read's message through useContext().errors") — asserts `useContractProduct().useContext().errors` carries
-the machine's captured `error.message` beside `error`.
-
-Mutation: drops the `errors` member from the manager context factory.
-
+# Negative-control mutant — the manager publishes the failed read's messages
+#
+# Scenario it must flip: contract-product.feature >
+#   "Opening a product that is not mine fails, and I am shown why at once"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then I am shown the reason my read of it was refused" — the manager context
+#   publishes no `errors` member.
+# Mutation: drops the `errors` member from the manager context factory.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts

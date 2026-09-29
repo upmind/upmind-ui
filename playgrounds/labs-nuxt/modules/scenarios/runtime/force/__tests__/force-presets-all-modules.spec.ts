@@ -735,19 +735,19 @@ describe("AC1 · AC3 the subject is narrower than the capture run", () => {
     ).not.toEqual([]);
   });
 
-  it("client-phone does not arm the country lookup a dropdown needed", async () => {
-    const entry = named("client-phone");
+  it("client-company does not arm the country lookup a dropdown needed", async () => {
+    const entry = named("client-company");
     const chrome = filter(entry.fixtures, f => /\/countries\b/.test(pathOf(f)));
 
     expect(
       chrome,
-      "client-phone no longer records the country lookup — pick another chrome path"
+      "client-company no longer records the country lookup — pick another chrome path"
     ).not.toEqual([]);
 
     for (const fixture of chrome) {
       expect(
         await matches(handlersOf(entry), `${ORIGIN}${pathOf(fixture)}`, "GET"),
-        `client-phone arms ${pathOf(fixture)}, and forcing loading hangs the chrome for the tab's life`
+        `client-company arms ${pathOf(fixture)}, and forcing loading hangs the chrome for the tab's life`
       ).toBe(false);
     }
   });

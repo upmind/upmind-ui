@@ -143,8 +143,8 @@ export type ScheduledAction = Pick<
   "id" | "action_code" | "status" | "executed_at" | "created_at"
 >;
 
-/** The `unpaid_recurring_invoices` member this module reads. */
-export type UnpaidInvoice = Pick<IInvoice, "status">;
+/** The `unpaid_recurring_invoices` member this module reads — the row's `invoice_status`, as `status`. */
+export type UnpaidInvoice = Partial<Pick<IInvoice, "status">>;
 
 /** The `product` relation this module reads (12-member products-list `with`, design 8.1). */
 export type ContractProductCatalogueProduct = Pick<
@@ -214,6 +214,8 @@ export type ContractProduct = {
    * one-time product, each tax-inclusive or net per the brand's tax type.
    */
   priceFormatted: string;
+  /** Legacy `getPriceTermSummary`'s one string — `priceFormatted` trimmed of zeros, then the lower-cased cycle for a subscription: "£4 monthly", "£60". */
+  priceTermSummary: string;
   calculatedCancelDate: IContractProduct["calculated_cancel_date"];
   provisionSetupFieldsConfirmed: IContractProduct["provision_setup_fields_confirmed"];
   inTrial: IContractProduct["in_trial"];
@@ -228,7 +230,11 @@ export type ContractProduct = {
   importId: IContractProduct["import_id"];
   moved: IContractProduct["moved"];
   name: IContractProduct["name"];
+  /** The display name — the shared product title over this contract product: "Starter Hosting (testdomain.com)". */
+  title: string;
   canCancel: IContractProduct["can_cancel"];
+  /** A pro-rata invoice from a product change is still unpaid; cancelling is held back. */
+  proRataPending: IContractProduct["pro_rata_pending"];
   isDelegatedObject: IContractProduct["is_delegated_object"];
   autoCreateRenewInvoice: IContractProduct["auto_create_renew_invoice"];
   unpaidRecurringInvoices: UnpaidInvoice[];

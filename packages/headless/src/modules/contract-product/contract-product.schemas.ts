@@ -4,6 +4,7 @@ import {
   ContractStatusCodes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
+import { useBrand } from "../brand";
 import {
   useCustomFieldsSchema,
   useCustomFieldsUischema
@@ -55,7 +56,7 @@ import type {
  * rejected: a `const` alone; a hidden uischema control; a second query.
  */
 export function useQuerySchema(): ContractProductsQuerySchema {
-  const forced = hidesOneTimePurchasesForced();
+  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
 
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
@@ -97,12 +98,14 @@ export function useQuerySchema(): ContractProductsQuerySchema {
             // Mutually exclusive operators on ONE wire column — a client
             // never picks Subscriptions AND One-time at once (R38 item 1).
             not: { required: ["neq", "eq"] },
-            properties: {
-              neq: forced
-                ? { type: "integer", const: 0, default: 0 }
-                : { type: ["integer", "null"], enum: [0, null] },
-              eq: { type: ["integer", "null"], enum: [0, null] }
-            }
+            // Forced, `eq` is undeclared: the parser drops a one-time ask
+            // and the brand's hide outranks it (legacy cProdsProvider).
+            properties: forced
+              ? { neq: { type: "integer", const: 0, default: 0 } }
+              : {
+                  neq: { type: ["integer", "null"], enum: [0, null] },
+                  eq: { type: ["integer", "null"], enum: [0, null] }
+                }
           },
           created_at: {
             type: "object",
@@ -167,7 +170,7 @@ export function useQuerySchema(): ContractProductsQuerySchema {
  * `neq` is the const seam that position would have written.
  */
 export function useQueryUischema(): UISchemaElement {
-  const forced = hidesOneTimePurchasesForced();
+  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
 
   return {
     type: "FilterBar",
@@ -269,11 +272,15 @@ export function useSortUischema(): ControlElement {
  * consumer narrows it: the active-status filter and the `service_identifier`
  * ordering are the SHAPE of that read, so each is a forced leaf — a `const`
  * AND a `default` (ADR-14) — and the read parses an empty model against it.
+ * The brand's forced hide-one-time leaf rides here too, as legacy
+ * `cProdsGroupingProvider` sends it on the grouped read.
  * `service_identifier` is declared ONLY here; `useQuerySchema()`'s
  * client-facing sort vocabulary omits it, because the products list cannot
  * honour a sort the client could then pick.
  */
 export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
+  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
+
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
@@ -287,7 +294,16 @@ export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
             type: "string",
             const: ContractStatusCodes.ACTIVE,
             default: ContractStatusCodes.ACTIVE
-          }
+          },
+          ...(forced && {
+            billing_cycle_days: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                neq: { type: "integer", const: 0, default: 0 }
+              }
+            }
+          })
         }
       },
       sort: {

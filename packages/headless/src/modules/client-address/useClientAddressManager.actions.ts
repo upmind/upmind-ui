@@ -248,12 +248,14 @@ export function createClientAddressManagerActions(
   }
 
   /** Clears the current form context. */
-  function clear(): void {
+  async function clear(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     send({ type: "CLEAR" });
   }
 
   /** Stops the underlying machine, leaving the registry entry in place. */
-  function stop(): void {
+  async function stop(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
   }
 
@@ -262,7 +264,8 @@ export function createClientAddressManagerActions(
    * registry. The collection's `destroy()` only does the second half, because
    * a query has no service to stop.
    */
-  function destroy(): void {
+  async function destroy(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
     removeFromRegistry(scopeKey);
   }

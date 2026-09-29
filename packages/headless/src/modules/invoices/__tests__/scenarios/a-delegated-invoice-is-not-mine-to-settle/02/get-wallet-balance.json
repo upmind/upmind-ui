@@ -1,0 +1,4376 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/wallet/balance",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a429aac05a004eca-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 08:37:39 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=06vr6vW9ibgKbRNjkHRnKoM%2FrLnREdySy5rJ80rwpQWFq7fqihLYDfZ%2F9BRqVYWZS1OsGOQy1Y2rxTqotooLBM4BdTy7BtELuPfM4q3x9Qj1khGHr1rIldzHTsSZshTOKq%2FgK453Vg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "online": {
+          "GBP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "£0.00",
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DZD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DZD 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-5dc4-174825283406",
+              "name": "Algerian Dinar",
+              "prefix": "دج",
+              "suffix": "",
+              "code": "DZD",
+              "created_at": "2022-09-28 14:40:15",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AOA": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AOA 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-40f3-14502e70439d",
+              "name": "Angolan Kwanza",
+              "prefix": "Kz",
+              "suffix": "",
+              "code": "AOA",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ARS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ARS 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-28b3-1643202d9860",
+              "name": "Argentine Peso",
+              "prefix": "$",
+              "suffix": "",
+              "code": "ARS",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AUD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "A$0.00",
+            "currency": {
+              "id": "45952098-d3de-4091-76a3-1578626e347e",
+              "name": "Australian Dollar",
+              "prefix": "AU $",
+              "suffix": "",
+              "code": "AUD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AZN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AZN 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-d5f2-1e325d0ed369",
+              "name": "Azerbaijani Manat",
+              "prefix": "₼",
+              "suffix": "",
+              "code": "AZN",
+              "created_at": "2024-05-07 08:18:06",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BDT": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BDT 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-e6b8-1e642d59e063",
+              "name": "Bangladeshi Taka",
+              "prefix": "",
+              "suffix": "৳",
+              "code": "BDT",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BBD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BBD 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+              "name": "Barbadian Dollar",
+              "prefix": "",
+              "suffix": "BBD",
+              "code": "BBD",
+              "created_at": "2024-10-08 10:12:25",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BOB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BOB 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-80a3-14502e70439d",
+              "name": "Bolivian Boliviano",
+              "prefix": "$b",
+              "suffix": "",
+              "code": "BOB",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BRL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "R$0.00",
+            "currency": {
+              "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+              "name": "Brazilian Real",
+              "prefix": "R$",
+              "suffix": "",
+              "code": "BRL",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BGN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BGN 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-89b5-18d9305e7d23",
+              "name": "Bulgarian Lev",
+              "prefix": "",
+              "suffix": "BGN",
+              "code": "BGN",
+              "created_at": "2023-07-03 11:31:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CAD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CA$0.00",
+            "currency": {
+              "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+              "name": "Canadian Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "CAD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CVE": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CVE 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-66a8-1e642d59e063",
+              "name": "Cape Verde Escudo",
+              "prefix": "CVE",
+              "suffix": "",
+              "code": "CVE",
+              "created_at": "2024-01-02 12:34:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "KYD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "KYD 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-54c3-153698d582e8",
+              "name": "Cayman Islands Dollar",
+              "prefix": "CI$",
+              "suffix": "",
+              "code": "KYD",
+              "created_at": "2023-11-24 14:25:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "XAF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "FCFA 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-eef2-18e940d42370",
+              "name": "Central African Franc",
+              "prefix": "",
+              "suffix": "FCFA",
+              "code": "XAF",
+              "created_at": "2020-06-17 14:17:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CLP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CLP 0",
+            "currency": {
+              "id": "320e4357-95e7-8d18-08b3-1643202d9860",
+              "name": "Chilean Peso",
+              "prefix": "$",
+              "suffix": "CLP",
+              "code": "CLP",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "CNY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CN¥0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-edb4-174825283406",
+              "name": "Chinese Yuan",
+              "prefix": "¥",
+              "suffix": "",
+              "code": "CNY",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "COP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "COP 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-44f3-153698d582e8",
+              "name": "Colombian Peso",
+              "prefix": "COL$",
+              "suffix": "",
+              "code": "COP",
+              "created_at": "2022-08-05 08:29:49",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CRC": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CRC 0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-9eb2-18e940d42370",
+              "name": "Costa Rican Colon",
+              "prefix": "₡",
+              "suffix": "",
+              "code": "CRC",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CZK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CZK 0.00",
+            "currency": {
+              "id": "57898574-2648-9701-25c2-1e325d0ed369",
+              "name": "Czech Koruna",
+              "prefix": "",
+              "suffix": "Kč",
+              "code": "CZK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DKK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DKK 0.00",
+            "currency": {
+              "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+              "name": "Danish Kroner",
+              "prefix": "",
+              "suffix": "kr.",
+              "code": "DKK",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DOP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DOP 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-e4c3-153698d582e8",
+              "name": "Dominican Peso",
+              "prefix": "RD$",
+              "suffix": "",
+              "code": "DOP",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "EGP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "EGP 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-96c8-1e642d59e063",
+              "name": "Egyptian Pound",
+              "prefix": "E£",
+              "suffix": "",
+              "code": "EGP",
+              "created_at": "2023-04-11 08:28:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ETB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ETB 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-74b3-153698d582e8",
+              "name": "Ethiopian Birr",
+              "prefix": "",
+              "suffix": "",
+              "code": "ETB",
+              "created_at": "2022-11-10 08:51:28",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "FJD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "FJD 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-78f3-1643202d9860",
+              "name": "Fijian Dollar",
+              "prefix": "FJ$",
+              "suffix": "",
+              "code": "FJD",
+              "created_at": "2022-05-30 11:27:01",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GEL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GEL 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-9dc4-174825283406",
+              "name": "Georgian Lari",
+              "prefix": "",
+              "suffix": "GEL",
+              "code": "GEL",
+              "created_at": "2025-01-29 17:06:31",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GHS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GHS 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+              "name": "Ghanaian Cedi",
+              "prefix": "GH₵",
+              "suffix": "",
+              "code": "GHS",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GTQ": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GTQ 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+              "name": "Guatemalan Quetzal",
+              "prefix": "Q",
+              "suffix": "",
+              "code": "GTQ",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HNL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HNL 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-26c8-1e642d59e063",
+              "name": "Honduran Lempira",
+              "prefix": "L",
+              "suffix": "",
+              "code": "HNL",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HKD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HK$0.00",
+            "currency": {
+              "id": "9320e435-795e-78d1-88a3-1643202d9860",
+              "name": "Hong Kong Dollar",
+              "prefix": "HK$",
+              "suffix": "",
+              "code": "HKD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HUF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HUF 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-70b3-14502e70439d",
+              "name": "Hungarian Forint",
+              "prefix": "",
+              "suffix": "Ft",
+              "code": "HUF",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "ISK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ISK 0",
+            "currency": {
+              "id": "5952098d-3de4-0917-26f3-1578626e347e",
+              "name": "Icelandic Krona",
+              "prefix": "",
+              "suffix": "Kr",
+              "code": "ISK",
+              "created_at": "2023-05-30 09:13:13",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "INR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₹0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-ddf4-174825283406",
+              "name": "Indian Rupee",
+              "prefix": "₹",
+              "suffix": "",
+              "code": "INR",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "IDR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "IDR 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-96f3-1578626e347e",
+              "name": "Indonesian Rupiah",
+              "prefix": "",
+              "suffix": "Rp",
+              "code": "IDR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "IQD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "IQD 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-5ea2-18e940d42370",
+              "name": "Iraqi Dinar",
+              "prefix": "",
+              "suffix": "ع.د",
+              "code": "IQD",
+              "created_at": "2025-03-18 13:40:47",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ILS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₪0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-7ec2-18e940d42370",
+              "name": "Israeli New Shekel",
+              "prefix": "₪",
+              "suffix": "",
+              "code": "ILS",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "JPY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "¥0",
+            "currency": {
+              "id": "4d036794-24d0-e710-94a3-153698d582e8",
+              "name": "Japanese Yen",
+              "prefix": "¥",
+              "suffix": "",
+              "code": "JPY",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "KES": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "KES 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-76a8-1e642d59e063",
+              "name": "Kenyan Shilling",
+              "prefix": "KSh.",
+              "suffix": "/=",
+              "code": "KES",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MYR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MYR 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+              "name": "Malaysian Ringgit",
+              "prefix": "RM",
+              "suffix": "",
+              "code": "MYR",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MVR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MVR 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-6ea2-1208469530d0",
+              "name": "Maldivian Rufiyaa",
+              "prefix": "",
+              "suffix": "Rf",
+              "code": "MVR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MUR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MUR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-e5b2-1e325d0ed369",
+              "name": "Mauritian Rupee",
+              "prefix": "Rs",
+              "suffix": "",
+              "code": "MUR",
+              "created_at": "2024-07-30 11:17:49",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MXN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MX$0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-36f8-1e642d59e063",
+              "name": "Mexican Peso",
+              "prefix": "Mex$",
+              "suffix": "",
+              "code": "MXN",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MAD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MAD 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-24c3-153698d582e8",
+              "name": "Moroccan Dirham",
+              "prefix": "",
+              "suffix": "DH",
+              "code": "MAD",
+              "created_at": "2022-05-19 14:21:19",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MZN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MZN 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-30f3-14502e70439d",
+              "name": "Mozambican Metical",
+              "prefix": "",
+              "suffix": "MT",
+              "code": "MZN",
+              "created_at": "2023-08-10 16:00:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NPR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NPR 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-69c5-18d9305e7d23",
+              "name": "Nepalese Rupee",
+              "prefix": "",
+              "suffix": "रु",
+              "code": "NPR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TWD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NT$0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-7da4-174825283406",
+              "name": "New Taiwan Dollar",
+              "prefix": "NT$",
+              "suffix": "",
+              "code": "TWD",
+              "created_at": "2022-06-16 13:03:04",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NZD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NZ$0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-e6c3-1578626e347e",
+              "name": "New Zealand Dollar",
+              "prefix": "NZ$",
+              "suffix": "",
+              "code": "NZD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NIO": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NIO 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-66a3-1578626e347e",
+              "name": "Nicaraguan Cordoba",
+              "prefix": "C$",
+              "suffix": "",
+              "code": "NIO",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NGN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NGN 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-90c3-14502e70439d",
+              "name": "Nigerian Naira",
+              "prefix": "",
+              "suffix": "",
+              "code": "NGN",
+              "created_at": "2022-06-01 07:35:15",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NOK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NOK 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+              "name": "Norwegian Krone",
+              "prefix": "",
+              "suffix": "kr",
+              "code": "NOK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PEN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PEN 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+              "name": "Nuevo Sol",
+              "prefix": "S/.",
+              "suffix": "",
+              "code": "PEN",
+              "created_at": "2024-01-02 12:34:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PKR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PKR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-85a2-1e325d0ed369",
+              "name": "Pakistani Rupee",
+              "prefix": "Rs",
+              "suffix": "",
+              "code": "PKR",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PGK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PGK 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-8eb2-1208469530d0",
+              "name": "Papua New Guinean Kina",
+              "prefix": "",
+              "suffix": "K",
+              "code": "PGK",
+              "created_at": "2024-05-07 08:18:06",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PYG": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PYG 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-4eb2-18e940d42370",
+              "name": "Paraguayan Guarani",
+              "prefix": "₲",
+              "suffix": "",
+              "code": "PYG",
+              "created_at": "2022-08-05 08:29:49",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "PHP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₱0.00",
+            "currency": {
+              "id": "78985742-6489-7012-75c2-1e325d0ed369",
+              "name": "Philippine Peso",
+              "prefix": "₱",
+              "suffix": "",
+              "code": "PHP",
+              "created_at": "2023-08-01 13:52:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PLN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PLN 0.00",
+            "currency": {
+              "id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "name": "Polish Zloty",
+              "prefix": "",
+              "suffix": "zł",
+              "code": "PLN",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RON": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RON 0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-6ea2-18e940d42370",
+              "name": "Romanian Leu",
+              "prefix": "lei",
+              "suffix": "",
+              "code": "RON",
+              "created_at": "2022-10-28 10:03:31",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RUB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RUB 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-5eb2-1208469530d0",
+              "name": "Russian Ruble",
+              "prefix": "₽",
+              "suffix": "",
+              "code": "RUB",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RWF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RWF 0",
+            "currency": {
+              "id": "5952098d-3de4-0917-76b3-1578626e347e",
+              "name": "Rwandan Franc",
+              "prefix": "FRw",
+              "suffix": "",
+              "code": "RWF",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "SAR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SAR 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-38c3-1643202d9860",
+              "name": "Saudi Riyal",
+              "prefix": "SAR",
+              "suffix": "",
+              "code": "SAR",
+              "created_at": "2024-08-05 09:02:25",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RSD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RSD 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-8ec2-18e940d42370",
+              "name": "Serbian Dinar",
+              "prefix": "DIN",
+              "suffix": "",
+              "code": "RSD",
+              "created_at": "2023-11-24 14:25:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "SGD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SGD 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-05f2-1e325d0ed369",
+              "name": "Singapore Dollar",
+              "prefix": "S$",
+              "suffix": "",
+              "code": "SGD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ZAR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ZAR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-25b2-1e325d0ed369",
+              "name": "South African Rand",
+              "prefix": "",
+              "suffix": "R",
+              "code": "ZAR",
+              "created_at": "2022-05-27 08:59:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "LKR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "LKR 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-d6c3-1578626e347e",
+              "name": "Sri Lankan Rupee",
+              "prefix": "Rs.",
+              "suffix": "",
+              "code": "LKR",
+              "created_at": "2024-02-12 15:29:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "SEK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SEK 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-48c3-1643202d9860",
+              "name": "Swedish Krona",
+              "prefix": "",
+              "suffix": "kr",
+              "code": "SEK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CHF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CHF 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+              "name": "Swiss Franc",
+              "prefix": "",
+              "suffix": "fr.",
+              "code": "CHF",
+              "created_at": "2020-02-12 09:02:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TZS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TZS 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-29f5-18d9305e7d23",
+              "name": "Tanzanian Shilling",
+              "prefix": "TSh.",
+              "suffix": "/=",
+              "code": "TZS",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "THB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "THB 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-6db4-174825283406",
+              "name": "Thai Baht",
+              "prefix": "฿",
+              "suffix": "",
+              "code": "THB",
+              "created_at": "2020-02-12 09:02:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TTD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TTD 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-9ef2-1208469530d0",
+              "name": "Trinidad and Tobago Dollar",
+              "prefix": "",
+              "suffix": "TT$",
+              "code": "TTD",
+              "created_at": "2023-07-26 12:20:44",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TND": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TND 0.000",
+            "currency": {
+              "id": "825d96e7-63ed-0913-2da4-174825283406",
+              "name": "Tunisian Dinar",
+              "prefix": "",
+              "suffix": "DT",
+              "code": "TND",
+              "created_at": "2023-09-19 08:08:10",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TRY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TRY 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+              "name": "Turkish lira",
+              "prefix": "₺",
+              "suffix": "",
+              "code": "TRY",
+              "created_at": "2023-08-08 08:58:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UGX": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UGX 0",
+            "currency": {
+              "id": "3de78642-de53-9714-7ec2-1208469530d0",
+              "name": "Ugandan Shilling",
+              "prefix": "USh.",
+              "suffix": "/=",
+              "code": "UGX",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "AED": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AED 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+              "name": "United Arab Emirates Dirham",
+              "prefix": "",
+              "suffix": "DH",
+              "code": "AED",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "USD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "$0.00",
+            "currency": {
+              "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+              "name": "US Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "USD",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "XOF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "F CFA 0",
+            "currency": {
+              "id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+              "name": "West African Franc",
+              "prefix": "",
+              "suffix": "franc",
+              "code": "XOF",
+              "created_at": "2022-12-02 13:36:34",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ZMW": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ZMW 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-09a5-18d9305e7d23",
+              "name": "Zambian Kwacha",
+              "prefix": "ZK",
+              "suffix": "",
+              "code": "ZMW",
+              "created_at": "2024-04-26 14:29:32",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UYU": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UYU 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+              "name": "Uruguayan Peso",
+              "prefix": "$U",
+              "suffix": "",
+              "code": "UYU",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "VND": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₫0",
+            "currency": {
+              "id": "3de78642-de53-9714-4ea2-1208469530d0",
+              "name": "Vietnamese Dong",
+              "prefix": "₫",
+              "suffix": "",
+              "code": "VND",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "EUR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "€0.00",
+            "currency": {
+              "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+              "name": "Euro",
+              "prefix": "",
+              "suffix": "€",
+              "code": "EUR",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UAH": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UAH 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-84f3-153698d582e8",
+              "name": "Ukrainian Hryvnia",
+              "prefix": "₴",
+              "suffix": "",
+              "code": "UAH",
+              "created_at": "2025-11-11 16:15:50",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        },
+        "offline": {
+          "GBP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "£0.00",
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DZD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DZD 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-5dc4-174825283406",
+              "name": "Algerian Dinar",
+              "prefix": "دج",
+              "suffix": "",
+              "code": "DZD",
+              "created_at": "2022-09-28 14:40:15",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AOA": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AOA 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-40f3-14502e70439d",
+              "name": "Angolan Kwanza",
+              "prefix": "Kz",
+              "suffix": "",
+              "code": "AOA",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ARS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ARS 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-28b3-1643202d9860",
+              "name": "Argentine Peso",
+              "prefix": "$",
+              "suffix": "",
+              "code": "ARS",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AUD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "A$0.00",
+            "currency": {
+              "id": "45952098-d3de-4091-76a3-1578626e347e",
+              "name": "Australian Dollar",
+              "prefix": "AU $",
+              "suffix": "",
+              "code": "AUD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AZN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AZN 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-d5f2-1e325d0ed369",
+              "name": "Azerbaijani Manat",
+              "prefix": "₼",
+              "suffix": "",
+              "code": "AZN",
+              "created_at": "2024-05-07 08:18:06",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BDT": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BDT 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-e6b8-1e642d59e063",
+              "name": "Bangladeshi Taka",
+              "prefix": "",
+              "suffix": "৳",
+              "code": "BDT",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BBD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BBD 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+              "name": "Barbadian Dollar",
+              "prefix": "",
+              "suffix": "BBD",
+              "code": "BBD",
+              "created_at": "2024-10-08 10:12:25",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BOB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BOB 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-80a3-14502e70439d",
+              "name": "Bolivian Boliviano",
+              "prefix": "$b",
+              "suffix": "",
+              "code": "BOB",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BRL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "R$0.00",
+            "currency": {
+              "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+              "name": "Brazilian Real",
+              "prefix": "R$",
+              "suffix": "",
+              "code": "BRL",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BGN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BGN 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-89b5-18d9305e7d23",
+              "name": "Bulgarian Lev",
+              "prefix": "",
+              "suffix": "BGN",
+              "code": "BGN",
+              "created_at": "2023-07-03 11:31:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CAD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CA$0.00",
+            "currency": {
+              "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+              "name": "Canadian Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "CAD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CVE": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CVE 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-66a8-1e642d59e063",
+              "name": "Cape Verde Escudo",
+              "prefix": "CVE",
+              "suffix": "",
+              "code": "CVE",
+              "created_at": "2024-01-02 12:34:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "KYD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "KYD 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-54c3-153698d582e8",
+              "name": "Cayman Islands Dollar",
+              "prefix": "CI$",
+              "suffix": "",
+              "code": "KYD",
+              "created_at": "2023-11-24 14:25:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "XAF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "FCFA 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-eef2-18e940d42370",
+              "name": "Central African Franc",
+              "prefix": "",
+              "suffix": "FCFA",
+              "code": "XAF",
+              "created_at": "2020-06-17 14:17:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CLP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CLP 0",
+            "currency": {
+              "id": "320e4357-95e7-8d18-08b3-1643202d9860",
+              "name": "Chilean Peso",
+              "prefix": "$",
+              "suffix": "CLP",
+              "code": "CLP",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "CNY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CN¥0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-edb4-174825283406",
+              "name": "Chinese Yuan",
+              "prefix": "¥",
+              "suffix": "",
+              "code": "CNY",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "COP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "COP 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-44f3-153698d582e8",
+              "name": "Colombian Peso",
+              "prefix": "COL$",
+              "suffix": "",
+              "code": "COP",
+              "created_at": "2022-08-05 08:29:49",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CRC": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CRC 0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-9eb2-18e940d42370",
+              "name": "Costa Rican Colon",
+              "prefix": "₡",
+              "suffix": "",
+              "code": "CRC",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CZK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CZK 0.00",
+            "currency": {
+              "id": "57898574-2648-9701-25c2-1e325d0ed369",
+              "name": "Czech Koruna",
+              "prefix": "",
+              "suffix": "Kč",
+              "code": "CZK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DKK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DKK 0.00",
+            "currency": {
+              "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+              "name": "Danish Kroner",
+              "prefix": "",
+              "suffix": "kr.",
+              "code": "DKK",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DOP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DOP 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-e4c3-153698d582e8",
+              "name": "Dominican Peso",
+              "prefix": "RD$",
+              "suffix": "",
+              "code": "DOP",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "EGP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "EGP 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-96c8-1e642d59e063",
+              "name": "Egyptian Pound",
+              "prefix": "E£",
+              "suffix": "",
+              "code": "EGP",
+              "created_at": "2023-04-11 08:28:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ETB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ETB 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-74b3-153698d582e8",
+              "name": "Ethiopian Birr",
+              "prefix": "",
+              "suffix": "",
+              "code": "ETB",
+              "created_at": "2022-11-10 08:51:28",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "FJD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "FJD 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-78f3-1643202d9860",
+              "name": "Fijian Dollar",
+              "prefix": "FJ$",
+              "suffix": "",
+              "code": "FJD",
+              "created_at": "2022-05-30 11:27:01",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GEL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GEL 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-9dc4-174825283406",
+              "name": "Georgian Lari",
+              "prefix": "",
+              "suffix": "GEL",
+              "code": "GEL",
+              "created_at": "2025-01-29 17:06:31",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GHS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GHS 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+              "name": "Ghanaian Cedi",
+              "prefix": "GH₵",
+              "suffix": "",
+              "code": "GHS",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GTQ": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GTQ 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+              "name": "Guatemalan Quetzal",
+              "prefix": "Q",
+              "suffix": "",
+              "code": "GTQ",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HNL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HNL 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-26c8-1e642d59e063",
+              "name": "Honduran Lempira",
+              "prefix": "L",
+              "suffix": "",
+              "code": "HNL",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HKD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HK$0.00",
+            "currency": {
+              "id": "9320e435-795e-78d1-88a3-1643202d9860",
+              "name": "Hong Kong Dollar",
+              "prefix": "HK$",
+              "suffix": "",
+              "code": "HKD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HUF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HUF 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-70b3-14502e70439d",
+              "name": "Hungarian Forint",
+              "prefix": "",
+              "suffix": "Ft",
+              "code": "HUF",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "ISK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ISK 0",
+            "currency": {
+              "id": "5952098d-3de4-0917-26f3-1578626e347e",
+              "name": "Icelandic Krona",
+              "prefix": "",
+              "suffix": "Kr",
+              "code": "ISK",
+              "created_at": "2023-05-30 09:13:13",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "INR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₹0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-ddf4-174825283406",
+              "name": "Indian Rupee",
+              "prefix": "₹",
+              "suffix": "",
+              "code": "INR",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "IDR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "IDR 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-96f3-1578626e347e",
+              "name": "Indonesian Rupiah",
+              "prefix": "",
+              "suffix": "Rp",
+              "code": "IDR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "IQD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "IQD 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-5ea2-18e940d42370",
+              "name": "Iraqi Dinar",
+              "prefix": "",
+              "suffix": "ع.د",
+              "code": "IQD",
+              "created_at": "2025-03-18 13:40:47",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ILS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₪0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-7ec2-18e940d42370",
+              "name": "Israeli New Shekel",
+              "prefix": "₪",
+              "suffix": "",
+              "code": "ILS",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "JPY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "¥0",
+            "currency": {
+              "id": "4d036794-24d0-e710-94a3-153698d582e8",
+              "name": "Japanese Yen",
+              "prefix": "¥",
+              "suffix": "",
+              "code": "JPY",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "KES": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "KES 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-76a8-1e642d59e063",
+              "name": "Kenyan Shilling",
+              "prefix": "KSh.",
+              "suffix": "/=",
+              "code": "KES",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MYR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MYR 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+              "name": "Malaysian Ringgit",
+              "prefix": "RM",
+              "suffix": "",
+              "code": "MYR",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MVR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MVR 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-6ea2-1208469530d0",
+              "name": "Maldivian Rufiyaa",
+              "prefix": "",
+              "suffix": "Rf",
+              "code": "MVR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MUR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MUR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-e5b2-1e325d0ed369",
+              "name": "Mauritian Rupee",
+              "prefix": "Rs",
+              "suffix": "",
+              "code": "MUR",
+              "created_at": "2024-07-30 11:17:49",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MXN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MX$0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-36f8-1e642d59e063",
+              "name": "Mexican Peso",
+              "prefix": "Mex$",
+              "suffix": "",
+              "code": "MXN",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MAD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MAD 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-24c3-153698d582e8",
+              "name": "Moroccan Dirham",
+              "prefix": "",
+              "suffix": "DH",
+              "code": "MAD",
+              "created_at": "2022-05-19 14:21:19",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MZN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MZN 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-30f3-14502e70439d",
+              "name": "Mozambican Metical",
+              "prefix": "",
+              "suffix": "MT",
+              "code": "MZN",
+              "created_at": "2023-08-10 16:00:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NPR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NPR 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-69c5-18d9305e7d23",
+              "name": "Nepalese Rupee",
+              "prefix": "",
+              "suffix": "रु",
+              "code": "NPR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TWD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NT$0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-7da4-174825283406",
+              "name": "New Taiwan Dollar",
+              "prefix": "NT$",
+              "suffix": "",
+              "code": "TWD",
+              "created_at": "2022-06-16 13:03:04",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NZD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NZ$0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-e6c3-1578626e347e",
+              "name": "New Zealand Dollar",
+              "prefix": "NZ$",
+              "suffix": "",
+              "code": "NZD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NIO": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NIO 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-66a3-1578626e347e",
+              "name": "Nicaraguan Cordoba",
+              "prefix": "C$",
+              "suffix": "",
+              "code": "NIO",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NGN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NGN 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-90c3-14502e70439d",
+              "name": "Nigerian Naira",
+              "prefix": "",
+              "suffix": "",
+              "code": "NGN",
+              "created_at": "2022-06-01 07:35:15",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NOK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NOK 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+              "name": "Norwegian Krone",
+              "prefix": "",
+              "suffix": "kr",
+              "code": "NOK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PEN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PEN 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+              "name": "Nuevo Sol",
+              "prefix": "S/.",
+              "suffix": "",
+              "code": "PEN",
+              "created_at": "2024-01-02 12:34:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PKR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PKR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-85a2-1e325d0ed369",
+              "name": "Pakistani Rupee",
+              "prefix": "Rs",
+              "suffix": "",
+              "code": "PKR",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PGK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PGK 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-8eb2-1208469530d0",
+              "name": "Papua New Guinean Kina",
+              "prefix": "",
+              "suffix": "K",
+              "code": "PGK",
+              "created_at": "2024-05-07 08:18:06",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PYG": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PYG 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-4eb2-18e940d42370",
+              "name": "Paraguayan Guarani",
+              "prefix": "₲",
+              "suffix": "",
+              "code": "PYG",
+              "created_at": "2022-08-05 08:29:49",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "PHP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₱0.00",
+            "currency": {
+              "id": "78985742-6489-7012-75c2-1e325d0ed369",
+              "name": "Philippine Peso",
+              "prefix": "₱",
+              "suffix": "",
+              "code": "PHP",
+              "created_at": "2023-08-01 13:52:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PLN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PLN 0.00",
+            "currency": {
+              "id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "name": "Polish Zloty",
+              "prefix": "",
+              "suffix": "zł",
+              "code": "PLN",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RON": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RON 0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-6ea2-18e940d42370",
+              "name": "Romanian Leu",
+              "prefix": "lei",
+              "suffix": "",
+              "code": "RON",
+              "created_at": "2022-10-28 10:03:31",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RUB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RUB 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-5eb2-1208469530d0",
+              "name": "Russian Ruble",
+              "prefix": "₽",
+              "suffix": "",
+              "code": "RUB",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RWF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RWF 0",
+            "currency": {
+              "id": "5952098d-3de4-0917-76b3-1578626e347e",
+              "name": "Rwandan Franc",
+              "prefix": "FRw",
+              "suffix": "",
+              "code": "RWF",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "SAR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SAR 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-38c3-1643202d9860",
+              "name": "Saudi Riyal",
+              "prefix": "SAR",
+              "suffix": "",
+              "code": "SAR",
+              "created_at": "2024-08-05 09:02:25",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RSD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RSD 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-8ec2-18e940d42370",
+              "name": "Serbian Dinar",
+              "prefix": "DIN",
+              "suffix": "",
+              "code": "RSD",
+              "created_at": "2023-11-24 14:25:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "SGD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SGD 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-05f2-1e325d0ed369",
+              "name": "Singapore Dollar",
+              "prefix": "S$",
+              "suffix": "",
+              "code": "SGD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ZAR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ZAR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-25b2-1e325d0ed369",
+              "name": "South African Rand",
+              "prefix": "",
+              "suffix": "R",
+              "code": "ZAR",
+              "created_at": "2022-05-27 08:59:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "LKR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "LKR 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-d6c3-1578626e347e",
+              "name": "Sri Lankan Rupee",
+              "prefix": "Rs.",
+              "suffix": "",
+              "code": "LKR",
+              "created_at": "2024-02-12 15:29:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "SEK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SEK 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-48c3-1643202d9860",
+              "name": "Swedish Krona",
+              "prefix": "",
+              "suffix": "kr",
+              "code": "SEK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CHF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CHF 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+              "name": "Swiss Franc",
+              "prefix": "",
+              "suffix": "fr.",
+              "code": "CHF",
+              "created_at": "2020-02-12 09:02:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TZS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TZS 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-29f5-18d9305e7d23",
+              "name": "Tanzanian Shilling",
+              "prefix": "TSh.",
+              "suffix": "/=",
+              "code": "TZS",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "THB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "THB 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-6db4-174825283406",
+              "name": "Thai Baht",
+              "prefix": "฿",
+              "suffix": "",
+              "code": "THB",
+              "created_at": "2020-02-12 09:02:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TTD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TTD 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-9ef2-1208469530d0",
+              "name": "Trinidad and Tobago Dollar",
+              "prefix": "",
+              "suffix": "TT$",
+              "code": "TTD",
+              "created_at": "2023-07-26 12:20:44",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TND": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TND 0.000",
+            "currency": {
+              "id": "825d96e7-63ed-0913-2da4-174825283406",
+              "name": "Tunisian Dinar",
+              "prefix": "",
+              "suffix": "DT",
+              "code": "TND",
+              "created_at": "2023-09-19 08:08:10",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TRY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TRY 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+              "name": "Turkish lira",
+              "prefix": "₺",
+              "suffix": "",
+              "code": "TRY",
+              "created_at": "2023-08-08 08:58:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UGX": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UGX 0",
+            "currency": {
+              "id": "3de78642-de53-9714-7ec2-1208469530d0",
+              "name": "Ugandan Shilling",
+              "prefix": "USh.",
+              "suffix": "/=",
+              "code": "UGX",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "AED": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AED 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+              "name": "United Arab Emirates Dirham",
+              "prefix": "",
+              "suffix": "DH",
+              "code": "AED",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "USD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "$0.00",
+            "currency": {
+              "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+              "name": "US Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "USD",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "XOF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "F CFA 0",
+            "currency": {
+              "id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+              "name": "West African Franc",
+              "prefix": "",
+              "suffix": "franc",
+              "code": "XOF",
+              "created_at": "2022-12-02 13:36:34",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ZMW": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ZMW 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-09a5-18d9305e7d23",
+              "name": "Zambian Kwacha",
+              "prefix": "ZK",
+              "suffix": "",
+              "code": "ZMW",
+              "created_at": "2024-04-26 14:29:32",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UYU": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UYU 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+              "name": "Uruguayan Peso",
+              "prefix": "$U",
+              "suffix": "",
+              "code": "UYU",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "VND": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₫0",
+            "currency": {
+              "id": "3de78642-de53-9714-4ea2-1208469530d0",
+              "name": "Vietnamese Dong",
+              "prefix": "₫",
+              "suffix": "",
+              "code": "VND",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "EUR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "€0.00",
+            "currency": {
+              "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+              "name": "Euro",
+              "prefix": "",
+              "suffix": "€",
+              "code": "EUR",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UAH": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UAH 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-84f3-153698d582e8",
+              "name": "Ukrainian Hryvnia",
+              "prefix": "₴",
+              "suffix": "",
+              "code": "UAH",
+              "created_at": "2025-11-11 16:15:50",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        },
+        "total": {
+          "GBP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "£0.00",
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DZD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DZD 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-5dc4-174825283406",
+              "name": "Algerian Dinar",
+              "prefix": "دج",
+              "suffix": "",
+              "code": "DZD",
+              "created_at": "2022-09-28 14:40:15",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AOA": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AOA 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-40f3-14502e70439d",
+              "name": "Angolan Kwanza",
+              "prefix": "Kz",
+              "suffix": "",
+              "code": "AOA",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ARS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ARS 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-28b3-1643202d9860",
+              "name": "Argentine Peso",
+              "prefix": "$",
+              "suffix": "",
+              "code": "ARS",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AUD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "A$0.00",
+            "currency": {
+              "id": "45952098-d3de-4091-76a3-1578626e347e",
+              "name": "Australian Dollar",
+              "prefix": "AU $",
+              "suffix": "",
+              "code": "AUD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "AZN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AZN 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-d5f2-1e325d0ed369",
+              "name": "Azerbaijani Manat",
+              "prefix": "₼",
+              "suffix": "",
+              "code": "AZN",
+              "created_at": "2024-05-07 08:18:06",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BDT": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BDT 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-e6b8-1e642d59e063",
+              "name": "Bangladeshi Taka",
+              "prefix": "",
+              "suffix": "৳",
+              "code": "BDT",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BBD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BBD 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+              "name": "Barbadian Dollar",
+              "prefix": "",
+              "suffix": "BBD",
+              "code": "BBD",
+              "created_at": "2024-10-08 10:12:25",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BOB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BOB 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-80a3-14502e70439d",
+              "name": "Bolivian Boliviano",
+              "prefix": "$b",
+              "suffix": "",
+              "code": "BOB",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BRL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "R$0.00",
+            "currency": {
+              "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+              "name": "Brazilian Real",
+              "prefix": "R$",
+              "suffix": "",
+              "code": "BRL",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "BGN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "BGN 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-89b5-18d9305e7d23",
+              "name": "Bulgarian Lev",
+              "prefix": "",
+              "suffix": "BGN",
+              "code": "BGN",
+              "created_at": "2023-07-03 11:31:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CAD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CA$0.00",
+            "currency": {
+              "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+              "name": "Canadian Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "CAD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CVE": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CVE 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-66a8-1e642d59e063",
+              "name": "Cape Verde Escudo",
+              "prefix": "CVE",
+              "suffix": "",
+              "code": "CVE",
+              "created_at": "2024-01-02 12:34:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "KYD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "KYD 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-54c3-153698d582e8",
+              "name": "Cayman Islands Dollar",
+              "prefix": "CI$",
+              "suffix": "",
+              "code": "KYD",
+              "created_at": "2023-11-24 14:25:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "XAF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "FCFA 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-eef2-18e940d42370",
+              "name": "Central African Franc",
+              "prefix": "",
+              "suffix": "FCFA",
+              "code": "XAF",
+              "created_at": "2020-06-17 14:17:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CLP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CLP 0",
+            "currency": {
+              "id": "320e4357-95e7-8d18-08b3-1643202d9860",
+              "name": "Chilean Peso",
+              "prefix": "$",
+              "suffix": "CLP",
+              "code": "CLP",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "CNY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CN¥0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-edb4-174825283406",
+              "name": "Chinese Yuan",
+              "prefix": "¥",
+              "suffix": "",
+              "code": "CNY",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "COP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "COP 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-44f3-153698d582e8",
+              "name": "Colombian Peso",
+              "prefix": "COL$",
+              "suffix": "",
+              "code": "COP",
+              "created_at": "2022-08-05 08:29:49",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CRC": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CRC 0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-9eb2-18e940d42370",
+              "name": "Costa Rican Colon",
+              "prefix": "₡",
+              "suffix": "",
+              "code": "CRC",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CZK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CZK 0.00",
+            "currency": {
+              "id": "57898574-2648-9701-25c2-1e325d0ed369",
+              "name": "Czech Koruna",
+              "prefix": "",
+              "suffix": "Kč",
+              "code": "CZK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DKK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DKK 0.00",
+            "currency": {
+              "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+              "name": "Danish Kroner",
+              "prefix": "",
+              "suffix": "kr.",
+              "code": "DKK",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "DOP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "DOP 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-e4c3-153698d582e8",
+              "name": "Dominican Peso",
+              "prefix": "RD$",
+              "suffix": "",
+              "code": "DOP",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "EGP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "EGP 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-96c8-1e642d59e063",
+              "name": "Egyptian Pound",
+              "prefix": "E£",
+              "suffix": "",
+              "code": "EGP",
+              "created_at": "2023-04-11 08:28:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ETB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ETB 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-74b3-153698d582e8",
+              "name": "Ethiopian Birr",
+              "prefix": "",
+              "suffix": "",
+              "code": "ETB",
+              "created_at": "2022-11-10 08:51:28",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "FJD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "FJD 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-78f3-1643202d9860",
+              "name": "Fijian Dollar",
+              "prefix": "FJ$",
+              "suffix": "",
+              "code": "FJD",
+              "created_at": "2022-05-30 11:27:01",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GEL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GEL 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-9dc4-174825283406",
+              "name": "Georgian Lari",
+              "prefix": "",
+              "suffix": "GEL",
+              "code": "GEL",
+              "created_at": "2025-01-29 17:06:31",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GHS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GHS 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+              "name": "Ghanaian Cedi",
+              "prefix": "GH₵",
+              "suffix": "",
+              "code": "GHS",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "GTQ": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "GTQ 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+              "name": "Guatemalan Quetzal",
+              "prefix": "Q",
+              "suffix": "",
+              "code": "GTQ",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HNL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HNL 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-26c8-1e642d59e063",
+              "name": "Honduran Lempira",
+              "prefix": "L",
+              "suffix": "",
+              "code": "HNL",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HKD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HK$0.00",
+            "currency": {
+              "id": "9320e435-795e-78d1-88a3-1643202d9860",
+              "name": "Hong Kong Dollar",
+              "prefix": "HK$",
+              "suffix": "",
+              "code": "HKD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "HUF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "HUF 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-70b3-14502e70439d",
+              "name": "Hungarian Forint",
+              "prefix": "",
+              "suffix": "Ft",
+              "code": "HUF",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "ISK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ISK 0",
+            "currency": {
+              "id": "5952098d-3de4-0917-26f3-1578626e347e",
+              "name": "Icelandic Krona",
+              "prefix": "",
+              "suffix": "Kr",
+              "code": "ISK",
+              "created_at": "2023-05-30 09:13:13",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "INR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₹0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-ddf4-174825283406",
+              "name": "Indian Rupee",
+              "prefix": "₹",
+              "suffix": "",
+              "code": "INR",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "IDR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "IDR 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-96f3-1578626e347e",
+              "name": "Indonesian Rupiah",
+              "prefix": "",
+              "suffix": "Rp",
+              "code": "IDR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "IQD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "IQD 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-5ea2-18e940d42370",
+              "name": "Iraqi Dinar",
+              "prefix": "",
+              "suffix": "ع.د",
+              "code": "IQD",
+              "created_at": "2025-03-18 13:40:47",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ILS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₪0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-7ec2-18e940d42370",
+              "name": "Israeli New Shekel",
+              "prefix": "₪",
+              "suffix": "",
+              "code": "ILS",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "JPY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "¥0",
+            "currency": {
+              "id": "4d036794-24d0-e710-94a3-153698d582e8",
+              "name": "Japanese Yen",
+              "prefix": "¥",
+              "suffix": "",
+              "code": "JPY",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "KES": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "KES 0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-76a8-1e642d59e063",
+              "name": "Kenyan Shilling",
+              "prefix": "KSh.",
+              "suffix": "/=",
+              "code": "KES",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MYR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MYR 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+              "name": "Malaysian Ringgit",
+              "prefix": "RM",
+              "suffix": "",
+              "code": "MYR",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MVR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MVR 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-6ea2-1208469530d0",
+              "name": "Maldivian Rufiyaa",
+              "prefix": "",
+              "suffix": "Rf",
+              "code": "MVR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MUR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MUR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-e5b2-1e325d0ed369",
+              "name": "Mauritian Rupee",
+              "prefix": "Rs",
+              "suffix": "",
+              "code": "MUR",
+              "created_at": "2024-07-30 11:17:49",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MXN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MX$0.00",
+            "currency": {
+              "id": "47d73824-8507-9315-36f8-1e642d59e063",
+              "name": "Mexican Peso",
+              "prefix": "Mex$",
+              "suffix": "",
+              "code": "MXN",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MAD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MAD 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-24c3-153698d582e8",
+              "name": "Moroccan Dirham",
+              "prefix": "",
+              "suffix": "DH",
+              "code": "MAD",
+              "created_at": "2022-05-19 14:21:19",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "MZN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "MZN 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-30f3-14502e70439d",
+              "name": "Mozambican Metical",
+              "prefix": "",
+              "suffix": "MT",
+              "code": "MZN",
+              "created_at": "2023-08-10 16:00:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NPR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NPR 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-69c5-18d9305e7d23",
+              "name": "Nepalese Rupee",
+              "prefix": "",
+              "suffix": "रु",
+              "code": "NPR",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TWD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NT$0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-7da4-174825283406",
+              "name": "New Taiwan Dollar",
+              "prefix": "NT$",
+              "suffix": "",
+              "code": "TWD",
+              "created_at": "2022-06-16 13:03:04",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NZD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NZ$0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-e6c3-1578626e347e",
+              "name": "New Zealand Dollar",
+              "prefix": "NZ$",
+              "suffix": "",
+              "code": "NZD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NIO": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NIO 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-66a3-1578626e347e",
+              "name": "Nicaraguan Cordoba",
+              "prefix": "C$",
+              "suffix": "",
+              "code": "NIO",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NGN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NGN 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-90c3-14502e70439d",
+              "name": "Nigerian Naira",
+              "prefix": "",
+              "suffix": "",
+              "code": "NGN",
+              "created_at": "2022-06-01 07:35:15",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "NOK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "NOK 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+              "name": "Norwegian Krone",
+              "prefix": "",
+              "suffix": "kr",
+              "code": "NOK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PEN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PEN 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+              "name": "Nuevo Sol",
+              "prefix": "S/.",
+              "suffix": "",
+              "code": "PEN",
+              "created_at": "2024-01-02 12:34:08",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PKR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PKR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-85a2-1e325d0ed369",
+              "name": "Pakistani Rupee",
+              "prefix": "Rs",
+              "suffix": "",
+              "code": "PKR",
+              "created_at": "2022-09-05 16:16:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PGK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PGK 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-8eb2-1208469530d0",
+              "name": "Papua New Guinean Kina",
+              "prefix": "",
+              "suffix": "K",
+              "code": "PGK",
+              "created_at": "2024-05-07 08:18:06",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PYG": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PYG 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-4eb2-18e940d42370",
+              "name": "Paraguayan Guarani",
+              "prefix": "₲",
+              "suffix": "",
+              "code": "PYG",
+              "created_at": "2022-08-05 08:29:49",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "PHP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₱0.00",
+            "currency": {
+              "id": "78985742-6489-7012-75c2-1e325d0ed369",
+              "name": "Philippine Peso",
+              "prefix": "₱",
+              "suffix": "",
+              "code": "PHP",
+              "created_at": "2023-08-01 13:52:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "PLN": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "PLN 0.00",
+            "currency": {
+              "id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "name": "Polish Zloty",
+              "prefix": "",
+              "suffix": "zł",
+              "code": "PLN",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RON": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RON 0.00",
+            "currency": {
+              "id": "5d085e69-d562-3719-6ea2-18e940d42370",
+              "name": "Romanian Leu",
+              "prefix": "lei",
+              "suffix": "",
+              "code": "RON",
+              "created_at": "2022-10-28 10:03:31",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RUB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RUB 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-5eb2-1208469530d0",
+              "name": "Russian Ruble",
+              "prefix": "₽",
+              "suffix": "",
+              "code": "RUB",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": false,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RWF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RWF 0",
+            "currency": {
+              "id": "5952098d-3de4-0917-76b3-1578626e347e",
+              "name": "Rwandan Franc",
+              "prefix": "FRw",
+              "suffix": "",
+              "code": "RWF",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "SAR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SAR 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-38c3-1643202d9860",
+              "name": "Saudi Riyal",
+              "prefix": "SAR",
+              "suffix": "",
+              "code": "SAR",
+              "created_at": "2024-08-05 09:02:25",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "RSD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "RSD 0",
+            "currency": {
+              "id": "5d085e69-d562-3719-8ec2-18e940d42370",
+              "name": "Serbian Dinar",
+              "prefix": "DIN",
+              "suffix": "",
+              "code": "RSD",
+              "created_at": "2023-11-24 14:25:23",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "SGD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SGD 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-05f2-1e325d0ed369",
+              "name": "Singapore Dollar",
+              "prefix": "S$",
+              "suffix": "",
+              "code": "SGD",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ZAR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ZAR 0.00",
+            "currency": {
+              "id": "78985742-6489-7012-25b2-1e325d0ed369",
+              "name": "South African Rand",
+              "prefix": "",
+              "suffix": "R",
+              "code": "ZAR",
+              "created_at": "2022-05-27 08:59:52",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "LKR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "LKR 0.00",
+            "currency": {
+              "id": "5952098d-3de4-0917-d6c3-1578626e347e",
+              "name": "Sri Lankan Rupee",
+              "prefix": "Rs.",
+              "suffix": "",
+              "code": "LKR",
+              "created_at": "2024-02-12 15:29:53",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "SEK": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "SEK 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-48c3-1643202d9860",
+              "name": "Swedish Krona",
+              "prefix": "",
+              "suffix": "kr",
+              "code": "SEK",
+              "created_at": "2020-02-12 09:02:29",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "CHF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "CHF 0.00",
+            "currency": {
+              "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+              "name": "Swiss Franc",
+              "prefix": "",
+              "suffix": "fr.",
+              "code": "CHF",
+              "created_at": "2020-02-12 09:02:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TZS": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TZS 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-29f5-18d9305e7d23",
+              "name": "Tanzanian Shilling",
+              "prefix": "TSh.",
+              "suffix": "/=",
+              "code": "TZS",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "THB": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "THB 0.00",
+            "currency": {
+              "id": "825d96e7-63ed-0913-6db4-174825283406",
+              "name": "Thai Baht",
+              "prefix": "฿",
+              "suffix": "",
+              "code": "THB",
+              "created_at": "2020-02-12 09:02:30",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TTD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TTD 0.00",
+            "currency": {
+              "id": "3de78642-de53-9714-9ef2-1208469530d0",
+              "name": "Trinidad and Tobago Dollar",
+              "prefix": "",
+              "suffix": "TT$",
+              "code": "TTD",
+              "created_at": "2023-07-26 12:20:44",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TND": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TND 0.000",
+            "currency": {
+              "id": "825d96e7-63ed-0913-2da4-174825283406",
+              "name": "Tunisian Dinar",
+              "prefix": "",
+              "suffix": "DT",
+              "code": "TND",
+              "created_at": "2023-09-19 08:08:10",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "TRY": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "TRY 0.00",
+            "currency": {
+              "id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+              "name": "Turkish lira",
+              "prefix": "₺",
+              "suffix": "",
+              "code": "TRY",
+              "created_at": "2023-08-08 08:58:29",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UGX": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UGX 0",
+            "currency": {
+              "id": "3de78642-de53-9714-7ec2-1208469530d0",
+              "name": "Ugandan Shilling",
+              "prefix": "USh.",
+              "suffix": "/=",
+              "code": "UGX",
+              "created_at": "2022-08-05 08:29:50",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": false,
+              "manual": 0
+            }
+          },
+          "AED": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "AED 0.00",
+            "currency": {
+              "id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+              "name": "United Arab Emirates Dirham",
+              "prefix": "",
+              "suffix": "DH",
+              "code": "AED",
+              "created_at": "2022-05-25 09:25:07",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "USD": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "$0.00",
+            "currency": {
+              "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+              "name": "US Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "USD",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "XOF": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "F CFA 0",
+            "currency": {
+              "id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+              "name": "West African Franc",
+              "prefix": "",
+              "suffix": "franc",
+              "code": "XOF",
+              "created_at": "2022-12-02 13:36:34",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "ZMW": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "ZMW 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-09a5-18d9305e7d23",
+              "name": "Zambian Kwacha",
+              "prefix": "ZK",
+              "suffix": "",
+              "code": "ZMW",
+              "created_at": "2024-04-26 14:29:32",
+              "updated_at": "2026-09-28 11:08:15",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UYU": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UYU 0.00",
+            "currency": {
+              "id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+              "name": "Uruguayan Peso",
+              "prefix": "$U",
+              "suffix": "",
+              "code": "UYU",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "VND": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "₫0",
+            "currency": {
+              "id": "3de78642-de53-9714-4ea2-1208469530d0",
+              "name": "Vietnamese Dong",
+              "prefix": "₫",
+              "suffix": "",
+              "code": "VND",
+              "created_at": "2024-06-18 13:34:53",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "EUR": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "€0.00",
+            "currency": {
+              "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+              "name": "Euro",
+              "prefix": "",
+              "suffix": "€",
+              "code": "EUR",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "UAH": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "UAH 0.00",
+            "currency": {
+              "id": "4d036794-24d0-e710-84f3-153698d582e8",
+              "name": "Ukrainian Hryvnia",
+              "prefix": "₴",
+              "suffix": "",
+              "code": "UAH",
+              "created_at": "2025-11-11 16:15:50",
+              "updated_at": "2026-09-28 11:08:16",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T08:37:39.927Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

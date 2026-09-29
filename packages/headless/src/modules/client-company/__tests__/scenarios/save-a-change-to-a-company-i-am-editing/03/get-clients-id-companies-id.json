@@ -1,0 +1,98 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/companies/5d085e69-d562-3719-07ea-218e940d4237?with=address,address.country,address.region",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40bf44569b773e0-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 18:04:56 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=b880ojaHeQjcy0BK15NHiwnR7gz2JabVHsHswN1%2FqwxOZDTYyE9hNKskb879yg1mHqIFodcx%2B9THDnH6nRRoBrUrXQ93x%2BkVR8XApeCyRtl7yWTwWExwyeL4VfPziBB0sgNaNEQwJQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "5d085e69-d562-3719-07ea-218e940d4237",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "address_id": "20e43579-5e78-d184-78db-31643202d986",
+        "phone_id": null,
+        "default": false,
+        "verified": 1,
+        "created_at": "2026-09-25 18:04:29",
+        "updated_at": "2026-09-25 18:04:29",
+        "deleted_at": null,
+        "name": "prover-manager-1790359469078",
+        "vat_number": "",
+        "vat_validated": null,
+        "vat_validation_failed_reason": null,
+        "vat_validated_with": null,
+        "vat_validation_checked_at": null,
+        "reg_number": "PROVER-REG",
+        "vat_percent": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "email_id": null,
+        "user_id": "sys",
+        "can_delete": true,
+        "address": {
+          "id": "20e43579-5e78-d184-78db-31643202d986",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": true,
+          "type": 1,
+          "name": "10 Downing St",
+          "address_1": "197 Highfield Road",
+          "address_2": "",
+          "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+          "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+          "city": "London",
+          "county": null,
+          "postcode": "SW1A 2AB",
+          "created_at": "2025-06-04 09:05:58",
+          "updated_at": "2026-09-25 12:38:41",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false
+        },
+        "email": null,
+        "phone": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T18:04:56.843Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "save-a-change-to-a-company-i-am-editing"
+  }
+}

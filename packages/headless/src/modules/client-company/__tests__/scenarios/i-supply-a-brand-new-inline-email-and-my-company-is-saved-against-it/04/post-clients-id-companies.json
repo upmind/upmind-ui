@@ -1,0 +1,119 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/companies",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "name": "prover-inline-1790497670884",
+      "address_id": "20e43579-5e78-d184-78db-31643202d986",
+      "email_id": "0e435795-e78d-1800-d8ea-31643202d986"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a41921ab68d70f09-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 27 Sep 2026 08:27:51 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=SDEaD0nK%2BPj2D6vfJFjIOlWtgBdIb0THliV%2FbFWQXoh5G%2Fc8040znjp0nC6bsew%2FE6CjSwiPdTI%2BIpbeythFkF3PPv2oT6HJvWLtQFKw9onpRH6Nx9T%2FoItBfAHcns%2FuFMd4QTFhSQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "4d036794-24d0-e710-d44c-3153698d582e",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "address_id": "20e43579-5e78-d184-78db-31643202d986",
+        "phone_id": null,
+        "default": false,
+        "verified": 1,
+        "created_at": "2026-09-27 08:27:51",
+        "updated_at": "2026-09-27 08:27:51",
+        "deleted_at": null,
+        "name": "prover-inline-1790497670884",
+        "vat_number": null,
+        "vat_validated": null,
+        "vat_validation_failed_reason": null,
+        "vat_validated_with": null,
+        "vat_validation_checked_at": null,
+        "reg_number": null,
+        "vat_percent": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "email_id": "0e435795-e78d-1800-d8ea-31643202d986",
+        "user_id": "sys",
+        "can_delete": true,
+        "address": {
+          "id": "20e43579-5e78-d184-78db-31643202d986",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": true,
+          "type": 1,
+          "name": "10 Downing St",
+          "address_1": "197 Highfield Road",
+          "address_2": "",
+          "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+          "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+          "city": "London",
+          "county": null,
+          "postcode": "SW1A 2AB",
+          "created_at": "2025-06-04 09:05:58",
+          "updated_at": "2026-09-27 08:04:17",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false
+        },
+        "email": {
+          "id": "0e435795-e78d-1800-d8ea-31643202d986",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "type": 1,
+          "default": false,
+          "verified": false,
+          "email": "prover-inline-1790497670121@example.com",
+          "receive_emails": false,
+          "bounced": false,
+          "created_at": "2026-09-27 08:27:50",
+          "updated_at": "2026-09-27 08:27:50",
+          "bounced_at": null,
+          "can_delete": true
+        },
+        "phone": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-27T08:27:51.648Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "i-supply-a-brand-new-inline-email-and-my-company-is-saved-against-it"
+  }
+}

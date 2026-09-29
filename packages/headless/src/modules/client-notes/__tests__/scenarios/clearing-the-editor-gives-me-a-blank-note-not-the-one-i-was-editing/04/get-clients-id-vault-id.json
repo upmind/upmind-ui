@@ -1,0 +1,71 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/vault/2785d26e-9678-3d16-338b-314502e70439",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a422b9231f2d4c65-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 12:24:07 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=rMbMUNnujQFMib5ahfGw71P1olb4YwF3kdp1NPFYEsHpsnpSbqMrXDtrNx8SP%2BrW03X%2B1nmssdDWaEbVjN0ktpN8wkArlE9nFrRLBt2dgBo5UFmkFR39wftEnmHyiKDKRhm%2Bo%2FGl1A%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "2785d26e-9678-3d16-338b-314502e70439",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "lead_id": null,
+        "user_id": "none",
+        "label": null,
+        "code": null,
+        "note": "prover fixture editor clear note 8129692",
+        "pinned": false,
+        "visible_for_client": true,
+        "encrypted": false,
+        "contract_product_id": null,
+        "created_at": "2026-09-28 12:24:05",
+        "updated_at": "2026-09-28 12:24:05",
+        "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "author_user_id": null,
+        "editor_client_id": null,
+        "editor_user_id": null,
+        "locked": false
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T12:24:07.236Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "clearing-the-editor-gives-me-a-blank-note-not-the-one-i-was-editing"
+  }
+}

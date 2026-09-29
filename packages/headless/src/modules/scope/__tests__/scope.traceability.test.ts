@@ -41,36 +41,32 @@ const here = import.meta.dirname;
 const FEATURE = "scope.feature";
 
 /**
- * Specs proving a scope capability from outside the module. AC-9 is an identity
- * question, so it is proven where identity lives — at the seam that resolves the
- * target, and at the wire the request goes out on. Moving either file is a break
- * this test is meant to report.
+ * Specs proving a scope capability from outside this file. AC-9 is an identity
+ * question, so it is proven where identity lives — at the `resolveClientId` seam
+ * (session-store), and at the wire the request goes out on
+ * (`scope.retarget-at-the-wire.int.test.ts`, co-located here and picked up as a
+ * local spec). The FE-3145 ruling (ADR 035 Am.1) moved the wire read-back out of
+ * each consumer and into the module that owns identity; moving the session-store
+ * seam file is a break this test is meant to report.
  */
 const EXTERNAL_SPECS = [
   join(
     here,
     "../../session-store/__tests__/session-store.client-identity.int.test.ts"
-  ),
-  join(
-    here,
-    "../../client-address/__tests__/client-address.bare-context-identity.int.test.ts"
   )
 ];
 
 /**
- * The recorded acceptance this story's change was measured against — the
- * pre-existing retarget read-back the parity table cites as the oracle. It
- * carries no `@AC-` id of its own and is not edited by this story, so it is
- * bound by its exact title: a rename or a deletion breaks this anchor rather
+ * The recorded acceptance the parity table cites as the retarget oracle: a read
+ * addressed to the SCOPE-resolved client while the session's own `activeUser` is
+ * a different client. Rebuilt at the wire in scope's own tests (FE-3145) and
+ * bound by its exact title, so a rename or a deletion breaks this anchor rather
  * than silently retiring the oracle.
  */
 const ORACLE_RETARGET_AT_THE_WIRE = {
-  spec: join(
-    here,
-    "../../client-address/__tests__/client-address.scope-identity.int.test.ts"
-  ),
+  spec: join(here, "scope.retarget-at-the-wire.int.test.ts"),
   title:
-    "AC-2 reads the SCOPE-CONTEXT client's list while the session's own activeUser is a different client"
+    "@AC-9 addresses the named client, as that client, with no acting-as header, while the session's own activeUser is a different client"
 };
 
 const ANCHOR = /@anchor\s+([\w./-]+)/g;

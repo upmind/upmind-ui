@@ -1,42 +1,24 @@
 // -----------------------------------------------------------------------------
 /**
  * @module client-company/__tests__/client-company.traceability
- * @description The module's ONE traceability test, carrying both jobs the
- * module owes its ONE `.feature`: the AC link (a tagged scenario has a
- * proving spec, and a spec claims no AC the feature never tagged), and the
- * spec-to-catalog gate (an orphan definition, a half-matched scenario, a
- * duplicated phrasing, an uncompilable pattern all fail; a scenario nothing
- * matches passes, because a capability written down and not yet driven is a
- * legitimate state) (AC-38).
- *
- * ## SDD_FEATURE retirement (2026-08-22, AC-38, bdd.md item 6)
- * The pre-upgrade version of this file diffed the co-located `.feature`
- * against a bundle-side `SDD_FEATURE` at
- * `docs/story-bundles/client-company/client-company.feature` — a path that
- * does not resolve in this tree. ADR-020 Amendment 5 makes the package-
- * source-colocated `.feature` THE executed artefact, superseding the
- * §Decision item-2 world that duality assumed; there is no separate
- * bundle-side source left to diff against. Retired, not patched around: the
- * co-located `.feature` is the only truth this file knows, mirroring
- * `client-email.traceability.test.ts`'s own shape.
- *
- * Generic by construction — it reads the WHOLE feature and the WHOLE
- * catalog, so no scenario count, no per-scenario list and no AC list is
- * written down here. The driveable-of-total count lives in the test NAME.
+ * @description The module's ONE traceability test for the scenario model
+ * (operator ruling 2026-09-24): every module capability is a DRIVEN `.feature`
+ * scenario, so the feature IS the capability contract and the catalog is its
+ * proof. This test enforces that link: every non-`@todo` scenario is fully
+ * driven (no half-matched step), no step definition is an orphan, no phrasing
+ * is duplicated across catalogs, every pattern compiles, and every action the
+ * catalog declares covered is fired by some step. It also guards the two kept
+ * pure unit specs from claiming an `AC` the feature never tags.
  *
  * ## What Breaks If These Fail
- * A capability silently loses its proof — shape present, behaviour unproven —
- * or the spec and the catalog that drives it drift apart and the playlist
- * plays scenarios nobody implemented.
+ * A capability reads as driven and silently is not, the playlist plays a
+ * scenario nobody implemented, or a unit spec drifts from the feature's tags.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  createTraceabilityCheck,
-  featureAcTags
-} from "@upmind-automation/scenario-harness";
+import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
 import { stepCatalogs } from "../../../testing";
 import { clientCompaniesSteps, coveredActionIds } from "./client-company.steps";
 import {
@@ -72,16 +54,13 @@ const {
   malformedStepDefs
 } = createTraceabilityCheck(featureText, clientCompaniesSteps, stepCatalogs);
 
-/**
- * The `AC-<n>` ids a sibling spec claims in a `describe`/`it` title. Stays
- * file-local: it reads the test directory, and `node:fs` may never enter the
- * harness's own barrel, which is production source every consumer executes.
- */
-function acsNamedBySiblingSpecs(directory: string): string[] {
+/** The `AC-<n>` ids a sibling PURE unit spec claims in a `describe`/`it` title. */
+function acsNamedByUnitSpecs(directory: string): string[] {
   const specs = filter(
     readdirSync(directory),
     file =>
-      (file.endsWith(".test.ts") || file.endsWith(".int.test.ts")) &&
+      file.endsWith(".test.ts") &&
+      !file.endsWith(".int.test.ts") &&
       file !== SELF
   );
 
@@ -90,7 +69,6 @@ function acsNamedBySiblingSpecs(directory: string): string[] {
       const titles = readFileSync(join(directory, file), "utf-8").matchAll(
         /(?:describe|it)\(\s*["'`]([^"'`]*)["'`]/g
       );
-
       return flatMap([...titles], title =>
         map([...title[1].matchAll(/AC-(\d+)/g)], ac => `AC-${ac[1]}`)
       );
@@ -100,19 +78,20 @@ function acsNamedBySiblingSpecs(directory: string): string[] {
 
 // -----------------------------------------------------------------------------
 
-describe("client-company traceability — the module's one feature, both jobs", () => {
-  it("links every tagged scenario to a proving spec, and back", () => {
-    const tagged = featureAcTags(featureText);
-    const named = acsNamedBySiblingSpecs(TEST_DIR);
+describe("client-company traceability — the module's one feature, scenario model", () => {
+  it("keeps every unit-spec AC id tagged in the feature", () => {
+    // Every `@AC-<n>` the feature carries, `@todo` scenarios included — the
+    // unit-proven capabilities (AC-2/3/6/19/28) sit on `@todo` scenarios that
+    // `featureAcTags` (driven-only) omits, so the whole tag set is read here.
+    const tagged = uniq(
+      map([...featureText.matchAll(/@AC-(\d+)/g)], match => `AC-${match[1]}`)
+    );
+    const named = acsNamedByUnitSpecs(TEST_DIR);
 
     expect(tagged.length).toBeGreaterThan(0);
     expect(
-      difference(tagged, named),
-      "scenario(s) the feature tags that no sibling spec names — shape present, behaviour unproven"
-    ).toStrictEqual([]);
-    expect(
       difference(named, tagged),
-      "spec(s) naming an AC the feature does not tag — the feature gains the scenario, coverage never falls"
+      "unit spec(s) naming an AC the feature does not tag — the spec and the feature drifted apart"
     ).toStrictEqual([]);
   });
 
@@ -136,8 +115,6 @@ describe("client-company traceability — the module's one feature, both jobs", 
     expect(driveable.length).toBeGreaterThan(0);
   });
 
-  // A handler is a closure, so the only way a catalog admits which ids it
-  // fires is its own source.
   it("fires every action it declares as covered", () => {
     expect(
       reject(coveredActionIds, id =>

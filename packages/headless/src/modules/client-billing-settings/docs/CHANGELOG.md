@@ -8,14 +8,13 @@ All notable changes to the `client-billing-settings` module are documented here.
 
 - **A new sibling module** covering a client's own invoice-consolidation preference — the read view (`useBillingSettings`) and the editor (`useBillingSettingsManager`), sharing one scope matrix and one identity-resolution seam.
 - **A diff-only save** across five persisted fields, with correct clear semantics: the on/off/follow switch survives an explicit off (`0`) all the way to the outbound request; the other four fields survive an explicit clear as a literal `null`. Both are present in the body, never omitted, and a field is only ever sent when it actually changed.
-- **A visibility gate that defaults to hidden** — the preference surface is shown to a client only when the brand has explicitly opted in; an absent key, an explicit non-opt-in, or a failed fetch of the gate all fail toward hidden, on both the read view and the editor.
-- **A staged-import lockout** — a save attempted while the owning client record is a staged, unprocessed import is refused before any request is sent, checked independently of the editor's own general edit-lock.
-- **An external lock** (`setDisabled()`) that a consumer can apply from outside the editor's own gates, independent of whether the record itself would otherwise allow editing.
+- **A visibility gate that defaults to hidden** — the preference surface is shown to a client only when the brand has explicitly opted in; an absent key, an explicit non-opt-in, or a failed fetch of the gate all fail toward hidden, on both the read view and the editor. The same gate also decides whether the editor's `isAvailable` ever settles `true`: a brand that has not opted clients into managing consolidation leaves the editor permanently unavailable, and a consolidation save is refused locally before any request.
+- **Account currency fields, saved alongside the consolidation preference.** `update()` also diffs and persists the account's own billing currency and preferred payment currency, through a separate `PUT accounts/{accountId}` request issued independently of the consolidation write. The preferred-payment-currency field is offered, and writable, only when the brand has separately opted clients into paying in a different currency.
 - **`revert()`** — restores the model to its last-saved values, safe even when a debounced form input is still pending.
 - **A bounded editor readiness** — `isReady()` times out rather than waiting forever on a failed lookup.
 - **The manager is callable with no argument** — `useBillingSettingsManager().as(ScopeActorTypes.CLIENT)` constructs and settles.
 - **The barrel is the module's only public surface** — curated named exports only; the services, mappers, schemas, and machine-config file each carry an internal marker.
-- **A shared cache key with two sibling modules** (`client-personal-details`, `client-custom-fields`) — reading the same underlying client record under the same key, safely, because this module's own reads use the reactive query primitive rather than a one-shot selecting read.
+- **A shared cache key with a sibling module** (`client-personal-details`) — reading the same underlying client record under the same key, safely, because this module's own reads use the reactive query primitive rather than a one-shot selecting read.
 
 ### Changed
 
@@ -29,11 +28,11 @@ All notable changes to the `client-billing-settings` module are documented here.
 
 ### Recorded fixtures
 
-Fifteen request/response pairs, captured live against a staging environment, back the documented behaviour:
+Request/response pairs, captured live against a staging environment, back the documented behaviour:
 
 | Fixture | Covers |
 | --- | --- |
-| `get-clients-id.json` | the preference read, plus the staged-import flag |
+| `get-clients-id.json` | the preference read, plus the account's `never_suspend` flag |
 | `get-config-brand-values-keys-invoices-consolidation-restrict-to-staff.json` | the visibility-gate read |
 | `put-clients-id-case-enabled-off.json` | the on/off/follow switch set to off (`0`) |
 | `put-clients-id-case-enabled-on.json` | the on/off/follow switch set to on (`1`) |
@@ -44,10 +43,14 @@ Fifteen request/response pairs, captured live against a staging environment, bac
 | `put-clients-id-case-due-date-day-set.json` / `-clear.json` | the invoice due-date day set, and cleared |
 | `put-clients-id-case-diff-only.json` | two fields changed in a single save, and only those two on the wire |
 | `put-clients-id-case-restore.json` | multiple fields restored to follow-the-brand together |
+| `put-accounts-id-case-currency-set.json` | the account's own billing currency set |
+| `put-accounts-id-case-preferred-set.json` / `-clear.json` | the preferred payment currency set, and cleared |
+| `put-accounts-id-case-both.json` | both currency fields in one save (captured `409`) |
+| `put-accounts-id-case-restore.json` | both currency fields restored together |
 
 ### Not captured
 
-- The rejection shape for a save whose diff is invalid against the schema, or a save attempted against a staged import, has not needed a live capture — this module's own checks stop both cases locally before any request is issued.
+- The rejection shape for a save whose diff is invalid against the schema, or a consolidation save while the brand has not opted clients in, has not needed a live capture — this module's own checks stop both cases locally before any request is issued.
 
 ---
 

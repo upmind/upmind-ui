@@ -87,7 +87,7 @@ describe("forced states are read off the feature", () => {
 
   it("reads every condition a sentence names, not the first rule that matched", () => {
     const states = titled(
-      statesOf("client-email"),
+      statesOf("client-notes"),
       /loading, empty, or errored/
     );
 

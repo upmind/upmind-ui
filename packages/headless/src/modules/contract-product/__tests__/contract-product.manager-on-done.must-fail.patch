@@ -1,11 +1,11 @@
-# Negative-control mutant — useContractProduct.actions.ts `onDone` (R37 B7)
+# Negative-control mutant — the manager publishes onDone() (AC-25)
 #
-# Scenario it must flip: contract-product.manager-members.int.test.ts, "resolves onDone() true
-#   once a change settles" — it awaits `useActions().onDone()` after a write
-#   and expects true once the write leaves `processing` /
-#   `available.<region>.processing` and settles on `available` or `unavailable`.
-# Mutation: drops the `onDone` action entirely, so no member exists to await a
-#   write's settle.
+# Scenario it must flip: contract-product.feature >
+#   "While a change of mine is in flight, the module says so"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then I am told the change is done" — the manager publishes no `onDone`
+#   action.
+# Mutation: drops the `onDone` action.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>

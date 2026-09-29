@@ -14,10 +14,12 @@
  * module builds a wire body of its own.
  */
 
+import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { expect } from "vitest";
 import { vi } from "vitest";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { replayStep } from "@upmind-automation/test-fixtures/replay-server";
 import { queryClient } from "../../query/client";
 import { getRegistry, remove } from "../../scope/scope.registry";
 import {
@@ -223,27 +225,19 @@ export function installTicketsHandlers(): {
   };
 }
 
+/** The owning modules' recordings that answer a signed-in boot's reads. */
+const OWNER_RECORDINGS = ["brand", "system", "basket"].map(module =>
+  join(import.meta.dirname, `../../${module}/__tests__/fixtures`)
+);
+
 /**
- * Background bootstrap calls unrelated to any AC (brand/org config) fire as a
- * side effect of `initStore()`; stub them harmlessly so they never surface as
- * noise. Re-applied on every seed — the replay server resets handlers between
- * tests.
+ * Boot reads unrelated to any AC (brand, system, basket, self) are answered by
+ * the RECORDINGS of the modules that own them, never by a body written here
+ * (ADR 035). Re-applied on every seed; the replay server resets handlers.
  */
 export function installBackgroundStubs(): void {
-  server?.use(
-    http.get("*/org/modules", () =>
-      HttpResponse.json({ status: "ok", data: [] })
-    ),
-    http.get("*/config/brand/values", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    ),
-    http.get("*/config/organisation/values", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    ),
-    http.get("*/brand/settings", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    )
-  );
+  for (const dir of OWNER_RECORDINGS) replayStep(server, dir);
+  replayStep(server, sessionStoreRecordingsDir);
 }
 
 // -----------------------------------------------------------------------------

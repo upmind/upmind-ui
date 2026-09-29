@@ -16,7 +16,10 @@ import {
   ErrorOrigin,
   responseCodes
 } from "@upmind-automation/headless";
-import { matchesExpectation } from "@upmind-automation/scenario-harness";
+import {
+  fireArgv,
+  matchesExpectation
+} from "@upmind-automation/scenario-harness";
 import { registry } from "../registry";
 import { useModulePort } from "./useModulePort";
 import { useScenarioStage } from "./useScenarioStage";
@@ -25,9 +28,10 @@ import {
   isEmpty,
   isEqual,
   isFunction,
-  isMatch,
+  isNumber,
   isString,
   keys,
+  mapValues,
   omit,
   pick
 } from "lodash-es";
@@ -59,6 +63,21 @@ function fail(message: string): never {
 }
 
 /**
+ * Serialises a snapshot layer to a searchable string, dropping cycles so a
+ * whole-layer substring search never throws on a reactive handle.
+ */
+function searchable(snapshot: unknown): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(snapshot, (_key, val) => {
+    if (typeof val === "object" && val !== null) {
+      if (seen.has(val)) return undefined;
+      seen.add(val);
+    }
+    return val;
+  });
+}
+
+/**
  * What a SELF-DRAWN page tells the world about the cell IT has already booted
  * (`ScenarioBinding.useManage`). Absent — which is every page the shared
  * `ScenarioPlayground` hosts — the world behaves exactly as it always has.
@@ -86,6 +105,9 @@ export type ScenarioWorldHost = {
   id?: string;
 };
 
+/** One booted port, plus the scope that booted it, held under its scenario key. */
+type LiveCell = { scope: WorldScope; port: ModulePort };
+
 /**
  * Builds the in-page world over the scenario contract.
  *
@@ -98,39 +120,68 @@ export function useScenarioWorld(
   bindings: Record<ScenarioKey, ScenarioBinding> = registry,
   host?: ScenarioWorldHost
 ): World<ScenarioKey> {
-  let port: ModulePort | undefined;
-  let booted: { key: ScenarioKey; scope: WorldScope } | undefined;
+  // One live cell PER scenario key — parity with the Node world
+  // (`node-world.ts`): booting a key replaces only THAT key's cell, and cells
+  // under different keys (a list and any number of editors) live together. This
+  // is what lets a scenario hold two editor cells at once — two image fields
+  // under two keys re-uploading independently (client-custom-fields AC-22).
+  const live = new Map<ScenarioKey, LiveCell>();
 
-  function requirePort(): ModulePort {
-    if (!port) fail("boot() has not been called yet");
-    return port;
+  /** The key booted last — the cell a step addresses when it names no key. */
+  let lastKey: ScenarioKey | undefined;
+
+  /** The action a `fireHold` left running on a port, awaited by `settle`. */
+  const inflight = new Map<ModulePort, Promise<unknown>>();
+
+  /**
+   * The port a step targets: the one booted under `key` when a step names one,
+   * else the last-booted cell. A named key no live cell booted is a refusal.
+   */
+  function targetPort(key?: ScenarioKey): ModulePort {
+    if (key !== undefined) {
+      const entry = live.get(key);
+      if (!entry) fail(`no live cell for key "${key}"`);
+      return entry.port;
+    }
+
+    if (lastKey === undefined || !live.has(lastKey))
+      fail("boot() has not been called yet");
+    return live.get(lastKey)!.port;
+  }
+
+  /**
+   * Disposes ONE key's live cell, keeping the rest. The HOST page's own cell is
+   * never destroyed here: the page renders it and owns its lifetime, tearing it
+   * down on unmount, so destroying it because the next track boots a different
+   * key would kill the surface the replay is playing on (the same reason
+   * `disarm()` disposes nothing, design §7.1). The world lets it go instead, and
+   * the scope registry hands the same cell back on the next boot.
+   */
+  function disposeKey(key: ScenarioKey): void {
+    const entry = live.get(key);
+    if (!entry) return;
+
+    const isHosted = !!host && key === host.key;
+    const destroy = get(entry.port.actions, "destroy");
+    if (!isHosted && isFunction(destroy)) destroy();
+    live.delete(key);
   }
 
   function dispose(): void {
-    // The HOST page's own cell is never destroyed here. It is the cell the page
-    // renders, held by the page for its whole lifetime and torn down by the
-    // page on unmount — so destroying it because the next track's Background
-    // boots a different key would kill the surface the replay is playing on
-    // (the same reason `disarm()` disposes nothing, design §7.1). The world
-    // lets it go instead, and the scope registry hands the same cell back on
-    // the next boot.
-    const isHosted = !!host && booted?.key === host.key;
-
-    const destroy = get(port?.actions ?? {}, "destroy");
-    if (!isHosted && isFunction(destroy)) destroy();
-    port = undefined;
-    booted = undefined;
+    for (const key of [...live.keys()]) disposeKey(key);
+    lastKey = undefined;
   }
 
   return {
     async boot(key, scope: WorldScope) {
-      // The scope registry caches by scope key, so `port` IS the cell the page
-      // renders: re-booting the scope already on screen ADOPTS it, because
-      // disposing would `destroy()` the rendered surface mid-track. A different
-      // key or scope addresses a different cell and disposes exactly as before.
-      if (booted?.key === key && isEqual(booted.scope, scope)) return;
-
-      dispose();
+      // The scope registry caches by scope key, so a live port IS the cell the
+      // page renders: re-booting the same key+scope ADOPTS the cell that holds
+      // it, because disposing would `destroy()` the rendered surface mid-track.
+      const existing = live.get(key);
+      if (existing && isEqual(existing.scope, scope)) {
+        lastKey = key;
+        return;
+      }
 
       const entry = get(bindings, key);
       if (!entry) fail(`unknown scenario key "${key}"`);
@@ -142,24 +193,44 @@ export function useScenarioWorld(
       // complete `{ type, id }` pair a scope is only ever expressed as.
       // `useManage` last, exactly as `registry.ts` orders them: a declaration
       // binding a renderer keeps the cell it always booted.
-      port = useModulePort(
+      // The host page's url completes a boot scope that names no context — the
+      // SAME scope the page itself booted, so the scope registry hands back the
+      // cell already on screen rather than a second one.
+      const resolvedContext =
+        scope.context ?? (host?.key === key ? host.context : undefined);
+      // The same completion for a single-record page: the step boots the manager
+      // naming no record, and the page's url says which one.
+      const resolvedId = scope.id ?? (host?.key === key ? host.id : undefined);
+
+      // A bare boot (no context, no id) keys under the module's BASE scope key,
+      // which a list and its editor share. With any other cell already live it
+      // would adopt that cell from the scope registry — a second editor adopting
+      // the first, or the editor adopting the live list — so boot a DISTINCT
+      // instance instead (`useModulePort` `fresh`), exactly as the Node world
+      // does. The host key is exempt: that boot must reuse the page's own
+      // rendered cell, never a second instance.
+      const isHostKey = !!host && host.key === key;
+      const needFresh =
+        live.size > 0 && !resolvedContext && !resolvedId && !isHostKey;
+
+      const built = useModulePort(
         (entry.useList ?? entry.useMutate ?? entry.useManage)!,
         {
           actor: scope.actor as ScopeActorTypes,
-          // The host page's url completes a boot scope that names no context
-          // — the SAME scope the page itself booted, so the scope registry
-          // hands back the cell already on screen rather than a second one.
-          context:
-            scope.context ?? (host?.key === key ? host.context : undefined),
-          // The same completion for a single-record page: the step boots the
-          // manager naming no record, and the page's url says which one.
-          id: host?.key === key ? host.id : undefined
+          context: resolvedContext,
+          id: resolvedId,
+          fresh: needFresh
         }
       );
-      booted = { key, scope };
+
+      // Keep every other key's live cell; dispose only a PREVIOUS cell booted
+      // under THIS key, then hold the new one under it.
+      disposeKey(key);
+      live.set(key, { scope, port: built });
+      lastKey = key;
     },
 
-    async fire(actionId, input) {
+    async fire(actionId, input, key) {
       // The screen first, always. A step is a PRESS: it runs the control's own
       // closure, so the spinner turns, the toast lands, and a handoff opens its
       // editor over the list — the whole point of watching a replay.
@@ -196,7 +267,7 @@ export function useScenarioWorld(
 
       // No screen at all — the Node runner, and the playability probe that boots
       // a track without mounting it. Nothing else may take this branch.
-      const action = get(requirePort().actions, actionId);
+      const action = get(targetPort(key).actions, actionId);
 
       // Neither on the stage nor on the port. A handoff id (`manage`,
       // `editRow`, `add`, `edit`) lives ONLY on a mounted surface, and a deep
@@ -236,24 +307,63 @@ export function useScenarioWorld(
         fail(`unknown action "${actionId}"`);
       }
 
-      await action(input);
+      await (action as (...values: unknown[]) => unknown)(...fireArgv(input));
     },
 
-    async expectMeta(expected) {
-      const live = requirePort().getMeta();
-      if (!isMatch(live, expected))
+    async fireHold(actionId, input, key) {
+      // No stage press: an in-flight save is a PORT action (`update`), held open
+      // by the recording's `delayMs` so the next step observes `isProcessing`.
+      // Its rejection is swallowed here so nothing escapes between steps; `settle`
+      // surfaces (or, per AC13, ignores) it.
+      const port = targetPort(key);
+      const action = get(port.actions, actionId);
+      if (!isFunction(action)) fail(`unknown action "${actionId}"`);
+      const pending = Promise.resolve(
+        (action as (...values: unknown[]) => unknown)(...fireArgv(input))
+      ).catch(() => undefined);
+      inflight.set(port, pending);
+    },
+
+    async settle(key) {
+      const port = targetPort(key);
+      const pending = inflight.get(port);
+      if (!pending) return;
+      inflight.delete(port);
+      await pending;
+    },
+
+    async expectMeta(expected, key) {
+      // `rawMeta()` deref's without coercing, so a number-valued member reads as
+      // itself; `getMeta()` is the unserved-scope fallback. Each expected key is
+      // then read per its expectation — a number expectation keeps the raw value
+      // (an exact compare), every other is coerced to a real boolean, exactly as
+      // the Node world grades it (`node-world.ts`).
+      const port = targetPort(key);
+      const raw = port.rawMeta?.() ?? port.getMeta();
+      const view = mapValues(raw, (value, name) =>
+        isNumber(get(expected, name)) ? value : !!value
+      );
+      if (!matchesExpectation(view, expected))
         fail(
-          `meta mismatch — expected ${JSON.stringify(expected)}, got ${JSON.stringify(pick(live, keys(expected)))}`
+          `meta mismatch — expected ${JSON.stringify(expected)}, got ${JSON.stringify(pick(view, keys(expected)))}`
         );
     },
 
     // The harness's one reading of an expectation, shared with the Node
     // replay: an expected `null` is a CLEARED value (`matchesExpectation`).
-    async expectContext(expected) {
-      const live = requirePort().snapshot().context;
-      if (!matchesExpectation(live, expected))
+    async expectContext(expected, key) {
+      const liveContext = targetPort(key).snapshot().context;
+      if (!matchesExpectation(liveContext, expected))
         fail(
-          `context mismatch — expected ${JSON.stringify(expected)}, got ${JSON.stringify(pick(live, keys(expected)))}`
+          `context mismatch — expected ${JSON.stringify(expected)}, got ${JSON.stringify(pick(liveContext, keys(expected)))}`
+        );
+    },
+
+    async expectAbsent(value, key) {
+      const { context, meta } = targetPort(key).snapshot();
+      if (searchable({ context, meta }).includes(value))
+        fail(
+          `expected "${value}" to appear nowhere in the addressed cell's published context or meta, but it does`
         );
     },
 

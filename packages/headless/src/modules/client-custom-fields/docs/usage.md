@@ -21,7 +21,7 @@ import {
 const clientId = "825d96e7-63ed-0913-46c4-174825283406";
 const fieldId = "0c9ff2c1-6d29-4f6d-9a54-1a9d5f0b3b21";
 
-// The collection — the calling client's own brand's definitions
+// The collection — the access token's own brand's definitions
 const fields = useClientCustomFields()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientCustomFieldsContextTypes.CLIENT, clientId);
@@ -89,9 +89,9 @@ Marks this module's cached definitions stale so the next read re-fetches them.
 
 Resolves once the definitions collection is ready to read.
 
-**Returns:** `Promise<boolean>` — `true` once the first fetch has settled without error; `false` if the session settles without an addressable client, **or** if the brand read behind it fails.
+**Returns:** `Promise<boolean>` — `true` once the first fetch has settled without error; `false` if the session settles without an addressable client, **or** if the definitions request itself fails.
 
-> **🧪 For Testers:** `isReady()` never hangs. A definitions request that rejects, and a brand resolution that fails, both resolve `isReady()` to `false` rather than leaving it pending forever — this is the fix for a prior uncapped poll that only ever resolved on success.
+> **🧪 For Testers:** `isReady()` never hangs. A rejected definitions request resolves `isReady()` to `false` rather than leaving it pending forever — this is the fix for a prior uncapped poll that only ever resolved on success.
 
 #### `nextPage()` / `prevPage()`
 
@@ -119,7 +119,7 @@ Removes this scoped instance from the registry.
 
 | Property                     | Type                                           | Meaning                                                                 |
 | ---------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------- |
-| `data`                       | `ComputedRef<CustomField[]>`                   | The brand's definitions, filtered and ordered                           |
+| `data`                       | `ComputedRef<CustomField[]>`                   | The token's brand's definitions, filtered and ordered                   |
 | `error`                      | `ComputedRef<ResponseError \| undefined>`      | The last failed mutation, else the definitions read's own error         |
 | `findOne()`                  | `(mapping, data?) => CustomField \| undefined` | Finds one definition by a partial mapping                               |
 | `getOne(id)`                 | `(id, data?) => CustomField \| undefined`      | Finds one definition by id                                              |
@@ -132,10 +132,10 @@ Removes this scoped instance from the registry.
 
 | Flag          | True when                                                                              |
 | ------------- | -------------------------------------------------------------------------------------- |
-| `count`       | Always — the number of definitions this scope's brand has                              |
+| `count`       | Always — the number of definitions the token's brand has                               |
 | `hasError`    | A mutation or the definitions read failed                                              |
-| `isAvailable` | The session is authenticated **and** the scope resolved a client id **and** a brand id |
-| `isEmpty`     | This scope's brand has no definitions                                                  |
+| `isAvailable` | The session is authenticated **and** the scope resolved a client id                    |
+| `isEmpty`     | The token's brand has no definitions                                                   |
 | `isLoading`   | The definitions read is in flight or has not completed its first fetch                 |
 
 `isAvailable` gates every request this module's collection issues — the flag you render and the guard the wire enforces are the same predicate.

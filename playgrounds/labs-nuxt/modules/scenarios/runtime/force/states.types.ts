@@ -9,9 +9,10 @@
  *
  * @graphify-citation `graphify query "existing forced state recipe id
  * vocabulary contract for a page's offered forced states"` (2026-09-12,
- * `graphify-out/graph.json`) — the only neighbours are this module's own
- * `forced-surface.harness.ts` and unrelated `state`/`offered` nodes in other
- * packages; no recipe / forced-state contract exists in the tree to consume.
+ * `graphify-out/graph.json`) — the only neighbours were this module's own
+ * rendered-proof harness (since retired) and unrelated `state`/`offered`
+ * nodes in other packages; no recipe / forced-state contract exists in the
+ * tree to consume.
  * What is MINTED here is the recipe vocabulary and `ForcedState`'s `label` /
  * `phrase`; what is NOT minted is the preset vocabulary it replaces —
  * `FORCE_URL_PRESETS` is retired from `composables/useForcedState.types.ts`

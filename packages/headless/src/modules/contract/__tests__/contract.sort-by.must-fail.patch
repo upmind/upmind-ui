@@ -1,14 +1,15 @@
 # Negative-control mutant — `useContracts().useActions().sortBy` actually
 # reorders the list (R38 supersedes R28/R32's pagination-only ruling; B2).
 #
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Order my contracts by when they next bill, latest first"
+#   contract.feature > "An order I empty falls back to oldest first"
+#
 # No task/spec basename names this member yet — R38 (2026-09-28) postdates
 # `tasks.md`; this patch is authored against the ruling directly, for the
 # prover to anchor a `sortBy` behavioural spec to (the `contract-product` /
 # `tickets` siblings each publish the same member).
 #
-# Scenario it must flip: calling `useContracts().useActions().sortBy(intent)`
-#   merges `intent` into the `sort` branch of the ONE query model, so the next
-#   request carries it.
 # Mutation: `sortBy` becomes a no-op — it no longer calls `query.setCriteria`,
 #   so a caller's sort intent never reaches the query's criteria and never
 #   reaches the wire.

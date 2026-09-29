@@ -1,13 +1,9 @@
 Negative control for useContract.actions.ts `clear` (R37 B7).
 
-Spec that must flip: contract.manager-members.int.test.ts
-("Close the payment-method form without changing how my contract is paid
-for", contract.feature:308) — calls `useActions().clear()` on an open form
-with a card chosen and expects the form closed, no request sent, and a
-re-open drawn in full with no leftover choice.
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.feature > "Close the payment-method form without changing how my contract is paid for"
 
 Mutation: reverts the action back to the pre-restore `cancelForm` name.
-
 diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
 --- a/packages/headless/src/modules/contract/useContract.actions.ts
 +++ b/packages/headless/src/modules/contract/useContract.actions.ts

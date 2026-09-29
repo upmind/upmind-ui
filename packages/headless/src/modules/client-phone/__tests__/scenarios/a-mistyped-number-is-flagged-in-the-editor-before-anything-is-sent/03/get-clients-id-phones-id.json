@@ -1,0 +1,69 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/phones/d6325079-8065-d1e3-637c-8174e234e98d",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40c2ce8ba127415-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 18:43:36 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=F2mbt2YkYCPpz0st8aqYXovj9n2cYIYIqUDJbczEFXYg6ZY1bdBoGHQ2fn83Gxz9ahJtRSWHtfqRqgZPXPbY7SpT7GGspxsJUAeToK9sTgYzr0%2B0VnpjbE4zNSkGyDoI9oD%2BfkMA%2Fg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "d6325079-8065-d1e3-637c-8174e234e98d",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "user_id": "sys",
+        "type": 1,
+        "default": false,
+        "verified": 0,
+        "syntax_valid": true,
+        "phone": "7701787593",
+        "phone_code": "+44",
+        "international_phone": "mock-phone-13",
+        "phone_country_code": "GB",
+        "created_at": "2026-09-25 18:43:34",
+        "updated_at": "2026-09-25 18:43:34",
+        "deleted_at": null,
+        "full_phone": "mock-phone-13",
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T18:43:36.637Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-phone"
+  }
+}

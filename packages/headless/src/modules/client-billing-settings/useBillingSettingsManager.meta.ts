@@ -5,7 +5,6 @@ import { isEmpty, isEqual } from "lodash-es";
 import type { BillingSettingsContext } from "./client-billing-settings.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/useBillingSettingsManager.meta
@@ -16,13 +15,33 @@ import type { Ref } from "vue";
  */
 export function createBillingSettingsManagerMeta(
   _actorScope: ScopeActorTypes,
-  actor: UseActor,
-  consumerDisabled: Ref<boolean>
+  actor: UseActor
 ) {
   const { state } = actor;
 
-  /** True once the form is available for input. */
-  const isAvailable = computed(() => stateMatches(state, "available"));
+  /**
+   * `true` only when the brand has explicitly opted clients into managing
+   * their own consolidation preference (row O8, AC-17): `restrict_to_staff`
+   * read as `!(config[KEY] ?? true)`, so an absent OR `true` value is
+   * restricted and only an explicit `false` is client-managed.
+   */
+  const isConsolidationManaged = computed(
+    () =>
+      !(
+        contextValue<Record<BrandConfigKeys, boolean>>(state, "config")?.[
+          BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
+        ] ?? true
+      )
+  );
+
+  /**
+   * True once the form is available for input — the machine is settled AND
+   * the brand has opted this client into managing consolidation (AC-17). A
+   * restricted client reads `false`, and the editor makes no write.
+   */
+  const isAvailable = computed(
+    () => stateMatches(state, "available") && isConsolidationManaged.value
+  );
 
   /**
    * True while the machine is waiting for its client id or resolving
@@ -67,11 +86,6 @@ export function createBillingSettingsManagerMeta(
     stateMatches(state, ["processed", "complete"])
   );
 
-  /** `true` while the addressed client record is a staged, unprocessed import (row C14). */
-  const isStaged = computed(
-    () => !!contextValue<boolean[]>(state, "lookups.isStaged")?.[0]
-  );
-
   /**
    * `true` only when the brand has explicitly opted clients into this
    * surface (row O8). Reads the whole `config` bag and indexes by the
@@ -98,16 +112,6 @@ export function createBillingSettingsManagerMeta(
       ]
   );
 
-  /**
-   * `true` only when every one of this module's own gates allows editing —
-   * not staged (row C14), not mid-save, and not externally locked by the
-   * consumer (row C16, `setDisabled()`). Folded here rather than left for
-   * each consumer to reconstruct from the flags individually.
-   */
-  const isEditable = computed(
-    () => !isStaged.value && !isProcessing.value && !consumerDisabled.value
-  );
-
   // --- actor-specific meta: none earned (arms: none — parity.yaml).
 
   return {
@@ -123,20 +127,11 @@ export function createBillingSettingsManagerMeta(
     /** True if the model differs from its persisted baseline. */
     isDirty,
 
-    /**
-     * True only when every one of this module's own gates allows editing —
-     * not staged, not mid-save, not consumer-locked (row C16).
-     */
-    isEditable,
-
     /** True while subscribing or loading. */
     isLoading,
 
     /** True while a save is being processed. */
     isProcessing,
-
-    /** `true` while the addressed client record is a staged, unprocessed import (row C14). */
-    isStaged,
 
     /** True if the current model passes schema validation. */
     isValid,

@@ -353,6 +353,22 @@ describe("mapIProfileFields — AC-59 the custom_fields branch matches A's own s
   });
 });
 
+describe("mapProfileFields — every custom field appears alongside the native fields", () => {
+  it("projects a display row for every custom field embedded in the record, plus the native fields", () => {
+    const client = recordedClient();
+
+    const record = mapProfile(client);
+    const fields = mapProfileFields(record);
+    const customRows = fields.filter(field => field.meta.isCustomField);
+    const nativeRows = fields.filter(field => !field.meta.isCustomField);
+
+    expect(record.customFieldValues.length).toBeGreaterThan(0);
+    expect(customRows.length).toBe(record.customFieldValues.length);
+    expect(customRows.length).toBe(client.custom_fields?.length ?? 0);
+    expect(nativeRows.length).toBeGreaterThan(0);
+  });
+});
+
 describe("mapProfileFields — AC-59 the READ-side custom field value is A's coercion, not a local re-derivation", () => {
   it("AC-59 projects a custom field's value exactly as A's own seam (mapCustomFieldValues, A-9) coerces it — never re-derived locally", () => {
     const client = recordedClient();

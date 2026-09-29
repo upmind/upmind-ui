@@ -1,0 +1,51 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/config/brand/values?keys=security.ui.allow_vault",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a422b8e49f844c65-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 12:23:57 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=KTixrhLoevwJYNquergoKGFv%2F%2BfOtzd0nfIPQrSIHR7mcZr0pAKK9fKmxR3xem2fNSGIfA%2BXQ%2BmeJTl3hO6cHWmNJGfBWtGFtsVMM6%2FPEWqNv1Jd1sFQ45izyn8pNfFbF2dwMWuUIA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "security.ui.allow_vault": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T12:23:57.144Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "open-one-of-my-secrets-for-editing-and-see-its-real-value"
+  }
+}

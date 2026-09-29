@@ -135,6 +135,7 @@ function createPersonalDetailsManagerForScope(
   const actions = createPersonalDetailsManagerActions(
     actorScope,
     actorRef,
+    service,
     scopeKey
   );
 

@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/cart/calculate?lang=en",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+      "prices": [8.25, 0]
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a429aaf20ee34eca-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 08:37:46 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=eHD7JEkDeNzI3ff3ddPm09iQos%2Bnle2HKpyS%2BNuNJhCJSv5PyZJJFX3ONq%2Fk1mDTBkXF6kHXsQzR6FYs9SmEv9RLGcRz41tK99%2BIg7fAE9hFVnl45bgQpkagMnCV5CC%2B02%2FStuNeGQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "total": 8.25,
+        "total_formatted": "£8.25",
+        "prices": [8.25, 0]
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T08:37:46.158Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

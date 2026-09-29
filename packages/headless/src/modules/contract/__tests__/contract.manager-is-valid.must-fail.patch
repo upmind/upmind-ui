@@ -1,13 +1,10 @@
 Negative control for useContract.meta.ts `isValid` (R37 B12).
 
-Spec that must flip: contract.manager-members.int.test.ts
-("A stored card I choose in the payment-method form is taken in and
-checked", contract.feature:302) — expects `useMeta().isValid` true once the
-chosen stored card is checked.
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.feature > "Close the payment-method form without changing how my contract is paid for"
 
 Mutation: reverts the meta flag back to the pre-restore `isPaymentMethodValid`
 name.
-
 diff --git a/packages/headless/src/modules/contract/useContract.meta.ts b/packages/headless/src/modules/contract/useContract.meta.ts
 --- a/packages/headless/src/modules/contract/useContract.meta.ts
 +++ b/packages/headless/src/modules/contract/useContract.meta.ts

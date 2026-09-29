@@ -104,7 +104,18 @@ with ONE entrypoint:
 ```sh
 pnpm fixtures:generate <unit>     # e.g. pnpm fixtures:generate auth
                                   #      pnpm fixtures:generate product-setup
+pnpm fixtures:generate <unit> --scenario "<scenario title>"
+                                  # re-record ONE scenario, e.g.
+                                  # pnpm fixtures:generate invoices --scenario "Sort my invoice list"
 ```
+
+`--scenario` re-records one scenario and leaves every other recording as it is.
+The generator's `describe` for a scenario carries the scenario's title from the
+`.feature`, so the runner passes the title, escaped to a literal, to vitest `-t`.
+Every other test is skipped. The `beforeAll` arrangement of the enclosing
+`describe` still runs, and `prepareScenarioDirs` clears only the named
+scenario's folders. Use it whenever one scenario changes: a full run
+re-records every step of the module.
 
 It loads `packages/headless/.env.recording` (`VITE_API_URL` +
 `RECORDING_BRAND_ORIGIN` — the API resolves the brand from `Origin`), runs the

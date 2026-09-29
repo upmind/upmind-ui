@@ -1,12 +1,14 @@
-Negative control for useContractProduct.context.ts `title` (R37 B3).
-
-Spec that must flip: contract-product.manager-members.int.test.ts
-("shows the product's name through useContext().title") — asserts `useContractProduct().useContext().title` reflects the
-loaded product's `name`.
-
-Mutation: drops the `title` computed and its return entry, so the manager
-exposes no display title.
-
+# Negative-control mutant — the manager publishes the product's display title (AC-4)
+#
+# Scenario it must flip: contract-product.feature >
+#   "Open one of my products with what its detail view needs"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then it is the very product I opened, under its own name and description" —
+#   the manager context publishes no `title` member.
+# Mutation: drops the `title` computed and its return entry.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts

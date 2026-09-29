@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf681ab35be39-DUB",
+      "cf-ray": "a41c26218aca0de1-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:16:50 GMT",
+      "date": "Sun, 27 Sep 2026 17:15:11 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=J8RHSqpPgmG9KE5GmgKbe6N2tcJ5XbNoN4ksi9j64kHzp1WD%2F4z0jmRa2xsWIgsJagKyS%2BPGq1MB1w3E2R5zsA%2FSPFV91qcfsQ2aJ6584FfPxQsXQWahIew57UmyKDQ%2Bg4MsHBMhrA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=RqtrtTqtRxkSCwjx2NztMHJOjhYNNhV7X3FdfY6t3xRCU3XOxWd3E9I1p%2Bcvk3yIUMOAJXnKn1BQZUXn5Ftk6OgAwnDqSKCkvT0RlYkHl6x9t4P4acElX9GNRP7SH00WbgDMiMez8g%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -35,18 +35,18 @@
       "status": "ok",
       "data": [
         {
-          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "id": "5952098d-3de4-0917-56a3-1578626e347e",
           "topic_id": "45952098-d3de-4091-76a3-1578626e347e",
           "channel_id": "3825d96e-763e-d091-3dc4-174825283406",
-          "created_at": "2026-04-08 07:24:11",
-          "updated_at": "2026-04-08 07:24:11"
+          "created_at": "2026-09-27 17:15:02",
+          "updated_at": "2026-09-27 17:15:02"
         },
         {
-          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+          "id": "20403869-6e54-721d-99b5-18d9305e7d23",
           "topic_id": "45952098-d3de-4091-76a3-1578626e347e",
           "channel_id": "24d03679-424d-0e71-04b3-153698d582e8",
-          "created_at": "2026-04-08 07:24:11",
-          "updated_at": "2026-04-08 07:24:11"
+          "created_at": "2026-09-27 17:15:02",
+          "updated_at": "2026-09-27 17:15:02"
         }
       ],
       "related": null,
@@ -56,7 +56,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:16:50.884Z",
+  "captured_at": "2026-09-27T17:15:11.187Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

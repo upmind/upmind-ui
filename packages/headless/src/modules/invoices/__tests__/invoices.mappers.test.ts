@@ -427,7 +427,7 @@ describe("mapPayments (via mapInvoice) — payment meaning and order", () => {
   });
 });
 
-describe("invoices — the invoice's OWN assigned payment method (AC-4, read half)", () => {
+describe("invoices — AC-4 the invoice's own assigned payment method, read half", () => {
   it("carries the assigned method's id and card details off the real recorded row", () => {
     const assigned = paidRaw.payment_details;
     // Guards the toggle below against a re-recording that drops the card: an

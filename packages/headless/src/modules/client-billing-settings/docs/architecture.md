@@ -43,21 +43,27 @@ flowchart TD
 
 A late-resolving client id (a cold boot, where the session hasn't settled yet) tops up the already-interpreting machine through a **self-stopping** watch on the same resolved client id the rest of the module uses — never a second, independent read of the session.
 
-### The save path — diff, staged-import gate, then persist
+### The save path — two independent diffs, each with its own gate
 
 ```mermaid
 flowchart TD
-  save["Caller invokes update()"] --> locked{"Owning record<br/>a staged import?"}
-  locked -- yes --> reject(["Rejected — no request sent"])
-  locked -- no --> diff["Compute the diff-only body: each field vs the base model, by IDENTITY, never by truthiness"]
-  diff --> empty{"Diff empty?"}
-  empty -- yes --> noop(["Resolve with zero requests"])
-  empty -- no --> put["PUT clients/{id} — the diff-only body"]
-  put --> invalidate["Invalidate this module's own cache key prefix"]
+  save["Caller invokes update()"] --> diff["Compute two diff-only bodies: consolidation fields vs base, currency fields vs base — each by IDENTITY, never by truthiness"]
+  diff --> cEmpty{"Consolidation diff empty?"}
+  cEmpty -- no --> cGate{"Brand has opted clients<br/>into managing consolidation?"}
+  cGate -- no --> cReject(["Consolidation write rejected — no request sent"])
+  cGate -- yes --> cPut["PUT clients/{id}"]
+  cEmpty -- yes --> cNoop(["No consolidation request"])
+  diff --> curEmpty{"Currency diff empty?"}
+  curEmpty -- no --> curGate{"Preferred-payment-currency change,<br/>AND brand offers that choice?"}
+  curGate -- no, and field untouched --> curPut["PUT accounts/{accountId}"]
+  curGate -- field touched but choice closed --> curReject(["Currency write rejected — no request sent"])
+  curEmpty -- yes --> curNoop(["No currency request"])
+  cPut --> invalidate["Invalidate this module's own cache key prefix"]
+  curPut --> invalidate
   invalidate --> done(["Save settled"])
 ```
 
-Guarantees the platform holds: the staged-import check runs before the diff is even computed, and it is checked directly against a fresh one-shot read — not against whatever the machine's own context happens to hold — so a caller invoking the underlying service directly cannot bypass it by skipping the machine's own gate.
+Guarantees the platform holds: each diff is gated and short-circuited independently — a save that only touches the account's currency fields issues no `clients/{id}` request at all, and a save touching only consolidation fields issues no `accounts/{accountId}` request. The consolidation gate reads the same brand configuration `isAvailable` reads: a missing or staff-only value refuses the write, checked after the empty-diff short-circuit so a currency-only save is unaffected by it.
 
 Constraints the caller has to plan around: the on/off/follow field's own "off" value (`0`) is falsy; every step between the caller's input and the outbound diff has to test for "did this change" rather than "does this look like a value", or the off state silently vanishes from the request. See "The falsy-zero restoration" below.
 
@@ -79,9 +85,9 @@ Constraints the caller has to plan around: this restoration only re-instates wha
 
 | Sub-composable | Read view | Editor |
 | --- | --- | --- |
-| `useActions()` | 3 members — readiness, refresh, lifecycle | 9 members — input, save, revert, clear, external lock, lifecycle |
-| `useContext()` | 3 members — the preference, staged flag, captured error | 11 members — the full context object, model, base model, schema pair, id, title, staged/visibility flags, errors |
-| `useMeta()` | 5 flags | 11 flags |
+| `useActions()` | readiness, refresh, lifecycle | input, save, revert, clear, lifecycle |
+| `useContext()` | the preference, account currency fields, captured error | the full context object, model, base model, schema pair, id, title, visibility, currency options, errors |
+| `useMeta()` | state flags, including visibility and payment-currency-choice | state flags, including visibility and payment-currency-choice |
 | `useInternals()` | 2 — actor scope, raw query | 4 — actor scope, raw sender, raw service, raw state |
 
 ## Services
@@ -92,10 +98,10 @@ One services file serves both halves:
 | --- | --- |
 | Target-client resolution | one function, consumed by both the read view and the editor |
 | Addressability predicate | one function; its reactive form is what `isAvailable` exposes on both composables |
-| The reactive preference read | a reactive query sharing its cache key and URL with two sibling modules |
-| A one-shot preference read | used by the editor's own lookups and the staged-import check; deliberately bypasses the shared reactive cache entirely — see "The shared cache key" below |
+| The reactive preference read | a reactive query sharing its cache key and URL with a sibling module |
+| A one-shot preference read | used by the editor's own lookups; deliberately bypasses the shared reactive cache entirely — see "The shared cache key" below |
 | The visibility-gate read | resolved once per scope, shared between the readiness wait and the synchronous flag reads so neither can observe a still-in-flight fetch |
-| The diff-only update body | pure, no side effects beyond the request itself; compares each field by identity, never by truthiness |
+| The diff-only update bodies | pure, no side effects beyond the request itself; compares each field by identity, never by truthiness — one body for the consolidation fields, a separate one for the account's currency fields |
 | The machine-services adapter | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client as the rest of the module |
 
 The module owns **no machine of its own** — it builds a typed configuration payload for the shared form-editor machine, overriding its actions, guards, and invoked services. The shared machine has no dedicated "revert" event; revert is composed as an ordinary form input carrying the last-saved values back through the same validation path a normal edit takes.
@@ -129,11 +135,9 @@ None yet — this is a newly introduced module. Its own scope is deliberately na
 
 ## The shared cache key
 
-This module, `client-personal-details`, and `client-custom-fields` all read the **identical** `clients/{id}?with=custom_fields,custom_fields.field` resource, under the **identical** cache key — deliberately, so a page mounting more than one of the three dedupes onto a single request rather than issuing one each.
+This module and `client-personal-details` both read the **identical** `clients/{id}?with=custom_fields,custom_fields.field` resource, under the **identical** cache key — deliberately, so a page mounting both dedupes onto a single request rather than issuing one each.
 
-This is safe **only** because the reactive read primitive this module uses applies its own field-selection **per observer**, in isolation — a second or third reactive observer on the same key gets its own independent projection at zero extra requests, and cannot change what any other observer sees.
-
-**The unsafe pattern, and why it stays a live risk this module doesn't fully control.** The platform's *other* read primitive — a one-shot fetch-and-select call — bakes its own field-selection **inside** the very function the cache stores against. `client-custom-fields` reads this same shared key that way, selecting just the target client's brand id. If that call wins the race to populate the entry, the cache holds that bare brand-id string for the entry's full freshness window — and this module's own reactive read, mounting afterward, silently reports every field as `undefined` rather than erroring. This module's own one-shot reads never touch this shared key (they bypass the cache entirely, for exactly this reason) — but this module does not control what `client-custom-fields` does with the same key. See [gotchas.md](./gotchas.md#4-the-shared-cache-key-can-be-poisoned-by-a-sibling-module-this-module-does-not-control) for the concrete hazard.
+This is safe because the reactive read primitive this module uses applies its own field-selection **per observer**, in isolation — a second reactive observer on the same key gets its own independent projection at zero extra requests, and cannot change what the other observer sees. `client-custom-fields` reads a different endpoint entirely (`custom_fields`, scoped by access token) and does not touch this shared key.
 
 ## Module boundary
 

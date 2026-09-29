@@ -1,12 +1,14 @@
-Negative control for useContractProduct.context.ts `validationErrors` (R37 B2).
-
-Spec that must flip: contract-product.mutations.int.test.ts
-(the D68 AC-9 invalid-consolidation submit) — asserts `useContractProduct().useContext().validationErrors`
-carries the AJV `ErrorObject[]` the machine's `setError` parses off a 422.
-
-Mutation: drops the `validationErrors` member from the manager context
-factory, so a 422's field-level errors never reach the consumer.
-
+# Negative-control mutant — the manager publishes a refused form's field errors
+#
+# Scenario it must flip: contract-product.feature >
+#   "A cancellation form I submit without a choice is not sent and tells me why"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then I am shown that an option is required" — the manager context publishes
+#   no `validationErrors` member.
+# Mutation: drops the `validationErrors` member from the manager context factory.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts

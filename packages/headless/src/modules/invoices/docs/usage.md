@@ -28,9 +28,7 @@ const {
   setCriteria,
   sortBy,
   filterConsolidatable,
-  filterCreditNotes,
-  assignPaymentMethod,
-  refreshAfterPayment
+  filterCreditNotes
 } = invoices.useActions();
 ```
 
@@ -119,31 +117,51 @@ const { total, pagination } = invoices.useContext();
 // published criteria — not the consolidation-notice count.
 ```
 
-## Reading one invoice in full
+## Reading and paying one invoice — `useInvoice`
+
+`useInvoice` is a scoped, machine-backed composable. Every actor call resolves the invoice through `.withId(id)`, never through a `.for()` context — `.for()` is a compile-time error on this composable, since one invoice has no relationship slots to retarget. `.as('client')` and `.as('guest')` both resolve, and `.as('self')` resolves to whichever of the two the active session is; there is no `staff` arm.
 
 ```typescript
-import { useInvoice } from "@upmind-automation/headless";
+import { ScopeActorTypes, useInvoice } from "@upmind-automation/headless";
 
 declare const invoiceId: string;
 
+// As the active session (resolves to client or guest)
 const invoice = useInvoice().withId(invoiceId);
 
-const { data, error, unpaidAmount } = invoice.useContext();
+// Explicitly as a guest checkout
+const guestInvoice = useInvoice().as(ScopeActorTypes.GUEST).withId(invoiceId);
+
+const { model, error, unpaidAmount } = invoice.useContext();
 const {
-  isPaid,
-  isFree,
-  isPartiallyPaid,
-  isPending,
-  isLocked,
-  isSettleable,
-  paymentState,
-  isLoading,
-  isComplete,
   hasError,
-  isAvailable
+  isAuthenticated,
+  isAvailable,
+  isComplete,
+  isFree,
+  isLoading,
+  isLocked,
+  isPartial,
+  isPaymentDue,
+  isPending,
+  isProcessing,
+  needsApproval,
+  isRenderingChallenge,
+  isUnavailable
 } = invoice.useMeta();
-const { isReady, refresh, invalidate, destroy, refreshUnpaidAmount } =
-  invoice.useActions();
+const {
+  cancelChallenge,
+  destroy,
+  downloadPdf,
+  input,
+  isReady,
+  pay,
+  refresh,
+  renderChallenge,
+  retry,
+  setCurrency,
+  updatePaymentDetails
+} = invoice.useActions();
 ```
 
 ```typescript
@@ -154,51 +172,125 @@ declare const invoiceId: string;
 const invoice = useInvoice().withId(invoiceId);
 await invoice.useActions().isReady();
 
-const { data } = invoice.useContext();
-data.value.number; // "QA-INV-23286"
-data.value.status; // InvoiceStatus
-data.value.summary.paidAmount; // number
-data.value.summary.unpaidAmount; // number
-data.value.summary.balance; // may diverge from unpaidAmount post-consolidation
-data.value.payments; // Payment[] — newest first
-data.value.attribution; // { isOwn, isChildOfClient, isDelegated, isSettleable }
+const { model } = invoice.useContext();
+model.value?.number; // "QA-INV-23286"
+model.value?.status; // InvoiceStatus
+model.value?.summary.paidAmount; // number
+model.value?.summary.unpaidAmount; // number
+model.value?.summary.balance; // may diverge from unpaidAmount post-consolidation
+model.value?.payments; // Payment[] — newest first
+model.value?.attribution; // { isOwn, isChildOfClient, isDelegated, isSettleable }
+```
+
+> **🧪 For Testers:** `useContext().model` is the published render key for the mapped invoice — there is no `data` member on this composable's context. Do not port an assertion written against `useInvoices()`'s `data` onto `useInvoice()` without renaming it.
+
+### Paying, retrying, and inline challenges
+
+```typescript
+import { ScopeActorTypes, useInvoice } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+declare const container: HTMLElement;
+
+const invoice = useInvoice().withId(invoiceId);
+await invoice.useActions().isReady();
+
+invoice.useActions().pay(); // triggers the pay flow
+
+// If a declined attempt sets `hasError`, retry with the same staged inputs:
+invoice.useActions().retry();
+
+// An inline (non-redirect) 3DS challenge:
+if (invoice.useMeta().needsApproval.value) {
+  invoice.useActions().renderChallenge(container);
+}
+if (invoice.useMeta().isRenderingChallenge.value) {
+  invoice.useActions().cancelChallenge();
+}
+```
+
+`pay()` and `retry()` send events into this invoice's own machine; neither this module nor its consumer calls `POST /payments` directly — the machine spawns the platform's `payment` module to submit and observe the attempt, and hands an inline challenge (when the gateway needs one) to the same child. `paymentDetails` supplies the payment-method picker the machine spawns alongside it.
+
+### Assigning or clearing the payment method
+
+```typescript
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+declare const paymentDetailsId: string;
+
+const invoice = useInvoice().withId(invoiceId);
+
+invoice.useActions().input({ payment_details_id: paymentDetailsId });
+await invoice.useActions().updatePaymentDetails();
+
+invoice.useActions().input({ payment_details_id: null }); // clear — sends null
+await invoice.useActions().updatePaymentDetails();
+```
+
+`input()` stages the model; `updatePaymentDetails()` saves the staged model (`PATCH /invoices/{id}/payment_details`) and re-reads the invoice. This write lives on `useInvoice`, not on the collection — `useInvoices` is list-only.
+
+### Downloading the PDF
+
+```typescript
+import { useInvoice } from "@upmind-automation/headless";
+
+declare const invoiceId: string;
+
+const invoice = useInvoice().withId(invoiceId);
+await invoice.useActions().isReady();
+await invoice.useActions().downloadPdf(); // saves locally as `${number}.pdf`
+```
+
+A credit note is read through the same downloader — there is no separate credit-note PDF endpoint.
+
+### Switching the pay currency
+
+```typescript
+import { useInvoice } from "@upmind-automation/headless";
+import { ISO_4217_CURRENCY_CODE } from "@upmind-automation/types";
+
+declare const invoiceId: string;
+
+const invoice = useInvoice().withId(invoiceId);
+
+// Pass the target currency by code (or by id).
+await invoice.useActions().setCurrency({ code: ISO_4217_CURRENCY_CODE.EUR }); // re-reads unpaidAmount in the new currency
 ```
 
 ### Re-reading the live unpaid amount
 
+`unpaidAmount` re-reads automatically when `setCurrency()` saves a currency change; there is no separate `refreshUnpaidAmount()` action on this composable.
+
 ```typescript
 import { useInvoice } from "@upmind-automation/headless";
 
 declare const invoiceId: string;
-declare const currencyId: string;
 
 const invoice = useInvoice().withId(invoiceId);
 const { unpaidAmount } = invoice.useContext();
-
-await invoice.useActions().refreshUnpaidAmount(); // on demand
-await invoice.useActions().refreshUnpaidAmount(currencyId); // on a currency change — issues a fresh request
 ```
 
-### Payment state (one discriminated value)
+### Single-invoice meta flags
 
-| Value      | Meaning                                                                  |
-| ---------- | ------------------------------------------------------------------------ |
-| `complete` | payments exist and unpaid is zero                                        |
-| `free`     | no payments and unpaid is zero                                           |
-| `partial`  | some has been paid, some is still owed                                   |
-| `pending`  | nothing settled yet, but something is owed or an attempt exists          |
-| `failed`   | the load itself failed — never a guessed state standing in for a failure |
+| Flag                    | True when                                                                |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `hasError`               | An error or a failed attempt sits on an available invoice                |
+| `isAuthenticated`        | The reading session is authenticated                                     |
+| `isAvailable`            | The invoice has loaded and the pay flow is active                        |
+| `isComplete`             | The pay flow has completed — paid in full or free                        |
+| `isFree`                 | No payments recorded and nothing owed                                    |
+| `isLoading`              | The invoice is still loading                                             |
+| `isLocked`               | The invoice cannot accept a new payment method                           |
+| `isPartial`              | Some, but not all, of the invoice has been paid                          |
+| `isPaymentDue`           | Payment is due and nothing is settled or pending                         |
+| `isPending`               | A payment is in flight, awaiting settlement                              |
+| `isProcessing`           | A payment or refresh is currently processing                             |
+| `needsApproval`          | An inline 3DS challenge is awaiting the customer                         |
+| `isRenderingChallenge`   | An inline challenge is rendering into its container                      |
+| `isUnavailable`          | The invoice could not be loaded                                          |
 
-```typescript
-import { useInvoice } from "@upmind-automation/headless";
-
-declare const invoiceId: string;
-declare function promptPayment(): void;
-
-const invoice = useInvoice().withId(invoiceId);
-await invoice.useActions().isReady();
-if (invoice.useMeta().paymentState.value === "pending") promptPayment();
-```
+There is no single discriminated `paymentState` value on this composable — branch on the individual flags above (`isFree` / `isComplete` / `isPartial` / `isPending` / `isPaymentDue`) rather than reconstructing one.
 
 ## Reading an entitled client's invoices
 
@@ -269,19 +361,7 @@ Each context's id is seeded onto its own filter column when the scope mints, and
 
 ## Assigning the payment method
 
-```typescript
-import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
-
-declare const invoiceId: string;
-declare const paymentDetailsId: string;
-
-const invoices = useInvoices().as(ScopeActorTypes.SELF);
-
-await invoices.useActions().assignPaymentMethod(invoiceId, paymentDetailsId);
-await invoices.useActions().assignPaymentMethod(invoiceId, null); // clear — sends null, not an omitted field
-```
-
-Invalidates the shared invoices cache key on success, so both the list and the single read pick up the change.
+The collection has no payment-method write — `useInvoices` is list-only. Assign or clear an invoice's payment method on `useInvoice` with `input()` and `updatePaymentDetails()`; see [Assigning or clearing the payment method](#assigning-or-clearing-the-payment-method).
 
 ## Refresh & invalidate
 
@@ -296,17 +376,15 @@ declare const invoiceId: string;
 
 const invoices = useInvoices().as(ScopeActorTypes.SELF);
 await invoices.useActions().refresh(); // re-read the list
-await invoices.useActions().refreshAfterPayment(); // the payment-outcome refetch
-await invoices.useActions().invalidate(); // drop the cache and re-fetch
+await invoices.useActions().invalidate(); // mark the cache stale; the next read re-fetches
 
 const invoice = useInvoice().withId(invoiceId);
-await invoice.useActions().refresh();
-await invoice.useActions().invalidate();
+await invoice.useActions().refresh(); // re-read this one invoice
 ```
 
 ## Mapping a raw record
 
-`mapInvoice(raw, readingClientId?)` and `mapInvoices(raw, readingClientId?)` are curated re-exports (also used by the query's own `select`). `readingClientId` drives the co-mingled row attribution — a call with no second argument (as `orders/order.machine.ts` makes) still resolves a correct delegated signal, but a conservative (never "mine") sub-account signal:
+`mapInvoice(raw, readingClientId?)` and `mapInvoices(raw, readingClientId?)` are curated re-exports (also used by the query's own `select`). `readingClientId` drives the co-mingled row attribution — a call with no second argument (as this module's own `invoice.machine.ts` makes when it loads a single invoice) still resolves a correct delegated signal, but a conservative (never "mine") sub-account signal:
 
 ```ts
 import { mapInvoice } from "@upmind-automation/headless";
@@ -325,9 +403,9 @@ const invoice = mapInvoice(rawInvoice, readingClientId);
 <template>
   <div v-if="meta.isLoading">Loading…</div>
   <div v-else-if="meta.hasError">Could not load this invoice.</div>
-  <div v-else-if="meta.isPaid">Paid — {{ data.summary.total }}</div>
-  <div v-else-if="meta.isPending || meta.isPartiallyPaid">
-    {{ data.summary.unpaidAmountFormatted }} still owed
+  <div v-else-if="meta.isComplete">Paid — {{ model?.summary.total }}</div>
+  <div v-else-if="meta.isPending || meta.isPartial">
+    {{ model?.summary.unpaidAmountFormatted }} still owed
   </div>
 </template>
 
@@ -337,7 +415,7 @@ import { useInvoice } from "@upmind-automation/headless";
 const props = defineProps<{ invoiceId: string }>();
 
 const invoice = useInvoice().withId(props.invoiceId);
-const { data } = invoice.useContext();
+const { model } = invoice.useContext();
 const meta = invoice.useMeta();
 await invoice.useActions().isReady();
 </script>

@@ -1,14 +1,15 @@
 # Negative-control mutant — `useContracts().useActions().filterBy` actually
 # narrows the list (R38 supersedes R28/R32's pagination-only ruling; B1).
 #
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Narrow my contracts to the ones in one state"
+#   contract.feature > "Clear my narrowing to see my whole list again"
+#
 # No task/spec basename names this member yet — R38 (2026-09-28) postdates
 # `tasks.md`; this patch is authored against the ruling directly, for the
 # prover to anchor a `filterBy` behavioural spec to (the `contract-product`
 # sibling: `useContractProducts().useActions().filterBy`).
 #
-# Scenario it must flip: calling `useContracts().useActions().filterBy(intent)`
-#   merges `intent` into the `filters` branch of the ONE query model, so the
-#   next request carries it.
 # Mutation: `filterBy` becomes a no-op — it no longer calls
 #   `query.setCriteria`, so a caller's filter intent never reaches the query's
 #   criteria and never reaches the wire.

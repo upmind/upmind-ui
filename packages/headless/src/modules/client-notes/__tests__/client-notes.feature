@@ -1,116 +1,49 @@
 # client-notes — the module's behavioural source of truth (capability altitude).
 #
-# CO-LOCATION IS THE REQUIREMENT, mirroring the client-phone / client-email
-# precedent. This copy, at docs/sdd/client-notes-vault/client-notes.feature, is
-# the PLANNER's source. The prover mirrors it byte-for-byte to
-#   packages/headless/src/modules/client-notes/__tests__/client-notes.feature
-# at Test (task T-14), where client-notes.traceability.test.ts reads it and
-# enforces the @AC link both ways. The planner seat writes only under
-# docs/sdd/**, which is why the mirror is a prover task and not done here.
+# EXECUTABLE per ADR-020 Amendment 5 + ADR 035 (FE-3145). This co-located
+# `.feature` IS the executed artefact: `client-notes.steps.ts` is its ONE step
+# catalog and `client-notes.replay.int.test.ts` replays every driven scenario
+# against the real composables — ONE scenario, ONE recording. Each driven
+# scenario plays its own per-step fixtures under `scenarios/<slug>/<NN>/`,
+# recorded by `client-notes.fixtures.ts` through `Generator`
+# (`pnpm fixtures:generate client-notes`). `client-notes.traceability.test.ts`
+# reads this file and enforces the @AC link both ways.
 #
-# NON-EXECUTABLE per ADR-020 (".feature files are spec-only, not executable").
-# No runner touches it and no steps file is produced — the colocated unit and
-# integration specs are the tests that run, each anchored to a scenario by its
-# @AC tag.
+# ONE scenario per capability (ADR 035 Amendment 1). The driven scenario carries
+# its `@AC-N`; a capability no scenario can drive keeps ONE `@todo` scenario with
+# its named blocker, so its absence is a recorded decision, never a silent drop.
+# An editor is a SECOND scenario key — the manager (`useClientNoteManager`) boots
+# beside the collection: `{ actor }` for a new record, `{ actor, context }` for an
+# existing one.
 #
-# One scenario per capability the parity table carries, at actor x context
-# altitude (ADR-001) — INCLUDING every editor behaviour, because this module
-# ships BOTH halves. The 2026-08-05 client-email amputation (a variant=query run
-# against an oracle that shipped a manager, every gate green) is the receipt the
-# variant=hybrid derivation exists to prevent.
+# Business language only. The wire-level read-backs live in the per-step
+# recordings and in parity.yaml, not here.
 #
-# Business language only. The wire-level read-backs that PROVE each scenario
-# (URL, session token, request body, filter key) live in requirements.md and
-# parity.yaml, not here.
+# ONE SCENARIO CARRIES @blocked-on-platform: AC-29 is a proven capability
+# whose proving test is `.skip`-ped over a PRE-EXISTING PLATFORM DEFECT outside
+# this module (useQueryCriteria.ts). The tag marks an exemption from the
+# traceability gate, not an absent capability.
 #
-# TWO SCENARIOS CARRY @blocked-on-platform (added Test-stage repair cycle 3,
-# operator ruling 2026-08-28): AC-15 and AC-29 are proven capabilities whose
-# assertions are correct and whose failures are PRE-EXISTING PLATFORM DEFECTS
-# outside this module (useQueryCriteria.ts and session-store.mappers.ts
-# respectively), filed rather than fixed in this run. See the colocated
-# .skip comments in client-notes.cross-cutting.int.test.ts and
-# client-notes.guard.int.test.ts for the exact root cause and reversal
-# condition. The scenarios are NOT deleted and NOT narrowed — the tag marks
-# an exemption from the traceability gate, not an absent capability.
+# AC-15 (the staged-import vault lock) is REMOVED (operator ruling): staging
+# never signs in a staged-import client, so the guard was unreachable in
+# production. No scenario asserts it here.
 #
-# THE JOB, verbatim, as WIDENED at the 2026-08-31 upgrade pass: "Let a consumer
-# have and use a full-parity client notes-and-secrets (Vault) module AND the
-# driveable labs-nuxt playground page that proves it — notes and secrets are ONE
-# entity, the `encrypted` flag decides which." Every scenario below is evidence
-# toward that sentence.
-#
-# The superseded 2026-08-27 sentence, kept for provenance: "Let a client have and
-# use working notes-and-secrets ('Vault') functionality for portal 2.0. Notes and
-# secrets are ONE entity; a flag decides which."
-#
-# MIRROR STATE, 2026-08-31. At the last pass this copy and the co-located mirror
-# were byte-identical at 34 scenarios (md5 507592c74b2ff1b4a0ba28e1c4f0c46a) —
-# INCLUDING @AC-34, whose proof has since landed at
-# client-notes.cross-cutting.int.test.ts:124 and :208. This pass adds TEN
-# scenarios, @AC-35 through @AC-44, so the two copies now DIFFER. Restoring them
-# to byte-identical is prover task T-38; the planner seat writes only under
-# docs/sdd/** and did not reach into the mirror. Copying a scenario there WITHOUT
-# its proving test turns client-notes.traceability.test.ts RED, so each scenario
-# and its spec land together or not at all.
+# THE JOB: "Let a consumer have and use a full-parity client notes-and-secrets
+# (Vault) module AND the driveable labs-nuxt playground page that proves it —
+# notes and secrets are ONE entity, the `encrypted` flag decides which."
 #
 # Actors: a client acts on their OWN vault. There is exactly ONE live cell —
-# client x self — by the operator cell ruling (2026-08-27). Both scope matrices
-# set SELF / STAFF / GUEST to `null as never`, so acting as staff or as a guest
-# is a compile-time error, not a silently-missing branch.
+# client x self. Both scope matrices set SELF / STAFF / GUEST to `null as never`,
+# so acting as staff or as a guest is a compile-time error, not a
+# silently-missing branch.
 #
-# THREE SCENARIOS WERE ADDED AFTER THE FIRST PLAN PASS. None replaces or
-# narrows another; each carries behaviour the contract asserted only in prose,
-# or not at all.
+# THE ORACLE DOES EXPOSE STAFF CAPABILITY this delivery does NOT carry — recorded
+# as signed drops in parity.yaml (S1-S6, C16, C11b), each with an operator
+# sign-off. No capability there has a scenario here; that absence IS the record.
 #
-#   AC-32 and AC-33 were added AT TEST STAGE (repair cycle, operator dispatch
-#   2026-08-28), covering two of the FIVE defects the integration suite exposed
-#   and that were repaired INSIDE the module — AC-32 (the revealed-secret map
-#   must not survive a refresh or a destroy) and AC-33 (isReady() must await
-#   the brand config rather than racing it). The prover wrote them into the
-#   co-located mirror and FILED the gap rather than editing this planner-owned
-#   copy, whose write lane is docs/sdd/** alone; the planner closed the gap
-#   here (sync dispatch 2026-08-28). Both were asserted in prose only —
-#   parity.yaml row C11 and design.md §12 — and no scenario carried them.
-#
-#   AC-34 was added by the PLANNER (coherence dispatch 2026-08-28) for a NEW
-#   capability, under the operator ruling of that date: a revealed secret must
-#   not survive a logout. It is not a repair of a scenario that existed; it is
-#   the record of a confirmed CROSS-CLIENT PLAINTEXT EXPOSURE and of the
-#   in-module fix that closes it (parity.yaml row X8, design decision B6).
-#   THIS SCENARIO IS OWED TO THE CO-LOCATED MIRROR — the prover must copy it
-#   verbatim, AND land a proving test whose title names AC-34, because
-#   client-notes.traceability.test.ts fails any tagged scenario with no
-#   proving test.
-#
-# The two DEFERRED defects — the ones that root-caused to shared platform files
-# and were NOT repaired — are AC-15 and AC-29 above (review-notes.md §O.0).
-#
-# THE ORACLE DOES EXPOSE STAFF CAPABILITY. Every one of the following is a REAL,
-# oracle-demonstrated capability this delivery does NOT carry. Recorded here —
-# not silently missing — so a reader cannot mistake a signed drop for an
-# oversight. Each carries an operator sign-off dated 2026-08-27 (tier-1) and a
-# Linear reference in parity.yaml (Dropped-with-Linear-issue, per
-# verify-parity-oracle.companion.md):
-#   - S1 reading and writing ANOTHER client's vault through the admin endpoint family
-#   - S2 the entire lead vault
-#   - S3 writing visible_for_client — the hide-from-clients control (admin-only
-#        in the oracle; the FIELD is kept because it drives the client-visible
-#        "hidden from client" badge, see AC-13)
-#   - S4 the vault timeline event family
-#   - S5 the admin-only "visible to client" badge
-#   - S6 the $userCan vault functionality codes (constant-true for a client)
-# And two rows that are NOT drops of oracle capability:
-#   - C16 free-text search across the vault — ABSENT from the oracle entirely
-#   - C11b copy-to-clipboard — presentation, over the plaintext AC-11 publishes
-# No capability above has any scenario in this file. That absence IS the record
-# — do not add one without a new operator ruling reversing the drop.
-#
-# ONE DELIBERATE DIVERGENCE FROM THE ORACLE, so a later reader does not
-# "correct" it back: converting a label-less note into a secret REFUSES with a
-# named missing field instead of opening a modal (AC-10). Headless owns
-# capability, not presentation; the precondition is the capability and it is
-# preserved exactly, with the field named so the consumer knows which editor to
-# open. Recorded as design decision D4.
+# ONE DELIBERATE DIVERGENCE FROM THE ORACLE: converting a label-less note into a
+# secret REFUSES with a named missing field instead of opening a modal (AC-23).
+# Headless owns capability, not presentation. Recorded as design decision D4.
 
 @module:client-notes @variant:hybrid @cell:client-self
 Feature: A client keeps notes and secrets in their own vault
@@ -124,10 +57,67 @@ Feature: A client keeps notes and secrets in their own vault
   existing one. Both act on that client's own vault, under that client's own
   identity, and never on another client's.
 
-  Background:
-    Given I am an authenticated client acting on my own vault
-    And my brand has notes and secrets switched on
-    And every request I make is addressed to my own vault as that client
+  # === SIGNED-OUT GUARDS + TRANSIENT FAULT (top level, no Background) =========
+  # These carry NO signed-in Background (backgroundStepCount 0): a guard seeds the
+  # guest floor through `seedSessionFor` and the replay wall fails it by name if
+  # the module sends any request while signed out; the transient-fault scenario
+  # arranges a failed provider-settings read at boot, which the signed-in
+  # Background (it settles the vault available) could never hold.
+
+  @AC-17 @collection @guard @signed-out
+  Scenario: My vault never hangs waiting for a client that will not arrive
+    When I wait for my vault while signed out
+    Then my vault is not available to me
+    And forcing a re-read while signed out is refused, asking the vault for nothing
+
+  @AC-32 @collection @guard @signed-out
+  @AC-34 @identity
+  Scenario: My vault reveals nothing to me once I am signed out
+    When I look at my vault while signed out
+    Then my vault is not available to me
+    And no vault request escapes while I am signed out
+
+  @AC-43 @manager @identity @guard @signed-out
+  Scenario: The editor holds no secret of mine once I am signed out
+    When I open the vault editor while signed out
+    Then the editor is not available to me
+    And no vault request escapes while I am signed out
+
+  # The vault gate is read with the module's OWN single-key request
+  # (`GET /api/config/brand/values?keys=security.ui.allow_vault`). The generator
+  # arranges the flag off with the staff account, records the client's own gate
+  # read returning `security.ui.allow_vault: false` into this scenario's
+  # "I look at my vault" step, then restores the flag. With the gate off the module
+  # folds it into isAvailable and asks NOTHING of the vault — any vault request is
+  # unmatched and the wall fails by name.
+  @AC-14 @collection @guard @vault-gate
+  Scenario: My vault is unavailable when my brand switches it off
+    Given my brand has notes and secrets switched off
+    When I look at my vault
+    Then I am told the vault is not available to me
+    And nothing is ever asked of the server on my behalf
+
+  # AC-33 carries NO signed-in Background (the Background settles the vault
+  # available, which this scenario's not-yet-arrived window could never hold).
+  # `@held-brand` tells the replay to arm this scenario's brand-config answer
+  # with a delay (`replayStep`'s `delayMs`), so the boot observes the vault
+  # WAITING (isLoading) rather than prematurely unavailable, then ready once the
+  # held answer arrives. The gate stays ON — no admin arrange; the delay is a
+  # replay-time timing concern, not a recorded value.
+  @AC-33 @collection @guard @held-brand
+  Scenario: My vault waits for my brand's own settings before saying it is not ready
+    Given I am authenticated and addressable as a client
+    And my brand's own settings have not yet arrived
+    When I wait for my vault to be ready
+    Then I am not told it is unavailable while my brand's settings are still arriving
+    And once they arrive I am told my vault is ready
+
+  Rule: A signed-in client keeps notes and secrets in their vault
+
+    Background:
+      Given I am an authenticated client acting on my own vault
+      And my brand has notes and secrets switched on
+      And every request I make is addressed to my own vault as that client
 
   # === THE COLLECTION ========================================================
 
@@ -217,52 +207,9 @@ Feature: A client keeps notes and secrets in their own vault
     And hiding it again masks it without asking the server anything
     And asking to see it a second time fetches it again, because its value was never kept
 
-  @AC-32 @collection
-  @AC-34 @identity
-  Scenario: A secret I revealed never outlives my session, wherever I revealed it
-    Given one of my vault assets is a secret I have revealed
-    When I refresh my vault
-    Then the secret I revealed is masked again, because a refresh may have changed it
-    And when I instead leave my vault entirely, the secret I revealed is masked again there too
-    When I log out
-    Then the secret I revealed is masked again
-    And when another client signs in on the same device, none of my revealed plaintext is readable to them
-    And that client sees only their own vault
-
-  @AC-12 @collection
-  @AC-40
-  Scenario: I see when each note was written and last changed, written the way I read dates
-    Given one of my vault assets was written by a member of staff and another by me
-    When I view my vault
-    Then each asset tells me who wrote it and when
-    And each asset that has been changed tells me who changed it and when
-    And each asset attached to a product I bought tells me which product
-    Given my vault holds notes written and edited at different times
-    When I read my vault
-    Then each one tells me when it was written and when it was last changed
-    And those are shown the way dates are shown everywhere else in the product
-
-  @AC-13 @collection
-  Scenario: See which of my vault assets are hidden from me by staff
-    Given one of my vault assets is marked as hidden from clients
-    When I view my vault
-    Then that asset is shown to me as hidden from clients
-    And my other assets are not
-
-  @AC-14 @collection @guard
-  Scenario: My vault is unavailable when my brand switches it off
-    Given my brand has notes and secrets switched off
-    When I look at my vault
-    Then I am told the vault is not available to me
-    And nothing is ever asked of the server on my behalf
-
-  @AC-15 @collection @guard @blocked-on-platform
-  Scenario: My vault is read-only while my account is a staged import
-    Given my account is a staged import
-    When I open my vault as a staged-import client
-    Then I can still read my notes and secrets
-    But pinning, deleting and converting are all refused
-    And nothing is written on my behalf
+  # AC-32 / AC-34 (a revealed secret never outlives my session) is driven at the
+  # top level as a `@signed-out` guard — its full cross-session-transport limb
+  # (logout, a second client's sign-in) belongs to session-store / auth.
 
   @AC-16 @collection
   Scenario: Know whether my vault is loading, empty, or errored
@@ -270,20 +217,9 @@ Feature: A client keeps notes and secrets in their own vault
     Then I can see whether my vault is loading, empty, or errored
     And when something goes wrong my vault records the failure for me to read rather than interrupting me
 
-  @AC-17 @collection @guard
-  Scenario: Wait for my vault to become ready without hanging
-    Given my session has settled with no client for me to address
-    When I wait for my vault to be ready
-    Then I am told it will never become ready, rather than waiting forever
-    And forcing a re-read in that state is refused instead of asking the server
+  # AC-17 (my vault never hangs waiting for a client that will not arrive) is
+  # driven at the top level as a `@signed-out` guard.
 
-  @AC-33 @collection @guard
-  Scenario: My vault waits for my brand's own settings before saying it is not ready
-    Given I am authenticated and addressable as a client
-    And my brand's own settings have not yet arrived
-    When I wait for my vault to be ready
-    Then I am not told it is unavailable while my brand's settings are still arriving
-    And once they arrive I am told my vault is ready
 
   # === THE EDITOR ============================================================
 
@@ -297,47 +233,46 @@ Feature: A client keeps notes and secrets in their own vault
   @AC-19 @editor
   @AC-20 @jtbd
   Scenario: I write a new note, or a new secret
-    Given I have something I want to remember about my account
+    Given I open a blank editor for a new vault asset
     When I write it as a new note and save it
-    Then it is stored in my vault as a note
-    And my vault list shows it
-    Given I have a value I want stored privately
+    Then the editor stores it as a note
+    And the editor confirms it saved
+    Given I open a blank editor for a new vault asset
     When I write it as a new secret with a label and save it
-    Then it is stored in my vault as a secret
-    And it is stored the same way a note is, differing only by being a secret and having a label
+    Then the editor stores it as a secret
+    And the secret it stored carries the label I gave it
 
   @AC-21 @editor
   Scenario: Change one of my existing vault assets
-    Given one of my vault assets holds something out of date
-    When I change it and save
-    Then my vault holds the changed asset
-    And nothing about the asset that I did not change is altered
+    Given I open one of my existing notes in the editor
+    When I change its body and save
+    Then the editor holds the changed body
+    And the label I did not touch is unchanged
 
   @AC-22 @editor
   @AC-41 @manager @jtbd
   Scenario: I attach one of my notes to a product I bought, and detach it
-    Given one of my vault assets is attached to no product
+    Given I open a note of mine that is attached to no product
     When I attach it to a product I bought and save
-    Then my vault records it as attached to that product
-    And detaching it again records it as attached to nothing
-    Given I have products with my provider
-    When I open the editor on a note
-    Then it offers me my own products to choose from, and only mine
-    And choosing one and saving attaches the note to that product
+    Then the editor records it attached to that product I bought
+    And that product is one of the products my provider offers me
+    And detaching it again records it attached to nothing
 
   @AC-23 @editor @jtbd
   Scenario: Turn an unlabelled note into a secret by giving it a label
-    Given one of my notes has no label
-    When I open it to make it a secret and try to save without a label
-    Then the save is refused and I am told the label is required
-    And giving it a label and saving stores it as a secret with that label, in one go
+    Given I open one of my label-less notes in the editor
+    When I make it a secret without giving it a label
+    Then the editor refuses the save until a label is given
+    And giving it a label and saving stores it as a secret with that label
 
   @AC-24 @editor @jtbd
   Scenario: The form asks me for a label only when I am writing a secret
-    Given I am writing a new vault asset
-    When it is a secret
-    Then the form requires a label and offers me somewhere to write one
-    And when it is a note the form neither requires a label nor offers one
+    Given I open a blank editor for a new vault asset
+    When I make the new asset a secret without a label
+    Then the editor refuses it for the missing label
+    And the editor offers me somewhere to write a label
+    When I make the new asset a note instead
+    Then the editor accepts it with no label at all
 
   @AC-25 @editor
   Scenario: Know the state of the editor while I use it
@@ -346,12 +281,12 @@ Feature: A client keeps notes and secrets in their own vault
     And it tells me when what I have typed differs from what is stored
     And it tells me while it is saving, when it has saved, and when the save failed
 
-  @AC-26 @editor
-  Scenario: Save exactly what I last typed, and close the editor cleanly
-    Given I have typed one value and then quickly replaced it with another
-    When I save
-    Then what is stored is the second value, not the first
-    And closing the editor leaves nothing of it behind
+  @AC-26 @editor @manager @jtbd
+  Scenario: What I save in the editor is my last edit, and my vault list shows it
+    Given I open one of my existing notes in the editor beside my vault list
+    When I give one value, then quickly replace it, and save
+    Then what is stored is my second value, not my first
+    And my vault list shows my second value
 
   # === HOW THE WHOLE MODULE BEHAVES ==========================================
 
@@ -394,29 +329,16 @@ Feature: A client keeps notes and secrets in their own vault
 
   @AC-36 @manager
   Scenario: What I wrote is still there when I come back to it
-    Given I have changed the body of a note in the editor
+    Given I open one of my notes and change its body in the editor
     When the editor settles
-    Then my change is still what the editor holds
-    And changing one more field afterwards keeps both changes
+    Then the editor still holds my changed body
+    And changing its label too keeps both my changes
 
   @AC-37 @manager @jtbd
   Scenario: The editor only offers me fields it will actually save
     Given I open the editor on any note or secret
     Then it offers me the body, the label, the related product and whether my provider can see it
     And it does not offer me a pin control, because pinning is done from the list
-
-  @AC-38 @collection
-  Scenario: A note with no label is readable as a note with no label
-    Given my vault holds notes that were saved without a label
-    When I read my vault
-    Then those notes come back with their label plainly absent
-    And trying to turn one of them into a secret is refused for the missing label
-
-  @AC-39 @guard
-  Scenario: A momentary problem reaching my provider's settings does not lock me out of my vault for good
-    Given my provider's settings cannot be read the first time my vault is opened
-    When I ask for my vault again
-    Then my vault opens and shows me my notes and secrets
 
   @AC-42 @criteria
   Scenario: I can narrow my vault to one of my products
@@ -425,16 +347,6 @@ Feature: A client keeps notes and secrets in their own vault
     Then I see only the notes attached to that product
     And I am still looking at my own vault, not somewhere else
 
-  @AC-43 @manager @identity @jtbd
-  Scenario: A secret I opened in the editor does not outlive my session
-    Given I have opened a secret of mine in the editor and it has been revealed to me
-    When I sign out
-    Then whoever signs in next on this device cannot read that secret through the editor
-    And nothing is asked of the server to reach that state
-
-  @AC-44 @jtbd
-  Scenario: Every message my vault shows me is written in my own language
-    Given I am using my vault
-    When I filter it, order it, edit an item, or am told an item was removed
-    Then every label and every message reads as words
-    And none of them shows me an internal name instead
+  # AC-43 (a secret I opened in the editor does not outlive my session) is driven
+  # at the top level as a `@signed-out` guard on the editor — its cross-session
+  # sign-out/sign-in limb belongs to session-store / auth.

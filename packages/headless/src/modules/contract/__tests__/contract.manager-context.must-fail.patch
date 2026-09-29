@@ -1,12 +1,9 @@
 Negative control for useContract.context.ts `context` (R37 B1).
 
-Spec that must flip: contract.manager-members.int.test.ts
-("The contract I have open carries everything the manager read about it",
-contract.feature:259) — reads `useContext().context` and expects its
-`contractId`, `rawContract.id` and `contract.id` to name the opened contract.
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.feature > "Open one of my contracts with everything the account area needs"
 
 Mutation: drops the `context` member from the manager context factory.
-
 diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
 --- a/packages/headless/src/modules/contract/useContract.context.ts
 +++ b/packages/headless/src/modules/contract/useContract.context.ts

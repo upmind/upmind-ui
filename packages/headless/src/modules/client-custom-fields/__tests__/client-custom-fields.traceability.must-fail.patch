@@ -1,0 +1,31 @@
+Negative control for client-custom-fields.traceability.test.ts.
+
+Withdraws the step definition implementing the feature's re-order step. The
+feature still writes that step (AC-30's `When I order my definitions by field
+name, descending`), so the pair has drifted: the check must name that scenario
+in the half-matched (`partial`) set, and `sortBy` must show as declared-covered
+but fired by no step.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected RED:
+  x drives N of M scenarios
+      -> scenario(s) matched only in part
+  x fires every action it declares as covered
+      -> declared covered but fired by no step: sortBy
+
+--- a/packages/headless/src/modules/client-custom-fields/__tests__/client-custom-fields.steps.ts
++++ b/packages/headless/src/modules/client-custom-fields/__tests__/client-custom-fields.steps.ts
+@@ -143,12 +143,6 @@
+       )
+   );
+
+-  When("I order my definitions by field name, descending", world =>
+-    world.fire(CLIENT_CUSTOM_FIELDS_COVERED_ACTIONS.sortBy, [
+-      { field: "name", dir: "desc" }
+-    ])
+-  );
+-
+   Then("the ordering in force is field name, descending", world =>
+     settles(() =>
+       world.expectContext({ query: { sort: [{ field: "name", dir: "desc" }] } })

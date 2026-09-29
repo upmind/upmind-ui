@@ -92,7 +92,11 @@ async function placementOf(form: Locator): Promise<Placement> {
   const box = await boxOf(form);
   const ancestry = await form.evaluate(node => {
     const frames: string[] = [];
-    for (let at = node.parentElement; at && at.id !== "app"; at = at.parentElement)
+    for (
+      let at = node.parentElement;
+      at && at.id !== "app";
+      at = at.parentElement
+    )
       frames.push(`${at.tagName}.${at.getAttribute("class") ?? ""}`);
     return frames.join(" < ");
   });

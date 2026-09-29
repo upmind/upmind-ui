@@ -168,8 +168,8 @@ order:
     orchestrated by the order machine, which spawns the payment-detail actor
     and drives retry and partial-payment loops until the invoice is settled.
   referents:
-    - { type: symbol, id: "@upmind-automation/headless!useOrder" }
-    - { type: symbol, id: "@upmind-automation/headless!OrderContext" }
+    - { type: symbol, id: "@upmind-automation/headless!useInvoice" }
+    - { type: symbol, id: "@upmind-automation/headless!UseInvoiceContext" }
 
 invoice:
   term: invoice

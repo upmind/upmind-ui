@@ -1,4 +1,4 @@
-import { sha1 } from "object-hash";
+import objectHash from "object-hash";
 import { messageDisplays, messageTypes } from "./feedback.types";
 import { defaultsDeep, omit, unset, omitBy, isEmpty } from "lodash-es";
 import type { Message } from "./feedback.types";
@@ -10,8 +10,9 @@ export function generateHash(message: Message) {
     omit(message, ["hash", "created", "scheduled"]),
     isEmpty
   );
-  const hash = sha1(cleaned);
-  return hash;
+  // A message's `data` can carry what the platform threw — a network error's
+  // `cause` is a fetch `Response`, which object-hash cannot hash and throws on.
+  return objectHash(cleaned, { algorithm: "sha1", ignoreUnknown: true });
 }
 
 export const useMessageParser = (data?: object) => {

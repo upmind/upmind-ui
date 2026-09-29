@@ -1,11 +1,10 @@
 # Negative-control mutant — the row status is a translated-badge-ready `meta`
 # group, not a bare `{ code }` (G2, R38 item 9)
 #
-# Scenario it must flip: a contract's `meta` carries exactly one truthy flag —
-#   the one matching its own `status.code` — so the `TableCellBadges` renderer
-#   (`playgrounds/labs-nuxt/.../cells/TableCellBadges.vue:31-37`, one badge per
-#   truthy flag of a scoped object) can draw a translated status badge, the
-#   same `meta` idiom `tickets.mappers.ts` publishes for its own status.
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Narrow my contracts to the ones in one state"
+#   contract.feature > "Read my contracts again to see how they stand now"
+#
 # Mutation: `mapContractMeta` ignores the contract's OWN `status.code` and
 #   returns every flag `false` — no badge is ever true, so a hand sees a
 #   contract with no status at all.

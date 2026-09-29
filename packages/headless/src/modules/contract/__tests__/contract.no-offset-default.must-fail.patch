@@ -2,6 +2,9 @@
 # carries NO default (B6), so a caller who never picks a page gets no `offset`
 # key at all.
 #
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "See the first page of my contracts"
+#
 # Covering spec: contract.criteria.int.test.ts
 #   ("AC-14 an unpicked page settles a page size and assumes no page position
 #   of its own") — parses an empty `{ pagination: {} }` model and asserts

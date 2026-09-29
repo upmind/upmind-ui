@@ -1,17 +1,16 @@
 import dayjs from "dayjs";
+import { watch } from "vue";
 import {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
   InvoiceConsolidationTypes,
   InvoiceStatus,
-  InvoiceStatusGroups,
-  TrialEndActionTypes
+  InvoiceStatusGroups
 } from "@upmind-automation/types";
 import { useI18n } from "../system-localisation";
 import {
   ContractProductCancelOption,
-  ContractProductsContextTypes,
-  ContractProductState
+  ContractProductsContextTypes
 } from "./contract-product.types";
 import {
   DetailedError,
@@ -26,6 +25,7 @@ import type {
   UnpaidInvoice
 } from "./contract-product.types";
 import type { ScopeContext } from "../scope/scope.types";
+import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.utils
@@ -36,79 +36,6 @@ import type { ScopeContext } from "../scope/scope.types";
 
 // -----------------------------------------------------------------------------
 // Node selectors — flow.md §3 "Entry order"
-
-/**
- * Selects the `unavailable` / `status` node for a product, in the locked order:
- * `unavailable` first, then `cancelling`, then `expiring`, then the code.
- * @returns `undefined` for a `status.code` outside the seven published codes —
- * the machine's last `always` arm reports that as an error (AC12).
- */
-export function selectStatusNode(
-  product: Pick<
-    ContractProduct,
-    | "status"
-    | "stagedImport"
-    | "contractRequest"
-    | "renew"
-    | "isSubscription"
-    | "calculatedCancelDate"
-  >
-): ContractProductState | undefined {
-  const code = product.status?.code;
-
-  if (product.stagedImport) return ContractProductState.STAGED;
-  if (code === ContractStatusCodes.CANCELLED)
-    return ContractProductState.CANCELLED;
-  if (code === ContractStatusCodes.CLOSED) return ContractProductState.LAPSED;
-  if (code === ContractStatusCodes.FRAUD) return ContractProductState.FRAUD;
-
-  if (
-    product.contractRequest?.status?.code ===
-    CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST
-  ) {
-    return ContractProductState.CANCELLING;
-  }
-
-  if (
-    product.isSubscription &&
-    !product.renew &&
-    !!product.calculatedCancelDate
-  ) {
-    return ContractProductState.EXPIRING;
-  }
-
-  switch (code) {
-    case ContractStatusCodes.PENDING:
-      return ContractProductState.PENDING;
-    case ContractStatusCodes.AWAITING_ACTIVATION:
-      return ContractProductState.INACTIVE;
-    case ContractStatusCodes.ACTIVE:
-      return ContractProductState.ACTIVE;
-    case ContractStatusCodes.SUSPENDED:
-      return ContractProductState.SUSPENDED;
-    default:
-      return undefined;
-  }
-}
-
-/** `setup.incomplete` / `setup.complete` — the nullish default is load-bearing (R15, ADR-24). */
-export function selectSetupNode(
-  product: Pick<ContractProduct, "provisionSetupFieldsConfirmed">
-): ContractProductState {
-  return !(product.provisionSetupFieldsConfirmed ?? true)
-    ? ContractProductState.SETUP_INCOMPLETE
-    : ContractProductState.SETUP_COMPLETE;
-}
-
-/** `trial.running` / `trial.ending` / `trial.none`. */
-export function selectTrialNode(
-  product: Pick<ContractProduct, "inTrial" | "trialEndAction">
-): ContractProductState {
-  if (!product.inTrial) return ContractProductState.TRIAL_NONE;
-  return product.trialEndAction === TrialEndActionTypes.CANCEL
-    ? ContractProductState.TRIAL_ENDING
-    : ContractProductState.TRIAL_RUNNING;
-}
 
 // -----------------------------------------------------------------------------
 // Cancellation options — the ONE combined form (R33; legacy `clientCancelOptions`)
@@ -169,6 +96,7 @@ export function cancellationOptions(
     | "hasScheduledFutureCancellation"
     | "nextDueDate"
     | "billingCycleMonths"
+    | "proRataPending"
   >
 ): ContractProductCancelOption[] {
   const options: ContractProductCancelOption[] = [];
@@ -176,13 +104,17 @@ export function cancellationOptions(
   if (hasAutoExpireEnabled(product)) return options;
   if (hasHardCancellationRequest(product)) return options;
   if (product.hasScheduledFutureCancellation) return options;
+  // Legacy cProdProvider.vue cancelOption: a pending pro-rata invoice, or a
+  // client the platform does not allow to cancel, disables cancelling.
+  if (product.proRataPending) return options;
+  if (!product.canCancel) return options;
 
   const isPending = product.contractStatus === ContractStatusCodes.PENDING;
 
   // SOFT — cancel at end of term; not while the contract is pending.
   if (!isPending) options.push(ContractProductCancelOption.SOFT);
-  // HARD — request immediate cancellation; needs `can_cancel` (ADR-25, ADR-27).
-  if (product.canCancel) options.push(ContractProductCancelOption.HARD);
+  // HARD — request immediate cancellation (ADR-25, ADR-27).
+  options.push(ContractProductCancelOption.HARD);
   // SCHEDULE_FUTURE — needs a live subscription and an anniversary anchor.
   if (!isPending && !!anniversaryAnchor(product)) {
     options.push(ContractProductCancelOption.SCHEDULE_FUTURE);
@@ -233,10 +165,11 @@ export function canConsolidate(
 // Criteria seams — design 8.5, 8.6
 
 /**
- * The client's `exclude_delegated` force-set (ADR-8, design 8.5). The
- * `DELEGATED` selector context always forces `0`; otherwise the held
- * preference wins, and with none held `1` unless the session has no delegated
- * products to exclude at all.
+ * The client's `exclude_delegated` force-set (ADR-8, design 8.5), as legacy
+ * sends it. The `DELEGATED` selector context always forces `0`. A session
+ * with no delegated products always sends `1`, whatever was chosen before
+ * (legacy `products.ts` `list`). Otherwise the held preference wins, and with
+ * none held `0` (legacy `views/client/products/index.vue` `initForm`).
  */
 export function resolveExcludeDelegated(
   scopeContext: ScopeContext | undefined,
@@ -244,18 +177,34 @@ export function resolveExcludeDelegated(
   hasDelegatedProducts: boolean
 ): 0 | 1 {
   if (scopeContext?.type === ContractProductsContextTypes.DELEGATED) return 0;
-  if (preference === true) return 1;
-  if (preference === false) return 0;
-  return hasDelegatedProducts ? 1 : 0;
+  if (!hasDelegatedProducts) return 1;
+  return preference === true ? 1 : 0;
+}
+
+/** Resolves once the stored show-delegated preference has settled — held, or known absent. */
+export function whenPreferenceSettles(
+  isSettled: ComputedRef<boolean>
+): Promise<void> {
+  if (isSettled.value) return Promise.resolve();
+
+  return new Promise<void>(resolve => {
+    const stop = watch(isSettled, settled => {
+      if (!settled) return;
+      stop();
+      resolve();
+    });
+  });
 }
 
 /**
- * The forced hide-one-time-purchases seam (design 8.6, ADR-14). Reads the
- * brand's `@context.oneTimePurchases` visibility once FE-3244 exposes the
- * `portal` scope; until then the rule is not forced.
+ * The forced hide-one-time-purchases seam (design 8.6, ADR-14): the brand's
+ * `@context.oneTimePurchases` portal visibility, as legacy `brand/index.ts`
+ * `hideOneTimePurchases` reads it and `cProdsProvider.vue` applies it.
  */
-export function hidesOneTimePurchasesForced(): boolean {
-  return false;
+export function hidesOneTimePurchasesForced(
+  portal: Record<string, string> | undefined
+): boolean {
+  return portal?.["@context.oneTimePurchases"] === "hidden";
 }
 
 // -----------------------------------------------------------------------------

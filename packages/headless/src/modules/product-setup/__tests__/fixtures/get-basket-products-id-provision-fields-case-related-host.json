@@ -49,7 +49,9 @@
           "updated_at": "2023-01-13 12:45:59",
           "deleted_at": null,
           "default_value": null,
-          "defer_mode": "optional"
+          "defer_mode": "optional",
+          "label_translated": "Account Domain Name",
+          "translations": []
         }
       ],
       "related": null,
@@ -59,7 +61,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:20:21.934Z",
+  "captured_at": "2026-09-25T12:04:39.274Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

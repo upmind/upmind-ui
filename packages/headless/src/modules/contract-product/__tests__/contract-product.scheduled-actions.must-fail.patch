@@ -1,25 +1,14 @@
-# Negative-control mutant — contract-product scheduled actions (AC-15)
+# Negative-control mutant — the scheduled actions come from the product read (AC-15)
 #
 # Scenario it must flip: contract-product.feature >
-#   "See what is scheduled to happen to one of my products"
-#   ("pointing them at the staff-only scheduled-actions route turns this scenario red")
-# Test that goes red: contract-product.reads.int.test.ts >
-#   "AC-15 the initial read and refresh() both GET contract_products/{id} —
-#   the product itself — never the staff-only scheduled-actions route"
-#   (`request.url` matches `/scheduled_actions\b/` for the open-time read and
-#   the `refresh()` re-read, flipping `expect(request.url).not.toMatch(...)`).
-#   The load-bearing assertion: the manager's read, and the re-read
-#   `refresh()` triggers, GET `contract_products/{id}` — the product itself —
-#   and never a URL matching `/scheduled_actions\b/`.
-# Collateral (already colocated, both go red under this mutant):
-#   contract-product.reads.int.test.ts >
-#     "AC-4 GETs contract_products/{id} with exactly the 35-member client with-list, read under my own identity"
-#   contract-product.mutations.int.test.ts >
-#     "AC-16 not one of the writes this module offers me is ever addressed to a staff route"
-#     (the re-read after each write now hits `/scheduled_actions`).
-# Mutation: the machine's `load` service reads
-#   `contract_products/{id}/scheduled_actions` — the staff-only scheduled-actions
-#   collection — instead of the product the client is entitled to read.
+#   "Open one of my products with what its detail view needs"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   the manager's read goes to `contract_products/{id}/scheduled_actions`, which
+#   no recording holds, so the replay wall fails it as a capture gap.
+# Mutation: the manager's `load` reads `contract_products/{id}/scheduled_actions`
+#   instead of the product itself.
+# Collateral: every manager scenario that boots the product read, "See what is scheduled
+#   to happen to one of my products" (AC-15) among them.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>

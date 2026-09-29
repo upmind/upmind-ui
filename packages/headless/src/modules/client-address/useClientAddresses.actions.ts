@@ -202,16 +202,6 @@ export function createClientAddressesActions(
     removeFromRegistry(scopeKey);
   }
 
-  // --- actor-specific actions: none earned yet (clause 2 — fresh modules
-  // start armless). When a scope earns one, add
-  // `useClientAddresses.actions.{actor}.ts` and spread it LAST so it wins:
-  //   const actorActions =
-  //     actorScope === ScopeActorTypes.STAFF
-  //       ? createStaffClientAddressesActions(service)
-  //       : {};
-  // Never a `.base.ts` file; attach a `@decision` block adjacent to the spread
-  // the day an arm overrides a shared member.
-
   return {
     /** Destroys this scoped instance — removes it from the registry. */
     destroy,

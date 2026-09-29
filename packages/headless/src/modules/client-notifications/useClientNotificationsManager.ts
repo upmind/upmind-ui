@@ -12,7 +12,6 @@ import { watch } from "vue";
 import { interpret } from "xstate";
 import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope";
-import { useActiveSession } from "../session-store";
 import createClientNotificationsServices from "./client-notifications.services";
 import {
   CLIENT_NOTIFICATIONS_MANAGER_SCOPE_MATRIX,
@@ -132,8 +131,12 @@ function createClientNotificationsManagerForScope(
 
   /**
    * Late top-up for the CLIENT case only — at construction the session may not
-   * have resolved a client id yet. A token-only scope carries a token and never
-   * needs it.
+   * have resolved a client id yet. Watched off `service.clientId` (the ONE
+   * identity seam) so a session that authenticates AFTER boot still reaches the
+   * machine (AC-16); a one-shot `isReady().then()` resolves once at boot and
+   * never re-fires when the client tops up later. A token-only scope keeps
+   * `clientId` undefined and never fires it; `contextMatches` keeps an
+   * already-resolved value, so this never clobbers a retarget.
    *
    * @decision
    * what:     Gate the send on `stateMatches(actorRef.state, "subscribing")`.
@@ -143,16 +146,15 @@ function createClientNotificationsManagerForScope(
    * rejected: Giving `available` its own `REFRESH` override — edits the shared
    *           machine.
    */
-  const { isReady: ensureAuth } = useActiveSession().useActions();
-  ensureAuth().then(ok => {
-    const clientId = ok ? service.clientId.value : undefined;
+  const stopClientIdTopUp = watch(service.clientId, clientId => {
     if (
-      clientId &&
-      !contextMatches(actorRef.state, "clientId") &&
-      stateMatches(actorRef.state, "subscribing")
-    ) {
-      actorRef.send({ type: "REFRESH", data: { clientId } });
-    }
+      !clientId ||
+      contextMatches(actorRef.state, "clientId") ||
+      !stateMatches(actorRef.state, "subscribing")
+    )
+      return;
+    stopClientIdTopUp();
+    actorRef.send({ type: "REFRESH", data: { clientId } });
   });
 
   /**

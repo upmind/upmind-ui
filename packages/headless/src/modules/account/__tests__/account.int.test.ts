@@ -17,6 +17,7 @@ import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
+import { replayStep } from "@upmind-automation/test-fixtures/replay-server";
 import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
@@ -143,6 +144,13 @@ async function seedStanding(overrides: {
 // investigate, not weakened to pass.
 describe("account integration (fixture replay)", () => {
   beforeEach(() => {
+    // Boot reads the brand/system singletons make are answered by those
+    // modules' OWN recordings (ADR 035), never left to fail as network errors.
+    for (const module of ["brand", "system", "basket"])
+      replayStep(
+        server,
+        join(import.meta.dirname, `../../${module}/__tests__/fixtures`)
+      );
     clearSessionCookies();
     sessionStorage.clear();
     useAccount().as(ScopeActorTypes.CLIENT).useActions().destroy();

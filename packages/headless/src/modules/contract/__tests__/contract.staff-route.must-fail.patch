@@ -1,13 +1,8 @@
 # Negative-control mutant — contract staff route (AC-16)
 #
-# Scenario it must flip: contract.feature >
-#   "No staff route is ever reachable from my contract surfaces"
-# Test that goes red: contract.mutations.int.test.ts >
-#   "AC-16 the payment-method write and its re-read are never addressed to a
-#   staff route"
-#   (the positive allow-list `allowed.some(path.endsWith)` reads false and
-#   `not.toMatch(/cancel_requests\/[^/]+\/(approve|reject|acknowledge|cancel)/)`
-#   flips; the replay server also refuses the unmatched URL).
+# NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+#   green under it — no driven scenario pins this behaviour yet.
+#
 # Mutation: `setPaymentMethod` PATCHes the staff approval route
 #   `cancel_requests/{id}/approve` instead of the client route
 #   `contracts/{id}/payment_details`.

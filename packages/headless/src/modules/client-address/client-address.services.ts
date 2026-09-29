@@ -541,46 +541,20 @@ async function parse(
   { schema, model, baseModel, regions, country, countries }: AddressContext,
   { data }: AnyEventObject
 ): Promise<Partial<AddressContext>> {
-  // We need to check and potentially update the region list based on the selected country (if it's changed)
   const { fetchRegions } = useSystem();
 
-  // sometimes the machine can return the full context as data, so we check to see if we have a model
-  // if not, then we assume the data is the model.
-  // `baseModel` is threaded through for the same reason `setModel` threads it:
-  // `useModelParser`'s `defaultsDeep(values, baseModel)` is what fills in every
-  // key a PARTIAL `SET` payload omits. Without it a one-field `input({ address:
-  // { countryId } })` re-parses against that field alone and nulls every
-  // untouched sibling — which the diff-only update (L3) would then send.
-  //
-  // Falling back to `context.model` is what stops a settled save reverting the
-  // form. The shared machine re-enters `available.checking.parsing` from
-  // `processed` on an `xstate.after(wait)` event, which carries NO data, so
-  // parsing the event alone re-derives the WHOLE model from `baseModel` — the
-  // form-open snapshot — ~10ms after the save wrote the saved one (AC-23/AC-17,
-  // review blocker B1). `CLEAR` still resets to `baseModel`, because
-  // `clearModel` empties `context.model` before this runs. `cloneDeep` because
-  // `defaultsDeep` mutates its first argument, which here is live machine
-  // context.
-  //
-  // The two limbs therefore answer "what fills an omitted key" differently, and
-  // that is RECORDED, not reconciled (review finding W7). A partial `SET` fills
-  // from `baseModel`; a data-less re-parse fills from `context.model`. The cost
-  // is that ANY partial `SET` following an earlier edit loses that edit — one
-  // prior edit and one partial call is enough, and the second call may be
-  // `update` as readily as `input`, since `update` re-sends its argument as the
-  // same `SET` (review finding W10). `input({ address: { city } })` then
-  // `update({ address: { postcode } })` puts the form-open city back and PUTs
-  // `postcode` alone, resolving as success. Only a partial call on an untouched
-  // editor is unaffected (`model` and `baseModel` are the same object there),
-  // and the renderer path cannot reach it at all: JSONForms always emits the
-  // whole model. Direct-API callers are the exposure. `baseModel` stays because it is the only baseline
-  // with a parity claim behind it — legacy submits the whole form, so its diff
-  // is always against the form-open clone (`parity.yaml` L3 / AC-23) — and
-  // making the fill "live model, else snapshot" is a contract change to a
-  // partial-input API no AC covers and no oracle records.
+  // A data-less re-parse — the manager's CLEAR (model already := baseModel) or
+  // the shared machine's `processed` xstate.after re-entry — carries a model
+  // that is already settled. Return it verbatim so the region reconciliation
+  // below cannot drop a sentinel `regionId: "none"` discard must keep (AC-28),
+  // nor revert a settled save (B1). Reconciliation is only needed on a real
+  // SET, which always carries data.
+  if (!data) return { model: cloneDeep(model), regions, country };
+
+  // `baseModel` fills every key a `SET` payload omits (`defaultsDeep`).
   const safeModel = useModelParser<AddressModel>(
     schema,
-    get(data, "model", data) ?? cloneDeep(model),
+    get(data, "model", data),
     baseModel
   );
 

@@ -1,16 +1,9 @@
 # Negative-control mutant — the top-level quick-search `query` branch reaches
 # the wire (G1, R38 items 8/13)
 #
-# Scenario it must flip: a client types a term into the contracts list's
-#   quick-search box (`#/properties/query`, `useQueryUischema()`'s first
-#   FilterBar control) and the term reaches `GET contracts` as a bare
-#   `query=<term>` param — the ONLY channel that can ever match a contract by
-#   its title, because every recorded contract carries `name: null` and the
-#   `filters.name.like` branch alone never matches
-#   (`__tests__/fixtures/get-contracts-pagination-limit-10.json`). The
-#   contracts picker's own internal lookup (`useContractLookupQuerySchema`)
-#   reads the SAME term through its own `query` leaf (`searchScope: "query"`,
-#   `contract.schemas.ts`).
+# NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+#   green under it — no driven scenario pins this behaviour yet.
+#
 # Mutation: `useQuerySchema()` drops the top-level `query` branch. With the
 #   branch gone, ajv strips the term (root `additionalProperties: false`), the
 #   param never reaches the wire, and `useQueryUischema()`'s

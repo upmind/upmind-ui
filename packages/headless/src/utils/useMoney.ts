@@ -1,12 +1,12 @@
 import { useI18n } from "vue-i18n";
 
+/** Removes `.00` or `,00` from a formatted price — "£10.00" → "£10". Setup-context free. */
+export function removeTrailingZeroes(val?: string) {
+  return val?.replace(/[,.]00\b/, "") || "";
+}
+
 export function useMoney() {
   const { t } = useI18n();
-
-  function removeTrailingZeroes(val?: string) {
-    // Removes .00 or ,00 from the end of price strings (e.g., "£10.00" → "£10")
-    return val?.replace(/[,.]00\b/, "") || "";
-  }
 
   function isFree(val?: string | null) {
     // Extract numeric value by removing all non-numeric characters except decimal point and minus sign
