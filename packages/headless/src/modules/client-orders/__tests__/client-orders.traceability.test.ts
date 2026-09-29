@@ -13,7 +13,9 @@
  *
  * The feature is executable under ADR-020 Amendment 5: the labs-nuxt `bdd`
  * project drives the six design 8.12 scenarios. This spec also pins those six
- * titles and the three AC3 scenarios that bdd.md names.
+ * titles and the three AC3 scenarios that bdd.md names, and holds the step
+ * catalog to them: the catalog drives exactly those six, half-matches none,
+ * defines no step nothing calls, and fires each action id it declares.
  *
  * ## What Breaks If These Fail
  * A capability silently loses its proof, or a gate reads a tag in place of a
@@ -23,6 +25,13 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
+import { stepCatalogs } from "../../../testing";
+import {
+  CLIENT_ORDERS_COVERED_ACTIONS,
+  clientOrdersSteps
+} from "./client-orders.steps";
+import { includes, keys, map, reject, sortBy } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -218,5 +227,37 @@ describe("client-orders traceability — the proofs", () => {
       "AC-94"
     ]);
     expect(testTitles('expect(x).toBe("@FE-3237")', "test")).toEqual([]);
+  });
+});
+
+describe("client-orders traceability — the step catalog", () => {
+  const featureText = readFileSync(FEATURE, "utf-8");
+  const catalogSource = readFileSync(
+    join(TEST_DIR, "client-orders.steps.ts"),
+    "utf-8"
+  );
+  const check = createTraceabilityCheck(
+    featureText,
+    clientOrdersSteps,
+    stepCatalogs
+  );
+
+  it("the catalog drives exactly the six design 8.12 scenarios and half-matches none", () => {
+    expect(sortBy(map(check.driveable, "name"))).toEqual(sortBy(DRIVEN_TITLES));
+    expect(map(check.partial, "name")).toEqual([]);
+  });
+
+  it("the catalog defines no step nothing calls, no malformed pattern and no pattern another catalog claims", () => {
+    expect(map(check.orphanStepDefs, "pattern")).toEqual([]);
+    expect(map(check.malformedStepDefs, "pattern")).toEqual([]);
+    expect(check.duplicatedPatterns).toEqual([]);
+  });
+
+  it("each action id the catalog declares is fired by a step", () => {
+    expect(
+      reject(keys(CLIENT_ORDERS_COVERED_ACTIONS), key =>
+        includes(catalogSource, `CLIENT_ORDERS_COVERED_ACTIONS.${key}`)
+      )
+    ).toEqual([]);
   });
 });

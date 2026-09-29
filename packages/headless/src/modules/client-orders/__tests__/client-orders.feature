@@ -115,11 +115,11 @@ Feature: Client order history — the client self-service capability
 
   @AC-10 @FE-3237 @client
   Scenario: The newest order comes first, and a sort keeps the page
-    Given a signed-in client on page two of the order history with no sort chosen
+    Given a signed-in client on page two of the order history
+    And with no sort chosen the order history criteria put the newest order first
     When the client sorts the order history by each legacy field
     Then the order history criteria hold the chosen field
     And the order history stays on page two
-    And with no sort chosen the order history criteria put the newest order first
 
   @AC-11 @FE-3237 @client
   Scenario: Search and filters live together
@@ -234,10 +234,7 @@ Feature: Client order history — the client self-service capability
     But a refused cancel gate sends nothing
     And cancelling with no connected flow fails with a named error and sends nothing
 
-  # @todo — design 8.12: the playground scenarios useClientOrders/ and
-  # useClientOrder/ and the labs-nuxt tests/e2e harness are dev-seat work
-  # (T02, T26). The lane spec (T27) follows them.
-  @AC-22 @FE-3237 @client @todo
+  @AC-22 @FE-3237 @client
   Scenario: A hand drives the two composables
     Given the operator opens the playground
     When a hand drives the collection and the manager
