@@ -3,16 +3,17 @@
  *
  * ## Job To Be Done
  * Once every plugin the playground boots with has loaded, the form-control
- * registry holds the controls of every package the app depends on, before any
- * form renders.
+ * registry holds the controls of every package the app depends on, and no
+ * other control, before any form renders.
  *
  * ## What Breaks If These Fail
  * A playground form draws a field with no control, because the package that
- * registers it was not loaded at startup.
+ * registers it was not loaded at startup, or a stray catch-all hides the
+ * engine's notice on a field no control claims.
  */
 
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { clone, map } from "lodash-es";
+import { clone, differenceWith, flatten, isEqual, map } from "lodash-es";
 import type { FormRendererEntry } from "@upmind-automation/foundation";
 
 const PACKAGES = [
@@ -30,7 +31,7 @@ beforeAll(async () => {
   const plugins = import.meta.glob("../*.ts");
   await Promise.all(map(plugins, load => load()));
   const { useFormRenderers } = await import("@upmind-automation/foundation");
-  registered = clone(useFormRenderers().renderers);
+  registered = clone(useFormRenderers().renderers.value);
 }, 60000);
 
 describe("the labs playground after startup", () => {
@@ -43,4 +44,12 @@ describe("the labs playground after startup", () => {
       expect(registered).toEqual(expect.arrayContaining(expected));
     }
   );
+
+  it("holds no form control that none of its packages registered", async () => {
+    const expected = flatten(
+      await Promise.all(map(PACKAGES, ({ controls }) => controls()))
+    );
+
+    expect(differenceWith(registered, expected, isEqual)).toEqual([]);
+  });
 });

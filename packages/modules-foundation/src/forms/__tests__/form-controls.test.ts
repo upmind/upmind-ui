@@ -1,9 +1,10 @@
 /**
- * @fileoverview The form draws the registered controls, and flags a field that has none.
+ * @fileoverview The form draws the registered controls, and the engine's notice on a field with none.
  *
  * ## Job To Be Done
- * A field draws the control its package registered. In development, a field
- * no control claims warns, naming the field, so the gap is visible.
+ * A field draws the control its package registered. A field no control claims
+ * shows the form engine's own "No applicable renderer found." notice, so the
+ * gap is visible on the page.
  *
  * ## What Breaks If These Fail
  * A domain, gateway or address field draws the engine default, or a field
@@ -11,11 +12,11 @@
  */
 
 import { mount } from "@vue/test-utils";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { defineComponent, h } from "vue";
 import { createI18n } from "vue-i18n";
 import { Form, registerFormRenderers } from "../../index";
-import { forEach, get, includes, some } from "lodash-es";
+import { forEach, get } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { VueWrapper } from "@vue/test-utils";
 
@@ -23,6 +24,7 @@ const catalogue = createI18n({ legacy: false, locale: "en" });
 
 const PROBE = "#/properties/probe";
 const UNCLAIMED = "#/properties/unclaimed";
+const ENGINE_NOTICE = "No applicable renderer found.";
 
 const SCHEMA: JsonSchema7 = {
   type: "object",
@@ -43,11 +45,11 @@ const ProbeControl = defineComponent({
 
 const mounted: VueWrapper[] = [];
 
-async function draw(form: typeof Form, scope: string): Promise<VueWrapper> {
+async function draw(scope: string): Promise<VueWrapper> {
   const wrapper = mount(
     defineComponent({
       setup: () => () =>
-        h(form, {
+        h(Form, {
           schema: SCHEMA,
           uischema: uischemaFor(scope),
           modelValue: {},
@@ -61,16 +63,10 @@ async function draw(form: typeof Form, scope: string): Promise<VueWrapper> {
   return wrapper;
 }
 
-function warnedAbout(warn: { mock: { calls: unknown[][] } }, scope: string) {
-  return some(warn.mock.calls, args => includes(JSON.stringify(args), scope));
-}
-
 describe("the form's controls", () => {
   afterEach(() => {
     forEach(mounted, wrapper => wrapper.unmount());
     mounted.length = 0;
-    vi.restoreAllMocks();
-    vi.unstubAllEnvs();
   });
 
   it("draws the control a package registered for its field", async () => {
@@ -84,28 +80,14 @@ describe("the form's controls", () => {
       }
     ]);
 
-    const wrapper = await draw(Form, PROBE);
+    const wrapper = await draw(PROBE);
 
     expect(wrapper.find('[data-test-key="probe-control"]').exists()).toBe(true);
   });
 
-  it("warns in development about a field no control claims, naming the field", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+  it("shows the engine's notice on a field no control claims", async () => {
+    const wrapper = await draw(UNCLAIMED);
 
-    await draw(Form, UNCLAIMED);
-
-    expect(warnedAbout(warn, UNCLAIMED)).toBe(true);
-  });
-
-  it("stays quiet about that field in a production build", async () => {
-    vi.stubEnv("DEV", false);
-    vi.stubEnv("PROD", true);
-    vi.resetModules();
-    const production = await import("../../index");
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-
-    await draw(production.Form, UNCLAIMED);
-
-    expect(warnedAbout(warn, UNCLAIMED)).toBe(false);
+    expect(wrapper.text()).toContain(ENGINE_NOTICE);
   });
 });

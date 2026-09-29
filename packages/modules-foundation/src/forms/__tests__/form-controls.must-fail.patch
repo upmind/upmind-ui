@@ -3,7 +3,6 @@
 # Intended RED:
 #   packages/modules-foundation/src/forms/__tests__/form-controls.test.ts
 #     "draws the control a package registered for its field"
-#     "warns in development about a field no control claims, naming the field"
 
 diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
 --- a/packages/modules-foundation/src/forms/Form.vue

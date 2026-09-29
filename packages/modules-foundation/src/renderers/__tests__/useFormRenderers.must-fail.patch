@@ -7,18 +7,15 @@
 #     "shows a reader a package that registers after it read the list"
 #   packages/modules-foundation/src/forms/__tests__/form-controls.test.ts
 #     "draws the control a package registered for its field"
-#     "warns in development about a field no control claims, naming the field"
-#   packages/modules-foundation/src/__tests__/ships-no-renderers.test.ts
-#     "registers only the missing-control fallback in development"
 
 diff --git a/packages/modules-foundation/src/renderers/useFormRenderers.ts b/packages/modules-foundation/src/renderers/useFormRenderers.ts
 --- a/packages/modules-foundation/src/renderers/useFormRenderers.ts
 +++ b/packages/modules-foundation/src/renderers/useFormRenderers.ts
-@@ -12,7 +12,6 @@ const registry = shallowReactive<FormRendererEntry[]>([]);
+@@ -6,7 +6,6 @@
+ 
  /** Adds a package's form controls to every `Form`; call it from the package entry. */
  export const registerFormRenderers = (entries: FormRendererEntry[]): void => {
-   forEach(entries, entry => {
--    registry.push(entry);
-   });
+-  renderers.value = concat(renderers.value, entries);
  };
  
+ export const useFormRenderers = (): UseFormRenderers => ({ renderers });

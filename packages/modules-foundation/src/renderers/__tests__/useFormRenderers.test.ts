@@ -32,7 +32,7 @@ const provideNothing = () => undefined;
 
 describe("the form-control registry", () => {
   it("keeps every package's controls, in the order the packages register", () => {
-    const before = clone(useFormRenderers().renderers);
+    const before = clone(useFormRenderers().renderers.value);
     const payment = entry(3);
     const domain = entry(4);
     const client = entry(5);
@@ -40,7 +40,7 @@ describe("the form-control registry", () => {
     registerFormRenderers([payment]);
     registerFormRenderers([domain, client]);
 
-    expect(clone(useFormRenderers().renderers)).toEqual(
+    expect(clone(useFormRenderers().renderers.value)).toEqual(
       concat(before, [payment, domain, client])
     );
   });
@@ -50,7 +50,7 @@ describe("the form-control registry", () => {
     registerFormRenderers([registered]);
 
     const read = readInChildOfProvider(provideNothing, () =>
-      clone(useFormRenderers().renderers)
+      clone(useFormRenderers().renderers.value)
     );
 
     expect(read).toContain(registered);
@@ -58,7 +58,7 @@ describe("the form-control registry", () => {
 
   it("shows a reader a package that registers after it read the list", () => {
     const { renderers } = useFormRenderers();
-    const count = computed(() => size(renderers));
+    const count = computed(() => size(renderers.value));
     const seen = count.value;
 
     registerFormRenderers([entry(7)]);

@@ -2,11 +2,12 @@
  * @fileoverview Foundation ships no form control of its own.
  *
  * ## Job To Be Done
- * On a cold import, the registry holds nothing a production build draws: only
- * the development fallback that flags a field with no control.
+ * On a cold import, in every build, the registry is empty: only the packages
+ * that own a control register it.
  *
  * ## What Breaks If These Fail
- * A control declared in `foundation` creates a `foundation → <domain>` cycle.
+ * A control declared in `foundation` creates a `foundation → <domain>` cycle,
+ * or a catch-all hides the engine's notice on a field no control claims.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -16,10 +17,18 @@ vi.mock("@upmind-automation/headless", async () => {
   return createHeadlessStub();
 });
 
+const BUILDS = [
+  { build: "development", dev: true },
+  { build: "production", dev: false }
+];
+
+// The first cold import transforms the whole package (~5 s), past the default timeout.
+const COLD_IMPORT_TIMEOUT_MS = 20_000;
+
 async function coldRegistry() {
   vi.resetModules();
   const { useFormRenderers } = await import("../index");
-  return useFormRenderers().renderers;
+  return useFormRenderers().renderers.value;
 }
 
 describe("foundation on a cold import", () => {
@@ -27,14 +36,14 @@ describe("foundation on a cold import", () => {
     vi.unstubAllEnvs();
   });
 
-  it("registers no form control in a production build", async () => {
-    vi.stubEnv("DEV", false);
-    vi.stubEnv("PROD", true);
+  it.each(BUILDS)(
+    "registers no form control in a $build build",
+    async ({ dev }) => {
+      vi.stubEnv("DEV", dev);
+      vi.stubEnv("PROD", !dev);
 
-    expect(await coldRegistry()).toEqual([]);
-  });
-
-  it("registers only the missing-control fallback in development", async () => {
-    expect(await coldRegistry()).toHaveLength(1);
-  });
+      expect(await coldRegistry()).toEqual([]);
+    },
+    COLD_IMPORT_TIMEOUT_MS
+  );
 });
