@@ -1,4 +1,6 @@
-import { computed } from "vue";
+import { computed, watch } from "vue";
+import { useBrand } from "../brand";
+import { useActiveSession } from "../session-store";
 import { loadList } from "./payment-details.services";
 import { useCollection } from "../../utils";
 import { isEmpty, isArray } from "lodash-es";
@@ -21,9 +23,28 @@ export const usePaymentDetails = () => {
     isAvailable: true
   }));
 
+  const { isAuthenticated } = useActiveSession().useMeta();
+  const { sessionId: clientId } = useActiveSession().useContext();
+  const { brandId } = useBrand();
+
   async function isReady(): Promise<boolean> {
+    // The list query is disabled until the session can address a client. Settle
+    // the session FIRST — the wait useContracts.actions.ts makes — so a
+    // still-settling session is never mistaken for a permanently disabled query.
+    // `brandId` is a boot-time singleton, read synchronously as the house does.
+    await useActiveSession().useActions().isReady();
+
+    if (!(isAuthenticated.value && !!clientId.value && !!brandId.value))
+      return false;
+
+    if (query.isFetched.value) return isEmpty(query.error.value);
+
     return new Promise<boolean>(resolve => {
-      resolve(true);
+      const stop = watch(query.isFetched, settled => {
+        if (!settled) return;
+        stop();
+        resolve(isEmpty(query.error.value));
+      });
     });
   }
 

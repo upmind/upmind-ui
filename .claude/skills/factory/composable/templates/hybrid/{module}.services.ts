@@ -21,12 +21,12 @@ import { ScopeActorTypes } from "../scope";
 import { useQuerySchema } from "./module.schemas";
 import { useActiveSession } from "../session-store";
 import {
-  mapModuleItem,
-  mapModuleItems,
-  mapModuleRequestData
+  map{Module},
+  map{Module}s,
+  mapI{Module}
 } from "./module.mappers";
 import { useSchema } from "./module.schemas";
-import { ModuleContextTypes } from "./module.types";
+import { ModulesContextTypes } from "./module.types";
 import {
   useTime,
   useCollection,
@@ -44,12 +44,12 @@ import type { ScopeContext } from "../scope";
 import type { QueryModel } from "./module.types";
 import type {
   ModuleContext,
-  ModuleItem,
+  {Module},
   ModuleManagerMachineServices,
   ModuleModel,
-  ModuleServices,
-  ModuleWireItem
+  ModuleServices
 } from "./module.types";
+import type { I{Module} } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
@@ -89,12 +89,12 @@ export const queryKey = ["module", "items"];
  * resolved, never the actor, so it is not a branch on `ScopeActorTypes.SELF`
  * (clause 4 / `scope-based/no-self-branch`).
  *
- * BOTH matrices flow through here: `ModuleContextTypes.CLIENT` and
- * `ModuleManagerContextTypes.CLIENT` are the same enum VALUE
+ * BOTH matrices flow through here: `ModulesContextTypes.CLIENT` and
+ * `ModuleContextTypes.CLIENT` are the same enum VALUE
  * (`AccessRoleTypes.CLIENT`), so a manager scoped `.for('client', id)` is
- * retargeted by this comparison too, while a manager scoped
- * `.for('module-item', id)` falls through to the session — correct, because an
- * item context names the entity, not its owner.
+ * retargeted by this comparison too, while a manager with no context (a bare
+ * `.withId(id)`) falls through to the session — correct, because a record id
+ * names the entity, not its owner.
  *
  * A services file that ignores `scopeContext` and hardwires `activeUser` for
  * every call IS the FE-2824 defect. Do not "simplify" this away.
@@ -103,7 +103,7 @@ function resolveClientId(scopeContext?: ScopeContext) {
   const { activeUser } = useActiveSession().useContext();
 
   return computed(() =>
-    scopeContext?.type === ModuleContextTypes.CLIENT
+    scopeContext?.type === ModulesContextTypes.CLIENT
       ? scopeContext.id
       : activeUser.value?.id
   );
@@ -116,7 +116,7 @@ function resolveClientId(scopeContext?: ScopeContext) {
  * expected shape, not an exception. See `module.services.{actor}.ts`.
  */
 function loadList(
-  params: Partial<QueryParams<ModuleWireItem[], ModuleItem[]>> = {
+  params: Partial<QueryParams<I{Module}[], {Module}[]>> = {
     pagination: { limit: 0 }
   },
   scopeContext?: ScopeContext
@@ -125,7 +125,7 @@ function loadList(
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<ModuleWireItem[], ModuleItem[], QueryModel>({
+  return list<I{Module}[], {Module}[], QueryModel>({
     ...params,
     // THE criteria channel. The module's query schema owns ALL request state —
     // filters, sort, pagination, limit — and `list()` builds the wire params
@@ -148,7 +148,7 @@ function loadList(
         }
       }),
     withAccessToken: true,
-    select: mapModuleItems,
+    select: map{Module}s,
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () => isAuthenticated.value && !!clientId.value
@@ -165,9 +165,9 @@ function loadList(
  * `loading` state awaits it.
  */
 async function loadOne(
-  id?: ModuleItem["id"],
+  id?: {Module}["id"],
   scopeContext?: ScopeContext
-): Promise<ModuleItem | undefined> {
+): Promise<{Module} | undefined> {
   if (!id) return undefined;
 
   const { isAuthenticated } = useActiveSession().useMeta();
@@ -178,10 +178,10 @@ async function loadOne(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  return get<ModuleWireItem, ModuleItem>({
+  return get<I{Module}, {Module}>({
     queryKey: [...queryKey, { client: clientId.value }, id],
     url: useUrl(`clients/${clientId.value}/module-items/${id}`),
-    select: mapModuleItem,
+    select: map{Module},
     withAccessToken: true
   });
 }
@@ -190,7 +190,7 @@ async function loadOne(
 async function add(
   model: ModuleModel,
   scopeContext?: ScopeContext
-): Promise<ModuleWireItem | undefined> {
+): Promise<I{Module} | undefined> {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { post, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
@@ -199,20 +199,20 @@ async function add(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  return post<ModuleWireItem>({
+  return post<I{Module}>({
     mutationKey: [...queryKey, "add"],
     url: useUrl(`clients/${clientId.value}/module-items`),
-    data: mapModuleRequestData(model),
+    data: mapI{Module}(model),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 /** MANAGER SERVICE — update. Invalidates the shared key so the list refetches. */
 async function update(
-  id: ModuleItem["id"],
+  id: {Module}["id"],
   model: ModuleModel,
   scopeContext?: ScopeContext
-): Promise<ModuleWireItem | undefined> {
+): Promise<I{Module} | undefined> {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { put, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
@@ -221,10 +221,10 @@ async function update(
     return Promise.reject(new NotAuthenticatedError());
   }
 
-  return put<ModuleWireItem>({
+  return put<I{Module}>({
     mutationKey: [...queryKey, id],
     url: useUrl(`clients/${clientId.value}/module-items/${id}`),
-    data: mapModuleRequestData(model),
+    data: mapI{Module}(model),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
@@ -238,12 +238,12 @@ async function update(
 async function ensure(
   model: ModuleModel,
   scopeContext?: ScopeContext
-): Promise<ModuleItem> {
+): Promise<{Module}> {
   const query = loadList(undefined, scopeContext);
   await query.promise.value.finally();
 
-  const { findOne } = useCollection<ModuleItem>(query.data);
-  const found = findOne(omitBy(model, isEmpty) as Partial<ModuleItem>);
+  const { findOne } = useCollection<{Module}>(query.data);
+  const found = findOne(omitBy(model, isEmpty) as Partial<{Module}>);
   if (found) return found;
 
   return add(model, scopeContext).then(raw => {
@@ -255,7 +255,7 @@ async function ensure(
         { model }
       );
     }
-    return mapModuleItem(raw as ModuleWireItem);
+    return map{Module}(raw as I{Module});
   });
 }
 

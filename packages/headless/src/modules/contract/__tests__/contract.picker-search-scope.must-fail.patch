@@ -1,0 +1,30 @@
+# Negative-control mutant — the contracts picker's typed text lands on the
+# picker's OWN `query` leaf, not a `filters.name.like` branch its internal
+# lookup query no longer declares (G1)
+#
+# Scenario it must flip: typing into the `schemas.contractPicker` Lookup
+#   control's search box narrows the options `lookups.contract()` returns —
+#   the term must reach the internal lookup's `useContractLookupQuerySchema()`
+#   model at a leaf that schema actually declares.
+# Mutation: `useContractPickerUischema`'s `searchScope` reverts to
+#   `"filters.name.like"`. `useContractLookupQuerySchema()` declares only
+#   `query` and `pagination` (no `filters` branch), so a typed term is
+#   stripped by the schema's `additionalProperties: false` and the search
+#   does nothing — the same dead control G1 found, on the internal lookup
+#   this time rather than the list's own FilterBar.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.schemas.ts
++++ b/packages/headless/src/modules/contract/contract.schemas.ts
+@@ -206,7 +206,7 @@
+         options: {
+           lookup: {
+             service: lookups.contract,
+-            searchScope: "query"
++            searchScope: "filters.name.like"
+           },
+           optionalText: ""
+         }

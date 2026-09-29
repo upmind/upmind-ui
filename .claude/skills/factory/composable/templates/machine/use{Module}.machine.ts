@@ -80,5 +80,4 @@ export function createModuleMachineConfig(): Parameters<
   };
 }
 
-// Type export for consumers
 export type ModuleMachineConfig = ReturnType<typeof createModuleMachineConfig>;

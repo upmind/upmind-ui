@@ -1,0 +1,23 @@
+Negative control for useContract.context.ts `validationErrors` (R37 B5).
+
+Spec that must flip: contract.manager-members.int.test.ts
+("A payment-method choice outside my stored cards is not sent and tells me
+why", contract.feature:335) — expects no request sent and
+`useContext().validationErrors` to name the `paymentDetailsId` field.
+
+Mutation: drops the `validationErrors` member from the manager context
+factory.
+
+diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
+--- a/packages/headless/src/modules/contract/useContract.context.ts
++++ b/packages/headless/src/modules/contract/useContract.context.ts
+@@ -93,8 +93,5 @@ export function createContractContext(
+
+     /** Display title of the record. */
+-    title,
+-
+-    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+-    validationErrors: useContext<ErrorObject[]>(state, "error.data")
++    title
+   };
+ }

@@ -1,0 +1,42 @@
+Negative control for contract-product.machine.ts top-level `error` node (D43 B9).
+
+Spec that must flip: contract-product.manager-members.int.test.ts
+(the "a read that fails settles on the error node" block) — asserts a failed `load` (or an unrecognised status)
+settles the machine on the top-level `error` state, and that a subsequent
+`REFRESH` leaves it back to `loading`.
+
+Mutation: drops the `error` state node and re-targets `loading`'s invoke
+`onError` and the `isUnrecognised` branch back to leaving the machine parked
+in `loading` (no target), reproducing the pre-restore drift.
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -63,7 +63,7 @@ export const contractProductMachine = createMachine(
+         invoke: {
+           src: "load",
+           onDone: { actions: ["setContractProduct", "setLookups"] },
+-          onError: { target: "#error", actions: ["setError"] }
++          onError: { actions: ["setError"] }
+         },
+         always: [
+           { target: ContractProductState.STAGED, cond: "isStaged" },
+@@ -76,17 +76,9 @@ export const contractProductMachine = createMachine(
+           { target: ContractProductState.ACTIVE, cond: "isActive" },
+           { target: ContractProductState.SUSPENDED, cond: "isSuspended" },
+-          {
+-            target: "#error",
+-            cond: "isUnrecognised",
+-            actions: ["setStatusError"]
+-          }
++          { cond: "isUnrecognised", actions: ["setStatusError"] }
+         ]
+       },
+ 
+-      error: {
+-        id: "error"
+-      },
+-
+       available: {
+         id: "available",
+         type: "parallel",

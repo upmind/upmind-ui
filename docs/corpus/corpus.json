@@ -3755,6 +3755,253 @@
       "path": "packages/headless/src/modules/client/docs/foundation.md",
       "title": "Module: client"
     },
+    "guide:packages/headless/src/modules/contract-product/docs/CHANGELOG": {
+      "crossRefs": [],
+      "headings": [
+        "contract-product Changelog",
+        "[Unreleased]",
+        "Changed",
+        "Added",
+        "Migration Guide"
+      ],
+      "id": "guide:packages/headless/src/modules/contract-product/docs/CHANGELOG",
+      "path": "packages/headless/src/modules/contract-product/docs/CHANGELOG.md",
+      "title": "contract-product Changelog"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/README": {
+      "crossRefs": [],
+      "headings": [
+        "contract-product Module",
+        "What Is This? (ELI5)",
+        "Quick Start",
+        "Features",
+        "Key Concepts",
+        "The status/setup/trial parallel regions",
+        "One cancellation form, three options",
+        "Actor Types",
+        "Documentation"
+      ],
+      "id": "guide:packages/headless/src/modules/contract-product/docs/README",
+      "path": "packages/headless/src/modules/contract-product/docs/README.md",
+      "title": "contract-product Module"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/architecture": {
+      "crossRefs": [],
+      "headings": [
+        "contract-product Architecture",
+        "Overview",
+        "State Machine (`useContractProduct`)",
+        "Data Flow",
+        "Sub-Composables",
+        "Services",
+        "Dependencies",
+        "contract-product Depends On",
+        "Modules That Depend On contract-product",
+        "Integration Points"
+      ],
+      "id": "guide:packages/headless/src/modules/contract-product/docs/architecture",
+      "path": "packages/headless/src/modules/contract-product/docs/architecture.md",
+      "title": "contract-product Architecture"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/foundation": {
+      "crossRefs": [],
+      "headings": [
+        "Module: contract-product",
+        "What it is",
+        "Core concepts",
+        "Operations",
+        "Data shape",
+        "Dependencies",
+        "Dependants — surfaces that read from this one",
+        "This module's own dependencies",
+        "API endpoints",
+        "GET /contracts_products",
+        "GET /clients/{clientId}/contracts/products",
+        "GET /contract_product_categories",
+        "GET /contract_products/{id}",
+        "PUT /contracts/{contractId}/products/{contractProductId}/modify_renew",
+        "PUT /contracts/{contractId}/products/{contractProductId}/properties",
+        "PUT /contracts/{contractId}/products/{contractProductId}/schedule-cancel",
+        "PUT /contracts/{contractId}/products/{contractProductId}/schedule-cancel-revoke",
+        "POST /contracts/{contractId}/cancel/request",
+        "DELETE /contracts/{contractId}/cancel/request",
+        "Failure modes",
+        "Lessons (hard-won)"
+      ],
+      "id": "guide:packages/headless/src/modules/contract-product/docs/foundation",
+      "path": "packages/headless/src/modules/contract-product/docs/foundation.md",
+      "title": "Module: contract-product"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/gotchas": {
+      "crossRefs": [],
+      "headings": [
+        "contract-product Gotchas",
+        "Subscription-only writes fail silently, not loudly 🧪",
+        "A future-cancellation date must land exactly on a billing anniversary 🧪",
+        "Quick search silently drops terms under three characters 🧪",
+        "`unavailable` (staged/cancelled/lapsed/fraud) has no way out except a fresh read",
+        "The cancellation form can vanish entirely, not just lose one option 🧪",
+        "The consolidation form reads no brand setting and no permission",
+        "No actor-permission check backs the cancellation or consolidation forms — a known limitation, not a design choice",
+        "`hasScheduledFutureCancellation` and `canScheduleFutureCancellation` are not opposites",
+        "Common Mistakes",
+        "Reading `contractProduct.raw` for a field the view model already maps",
+        "Assuming the collection and the manager share a cache entry per product",
+        "Edge Cases",
+        "Lifecycle Considerations",
+        "Destroy the Instance When Done",
+        "Wait for Ready State"
+      ],
+      "id": "guide:packages/headless/src/modules/contract-product/docs/gotchas",
+      "path": "packages/headless/src/modules/contract-product/docs/gotchas.md",
+      "title": "contract-product Gotchas"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/usage": {
+      "crossRefs": [],
+      "headings": [
+        "contract-product Usage & API",
+        "Composable Structure",
+        "`useContractProducts` — the collection",
+        "Reading & lifecycle",
+        "Filtering, sorting & paging",
+        "Quick search",
+        "Extra reads",
+        "Utility",
+        "`useContractProduct` — the manager",
+        "Lifecycle",
+        "Writes",
+        "Cancellation — one combined form, three options",
+        "Consolidation — its own form",
+        "Meta (State Flags)",
+        "`useContractProducts().useMeta()`",
+        "`useContractProduct().useMeta()`",
+        "Context (Computed Values)",
+        "`useContractProducts().useContext()`",
+        "`useContractProduct().useContext()`",
+        "Future-cancellation date helpers",
+        "Unpaid-invoice predicates",
+        "Vue Component Integration"
+      ],
+      "id": "guide:packages/headless/src/modules/contract-product/docs/usage",
+      "path": "packages/headless/src/modules/contract-product/docs/usage.md",
+      "title": "contract-product Usage & API"
+    },
+    "guide:packages/headless/src/modules/contract/docs/CHANGELOG": {
+      "crossRefs": [],
+      "headings": [
+        "contract Changelog",
+        "[Unreleased]",
+        "Added",
+        "Design notes",
+        "Migration Guide"
+      ],
+      "id": "guide:packages/headless/src/modules/contract/docs/CHANGELOG",
+      "path": "packages/headless/src/modules/contract/docs/CHANGELOG.md",
+      "title": "contract Changelog"
+    },
+    "guide:packages/headless/src/modules/contract/docs/README": {
+      "crossRefs": [],
+      "headings": [
+        "contract Module",
+        "What Is This? (ELI5)",
+        "Quick Start",
+        "Features",
+        "Key Concepts",
+        "One write, on the envelope, not the products",
+        "The payment-method form is also offered while unavailable",
+        "Actor Types",
+        "Documentation"
+      ],
+      "id": "guide:packages/headless/src/modules/contract/docs/README",
+      "path": "packages/headless/src/modules/contract/docs/README.md",
+      "title": "contract Module"
+    },
+    "guide:packages/headless/src/modules/contract/docs/architecture": {
+      "crossRefs": [],
+      "headings": [
+        "contract Architecture",
+        "Overview",
+        "State Machine (`useContract`)",
+        "Data Flow",
+        "Sub-Composables",
+        "Services",
+        "Dependencies",
+        "contract Depends On",
+        "Modules That Depend On contract",
+        "Integration Points"
+      ],
+      "id": "guide:packages/headless/src/modules/contract/docs/architecture",
+      "path": "packages/headless/src/modules/contract/docs/architecture.md",
+      "title": "contract Architecture"
+    },
+    "guide:packages/headless/src/modules/contract/docs/foundation": {
+      "crossRefs": [],
+      "headings": [
+        "Module: contract",
+        "What it is",
+        "Core concepts",
+        "Operations",
+        "Data shape",
+        "Dependencies",
+        "Dependants — surfaces that read from this one",
+        "This module's own dependencies",
+        "API endpoints",
+        "GET /contracts",
+        "GET /contracts?with=status (the contracts picker)",
+        "GET /contracts/{id}",
+        "PATCH /contracts/{id}/payment_details",
+        "Failure modes",
+        "Lessons (hard-won)"
+      ],
+      "id": "guide:packages/headless/src/modules/contract/docs/foundation",
+      "path": "packages/headless/src/modules/contract/docs/foundation.md",
+      "title": "Module: contract"
+    },
+    "guide:packages/headless/src/modules/contract/docs/gotchas": {
+      "crossRefs": [],
+      "headings": [
+        "contract Gotchas",
+        "Submitting the SAME payment method (or none) sends nothing — and that is correct 🧪",
+        "The payment-method form is offered on `unavailable`, unlike everything else",
+        "A contract's own read carries each product as an id-and-name stub, nothing more",
+        "The contracts list's sort column is an `enum`, not `oneOf` — but its i18n labels are not shipped yet 🧪",
+        "Common Mistakes",
+        "Reading `contract.raw` for a field the view model already maps",
+        "Assuming the collection and the manager share a cache entry per contract",
+        "Edge Cases",
+        "Lifecycle Considerations",
+        "Destroy the Instance When Done",
+        "Wait for Ready State"
+      ],
+      "id": "guide:packages/headless/src/modules/contract/docs/gotchas",
+      "path": "packages/headless/src/modules/contract/docs/gotchas.md",
+      "title": "contract Gotchas"
+    },
+    "guide:packages/headless/src/modules/contract/docs/usage": {
+      "crossRefs": [],
+      "headings": [
+        "contract Usage & API",
+        "Composable Structure",
+        "`useContracts` — the collection",
+        "Reading & lifecycle",
+        "Filtering, sorting & paging",
+        "The contracts picker",
+        "Utility",
+        "`useContract` — the manager",
+        "Lifecycle",
+        "The payment-method write",
+        "Meta (State Flags)",
+        "`useContracts().useMeta()`",
+        "`useContract().useMeta()`",
+        "Context (Computed Values)",
+        "`useContracts().useContext()`",
+        "`useContract().useContext()`",
+        "Vue Component Integration"
+      ],
+      "id": "guide:packages/headless/src/modules/contract/docs/usage",
+      "path": "packages/headless/src/modules/contract/docs/usage.md",
+      "title": "contract Usage & API"
+    },
     "guide:packages/headless/src/modules/delegates/docs/CHANGELOG": {
       "crossRefs": [],
       "headings": [
@@ -4029,6 +4276,7 @@
       "headings": [
         "Changelog",
         "[Unreleased]",
+        "Fixed",
         "Added",
         "Changed — documentation corrections",
         "Deferred",
@@ -4182,7 +4430,8 @@
       "crossRefs": [],
       "headings": [
         "payment-details Gotchas",
-        "OPEN DEFECT: a filtered stored-method listing arrives keyed, not indexed 🧪",
+        "RESOLVED: a filtered stored-method listing used to arrive keyed, not indexed",
+        "The ADD context never shows stored cards, even though the mapper now reads them",
         "`PAY_IN_FULL` is `\"stored-card\"` on the wire — and it collides",
         "`gateway_id` doubles as a pay-later sentinel",
         "A fresh-gateway selection needs both halves 🧪",
@@ -5832,6 +6081,24 @@
       "path": "packages/headless/src/modules/config/config.types.ts",
       "title": "CONFIG_KEY"
     },
+    "@upmind-automation/headless!CONTRACTS_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/contract.types.ts",
+      "title": "CONTRACTS_SCOPE_MATRIX"
+    },
+    "@upmind-automation/headless!CONTRACT_PRODUCTS_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "CONTRACT_PRODUCTS_SCOPE_MATRIX"
+    },
+    "@upmind-automation/headless!CancellationModel": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "CancellationModel"
+    },
     "@upmind-automation/headless!CategoryGridLayout": {
       "kind": "symbol",
       "module": "config",
@@ -6101,6 +6368,96 @@
       "module": "scope",
       "path": "packages/headless/src/modules/scope/scope.types.ts",
       "title": "ContextsForActor"
+    },
+    "@upmind-automation/headless!Contract": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/contract.types.ts",
+      "title": "Contract"
+    },
+    "@upmind-automation/headless!ContractContext": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/contract.types.ts",
+      "title": "ContractContext"
+    },
+    "@upmind-automation/headless!ContractProduct": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProduct"
+    },
+    "@upmind-automation/headless!ContractProductCancelOption": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductCancelOption"
+    },
+    "@upmind-automation/headless!ContractProductContext": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductContext"
+    },
+    "@upmind-automation/headless!ContractProductFormTypes": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductFormTypes"
+    },
+    "@upmind-automation/headless!ContractProductRequest": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductRequest"
+    },
+    "@upmind-automation/headless!ContractProductRequestStatus": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductRequestStatus"
+    },
+    "@upmind-automation/headless!ContractProductState": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductState"
+    },
+    "@upmind-automation/headless!ContractProductStatus": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductStatus"
+    },
+    "@upmind-automation/headless!ContractProductsContextTypes": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductsContextTypes"
+    },
+    "@upmind-automation/headless!ContractProductsScopeMatrix": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductsScopeMatrix"
+    },
+    "@upmind-automation/headless!ContractState": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/contract.types.ts",
+      "title": "ContractState"
+    },
+    "@upmind-automation/headless!ContractsContextTypes": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/contract.types.ts",
+      "title": "ContractsContextTypes"
+    },
+    "@upmind-automation/headless!ContractsScopeMatrix": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/contract.types.ts",
+      "title": "ContractsScopeMatrix"
     },
     "@upmind-automation/headless!CriteriaInput": {
       "kind": "symbol",
@@ -7554,6 +7911,12 @@
       "path": "packages/headless/src/modules/recommendations/recommendations.types.ts",
       "title": "RelatedProduct"
     },
+    "@upmind-automation/headless!RequestCancellationModel": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "RequestCancellationModel"
+    },
     "@upmind-automation/headless!RequestFilterOperator": {
       "kind": "symbol",
       "module": "query",
@@ -7625,6 +7988,18 @@
       "module": "config",
       "path": "packages/headless/src/modules/config/config.types.ts",
       "title": "ScalarOperator"
+    },
+    "@upmind-automation/headless!ScheduleCancellationModel": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ScheduleCancellationModel"
+    },
+    "@upmind-automation/headless!ScheduledAction": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ScheduledAction"
     },
     "@upmind-automation/headless!ScopeActor": {
       "kind": "symbol",
@@ -7836,6 +8211,18 @@
       "path": "packages/headless/src/modules/session-store/session-store.types.ts",
       "title": "SessionUser"
     },
+    "@upmind-automation/headless!SetConsolidationModel": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "SetConsolidationModel"
+    },
+    "@upmind-automation/headless!SetPaymentMethodModel": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/contract.types.ts",
+      "title": "SetPaymentMethodModel"
+    },
     "@upmind-automation/headless!SettingValue": {
       "kind": "symbol",
       "module": "config",
@@ -7847,6 +8234,12 @@
       "module": "query",
       "path": "packages/headless/src/modules/query/query.types.ts",
       "title": "SimpleQuery"
+    },
+    "@upmind-automation/headless!SoftCancelModel": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "SoftCancelModel"
     },
     "@upmind-automation/headless!SortDirection": {
       "kind": "symbol",
@@ -8153,6 +8546,12 @@
       "module": "basket-billing",
       "path": "packages/headless/src/modules/basket-billing/unified/types.ts",
       "title": "UnifiedType"
+    },
+    "@upmind-automation/headless!UnpaidInvoice": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "UnpaidInvoice"
     },
     "@upmind-automation/headless!UploadContext": {
       "kind": "symbol",
@@ -8850,6 +9249,126 @@
       "path": "packages/headless/src/modules/client-email-history/useClientReceivedEmails.meta.ts",
       "title": "UseClientReceivedEmailsMeta"
     },
+    "@upmind-automation/headless!UseContract": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContract.ts",
+      "title": "UseContract"
+    },
+    "@upmind-automation/headless!UseContractActions": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContract.actions.ts",
+      "title": "UseContractActions"
+    },
+    "@upmind-automation/headless!UseContractContext": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContract.context.ts",
+      "title": "UseContractContext"
+    },
+    "@upmind-automation/headless!UseContractInternals": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContract.internals.ts",
+      "title": "UseContractInternals"
+    },
+    "@upmind-automation/headless!UseContractMeta": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContract.meta.ts",
+      "title": "UseContractMeta"
+    },
+    "@upmind-automation/headless!UseContractProduct": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProduct.ts",
+      "title": "UseContractProduct"
+    },
+    "@upmind-automation/headless!UseContractProductActions": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProduct.actions.ts",
+      "title": "UseContractProductActions"
+    },
+    "@upmind-automation/headless!UseContractProductContext": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProduct.context.ts",
+      "title": "UseContractProductContext"
+    },
+    "@upmind-automation/headless!UseContractProductInternals": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProduct.internals.ts",
+      "title": "UseContractProductInternals"
+    },
+    "@upmind-automation/headless!UseContractProductMeta": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProduct.meta.ts",
+      "title": "UseContractProductMeta"
+    },
+    "@upmind-automation/headless!UseContractProducts": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProducts.ts",
+      "title": "UseContractProducts"
+    },
+    "@upmind-automation/headless!UseContractProductsActions": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProducts.actions.ts",
+      "title": "UseContractProductsActions"
+    },
+    "@upmind-automation/headless!UseContractProductsContext": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProducts.context.ts",
+      "title": "UseContractProductsContext"
+    },
+    "@upmind-automation/headless!UseContractProductsInternals": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProducts.internals.ts",
+      "title": "UseContractProductsInternals"
+    },
+    "@upmind-automation/headless!UseContractProductsMeta": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProducts.meta.ts",
+      "title": "UseContractProductsMeta"
+    },
+    "@upmind-automation/headless!UseContracts": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContracts.ts",
+      "title": "UseContracts"
+    },
+    "@upmind-automation/headless!UseContractsActions": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContracts.actions.ts",
+      "title": "UseContractsActions"
+    },
+    "@upmind-automation/headless!UseContractsContext": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContracts.context.ts",
+      "title": "UseContractsContext"
+    },
+    "@upmind-automation/headless!UseContractsInternals": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContracts.internals.ts",
+      "title": "UseContractsInternals"
+    },
+    "@upmind-automation/headless!UseContractsMeta": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContracts.meta.ts",
+      "title": "UseContractsMeta"
+    },
     "@upmind-automation/headless!UseDac": {
       "kind": "symbol",
       "module": "domain",
@@ -9330,6 +9849,24 @@
       "path": "packages/headless/src/modules/delegates/delegates.services.ts",
       "title": "acceptDelegateInvite"
     },
+    "@upmind-automation/headless!anniversaryAnchor": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "title": "anniversaryAnchor"
+    },
+    "@upmind-automation/headless!anniversaryAtCycle": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "title": "anniversaryAtCycle"
+    },
+    "@upmind-automation/headless!anniversaryCycleForDate": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "title": "anniversaryCycleForDate"
+    },
     "@upmind-automation/headless!applyConfigDefaults": {
       "kind": "symbol",
       "module": "product",
@@ -9594,6 +10131,12 @@
       "path": "packages/headless/src/modules/config/config.mappers.ts",
       "title": "isApplicable"
     },
+    "@upmind-automation/headless!isCancellable": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "title": "isCancellable"
+    },
     "@upmind-automation/headless!isConditionalValue": {
       "kind": "symbol",
       "module": "config",
@@ -9612,11 +10155,23 @@
       "path": "packages/headless/src/modules/domain/domain.utils.ts",
       "title": "isDomainProduct"
     },
+    "@upmind-automation/headless!isDue": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "title": "isDue"
+    },
     "@upmind-automation/headless!isNetworkError": {
       "kind": "symbol",
       "module": "query",
       "path": "packages/headless/src/modules/query/query.utils.ts",
       "title": "isNetworkError"
+    },
+    "@upmind-automation/headless!isSelectableFutureCancellationDate": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "title": "isSelectableFutureCancellationDate"
     },
     "@upmind-automation/headless!localStoragePersister": {
       "kind": "symbol",
@@ -9641,6 +10196,12 @@
       "module": "client",
       "path": "packages/headless/src/modules/client/client.mappers.ts",
       "title": "mapClient"
+    },
+    "@upmind-automation/headless!mapContractProduct": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.mappers.ts",
+      "title": "mapContractProduct"
     },
     "@upmind-automation/headless!mapCustomField": {
       "kind": "symbol",
@@ -9713,6 +10274,18 @@
       "module": "feedback",
       "path": "packages/headless/src/modules/feedback/feedback.types.ts",
       "title": "messageTypes"
+    },
+    "@upmind-automation/headless!minFutureCancellationCycle": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "title": "minFutureCancellationCycle"
+    },
+    "@upmind-automation/headless!minFutureCancellationDate": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "title": "minFutureCancellationDate"
     },
     "@upmind-automation/headless!normalizeValue": {
       "kind": "symbol",
@@ -10164,6 +10737,30 @@
       "path": "packages/headless/src/modules/config/useConfig.ts",
       "title": "useConfig"
     },
+    "@upmind-automation/headless!useContract": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContract.ts",
+      "title": "useContract"
+    },
+    "@upmind-automation/headless!useContractProduct": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProduct.ts",
+      "title": "useContractProduct"
+    },
+    "@upmind-automation/headless!useContractProducts": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/useContractProducts.ts",
+      "title": "useContractProducts"
+    },
+    "@upmind-automation/headless!useContracts": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/useContracts.ts",
+      "title": "useContracts"
+    },
     "@upmind-automation/headless!useCustomFieldsModel": {
       "kind": "symbol",
       "module": "client-custom-fields",
@@ -10427,6 +11024,18 @@
       "module": "session-store",
       "path": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "title": "useSessionStore"
+    },
+    "@upmind-automation/headless!useStoredPaymentMethodsSchema": {
+      "kind": "symbol",
+      "module": "payment-details",
+      "path": "packages/headless/src/modules/payment-details/payment-details.schemas.ts",
+      "title": "useStoredPaymentMethodsSchema"
+    },
+    "@upmind-automation/headless!useStoredPaymentMethodsUischema": {
+      "kind": "symbol",
+      "module": "payment-details",
+      "path": "packages/headless/src/modules/payment-details/payment-details.schemas.ts",
+      "title": "useStoredPaymentMethodsUischema"
     },
     "@upmind-automation/headless!useSystem": {
       "kind": "symbol",
@@ -13584,11 +14193,11 @@
       "path": "packages/client-vue/src/modules/session/index.ts",
       "title": "index.ts"
     },
-    "file:packages/client-vue/src/modules/session/auth.utils.ts": {
+    "file:packages/client-vue/src/modules/session/session.utils.ts": {
       "kind": "file",
       "module": "session",
-      "path": "packages/client-vue/src/modules/session/auth.utils.ts",
-      "title": "auth.utils.ts"
+      "path": "packages/client-vue/src/modules/session/session.utils.ts",
+      "title": "session.utils.ts"
     },
     "file:packages/client-vue/src/modules/session/templates/SessionCanvasCard.template.vue": {
       "kind": "file",
@@ -17370,6 +17979,78 @@
       "path": "packages/headless/src/modules/client/docs/foundation.md",
       "title": "Module: client"
     },
+    "guide:packages/headless/src/modules/contract-product/docs/CHANGELOG": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract-product/docs/CHANGELOG.md",
+      "title": "contract-product Changelog"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/README": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract-product/docs/README.md",
+      "title": "contract-product Module"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/architecture": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract-product/docs/architecture.md",
+      "title": "contract-product Architecture"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/foundation": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract-product/docs/foundation.md",
+      "title": "Module: contract-product"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/gotchas": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract-product/docs/gotchas.md",
+      "title": "contract-product Gotchas"
+    },
+    "guide:packages/headless/src/modules/contract-product/docs/usage": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract-product/docs/usage.md",
+      "title": "contract-product Usage & API"
+    },
+    "guide:packages/headless/src/modules/contract/docs/CHANGELOG": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract/docs/CHANGELOG.md",
+      "title": "contract Changelog"
+    },
+    "guide:packages/headless/src/modules/contract/docs/README": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract/docs/README.md",
+      "title": "contract Module"
+    },
+    "guide:packages/headless/src/modules/contract/docs/architecture": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract/docs/architecture.md",
+      "title": "contract Architecture"
+    },
+    "guide:packages/headless/src/modules/contract/docs/foundation": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract/docs/foundation.md",
+      "title": "Module: contract"
+    },
+    "guide:packages/headless/src/modules/contract/docs/gotchas": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract/docs/gotchas.md",
+      "title": "contract Gotchas"
+    },
+    "guide:packages/headless/src/modules/contract/docs/usage": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/contract/docs/usage.md",
+      "title": "contract Usage & API"
+    },
     "guide:packages/headless/src/modules/delegates/docs/CHANGELOG": {
       "kind": "guide",
       "module": "",
@@ -17870,21 +18551,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-09-23T07:03:47.090Z",
-    "corpus_version": "1+bb00da6ad70e",
+    "built_at": "2026-09-29T09:12:16.205Z",
+    "corpus_version": "1+2dc16e5db6ba",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
-      "guides": 162,
-      "indexEntries": 2079,
+      "guides": 174,
+      "indexEntries": 2151,
       "relationEdges": 5845,
       "relationsPruned": 1692,
-      "symbols": 851
+      "symbols": 911
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "547ec63eb7519912205e6953f7b08431e5dfc086"
+    "source_commit": "63c03cb010d531dc12a97655875ee2fdf55c0792"
   },
   "relations": {
     "edges": [
@@ -33070,7 +33751,7 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/Login.vue",
-        "to": "file:packages/client-vue/src/modules/session/auth.utils.ts"
+        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
       },
       {
         "confidence": 1,
@@ -33262,7 +33943,7 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/session/Register.vue",
-        "to": "file:packages/client-vue/src/modules/session/auth.utils.ts"
+        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
       },
       {
         "confidence": 1,
@@ -33698,18 +34379,18 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/auth.utils.ts",
+        "from": "file:packages/client-vue/src/modules/session/session.utils.ts",
         "granularity": "file",
         "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/session/auth.utils.ts",
-        "to": "file:packages/client-vue/src/modules/session/auth.utils.ts"
+        "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts",
+        "to": "file:packages/client-vue/src/modules/session/session.utils.ts"
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/session/auth.utils.ts",
+        "from": "file:packages/client-vue/src/modules/session/session.utils.ts",
         "granularity": "file",
         "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/session/auth.utils.ts",
+        "sourceFile": "packages/client-vue/src/modules/session/session.utils.ts",
         "to": "file:packages/client-vue/src/modules/session/types.ts"
       },
       {
@@ -65456,6 +66137,39 @@
       "sourceLine": 108,
       "tsdoc": null
     },
+    "@upmind-automation/headless!CONTRACTS_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!CONTRACTS_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "contract",
+      "name": "CONTRACTS_SCOPE_MATRIX",
+      "signature": "CONTRACTS_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
+      "sourceLine": 43,
+      "tsdoc": "Scope matrix for `useContracts`. Only `client` resolves (R2)."
+    },
+    "@upmind-automation/headless!CONTRACT_PRODUCTS_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!CONTRACT_PRODUCTS_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "CONTRACT_PRODUCTS_SCOPE_MATRIX",
+      "signature": "CONTRACT_PRODUCTS_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 58,
+      "tsdoc": "Scope matrix for `useContractProducts`. `client` is the only actor that resolves."
+    },
+    "@upmind-automation/headless!CancellationModel": {
+      "id": "@upmind-automation/headless!CancellationModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "CancellationModel",
+      "signature": "Symbol CancellationModel",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 388,
+      "tsdoc": "The ONE cancellation form model. `futureCancellationDate` is required only\nfor `SCHEDULE_FUTURE` (the schema's `if`/`then`); `customFields` is the\nCANCEL_REQUEST catalogue."
+    },
     "@upmind-automation/headless!CategoryGridLayout": {
       "id": "@upmind-automation/headless!CategoryGridLayout",
       "kind": "2097152",
@@ -65950,6 +66664,171 @@
       "sourceFile": "packages/headless/src/modules/scope/scope.types.ts",
       "sourceLine": 209,
       "tsdoc": "Helper type to extract valid context types for a given actor from a matrix.\nReturns `never` if the actor has no valid contexts or isn't in the matrix.\n\nNote: For SELF, this returns `never` since SELF should be resolved to a\nconcrete actor before context lookup."
+    },
+    "@upmind-automation/headless!Contract": {
+      "id": "@upmind-automation/headless!Contract",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "Contract",
+      "signature": "Symbol Contract",
+      "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
+      "sourceLine": 170,
+      "tsdoc": "The view model `contract.mappers.ts` maps `IContract` into — only the fields this module reads."
+    },
+    "@upmind-automation/headless!ContractContext": {
+      "id": "@upmind-automation/headless!ContractContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "ContractContext",
+      "signature": "Symbol ContractContext",
+      "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
+      "sourceLine": 237,
+      "tsdoc": "Context for `contract.machine.ts`."
+    },
+    "@upmind-automation/headless!ContractProduct": {
+      "id": "@upmind-automation/headless!ContractProduct",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProduct",
+      "signature": "Symbol ContractProduct",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 195,
+      "tsdoc": "The view model `mapContractProduct` maps `IContractProduct` into — only the\nfields this module reads, plus the two derived readings every layer shares.\nThe wire record sits beside it on machine context (`rawContractProduct`)."
+    },
+    "@upmind-automation/headless!ContractProductCancelOption": {
+      "id": "@upmind-automation/headless!ContractProductCancelOption",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductCancelOption",
+      "signature": "Enum ContractProductCancelOption",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 374,
+      "tsdoc": "The client cancellation options a product may offer (legacy `CancelOptions`,\n`contractCancellation.ts:303-333`). The chosen option routes the submit to\none of four writes."
+    },
+    "@upmind-automation/headless!ContractProductContext": {
+      "id": "@upmind-automation/headless!ContractProductContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductContext",
+      "signature": "Symbol ContractProductContext",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 286,
+      "tsdoc": "Context for the contract-product manager machine."
+    },
+    "@upmind-automation/headless!ContractProductFormTypes": {
+      "id": "@upmind-automation/headless!ContractProductFormTypes",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductFormTypes",
+      "signature": "Enum ContractProductFormTypes",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 327,
+      "tsdoc": "The two write forms, each a parallel region of `available`."
+    },
+    "@upmind-automation/headless!ContractProductRequest": {
+      "id": "@upmind-automation/headless!ContractProductRequest",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductRequest",
+      "signature": "Symbol ContractProductRequest",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 134,
+      "tsdoc": "The `status` and `id` members of `IContractCancellationRequest` this module reads."
+    },
+    "@upmind-automation/headless!ContractProductRequestStatus": {
+      "id": "@upmind-automation/headless!ContractProductRequestStatus",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductRequestStatus",
+      "signature": "Symbol ContractProductRequestStatus",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 129,
+      "tsdoc": "`IStatus.code`, narrowed to the cancellation-request vocabulary."
+    },
+    "@upmind-automation/headless!ContractProductState": {
+      "id": "@upmind-automation/headless!ContractProductState",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductState",
+      "signature": "Enum ContractProductState",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 267,
+      "tsdoc": "The fifteen nodes of the locked product chart. Thirteen are reportable\nstates; `SETUP_COMPLETE` and `TRIAL_NONE` are the neutral defaults of their\nregion and carry no meta value."
+    },
+    "@upmind-automation/headless!ContractProductStatus": {
+      "id": "@upmind-automation/headless!ContractProductStatus",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductStatus",
+      "signature": "Symbol ContractProductStatus",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 107,
+      "tsdoc": "`IStatus.code`, narrowed to the contract vocabulary, and the status's translated name."
+    },
+    "@upmind-automation/headless!ContractProductsContextTypes": {
+      "id": "@upmind-automation/headless!ContractProductsContextTypes",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductsContextTypes",
+      "signature": "Enum ContractProductsContextTypes",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 52,
+      "tsdoc": "Context types for the contract-product COLLECTION. `DELEGATED` is a\nSELECTOR context with no id: it narrows the same collection to the client's\ndelegated products, it does not name a different entity."
+    },
+    "@upmind-automation/headless!ContractProductsScopeMatrix": {
+      "id": "@upmind-automation/headless!ContractProductsScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductsScopeMatrix",
+      "signature": "Symbol ContractProductsScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 66,
+      "tsdoc": "Scope matrix type for `useContractProducts` (derived from the runtime const)."
+    },
+    "@upmind-automation/headless!ContractState": {
+      "id": "@upmind-automation/headless!ContractState",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "contract",
+      "name": "ContractState",
+      "signature": "Enum ContractState",
+      "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
+      "sourceLine": 90,
+      "tsdoc": "The typed state values of `contract.machine.ts`. `available` and\n`unavailable` are parallel over a `status` region and a\n`changingPaymentMethod` form region (R35), so every status node sits under\n`.status`."
+    },
+    "@upmind-automation/headless!ContractsContextTypes": {
+      "id": "@upmind-automation/headless!ContractsContextTypes",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "contract",
+      "name": "ContractsContextTypes",
+      "signature": "Enum ContractsContextTypes",
+      "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
+      "sourceLine": 37,
+      "tsdoc": "Context types for the contract COLLECTION — whose list is being addressed."
+    },
+    "@upmind-automation/headless!ContractsScopeMatrix": {
+      "id": "@upmind-automation/headless!ContractsScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "ContractsScopeMatrix",
+      "signature": "Symbol ContractsScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
+      "sourceLine": 51,
+      "tsdoc": "Scope matrix type for `useContracts` (derived from the runtime const)."
     },
     "@upmind-automation/headless!CriteriaInput": {
       "id": "@upmind-automation/headless!CriteriaInput",
@@ -68214,7 +69093,7 @@
       "name": "ProfileContext",
       "signature": "Symbol ProfileContext",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 161,
+      "sourceLine": 168,
       "tsdoc": "The manager's machine context — the shared machine's, over this form\nmodel. Was `FieldsContext` — renamed to resolve its collision with\n`basket-fields.types.ts:11` (design.md §0). `lookups.fields` /\n`.filterFields` / `.languages` are read via the generic `lookups?: Record<string, any[]>`\nDataManagerContext already declares — never widened here, matching\n`EmailContext = DataManagerContext<EmailModel>`'s own precedent."
     },
     "@upmind-automation/headless!ProfileField": {
@@ -68225,7 +69104,7 @@
       "name": "ProfileField",
       "signature": "Symbol ProfileField",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 164,
+      "sourceLine": 171,
       "tsdoc": "One profile field projected for display — native or custom."
     },
     "@upmind-automation/headless!ProfileModel": {
@@ -68236,7 +69115,7 @@
       "name": "ProfileModel",
       "signature": "Symbol ProfileModel",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 106,
+      "sourceLine": 108,
       "tsdoc": "The form/request model for the profile editor. Was `FieldsModel` — renamed\nto resolve its collision with `basket-fields.types.ts:6` (design.md §0)."
     },
     "@upmind-automation/headless!ProfileRecord": {
@@ -68613,6 +69492,17 @@
       "sourceLine": 200,
       "tsdoc": "Interface representing a product that is related to another product, extending\n`IRelatedObject` with additional display fields and augmented product data.\nThis is used to define and enrich connections between products for recommendations."
     },
+    "@upmind-automation/headless!RequestCancellationModel": {
+      "id": "@upmind-automation/headless!RequestCancellationModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "RequestCancellationModel",
+      "signature": "Symbol RequestCancellationModel",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 419,
+      "tsdoc": "The mapper input the hard-cancellation request builds (R33)."
+    },
     "@upmind-automation/headless!RequestFilterOperator": {
       "id": "@upmind-automation/headless!RequestFilterOperator",
       "kind": "Enum",
@@ -68744,6 +69634,28 @@
       "sourceFile": "packages/headless/src/modules/config/config.types.ts",
       "sourceLine": 44,
       "tsdoc": null
+    },
+    "@upmind-automation/headless!ScheduleCancellationModel": {
+      "id": "@upmind-automation/headless!ScheduleCancellationModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ScheduleCancellationModel",
+      "signature": "Symbol ScheduleCancellationModel",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 412,
+      "tsdoc": "The mapper input `scheduleCancellation` builds from the cancellation model (R18)."
+    },
+    "@upmind-automation/headless!ScheduledAction": {
+      "id": "@upmind-automation/headless!ScheduledAction",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ScheduledAction",
+      "signature": "Symbol ScheduledAction",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 141,
+      "tsdoc": "The `scheduled_actions` member this module reads."
     },
     "@upmind-automation/headless!ScopeActor": {
       "id": "@upmind-automation/headless!ScopeActor",
@@ -69130,6 +70042,28 @@
       "sourceLine": 106,
       "tsdoc": "Minimal user info for display in session switcher/dropdown.\nPopulated from auth loadUser response."
     },
+    "@upmind-automation/headless!SetConsolidationModel": {
+      "id": "@upmind-automation/headless!SetConsolidationModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "SetConsolidationModel",
+      "signature": "Symbol SetConsolidationModel",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 407,
+      "tsdoc": "The model `setConsolidation` takes."
+    },
+    "@upmind-automation/headless!SetPaymentMethodModel": {
+      "id": "@upmind-automation/headless!SetPaymentMethodModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "SetPaymentMethodModel",
+      "signature": "Symbol SetPaymentMethodModel",
+      "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
+      "sourceLine": 265,
+      "tsdoc": "The model `setPaymentMethod` takes."
+    },
     "@upmind-automation/headless!SettingValue": {
       "id": "@upmind-automation/headless!SettingValue",
       "kind": "2097152",
@@ -69151,6 +70085,17 @@
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
       "sourceLine": 456,
       "tsdoc": "The `query()` query's return shape (`useQuery.ts`), parameterised by the raw\nfetch type, the (optionally `select`-mapped) data type and the collection's\nquery model. Extracted from `query`'s own inline return-statement cast for\nthe same reason as ListQuery.\n\nONE shape: sort and filters are the criteria's, so there are no\n`sort()`/`filter()` setters beside QueryCriteriaHandle.setCriteria.\nA plain GET has no page window, so the model's `pagination` branch — if the\ncollection declares one — is honoured in the model and never reaches the\nwire; a collection that pages is a ListQuery."
+    },
+    "@upmind-automation/headless!SoftCancelModel": {
+      "id": "@upmind-automation/headless!SoftCancelModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "SoftCancelModel",
+      "signature": "Symbol SoftCancelModel",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 400,
+      "tsdoc": "The mapper input the two `modify_renew` writes share; `renew` is set by the service."
     },
     "@upmind-automation/headless!SortDirection": {
       "id": "@upmind-automation/headless!SortDirection",
@@ -69712,6 +70657,17 @@
       "sourceFile": "packages/headless/src/modules/basket-billing/unified/types.ts",
       "sourceLine": 18,
       "tsdoc": "Enumeration representing the two primary types of unified profiles or entities:\n'personal' for individual clients and 'business' for corporate or organisational clients.\nThis helps in distinguishing the nature of a client's profile for the appropriate data handling\nand form rendering."
+    },
+    "@upmind-automation/headless!UnpaidInvoice": {
+      "id": "@upmind-automation/headless!UnpaidInvoice",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UnpaidInvoice",
+      "signature": "Symbol UnpaidInvoice",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 147,
+      "tsdoc": "The `unpaid_recurring_invoices` member this module reads."
     },
     "@upmind-automation/headless!UploadContext": {
       "id": "@upmind-automation/headless!UploadContext",
@@ -70989,6 +71945,226 @@
       "sourceLine": 70,
       "tsdoc": null
     },
+    "@upmind-automation/headless!UseContract": {
+      "id": "@upmind-automation/headless!UseContract",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContract",
+      "signature": "Symbol UseContract",
+      "sourceFile": "packages/headless/src/modules/contract/useContract.ts",
+      "sourceLine": 90,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractActions": {
+      "id": "@upmind-automation/headless!UseContractActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContractActions",
+      "signature": "Symbol UseContractActions",
+      "sourceFile": "packages/headless/src/modules/contract/useContract.actions.ts",
+      "sourceLine": 327,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractContext": {
+      "id": "@upmind-automation/headless!UseContractContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContractContext",
+      "signature": "Symbol UseContractContext",
+      "sourceFile": "packages/headless/src/modules/contract/useContract.context.ts",
+      "sourceLine": 101,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractInternals": {
+      "id": "@upmind-automation/headless!UseContractInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContractInternals",
+      "signature": "Symbol UseContractInternals",
+      "sourceFile": "packages/headless/src/modules/contract/useContract.internals.ts",
+      "sourceLine": 26,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractMeta": {
+      "id": "@upmind-automation/headless!UseContractMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContractMeta",
+      "signature": "Symbol UseContractMeta",
+      "sourceFile": "packages/headless/src/modules/contract/useContract.meta.ts",
+      "sourceLine": 82,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProduct": {
+      "id": "@upmind-automation/headless!UseContractProduct",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProduct",
+      "signature": "Symbol UseContractProduct",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.ts",
+      "sourceLine": 102,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProductActions": {
+      "id": "@upmind-automation/headless!UseContractProductActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProductActions",
+      "signature": "Symbol UseContractProductActions",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.actions.ts",
+      "sourceLine": 435,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProductContext": {
+      "id": "@upmind-automation/headless!UseContractProductContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProductContext",
+      "signature": "Symbol UseContractProductContext",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.context.ts",
+      "sourceLine": 108,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProductInternals": {
+      "id": "@upmind-automation/headless!UseContractProductInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProductInternals",
+      "signature": "Symbol UseContractProductInternals",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.internals.ts",
+      "sourceLine": 26,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProductMeta": {
+      "id": "@upmind-automation/headless!UseContractProductMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProductMeta",
+      "signature": "Symbol UseContractProductMeta",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.meta.ts",
+      "sourceLine": 269,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProducts": {
+      "id": "@upmind-automation/headless!UseContractProducts",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProducts",
+      "signature": "Symbol UseContractProducts",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.ts",
+      "sourceLine": 90,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProductsActions": {
+      "id": "@upmind-automation/headless!UseContractProductsActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProductsActions",
+      "signature": "Symbol UseContractProductsActions",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.actions.ts",
+      "sourceLine": 199,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProductsContext": {
+      "id": "@upmind-automation/headless!UseContractProductsContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProductsContext",
+      "signature": "Symbol UseContractProductsContext",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.context.ts",
+      "sourceLine": 100,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProductsInternals": {
+      "id": "@upmind-automation/headless!UseContractProductsInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProductsInternals",
+      "signature": "Symbol UseContractProductsInternals",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.internals.ts",
+      "sourceLine": 22,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractProductsMeta": {
+      "id": "@upmind-automation/headless!UseContractProductsMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "UseContractProductsMeta",
+      "signature": "Symbol UseContractProductsMeta",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.meta.ts",
+      "sourceLine": 52,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContracts": {
+      "id": "@upmind-automation/headless!UseContracts",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContracts",
+      "signature": "Symbol UseContracts",
+      "sourceFile": "packages/headless/src/modules/contract/useContracts.ts",
+      "sourceLine": 59,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractsActions": {
+      "id": "@upmind-automation/headless!UseContractsActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContractsActions",
+      "signature": "Symbol UseContractsActions",
+      "sourceFile": "packages/headless/src/modules/contract/useContracts.actions.ts",
+      "sourceLine": 160,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractsContext": {
+      "id": "@upmind-automation/headless!UseContractsContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContractsContext",
+      "signature": "Symbol UseContractsContext",
+      "sourceFile": "packages/headless/src/modules/contract/useContracts.context.ts",
+      "sourceLine": 84,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractsInternals": {
+      "id": "@upmind-automation/headless!UseContractsInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContractsInternals",
+      "signature": "Symbol UseContractsInternals",
+      "sourceFile": "packages/headless/src/modules/contract/useContracts.internals.ts",
+      "sourceLine": 22,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseContractsMeta": {
+      "id": "@upmind-automation/headless!UseContractsMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "UseContractsMeta",
+      "signature": "Symbol UseContractsMeta",
+      "sourceFile": "packages/headless/src/modules/contract/useContracts.meta.ts",
+      "sourceLine": 53,
+      "tsdoc": null
+    },
     "@upmind-automation/headless!UseDac": {
       "id": "@upmind-automation/headless!UseDac",
       "kind": "2097152",
@@ -71228,7 +72404,7 @@
       "name": "UsePaymentDetail",
       "signature": "Symbol UsePaymentDetail",
       "sourceFile": "packages/headless/src/modules/payment-details/usePaymentDetail.ts",
-      "sourceLine": 763,
+      "sourceLine": 775,
       "tsdoc": "The return type of usePaymentDetail composable."
     },
     "@upmind-automation/headless!UsePaymentDetailAdd": {
@@ -71250,7 +72426,7 @@
       "name": "UsePaymentDetails",
       "signature": "Symbol UsePaymentDetails",
       "sourceFile": "packages/headless/src/modules/payment-details/usePaymentDetails.ts",
-      "sourceLine": 111,
+      "sourceLine": 132,
       "tsdoc": "The return type of usePaymentDetails composable."
     },
     "@upmind-automation/headless!UsePaymentGateway": {
@@ -71349,7 +72525,7 @@
       "name": "UsePersonalDetailsManagerContext",
       "signature": "Symbol UsePersonalDetailsManagerContext",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.context.ts",
-      "sourceLine": 128,
+      "sourceLine": 119,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePersonalDetailsManagerInternals": {
@@ -71869,6 +73045,39 @@
       "sourceLine": 106,
       "tsdoc": "Accept a delegate invitation.\n\nCalled by the INVITEE, authenticated as themselves — the hash is the\ninvitation's own credential and arrives in the invitation email, so it is the\ncaller's proof they were the one invited.\n\nOn success the grant takes effect: the owner's row flips to accepted, and the\ninvitee's identity profile begins reporting the granted ids."
     },
+    "@upmind-automation/headless!anniversaryAnchor": {
+      "id": "@upmind-automation/headless!anniversaryAnchor",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "anniversaryAnchor",
+      "signature": "anniversaryAnchor(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): AnniversaryAnchor | null",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "sourceLine": 272,
+      "tsdoc": "The anchor for every future-cancellation calculation: `next_due_date` plus\nthe billing cycle length. `null` when either input is missing."
+    },
+    "@upmind-automation/headless!anniversaryAtCycle": {
+      "id": "@upmind-automation/headless!anniversaryAtCycle",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "anniversaryAtCycle",
+      "signature": "anniversaryAtCycle(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, cycles: number): Dayjs | null",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "sourceLine": 283,
+      "tsdoc": "The anniversary date at a given cycle count off the product's own anchor."
+    },
+    "@upmind-automation/headless!anniversaryCycleForDate": {
+      "id": "@upmind-automation/headless!anniversaryCycleForDate",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "anniversaryCycleForDate",
+      "signature": "anniversaryCycleForDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, date: string | Date): number | null",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "sourceLine": 320,
+      "tsdoc": "Which cycle `date` lands on off the product's anchor, or `null` when it isn't an exact multiple of the billing cycle."
+    },
     "@upmind-automation/headless!applyConfigDefaults": {
       "id": "@upmind-automation/headless!applyConfigDefaults",
       "kind": "Function",
@@ -72353,6 +73562,17 @@
       "sourceLine": 123,
       "tsdoc": "Checks if a UI property applies to the given context."
     },
+    "@upmind-automation/headless!isCancellable": {
+      "id": "@upmind-automation/headless!isCancellable",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "isCancellable",
+      "signature": "isCancellable(invoice: UnpaidInvoice): boolean",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "sourceLine": 375,
+      "tsdoc": "True while cancelling the invoice still means anything."
+    },
     "@upmind-automation/headless!isConditionalValue": {
       "id": "@upmind-automation/headless!isConditionalValue",
       "kind": "Function",
@@ -72386,6 +73606,17 @@
       "sourceLine": 702,
       "tsdoc": "Determines if a product is a domain product based on provided indicators.\nWe check against blueprint code and provision fields to make a determination.\nHowever, if no indicators are provided, we fall back to parsing the service identifier."
     },
+    "@upmind-automation/headless!isDue": {
+      "id": "@upmind-automation/headless!isDue",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "isDue",
+      "signature": "isDue(invoice: UnpaidInvoice): boolean",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "sourceLine": 370,
+      "tsdoc": "True while the invoice still carries an outstanding balance."
+    },
     "@upmind-automation/headless!isNetworkError": {
       "id": "@upmind-automation/headless!isNetworkError",
       "kind": "Function",
@@ -72396,6 +73627,17 @@
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
       "sourceLine": 466,
       "tsdoc": "Detects whether a caught query-layer rejection represents a browser-level\nnetwork failure (API unreachable / CORS) rather than a structured API error.\n\n`fetch` throws a `TypeError` on network failures, and some environments\nsurface the message `\"Network Error\"` (net::ERR_FAILED). Structured API\nerrors carry a `status` and never reach this helper — the caller\nshort-circuits on `response.status`."
+    },
+    "@upmind-automation/headless!isSelectableFutureCancellationDate": {
+      "id": "@upmind-automation/headless!isSelectableFutureCancellationDate",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "isSelectableFutureCancellationDate",
+      "signature": "isSelectableFutureCancellationDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, date: string | Date): boolean",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "sourceLine": 338,
+      "tsdoc": "Whether `date` is a valid future-cancellation anniversary: an exact cycle, on or after `minFutureCancellationDate`."
     },
     "@upmind-automation/headless!localStoragePersister": {
       "id": "@upmind-automation/headless!localStoragePersister",
@@ -72440,6 +73682,17 @@
       "sourceFile": "packages/headless/src/modules/client/client.mappers.ts",
       "sourceLine": 46,
       "tsdoc": "Map a raw IClient (plus optional accounts) to the Client view model.\n\nF5 invariant: isGuest is NOT set here.\nThe single actor.is_guest → isGuest mapping lives in\nsession-store/session-store.mappers.ts mapSessionUser."
+    },
+    "@upmind-automation/headless!mapContractProduct": {
+      "id": "@upmind-automation/headless!mapContractProduct",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "mapContractProduct",
+      "signature": "mapContractProduct(raw: IContractProduct): ContractProduct",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.mappers.ts",
+      "sourceLine": 122,
+      "tsdoc": "Maps one wire record to the view model, deriving the two shared readings once."
     },
     "@upmind-automation/headless!mapCustomField": {
       "id": "@upmind-automation/headless!mapCustomField",
@@ -72572,6 +73825,28 @@
       "sourceFile": "packages/headless/src/modules/feedback/feedback.types.ts",
       "sourceLine": 53,
       "tsdoc": "Enumeration defining the different types of messages based on their severity or purpose.\nThis is used for styling and categorisation of alerts.\n\nValues are the design system's colour intents, because consumers bind them\nstraight to a component's `variant`; an unlisted value renders unstyled.\nThe sole severity enum in the graph (graphify-out/GRAPH_REPORT.md)."
+    },
+    "@upmind-automation/headless!minFutureCancellationCycle": {
+      "id": "@upmind-automation/headless!minFutureCancellationCycle",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "minFutureCancellationCycle",
+      "signature": "minFutureCancellationCycle(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): number | null",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "sourceLine": 294,
+      "tsdoc": "The earliest cycle a client may schedule for: the next anniversary strictly after today."
+    },
+    "@upmind-automation/headless!minFutureCancellationDate": {
+      "id": "@upmind-automation/headless!minFutureCancellationDate",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "minFutureCancellationDate",
+      "signature": "minFutureCancellationDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): string | null",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
+      "sourceLine": 308,
+      "tsdoc": "The earliest selectable future-cancellation date, as a wire date string."
     },
     "@upmind-automation/headless!normalizeValue": {
       "id": "@upmind-automation/headless!normalizeValue",
@@ -73398,6 +74673,50 @@
       "sourceLine": 26,
       "tsdoc": null
     },
+    "@upmind-automation/headless!useContract": {
+      "id": "@upmind-automation/headless!useContract",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "contract",
+      "name": "useContract",
+      "signature": "useContract: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/contract/useContract.ts",
+      "sourceLine": 85,
+      "tsdoc": "Scoped composable for ONE contract."
+    },
+    "@upmind-automation/headless!useContractProduct": {
+      "id": "@upmind-automation/headless!useContractProduct",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "useContractProduct",
+      "signature": "useContractProduct: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.ts",
+      "sourceLine": 97,
+      "tsdoc": "Scoped composable for ONE contract product."
+    },
+    "@upmind-automation/headless!useContractProducts": {
+      "id": "@upmind-automation/headless!useContractProducts",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "useContractProducts",
+      "signature": "useContractProducts: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.ts",
+      "sourceLine": 81,
+      "tsdoc": "Scoped composable for a client's own contract products."
+    },
+    "@upmind-automation/headless!useContracts": {
+      "id": "@upmind-automation/headless!useContracts",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "contract",
+      "name": "useContracts",
+      "signature": "useContracts: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/contract/useContracts.ts",
+      "sourceLine": 54,
+      "tsdoc": "Scoped composable for a client's own contract collection."
+    },
     "@upmind-automation/headless!useCustomFieldsModel": {
       "id": "@upmind-automation/headless!useCustomFieldsModel",
       "kind": "Function",
@@ -73648,7 +74967,7 @@
       "name": "usePaymentDetails",
       "signature": "usePaymentDetails(): object",
       "sourceFile": "packages/headless/src/modules/payment-details/usePaymentDetails.ts",
-      "sourceLine": 13,
+      "sourceLine": 15,
       "tsdoc": "Composable to manage the stored payment details.\nIt provides methods to retrieve stored payment details."
     },
     "@upmind-automation/headless!usePaymentGateway": {
@@ -73881,6 +75200,28 @@
       "sourceFile": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "sourceLine": 32,
       "tsdoc": "Composable for accessing the multi-session store.\nSupports multiple simultaneous sessions per actor type (guest, client, staff).\n\n**Important:** Call `initialise()` from `useUpmind` before using other sub-composables.\nThis ensures config (allowedScopes) is set before state is built."
+    },
+    "@upmind-automation/headless!useStoredPaymentMethodsSchema": {
+      "id": "@upmind-automation/headless!useStoredPaymentMethodsSchema",
+      "kind": "Function",
+      "lessons": [],
+      "module": "payment-details",
+      "name": "useStoredPaymentMethodsSchema",
+      "signature": "useStoredPaymentMethodsSchema(storedPaymentMethods: PaymentDetail[]): JsonSchema7",
+      "sourceFile": "packages/headless/src/modules/payment-details/payment-details.schemas.ts",
+      "sourceLine": 31,
+      "tsdoc": "The stored-card pick list — one `enum` member per stored payment method,\neach with its labelled `option`. `null` stays a member so a form may pick\na gateway instead. Shared by the PAY form and any surface that only picks\na stored card (e.g. a contract's payment method)."
+    },
+    "@upmind-automation/headless!useStoredPaymentMethodsUischema": {
+      "id": "@upmind-automation/headless!useStoredPaymentMethodsUischema",
+      "kind": "Function",
+      "lessons": [],
+      "module": "payment-details",
+      "name": "useStoredPaymentMethodsUischema",
+      "signature": "useStoredPaymentMethodsUischema(scope: string, i18n: string): ControlElement",
+      "sourceFile": "packages/headless/src/modules/payment-details/payment-details.schemas.ts",
+      "sourceLine": 59,
+      "tsdoc": "The stored-card control — a radio over useStoredPaymentMethodsSchema."
     },
     "@upmind-automation/headless!useSystem": {
       "id": "@upmind-automation/headless!useSystem",

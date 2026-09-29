@@ -91,6 +91,21 @@
     "label": "Número de empresa",
     "placeholder": "Número de identificación de la empresa"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "País",
     "placeholder": "Selecciona un país"
@@ -106,6 +121,9 @@
     "label": "Correo electrónico",
     "placeholder": "nombre@email.com",
     "title": "Agregar nuevo correo electrónico | Actualizar correo electrónico"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "Notas del pedido"

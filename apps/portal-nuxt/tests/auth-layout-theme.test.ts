@@ -11,16 +11,16 @@
  * `data-theme`, so the sign-in screens never load the portal's brand CSS.
  */
 
-import { assign, omit } from "lodash-es";
 import { mount } from "@vue/test-utils";
-import type { VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick, shallowRef } from "vue";
 import { resetDocument, stubMatchMedia } from "./support/theme-harness";
+import { assign, omit } from "lodash-es";
+import type { VueWrapper } from "@vue/test-utils";
 import type { Mock } from "vitest";
 import type { ShallowRef } from "vue";
-import { PORTAL_CONFIG_ID, PORTAL_CONFIGS } from "~/portal/config";
 import type { PortalConfig } from "~/portal/types";
+import { PORTAL_CONFIG_ID, PORTAL_CONFIGS } from "~/portal/config";
 
 // -----------------------------------------------------------------------------
 

@@ -1,0 +1,29 @@
+# Negative-control mutant — the query schema's `pagination.offset` leaf
+# carries NO default (B6), so a caller who never picks a page gets no `offset`
+# key at all.
+#
+# Covering spec: contract.criteria.int.test.ts
+#   ("AC-14 an unpicked page settles a page size and assumes no page position
+#   of its own") — parses an empty `{ pagination: {} }` model and asserts
+#   `limit` defaults to 10 while `Object.keys(model.pagination)` does NOT
+#   contain "offset".
+# Mutation: `useQuerySchema`'s `pagination.offset` leaf regains
+#   `default: PAGINATION.offset` (= 0), so ajv coerces `offset: 0` onto the
+#   emptied model and the "no offset key" assertion flips. The `query:` sibling
+#   in the context pins this to the list schema, not the picker lookup schema.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
+index 6ff39021a3..aa9a2ad0a0 100644
+--- a/packages/headless/src/modules/contract/contract.schemas.ts
++++ b/packages/headless/src/modules/contract/contract.schemas.ts
+@@ -93,7 +93,7 @@ export function useQuerySchema(): QuerySchema {
+         additionalProperties: false,
+         properties: {
+           limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+-          offset: { type: "integer", minimum: 0 }
++          offset: { type: "integer", minimum: 0, default: PAGINATION.offset }
+         }
+       },
+       query: { type: ["string", "null"] }

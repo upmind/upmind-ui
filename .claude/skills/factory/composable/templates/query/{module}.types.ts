@@ -21,12 +21,15 @@
  */
 
 import { AccessRoleTypes } from "@upmind-automation/types";
+// The wire type is the generated one — never hand-minted here. If
+// `@upmind-automation/types` has no `I{Module}` yet, that is a types-package
+// story to raise at Plan, not a placeholder to mint in this file.
+import type { I{Module} } from "@upmind-automation/types";
 // `SortDirection` is read at MODULE scope below (`DEFAULT_SORT`), so it comes
 // in as a VALUE import, never `import type`.
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { ListQuery, QueryParams, SimpleQuery } from "../query";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
  * @module module/module.types
@@ -94,11 +97,13 @@ export const MODULE_ITEM_SCOPE_MATRIX = {
 export type ModuleItemScopeMatrix = typeof MODULE_ITEM_SCOPE_MATRIX;
 
 /**
- * One item in the module's collection — replace with the real view-model.
+ * One item in the module's collection — the view-model `map{Module}`
+ * (`module.mappers.ts`) shapes from the wire type `I{Module}`
+ * (`@upmind-automation/types`). Replace the fields with the real view-model.
  * No machine-context type exists in the query variant — the query itself IS
  * the state (`code-composables.md` Part B "State Machine vs TanStack Query").
  */
-export type ModuleItem = {
+export type {Module} = {
   id: string;
   /**
    * Present because `use{Module}.context.{actor}.ts`'s own client-exclusive
@@ -106,42 +111,6 @@ export type ModuleItem = {
    * per-item fields at intake.
    */
   entitlements?: string[];
-};
-
-/**
- * Placeholder wire shape for the list endpoint's raw response item — replace
- * with the module's real request/response type.
- * @doctrine `code-typescript.companion.md` "Types-module suffix" — types live
- * in `*.types.ts`, never inline in a services/mappers file.
- * @precedent `client-email/client-email.types.ts`'s `IEmail` import (the
- * wire type comes from `@upmind-automation/types` there; this skeleton has no
- * such generated type to cite, so `ModuleWireItem` stands in for it).
- */
-export type ModuleWireItem = {
-  id: string;
-};
-
-/**
- * The CLIENT surface's shape for the same record. This actor's arm reads
- * collection from `clients/{id}/module-items`, which returns everything
- * the shared read does PLUS its own extra fields — so it needs its own
- * wire type and its own mapper (`mapClientModuleItems`, `module.mappers.ts`).
- * Replace the illustrative extras with this module's real client-only fields.
- */
-export type ClientModuleWireItem = ModuleWireItem & {
-  internal_notes?: string;
-  flagged_by?: string;
-};
-
-/**
- * The view-model half of the pair. `mapClientModuleItems` maps
- * `ClientModuleWireItem` to this; the arm's `loadList` names both as its
- * `list<Wire[], View[]>` generics. A wire type without its view-model half does
- * not build — add them together.
- */
-export type ClientModuleItem = ModuleItem & {
-  internalNotes?: string;
-  flaggedBy?: string;
 };
 
 // --- Add the module's form/request/response model types below this line.
@@ -180,8 +149,8 @@ export type ModuleServices = {
    * @doctrine clause 3 — "overriding the shared implementation".
    */
   loadList: (
-    params?: Partial<QueryParams<ModuleWireItem[], ModuleItem[]>>
-  ) => ListQuery<ModuleWireItem[], ModuleItem[]>;
+    params?: Partial<QueryParams<I{Module}[], {Module}[]>>
+  ) => ListQuery<I{Module}[], {Module}[]>;
   /**
    * SINGLE-RECORD READ contract — one record by its id. The id is the scope
    * builder's own `.withId(id)`, relayed by `useModuleItem.ts` off `config.id`;
@@ -195,7 +164,7 @@ export type ModuleServices = {
    * Delete this member for a module with no single-record read; a collection
    * that never opens one record does not carry the contract for it.
    */
-  loadOne: (id?: ModuleItem["id"]) => SimpleQuery<ModuleWireItem, ModuleItem>;
+  loadOne: (id?: {Module}["id"]) => SimpleQuery<I{Module}, {Module}>;
   /**
    * Shared domain mutation — required, because the shared factory always
    * supplies it and both the shared `login` action and the actions arm's
@@ -223,18 +192,6 @@ export type ModuleServices = {
    * `auth/auth.types.ts:236-243`.
    */
   registerAsGuest?: () => Promise<unknown>;
-};
-
-/**
- * The common type `scopedSchemas()` in `module.schemas.ts` resolves to — same
- * role as `ModuleServices` above, for the schemas layer. The three parsers are
- * required because the shared factory always supplies them; an arm overriding
- * one types its own export as `Partial<ModuleSchemas>`.
- */
-export type ModuleSchemas = {
-  useSchema: () => JsonSchema7;
-  useUischema: () => UISchemaElement;
-  useModuleModelParser: (model?: ModuleModel) => ModuleModel;
 };
 
 // --- The criteria models — the module's ONE request-state type -------------
@@ -300,4 +257,4 @@ export const DEFAULT_SORT: SortModel = [
  * verbatim (`modules/query/query.types.ts`). Platform seams law:
  * `code-composables.companion.md` "Platform seams every composable consumes".
  */
-export type ModuleListQuery = ListQuery<ModuleWireItem[], ModuleItem[]>;
+export type ModuleListQuery = ListQuery<I{Module}[], {Module}[]>;

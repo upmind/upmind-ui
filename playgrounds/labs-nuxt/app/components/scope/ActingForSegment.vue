@@ -63,7 +63,9 @@
       />
     </div>
 
-    <!-- A module with no lookups form: each RETARGET member takes a typed id. -->
+    <!-- A module with no lookups form: each RETARGET member takes a typed id.
+         `client` has none anywhere: no endpoint a client token can reach
+         lists other clients, so it stays a typed id (G1, FE-3029). -->
     <template v-else>
       <div v-for="member in retargetMembers" :key="member.type" class="p-2">
         <Input

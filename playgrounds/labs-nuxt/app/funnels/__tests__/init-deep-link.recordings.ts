@@ -92,10 +92,11 @@ if (!every(REQUIRED_CORPORA, existsSync)) {
 // -----------------------------------------------------------------------------
 
 /**
- * The bound `guardInitIntent` puts on its own readiness wait, per design §6.1
- * property 5 — `useInvoice.isReady()` is an unbounded poll for an authenticated
- * caller and the guard is awaited inside navigation-blocking middleware, so the
- * guard refuses on this bound rather than leaving the app with no page.
+ * The ceiling on the pay guard's readiness wait, per design §6.1 property 5 —
+ * the guard is awaited inside navigation-blocking middleware, so an invoice
+ * that never loads is refused within this bound rather than leaving the app
+ * with no page. `useInvoice().isReady()` now always settles, and may refuse
+ * sooner than this ceiling.
  */
 export const INTENT_READINESS_BOUND_MS = 30_000;
 

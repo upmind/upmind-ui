@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 68d0328713..ae47cd28ea 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -93,6 +93,7 @@ export function mapContractProductListItem(
+   return {
+     id: raw.id,
+     name: raw.name,
++    status: raw.status,
+     ...(raw.product ? { product: { name: raw.product.name } } : {})
+   };
+ }
