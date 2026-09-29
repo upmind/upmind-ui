@@ -1480,8 +1480,7 @@
         "Standing is derived, not stored",
         "Guest is checked first",
         "One shared form surface",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/account/docs/README",
       "path": "packages/headless/src/modules/account/docs/README.md",
@@ -1603,8 +1602,7 @@
         "Quick Start",
         "Features",
         "Key Concepts",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/auth/docs/README",
       "path": "packages/headless/src/modules/auth/docs/README.md",
@@ -1904,7 +1902,7 @@
         "Display current currency in a component",
         "Currency picker with confirm",
         "Wait for ready before reading currency",
-        "URL `?currency=` entrypoint (cart funnel)",
+        "URL `?currency=` entrypoint",
         "Types"
       ],
       "id": "guide:packages/headless/src/modules/basket-currency/docs/usage",
@@ -2256,8 +2254,7 @@
         "Deleting and setting default confirm with a message; nothing else does",
         "A partial `update()` on the editor can silently discard a prior edit",
         "`isDirty` stays `true` after a save",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-address/docs/README",
       "path": "packages/headless/src/modules/client-address/docs/README.md",
@@ -2423,8 +2420,7 @@
         "Saves are diff-only, and an empty diff is a genuine no-op",
         "A staged, unprocessed import locks the editor",
         "Errors are state — the module raises nothing",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-billing-settings/docs/README",
       "path": "packages/headless/src/modules/client-billing-settings/docs/README.md",
@@ -2601,8 +2597,7 @@
         "The form's schema is only reachable through the editor — except for two fragments",
         "Errors are state — the module raises nothing",
         "Two drafts never collide",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-company/docs/README",
       "path": "packages/headless/src/modules/client-company/docs/README.md",
@@ -2762,8 +2757,7 @@
         "Definitions vs. values",
         "The numeric type is the only safe discriminator",
         "Actor types — and entity ids",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-custom-fields/docs/README",
       "path": "packages/headless/src/modules/client-custom-fields/docs/README.md",
@@ -2919,8 +2913,7 @@
         "The read-only module",
         "One write verb, one schema — reached through three names",
         "Errors are state — the module raises nothing",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-email-history/docs/README",
       "path": "packages/headless/src/modules/client-email-history/docs/README.md",
@@ -3075,8 +3068,7 @@
         "Find-or-create avoids duplicate adds",
         "Errors are state — the module raises nothing",
         "Two drafts never collide",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-email/docs/README",
       "path": "packages/headless/src/modules/client-email/docs/README.md",
@@ -3247,8 +3239,7 @@
         "The guest link token never comes back out",
         "There is no staff-for-client capability here",
         "The editor is driven through a generated form, not a bespoke grid",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-notifications/docs/README",
       "path": "packages/headless/src/modules/client-notifications/docs/README.md",
@@ -3272,7 +3263,6 @@
         "Dependencies",
         "This module reads from",
         "Modules that read from this one",
-        "Integration Points",
         "Module boundary",
         "What this module does not do"
       ],
@@ -3325,11 +3315,10 @@
         "5. The editor's grid is driven through the generated form, by design",
         "6. A save in flight swallows a second save attempt — by design",
         "7. The late-session refresh path — an open, unresolved risk, not a closed one",
-        "8. The `labs` (Vue) playground pages are unwired placeholders",
-        "9. Staff cannot act for a client here — and there is no context to widen into",
-        "10. A `mandatory` field is declared on the topic type but never appears on a captured row",
-        "11. Independent status — read this before trusting any capability claim in this doc set as final",
-        "12. The internal planning notes do not travel with the branch"
+        "8. Staff cannot act for a client here — and there is no context to widen into",
+        "9. A `mandatory` field is declared on the topic type but never appears on a captured row",
+        "10. Independent status — read this before trusting any capability claim in this doc set as final",
+        "11. The internal planning notes do not travel with the branch"
       ],
       "id": "guide:packages/headless/src/modules/client-notifications/docs/gotchas",
       "path": "packages/headless/src/modules/client-notifications/docs/gotchas.md",
@@ -3406,8 +3395,7 @@
         "Saves are diff-only, and an empty diff is a genuine no-op",
         "The interface language is tracked by id, shown by name",
         "Errors are state — the module raises nothing",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-personal-details/docs/README",
       "path": "packages/headless/src/modules/client-personal-details/docs/README.md",
@@ -3580,8 +3568,7 @@
         "Status flags are informational client-side",
         "Find-or-create avoids duplicate adds",
         "Two drafts never collide",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/client-phone/docs/README",
       "path": "packages/headless/src/modules/client-phone/docs/README.md",
@@ -4126,8 +4113,7 @@
         "Frozen snapshot",
         "Co-mingled attribution",
         "All request state through one declared model",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/invoices/docs/README",
       "path": "packages/headless/src/modules/invoices/docs/README.md",
@@ -4355,7 +4341,7 @@
         "Actor Types",
         "Stored method or gateway, never both",
         "Documentation",
-        "Playground"
+        "Tests"
       ],
       "id": "guide:packages/headless/src/modules/payment-details/docs/README",
       "path": "packages/headless/src/modules/payment-details/docs/README.md",
@@ -4616,7 +4602,7 @@
         "Parent or root",
         "Actor Types",
         "Documentation",
-        "Playground"
+        "Tests"
       ],
       "id": "guide:packages/headless/src/modules/payment/docs/README",
       "path": "packages/headless/src/modules/payment/docs/README.md",
@@ -5159,8 +5145,7 @@
         "With Auth Module",
         "With the Active Session",
         "Migration Guide",
-        "From Old API (setSession, removeSession, etc.)",
-        "Playground"
+        "From Old API (setSession, removeSession, etc.)"
       ],
       "id": "guide:packages/headless/src/modules/session-store/docs/README",
       "path": "packages/headless/src/modules/session-store/docs/README.md",
@@ -5488,8 +5473,7 @@
         "A reply that arrives late is a caution, not a failure",
         "Attachments go through this module's own upload endpoint",
         "The poll disarms itself, it doesn't just stop firing",
-        "Documentation",
-        "Playground"
+        "Documentation"
       ],
       "id": "guide:packages/headless/src/modules/tickets/docs/README",
       "path": "packages/headless/src/modules/tickets/docs/README.md",
@@ -18412,8 +18396,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-09-29T15:40:14.368Z",
-    "corpus_version": "1+42f71c1f0522",
+    "built_at": "2026-09-29T16:04:13.197Z",
+    "corpus_version": "1+d6bd385b0628",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
@@ -18426,7 +18410,7 @@
       "symbols": 911
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "42bb43662ecf530d5b730b0d3af52b3783a2c6b0"
+    "source_commit": "b5bcfa73523d7784b11f6da5a8fef1d142e0d58b"
   },
   "relations": {
     "edges": [
