@@ -702,6 +702,7 @@
         "Amendment (2026-08-25) — `ui` hosts the vendored form engine; constraint 5 narrows to `src/components/`",
         "Amendment 1 (2026-09-07) — a phased strangler replaces the big-bang wave",
         "Amendment 2 (2026-09-08) — four scope rulings before the run",
+        "Amendment 11 (2026-09-24) — Phase 0 holds only what Phase 0 needs",
         "References"
       ],
       "id": "adr:023-ui-domain-package-architecture",
@@ -18551,8 +18552,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-09-29T09:12:16.205Z",
-    "corpus_version": "1+2dc16e5db6ba",
+    "built_at": "2026-09-29T15:23:45.279Z",
+    "corpus_version": "1+2300ee008a62",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
@@ -18565,7 +18566,7 @@
       "symbols": 911
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "63c03cb010d531dc12a97655875ee2fdf55c0792"
+    "source_commit": "339b940560651cc85de53e3a7eee36c3230c0183"
   },
   "relations": {
     "edges": [
