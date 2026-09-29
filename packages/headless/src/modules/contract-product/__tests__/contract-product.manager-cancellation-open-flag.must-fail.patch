@@ -1,0 +1,30 @@
+# Negative-control mutant — the manager publishes a page-readable cancellation open flag (G2)
+#
+# Scenario it must flip: contract-product.manager-open-gates.int.test.ts, the
+#   AC-11 outline rows for a product on an `available` node with no
+#   cancellation option: "already set to expire", "a cancellation booked for a
+#   future date" and "a cancellation request already pending". Each expects
+#   `hasCancellationOptions` false.
+# Mutation: the flag keeps the `isAvailable` gate but drops the
+#   `!isEmpty(cancellationOptions(...))` check — the SAME shape as the machine
+#   guard mutant (`contract-product.cancellation-eligibility.must-fail.patch`),
+#   applied to the meta member. The gate itself has its own mutant
+#   (`contract-product.manager-cancellation-available-gate.must-fail.patch`).
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+index f450389bc..aac806b9c 100644
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -119,9 +119,7 @@ export function createContractProductMeta(
+      */
+     hasCancellationOptions: computed(
+       () =>
+-        isAvailable.value &&
+-        !!contractProduct.value &&
+-        !isEmpty(cancellationOptions(contractProduct.value))
++        isAvailable.value && !!contractProduct.value
+     ),
+ 
+     /** True if the machine captured an error. */

@@ -235,7 +235,6 @@ export function createModuleManagerActions(
   };
 }
 
-// Type export for consumers
 export type UseModuleManagerActions = ReturnType<
   typeof createModuleManagerActions
 >;

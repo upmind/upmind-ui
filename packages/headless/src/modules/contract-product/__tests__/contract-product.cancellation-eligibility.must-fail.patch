@@ -1,0 +1,32 @@
+# Negative-control mutant — the cancellation form is refused where legacy hides it (AC-11, R35)
+#
+# Scenario it must flip: contract-product.feature > the @AC-11 form-eligibility
+#   scenario. An expiring subscription (auto-renew already off) has no
+#   cancellation options left, so opening the form leaves its `cancellation`
+#   slot empty (legacy parity — the form is hidden).
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   "useContractProduct — the cancellation form is hidden where legacy hides it
+#   (AC-11, R35)" >
+#   "AC-11 an expiring subscription (auto-renew already off) is offered no
+#   cancellation form — the open is refused, its slot left empty"
+#   (with the guard weakened the `CANCELLATION` open fills the slot, so
+#   `expect(manager.useContext().cancellation.value).toBeFalsy()` flips).
+# Mutation: `hasCancellationOptions` drops the
+#   `!isEmpty(cancellationOptions(...))` check, so the `idle -> available` open
+#   transition admits a product that has no cancellation options.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+index 86220f7bf..c8730fb0a 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -550,7 +550,7 @@ export const contractProductMachine = createMachine(
+ 
+     guards: {
+       hasCancellationOptions: ({ contractProduct }: ContractProductContext) =>
+-        !!contractProduct && !isEmpty(cancellationOptions(contractProduct)),
++        !!contractProduct,
+ 
+       isSubscription: ({ contractProduct }: ContractProductContext) =>
+         !!contractProduct?.isSubscription,

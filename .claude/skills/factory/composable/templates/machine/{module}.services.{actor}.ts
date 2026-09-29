@@ -28,7 +28,7 @@
 
 import type { ModuleContext } from "./module.types";
 import { mapModuleRequestData } from "./module.mappers";
-import type { ModuleServices } from "./module.types";
+import type { ModuleModel, ModuleServices } from "./module.types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
@@ -40,6 +40,29 @@ import type { AnyEventObject } from "xstate";
  * WARNING: Do not import directly. Use via the module's machine only — same
  * warning as `auth/auth.services.client.ts`'s own top-of-file note.
  */
+
+/**
+ * ACTOR-NAMED MAPPER — the client surface expects a different payload for the
+ * same operation, so a STAFF arm posting to it maps with THIS instead of
+ * `mapModuleRequestData`. It lives here, not in `module.mappers.ts`, because
+ * the shared mappers file exports exactly what every module exports and this
+ * arm is the only consumer; the day the arm is earned, lift it into
+ * `module.mappers.ts` as an EXTRA export (the shape gate grades missing
+ * exports, never extra ones). A mapper is a pure function with no actor-scoped
+ * state, so there is no `{module}.mappers.{actor}.ts` (`ARMS.md`, operator
+ * ruling 2026-07-28).
+ * @doctrine `code-quality.md`'s Lodash mandate.
+ */
+export function mapClientModuleRequestData(
+  model: ModuleModel,
+  actingAsClientId: string
+): Record<string, unknown> {
+  return {
+    ...mapModuleRequestData(model),
+    // --- the client surface's extra envelope: who this is being done for
+    client_id: actingAsClientId
+  };
+}
 
 /**
  * EXCLUSIVE MEMBER worked example — a capability only this actor has, absent
@@ -109,10 +132,9 @@ async function register(
   // THE DIVERGENCE, part 2: the payload mapper. This arm posts as the client,
   // so the shared `mapModuleRequestData` is correct here. A staff arm posts to
   // the CLIENT surface, which expects an extra acting-as envelope, and maps with
-  // `mapClientModuleRequestData` instead (`module.mappers.ts`) — the payload
+  // `mapClientModuleRequestData` instead (this file's head) — the payload
   // shape differs, so the mapper must too. Mappers are NOT arm-scoped: they are
-  // pure functions in the shared util file, and the per-actor choice is this
-  // call site (see `.claude/skills/factory/composable/templates/ARMS.md`'s "Which files can earn an arm" test).
+  // pure functions, and the per-actor choice is this call site (see `.claude/skills/factory/composable/templates/ARMS.md`'s "Which files can earn an arm" test).
   const data = mapModuleRequestData(context.model ?? {});
   // Replace with the client registration request this module's parity table names.
   return Promise.resolve(data);

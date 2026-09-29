@@ -1,0 +1,24 @@
+# Negative-control mutant — a failed list read is reported (AC-14, R38 item 6).
+#
+# Scenario it must flip: when my contracts cannot be read,
+#   `useContracts().useMeta().hasError` is true and the context error carries
+#   the reason the read returned.
+# Mutation: `hasError` reads only the criteria error and drops the query's own
+#   read error, so a failed read of the list reports no error at all.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/useContracts.meta.ts b/packages/headless/src/modules/contract/useContracts.meta.ts
+--- a/packages/headless/src/modules/contract/useContracts.meta.ts
++++ b/packages/headless/src/modules/contract/useContracts.meta.ts
+@@ -13,9 +13,7 @@ export function createContractsMeta(
+   service: ContractServices,
+   query: ContractListQuery
+ ) {
+-  const hasError = computed(
+-    () => !!query.error.value || !!query.criteriaError.value
+-  );
++  const hasError = computed(() => !!query.criteriaError.value);
+
+   const isEmptyList = computed(() => isEmpty(query.data?.value));
+

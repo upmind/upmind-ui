@@ -34,6 +34,7 @@ import completeLayerSet from "./rules/complete-layer-set.mjs";
 import actorScopeFirst from "./rules/actor-scope-first.mjs";
 import armInMatrix from "./rules/arm-in-matrix.mjs";
 import noPrivateInstanceAxis from "./rules/no-private-instance-axis.mjs";
+import noSelfContext from "./rules/no-self-context.mjs";
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -564,6 +565,55 @@ test("no-private-instance-axis", () => {
           { messageId: "registrationMemo" },
           { messageId: "computedName" }
         ]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("no-self-context", () => {
+  const contractTypes = "/repo/packages/headless/src/modules/contract/contract.types.ts";
+  const productTypes =
+    "/repo/packages/headless/src/modules/contract-product/contract-product.types.ts";
+  ruleTester.run("no-self-context", noSelfContext, {
+    valid: [
+      // Another entity the actor acts for is a context.
+      {
+        code: `export enum ContractsContextTypes { CLIENT = "client" }`,
+        filename: contractTypes
+      },
+      // The module's own name outside a ContextTypes enum is not a context.
+      {
+        code: `export enum ContractStatus { CONTRACT = "contract" }`,
+        filename: contractTypes
+      },
+      // Outside a module's types file the rule does not apply.
+      {
+        code: `export enum ContractContextTypes { CONTRACT = "contract" }`,
+        filename: "/repo/packages/headless/src/modules/contract/useContract.ts"
+      },
+      // A context naming a different module is another entity.
+      {
+        code: `export enum ContractProductsContextTypes { CONTRACT = "contract" }`,
+        filename: productTypes
+      }
+    ],
+    invalid: [
+      {
+        code: `export enum ContractContextTypes { CONTRACT = "contract" }`,
+        filename: contractTypes,
+        errors: [{ messageId: "selfContext" }]
+      },
+      // "-" and "_" are treated alike.
+      {
+        code: `export enum ContractProductContextTypes { CONTRACT_PRODUCT = "contract_product" }`,
+        filename: productTypes,
+        errors: [{ messageId: "selfContext" }]
+      },
+      {
+        code: `export enum ContractProductContextTypes { CONTRACT_PRODUCT = "contract-product", CLIENT = "client" }`,
+        filename: productTypes,
+        errors: [{ messageId: "selfContext" }]
       }
     ]
   });

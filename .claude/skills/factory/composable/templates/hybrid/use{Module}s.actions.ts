@@ -156,5 +156,4 @@ export function createModulesActions(
   };
 }
 
-// Type export for consumers
-export type UseModuleActions = ReturnType<typeof createModulesActions>;
+export type UseModulesActions = ReturnType<typeof createModulesActions>;

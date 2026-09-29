@@ -20,6 +20,8 @@ export * from "./client-notifications";
 export * from "./client-personal-details";
 export * from "./client-phone";
 export * from "./config";
+export * from "./contract-product";
+export * from "./contract";
 export * from "./data-manager";
 export * from "./delegates";
 export * from "./domain";

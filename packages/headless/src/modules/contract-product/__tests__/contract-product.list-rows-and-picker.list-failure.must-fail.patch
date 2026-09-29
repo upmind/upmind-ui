@@ -1,0 +1,24 @@
+# Negative-control mutant — a failed list read is reported (R38 item 6; B7)
+#
+# Scenario it must flip: contract-product.list-rows-and-picker.int.test.ts,
+#   "AC-1 when my products cannot be read I am told my list has an error, with
+#   the reason the read returned".
+# Mutation: `hasError` reads only the criteria error and drops the query's own
+#   read error, so a failed read reports no error.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProducts.meta.ts b/packages/headless/src/modules/contract-product/useContractProducts.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProducts.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProducts.meta.ts
+@@ -18,9 +18,7 @@ export function createContractProductsMeta(
+ ) {
+   // Truthiness, not `isEmpty`: a TanStack error is an `Error` instance with no
+   // own enumerable keys, which `isEmpty` reports as empty.
+-  const hasError = computed(
+-    () => !!query.error.value || !!query.criteriaError.value
+-  );
++  const hasError = computed(() => !!query.criteriaError.value);
+ 
+   const isEmptyList = computed(() => isEmpty(query.data?.value));
+ 

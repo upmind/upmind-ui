@@ -1,0 +1,37 @@
+Negative control for contract-products-filter-wire.test.ts (FE-3029, D86).
+
+Assertion it attacks: a dotted filter column (`product.name`,
+`product.category.name`) typed into its search box must reach the wire as
+`filter[product.name|like]` / `filter[product.category.name|like]` after
+`translateQuery`. The column name carries a literal ".", so its write must land
+at `filters["product.name"].like` as ONE literal segment — the literal-path
+`update` this renderer dispatches.
+
+The mutation: write through the control's own dotted `path` string instead of
+the resolved literal path. `@jsonforms/core`'s update reducer sets that string
+with lodash/fp `set`, which splits it on "." and nests the term at
+`filters.product.name.like` (`{ product: { name: { like } } }`). The query
+schema's `additionalProperties: false` then strips the branch, so the term
+never reaches the wire and both dotted assertions read the unset empty string.
+A plain column (the quick-search `query`, the `created_at` / `total_amount`
+leaves) has no dot to split, so it stays GREEN — which is what makes this a
+control on the DOTTED-column write, not a broad breakage.
+
+PROVING ASSERTION EXISTS YET: the permanent gate is
+`packages/client-vue/src/components/form/renderers/__tests__/contract-products-filter-wire.test.ts`,
+whose two `sends filter[product.name|like] under its dotted column` /
+`sends filter[product.category.name|like] under its dotted column` cases are
+the assertions this mutation must flip.
+
+VERIFIED 2026-09-25: applied against the fixed source,
+`contract-products-filter-wire.test.ts` went 2 failed | 10 passed (12) —
+exactly the two dotted-column cases red, every other assertion still green.
+Reverted immediately after; the fixed source re-confirmed GREEN at 12/12.
+
+--- a/packages/client-vue/src/components/form/renderers/FilterSearchRenderer.vue
++++ b/packages/client-vue/src/components/form/renderers/FilterSearchRenderer.vue
+@@ -99,3 +99,3 @@ const literalPath = computed(() =>
+ const handleChange = (_path: string, value: unknown) => {
+-  dispatch?.(update(literalPath.value as unknown as string, () => value));
++  dispatch?.(update(jsonFormsControl.control.value.path, () => value));
+ };

@@ -13,17 +13,14 @@ import { useQuery } from "../query";
 import { ScopeActorTypes } from "../scope";
 import { useQuerySchema } from "./module.schemas";
 import { useActiveSession } from "../session-store";
-import { mapModuleItem, mapModuleItems } from "./module.mappers";
+import { map{Module}, map{Module}s } from "./module.mappers";
 import { ModuleContextTypes } from "./module.types";
 import { useTime, NotAuthenticatedError, DEBOUNCE_DELAY } from "../../utils";
 import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
 import type { QueryModel } from "./module.types";
-import type {
-  ModuleItem,
-  ModuleWireItem,
-  ModuleServices
-} from "./module.types";
+import type { {Module}, ModuleServices } from "./module.types";
+import type { I{Module} } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @internal
@@ -55,7 +52,7 @@ export const queryKey = ["module", "items"];
  * expected shape, not an exception. See `module.services.{actor}.ts`.
  */
 function loadList(
-  params: Partial<QueryParams<ModuleWireItem[], ModuleItem[]>> = {
+  params: Partial<QueryParams<I{Module}[], {Module}[]>> = {
     pagination: { limit: 0 }
   },
   scopeContext?: ScopeContext
@@ -73,7 +70,7 @@ function loadList(
       : activeUser.value?.id
   );
 
-  return list<ModuleWireItem[], ModuleItem[], QueryModel>({
+  return list<I{Module}[], {Module}[], QueryModel>({
     ...params,
     // THE criteria channel. The module's query schema owns ALL request state —
     // filters, sort, pagination, limit — and `list()` builds the wire params
@@ -96,7 +93,7 @@ function loadList(
         }
       }),
     withAccessToken: true,
-    select: mapModuleItems,
+    select: map{Module}s,
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () => isAuthenticated.value && !!clientId.value
@@ -119,7 +116,7 @@ function loadList(
  * `.../undefined`. Its presence is what fires exactly one request, which is the
  * single load-bearing assertion a single-read test makes.
  */
-function loadOne(id?: ModuleItem["id"], scopeContext?: ScopeContext) {
+function loadOne(id?: {Module}["id"], scopeContext?: ScopeContext) {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { activeUser } = useActiveSession().useContext();
   const { query, useUrl } = useQuery();
@@ -130,7 +127,7 @@ function loadOne(id?: ModuleItem["id"], scopeContext?: ScopeContext) {
       : activeUser.value?.id
   );
 
-  return query<ModuleWireItem, ModuleItem>({
+  return query<I{Module}, {Module}>({
     queryKey: [...queryKey, "item", id, { client: clientId.value }],
     url: useUrl(`module-items/${id}`),
     guard: async () =>
@@ -142,7 +139,7 @@ function loadOne(id?: ModuleItem["id"], scopeContext?: ScopeContext) {
         }
       }),
     withAccessToken: true,
-    select: mapModuleItem,
+    select: map{Module},
     staleTime: useTime().DAY,
     enabled: () => !!id && isAuthenticated.value && !!clientId.value
   });

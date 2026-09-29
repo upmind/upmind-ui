@@ -127,5 +127,4 @@ export function createClientModuleActions(service: ModuleServices) {
   };
 }
 
-// Type export for consumers
 export type ClientModuleActions = ReturnType<typeof createClientModuleActions>;

@@ -19,17 +19,15 @@
  * back out of the recorded request paths rather than typed in — so a re-record
  * cannot leave a stale literal behind.
  *
- * ## The defect AC-A1 pins — read this before "fixing" the test
+ * ## The gap-keyed stored list AC-A1 pins — fixed on FE-3130
  * The recorded stored-method list is a REAL 13-record response whose `data` is
  * an object with NON-SEQUENTIAL keys (`0…5`, `13…19`) rather than an array — the
  * platform filtered rows out server-side and did not reindex, so PHP emitted an
- * associative array. The module maps that object as a SINGLE record, and the
- * client is offered one blank payment method instead of their thirteen cards.
- * AC-A1's first case is therefore an `it.fails` receipt: it states the
- * capability, goes red today, and turns into a FAILING `it.fails` the moment the
- * mapper learns to read a gap-keyed list — which is the signal to delete the
- * `.fails` and keep the assertion. Filed on FE-3130. No production code is
- * changed here.
+ * associative array. `mapPaymentDetails` now reads that gap-keyed object as its
+ * list of cards, so the client is offered every card they hold, their default
+ * one first — not one blank method. Before the fix the checkout page showed ZERO
+ * stored cards; after it the client's real cards flow. Fixed on FE-3130, so this
+ * receipt is a live `it` again, no longer an `it.fails`.
  *
  * ## What is NOT proven here
  * The write half of the add flow. Anything needing a browser — the tokenise
@@ -222,23 +220,20 @@ describe("paymentDetails integration — what the client is offered", () => {
     server.resetHandlers();
   });
 
-  it.fails(
-    "AC-A1 offers the client every method they hold, their default one first",
-    async () => {
-      const recorded = recordedRows<{ default?: boolean; id?: string }>(
-        STORED_LIST
-      );
-      const result = await loadLookups();
-      const offered = result?.storedPaymentMethods ?? [];
+  it("AC-A1 offers the client every method they hold, their default one first", async () => {
+    const recorded = recordedRows<{ default?: boolean; id?: string }>(
+      STORED_LIST
+    );
+    const result = await loadLookups();
+    const offered = result?.storedPaymentMethods ?? [];
 
-      expect(recorded).toHaveLength(13);
-      expect(recorded[0]?.default).toBe(true);
+    expect(recorded).toHaveLength(13);
+    expect(recorded[0]?.default).toBe(true);
 
-      expect(offered).toHaveLength(recorded.length);
-      expect(offered[0]?.id).toBe(recorded[0]?.id);
-      expect(offered[0]?.meta?.isDefault).toBe(true);
-    }
-  );
+    expect(offered).toHaveLength(recorded.length);
+    expect(offered[0]?.id).toBe(recorded[0]?.id);
+    expect(offered[0]?.meta?.isDefault).toBe(true);
+  });
 
   it("AC-A1 asks the client's own resource for the methods, and no other client's", async () => {
     await loadLookups();

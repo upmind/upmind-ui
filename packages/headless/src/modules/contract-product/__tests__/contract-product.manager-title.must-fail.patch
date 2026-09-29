@@ -1,0 +1,32 @@
+Negative control for useContractProduct.context.ts `title` (R37 B3).
+
+Spec that must flip: contract-product.manager-members.int.test.ts
+("shows the product's name through useContext().title") — asserts `useContractProduct().useContext().title` reflects the
+loaded product's `name`.
+
+Mutation: drops the `title` computed and its return entry, so the manager
+exposes no display title.
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
+@@ -42,9 +42,6 @@ export function createContractProductContext(
+       : null
+   );
+ 
+-  /** Display title of the product — derived off the view model, as `scheduledActions` is. */
+-  const title = computed(() => contractProduct.value?.name);
+-
+   /** Description of the product — derived off the raw wire record, as `scheduledActions` is. */
+   const description = computed(() => contractProduct.value?.raw?.description);
+ 
+@@ -97,9 +94,6 @@ export function createContractProductContext(
+     /** The product's scheduled actions, when the read carried them (AC15). */
+     scheduledActions,
+ 
+-    /** Display title of the product. */
+-    title,
+-
+     /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+     validationErrors: useContext<ErrorObject[]>(state, "error.data")
+   };

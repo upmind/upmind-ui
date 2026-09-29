@@ -36,7 +36,6 @@ export function createModuleManagerInternals(
   };
 }
 
-// Type export for consumers
 export type UseModuleManagerInternals = ReturnType<
   typeof createModuleManagerInternals
 >;

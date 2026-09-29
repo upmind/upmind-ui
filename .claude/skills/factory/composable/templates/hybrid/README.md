@@ -61,7 +61,7 @@ const { isReady, refresh } = list.useActions();
 await isReady();
 
 // --- manager (edit one item)
-const manager = useModuleManager().as("client").for("module-item", itemId);
+const manager = useModuleManager().as("client").withId(itemId);
 const { model, schema, uischema, errors, validationErrors } =
   manager.useContext();
 const { isValid, isDirty } = manager.useMeta();
@@ -78,7 +78,8 @@ const draft = useModuleManager().as("client").fresh();
 | --- | --- |
 | `useModules().as('self')` | The active session's own collection |
 | `useModules().as('staff').for('client', id)` | Staff reading a client's collection |
-| `useModuleManager().as('client').for('module-item', id)` | Edit one item; owner = the session's client |
+| `useModuleManager().as('client').withId(id)` | Edit one item; owner = the session's client |
+| `useModuleManager().as('staff').for('client', id).withId(itemId)` | Staff editing one of a named client's items |
 | `useModuleManager().as('client').fresh()` | A new item, isolated instance |
 | `useModuleManager().as('staff').for('client', id).fresh()` | Staff minting an item for a named client |
 
@@ -94,11 +95,11 @@ for an operator ruling; do not ship the module as if the cell did not exist.
 
 | Shared | Where | Why it matters |
 | --- | --- | --- |
-| Types + BOTH scope matrices | `module.types.ts` | One file, two matrices (`MODULE_SCOPE_MATRIX`, `MODULE_MANAGER_SCOPE_MATRIX`) — the composables scope on different things and cannot share one |
+| Types + BOTH scope matrices | `module.types.ts` | One file, two matrices (`MODULES_SCOPE_MATRIX`, `MODULE_SCOPE_MATRIX`) — the composables scope on different things and cannot share one |
 | Services factory | `module.services.ts` → `createModuleServices(actor, context)` | Each composable calls it ONCE with its OWN resolved scope; the collection uses `loadList`, the manager uses `loadOne`/`add`/`update`/`ensure`/`validate`/`refresh` |
 | Identity seam | `resolveClientId()` in `module.services.ts` | The single place a target client is derived. `.for('client', id)` wins; the session's `activeUser` supplies the self case. The manager seeds its machine from `service.clientId` — never a second session read (that is the FE-2824 shape) |
 | Cache key | `queryKey` in `module.services.ts` | The manager's mutations invalidate it; that, and nothing else, is how a save refreshes the collection. Neither composable holds a reference to the other's instance |
-| Mappers | `module.mappers.ts` | `mapModuleItems`/`mapModuleItem` inbound (both halves), `mapModuleRequestData` outbound (manager only) |
+| Mappers | `module.mappers.ts` | `map{Module}s`/`map{Module}` inbound (both halves), `mapI{Module}` outbound (manager only) |
 | Schemas | `module.schemas.ts` | Consumed ONLY by the manager's machine config (`setSchemas`) and by `validate`. Never re-exported bare from `index.ts` — consumers read them off `useModuleManager().useContext()` |
 
 ## Actor Arms
@@ -123,7 +124,7 @@ module/
 ├── module.types.ts                 # BOTH scope matrices + shared item/model/service contracts
 ├── module.services.ts              # BOTH halves' services + the machine services adapter
 ├── module.services.{actor}.ts      # opt-in — see .claude/skills/factory/composable/templates/ARMS.md
-├── module.mappers.ts               # inbound (both) + mapModuleRequestData (manager)
+├── module.mappers.ts               # inbound (both) + mapI{Module} (manager)
 ├── module.schemas.ts               # consumed by the manager's machine config only
 ├── module.schemas.{actor}.ts       # opt-in — see .claude/skills/factory/composable/templates/ARMS.md
 │

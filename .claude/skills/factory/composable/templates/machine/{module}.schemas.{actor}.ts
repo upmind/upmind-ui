@@ -33,9 +33,28 @@
  * sibling variant's own.
  */
 
-import { useSchemaDefinitions, useUischemaDefinitions } from "./module.schemas";
-import type { ModuleModel, ModuleSchemas } from "./module.types";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import { find } from "lodash-es";
+import {
+  useModuleSchemaParser as useSharedSchemaParser,
+  useModuleUischemaParser as useSharedUischemaParser
+} from "./module.schemas";
+import type { ModuleSchemas } from "./module.types";
+import type { JsonSchema, Layout, UISchemaElement } from "@jsonforms/core";
+
+/**
+ * The shared field definitions, read off the shared parser rather than
+ * imported: `module.schemas.ts` keeps `useSchemaDefinitions()` file-private,
+ * and the schema it returns carries the same `definitions` block.
+ */
+const useSchemaDefinitions = () => useSharedSchemaParser().definitions;
+
+/**
+ * A shared control, by the scope it renders — the uischema counterpart of
+ * `useSchemaDefinitions()` above. Taken off the shared layout so this arm
+ * cannot drift from it.
+ */
+const useSharedControl = (scope: string) =>
+  find((useSharedUischemaParser() as Layout).elements, { scope }) as UISchemaElement;
 // -----------------------------------------------------------------------------
 /**
  * @module module/module.schemas.client
@@ -159,8 +178,6 @@ export const useModuleSchemaParser = (): JsonSchema => {
  *   and adding them there would render dead controls for every other actor.
  */
 export const useModuleUischemaParser = (): UISchemaElement => {
-  const controls = useUischemaDefinitions();
-
   return {
     type: "VerticalLayout",
     elements: [
@@ -185,9 +202,9 @@ export const useModuleUischemaParser = (): UISchemaElement => {
         options: { focus: true }
       },
 
-      // ---- INHERITED: spread the shared control. No divergence, so no
+      // ---- INHERITED: the shared control, by scope. No divergence, so no
       //      duplication — and no drift if the shared control changes.
-      controls.email,
+      useSharedControl("#/properties/email"),
 
       // ---- ADDITIONAL, client-only: `phone` is absent from the shared schema
       //      and therefore from the shared control set.
@@ -202,12 +219,6 @@ export const useModuleUischemaParser = (): UISchemaElement => {
   } as UISchemaElement;
 };
 
-export const useClientModuleModelParser = (
-  model?: ModuleModel
-): ModuleModel => {
-  // Spread the model, then apply whatever else THIS actor needs on top.
-  return { ...model };
-};
 
 // -----------------------------------------------------------------------------
 // Factory Export

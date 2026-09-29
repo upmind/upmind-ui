@@ -137,7 +137,6 @@ export function createModuleManagerMachineConfig(
   };
 }
 
-// Type export for consumers
 export type ModuleManagerMachineConfig = ReturnType<
   typeof createModuleManagerMachineConfig
 >;
