@@ -4,7 +4,7 @@ All notable changes to the `tickets` module are documented here. Format follows 
 
 ## [Unreleased]
 
-The module is **net-new**. Nothing existed under `packages/headless/src/modules/tickets/` before this build — a knowledge-graph query for every tickets construct returned no node in this tree. The only prior tickets-shaped surface in the repo was a portal mock (`apps/portal-nuxt/app/portal/mock/contracts/tickets.ts`), which this module **corrects rather than copies**: the mock's collection matrix spelled `.for('client', id)`, which is forbidden here.
+The module is **net-new**. Nothing existed under `packages/headless/src/modules/tickets/` before this build — a knowledge-graph query for every tickets construct returned no node in this tree.
 
 ### Changed
 
@@ -75,7 +75,7 @@ The module is **net-new**. Nothing existed under `packages/headless/src/modules/
 
 ### Recorded fixtures
 
-**49** request/response pairs, every one captured against a live staging environment by this module's own generator (`pnpm fixtures:generate tickets`). **None was hand-authored**, and none is a hand-built wire body. The first 47 back the module's core behaviour; the final two are the playground's forced error states, recorded through the same generator rather than written by hand.
+**49** request/response pairs, every one captured against a live staging environment by this module's own generator (`pnpm fixtures:generate tickets`). **None was hand-authored**, and none is a hand-built wire body. The first 47 back the module's core behaviour; the final two are forced error states, recorded through the same generator rather than written by hand.
 
 | Group                         | Covers                                                                                                    |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |

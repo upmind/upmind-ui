@@ -209,7 +209,7 @@ Folding the criteria rejection into `hasError` is what makes an ignored write vi
 
 ### Modules that read from this one
 
-None today. `useTickets` is consumed by the `labs-nuxt` playground scenario and by the client-facing ticket views; no other headless module builds on top of it.
+None today. `useTickets` is consumed by the client-facing ticket views; no other headless module builds on top of it.
 
 ## Platform additions this build required
 

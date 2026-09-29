@@ -17,7 +17,7 @@ The module ships **two composables**, because reading the grid and editing it ar
 | **The collection** | `useClientNotifications`        | You are showing the current grid, read-only        |
 | **The editor**     | `useClientNotificationsManager` | You are letting the account change its preferences |
 
-> **🧪 For Testers:** Both composables support only `client x self` and `guest x self` — a signed-in account managing its own preferences, or a single-use link token standing in for one. `staff` is a compile-time error on both: nothing in this module lets a staff member manage another account's preferences on their behalf. See [gotchas.md](./gotchas.md#9-staff-cannot-act-for-a-client-here--and-there-is-no-context-to-widen-into).
+> **🧪 For Testers:** Both composables support only `client x self` and `guest x self` — a signed-in account managing its own preferences, or a single-use link token standing in for one. `staff` is a compile-time error on both: nothing in this module lets a staff member manage another account's preferences on their behalf. See [gotchas.md](./gotchas.md#8-staff-cannot-act-for-a-client-here--and-there-is-no-context-to-widen-into).
 
 ## Quick Start
 
@@ -79,7 +79,7 @@ A guest link token (`.withId(token)`) rides the request as a URL query parameter
 
 ### There is no staff-for-client capability here
 
-Every endpoint this module reads and writes is account-implicit — none of them carry a target-account identifier a staff caller could redirect. `.for(...)` does not typecheck against either composable; there is no context to widen it into. This is a platform fact this module documents, not a limitation this module introduces. See [gotchas.md](./gotchas.md#9-staff-cannot-act-for-a-client-here--and-there-is-no-context-to-widen-into).
+Every endpoint this module reads and writes is account-implicit — none of them carry a target-account identifier a staff caller could redirect. `.for(...)` does not typecheck against either composable; there is no context to widen it into. This is a platform fact this module documents, not a limitation this module introduces. See [gotchas.md](./gotchas.md#8-staff-cannot-act-for-a-client-here--and-there-is-no-context-to-widen-into).
 
 ### The editor is driven through a generated form, not a bespoke grid
 
@@ -95,9 +95,3 @@ The editor publishes a form definition (`schema` / `uischema`) generated at read
 | [gotchas.md](./gotchas.md)           | All                                                  | The sharp edges — the inversion, locked topics, the guest token, open items |
 | [foundation.md](./foundation.md)     | Teams building against the platform on another stack | Framework-neutral spec: endpoints, payloads, failure modes                  |
 | [CHANGELOG.md](./CHANGELOG.md)       | All                                                  | Change history                                                              |
-
-## Playground
-
-The `labs-nuxt` scenario at `/useClientNotifications` drives both composables — the collection as a topic-per-row table, and the editor's full topic x channel grid opened through the row's **manage** action (the generic playground harness has no per-cell toggle renderer, so the grid is driven through the generated form definition rather than the table itself).
-
-The `labs` (Vue) playground's own notification pages (`playgrounds/labs/src/pages/account/notifications/`) are unwired placeholders today — see [gotchas.md](./gotchas.md#8-the-labs-vue-playground-pages-are-unwired-placeholders).

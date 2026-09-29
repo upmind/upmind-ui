@@ -17,7 +17,6 @@ All notable changes to the scope module are documented here. Format follows [Kee
 
 ### Known gap
 
-- A labs playground URL of the shape `/for/<type>` with no id, against a context type declared retarget, now boots a differently-keyed instance rather than being rejected — nothing at runtime consults the matrix to check the id is present. See [Gotchas](./gotchas.md).
 
 ---
 

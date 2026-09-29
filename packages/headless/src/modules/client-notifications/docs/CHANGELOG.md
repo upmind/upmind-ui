@@ -4,12 +4,12 @@ All notable changes to the `client-notifications` module.
 
 ## [Unreleased]
 
-This module has not shipped a tagged release. The entries below record its conversion from a Vue component and a subsequent round of fixes, in the order they landed on this branch. See [gotchas.md](./gotchas.md#11-independent-status--read-this-before-trusting-any-capability-claim-in-this-doc-set-as-final) for this module's current status — these entries describe what changed, not a certification that the result has been independently re-checked.
+This module has not shipped a tagged release. The entries below record its conversion from a Vue component and a subsequent round of fixes, in the order they landed on this branch. See [gotchas.md](./gotchas.md#10-independent-status--read-this-before-trusting-any-capability-claim-in-this-doc-set-as-final) for this module's current status — these entries describe what changed, not a certification that the result has been independently re-checked.
 
 ### Added
 
 - The scoped, hybrid conversion of the account's notification-preferences page into two composables: `useClientNotifications` (read-only collection) and `useClientNotificationsManager` (draft editor backed by a full-set save).
-- A generated form definition (`schema`/`uischema`) for the editor — one boolean field per topic x channel pair, grouped by topic, derived at read time from the account's own topics and channels. This is what makes the grid driveable through the playground's existing generic form-handoff path, with no change to the shared playground runtime.
+- A generated form definition (`schema`/`uischema`) for the editor — one boolean field per topic x channel pair, grouped by topic, derived at read time from the account's own topics and channels.
 - A locked-topic write guard, enforced at the action layer (`toggle`/`selectAll`/`clearAll`) and again inside `update(value)` for an arbitrary replacement draft — two-sided: a new disabled row on a locked topic is refused; a pre-existing one survives an unrelated save.
 - A clean-draft re-seed: while the editor is not dirty, an external change to the server-held opt-out set (another tab, a collection refresh) is reflected into the draft automatically; a dirty draft is left alone.
 - Identity-and-token cache salting on the opt-out read and save: the cache key carries both the resolved account id and the guest link token together, so two different tokens (or a token vs. a signed-in account) never share a cached result.

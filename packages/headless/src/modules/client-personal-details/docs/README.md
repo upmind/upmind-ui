@@ -100,14 +100,3 @@ No toast, no notification. Every failure is captured where the consumer can read
 | [gotchas.md](./gotchas.md)           | All                                                  | The sharp edges — clear semantics, the two-composable naming split, cross-namespace test cleanup |
 | [foundation.md](./foundation.md)     | Teams building against the platform on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes                              |
 | [CHANGELOG.md](./CHANGELOG.md)       | All                                                  | Change history and porting notes                                                                 |
-
-## Playground
-
-`playgrounds/labs/src/pages/account/profile/components/ClientProfile.vue` and `ClientProfileFieldsEdit.vue` drive this module's two composables directly.
-
-```bash
-cd playgrounds/labs
-pnpm dev
-```
-
-Then navigate to the account profile page to see the module in action.

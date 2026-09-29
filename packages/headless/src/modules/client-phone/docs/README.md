@@ -137,7 +137,3 @@ Each `.fresh()` call mints its own editor instance with its own model. Two new-n
 | [gotchas.md](./gotchas.md)           | All                                                         | The sharp edges — pagination, session stalls, scope, drops, error handling              |
 | [foundation.md](./foundation.md)     | Teams building against the Upmind back end on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes                     |
 | [CHANGELOG.md](./CHANGELOG.md)       | All                                                         | Change history and porting notes                                                        |
-
-## Playground
-
-None yet. Drive the collection and the editor through wherever a client manages their own contact phone numbers — the personal-details form, the billing-detail step of checkout, or a phone-selector field.

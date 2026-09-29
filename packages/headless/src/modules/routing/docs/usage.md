@@ -129,7 +129,7 @@ Register funnel configurations, the overlay registry and watchers with the engin
 import { useRoutingEngine } from "@upmind-automation/headless";
 import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
 
-// Funnel configs and watchers are app-owned — see `apps/cart/src/router/funnels/`.
+// Funnel configs and watchers are app-owned.
 const cartFunnel = <FunnelProps>{
   id: "cart",
   states: { basket: { meta: { next: "checkout" }, entry: ["setBasket"] } }
@@ -333,7 +333,7 @@ import { useRoutingEngine } from "@upmind-automation/headless";
 import { createRouter, createWebHistory } from "vue-router";
 import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
 
-// App-owned — see `apps/cart/src/router/funnels/`.
+// App-owned.
 const cartFunnel = <FunnelProps>{
   id: "cart",
   states: { basket: { meta: { next: "checkout" } } }

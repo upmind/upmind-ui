@@ -71,9 +71,9 @@ const fields = useClientCustomFields()
 
 Each `@ts-expect-error` above is the proof, not a workaround: delete a directive and the block stops compiling, because the error underneath it is real.
 
-**This bites hardest in specs and playground files**, because `__tests__/**` and the labs playground both sit outside this package's own build type-check (`tsconfig.build.json`). A string-literal call can sit in a spec or a playground page for a long time, looking like it works, because nothing in the normal build path ever type-checks it — it only surfaces under a standalone `tsc` run against those directories, or if the file is ever pulled into the checked build set. Seeing the string-literal form anywhere — including in another module's own example code — is not evidence that it typechecks; it may simply never have been checked.
+**This bites hardest in specs**, because `__tests__/**` sits outside this package's own build type-check (`tsconfig.build.json`). A string-literal call can sit in a spec for a long time, looking like it works, because nothing in the normal build path ever type-checks it — it only surfaces under a standalone `tsc` run against those directories, or if the file is ever pulled into the checked build set. Seeing the string-literal form anywhere — including in another module's own example code — is not evidence that it typechecks; it may simply never have been checked.
 
-> **🧪 For Testers:** If a spec or playground file uses `.as("client")` or `.for("...")` with a bare string, that is a latent type error, not a precedent to copy. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is purely a compile-time gap in coverage, not a functional bug.
+> **🧪 For Testers:** If a spec uses `.as("client")` or `.for("...")` with a bare string, that is a latent type error, not a precedent to copy. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is purely a compile-time gap in coverage, not a functional bug.
 
 ## 3. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.for()`/`.fresh()`
 
