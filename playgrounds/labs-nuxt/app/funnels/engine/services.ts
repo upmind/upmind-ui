@@ -30,7 +30,7 @@ import {
 import type { RouteLocation } from "vue-router";
 import {
   parseScopeSuffix,
-  stripScopeSuffix
+  stripScopeCatchAll
 } from "~/composables/scope/scope-mapper";
 import { usePlaygroundUrlState } from "~/composables/usePlaygroundUrlState";
 // -----------------------------------------------------------------------------
@@ -203,7 +203,7 @@ export default {
 
     if (!parsed.valid) {
       // Invalid scope format - redirect to base route without scope
-      const basePath = stripScopeSuffix(targetRoute.path || "");
+      const basePath = stripScopeCatchAll(targetRoute.path || "", rawSuffix);
       console.warn(
         `[extractScope] Invalid scope suffix: ${parsed.error}. Redirecting to: ${basePath}`
       );
