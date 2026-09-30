@@ -19,12 +19,17 @@
  * carry `case=discover-*` and are dropped before `save()`.
  */
 
-import { readdirSync, renameSync, unlinkSync } from "node:fs";
+import { readFileSync, readdirSync, renameSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, it } from "vitest";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
+import {
+  prepareScenarioDirs,
+  recordedStepDir
+} from "../../../testing/scenario-fixtures";
 // eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
 import { mintClientToken } from "../../auth/__tests__/auth.tokens";
+import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -501,4 +506,212 @@ describe("Client-orders API fixtures generator (design 8.8)", () => {
       );
     }
   }, 60000);
+});
+
+// -----------------------------------------------------------------------------
+// SCENARIOS (FE-3145, ADR 035) — the per-step recordings the four criteria-
+// writing driven scenarios of `client-orders.feature` need. `client-orders.replay`
+// keeps its flat corpus for the boot, the default list and the page walk (AC-1,
+// AC-3), and arms these folders on top for the combined-criteria reads those
+// captures do not hold: each column-and-comparison accumulation (AC-7), a sort
+// held on page two (AC-10), a status filter searched together with a number
+// (AC-11) and each writer over the forced category (AC-12). The probe values
+// are the design 8.3 constants `client-orders.steps.ts` drives with, so a
+// recording answers the exact request the step fires. These reads carry filters
+// only, so the recorder needs no unpaid/part-paid order in the current history.
+// -----------------------------------------------------------------------------
+
+const scenarioFeature = readFileSync(
+  join(import.meta.dirname, "client-orders.feature"),
+  "utf-8"
+);
+
+const PROBE = {
+  orderNumber: "QA-INV-25144",
+  totalAmount: "4.8",
+  absoluteDate: "2026-09-01 00:00:00",
+  itemName: " Starter Hosting",
+  categoryName: " Shared Hosting",
+  serviceIdentifier: "DGyTC25827.com",
+  statusEq: "invoice_paid",
+  statusNeq: "invoice_cancelled"
+} as const;
+
+const CLIENT_COLUMNS: ReadonlyArray<readonly [string, readonly string[]]> = [
+  ["number", ["like", "eq", "neq"]],
+  ["total_amount", ["eq", "neq", "gt", "gte", "lt", "lte"]],
+  ["status.code", ["eq", "neq"]],
+  ["created_at", ["gt", "gte", "lt", "lte", "after", "before"]],
+  ["paid_datetime", ["gt", "gte", "lt", "lte", "after", "before"]],
+  ["products.product.name", ["like", "eq", "neq"]],
+  ["products.product.category.name", ["like", "eq", "neq"]],
+  ["products.service_identifier", ["like", "eq", "neq"]]
+];
+
+function probeValue(column: string, op: string): string {
+  if (column === "number") return PROBE.orderNumber;
+  if (column === "total_amount") return PROBE.totalAmount;
+  if (column === "status.code")
+    return op === "eq" ? PROBE.statusEq : PROBE.statusNeq;
+  if (column === "created_at" || column === "paid_datetime") {
+    if (op === "after") return "-7_days";
+    if (op === "before") return "+7_days";
+    return PROBE.absoluteDate;
+  }
+  if (column === "products.product.name") return PROBE.itemName;
+  if (column === "products.product.category.name") return PROBE.categoryName;
+  return PROBE.serviceIdentifier;
+}
+
+function leaf(column: string, op: string): string {
+  const value = probeValue(column, op);
+  const wire = op === "like" ? `%${value}%` : value;
+  return `filter[${column}|${op}]=${encodeURIComponent(wire)}`;
+}
+
+function scenarioListPath(filters: string[]): string {
+  const clauses = [FORCED, ...filters].join("&");
+  return (
+    `/api/invoices?${clauses}&with=${LIST_WITH}&with_count=products` +
+    `&order=-created_at&limit=10&offset=0`
+  );
+}
+
+describe("Client-orders scenario recordings (FE-3145, design 8.12)", () => {
+  let clientToken: IToken;
+  const prepared = new Set<string>();
+
+  async function recordStep(
+    scenario: string,
+    step: string,
+    requests: (record: (filters: string[]) => Promise<unknown>) => Promise<void>
+  ): Promise<void> {
+    if (!prepared.has(scenario)) {
+      prepareScenarioDirs(import.meta.dirname, scenarioFeature, scenario);
+      prepared.add(scenario);
+    }
+    const generator = new Generator(API_URL, {
+      recordingsDir: recordedStepDir(
+        import.meta.dirname,
+        scenarioFeature,
+        scenario,
+        step
+      ),
+      origin: ORIGIN,
+      source: "case",
+      name: "client-orders"
+    });
+    generator.setBearerToken(clientToken.access_token);
+    const record = async (filters: string[]): Promise<unknown> => {
+      const { status } = await generator.get(scenarioListPath(filters));
+      if (status !== 200) {
+        throw new Error(
+          `${scenario} / ${step}: ${scenarioListPath(filters)} returned ${status}. Stop and tell the operator.`
+        );
+      }
+      return undefined;
+    };
+    await requests(record);
+    generator.save();
+  }
+
+  beforeAll(async () => {
+    clientToken = await mintClientToken();
+  }, 30000);
+
+  // --- AC-7: each client column and comparison -------------------------------
+
+  describe("Each client column and comparison sets the history criteria", () => {
+    const scenario =
+      "Each client column and comparison sets the history criteria";
+
+    it("the client sets each order history filter below", () =>
+      recordStep(
+        scenario,
+        "the client sets each order history filter below",
+        async record => {
+          const active = new Map<string, string>();
+          for (const [column, ops] of CLIENT_COLUMNS) {
+            for (const op of ops) {
+              active.set(column, leaf(column, op));
+              await record([...active.values()]);
+            }
+          }
+        }
+      ));
+
+    it("a second filter on the same text column of the order history replaces the first", () =>
+      recordStep(
+        scenario,
+        "a second filter on the same text column of the order history replaces the first",
+        async record => {
+          const active = new Map<string, string>();
+          for (const [column, ops] of CLIENT_COLUMNS)
+            active.set(column, leaf(column, ops[ops.length - 1]));
+          active.set(
+            "products.product.name",
+            leaf("products.product.name", "like")
+          );
+          await record([...active.values()]);
+          active.set(
+            "products.product.name",
+            leaf("products.product.name", "eq")
+          );
+          await record([...active.values()]);
+        }
+      ));
+  });
+
+  // --- AC-10: a sort keeps the page ------------------------------------------
+
+  describe("The newest order comes first, and a sort keeps the page", () => {
+    const scenario = "The newest order comes first, and a sort keeps the page";
+
+    it("the client sorts the order history by each legacy field", () =>
+      recordStep(
+        scenario,
+        "the client sorts the order history by each legacy field",
+        record => record([])
+      ));
+  });
+
+  // --- AC-11: search and filters live together -------------------------------
+
+  describe("Search and filters live together", () => {
+    const scenario = "Search and filters live together";
+    const statusFilter = `filter[status.code|eq]=${PROBE.statusEq}`;
+
+    it("a status filter is active on page two of the order history", () =>
+      recordStep(
+        scenario,
+        "a status filter is active on page two of the order history",
+        record => record([statusFilter])
+      ));
+
+    it("the client searches the order history for an order number", () =>
+      recordStep(
+        scenario,
+        "the client searches the order history for an order number",
+        record =>
+          record([statusFilter, `filter[number|eq]=${PROBE.orderNumber}`])
+      ));
+  });
+
+  // --- AC-12: the forced category survives each writer -----------------------
+
+  describe("The forced category survives each writer", () => {
+    const scenario = "The forced category survives each writer";
+
+    it("each order history writer changes the criteria, the playground filter bar included", () =>
+      recordStep(
+        scenario,
+        "each order history writer changes the criteria, the playground filter bar included",
+        async record => {
+          await record([leaf("number", "like")]);
+          await record([leaf("number", "like"), leaf("number", "eq")]);
+          await record([leaf("status.code", "neq")]);
+          await record([leaf("number", "eq")]);
+        }
+      ));
+  });
 });

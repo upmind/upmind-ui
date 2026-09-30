@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices?filter[category.slug]=new_contract&filter[number|neq]=QA-INV-25144&filter[total_amount|lte]=4.8&filter[status.code|neq]=invoice_cancelled&filter[created_at|before]=%2B7_days&filter[paid_datetime|before]=%2B7_days&filter[products.product.name|neq]=%20Starter%20Hosting&filter[products.product.category.name|neq]=%20Shared%20Hosting&filter[products.service_identifier|eq]=DGyTC25827.com&with=tags,client,client.image,status,products&with_count=products&order=-created_at&limit=10&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a431bcfccc4deef7-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 08:08:11 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=30MEGXruBgnY4esEolwfYtNeoiWy1fkXy%2B6xFpI9b8PA1WuAQciicJZ2ecyTlPy%2FHmajFdSedw4V5dn1jpMg6omcMA7QvcxSKQPLUmEDjCxP4NC4xpayItHMJvoyu63HO9sTgi5sTA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "0"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": 0,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T08:08:11.372Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-orders"
+  }
+}

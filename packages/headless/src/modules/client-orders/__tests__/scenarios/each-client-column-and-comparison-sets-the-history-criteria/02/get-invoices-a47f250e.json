@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices?filter[category.slug]=new_contract&filter[number|neq]=QA-INV-25144&filter[total_amount|lte]=4.8&filter[status.code|neq]=invoice_cancelled&filter[created_at|before]=%2B7_days&filter[paid_datetime|before]=%2B7_days&filter[products.product.name|neq]=%20Starter%20Hosting&filter[products.product.category.name|neq]=%20Shared%20Hosting&filter[products.service_identifier|like]=%25DGyTC25827.com%25&with=tags,client,client.image,status,products&with_count=products&order=-created_at&limit=10&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a431bcfabed9eef7-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 08:08:10 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=EWWHTb38VFrc9ph6lTXJhB9%2Fl9MWu%2FQ%2BkIJSQAr6QpHjHzL33grqX629YPgMiLKCGAKcrxBLOqwneJ8HN7LR2sI7r5oQZ1Z1cbq52wNOuuMKrpi%2F9ckZrzP5c17PnpIHv8feVjMxvw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "0"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": 0,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T08:08:10.954Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-orders"
+  }
+}

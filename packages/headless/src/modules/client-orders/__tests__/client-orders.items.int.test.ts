@@ -7,14 +7,16 @@
  * Prove `useClientOrder().useContext().products` projects the snapshot items
  * of the order by the design 8.7 rules: each legacy field, the billing term
  * with the product-term fallback, the subscription flag, the contract links
- * and the item link under the brand's one-time-purchases rule. A thin recorded
- * record gives empty fields and no error (design 8.11).
+ * and the item link under the brand's one-time-purchases rule. A recorded
+ * record with no affiliate referrer gives empty fields and no error
+ * (design 8.11).
  *
  * ## Provenance
  * The recorded `order-snapshot` single read (one subscription line, no live
- * `products`: the design 8.1 read does not ask for them). The thin record is
- * the `orders` module's recorded `get-invoices-id-case-unpaid`. Declared
- * constructions (design 8.8):
+ * `products`: the design 8.1 read does not ask for them). The design 8.11
+ * empty-fields record is this module's recorded `order-unpaid` single read,
+ * which carries no affiliate referrer, so the guarded referrer read gives
+ * undefined and no throw. Declared constructions (design 8.8):
  * - one-time purchases `hidden`: the recorded brand settings with
  *   `meta.portal["@context.oneTimePurchases"]` set to `hidden` (this file)
  * - snapshot term rows: the snapshot line with `billing_cycle_months: 0`,
@@ -36,8 +38,6 @@
  * hides it.
  */
 
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { useClientOrder } from "..";
@@ -166,15 +166,7 @@ describe("client-orders — the order items project the snapshot lines (AC-15)",
   });
 
   it("a thin recorded record publishes empty fields and no error (design 8.11)", async () => {
-    const thin = JSON.parse(
-      readFileSync(
-        join(
-          import.meta.dirname,
-          "../../orders/__tests__/fixtures/get-invoices-id-case-unpaid.json"
-        ),
-        "utf-8"
-      )
-    ).response.body as OrderEnvelope;
+    const thin = capturedOrder("get-invoices-id-case-order-unpaid");
     const manager = await itemsOf(thin);
 
     expect(manager.useMeta().hasError.value).toBe(false);
