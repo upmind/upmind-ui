@@ -1,5 +1,5 @@
 import { nextTick, watch } from "vue";
-import { useOrder } from "../orders";
+import { usePayment as usePaymentEngine } from "../payment";
 import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
@@ -12,6 +12,7 @@ import type {
   ClientOrderItemQuery,
   ClientOrdersServices
 } from "./client-orders.types";
+import type { PaymentArgs } from "../payment";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { IOrder } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -110,36 +111,55 @@ export function createClientOrderActions(
   }
 
   /**
-   * D-11 — runs `useOrder(order.id)` INSIDE THE CALLER'S OWN SETUP: `useOrder`
-   * binds `onUnmounted` to whatever component instance is active when it
-   * runs, so this delegate must not be memoised here. Publishes the engine's
-   * OWN members under the engine's OWN names (design 8.2) — `invoice` and
-   * `completeChallenge` are not published, and it invalidates the shared
-   * `invoices` root key once the engine completes (D-4).
+   * D-11 — runs the `payment` engine INSIDE THE CALLER'S OWN SETUP, so the
+   * engine binds its lifecycle to the active component; this delegate must not
+   * be memoised here. The manager injects its own `orderId`; the caller passes
+   * the chosen `paymentDetail` (owned by `payment-details`). Publishes the
+   * engine's OWN members under the engine's OWN names (design 8.2) — withholds
+   * `completeChallenge` (wired internally by `renderChallenge`) and invalidates
+   * the shared `invoices` root key once the engine settles (D-4).
+   *
+   * @decision
+   * what: re-point the pay delegate from the deleted `orders`/`useOrder`
+   *   engine to the `payment` module. `usePayment` now takes the chosen
+   *   `paymentDetail` and forwards `{ orderId, paymentDetail }`; the engine
+   *   import is aliased `usePaymentEngine` to avoid clashing with this
+   *   delegate's own name. Completion is watched on `meta.value.hasPaid` (was
+   *   `isComplete`). `retry`, `paymentDetail` and `gateway` drop as top-level
+   *   members — the engine has no `retry` (its `pay()` re-sends PAY) and
+   *   surfaces the gateway and chosen method through `context`; `payment` (the
+   *   attempt) is published in their place.
+   * why: FE-3145 (commit 4de1d19778) deleted the `orders` pay engine.
+   *   `payment` is its replacement and needs the chosen method up front — it
+   *   resolves none itself. The manager owns `orderId`, not the method, so the
+   *   caller supplies the `paymentDetail` that `payment-details` produced.
+   * rejected: re-implementing pay inside client-orders (breaks the delegation
+   *   law, D-1); editing `payment` to restore the old orderId-only signature
+   *   ("do not extend orders", out of scope); a `pay(paymentDetailId?)` member
+   *   on the manager surface (D-11 keeps `pay` off the manager).
    */
-  function usePayment() {
+  function usePayment(paymentDetail: PaymentArgs["paymentDetail"]) {
     if (!orderId) throw new NotAuthenticatedError();
-    const engine = useOrder(orderId);
+    const engine = usePaymentEngine({ orderId, paymentDetail });
 
     watch(
-      () => engine.meta.value.isComplete,
-      isComplete => {
-        if (isComplete)
+      () => engine.meta.value.hasPaid,
+      hasPaid => {
+        if (hasPaid)
           void invalidateQueryByKey(["invoices"], { exact: false })();
       }
     );
 
     return {
       pay: engine.pay,
-      retry: engine.retry,
       renderChallenge: engine.renderChallenge,
       cancelChallenge: engine.cancelChallenge,
       refresh: engine.refresh,
       isReady: engine.isReady,
       meta: engine.meta,
       errors: engine.errors,
-      paymentDetail: engine.paymentDetail,
-      gateway: engine.gateway
+      context: engine.context,
+      payment: engine.payment
     };
   }
 
