@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { Avatar } from "@upmind/ui";
-import { Icon } from "../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import { lowerCase } from "lodash-es";
 import type { Phone } from "@upmind-automation/headless";
 

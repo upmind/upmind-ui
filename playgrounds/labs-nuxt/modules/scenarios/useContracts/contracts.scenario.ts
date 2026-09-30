@@ -2,8 +2,9 @@
 /**
  * @module scenarios/useContracts/contracts.scenario
  * @description A client's own contracts — the client×self collection
- * (`useContracts`) as the shared list, pagination only (R32), its rows opening
- * into the self-drawn manager page (`useContract`). The sibling of the MANAGER
+ * (`useContracts`) as the shared list, filterable, sortable and paged (R38,
+ * supersedes the withdrawn R32 pagination-only shape), its rows opening into
+ * the self-drawn manager page (`useContract`). The sibling of the MANAGER
  * page, which reads one contract whole and drives its payment-method form.
  *
  * No `useMutate`: the collection has no generic write — see

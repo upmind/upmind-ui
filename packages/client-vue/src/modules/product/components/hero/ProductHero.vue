@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { useElementSize } from "@vueuse/core";
 import { computed, ref } from "vue";
-import Hero from "../../../../components/hero/Hero.vue";
+import { Hero } from "@upmind-automation/foundation";
 import ProductDescription from "../card/ProductDescription.vue";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductImage from "./ProductImage.vue";

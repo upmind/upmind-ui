@@ -4,11 +4,13 @@ import {
   ContractStatusCodes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
+import { useBrand } from "../brand";
 import {
   useCustomFieldsSchema,
   useCustomFieldsUischema
 } from "../client-custom-fields";
 import { SortDirection } from "../query/query.types";
+import { PAGINATION } from "../query/query.utils";
 import {
   ContractProductCancelOption,
   DEFAULT_SORT
@@ -16,7 +18,10 @@ import {
 import { hidesOneTimePurchasesForced } from "./contract-product.utils";
 import { isEmpty } from "lodash-es";
 import type { CustomField } from "../client-custom-fields";
-import type { ContractProductsQuerySchema } from "./contract-product.types";
+import type {
+  ContractProductServices,
+  ContractProductsQuerySchema
+} from "./contract-product.types";
 import type {
   ControlElement,
   JsonSchema7,
@@ -51,7 +56,7 @@ import type {
  * rejected: a `const` alone; a hidden uischema control; a second query.
  */
 export function useQuerySchema(): ContractProductsQuerySchema {
-  const forced = hidesOneTimePurchasesForced();
+  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
 
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
@@ -90,12 +95,17 @@ export function useQuerySchema(): ContractProductsQuerySchema {
             type: "object",
             title: "text.billing_cycle",
             additionalProperties: false,
-            properties: {
-              neq: forced
-                ? { type: "integer", const: 0, default: 0 }
-                : { type: ["integer", "null"], enum: [0, null] },
-              eq: { type: ["integer", "null"], enum: [0, null] }
-            }
+            // Mutually exclusive operators on ONE wire column — a client
+            // never picks Subscriptions AND One-time at once (R38 item 1).
+            not: { required: ["neq", "eq"] },
+            // Forced, `eq` is undeclared: the parser drops a one-time ask
+            // and the brand's hide outranks it (legacy cProdsProvider).
+            properties: forced
+              ? { neq: { type: "integer", const: 0, default: 0 } }
+              : {
+                  neq: { type: ["integer", "null"], enum: [0, null] },
+                  eq: { type: ["integer", "null"], enum: [0, null] }
+                }
           },
           created_at: {
             type: "object",
@@ -141,8 +151,8 @@ export function useQuerySchema(): ContractProductsQuerySchema {
         type: "object",
         additionalProperties: false,
         properties: {
-          limit: { type: "integer", minimum: 0, default: 10 },
-          offset: { type: "integer", minimum: 0, default: 0 }
+          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+          offset: { type: "integer", minimum: 0, default: PAGINATION.offset }
         }
       }
     }
@@ -152,13 +162,16 @@ export function useQuerySchema(): ContractProductsQuerySchema {
 /**
  * The collection's filter-bar presentation. The top-level `query` box is the
  * legacy quick search; the rest scope operator leaves of `useQuerySchema()`'s
- * `filters` branch, so each leaf's own write is the wire shape. Each
- * `billing_cycle_days` toggle scopes a leaf carrying an `enum`, so the button
- * group draws it and the option labels resolve through the element's `i18n`
- * prefix. In the ADR-14 forced case `neq` is a const seam, and its toggle
- * writes the one value that seam permits.
+ * `filters` branch, so each leaf's own write is the wire shape.
+ * `billing_cycle_days` is ONE three-way toggle over the whole operator object
+ * (All │ Subscriptions │ One-time, R38 item 1) — never two independent
+ * toggles — and its option labels resolve through the element's `i18n`
+ * prefix. In the ADR-14 forced case the one-time position is not offered, and
+ * `neq` is the const seam that position would have written.
  */
 export function useQueryUischema(): UISchemaElement {
+  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
+
   return {
     type: "FilterBar",
     elements: [
@@ -228,17 +241,18 @@ export function useQueryUischema(): UISchemaElement {
       },
       {
         type: "Control",
-        scope:
-          "#/properties/filters/properties/billing_cycle_days/properties/neq",
-        i18n: "form.contract_product_subscriptions_only",
-        options: { format: "button-group", noLabel: true, optionalText: "" }
-      },
-      {
-        type: "Control",
-        scope:
-          "#/properties/filters/properties/billing_cycle_days/properties/eq",
-        i18n: "form.contract_product_one_time_only",
-        options: { format: "button-group", noLabel: true, optionalText: "" }
+        scope: "#/properties/filters/properties/billing_cycle_days",
+        i18n: "form.contract_product_subscription_type",
+        options: {
+          format: "filter-exclusive-toggle-group",
+          noLabel: true,
+          optionalText: "",
+          items: [
+            { member: "all" },
+            { member: "subscriptions", key: "neq", value: 0 },
+            ...(forced ? [] : [{ member: "one_time", key: "eq", value: 0 }])
+          ]
+        }
       }
     ]
   } as UISchemaElement;
@@ -258,11 +272,15 @@ export function useSortUischema(): ControlElement {
  * consumer narrows it: the active-status filter and the `service_identifier`
  * ordering are the SHAPE of that read, so each is a forced leaf — a `const`
  * AND a `default` (ADR-14) — and the read parses an empty model against it.
+ * The brand's forced hide-one-time leaf rides here too, as legacy
+ * `cProdsGroupingProvider` sends it on the grouped read.
  * `service_identifier` is declared ONLY here; `useQuerySchema()`'s
  * client-facing sort vocabulary omits it, because the products list cannot
  * honour a sort the client could then pick.
  */
 export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
+  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
+
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
@@ -276,7 +294,16 @@ export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
             type: "string",
             const: ContractStatusCodes.ACTIVE,
             default: ContractStatusCodes.ACTIVE
-          }
+          },
+          ...(forced && {
+            billing_cycle_days: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                neq: { type: "integer", const: 0, default: 0 }
+              }
+            }
+          })
         }
       },
       sort: {
@@ -293,6 +320,80 @@ export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
             field: { enum: ["service_identifier"] },
             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
+        }
+      }
+    }
+  } satisfies JsonSchema7;
+}
+
+// -----------------------------------------------------------------------------
+// The product picker: the client's own contract products (R38 item 2, the
+// `useTickets`' `ticketPicker` sibling on this collection).
+// -----------------------------------------------------------------------------
+
+/**
+ * The manager page's product-finder — a searchable lookup over the client's
+ * own contract products, keyed by the id `useContractProduct` loads by.
+ * Distinct from the query family above: this finds ONE product, it does not
+ * narrow the list.
+ */
+export function useContractProductPickerSchema(): ContractProductsQuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      contractProduct: { type: ["string", "null"] }
+    }
+  } as ContractProductsQuerySchema;
+}
+
+export function useContractProductPickerUischema(
+  lookups: ContractProductServices["lookups"]
+): UISchemaElement {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Lookup",
+        scope: "#/properties/contractProduct",
+        i18n: "form.contract_product_lookup",
+        options: {
+          lookup: {
+            service: lookups.contractProduct,
+            searchScope: "filters.service_identifier.like"
+          },
+          optionalText: ""
+        }
+      }
+    ]
+  } as UISchemaElement;
+}
+
+/** The picker lookup's OWN criteria — a `service_identifier` search. */
+export function useContractProductPickerQuerySchema(): ContractProductsQuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          service_identifier: {
+            type: "object",
+            additionalProperties: false,
+            properties: { like: { type: ["string", "null"], minLength: 1 } }
+          }
+        }
+      },
+      pagination: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          limit: { type: "integer", minimum: 0, default: 10 },
+          offset: { type: "integer", minimum: 0, default: 0 }
         }
       }
     }

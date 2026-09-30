@@ -79,7 +79,8 @@ import type {
   ProductSummaryDetailWithPrice,
   SubproductModelValue,
   UIMeta,
-  ProductBreadcrumb
+  ProductBreadcrumb,
+  ProductInstance
 } from "./product.types";
 import type { BrandMeta } from "../brand/brand.types";
 import type { ProductBundleConfig } from "../config";
@@ -114,7 +115,7 @@ export function normaliseSubPids(input?: string | string[]): string[] {
  * If no template is found or is empty, the fallback title is used
  *
  * @param product The product to compute the title for
- * @param basketProduct The basket product to use for translations
+ * @param basketProduct The product instance (basket or contract product) to use for translations
  * @param valueKey The key to extract values from at each level
  * @param fallback The fallback title to use if no template is found
  * @returns The computed title
@@ -126,7 +127,7 @@ export function useUischemaTitle(
     valueKey,
     fallback
   }: {
-    basketProduct?: IBasketProduct;
+    basketProduct?: ProductInstance;
     valueKey: string;
     fallback: string;
   }
@@ -161,20 +162,20 @@ export function useUischemaTitle(
  * eg: for a domain product, we would use the service_identifier as the name where possible
  *
  * @param product The product to compute the name for
- * @param basketProduct The basket product to use for translations
+ * @param basketProduct The product instance (basket or contract product) to use for translations
  * @returns The computed name
  *
  */
 export function useProductName(
   product: IProduct,
-  basketProduct?: IBasketProduct
+  basketProduct?: ProductInstance
 ): string {
   const name = useTranslateName(product);
 
   if (!basketProduct?.service_identifier) return name;
 
   // individual product types may have different naming conventions
-  switch (basketProduct?.product.provision_blueprint?.category?.code) {
+  switch (basketProduct.product?.provision_blueprint?.category?.code) {
     case ProvisionCategoryCodes.DOMAIN_NAMES:
       return basketProduct?.service_identifier;
 

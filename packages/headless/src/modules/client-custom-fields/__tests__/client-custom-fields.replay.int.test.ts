@@ -1,84 +1,154 @@
 // -----------------------------------------------------------------------------
 /**
  * @module client-custom-fields/__tests__/client-custom-fields.replay.int.test
- * @description Runs the module's OWN `client-custom-fields.feature` through its
- * OWN `client-custom-fields.steps.ts`, against the REAL `useClientCustomFields()`
- * collection booted THROUGH THE BARREL, over this module's own MSW-replayed
- * staging recordings — so a step naming a flag the composable does not publish,
- * firing an action id it does not own, or asserting a state the recorded corpus
- * never reaches is RED here, before any page exists.
+ * @description The co-located `client-custom-fields.feature`, REPLAYED through
+ * the module's own step catalog against the real `useClientCustomFields()`
+ * collection booted THROUGH THE BARREL — ONE scenario, ONE recording (FE-3145).
+ * Each scenario plays its own `scenarios/<scenario>/` fixtures, step by step,
+ * and nothing else: before each step, that step's recorded answers are armed. A
+ * request no step of the scenario recorded fails the scenario by name. A
+ * scenario no step drives is skipped by name (spec-only, ADR-020 Am.5).
  *
- * The replay's `it` titles are DYNAMIC — `replayFeature` builds one per
- * non-@todo scenario — so the module's traceability gate (which greps STATIC
- * `describe`/`it` literals) does not count them. That is correct: this file
- * proves the scenarios RUN; the AC<->spec link stays the traceability gate's job.
+ * The recordings come from `pnpm fixtures:generate client-custom-fields`, which
+ * records every driven scenario against staging.
  *
- * Per ADR-020 Amendment 5, only AC-7 (asking for a fresh copy) is driven — it
- * fires the real `refresh` and reads readiness back over the recorded two-row
- * catalogue. Every "open my definitions" scenario is spec-only and `it.skip`s
- * here, which is the expected, correct outcome for a written-down-not-yet-driven
- * capability.
+ * The per-field IMAGE editor (`useClientCustomFieldImage`) is NOT a second
+ * scenario key: its whole surface is a multipart upload the scenario Generator
+ * cannot record and the World cannot hand a File across, so its capabilities are
+ * `@todo` in the feature and no driven scenario boots it.
  *
  * ## What Breaks If These Fail
- * The module's behavioural source of truth stops describing the module: the
- * feature and its catalog drift away from the composable, and nothing says so
- * until a page is built on top of them.
- *
- * @reference `packages/headless/src/modules/client-billing-settings/__tests__/`
- * — the one built replay pair.
+ * A fake step, a flag the composable does not publish, an action it does not
+ * expose, or a module that now asks the API something its scenario never
+ * recorded.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { useClientCustomFields } from "..";
+import { describe, expect, it } from "vitest";
 import {
-  installCorpusReplay,
-  loadModuleCorpus
-} from "../../../testing/corpus-replay";
+  createStepMatcher,
+  parseFeatureScenarios
+} from "@upmind-automation/scenario-harness";
+import {
+  replayStep,
+  startScenarioReplay
+} from "@upmind-automation/test-fixtures/replay-server";
+import { useClientCustomFields, useClientCustomFieldImage } from "..";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
+  scenarioDir,
+  stepDirDrift,
+  stepFixturesDir
+} from "../../../testing/scenario-fixtures";
+import { seedSessionFor } from "../../../testing/session-seed";
+import {
   resetClientCustomFieldsScopes,
-  seedClientSession
+  seedClientSession,
+  seedGuestSession
 } from "./client-custom-fields.int-helpers";
 import {
   CLIENT_CUSTOM_FIELDS_SCENARIO,
+  CLIENT_CUSTOM_FIELD_IMAGE_SCENARIO,
+  CLIENT_CUSTOM_FIELD_IMAGE_2_SCENARIO,
   clientCustomFieldsSteps
 } from "./client-custom-fields.steps";
 import { server } from "./setup.integration";
+import { forEach, includes, reject } from "lodash-es";
 import type { NodeComposable } from "../../../testing";
+import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
+const feature = readFileSync(
+  join(import.meta.dirname, "client-custom-fields.feature"),
+  "utf-8"
+);
+
 /**
- * The corpus EVERY scenario starts from: a real authenticated client session
- * (`seedClientSession` also installs the brand/org bootstrap stubs) and this
- * module's OWN recorded two-row definitions catalogue, served for the seeded
- * client's own resolved brand. Nothing here is built — every body is a
- * committed capture the module's `int-helpers` already serves.
+ * Starts a scenario on its own recording: the module's shared fixtures are
+ * dropped, and a real authenticated client session is seeded.
  */
-async function arrangeRecordedCorpus(): Promise<void> {
-  await seedClientSession();
-  installCorpusReplay(server, await loadModuleCorpus("client-custom-fields"));
+let replay: ReturnType<typeof startScenarioReplay> | undefined;
+
+async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
+  if (!existsSync(scenarioDir(import.meta.dirname, scenario.name)))
+    throw new Error(
+      `"${scenario.name}" has no recording — record it with pnpm fixtures:generate client-custom-fields`
+    );
+
+  replay = startScenarioReplay(server);
+  await seedSessionFor(scenario, seedClientSession, seedGuestSession);
+}
+
+/**
+ * Fails the scenario by its first capture gap, whatever else it failed on: a
+ * request the recording lacks is the cause, and the check it broke is only the
+ * symptom.
+ */
+function cleanupScenario(scenario: FeatureScenario): void {
+  resetClientCustomFieldsScopes();
+
+  const [gap] = replay?.gaps() ?? [];
+  replay = undefined;
+
+  if (gap) throw new Error(`"${scenario.name}" — ${gap}`);
+}
+
+/** Arms the answers THIS step recorded; a step that made no request has none. */
+function armStep(scenario: FeatureScenario, index: number): void {
+  replayStep(server, stepFixturesDir(import.meta.dirname, scenario, index));
 }
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Every recorded scenario holds ONE folder per step, numbered in step order —
+ * so a step added to or removed from the `.feature` fails here until the
+ * scenario is recorded again.
+ */
+describe("client-custom-fields — each recording reads one for one as its scenario", () => {
+  const matcher = createStepMatcher(clientCustomFieldsSteps);
+  const recorded = reject(
+    parseFeatureScenarios(feature),
+    ({ name, tags }) =>
+      includes(tags, "@todo") ||
+      !existsSync(scenarioDir(import.meta.dirname, name))
+  );
+
+  it("records at least one scenario", () => {
+    expect(recorded).not.toHaveLength(0);
+  });
+
+  forEach(recorded, scenario => {
+    it(`${scenario.name} — one folder per step`, () => {
+      expect(stepDirDrift(import.meta.dirname, scenario)).toStrictEqual({
+        missing: [],
+        extra: []
+      });
+      expect(matcher.malformedStepDefs).toStrictEqual([]);
+    });
+  });
+});
+
 replayFeature({
   moduleName: "client-custom-fields",
-  feature: readFileSync(
-    join(import.meta.dirname, "client-custom-fields.feature"),
-    "utf-8"
-  ),
+  feature,
   catalog: clientCustomFieldsSteps,
   composables: {
     // The scope builder types `.as()`/`.for()` narrowly to this module's own
     // actor×context matrix; `NodeComposable` is the erased structural shape the
     // World boots. One widening cast at the seam, never a loosening of the
-    // helper — mirrors the built reference.
+    // helper.
     [CLIENT_CUSTOM_FIELDS_SCENARIO]:
-      useClientCustomFields as unknown as NodeComposable
+      useClientCustomFields as unknown as NodeComposable,
+    [CLIENT_CUSTOM_FIELD_IMAGE_SCENARIO]:
+      useClientCustomFieldImage as unknown as NodeComposable,
+    [CLIENT_CUSTOM_FIELD_IMAGE_2_SCENARIO]:
+      useClientCustomFieldImage as unknown as NodeComposable
   },
-  arrange: arrangeRecordedCorpus,
-  cleanup: resetClientCustomFieldsScopes,
+  arrange: arrangeScenario,
+  beforeStep: armStep,
+  cleanup: cleanupScenario,
   timeoutMs: 60000
 });

@@ -1,6 +1,9 @@
 import { registerAnimations, type AnimationImportMap } from "@upmind/ui";
+import {
+  registerIcons,
+  type IconImportMap
+} from "@upmind-automation/foundation";
 import useUpmind, { type UpmindProps } from "@upmind-automation/headless";
-import { registerIcons, type IconImportMap } from "./components/icon";
 import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------

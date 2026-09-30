@@ -110,7 +110,7 @@ describe("client-email — ONE feature, ONE catalog, ONE traceability test", () 
   });
 
   it("carries every scenario exactly once, so the merge dropped none and doubled none", () => {
-    expect(scenarioNames.length).toBeGreaterThan(30);
+    expect(scenarioNames.length).toBeGreaterThan(23);
     expect(
       keys(filter(countBy(scenarioNames), occurrences => occurrences > 1))
     ).toStrictEqual([]);

@@ -207,12 +207,15 @@ const hasWrite = (fixtures: RecordedFixture[]) =>
   some(fixtures, fixture => !isRead(fixture));
 
 /**
- * A module's own recordings with its refusals dropped — the corpus exactly as it
- * stood before the capture that closed its gap. Nothing is authored: every
- * surviving entry is a committed recording.
+ * A module's own recordings with its SERVABLE refusals dropped — the corpus
+ * exactly as it stood before the capture that closed its error gap. An absent
+ * record (404) and an auth refusal (401) answer no error state, so dropping them
+ * would strip the 404 a single-record surface's `empty` rides on and gap a state
+ * the module still answers. Nothing is authored: every surviving entry is a
+ * committed recording.
  */
 const beforeItsCapture = (bodies: Record<string, RecordedFixture>) =>
-  omitBy(bodies, isRefused);
+  omitBy(bodies, isServableRefusal);
 
 const inVocabulary = (presets: ForceMeasuredRecipe[]) =>
   filter(FORCE_RECIPES, preset => includes(presets, preset));
@@ -425,15 +428,19 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
    */
   const OWED: Record<string, ForceMeasuredRecipe[]> = {
     "client-notes": ["error-collection", "error-action"],
-    // No labs scenario page and no force affordance, so a capture would prove
-    // nothing — single-record reads only, with no absent-record read on file.
-    "session-store": ["empty"],
-    // contract.feature declares @guard (AC-16), but the recordings hold no
-    // refusal capture, and recording one needs a staging write this run forbids.
-    contract: ["error-collection", "error-action"],
-    // contract-product.feature declares @guard (AC-11/AC-16) too, and holds no
-    // refusal capture either; recording one needs the same forbidden staging write.
-    "contract-product": ["error-collection", "error-action"]
+    // Its feature declares a refusal (@guard) and it records a servable refused
+    // WRITE, but a servable refused READ is the fault staging will not return on
+    // demand — so error-collection stays an owed capture, named not dropped.
+    "client-notifications": ["error-collection"],
+    // Same as client-notes: its feature declares a @guard refusal but its only
+    // recordable fault is the auth 401 (unservable), so a servable refused read
+    // stays an owed capture staging will not return on demand.
+    "client-phone": ["error-collection"],
+    // A single-record client-owned read: its feature declares a @guard refusal
+    // but its corpus holds only a 200 read and a 404 absent-record. A servable
+    // refused read of a client's own details is the fault staging will not return
+    // on demand, so error-collection stays an owed capture, named not dropped.
+    "client-personal-details": ["error-collection"]
   };
 
   it("owes a capture only where one is on record as owed", () => {
@@ -457,8 +464,8 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
       const unrecorded = beforeItsCapture(entry.bodies);
 
       expect(
-        filter(values(unrecorded), isRefused),
-        `${entry.module} kept a refusal the strip should have dropped`
+        filter(values(unrecorded), isServableRefusal),
+        `${entry.module} kept a servable refusal the strip should have dropped`
       ).toEqual([]);
       expect(
         [...answerablePresets(unrecorded)],

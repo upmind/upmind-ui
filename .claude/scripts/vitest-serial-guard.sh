@@ -20,8 +20,10 @@ cmd=$(printf '%s' "$payload" | python3 -c 'import json,sys
 try: print(json.load(sys.stdin).get("tool_input",{}).get("command",""))
 except Exception: print("")' 2>/dev/null)
 
-# Only guard commands that actually start a test run.
-printf '%s' "$cmd" | grep -qE '(^|[^a-z-])vitest( |$)|test:unit|test:integration|pnpm +(-r +)?test' || exit 0
+# Operator ruling 2026-09-29: guard END-TO-END runs only. The e2e suite (a
+# browser per worker) is what exhausts the box; unit and integration runs are
+# unrestricted and may run side by side.
+printf '%s' "$cmd" | grep -qE 'playwright +test|test:e2e|bddgen|test-run-suite' || exit 0
 # ...but never guard a command that merely reads about them.
 printf '%s' "$cmd" | grep -qE '^\s*(cat|grep|rg|head|tail|ls|find|git) ' && exit 0
 
@@ -32,7 +34,7 @@ printf '%s' "$cmd" | grep -qE '^\s*(cat|grep|rg|head|tail|ls|find|git) ' && exit
 project="${CLAUDE_PROJECT_DIR:-$PWD}"
 
 mains=$(ps -Ao pid=,command= 2>/dev/null |
-  awk '$2 == "node" && ($3 == "(vitest)" || $3 ~ /vitest\.mjs$/) { print $1 }')
+  awk '$2 == "node" && $0 ~ /playwright.* test/ { print $1 }')
 
 live=0
 here=0
@@ -43,9 +45,9 @@ for pid in $mains; do
 done
 
 if [ "$here" -gt 0 ]; then
-  holders=$(pgrep -fl "node.*vitest" 2>/dev/null | head -3 | sed 's/^/    /')
+  holders=$(pgrep -fl "node.*playwright" 2>/dev/null | head -3 | sed 's/^/    /')
   cat >&2 <<MSG
-DENIED: a vitest run is already in progress in this project ($live on the
+DENIED: an end-to-end run is already in progress in this project ($live on the
 machine; the limit is one per project).
 
 Running two test suites at once has hard-crashed this machine twice

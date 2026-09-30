@@ -7,6 +7,13 @@
 `mapPaymentDetails` (`payment-details.mappers.ts`) now reads the listing regardless of shape — an array is used as-is, a single record (an object carrying its own `id`) is wrapped, and a gap-keyed object is read with `Object.values()`:
 
 ```ts
+import { has, isArray, map, values } from "lodash-es";
+import type { PaymentDetail } from "@upmind-automation/headless";
+import type { IPaymentDetail } from "@upmind-automation/types";
+
+// The single-record mapper, internal to the module.
+declare function mapPaymentDetail(raw: IPaymentDetail): PaymentDetail;
+
 export function mapPaymentDetails(
   raw: IPaymentDetail | IPaymentDetail[] | Record<string, IPaymentDetail>
 ): PaymentDetail[] {

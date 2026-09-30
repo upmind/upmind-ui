@@ -537,18 +537,3 @@ activate(AccessRoleTypes.CLIENT, "client-123");
 ```
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete migration details.
-
-## Playground
-
-A runnable demo is available in the labs playground:
-
-```bash
-cd playgrounds/labs
-pnpm dev
-```
-
-Then navigate to `/session` to see multi-session management in action.
-
-**Playground location:** `playgrounds/labs/src/pages/useActiveSession/`
-
-> **🔧 For Contributors:** When adding new session features, update the playground page to demonstrate them.

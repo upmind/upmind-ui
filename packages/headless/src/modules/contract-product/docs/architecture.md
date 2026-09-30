@@ -62,7 +62,7 @@ stateDiagram-v2
 
 `available` is `type: "parallel"` over five regions — `status`, `setup`, `trial`, `cancelling`, `consolidating` — evaluated simultaneously off one read. `unavailable` (staged/cancelled/lapsed/fraud) has no transition that leaves it; the only way out is a fresh `loading` cycle from `REFRESH` or re-subscription.
 
-The `loading` state's `always` array is the one place `selectStatusNode` is consulted; it runs a fixed priority order (staged → cancelled → lapsed → fraud → cancelling → expiring → the four published codes → unrecognised-error) so that, e.g., a staged-import record is never routed into a status-code branch at all.
+The `loading` state's `onDone` is an ordered list of guarded transitions over the record the settled read returned (the event, never the previous context). The order is staged → cancelled → lapsed → fraud → cancelling → expiring → pending → inactive → active → suspended, so that, e.g., a staged-import record is never routed into a status-code branch at all. Each guard is a one-line check on a raw wire field. A record that matches none takes the last entry, records a status error and lands on `error`.
 
 `cancelling` and `consolidating` are the write-form regions. Each has its own `idle` → `available` (`checking`/`valid`/`invalid`/`error`, re-entered on every `SET.<form>`) → `processing` (its own `validating` → `updating` children) cycle, entirely independent of the `status`/`setup`/`trial` regions beside it. Opening the cancellation form is itself guarded — `CANCELLATION` only transitions when `hasCancellationOptions` is true, i.e. the record currently offers at least one of the three cancellation options; opening the consolidation form is guarded the same way by `canConsolidate`.
 

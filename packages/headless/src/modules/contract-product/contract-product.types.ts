@@ -1,8 +1,9 @@
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { selector } from "../scope/scope.utils";
-import type { ResponseError } from "../../utils";
+import type { FormattedDate, ResponseError } from "../../utils";
 import type { CustomField, CustomFieldModel } from "../client-custom-fields";
+import type { LookupItem } from "../lookup";
 import type { ListQuery } from "../query";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
@@ -102,9 +103,26 @@ export type ContractProductScopeMatrix = typeof CONTRACT_PRODUCT_SCOPE_MATRIX;
 // VIEW MODEL — the mapping law (design 8.10, R19, R24, R25)
 // -----------------------------------------------------------------------------
 
-/** `IStatus.code`, narrowed to the contract vocabulary. */
+/** `IStatus.code`, narrowed to the contract vocabulary, and the status's translated name. */
 export type ContractProductStatus = Pick<IStatus, "code"> & {
   code: ContractStatusCodes;
+  /** `status.name_translated`, else `status.name` (R38 item 9). */
+  name?: IStatus["name"];
+};
+
+/**
+ * One boolean per contract status code — a translated status badge reads
+ * these off `meta` (R38 item 9, G4), the idiom `tickets.mappers.ts` and
+ * `Contract.meta` publish.
+ */
+export type ContractProductMeta = {
+  isActive: boolean;
+  isAwaitingActivation: boolean;
+  isCancelled: boolean;
+  isClosed: boolean;
+  isFraud: boolean;
+  isPending: boolean;
+  isSuspended: boolean;
 };
 
 /** `IStatus.code`, narrowed to the cancellation-request vocabulary. */
@@ -125,8 +143,8 @@ export type ScheduledAction = Pick<
   "id" | "action_code" | "status" | "executed_at" | "created_at"
 >;
 
-/** The `unpaid_recurring_invoices` member this module reads. */
-export type UnpaidInvoice = Pick<IInvoice, "status">;
+/** The `unpaid_recurring_invoices` member this module reads — the row's `invoice_status`, as `status`. */
+export type UnpaidInvoice = Partial<Pick<IInvoice, "status">>;
 
 /** The `product` relation this module reads (12-member products-list `with`, design 8.1). */
 export type ContractProductCatalogueProduct = Pick<
@@ -178,21 +196,45 @@ export type ContractProduct = {
   id: IContractProduct["id"];
   contractId: IContractProduct["contract_id"];
   status?: ContractProductStatus;
+  /** The translated-badge flags for `status.code` (R38 item 9, G4). */
+  meta: ContractProductMeta;
   /** The owning contract's status code (`contract.status.code`) — the cancellation gate reads it (R33). */
   contractStatus?: ContractStatusCodes;
   stagedImport: IContractProduct["staged_import"];
   contractRequest?: ContractProductRequest;
   renew: IContractProduct["renew"];
   billingCycleMonths: IContractProduct["billing_cycle_months"];
+  /** The translated billing-cycle label a list column shows — "Monthly", "Annually", "One time" (R38 item 10, G5). */
+  billingCycle: string;
+  /** The purchase date, as the wire ISO the machine reads — never `raw.created_at`. `dateCreated` is its display descriptor. */
+  createdAt: IContractProduct["created_at"];
+  /**
+   * The row's formatted price (R38 item 10) — legacy `getPriceTermSummary`'s
+   * figure: the recurring price for a subscription, the discounted price for a
+   * one-time product, each tax-inclusive or net per the brand's tax type.
+   */
+  priceFormatted: string;
+  /** Legacy `getPriceTermSummary`'s one string — `priceFormatted` trimmed of zeros, then the lower-cased cycle for a subscription: "£4 monthly", "£60". */
+  priceTermSummary: string;
   calculatedCancelDate: IContractProduct["calculated_cancel_date"];
   provisionSetupFieldsConfirmed: IContractProduct["provision_setup_fields_confirmed"];
   inTrial: IContractProduct["in_trial"];
   trialEndAction: TrialEndActionTypes;
   nextDueDate: IContractProduct["next_due_date"];
+  /** The purchase date a list column DRAWS (R38 items 8, 10) — a `useDate` descriptor `TableCellDate` reads, beside the ISO `createdAt` the machine keeps (tickets/invoices `date*` shape). */
+  dateCreated: FormattedDate;
+  /** The next-due date a column DRAWS — the display descriptor beside the ISO `nextDueDate`. */
+  dateNextDue: FormattedDate;
+  /** The calculated cancel date the overlay DRAWS — the display descriptor beside the ISO `calculatedCancelDate`. */
+  dateCalculatedCancel: FormattedDate;
   importId: IContractProduct["import_id"];
   moved: IContractProduct["moved"];
   name: IContractProduct["name"];
+  /** The display name — the shared product title over this contract product: "Starter Hosting (testdomain.com)". */
+  title: string;
   canCancel: IContractProduct["can_cancel"];
+  /** A pro-rata invoice from a product change is still unpaid; cancelling is held back. */
+  proRataPending: IContractProduct["pro_rata_pending"];
   isDelegatedObject: IContractProduct["is_delegated_object"];
   autoCreateRenewInvoice: IContractProduct["auto_create_renew_invoice"];
   unpaidRecurringInvoices: UnpaidInvoice[];
@@ -467,6 +509,23 @@ export const DEFAULT_SORT: SortModel = [
 /** The collection's query schema — a real Draft-07 schema the translator walks at runtime. */
 export type ContractProductsQuerySchema = JsonSchema7;
 
+/** The `contractProductPicker`'s own criteria (R38 item 2) — a service-identifier search. */
+export type ContractProductPickerQueryModel = {
+  filters?: { service_identifier?: { like?: string | null } };
+  pagination?: { limit?: number; offset?: number };
+};
+
+/** The picker's once-minted lookup query, as `useTicketPickerSchema`'s sibling reads. */
+export type ContractProductPickerLookupQuery = ListQuery<
+  IContractProduct[],
+  LookupItem[],
+  ContractProductPickerQueryModel
+>;
+
+/** A THUNK returning the once-minted {@link ContractProductPickerLookupQuery}. */
+export type ContractProductPickerLookupService =
+  () => ContractProductPickerLookupQuery;
+
 // -----------------------------------------------------------------------------
 // SERVICES CONTRACT
 // -----------------------------------------------------------------------------
@@ -494,6 +553,10 @@ export type ContractProductServices = {
   loadPurchasedCategories: () => Promise<IProductCategory[]>;
   /** Stops the scoped show-delegated preference reader (design 8.5). */
   destroyPreference: () => void;
+  /** The `contractProductPicker`'s own lookups (R38 item 2), one per pickable record. */
+  lookups: {
+    contractProduct: ContractProductPickerLookupService;
+  };
 };
 
 /** The XState services map `contract-product.machine.ts` invokes; each returns the raw record. */

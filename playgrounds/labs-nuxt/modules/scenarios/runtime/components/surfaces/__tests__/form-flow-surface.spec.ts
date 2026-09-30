@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { UpmForm } from "@upmind-automation/client-vue";
+import { Form } from "@upmind-automation/foundation";
 import { FormFlowSurface } from "../index";
 
 const schema = { type: "object", properties: { name: { type: "string" } } };
@@ -23,10 +23,10 @@ function mountForm() {
   return { wrapper, set, resolve };
 }
 
-describe("@AC3 FormFlowSurface — projects context.{schema,uischema,model} via UpmForm", () => {
-  it("binds the descriptor's schema, uischema and model onto UpmForm", () => {
+describe("@AC3 FormFlowSurface — projects context.{schema,uischema,model} via Form", () => {
+  it("binds the descriptor's schema, uischema and model onto Form", () => {
     const { wrapper } = mountForm();
-    const upmForm = wrapper.findComponent(UpmForm);
+    const upmForm = wrapper.findComponent(Form);
 
     expect(upmForm.exists()).toBe(true);
     expect(upmForm.props("schema")).toEqual(schema);
@@ -36,7 +36,7 @@ describe("@AC3 FormFlowSurface — projects context.{schema,uischema,model} via 
 
   it("routes update:model-value to the set action", async () => {
     const { wrapper, set } = mountForm();
-    const upmForm = wrapper.findComponent(UpmForm);
+    const upmForm = wrapper.findComponent(Form);
 
     await upmForm.vm.$emit("update:modelValue", { name: "Grace" });
 
@@ -45,7 +45,7 @@ describe("@AC3 FormFlowSurface — projects context.{schema,uischema,model} via 
 
   it("routes resolve to the resolve action", async () => {
     const { wrapper, resolve } = mountForm();
-    const upmForm = wrapper.findComponent(UpmForm);
+    const upmForm = wrapper.findComponent(Form);
 
     await upmForm.vm.$emit("resolve", model);
 

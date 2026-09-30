@@ -241,6 +241,17 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
           const current = await get(
             `/api/orders/current?with=${ORDER_WITH}&lang=en-US`
           );
+          const currentData = (current.body as Record<string, unknown>)
+            ?.data as Record<string, unknown> | undefined;
+          // The config machine's product read carries the basket's currency_id
+          // and an (empty) promotions param; capture the URL with them so the
+          // recorded identity equals the one the real basket-product service asks.
+          const currencyId =
+            (currentData?.currency_id as string | undefined) ??
+            ((currentData?.currency as Record<string, unknown>)?.id as
+              | string
+              | undefined) ??
+            "";
           const check = await patch(
             `/api/orders/${basketId}/provision_fields/values/check`
           );
@@ -255,7 +266,7 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
               ),
               // config-machine hydration (product + blueprint, field defs)
               get(
-                `/api/basket/${basketId}/products/${p.id}?with=${PRODUCT_WITH}&basket_id=${basketId}&basket_product_id=${p.id}&currency_code=${CURRENCY}`
+                `/api/basket/${basketId}/products/${p.id}?currency_id=${currencyId}&promotions=&with=${PRODUCT_WITH}&basket_id=${basketId}&basket_product_id=${p.id}&currency_code=${CURRENCY}`
               ),
               get(`/api/basket/products/${p.product_id}/provision_fields`)
             ])

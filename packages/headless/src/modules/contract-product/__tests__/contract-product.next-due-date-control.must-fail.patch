@@ -1,23 +1,20 @@
 # Negative-control mutant — the next-due-date filter draws a control (JTBD gap 4)
 #
-# Scenario / gap it must flip:
-# jtbd-readback gap 4 — `NextDueDateFilter` (`next_due_date.gt`) had a
-# schema leaf but `useQueryUischema()` drew no control.
-# What the prover asserts (public-surface hand-off — spec authored by the
-# prover seat, not the developer):
-# the prover asserts `useQueryUischema()` carries a control scoped to
-# `#/properties/filters/properties/next_due_date/properties/gt`. With the
-# element gone the capability is undriveable.
+# Assertion it attacks:
+# contract-product.query-controls.int.test.ts, "AC-1 lays out a next-due-date
+# control at the next_due_date.gt leaf scope" — `useQueryUischema()` carries a
+# control scoped to `#/properties/filters/properties/next_due_date/properties/gt`.
 # Mutation:
-# `useQueryUischema()` drops the next-due-date control.
+# `useQueryUischema()` drops the next-due-date control, so the capability is
+# undriveable while its schema leaf still validates.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-index 20c8a2ef6..a268ed240 100644
+index 07a4747dc..48e13da03 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-@@ -220,12 +220,6 @@ export function useQueryUischema(): UISchemaElement {
+@@ -230,12 +230,6 @@ export function useQueryUischema(): UISchemaElement {
          i18n: "form.contract_product_date_purchased",
          options: { optionalText: "" }
        },
@@ -29,4 +26,4 @@ index 20c8a2ef6..a268ed240 100644
 -      },
        {
          type: "Control",
-         scope:
+         scope: "#/properties/filters/properties/billing_cycle_days",

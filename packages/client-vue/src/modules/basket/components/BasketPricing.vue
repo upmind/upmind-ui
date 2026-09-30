@@ -26,8 +26,8 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
+import { Section } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
-import Section from "../../../components/section/Section.vue";
 import { basketAsideVariants } from "../basket.variants";
 import { BASKET_TEMPLATE } from "../types";
 import BasketCheckout from "./BasketCheckout.vue";

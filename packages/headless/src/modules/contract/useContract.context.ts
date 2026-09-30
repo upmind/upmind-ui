@@ -1,4 +1,5 @@
 import { computed } from "vue";
+import { mapContractTitle } from "./contract.mappers";
 import { useContext } from "../../utils";
 import { get } from "lodash-es";
 import type { Contract, ContractContext, ContractForm } from "./contract.types";
@@ -32,8 +33,9 @@ export function createContractContext(
   const rawContract = useContext<IContract>(state, "rawContract");
   const contract = useContext<Contract>(state, "contract");
 
-  /** Display title of the record — derived off the raw wire record, as `useContractProduct.context.ts`'s `title` is. */
-  const title = computed(() => rawContract.value?.name ?? undefined);
+  const title = computed(() =>
+    rawContract.value ? mapContractTitle(rawContract.value) : undefined
+  );
 
   return {
     /** The cancellation-request status in the platform vocabulary; undefined when no request exists (AC12). */

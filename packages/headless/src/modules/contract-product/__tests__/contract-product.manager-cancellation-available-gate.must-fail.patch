@@ -1,13 +1,12 @@
-# Negative-control mutant — the cancellation open flag refuses an unavailable product (G2, P4g, AC-11)
+# Negative-control mutant — the cancellation flag refuses an unavailable product (AC-11)
 #
-# Scenario it must flip: contract-product.manager-open-gates.int.test.ts, the
-#   AC-11 outline — a row for a product placed on `unavailable` (a cancelled or
-#   lapsed subscription) that expects `hasCancellationOptions` false, matching
-#   `openCancellation` opening nothing. The prover adds that row; the outline has
-#   none at 54d6ee599, so this mutant stays green until it lands.
-# Mutation: `hasCancellationOptions` drops the `isAvailable` gate, so the flag
-#   reads the record predicate alone and reports the form as offered on a
-#   cancelled product whose `unavailable` node never receives CANCELLATION.
+# Scenario it must flip: contract-product.feature >
+#   "I am told whether the cancellation form is offered before I open it — a cancelled subscription"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then I am told the cancellation form is not offered" — `hasCancellationOptions`
+#   reads true on the cancelled product.
+# Mutation: `hasCancellationOptions` drops the `isAvailable` gate and reads the
+#   record predicate alone.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>

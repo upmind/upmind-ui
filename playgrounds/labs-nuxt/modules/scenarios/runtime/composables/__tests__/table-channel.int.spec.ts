@@ -19,13 +19,11 @@
  * suite beside it — a spec in `packages/headless` reaching back out to
  * `playgrounds/` inverts the package boundary (`@workspace/no-cross-package-path-imports`).
  * Nothing headless-owned moves with it: the collection behaviours these
- * assertions ride on are each already proven inside headless — the boot
- * pagination window and the two refused paginate keys in
- * `client-email.collection.int.test.ts`, `filterBy` / `sortBy` reaching the
- * wire in `list-criteria.int.test.ts` and `translate-query.int.test.ts`, the
- * live page-size change through `setCriteria({ pagination })` in
- * `list-criteria.int.test.ts`. What is proven here, and only here, is the
- * channel's own flatten/lift contract.
+ * assertions ride on — the boot pagination window, the refused paginate keys,
+ * `filterBy` / `sortBy` narrowing the list — are each proven inside headless as
+ * driven scenarios in `client-email.feature`. What is proven here, and only
+ * here, is the channel's own flatten/lift contract, driven against the real
+ * `useClientEmails` cell over the module's flat recorded corpus.
  *
  * The recorded corpus, its replay server and the session seed are reached by
  * headless's ONE `./testing` entry, keyed by the module that owns them — never by
@@ -52,7 +50,6 @@ import { describe, expect, it, vi } from "vitest";
 import { ScopeActorTypes, useClientEmails } from "@upmind-automation/headless";
 import {
   integrationKits,
-  integrationSetups,
   internalKits
 } from "@upmind-automation/headless/testing";
 import { useTableChannel } from "../useTableChannel";
@@ -70,13 +67,10 @@ import type { TableChannelCell } from "../useTableChannel.types";
 
 // -----------------------------------------------------------------------------
 
-const {
-  installFilteredEmailsHandler,
-  observeEmailRequests,
-  recorded,
-  seedClientSession
-} = await integrationKits["client-email"]();
-const { server } = await integrationSetups["client-email"]();
+const kit = await integrationKits["client-email"]();
+const seedClientSession = kit.seedClientSession;
+const recorded = kit.recorded;
+const observeEmailRequests = kit.observeEmailRequests;
 const { useQuerySchema, useSortUischema } =
   await internalKits["client-email"]();
 
@@ -92,9 +86,12 @@ type Channel = ReturnType<typeof useTableChannel>;
 /** The `pagination.limit` default `useQuerySchema()` declares (design §11.4). */
 const DECLARED_LIMIT = 10;
 
-/** Every row the recorded corpus serves — the two page-1 rows plus page-2's. */
+/** The needle the free-text filter searches by — the arranged `corpus` address. */
+const NEEDLE = "alpha";
+
+/** Every row the recorded corpus serves — staging's own three-row collection. */
 function corpusSize(): number {
-  return recorded.pageOne().data.length + recorded.pageTwo().data.length;
+  return recorded.list().data.length;
 }
 
 /** The real collection plus its channel, booted against the recorded corpus. */
@@ -102,8 +99,7 @@ async function bootChannel(): Promise<{
   emails: Collection;
   channel: Channel;
 }> {
-  const { clientId } = await seedClientSession();
-  installFilteredEmailsHandler(server, clientId);
+  await seedClientSession();
   const emails = useClientEmails().as(ScopeActorTypes.CLIENT);
   await emails.useActions().isReady();
   return { emails, channel: useTableChannel(emails) };
@@ -217,9 +213,9 @@ describe("client-email table channel — read() flattens the live model down (Ta
       })
     );
 
-    emails.useActions().filterBy({ email: { like: "mock-email-3" } });
+    emails.useActions().filterBy({ email: { like: NEEDLE } });
     await vi.waitFor(() =>
-      expect(channel.read().filter).toEqual({ email: "mock-email-3" })
+      expect(channel.read().filter).toEqual({ email: NEEDLE })
     );
   });
 
@@ -227,7 +223,7 @@ describe("client-email table channel — read() flattens the live model down (Ta
     const { emails, channel } = await bootChannel();
     expect(channel.read().pagination.total).toBe(corpusSize());
 
-    emails.useActions().filterBy({ email: { like: "mock-email-3" } });
+    emails.useActions().filterBy({ email: { like: NEEDLE } });
 
     await vi.waitFor(() =>
       expect(emails.useContext().data.value).toHaveLength(1)

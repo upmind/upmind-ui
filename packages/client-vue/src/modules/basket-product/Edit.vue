@@ -246,6 +246,8 @@ import { Alert } from "@upmind/ui";
 import { useClipboard } from "@vueuse/core";
 import { computed, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { Section } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   useBasketProducts,
@@ -258,9 +260,7 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
-import { Icon } from "../../components/icon";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
-import Section from "../../components/section/Section.vue";
 import { isMobile } from "../../composables/isMobile";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import ProductConfig from "../product/components/Config.vue";

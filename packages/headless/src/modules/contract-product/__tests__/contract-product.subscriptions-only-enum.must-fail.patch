@@ -1,25 +1,19 @@
-# Negative-control mutant — the subscriptions-only toggle carries an `enum` (JTBD subscriptions degraded)
+# Negative-control mutant — the Subscriptions position is a fixed value (R38 item 1)
 #
-# Scenario / gap it must flip:
-# jtbd-readback — the subscriptions-only control is `format: "button-group"`
-# over `billing_cycle_days.neq`. Outside the ADR-14 forced case that leaf is
-# `enum: [0, null]`; without the enum both button-group testers refuse it
-# (`FilterButtonGroupRenderer` / `EnumToggleGroupRenderer` require
-# `isEnumControl`) and it falls to a plain number box a hand must type `0` into.
-# Spec it flips (authored by the prover seat, not the developer):
-# contract-product.query-controls.int.test.ts — "AC-1 the subscriptions-only
-# toggle is a real two-value choice, not a free number box: 0 validates, an
-# arbitrary count is rejected".
+# Assertion it attacks:
+# contract-product.query-controls.int.test.ts, "AC-1 a position is a fixed
+# value, never a free number box" — the leaf rejects `{ neq: 5 }`.
 # Mutation:
-# `useQuerySchema()` drops the `enum` from the unforced `billing_cycle_days.neq`.
+# `useQuerySchema()` drops the `enum` from the unforced `billing_cycle_days.neq`,
+# so any count validates.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-index 20c8a2ef6..a8704f628 100644
+index 07a4747dc..8b6a832ea 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-@@ -93,7 +93,7 @@ export function useQuerySchema(): ContractProductsQuerySchema {
+@@ -100,7 +100,7 @@ export function useQuerySchema(): ContractProductsQuerySchema {
              properties: {
                neq: forced
                  ? { type: "integer", const: 0, default: 0 }

@@ -1,0 +1,19 @@
+# Negative control — the translator hands the raw regex to the message. The
+# example is generated and dropped, so the user reads the schema's pattern.
+#
+# Intended RED:
+#   packages/modules-foundation/src/forms/__tests__/withPatternExample.test.ts
+#     "shows an example that matches the regex, not the regex itself"
+
+diff --git a/packages/modules-foundation/src/forms/useFormI18n.ts b/packages/modules-foundation/src/forms/useFormI18n.ts
+--- a/packages/modules-foundation/src/forms/useFormI18n.ts
++++ b/packages/modules-foundation/src/forms/useFormI18n.ts
+@@ -36,7 +36,7 @@ export const useFormI18n = () => {
+             try {
+               const randexp = new RandExp(data.pattern);
+               randexp.randInt = (from: number) => from;
+-              data = assign({}, data, { pattern: randexp.gen() });
++              randexp.gen();
+             } catch {
+               // fallback: keep raw pattern if regex parsing fails
+             }

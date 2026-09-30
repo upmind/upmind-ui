@@ -1,11 +1,15 @@
-Negative control for useContractProduct.context.ts `description` (R37 B4).
-
-Spec that must flip: contract-product.manager-members.int.test.ts
-("shows the product's description through useContext().description") — asserts `useContractProduct().useContext().description`
-reflects the raw record's `description` (`IContractProduct.description`).
-
-Mutation: drops the `description` computed and its return entry.
-
+# Negative-control mutant — the manager publishes the product's description (AC-4)
+#
+# Scenario it must flip: contract-product.feature >
+#   "Open one of my products with what its detail view needs"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then it is the very product I opened, under its own name and description" —
+#   the manager context publishes no `description` member.
+# Mutation: drops the `description` computed and its return entry from the
+#   manager context.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts

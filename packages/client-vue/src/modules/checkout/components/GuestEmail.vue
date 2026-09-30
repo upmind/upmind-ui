@@ -22,9 +22,9 @@
 <script lang="ts" setup>
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { Form } from "@upmind-automation/foundation";
+import { Section } from "@upmind-automation/foundation";
 import { ScopeActorTypes, useAccount } from "@upmind-automation/headless";
-import Form from "../../../components/form/Form.vue";
-import Section from "../../../components/section/Section.vue";
 // --- types
 import type { GuestEmailProps } from "../types";
 

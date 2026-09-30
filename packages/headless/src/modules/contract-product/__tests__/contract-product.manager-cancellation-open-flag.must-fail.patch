@@ -1,15 +1,14 @@
-# Negative-control mutant — the manager publishes a page-readable cancellation open flag (G2)
+# Negative-control mutant — the published cancellation flag follows the product's options (AC-11)
 #
-# Scenario it must flip: contract-product.manager-open-gates.int.test.ts, the
-#   AC-11 outline rows for a product on an `available` node with no
-#   cancellation option: "already set to expire", "a cancellation booked for a
-#   future date" and "a cancellation request already pending". Each expects
-#   `hasCancellationOptions` false.
-# Mutation: the flag keeps the `isAvailable` gate but drops the
-#   `!isEmpty(cancellationOptions(...))` check — the SAME shape as the machine
-#   guard mutant (`contract-product.cancellation-eligibility.must-fail.patch`),
-#   applied to the meta member. The gate itself has its own mutant
-#   (`contract-product.manager-cancellation-available-gate.must-fail.patch`).
+# Scenario it must flip: contract-product.feature >
+#   "I am told whether the cancellation form is offered before I open it — a product with a cancellation request already pending"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then I am told the cancellation form is not offered" — `hasCancellationOptions`
+#   reads true on a product with no option left.
+# Mutation: the meta flag keeps the `isAvailable` gate but drops the
+#   `!isEmpty(cancellationOptions(...))` check.
+# Collateral: the AC-11 rows "a subscription already set to expire", "a product with a
+#   cancellation booked for a future date" and "a live one-off purchase".
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>

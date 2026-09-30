@@ -15,7 +15,7 @@
     />
 
     <PageBody class="relative gap-8">
-      <Card v-if="!contractId" size="sm" class="gap-4">
+      <Card v-if="!subjectId" size="sm" class="gap-4">
         <EmptyState
           :title="t('labs.contract_needs_id')"
           :description="t('labs.contract_needs_id_text')"
@@ -23,7 +23,25 @@
           <template #icon><Icon icon="receipt" /></template>
         </EmptyState>
 
-        <div class="flex items-end gap-3">
+        <!-- FIND a contract. The collection's OWN lookups pair, its control
+             already bound to this scope's service (`schemas.contractPicker`)
+             — the same shape `useTicket` draws for `schemas.ticketPicker`. The
+             pick IS the write: selecting a row navigates to it. -->
+        <div v-if="pickerForm" class="w-full" data-test-key="contract-lookup">
+          <Form
+            :schema="pickerForm.schema"
+            :uischema="pickerForm.uischema"
+            :model-value="pickerModel"
+            :additional-renderers="formRenderers"
+            no-actions
+            size="sm"
+            @update:model-value="onContractPick"
+          />
+        </div>
+
+        <!-- ...or address one directly, for a reference read off a listing or
+             an id pasted from a url. -->
+        <div class="mt-4 flex items-end gap-3">
           <Input
             v-model="idInput"
             :placeholder="t('labs.contract_id_label')"
@@ -88,12 +106,26 @@
             <div>
               <dt class="text-faint">{{ t("text.next_due_date") }}</dt>
               <dd data-test-key="contract-next-due-date">
-                {{ rawContract?.next_due_date }}
+                {{ contract?.dateNextDue?.date }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-faint">{{ t("text.purchase_date") }}</dt>
+              <dd data-test-key="contract-purchase-date">
+                {{ contract?.datePurchased?.date }}
               </dd>
             </div>
             <div>
               <dt class="text-faint">{{ t("text.billing_cycle") }}</dt>
-              <dd>{{ rawContract?.billing_cycle_months }}</dd>
+              <dd data-test-key="contract-billing-cycle">
+                {{ contract?.billingCycleLabel }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-faint">{{ t("text.price") }}</dt>
+              <dd data-test-key="contract-total-amount">
+                {{ contract?.totalAmountFormatted }}
+              </dd>
             </div>
             <div v-if="cancellationRequestStatus">
               <dt class="text-faint">
@@ -125,6 +157,40 @@
           </div>
         </Card>
 
+        <!-- The contract's own products (R38 item 14, G3). Each one opens on
+             its own manager page — cancellation and the other product writes
+             live there (R33/R34), never on this contract page. -->
+        <Card
+          v-if="products.length"
+          size="sm"
+          class="gap-3"
+          data-test-key="contract-products"
+        >
+          <span class="font-medium">{{ t("labs.contract_products") }}</span>
+          <ul class="flex flex-col gap-2">
+            <li
+              v-for="product in products"
+              :key="product.id"
+              class="flex items-center justify-between gap-3"
+              :data-test-key="`contract-product-${product.id}`"
+            >
+              <span>{{
+                product.name || product.product?.name || product.id
+              }}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                :data-attrs="{
+                  'data-test-key': `contract-product-open-${product.id}`
+                }"
+                @click="openProduct(product.id)"
+              >
+                {{ t("labs.contract_product_open") }}
+              </Button>
+            </li>
+          </ul>
+        </Card>
+
         <Alert
           v-if="actionError"
           variant="danger"
@@ -141,9 +207,11 @@
               {{ t("labs.contract_payment_method") }}
             </span>
             <Button
-              v-if="!meta?.isFraud.value && !meta?.isPaymentMethodOpen.value"
+              v-if="!meta?.isPaymentMethodOpen.value"
               variant="outline"
-              :disabled="pending || meta?.isProcessing.value"
+              :disabled="
+                meta?.isFraud.value || pending || meta?.isProcessing.value
+              "
               :data-attrs="{ 'data-test-key': 'contract-payment-method-open' }"
               @click="openPaymentMethod"
             >
@@ -156,7 +224,7 @@
             class="flex flex-col gap-3"
             data-test-key="contract-payment-method-form"
           >
-            <UpmForm
+            <Form
               :schema="paymentMethodForm.schema"
               :uischema="paymentMethodForm.uischema"
               :model-value="paymentMethodForm.model"
@@ -243,6 +311,13 @@
  * `hasError` is NOT read for readability: a refused model raises it while
  * the contract stays on its status node, and reading it would swap the form
  * the client edits for the alert.
+ *
+ * ## Which contract a replay shows
+ * Every manager step boots the contract ITS OWN recording addressed
+ * (`.withId(id)`), and that id wins over the url's: while a track is armed the
+ * page draws the cell the step booted — the same registry instance, so each
+ * fired action moves what is on screen. A new track, or Live, hands the page
+ * back to the url's contract and releases every cell the replay opened.
  */
 
 import {
@@ -260,16 +335,16 @@ import {
   Spinner,
   StatusBadge
 } from "@upmind/ui";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formRenderers,
-  Icon,
   ScopeActorTypes,
-  UpmForm,
   resolveSelfActor,
-  useContract
+  useContract,
+  useContracts
 } from "@upmind-automation/client-vue";
+import { Form, Icon } from "@upmind-automation/foundation";
 import ScenarioBar from "../runtime/components/ScenarioBar.vue";
 import { useScenarioTransport } from "../runtime/composables/useScenarioTransport";
 import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
@@ -278,7 +353,7 @@ import { scenarioPlayground } from "../runtime/ScenarioPlayground.styles";
 import scenario, { CONTRACT_SCENARIO } from "./contract.scenario";
 import { filter, isArray } from "lodash-es";
 import type { SetPaymentMethodModel } from "@upmind-automation/client-vue";
-import type { ScopeActor } from "@upmind-automation/scenario-harness";
+import type { ScopeActor, World } from "@upmind-automation/scenario-harness";
 import { useActorScope } from "~/composables/scope";
 
 // Keyed by PATH, never `fullPath`: the contract id is a ROUTE PARAM, so the
@@ -298,36 +373,87 @@ const contractId = computed(() => {
   return id || undefined;
 });
 
-const manager = contractId.value
-  ? useContract().as(ScopeActorTypes.CLIENT).withId(contractId.value)
-  : undefined;
+/** The contract the armed track's own recording booted; absent on Live. */
+const replayId = ref<string>();
 
-const actions = manager?.useActions();
-const context = manager?.useContext();
-const meta = manager?.useMeta();
+/** The contract on screen — the replay's while a track is armed, else the url's. */
+const subjectId = computed(() => replayId.value ?? contractId.value);
+
+const openCell = (id: string) =>
+  useContract().as(ScopeActorTypes.CLIENT).withId(id);
+
+/** Every cell this page has drawn, so each is destroyed exactly once. */
+const cells = new Map<string, ReturnType<typeof openCell>>();
+
+function cellFor(id: string): ReturnType<typeof openCell> {
+  const cell = cells.get(id) ?? openCell(id);
+  cells.set(id, cell);
+  return cell;
+}
+
+function release(keep?: string): void {
+  for (const [id, cell] of cells) {
+    if (id === keep) continue;
+    cell.useActions().destroy();
+    cells.delete(id);
+  }
+}
+
+if (contractId.value) cellFor(contractId.value);
+
+const manager = computed(() =>
+  subjectId.value ? cellFor(subjectId.value) : undefined
+);
+
+const actions = computed(() => manager.value?.useActions());
+const context = computed(() => manager.value?.useContext());
+const meta = computed(() => manager.value?.useMeta());
 
 const actorScope = useActorScope();
 
-const { tracks, states, player, isLocked } = useScenarioTransport({
-  module: scenario.tracks,
-  world: useScenarioWorld(registry, {
-    key: CONTRACT_SCENARIO,
-    id: contractId.value
-  }),
-  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor }),
-  reset: actions?.reset
+const hostWorld = useScenarioWorld(registry, {
+  key: CONTRACT_SCENARIO,
+  id: contractId.value
 });
 
-const contract = computed(() => context?.contract.value);
-const rawContract = computed(() => context?.rawContract.value);
-const title = computed(() => context?.title.value);
-const contractStatus = computed(() => context?.contractStatus.value);
-const cancellationRequestStatus = computed(
-  () => context?.cancellationRequestStatus.value
+/** The host world, reporting each contract a step boots so the page draws it. */
+const world: World = {
+  ...hostWorld,
+  async boot(key, scope) {
+    await hostWorld.boot(key, scope);
+    if (key === CONTRACT_SCENARIO && scope.id) replayId.value = scope.id;
+  }
+};
+
+const { tracks, states, player, isLocked } = useScenarioTransport({
+  module: scenario.tracks,
+  world,
+  scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor }),
+  reset: () => actions.value?.reset()
+});
+
+// Sync, so the release lands before the new track's first scene can boot; the
+// world is disposed BEFORE the cells go, so it never adopts one released here.
+watch(
+  () => player.track.value,
+  () => {
+    replayId.value = undefined;
+    void world.dispose();
+    release(contractId.value);
+  },
+  { flush: "sync" }
 );
-const readError = computed(() => context?.errors.value);
-const validationErrors = computed(() => context?.validationErrors.value);
-const paymentMethodForm = computed(() => context?.paymentMethod.value);
+
+const contract = computed(() => context.value?.contract.value);
+const products = computed(() => contract.value?.products ?? []);
+const title = computed(() => context.value?.title.value);
+const contractStatus = computed(() => contract.value?.status?.name);
+const cancellationRequestStatus = computed(
+  () => contract.value?.cancellationRequest?.status?.name
+);
+const readError = computed(() => context.value?.errors.value);
+const validationErrors = computed(() => context.value?.validationErrors.value);
+const paymentMethodForm = computed(() => context.value?.paymentMethod.value);
 
 const booting = ref(true);
 const pending = ref(false);
@@ -335,7 +461,7 @@ const actionError = ref<string>();
 const idInput = ref("");
 
 const nodeFlags = computed(() => {
-  const m = meta;
+  const m = meta.value;
   if (!m) return [];
   const flags = [
     {
@@ -373,11 +499,11 @@ const nodeFlags = computed(() => {
 const isReadable = computed(
   () =>
     !!contract.value &&
-    !!meta &&
-    (meta.isAvailable.value ||
-      meta.isCancelled.value ||
-      meta.isLapsed.value ||
-      meta.isFraud.value)
+    !!meta.value &&
+    (meta.value.isAvailable.value ||
+      meta.value.isCancelled.value ||
+      meta.value.isLapsed.value ||
+      meta.value.isFraud.value)
 );
 
 function report(error: unknown): void {
@@ -403,27 +529,63 @@ function openContract(): void {
   router.push(`/useContract/${input}/as/client`);
 }
 
-const openPaymentMethod = () => actions?.openPaymentMethod();
-const closePaymentMethod = () => actions?.clear();
-const submitPaymentMethod = () => run(() => actions!.update());
+/** Open one of this contract's products on its own manager page (R38 item 14). */
+function openProduct(id: string): void {
+  router.push(`/useContractProduct/${id}/as/client`);
+}
+
+/**
+ * The picker's own collection instance (`.fresh()`, so a search never
+ * disturbs a live listing scope), booted ONLY while no contract is addressed
+ * — once one is, this card is gone and the lookup has nothing to offer. It
+ * publishes the pair rather than a list: `schemas.contractPicker` carries the
+ * control with its service already bound, so this page renders a form and
+ * reaches no service itself.
+ */
+const picker = contractId.value
+  ? undefined
+  : useContracts().as(ScopeActorTypes.SELF).fresh();
+
+const pickerForm = picker?.useContext().schemas.contractPicker;
+
+/** The picked id, held so the control draws its own selection back. */
+const pickerModel = ref<{ contract?: string | null }>({});
+
+/**
+ * A pick is a navigation. The lookup writes the contract's id — that is the
+ * option's `value` — so nothing is resolved here, unlike a pasted id.
+ */
+function onContractPick(next: { contract?: string | null } | undefined): void {
+  const picked = next?.contract;
+  pickerModel.value = { contract: picked };
+  if (picked) router.push(`/useContract/${picked}/as/client`);
+}
+
+const openPaymentMethod = () => actions.value?.openPaymentMethod();
+const closePaymentMethod = () => actions.value?.clear();
+const submitPaymentMethod = () => run(() => actions.value!.update());
 
 function onPaymentMethodModelUpdate(
   model: Partial<SetPaymentMethodModel> | undefined
 ): void {
-  void actions?.input(model ?? {})?.catch(report);
+  void actions.value?.input(model ?? {})?.catch(report);
 }
 
-const refresh = () => run(async () => actions!.refresh());
-const reset = () => run(() => actions!.reset());
+const refresh = () => run(async () => actions.value!.refresh());
+const reset = () => run(() => actions.value!.reset());
 
 onMounted(async () => {
-  if (!actions) {
+  if (!actions.value) {
     booting.value = false;
     return;
   }
-  await actions.isReady();
+  await actions.value.isReady();
   booting.value = false;
 });
 
-onUnmounted(() => actions?.destroy());
+onUnmounted(() => {
+  void world.dispose();
+  release();
+  picker?.useActions().destroy();
+});
 </script>

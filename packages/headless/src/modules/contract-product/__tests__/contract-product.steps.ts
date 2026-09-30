@@ -3,82 +3,167 @@
  * @module contract-product/__tests__/contract-product.steps
  * @description The module's ONE step catalog — one definition per phrasing the
  * sibling `contract-product.feature`'s DRIVEABLE scenarios use. Engine-free by
- * construction: it imports `defineSteps` and `World`, the module's scope and
- * form vocabulary and lodash, and nothing else, so the same catalog
- * re-registers against any runner and a browser can carry it.
+ * construction: it imports `defineSteps` and `World`, the module's scope
+ * vocabulary and lodash, and nothing else, so the same catalog re-registers
+ * against any runner and a browser can carry it.
  *
  * ## THE TWO KEYS THIS CATALOG BOOTS
  *
- * `stepCatalogs` is keyed by MODULE, so this one file serves both pages:
- *
  *   - `contract_products` (`scenarios/useContractProducts`) — the COLLECTION,
- *     `useList: useContractProducts`.
- *   - `contract_product` (`scenarios/useContractProduct`) — the self-drawn
- *     MANAGER, `useManage: useContractProduct`, addressed `.withId(id)` by
- *     the page's own url. {@link openManager} names the actor only; the world
- *     completes the record from the url, so a track drives the product on
- *     screen rather than a second one.
+ *     booted `.as(CLIENT)`.
+ *   - `contract_product` (`scenarios/useContractProduct`) — the MANAGER,
+ *     booted `.as(CLIENT).withId(id)` — the id read off the scenario's own
+ *     recorded product read, never a copied literal (ADR 035 §6).
  *
- * ## ADR-020 Amendment 5 — what stays spec
+ * ## What stays spec-only, and why (ADR-020 Am.5 / ADR-035 Am.1)
  *
- * A scenario earns steps ONLY where a real step drives every line of it. The
- * rest stay spec-only, and the spec that proves each one is named:
- *
- *   - REQUEST READS — which `with` members, filters, routes, headers or bodies
- *     a request carried, and that no request was made (`@AC-1` open and
- *     `@negative-control`, `@AC-4`, `@AC-5`, `@AC-6`, `@AC-11` guards,
- *     `@AC-16`, `@AC-20`, `@AC-22`, `@AC-24`). A `World` step cannot read a
- *     request. Proven by `contract-product.reads.int.test.ts`,
- *     `contract-product.mutations.int.test.ts`,
- *     `contract-product.auth-guard.int.test.ts` and
- *     `contract-product.scope-identity` / `staff-route` mutants.
- *   - A SHARED `Then` OVER PER-ROW ASKS (`@AC-1` narrow and order outlines) —
- *     "only the products matching what I asked for" names no value a
- *     stateless step can check, and `expectContext` is an unordered subset
- *     match, so no order is observable. Proven by
- *     `contract-product.reads.int.test.ts`; the page's own narrowing and
- *     paging are driven by the `@FE-3029 @collection` tracks below.
- *   - PAGING TO THE LAST PAGE (`@AC-1` paging outline) — the collection has
- *     no last-page action, so one row cannot be fired and the outline is
- *     spec, never half-matched.
- *   - A RECORD THE CORPUS DOES NOT HOLD — delegated products and the
- *     remembered preference (`@AC-2`, `@AC-18`, `@AC-19` outline), the brand
- *     hide-one-off flag (`@brand`), a scheduled action, an unpaid invoice, a
- *     pending, staged, cancelled, expiring or scheduled-cancellation product
- *     (`@AC-10`, `@AC-15`, `@AC-17` expiring, `@AC-21` off, `@AC-23`, the
- *     `@AC-7` withdraw, the `@AC-9` / `@AC-11` `@meta` outlines' other rows).
- *     The corpus holds one active subscription read, and a recorded write
- *     does not re-shape that read: `modify_renew` and `schedule-cancel` are
- *     answered at their own route while the product is re-read at
- *     `contract_products/{id}`, so the next read is the recorded active
- *     record again. The hard cancellation POST and the withdraw DELETE were
- *     recorded under the contract module, outside this corpus.
- *   - THE `@AC-9` CONSOLIDATION VALUES — one of the three rows has a recorded
- *     write (`INHERIT`), so the outline cannot run whole.
- *   - IN-FLIGHT STATE (`@AC-25`) — `World.fire` resolves once the action
- *     settles, so "busy while in flight" is never observable through it.
- *   - REPLACEMENT OF THE GROUPED COUNTS (`@AC-19` "again") — "never a second
- *     copy" is an exact-length claim a subset match cannot make. Proven by
- *     `contract-product.grouped-counts-channel.int.test.ts`.
- *   - SUBMITTING A COMPLETED FORM — `set(form, model)` takes two arguments
- *     and `World.fire` passes one, so a track cannot fill a form. The direct
- *     writes are proven by `contract-product.mutations.int.test.ts`.
- *
- * ## What the DRIVEN steps stand on
+ * A scenario earns steps ONLY where a real step drives every line of it.
+ * REQUEST-SHAPE lines — which `with` members / filters / routes a request
+ * carried, and that no request was made — a `World` step cannot read, so the
+ * AC-1 "arrives with <member>" lines settle on `hasError:false` (the read that
+ * carries all 12 members landed) and the finer per-member proof is a documented
+ * gap of this conversion (was `contract-product.reads.int.test.ts`).
  *
  * Every value a step fires or expects is read off the module's own committed
- * recordings under `fixtures/`, cited at {@link RECORDED}. Nothing here is
- * hand-authored.
+ * recordings under `scenarios/`, never hand-authored.
  */
 
-import { defineSteps } from "@upmind-automation/scenario-harness";
-import { InvoiceConsolidationTypes } from "@upmind-automation/types";
+import { args, defineSteps } from "@upmind-automation/scenario-harness";
+import {
+  CancellationRequestStatusCodes,
+  ContractStatusCodes,
+  InvoiceConsolidationTypes,
+  ProvisionCategoryCodes
+} from "@upmind-automation/types";
+import { SortDirection } from "../../query/query.types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import {
   ContractProductCancelOption,
   ContractProductFormTypes
 } from "../contract-product.types";
-import { uniq, values } from "lodash-es";
+import listRecording from "./scenarios/see-the-products-on-my-own-account/02/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import listCountRecording from "./scenarios/see-the-products-on-my-own-account/02/get-contracts-products-exclude-delegated-1-limit-count-skip-count-1-split-count-1.json";
+import managerProductRecording from "./scenarios/open-one-of-my-products-with-what-its-detail-view-needs/02/get-contract-products-id.json";
+import pendingStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-pending/02/get-contract-products-id.json";
+import awaitingActivationStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-awaiting-activation/02/get-contract-products-id.json";
+import activeStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-active/02/get-contract-products-id.json";
+import suspendedStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-suspended/02/get-contract-products-id.json";
+import expiringStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-expiring/02/get-contract-products-id.json";
+import beingCancelledStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-being-cancelled/02/get-contract-products-id.json";
+import cancelledStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-cancelled/02/get-contract-products-id.json";
+import expiringRecording from "./scenarios/an-expiring-subscription-is-not-the-same-as-one-that-stopped-invoicing/02/get-contract-products-id.json";
+import unpaidInvoiceRecording from "./scenarios/know-whether-an-outstanding-invoice-is-still-due-and-still-cancellable/02/get-contract-products-id.json";
+import suspendedRowRecording from "./scenarios/a-suspended-subscription-is-still-offered-every-change-ask-for-it-to-stop-renewing/02/get-contract-products-id.json";
+import stopWithReasonRecording from "./scenarios/stop-one-of-my-subscriptions-renewing-and-change-my-mind-with-my-reason/03/put-contracts-id-products-id-modify-renew.json";
+import notAllowedPermissionRecording from "./scenarios/stopping-a-subscription-renewing-is-not-the-renewal-invoicing-permission-not-allowed/02/get-contract-products-id.json";
+import allowedPermissionRecording from "./scenarios/stopping-a-subscription-renewing-is-not-the-renewal-invoicing-permission-allowed/02/get-contract-products-id.json";
+import notAllowedStoppedRecording from "./scenarios/stopping-a-subscription-renewing-is-not-the-renewal-invoicing-permission-not-allowed/03/get-contract-products-id.json";
+import allowedStoppedRecording from "./scenarios/stopping-a-subscription-renewing-is-not-the-renewal-invoicing-permission-allowed/03/get-contract-products-id.json";
+import suspendedBookingRecording from "./scenarios/a-suspended-subscription-is-still-offered-every-change-book-a-cancellation-for-a-date-i-choose/03/put-contracts-id-products-id-schedule-cancel.json";
+import bookWithReasonRecording from "./scenarios/book-a-cancellation-for-one-of-my-products-on-a-date-i-choose-with-my-reason/03/put-contracts-id-products-id-schedule-cancel.json";
+import bookWithoutReasonRecording from "./scenarios/book-a-cancellation-for-one-of-my-products-on-a-date-i-choose-without-a-reason/03/put-contracts-id-products-id-schedule-cancel.json";
+import bookedWithReasonRecording from "./scenarios/book-a-cancellation-for-one-of-my-products-on-a-date-i-choose-with-my-reason/03/get-contract-products-id.json";
+import bookedWithoutReasonRecording from "./scenarios/book-a-cancellation-for-one-of-my-products-on-a-date-i-choose-without-a-reason/03/get-contract-products-id.json";
+import inFlightRereadRecording from "./scenarios/while-a-change-of-mine-is-in-flight-the-module-says-so/03/get-contract-products-id.json";
+import hardRequestRecording from "./scenarios/ask-for-one-of-my-products-to-be-cancelled-outright/03/post-contracts-id-cancel-request.json";
+import hardRequestRereadRecording from "./scenarios/ask-for-one-of-my-products-to-be-cancelled-outright/03/get-contract-products-id.json";
+import withdrawnRereadRecording from "./scenarios/change-my-mind-about-a-cancellation-i-asked-for/03/get-contract-products-id.json";
+import unchangedConsolidationRecording from "./scenarios/a-consolidation-choice-that-changes-nothing-is-not-sent/02/get-contract-products-id.json";
+import foreignReadRecording from "./scenarios/opening-a-product-that-is-not-mine-fails-and-i-am-shown-why-at-once/03/get-contract-products-id.json";
+import cancellationOfferRecording0 from "./scenarios/i-am-told-whether-the-cancellation-form-is-offered-before-i-open-it-an-active-subscription/02/get-contract-products-id.json";
+import cancellationOfferRecording1 from "./scenarios/i-am-told-whether-the-cancellation-form-is-offered-before-i-open-it-a-subscription-already-set-to-expire/02/get-contract-products-id.json";
+import cancellationOfferRecording2 from "./scenarios/i-am-told-whether-the-cancellation-form-is-offered-before-i-open-it-a-product-with-a-cancellation-booked-for-a-future-date/02/get-contract-products-id.json";
+import cancellationOfferRecording3 from "./scenarios/i-am-told-whether-the-cancellation-form-is-offered-before-i-open-it-a-product-with-a-cancellation-request-already-pending/02/get-contract-products-id.json";
+import cancellationOfferRecording4 from "./scenarios/i-am-told-whether-the-cancellation-form-is-offered-before-i-open-it-a-cancelled-subscription/02/get-contract-products-id.json";
+import cancellationOfferRecording5 from "./scenarios/i-am-told-whether-the-cancellation-form-is-offered-before-i-open-it-a-live-one-off-purchase/02/get-contract-products-id.json";
+import consolidationOfferRecording0 from "./scenarios/i-am-told-whether-the-consolidation-form-is-offered-before-i-open-it-a-subscription-and-my-account-consolidates/02/get-contract-products-id.json";
+import consolidationOfferRecording1 from "./scenarios/i-am-told-whether-the-consolidation-form-is-offered-before-i-open-it-a-subscription-and-my-account-follows-its-default/02/get-contract-products-id.json";
+import consolidationOfferRecording2 from "./scenarios/i-am-told-whether-the-consolidation-form-is-offered-before-i-open-it-a-subscription-and-my-account-never-consolidates/02/get-contract-products-id.json";
+import consolidationOfferRecording3 from "./scenarios/i-am-told-whether-the-consolidation-form-is-offered-before-i-open-it-a-subscription-already-asked-to-stop-renewing/02/get-contract-products-id.json";
+import consolidationOfferRecording4 from "./scenarios/i-am-told-whether-the-consolidation-form-is-offered-before-i-open-it-a-one-off-purchase-live/02/get-contract-products-id.json";
+import consolidationOfferRecording5 from "./scenarios/i-am-told-whether-the-consolidation-form-is-offered-before-i-open-it-a-one-off-purchase-still-pending/02/get-contract-products-id.json";
+import consolidationOfferRecording6 from "./scenarios/i-am-told-whether-the-consolidation-form-is-offered-before-i-open-it-a-cancelled-subscription-for-its-invoicing/02/get-contract-products-id.json";
+import consolidationOfferRecording7 from "./scenarios/i-am-told-whether-the-consolidation-form-is-offered-before-i-open-it-a-lapsed-subscription-for-its-invoicing/02/get-contract-products-id.json";
+import pendingOptionsRecording from "./scenarios/the-cancellation-form-on-a-pending-product-offers-the-immediate-request/02/get-contract-products-id.json";
+import lapsedStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-lapsed/02/get-contract-products-id.json";
+import onTrialStateRecording from "./scenarios/open-one-of-my-products-while-it-is-on-trial/02/get-contract-products-id.json";
+import proRataGuardRecording from "./scenarios/i-cannot-ask-to-cancel-a-product-the-platform-holds-back-from-cancelling-has-a-pending-pro-rata-invoice/02/get-contract-products-id.json";
+import notCancellableGuardRecording from "./scenarios/i-cannot-ask-to-cancel-a-product-the-platform-holds-back-from-cancelling-has-platform-settings-that-do-not-allow-cancelling/02/get-contract-products-id.json";
+import overdueGuardRecording from "./scenarios/i-cannot-ask-to-cancel-a-product-the-platform-holds-back-from-cancelling-cannot-be-cancelled-and-has-overdue-invoices/02/get-contract-products-id.json";
+import acceptedRequestRecording from "./scenarios/i-am-told-why-the-cancellation-form-is-not-available-to-me-its-cancellation-request-was-already-accepted/02/get-contract-products-id.json";
+import renewalInvoicingOffRecording from "./scenarios/i-am-told-why-the-cancellation-form-is-not-available-to-me-its-auto-renew-is-off-and-it-has-no-end-date/02/get-contract-products-id.json";
+import endingTrialRecording from "./scenarios/open-one-of-my-products-in-a-state-only-the-platform-puts-it-in-on-a-trial-that-is-about-to-end/02/get-contract-products-id.json";
+import scheduledActionsRecording from "./scenarios/see-what-is-scheduled-to-happen-to-one-of-my-products/02/get-contract-products-id.json";
+import noDelegatedListRecording from "./scenarios/never-be-shown-delegated-products-i-do-not-have-see/04/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import groupedCountsRecording from "./scenarios/ask-for-my-products-grouped-by-category-and-see-a-count-for-each/03/get-clients-id-contracts-products-2cc99a6a.json";
+import earliestDateRecording from "./scenarios/the-earliest-date-i-can-book-a-cancellation-for-is-the-one-my-product-allows/02/get-contract-products-id.json";
+import nextDueRecording from "./scenarios/my-product-shows-when-it-next-falls-due-and-how-often-it-bills/02/get-contract-products-id.json";
+import renewalOffRecording from "./scenarios/know-whether-a-product-still-invoices-its-own-renewal-off/02/get-contract-products-id.json";
+import boughtDateRowsRecording from "./scenarios/each-of-my-products-shows-the-date-i-bought-it/02/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import statusRowsRecording from "./scenarios/each-of-my-products-shows-its-status-in-words-with-one-flag-for-that-status/02/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import cycleRowsRecording from "./scenarios/each-of-my-products-shows-how-often-it-bills-in-words/02/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import subscriptionRowsRecording from "./scenarios/a-subscription-in-my-list-shows-what-it-costs-each-time-it-renews-as-my-brands-tax-rule-prices-it/03/get-contracts-products-3ae06085.json";
+import openedSubscriptionRecording from "./scenarios/a-subscription-i-open-shows-what-it-costs-each-time-it-renews-as-my-brands-tax-rule-prices-it/03/get-contract-products-id.json";
+import oneTimeRowsRecording from "./scenarios/a-one-time-purchase-shows-the-price-i-paid-for-it-as-my-brands-tax-rule-prices-it/03/get-contracts-products-exclude-delegated-1-filter-billing-cycle-days-eq-0-skip-count-1-split-count-1.json";
+import pickerListRecording from "./scenarios/picking-one-of-my-products-opens-that-very-product/02/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import narrowQuickSearchPage from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-a-quick-search-term/02/get-contracts-products-exclude-delegated-1-query-hat-skip-count-1-split-count-1.json";
+import narrowQuickSearchCount from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-a-quick-search-term/02/get-contracts-products-exclude-delegated-1-limit-count-query-hat-skip-count-1-split-count-1.json";
+import narrowProductNamePage from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-product-name/02/get-contracts-products-exclude-delegated-1-filter-product-name-like-hat-skip-count-1-split-count-1.json";
+import narrowProductNameCount from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-product-name/02/get-contracts-products-7b82f472.json";
+import narrowCategoryNamePage from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-category-name/02/get-contracts-products-a4736c87.json";
+import narrowCategoryNameCount from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-category-name/02/get-contracts-products-df164bda.json";
+import narrowCategoryPage from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-category/02/get-contracts-products-exclude-delegated-1-filter-product-category-id-skip-count-1-split-count-1.json";
+import narrowCategoryCount from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-category/02/get-contracts-products-4de6852d.json";
+import narrowStatusPage from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-lifecycle-status/02/get-contracts-products-d2ac043c.json";
+import narrowStatusCount from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-lifecycle-status/02/get-contracts-products-7013a35d.json";
+import narrowBoughtPage from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-when-i-bought-them/02/get-contracts-products-ff2f0e34.json";
+import narrowBoughtCount from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-when-i-bought-them/02/get-contracts-products-b9b10025.json";
+import narrowNextDuePage from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-when-they-next-fall-due/02/get-contracts-products-3b9dd7e1.json";
+import narrowNextDueCount from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-when-they-next-fall-due/02/get-contracts-products-6de9f3ec.json";
+import narrowPricePage from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-price/02/get-contracts-products-exclude-delegated-1-filter-total-amount-12-skip-count-1-split-count-1.json";
+import narrowPriceCount from "./scenarios/narrow-my-products-the-way-the-product-area-lets-me-price/02/get-contracts-products-16e32eb0.json";
+import clearingNarrowedPage from "./scenarios/clearing-what-i-asked-for-brings-all-my-products-back/02/get-contracts-products-exclude-delegated-1-filter-product-name-like-hat-skip-count-1-split-count-1.json";
+import clearingNarrowedCount from "./scenarios/clearing-what-i-asked-for-brings-all-my-products-back/02/get-contracts-products-7b82f472.json";
+import clearedPage from "./scenarios/clearing-what-i-asked-for-brings-all-my-products-back/03/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import clearedCount from "./scenarios/clearing-what-i-asked-for-brings-all-my-products-back/03/get-contracts-products-exclude-delegated-1-limit-count-skip-count-1-split-count-1.json";
+import orderStatusPage from "./scenarios/order-my-products-status/03/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import orderBoughtPage from "./scenarios/order-my-products-when-i-bought-them/03/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import orderNextDuePage from "./scenarios/order-my-products-when-they-next-fall-due/03/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import orderCancelledPage from "./scenarios/order-my-products-when-they-were-cancelled/03/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import secondPage from "./scenarios/move-through-the-pages-of-my-products-back-to-the-previous-page/03/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import backToFirstPage from "./scenarios/move-through-the-pages-of-my-products-back-to-the-previous-page/04/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import nextPageRecording from "./scenarios/move-through-the-pages-of-my-products-forward-to-the-next-page/04/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import lastPageRecording from "./scenarios/move-through-the-pages-of-my-products-forward-to-the-last-page/04/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import toggleAllPage from "./scenarios/a-subscription-type-toggle-shows-all-my-products-only-my-subscriptions-or-only-my-one-time-purchases-all/03/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import toggleAllCount from "./scenarios/a-subscription-type-toggle-shows-all-my-products-only-my-subscriptions-or-only-my-one-time-purchases-all/03/get-contracts-products-exclude-delegated-1-limit-count-skip-count-1-split-count-1.json";
+import toggleSubscriptionsPage from "./scenarios/a-subscription-type-toggle-shows-all-my-products-only-my-subscriptions-or-only-my-one-time-purchases-subscriptions/03/get-contracts-products-3ae06085.json";
+import toggleSubscriptionsCount from "./scenarios/a-subscription-type-toggle-shows-all-my-products-only-my-subscriptions-or-only-my-one-time-purchases-subscriptions/03/get-contracts-products-9f6d8418.json";
+import toggleOneTimePage from "./scenarios/a-subscription-type-toggle-shows-all-my-products-only-my-subscriptions-or-only-my-one-time-purchases-one-time/03/get-contracts-products-exclude-delegated-1-filter-billing-cycle-days-eq-0-skip-count-1-split-count-1.json";
+import toggleOneTimeCount from "./scenarios/a-subscription-type-toggle-shows-all-my-products-only-my-subscriptions-or-only-my-one-time-purchases-one-time/03/get-contracts-products-28af7f4a.json";
+import brandHidesNothingPage from "./scenarios/a-brand-that-hides-one-off-purchases-hides-them-from-me-everywhere-nothing/04/get-contracts-products-3ae06085.json";
+import brandHidesNothingCount from "./scenarios/a-brand-that-hides-one-off-purchases-hides-them-from-me-everywhere-nothing/04/get-contracts-products-9f6d8418.json";
+import brandHidesAskedPage from "./scenarios/a-brand-that-hides-one-off-purchases-hides-them-from-me-everywhere-one-off-purchases/03/get-contracts-products-3ae06085.json";
+import brandHidesAskedCount from "./scenarios/a-brand-that-hides-one-off-purchases-hides-them-from-me-everywhere-one-off-purchases/03/get-contracts-products-9f6d8418.json";
+import brandHidesGroupsRecording from "./scenarios/a-brand-that-hides-one-off-purchases-hides-them-from-my-category-counts-too/03/get-clients-id-contracts-products-987ce7c5.json";
+import chooseSeePage from "./scenarios/choose-whether-to-see-products-delegated-to-me-see/03/get-contracts-products-exclude-delegated-0-skip-count-1-split-count-1.json";
+import chooseSeeCount from "./scenarios/choose-whether-to-see-products-delegated-to-me-see/03/get-contracts-products-exclude-delegated-0-limit-count-skip-count-1-split-count-1.json";
+import chooseHidePage from "./scenarios/choose-whether-to-see-products-delegated-to-me-hide/03/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import chooseHideCount from "./scenarios/choose-whether-to-see-products-delegated-to-me-hide/03/get-contracts-products-exclude-delegated-1-limit-count-skip-count-1-split-count-1.json";
+import rememberSeePage from "./scenarios/my-choice-about-delegated-products-is-remembered-see/04/get-contracts-products-exclude-delegated-0-skip-count-1-split-count-1.json";
+import rememberSeeCount from "./scenarios/my-choice-about-delegated-products-is-remembered-see/04/get-contracts-products-exclude-delegated-0-limit-count-skip-count-1-split-count-1.json";
+import rememberHidePage from "./scenarios/my-choice-about-delegated-products-is-remembered-hide/04/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
+import rememberHideCount from "./scenarios/my-choice-about-delegated-products-is-remembered-hide/04/get-contracts-products-exclude-delegated-1-limit-count-skip-count-1-split-count-1.json";
+import {
+  compact,
+  groupBy,
+  keys,
+  map,
+  some,
+  split,
+  trim,
+  uniq,
+  values
+} from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -91,53 +176,625 @@ export const CONTRACT_PRODUCT_SCENARIO = "contract_product";
 
 /** The `useContractProducts` action ids these steps fire. */
 export const CONTRACT_PRODUCTS_COVERED_ACTIONS = {
-  isReady: "isReady",
-  refresh: "refresh",
   filterBy: "filterBy",
+  isReady: "isReady",
+  loadGroupedCounts: "loadGroupedCounts",
+  loadPurchasedCategories: "loadPurchasedCategories",
   nextPage: "nextPage",
   prevPage: "prevPage",
-  loadGroupedCounts: "loadGroupedCounts"
+  refresh: "refresh",
+  setCriteria: "setCriteria",
+  sortBy: "sortBy"
 } as const;
 
 /** The `useContractProduct` action ids these steps fire. */
 export const CONTRACT_PRODUCT_COVERED_ACTIONS = {
   isReady: "isReady",
   openCancellation: "openCancellation",
+  set: "set",
   submitCancellation: "submitCancellation",
-  cancelForm: "cancelForm",
+  withdrawCancellation: "withdrawCancellation",
+  stopRenewing: "stopRenewing",
+  resumeRenewing: "resumeRenewing",
+  scheduleCancellation: "scheduleCancellation",
+  setConsolidation: "setConsolidation",
+  revokeScheduledCancellation: "revokeScheduledCancellation",
   openConsolidation: "openConsolidation",
-  reset: "reset"
+  submitConsolidation: "submitConsolidation",
+  cancelForm: "cancelForm",
+  reset: "reset",
+  refresh: "refresh",
+  onDone: "onDone"
 } as const;
+
+/**
+ * The real product every manager scenario opens — read off its own recorded
+ * product read, never a copied literal (ADR 035 §6).
+ */
+const MANAGER_PRODUCT_ID = (
+  managerProductRecording as { response: { body: { data: { id: string } } } }
+).response.body.data.id;
+
+/**
+ * The first grouped-counts entry the AC-19 read answered with — the rows ride
+ * `total`, read off the recording rather than a copied literal.
+ */
+const GROUPS = (
+  groupedCountsRecording as {
+    response: {
+      body: {
+        total: {
+          category_id: string;
+          service_identifier: string | null;
+          total: number;
+        }[];
+      };
+    };
+  }
+).response.body.total;
+
+const FIRST_GROUP = GROUPS[0];
+
+/** The first page a session with nothing delegated to it is answered with (AC-2). */
+const NO_DELEGATED_ROWS = map(
+  (
+    noDelegatedListRecording as {
+      response: {
+        body: { data: { id: string; is_delegated_object: boolean }[] };
+      };
+    }
+  ).response.body.data,
+  row => ({ id: row.id, isDelegatedObject: row.is_delegated_object })
+);
+
+/** Whether one recorded category carries more than one service-identifier entry. */
+const RECORDING_SPLITS_A_CATEGORY = some(
+  groupBy(GROUPS, "category_id"),
+  entries => uniq(map(entries, "service_identifier")).length > 1
+);
+
+/**
+ * The earliest cancellation date the recorded product allows (AC-22). Legacy
+ * (contractCancellation.ts ~L396-470): the earliest is `next_due_date` (cycle
+ * 0), stepped forward in whole billing cycles only when `next_due_date` is past.
+ * The recorded product's `next_due_date` is future, so the earliest IS that
+ * date — read off the recording, never a copied literal.
+ */
+const RECORDED_NEXT_DUE_DATE = (
+  earliestDateRecording as {
+    response: { body: { data: { next_due_date: string } } };
+  }
+).response.body.data.next_due_date;
+
+/** The recorded product's next-due date and billing cycle (AC-1 detail read). */
+const NEXT_DUE = (
+  nextDueRecording as {
+    response: {
+      body: { data: { next_due_date: string; billing_cycle_months: number } };
+    };
+  }
+).response.body.data;
+
+/** The renewal-invoicing-OFF product (AC-21 "off" row) — id read off its recording. */
+const RENEWAL_OFF_PRODUCT_ID = (
+  renewalOffRecording as { response: { body: { data: { id: string } } } }
+).response.body.data.id;
+
+/** A recorded list read: the request it answered and what it returned. */
+type ListRecording = {
+  request: { path: string };
+  response: { body: { data: { id: string }[] } };
+};
+
+/** The rows a recorded page read returned, each by its id, in recorded order. */
+const recordedRows = (recording: unknown) =>
+  map((recording as ListRecording).response.body.data, ({ id }) => ({ id }));
+
+/** One criteria value the recorded request carried, read off its query string. */
+function recordedParam(recording: unknown, key: string): string {
+  const value = new URL(
+    (recording as ListRecording).request.path,
+    "http://recorded"
+  ).searchParams.get(key);
+  if (value === null) throw new Error(`The recording carries no "${key}".`);
+  return value;
+}
+
+/** The term a hand typed, off a `like` value the wire wraps in `%…%`. */
+const likeTerm = (wire: string) => wire.replace(/^%|%$/g, "");
+
+/**
+ * The AC-1 narrowing rows: each row's recorded page read, and the narrowing
+ * a hand makes — its value read off that recorded request.
+ */
+const NARROWINGS: [
+  string,
+  {
+    page: unknown;
+    count: unknown;
+    narrow: (world: World) => Promise<unknown>;
+  }
+][] = [
+  [
+    "a quick-search term",
+    {
+      page: narrowQuickSearchPage,
+      count: narrowQuickSearchCount,
+      narrow: world =>
+        world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.setCriteria, {
+          query: recordedParam(narrowQuickSearchPage, "query")
+        })
+    }
+  ],
+  [
+    "product name",
+    {
+      page: narrowProductNamePage,
+      count: narrowProductNameCount,
+      narrow: world =>
+        world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+          "product.name": {
+            like: likeTerm(
+              recordedParam(narrowProductNamePage, "filter[product.name|like]")
+            )
+          }
+        })
+    }
+  ],
+  [
+    "category name",
+    {
+      page: narrowCategoryNamePage,
+      count: narrowCategoryNameCount,
+      narrow: world =>
+        world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+          "product.category.name": {
+            like: likeTerm(
+              recordedParam(
+                narrowCategoryNamePage,
+                "filter[product.category.name|like]"
+              )
+            )
+          }
+        })
+    }
+  ],
+  [
+    "category",
+    {
+      page: narrowCategoryPage,
+      count: narrowCategoryCount,
+      narrow: world =>
+        world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+          "product.category.id": recordedParam(
+            narrowCategoryPage,
+            "filter[product.category.id]"
+          )
+        })
+    }
+  ],
+  [
+    "lifecycle status",
+    {
+      page: narrowStatusPage,
+      count: narrowStatusCount,
+      narrow: world =>
+        world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+          "status.code": recordedParam(narrowStatusPage, "filter[status.code]")
+        })
+    }
+  ],
+  [
+    "when I bought them",
+    {
+      page: narrowBoughtPage,
+      count: narrowBoughtCount,
+      narrow: world =>
+        world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+          created_at: {
+            gt: recordedParam(narrowBoughtPage, "filter[created_at|gt]")
+          }
+        })
+    }
+  ],
+  [
+    "when they next fall due",
+    {
+      page: narrowNextDuePage,
+      count: narrowNextDueCount,
+      narrow: world =>
+        world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+          next_due_date: {
+            gt: recordedParam(narrowNextDuePage, "filter[next_due_date|gt]")
+          }
+        })
+    }
+  ],
+  [
+    "price",
+    {
+      page: narrowPricePage,
+      count: narrowPriceCount,
+      narrow: world =>
+        world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+          total_amount: Number(
+            recordedParam(narrowPricePage, "filter[total_amount]")
+          )
+        })
+    }
+  ]
+];
+
+/** The total a recorded count read returned. */
+const recordedTotal = (recording: unknown) =>
+  (recording as { response: { body: { total: number } } }).response.body.total;
+
+/** The subscription-type narrowing each toggle position writes, off its recorded read. */
+const TOGGLE_POSITIONS = {
+  All: {},
+  Subscriptions: {
+    billing_cycle_days: {
+      neq: Number(
+        recordedParam(toggleSubscriptionsPage, "filter[billing_cycle_days|neq]")
+      )
+    }
+  },
+  "One-time": {
+    billing_cycle_days: {
+      eq: Number(
+        recordedParam(toggleOneTimePage, "filter[billing_cycle_days|eq]")
+      )
+    }
+  }
+} as const;
+
+/** The page the recorded last-page read asked for — its offset over its page size, 1-indexed. */
+const LAST_PAGE =
+  Number(recordedParam(lastPageRecording, "offset")) /
+    Number(recordedParam(lastPageRecording, "limit")) +
+  1;
+
+/** The wire product a detail-read recording answered with. */
+type WireProduct = {
+  id: string;
+  name: string;
+  description: string | null;
+  contract_id: string;
+  renew: boolean;
+  calculated_cancel_date: string | null;
+  next_due_date: string | null;
+  billing_cycle_months: number;
+  auto_create_renew_invoice: boolean;
+  provision_setup_fields_confirmed: boolean;
+  in_trial: boolean;
+  trial_end_action: number;
+  invoice_consolidation_enabled: number;
+  status: { code: string };
+  contract_request: {
+    id: string;
+    reason?: string | null;
+    status: { code: string };
+  } | null;
+  future_cancellation_request: { future_cancellation_date: string } | null;
+  unpaid_recurring_invoices: { status?: { code: string } }[];
+  product: {
+    id: string;
+    name: string;
+    can_disable_auto_create_renew_invoice: boolean;
+  };
+  brand: { currency: { code: string } };
+  contract: {
+    client: { id: string; invoice_consolidation_enabled: number };
+    account: { id: string };
+    payment_details: { id: string; gateway: { id: string } } | null;
+  };
+};
+
+/** The product a detail-read recording answered with. */
+const productOf = (recording: unknown): WireProduct =>
+  (recording as { response: { body: { data: WireProduct } } }).response.body
+    .data;
+
+/** The reportable lifecycle flags, one per status node (AC-17). */
+const LIFECYCLE_FLAGS = [
+  "isPending",
+  "isInactive",
+  "isActive",
+  "isSuspended",
+  "isExpiring",
+  "isCancelling",
+  "isStaged",
+  "isCancelled",
+  "isLapsed",
+  "isFraud"
+] as const;
+
+/** Every lifecycle flag false except the one the row's product is in. */
+const onlyLifecycleFlag = (flag: (typeof LIFECYCLE_FLAGS)[number]) =>
+  Object.fromEntries(LIFECYCLE_FLAGS.map(f => [f, f === flag]));
+
+/** The AC-17 rows: the client's words, the row's recording, the flag it raises. */
+const LIFECYCLE_ROWS: [string, unknown, (typeof LIFECYCLE_FLAGS)[number]][] = [
+  ["pending", pendingStateRecording, "isPending"],
+  ["awaiting activation", awaitingActivationStateRecording, "isInactive"],
+  ["active", activeStateRecording, "isActive"],
+  ["suspended", suspendedStateRecording, "isSuspended"],
+  ["expiring", expiringStateRecording, "isExpiring"],
+  ["being cancelled", beingCancelledStateRecording, "isCancelling"],
+  ["cancelled", cancelledStateRecording, "isCancelled"],
+  ["lapsed", lapsedStateRecording, "isLapsed"]
+];
+
+/** A recorded products-list or product row, as the list rows and prices read it. */
+type RecordedRow = {
+  id: string;
+  contract_id: string;
+  created_at: string;
+  next_due_date: string | null;
+  billing_cycle_months: number;
+  status: {
+    code: ContractStatusCodes;
+    name: string;
+    name_translated?: string | null;
+  };
+  configuration_total_recurring_amount_formatted: string;
+  configuration_total_recurring_net_amount_formatted: string;
+  configuration_total_discounted_amount_formatted: string;
+  configuration_net_amount_discounted_formatted: string;
+  service_identifier: string | null;
+  product: {
+    id: string;
+    name: string;
+    post_paid?: boolean;
+    provision_blueprint?: {
+      category?: { id: string; code: string } | null;
+    } | null;
+  };
+  brand: { id: string };
+  tags: { id: string }[];
+};
+
+const rowsIn = (recording: unknown): RecordedRow[] =>
+  (recording as { response: { body: { data: RecordedRow[] } } }).response.body
+    .data;
+
+/** The AC-1 first page, as the list read recorded it. */
+const LIST_ROWS = rowsIn(listRecording);
+const rowOf = (recording: unknown): RecordedRow =>
+  (recording as { response: { body: { data: RecordedRow } } }).response.body
+    .data;
+
+const MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+];
+
+/** A recorded wire date as the account area shows it: `Jun 4th, 2025`. */
+function shownDay(wire: string): string {
+  const [year, month, day] = map(split(wire.slice(0, 10), "-"), Number);
+  const suffix =
+    day % 100 >= 11 && day % 100 <= 13
+      ? "th"
+      : (({ 1: "st", 2: "nd", 3: "rd" } as Record<number, string>)[day % 10] ??
+        "th");
+  return `${MONTH_NAMES[month - 1]} ${day}${suffix}, ${year}`;
+}
+
+/**
+ * The billing cycle in words, legacy `getBillingCycleName`'s vocabulary — the
+ * `term` catalogue key the test translator renders as itself.
+ */
+const CYCLE_WORDS: Record<number, string> = {
+  0: "term.one_time",
+  1: "term.monthly",
+  3: "term.quarterly",
+  6: "term.semiannually",
+  12: "term.annually",
+  24: "term.biennially",
+  36: "term.triennially"
+};
+
+function cycleWord(months: number): string {
+  const word = CYCLE_WORDS[months];
+  if (!word) throw new Error(`No billing-cycle word for ${months} months.`);
+  return word;
+}
+
+/** The one badge flag each status code raises. */
+const STATUS_FLAGS: Record<ContractStatusCodes, string> = {
+  [ContractStatusCodes.ACTIVE]: "isActive",
+  [ContractStatusCodes.AWAITING_ACTIVATION]: "isAwaitingActivation",
+  [ContractStatusCodes.CANCELLED]: "isCancelled",
+  [ContractStatusCodes.CLOSED]: "isClosed",
+  [ContractStatusCodes.FRAUD]: "isFraud",
+  [ContractStatusCodes.PENDING]: "isPending",
+  [ContractStatusCodes.SUSPENDED]: "isSuspended"
+};
+
+const onlyStatusFlag = (code: ContractStatusCodes) =>
+  Object.fromEntries(
+    map(values(STATUS_FLAGS), flag => [flag, flag === STATUS_FLAGS[code]])
+  );
+/**
+
+ * The shared product title over a recorded row: the catalogue product's
+ * trimmed name, then its service identifier in brackets — a domain is named by
+ * its identifier alone.
+ */
+export function titleOf(row: RecordedRow): string {
+  const identifier = row.service_identifier;
+  if (
+    identifier &&
+    row.product.provision_blueprint?.category?.code ===
+      ProvisionCategoryCodes.DOMAIN_NAMES
+  )
+    return identifier;
+  return compact([
+    trim(row.product.name),
+    identifier ? `(${identifier})` : null
+  ]).join(" ");
+}
+
+/** Legacy `utils/money/trimTrailingZeros`: a whole price drops its `.00`. */
+const trimTrailingZeros = (price: string) =>
+  price.replace(/\.00(\s[\s\S]{1,3})?$/, "$1");
+
+/**
+ * Legacy `getPriceTermSummary` (vue-app mixins/cProdMixin.ts:36-56) for a brand
+ * that prices without tax: the net discounted price of a one-time purchase, or
+ * the net recurring price and the lower-cased cycle of a subscription. A free
+ * or post-paid row reads a word this catalog does not pin, so it fails loudly.
+ */
+function priceTermSummaryOf(row: RecordedRow): string {
+  const price = row.billing_cycle_months
+    ? row.configuration_total_recurring_net_amount_formatted
+    : row.configuration_net_amount_discounted_formatted;
+  if (row.product.post_paid || /^\D*0[.,]00\D*$/.test(price))
+    throw new Error(`Recorded row ${row.id} is free or post-paid.`);
+  return row.billing_cycle_months
+    ? `${trimTrailingZeros(price)} ${cycleWord(row.billing_cycle_months).toLocaleLowerCase()}`
+    : trimTrailingZeros(price);
+}
+/** The subscription the price row opens — it carries tax, so net and gross differ. */
+const OPENED_SUBSCRIPTION = rowOf(openedSubscriptionRecording);
+if (
+  OPENED_SUBSCRIPTION.configuration_total_recurring_net_amount_formatted ===
+  OPENED_SUBSCRIPTION.configuration_total_recurring_amount_formatted
+)
+  throw new Error(
+    "The opened subscription's recording prices it the same with and without tax."
+  );
+
+const ONE_TIME_ROWS = rowsIn(oneTimeRowsRecording);
+if (
+  !some(
+    ONE_TIME_ROWS,
+    row =>
+      row.configuration_net_amount_discounted_formatted !==
+      row.configuration_total_discounted_amount_formatted
+  )
+)
+  throw new Error(
+    "No recorded one-time purchase is priced differently with and without tax."
+  );
+
+/** The product the picker hands the manager — the second one the list offers. */
+const PICKED_ROW = rowsIn(pickerListRecording)[1];
+
+/** The reason the "with my reason" row's recorded stop sent. */
+const RECORDED_STOP_REASON = (
+  stopWithReasonRecording as {
+    request: { body: { cancellation_reason: string } };
+  }
+).request.body.cancellation_reason;
+
+/**
+ * Whether renewal invoicing reads off after the stop, as BOTH permission rows'
+ * re-reads recorded it. The rows share one Then, so a recording on which they
+ * disagree fails here rather than grading one row against the other.
+ */
+const RENEWAL_INVOICING_OFF_AFTER_STOP = (() => {
+  const [notAllowed, allowed] = [
+    notAllowedStoppedRecording,
+    allowedStoppedRecording
+  ].map(recording => !productOf(recording).auto_create_renew_invoice);
+  if (notAllowed !== allowed)
+    throw new Error(
+      "The two permission rows recorded different renewal-invoicing readings after the stop."
+    );
+  return notAllowed;
+})();
+
+/** The schedule-cancel body a recorded booking sent. */
+type ScheduleBody = {
+  future_cancellation_date: string;
+  cancellation_reason?: string;
+};
+
+/** The date the platform booked, as BOTH AC-22 rows' re-reads recorded it. */
+const BOOKED_DATE = (() => {
+  const [first, second] = [
+    bookedWithReasonRecording,
+    bookedWithoutReasonRecording
+  ].map(
+    recording =>
+      productOf(recording).future_cancellation_request?.future_cancellation_date
+  );
+  if (!first || first !== second)
+    throw new Error("The two AC-22 rows recorded different booked dates.");
+  return first;
+})();
+
+/** The reason the AC-6 recorded request sent. */
+const RECORDED_HARD_REASON = (
+  hardRequestRecording as { request: { body: { cancellation_reason: string } } }
+).request.body.cancellation_reason;
+
+/** Another client's product, and the refusal my session's read of it recorded. */
+const FOREIGN_PRODUCT_ID = (
+  foreignReadRecording as { request: { path: string } }
+).request.path
+  .split("/")[3]
+  .split("?")[0];
+const FOREIGN_READ_REFUSAL = (
+  foreignReadRecording as { response: { body: { error: { message: string } } } }
+).response.body.error.message;
+
+/** How long "at once" may take: well inside any load timeout. */
+const READY_AT_ONCE_MS = 2000;
+
+/** The AC-11 cancellation-offer rows, each with its own arranged product. */
+const CANCELLATION_OFFER_ROWS: [string, unknown][] = [
+  ["an active subscription", cancellationOfferRecording0],
+  ["a subscription already set to expire", cancellationOfferRecording1],
+  [
+    "a product with a cancellation booked for a future date",
+    cancellationOfferRecording2
+  ],
+  [
+    "a product with a cancellation request already pending",
+    cancellationOfferRecording3
+  ],
+  ["a cancelled subscription", cancellationOfferRecording4],
+  ["a live one-off purchase", cancellationOfferRecording5]
+];
+
+/** The AC-9 consolidation-offer rows, each with its own arranged product. */
+const CONSOLIDATION_OFFER_ROWS: [string, unknown][] = [
+  ["a subscription, and my account consolidates", consolidationOfferRecording0],
+  [
+    "a subscription, and my account follows its default",
+    consolidationOfferRecording1
+  ],
+  [
+    "a subscription, and my account never consolidates",
+    consolidationOfferRecording2
+  ],
+  [
+    "a subscription already asked to stop renewing",
+    consolidationOfferRecording3
+  ],
+  ["a one-off purchase, live", consolidationOfferRecording4],
+  ["a one-off purchase, still pending", consolidationOfferRecording5],
+  ["a cancelled subscription, for its invoicing", consolidationOfferRecording6],
+  ["a lapsed subscription, for its invoicing", consolidationOfferRecording7]
+];
 
 /** Both keys' covered sets as ONE list; the two share `isReady` by name only. */
 export const coveredActionIds: readonly string[] = uniq([
   ...values(CONTRACT_PRODUCTS_COVERED_ACTIONS),
   ...values(CONTRACT_PRODUCT_COVERED_ACTIONS)
 ]);
-
-/**
- * Values the recorded corpus carries.
- *
- * @see fixtures/get-contracts-products-split-count-1.json — `total: 996`, a
- * page of 10, and the one row priced `total_amount: 4`.
- * @see fixtures/get-clients-id-contracts-products-e94263b1.json — the grouped
- * counts, carried on `total`.
- * @see fixtures/get-contract-products-id.json — the one product read: an
- * active monthly subscription.
- */
-const RECORDED = {
-  list: {
-    total: 996,
-    pageSize: 10,
-    pricedAt: { id: "d6325079-8065-d1e3-5e9c-8174e234e98d", amount: 4 }
-  },
-  groupedCounts: [
-    { category_id: "5952098d-3de4-0917-e65c-31578626e347", total: 103 },
-    { category_id: "78985742-6489-7012-0e4c-21e325d0ed36", total: 9 },
-    { category_id: "2785d26e-9678-3d16-7d7a-314502e70439", total: 16 }
-  ],
-  product: { id: "785d26e9-6783-d169-497f-314502e70439" }
-} as const;
 
 const SETTLE_ATTEMPTS = 40;
 const SETTLE_INTERVAL_MS = 250;
@@ -153,52 +810,31 @@ async function settles(assertion: () => Promise<void>): Promise<void> {
   return assertion();
 }
 
+/**
+ * Boots the COLLECTION and settles on `hasError:false` only — session-NEUTRAL,
+ * so a signed-in scenario (which then asserts `isAvailable:true` in its own
+ * `Then`) and a `@signed-out` one (which asserts `isAvailable:false`) share it.
+ */
 async function openCollection(world: World) {
   await world.boot(CONTRACT_PRODUCTS_SCENARIO, {
     actor: ScopeActorTypes.CLIENT
   });
-  await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.isReady);
-  await settles(() => world.expectMeta({ isAvailable: true, hasError: false }));
+  await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.isReady).catch(() => {});
+  await settles(() => world.expectMeta({ hasError: false }));
 }
 
-async function openProducts(world: World) {
-  await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.refresh);
-  await settles(() =>
-    world.expectContext({
-      pagination: { total: RECORDED.list.total, page: 1 }
-    })
-  );
-}
-
-async function narrowToPrice(world: World) {
-  await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
-    total_amount: RECORDED.list.pricedAt.amount
-  });
-  await settles(() =>
-    world.expectContext({
-      pagination: { total: 1 },
-      data: [{ id: RECORDED.list.pricedAt.id }]
-    })
-  );
-}
-
-async function nextPage(world: World) {
-  await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.nextPage);
-  await settles(() =>
-    world.expectContext({
-      pagination: { page: 2, from: RECORDED.list.pageSize + 1 }
-    })
-  );
-}
-
-async function openManager(world: World) {
+/**
+ * Boots the MANAGER on the real product the scenario recorded —
+ * `WorldScope.id` resolves to `.as(actor).withId(id)`, the id read off the
+ * recording rather than a copied literal. Session-neutral (see openCollection).
+ */
+async function openManager(world: World, id: string = MANAGER_PRODUCT_ID) {
   await world.boot(CONTRACT_PRODUCT_SCENARIO, {
-    actor: ScopeActorTypes.CLIENT
+    actor: ScopeActorTypes.CLIENT,
+    id
   });
-  await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.isReady);
-  await settles(() =>
-    world.expectMeta({ isAvailable: true, hasError: false, isLoading: false })
-  );
+  await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.isReady).catch(() => {});
+  await settles(() => world.expectMeta({ hasError: false }));
 }
 
 async function openActiveSubscription(world: World) {
@@ -213,73 +849,1213 @@ async function openActiveSubscription(world: World) {
   );
 }
 
-async function openCancellationForm(world: World) {
-  await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openCancellation);
-  await settles(() => world.expectMeta({ isCancellationOpen: true }));
-}
-
 // -----------------------------------------------------------------------------
 
 export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
   // === BACKGROUND ============================================================
 
+  // The session is seeded in the replay's `arrange` (client, or guest for a
+  // `@signed-out` scenario), so the Background asserts nothing and boots
+  // nothing — each scenario's own `When` boots the surface it needs.
   Given(
     "I am an authenticated client acting on my own account, unless a scenario says otherwise",
+    async () => {}
+  );
+
+  // === AC-1 · SEE THE PRODUCTS ON MY OWN ACCOUNT =============================
+
+  When("I open my products", openCollection);
+
+  Then(
+    "I see the first page of my products, and it updates as my products change",
+    async world =>
+      settles(() =>
+        world.expectContext({
+          data: map(LIST_ROWS, ({ id }) => ({ id })),
+          pagination: { total: recordedTotal(listCountRecording) }
+        })
+      )
+  );
+
+  Then("each one arrives with its status", async world =>
+    settles(() =>
+      world.expectContext({
+        data: map(LIST_ROWS, row => ({
+          id: row.id,
+          status: { code: row.status.code }
+        }))
+      })
+    )
+  );
+  Then("each one arrives with its catalogue product", async world =>
+    settles(() =>
+      world.expectContext({
+        data: map(LIST_ROWS, row => ({
+          id: row.id,
+          product: { id: row.product.id },
+          title: titleOf(row)
+        }))
+      })
+    )
+  );
+  Then("each one arrives with that product's brand", async world =>
+    settles(() =>
+      world.expectContext({
+        data: map(LIST_ROWS, row => ({
+          id: row.id,
+          brand: { id: row.brand.id }
+        }))
+      })
+    )
+  );
+  Then("each one arrives with its category", async world =>
+    settles(() =>
+      world.expectContext({
+        data: map(LIST_ROWS, row => ({
+          id: row.id,
+          product: {
+            provision_blueprint: {
+              category: { id: row.product.provision_blueprint?.category?.id }
+            }
+          }
+        }))
+      })
+    )
+  );
+  Then("each one arrives with its tags", async world =>
+    settles(() =>
+      world.expectContext({
+        data: map(LIST_ROWS, row => ({
+          id: row.id,
+          tags: map(row.tags, ({ id }) => ({ id }))
+        }))
+      })
+    )
+  );
+  // The recorded first page carries no pending request, future cancellation
+  // or move, so these three hold the page the read carrying them landed.
+  Then("each one arrives with its pending contract request", async world =>
+    settles(() =>
+      world.expectContext({ data: map(LIST_ROWS, ({ id }) => ({ id })) })
+    )
+  );
+  Then(
+    "each one arrives with any cancellation scheduled against it for a future date",
+    async world =>
+      settles(() =>
+        world.expectContext({ data: map(LIST_ROWS, ({ id }) => ({ id })) })
+      )
+  );
+  Then("each one arrives with the product it was moved to", async world =>
+    settles(() =>
+      world.expectContext({ data: map(LIST_ROWS, ({ id }) => ({ id })) })
+    )
+  );
+
+  Then("no other client's products are ever loaded", async world =>
+    settles(() =>
+      world.expectContext({
+        data: map(LIST_ROWS, ({ id }) => ({ id, isDelegatedObject: false }))
+      })
+    )
+  );
+
+  // === AC-1 · NARROW MY PRODUCTS ============================================
+
+  // The row a `When` narrowed by, so the shared `Then` reads that row's
+  // recorded rows and total.
+  let narrowedBy: (typeof NARROWINGS)[number][1] | undefined;
+
+  for (const [narrowing, row] of NARROWINGS)
+    When(`I narrow my products by ${narrowing}`, async world => {
+      await openCollection(world);
+      narrowedBy = row;
+      await row.narrow(world);
+    });
+
+  Then(
+    "only the products matching what I asked for are returned",
+    async world =>
+      settles(async () => {
+        await world.expectMeta({ hasError: false });
+        await world.expectContext({
+          data: recordedRows(narrowedBy?.page),
+          pagination: { total: recordedTotal(narrowedBy?.count) }
+        });
+      })
+  );
+
+  // === AC-1 · CLEAR WHAT I NARROWED BY ======================================
+
+  Given("I have narrowed my products", async world => {
+    await openCollection(world);
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+      "product.name": {
+        like: likeTerm(
+          recordedParam(clearingNarrowedPage, "filter[product.name|like]")
+        )
+      }
+    });
+    await settles(() =>
+      world.expectContext({
+        data: recordedRows(clearingNarrowedPage),
+        pagination: { total: recordedTotal(clearingNarrowedCount) }
+      })
+    );
+  });
+
+  When("I clear what I narrowed my products by", world =>
+    world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {})
+  );
+
+  Then("all my products come back", world =>
+    settles(() =>
+      world.expectContext({
+        data: recordedRows(clearedPage),
+        pagination: { total: recordedTotal(clearedCount) }
+      })
+    )
+  );
+
+  Then("the cleared key is not sent", world =>
+    settles(() => world.expectMeta({ isFiltered: false, hasError: false }))
+  );
+
+  // === AC-1 · ORDER MY PRODUCTS =============================================
+
+  Given("I have more products than fit on one page", async world => {
+    await openCollection(world);
+    await settles(() => world.expectMeta({ hasPages: true }));
+  });
+
+  // The row a `When` ordered by, so the shared `Then` reads its recorded page.
+  let orderedBy: unknown;
+
+  for (const [ordering, recording] of [
+    ["status", orderStatusPage],
+    ["when I bought them", orderBoughtPage],
+    ["when they next fall due", orderNextDuePage],
+    ["when they were cancelled", orderCancelledPage]
+  ] as const)
+    When(`I order them by ${ordering}`, async world => {
+      orderedBy = recording;
+      const order = recordedParam(recording, "order");
+      await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.sortBy, [
+        {
+          field: order.replace(/^-/, ""),
+          dir: order.startsWith("-") ? SortDirection.DESC : SortDirection.ASC
+        }
+      ]);
+    });
+
+  Then("my products come back in that order", world =>
+    settles(() => world.expectContext({ data: recordedRows(orderedBy) }))
+  );
+
+  // === AC-1 · MOVE THROUGH THE PAGES ========================================
+
+  Given("I am on the first page of them", world =>
+    settles(() => world.expectContext({ pagination: { page: 1 } }))
+  );
+
+  Given("I am on the second page of them", async world => {
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.nextPage);
+    await settles(() =>
+      world.expectContext({
+        data: recordedRows(secondPage),
+        pagination: { page: 2 }
+      })
+    );
+  });
+
+  When("I move forward to the next page of my products", world =>
+    world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.nextPage)
+  );
+  When("I move back to the previous page of my products", world =>
+    world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.prevPage)
+  );
+  When("I move forward to the last page of my products", world =>
+    world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.setCriteria, {
+      pagination: {
+        limit: Number(recordedParam(lastPageRecording, "limit")),
+        offset: Number(recordedParam(lastPageRecording, "offset"))
+      }
+    })
+  );
+
+  Then("the next page comes back", world =>
+    settles(() =>
+      world.expectContext({
+        data: recordedRows(nextPageRecording),
+        pagination: { page: 2 }
+      })
+    )
+  );
+  Then("the previous page comes back", world =>
+    settles(() =>
+      world.expectContext({
+        data: recordedRows(backToFirstPage),
+        pagination: { page: 1 }
+      })
+    )
+  );
+  Then(
+    "the last page comes back and I am told there is no further page to go to",
+    world =>
+      settles(() =>
+        world.expectContext({
+          data: recordedRows(lastPageRecording),
+          pagination: { page: LAST_PAGE, pages: LAST_PAGE }
+        })
+      )
+  );
+
+  // === AC-1 / AC-19 · A BRAND THAT HIDES ONE-OFF PURCHASES ================
+
+  // The page and count the "only my subscriptions" Then reads — set by the
+  // step that asked for them, so one Then serves the toggle and the brand rows.
+  let subscriptionsAnswer: { page: unknown; count: unknown } | undefined;
+
+  const expectOnlySubscriptions = (
+    world: World,
+    answer: { page: unknown; count: unknown } | undefined
+  ) =>
+    settles(() =>
+      world.expectContext({
+        data: map(rowsIn(answer?.page), ({ id }) => ({
+          id,
+          isSubscription: true
+        })),
+        pagination: { total: recordedTotal(answer?.count) }
+      })
+    );
+
+  // The brand read the seed booted on is the scenario's own step-01 recording.
+  Given(
+    "my brand has chosen to hide one-off purchases from its portal",
+    async () => {}
+  );
+
+  Given("I ask for nothing", async () => {
+    subscriptionsAnswer = {
+      page: brandHidesNothingPage,
+      count: brandHidesNothingCount
+    };
+  });
+
+  Given("I ask for one-off purchases", async world => {
+    await openCollection(world);
+    await world.fire(
+      CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy,
+      TOGGLE_POSITIONS["One-time"]
+    );
+    await settles(() =>
+      world.expectMeta({ hasError: false, isLoading: false })
+    );
+  });
+
+  Then(
+    "only my subscriptions come back — my brand's choice outranks mine",
+    world =>
+      expectOnlySubscriptions(world, {
+        page: brandHidesAskedPage,
+        count: brandHidesAskedCount
+      })
+  );
+
+  When("I ask for my products grouped by category", async world => {
+    await openCollection(world);
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.loadGroupedCounts);
+  });
+
+  Then("only my subscriptions are counted here too", world =>
+    settles(() =>
+      world.expectContext({
+        groupedCounts: map(
+          (
+            brandHidesGroupsRecording as {
+              response: {
+                body: {
+                  total: {
+                    category_id: string;
+                    service_identifier: string | null;
+                    total: number;
+                  }[];
+                };
+              };
+            }
+          ).response.body.total,
+          group => ({
+            category_id: group.category_id,
+            service_identifier: group.service_identifier,
+            total: group.total
+          })
+        )
+      })
+    )
+  );
+
+  // === AC-1 · THE SUBSCRIPTION-TYPE TOGGLE ==================================
+
+  Given(
+    "I am looking at my products with the subscription-type toggle at All",
+    openCollection
+  );
+  Given(
+    "I am looking at my products with the subscription-type toggle at Subscriptions",
+    async world => {
+      await openCollection(world);
+      await world.fire(
+        CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy,
+        TOGGLE_POSITIONS.Subscriptions
+      );
+      await settles(() => world.expectMeta({ isFiltered: true }));
+    }
+  );
+
+  for (const position of keys(
+    TOGGLE_POSITIONS
+  ) as (keyof typeof TOGGLE_POSITIONS)[])
+    When(`I set the subscription-type toggle to ${position}`, world => {
+      subscriptionsAnswer = {
+        page: toggleSubscriptionsPage,
+        count: toggleSubscriptionsCount
+      };
+      return world.fire(
+        CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy,
+        TOGGLE_POSITIONS[position]
+      );
+    });
+
+  Then("my products come back whether they are subscriptions or not", world =>
+    settles(async () => {
+      await world.expectMeta({ isFiltered: false });
+      await world.expectContext({
+        data: recordedRows(toggleAllPage),
+        pagination: { total: recordedTotal(toggleAllCount) }
+      });
+    })
+  );
+  Then("only my subscriptions come back", world =>
+    expectOnlySubscriptions(world, subscriptionsAnswer)
+  );
+  Then(
+    "only my one-time purchases come back, and the subscriptions narrowing no longer applies",
+    world =>
+      settles(() =>
+        world.expectContext({
+          data: recordedRows(toggleOneTimePage),
+          pagination: { total: recordedTotal(toggleOneTimeCount) }
+        })
+      )
+  );
+
+  // === AC-17 · MY PRODUCT'S OWN STATE (one arranged product per row) =======
+
+  When("I look at it", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+
+  for (const [state, recording, flag] of LIFECYCLE_ROWS) {
+    Given(`one of my products is ${state}`, world =>
+      openManager(world, productOf(recording).id)
+    );
+    Then(
+      `I am told it is ${state}, and in no other state of its lifecycle`,
+      world => settles(() => world.expectMeta(onlyLifecycleFlag(flag)))
+    );
+  }
+
+  Then("I am told it still needs setting up", world =>
+    settles(() => world.expectMeta({ isSetupIncomplete: true }))
+  );
+  Then("I am told it no longer needs setting up", world =>
+    settles(() => world.expectMeta({ isSetupIncomplete: false }))
+  );
+
+  // === AC-17 · AN EXPIRING SUBSCRIPTION ====================================
+
+  Given(
+    "one of my subscriptions is set to expire at the end of its term",
+    world => openManager(world, productOf(expiringRecording).id)
+  );
+  Then("it tells me it will expire", world =>
+    settles(() => world.expectMeta({ isExpiring: true, isCancelling: false }))
+  );
+  Then(
+    "it tells me the date it will end, and that it is ending because I asked it to stop renewing",
+    world =>
+      settles(() =>
+        world.expectContext({
+          contractProduct: {
+            renew: false,
+            calculatedCancelDate:
+              productOf(expiringRecording).calculated_cancel_date
+          }
+        })
+      )
+  );
+  Then(
+    "I am told separately whether its renewal invoicing is still on, as the product records it",
+    world =>
+      settles(() =>
+        world.expectMeta({
+          hasAutoRenewDisabled:
+            !productOf(expiringRecording).auto_create_renew_invoice
+        })
+      )
+  );
+
+  // === AC-17 · A STATE ONLY THE PLATFORM PUTS IT IN ========================
+
+  Given("one of my products is on trial", world =>
+    openManager(world, productOf(onTrialStateRecording).id)
+  );
+  Then("I am told it is on trial", world =>
+    settles(async () => {
+      await world.expectMeta({
+        isOnTrial: true,
+        isOnTerminatingTrial: false,
+        isActive: true
+      });
+      await world.expectContext({ contractProduct: { inTrial: true } });
+    })
+  );
+
+  Given("one of my products is on a trial that is about to end", world =>
+    openManager(world, productOf(endingTrialRecording).id)
+  );
+  When("I open it to see its state", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+  Then("I am told it is on a trial that is about to end", world =>
+    settles(async () => {
+      await world.expectMeta({ isOnTerminatingTrial: true, isActive: true });
+      await world.expectContext({
+        contractProduct: {
+          inTrial: productOf(endingTrialRecording).in_trial,
+          trialEndAction: productOf(endingTrialRecording).trial_end_action
+        }
+      });
+    })
+  );
+
+  // === AC-15 · WHAT IS SCHEDULED TO HAPPEN TO ONE OF MY PRODUCTS ===========
+
+  Given("one of my products has billing actions scheduled against it", world =>
+    openManager(world, productOf(scheduledActionsRecording).id)
+  );
+  When("I open that product's scheduled actions", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+  Then("I see them", world =>
+    settles(() =>
+      world.expectContext({
+        contractProduct: {
+          scheduledActions: map(
+            (
+              scheduledActionsRecording as {
+                response: {
+                  body: {
+                    data: {
+                      scheduled_actions: {
+                        id: string;
+                        action: string;
+                        executed_at: string | null;
+                        created_at: string;
+                      }[];
+                    };
+                  };
+                };
+              }
+            ).response.body.data.scheduled_actions,
+            action => ({
+              id: action.id,
+              action_code: action.action,
+              executed_at: action.executed_at,
+              created_at: action.created_at
+            })
+          )
+        }
+      })
+    )
+  );
+  Then(
+    "they come from the product I already loaded, with no second request of my own",
+    world =>
+      settles(() =>
+        world.expectContext({
+          contractProduct: { id: productOf(scheduledActionsRecording).id }
+        })
+      )
+  );
+
+  // === AC-10 · AN OUTSTANDING RENEWAL INVOICE ===============================
+
+  Given("one of my products has an outstanding recurring invoice", world =>
+    openManager(world, productOf(unpaidInvoiceRecording).id)
+  );
+  Then("I am told it has an unpaid recurring invoice", world =>
+    settles(() => world.expectMeta({ hasUnpaidRecurringInvoices: true }))
+  );
+  Then("I am told whether that invoice is still due", world =>
+    settles(() => world.expectMeta({ isDue: true }))
+  );
+  Then("I am told whether that invoice can still be cancelled", world =>
+    settles(() => world.expectMeta({ isCancellable: true }))
+  );
+
+  // === AC-4 · OPEN ONE OF MY PRODUCTS =======================================
+
+  When("I open one of my products", openManager);
+
+  const opened = () => productOf(managerProductRecording);
+  const detailHolds = (line: string, expected: () => Record<string, unknown>) =>
+    Then(line, world => settles(() => world.expectContext(expected())));
+
+  detailHolds(
+    "it is the very product I opened, under its own name and description",
+    () => ({
+      id: opened().id,
+      title: opened().name,
+      description: opened().description
+    })
+  );
+  detailHolds(
+    "it arrives with the account and the client it belongs to",
+    () => ({
+      contractProduct: {
+        raw: {
+          contract: {
+            account: { id: opened().contract.account.id },
+            client: { id: opened().contract.client.id }
+          }
+        }
+      }
+    })
+  );
+  detailHolds("with that client's image", () => ({
+    contractProduct: {
+      raw: { contract: { client: { image: opened().contract.client.image } } }
+    }
+  }));
+  detailHolds(
+    "with its pending contract request, as the platform holds it",
+    () => ({
+      contractProduct: { raw: { contract_request: opened().contract_request } }
+    })
+  );
+  detailHolds(
+    "with any cancellation that is scheduled for a future date, as the platform holds it",
+    () => ({
+      contractProduct: {
+        raw: {
+          future_cancellation_request: opened().future_cancellation_request
+        }
+      }
+    })
+  );
+  detailHolds("with its catalogue product", () => ({
+    contractProduct: {
+      product: { id: opened().product.id, name: opened().product.name }
+    }
+  }));
+  detailHolds("with the currency of that product's brand", () => ({
+    contractProduct: {
+      brand: { currency: { code: opened().brand.currency.code } }
+    }
+  }));
+  detailHolds("with that product's image", () => ({
+    contractProduct: { product: { image: opened().product.image } }
+  }));
+  detailHolds("with the payment method assigned to its contract", () => ({
+    contractProduct: {
+      raw: {
+        contract: {
+          payment_details: { id: opened().contract.payment_details?.id }
+        }
+      }
+    }
+  }));
+  detailHolds("with that method's gateway", () => ({
+    contractProduct: {
+      raw: {
+        contract: {
+          payment_details: {
+            gateway: { id: opened().contract.payment_details?.gateway.id }
+          }
+        }
+      }
+    }
+  }));
+
+  // === AC-22 · THE EARLIEST CANCELLATION DATE ===============================
+
+  // Shared with AC-5: booting an active subscription's manager.
+  Given("an active subscription on my account", openManager);
+
+  When("I look at when I could book its cancellation for", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+
+  Then("I am told the earliest date I am allowed to choose", async world =>
+    settles(() =>
+      world.expectContext({
+        minFutureCancellationDate: RECORDED_NEXT_DUE_DATE
+      })
+    )
+  );
+
+  // === AC-5 · STOP RENEWING, AND CHANGE MY MIND =============================
+
+  When("I ask for it to stop renewing", async world => {
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.stopRenewing);
+    await settles(() =>
+      world.expectMeta({ hasError: false, isProcessing: false })
+    );
+  });
+  When("I ask for it to stop renewing, with my reason", async world => {
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.stopRenewing, {
+      reason: RECORDED_STOP_REASON
+    });
+    await settles(() =>
+      world.expectMeta({ hasError: false, isProcessing: false })
+    );
+  });
+  When("I ask for it to stop renewing, without a reason", async world => {
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.stopRenewing);
+    await settles(() =>
+      world.expectMeta({ hasError: false, isProcessing: false })
+    );
+  });
+
+  Then("it is set to end at the end of its current term", async world =>
+    settles(() => world.expectContext({ contractProduct: { renew: false } }))
+  );
+
+  When("I ask for it to carry on instead", async world => {
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.resumeRenewing);
+    await settles(() =>
+      world.expectMeta({ hasError: false, isProcessing: false })
+    );
+  });
+
+  Then("it renews as before", async world =>
+    settles(() => world.expectContext({ contractProduct: { renew: true } }))
+  );
+
+  // === AC-5 · STOP-RENEWING IS NOT THE RENEWAL-INVOICING PERMISSION ==========
+
+  Given(
+    "a subscription on my account that is not allowed to have its renewal invoicing switched off",
+    world => openManager(world, productOf(notAllowedPermissionRecording).id)
+  );
+  Given(
+    "a subscription on my account that is allowed to have its renewal invoicing switched off",
+    world => openManager(world, productOf(allowedPermissionRecording).id)
+  );
+
+  Then(
+    "it is still set to end at the end of its current term — that permission does not govern this change",
+    async world =>
+      settles(() => world.expectContext({ contractProduct: { renew: false } }))
+  );
+  Then("I am told its renewal invoicing as the platform now holds it", world =>
+    settles(() =>
+      world.expectMeta({
+        hasAutoRenewDisabled: RENEWAL_INVOICING_OFF_AFTER_STOP
+      })
+    )
+  );
+
+  // === AC-22 · BOOK A CANCELLATION ON A DATE I CHOOSE =======================
+
+  Given(
+    "an active product on my account, with no cancellation already booked",
+    openManager
+  );
+
+  const bookFor =
+    (recording: unknown, withReason: boolean) => async (world: World) => {
+      const { body } = (recording as { request: { body: ScheduleBody } })
+        .request;
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.scheduleCancellation, {
+        futureCancellationDate: body.future_cancellation_date,
+        ...(withReason ? { reason: body.cancellation_reason } : {})
+      });
+      await settles(() =>
+        world.expectMeta({ hasError: false, isProcessing: false })
+      );
+    };
+
+  When(
+    "I book a cancellation for a date I choose",
+    bookFor(suspendedBookingRecording, false)
+  );
+  When(
+    "I book a cancellation for a date I choose, with my reason",
+    bookFor(bookWithReasonRecording, true)
+  );
+  When(
+    "I book a cancellation for a date I choose, without a reason",
+    bookFor(bookWithoutReasonRecording, false)
+  );
+
+  Then(
+    "that cancellation is scheduled against my product for the date I chose",
+    world =>
+      settles(async () => {
+        await world.expectMeta({ hasScheduledFutureCancellation: true });
+        await world.expectContext({
+          contractProduct: {
+            futureCancellationRequest: {
+              future_cancellation_date: BOOKED_DATE
+            }
+          }
+        });
+      })
+  );
+  Then("my reason is recorded against the booking", world =>
+    settles(() =>
+      world.expectContext({
+        contractProduct: {
+          raw: {
+            contract_request: {
+              reason: (
+                bookWithReasonRecording as { request: { body: ScheduleBody } }
+              ).request.body.cancellation_reason
+            }
+          }
+        }
+      })
+    )
+  );
+  Then(
+    "the platform's own wording is recorded against the booking, not a reason of mine",
+    world =>
+      settles(() =>
+        world.expectContext({
+          contractProduct: {
+            raw: {
+              contract_request: {
+                reason: productOf(bookedWithoutReasonRecording).contract_request
+                  ?.reason
+              }
+            }
+          }
+        })
+      )
+  );
+  Then(
+    "my product's own status is unchanged — a scheduled cancellation is not the hard cancellation request",
+    world =>
+      settles(() => world.expectMeta({ isActive: true, isCancelling: false }))
+  );
+  Then("no cancellation request is asked for on my behalf", world =>
+    settles(() =>
+      world.expectContext({
+        contractProduct: {
+          contractRequest: {
+            status: {
+              code: CancellationRequestStatusCodes.REQUEST_SCHEDULED_FUTURE_CANCELLATION
+            }
+          }
+        }
+      })
+    )
+  );
+
+  // === AC-1 · A PRODUCT'S NEXT-DUE AND BILLING CYCLE ========================
+
+  When("it is read", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+
+  Then("it shows the date it next falls due", world =>
+    settles(() =>
+      world.expectContext({
+        contractProduct: {
+          nextDueDate: NEXT_DUE.next_due_date,
+          dateNextDue: { date: shownDay(NEXT_DUE.next_due_date) }
+        }
+      })
+    )
+  );
+  Then("it shows how often it bills, in words", world =>
+    settles(() =>
+      world.expectContext({
+        contractProduct: {
+          billingCycle: cycleWord(NEXT_DUE.billing_cycle_months)
+        }
+      })
+    )
+  );
+
+  // === AC-1 · THE LIST ROWS ================================================
+
+  Given("I am looking at my products", openCollection);
+
+  When("my products are read", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+
+  Then("each one shows the date I bought it", world =>
+    settles(() =>
+      world.expectContext({
+        data: map(rowsIn(boughtDateRowsRecording), row => ({
+          id: row.id,
+          title: titleOf(row),
+          createdAt: row.created_at,
+          dateCreated: { date: shownDay(row.created_at) }
+        }))
+      })
+    )
+  );
+
+  Then(
+    "each one shows the name of its status, and only the flag for that status is raised",
+    world =>
+      settles(() =>
+        world.expectContext({
+          data: map(rowsIn(statusRowsRecording), row => ({
+            id: row.id,
+            title: titleOf(row),
+            status: {
+              code: row.status.code,
+              name: row.status.name_translated || row.status.name
+            },
+            meta: onlyStatusFlag(row.status.code)
+          }))
+        })
+      )
+  );
+
+  Then(
+    "each one shows its billing cycle as a word, never a number of months",
+    world =>
+      settles(() =>
+        world.expectContext({
+          data: map(rowsIn(cycleRowsRecording), row => ({
+            id: row.id,
+            title: titleOf(row),
+            billingCycle: cycleWord(row.billing_cycle_months),
+            priceTermSummary: priceTermSummaryOf(row)
+          }))
+        })
+      )
+  );
+
+  // === AC-1 · PRICES, AS THE BRAND'S TAX RULE PRICES THEM ===================
+
+  // The staging brand's own tax rule, verified and recorded by the generator.
+  Given("my brand prices its products without tax", async () => {});
+
+  When("my subscriptions are read", async world => {
+    await openCollection(world);
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+      billing_cycle_days: { neq: 0 }
+    });
+    await settles(() =>
+      world.expectContext({
+        data: map(rowsIn(subscriptionRowsRecording), ({ id }) => ({ id }))
+      })
+    );
+  });
+
+  Then(
+    "each subscription shows its renewal price before tax, as my brand formats it",
+    world =>
+      settles(() =>
+        world.expectContext({
+          data: map(rowsIn(subscriptionRowsRecording), row => ({
+            id: row.id,
+            title: titleOf(row),
+            priceFormatted:
+              row.configuration_total_recurring_net_amount_formatted,
+            priceTermSummary: priceTermSummaryOf(row)
+          }))
+        })
+      )
+  );
+
+  When("I open one of my subscriptions", world =>
+    openManager(world, OPENED_SUBSCRIPTION.id)
+  );
+
+  Then(
+    "it shows its renewal price before tax as my brand formats it, never the price with tax added",
+    world =>
+      settles(() =>
+        world.expectContext({
+          contractProduct: {
+            id: OPENED_SUBSCRIPTION.id,
+            title: titleOf(OPENED_SUBSCRIPTION),
+            priceFormatted:
+              OPENED_SUBSCRIPTION.configuration_total_recurring_net_amount_formatted,
+            priceTermSummary: priceTermSummaryOf(OPENED_SUBSCRIPTION)
+          }
+        })
+      )
+  );
+
+  When("my one-time purchases are read", async world => {
+    await openCollection(world);
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
+      billing_cycle_days: { eq: 0 }
+    });
+    await settles(() =>
+      world.expectContext({
+        data: map(ONE_TIME_ROWS, ({ id }) => ({ id }))
+      })
+    );
+  });
+
+  Then(
+    "each one-time purchase shows its purchase price before tax, never a renewal price of nothing",
+    world =>
+      settles(() =>
+        world.expectContext({
+          data: map(ONE_TIME_ROWS, row => ({
+            id: row.id,
+            title: titleOf(row),
+            priceFormatted: row.configuration_net_amount_discounted_formatted,
+            priceTermSummary: priceTermSummaryOf(row)
+          }))
+        })
+      )
+  );
+
+  // === FE-3029 · THE PICKER ================================================
+
+  Given("I have no product open yet", openCollection);
+
+  When("I pick one of my products", world => openManager(world, PICKED_ROW.id));
+
+  Then("the product the manager opens is the one I picked", world =>
+    settles(() =>
+      world.expectContext(
+        {
+          contractProduct: {
+            id: PICKED_ROW.id,
+            contractId: PICKED_ROW.contract_id,
+            title: titleOf(PICKED_ROW)
+          }
+        },
+        CONTRACT_PRODUCT_SCENARIO
+      )
+    )
+  );
+
+  // === AC-21 · RENEWAL-INVOICING ON / OFF ===================================
+
+  Given("a product whose renewal invoicing is on", world => openManager(world));
+  Given("a product whose renewal invoicing is off", world =>
+    openManager(world, RENEWAL_OFF_PRODUCT_ID)
+  );
+
+  When("I open that product", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+
+  Then("I am told its renewal invoicing is on", async world =>
+    settles(() =>
+      world.expectContext({ contractProduct: { autoCreateRenewInvoice: true } })
+    )
+  );
+  Then("I am told its renewal invoicing is off", async world =>
+    settles(() =>
+      world.expectContext({
+        contractProduct: { autoCreateRenewInvoice: false }
+      })
+    )
+  );
+
+  // === AC-25 · A CHANGE IN FLIGHT ===========================================
+
+  Given("one of my products", openManager);
+
+  When("I ask for a change", world =>
+    world.fireHold!(
+      CONTRACT_PRODUCT_COVERED_ACTIONS.stopRenewing,
+      undefined,
+      CONTRACT_PRODUCT_SCENARIO
+    )
+  );
+
+  Then("the module reports itself busy while the change is in flight", world =>
+    world.expectMeta({ isProcessing: true }, CONTRACT_PRODUCT_SCENARIO)
+  );
+
+  Then("it reports itself settled once the change has landed", async world => {
+    await world.settle!(CONTRACT_PRODUCT_SCENARIO);
+    await settles(() =>
+      world.expectMeta({ isProcessing: false }, CONTRACT_PRODUCT_SCENARIO)
+    );
+  });
+
+  Then(
+    "what it shows me afterwards is my product as the platform re-read it",
+    world =>
+      settles(() =>
+        world.expectContext(
+          {
+            contractProduct: {
+              id: productOf(inFlightRereadRecording).id,
+              renew: productOf(inFlightRereadRecording).renew
+            }
+          },
+          CONTRACT_PRODUCT_SCENARIO
+        )
+      )
+  );
+  Then("I am told the change is done", world =>
+    world.fire(
+      CONTRACT_PRODUCT_COVERED_ACTIONS.onDone,
+      undefined,
+      CONTRACT_PRODUCT_SCENARIO
+    )
+  );
+
+  // === AC-23 · REVOKE A BOOKED CANCELLATION =================================
+
+  Given(
+    "one of my products has a cancellation booked for a future date",
+    openManager
+  );
+
+  When("I revoke that booking", async world => {
+    await world.fire(
+      CONTRACT_PRODUCT_COVERED_ACTIONS.revokeScheduledCancellation
+    );
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
+
+  Then("my product no longer carries a scheduled cancellation", async world =>
+    settles(() =>
+      world.expectContext({
+        contractProduct: { hasScheduledFutureCancellation: false }
+      })
+    )
+  );
+  Then(
+    "my product's own status is unchanged by the revoke, exactly as the booking left it unchanged",
+    async world => settles(() => world.expectMeta({ isCancelling: false }))
+  );
+
+  // === AC-9 · CONSOLIDATION =================================================
+
+  const consolidationChoice = {
+    "opted out": InvoiceConsolidationTypes.DISABLED,
+    "opted in": InvoiceConsolidationTypes.ENABLED,
+    "follow my account": InvoiceConsolidationTypes.INHERIT
+  } as const;
+
+  Given(
+    "a subscription on my account, with its consolidation form open",
+    async world => {
+      await openManager(world);
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openConsolidation);
+      await settles(() => world.expectMeta({ isConsolidationOpen: true }));
+    }
+  );
+
+  for (const choice of keys(
+    consolidationChoice
+  ) as (keyof typeof consolidationChoice)[]) {
+    When(`I submit "${choice}" in the consolidation form`, async world => {
+      await world.fire(
+        CONTRACT_PRODUCT_COVERED_ACTIONS.set,
+        args(ContractProductFormTypes.CONSOLIDATION, {
+          invoiceConsolidationEnabled: consolidationChoice[choice]
+        })
+      );
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.submitConsolidation);
+      await settles(() =>
+        world.expectMeta({ hasError: false, isProcessing: false })
+      );
+    });
+  }
+
+  When('I set its consolidation to "opted out"', async world => {
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.setConsolidation, {
+      invoiceConsolidationEnabled: consolidationChoice["opted out"]
+    });
+    await settles(() =>
+      world.expectMeta({ hasError: false, isProcessing: false })
+    );
+  });
+
+  for (const [outcome, value] of [
+    ["kept out of my consolidated invoice", consolidationChoice["opted out"]],
+    ["joined to my consolidated invoice", consolidationChoice["opted in"]],
+    [
+      "consolidated exactly as the rest of my account is",
+      consolidationChoice["follow my account"]
+    ]
+  ] as const) {
+    Then(`that subscription's invoices are ${outcome}`, world =>
+      settles(() =>
+        world.expectContext({
+          contractProduct: { raw: { invoice_consolidation_enabled: value } }
+        })
+      )
+    );
+  }
+
+  Then(
+    "my account-level consolidation preference is left exactly as it was",
+    world =>
+      settles(() =>
+        world.expectContext({
+          contractProduct: {
+            clientInvoiceConsolidationEnabled: productOf(
+              managerProductRecording
+            ).contract.client.invoice_consolidation_enabled
+          }
+        })
+      )
+  );
+
+  Then("no consolidation form is left open behind it", world =>
+    settles(() => world.expectMeta({ isConsolidationOpen: false }))
+  );
+
+  // === AC-11 · A SUSPENDED SUBSCRIPTION IS STILL OFFERED EVERY CHANGE =======
+
+  Given("a suspended subscription on my account", world =>
+    openManager(world, productOf(suspendedRowRecording).id)
+  );
+  Then("a cancellation is booked against it for a future date", world =>
+    settles(() => world.expectMeta({ hasScheduledFutureCancellation: true }))
+  );
+
+  // === AC-20 · THE PURCHASED CATEGORIES =====================================
+
+  Given(
+    "I am signed in and I have bought products in several categories",
     openCollection
   );
 
-  // === AC-17 · MY PRODUCT'S OWN STATE (the recorded active subscription) =====
+  When("I ask for the categories I have bought into", async world => {
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.loadPurchasedCategories);
+    await settles(() => world.expectMeta({ hasError: false }));
+  });
 
-  When("I look at one of my products", openManager);
+  Then("the categories I have bought into are requested", async () => {
+    // Request-shape — the wall serves the recorded contract_product_categories
+    // read; a request to the shop catalogue would gap and fail the scenario.
+  });
+  Then("the shop catalogue is not requested", async () => {
+    // Request-ABSENCE — proven by the replay wall.
+  });
+  Then("my delegated choice rides that request", async () => {
+    // Request-shape (the exclude_delegated param) — the recorded request is the
+    // proof; a `World` step cannot read a request query.
+  });
 
-  Then("I am told whether it is pending", world =>
-    world.expectMeta({ isPending: false })
-  );
-  Then("whether it is awaiting activation", world =>
-    world.expectMeta({ isInactive: false })
-  );
-  Then("whether it is active", world => world.expectMeta({ isActive: true }));
-  Then("whether it is suspended", world =>
-    world.expectMeta({ isSuspended: false })
-  );
-  Then("whether it is expiring", world =>
-    world.expectMeta({ isExpiring: false })
-  );
-  Then("whether it is being cancelled", world =>
-    world.expectMeta({ isCancelling: false })
-  );
-  Then("whether it is awaiting setup", world =>
-    world.expectMeta({ isSetupIncomplete: false })
-  );
-  Then("whether it is on trial", world =>
-    world.expectMeta({ isOnTrial: false })
-  );
-  Then("whether that trial is about to end", world =>
-    world.expectMeta({ isOnTerminatingTrial: false })
-  );
-  Then("whether it is still being imported", world =>
-    world.expectMeta({ isStaged: false })
-  );
-  Then("whether it is cancelled", world =>
-    world.expectMeta({ isCancelled: false })
-  );
-  Then("whether it has lapsed", world => world.expectMeta({ isLapsed: false }));
-  Then("whether it is flagged for fraud", world =>
-    world.expectMeta({ isFraud: false })
-  );
-  Then("whether it was imported", world =>
-    world.expectMeta({ isImported: false })
-  );
-  Then("whether it was moved to another product", world =>
-    world.expectMeta({ hasMoved: false })
-  );
-  Then("whether it has unpaid recurring invoices", world =>
-    world.expectMeta({ hasUnpaidRecurringInvoices: false })
-  );
+  // === AC-19 · THE GROUPED COUNTS ===========================================
 
-  // === AC-19 · THE GROUPED COUNTS THE PAGE SHOWS =============================
-
-  Given("I have opened my products", openProducts);
+  Given("I have opened my products", openCollection);
 
   When("I ask for my grouped counts", world =>
     world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.loadGroupedCounts)
@@ -289,80 +2065,58 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     "my products surface holds the entries I was given, one per category, each with its count",
     world =>
       settles(() =>
-        world.expectContext({ groupedCounts: RECORDED.groupedCounts })
+        world.expectContext({
+          groupedCounts: [
+            { category_id: FIRST_GROUP.category_id, total: FIRST_GROUP.total }
+          ]
+        })
       )
   );
-
-  // === THE LIST PAGE · NARROW, CLEAR, PAGE ===================================
-
-  When("I narrow my products to the price one of them costs", world =>
-    world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {
-      total_amount: RECORDED.list.pricedAt.amount
-    })
+  Then(
+    "each category is split by service identifier, each with its own count",
+    async world => {
+      if (!RECORDING_SPLITS_A_CATEGORY)
+        throw new Error(
+          "The grouped-counts recording splits no category by service identifier — re-record against a client that holds one."
+        );
+      await settles(() =>
+        world.expectContext({
+          groupedCounts: map(GROUPS, group => ({
+            category_id: group.category_id,
+            service_identifier: group.service_identifier,
+            total: group.total
+          }))
+        })
+      );
+    }
   );
 
-  Then("only the product at that price is listed", world =>
-    settles(async () => {
-      await world.expectContext({
-        pagination: { total: 1 },
-        data: [{ id: RECORDED.list.pricedAt.id }]
-      });
-      await world.expectMeta({ isFiltered: true });
-    })
-  );
-
-  Given(
-    "I have narrowed my products to the price one of them costs",
-    narrowToPrice
-  );
-
-  When("I clear my price narrowing", world =>
-    world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.filterBy, {})
-  );
-
-  Then("every one of my products is listed again", world =>
-    settles(async () => {
-      await world.expectContext({
-        pagination: { total: RECORDED.list.total }
-      });
-      await world.expectMeta({ isFiltered: false });
-    })
-  );
-
-  When("I move to the next page of my products", world =>
-    world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.nextPage)
-  );
-
-  Then("I am on the second page of my products", world =>
-    settles(() =>
-      world.expectContext({
-        pagination: { page: 2, from: RECORDED.list.pageSize + 1 }
-      })
-    )
-  );
-
-  Given("I have moved to the next page of my products", nextPage);
-
-  When("I move back to the previous page of my products", world =>
-    world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.prevPage)
-  );
-
-  Then("I am on the first page of my products", world =>
-    settles(() => world.expectContext({ pagination: { page: 1, from: 1 } }))
-  );
-
-  // === THE MANAGER PAGE · THE FORMS AND THE FORCE HANDLE =====================
+  // === FE-3029 · THE MANAGER FORMS =========================================
 
   Given("I have one of my active subscriptions open", openActiveSubscription);
+  Given(
+    "I have the cancellation form open on one of my products",
+    async world => {
+      await openActiveSubscription(world);
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openCancellation);
+      await settles(() => world.expectMeta({ isCancellationOpen: true }));
+    }
+  );
+  Given(
+    "I have the consolidation form open on one of my subscriptions, with no choice made",
+    async world => {
+      await openActiveSubscription(world);
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openConsolidation);
+      await settles(() => world.expectMeta({ isConsolidationOpen: true }));
+    }
+  );
 
   When("I open the cancellation form", world =>
     world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openCancellation)
   );
-
   Then("the cancellation form is open", world =>
     settles(() => world.expectMeta({ isCancellationOpen: true }))
   );
-
   Then(
     "it offers cancelling at the end of the term, cancelling immediately, and cancelling on a future date I choose",
     world =>
@@ -385,24 +2139,14 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       )
   );
 
-  Given(
-    "I have the cancellation form open on one of my products",
-    async world => {
-      await openActiveSubscription(world);
-      await openCancellationForm(world);
-    }
-  );
-
   When("I submit the cancellation form without choosing an option", world =>
     world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.submitCancellation)
   );
-
   Then("the cancellation form stays open and is not valid", world =>
     settles(() =>
       world.expectMeta({ isCancellationOpen: true, isCancellationValid: false })
     )
   );
-
   Then("I am shown that an option is required", world =>
     settles(() =>
       world.expectContext({
@@ -417,11 +2161,9 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       ContractProductFormTypes.CANCELLATION
     )
   );
-
   Then("the cancellation form is closed", world =>
     settles(() => world.expectMeta({ isCancellationOpen: false }))
   );
-
   Then("my product is still active", world =>
     world.expectMeta({ isActive: true, isCancelling: false })
   );
@@ -429,11 +2171,9 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
   When("I open the consolidation form", world =>
     world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openConsolidation)
   );
-
   Then("the consolidation form is open", world =>
     settles(() => world.expectMeta({ isConsolidationOpen: true }))
   );
-
   Then("it offers opting in, opting out, or following my account", world =>
     settles(() =>
       world.expectContext({
@@ -454,10 +2194,34 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
+  When(
+    "I submit the consolidation form choosing the value my subscription already has",
+    async world => {
+      await world.fire(
+        CONTRACT_PRODUCT_COVERED_ACTIONS.set,
+        args(ContractProductFormTypes.CONSOLIDATION, {
+          invoiceConsolidationEnabled: productOf(
+            unchangedConsolidationRecording
+          ).invoice_consolidation_enabled
+        })
+      );
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.submitConsolidation);
+    }
+  );
+  Then(
+    "my consolidation choice is not sent and the consolidation form stays open",
+    world =>
+      settles(() =>
+        world.expectMeta({ isConsolidationOpen: true, isProcessing: false })
+      )
+  );
+
   When("I reset my product", world =>
     world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.reset)
   );
-
+  When("I refresh my product", world =>
+    world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.refresh)
+  );
   Then("my product is read again and shown as active", world =>
     settles(async () => {
       await world.expectMeta({
@@ -467,9 +2231,449 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
         isActive: true
       });
       await world.expectContext({
-        contractProduct: { id: RECORDED.product.id }
+        contractProduct: { id: MANAGER_PRODUCT_ID }
       });
     })
+  );
+
+  // === AC-2 / AC-18 · NEVER SHOWN DELEGATED PRODUCTS I DO NOT HAVE ========
+  // Both Givens are arranged by the recording: the seeded session's `/self`
+  // carries nothing delegated, and the choice sits on the recorded account
+  // read the collection's boot makes.
+
+  Given("no products have been delegated to me", async () => {});
+  for (const choice of ["see", "hide"])
+    Given(`I asked to ${choice} delegated products before`, async () => {});
+
+  Then("delegated products are excluded", async world => {
+    if (
+      !NO_DELEGATED_ROWS.length ||
+      some(NO_DELEGATED_ROWS, "isDelegatedObject")
+    )
+      throw new Error(
+        "The no-delegation recording holds no rows, or a delegated one — re-record it."
+      );
+    await settles(() => world.expectContext({ data: NO_DELEGATED_ROWS }));
+  });
+
+  // === AC-2 / AC-18 · PRODUCTS DELEGATED TO ME ============================
+  // The delegation rides the session's own recorded `/self`, and my choice
+  // the show-delegated preference the collection reads on boot.
+
+  const delegatedAnswer = (page: unknown, count: unknown, shown: boolean) => {
+    const rows = map(
+      (
+        page as {
+          response: {
+            body: { data: { id: string; is_delegated_object: boolean }[] };
+          };
+        }
+      ).response.body.data,
+      row => ({ id: row.id, isDelegatedObject: row.is_delegated_object })
+    );
+    if (!shown && some(rows, "isDelegatedObject"))
+      throw new Error("A hidden-delegation page holds a delegated row.");
+    return { rows, total: recordedTotal(count) };
+  };
+
+  const CHOSEN = {
+    see: delegatedAnswer(chooseSeePage, chooseSeeCount, true),
+    hide: delegatedAnswer(chooseHidePage, chooseHideCount, false)
+  };
+  const REMEMBERED = {
+    see: delegatedAnswer(rememberSeePage, rememberSeeCount, true),
+    hide: delegatedAnswer(rememberHidePage, rememberHideCount, false)
+  };
+  for (const answers of [CHOSEN, REMEMBERED])
+    if (!(answers.see.total > answers.hide.total))
+      throw new Error(
+        "The delegated recordings count no more products when delegation is shown."
+      );
+
+  const expectDelegatedAnswer = (
+    world: World,
+    answer: { rows: unknown[]; total: number }
+  ) =>
+    settles(() =>
+      world.expectContext({
+        data: answer.rows,
+        pagination: { total: answer.total }
+      })
+    );
+
+  for (const given of [
+    "products have been delegated to me by another account",
+    "products have been delegated to me"
+  ])
+    Given(given, async () => {});
+
+  for (const choice of ["see", "hide"] as const) {
+    When(`I ask to ${choice} delegated products`, openCollection);
+    Given(`I have asked to ${choice} them`, async () => {});
+  }
+
+  Then("the products delegated to me are included alongside my own", world =>
+    expectDelegatedAnswer(world, CHOSEN.see)
+  );
+  Then("only my own products come back", world =>
+    expectDelegatedAnswer(world, CHOSEN.hide)
+  );
+
+  // The replay's own seed is the new session; this boot reads the choice back.
+  When("I come back later, in a new session", openCollection);
+
+  Then(
+    "my products still include the ones delegated to me — I do not have to ask again",
+    world => expectDelegatedAnswer(world, REMEMBERED.see)
+  );
+  Then(
+    "my products still leave out the ones delegated to me — I do not have to ask again",
+    world => expectDelegatedAnswer(world, REMEMBERED.hide)
+  );
+
+  // The collection only READS the preference: a write of any preference would
+  // be a request no step recorded, which the replay wall fails by name.
+  Then(
+    "remembering my choice does not disturb any other preference I have set on my account",
+    world => world.expectMeta({ hasError: false, isLoading: false })
+  );
+
+  // === AC-16 · NOTHING WITHOUT AN AUTHENTICATED CLIENT SESSION ============
+  // The `@signed-out` seed boots the guest session. `isReady` never settles
+  // for a surface the session cannot address, so it is held, not awaited.
+
+  Given("my session has ended and I am no longer signed in", async () => {});
+
+  When("I open my products while signed out", async world => {
+    await world.boot(CONTRACT_PRODUCTS_SCENARIO, {
+      actor: ScopeActorTypes.CLIENT
+    });
+    await world.fireHold!(CONTRACT_PRODUCTS_COVERED_ACTIONS.isReady);
+  });
+
+  When("I force my products to be read while signed out", async world => {
+    await world.boot(CONTRACT_PRODUCTS_SCENARIO, {
+      actor: ScopeActorTypes.CLIENT
+    });
+    const refusal = await world
+      .fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.refresh)
+      .then(
+        () => undefined,
+        (error: unknown) => error
+      );
+    if (
+      !(refusal instanceof Error) ||
+      !/login_to_continue/.test(refusal.message)
+    )
+      throw new Error(
+        `the forced read was not refused as not-authenticated (got ${String(refusal)})`
+      );
+  });
+
+  When("I open one of my products while signed out", async world => {
+    await world.boot(CONTRACT_PRODUCT_SCENARIO, {
+      actor: ScopeActorTypes.CLIENT,
+      id: MANAGER_PRODUCT_ID
+    });
+    await world.fireHold!(CONTRACT_PRODUCT_COVERED_ACTIONS.isReady);
+  });
+
+  When("I force one of my subscriptions to stop renewing", async world => {
+    await world.boot(CONTRACT_PRODUCT_SCENARIO, {
+      actor: ScopeActorTypes.CLIENT,
+      id: MANAGER_PRODUCT_ID
+    });
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.stopRenewing);
+  });
+
+  When("I force a consolidation change", async world => {
+    await world.boot(CONTRACT_PRODUCT_SCENARIO, {
+      actor: ScopeActorTypes.CLIENT,
+      id: MANAGER_PRODUCT_ID
+    });
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.setConsolidation, {
+      invoiceConsolidationEnabled: InvoiceConsolidationTypes.INHERIT
+    });
+  });
+
+  Then("what I opened reports itself unavailable to me", world =>
+    world.expectMeta({ isAvailable: false })
+  );
+
+  Then("no request is made against any of my products", world =>
+    world.expectMeta({ hasError: false, isEmpty: true, isLoading: false })
+  );
+
+  Then("no request is made against any product resource", world =>
+    world.expectMeta({ hasError: false, isProcessing: false })
+  );
+
+  // === AC-11 / AC-9 · IS EACH FORM OFFERED BEFORE I OPEN IT ================
+
+  for (const [state, recording] of [
+    ...CANCELLATION_OFFER_ROWS,
+    ...CONSOLIDATION_OFFER_ROWS
+  ])
+    Given(`one of my products is ${state}`, world =>
+      openManager(world, productOf(recording).id)
+    );
+
+  When("I look at whether I can cancel it", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+  When("I look at whether I can change how it is invoiced", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+
+  for (const [form, flag, open, isOpen] of [
+    [
+      "cancellation",
+      "hasCancellationOptions",
+      CONTRACT_PRODUCT_COVERED_ACTIONS.openCancellation,
+      "isCancellationOpen"
+    ],
+    [
+      "consolidation",
+      "canConsolidate",
+      CONTRACT_PRODUCT_COVERED_ACTIONS.openConsolidation,
+      "isConsolidationOpen"
+    ]
+  ] as const) {
+    Then(`I am told the ${form} form is offered`, world =>
+      settles(() => world.expectMeta({ [flag]: true }))
+    );
+    Then(`I am told the ${form} form is not offered`, world =>
+      settles(() => world.expectMeta({ [flag]: false }))
+    );
+    Then(
+      `what I am told matches whether the ${form} form opens when I ask for it`,
+      async world => {
+        const offered = await world
+          .expectMeta({ [flag]: true })
+          .then(() => true)
+          .catch(() => false);
+        await world.fire(open);
+        await settles(() => world.expectMeta({ [isOpen]: offered }));
+      }
+    );
+  }
+
+  // === AC-11 · WHY THE CANCELLATION FORM IS NOT AVAILABLE ==================
+
+  Given(
+    "one of my products is held back from cancelling because its cancellation request was already accepted",
+    world => openManager(world, productOf(acceptedRequestRecording).id)
+  );
+  Given(
+    "one of my products is held back from cancelling because its auto-renew is off and it has no end date",
+    world => openManager(world, productOf(renewalInvoicingOffRecording).id)
+  );
+  When("I look at whether I can cancel it now", async world =>
+    settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+  );
+  Then("I am told the cancellation is not shown", world =>
+    settles(async () => {
+      await world.expectMeta({ hasCancellationOptions: false });
+      await world.expectContext({
+        contractProduct: {
+          contractRequest: {
+            status: {
+              code: productOf(acceptedRequestRecording).contract_request?.status
+                ?.code
+            }
+          }
+        }
+      });
+    })
+  );
+  Then("I am told the cancellation is offered", world =>
+    settles(() =>
+      world.expectMeta({
+        hasCancellationOptions: true,
+        isExpiring: false,
+        hasAutoRenewDisabled: !productOf(renewalInvoicingOffRecording)
+          .auto_create_renew_invoice
+      })
+    )
+  );
+
+  // === AC-11 · A PRODUCT THE PLATFORM HOLDS BACK FROM CANCELLING ==========
+
+  Given("one of my products has a pending pro-rata invoice", world =>
+    openManager(world, productOf(proRataGuardRecording).id)
+  );
+  Given(
+    "one of my products has platform settings that do not allow cancelling",
+    async world => {
+      await openManager(world, productOf(notCancellableGuardRecording).id);
+      await world.expectContext({ contractProduct: { canCancel: false } });
+    }
+  );
+  Given(
+    "one of my products cannot be cancelled and has overdue invoices",
+    async world => {
+      await openManager(world, productOf(overdueGuardRecording).id);
+      await world.expectContext({ contractProduct: { canCancel: false } });
+      await world.expectMeta({ hasUnpaidRecurringInvoices: true });
+    }
+  );
+  When("I ask to cancel it", async world => {
+    await world
+      .fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openCancellation)
+      .catch(() => {});
+    await world
+      .fire(
+        CONTRACT_PRODUCT_COVERED_ACTIONS.set,
+        args(ContractProductFormTypes.CANCELLATION, {
+          option: ContractProductCancelOption.HARD
+        })
+      )
+      .catch(() => {});
+    await world
+      .fire(CONTRACT_PRODUCT_COVERED_ACTIONS.submitCancellation)
+      .catch(() => {});
+  });
+  Then("I am told I cannot ask to cancel it", world =>
+    settles(() => world.expectMeta({ hasCancellationOptions: false }))
+  );
+  Then("no cancellation form opens and no cancellation is sent", world =>
+    settles(() =>
+      world.expectMeta({
+        isCancellationOpen: false,
+        isProcessing: false,
+        isCancelling: false,
+        isActive: true
+      })
+    )
+  );
+
+  // === FE-3029 · THE CANCELLATION OPTIONS FOLLOW THE PRODUCT'S STATE =======
+
+  Given("I have one of my products open that is still pending", world =>
+    openManager(world, productOf(pendingOptionsRecording).id)
+  );
+  Then("it offers cancelling immediately", world =>
+    settles(() =>
+      world.expectContext({
+        cancellation: {
+          schema: {
+            properties: { option: { enum: [ContractProductCancelOption.HARD] } }
+          }
+        }
+      })
+    )
+  );
+
+  // === FE-3029 · A PRODUCT THAT IS NOT MINE =================================
+
+  Given("a product that is on another client's account", async () => {});
+
+  When("I open it as if it were one of mine", async world => {
+    await world.boot(CONTRACT_PRODUCT_SCENARIO, {
+      actor: ScopeActorTypes.CLIENT,
+      id: FOREIGN_PRODUCT_ID
+    });
+  });
+
+  Then("I am shown the reason my read of it was refused", world =>
+    settles(() => world.expectContext({ errors: FOREIGN_READ_REFUSAL }))
+  );
+  Then("the manager has stopped loading and reports an error", world =>
+    settles(() => world.expectMeta({ hasError: true, isLoading: false }))
+  );
+  Then("I am told at once that the product is not ready", async world => {
+    const asked = Date.now();
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.isReady);
+    const waited = Date.now() - asked;
+    if (waited > READY_AT_ONCE_MS)
+      throw new Error(`isReady took ${waited}ms to answer a failed read.`);
+    await world.expectMeta({ hasError: true, isAvailable: false });
+  });
+
+  // === AC-6 · HARD CANCELLATION =============================================
+
+  Given(
+    "an active product on my account, with the cancellation form open",
+    async world => {
+      await openManager(world);
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openCancellation);
+      await settles(() => world.expectMeta({ isCancellationOpen: true }));
+    }
+  );
+
+  When(
+    "I choose to cancel it immediately, giving my reason, and submit the form",
+    async world => {
+      await world.fire(
+        CONTRACT_PRODUCT_COVERED_ACTIONS.set,
+        args(ContractProductFormTypes.CANCELLATION, {
+          option: ContractProductCancelOption.HARD,
+          reason: RECORDED_HARD_REASON
+        })
+      );
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.submitCancellation);
+      await settles(() =>
+        world.expectMeta({ hasError: false, isProcessing: false })
+      );
+    }
+  );
+
+  Then(
+    "my cancellation request is lodged against my product, with my reason",
+    world =>
+      settles(() =>
+        world.expectContext({
+          contractProduct: {
+            id: productOf(hardRequestRereadRecording).id,
+            contractRequest: {
+              status: {
+                code: CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST
+              }
+            },
+            raw: { contract_request: { reason: RECORDED_HARD_REASON } }
+          }
+        })
+      )
+  );
+  Then(
+    "my product is shown to me as being cancelled, as the platform re-read it",
+    world => settles(() => world.expectMeta({ isCancelling: true }))
+  );
+  Then("no cancellation form is left open behind it", world =>
+    settles(() => world.expectMeta({ isCancellationOpen: false }))
+  );
+
+  // === AC-7 · WITHDRAW A CANCELLATION REQUEST ===============================
+
+  Given(
+    "I have an outstanding cancellation request on one of my products",
+    async world => {
+      await openManager(world);
+      await settles(() => world.expectMeta({ isCancelling: true }));
+    }
+  );
+
+  When("I withdraw it", async world => {
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.withdrawCancellation);
+    await settles(() =>
+      world.expectMeta({ hasError: false, isProcessing: false })
+    );
+  });
+
+  Then("my product no longer carries that request", world =>
+    settles(() =>
+      world.expectContext({
+        contractProduct: {
+          raw: {
+            contract_request: productOf(withdrawnRereadRecording)
+              .contract_request
+          }
+        }
+      })
+    )
+  );
+  Then("my product is no longer shown as being cancelled", world =>
+    settles(() => world.expectMeta({ isCancelling: false, isActive: true }))
   );
 });
 

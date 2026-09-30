@@ -1,0 +1,121 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/contracts?case=status-contract_awaiting_activation&with=status,cancellation_request,cancellation_request.status&filter[status.code]=contract_awaiting_activation&limit=1&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4239b76ab572571-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 14:58:37 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=5r3gkCwC0a82tA28L%2BPRGYYbrI1gsoCEQlaoLJWcXw3Kf27GzH4K6%2F0K5sX4zCA4yIqyrSZldFU6aYpXoHYxUOsjQCy5yWw1Faqpc%2FFF20iS545EWCo0beDoroAvShNt1QW%2BOvWoag%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "17"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "47d73824-8507-9315-25ec-81e642d59e06",
+          "import_id": null,
+          "staged_import": false,
+          "finished_staged_import": null,
+          "external_id": null,
+          "name": null,
+          "notes": null,
+          "start_date": "2025-06-04",
+          "end_date": "0000-00-00",
+          "next_due_date": "2027-06-04",
+          "next_invoice_date": "2027-06-04",
+          "cancellation_date": null,
+          "cancellation_reason": null,
+          "activation_date": "2025-06-04",
+          "status_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+          "total_recurrent_amount": 204,
+          "total_amount": 204,
+          "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+          "user_id": "sys",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "company_id": null,
+          "phone_id": null,
+          "address_id": "20e43579-5e78-d184-78db-31643202d986",
+          "billing_cycle_months": 24,
+          "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "main_invoice_id": "25d96e76-3ed0-913e-d72c-417482528340",
+          "main_invoice_number": "QAT-INV-00011",
+          "gateway_id": null,
+          "payment_details_id": null,
+          "promotion_id": null,
+          "promotion_code": null,
+          "created_at": "2025-06-04 12:43:27",
+          "updated_at": "2025-07-23 08:01:12",
+          "reseller_account_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+          "fraud_status": 1,
+          "currency_exchange_rate": "1.000000",
+          "locked": null,
+          "billing_cycle_days": 720,
+          "reconciliation_strict": 0,
+          "tax_type": 0,
+          "moved_from_contract_id": null,
+          "moved_to_contract_id": null,
+          "moved": false,
+          "partially_moved": false,
+          "total_recurrent_amount_formatted": "£204.00",
+          "total_amount_formatted": "£204.00",
+          "currency": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "British Pound",
+            "prefix": "£",
+            "suffix": "",
+            "code": "GBP",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-09-28 11:08:14",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          "status": {
+            "id": "5d085e69-d562-3719-7ec2-18e940d42370",
+            "object_type": "contract",
+            "code": "contract_awaiting_activation",
+            "order": 2,
+            "name": "Awaiting Activation"
+          },
+          "cancellation_request": null
+        }
+      ],
+      "related": null,
+      "total": 17,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T14:58:37.521Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract"
+  }
+}

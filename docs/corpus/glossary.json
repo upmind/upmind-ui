@@ -179,11 +179,11 @@
         "kind": "domain",
         "referents": [
           {
-            "id": "@upmind-automation/headless!useOrder",
+            "id": "@upmind-automation/headless!useInvoice",
             "type": "symbol"
           },
           {
-            "id": "@upmind-automation/headless!OrderContext",
+            "id": "@upmind-automation/headless!UseInvoiceContext",
             "type": "symbol"
           }
         ],
@@ -438,12 +438,6 @@
       "path": "packages/headless/src/modules/invoices/invoices.types.ts",
       "title": "Invoice"
     },
-    "@upmind-automation/headless!OrderContext": {
-      "kind": "symbol",
-      "module": "orders",
-      "path": "packages/headless/src/modules/orders/order.types.ts",
-      "title": "OrderContext"
-    },
     "@upmind-automation/headless!PaymentContext": {
       "kind": "symbol",
       "module": "payment",
@@ -467,6 +461,12 @@
       "module": "product",
       "path": "packages/headless/src/modules/product/product.types.ts",
       "title": "PromotionModel"
+    },
+    "@upmind-automation/headless!UseInvoiceContext": {
+      "kind": "symbol",
+      "module": "invoices",
+      "path": "packages/headless/src/modules/invoices/useInvoice.context.ts",
+      "title": "UseInvoiceContext"
     },
     "@upmind-automation/headless!useAccount": {
       "kind": "symbol",
@@ -551,12 +551,6 @@
       "module": "invoices",
       "path": "packages/headless/src/modules/invoices/useInvoice.ts",
       "title": "useInvoice"
-    },
-    "@upmind-automation/headless!useOrder": {
-      "kind": "symbol",
-      "module": "orders",
-      "path": "packages/headless/src/modules/orders/useOrder.ts",
-      "title": "useOrder"
     },
     "@upmind-automation/headless!usePayment": {
       "kind": "symbol",

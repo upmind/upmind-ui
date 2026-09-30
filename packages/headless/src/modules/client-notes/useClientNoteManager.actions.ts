@@ -1,8 +1,11 @@
+import { watch } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
+import { BrandConfigKeys } from "@upmind-automation/types";
+import { useBrand } from "../brand";
 // Deep path, never the `../scope` barrel — see useClientNotes.ts for the
 // aggregator-barrel `export *` hazard this sidesteps.
 import { remove as removeFromRegistry } from "../scope/scope.registry";
-import { useSessionStore } from "../session-store";
+import { useActiveSession, useSessionStore } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { clearManagerContextOnLogout } from "./useClientNoteManager.machine";
 import {
@@ -13,7 +16,8 @@ import {
   stopService,
   DetailedError,
   ErrorOrigin,
-  responseCodes
+  responseCodes,
+  NotAuthenticatedError
 } from "../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type { ClientNoteServices, VaultAssetModel } from "./client-notes.types";
@@ -88,6 +92,63 @@ export function createClientNoteManagerActions(
     destroy();
   });
 
+  const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
+    useActiveSession().useMeta();
+
+  /**
+   * This scope's settled ADDRESSABILITY outcome, or `undefined` while the
+   * session is still settling — the same three-branch shape the collection
+   * half (`useClientNotes.actions.ts`) uses.
+   */
+  function addressableOutcome(): boolean | undefined {
+    if (service.isAvailable.value) return true;
+    if (isSessionInitialised.value || !isSessionSettling.value) return false;
+    return undefined;
+  }
+
+  /**
+   * Resolves the addressability outcome, waiting only while the session is
+   * still settling; self-stopping.
+   *
+   * @decision gate the editor on the SESSION and the VAULT GATE, not only the
+   * machine.
+   * what: `isReady()` and `update()` resolve their addressability here before
+   *   waiting on the machine. `useBrand().ensureConfig(...)` is awaited FIRST,
+   *   exactly as the collection half's B5 gate and the services'
+   *   `ensureAddressable` do.
+   * why: with no addressable client (signed out, or the brand's vault gate
+   *   OFF) the shared `dataManagerMachine` never leaves `subscribing`/`loading`
+   *   for `available`, so `isReady()` only settled on its 60s `waitFor` and
+   *   `update()` on its own — a hang that contaminates any sibling scenario
+   *   sharing the suite. `service.isAvailable` folds in `isVaultEnabled()`,
+   *   read SYNCHRONOUSLY off cached config, so the `ensureConfig` await is what
+   *   stops a freshly-minted editor reading a not-yet-loaded gate and settling
+   *   a premature `false` (the collection's B5 defect, reproduced here).
+   * rejected: moving the transition into the machine — it is the shared,
+   *   protected `dataManagerMachine`; the gate belongs in this caller. Reading
+   *   `service.isAvailable` without the `ensureConfig` await — reintroduces B5.
+   */
+  async function whenSessionSettles(): Promise<boolean> {
+    await useBrand().ensureConfig(
+      BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED
+    );
+
+    const settled = addressableOutcome();
+    if (settled !== undefined) return settled;
+
+    return new Promise<boolean>(resolve => {
+      const stop = watch(
+        [service.isAvailable, isSessionInitialised, isSessionSettling],
+        () => {
+          const outcome = addressableOutcome();
+          if (outcome === undefined) return;
+          stop();
+          resolve(outcome);
+        }
+      );
+    });
+  }
+
   /**
    * Resolves when the manager is ready to accept input.
    * @returns true once `available`, false if the machine settled in error.
@@ -102,6 +163,8 @@ export function createClientNoteManagerActions(
    *   not own.
    */
   async function isReady(): Promise<boolean> {
+    if (!(await whenSessionSettles())) return false;
+
     return waitFor(machineService, s => stateMatches(s, "available"), {
       timeout: 60_000
     })
@@ -194,6 +257,13 @@ export function createClientNoteManagerActions(
   async function update(
     value?: VaultAssetModel | Record<string, unknown>
   ): Promise<VaultAssetModel> {
+    // No addressable client (signed out, or the vault gate OFF) → the machine
+    // never reaches a save-able state; reject with the module's own typed error
+    // rather than hang on the `waitFor` below.
+    if (!(await whenSessionSettles())) {
+      return Promise.reject(new NotAuthenticatedError());
+    }
+
     // Commit any typed input still pending on the debounce before saving,
     // otherwise the save reads the pre-edit model.
     await debouncedInput.flush()?.catch(() => undefined);
@@ -243,7 +313,8 @@ export function createClientNoteManagerActions(
   }
 
   /** Clears the current form context. */
-  function clear(): void {
+  async function clear(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     send({ type: "CLEAR" });
   }
 
@@ -252,6 +323,23 @@ export function createClientNoteManagerActions(
    * Unsubscribes the `onLogout` listener (`@decision` D16, above) — a
    * stopped-but-not-destroyed scope must not leave a dangling subscriber on
    * the module-global logout set.
+   *
+   * @decision D20 (FE-3145 — the flush-before-teardown rule; this module is
+   *   the one exception to it)
+   * what:     `stop()` and `destroy()` keep `debouncedInput.cancel()` — they
+   *   DISCARD a pending input rather than flushing it, unlike every other
+   *   manager under FE-3145.
+   * why:      the pending input carries the plaintext note; `destroy()` is the
+   *   logout-teardown sink (D16 — `onLogout` clears `model`+`baseModel` then
+   *   calls `destroy()`). Flushing would re-send `SET` with that plaintext
+   *   INTO the machine AFTER the clear and just before `stopService`, leaving
+   *   it readable on the stopped interpreter's `state.context` — the exact
+   *   leak D16 (operator ruling `ruling-manager-logout-teardown`, tier-1)
+   *   closes. `cancel()` already prevents the "SET into stopped service"
+   *   error FE-3145 targets, so no defect is left open.
+   * rejected: flushing per the FE-3145 default — regresses the tier-1 D16
+   *   plaintext guarantee; the two operator authorities conflict here and the
+   *   security ruling wins.
    */
   function stop(): void {
     unsubscribeLogout();
@@ -264,7 +352,8 @@ export function createClientNoteManagerActions(
    * registry. The collection's `destroy()` only does the second half, because
    * a query has no service to stop. Also unsubscribes the `onLogout` listener
    * (`@decision` D16, above) — a torn-down scope must not leave a dangling
-   * subscriber on the module-global logout set.
+   * subscriber on the module-global logout set. Keeps `cancel()` over flush —
+   * see `stop()`'s `@decision` D20.
    */
   function destroy(): void {
     unsubscribeLogout();

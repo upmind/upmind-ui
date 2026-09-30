@@ -224,8 +224,8 @@ import { Skeleton } from "@upmind/ui";
 import { Badge, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import { isMobile } from "../../../composables/isMobile";
 import CurrentPrice from "../../product/components/pricing/CurrentPrice.vue";
 import {

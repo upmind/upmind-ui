@@ -3,7 +3,12 @@ import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
-import type { ContractServices, ContractListQuery } from "./contract.types";
+import type {
+  ContractServices,
+  ContractListQuery,
+  FilterModel,
+  SortModel
+} from "./contract.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -87,11 +92,25 @@ export function createContractsActions(
     removeFromRegistry(scopeKey);
   }
 
+  function filterBy(intent: FilterModel): void {
+    query.setCriteria({ filters: intent });
+  }
+
+  function sortBy(intent: SortModel): void {
+    query.setCriteria({ sort: intent });
+  }
+
   return {
     /**
      * @scenario-include
      */
     destroy,
+
+    /**
+     * Applies a filter intent — the `filters` branch of the one query model.
+     * @scenario-include
+     */
+    filterBy,
 
     /**
      * @scenario-exclude internal cache-key invalidation, not a user-facing capability
@@ -128,7 +147,13 @@ export function createContractsActions(
      * sets the page size: `setCriteria({ pagination: { limit } })`.
      * @scenario-include
      */
-    setCriteria: query.setCriteria
+    setCriteria: query.setCriteria,
+
+    /**
+     * Applies a sort intent — the `sort` branch of the one query model.
+     * @scenario-include
+     */
+    sortBy
   };
 }
 

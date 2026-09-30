@@ -77,9 +77,7 @@ This module carries no actor split. It has no `.as('client')` / `.as('staff')` a
 | [Changelog](./docs/changelog.md)       | All                                    | What changed, and why                                                                  |
 | [GATEWAYS.md](./GATEWAYS.md)           | Internal                               | The full provider registry — every gateway code the platform knows about, by wire type |
 
-## Playground
-
-There is no standalone playground page for this module — a gateway only exists once something has spawned it, and today only the sibling capture module does that. The closest driveable proof is the capture module's own ADD-flow playground page (`playgrounds/labs/src/pages/paymentDetailAdd/`), which spawns a real gateway underneath it, and the e2e checkout suite under `tests/Playwright/e2e/e2e-tests/checkout/payment-gateways/`.
+## Tests
 
 The module's own behaviour is proven by its co-located suite — 349 tests across `__tests__/`, at 86.2% statement and 89.8% function coverage, replaying fixtures recorded from real staging by `pnpm fixtures:generate payment-gateways`. One of the module's 39 documented scenarios is recorded as owed rather than proven — see [gotchas.md](./docs/gotchas.md) for what's blocked and why.
 

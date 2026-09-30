@@ -1,0 +1,57 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/ticket_messages/files",
+    "headers": {
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "file": "<binary:fe-3145-ac23-any-kind.json>",
+      "brand_id": "2785d26e-9678-3d16-999f-314502e70439"
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a42664b4e843af5d-DUR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 23:05:32 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=NkjU3nL1Y%2FIrx9t2LAnQUyUHVjZdFHNa5D3m3a%2B0LdPJO64Y3ZitKmReH0KtTp2pOOw8%2BM%2FzI2PjSRrktmJVBZmIY%2BH8kIFvDNgvV%2FZQ%2FjMVSKwIS8ogs2e9q16HHuwUgR0qs4y0YA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "ab516637be9ae018eca632cd60fe81811c30ec10",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "file": ["Not supported file type."]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T23:05:31.938Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

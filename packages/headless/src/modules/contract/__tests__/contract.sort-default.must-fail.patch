@@ -1,0 +1,30 @@
+# Negative-control mutant — the query schema's `sort` branch carries its own
+# default, so an emptied sort refills itself (R38 supersedes the bare R28
+# `DEFAULT_SORT` departure line; B5). Sibling: `contract-product.schemas.ts`
+# `sort: { ..., default: DEFAULT_SORT }`.
+#
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "An order I empty falls back to oldest first"
+#   contract.feature > "See the first page of my contracts"
+#
+# No task/spec basename names this control yet — R38 (2026-09-28) postdates
+# `tasks.md`; this patch is authored against the ruling directly, for the
+# prover to anchor a schema-default spec to.
+#
+# Mutation: `useQuerySchema`'s `sort` branch drops its `default`, so an emptied
+#   sort model parses to `undefined` again.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.schemas.ts
++++ b/packages/headless/src/modules/contract/contract.schemas.ts
+@@ -71,7 +71,6 @@ export function useQuerySchema(): QuerySchema {
+       },
+       sort: {
+         type: "array",
+-        default: DEFAULT_SORT,
+         minItems: 1,
+         uniqueItems: true,
+         items: {

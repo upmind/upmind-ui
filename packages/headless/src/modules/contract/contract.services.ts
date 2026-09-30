@@ -4,8 +4,15 @@ import { usePaymentDetails } from "../payment-details";
 import { invalidateQueryByKey, useQuery } from "../query";
 import { resolveClientId, useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
-import { mapContracts, toPaymentMethodBody } from "./contract.mappers";
-import { useQuerySchema } from "./contract.schemas";
+import {
+  mapContractLookupItems,
+  mapContracts,
+  toPaymentMethodBody
+} from "./contract.mappers";
+import {
+  useContractLookupQuerySchema,
+  useQuerySchema
+} from "./contract.schemas";
 import { validateForm } from "./contract.utils";
 import {
   DEBOUNCE_DELAY,
@@ -24,6 +31,7 @@ import type {
   ContractMachineServices,
   ContractServices,
   ContractListQuery,
+  ContractsPickerLookupQuery,
   QueryModel,
   SetPaymentMethodModel
 } from "./contract.types";
@@ -101,7 +109,7 @@ const CONTRACT_LIST_WITH = [
 
 /**
  * The reactive list query, minted once per scope. The whole request state is
- * the declared query schema (pagination only).
+ * the declared query schema — filters, sort and pagination (R38 item 13).
  */
 function loadList(scopeContext?: ScopeContext): ContractListQuery {
   const { isAuthenticated } = useActiveSession().useMeta();
@@ -131,6 +139,37 @@ function loadList(scopeContext?: ScopeContext): ContractListQuery {
 /** Invalidates this module's cache key so every reader refetches. */
 async function refresh(): Promise<void> {
   await invalidateQueryByKey(queryKey, { exact: false })(undefined);
+}
+
+/**
+ * The contracts a picker offers (R38 item 7) — a `listInfinite` over THIS
+ * client's own contracts, searched by title. Its own key keeps a search from
+ * evicting the rows the listing is showing, as `tickets`' own picker lookup
+ * does.
+ */
+function loadContractLookup(
+  scopeContext: ScopeContext | undefined
+): ContractsPickerLookupQuery {
+  const { listInfinite, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  return listInfinite<IContract[], ReturnType<typeof mapContractLookupItems>>({
+    criteria: { schema: useContractLookupQuerySchema() },
+    queryKey: [...queryKey, "lookups", "contracts", { client: clientId }],
+    url: useUrl("contracts", { with: "status" }),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (clientId.value) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    withAccessToken: true,
+    select: mapContractLookupItems,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => !!clientId.value
+  }) as unknown as ContractsPickerLookupQuery;
 }
 
 // -----------------------------------------------------------------------------
@@ -250,6 +289,9 @@ export const createContractServices = (
     isAvailable: computed(() => isAuthenticated.value && !!clientId.value),
     loadList: () => loadList(scopeContext),
     refresh,
+    lookups: {
+      contract: () => loadContractLookup(scopeContext)
+    },
     ...scopedServices(scopeActor, scopeContext)
   };
 };

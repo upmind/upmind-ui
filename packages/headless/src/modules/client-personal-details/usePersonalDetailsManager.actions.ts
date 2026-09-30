@@ -1,5 +1,7 @@
+import { watch } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { remove as removeFromRegistry } from "../scope";
+import { useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import {
   DEBOUNCE_DELAY,
@@ -8,10 +10,14 @@ import {
   stopService,
   DetailedError,
   ErrorOrigin,
-  responseCodes
+  responseCodes,
+  NotAuthenticatedError
 } from "../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
-import type { ProfileModel } from "./client-personal-details.types";
+import type {
+  ClientPersonalDetailsServices,
+  ProfileModel
+} from "./client-personal-details.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
@@ -29,10 +35,61 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 export function createPersonalDetailsManagerActions(
   _actorScope: ScopeActorTypes,
   actor: UseActor,
+  service: ClientPersonalDetailsServices,
   scopeKey: string
 ) {
   const { state, send, service: machineService } = actor;
   const { t } = useI18n();
+
+  const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
+    useActiveSession().useMeta();
+
+  /**
+   * This scope's settled ADDRESSABILITY outcome, or `undefined` while the
+   * session is still settling — the same three-branch shape the read half's
+   * `usePersonalDetails.actions.ts` uses.
+   */
+  function addressableOutcome(): boolean | undefined {
+    if (service.isAvailable.value) return true;
+    if (isSessionInitialised.value || !isSessionSettling.value) return false;
+    return undefined;
+  }
+
+  /**
+   * Resolves the addressability outcome, waiting only while the session is
+   * still settling; self-stopping.
+   *
+   * @decision AC-42 — gate the editor on the SESSION, not only the machine.
+   * what: `isReady()` and `update()` resolve their session outcome here
+   *   before waiting on the machine.
+   * why: with no client session the shared `dataManagerMachine`'s
+   *   `hasSubscription` guard holds it in `subscribing` forever — correct, no
+   *   unaddressed request fires — but `isReady()`'s `waitFor(available)` then
+   *   only settles on its 30s timeout and `update()`'s only on its 60s one,
+   *   rejecting with a `Timeout` rather than the `NotAuthenticatedError` the
+   *   read half raises. Reading the session outcome directly settles both the
+   *   instant the session is known unaddressable, exactly as the read half
+   *   already does (AC-41/54).
+   * rejected: moving the `subscribing → unavailable` transition into the
+   *   machine — it is the shared, protected `dataManagerMachine`; the gate
+   *   belongs in this caller.
+   */
+  function whenSessionSettles(): Promise<boolean> {
+    const settled = addressableOutcome();
+    if (settled !== undefined) return Promise.resolve(settled);
+
+    return new Promise<boolean>(resolve => {
+      const stop = watch(
+        [service.isAvailable, isSessionInitialised, isSessionSettling],
+        () => {
+          const outcome = addressableOutcome();
+          if (outcome === undefined) return;
+          stop();
+          resolve(outcome);
+        }
+      );
+    });
+  }
 
   /**
    * @decision a REAL, bounded timeout — never `Infinity` (AC-40).
@@ -47,6 +104,8 @@ export function createPersonalDetailsManagerActions(
    *          exact defect AC-40 exists to close.
    */
   async function isReady(): Promise<boolean> {
+    if (!(await whenSessionSettles())) return false;
+
     return waitFor(machineService, s => stateMatches(s, "available"), {
       timeout: 30_000
     })
@@ -96,6 +155,13 @@ export function createPersonalDetailsManagerActions(
   async function update(
     value?: ProfileModel | Record<string, unknown>
   ): Promise<ProfileModel> {
+    // No client session → the machine is held in `subscribing` and can never
+    // process a save; reject with the module's own typed error rather than
+    // hang on the 60s `waitFor` below (AC-42).
+    if (!(await whenSessionSettles())) {
+      return Promise.reject(new NotAuthenticatedError());
+    }
+
     await debouncedInput.flush()?.catch(() => undefined);
 
     const model = contextValue<ProfileModel>(state, "model");
@@ -137,12 +203,14 @@ export function createPersonalDetailsManagerActions(
    * `this.form = _.cloneDeep(this.initialForm)`.
    */
   async function revert(): Promise<ProfileModel> {
+    await debouncedInput.flush()?.catch(() => undefined);
     const baseModel = contextValue<ProfileModel>(state, "baseModel") ?? {};
     return input(baseModel);
   }
 
   /** Clears the current form context. */
-  function clear(): void {
+  async function clear(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     send({ type: "CLEAR" });
   }
 
@@ -155,12 +223,14 @@ export function createPersonalDetailsManagerActions(
    * the new narrowing — call this once, right after construction, before
    * `await isReady()`.
    */
-  function filterFields(fields: string[]): void {
+  async function filterFields(fields: string[]): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     send({ type: "REFRESH", data: { filterFields: fields } });
   }
 
   /** Stops the underlying machine, leaving the registry entry in place. */
-  function stop(): void {
+  async function stop(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
   }
 
@@ -168,7 +238,8 @@ export function createPersonalDetailsManagerActions(
    * Destroys this scoped instance — stops the machine AND removes it from
    * the registry.
    */
-  function destroy(): void {
+  async function destroy(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
     removeFromRegistry(scopeKey);
   }

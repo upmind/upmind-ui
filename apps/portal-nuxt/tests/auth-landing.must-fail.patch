@@ -1,0 +1,34 @@
+# Negative control — the sign-in pages stop listening for the hand-back. Both
+# drop `@resolve`, restoring the original defect: `AUTH_LANDING` is still
+# declared and still correct, the screens still mount, and a client who signs
+# in stays on the screen they signed in from.
+#
+# The pages are the whole wiring, so a suite that only graded `AUTH_LANDING`'s
+# own value would stay green through this.
+#
+# Intended RED (tests/auth-landing.test.ts):
+#   "lands a client who signs in on the landing"
+#   "lands a client who registers on the same landing"
+
+diff --git a/apps/portal-nuxt/app/pages/login.vue b/apps/portal-nuxt/app/pages/login.vue
+--- a/apps/portal-nuxt/app/pages/login.vue
++++ b/apps/portal-nuxt/app/pages/login.vue
+@@ -2,7 +2,6 @@
+   <UpmAuthLogin
+     v-bind="AUTH_ROUTES"
+     :templates="PORTAL_AUTH_TEMPLATES"
+-    @resolve="onResolve"
+   />
+ </template>
+ 
+diff --git a/apps/portal-nuxt/app/pages/register.vue b/apps/portal-nuxt/app/pages/register.vue
+--- a/apps/portal-nuxt/app/pages/register.vue
++++ b/apps/portal-nuxt/app/pages/register.vue
+@@ -2,7 +2,6 @@
+   <UpmAuthRegister
+     v-bind="AUTH_ROUTES"
+     :templates="PORTAL_AUTH_TEMPLATES"
+-    @resolve="onResolve"
+   />
+ </template>
+ 

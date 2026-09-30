@@ -1,0 +1,109 @@
+{
+  "version": 3,
+  "request": {
+    "method": "DELETE",
+    "path": "/api/tickets/25d96e76-3ed0-913d-759c-417482528340/messages/89857426-4897-0122-2edc-21e325d0ed36",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "reason": "Recorded withdrawal for FE-3145."
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4291c3e38cbb281-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 07:00:22 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=2txm0YemrcfRNJiUJfci78wvhTaQ%2F8uGSZn1g07on81aC%2FAhtFBUG65Ei7V3THpIjPgGxsV4NVDrwprwPMKBefrvPQDuwWaNMbTkqx%2BNLFbDDfi9Os3Fp2RlzQ3sn5w8XvP%2BM2sYww%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "ticket_id": "25d96e76-3ed0-913d-759c-417482528340",
+        "body": "Recorded reply for FE-3145, to be withdrawn.",
+        "is_private": false,
+        "original_ticket_message_id": "89857426-4897-0122-2edc-21e325d0ed36",
+        "created_at": "2026-09-29 07:00:15",
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "user_id": null,
+        "lead_id": null,
+        "is_log": true,
+        "reason": "Recorded withdrawal for FE-3145.",
+        "action": "delete",
+        "client_actor_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "updated_at": "2026-09-29 07:00:21",
+        "id": "20e43579-5e78-d187-733a-31643202d986",
+        "user_name": null,
+        "user_image_url": null,
+        "client_name": "Checkout Test",
+        "client_image_url": "https://www.gravatar.com/avatar/b1669c49335e93cf10e18f3e6d448714?d=blank&s=200",
+        "actor_name": "Checkout Test",
+        "actor_image_url": "https://www.gravatar.com/avatar/b1669c49335e93cf10e18f3e6d448714?d=blank&s=200",
+        "email_file": null,
+        "is_author": true,
+        "can_manage": true,
+        "ticket": {
+          "id": "25d96e76-3ed0-913d-759c-417482528340",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "reference": "ATI-354-61058",
+          "subject": "Fixture edit-withdraw ticket",
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "lead_id": null,
+          "reseller_account_id": null,
+          "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "user_id": null,
+          "status_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "created_at": "2026-09-29 07:00:09",
+          "updated_at": "2026-09-29 07:00:15",
+          "replied_at": "2026-09-29 07:00:15",
+          "invoice_id": null,
+          "calculated_notify_close_date": "2026-10-19 00:00:00",
+          "calculated_close_date": "2026-10-29 00:00:00",
+          "ticket_department_id": "8d632507-9806-5d1e-33eb-8174e234e98d",
+          "priority_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "object_type": null,
+          "object_id": null,
+          "template_id": null,
+          "contract_product_id": null,
+          "source_type": "system",
+          "source_ip": "156.155.31.213",
+          "spam": false,
+          "email_file": null,
+          "can_see_ticket_messages": null,
+          "is_delegated_object": false
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T07:00:21.911Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

@@ -1,21 +1,10 @@
-# Negative-control mutant — the cancellation form's read-state flag reports TRUE
-#   validation, not FALSE (R35 form region `available.cancelling.available`)
+# Negative-control mutant — the cancellation form's valid flag reads the valid node
 #
-# Naming: the meta read-state flags have no dedicated spec of their own, so this
-#   mutant takes the `<spec-basename>.<concern>` form beside the spec that drives
-#   the cancellation form to a validated node — `contract-product.mutations.int.test.ts`.
-#
-# Flag under test: `useContractProduct().useMeta().isCancellationValid` —
-#   `stateMatches` over `available.cancelling.available.valid`. A consumer gates
-#   the cancellation submit on this flag.
-#
-# NO TEST ASSERTS THIS FLAG YET. The prover adds the assertion. The intended
-#   scenario: open the cancellation form, drive it to `valid`, and assert
-#   `isCancellationValid === true` (and `false` on `invalid`). With this mutation
-#   the flag reads the sibling `invalid` node, so it is `false` on a valid form
-#   and the new assertion goes red.
-# Target spec (once the prover adds the row): contract-product.mutations.int.test.ts
-#
+# Scenario it must flip: contract-product.feature >
+#   "A cancellation form I submit without a choice is not sent and tells me why"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then the cancellation form stays open and is not valid" — `isCancellationValid`
+#   reads true on the invalid form.
 # Mutation: `isCancellationValid` matches `available.cancelling.available.invalid`
 #   instead of `.valid`.
 #

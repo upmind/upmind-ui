@@ -1,0 +1,20 @@
+# Negative control — the sign-in page binds its whole props object into the
+# template, record included. Every template then carries the host's seven
+# components as a stray `templates` attribute.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/shell-contract.test.ts
+#     "the login page > hands the template its routes, and not the record"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -171,7 +171,7 @@ const meta = computed(() => ({
+ }));
+ 
+ const templateVariant = computed(() => get(props.templates, template.value));
+-const templateProps = computed(() => omit(props, ["templates"]));
++const templateProps = computed(() => props);
+ 
+ const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
+ const { meta: templateMeta } = useAuthTemplates(template);

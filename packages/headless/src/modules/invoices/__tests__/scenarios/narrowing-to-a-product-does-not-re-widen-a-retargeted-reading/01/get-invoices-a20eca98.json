@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices?client_id=63250798-065d-1ed5-685c-8174e234e98d&order=-create_datetime&limit=1&filter[status.code]=invoice_unpaid,invoice_overdue,invoice_adjusted&filter[is_consolidation]=0&filter[category.slug]=recurrent&filter[paid_amount]=0&filter[client_id]=63250798-065d-1ed5-685c-8174e234e98d",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a42a02eb2c0dec04-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 09:37:49 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=EnXKRAGuEgyQCvNpC6GgEYEkpd3VlEX%2BZSM3DJa%2BO9rdgCuYEYlFHp0Cta7Vm5GNa%2BJgELkQL4bNByVXEC9OPsmYtX3TuAvr7gW4mCLcgEkBVdFYYtF5ultyG1H8jjypOn%2Fq251W1A%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "0"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": 0,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T09:37:49.539Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

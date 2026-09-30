@@ -32,7 +32,7 @@ The rule only ever blocks a _new_ disabled row on a locked topic. A pair that wa
 
 ## 5. The editor's grid is driven through the generated form, by design
 
-The generic playground table renderer has no interactive per-cell toggle of its own (its cell vocabulary is text/html/date/icon/badges, all read-only). The topic x channel grid is not undriveable — it is driveable through a different door: the editor publishes a real, non-empty `schema`/`uischema` pair (one boolean field per topic x channel pair, grouped by topic) generated at read time from the account's own topics and channels, and the playground's existing generic "open a form" handoff path renders and saves that grid with no change to the shared playground runtime. If a grid appears not to be interactive in a given surface, check whether that surface is reading the form definition, not whether the capability exists.
+The topic x channel grid has no per-cell toggle component. It is driven through the form definition instead: the editor publishes a real, non-empty `schema`/`uischema` pair (one boolean field per topic x channel pair, grouped by topic) generated at read time from the account's own topics and channels, and any generic form renderer can display and save that grid from it. If a grid appears not to be interactive in a given surface, check whether that surface is reading the form definition, not whether the capability exists.
 
 ## 6. A save in flight swallows a second save attempt — by design
 
@@ -44,24 +44,20 @@ There is a construction-time mechanism intended to unstick an editor scope that 
 
 This narrows one specific misfire (a signal that would otherwise wipe an in-progress, unsaved draft on an already-usable editor by re-running the initial load), but it does **not** restore a general guarantee that _waiting for the editor to become ready is sufficient protection against a later reload wiping unsaved work_. That general premise has been checked directly against the landed code and found false in at least one path, and no further fix against it is currently planned — it is recorded as the consuming caller's own contract to hold, not this module's to guarantee. A caller building a long-lived editor session against this module should not assume "I awaited readiness once at open time" is a durable guarantee against a later, external reload event; re-test this specific interaction if your integration depends on it, rather than trusting this note as a closed item.
 
-## 8. The `labs` (Vue) playground pages are unwired placeholders
-
-`playgrounds/labs/src/pages/account/notifications/Notifications.vue` and its `admin/` counterpart are both seven-line placeholder files (`<p>Notifications</p>`) that import nothing from this module. They are out of this module's own delivered scope — the playground that actually exercises this module is the separate `labs-nuxt` scenario at `/useClientNotifications` — but a reader who opens the `labs` pages directly will see nothing wired up and may reasonably conclude the module does nothing. It is not this module's bug; it is an unwired page in a different playground that happens to shadow it.
-
-## 9. Staff cannot act for a client here — and there is no context to widen into
+## 8. Staff cannot act for a client here — and there is no context to widen into
 
 Every one of the three server resources this module reads and writes is account-implicit: none of them carry a target-account identifier a staff caller could redirect against. Both scope matrices declare every actor cell unusable for `.for(...)`, and no context enum is published for a future capability to widen into. This is a recorded platform fact (no server-side address exists to retarget against today), not an oversight — do not add a context enum "for later" without first confirming the server side actually supports addressing another account on these endpoints.
 
-## 10. A `mandatory` field is declared on the topic type but never appears on a captured row
+## 9. A `mandatory` field is declared on the topic type but never appears on a captured row
 
 `NotificationTopic`'s `mandatory` field is typed optional and is genuinely absent on every topic row this module's recorded fixtures carry — nothing reads it. The locked/mandatory-badge behaviour you see in the UI is derived entirely from `canOptOut`, the one field that is actually present and actually read. Do not wire a consumer to `mandatory` expecting it to carry a value; confirm against a live capture first if you need it.
 
-## 11. Independent status — read this before trusting any capability claim in this doc set as final
+## 10. Independent status — read this before trusting any capability claim in this doc set as final
 
 The most recent independent check of this code's actual behaviour concluded the module was not yet ready to ship, citing two specific problems: a collection readiness signal that reported "ready" after a failed read (rendering every preference as falsely enabled), and an editor readiness signal that never settled at all after a failed read. That same check also found that several documented state flags (`isValid`, `isProcessing`, the collection's `error`, and others) had no test in the suite that would fail if the flag were replaced by a constant that never changed.
 
 Code changes addressing both readiness problems (now resolving a genuine `false` on error rather than hanging or reporting an unconditional `true`) are present in the current source, and tests targeting some of the previously-toothless assertions have since been added. **Neither has been independently re-checked.** Treat every "the readiness signal correctly reports X" statement elsewhere in this doc set as a description of the code's current intent, not as a re-confirmed fact, until a fresh independent check has run against this exact commit.
 
-## 12. The internal planning notes do not travel with the branch
+## 11. The internal planning notes do not travel with the branch
 
 The requirements, design notes, and task breakdown this module's build relied on are excluded from version control in this repository and exist only in the worktree that produced them. A fresh clone of this branch receives the code and its tests, but none of the planning record, acceptance criteria, or prior rulings behind it. If you are working from a fresh clone, do not assume any planning artifact referenced elsewhere is available to you locally.

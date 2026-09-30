@@ -1,0 +1,87 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40be9c4cec6aa15-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 17:57:46 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=pRxual3LVCbEjC2FSh9zql6keSEG3CIvhy7uz1U79uzosyQEIyvFnyIf1i%2BQ2BPDvxpz%2FpTrKmSLemPp6aGkfQL7WFiDX5AeMVQ8l0qfm7%2Bd5Add7CLmJLPzyTHyL3FSsNzAaP0slw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "2"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "20e43579-5e78-d184-430c-31643202d986",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "type": 1,
+          "default": true,
+          "verified": true,
+          "email": "mock-email-1@example.com",
+          "receive_emails": false,
+          "bounced": false,
+          "created_at": "2025-06-02 16:00:35",
+          "updated_at": "2026-09-25 17:37:27",
+          "bounced_at": null,
+          "can_delete": false
+        },
+        {
+          "id": "98574264-8970-1282-0e8b-21e325d0ed36",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "type": 1,
+          "default": false,
+          "verified": false,
+          "email": "client-email-unverified@example.com",
+          "receive_emails": false,
+          "bounced": false,
+          "created_at": "2026-09-25 17:57:45",
+          "updated_at": "2026-09-25 17:57:45",
+          "bounced_at": null,
+          "can_delete": true
+        }
+      ],
+      "related": null,
+      "total": 2,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T17:57:46.605Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-client-resends-a-verification-email"
+  }
+}

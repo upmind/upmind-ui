@@ -30,7 +30,12 @@
 
 import { describe, expect, it } from "vitest";
 import { ScopeActorTypes } from "@upmind-automation/headless";
-import { buildScopePath, parseScopeSuffix, stripScopeSuffix } from "..";
+import {
+  buildScopePath,
+  parseScopeSuffix,
+  stripScopeCatchAll,
+  stripScopeSuffix
+} from "..";
 
 // -----------------------------------------------------------------------------
 
@@ -178,5 +183,40 @@ describe("a retargeted scope address is untouched", () => {
   it("keeps an actor-only address readable and strippable", () => {
     expect(parseScopeSuffix("as/client").context).toBeUndefined();
     expect(stripScopeSuffix(`/${PAGE}/as/client`)).toBe(`/${PAGE}`);
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+describe("an invalid scope address redirects off itself", () => {
+  // The contract-product page takes no id, so an id in its url lands in the
+  // catch-all. The old stripper removed nothing from it, the redirect landed on
+  // the same url, and the page never loaded.
+  const ID = "78985742-6489-7012-05f2-1e325d0ed369";
+
+  it("strips the whole catch-all, trailing slash included", () => {
+    expect(
+      stripScopeCatchAll(`/useContractProduct/${ID}/as/client/`, [
+        ID,
+        "as",
+        "client",
+        ""
+      ])
+    ).toBe("/useContractProduct");
+  });
+
+  it("keeps the declared params in front of the catch-all", () => {
+    expect(stripScopeCatchAll("/useInvoice/o-1/bogus", ["bogus"])).toBe(
+      "/useInvoice/o-1"
+    );
+  });
+
+  it("reads a joined string suffix the same as the array", () => {
+    expect(
+      stripScopeCatchAll(
+        `/useContractProduct/${ID}/as/client`,
+        `${ID}/as/client`
+      )
+    ).toBe("/useContractProduct");
   });
 });

@@ -13,7 +13,8 @@
  * through the binding's default `id` identifier); `isSubscription` (a
  * duplicate of `billingCycleMonths > 0`); `product.name` (a duplicate of
  * `name`); `scheduledActions` (absent on a list read); `raw` as a whole
- * (two of its members are read individually below); every other detail-only
+ * (a filter-leaf envelope — every drawn value binds a mapped view-model
+ * field, never `raw.*`); every other detail-only
  * fact (`contractStatus`, `stagedImport`, `contractRequest`, `renew`,
  * `calculatedCancelDate`, `provisionSetupFieldsConfirmed`, `inTrial`,
  * `trialEndAction`, `importId`, `moved`, `canCancel`,
@@ -54,6 +55,42 @@ import type {
 
 // -----------------------------------------------------------------------------
 
+/**
+ * The status badges a row wears, read off `meta` (`contract-product.mappers.ts`,
+ * `mapContractProductMeta`) — one translated badge over the mapped flags, never
+ * the raw `status.code` (R38 item 9, G-1). One column says what the product is,
+ * as `useTickets` badges its own `meta`.
+ */
+const STATUS_BADGES = [
+  {
+    flag: "isActive",
+    i18n: "text.contract_status_active",
+    color: "success" as const
+  },
+  {
+    flag: "isAwaitingActivation",
+    i18n: "text.contract_status_awaiting_activation",
+    color: "warning" as const
+  },
+  {
+    flag: "isPending",
+    i18n: "text.contract_status_pending",
+    color: "info" as const
+  },
+  {
+    flag: "isSuspended",
+    i18n: "text.contract_status_suspended",
+    color: "warning" as const
+  },
+  { flag: "isCancelled", i18n: "text.contract_status_cancelled" },
+  { flag: "isClosed", i18n: "text.contract_status_closed" },
+  {
+    flag: "isFraud",
+    i18n: "text.contract_status_fraud",
+    color: "danger" as const
+  }
+];
+
 export const tableUischema: TableUischema = {
   type: "TableLayout",
   elements: [
@@ -64,28 +101,29 @@ export const tableUischema: TableUischema = {
       options: { width: TableColumnWidthTypes.THIRD }
     },
     {
-      type: "TableCellText",
-      scope: "#/properties/status/properties/code",
-      i18n: "text.status"
+      type: "TableCellBadges",
+      scope: "#/properties/meta",
+      i18n: "text.status",
+      options: { badges: STATUS_BADGES }
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/nextDueDate",
+      scope: "#/properties/dateNextDue",
       i18n: "text.next_due_date"
     },
     {
       type: "TableCellText",
-      scope: "#/properties/billingCycleMonths",
+      scope: "#/properties/billingCycle",
       i18n: "text.billing_cycle"
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/raw/properties/created_at",
+      scope: "#/properties/dateCreated",
       i18n: "text.purchase_date"
     },
     {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/total_amount",
+      scope: "#/properties/priceFormatted",
       i18n: "text.price"
     },
     {
@@ -111,10 +149,10 @@ export const cardUischema: CardUischema = {
       options: { slot: CardSlotTypes.TITLE }
     },
     {
-      type: "TableCellText",
-      scope: "#/properties/status/properties/code",
+      type: "TableCellBadges",
+      scope: "#/properties/meta",
       i18n: "text.status",
-      options: { slot: CardSlotTypes.SUBTITLE }
+      options: { badges: STATUS_BADGES, slot: CardSlotTypes.SUBTITLE }
     },
     {
       type: "TableCellIcon",
@@ -124,13 +162,13 @@ export const cardUischema: CardUischema = {
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/nextDueDate",
+      scope: "#/properties/dateNextDue",
       i18n: "text.next_due_date",
       options: { slot: CardSlotTypes.BODY }
     },
     {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/total_amount",
+      scope: "#/properties/priceFormatted",
       i18n: "text.price",
       options: { slot: CardSlotTypes.BODY }
     }
@@ -153,23 +191,24 @@ export const detailUischema: DetailUischema = {
       i18n: "text.product_name"
     },
     {
-      type: "TableCellText",
-      scope: "#/properties/contractProduct/properties/status/properties/code",
-      i18n: "text.status"
+      type: "TableCellBadges",
+      scope: "#/properties/contractProduct/properties/meta",
+      i18n: "text.status",
+      options: { badges: STATUS_BADGES }
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/contractProduct/properties/nextDueDate",
+      scope: "#/properties/contractProduct/properties/dateNextDue",
       i18n: "text.next_due_date"
     },
     {
       type: "TableCellText",
-      scope: "#/properties/contractProduct/properties/billingCycleMonths",
+      scope: "#/properties/contractProduct/properties/billingCycle",
       i18n: "text.billing_cycle"
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/contractProduct/properties/calculatedCancelDate",
+      scope: "#/properties/contractProduct/properties/dateCalculatedCancel",
       i18n: "text.calculated_cancel_date"
     },
     {

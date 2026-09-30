@@ -27,11 +27,10 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
-index f9de1acf0..2c5ac7160 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.services.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
-@@ -191,6 +191,7 @@ function loadList(
-   const excludeDelegated = excludeDelegatedFor(scopeContext, preference);
+@@ -207,6 +207,7 @@ function loadList(
+   const { taxType } = useBrand();
    const url = useUrl("contracts_products", {
      with: join(CONTRACT_PRODUCTS_LIST_WITH, ","),
 +    "filter[client_id]": clientId.value ?? "",

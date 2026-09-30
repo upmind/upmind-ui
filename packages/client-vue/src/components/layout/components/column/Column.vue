@@ -7,8 +7,8 @@
 <script lang="ts" setup>
 import { cn } from "@upmind/ui";
 import { computed } from "vue";
+import { useSection } from "@upmind-automation/foundation";
 import { isMobile } from "../../../../composables/isMobile";
-import { useSection } from "../../../section/useSection";
 import { columnVariants } from "./variants";
 import type { ColumnProps } from "./types";
 

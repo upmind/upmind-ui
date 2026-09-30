@@ -1,20 +1,24 @@
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/__tests__/contract-product.int-helpers
- * @description Shared integration scaffolding for contract-product's
- * `*.int.test.ts` files: seed a real authenticated client session, evict this
- * module's scope-registry entries between tests, expose the RECORDED wire
- * bodies every handler serves, and capture outbound requests.
+ * @description Shared integration scaffolding for contract-product's replay:
+ * seed a real authenticated client session (and a signed-out guest floor), and
+ * evict this module's scope-registry entries between scenarios.
  *
- * Every response body served here comes from a fixture captured by
- * `pnpm fixtures:generate contract-product` against real staging — no test
- * builds a wire body of its own.
+ * Every boot read is answered by the RECORDINGS of the module that owns it
+ * (`brand`, `system`, `basket`, `session-store`) through `replayStep`, never by
+ * a body written here (ADR 035). Mirrors
+ * `client-email/__tests__/client-email.int-helpers.ts` — a public
+ * test-infrastructure pattern, not this module's implementation source.
  */
 
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
+import { replayStep } from "@upmind-automation/test-fixtures/replay-server";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import { useBrand } from "../../brand";
 import { queryClient } from "../../query/client";
 import { getRegistry, remove } from "../../scope/scope.registry";
@@ -23,176 +27,22 @@ import {
   useActiveSession,
   useSessionStore
 } from "../../session-store";
-import { recordingsDir, server } from "./setup.integration";
-import type { ICProdGroup, IToken } from "@upmind-automation/types";
-import type { SetupServer } from "msw/node";
+import { server } from "./setup.integration";
+import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-/** The Upmind response envelope, as the recorded fixtures carry it. */
-export type ContractProductEnvelope<T> = {
-  status: string;
-  data: T;
-  total: number | null;
-  error: { code: number; message: string } | null;
-  messages: unknown;
-  meta: unknown;
-};
-
-/** The grouped-counts response envelope — the rows ride `total`, not `data` (AC-19). */
-export type GroupedCountsEnvelope = Omit<
-  ContractProductEnvelope<unknown[]>,
-  "total"
-> & {
-  data: unknown[];
-  total: ICProdGroup[];
-};
-
-/** The recorded bodies, by capture — the single source of every replay body. */
-export const recorded = {
-  /** `GET contracts_products?split_count=1&limit=10` — the production list. */
-  list: () =>
-    getFixtureBody<ContractProductEnvelope<{ id: string }[]>>(
-      "get-contracts-products-split-count-1",
-      { recordingsDir }
-    ),
-  /** `GET contract_products/{id}` — the 35-member client read (AC-4/AC-15). */
-  one: () =>
-    getFixtureBody<
-      ContractProductEnvelope<Record<string, unknown> & { id: string }>
-    >("get-contract-products-id", { recordingsDir }),
-  /** `GET contract_products/{id}` while a cancellation request is pending (AC-11). */
-  pendingRequest: () =>
-    getFixtureBody<
-      ContractProductEnvelope<Record<string, unknown> & { id: string }>
-    >("get-contract-products-id-case-pending-request", { recordingsDir }),
-  /** `GET clients/{id}/contracts/products` grouped counts — the rows on `total` (AC-19). */
-  groupedCounts: () =>
-    getFixtureBody<GroupedCountsEnvelope>("get-clients-id-contracts-products", {
-      recordingsDir
-    }),
-  /** `PUT .../modify_renew {renew:false}` — a real 200 (AC-5). */
-  softCancelled: () =>
-    getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(
-      "put-contracts-id-products-id-modify-renew-case-stop",
-      { recordingsDir }
-    ),
-  /** `PUT .../modify_renew {renew:true}` — a real 200 (AC-5). */
-  softCancelAborted: () =>
-    getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(
-      "put-contracts-id-products-id-modify-renew-case-resume",
-      { recordingsDir }
-    ),
-  /** `PUT .../properties` — a real 200 (AC-9). */
-  consolidationSet: () =>
-    getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(
-      "put-contracts-id-products-id-properties",
-      { recordingsDir }
-    ),
-  /** `PUT .../schedule-cancel` — a real 200 (AC-22). */
-  cancellationScheduled: () =>
-    getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(
-      "put-contracts-id-products-id-schedule-cancel",
-      { recordingsDir }
-    ),
-  /** `PUT .../schedule-cancel-revoke` — a real 200 (AC-23). */
-  cancellationRevoked: () =>
-    getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(
-      "put-contracts-id-products-id-schedule-cancel-revoke",
-      { recordingsDir }
-    ),
-  /** `POST contracts/{id}/cancel/request` — a real 200 (AC-6, R33). The hard
-   * cancellation moved from `useContract` to this module; its recorded capture
-   * still lives beside the contract read that first recorded it. */
-  cancellationRequested: () =>
-    getFixtureBody<ContractProductEnvelope<Record<string, unknown>>>(
-      "post-contracts-id-cancel-request",
-      { recordingsDir: contractRecordingsDir }
-    ),
-  /** `GET custom_fields?filter[object_type]=contract_request` — the brand's
-   * CANCEL_REQUEST custom-field catalogue, recorded beside the contract read.
-   * This brand defines none: the recorded `data` is empty. */
-  cancelRequestCatalogue: () =>
-    getFixtureBody<ContractProductEnvelope<Record<string, unknown>[]>>(
-      "get-custom-fields-brand-id-filter-object-type-contract-request",
-      { recordingsDir: contractRecordingsDir }
-    ),
-  /** `DELETE contracts/{id}/cancel/request` with `{ contract_request_id }` —
-   * the real 200 (AC-7, R33). */
-  withdrawn: () =>
-    getFixture("delete-contracts-id-cancel-request", {
-      recordingsDir: contractRecordingsDir
-    }),
-  /** The same DELETE naming a request that does not exist — the real 404. */
-  withdrawRefused: () =>
-    getFixture("delete-contracts-id-cancel-request-case-unknown-request", {
-      recordingsDir: contractRecordingsDir
-    }),
-  /** `GET contract_products/{id}` for an id the client does not own — the real 404. */
-  readNotFound: () =>
-    getFixture("get-contract-products-id-case-not-found", { recordingsDir })
-};
-
-/** The sibling contract module's recordings — the hard cancel/request POST and
- * withdraw DELETE captures the writes R33 moved here were recorded against. */
-export const contractRecordingsDir = join(
-  import.meta.dirname,
-  "../../contract/__tests__/fixtures"
+/** The owning modules' recordings that answer a signed-in boot's reads. */
+const OWNER_RECORDINGS = ["brand", "system", "basket"].map(module =>
+  join(import.meta.dirname, `../../${module}/__tests__/fixtures`)
 );
-
-// -----------------------------------------------------------------------------
-
-/**
- * Background bootstrap calls unrelated to any AC fire as a side effect of
- * `initStore()`; stub them harmlessly so they never surface as noise against
- * a suite scoped to contract-product.
- */
-export function installBackgroundStubs(): void {
-  server?.use(
-    http.get("*/org/modules", () =>
-      HttpResponse.json({ status: "ok", data: [] })
-    ),
-    http.get("*/config/organisation/values", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    ),
-    http.get("*/brand/settings", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    ),
-    http.get("*/billing_cycles", () =>
-      HttpResponse.json({ status: "ok", data: [] })
-    ),
-    http.get("*/config/brand/values", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    )
-  );
-}
-
-// -----------------------------------------------------------------------------
-
-/** Every live scope key this module currently holds — `contract-product:` only. */
-export function contractProductScopeKeys(): string[] {
-  return [...getRegistry().keys()].filter(key =>
-    /^contract-product:/.test(key)
-  );
-}
-
-/**
- * Evict every contract-product scope entry so each test starts from a fresh
- * instance against ITS OWN handlers.
- */
-export function resetContractProductScopes(): void {
-  for (const key of contractProductScopeKeys()) remove(key);
-  queryClient.clear();
-  useBrand().invalidate();
-}
-
-// -----------------------------------------------------------------------------
 
 export const sessionStoreRecordingsDir = join(
   import.meta.dirname,
   "../../session-store/__tests__/fixtures"
 );
 
+/** Answers `initStore()`'s guest-token bootstrap with session-store's capture. */
 function installGuestTokenStub(): void {
   const guestFixture = getFixture("post-oauth-access-token-guest", {
     recordingsDir: sessionStoreRecordingsDir
@@ -206,6 +56,95 @@ function installGuestTokenStub(): void {
   );
 }
 
+/**
+ * Boot reads unrelated to any AC (brand, system, basket, self) are answered by
+ * the RECORDINGS of the modules that own them, never by a body written here
+ * (ADR 035). Re-applied on every seed; the replay server resets handlers.
+ */
+export function installBackgroundStubs(): void {
+  for (const dir of OWNER_RECORDINGS) replayStep(server, dir);
+  replayStep(server, sessionStoreRecordingsDir);
+  // Last, so it answers first: every token grant shares one url and differs
+  // only by body, so the grant a boot mints — the guest's — is named.
+  installGuestTokenStub();
+}
+
+// -----------------------------------------------------------------------------
+
+/** The module's own registry namespace — both composables register under it. */
+export const SCOPE_NAMESPACE = "contract-product";
+
+/** Every live scope key this module currently holds in the registry. */
+export function contractProductScopeKeys(): string[] {
+  return [...getRegistry().keys()].filter(key =>
+    /^contract-product:/.test(key)
+  );
+}
+
+/**
+ * The custom-fields collections the manager composes for its forms. They
+ * register under their own namespace, so a manager's cancellation-fields read
+ * outlives its scenario and re-fires on the next sign-in unless evicted too.
+ */
+const CONSUMED_NAMESPACES = ["client-custom-fields"];
+
+/**
+ * Evict every contract-product scope entry, and every collection it composes,
+ * so each scenario starts from a fresh instance against ITS OWN handlers. The
+ * registry entry and the TanStack query cache are separate lifetimes, so the
+ * shared cache is cleared too, and the brand singleton is invalidated so its
+ * boot read re-runs against the scenario.
+ */
+export function resetContractProductScopes(): void {
+  const consumed = [...getRegistry().keys()].filter(key =>
+    CONSUMED_NAMESPACES.some(namespace => key.startsWith(`${namespace}:`))
+  );
+  for (const key of [...contractProductScopeKeys(), ...consumed]) remove(key);
+  queryClient.clear();
+  useBrand().invalidate();
+}
+
+// -----------------------------------------------------------------------------
+
+/** The scenario's own step-01 folder, armed ahead of the seed (see {@link armBootStep}). */
+let pendingBootStepDir: string | undefined;
+
+/**
+ * Names the scenario's step-01 folder so the next seed answers its boot reads
+ * — `brand/settings`, and the session's `/self` when step 01 recorded one — in
+ * front of the owner recordings (the client-personal-details AC-35 seam).
+ */
+export function armBootStep(dir: string): void {
+  pendingBootStepDir = dir;
+}
+
+/** Whether the armed step-01 folder recorded the session's own `/self`. */
+function bootStepRecordsSelf(): boolean {
+  return (
+    !!pendingBootStepDir &&
+    existsSync(pendingBootStepDir) &&
+    readdirSync(pendingBootStepDir).some(file => file.startsWith("get-self"))
+  );
+}
+
+/**
+ * Arms the owner boot recordings, then the scenario's step-01 recording in
+ * front of them, and re-reads the brand over those handlers. `refresh()`
+ * resolves before the re-read settles, so the seed waits on `isReady()` —
+ * else a scenario boots on the previous scenario's brand settings.
+ */
+async function armBoot(): Promise<void> {
+  installBackgroundStubs();
+  if (pendingBootStepDir && existsSync(pendingBootStepDir))
+    replayStep(server, pendingBootStepDir);
+  await useBrand().refresh();
+  await useBrand().isReady();
+}
+
+/**
+ * The recorded client token, and the `/self` body the seed starts from: the
+ * scenario's own step-01 capture when it recorded one, else session-store's.
+ */
 function recordedClientCredentials(): {
   clientToken: IToken;
   selfBody: { data: { actor: { id: string } } };
@@ -215,7 +154,9 @@ function recordedClientCredentials(): {
       recordingsDir: sessionStoreRecordingsDir
     }),
     selfBody: getFixtureBody<{ data: { actor: { id: string } } }>("get-self", {
-      recordingsDir: sessionStoreRecordingsDir
+      recordingsDir: bootStepRecordsSelf()
+        ? pendingBootStepDir
+        : sessionStoreRecordingsDir
     })
   };
 }
@@ -226,10 +167,9 @@ export async function seedClientSession(): Promise<{
   accessToken: string;
 }> {
   resetContractProductScopes();
-  installBackgroundStubs();
+  await armBoot();
 
   const { clientToken, selfBody } = recordedClientCredentials();
-  installGuestTokenStub();
 
   await useSessionStore().initStore();
   await useSessionStore()
@@ -248,119 +188,28 @@ export async function seedClientSession(): Promise<{
   };
 }
 
-// -----------------------------------------------------------------------------
-
-/** One observed outbound request. */
-export type ContractProductObservedRequest = {
-  method: string;
-  url: string;
-  headers: Record<string, string>;
-};
-
 /**
- * Passively observes EVERY outbound request.
- *
- * @remarks The caller MUST call `stop()` — there is no automatic cleanup. An
- * `afterEach(stop)` registered here would be inert: this helper is invoked
- * from inside a test BODY, and a hook registered during execution is not
- * collected for the running test. The earlier version of this function
- * registered one anyway, which advertised a safety net it did not provide.
+ * Seeds the guest floor a `@signed-out` scenario boots against: the module's
+ * own boot recordings are armed and the store settles on a guest session with
+ * NO client signed in, so both composables resolve `isAvailable:false` and any
+ * product request one makes anyway is an unmatched request the wall surfaces.
  */
-export function observeAllRequests(): {
-  all: () => ContractProductObservedRequest[];
-  matching: (fragment: string) => ContractProductObservedRequest[];
-  stop: () => void;
-} {
-  const seen: ContractProductObservedRequest[] = [];
-  const listener = ({ request }: { request: Request }): void => {
-    seen.push({
-      method: request.method,
-      url: request.url,
-      headers: Object.fromEntries(request.headers.entries())
-    });
-  };
-  server?.events.on("request:start", listener);
-  const stop = (): void =>
-    server?.events.removeListener("request:start", listener);
+export async function seedGuestSession(): Promise<void> {
+  resetContractProductScopes();
+  await armBoot();
 
-  return {
-    all: () => seen,
-    matching: (fragment: string) =>
-      seen.filter(entry => entry.url.includes(fragment)),
-    stop
-  };
-}
-
-const ACTING_AS_HEADER_KEYS = [
-  "x-acting-as",
-  "x-impersonate",
-  "x-on-behalf-of",
-  "x-staff-id",
-  "x-admin-id",
-  "impersonation"
-];
-
-/** Every header key the identity-transport read-back must NOT carry (A7). */
-export function assertNoActingAsHeaders(headers: Record<string, string>): void {
-  const keys = Object.keys(headers).map(key => key.toLowerCase());
-  for (const bannedKey of ACTING_AS_HEADER_KEYS) {
-    expect(keys).not.toContain(bannedKey);
-  }
-}
-
-/** The full A7 identity read-back for one observed request against a contract-product URL. */
-export function assertClientIdentityTransport(
-  observed: ContractProductObservedRequest,
-  accessToken: string
-): void {
-  expect(observed.url).toContain("/contracts/");
-  expect(observed.headers.authorization ?? observed.headers.Authorization).toBe(
-    `Bearer ${accessToken}`
+  await useSessionStore().initStore();
+  await Promise.resolve(useSessionStore().useActions().logout()).catch(
+    () => undefined
   );
-  assertNoActingAsHeaders(observed.headers);
-}
+  resetContractProductScopes();
 
-/**
- * Serves the RECORDED single-product read for every `GET contract_products/{id}`
- * request. An optional `row` override (a REAL row) is served in its place —
- * never a hand-typed body.
- */
-export function installProductHandler(
-  mswServer: SetupServer | undefined,
-  row?: Record<string, unknown> & { id: string }
-): { reads: () => number } {
-  const envelope = recorded.one();
-  const served = row ?? envelope.data;
-  let reads = 0;
-  mswServer?.use(
-    http.get("*/contract_products/:id", ({ params }) => {
-      if (String(params.id) !== served.id) return undefined;
-      reads += 1;
-      return HttpResponse.json({ ...envelope, data: served }, { status: 200 });
-    })
-  );
-  return { reads: () => reads };
-}
-
-/**
- * Serves the RECORDED CANCEL_REQUEST custom-field catalogue for every
- * `GET custom_fields?filter[object_type]=contract_request` request, and counts
- * the catalogue reads.
- */
-export function installCancelRequestCatalogueHandler(
-  mswServer: SetupServer | undefined
-): { reads: () => number } {
-  const envelope = recorded.cancelRequestCatalogue();
-  let reads = 0;
-  mswServer?.use(
-    http.get("*/custom_fields", ({ request }) => {
-      const objectType = new URL(request.url).searchParams.get(
-        "filter[object_type]"
-      );
-      if (objectType !== "contract_request") return undefined;
-      reads += 1;
-      return HttpResponse.json(envelope, { status: 200 });
-    })
-  );
-  return { reads: () => reads };
+  await vi.waitFor(() => {
+    expect(useActiveSession().useMeta().isAuthenticated.value).toBe(false);
+  });
+  await vi.waitFor(() => {
+    expect(
+      useSessionStore().useActions().get(AccessRoleTypes.GUEST)
+    ).toBeTruthy();
+  });
 }

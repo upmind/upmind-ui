@@ -42,6 +42,9 @@ export function createContractsMeta(
     /** True if this scope has no contracts. */
     isEmpty: isEmptyList,
 
+    /** True while ANY filter is applied. */
+    isFiltered: query.isFiltered,
+
     /** True while the list is loading or has not completed its first fetch. */
     isLoading
   };

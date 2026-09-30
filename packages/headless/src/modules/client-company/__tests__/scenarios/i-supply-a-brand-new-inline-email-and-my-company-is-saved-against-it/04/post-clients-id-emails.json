@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "email": "prover-inline-1790497670121@example.com"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a41921a698080f09-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 27 Sep 2026 08:27:50 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=y727pIMeGcRfmgeZ%2BoSu9jUo8WfL56ViVDOWchirqurTSZ2J8MAdCergSlFiwMZnFFfQFU5S8E3EQFcWZV07qW8HYJS1GZ7bnzy8t4iy2JXai5H8kBig1v2eHR8S2e7fS2pR67UkzQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "email": "prover-inline-1790497670121@example.com",
+        "type": 1,
+        "verified": false,
+        "default": false,
+        "user_id": "sys",
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "updated_at": "2026-09-27 08:27:50",
+        "created_at": "2026-09-27 08:27:50",
+        "id": "0e435795-e78d-1800-d8ea-31643202d986",
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-27T08:27:50.884Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "i-supply-a-brand-new-inline-email-and-my-company-is-saved-against-it"
+  }
+}

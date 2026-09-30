@@ -87,14 +87,14 @@ import { useTestAttrs } from "@upmind/ui";
 import { Markdown } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Hero } from "@upmind-automation/foundation";
+import { Back } from "@upmind-automation/foundation";
 import {
   useConfig,
   useRoutingEngine,
   validateTemplate
 } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import Hero from "../../components/hero/Hero.vue";
-import Back from "../../components/navigation/Back.vue";
 import { useThemes } from "../theming";
 import BillingForm from "./components/BillingForm.vue";
 import BillingEnclosedTemplate from "./templates/BillingEnclosed.template.vue";

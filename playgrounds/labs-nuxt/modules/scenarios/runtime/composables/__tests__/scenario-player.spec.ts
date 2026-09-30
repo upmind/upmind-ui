@@ -109,6 +109,8 @@ function forcedState(isAvailable = true): UseForcedState {
       log.push("force:off");
       preset.value = undefined;
     },
+    replayStep: async () => undefined,
+    captureGaps: () => [],
     whenReady: async () => undefined
   };
 }

@@ -131,7 +131,7 @@ export interface {Module}FormProps {
 | Template files | PascalCase.template.vue | `BillingFull.template.vue` |
 | Layout files | PascalCase.layout.vue | `DomainWidget.layout.vue` |
 | Variants files | variants.ts (always) | `variants.ts` |
-| Utils files | kebab-case.utils.ts | `session.utils.ts` |
+| Utils files | kebab-case.utils.ts | `auth.utils.ts` |
 | Types file | types.ts (always) | `types.ts` |
 | Index file | index.ts (always) | `index.ts` |
 | Export prefix | Upm{ModuleName} | `UpmBilling`, `UpmDomain` |

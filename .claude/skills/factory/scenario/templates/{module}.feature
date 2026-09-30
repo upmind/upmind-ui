@@ -52,29 +52,30 @@
 # receipt: client-billing-settings 2026-09-12, 26 scenarios, 18 driveable, 8
 # faked with 32 do-nothing steps).
 
+# EVERY SCENARIO BELOW IS RECORDED AS ITS OWN SEQUENCE (ADR 035).
+# `{module}.fixtures.ts` records it one step at a time into
+# `__tests__/scenarios/<scenario-slug>/<NN>/`, and the replay plays exactly
+# that. So a scenario states an OUTCOME a recording can hold — never a fixed
+# count, never a masked name like "mock-email-3" tied to one capture run —
+# and a scenario that writes names a value the GENERATOR itself sends (an
+# `@example.com` address it adds, say), so the scenario and its recording
+# carry the same words.
+
   @FE-0000 @layer-e2e @smoke
   Scenario: A client sees their own module collection
     Given the modules playground is generated for the active client
-    Then the collection holds 2 items
+    Then I see my modules
 
   @FE-0000 @layer-e2e
-  # A track that WRITES ends on the collection the user can see, never on the
-  # absence of an error — "reports no failure" is green while the surface shows
-  # exactly what it showed before (operator ruling 2026-08-13), and in a
-  # scenario nothing else drives it IS the whole track, which is the fake-step
-  # defect. There is no such step in the sibling catalog. Pattern:
+  # A track that WRITES ends on what the user can see changed, never on the
+  # absence of an error (operator ruling 2026-08-13). The value it adds is the
+  # one its generator step sends. Pattern:
   #
   #   Scenario: A client adds a module
-  #     When the client adds the module "mock-module-9"
-  #     Then the collection holds 4 items
-  #     And "mock-module-9" is listed
+  #     When the client adds the module "module-added@example.com"
+  #     Then "module-added@example.com" is listed
 
   Scenario: A client refreshes their module collection
     Given the modules playground is generated for the active client
     When the client refreshes the collection
-    Then the collection holds 2 items
-
-  @FE-0000 @layer-e2e
-  Scenario: Staff acting for a client read that client's module collection
-    Given a staff member acting for that client
-    Then the collection holds 2 items
+    Then I see my modules

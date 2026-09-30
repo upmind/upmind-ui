@@ -44,9 +44,9 @@ import {
 } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
 import { PaymentType } from "@upmind-automation/types";
-import { Icon } from "../../icon";
 import { map, take, get } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

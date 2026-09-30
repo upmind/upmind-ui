@@ -214,7 +214,7 @@ const { schema, uischema } = useClientEmailManager()
   .useContext();
 ```
 
-A form rendered from a definition the editor has not adopted validates against a different contract than the one that saves — which is why there is no second door. A copy of the pair, rendered as plain JSON for pasting into a form playground, is in [usage.md](./usage.md#the-form-definition--paste-ready).
+A form rendered from a definition the editor has not adopted validates against a different contract than the one that saves — which is why there is no second door. A copy of the pair, rendered as plain JSON for pasting into a form renderer, is in [usage.md](./usage.md#the-form-definition--paste-ready).
 
 > **🧪 For Testers:** The module's runtime exports are exactly: both composables, both scope matrices, both context enums, and the email categories. Anything else asserted on the barrel asserts `undefined`.
 

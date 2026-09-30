@@ -72,7 +72,8 @@ import { useClipboard } from "@vueuse/core";
 import { createHighlighter, type Highlighter } from "shiki";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon, useColorMode } from "@upmind-automation/client-vue";
+import { useColorMode } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { split } from "lodash-es";
 import type { CodeBlockProps } from "./types";
 

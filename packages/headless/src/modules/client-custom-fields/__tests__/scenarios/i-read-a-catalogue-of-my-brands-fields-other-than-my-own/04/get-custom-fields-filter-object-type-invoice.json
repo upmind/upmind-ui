@@ -1,0 +1,86 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/custom_fields?filter[object_type]=invoice&limit=0&order=order&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a41c6262090a517e-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sun, 27 Sep 2026 17:56:19 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Tq%2FuN8dpip3j3whRTCNWGV5VZwqpnmOA7D09BG%2BwFrdu5GPhwz0zvMSo2AhZniip4V%2FUixiBdO6dI53soU%2FTcv3AJIsFo5eaCBoBHU8b%2BKPX6uUXITuL6628GTZwCN7FMz14odgzCQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "5952098d-3de4-0917-26f3-1578626e347e",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "invoice",
+          "name": "FE-3145 client-visible invoice field",
+          "short_description": null,
+          "description": null,
+          "type": 1,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "825d96e7-63ed-0913-de6c-417482528340",
+          "order": 3,
+          "values": [],
+          "created_at": "2026-09-27 17:56:15",
+          "updated_at": "2026-09-27 17:56:15",
+          "code": "fe3145_invoice_field",
+          "user_only": false,
+          "show_on_order_form": false,
+          "show_on_invoice": true,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name_translated": "FE-3145 client-visible invoice field",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": [],
+          "type_code": "text_box",
+          "display_type": "Text",
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-27T17:56:20.256Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "i-read-a-catalogue-of-my-brands-fields-other-than-my-own"
+  }
+}

@@ -1,5 +1,7 @@
 import { computed } from "vue";
 import {
+  useContractProductPickerSchema,
+  useContractProductPickerUischema,
   useQuerySchema,
   useQueryUischema,
   useSortUischema
@@ -26,7 +28,7 @@ import type { Ref } from "vue";
  */
 export function createContractProductsContext(
   _actorScope: ScopeActorTypes,
-  _service: ContractProductServices,
+  service: ContractProductServices,
   query: ContractProductListQuery,
   groupedCounts: Ref<ICProdGroup[]>
 ) {
@@ -81,6 +83,15 @@ export function createContractProductsContext(
         schema: useQuerySchema(),
         uischema: useQueryUischema(),
         sortUischema: useSortUischema()
+      },
+      /**
+       * The product picker's pair, its lookup already bound to THIS scope's
+       * service (R38 item 2) — the same shape `useTickets` publishes for its
+       * `ticketPicker`.
+       */
+      contractProductPicker: {
+        schema: useContractProductPickerSchema(),
+        uischema: useContractProductPickerUischema(service.lookups)
       }
     }
   };

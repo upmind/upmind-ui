@@ -1,0 +1,19 @@
+# Negative control — the auth template names the platform unconditionally, so a
+# brand that has bought the branding out still carries "Powered by Upmind" on
+# its sign-in pages.
+#
+# Intended RED (tests/logged-out-shell.test.ts):
+#   "the sign-in pages' auth template > the footer > names the platform only where the brand allows it to be named"
+
+diff --git a/apps/portal-nuxt/app/portal/auth/templates/AuthEnclosed.template.vue b/apps/portal-nuxt/app/portal/auth/templates/AuthEnclosed.template.vue
+--- a/apps/portal-nuxt/app/portal/auth/templates/AuthEnclosed.template.vue
++++ b/apps/portal-nuxt/app/portal/auth/templates/AuthEnclosed.template.vue
+@@ -13,7 +13,7 @@
+ 
+     <template #footer>
+       <PortalAuthLegal />
+-      <PortalUpmind v-if="hasUpmindBranding" />
++      <PortalUpmind />
+       <slot name="actions" />
+     </template>
+   </AuthShell>

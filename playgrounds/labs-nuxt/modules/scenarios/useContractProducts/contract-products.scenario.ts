@@ -19,7 +19,7 @@
  * either: the page boots as self with no context — `CONTRACT_PRODUCTS_SCOPE_MATRIX`
  * (`contract-product.types.ts`) serves only `client`, with one SELECTOR
  * context (`delegated`), and the acting-for bar reaches it through the url's
- * own `/for/delegated` segment with no member listed here (D23).
+ * own `/for/delegated` segment with no member listed here (D25).
  */
 
 import {

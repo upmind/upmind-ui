@@ -1,83 +1,138 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview client-company — the co-located feature, REPLAYED
- * (every driveable scenario)
+ * @module client-company/__tests__/client-company.replay
+ * @description The co-located `client-company.feature`, REPLAYED through the
+ * module's own step catalog against the real composable — ONE scenario, ONE
+ * recording (FE-3145, ADR 035). Each driveable scenario plays its own
+ * `scenarios/<scenario>/` fixtures, step by step, and nothing else: before each
+ * step, that step's recorded answers are armed. A request no step of the
+ * scenario recorded fails the scenario by name. A scenario no step drives is
+ * skipped by name (spec-only, ADR-020 Am.5).
  *
- * ## Job To Be Done
- * Run the module's OWN `client-company.feature` through the module's OWN
- * `client-company.steps.ts`, against the REAL `useClientCompanies()` booted
- * THROUGH THE BARREL, over this module's own MSW-replayed staging recordings —
- * so a step naming a flag the collection does not publish, firing an action id
- * it does not own, or asserting a state the recorded corpus never reaches is
- * RED here, before any page exists.
- *
- * Per ADR-020 Amendment 5 the catalog decides, scenario by scenario, which of
- * the feature's scenarios are a playable TRACK. Only the criteria-channel
- * scenarios that a real `filterBy`/`sortBy` drives carry step definitions;
- * every capability proven at the unit/integration layer stays spec-only, and
- * `replayFeature` `it.skip`s any scenario no step of which matches — the
- * expected, correct outcome for a scenario nothing drives.
+ * The recordings come from `pnpm fixtures:generate client-company`, which
+ * records every driven scenario against staging.
  *
  * ## What Breaks If These Fail
- * The module's behavioural source of truth stops describing the module: the
- * feature and its catalog drift away from the composable, and nothing says so
- * until a page is built on top of them.
- *
- * @reference `packages/headless/src/modules/client-billing-settings/__tests__/`
- * — the one built replay pair, read while authoring this file, never a match
- * target.
+ * A fake step, a flag the composable does not publish, an action it does not
+ * expose, or a module that now asks the API something its scenario never
+ * recorded.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { useClientCompanies } from "..";
+import { describe, expect, it } from "vitest";
 import {
-  installCorpusReplay,
-  loadModuleCorpus
-} from "../../../testing/corpus-replay";
+  createStepMatcher,
+  parseFeatureScenarios
+} from "@upmind-automation/scenario-harness";
+import {
+  replayStep,
+  startScenarioReplay
+} from "@upmind-automation/test-fixtures/replay-server";
+import { useClientCompanies, useClientCompanyManager } from "..";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
+  scenarioDir,
+  stepDirDrift,
+  stepFixturesDir
+} from "../../../testing/scenario-fixtures";
+import { seedSessionFor } from "../../../testing/session-seed";
+import {
   resetClientCompanyScopes,
-  seedClientSession
+  seedClientSession,
+  seedGuestSession
 } from "./client-company.int-helpers";
 import {
   clientCompaniesSteps,
-  CLIENT_COMPANIES_SCENARIO
+  CLIENT_COMPANIES_SCENARIO,
+  CLIENT_COMPANY_MANAGER_SCENARIO
 } from "./client-company.steps";
 import { server } from "./setup.integration";
+import { forEach, includes, reject } from "lodash-es";
 import type { NodeComposable } from "../../../testing";
+import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
-/**
- * The corpus EVERY scenario starts from: a real authenticated client session
- * and this module's own recorded companies list, served alongside its real
- * `filter[name|like]=%Heg%` narrowed capture — so a `filterBy` search is a
- * genuine server-side re-query, not a client-side slice. Nothing here is built;
- * every body is a committed capture the kit already serves.
- */
-async function arrangeRecordedCorpus(): Promise<void> {
-  await seedClientSession();
-  installCorpusReplay(server, await loadModuleCorpus("client-company"));
+const feature = readFileSync(
+  join(import.meta.dirname, "client-company.feature"),
+  "utf-8"
+);
+
+let replay: ReturnType<typeof startScenarioReplay> | undefined;
+
+async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
+  if (!existsSync(scenarioDir(import.meta.dirname, scenario.name)))
+    throw new Error(
+      `"${scenario.name}" has no recording — record it with pnpm fixtures:generate client-company`
+    );
+
+  replay = startScenarioReplay(server);
+  await seedSessionFor(scenario, seedClientSession, seedGuestSession);
+}
+
+function cleanupScenario(scenario: FeatureScenario): void {
+  resetClientCompanyScopes();
+
+  const [gap] = replay?.gaps() ?? [];
+  replay = undefined;
+
+  if (gap) throw new Error(`"${scenario?.name ?? "scenario"}" — ${gap}`);
+}
+
+/** Arms the answers THIS step recorded; a step that made no request has none. */
+function armStep(scenario: FeatureScenario, index: number): void {
+  replayStep(server, stepFixturesDir(import.meta.dirname, scenario, index));
 }
 
 // -----------------------------------------------------------------------------
 
+/**
+ * Every recorded scenario holds ONE folder per step, numbered in step order —
+ * so a step added to or removed from the `.feature` fails here until the
+ * scenario is recorded again.
+ */
+describe("client-company — each recording reads one for one as its scenario", () => {
+  const matcher = createStepMatcher(clientCompaniesSteps);
+  const recorded = reject(
+    parseFeatureScenarios(feature),
+    ({ name, tags }) =>
+      includes(tags, "@todo") ||
+      !existsSync(scenarioDir(import.meta.dirname, name))
+  );
+
+  it("records at least one scenario", () => {
+    expect(recorded).not.toHaveLength(0);
+  });
+
+  forEach(recorded, scenario => {
+    it(`${scenario.name} — one folder per step`, () => {
+      expect(stepDirDrift(import.meta.dirname, scenario)).toStrictEqual({
+        missing: [],
+        extra: []
+      });
+      expect(matcher.malformedStepDefs).toStrictEqual([]);
+    });
+  });
+});
+
 replayFeature({
   moduleName: "client-company",
-  feature: readFileSync(
-    join(import.meta.dirname, "client-company.feature"),
-    "utf-8"
-  ),
+  feature,
   catalog: clientCompaniesSteps,
   composables: {
-    // The scope builder types `.as()` narrowly to this module's own
-    // actor×context matrix; `NodeComposable` is the erased structural shape the
-    // World boots. One widening cast at the seam, never a loosening of the
-    // helper — mirrors the reference module's own widening.
-    [CLIENT_COMPANIES_SCENARIO]: useClientCompanies as unknown as NodeComposable
+    // The scope builder types `.as()`/`.for()` narrowly to each composable's
+    // own actor×context matrix; `NodeComposable` is the erased structural shape
+    // the World boots. One widening cast per seam, never a loosening of the
+    // helper. Both surfaces are booted: the collection under its key, the form
+    // editor under its own (a scenario boots the one it drives).
+    [CLIENT_COMPANIES_SCENARIO]:
+      useClientCompanies as unknown as NodeComposable,
+    [CLIENT_COMPANY_MANAGER_SCENARIO]:
+      useClientCompanyManager as unknown as NodeComposable
   },
-  arrange: arrangeRecordedCorpus,
-  cleanup: resetClientCompanyScopes,
+  arrange: arrangeScenario,
+  beforeStep: armStep,
+  cleanup: cleanupScenario,
   timeoutMs: 60000
 });

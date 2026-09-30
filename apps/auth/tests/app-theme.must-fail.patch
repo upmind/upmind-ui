@@ -1,0 +1,22 @@
+# Negative control — the app stops writing the brand's theme at startup. With
+# no page applying a theme any more, nothing paints the sign-in screens in the
+# brand's theme: the document keeps no `data-theme` at all.
+#
+# Intended RED:
+#   apps/auth/tests/app-theme.test.ts
+#     "sets the brand's theme at startup once a brand id exists"
+#     "sets the brand's theme when the brand arrives after startup"
+#     "follows a theme change under the same brand id"
+
+diff --git a/apps/auth/src/App.vue b/apps/auth/src/App.vue
+--- a/apps/auth/src/App.vue
++++ b/apps/auth/src/App.vue
+@@ -26,7 +26,7 @@ watchEffect(() => {
+   const themeId = ui.theme.value;
+ 
+   if (brandId.value && themeId) {
+-    document.documentElement.setAttribute("data-theme", themeId);
++    return;
+   }
+ });
+ </script>

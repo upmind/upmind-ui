@@ -5,7 +5,6 @@ Full API reference for both composables. Every member below is read off the ship
 ```ts
 import {
   ScopeActorTypes,
-  TicketContextTypes,
   TicketsContextTypes,
   TicketsSortableProperties,
   useTicket,
@@ -20,18 +19,23 @@ import {
 The two composables are addressed differently, and this is deliberate; see [gotchas.md](./gotchas.md) #5.
 
 ```ts
+import { ScopeActorTypes, TicketsContextTypes, useTicket, useTickets } from "@upmind-automation/headless";
+
+declare const contractProductId: string;
+declare const ticketId: string;
+
 // THE COLLECTION — the client's own ticket list.
 const tickets = useTickets().as(ScopeActorTypes.SELF);
 
-// THE COLLECTION, read about ONE of my products (AC-7).
+// THE COLLECTION, read about ONE of my products.
 // CLIENT actor + PRODUCT context. The product is a relationship, so it is
 // the SCOPE — there is no product filter column to set.
 const productTickets = useTickets()
   .as(ScopeActorTypes.CLIENT)
   .for(TicketsContextTypes.CONTRACT_PRODUCT, contractProductId);
 
-// THE MANAGER — one ticket, addressed as a CONTEXT.
-// CLIENT actor + TICKET context. No cast on the builder, ever.
+// THE MANAGER — one ticket, addressed by its record id.
+// CLIENT actor, one ticket by record id. No cast on the builder, ever.
 const ticket = useTicket()
   .as(ScopeActorTypes.CLIENT)
   .withId(ticketId);
@@ -45,6 +49,10 @@ different axis from the entity a read is ABOUT, which is what `product` and
 Both return the uniform four-layer shape:
 
 ```ts
+import { ScopeActorTypes, useTickets } from "@upmind-automation/headless";
+
+const tickets = useTickets().as(ScopeActorTypes.SELF);
+
 const { useActions, useContext, useMeta, useInternals } = tickets;
 ```
 
@@ -53,6 +61,10 @@ One instance is minted per resolved scope and held in the scope registry, so it 
 Always wait for readiness before reading:
 
 ```ts
+import { ScopeActorTypes, useTickets } from "@upmind-automation/headless";
+
+const tickets = useTickets().as(ScopeActorTypes.SELF);
+
 await tickets.useActions().isReady(); // resolves true when ready, false when not addressable
 ```
 
@@ -79,6 +91,10 @@ Fifteen members.
 #### Narrowing, sorting, paging
 
 ```ts
+import { ScopeActorTypes, SortDirection, TicketsSortableProperties, useTickets } from "@upmind-automation/headless";
+
+const tickets = useTickets().as(ScopeActorTypes.SELF);
+
 tickets.useActions().setCriteria({
   query: "invoice",                                     // free text — min 3 chars
   filters: {
@@ -87,7 +103,7 @@ tickets.useActions().setCriteria({
     isClosed: { eq: false },                            // tri-state — gotchas #1
     created_at: { gte: "2026-01-01T00:00:00Z" }
   },
-  sort: [{ field: TicketsSortableProperties.SUBJECT, dir: "asc" }],
+  sort: [{ field: TicketsSortableProperties.SUBJECT, dir: SortDirection.ASC }],
   pagination: { limit: 20, offset: 0 }
 });
 ```
@@ -119,6 +135,15 @@ Sortable fields (`TicketsSortableProperties`): `REFERENCE`, `SUBJECT`, `CREATED_
 | `savePrefs()`              | `(prefs: Partial<TicketSupportPrefs>) => Promise<TicketSupportPrefs>` | Read-modify-write over the client's meta map.                       |
 
 ```ts
+import { ScopeActorTypes, useTickets } from "@upmind-automation/headless";
+import type { TicketAttachmentRef, TicketCreateModel } from "@upmind-automation/headless";
+
+declare const deskId: string;
+declare const productId: string;
+declare const ref: TicketAttachmentRef;
+
+const tickets = useTickets().as(ScopeActorTypes.SELF);
+
 const model: TicketCreateModel = {
   subject: "Renewal question",
   body: "When does this renew?",          // optional when files are attached
@@ -199,6 +224,12 @@ Nineteen members.
 #### The conversation
 
 ```ts
+import { ScopeActorTypes, useTicket } from "@upmind-automation/headless";
+
+declare const ticketId: string;
+
+const ticket = useTicket().as(ScopeActorTypes.CLIENT).withId(ticketId);
+
 await ticket.useActions().loadOlder(); // the FIRST load — gotchas #4
 const { entries, hasOlder, hasNewer, isLoading } = ticket.useContext().feed;
 ```
@@ -222,6 +253,13 @@ The attachments-only view loads messages only — it skips the status-log half e
 | `uploadAttachment()` | `(file: File) => Promise<TicketAttachmentRef>`                                     | Upload first, then pass the ref on `reply`'s `files`.        |
 
 ```ts
+import { ScopeActorTypes, useTicket } from "@upmind-automation/headless";
+
+declare const ticketId: string;
+declare const file: File;
+
+const ticket = useTicket().as(ScopeActorTypes.CLIENT).withId(ticketId);
+
 const ref = await ticket.useActions().uploadAttachment(file);
 await ticket.useActions().reply("See attached.", { files: [ref] });
 ```
@@ -262,6 +300,8 @@ await ticket.useActions().reply("See attached.", { files: [ref] });
 `feed.entries` is a discriminated union:
 
 ```ts
+import type { TicketMessage, TicketStatusLog } from "@upmind-automation/headless";
+
 type TicketFeedEntry =
   | { kind: "message"; message: TicketMessage }
   | { kind: "log"; log: TicketStatusLog };
@@ -338,6 +378,6 @@ Exported from `@upmind-automation/headless`:
 | `TicketsSortModel`        | its `sort` branch                                                      |
 | `TicketsScopeMatrix` / `TicketScopeMatrix` | the two scope matrices' types                          |
 
-Runtime values: `TICKETS_SCOPE_MATRIX`, `TICKET_SCOPE_MATRIX`, `TicketsContextTypes`, `TicketContextTypes`, `TicketsSortableProperties`.
+Runtime values: `TICKETS_SCOPE_MATRIX`, `TICKET_SCOPE_MATRIX`, `TicketsContextTypes`, `TicketsSortableProperties`.
 
 `Ticket` is deliberately `ITicket` with nothing stripped — the list row already carries `department`, `settings` and `contract_product` in full, so a consumer rarely needs a second read to draw a row.

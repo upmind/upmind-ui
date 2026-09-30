@@ -35,17 +35,13 @@ import {
   ErrorOrigin,
   responseCodes
 } from "@upmind-automation/headless";
-import type { UseOrder } from "@upmind-automation/headless";
+import type { InvoicePaymentChallenge } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const challenge = inject<{
-  renderChallenge: UseOrder["renderChallenge"];
-  cancelChallenge: UseOrder["cancelChallenge"];
-  meta: UseOrder["meta"];
-}>("usePaymentChallenge");
+const challenge = inject<InvoicePaymentChallenge>("usePaymentChallenge");
 
 if (!challenge) {
   throw new DetailedError(

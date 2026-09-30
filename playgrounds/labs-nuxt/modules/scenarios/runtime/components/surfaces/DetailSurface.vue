@@ -46,7 +46,7 @@
  */
 
 import { computed } from "vue";
-import { useFormI18n } from "@upmind-automation/client-vue";
+import { useFormI18n } from "@upmind-automation/foundation";
 import { resolveScope } from "../../scenario.utils";
 import { CellDispatcher } from "../cells";
 import ContextPanel from "../ContextPanel.vue";

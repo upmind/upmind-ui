@@ -10,6 +10,10 @@ export class Login {
   readonly popoverTrigger: Locator;
   readonly popoverContent: Locator;
   readonly alert: Locator;
+  /** The basket summary the host page draws beside the sign-in form. */
+  readonly basketSummary: Locator;
+  /** One row per basket product inside that summary. */
+  readonly basketSummaryProducts: Locator;
 
   constructor(page: Page, context?: BrowserContext) {
     this.page = page;
@@ -40,6 +44,13 @@ export class Login {
     this.alert = page
       .getByTestId("alert")
       .and(page.locator('[data-test-value="auth"]'));
+    const productRow = page
+      .getByTestId("description-list-item")
+      .and(page.locator('[data-test-value="product"]'));
+    this.basketSummary = page
+      .getByRole("complementary")
+      .filter({ has: productRow });
+    this.basketSummaryProducts = this.basketSummary.locator(productRow);
   }
 
   async inputLogin(username: string, password: string) {

@@ -1,5 +1,10 @@
 /** @internal */
 import { assign, createMachine, spawn } from "xstate";
+import {
+  CancellationRequestStatusCodes,
+  ContractStatusCodes,
+  TrialEndActionTypes
+} from "@upmind-automation/types";
 import { authSubscription } from "../session-store";
 import { useI18n } from "../system-localisation";
 import { mapContractProduct } from "./contract-product.mappers";
@@ -15,10 +20,7 @@ import {
   canConsolidate,
   cancellationOptions,
   hasHardCancellationRequest,
-  minFutureCancellationDate,
-  selectSetupNode,
-  selectStatusNode,
-  selectTrialNode
+  minFutureCancellationDate
 } from "./contract-product.utils";
 import {
   DetailedError,
@@ -62,33 +64,70 @@ export const contractProductMachine = createMachine(
         // A form's context slot is the form's own — outliving the read that
         // re-placed the product would leave a page drawing a dead form beside
         // its re-shown "open" control.
-        entry: [
-          "clearContractProduct",
-          "clearCancellation",
-          "clearConsolidation"
-        ],
+        entry: ["clearCancellation", "clearConsolidation"],
         invoke: {
           src: "load",
-          onDone: { actions: ["setContractProduct", "setLookups"] },
+          // The settled read places the status node; the guards read the
+          // record THIS read returned (the event), never the previous one.
+          onDone: [
+            {
+              target: ContractProductState.STAGED,
+              cond: "isStaged",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.CANCELLED,
+              cond: "isCancelled",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.LAPSED,
+              cond: "isLapsed",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.FRAUD,
+              cond: "isFraud",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.CANCELLING,
+              cond: "isCancelling",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.EXPIRING,
+              cond: "isExpiring",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.PENDING,
+              cond: "isPending",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.INACTIVE,
+              cond: "isInactive",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.ACTIVE,
+              cond: "isActive",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: ContractProductState.SUSPENDED,
+              cond: "isSuspended",
+              actions: ["setContractProduct", "setLookups"]
+            },
+            {
+              target: "#error",
+              // No status this machine knows (AC12).
+              actions: ["setContractProduct", "setLookups", "setStatusError"]
+            }
+          ],
           onError: { target: "#error", actions: ["setError"] }
-        },
-        always: [
-          { target: ContractProductState.STAGED, cond: "isStaged" },
-          { target: ContractProductState.CANCELLED, cond: "isCancelled" },
-          { target: ContractProductState.LAPSED, cond: "isLapsed" },
-          { target: ContractProductState.FRAUD, cond: "isFraud" },
-          { target: ContractProductState.CANCELLING, cond: "isCancelling" },
-          { target: ContractProductState.EXPIRING, cond: "isExpiring" },
-          { target: ContractProductState.PENDING, cond: "isPending" },
-          { target: ContractProductState.INACTIVE, cond: "isInactive" },
-          { target: ContractProductState.ACTIVE, cond: "isActive" },
-          { target: ContractProductState.SUSPENDED, cond: "isSuspended" },
-          {
-            target: "#error",
-            cond: "isUnrecognised",
-            actions: ["setStatusError"]
-          }
-        ]
+        }
       },
 
       error: {
@@ -588,59 +627,56 @@ export const contractProductMachine = createMachine(
         !hasHardCancellationRequest(contractProduct) &&
         !contractProduct?.hasScheduledFutureCancellation,
 
-      isStaged: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.STAGED,
-      isCancelled: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.CANCELLED,
-      isLapsed: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.LAPSED,
-      isFraud: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.FRAUD,
-      isCancelling: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.CANCELLING,
-      isExpiring: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.EXPIRING,
-      isPending: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.PENDING,
-      isInactive: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.INACTIVE,
-      isActive: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.ACTIVE,
-      isSuspended: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectStatusNode(contractProduct) === ContractProductState.SUSPENDED,
-      isUnrecognised: ({ contractProduct, error }: ContractProductContext) =>
-        !!contractProduct &&
-        !error &&
-        selectStatusNode(contractProduct) === undefined,
+      isStaged: (_context: ContractProductContext, { data }: AnyEventObject) =>
+        data.record.staged_import,
+      isCancelled: (
+        _context: ContractProductContext,
+        { data }: AnyEventObject
+      ) => data.record.status?.code === ContractStatusCodes.CANCELLED,
+      isLapsed: (_context: ContractProductContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.CLOSED,
+      isFraud: (_context: ContractProductContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.FRAUD,
+      isCancelling: (
+        _context: ContractProductContext,
+        { data }: AnyEventObject
+      ) =>
+        data.record.contract_request?.status?.code ===
+        CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST,
+      isExpiring: (
+        _context: ContractProductContext,
+        { data }: AnyEventObject
+      ) =>
+        data.record.billing_cycle_months > 0 &&
+        !data.record.renew &&
+        !!data.record.calculated_cancel_date,
+      isPending: (_context: ContractProductContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.PENDING,
+      isInactive: (
+        _context: ContractProductContext,
+        { data }: AnyEventObject
+      ) => data.record.status?.code === ContractStatusCodes.AWAITING_ACTIVATION,
+      isActive: (_context: ContractProductContext, { data }: AnyEventObject) =>
+        data.record.status?.code === ContractStatusCodes.ACTIVE,
+      isSuspended: (
+        _context: ContractProductContext,
+        { data }: AnyEventObject
+      ) => data.record.status?.code === ContractStatusCodes.SUSPENDED,
 
       isSetupIncomplete: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectSetupNode(contractProduct) ===
-          ContractProductState.SETUP_INCOMPLETE,
+        contractProduct?.provisionSetupFieldsConfirmed === false,
       isSetupComplete: ({ contractProduct }: ContractProductContext) =>
         !!contractProduct &&
-        selectSetupNode(contractProduct) ===
-          ContractProductState.SETUP_COMPLETE,
+        contractProduct.provisionSetupFieldsConfirmed !== false,
 
       isTrialRunning: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectTrialNode(contractProduct) === ContractProductState.TRIAL_RUNNING,
+        !!contractProduct?.inTrial &&
+        contractProduct.trialEndAction !== TrialEndActionTypes.CANCEL,
       isTrialEnding: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectTrialNode(contractProduct) === ContractProductState.TRIAL_ENDING,
+        !!contractProduct?.inTrial &&
+        contractProduct.trialEndAction === TrialEndActionTypes.CANCEL,
       isTrialNone: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct &&
-        selectTrialNode(contractProduct) === ContractProductState.TRIAL_NONE
+        !!contractProduct && !contractProduct.inTrial
     },
 
     services

@@ -150,10 +150,25 @@
     "label": "Cancellation reason",
     "placeholder": "Please tell us why you're cancelling..."
   },
+  "contract_created_filter": {
+    "description": null,
+    "label": "Date created",
+    "placeholder": null
+  },
   "contract_lookup": {
     "description": null,
     "label": "Contract",
     "placeholder": "Select a contract"
+  },
+  "contract_next_due_filter": {
+    "description": null,
+    "label": "Next due date",
+    "placeholder": null
+  },
+  "contract_order_filter": {
+    "description": null,
+    "label": "Order number",
+    "placeholder": null
   },
   "contract_payment_method": {
     "description": null,
@@ -177,6 +192,7 @@
     "label": "Category"
   },
   "contract_product_category_name": {
+    "label": "Catalogue product category",
     "placeholder": "Category name"
   },
   "contract_product_date_purchased": {
@@ -206,6 +222,7 @@
     "placeholder": "Select a contract product"
   },
   "contract_product_name_search": {
+    "label": "Catalogue product name",
     "placeholder": "Search by product name..."
   },
   "contract_product_next_due_date": {
@@ -220,6 +237,7 @@
     "label": "Product / Service price"
   },
   "contract_product_search": {
+    "label": "Search",
     "placeholder": "Quick search"
   },
   "contract_product_sort": {
@@ -232,10 +250,40 @@
   "contract_product_status": {
     "label": "Status"
   },
-  "contract_product_subscriptions_only": {
-    "label": "Subscriptions only",
-    "0": "Subscriptions only",
-    "null": "All"
+  "contract_product_subscription_type": {
+    "label": "Type",
+    "all": "All",
+    "subscriptions": "Subscriptions only",
+    "one_time": "One-time only"
+  },
+  "contract_search_filter": {
+    "description": null,
+    "label": "Search",
+    "placeholder": "Quick search"
+  },
+  "contract_sort": {
+    "label": "Sort by",
+    "created_at": "Date created",
+    "next_due_date": "Next due date",
+    "total_amount": "Total",
+    "status": "Status"
+  },
+  "contract_status_filter": {
+    "description": null,
+    "label": "Status",
+    "placeholder": null,
+    "contract_active": "Active",
+    "contract_awaiting_activation": "Awaiting activation",
+    "contract_cancelled": "Cancelled",
+    "contract_closed": "Closed",
+    "contract_fraud": "Fraud",
+    "contract_pending": "Pending",
+    "contract_suspended": "Suspended"
+  },
+  "contract_total_filter": {
+    "description": null,
+    "label": "Total",
+    "placeholder": null
   },
   "country": {
     "description": null,
@@ -404,25 +452,6 @@
     "paid_datetime": "Paid",
     "due_date": "Due",
     "cancellation_datetime": "Cancelled"
-  },
-  "client_orders_sort": {
-    "description": null,
-    "label": "Sort",
-    "placeholder": null,
-    "id": "Number",
-    "total_amount": "Total",
-    "status_id": "Status",
-    "created_at": "Date created"
-  },
-  "client_orders_status_filter": {
-    "description": null,
-    "label": "Status",
-    "placeholder": null,
-    "invoice_paid": "Paid",
-    "invoice_unpaid": "Unpaid",
-    "invoice_overdue": "Overdue",
-    "invoice_cancelled": "Cancelled",
-    "invoice_refunded": "Refunded"
   },
   "invoice_status_filter": {
     "description": null,
@@ -696,5 +725,24 @@
     "true": "Verified",
     "false": "Unverified",
     "null": "All"
+  },
+  "client_orders_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "id": "Number",
+    "total_amount": "Total",
+    "status_id": "Status",
+    "created_at": "Date created"
+  },
+  "client_orders_status_filter": {
+    "description": null,
+    "label": "Status",
+    "placeholder": null,
+    "invoice_paid": "Paid",
+    "invoice_unpaid": "Unpaid",
+    "invoice_overdue": "Overdue",
+    "invoice_cancelled": "Cancelled",
+    "invoice_refunded": "Refunded"
   }
 }

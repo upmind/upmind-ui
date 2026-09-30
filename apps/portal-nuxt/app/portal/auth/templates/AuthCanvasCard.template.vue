@@ -1,0 +1,40 @@
+<template>
+  <AuthShell skip-label="Skip to content">
+    <template #header>
+      <PortalAuthBrand />
+      <slot name="back" />
+      <PortalAuthStore />
+    </template>
+
+    <slot name="hero" />
+    <slot name="markdown" />
+
+    <Card>
+      <slot name="form" />
+    </Card>
+
+    <slot name="summary" />
+
+    <template #footer>
+      <PortalAuthLegal />
+      <PortalUpmind v-if="hasUpmindBranding" />
+      <slot name="actions" />
+    </template>
+  </AuthShell>
+</template>
+
+<script setup lang="ts">
+import { AuthShell, Card } from "@upmind/ui";
+import { useBrand } from "@upmind-automation/headless";
+import PortalAuthBrand from "../PortalAuthBrand.vue";
+import PortalAuthLegal from "../PortalAuthLegal.vue";
+import PortalAuthStore from "../PortalAuthStore.vue";
+import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
+import type { AuthRoutes } from "@upmind-automation/auth";
+
+defineProps<AuthRoutes>();
+
+defineOptions({ inheritAttrs: false });
+
+const { hasUpmindBranding } = useBrand();
+</script>

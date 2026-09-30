@@ -17,12 +17,11 @@
  * next change to `runtime/**` cannot quietly start drawing something on a
  * sibling page that never declared it.
  *
- * Rendered-output regression coverage for these same seven modules already
- * exists and stays green post-fix — `forced-surface.{client-address,
- * client-company,client-custom-fields,client-email,client-email-history,
- * client-personal-details,client-phone}.spec.ts`, 39/39, re-run for this
- * dispatch (see this story's read-back). This file adds the declaration-
- * level guard those suites do not check for: that neither new field is
+ * Rendered-output regression coverage for these same seven modules is owed
+ * by each module's own replayed `.feature` scenarios (D20), not by a
+ * playground-side spec (operator ruling, 2026-09-28: the playground carries
+ * no module-specific tests). This file adds the declaration-
+ * level guard that replay does not check for: that neither new field is
  * PRESENT at all on any sibling, not merely that it currently renders
  * nothing (a declaration that started naming `notices`/`siblings` today
  * with an empty or matching-shaped value could still slip the rendered

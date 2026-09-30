@@ -30,7 +30,7 @@
 import { Badge, Heading } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { metaPanel } from "./MetaPanel.styles";
 import { entries, map, sortBy, startCase } from "lodash-es";
 import type { MetaPanelItem, MetaPanelProps } from "./MetaPanel.types";

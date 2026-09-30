@@ -1,7 +1,8 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { SortDirection } from "../query";
 import { ScopeActorTypes } from "../scope/scope.types";
-import type { ResponseError } from "../../utils";
-import type { ContractProduct } from "../contract-product";
+import type { FormattedDate, ResponseError } from "../../utils";
+import type { LookupItem } from "../lookup";
 import type { PaymentDetail } from "../payment-details";
 import type { ListQuery } from "../query";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
@@ -11,6 +12,8 @@ import type {
   ContractStatusCodes,
   IContract,
   IContractCancellationRequest,
+  IContractProduct,
+  IProduct,
   IStatus
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -99,14 +102,45 @@ export enum ContractState {
 // VIEW MODEL — the mapping law (design 8.10, R19, R24, R25)
 // -----------------------------------------------------------------------------
 
-/** The contract's `status`, narrowed to the platform enum. */
+/** The contract's `status`, narrowed to the platform enum, plus its translated name. */
 export type ContractStatus = Pick<IStatus, "code"> & {
   code: ContractStatusCodes;
+  /** `status.name_translated`, else `status.name` (R38 item 9). */
+  name?: IStatus["name"];
 };
 
-/** The cancellation request's `status`, narrowed to the platform enum. */
+/** The cancellation request's `status`, narrowed to the platform enum, plus its translated name. */
 export type CancellationRequestStatus = Pick<IStatus, "code"> & {
   code: CancellationRequestStatusCodes;
+  /** `status.name_translated`, else `status.name` (R38 item 9). */
+  name?: IStatus["name"];
+};
+
+/**
+ * One boolean per contract status code. A surface reads these off `meta`, the
+ * same idiom the tickets module publishes for its own status badge
+ * (`tickets.mappers.ts`'s `meta`, R38 item 9, G2).
+ */
+export type ContractMeta = {
+  isActive: boolean;
+  isAwaitingActivation: boolean;
+  isCancelled: boolean;
+  isClosed: boolean;
+  isFraud: boolean;
+  isPending: boolean;
+  isSuspended: boolean;
+};
+
+/**
+ * One boolean per cancellation-request status code — the same `meta` idiom,
+ * for the contract's OWN cancellation request (R38 item 9, G2).
+ */
+export type ContractCancellationRequestMeta = {
+  isAccepted: boolean;
+  isCancellationRequest: boolean;
+  isEndOfBillingCycle: boolean;
+  isEndOfBillingCycleUnacknowledged: boolean;
+  isScheduledFutureCancellation: boolean;
 };
 
 /** The `cancellation_request` relation, reduced to the one member this module reads. */
@@ -115,16 +149,54 @@ export type ContractCancellationRequest = {
     IContractCancellationRequest,
     "status"
   >]?: CancellationRequestStatus;
+} & {
+  /** The translated-badge flags for the cancellation request's own status (R38 item 9, G2). */
+  meta?: ContractCancellationRequestMeta;
+};
+
+/**
+ * One of a contract's products as R34 shapes it: its id, plus what the list
+ * row names — its own `name` and its catalogue product's `name`. NOT a full
+ * `ContractProduct` view model; each product loads itself through
+ * `useContractProduct` (R34).
+ */
+export type ContractProductListItem = {
+  id: IContractProduct["id"];
+  name: IContractProduct["name"];
+  product?: Pick<IProduct, "name">;
+  /** The product is delegated to this client, not owned — legacy withholds settings changes on it. */
+  isDelegatedObject: IContractProduct["is_delegated_object"];
 };
 
 /** The view model `contract.mappers.ts` maps `IContract` into — only the fields this module reads. */
 export type Contract = {
   id: IContract["id"];
   status: ContractStatus;
+  /** The translated-badge flags for `status.code` and for the cancellation request's own code, so one status cell badges both (R38 item 9, G2). */
+  meta: ContractMeta & ContractCancellationRequestMeta;
   cancellationRequest?: ContractCancellationRequest;
   /** The stored method that pays the contract today — the no-op refusal of `setPaymentMethod` reads it (AC8, R31). */
   paymentDetailsId: IContract["payment_details_id"];
-  products: ContractProduct[];
+  /** This contract's products as ids plus what the list row names (R34) — NOT full `ContractProduct` view models. */
+  products: ContractProductListItem[];
+  /** What a client recognises the contract by (R38 item 8) — legacy's own title. */
+  name: IContract["name"];
+  /** The display title — `name`, else `#main_invoice_number` (R38 item 8). */
+  title?: string;
+  /** When the contract next bills (R38 item 8), as the wire ISO — never `raw.next_due_date`. `dateNextDue` is its display descriptor. */
+  nextDueDate: IContract["next_due_date"];
+  /** The next-due date a column DRAWS — a `useDate` descriptor `TableCellDate` reads, beside the ISO `nextDueDate` (tickets/invoices `date*` shape); empty for a one-time contract with no next due date. */
+  dateNextDue: FormattedDate;
+  /** The contract's own billing cycle, in months (R38 item 8). */
+  billingCycleMonths: IContract["billing_cycle_months"];
+  /** The translated billing-cycle label (R38 item 10, GAP-02) — legacy's cycle name; "One time" for a one-time contract. */
+  billingCycleLabel: string;
+  /** When the contract was purchased (R38 item 8), as the wire ISO — never `raw.start_date`. `datePurchased` is its display descriptor. */
+  purchaseDate: IContract["start_date"];
+  /** The purchase date a column DRAWS — the display descriptor beside the ISO `purchaseDate`. */
+  datePurchased: FormattedDate;
+  /** The wire-formatted recurring price (R38 item 8, R38 item 10 — no `raw.*` binding). */
+  totalAmountFormatted: IContract["total_amount_formatted"];
   /** The wire record this view model was mapped from (AC24, R19). */
   raw: IContract;
 };
@@ -202,19 +274,82 @@ export type SetPaymentMethodBody = {
 };
 
 // -----------------------------------------------------------------------------
-// QUERY MODEL — pagination only (design 8.1, AC14)
+// QUERY MODEL — the criteria schema owns ALL request state (R38 item 13,
+// supersedes R28/R32's pagination-only ruling)
 // -----------------------------------------------------------------------------
+
+/**
+ * One sort entry over the contract's own fields. `name` is dropped (G1): every
+ * recorded contract carries `name: null`, so ordering by it orders a column
+ * that is never set.
+ */
+export type SortEntry = {
+  field: "created_at" | "next_due_date" | "total_amount" | "status";
+  dir: SortDirection;
+};
 
 /** The collection's ONE request-state model — the instance `useQuerySchema()` validates. */
 export type QueryModel = {
+  /** The platform quick-search term (G1) — searches across a contract's title, `name` and `main_invoice_number` alike, unlike the `filters.name` branch below. */
+  query?: string | null;
+  /** The filter branch — the contract's own fields plus legacy's contract filters (`vue-app src/data/filters/contract.ts`, G3). */
+  filters?: {
+    name?: { like?: string | null };
+    /** The order number a contract's invoice carries (G3, legacy's "order" filter). */
+    main_invoice_number?: string | null;
+    "status.code"?: ContractStatusCodes[] | null;
+    created_at?: { gte?: string | null; lte?: string | null };
+    next_due_date?: { gte?: string | null; lte?: string | null };
+    /** The contract's own recurring total (G3, legacy's "total" filter). */
+    total_amount?: number | null;
+  };
+  sort?: SortEntry[];
   // `offset` alone is unspellable — with no page size the page index is NaN; `limit` alone stays the page-size door.
   pagination?:
     | { limit?: number; offset?: never }
     | { limit: number; offset?: number };
 };
 
+/** The nested filter model — the `filters` branch of {@link QueryModel}. */
+export type FilterModel = NonNullable<QueryModel["filters"]>;
+
+/** The ordered sort model — the `sort` branch of {@link QueryModel}. */
+export type SortModel = NonNullable<QueryModel["sort"]>;
+
+/** The order the list starts in — declared as the query schema's `sort` default. */
+export const DEFAULT_SORT: SortModel = [
+  { field: "created_at", dir: SortDirection.ASC }
+];
+
 /** The reactive list query, minted ONCE per scope in `useContracts.ts`. */
 export type ContractListQuery = ListQuery<IContract[], Contract[], QueryModel>;
+
+// -----------------------------------------------------------------------------
+// CONTRACTS PICKER — the lookup `useContract` draws on when it has no id yet
+// (R38 item 7, the `useTicket` / `schemas.ticketPicker` shape)
+// -----------------------------------------------------------------------------
+
+/**
+ * The contracts picker's own criteria — the platform quick-search term a
+ * picker control writes (G1: searches title, `name` and `main_invoice_number`
+ * alike, not a `filters.name.like` branch that a nameless contract never
+ * matches). Distinct from `invoices`' cross-module contract lookup, which
+ * finds a contract FOR an invoice; this finds a contract IN this collection.
+ */
+export type ContractsPickerLookupQueryModel = {
+  query?: string | null;
+  pagination?: { limit?: number; offset?: number };
+};
+
+/** The contracts picker's lookup handle — a `listInfinite` query whose `select` maps rows to the option shape a lookup control renders. */
+export type ContractsPickerLookupQuery = ListQuery<
+  IContract[],
+  LookupItem[],
+  ContractsPickerLookupQueryModel
+>;
+
+/** A THUNK returning the once-minted {@link ContractsPickerLookupQuery}, so the first fetch defers to the control's own read. */
+export type ContractsPickerLookupService = () => ContractsPickerLookupQuery;
 
 // -----------------------------------------------------------------------------
 // SERVICES CONTRACTS
@@ -232,6 +367,8 @@ export type ContractServices = {
   loadList: () => ContractListQuery;
   /** Invalidates {@link ContractServices.queryKey} so every reader refetches. */
   refresh: () => Promise<void>;
+  /** The picker's lookup, THUNKed so its first fetch defers to the control's own read (R38 item 7). */
+  lookups: { contract: ContractsPickerLookupService };
 };
 
 /** The XState services map `contract.machine.ts` invokes — one key per `invoke.src`. */

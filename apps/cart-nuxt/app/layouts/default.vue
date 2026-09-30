@@ -36,6 +36,7 @@
  * Reconstructs the Upmind shell using modular components.
  * Session/basket redirect watchers are handled by the funnel engine (watchers.ts).
  */
+import { UpmAuthAction } from "@upmind-automation/auth";
 import {
   UpmPage,
   UpmHeader,
@@ -45,7 +46,6 @@ import {
   UpmLoading,
   UpmRoot,
   UpmBasketAction,
-  UpmAuthAction,
   UpmOverlayController,
   useOverlayRoute,
   useRoutingEngine

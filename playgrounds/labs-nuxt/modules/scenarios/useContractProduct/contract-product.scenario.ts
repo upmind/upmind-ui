@@ -24,8 +24,9 @@
  * `.as(ScopeActorTypes.CLIENT).withId(id)` (R11 — enum members, no cast;
  * `CONTRACT_PRODUCT_SCOPE_MATRIX` refuses every actor a `.for()` context, so
  * `.as()` is the only step). OPTIONAL, because the bare url is the empty
- * state — with no id the page offers an id input, since the collection
- * publishes no picker pair of its own (D51).
+ * state — with no id the page draws the collection's own finder
+ * (`useContractProducts().useContext().schemas.contractProductPicker`), the
+ * pick writing the id the manager boots by (R38 item 2).
  *
  * `useManage` is the opt-in a self-drawn declaration makes so the harness can
  * build a boot thunk for its key, and `tracks` names the module whose

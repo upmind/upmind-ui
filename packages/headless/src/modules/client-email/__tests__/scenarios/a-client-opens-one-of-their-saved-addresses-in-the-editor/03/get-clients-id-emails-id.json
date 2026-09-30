@@ -1,0 +1,66 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails/085e69d5-6237-194e-795b-218e940d4237",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40bea22be95aa15-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 17:58:01 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Jqn4cog%2BZcRjraNMk56fcgeqI%2BPPKuLQpyFDC0uMi%2BusGjJ%2FG4B%2ByZJWo4MkJEna%2Bi7tOvUtFxs0mixr2DINzL7Ucire3XjvvOO4OsLYPfPYXNQxKbfkE6C7Kt6t9P4%2FmxNY3BP7fA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "085e69d5-6237-194e-795b-218e940d4237",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "user_id": "sys",
+        "type": 1,
+        "default": false,
+        "verified": false,
+        "email": "client-email-editor-open@example.com",
+        "receive_emails": false,
+        "bounced": false,
+        "created_at": "2026-09-25 17:58:00",
+        "updated_at": "2026-09-25 17:58:00",
+        "bounced_at": null,
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T17:58:01.805Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-client-opens-one-of-their-saved-addresses-in-the-editor"
+  }
+}

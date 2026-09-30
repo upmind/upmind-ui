@@ -56,7 +56,7 @@ export function emptyToNull<T>(value: T | ""): T | null {
   return value === "" ? null : (value as T);
 }
 
-/** Maps the raw client record into the read half's own view-model (AC1, AC14). */
+/** Maps the raw client record into the read half's own view-model (AC1). */
 export function mapBillingSettings(raw: IClient): BillingSettingsRecord {
   return {
     id: raw.id,
@@ -65,7 +65,6 @@ export function mapBillingSettings(raw: IClient): BillingSettingsRecord {
     dayOfWeek: emptyToNull(raw.invoice_consolidation_base_rule_day_of_week),
     dateOfMonthDay: raw.invoice_consolidation_base_rule_date_of_month_day,
     dueDateDay: raw.invoice_consolidation_due_date_day,
-    isStaged: !!raw.staged_import,
     neverSuspend: !!raw.never_suspend
   };
 }
@@ -103,20 +102,39 @@ export function mapIBillingSettingsFields(
 ): BillingSettingsUpdateBody | undefined {
   const diff: BillingSettingsUpdateBody = {};
 
-  if (model.enabled !== baseModel.enabled) {
+  // An `undefined` model leaf is UNTOUCHED, never a change: a save that edits
+  // only another surface (e.g. the account currency, AC-21) carries no
+  // consolidation keys, and `useModelParser` compacts this module's `null`
+  // "follow the brand" leaves away entirely — so those keys arrive `undefined`
+  // here, NOT `null`. Diffing `undefined !== null` (the wire's cleared value)
+  // would mint a key whose value `JSON.stringify` then drops, firing a
+  // zero-change `PUT clients/{id}` on a currency-only save. A genuine clear is
+  // an explicit `null` (`emptyToNull`), which is not `undefined` and still
+  // diffs. `!== undefined` is a presence test, never a truthiness one, so the
+  // falsy-but-meaningful `enabled: 0` (row X3) is unaffected.
+  if (model.enabled !== undefined && model.enabled !== baseModel.enabled) {
     diff.invoice_consolidation_enabled = model.enabled;
   }
-  if (model.baseRule !== baseModel.baseRule) {
+  if (model.baseRule !== undefined && model.baseRule !== baseModel.baseRule) {
     diff.invoice_consolidation_base_rule = model.baseRule;
   }
-  if (model.dayOfWeek !== baseModel.dayOfWeek) {
+  if (
+    model.dayOfWeek !== undefined &&
+    model.dayOfWeek !== baseModel.dayOfWeek
+  ) {
     diff.invoice_consolidation_base_rule_day_of_week = model.dayOfWeek;
   }
-  if (model.dateOfMonthDay !== baseModel.dateOfMonthDay) {
+  if (
+    model.dateOfMonthDay !== undefined &&
+    model.dateOfMonthDay !== baseModel.dateOfMonthDay
+  ) {
     diff.invoice_consolidation_base_rule_date_of_month_day =
       model.dateOfMonthDay;
   }
-  if (model.dueDateDay !== baseModel.dueDateDay) {
+  if (
+    model.dueDateDay !== undefined &&
+    model.dueDateDay !== baseModel.dueDateDay
+  ) {
     diff.invoice_consolidation_due_date_day = model.dueDateDay;
   }
 
@@ -155,10 +173,20 @@ export function mapIAccountCurrencyFields(
 ): AccountCurrencyUpdateBody | undefined {
   const diff: AccountCurrencyUpdateBody = {};
 
-  if (model.currencyId !== baseModel.currencyId) {
+  // `!== undefined` guards mirror `mapIBillingSettingsFields`: an UNTOUCHED leaf
+  // (absent from a save that edited only the OTHER surface, or a `null`
+  // "follow the brand" value `useModelParser` compacted away) arrives
+  // `undefined` and must not diff against the wire's cleared `null`, or a
+  // consolidation-only save would fire a zero-change `PUT accounts/{id}`. A
+  // genuine clear is an explicit `null` (not `undefined`) and still diffs.
+  if (
+    model.currencyId !== undefined &&
+    model.currencyId !== baseModel.currencyId
+  ) {
     diff.currency_id = model.currencyId;
   }
   if (
+    model.preferredPaymentCurrencyId !== undefined &&
     model.preferredPaymentCurrencyId !== baseModel.preferredPaymentCurrencyId
   ) {
     diff.preferred_payment_currency_id = model.preferredPaymentCurrencyId;

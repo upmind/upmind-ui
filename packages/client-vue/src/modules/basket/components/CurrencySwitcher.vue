@@ -31,8 +31,8 @@
 import { Combobox } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { useBasketCurrency } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import rawCurrencies from "./currencies";
 import { get, map } from "lodash-es";
 import type { ICurrency } from "@upmind-automation/types";

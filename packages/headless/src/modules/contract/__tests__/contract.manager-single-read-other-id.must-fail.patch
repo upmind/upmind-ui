@@ -1,13 +1,9 @@
 # Negative control — useContract single-read id, second clause (D95).
 #
-# Scenario it must flip: contract.feature:361 >
-#   "The contract I manage is the one I addressed by id" — the clause
-#   "another id never holds it".
-# Test that goes red: contract.manager-members.int.test.ts >
-#   "The contract I manage is the one I addressed by id"
-#   (the manager booted `.withId(<other id>)` is served the SAME cached
-#   instance as the addressed one, so it never reads its own id and
-#   `hasError` never turns true).
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Open one of my contracts with everything the account area needs"
+#   contract.feature > "When reading a contract fails I am shown why, instead of the contract I had open"
+#
 # Mutation: `generateScopeKey` drops the `id:<value>` segment, so every
 #   `.withId()` of one actor shares one scope key and one interpreter.
 #

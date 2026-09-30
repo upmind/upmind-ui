@@ -30,7 +30,7 @@ import {
 import type { RouteLocation } from "vue-router";
 import {
   parseScopeSuffix,
-  stripScopeSuffix
+  stripScopeCatchAll
 } from "~/composables/scope/scope-mapper";
 import { usePlaygroundUrlState } from "~/composables/usePlaygroundUrlState";
 // -----------------------------------------------------------------------------
@@ -65,11 +65,9 @@ function bounded(ready: Promise<boolean>): Promise<boolean> {
  * admitted them. An invoice that never arrived admits nothing: a 404 leaves
  * nothing to pay and no surface to open over.
  *
- * The readiness wait is BOUNDED, and hitting the bound is a refusal.
- * `useInvoice.isReady()` resolves only from a bare `setInterval` poll with no
- * timeout and no reject (`packages/headless/src/modules/invoices/useInvoice.ts:46-58`),
- * and this guard is awaited inside navigation-blocking middleware
- * (`app/middleware/routing.global.ts:30`) — so an unsettled wait would be an app
+ * The readiness wait is BOUNDED, and hitting the bound is a refusal. This guard
+ * is awaited inside navigation-blocking middleware
+ * (`app/middleware/routing.global.ts:30`), so an unsettled wait would be an app
  * with no page.
  */
 async function admitsIntent(
@@ -87,8 +85,8 @@ async function admitsIntent(
   const invoice = useInvoice().withId(toString(invoiceId));
   if (!(await bounded(invoice.useActions().isReady()))) return false;
 
-  const { data } = invoice.useContext();
-  return !isEmpty(data.value) && data.value?.status !== InvoiceStatus.PAID;
+  const { model: loaded } = invoice.useContext();
+  return !isEmpty(loaded.value) && loaded.value?.status !== InvoiceStatus.PAID;
 }
 
 /**
@@ -203,7 +201,7 @@ export default {
 
     if (!parsed.valid) {
       // Invalid scope format - redirect to base route without scope
-      const basePath = stripScopeSuffix(targetRoute.path || "");
+      const basePath = stripScopeCatchAll(targetRoute.path || "", rawSuffix);
       console.warn(
         `[extractScope] Invalid scope suffix: ${parsed.error}. Redirecting to: ${basePath}`
       );

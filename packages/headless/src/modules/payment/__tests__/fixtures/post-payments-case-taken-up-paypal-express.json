@@ -10,7 +10,7 @@
       "Authorization": "mock-Authorization"
     },
     "body": {
-      "invoice_id": "4038696e-5472-1d57-5945-b518d9305e7d",
+      "invoice_id": "98574264-8970-1206-8d27-b21e325d0ed3",
       "gateway_id": "47d73824-8507-9315-e95b-81e642d59e06"
     }
   },
@@ -20,14 +20,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf8c7ad4ff0e6-DUB",
+      "cf-ray": "a409ef092d3d33e5-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:18:26 GMT",
+      "date": "Fri, 25 Sep 2026 12:11:53 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=v022FPoGDZfHVB8TLBQT%2B%2B17iBDlwsvobBlRBRr40Vlkhkx68E0BKnKYfcxrAPyjRFfTBNaqGLUIhZyzussm1B4tD5ROfIoFxlLodlj5SMQCMvz98qh3joboQV%2FzQ6rIORcyzw5n%2Bg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=OhvwRnYdIwHSvWEk8P9dksziOiFzPi42H0zu5Uj%2BkHQoFVp0ZPemEMfQIuKhBP%2FCI76mCtikX6hKBQ0A9taHYNSzhW%2FXYgAK%2ByPXsstC5Gk7OmZPZrYK3OxL1gVsPJHiO7NikpG1FA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -40,11 +40,11 @@
         "transaction_status": "REDIRECT",
         "transaction_type": 3,
         "approval_url": {
-          "url": "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit&token=EC-8UX80050WP4472404",
+          "url": "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit&token=EC-5GN1514414638674R",
           "method": "GET",
           "fields": null
         },
-        "transaction_id": "EC-8UX80050WP4472404"
+        "transaction_id": "EC-5GN1514414638674R"
       },
       "related": null,
       "total": null,
@@ -53,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:18:26.178Z",
+  "captured_at": "2026-09-25T12:11:53.078Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

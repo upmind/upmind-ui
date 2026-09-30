@@ -163,11 +163,12 @@ const nuxtAutoImportGlobals = {
 // ruling §3). Governance switch is the `@internal` head marker, NOT a filename
 // suffix and NOT a frozen exception list: a file is internal iff its first ~15
 // lines carry `@internal`. Importing such a file from a DIFFERENT module
-// directory under packages/headless/src/modules is an error; same-module wiring
-// (a service importing its own mapper, basket.utils → sibling machine) is fine.
-//
-// Scoped (via the config block below) to files under packages/headless/src/modules.
+// directory under the importer's OWN `<package>/src/modules` is an error;
+// same-module wiring (a service importing its own mapper, basket.utils →
+// sibling machine) is fine.
 // -----------------------------------------------------------------------------
+
+const PACKAGES_ROOT = resolve(import.meta.dirname, "packages");
 
 const MODULES_ROOT = resolve(
   import.meta.dirname,
@@ -231,11 +232,36 @@ function isInternalFile(absPath) {
   return internal;
 }
 
+const moduleRootCache = new Map();
+
+function moduleRootOf(absPath) {
+  if (!absPath.startsWith(`${PACKAGES_ROOT}/`)) return null;
+
+  const rest = absPath.slice(PACKAGES_ROOT.length + 1);
+  const slash = rest.indexOf("/");
+
+  if (slash === -1) return null;
+
+  const pkg = rest.slice(0, slash);
+  const cached = moduleRootCache.get(pkg);
+
+  if (cached !== undefined) return cached;
+
+  const root = resolve(PACKAGES_ROOT, pkg, "src/modules");
+  const found = existsSync(root) && statSync(root).isDirectory() ? root : null;
+
+  moduleRootCache.set(pkg, found);
+
+  return found;
+}
+
 /** The module directory (immediate child of modules/) that a file lives in. */
 function moduleDirOf(absPath) {
-  if (!absPath.startsWith(`${MODULES_ROOT}/`)) return null;
+  const root = moduleRootOf(absPath);
 
-  const rest = absPath.slice(MODULES_ROOT.length + 1);
+  if (!root || !absPath.startsWith(`${root}/`)) return null;
+
+  const rest = absPath.slice(root.length + 1);
   const slash = rest.indexOf("/");
 
   return slash === -1 ? rest : rest.slice(0, slash);
@@ -248,14 +274,16 @@ const internalBarrierPlugin = {
         type: "problem",
         docs: {
           description:
-            "Disallow importing an @internal-marked headless module file from a different module."
+            "Disallow importing an @internal-marked module file from a different module in the same package."
         },
         schema: []
       },
       create(context) {
         const importerFile = context.filename ?? context.getFilename();
+        const importerRoot = moduleRootOf(importerFile);
 
-        if (!importerFile.startsWith(`${MODULES_ROOT}/`)) return {};
+        if (!importerRoot || !importerFile.startsWith(`${importerRoot}/`))
+          return {};
 
         const importerModule = moduleDirOf(importerFile);
 
@@ -269,6 +297,7 @@ const internalBarrierPlugin = {
             const target = resolveRelativeTarget(importerFile, specifier);
 
             if (!target) return;
+            if (moduleRootOf(target) !== importerRoot) return;
             if (!isInternalFile(target)) return;
 
             const targetModule = moduleDirOf(target);
@@ -759,6 +788,55 @@ const workspaceBoundaryPlugin = {
   }
 };
 
+// -----------------------------------------------------------------------------
+// Package-graph enforcement — `import/no-cycle` + `import/no-internal-modules`.
+//
+// The node resolver knows .js/.json only; without these extensions both rules pass vacuously.
+// -----------------------------------------------------------------------------
+const IMPORT_RESOLVE_EXTENSIONS = [
+  ".js",
+  ".mjs",
+  ".cjs",
+  ".jsx",
+  ".ts",
+  ".mts",
+  ".cts",
+  ".tsx",
+  ".vue"
+];
+
+const importGraphSettings = {
+  "import/resolver": { node: { extensions: IMPORT_RESOLVE_EXTENSIONS } },
+  "import/extensions": IMPORT_RESOLVE_EXTENSIONS,
+  "import/parsers": {
+    "@typescript-eslint/parser": [".ts", ".tsx", ".mts"],
+    "vue-eslint-parser": [".vue"]
+  }
+};
+
+const SCOPE = "@upmind-automation/";
+
+const DOMAIN_PACKAGES = [
+  { dir: "modules-auth", name: "@upmind-automation/auth" },
+  { dir: "modules-basket", name: "@upmind-automation/basket" },
+  { dir: "modules-catalogue", name: "@upmind-automation/catalogue" },
+  { dir: "modules-client", name: "@upmind-automation/client" },
+  { dir: "modules-domain", name: "@upmind-automation/domain" },
+  { dir: "modules-foundation", name: "@upmind-automation/foundation" },
+  { dir: "modules-invoice", name: "@upmind-automation/invoice" },
+  { dir: "modules-payment", name: "@upmind-automation/payment" },
+  { dir: "modules-product", name: "@upmind-automation/product" },
+  { dir: "modules-recommendations", name: "@upmind-automation/recommendations" }
+];
+
+const DOMAIN_PACKAGE_FILES = DOMAIN_PACKAGES.map(
+  p => `packages/${p.dir}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`
+);
+
+const DOMAIN_PACKAGE_INTERNALS = `${SCOPE}{${DOMAIN_PACKAGES.map(p =>
+  p.name.slice(SCOPE.length)
+).join(",")}}/**`;
+
 export default [
   // ---------------------------------------------------------------------------
   // 1. Global ignores
@@ -864,17 +942,11 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 5b. portal-nuxt: headless is a TYPES-ONLY dependency WHILE THE APP IS
-  //     MOCK-ONLY. The app aliases @upmind-automation/headless to source so
-  //     mock facades can be typed against the real composable contracts; a
-  //     VALUE import executes the barrel, which module-load-interprets the
-  //     routing machine in an app with no headless runtime wired. The go-real
-  //     MR that lands the first real composable deliberately takes the runtime
-  //     dependency and DELETES this block (or narrows it to app/portal/mock/**).
+  // 5b. portal-nuxt's MOCK FACADES keep headless as a TYPES-ONLY dependency.
   //     (docs/plans/portal-mock-composable-facades.md R3)
   // ---------------------------------------------------------------------------
   {
-    files: ["apps/portal-nuxt/**/*.{ts,tsx,mts,cts,vue}"],
+    files: ["apps/portal-nuxt/app/portal/mock/**/*.{ts,tsx,mts,cts,vue}"],
     rules: {
       "@typescript-eslint/no-restricted-imports": [
         "error",
@@ -884,7 +956,7 @@ export default [
               name: "@upmind-automation/headless",
               allowTypeImports: true,
               message:
-                "portal-nuxt consumes headless as types only — a value import executes the headless barrel (routing machine interprets at module load)."
+                "portal-nuxt's mock facades consume headless as types only — a value import there serves a mock from the real barrel, which is the coupling they exist to avoid."
             }
           ]
         }
@@ -899,7 +971,11 @@ export default [
     files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: {
       parser: typescriptParser,
-      parserOptions: { ecmaVersion: "latest", sourceType: "module" }
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        parser: typescriptParser
+      }
     },
     plugins: {
       import: eslintPluginImport,
@@ -933,13 +1009,13 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8. @internal barrier — custom marker-based rule, scoped to headless modules.
+  // 8. @internal barrier — custom marker-based rule, per-package resolver.
   //    A file is internal iff its head carries `@internal`; importing it from a
   //    different module directory is an error. Same-module wiring is allowed.
   //    Replaces the coarse suffix-glob no-restricted-imports (FE-2820 ruling §3).
   // ---------------------------------------------------------------------------
   {
-    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    files: ["packages/*/src/modules/**/*.{ts,tsx,mts,cts,vue}"],
     plugins: {
       "@internal": internalBarrierPlugin
     },
@@ -1088,6 +1164,38 @@ export default [
     ignores: ["packages/scenario-harness/**"],
     rules: {
       "no-restricted-imports": noWorkspaceSubpathImportsRule(true)
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8i. No deep reach INTO a domain package.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "apps/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "packages/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    plugins: { import: eslintPluginImport },
+    settings: importGraphSettings,
+    rules: {
+      "import/no-internal-modules": [
+        "error",
+        { forbid: [DOMAIN_PACKAGE_INTERNALS] }
+      ]
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8j. No import cycles in the domain packages.
+  // ---------------------------------------------------------------------------
+  {
+    files: DOMAIN_PACKAGE_FILES,
+    plugins: { import: eslintPluginImport },
+    settings: importGraphSettings,
+    rules: {
+      "import/no-cycle": ["error", { maxDepth: Infinity }]
     }
   },
 

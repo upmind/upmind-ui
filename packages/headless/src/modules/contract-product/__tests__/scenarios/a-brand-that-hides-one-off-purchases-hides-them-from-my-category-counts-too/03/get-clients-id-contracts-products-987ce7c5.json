@@ -1,0 +1,155 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/contracts/products?limit=count&group_count=products.category_id,service_identifier&order=service_identifier&filter[status.code]=contract_active&filter[billing_cycle_days|neq]=0&with=status,product.image,brand.currency,product.provision_blueprint,contract_request,future_cancellation_request,moved_to_contract_product,moved_to_contract_product.clients,tags",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a42be24e1877dd69-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 15:05:05 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=BpBpahvuYH9VfD5xTVPxaeHCTnx24GLOeIxHtKBtS8v1ZYmQqToDv8UGi%2Byv2wN4V42tHb5sKuoJCG1wu1bRgdMPjIpHx7LZovIzLVTxdjt6Lt7jAbRC8qSNwzK54FEUoA%2FPbxBhxQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": [
+        {
+          "category_id": "78985742-6489-7012-0e4c-21e325d0ed36",
+          "service_identifier": null,
+          "total": 9
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "Idpsamaccusantiumdolores.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "habdiuoasbndojsaodoasdasd.uk",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "ibhasouidfbasodbhadbiasbda.uk",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "addtopromopurchase.uk",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "removeproductadon.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "adadasdasdasdsada.ik",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "adasdasdasdasdasdad.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "hifghbisudhfosodfosfosd.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "iadsghfiabidaisdasbd.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "bfvosbdovbnosdbvsbodvbsv.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "gjhasduasvgdasbvdfiasd.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "sdfsdfsdfsdfsdfsdfsd.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "asdasdasdasdasdasdasdasd.uk",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "",
+          "total": 3
+        },
+        {
+          "category_id": "20403869-6e54-721d-593f-518d9305e7d2",
+          "service_identifier": null,
+          "total": 1
+        },
+        {
+          "category_id": "8d632507-9806-5d1e-302f-8174e234e98d",
+          "service_identifier": "uvbuyuubvubububub.org",
+          "total": 1
+        },
+        {
+          "category_id": "78985742-6489-7012-266a-21e325d0ed36",
+          "service_identifier": null,
+          "total": 3
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": "I4sv4CF7jlHPpD5.com",
+          "total": 1
+        },
+        {
+          "category_id": "20403869-6e54-721d-533c-518d9305e7d2",
+          "service_identifier": "DGyTC25827.com",
+          "total": 1
+        },
+        {
+          "category_id": "5d085e69-d562-3719-794c-218e940d4237",
+          "service_identifier": null,
+          "total": 65
+        }
+      ],
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T15:05:05.081Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

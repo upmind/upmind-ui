@@ -27,7 +27,7 @@
 
     <PageBody class="relative gap-8">
       <!-- No ticket in the url — offer the id that addresses one. -->
-      <Card v-if="!ticketId" size="sm" class="gap-4">
+      <Card v-if="!subjectId" size="sm" class="gap-4">
         <EmptyState
           :title="t('labs.ticket_needs_id')"
           :description="t('labs.ticket_needs_id_text')"
@@ -40,7 +40,7 @@
              the same form. The pick IS the write: selecting a row writes the
              ticket's id, and this page navigates to it. -->
         <div v-if="pickerForm" class="w-full" data-test-key="ticket-lookup">
-          <UpmForm
+          <Form
             :schema="pickerForm.schema"
             :uischema="pickerForm.uischema"
             :model-value="pickerModel"
@@ -211,7 +211,7 @@
             class="pt-2"
             data-test-key="ticket-product-lookup"
           >
-            <UpmForm
+            <Form
               :schema="productForm.schema"
               :uischema="productForm.uischema"
               :model-value="productModel"
@@ -730,13 +730,12 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formRenderers,
-  Icon,
   ScopeActorTypes,
-  UpmForm,
   resolveSelfActor,
   useTicket,
   useTickets
 } from "@upmind-automation/client-vue";
+import { Form, Icon } from "@upmind-automation/foundation";
 import ScenarioBar from "../runtime/components/ScenarioBar.vue";
 import { useScenarioTransport } from "../runtime/composables/useScenarioTransport";
 import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
@@ -749,7 +748,7 @@ import type {
   TicketAttachmentRef,
   TicketMessage
 } from "@upmind-automation/client-vue";
-import type { ScopeActor } from "@upmind-automation/scenario-harness";
+import type { ScopeActor, World } from "@upmind-automation/scenario-harness";
 import { useActorScope } from "~/composables/scope";
 
 // NO `name`, `path` or `nav` here: the registrar owns all three, off the
@@ -783,16 +782,43 @@ const ticketId = computed(() => {
   return id || undefined;
 });
 
-// Booted once per mount — the page remounts per url (see `definePageMeta`), so
-// the id is fixed here. `.as(CLIENT)` is the only actor `TICKET_SCOPE_MATRIX`
-// serves; this IS the client×self cell, never `.for('client', id)`.
-const manager = ticketId.value
-  ? useTicket().as(ScopeActorTypes.CLIENT).withId(ticketId.value)
-  : undefined;
+/** The ticket the armed track's own recording booted; absent on Live. */
+const replayId = ref<string>();
 
-const actions = manager?.useActions();
-const context = manager?.useContext();
-const meta = manager?.useMeta();
+/** The ticket on screen — the replay's while a track is armed, else the url's. */
+const subjectId = computed(() => replayId.value ?? ticketId.value);
+
+// `.as(CLIENT)` is the only actor `TICKET_SCOPE_MATRIX` serves; this IS the
+// client×self cell, never `.for('client', id)`.
+const openCell = (id: string) =>
+  useTicket().as(ScopeActorTypes.CLIENT).withId(id);
+
+/** Every cell this page has drawn, so each is destroyed exactly once. */
+const cells = new Map<string, ReturnType<typeof openCell>>();
+
+function cellFor(id: string): ReturnType<typeof openCell> {
+  const cell = cells.get(id) ?? openCell(id);
+  cells.set(id, cell);
+  return cell;
+}
+
+function release(keep?: string): void {
+  for (const [id, cell] of cells) {
+    if (id === keep) continue;
+    cell.useActions().destroy();
+    cells.delete(id);
+  }
+}
+
+if (ticketId.value) cellFor(ticketId.value);
+
+const manager = computed(() =>
+  subjectId.value ? cellFor(subjectId.value) : undefined
+);
+
+const actions = computed(() => manager.value?.useActions());
+const context = computed(() => manager.value?.useContext());
+const meta = computed(() => manager.value?.useMeta());
 
 // --- The page's own scenario transport (FE-3226)
 /**
@@ -800,10 +826,13 @@ const meta = manager?.useMeta();
  * both exist for the same fact: this page is addressed by a url ROUTE PARAM
  * (`/useTicket/<id>`) that no step catalog can name.
  *
- * - **The world** is told which key this page HOSTS. `ticket`'s boot
- *   scope then completes from the url this page already read, so the world
- *   adopts the very cell above rather than booting a second one at a second
- *   scope — and never destroys it, because the page owns it (`onUnmounted`).
+ * - **The world** is told which key this page HOSTS, so it never destroys a
+ *   `ticket` cell — the page owns every one it draws. Each manager step boots
+ *   the ticket ITS OWN recording addressed (`.withId(id)`), and that id wins
+ *   over the url's: while a track is armed the page draws the cell the step
+ *   booted — the same registry instance, so each fired action moves what is
+ *   on screen. A new track, or Live, hands the page back to the url's ticket
+ *   and releases every cell the replay opened.
  * - **The page scope** the player compares a track's declared scope against is
  *   the ACTOR alone. Every track in this module's playlist declares
  *   `{ actor: client }` and no context (its Background boots the collection,
@@ -817,21 +846,44 @@ const meta = manager?.useMeta();
  */
 const actorScope = useActorScope();
 
+const hostWorld = useScenarioWorld(registry, {
+  key: TICKET_SCENARIO,
+  id: ticketId.value
+});
+
+/** The host world, reporting each ticket a step boots so the page draws it. */
+const world: World = {
+  ...hostWorld,
+  async boot(key, scope) {
+    await hostWorld.boot(key, scope);
+    if (key === TICKET_SCENARIO && scope.id) replayId.value = scope.id;
+  }
+};
+
 const { tracks, states, player, isLocked } = useScenarioTransport({
   module: scenario.tracks,
-  world: useScenarioWorld(registry, {
-    key: TICKET_SCENARIO,
-    id: ticketId.value
-  }),
+  world,
   scope: () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor })
 });
 
-const ticket = computed(() => context?.data.value);
-const department = computed(() => context?.department.value);
-const relatedProduct = computed(() => context?.relatedProduct.value);
-const feed = context?.feed;
-const entries = computed(() => feed?.entries.value ?? []);
-const readError = computed(() => context?.error.value?.message);
+// Sync, so the release lands before the new track's first scene can boot; the
+// world is disposed BEFORE the cells go, so it never adopts one released here.
+watch(
+  () => player.track.value,
+  () => {
+    replayId.value = undefined;
+    void world.dispose();
+    release(ticketId.value);
+  },
+  { flush: "sync" }
+);
+
+const ticket = computed(() => context.value?.data.value);
+const department = computed(() => context.value?.department.value);
+const relatedProduct = computed(() => context.value?.relatedProduct.value);
+const feed = computed(() => context.value?.feed);
+const entries = computed(() => feed.value?.entries.value ?? []);
+const readError = computed(() => context.value?.error.value?.message);
 
 const booting = ref(true);
 const feedLoading = ref(false);
@@ -877,12 +929,16 @@ const feedTabs = computed<TabItem[]>(() => [
 // Readable once the read has settled with a record and no error — the manager
 // resolves its target from the active session, so an unaddressable scope (no
 // client session) settles here instead of throwing.
-const isReadable = computed(() => !!ticket.value && !meta?.hasError.value);
+const isReadable = computed(
+  () => !!ticket.value && !meta.value?.hasError.value
+);
 
 // Seed the subject draft from the loaded ticket, once.
+// A different ticket on screen starts its own draft.
 watch(
-  () => ticket.value?.subject,
-  subject => {
+  [subjectId, () => ticket.value?.subject],
+  ([id, subject], [previousId]) => {
+    if (id !== previousId) subjectDraft.value = "";
     if (subject != null && !subjectDraft.value) subjectDraft.value = subject;
   }
 );
@@ -996,10 +1052,10 @@ async function run(work: () => Promise<unknown>): Promise<void> {
 }
 
 async function loadThread(): Promise<void> {
-  if (!actions) return;
+  if (!actions.value) return;
   feedLoading.value = true;
   try {
-    await actions.loadOlder();
+    await actions.value.loadOlder();
   } catch (error) {
     report(error);
   } finally {
@@ -1026,10 +1082,10 @@ async function loadThread(): Promise<void> {
  */
 const send = () =>
   run(async () => {
-    // `actions!` like every sibling write: the composer only exists inside the
+    // `actions.value!` like every sibling write: the composer only exists inside the
     // readable-ticket branch, so an absent manager here would be a mount bug,
     // not the AC17 refusal — and `?.` would quietly report it as one.
-    const posted = await actions!.reply(
+    const posted = await actions.value!.reply(
       replyBody.value,
       pendingFiles.value.length ? { files: pendingFiles.value } : {}
     );
@@ -1040,9 +1096,10 @@ const send = () =>
     replyBody.value = "";
     pendingFiles.value = [];
   });
-const saveSubject = () => run(() => actions!.setSubject(subjectDraft.value));
-const closeTicket = () => run(() => actions!.close());
-const reopenTicket = () => run(() => actions!.reopen());
+const saveSubject = () =>
+  run(() => actions.value!.setSubject(subjectDraft.value));
+const closeTicket = () => run(() => actions.value!.close());
+const reopenTicket = () => run(() => actions.value!.reopen());
 const loadOlder = () => loadThread();
 
 /**
@@ -1050,7 +1107,7 @@ const loadOlder = () => loadThread();
  * this scope's service. Absent before a ticket is addressed, which is also
  * when there is no product to link.
  */
-const productForm = context?.schemas.productLookup;
+const productForm = computed(() => context.value?.schemas.productLookup);
 
 /** The picked contract product, held so the control draws its own selection. */
 const productModel = ref<{ contract_product_id?: string | null }>({});
@@ -1070,15 +1127,15 @@ function onProductPick(
 
 const linkProduct = () =>
   run(async () => {
-    await actions!.setRelatedProduct(productIdDraft.value.trim());
+    await actions.value!.setRelatedProduct(productIdDraft.value.trim());
     productIdDraft.value = "";
     productModel.value = {};
   });
-const unlinkProduct = () => run(() => actions!.removeRelatedProduct());
+const unlinkProduct = () => run(() => actions.value!.removeRelatedProduct());
 
 /** AC16 — re-reads ONE message; the manager swaps its row in the feed in place. */
 const reloadMessage = (messageId: string) =>
-  run(() => actions!.getMessage(messageId));
+  run(() => actions.value!.getMessage(messageId));
 
 function startEdit(message: TicketMessage): void {
   withdrawingId.value = undefined;
@@ -1088,7 +1145,7 @@ function startEdit(message: TicketMessage): void {
 
 const saveEdit = (messageId: string) =>
   run(async () => {
-    await actions!.editMessage(messageId, editDraft.value);
+    await actions.value!.editMessage(messageId, editDraft.value);
     editingId.value = undefined;
   });
 
@@ -1100,13 +1157,13 @@ function startWithdraw(message: TicketMessage): void {
 
 const confirmWithdraw = (messageId: string) =>
   run(async () => {
-    await actions!.deleteMessage(messageId, withdrawReason.value);
+    await actions.value!.deleteMessage(messageId, withdrawReason.value);
     withdrawingId.value = undefined;
   });
 
 /** AC21 — drops one file off a message; the manager re-reads the feed after. */
 const removeFile = (messageId: string, fileId: string) =>
-  run(() => actions!.deleteAttachment(messageId, fileId));
+  run(() => actions.value!.deleteAttachment(messageId, fileId));
 
 /**
  * AC20 — the raw bytes, straight off the manager. The page holds them and
@@ -1115,7 +1172,7 @@ const removeFile = (messageId: string, fileId: string) =>
  */
 const downloadFile = (file: { id: string; name: string }) =>
   run(async () => {
-    const bytes = await actions!.downloadAttachment(file.id);
+    const bytes = await actions.value!.downloadAttachment(file.id);
     downloaded.value = { name: file.name, bytes: bytes.byteLength };
   });
 
@@ -1133,7 +1190,7 @@ function copyFileName(file: { name: string }): void {
 async function pickFiles(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement;
   const chosen = [...(input.files ?? [])];
-  if (!chosen.length || !actions) return;
+  if (!chosen.length || !actions.value) return;
 
   uploading.value = true;
   actionError.value = undefined;
@@ -1141,7 +1198,7 @@ async function pickFiles(event: Event): Promise<void> {
     for (const file of chosen) {
       pendingFiles.value = [
         ...pendingFiles.value,
-        await actions.uploadAttachment(file)
+        await actions.value.uploadAttachment(file)
       ];
     }
   } catch (error) {
@@ -1157,10 +1214,10 @@ async function pickFiles(event: Event): Promise<void> {
 }
 
 async function loadNewer(): Promise<void> {
-  if (!actions) return;
+  if (!actions.value) return;
   feedLoading.value = true;
   try {
-    await actions.loadNewer();
+    await actions.value.loadNewer();
   } catch (error) {
     report(error);
   } finally {
@@ -1170,10 +1227,10 @@ async function loadNewer(): Promise<void> {
 
 /** AC15 — the attachments view is its own REQUEST, never a filter over rows held. */
 async function loadAttachments(): Promise<void> {
-  if (!actions) return;
+  if (!actions.value) return;
   feedLoading.value = true;
   try {
-    await actions.loadAttachments();
+    await actions.value.loadAttachments();
   } catch (error) {
     report(error);
   } finally {
@@ -1189,10 +1246,10 @@ function selectView(value: string | number): void {
 }
 
 async function refresh(): Promise<void> {
-  if (!actions) return;
+  if (!actions.value) return;
   feedLoading.value = true;
   try {
-    await actions.refresh();
+    await actions.value.refresh();
   } catch (error) {
     report(error);
   } finally {
@@ -1201,15 +1258,18 @@ async function refresh(): Promise<void> {
 }
 
 onMounted(async () => {
-  if (!actions) {
+  if (!actions.value) {
     booting.value = false;
     return;
   }
   // `isReady()` loads the first page of the thread; `loadThread()` here would
   // ask for the page BEFORE it and replace the one just shown.
-  await actions.isReady();
+  await actions.value.isReady();
   booting.value = false;
 });
 
-onUnmounted(() => actions?.destroy());
+onUnmounted(() => {
+  void world.dispose();
+  release();
+});
 </script>

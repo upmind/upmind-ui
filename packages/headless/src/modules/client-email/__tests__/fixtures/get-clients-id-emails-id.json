@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails/0e435795-e78d-1804-02df-31643202d986",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails/d7382485-0793-157e-360c-81e642d59e06",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf5714b9cc1dd-DUB",
+      "cf-ray": "a40be93a7a8eaa15-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:16:07 GMT",
+      "date": "Fri, 25 Sep 2026 17:57:24 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=sj5fGXCwBhuOmVIhHpB0UxJUIJici4qakUZipII%2BvdGY2MK%2BB%2Fj7DaRPGP4IJef9HvZsRPdXLXe510rRcNqKhmH0hsNtLn5wGCwCV0cQF4RjaquFyr3E2kG3CFsxpuS2pCkc%2Bul76w%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=y5Wdz5u50W9tVcboWDwycaeJSrnyAhOQrlEATKr%2F0aJbKYo9yyTcoeEooUXoK4pxw5AgQzShUEgAzma1UBq9bGjq9hXx%2FHBZ%2BfBoxsY2Whv%2FEvZptuBnZkrjtWJrCRLZ296yEegGaA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -33,7 +33,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "0e435795-e78d-1804-02df-31643202d986",
+        "id": "d7382485-0793-157e-360c-81e642d59e06",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -42,11 +42,11 @@
         "type": 1,
         "default": false,
         "verified": false,
-        "email": "mock-email-2@example.com",
+        "email": "client-email-beta@example.com",
         "receive_emails": false,
         "bounced": false,
-        "created_at": "2026-09-10 05:16:06",
-        "updated_at": "2026-09-10 05:16:06",
+        "created_at": "2026-09-25 17:57:23",
+        "updated_at": "2026-09-25 17:57:23",
         "bounced_at": null,
         "can_delete": true
       },
@@ -57,7 +57,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:16:07.323Z",
+  "captured_at": "2026-09-25T17:57:24.481Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

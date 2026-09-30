@@ -27,7 +27,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-import { useSection } from "../../../components/section/useSection";
+import { useSection } from "@upmind-automation/foundation";
 import Layout from "../../../components/layout/Layout.vue";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 

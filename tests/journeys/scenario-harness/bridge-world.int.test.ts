@@ -41,6 +41,9 @@ describe("@AC-4 bridge-world.int — the typed Node/bridge skeleton", () => {
     await expect(world.expectMeta({ isIdle: true })).rejects.toThrow(
       BRIDGE_WORLD_NOT_IMPLEMENTED
     );
+    await expect(world.expectAbsent("secret-token")).rejects.toThrow(
+      BRIDGE_WORLD_NOT_IMPLEMENTED
+    );
     await expect(world.dispose()).rejects.toThrow(BRIDGE_WORLD_NOT_IMPLEMENTED);
   });
 

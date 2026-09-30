@@ -182,8 +182,7 @@ export const WEEKDAY_LABEL: Readonly<Record<DaysOfWeekTypes, string>> = {
 
 /**
  * The client's invoice-consolidation preference as read off the wire — the
- * five persisted fields plus the staged-import flag (row C14) that gates
- * editability.
+ * five persisted fields.
  */
 export type BillingSettingsRecord = {
   id: IClient["id"];
@@ -192,8 +191,6 @@ export type BillingSettingsRecord = {
   dayOfWeek: DaysOfWeekTypes | null;
   dateOfMonthDay: number | null;
   dueDateDay: number | null;
-  /** `true` while the client record is a staged, not-yet-processed import (row C14). */
-  isStaged: boolean;
   /** The client's own `never_suspend` flag — legacy's extra gate on the due-date day (`showDueDateDayField`). (graphify-out/graph.json — net-new field.) */
   neverSuspend: boolean;
 };
@@ -372,7 +369,7 @@ export type ClientBillingSettingsServices = {
   validate: (
     context: BillingSettingsContext
   ) => Promise<BillingSettingsModel | undefined>;
-  /** Diff-only PUT of the model against its base. Refuses when the record is staged (row C14). */
+  /** Diff-only PUT of the model against its base. */
   update: (
     model: BillingSettingsModel,
     baseModel?: BillingSettingsModel

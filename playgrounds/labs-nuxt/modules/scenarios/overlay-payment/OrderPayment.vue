@@ -32,10 +32,11 @@
  */
 
 import { useQueryClient } from "@tanstack/vue-query";
-import { onMounted, provide, watch } from "vue";
+import { computed, onMounted, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { UpmPaymentDetails } from "@upmind-automation/client-vue";
-import { useOrder } from "@upmind-automation/headless";
+import { useInvoice } from "@upmind-automation/headless";
+import type { InvoicePaymentChallenge } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -48,11 +49,21 @@ const emit = defineEmits<{ success: [] }>();
 const { t } = useI18n();
 const queryClient = useQueryClient();
 
-const order = useOrder(props.invoiceId);
+const order = useInvoice().withId(props.invoiceId);
 
-await order.isReady();
+await order.useActions().isReady();
 
-const { invoice, meta } = order;
+const { model: invoice } = order.useContext();
+const invoiceMeta = order.useMeta();
+const { renderChallenge, cancelChallenge } = order.useActions();
+const { paymentDetail } = order.useInternals();
+
+// The provided challenge reads a single meta object; fold the flags it uses.
+const meta = computed(() => ({
+  isComplete: invoiceMeta.isComplete.value,
+  isRenderingChallenge: invoiceMeta.isRenderingChallenge.value,
+  needsApproval: invoiceMeta.needsApproval.value
+}));
 
 // A payment is a MUTATION: the order page underneath reads the same invoice
 // through vue-query and would otherwise show its stale, pre-payment cache. So on
@@ -81,11 +92,11 @@ watch(
   }
 );
 
-provide("usePaymentDetail", order.paymentDetail);
+provide("usePaymentDetail", paymentDetail);
 provide("usePaymentChallenge", {
-  renderChallenge: order.renderChallenge,
-  cancelChallenge: order.cancelChallenge,
+  renderChallenge,
+  cancelChallenge,
   meta
-});
+} satisfies InvoicePaymentChallenge);
 provide("orderInvoice", invoice);
 </script>

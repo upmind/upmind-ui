@@ -26,10 +26,8 @@
  * `.as(ScopeActorTypes.CLIENT).withId(id)` (R11 — enum members, no cast;
  * `TICKET_SCOPE_MATRIX` serves CLIENT alone).
  *
- * No forced-surface spec is owed: that harness boots a bound composable
- * through `useModulePort` with no scope context, so `.for()` never fires and
- * no ticket loads — a self-drawing page carries none, exactly as `useInvoice`,
- * `useContractProduct` and `usePaymentDetailAdd` carry none.
+ * No module-specific playground spec is owed here or anywhere in this lane
+ * (operator ruling, 2026-09-28) — self-drawn or not.
  *
  * ## The playlist this page DOES carry (FE-3226)
  * Drawing itself no longer means playing nothing. `useManage` is the opt-in a

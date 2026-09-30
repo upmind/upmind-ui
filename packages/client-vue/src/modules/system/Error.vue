@@ -39,10 +39,10 @@ import {
 import { computed, onBeforeMount } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { Icon } from "@upmind-automation/foundation";
 import { responseCodes, type Message } from "@upmind-automation/headless";
-import { Icon } from "../../components/icon";
 import { first, isNil } from "lodash-es";
-import type { StorefrontRoute } from "../../types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 /** A user action rendered as a Button in the error interstitial. */

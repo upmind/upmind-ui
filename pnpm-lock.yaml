@@ -375,6 +375,76 @@ importers:
         specifier: ^4.56.0
         version: 4.56.0
 
+  apps/auth:
+    dependencies:
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../../packages/modules-auth
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../../packages/modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../../packages/headless
+      '@upmind-automation/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@upmind-automation/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@upmind/tokens':
+        specifier: workspace:*
+        version: link:../../design-system/packages/tokens
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      tailwindcss:
+        specifier: ^4.3.0
+        version: 4.3.1
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+      vue-i18n:
+        specifier: ^11.1.11
+        version: 11.2.2(vue@3.5.39(typescript@5.9.3))
+      vue-router:
+        specifier: ^4.5.1
+        version: 4.6.4(vue@3.5.39(typescript@5.9.3))
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.54.2
+        version: 1.62.1
+      '@tailwindcss/vite':
+        specifier: ^4.1.11
+        version: 4.3.1(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))
+      '@types/node':
+        specifier: ^22.17.1
+        version: 22.19.3
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      '@vue/tsconfig':
+        specifier: ^0.7.0
+        version: 0.7.0(typescript@5.9.3)(vue@3.5.39(typescript@5.9.3))
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0(supports-color@10.2.2)
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+      vite:
+        specifier: ^7.1.2
+        version: 7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.3)(happy-dom@20.10.6)(jiti@2.7.0)(jsdom@26.1.0(supports-color@10.2.2))(lightningcss@1.32.0)(msw@2.14.6(@types/node@22.19.3)(typescript@5.9.3))(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(yaml@2.9.0)
+      vue-tsc:
+        specifier: ^3.0.5
+        version: 3.3.5(typescript@5.9.3)
+
   apps/cart:
     dependencies:
       '@formkit/auto-animate':
@@ -389,9 +459,15 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.83.1
         version: 5.92.1(vue@3.5.39(typescript@5.9.3))
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../../packages/modules-auth
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../../packages/modules-foundation
       '@upmind-automation/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -558,9 +634,15 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.83.1
         version: 5.92.1(vue@3.5.39(typescript@5.9.3))
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../../packages/modules-auth
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../../packages/modules-foundation
       '@upmind-automation/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -911,6 +993,18 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.19(tailwindcss@4.3.1)
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../../packages/modules-auth
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../../packages/modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../../packages/headless
+      '@upmind-automation/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@upmind-automation/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -944,6 +1038,9 @@ importers:
       vue:
         specifier: 3.5.39
         version: 3.5.39(typescript@5.9.3)
+      vue-i18n:
+        specifier: ^11.1.11
+        version: 11.2.2(vue@3.5.39(typescript@5.9.3))
       vue-router:
         specifier: ^4.5.1
         version: 4.6.4(vue@3.5.39(typescript@5.9.3))
@@ -966,9 +1063,6 @@ importers:
       '@types/node':
         specifier: ^22.17.1
         version: 22.19.3
-      '@upmind-automation/headless':
-        specifier: workspace:*
-        version: link:../../packages/headless
       '@vitejs/plugin-vue':
         specifier: ^6.0.7
         version: 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
@@ -1341,6 +1435,12 @@ importers:
       '@jsonforms/vue':
         specifier: ^3.6.0
         version: 3.7.0(@jsonforms/core@3.7.0)(vue@3.5.39(typescript@5.9.3))
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../modules-auth
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
       '@upmind-automation/headless':
         specifier: workspace:*
         version: link:../headless
@@ -1761,6 +1861,239 @@ importers:
 
   packages/icons: {}
 
+  packages/modules-auth:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.18.1
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+      vue-i18n:
+        specifier: ^11.1.1
+        version: 11.2.2(vue@3.5.39(typescript@5.9.3))
+      vue-router:
+        specifier: ^4.5.0
+        version: 4.6.4(vue@3.5.39(typescript@5.9.3))
+    devDependencies:
+      '@types/lodash-es':
+        specifier: ^4.17.12
+        version: 4.17.12
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      '@vue/test-utils':
+        specifier: ^2.4.6
+        version: 2.4.11(@vue/compiler-dom@3.5.39)(@vue/server-renderer@3.5.39(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0(supports-color@10.2.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.3)(happy-dom@20.10.6)(jiti@2.7.0)(jsdom@26.1.0(supports-color@10.2.2))(lightningcss@1.32.0)(msw@2.14.6(@types/node@22.19.3)(typescript@5.9.3))(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(yaml@2.9.0)
+
+  packages/modules-basket:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/payment':
+        specifier: workspace:*
+        version: link:../modules-payment
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../modules-product
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/modules-catalogue:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../modules-product
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/modules-client:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/modules-domain:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../modules-product
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/modules-foundation:
+    dependencies:
+      '@jsonforms/core':
+        specifier: ^3.6.0
+        version: 3.7.0
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.18.1
+      lucide-vue-next:
+        specifier: 'catalog:'
+        version: 1.0.0(vue@3.5.39(typescript@5.9.3))
+      randexp:
+        specifier: ^0.5.3
+        version: 0.5.3
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+      vue-i18n:
+        specifier: ^11.1.1
+        version: 11.2.2(vue@3.5.39(typescript@5.9.3))
+      vue-router:
+        specifier: ^4.5.0
+        version: 4.6.4(vue@3.5.39(typescript@5.9.3))
+    devDependencies:
+      '@types/lodash-es':
+        specifier: ^4.17.12
+        version: 4.17.12
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      '@vue/test-utils':
+        specifier: ^2.4.6
+        version: 2.4.11(@vue/compiler-dom@3.5.39)(@vue/server-renderer@3.5.39(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0(supports-color@10.2.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.3)(happy-dom@20.10.6)(jiti@2.7.0)(jsdom@26.1.0(supports-color@10.2.2))(lightningcss@1.32.0)(msw@2.14.6(@types/node@22.19.3)(typescript@5.9.3))(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(yaml@2.9.0)
+
+  packages/modules-invoice:
+    dependencies:
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../modules-auth
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/payment':
+        specifier: workspace:*
+        version: link:../modules-payment
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/modules-payment:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/modules-product:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
+  packages/modules-recommendations:
+    dependencies:
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../headless
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../modules-product
+      '@upmind/ui':
+        specifier: workspace:*
+        version: link:../../design-system/packages/ui
+      vue:
+        specifier: 3.5.39
+        version: 3.5.39(typescript@5.9.3)
+
   packages/scenario-harness:
     dependencies:
       '@cucumber/cucumber-expressions':
@@ -1848,9 +2181,15 @@ importers:
       '@tanstack/vue-table':
         specifier: ^8.21.3
         version: 8.21.3(vue@3.5.39(typescript@5.9.3))
+      '@upmind-automation/auth':
+        specifier: workspace:*
+        version: link:../../packages/modules-auth
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../../packages/modules-foundation
       '@upmind-automation/headless':
         specifier: workspace:*
         version: link:../../packages/headless

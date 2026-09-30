@@ -52,9 +52,6 @@ export function createBillingSettingsMeta(
     () => !!differentCurrencyPayment.value
   );
 
-  /** Row C14 — `true` while the addressed client record is a staged, unprocessed import. A state flag, so meta, not context. */
-  const isStaged = computed(() => !!query.data.value?.isStaged);
-
   // --- actor-specific meta: none earned (arms: none — parity.yaml).
 
   return {
@@ -79,9 +76,6 @@ export function createBillingSettingsMeta(
 
     /** True while the read is loading or has not completed its first fetch. */
     isLoading,
-
-    /** True while the addressed client record is a staged, unprocessed import (row C14). */
-    isStaged,
 
     /** True only when the brand has explicitly opted clients into this surface (row O8). */
     isVisible,

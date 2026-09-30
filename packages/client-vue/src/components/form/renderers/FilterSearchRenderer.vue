@@ -52,7 +52,7 @@ import {
 } from "@upmind/ui";
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../icon";
+import { Icon } from "@upmind-automation/foundation";
 import { get, isEmpty } from "lodash-es";
 import type {
   ControlElement,

@@ -1,4 +1,4 @@
-import type { StorefrontRoute } from "../../types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 import type { UseMetaResult } from "@upmind-automation/headless";
 import type { HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";

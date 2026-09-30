@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "PUT",
-    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/vault/78985742-6489-7012-0e4c-21e325d0ed36?case=edit",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/vault/5d085e69-d562-3719-8edb-218e940d4237?case=edit",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -14,7 +14,7 @@
       "label": null,
       "visible_for_client": true,
       "encrypted": false,
-      "note": "prover fixture edited note 7383146"
+      "note": "prover fixture edited note 8129691"
     }
   },
   "response": {
@@ -23,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf6561cd0be37-DUB",
+      "cf-ray": "a422b6d5aa934c65-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:16:44 GMT",
+      "date": "Mon, 28 Sep 2026 12:22:33 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=gsrCIAqOP7wMpBLtO6wTa5X45%2BO4E0XPbkVq40z%2BWH1jt3oidPU%2B7izLZtFsMKtbWmlds0COSVb7MFluW15FTEZjn6YFt%2Bo9ZHRYE8DMeJPwo4WSQsIpgCqc%2FSmICfi0JudcB7Rg0A%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=g5C%2FsSMeVYbf8A51K55k4AvUOIUXNGu8SgeAso%2BhOWwMoxgy1Czt1Je0Wq30YqJ82pPemmj%2FxDUnz09oRjC7zh1q9lXbxgPt6Uiml2Qv%2BdncDKHxD6wuCadzuydqlTmZXofVm%2FV6rw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -39,7 +39,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "78985742-6489-7012-0e4c-21e325d0ed36",
+        "id": "5d085e69-d562-3719-8edb-218e940d4237",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -48,13 +48,13 @@
         "user_id": "none",
         "label": null,
         "code": null,
-        "note": "prover fixture edited note 7383146",
+        "note": "prover fixture edited note 8129691",
         "pinned": false,
         "visible_for_client": true,
         "encrypted": false,
         "contract_product_id": null,
-        "created_at": "2026-09-10 05:16:28",
-        "updated_at": "2026-09-10 05:16:44",
+        "created_at": "2026-09-28 12:22:16",
+        "updated_at": "2026-09-28 12:22:32",
         "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
         "author_user_id": null,
         "editor_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
@@ -81,7 +81,7 @@
           "location_ip": null,
           "user_id": "sys",
           "created_at": "2025-06-02 16:00:34",
-          "updated_at": "2026-09-10 05:16:24",
+          "updated_at": "2026-09-28 12:22:10",
           "reseller_account_id": null,
           "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
           "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -98,7 +98,7 @@
           "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
           "picture": 0,
           "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-          "last_login": "2026-09-10 05:16:24",
+          "last_login": "2026-09-28 12:22:10",
           "last_password_change_at": "mock-last_password_change_at",
           "fraud_policy": 3,
           "fraud_status": 1,
@@ -106,11 +106,15 @@
           "failed_2fa_attempts": 0,
           "is_guest": false,
           "notifications_disabled": false,
-          "meta": null,
+          "meta": {
+            "ui/support/submitWithShortcut": true,
+            "ui/support/newLineKey": "mock-ui/support/newLineKey",
+            "ui/support/limit": 25
+          },
           "order_template_code": null,
           "invoice_consolidation_enabled": 1,
-          "invoice_consolidation_base_rule": null,
-          "invoice_consolidation_base_rule_date_of_month_day": null,
+          "invoice_consolidation_base_rule": "date_of_month",
+          "invoice_consolidation_base_rule_date_of_month_day": 1,
           "invoice_consolidation_base_rule_day_of_week": null,
           "invoice_consolidation_due_date_day": null,
           "block_new_tickets_from_email": false,
@@ -119,7 +123,7 @@
           "tax_exempt_number": null,
           "before_due_date_charge_interval": null,
           "before_due_date_charge_interval_dd": null,
-          "never_suspend": false,
+          "never_suspend": true,
           "never_cancel": false,
           "never_close": false,
           "status_id": "825d96e7-63ed-0913-0dc4-174825283406",
@@ -148,7 +152,7 @@
             "receive_emails": false,
             "bounced": false,
             "created_at": "2025-06-02 16:00:35",
-            "updated_at": "2026-09-09 15:25:12",
+            "updated_at": "2026-09-25 17:57:52",
             "bounced_at": null,
             "can_delete": false
           },
@@ -162,7 +166,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:16:44.241Z",
+  "captured_at": "2026-09-28T12:22:33.173Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

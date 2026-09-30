@@ -55,7 +55,7 @@ import { CardRoot, Skeleton } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 // --- internal
 // --- components
-import Section from "../../../components/section/Section.vue";
+import { Section } from "@upmind-automation/foundation";
 import {
   cardRootVariants,
   summaryLabelVariants,

@@ -24,9 +24,9 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
+import { Form } from "@upmind-automation/foundation";
+import { Section } from "@upmind-automation/foundation";
 import { useBasketFields } from "@upmind-automation/headless";
-import Form from "../../../components/form/Form.vue";
-import Section from "../../../components/section/Section.vue";
 import { basketCustomFieldsRootVariants } from "../basket.variants";
 
 // --- types

@@ -3,7 +3,7 @@ import { assign } from "xstate";
 import { useSchema, useUischema } from "./client-address.schemas";
 import { useClientAddressManagerServices } from "./client-address.services";
 import { useModelParser } from "../../utils";
-import { compact, get } from "lodash-es";
+import { cloneDeep, compact, get } from "lodash-es";
 import type { dataManagerMachine } from "../data-manager";
 import type {
   AddressContext,
@@ -149,6 +149,16 @@ export function createClientAddressManagerMachineConfig(
       refreshContext: assign({
         clientId: (context: AddressContext, { data }: AnyEventObject) =>
           context.clientId || data?.clientId
+      }),
+
+      /**
+       * Discard (CLEAR) restores the form-open snapshot verbatim. The shared
+       * `clearModel` empties `model`, which then re-parses from `baseModel` and
+       * loses a `regionId: "none"` the region reconciliation cannot match
+       * (AC-28); assigning `baseModel` straight back keeps it intact.
+       */
+      clearModel: assign({
+        model: ({ baseModel }: AddressContext) => cloneDeep(baseModel)
       })
     },
 

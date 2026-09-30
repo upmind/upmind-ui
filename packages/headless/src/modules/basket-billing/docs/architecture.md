@@ -95,7 +95,7 @@ Neither service file splits by actor (`client` / `staff`) — `basket-billing` h
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `basket` | Hosts and spawns the billing child once a basket is claimed (populator direction — see [foundation.md](./foundation.md) Dependencies). |
 
-Presentation-layer and storefront-funnel consumption is documented in [foundation.md](./foundation.md) Dependants (billing components under `client-vue/src/modules/billing` and `checkout`, and the funnel engines in `apps/cart`, `apps/cart-nuxt`, `apps/hosting`, `apps/velia`).
+Presentation-layer and storefront-funnel consumption is documented in [foundation.md](./foundation.md) Dependants (billing components under `client-vue/src/modules/billing` and `checkout`).
 
 ## Integration Points
 

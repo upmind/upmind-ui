@@ -10,7 +10,7 @@
       "Authorization": "mock-Authorization"
     },
     "body": {
-      "email": "mock-email-2@example.com"
+      "email": "client-email-created-1790359047541@example.com"
     }
   },
   "response": {
@@ -19,14 +19,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf56cc92dc1dd-DUB",
+      "cf-ray": "a40be94fe813aa15-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:16:07 GMT",
+      "date": "Fri, 25 Sep 2026 17:57:28 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=EW3NRjWP%2BY93aPq0eOSf5a0SaUcvHsGNxxR6WJ1YuPd4YIVxOqq5FUllolSHeYqfEKn0FXFf5y%2BTsnEjFQcPxGUOCwCZEKwWl%2BXF1oitXx66P2GckHy4CO737DQHQfQdIsjw6Va1TA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1ahw1dTomgprZshcXmYG1ZMW7%2BJOCgIlquObrXSapMfsz6iLV3wGHRe6As8Eouc0EqfLe7SzSSlUS%2BdQ8eAQc9KIGqq1pQ1fSv04u2uy13eWNq9bmE%2F3GjIo1CST9qrBefgw%2FsvdcA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -35,15 +35,15 @@
     "body": {
       "status": "ok",
       "data": {
-        "email": "mock-email-2@example.com",
+        "email": "client-email-created-1790359047541@example.com",
         "type": 1,
         "verified": false,
         "default": false,
         "user_id": "sys",
         "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
-        "updated_at": "2026-09-10 05:16:06",
-        "created_at": "2026-09-10 05:16:06",
-        "id": "0e435795-e78d-1804-02df-31643202d986",
+        "updated_at": "2026-09-25 17:57:27",
+        "created_at": "2026-09-25 17:57:27",
+        "id": "52098d3d-e409-1779-e60a-31578626e347",
         "can_delete": true
       },
       "related": null,
@@ -53,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:16:06.957Z",
+  "captured_at": "2026-09-25T17:57:28.275Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

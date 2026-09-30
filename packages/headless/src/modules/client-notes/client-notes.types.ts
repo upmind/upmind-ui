@@ -423,8 +423,6 @@ export type ClientNoteServices = {
    * re-deriving the expression.
    */
   isAvailable: ComputedRef<boolean>;
-  /** `true` for a staged-import client — reads still work; every write action refuses. */
-  isDisabled: ComputedRef<boolean>;
   /** The last failed row mutation, captured as state — never raised itself. */
   error: ComputedRef<ResponseError | undefined>;
   /** The collection's list query. Takes NOTHING: the request state is the declared query schema. */

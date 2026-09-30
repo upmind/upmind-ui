@@ -11,6 +11,7 @@ export * from "./registry/registry.types";
 export * from "./steps/step-catalog";
 export * from "./steps/steps.types";
 export * from "./steps/traceability";
+export * from "./world/args";
 export * from "./world/match";
 export * from "./world/scope-actor";
 export * from "./world/world.types";

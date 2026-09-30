@@ -1,16 +1,12 @@
-# Negative-control mutant — the manager publishes a page-readable consolidation open flag (G3)
+# Negative-control mutant — the published consolidation flag follows the account's setting (AC-9)
 #
-# Scenario it must flip: contract-product.manager-open-gates.int.test.ts, the
-#   AC-9 outline rows for a subscription the machine's OWN `canConsolidate`
-#   guard refuses on an `available` node: "my account never consolidates"
-#   (feature:801) and "no consolidation setting on the product" (feature:802).
-#   Each expects `canConsolidate` false.
-# Mutation: the flag keeps the `isAvailable` gate but collapses the record
-#   predicate to bare `isSubscription` — the SAME weakening the sibling
-#   machine-guard mutant applies
-#   (`contract-product.mutations.consolidation-open-guard.must-fail.patch`),
-#   here against the meta member. The gate itself has its own mutant
-#   (`contract-product.manager-consolidation-available-gate.must-fail.patch`).
+# Scenario it must flip: contract-product.feature >
+#   "I am told whether the consolidation form is offered before I open it — a subscription, and my account never consolidates"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then I am told the consolidation form is not offered" — `canConsolidate` reads
+#   true for an account that never consolidates.
+# Mutation: the meta flag keeps the `isAvailable` gate but collapses the record
+#   predicate to bare `isSubscription`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>

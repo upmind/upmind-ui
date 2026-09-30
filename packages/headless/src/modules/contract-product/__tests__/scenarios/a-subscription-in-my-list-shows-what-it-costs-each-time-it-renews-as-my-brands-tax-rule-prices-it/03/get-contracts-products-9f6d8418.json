@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/contracts_products?with=clients,clients.image,clients.brand,status,product.image,brand.currency,product.provision_blueprint,product.provision_blueprint.category,contract_request,future_cancellation_request,moved_to_contract_product,moved_to_contract_product.clients,tags&split_count=1&exclude_delegated=1&skip_count=1&limit=count&order=created_at&filter[billing_cycle_days|neq]=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a42bd002fbbf15d1-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 14:52:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=NEwqZRRdj0fpJdiyyq3%2F%2Bz9fT%2BJ7i4bUjaXe9e8%2Fhy4pdOJAz2oZWfIDnF2wEHeen0zA4Qja6EZTHHAM%2B4YVs52PuncidHMZh0%2BwFrDDDl9DNCMO7PT3HoTAY5JMXk0dbQJnZ8%2B4Cw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1083"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": 1083,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T14:52:35.670Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

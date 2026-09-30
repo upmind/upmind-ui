@@ -134,6 +134,55 @@ export default defineNuxtConfig({
     "@upmind-automation/client-vue": resolve(
       __dirname,
       "../../packages/client-vue/src/index.ts"
+    ),
+
+    "@upmind-automation/foundation/styles": resolve(
+      __dirname,
+      "../../packages/modules-foundation/src/styles.css"
+    ),
+    "@upmind-automation/foundation": resolve(
+      __dirname,
+      "../../packages/modules-foundation/src/index.ts"
+    ),
+    "@upmind-automation/product": resolve(
+      __dirname,
+      "../../packages/modules-product/src/index.ts"
+    ),
+    "@upmind-automation/recommendations": resolve(
+      __dirname,
+      "../../packages/modules-recommendations/src/index.ts"
+    ),
+    "@upmind-automation/catalogue": resolve(
+      __dirname,
+      "../../packages/modules-catalogue/src/index.ts"
+    ),
+    "@upmind-automation/domain": resolve(
+      __dirname,
+      "../../packages/modules-domain/src/index.ts"
+    ),
+    "@upmind-automation/auth/styles": resolve(
+      __dirname,
+      "../../packages/modules-auth/src/styles.css"
+    ),
+    "@upmind-automation/auth": resolve(
+      __dirname,
+      "../../packages/modules-auth/src/index.ts"
+    ),
+    "@upmind-automation/client": resolve(
+      __dirname,
+      "../../packages/modules-client/src/index.ts"
+    ),
+    "@upmind-automation/payment": resolve(
+      __dirname,
+      "../../packages/modules-payment/src/index.ts"
+    ),
+    "@upmind-automation/invoice": resolve(
+      __dirname,
+      "../../packages/modules-invoice/src/index.ts"
+    ),
+    "@upmind-automation/basket": resolve(
+      __dirname,
+      "../../packages/modules-basket/src/index.ts"
     )
   },
 

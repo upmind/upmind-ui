@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices/unpaid_amount/00000000-0000-0000-0000-000000000000?lang=en&currency_code=GBP",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a429aa26889a4eca-JNB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 08:37:13 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GCLc0Y3vnoxO9KSL7IbNkF%2F2lgZXNtjfBe93Wte8QAWkBot5l9AT38Avi3QIAv7eN4KOetTOYqriXrOw25vzj%2FlqatQVgNKajtpnOx%2BmO5UKPdlwuLxWyVHuKb2BVhmsukWe4%2FvOZw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "969c59fa2f749225dd10f2216df3af7b2af1caba",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "invoice_id": ["The identifier (invoice id) is invalid!"]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T08:37:13.597Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

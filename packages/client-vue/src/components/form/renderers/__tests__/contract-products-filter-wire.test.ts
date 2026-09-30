@@ -16,8 +16,9 @@
  * - `@proves contract-product.feature:1028` — date purchased
  * - `@proves contract-product.feature:1034` — next due date
  * - `@proves contract-product.feature:1040` — price
- * - `@proves contract-product.feature:1056` / `:1057` — subscriptions-only on / all
- * - `@proves contract-product.feature:1067` / `:1068` — one-off-only on / all
+ * - `@proves contract-product.feature:1055` / `:1056` / `:1057` — subscription
+ *   type All / Subscriptions / One-time
+ * - `@proves contract-product.feature:1060` — never both narrowings at once
  *
  * Negative control: `contract-products-filter-wire.must-fail.patch`.
  */
@@ -31,7 +32,8 @@ import {
   catalogue,
   contractProductsQuery,
   mountFilters,
-  positionNamed
+  positionNamed,
+  positionsOf
 } from "./filter.harness";
 import { get } from "lodash-es";
 import type { UISchemaElement } from "@jsonforms/core";
@@ -143,41 +145,72 @@ describe("picking a date or an amount reaches the wire", () => {
   });
 });
 
-const TOGGLES = [
-  {
-    toggle: "subscriptions-only",
-    path: "filters.billing_cycle_days.neq",
-    i18n: "form.contract_product_subscriptions_only",
-    key: "filter[billing_cycle_days|neq]",
-    other: "filter[billing_cycle_days|eq]"
-  },
-  {
-    toggle: "one-off-only",
-    path: "filters.billing_cycle_days.eq",
-    i18n: "form.contract_product_one_time_only",
-    key: "filter[billing_cycle_days|eq]",
-    other: "filter[billing_cycle_days|neq]"
-  }
-] as const;
+const SUBSCRIPTION_TYPE = {
+  path: "filters.billing_cycle_days",
+  i18n: "form.contract_product_subscription_type",
+  subscriptions: "filter[billing_cycle_days|neq]",
+  oneTime: "filter[billing_cycle_days|eq]"
+} as const;
 
-describe.each(TOGGLES)(
-  "the $toggle toggle is its own control on the wire",
-  ({ path, i18n, key, other }) => {
-    it("on sends 0 on its own key and leaves the other toggle's key unset", async () => {
-      const wire = await drive(press(path, i18n, "0"));
+const choose = (member: string) =>
+  press(SUBSCRIPTION_TYPE.path, SUBSCRIPTION_TYPE.i18n, member);
 
-      expect(get(wire.filters, key)).toBe("0");
-      expect(get(wire.filters, other)).toBe(UNSET_ON_THE_WIRE);
+describe("the subscription-type toggle is one three-way control on the wire", () => {
+  it("draws the three positions All, Subscriptions and One-time, each labelled in words", async () => {
+    const { column } = await mountFilters(declaration);
+    const names = ["all", "subscriptions", "one_time"].map(member =>
+      catalogue(`${SUBSCRIPTION_TYPE.i18n}.${member}`)
+    );
+
+    expect(names.every(name => typeof name === "string" && name !== "")).toBe(
+      true
+    );
+    expect(positionsOf(column(SUBSCRIPTION_TYPE.path))).toEqual(names);
+  });
+
+  it("Subscriptions sends billing_cycle_days not-equal 0 and no one-time narrowing", async () => {
+    const wire = await drive(choose("subscriptions"));
+
+    expect(get(wire.filters, SUBSCRIPTION_TYPE.subscriptions)).toBe("0");
+    expect(get(wire.filters, SUBSCRIPTION_TYPE.oneTime)).toBe(
+      UNSET_ON_THE_WIRE
+    );
+  });
+
+  it("One-time sends billing_cycle_days equal 0 and no subscriptions narrowing", async () => {
+    const wire = await drive(choose("one_time"));
+
+    expect(get(wire.filters, SUBSCRIPTION_TYPE.oneTime)).toBe("0");
+    expect(get(wire.filters, SUBSCRIPTION_TYPE.subscriptions)).toBe(
+      UNSET_ON_THE_WIRE
+    );
+  });
+
+  it("All, after Subscriptions, clears the narrowing", async () => {
+    const wire = await drive(async mount => {
+      await choose("subscriptions")(mount);
+      await mount.settle();
+      await choose("all")(mount);
     });
 
-    it("all, after on, clears its key", async () => {
-      const wire = await drive(async mount => {
-        await press(path, i18n, "0")(mount);
-        await mount.settle();
-        await press(path, i18n, "null")(mount);
-      });
+    expect(get(wire.filters, SUBSCRIPTION_TYPE.subscriptions)).toBe(
+      UNSET_ON_THE_WIRE
+    );
+    expect(get(wire.filters, SUBSCRIPTION_TYPE.oneTime)).toBe(
+      UNSET_ON_THE_WIRE
+    );
+  });
 
-      expect(get(wire.filters, key)).toBe(UNSET_ON_THE_WIRE);
+  it("One-time, after Subscriptions, replaces the narrowing and never sends both", async () => {
+    const wire = await drive(async mount => {
+      await choose("subscriptions")(mount);
+      await mount.settle();
+      await choose("one_time")(mount);
     });
-  }
-);
+
+    expect(get(wire.filters, SUBSCRIPTION_TYPE.oneTime)).toBe("0");
+    expect(get(wire.filters, SUBSCRIPTION_TYPE.subscriptions)).toBe(
+      UNSET_ON_THE_WIRE
+    );
+  });
+});

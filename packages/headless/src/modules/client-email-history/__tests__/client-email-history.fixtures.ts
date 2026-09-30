@@ -119,11 +119,18 @@
  * `get-emails-id` (single read, real populated body, AC-13).
  */
 
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
+import { ForcedErrorCode } from "@upmind-automation/test-fixtures/types";
+import {
+  prepareScenarioDirs,
+  recordedStepDir
+} from "../../../testing/scenario-fixtures";
 // eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
 import { mintClientToken } from "../../auth/__tests__/auth.tokens";
+import { forEach, kebabCase } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -398,5 +405,207 @@ describe("Client-Email-History API Fixtures Generator", () => {
     if (status !== 200) {
       throw new Error(`Single-read capture returned ${status}.`);
     }
+  });
+});
+
+// -----------------------------------------------------------------------------
+// SCENARIOS (FE-3145, ADR 035) — one recording per driveable
+// `client-email-history.feature` scenario, one fixtures folder per step, named
+// from the feature by `recordedStepDir`. Each scenario records the requests its
+// steps make, in step order. This is a read-only module (no mutations,
+// parity M6), so no scenario arranges or restores staging — every step reads the
+// staging client's real, pre-existing history.
+// -----------------------------------------------------------------------------
+
+const feature = readFileSync(
+  join(import.meta.dirname, "client-email-history.feature"),
+  "utf-8"
+);
+
+/** The Background step every scenario opens with — it boots the collection read. */
+const OPEN = "I am an authenticated client reading my own account";
+
+/** The collection's boot list read — default order, one page. */
+const LIST = `/api/self/email_history?${WITH_PARAM}&order=-created_at&limit=10`;
+
+describe("Client-Email-History scenario recordings", () => {
+  let clientToken: IToken;
+  let singleEmailId: string;
+  const prepared = new Set<string>();
+
+  /** Records the requests one step makes into that step's own folder. */
+  async function recordStep(
+    scenario: string,
+    step: string,
+    requests: (generator: Generator) => Promise<unknown>
+  ): Promise<void> {
+    if (!prepared.has(scenario)) {
+      prepareScenarioDirs(import.meta.dirname, feature, scenario);
+      prepared.add(scenario);
+    }
+
+    const generator = new Generator(API_URL, {
+      recordingsDir: recordedStepDir(
+        import.meta.dirname,
+        feature,
+        scenario,
+        step
+      ),
+      origin: ORIGIN,
+      source: "case",
+      name: kebabCase(scenario)
+    });
+    generator.setBearerToken(clientToken.access_token);
+    await requests(generator);
+    generator.save();
+  }
+
+  /** The collection read the Background and the refresh step both make. */
+  const readList = (generator: Generator) => generator.get(LIST);
+
+  beforeAll(async () => {
+    clientToken = await mintClientToken();
+    // The single read fetches ONE real email by id; take the newest row of the
+    // real history so `emails/{id}` returns a genuine record.
+    const response = await fetch(
+      `${API_URL}/api/self/email_history?order=-created_at&limit=1`,
+      {
+        headers: {
+          Accept: "application/json",
+          Origin: ORIGIN,
+          Authorization: `Bearer ${clientToken.access_token}`
+        }
+      }
+    );
+    const body = (await response.json()) as { data: { id: string }[] };
+    singleEmailId = body.data[0].id;
+  }, 30000);
+
+  /** The single read the single-email steps make — one email by id, with body. */
+  const readOne = (generator: Generator) =>
+    generator.get(`/api/emails/${singleEmailId}?with=data`);
+
+  // --- scenarios whose only wire request is the Background list read --------
+
+  forEach(
+    ["See my own email history", "Discarding a history collection releases it"],
+    scenario => {
+      it(`${scenario} — ${OPEN}`, () => recordStep(scenario, OPEN, readList));
+    }
+  );
+
+  describe("Sort my history by subject", () => {
+    const scenario = "Sort my history by subject";
+
+    it(OPEN, () => recordStep(scenario, OPEN, readList));
+    it("I sort my history by subject", () =>
+      recordStep(scenario, "I sort my history by subject", generator =>
+        generator.get(
+          `/api/self/email_history?${WITH_PARAM}&order=-subject&limit=10`
+        )
+      ));
+  });
+
+  describe("Search my history", () => {
+    const scenario = "Search my history";
+
+    it(OPEN, () => recordStep(scenario, OPEN, readList));
+    it("I search my history for a word", () =>
+      recordStep(scenario, "I search my history for a word", generator =>
+        generator.get(
+          `/api/self/email_history?${WITH_PARAM}&filter[subject|like]=${encodeURIComponent(
+            "%invoice%"
+          )}&limit=10`
+        )
+      ));
+  });
+
+  describe("Narrow my history to what happened to each email", () => {
+    const scenario = "Narrow my history to what happened to each email";
+
+    it(OPEN, () => recordStep(scenario, OPEN, readList));
+    it("I narrow my history to the emails that were sent", () =>
+      recordStep(
+        scenario,
+        "I narrow my history to the emails that were sent",
+        generator =>
+          generator.get(
+            `/api/self/email_history?${WITH_PARAM}&filter[sent|eq]=1&limit=10`
+          )
+      ));
+  });
+
+  describe("Page through my history", () => {
+    const scenario = "Page through my history";
+
+    it(OPEN, () => recordStep(scenario, OPEN, readList));
+    it("I go to the next page of my history", () =>
+      recordStep(scenario, "I go to the next page of my history", generator =>
+        generator.get(
+          `/api/self/email_history?${WITH_PARAM}&order=-created_at&limit=10&offset=10`
+        )
+      ));
+    it("I come back to the previous page", () =>
+      recordStep(scenario, "I come back to the previous page", generator =>
+        generator.get(
+          `/api/self/email_history?${WITH_PARAM}&order=-created_at&limit=10&offset=0`
+        )
+      ));
+  });
+
+  describe("Refresh my history", () => {
+    const scenario = "Refresh my history";
+
+    it(OPEN, () => recordStep(scenario, OPEN, readList));
+    it("I refresh my history", () =>
+      recordStep(scenario, "I refresh my history", readList));
+  });
+
+  // --- single received email scenarios (useClientReceivedEmail) -------------
+
+  describe("See that email's details and whether it reached me", () => {
+    const scenario = "See that email's details and whether it reached me";
+
+    it(OPEN, () => recordStep(scenario, OPEN, readList));
+    it("I open one of my emails", () =>
+      recordStep(scenario, "I open one of my emails", readOne));
+  });
+
+  describe("Know whether that email is loading, empty, or errored, and wait for it", () => {
+    const scenario =
+      "Know whether that email is loading, empty, or errored, and wait for it";
+
+    it(OPEN, () => recordStep(scenario, OPEN, readList));
+    it("I open one of my emails", () =>
+      recordStep(scenario, "I open one of my emails", readOne));
+  });
+
+  describe("Refresh one email, and release it when done", () => {
+    const scenario = "Refresh one email, and release it when done";
+
+    it(OPEN, () => recordStep(scenario, OPEN, readList));
+    it("I have opened one of my emails", () =>
+      recordStep(scenario, "I have opened one of my emails", readOne));
+    it("I refresh that email", () =>
+      recordStep(scenario, "I refresh that email", readOne));
+  });
+
+  // --- the errored collection (AC-4, AC-21) ---------------------------------
+  // The boot list read is issued for real, its response forced to a 500, so the
+  // collection settles errored on a genuine request the recording overrides. A
+  // control response, exempt from the recorded-only law (code-tests.companion.md).
+
+  const readListForced = (generator: Generator): Promise<unknown> =>
+    generator.get(LIST, undefined, ForcedErrorCode.Internal_Server_Error);
+
+  describe("Know when my email history has errored", () => {
+    const scenario = "Know when my email history has errored";
+    it(OPEN, () => recordStep(scenario, OPEN, readListForced));
+  });
+
+  describe("A problem with my history is shown to me where I read it, not thrown", () => {
+    const scenario =
+      "A problem with my history is shown to me where I read it, not thrown";
+    it(OPEN, () => recordStep(scenario, OPEN, readListForced));
   });
 });

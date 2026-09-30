@@ -20,7 +20,7 @@
 
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { UpmForm } from "@upmind-automation/client-vue";
+import { Form } from "@upmind-automation/foundation";
 import confirm from "@upmind-automation/i18n/core/confirm-en.json";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import {
@@ -72,7 +72,7 @@ function mountEditor(
 }
 
 const save = async (wrapper: ReturnType<typeof mountEditor>["wrapper"]) => {
-  await wrapper.findComponent(UpmForm).vm.$emit("resolve");
+  await wrapper.findComponent(Form).vm.$emit("resolve");
   await flushPromises();
 };
 
@@ -151,7 +151,7 @@ describe("@AC3 a REFUSED save keeps the form on screen", () => {
 
     await save(wrapper);
 
-    const upmForm = wrapper.findComponent(UpmForm);
+    const upmForm = wrapper.findComponent(Form);
     expect(upmForm.exists()).toBe(true);
     expect(upmForm.props("modelValue")).toEqual({ email: unverifiedRow.email });
   });

@@ -1,0 +1,75 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/companies/2785d26e-9678-3d16-670f-314502e70439",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "default": true
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40bf29f7de473e0-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 18:03:49 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9NyrAxzhhL%2Fb9ooBE%2FAP6lEPIHGV6uLOGZM%2BSyGhKLysdyPMkxTaKnVDIlGn0%2Fz00Vu30NfDIEqizMtUlCCzhfinYnJXjJ%2BbLP6hO1GB64D%2F%2FcoJuaN961ski9uPqS5JQ9P2IxKz3w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "2785d26e-9678-3d16-670f-314502e70439",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "address_id": "20e43579-5e78-d184-78db-31643202d986",
+        "phone_id": null,
+        "default": true,
+        "verified": 1,
+        "created_at": "2026-09-25 18:03:46",
+        "updated_at": "2026-09-25 18:03:49",
+        "deleted_at": null,
+        "name": "prover-set-default-1790359425900",
+        "vat_number": "",
+        "vat_validated": null,
+        "vat_validation_failed_reason": null,
+        "vat_validated_with": null,
+        "vat_validation_checked_at": null,
+        "reg_number": "PROVER-REG",
+        "vat_percent": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "email_id": null,
+        "user_id": "sys",
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T18:03:49.726Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "make-one-of-my-companies-the-default"
+  }
+}

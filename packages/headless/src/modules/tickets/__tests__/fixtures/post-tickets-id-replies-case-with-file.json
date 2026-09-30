@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "POST",
-    "path": "/api/tickets/4d036794-24d0-e710-065b-3153698d582e/replies?case=with-file",
+    "path": "/api/tickets/d085e69d-5623-7197-44da-218e940d4237/replies?case=with-file",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -13,7 +13,7 @@
       "body": "Recorded reply with an attachment for FE-3226.",
       "files": [
         {
-          "id": "5d085e69-d562-3719-8ec2-18e940d42370"
+          "id": "5952098d-3de4-0917-e48c-31578626e347"
         }
       ]
     }
@@ -24,14 +24,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a3b7d957c9087203-LHR",
+      "cf-ray": "a42917ca9dd2b281-DUR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 15 Sep 2026 13:06:30 GMT",
+      "date": "Tue, 29 Sep 2026 06:57:19 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=n1%2FedxI7fEtYnS%2BLYdZAYijlsEPCdbX%2BAOD510jx51D%2FieRE%2BvCRZjp6sYYwabeqsrPqXqaEU%2B9UI1lpL92skLqlsRP0r3%2F8oRqL%2Ba%2Bp6KDzGvnkwSRn2ch4gq1tQPIPrnIcOrbgmQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GkjU7A8JLXKzHzr22kwNNlDCDEIactwhlO1Nn9gG5IJ9ndNyzJz2Rl5zcsEM6YLIuL36ejXvzhTFsmM3qWXCKFppLKtayh2sZKvN%2B4scxwzMN5CgKVp%2BGlBaBD%2BkfwkhM%2FGDf3Nzsg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -40,18 +40,18 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "952098d3-de40-917e-269c-31578626e347",
+        "id": "20e43579-5e78-d187-703f-31643202d986",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
-        "ticket_id": "4d036794-24d0-e710-065b-3153698d582e",
+        "ticket_id": "d085e69d-5623-7197-44da-218e940d4237",
         "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
         "lead_id": null,
         "user_id": null,
         "is_private": false,
         "body": "Recorded reply with an attachment for FE-3226.",
-        "created_at": "2026-09-15 13:06:29",
-        "updated_at": "2026-09-15 13:06:29",
+        "created_at": "2026-09-29 06:57:18",
+        "updated_at": "2026-09-29 06:57:18",
         "deleted_at": null,
         "template_id": null,
         "object_type": null,
@@ -75,11 +75,11 @@
         "is_author": true,
         "can_manage": true,
         "ticket": {
-          "id": "4d036794-24d0-e710-065b-3153698d582e",
+          "id": "d085e69d-5623-7197-44da-218e940d4237",
           "import_id": null,
           "staged_import": false,
           "external_id": null,
-          "reference": "LHG-275-42348",
+          "reference": "IGZ-675-77593",
           "subject": "Fixture write-cycle ticket",
           "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
           "lead_id": null,
@@ -89,12 +89,12 @@
           "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
           "user_id": null,
           "status_id": "3825d96e-763e-d091-3dc4-174825283406",
-          "created_at": "2026-09-15 13:06:24",
-          "updated_at": "2026-09-15 13:06:29",
-          "replied_at": null,
+          "created_at": "2026-09-29 06:57:10",
+          "updated_at": "2026-09-29 06:57:18",
+          "replied_at": "2026-09-29 06:57:18",
           "invoice_id": null,
-          "calculated_notify_close_date": "2026-10-05 00:00:00",
-          "calculated_close_date": "2026-10-15 00:00:00",
+          "calculated_notify_close_date": "2026-10-19 00:00:00",
+          "calculated_close_date": "2026-10-29 00:00:00",
           "ticket_department_id": "8d632507-9806-5d1e-33eb-8174e234e98d",
           "priority_id": "3825d96e-763e-d091-3dc4-174825283406",
           "object_type": null,
@@ -102,7 +102,7 @@
           "template_id": null,
           "contract_product_id": null,
           "source_type": "system",
-          "source_ip": "82.9.29.125",
+          "source_ip": "156.155.31.213",
           "spam": false,
           "email_file": null,
           "can_see_ticket_messages": null,
@@ -110,31 +110,31 @@
         },
         "files": [
           {
-            "id": "5d085e69-d562-3719-8ec2-18e940d42370",
+            "id": "5952098d-3de4-0917-e48c-31578626e347",
             "type": "text",
             "mime_type": "text/plain",
             "object_type": "ticket_message",
             "object_class": "App\\Models\\TicketMessage",
-            "object_id": "952098d3-de40-917e-269c-31578626e347",
-            "name": "temp_57.txt",
+            "object_id": "20e43579-5e78-d187-703f-31643202d986",
+            "name": "temp_239.txt",
             "original_name": "fe-3226-fixture-attachment.txt",
             "size": 36,
             "scan_status": "new",
             "failed_scanning_attempts": null,
             "scan_status_reason": null,
-            "hash": "o6dJEtFbddk4xVZLWfJ7Z2L3lGjUlJ6z",
+            "hash": "jBOuCY6H4m3pqWNQlr5ffOPkz822cpRV",
             "default": false,
             "image_category_id": null,
             "resized": false,
             "order": 1,
-            "created_at": "2026-09-15 13:06:29",
-            "updated_at": "2026-09-15 13:06:29",
+            "created_at": "2026-09-29 06:57:18",
+            "updated_at": "2026-09-29 06:57:18",
             "deleted_at": null,
             "temp_token_id": "mock-temp_token_id",
             "system": "s3",
             "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-            "url": "https://api.staging.upmind.io/api/ticket_message/files/o6dJEtFbddk4xVZLWfJ7Z2L3lGjUlJ6z/view",
-            "print_url": "https://api.staging.upmind.io/api/ticket_message/files/o6dJEtFbddk4xVZLWfJ7Z2L3lGjUlJ6z/download",
+            "url": "https://api.staging.upmind.io/api/ticket_message/files/jBOuCY6H4m3pqWNQlr5ffOPkz822cpRV/view",
+            "print_url": "https://api.staging.upmind.io/api/ticket_message/files/jBOuCY6H4m3pqWNQlr5ffOPkz822cpRV/download",
             "size_formatted": "36.00 B"
           }
         ]
@@ -146,7 +146,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-15T13:06:30.254Z",
+  "captured_at": "2026-09-29T06:57:19.291Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

@@ -1,5 +1,6 @@
 /** @internal */
 import { computed } from "vue";
+import { useBrand } from "../brand";
 import {
   ClientCustomFieldsContextTypes,
   useClientCustomFields
@@ -10,6 +11,7 @@ import { ScopeActorTypes } from "../scope/scope.types";
 import { resolveClientId, useActiveSession } from "../session-store";
 import { useI18n } from "../system-localisation";
 import {
+  mapContractProductPickerItems,
   mapContractProducts,
   toConsolidationBody,
   toRequestCancellationBody,
@@ -17,13 +19,15 @@ import {
   toSoftCancelBody
 } from "./contract-product.mappers";
 import {
+  useContractProductPickerQuerySchema,
   useGroupedCountsQuerySchema,
   useQuerySchema
 } from "./contract-product.schemas";
 import { ContractProductsContextTypes } from "./contract-product.types";
 import {
   resolveExcludeDelegated,
-  validateForm
+  validateForm,
+  whenPreferenceSettles
 } from "./contract-product.utils";
 import {
   DEBOUNCE_DELAY,
@@ -42,10 +46,13 @@ import type {
   ContractProductLoaded,
   ContractProductLookups,
   ContractProductMachineServices,
+  ContractProductPickerLookupQuery,
+  ContractProductPickerQueryModel,
   ContractProductServices,
   QueryModel,
   SetConsolidationModel
 } from "./contract-product.types";
+import type { LookupItem } from "../lookup";
 import type { ScopeContext } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
@@ -78,6 +85,7 @@ const CONTRACT_PRODUCTS_LIST_WITH = [
   "product.image",
   "brand.currency",
   "product.provision_blueprint",
+  "product.provision_blueprint.category",
   "contract_request",
   "future_cancellation_request",
   "moved_to_contract_product",
@@ -122,6 +130,7 @@ const CONTRACT_PRODUCT_WITH = join(
     "product.image",
     "product.images",
     "product.provision_blueprint",
+    "product.provision_blueprint.category",
     "product.provision_category",
     "scheduled_actions",
     "status",
@@ -147,10 +156,15 @@ function isAddressable(clientId?: string): boolean {
  */
 function createShowDelegatedPreference(scopeContext?: ScopeContext): {
   preference: ComputedRef<boolean | undefined>;
+  isSettled: ComputedRef<boolean>;
   destroy: () => void;
 } {
   if (scopeContext?.type === ContractProductsContextTypes.DELEGATED) {
-    return { preference: computed(() => undefined), destroy: () => undefined };
+    return {
+      preference: computed(() => undefined),
+      isSettled: computed(() => true),
+      destroy: () => undefined
+    };
   }
 
   const manager = usePersonalDetailsManager()
@@ -162,6 +176,7 @@ function createShowDelegatedPreference(scopeContext?: ScopeContext): {
     preference: computed(
       () => manager.useContext().model.value?.excludeDelegatedProducts
     ),
+    isSettled: computed(() => !manager.useMeta().isLoading.value),
     destroy: () => manager.useActions().destroy()
   };
 }
@@ -193,11 +208,13 @@ function excludeDelegatedFor(
  */
 function loadList(
   scopeContext: ScopeContext | undefined,
-  preference: ComputedRef<boolean | undefined>
+  preference: ComputedRef<boolean | undefined>,
+  isPreferenceSettled: ComputedRef<boolean>
 ): ContractProductListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
   const excludeDelegated = excludeDelegatedFor(scopeContext, preference);
+  const { taxType } = useBrand();
   const url = useUrl("contracts_products", {
     with: join(CONTRACT_PRODUCTS_LIST_WITH, ","),
     split_count: 1
@@ -213,21 +230,20 @@ function loadList(
     ],
     url,
     // Must stay an `async` function — `list()` detects a guard by `isPromise`.
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (!isAddressable(clientId.value)) {
-          reject(new NotAuthenticatedError());
-          return;
-        }
-        url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
-        resolve(true);
-      }),
+    // The split count reads through this guard un-gated by `enabled`, so it
+    // waits here for the stored preference the page read is enabled on.
+    guard: async () => {
+      if (!isAddressable(clientId.value)) throw new NotAuthenticatedError();
+      await whenPreferenceSettles(isPreferenceSettled);
+      url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
+      return true;
+    },
     withAccessToken: true,
     withSplitCount: true,
-    select: mapContractProducts,
+    select: raw => mapContractProducts(raw, taxType.value),
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value)
+    enabled: () => isAddressable(clientId.value) && isPreferenceSettled.value
   });
 }
 
@@ -291,6 +307,60 @@ async function loadPurchasedCategories(
   });
 }
 
+/**
+ * The `contractProductPicker`'s own lookup (R38 item 2) — THIS client's own
+ * contract products, searched by service identifier, as `useTickets`'
+ * `loadContractProductLookup` searches the same resource for a different
+ * caller. Minted on the picker's first call.
+ *
+ * @decision
+ * what: the picker sends the list's own `exclude_delegated` force-set (the
+ *   show-delegated preference, or the `DELEGATED` context's forced value),
+ *   read at fire time.
+ * why: the picker finds a product the list page shows; a hardcoded `1` hid a
+ *   delegated product the list offered to a client who opted to see them (W1).
+ * rejected: a hardcoded `exclude_delegated=1`; omitting the param (the
+ *   platform then returns delegated products whatever the preference).
+ */
+function loadContractProductPickerLookup(
+  scopeContext: ScopeContext | undefined,
+  preference: ComputedRef<boolean | undefined>
+): ContractProductPickerLookupQuery {
+  const { listInfinite, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+  const excludeDelegated = excludeDelegatedFor(scopeContext, preference);
+  const url = useUrl("contracts_products", { client_id: clientId.value });
+
+  return listInfinite<
+    IContractProduct[],
+    LookupItem[],
+    ContractProductPickerQueryModel
+  >({
+    criteria: { schema: useContractProductPickerQuerySchema() },
+    queryKey: [
+      ...queryKey,
+      "lookups",
+      "contract-products",
+      { client: clientId },
+      { excludeDelegated }
+    ],
+    url,
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (!isAddressable(clientId.value)) {
+          reject(new NotAuthenticatedError());
+          return;
+        }
+        url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
+        resolve(true);
+      }),
+    select: mapContractProductPickerItems,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => isAddressable(clientId.value)
+  }) as unknown as ContractProductPickerLookupQuery;
+}
+
 // -----------------------------------------------------------------------------
 // Service Factory
 
@@ -318,18 +388,25 @@ export const createContractProductServices = (
   scopeContext?: ScopeContext
 ): ContractProductServices => {
   const clientId = resolveClientId(scopeContext);
-  const { preference, destroy: destroyPreference } =
-    createShowDelegatedPreference(scopeContext);
+  const {
+    preference,
+    isSettled: isPreferenceSettled,
+    destroy: destroyPreference
+  } = createShowDelegatedPreference(scopeContext);
 
   return {
     queryKey,
     clientId,
     isAvailable: computed(() => isAddressable(clientId.value)),
-    loadList: () => loadList(scopeContext, preference),
+    loadList: () => loadList(scopeContext, preference, isPreferenceSettled),
     loadGroupedCounts: () => loadGroupedCounts(scopeContext),
     loadPurchasedCategories: () =>
       loadPurchasedCategories(scopeContext, preference),
     destroyPreference,
+    lookups: {
+      contractProduct: () =>
+        loadContractProductPickerLookup(scopeContext, preference)
+    },
     ...scopedServices(scopeActor, scopeContext)
   };
 };

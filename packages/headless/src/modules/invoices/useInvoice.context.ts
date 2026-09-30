@@ -1,56 +1,34 @@
-import { computed } from "vue";
-import { mapToHeadlessError } from "../../utils";
-import type {
-  InvoiceItemQuery,
-  InvoiceUnpaidAmountQuery,
-  InvoicesServices
-} from "./invoices.types";
-import type { ResponseError } from "../../utils";
+import { useContext } from "../../utils";
+import type { Invoice, InvoiceUnpaidAmount } from "./invoices.types";
+import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice.context
- * @description Single-read context — the mapped invoice, its captured error,
- * and AC1's standalone live unpaid amount. Query-backed: data is mapped in
- * `invoices.services.ts` via `select`, never here.
+ * @description Single-invoice context — the mapped invoice record (published as
+ * `model`, the runtime's render key, never a `data` node), its captured error,
+ * and the live unpaid amount converted to the selected currency (AC1).
  *
  * ERRORS ARE STATE, NOT EVENTS. `error` is the scope's captured failure,
  * exposed for the consumer to render. This layer never raises it.
- *
- * @doctrine clause 2 — shared-only (armless).
  */
 export function createInvoiceContext(
   _actorScope: ScopeActorTypes,
-  service: InvoicesServices,
-  query: InvoiceItemQuery,
-  unpaidAmountQuery: InvoiceUnpaidAmountQuery
+  actor: UseActor,
+  unpaidAmount: Ref<InvoiceUnpaidAmount | undefined>
 ) {
-  // Folds in the unpaid-amount read's own error (W1) — otherwise a failed
-  // AC1 re-read is unobservable on this layer too.
-  const error = computed<ResponseError | undefined>(
-    () =>
-      service.error.value ??
-      (query.error.value ? mapToHeadlessError(query.error.value) : undefined) ??
-      (unpaidAmountQuery.error.value
-        ? mapToHeadlessError(unpaidAmountQuery.error.value)
-        : undefined)
-  );
-
-  // --- actor-specific context: none earned yet (clause 2). When a scope
-  // earns one, add `useInvoice.context.{actor}.ts` and spread it LAST.
+  const { state } = actor;
 
   return {
-    /** The reactive mapped invoice this scope resolved. */
-    data: query.data,
-
     /** The scope's captured error — read, never raised. */
-    error,
+    error: useContext<ResponseError | undefined>(state, "error"),
 
-    /** AC1 — the live unpaid amount, re-read independently of the invoice. */
-    unpaidAmount: unpaidAmountQuery.data
+    /** The mapped invoice record this scope resolved. */
+    model: useContext<Invoice | undefined>(state, "invoice"),
 
-    // The arm merges in HERE, last.
-    // ...actorContext
+    /** AC1 — the live unpaid amount, converted to the selected currency. */
+    unpaidAmount
   };
 }
 

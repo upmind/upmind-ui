@@ -1,13 +1,10 @@
 Negative control for useContract.context.ts `validationErrors` (R37 B5).
 
-Spec that must flip: contract.manager-members.int.test.ts
-("A payment-method choice outside my stored cards is not sent and tells me
-why", contract.feature:335) — expects no request sent and
-`useContext().validationErrors` to name the `paymentDetailsId` field.
+NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+  green under it — no driven scenario pins this behaviour yet.
 
 Mutation: drops the `validationErrors` member from the manager context
 factory.
-
 diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
 --- a/packages/headless/src/modules/contract/useContract.context.ts
 +++ b/packages/headless/src/modules/contract/useContract.context.ts

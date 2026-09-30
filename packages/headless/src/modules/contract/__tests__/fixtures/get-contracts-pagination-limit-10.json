@@ -17,19 +17,19 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a40bca020af9b910-JNB",
+      "cf-ray": "a42274e4bb981d20-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Fri, 25 Sep 2026 17:36:05 GMT",
+      "date": "Mon, 28 Sep 2026 11:37:32 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=aKM4ECYX2SvtP1%2FXjKDv9GZNyAT5T6iZCFsxH4uYTMnsVHha1hgkK4ehL8RCxe05kofmx%2F2TlnTez%2FPhYZI3JwBfoQX%2B5FSL1eqGX6LcKC%2Bic%2B%2BPdDqPsnHZi5FqQ58gPFKLCLPlaQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=YzDFBniTxufprr8DI6oZxgAZ3YB5BIW5yV0pXH%2BBhIJ5XYv6q4Zwf1lGRkLBYIfrOt3edp2OYurZuTXK5G9y6CPwBWItDx93hj%2Br9ImB5umtrp4EaHgBQPBt0yTzGr5YDl4CyVclyQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
       "x-frame-options": "SAMEORIGIN",
-      "x-total-count": "853"
+      "x-total-count": "879"
     },
     "body": {
       "status": "ok",
@@ -90,7 +90,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -160,7 +160,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -230,7 +230,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -300,7 +300,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -370,7 +370,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -440,7 +440,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -510,7 +510,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -580,7 +580,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -650,7 +650,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -720,7 +720,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -736,13 +736,13 @@
         }
       ],
       "related": null,
-      "total": 853,
+      "total": 879,
       "error": null,
       "messages": [],
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T17:36:05.761Z",
+  "captured_at": "2026-09-28T11:37:31.994Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

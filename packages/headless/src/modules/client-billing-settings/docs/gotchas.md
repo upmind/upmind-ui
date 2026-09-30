@@ -56,13 +56,11 @@ Fixtures: `put-clients-id-case-enabled-inherit.json` (`enabled: 2`), `put-client
 
 Fixture: `get-config-brand-values-keys-invoices-consolidation-restrict-to-staff.json`.
 
-## 4. The shared cache key can be poisoned by a sibling module this module does not control
+## 4. The shared cache key is dedupe-only — this module's own reads never bypass it unsafely
 
-This module reads `clients/{id}?with=custom_fields,custom_fields.field` under the **same** cache key as `client-personal-details` and `client-custom-fields` — deliberately, so a page mounting more than one of the three dedupes onto a single request. This module's own reads are safe: it uses the reactive query primitive, which applies field-selection per observer, in isolation.
+This module reads `clients/{id}?with=custom_fields,custom_fields.field` under the **same** cache key as `client-personal-details` — deliberately, so a page mounting both dedupes onto a single request. This module's own reads are safe: it uses the reactive query primitive, which applies field-selection per observer, in isolation, and its own one-shot lookups bypass the shared cache entirely rather than baking a narrow field-selection into it. `client-custom-fields` reads a different endpoint (`custom_fields`, scoped by the access token) and does not touch this shared key at all.
 
-**The risk is a sibling, not this module.** `client-custom-fields` reads this same shared key through the platform's one-shot fetch-and-select primitive (its own `loadClientBrandId`, selecting just `brand_id`), which bakes its own field-selection **inside** the cached function itself. If that call wins the race to populate the entry, the cache holds that bare `brand_id` string for the entry's full freshness window — and this module's own reactive read, mounting afterward, silently reports every field as `undefined` instead of erroring. The same hazard has been observed in practice in `client-personal-details`'s own service file, which is why that module's own one-shot reads deliberately bypass the shared cache too.
-
-> **🧪 For Testers:** If a test seeds this module in isolation, this risk cannot surface — it requires the sibling's own one-shot read to run first, in the same process, against the same cache. Do not assume an isolated pass proves the shared key is safe in a real multi-module page.
+> **🧪 For Testers:** A test seeding this module alongside `client-personal-details` should still see exactly one `clients/{id}` request for the pair — assert request COUNT, not just response shape.
 
 ## 5. `clear()` still races a pending debounced `input()` — `revert()` does not
 
@@ -101,11 +99,11 @@ const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 
 > **🧪 For Testers:** Do not expect destroying one composable's instance to affect the other's — they are independent registry entries even though they act on the same client.
 
-## 7. A staged, unprocessed import locks the editor independently of the machine's own state
+## 7. The consolidation write is refused by default — a missing brand opt-in reads as restricted, not as "not yet set"
 
-A save attempted while the owning client record is a staged, unprocessed import is refused **before any request is sent**, checked directly against a fresh one-shot read of the record — not against whatever the machine's own context happens to hold. This means the lockout applies even to a caller that reaches past the composable and calls the underlying service directly.
+The consolidation fields are only ever written when the brand has explicitly opted clients into managing them (the same key `useMeta().isVisible` / `isAvailable` read). A brand that has never touched the key, or has set it in the staff-only direction, refuses the `clients/{id}` write **before any request is sent** — checked at the service layer, so a caller reaching past the composable and calling the underlying service directly cannot bypass it either. This gate is independent of the account-currency write, which is refused separately (and only) when a preferred-payment-currency change is attempted while that choice is closed.
 
-> **🧪 For Testers:** `useMeta().isEditable` folds this check together with "not processing" and "not externally locked" into one flag — prefer asserting on `isEditable` for UI-gating tests, and assert on `isStaged` specifically when you need to isolate this one cause.
+> **🧪 For Testers:** Seed the brand config key absent, `true`, and `false` and confirm only the `false` case lets a consolidation-field save issue a request — the other two must reject with zero network activity, even when the model itself is valid.
 
 ## 8. `.as()` takes an enum member, never a string literal
 
@@ -125,7 +123,7 @@ const wrongManager = useBillingSettingsManager().as("client");
 const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
 ```
 
-**This bites hardest in specs and playground files**, because `__tests__/**` and any future playground page both sit outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug.
+**This bites hardest in specs**, because `__tests__/**` sits outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug.
 
 ## 9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
 

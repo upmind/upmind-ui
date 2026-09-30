@@ -60,7 +60,7 @@ the example of the root mistake. It is not an example of the mistake.
 `client-vue` holds `AddressItem.vue`, `CompanyItem.vue` and `PhoneItem.vue` in
 `src/modules/billing/components/`. The generic frames they sit in — `List`, `Item`, `Form`,
 `Manage`, `Select`, `Actions`, `Skeleton` — moved down to
-`packages/foundation/src/modules/manage/` in Phase 7. The three row renderers are still in
+`packages/modules-foundation/src/modules/manage/` in Phase 7. The three row renderers are still in
 `client-vue`, inside the billing module, so they travel in **Phase 9**.
 
 So the profile page's parts exist and are moving. What never existed is the **page** that
@@ -97,9 +97,9 @@ Counted from the callers of `clientVuePage` and `clientVueRow` on `develop`.
 
 | Page key | Placeholder names | On develop | On the stack |
 | --- | --- | --- | --- |
-| `AUTH_LOGIN` (and `AUTH_LOGIN_TWOFA`) | `UpmSessionLogin` | **Live.** `pages/login.vue` renders it through `PortalPageHost`. | `pages/login.vue` mounts `UpmSessionLogin` directly. Key orphaned. |
-| `AUTH_REGISTER` | `UpmSessionRegister` | **Live.** | `pages/register.vue` mounts the organism. Key orphaned. |
-| `AUTH_FORGOTTEN_PASSWORD` | `UpmSessionRecoverPassword` | **Live.** | `pages/forgotten-password.vue` mounts the organism. Key orphaned. |
+| `AUTH_LOGIN` (and `AUTH_LOGIN_TWOFA`) | `UpmAuthLogin` | **Live.** `pages/login.vue` renders it through `PortalPageHost`. | `pages/login.vue` mounts `UpmAuthLogin` directly. Key orphaned. |
+| `AUTH_REGISTER` | `UpmAuthRegister` | **Live.** | `pages/register.vue` mounts the organism. Key orphaned. |
+| `AUTH_FORGOTTEN_PASSWORD` | `UpmAuthRecoverPassword` | **Live.** | `pages/forgotten-password.vue` mounts the organism. Key orphaned. |
 
 **Action: delete them on the stack, not on develop.** Develop carries none of the ADR 023
 packages, so those three routes there have nothing else to render. Removing the configs on
@@ -116,7 +116,7 @@ Note the fourth key: `AUTH_LOGIN_TWOFA` shares the `login` config, so it goes wi
 | `product-pages.ts:525` row | `StoredPaymentMethods` |
 
 `PaymentDetails` is already published as `UpmPaymentDetails`. `StoredPaymentMethods.vue`
-exists at `packages/payment/src/components/` but is **not exported** from that package's
+exists at `packages/modules-payment/src/components/` but is **not exported** from that package's
 barrel — its only importer is `PaymentDetails.vue`.
 
 **Decided (operator, September 2026): publish it.** It has two real portal consumers, which is
@@ -127,10 +127,10 @@ three sites use the real component rather than a mock, because the components ex
 
 | Page key | Placeholder names | Reality |
 | --- | --- | --- |
-| `BILLING_ORDERS` | `UpmOrder` over headless `orders` | Phase 8 extracted the order surface into `packages/invoice`, but the portal cannot mount it. See below. Recorded on !585. |
+| `BILLING_ORDERS` | `UpmOrder` over headless `orders` | Phase 8 extracted the order surface into `packages/modules-invoice`, but the portal cannot mount it. See below. Recorded on !585. |
 | `BILLING_ORDER_DETAIL` | `UpmOrder` (detail) | Same blocker. |
 
-**The blocker.** `packages/invoice/src/Order.vue:255` reads its id from a fixed route
+**The blocker.** `packages/modules-invoice/src/Order.vue:255` reads its id from a fixed route
 parameter:
 
 ```js
@@ -190,7 +190,7 @@ row straight shows another. Both render; only one matches the recording.
 - [x] Mock the profile page — `account/profile.vue` with `mock/forms/profile-context.ts`.
 - [x] Mock the post-purchase product setup form, and stop naming `UpmProductSetup` for it.
 - [ ] Delete the four orphaned auth keys (`AUTH_LOGIN`, `AUTH_LOGIN_TWOFA`, `AUTH_REGISTER`, `AUTH_FORGOTTEN_PASSWORD`) — **on the ADR 023 stack only**. They are live on develop.
-- [ ] Export `StoredPaymentMethods` from `packages/payment`'s barrel. Decided; not yet done.
+- [ ] Export `StoredPaymentMethods` from `packages/modules-payment`'s barrel. Decided; not yet done.
 - [ ] Wire `BILLING_PAYMENT_METHODS` and the product renewal-card panel once that export lands — both components then exist, so by the rule they are used, not mocked.
 - [ ] Give `Order.vue` an optional `orderId` prop with a route-parameter fallback, then wire the two orders pages.
 - [ ] Answer the Phase 9 question in §1: where `AddressItem`, `CompanyItem` and `PhoneItem` land so a client-facing surface can reach them.

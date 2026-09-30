@@ -97,7 +97,7 @@ import { OptionTile } from "@upmind/ui";
 import { Markdown, NumberField, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../../../components/icon";
+import { Icon } from "@upmind-automation/foundation";
 import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 import SubproductPrice from "./SubproductPrice.vue";
 import type { SubproductOption } from "./types";

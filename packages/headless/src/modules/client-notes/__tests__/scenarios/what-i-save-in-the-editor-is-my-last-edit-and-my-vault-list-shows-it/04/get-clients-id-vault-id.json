@@ -1,0 +1,71 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/vault/20403869-6e54-721d-0d6c-518d9305e7d2",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a422b9c71f1b4c65-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 12:24:33 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GVFh6FvyRfGtCRWWflqP4fB6F%2FiBVC2AavKJlnaAQxCUJlgQYi3inmOOkwQwdnAbM0OMdNrHLHrWfIV%2BjtUrvX2UaDa49C8u7mbJxTiw7OytUI4L%2FwMnTwiOTwF%2FP0aNlzRn9NC1ew%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "20403869-6e54-721d-0d6c-518d9305e7d2",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "lead_id": null,
+        "user_id": "none",
+        "label": null,
+        "code": null,
+        "note": "prover fixture ac26 original 8129692",
+        "pinned": false,
+        "visible_for_client": true,
+        "encrypted": false,
+        "contract_product_id": null,
+        "created_at": "2026-09-28 12:24:31",
+        "updated_at": "2026-09-28 12:24:31",
+        "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "author_user_id": null,
+        "editor_client_id": null,
+        "editor_user_id": null,
+        "locked": false
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T12:24:33.443Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "what-i-save-in-the-editor-is-my-last-edit-and-my-vault-list-shows-it"
+  }
+}

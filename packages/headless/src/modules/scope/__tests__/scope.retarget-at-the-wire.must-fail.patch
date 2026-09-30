@@ -1,0 +1,75 @@
+scope negative control — the WIRE identity seam (AC-9), scope.feature's headline claim.
+
+Restores the FE-2824 defect the retarget proof exists to catch: the READ urls
+address the SESSION's own client instead of the client the scope resolved. The
+mutation hardwires `useActiveSession().useContext().activeUser` into the
+collection's `loadList` url and the per-address `loadOne` url, inside the vehicle
+module (`client-address.services.ts`) that scope's `resolveClientId` seam feeds.
+The seam is left standing — `resolveClientId` still branches on `.for('client',
+id)`, still feeds `queryKey`, `isAvailable` and every mutation — only the two
+read urls stop consulting it. Right structure, gone capability.
+
+Target spec:  scope.retarget-at-the-wire.int.test.ts
+Should flip RED — the retarget READ read-back, in which the scope-resolved client
+and the session's `activeUser` are DIFFERENT ids:
+  "@AC-9 addresses the named client, as that client, with no acting-as header,
+   while the session's own activeUser is a different client"
+
+Stays GREEN, and this is the point:
+  - "@AC-9 addresses the actor's own account when the scope names no entity" — one
+    live actor whose session client IS the scope-resolved client, so "read the
+    session" and "read the seam" resolve to the same id and a url assertion passes
+    either way. That case is AC-9's ordinary-path coverage; it cannot detect the
+    seam's removal on its own — which is exactly why the retarget case exists.
+  - "@AC-9 sends the delete and the set-default to the named client, not the
+    session's own" — the mutation is READ-only by construction (the write path
+    still addresses the seam), so a red here can never be mistaken for a write
+    regression.
+
+Provenance: this is the committed, proven FE-2824 mutant
+(`client-address/__tests__/client-address.session-hardwired-read.must-fail.patch`),
+reused verbatim as scope's colocated control for the moved wire proof (FE-3145,
+ADR 035 Am.1). Not authored fresh from source — the prover applies it blind.
+
+MEASURED (prover, applied blind — `git apply <this file>` from the repo root,
+`git apply -R` to revert): `git apply --check` clean against the current tree.
+Applied, `pnpm --filter @upmind-automation/headless exec vitest run --project
+integration src/modules/scope/__tests__/scope.retarget-at-the-wire.int.test.ts`:
+1 failed | 2 passed (3) — exactly the retarget READ named above flips
+(`expected '/api/clients/25d96e76-…' to be '/api/clients/11111111-…'`), nothing
+else moves. Reverted; `client-address.services.ts` clean. 2026-09-25.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+diff --git a/packages/headless/src/modules/client-address/client-address.services.ts b/packages/headless/src/modules/client-address/client-address.services.ts
+index 385d7627a..000000000 100644
+--- a/packages/headless/src/modules/client-address/client-address.services.ts
++++ b/packages/headless/src/modules/client-address/client-address.services.ts
+@@ -190,8 +190,9 @@ function loadList(
+   clientId: ClientAddressServices["clientId"]
+ ): ClientAddressListQuery {
+   const { list, useUrl } = useQuery();
++  const { activeUser } = useActiveSession().useContext();
+   const targetUrl = () =>
+-    useUrl(`clients/${clientId.value}/addresses`, {
++    useUrl(`clients/${activeUser.value?.id}/addresses`, {
+       with: ["region", "country"].join()
+     });
+   const url = targetUrl();
+@@ -253,6 +254,7 @@ async function loadOne(
+   if (!id) return undefined;
+ 
+   const { get: getOne, useUrl } = useQuery();
++  const { activeUser } = useActiveSession().useContext();
+ 
+   if (!isAddressable(clientId.value)) {
+     return Promise.reject(new NotAuthenticatedError());
+@@ -260,7 +262,7 @@ async function loadOne(
+ 
+   return getOne<IAddress, Address>({
+     queryKey: [...queryKey, { client: clientId.value }, id],
+-    url: useUrl(`clients/${clientId.value}/addresses/${id}`, {
++    url: useUrl(`clients/${activeUser.value?.id}/addresses/${id}`, {
+       with: ["region", "country"].join()
+     }),
+     select: mapAddress,

@@ -22,7 +22,7 @@ flowchart TD
   mint --> ready["return the four sub-composable factories, all closed over the same query"]
 ```
 
-The reactive read is built directly against the underlying query primitive rather than through this platform's own generic request wrapper — the generic wrapper appends its own reactive key segment that this read's key deliberately avoids, so it can stay as close as possible to a value the sibling custom-fields module also resolves against the same underlying resource. The two do not, in the event, end up sharing one cache entry — see "Two independently-keyed reads" below (after Dependencies) for why, and why closing that gap by force is not the safe fix.
+The reactive read is built directly against the underlying query primitive rather than through this platform's own generic request wrapper — the generic wrapper appends its own reactive key segment that this read's key deliberately avoids, so it can stay byte-identical to the key `client-billing-settings` resolves against the same underlying resource. The two DO share one cache entry — see "The shared cache key" below (after Dependencies).
 
 ### Instantiation — the editor
 
@@ -92,8 +92,8 @@ One services file serves both halves:
 | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Target-client resolution                             | one function, consumed by both the read view and the editor                                                                                                 |
 | Addressability predicate                             | one function; its reactive form is what `isAvailable` exposes on both composables                                                                           |
-| The reactive profile read                            | hand-built directly against the underlying reactive-query primitive, so its cache key can be made to match a value the sibling module also resolves against |
-| A one-shot profile read for the editor's own lookups | deliberately bypasses the shared cache entirely — see "Two independently-keyed reads" below for why a shared, selected cache entry is unsafe here           |
+| The reactive profile read                            | hand-built directly against the underlying reactive-query primitive, keyed identically to `client-billing-settings`'s own read of the same resource |
+| A one-shot profile read for the editor's own lookups | deliberately bypasses the shared cache entirely — a one-shot, field-selecting read of a key another module reads reactively would be unsafe; this module's own one-shot reads never risk that by construction |
 | The diff-only update body                            | pure, no side effects beyond the request itself                                                                                                             |
 | The machine-services adapter                         | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client as the rest of the module                       |
 
@@ -128,13 +128,11 @@ Errors are **state**, not events. Nothing in this module raises a toast or notif
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | Presentation layer | the display list and readiness on the read view; the model, schema, form definition, and save/input/clear/revert capabilities on the editor |
 
-## Two independently-keyed reads of the same profile resource — and why they stay two
+## The shared cache key with client-billing-settings
 
-Both this module and the sibling custom-fields module read the identical underlying `clients/{id}` resource (with the same embedded custom-field values) — this module for the profile itself, the sibling for the target client's own brand id. Both are built to key against that resource as closely to each other as each one's own transport allows, so that where both paths run in the same boot, the two could in principle collapse onto a single request. **In the current shape, a small asymmetry in how each side forms its own cache key keeps the two as two separate entries rather than one** — established from source, not merely suspected.
+This module and `client-billing-settings` both read the identical underlying `clients/{id}?with=custom_fields,custom_fields.field` resource, under the identical cache key — deliberately, so a page mounting both dedupes onto a single request rather than issuing one each. This is safe because both sides read it through the reactive query primitive, which applies its own field-selection **per observer**, in isolation — a second reactive observer on the same key gets its own independent projection at zero extra requests, and cannot change what the other observer sees.
 
-That separation is left as-is rather than closed by force, because of what the underlying request platform does with a cache entry once populated: it bakes its own field-selection step _inside_ the fetch function it caches against, so a genuinely shared entry would store whichever side's selection happened to win the race to populate it first — this module's full profile shape, or the sibling's bare brand-id string — silently corrupting the loser's read. Reconciling the key asymmetry without first addressing that race would trade one known gap for a worse, silent one.
-
-**How many reads a real page load actually issues is not settled.** The mechanism (two distinct keys, so the two entries cannot dedupe today) is established from source; the count observed varies by measurement layer and is not restated here. See [gotchas.md](./gotchas.md#3-two-independently-keyed-reads-of-the-same-profile-resource) before asserting a number anywhere downstream of this doc.
+A sibling module, `client-custom-fields`, used to read this same resource too, through a one-shot, field-selecting primitive that bakes its own selection inside the cached fetch function itself — a hazard for whichever side's request won the race to populate a shared entry first. That module no longer reads this resource at all (its own definitions read is scoped by the access token, not a client id), so that hazard is retired for this key. See [gotchas.md](./gotchas.md#3-a-shared-cache-key-with-client-billing-settings--safe-because-both-sides-read-reactively).
 
 ## Module boundary
 

@@ -26,6 +26,17 @@ export {
 
 // -----------------------------------------------------------------------------
 /**
+ * The configured instance of a product that names it — a basket product or
+ * the contract product it becomes after checkout. `useProductName` and
+ * `useUischemaTitle` read only these members.
+ */
+export type ProductInstance = {
+  service_identifier?: string | null;
+  product?: Pick<IProduct, "provision_blueprint"> | null;
+};
+
+// -----------------------------------------------------------------------------
+/**
  * The price details for any price, allowing for gross/net and discount breakdowns.
  */
 export type Price = {

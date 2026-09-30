@@ -180,16 +180,15 @@ onMounted(async () => {
 });
 ```
 
-### URL `?currency=` entrypoint (cart funnel)
+### URL `?currency=` entrypoint
 
-The cart funnel reads `?currency=` on route entry and calls `useBasket().setCurrency()`, which forwards a `SET { update: true }` event to the currency machine. See [`apps/cart/src/router/funnels/engine/actions.ts`](../../../../apps/cart/src/router/funnels/engine/actions.ts) (`setCurrency` action).
+A route-entry action can read `?currency=` and call `useBasket().setCurrency()`, which forwards a `SET { update: true }` event to the currency machine.
 
 ```ts
 import { useBasket, useQueryParams } from "@upmind-automation/headless";
 import type { RouteLocation } from "vue-router";
 
-// Funnel action — fires automatically on route entry. In apps/cart the
-// parameter is the funnel's own `FunnelContext`, which carries `currentRoute`.
+// Route-entry action — the parameter carries `currentRoute`.
 const actions = {
   setCurrency: ({ currentRoute }: { currentRoute: RouteLocation }) => {
     const { setCurrency } = useBasket();

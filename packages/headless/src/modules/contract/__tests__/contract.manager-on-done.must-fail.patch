@@ -1,5 +1,9 @@
 Negative control for useContract.actions.ts `onDone` (R37 B9).
 
+Proves: contract.feature > "While my payment-method change is being sent I am told it is in progress"
+NOT YET RED-VERIFIED: that scenario is red on the live defect where the
+  manager keeps its first read after a re-read (FE-3145 prover hand-back).
+
 Specs that must flip: contract.manager-members.int.test.ts
 ("When my payment-method change finishes I am told it is done",
 contract.feature:329) — awaits `useActions().onDone()` across a
@@ -10,7 +14,6 @@ while the form is idle.
 
 Mutation: keeps the `onDone` member but resolves true at once, without
 waiting for a write to leave `changingPaymentMethod.processing`.
-
 diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
 --- a/packages/headless/src/modules/contract/useContract.actions.ts
 +++ b/packages/headless/src/modules/contract/useContract.actions.ts

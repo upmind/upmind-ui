@@ -109,6 +109,11 @@ type Envelope<T> = {
 Recorded from the single read. The list rows carry the **same** shape — a rebuild does not need a second request to draw a rich row.
 
 ```ts
+// Related records, each documented by its own module:
+type ContractProduct = Record<string, unknown>;
+type Department = Record<string, unknown>;
+type Client = Record<string, unknown>;
+
 type Ticket = {
   id: string;
   reference: string;              // human-readable, e.g. "LHG-275-42348"
@@ -155,6 +160,10 @@ type Ticket = {
 ### Message
 
 ```ts
+// Shapes documented in their own sections on this page:
+type Ticket = Record<string, unknown>;        // see "Ticket" above
+type AttachmentRef = Record<string, unknown>; // see "Attachment reference" below
+
 type TicketMessage = {
   id: string;
   ticket_id: string;

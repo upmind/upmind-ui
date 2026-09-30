@@ -44,8 +44,13 @@ import {
   featureText as publishedFeatures,
   stepCatalogs
 } from "@upmind-automation/headless/features";
-import { recordedBodies } from "@upmind-automation/headless/fixtures";
-import { keys, zipObject } from "lodash-es";
+import {
+  recordedBodies,
+  scenarioRecordings,
+  scenarioSlug,
+  stepKey
+} from "@upmind-automation/headless/fixtures";
+import { get, isEmpty, keys, zipObject } from "lodash-es";
 import type { RecordedFixture } from "./corpus.source.types";
 import type { FeatureTracksSource } from "../composables/useFeatureTracks.types";
 
@@ -132,4 +137,39 @@ export function getFixtureNames(module: string): string[] {
  */
 export function featureTextFor(module: string): string {
   return publishedFeatures[module] ?? "";
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Whether `module` records its scenarios one by one (FE-3145): each scenario of
+ * its `.feature` holds its own step recordings, so a track replays THOSE and
+ * nothing else. A module that does not yet is replayed from its shared corpus.
+ */
+export function recordsScenarios(module: string): boolean {
+  return !isEmpty(scenarioRecordings[module]);
+}
+
+/**
+ * The fixtures ONE step of ONE scenario recorded, loaded — keyed by fixture
+ * name. Empty for a step that made no request.
+ *
+ * @param module The module whose scenario it is.
+ * @param scenario The scenario's `.feature` title, verbatim.
+ * @param index The step's 0-based place in the scenario, Background first.
+ */
+export async function loadStepFixtures(
+  module: string,
+  scenario: string,
+  index: number
+): Promise<Record<string, RecordedFixture>> {
+  const loaders: Record<string, () => Promise<unknown>> = get(
+    scenarioRecordings,
+    [module, scenarioSlug(scenario), stepKey(index)],
+    {}
+  );
+  const names = keys(loaders);
+  const fixtures = await Promise.all(names.map(name => loaders[name]()));
+
+  return zipObject(names, fixtures) as Record<string, RecordedFixture>;
 }

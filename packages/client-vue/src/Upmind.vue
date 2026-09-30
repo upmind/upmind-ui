@@ -92,7 +92,7 @@ import AsyncLoading from "./modules/system/Loading.vue";
 import UpmRouteView from "./modules/system/RouteView.vue";
 import { useTheme, useThemes } from "./modules/theming";
 import type { LoadingProps } from "./modules/system/types";
-import type { StorefrontRoute } from "./types";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

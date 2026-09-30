@@ -43,7 +43,7 @@ type WireField = Record<string, unknown> & { id: string; code: string };
 
 function recordedDefinitions(): WireField[] {
   return getFixtureBody<Envelope<WireField[]>>(
-    "get-custom-fields-brand-id-filter-object-type-client-sort-order-asc",
+    "get-custom-fields-filter-object-type-client-sort-order-asc",
     { recordingsDir }
   ).data;
 }

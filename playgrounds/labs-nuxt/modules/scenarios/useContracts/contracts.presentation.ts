@@ -5,15 +5,19 @@
  * the same row as a card, one row READ-ONLY in the detail overlay, and the
  * row-level/collection-level actions. Grounded field by field on the live row
  * `useContracts().useContext().data` publishes (`Contract` in
- * `contract.types.ts`): the view model maps `id`, `status`, `paymentDetailsId`,
- * `cancellationRequest` and `products`, and keeps the wire record whole on
- * `raw`, so every display fact below is read off `raw` rather than restated.
+ * `contract.types.ts`): `title`, `status.code` badged through `meta`,
+ * the cancellation request badged in the same status cell, `dateNextDue`,
+ * `billingCycleLabel`, `datePurchased` and `totalAmountFormatted`. Dates draw
+ * through `useDate` descriptors (`TableCellDate`); the billing cycle draws its
+ * translated label, never the raw month count (GAP-02). No element
+ * reads `raw.*` (R38 item 10) — every fact below is a mapped view-model member.
  *
  * D6 exclusions from the table's DEFAULT visible set, echoed and never
  * silently re-added: `id`, `paymentDetailsId` (system ids — `id` stays
- * reachable through the binding's default `id` identifier); `products` (the
- * contract's products are `useContractProducts`' own page); `raw` as a whole
- * (its members are read individually below).
+ * reachable through the binding's default `id` identifier); `name` (`null` on
+ * every recorded row — `title` carries it, G1); `status` the raw code (`meta`
+ * badges it); `products` (the contract's products are `useContractProducts`'
+ * own page); `raw` as a whole.
  *
  * The detail overlay fetches: `contracts.scenario.ts` declares
  * `useDetail: useContract`, so `view` boots the manager `.withId(<row.id>)`.
@@ -25,8 +29,10 @@
  * the payment-method form, is the manager's own (`useContract().useActions()`),
  * so no `handoff` is declared here.
  *
- * PAGINATION ONLY (R32): the query schema declares no filter and no sort
- * column (`contract.schemas.ts`), so no ordering or filter control is drawn.
+ * FILTER, SORT AND PAGER are not declared here at all (R38 supersedes the
+ * withdrawn R32 pagination-only shape): the runtime draws them straight off
+ * `useContracts().useContext().schemas.query` and `.pagination`, the same
+ * fold every criteria-backed collection already gets.
  */
 
 import {
@@ -38,43 +44,97 @@ import type {
   ActionsUischema,
   CardUischema,
   DetailUischema,
+  TableBadge,
   TableUischema
 } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
+
+const STATUS_BADGES: TableBadge[] = [
+  { flag: "isActive", i18n: "text.contract_status_active", color: "success" },
+  {
+    flag: "isAwaitingActivation",
+    i18n: "text.contract_status_awaiting_activation",
+    color: "info"
+  },
+  {
+    flag: "isPending",
+    i18n: "text.contract_status_pending",
+    color: "warning"
+  },
+  {
+    flag: "isSuspended",
+    i18n: "text.contract_status_suspended",
+    color: "warning"
+  },
+  { flag: "isCancelled", i18n: "text.contract_status_cancelled" },
+  { flag: "isClosed", i18n: "text.contract_status_closed" },
+  { flag: "isFraud", i18n: "text.contract_status_fraud" }
+];
+
+const CANCELLATION_REQUEST_BADGES: TableBadge[] = [
+  {
+    flag: "isCancellationRequest",
+    i18n: "text.contract_request_cancellation_request",
+    color: "warning"
+  },
+  {
+    flag: "isEndOfBillingCycle",
+    i18n: "text.contract_request_end_of_billing_cycle",
+    color: "info"
+  },
+  {
+    flag: "isEndOfBillingCycleUnacknowledged",
+    i18n: "text.contract_request_end_of_billing_cycle_unacknowledged",
+    color: "warning"
+  },
+  {
+    flag: "isScheduledFutureCancellation",
+    i18n: "text.contract_request_scheduled_future_cancellation",
+    color: "info"
+  },
+  { flag: "isAccepted", i18n: "text.contract_request_accepted" }
+];
+
+/** One status cell badges the contract status and its cancellation request together. */
+const ROW_STATUS_BADGES: TableBadge[] = [
+  ...STATUS_BADGES,
+  ...CANCELLATION_REQUEST_BADGES
+];
 
 export const tableUischema: TableUischema = {
   type: "TableLayout",
   elements: [
     {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/name",
+      scope: "#/properties/title",
       i18n: "text.contract_name",
-      options: { width: TableColumnWidthTypes.THIRD }
+      options: { width: TableColumnWidthTypes.QUARTER }
     },
     {
-      type: "TableCellText",
-      scope: "#/properties/status/properties/code",
-      i18n: "text.status"
+      type: "TableCellBadges",
+      scope: "#/properties/meta",
+      i18n: "text.status",
+      options: { badges: ROW_STATUS_BADGES }
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/raw/properties/next_due_date",
+      scope: "#/properties/dateNextDue",
       i18n: "text.next_due_date"
     },
     {
-      type: "TableCellText",
-      scope: "#/properties/raw/properties/billing_cycle_months",
-      i18n: "text.billing_cycle"
-    },
-    {
       type: "TableCellDate",
-      scope: "#/properties/raw/properties/created_at",
+      scope: "#/properties/datePurchased",
       i18n: "text.purchase_date"
     },
     {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/total_recurrent_amount_formatted",
+      scope: "#/properties/billingCycleLabel",
+      i18n: "text.billing_cycle"
+    },
+    {
+      type: "TableCellText",
+      scope: "#/properties/totalAmountFormatted",
       i18n: "text.price"
     }
   ]
@@ -89,25 +149,34 @@ export const cardUischema: CardUischema = {
   elements: [
     {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/name",
+      scope: "#/properties/title",
       i18n: "text.contract_name",
       options: { slot: CardSlotTypes.TITLE }
     },
     {
-      type: "TableCellText",
-      scope: "#/properties/status/properties/code",
+      type: "TableCellBadges",
+      scope: "#/properties/meta",
       i18n: "text.status",
-      options: { slot: CardSlotTypes.SUBTITLE }
+      options: {
+        badges: ROW_STATUS_BADGES,
+        slot: CardSlotTypes.SUBTITLE
+      }
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/raw/properties/next_due_date",
+      scope: "#/properties/dateNextDue",
       i18n: "text.next_due_date",
       options: { slot: CardSlotTypes.BODY }
     },
     {
+      type: "TableCellDate",
+      scope: "#/properties/datePurchased",
+      i18n: "text.purchase_date",
+      options: { slot: CardSlotTypes.BODY }
+    },
+    {
       type: "TableCellText",
-      scope: "#/properties/raw/properties/total_recurrent_amount_formatted",
+      scope: "#/properties/totalAmountFormatted",
       i18n: "text.price",
       options: { slot: CardSlotTypes.BODY }
     }
@@ -125,35 +194,33 @@ export const detailUischema: DetailUischema = {
   elements: [
     {
       type: "TableCellText",
-      scope: "#/properties/contract/properties/raw/properties/name",
+      scope: "#/properties/contract/properties/title",
       i18n: "text.contract_name"
     },
     {
-      type: "TableCellText",
-      scope: "#/properties/contract/properties/status/properties/code",
-      i18n: "text.status"
-    },
-    {
-      type: "TableCellText",
-      scope:
-        "#/properties/contract/properties/cancellationRequest/properties/status/properties/code",
-      i18n: "text.cancellation_request_status"
+      type: "TableCellBadges",
+      scope: "#/properties/contract/properties/meta",
+      i18n: "text.status",
+      options: { badges: ROW_STATUS_BADGES }
     },
     {
       type: "TableCellDate",
-      scope: "#/properties/contract/properties/raw/properties/next_due_date",
+      scope: "#/properties/contract/properties/dateNextDue",
       i18n: "text.next_due_date"
     },
     {
+      type: "TableCellDate",
+      scope: "#/properties/contract/properties/datePurchased",
+      i18n: "text.purchase_date"
+    },
+    {
       type: "TableCellText",
-      scope:
-        "#/properties/contract/properties/raw/properties/billing_cycle_months",
+      scope: "#/properties/contract/properties/billingCycleLabel",
       i18n: "text.billing_cycle"
     },
     {
       type: "TableCellText",
-      scope:
-        "#/properties/contract/properties/raw/properties/total_recurrent_amount_formatted",
+      scope: "#/properties/contract/properties/totalAmountFormatted",
       i18n: "text.price"
     }
   ]
@@ -162,10 +229,12 @@ export const detailUischema: DetailUischema = {
 /**
  * The controls this scenario can actually drive: opening the row's own manager
  * page (`open`, a surface-owned `navigate`), opening it READ-ONLY in the
- * detail overlay (`view`), and the collection's own `refresh`. Paging is the
- * list surface's own, off `useContext().pagination`. The payment-method write
- * lives on the MANAGER's action map, which the runtime never binds a row
- * action to — that surface is `useContract`'s own self-drawn page.
+ * detail overlay (`view`), and the collection's own `refresh`. Filtering,
+ * sorting and paging are the runtime's own criteria surfaces, off the schemas
+ * and pagination the collection publishes — never a declared control here.
+ * The payment-method write lives on the MANAGER's action map, which the
+ * runtime never binds a row action to — that surface is `useContract`'s own
+ * self-drawn page.
  */
 export const actionsUischema: ActionsUischema = {
   type: "ActionsLayout",

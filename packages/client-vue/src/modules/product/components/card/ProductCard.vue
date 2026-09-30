@@ -165,13 +165,13 @@ import { Tooltip } from "@upmind/ui";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
+import { Icon } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
 import {
   IMAGES_STYLE,
   QUERY_PARAMS,
   useImageUrl
 } from "@upmind-automation/headless";
-import { Icon } from "../../../../components/icon";
 import ProductBenefits from "./ProductBenefits.vue";
 import ProductInfo from "./ProductInfo.vue";
 import ProductPrice from "./ProductPrice.vue";

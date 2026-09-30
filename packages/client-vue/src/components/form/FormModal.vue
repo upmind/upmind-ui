@@ -68,7 +68,7 @@ import {
 import { Link, Button } from "@upmind/ui";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import Form from "./Form.vue";
+import { Form } from "@upmind-automation/foundation";
 import type { FormModalProps } from "./types";
 import type { FormFooterProps, FormActionsProps } from "@upmind/ui";
 

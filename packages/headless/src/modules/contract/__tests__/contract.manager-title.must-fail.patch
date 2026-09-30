@@ -1,28 +1,36 @@
-Negative control for useContract.context.ts `title` (R37 B4).
-
-Spec that must flip: contract.manager-members.int.test.ts
-("The contract I have open shows me its name", contract.feature:265) —
-expects `useContext().title` to equal the loaded record's `name`.
-
-Mutation: drops the `title` computed and its return entry.
-
+# Negative control for useContract.context.ts `title` (R38 item 8, R37 B4).
+#
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Open one of my contracts with everything the account area needs"
+#
+# Covering spec: contract.manager-members.int.test.ts
+#   ("The contract I have open is titled by the order it was bought under",
+#   contract.feature:265) — asserts `useContext().title.value` contains the
+#   loaded record's `main_invoice_number`.
+# Mutation: drops the `title` computed and its return entry, so `title` is
+#   absent from the context and the title read resolves to nothing.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
+index 48abc5304a..96931f790a 100644
 --- a/packages/headless/src/modules/contract/useContract.context.ts
 +++ b/packages/headless/src/modules/contract/useContract.context.ts
-@@ -36,9 +36,6 @@ export function createContractContext(
+@@ -33,10 +33,6 @@ export function createContractContext(
    const rawContract = useContext<IContract>(state, "rawContract");
    const contract = useContext<Contract>(state, "contract");
-
--  /** Display title of the record — derived off the raw wire record, as `useContractProduct.context.ts`'s `title` is. */
--  const title = computed(() => rawContract.value?.name ?? undefined);
+ 
+-  const title = computed(() =>
+-    rawContract.value ? mapContractTitle(rawContract.value) : undefined
+-  );
 -
    return {
      /** The cancellation-request status in the platform vocabulary; undefined when no request exists (AC12). */
      cancellationRequestStatus: useContext<CancellationRequestStatusCodes>(
-@@ -92,9 +89,6 @@ export function createContractContext(
+@@ -90,9 +86,6 @@ export function createContractContext(
      /** The raw `IContract` API response beside the view model. */
      rawContract,
-
+ 
 -    /** Display title of the record. */
 -    title,
 -

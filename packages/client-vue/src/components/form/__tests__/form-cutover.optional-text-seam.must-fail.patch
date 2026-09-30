@@ -7,16 +7,15 @@ sentinel -- which is why the assertion overrides `text.optional`.
 
 MUST red: optional copy > "marks an optional control with the
 catalogue's own wording". The bare-engine twin MUST stay green.
-diff --git a/packages/client-vue/src/components/form/Form.vue b/packages/client-vue/src/components/form/Form.vue
-index f8269612c8..3be36f2d15 100644
---- a/packages/client-vue/src/components/form/Form.vue
-+++ b/packages/client-vue/src/components/form/Form.vue
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
 @@ -5,7 +5,7 @@
      :i18n="i18n"
      :ajv="ajv"
-     :additional-renderers="formRenderers"
+     :additional-renderers="renderers"
 -    :optional-text="t('text.optional')"
 +
-     :dataAttrs="{ 'data-test-key': 'form', ...props.dataAttrs }"
+     :dataAttrs="assign({ 'data-test-key': 'form' }, props.dataAttrs)"
    >
      <template #additional="{ meta }">

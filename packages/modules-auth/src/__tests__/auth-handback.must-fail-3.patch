@@ -1,0 +1,19 @@
+# Negative control — a recovery request waits for a session. A visitor asking
+# for a reset link is not signed in, so the recovery never hands back.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/auth-handback.test.ts
+#     "hands a recovery request back without waiting for a session"
+
+diff --git a/packages/modules-auth/src/components/Auth.vue b/packages/modules-auth/src/components/Auth.vue
+--- a/packages/modules-auth/src/components/Auth.vue
++++ b/packages/modules-auth/src/components/Auth.vue
+@@ -271,7 +271,7 @@ function doResolve(model: unknown) {
+     // re-read session-scoped state on resolve, so hand control back only once
+     // the session is actually authenticated. RECOVER never authenticates, so
+     // it emits immediately.
+-    if (authenticates) {
++    if (authenticates || !authenticates) {
+       try {
+         await session.useActions().whenAuthenticated();
+       } catch {

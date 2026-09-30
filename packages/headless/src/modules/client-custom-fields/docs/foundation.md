@@ -4,7 +4,7 @@
 
 The **client-custom-fields** module covers a brand's catalogue of custom field _definitions_ that apply to clients, and the _value semantics_ for reading and writing them — per-type coercion, schema/form generation, and the image upload flow for the one field type whose value is a file rather than a scalar. It owns the **contract**, not the client record: reading and persisting a specific client's values is a neighbouring concern, owned by the client's own profile record.
 
-Two working surfaces sit over this contract: a **definitions collection**, read and filtered row by row, and a **per-field image editor**, used to upload, clear, and preview the stored image for one field of type IMAGE. The two are not addressed the same way. The **definitions collection** takes the target client as an explicit, caller-supplied entity id — usually the caller's own — and resolves that client's brand from it; the id is a plain value this contract does not validate locally against who is calling. The **image editor** takes a _field_ id instead, never a client id, and always acts for the calling session's own client — it cannot be pointed at another client's field. Neither composable has any capability for one client to act _as_ another (no actor retarget — see Core concepts); addressing a _named_ entity and acting _as_ a different party are different things, and only the first — on the definitions collection alone — exists in this contract.
+Two working surfaces sit over this contract: a **definitions collection**, read and filtered row by row, and a **per-field image editor**, used to upload, clear, and preview the stored image for one field of type IMAGE. The two are not addressed the same way. The **definitions collection** takes the target client as an explicit, caller-supplied entity id — usually the caller's own — purely to gate whether the read is addressable at all; the definitions returned are whichever brand the caller's own access token belongs to, not resolved from the named client. The id is a plain value this contract does not validate locally against who is calling. The **image editor** takes a _field_ id instead, never a client id, and always acts for the calling session's own client — it cannot be pointed at another client's field. Neither composable has any capability for one client to act _as_ another (no actor retarget — see Core concepts); addressing a _named_ entity and acting _as_ a different party are different things, and only the first — on the definitions collection alone — exists in this contract.
 
 A client's own profile record — the entity that actually holds a set of values for these definitions — is read and persisted elsewhere; that module consumes this one's schema, coercion, and image-flush contract rather than re-deriving any of it.
 
@@ -22,7 +22,7 @@ A client's own profile record — the entity that actually holds a set of values
 
 | #   | Capability                                                                 | Inputs                            | Outputs                                                                                                 |
 | --- | -------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| 1   | **Read a brand's client custom field definitions**                         | —                                 | The brand's definitions, ordered by their declared display order                                        |
+| 1   | **Read the calling access token's client custom field definitions**        | —                                 | The token's brand's definitions, ordered by their declared display order                                |
 | 2   | **Filter the loaded definitions**                                          | a partial match (e.g. by type)    | The definitions narrowed to matches; no new request                                                     |
 | 3   | **Look up one definition by id, from the currently loaded list**           | a definition id                   | The matching definition, or nothing if the list hasn't loaded yet or no definition matches              |
 | 4   | **Resolve a value's definition, preferring the value's own embedded copy** | a value                           | The definition, without requiring the definitions collection to be loaded at all                        |
@@ -38,7 +38,7 @@ Generating a schema from the definitions (for validating or rendering a form) is
 
 **Additional always-on behaviours:**
 
-- Reporting whether the collection is addressable at all — whether a client has been resolved to read the definitions on behalf of, and whether the brand this client belongs to has itself resolved.
+- Reporting whether the collection is addressable at all — whether a client has been resolved to read the definitions on behalf of.
 - Reporting whether the definitions list is loading, empty, or errored.
 - Re-reading the definitions from the server on demand, and marking the cached collection stale so the next read re-fetches it.
 - Reporting whether an image field's upload is in flight, and whether it has settled — never an intermediate value.
@@ -131,10 +131,10 @@ The HTTP transport layer and app-level navigation reference this module as they 
 
 ### GET /custom_fields
 
-Role: reads the brand's client-facing custom field definitions. Called whenever the collection is opened or re-read; brand-scoped, not client-scoped — the brand is the one the target client belongs to, not the caller's own session brand.
+Role: reads the brand's client-facing custom field definitions. Called whenever the collection is opened or re-read; scoped by the access token itself — the request carries no brand or client identifier of its own.
 
 ```bash
-curl "$API/custom_fields?filter[object_type]=client&brand_id=2785d26e-9678-3d16-999f-314502e70439&limit=0&sort=order:asc" \
+curl "$API/custom_fields?filter[object_type]=client&limit=0&sort=order:asc" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Accept: application/json"
 ```
@@ -189,7 +189,7 @@ Sample response (`200`):
 
 Every field the read coercion and schema generation use is present on the raw definition; only a subset is shown above for brevity.
 
-Fixture: `__tests__/fixtures/get-custom-fields-brand-id-filter-object-type-client-sort-order-asc.json`.
+Fixture: `__tests__/fixtures/get-custom-fields-filter-object-type-client-sort-order-asc.json`.
 
 ### POST /clients/fields/{fieldId}/image
 
@@ -255,9 +255,9 @@ The rejection is rewritten onto the rejected field's own code before it reaches 
 
 Fixture: `__tests__/fixtures/post-clients-fields-id-image-case-rejected.json`.
 
-### No addressable client, or an unresolved brand → no request at all
+### No addressable client → no request at all
 
-The definitions read resolves the target client, and through it the target brand, before issuing anything. With no authenticated session, a session that authenticates without resolving a client, or a client whose brand has not yet resolved, no request is issued and the read is held pending (or rejected, for a forced re-read) rather than firing an unaddressed request.
+The definitions read resolves the target client before issuing anything. With no authenticated session, or a session that authenticates without resolving a client, no request is issued and the read is held pending (or rejected, for a forced re-read) rather than firing an unaddressed request.
 
 ### Soft failures
 

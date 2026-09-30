@@ -5,5 +5,9 @@
 /* client-vue's own layer: the max-w-app utilities and the .prose font rule. */
 @import "@upmind-automation/client-vue/styles";
 
+@import "@upmind-automation/auth/styles";
+@import "@upmind-automation/foundation/styles";
+
 @source './**/*.{html,vue,js,tsx,ts}';
+
 @source '../../../packages/client-vue/src/**/*.{html,vue,js,tsx,ts}';

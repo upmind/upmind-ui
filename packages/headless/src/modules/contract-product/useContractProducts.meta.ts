@@ -1,4 +1,5 @@
 import { computed } from "vue";
+import { useActiveSession } from "../session-store";
 import { isEmpty } from "lodash-es";
 import type {
   ContractProductListQuery,
@@ -24,8 +25,19 @@ export function createContractProductsMeta(
 
   const isEmptyList = computed(() => isEmpty(query.data?.value));
 
+  const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
+    useActiveSession().useMeta();
+
+  // The same settled-unaddressable outcome `isReady()` resolves false on: the
+  // guard refuses, no read is sent, so nothing is loading.
+  const isRefused = computed(
+    () =>
+      !service.isAvailable.value &&
+      (isSessionInitialised.value || !isSessionSettling.value)
+  );
+
   const isLoading = computed(
-    () => query.isLoading.value || !query.isFetched.value
+    () => !isRefused.value && (query.isLoading.value || !query.isFetched.value)
   );
 
   return {
@@ -44,7 +56,7 @@ export function createContractProductsMeta(
     /** True while ANY filter is applied. */
     isFiltered: query.isFiltered,
 
-    /** True while the list is loading or has not completed its first fetch. */
+    /** True while the list is loading or has not completed its first fetch; false once the session settles unaddressable. */
     isLoading
   };
 }

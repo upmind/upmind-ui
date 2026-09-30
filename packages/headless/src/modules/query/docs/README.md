@@ -150,4 +150,4 @@ A filter branch's wire column defaults to its own property name, but a branch ma
 
 ## See it driven live
 
-The `client-email` module's collection is the first adopter — its full request state, filtered and sorted through this seam, is rendered end to end in the `labs-nuxt` playground. See [../../client-email/docs/README.md](../../client-email/docs/README.md#playground) for the exact command and url.
+The `client-email` module's collection is the first adopter — its full request state is filtered and sorted through this seam.

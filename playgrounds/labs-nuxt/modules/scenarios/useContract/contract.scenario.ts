@@ -20,7 +20,9 @@
  * `.as(ScopeActorTypes.CLIENT).withId(id)`, the single-record read form
  * (templates/SINGLE-READ.md; `CONTRACT_SCOPE_MATRIX` refuses every actor a
  * context). OPTIONAL, because the bare url is the empty state — with no id
- * the page offers an id input.
+ * the page offers the collection's own contracts picker
+ * (`useContracts().useContext().schemas.contractPicker`) and a direct id
+ * input.
  *
  * `useManage` is the opt-in a self-drawn declaration makes so the harness can
  * build a boot thunk for its key, and `tracks` names the module whose
