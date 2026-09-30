@@ -167,6 +167,7 @@ const {
 } = order.useMeta();
 const { cancel, destroy, invalidate, isReady, refresh, usePayment } =
   order.useActions();
+// usePayment(paymentDetail) — call inside the caller's own component setup.
 ```
 
 ### Reading the detail and the items
@@ -185,20 +186,26 @@ const { detail, products } = order.useContext();
 
 ### Paying
 
-`usePayment()` must be called inside the caller's own component setup — it binds to that component's lifecycle, the same way the underlying payment engine always has:
+`usePayment(paymentDetail)` must be called inside the caller's own component setup — it binds to that component's lifecycle, the same way the underlying payment engine always has. The manager supplies its own `orderId`; the caller passes the `paymentDetail` the customer chose:
 
 ```vue
 <script setup lang="ts">
 import { ScopeActorTypes, useClientOrder } from "@upmind-automation/headless";
+import type { PaymentDetailData } from "@upmind-automation/headless";
 
-const props = defineProps<{ orderId: string }>();
+const props = defineProps<{
+  orderId: string;
+  paymentDetail: PaymentDetailData;
+}>();
 const order = useClientOrder().as(ScopeActorTypes.SELF).withId(props.orderId);
 const { canPay } = order.useMeta();
 
-// Call usePayment() only while canPay is true, and only in THIS component's
-// own setup — never memoised or hoisted elsewhere.
-const payment = order.useActions().usePayment();
+// Call usePayment(paymentDetail) only while canPay is true, and only in THIS
+// component's own setup — never memoised or hoisted elsewhere.
+const payment = order.useActions().usePayment(props.paymentDetail);
 const { meta, pay } = payment;
+
+// meta.hasPaid turns true once the payment completes.
 </script>
 ```
 

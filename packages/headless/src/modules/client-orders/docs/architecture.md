@@ -75,7 +75,7 @@ The billing-cycle reference list is read by the `system` module's own lazy singl
 | `system` | `useSystem().ensureBillingCycles()` — the billing-cycle reference list |
 | `invoices` | `mapInvoice` — the delegated marker and pending-payment condition |
 | `contract-product` | `isDue`, `isCancellable` — the due/cancellable judgment this module's order conditions build on |
-| `orders` | `useOrder(invoiceId)` — the payment engine `usePayment()` delegates to |
+| `payment` | `usePayment({ orderId, paymentDetail })` (aliased `usePaymentEngine`) — the payment engine this module's own `usePayment()` delegates to |
 
 ### Modules That Depend On client-orders
 
@@ -88,7 +88,7 @@ None yet — the module is newly delivered and has no consumers in the codebase.
 | **Platform `api/invoices`** | The list read and the single read; every request forces the `new_contract` category on the wire via a schema `const`, never a client-supplied value. |
 | **Platform `api/products`** | The item-image read, keyed by each item's linked catalogue product id — never the item's own line id. |
 | **Platform `api/brands/{id}/gateways`** | The online-gateway count, read as the response envelope's `total` rather than through the shared `query()`/`list()` primitives (both drop `total`). |
-| **Payment engine (`orders` module)** | `usePayment()` runs `useOrder(order.id)` inside the caller's own component setup — the engine binds `onUnmounted` to whatever component is active when it runs, so this delegate must never be memoised at the composable-factory level. |
+| **Payment engine (`payment` module)** | `usePayment()` injects the manager's own `orderId`, takes the caller's chosen `paymentDetail`, and forwards `{ orderId, paymentDetail }` to the `payment` engine inside the caller's own component setup — the engine binds `onUnmounted` to whatever component is active when it runs, so this delegate must never be memoised at the composable-factory level. |
 | **Cancellation port** | `client-orders.ports.ts` holds one module-level registration slot (`provideOrderCancellation`); `cancel()` reads it at call time. A later registration's remover is the only thing that can clear it — an earlier remover is a no-op once superseded. |
 | **Cache root** | Every key this module owns lives under the shared `["invoices", ...]` root, since an order is an invoice, so an `invoices`-module invalidation with `exact: false` reaches this module's keys too, and vice versa after a pay or a cancel. |
 

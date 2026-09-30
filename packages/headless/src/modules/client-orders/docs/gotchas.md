@@ -64,8 +64,8 @@ The legacy application exposes a single `pay` control that opens a payment dialo
 // order.useActions().pay() // does not exist
 
 // ✅ Call the payment delegate from inside the payment component's own
-// setup, only while the order is payable
-const { pay } = order.useActions().usePayment();
+// setup, only while the order is payable — pass the chosen paymentDetail
+const { pay } = order.useActions().usePayment(paymentDetail);
 ```
 
 **Test scenario:** Inspect the manager's action surface — assert it carries no `pay` member and does carry `usePayment`.

@@ -8,7 +8,7 @@ All notable changes to the client-orders module.
 
 - `useClientOrders` — the client's own order-history collection: list, page, sort, quick-search and filter a signed-in client's own placed (`new_contract`) orders.
 - `useClientOrder` — the single-order manager: read one placed order in full (detail, items, status conditions), including the catalogue-image and online-gateway secondary reads.
-- The pay delegate (`usePayment()`), delegating wholesale to the existing payment engine.
+- The pay delegate (`usePayment(paymentDetail)`), delegating wholesale to the platform's payment engine — the manager injects its own `orderId`; the caller supplies the chosen `paymentDetail`. Completion is watched off the engine's own `meta.hasPaid`.
 - The cancel delegate (`cancel()`), delegating through an injectable cancellation port — no live flow is connected to the port yet.
 - The six order-condition predicates (`isOverdue`, `isPaid`, `isCancelled`, `isPartiallyPaid`, `canPay`, `canCancel`), exported from the module barrel for reuse by other capabilities that read a placed order or a basket.
 - `useActions().setCriteria` on the history — a raw-intent `filters` / `sort` / `pagination` write applied in one call, branch by branch, alongside the named per-filter setters. A `filters` intent replaces the whole branch and re-asserts the forced category leaf on its own copy.
