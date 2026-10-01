@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/orders/orders.services.ts b/packages/headless/src/modules/orders/orders.services.ts
+index 771b9009e9..034f919b05 100644
+--- a/packages/headless/src/modules/orders/orders.services.ts
++++ b/packages/headless/src/modules/orders/orders.services.ts
+@@ -247,7 +247,7 @@ function loadOnlineGateways(
+             }),
+             withAccessToken: true
+           });
+-          return envelope.total ?? 0;
++          return (envelope as { data: number }).data ?? 0;
+         },
+         enabled: () => !!brandId.value,
+         staleTime: useTime().DAY

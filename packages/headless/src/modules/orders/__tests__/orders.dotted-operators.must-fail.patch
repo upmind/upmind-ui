@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/orders/orders.schemas.ts b/packages/headless/src/modules/orders/orders.schemas.ts
+index f017c15a51..676142832d 100644
+--- a/packages/headless/src/modules/orders/orders.schemas.ts
++++ b/packages/headless/src/modules/orders/orders.schemas.ts
+@@ -89,11 +89,6 @@ export function useQuerySchema(): QuerySchema {
+                 type: ["array", "null"],
+                 items: { type: "string", enum: [...STATUS_CHOICES] },
+                 uniqueItems: true
+-              },
+-              neq: {
+-                type: ["array", "null"],
+-                items: { type: "string", enum: [...STATUS_CHOICES] },
+-                uniqueItems: true
+               }
+             }
+           },

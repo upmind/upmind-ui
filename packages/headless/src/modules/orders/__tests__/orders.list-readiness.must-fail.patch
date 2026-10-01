@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/orders/orders.services.ts b/packages/headless/src/modules/orders/orders.services.ts
+index 771b9009e9..25b1b07b90 100644
+--- a/packages/headless/src/modules/orders/orders.services.ts
++++ b/packages/headless/src/modules/orders/orders.services.ts
+@@ -105,7 +105,7 @@ function loadList(): OrdersListQuery {
+       url.search = targetUrl().search;
+       return true;
+     },
+-    enabled: () => brandSettled.value && isAddressable(clientId.value),
++    enabled: () => !!useBrand().brandId.value && isAddressable(clientId.value),
+     staleTime: useTime().DAY,
+     placeholderData: keepPreviousData
+   });

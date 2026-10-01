@@ -17,8 +17,8 @@
 // eslint-disable-next-line @workspace/no-cross-package-path-imports -- design 8.12: a catalog has no published specifier, and the testing entry's import.meta.glob fails in the Playwright config process
 import { clientEmailsSteps } from "../../../../packages/headless/src/modules/client-email/__tests__/client-email.steps";
 // eslint-disable-next-line @workspace/no-cross-package-path-imports -- design 8.12, as above
-import { clientOrdersSteps } from "../../../../packages/headless/src/modules/client-orders/__tests__/client-orders.steps";
-import { CLIENT_ORDERS_PINS } from "./catalogs.pins";
+import { ordersSteps } from "../../../../packages/headless/src/modules/orders/__tests__/orders.steps";
+import { ORDERS_PINS } from "./catalogs.pins";
 import { find, includes, map } from "lodash-es";
 import type { CorpusPins } from "./catalogs.pins";
 import type { StepCatalog } from "@upmind-automation/scenario-harness";
@@ -26,7 +26,7 @@ import type { StepCatalog } from "@upmind-automation/scenario-harness";
 // -----------------------------------------------------------------------------
 
 export type { CorpusPins } from "./catalogs.pins";
-export { CLIENT_ORDERS_PINS, clientEmailsRoute } from "./catalogs.pins";
+export { ORDERS_PINS, clientEmailsRoute } from "./catalogs.pins";
 
 /** One adopted pair: its module, catalog, feature, route and corpus pins. */
 export type SpecPair = {
@@ -51,11 +51,11 @@ export const pairs: readonly SpecPair[] = [
     pins: {}
   },
   {
-    module: "client-orders",
-    catalog: clientOrdersSteps,
-    feature: featureOf("client-orders"),
-    route: "/useClientOrders",
-    pins: CLIENT_ORDERS_PINS
+    module: "orders",
+    catalog: ordersSteps,
+    feature: featureOf("orders"),
+    route: "/useOrders",
+    pins: ORDERS_PINS
   }
 ];
 

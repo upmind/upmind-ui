@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/orders/useOrders.actions.ts b/packages/headless/src/modules/orders/useOrders.actions.ts
+index d6ccd6b1ed..bbd98d0e4c 100644
+--- a/packages/headless/src/modules/orders/useOrders.actions.ts
++++ b/packages/headless/src/modules/orders/useOrders.actions.ts
+@@ -259,6 +259,8 @@ export function createOrdersActions(
+         ComparisonLeafRecord | undefined
+       >;
+       if (!value) delete filterBag[column];
++      else if (column === "products.product.name")
++        filterBag[column] = { ...filterBag[column], [op]: value };
+       else filterBag[column] = { [op]: value };
+     });
+   }

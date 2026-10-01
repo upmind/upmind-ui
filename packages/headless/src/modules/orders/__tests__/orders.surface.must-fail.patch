@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/orders/orders.types.ts
++++ b/packages/headless/src/modules/orders/orders.types.ts
+@@ -62,7 +62,7 @@
+ export const ORDERS_SCOPE_MATRIX = {
+   [ScopeActorTypes.SELF]: null as never,
+   [ScopeActorTypes.STAFF]: null as never,
+-  [ScopeActorTypes.CLIENT]: null as never,
++  [ScopeActorTypes.CLIENT]: "client" as const,
+   [ScopeActorTypes.GUEST]: null as never
+ } as const;
+ 

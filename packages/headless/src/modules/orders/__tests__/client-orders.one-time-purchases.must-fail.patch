@@ -1,7 +1,0 @@
---- a/packages/headless/src/modules/client-orders/client-orders.utils.ts
-+++ b/packages/headless/src/modules/client-orders/client-orders.utils.ts
-@@ -75,3 +75,3 @@
- export function hidesOneTimePurchases(): boolean {
--  return false;
-+  return true;
- }

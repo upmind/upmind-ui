@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/orders/useOrder.actions.ts b/packages/headless/src/modules/orders/useOrder.actions.ts
+--- a/packages/headless/src/modules/orders/useOrder.actions.ts
++++ b/packages/headless/src/modules/orders/useOrder.actions.ts
+@@ -145,8 +145,7 @@
+     watch(
+       () => engine.meta.value.hasPaid,
+       hasPaid => {
+-        if (hasPaid)
+-          void invalidateQueryByKey(["invoices"], { exact: false })();
++        if (hasPaid) return;
+       }
+     );
+ 

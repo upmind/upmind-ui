@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/orders/orders.mappers.ts b/packages/headless/src/modules/orders/orders.mappers.ts
+index b70b5f7350..66fc09d0d0 100644
+--- a/packages/headless/src/modules/orders/orders.mappers.ts
++++ b/packages/headless/src/modules/orders/orders.mappers.ts
+@@ -74,7 +74,7 @@ export function mapOrderDetail(raw?: IOrder): OrderDetail {
+     contractId: raw?.contract_id,
+     brandId: raw?.brand_id,
+     referrer:
+-      raw?.account?.affiliate_referral?.affiliate_account?.account?.client?.[0]
++      raw!.account!.affiliate_referral!.affiliate_account!.account!.client![0]
+   };
+ }
+ 

@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/orders/useOrders.actions.ts b/packages/headless/src/modules/orders/useOrders.actions.ts
+index 9bc303aa19..a8acbac351 100644
+--- a/packages/headless/src/modules/orders/useOrders.actions.ts
++++ b/packages/headless/src/modules/orders/useOrders.actions.ts
+@@ -353,7 +353,7 @@ export function createOrdersActions(
+    * out stand; `sort` and `pagination` pass through as given, in ONE write.
+    */
+   function setCriteria(intent: Partial<OrdersQueryModel>): void {
+-    const next: Partial<OrdersQueryModel> = omitBy({ ...intent }, isUndefined);
++    const next: Partial<OrdersQueryModel> = omitBy({ ...intent, sort: undefined }, isUndefined);
+ 
+     if (intent.filters) {
+       const filters: OrdersFilterModel = { ...intent.filters };

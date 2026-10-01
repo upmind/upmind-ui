@@ -15,8 +15,8 @@
  */
 export type CorpusPins = Readonly<Record<string, string | readonly string[]>>;
 
-/** The client-orders list captures the lane pool serves (design 8.12, 8.8). */
-export const CLIENT_ORDERS_LIST_POOL = [
+/** The orders list captures the lane pool serves (design 8.12, 8.8). */
+export const ORDERS_LIST_POOL = [
   "get-invoices-case-orders-default",
   "get-invoices-case-orders-page-2",
   "get-invoices-case-orders-search",
@@ -57,9 +57,9 @@ export const CLIENT_ORDERS_LIST_POOL = [
   "get-invoices-case-orders-products-service_identifier-neq-probe"
 ] as const;
 
-/** The pins of the client-orders pair (design 8.12). */
-export const CLIENT_ORDERS_PINS: CorpusPins = {
-  "GET api/invoices": CLIENT_ORDERS_LIST_POOL,
+/** The pins of the orders pair (design 8.12). */
+export const ORDERS_PINS: CorpusPins = {
+  "GET api/invoices": ORDERS_LIST_POOL,
   "GET api/invoices/{id}": "get-invoices-id-case-order-unpaid",
   "GET api/brands/{id}/gateways": "get-brands-id-gateways-case-online"
 };

@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/__tests__/setup.integration
+ * @module orders/__tests__/setup.integration
  * @description Replays this module's co-located fixtures through MSW (see
  * `@upmind-automation/test-fixtures/replay-server`), failing loudly on any
  * unmatched request. Imported by every `*.int.test.ts` in this module so its
@@ -9,7 +9,7 @@
  *
  * Background stubs for the endpoints session-store and `useBrand()` touch on
  * init are installed per-seed by the test (see `installBackgroundStubs` in
- * `client-orders.int-helpers.ts`), because `resetHandlers()` between tests
+ * `orders.int-helpers.ts`), because `resetHandlers()` between tests
  * drops any handler added at import time.
  */
 

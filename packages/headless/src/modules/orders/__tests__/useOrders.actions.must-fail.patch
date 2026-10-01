@@ -1,0 +1,19 @@
+diff --git a/packages/headless/src/modules/orders/useOrders.actions.ts b/packages/headless/src/modules/orders/useOrders.actions.ts
+index 9bc303aa19..7ec7062d88 100644
+--- a/packages/headless/src/modules/orders/useOrders.actions.ts
++++ b/packages/headless/src/modules/orders/useOrders.actions.ts
+@@ -272,10 +272,10 @@ export function createOrdersActions(
+ 
+   /** The status filter — REPLACES the whole branch, so `maxProperties: 1` never fails a module write (design 8.3, D-24). */
+   function status(values?: OrderStatusChoice[], op: "eq" | "neq" = "eq"): void {
+-    writeFilters(filters => {
+-      if (!values || values.length === 0) delete filters["status.code"];
+-      else filters["status.code"] = { [op]: values };
+-    });
++    const filters = query.criteria.value.filters ?? {};
++    if (!values || values.length === 0) delete filters["status.code"];
++    else filters["status.code"] = { [op]: values };
++    query.setCriteria({ filters });
+   }
+ 
+   function total(

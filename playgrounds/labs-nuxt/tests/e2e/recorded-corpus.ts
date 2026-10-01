@@ -81,7 +81,7 @@ type CorpusSession = {
  * Wraps one module's recorded captures as the lane's read pool. FE-3145
  * (`4de1d19778`) folded `corpus-replay`'s stateful session into
  * `resolveCorpusRequest`, which this lane reads directly, so the session is now
- * only the pool `resolveCorpusRequest` reads from. The client-orders collection
+ * only the pool `resolveCorpusRequest` reads from. The orders collection
  * is READ-ONLY — pay and cancel are the manager's own, through the payment
  * engine and the cancellation port, never an invoice write — so no served write
  * lands on the pool: every read is answered by its own recorded capture.
