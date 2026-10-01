@@ -44,7 +44,6 @@ import {
   seedGuestSession
 } from "./client-address.int-helpers";
 import {
-  arrangeState,
   CLIENT_ADDRESSES_SCENARIO,
   CLIENT_ADDRESS_MANAGER_SCENARIO,
   clientAddressesSteps
@@ -66,7 +65,6 @@ let replay: ReturnType<typeof startScenarioReplay> | undefined;
 /** Starts a scenario on its own recording, behind a real client session. */
 async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
   const signedOut = includes(scenario.tags, "@signed-out");
-  arrangeState.errored = includes(scenario.tags, "@errored");
   if (
     !signedOut &&
     !existsSync(scenarioDir(import.meta.dirname, scenario.name))

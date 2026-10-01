@@ -43,7 +43,6 @@ import {
   seedGuestSession
 } from "./client-phone.int-helpers";
 import {
-  arrangeState,
   CLIENT_PHONE_MANAGER_SCENARIO,
   CLIENT_PHONES_SCENARIO,
   clientPhonesSteps
@@ -68,7 +67,6 @@ let replay: ReturnType<typeof startScenarioReplay> | undefined;
 
 async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
   const signedOut = includes(scenario.tags, "@signed-out");
-  arrangeState.errored = includes(scenario.tags, "@errored");
   if (
     !signedOut &&
     !existsSync(scenarioDir(import.meta.dirname, scenario.name))

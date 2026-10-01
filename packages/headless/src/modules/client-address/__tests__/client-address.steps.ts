@@ -142,13 +142,6 @@ const RECORDED = {
   regionGateCountryId: recordedId(regionGateRegionsRecording)
 } as const;
 
-/**
- * Set by the replay arrange before an `@errored` scenario's steps run. That
- * scenario keeps the signed-in Background, but its list read is a recorded 5xx,
- * so the boot settles on `hasError` rather than the loaded-list assertion.
- */
-export const arrangeState = { errored: false };
-
 /** A uuid the guard refuses before any request — its value never reaches the wire. */
 const GUARDED_TARGET_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -242,16 +235,17 @@ async function saveEdit(
 // -----------------------------------------------------------------------------
 
 export const clientAddressesSteps = defineSteps(({ Given, When, Then }) => {
+  Given(
+    "I am signed in as a client whose address list cannot be read",
+    openErrored
+  );
+
   Given("I am signed in as a client managing my addresses", world =>
-    arrangeState.errored
-      ? openErrored(world)
-      : open(world, { actor: ScopeActorTypes.CLIENT })
+    open(world, { actor: ScopeActorTypes.CLIENT })
   );
 
   Given("my account has saved postal addresses", world =>
-    arrangeState.errored
-      ? Promise.resolve()
-      : world.expectMeta({ isEmpty: false })
+    world.expectMeta({ isEmpty: false })
   );
 
   Given("I am an authenticated client on the addresses page", world =>

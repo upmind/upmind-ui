@@ -111,6 +111,11 @@ Feature: A client manages their own postal addresses
     Then the form reports itself unavailable
     And no request is made against any address resource
 
+  @AC-4 @AC-26 @collection @readiness @errored @layer-e2e
+  Scenario: When my address list cannot be read, I am told it failed
+    Given I am signed in as a client whose address list cannot be read
+    Then the address collection reports it errored
+
   Rule: A signed-in client manages their own addresses
 
     Background:
@@ -134,10 +139,6 @@ Feature: A client manages their own postal addresses
     Scenario: I only ever see my own addresses
       When I open my saved addresses
       Then the addresses I am shown belong to my account and no other
-
-    @AC-4 @AC-26 @collection @readiness @errored @layer-e2e
-    Scenario: When my address list cannot be read, I am told it failed
-      Then the address collection reports it errored
 
     @AC-5 @collection @default @layer-e2e
     Scenario: I can tell which address is my default

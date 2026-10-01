@@ -382,6 +382,8 @@ const feature = readFileSync(
 
 /** The Background step every scenario opens with — it reads the collection. */
 const OPEN_BG = "I am signed in as a client managing my addresses";
+const ERRORED_OPEN =
+  "I am signed in as a client whose address list cannot be read";
 /** The page-scenario Given — it opens the same collection. */
 const OPEN_PAGE = "I am an authenticated client on the addresses page";
 
@@ -905,8 +907,8 @@ describe("Client-Address scenario recordings", () => {
   // forced to a 500, so the collection settles errored on a genuine request.
   describe("When my address list cannot be read, I am told it failed", () => {
     const scenario = "When my address list cannot be read, I am told it failed";
-    it(OPEN_BG, () =>
-      recordStep(scenario, OPEN_BG, generator =>
+    it(ERRORED_OPEN, () =>
+      recordStep(scenario, ERRORED_OPEN, generator =>
         generator.get(list(), undefined, ForcedErrorCode.Internal_Server_Error)
       )
     );

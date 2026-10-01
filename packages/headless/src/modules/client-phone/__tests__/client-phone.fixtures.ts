@@ -250,6 +250,8 @@ const feature = readFileSync(
 
 /** The Background step every scenario opens with — it reads the collection. */
 const BG_OPEN = "I am an authenticated client managing my own phone numbers";
+const ERRORED_OPEN =
+  "I am an authenticated client whose phone list cannot be read";
 /** The page-driven boot Given — it opens the collection again. */
 const PAGE_BOOT = "the client-phone playground boots for the active client";
 
@@ -603,8 +605,8 @@ describe("Client-Phone scenario recordings", () => {
   // 500, so the collection settles errored on a genuine request.
   describe("When my phone list cannot be read, I am told it failed", () => {
     const scenario = "When my phone list cannot be read, I am told it failed";
-    it(BG_OPEN, () =>
-      recordStep(scenario, BG_OPEN, generator =>
+    it(ERRORED_OPEN, () =>
+      recordStep(scenario, ERRORED_OPEN, generator =>
         generator.get(
           `${phones()}${LIST}`,
           undefined,

@@ -60,6 +60,23 @@ Feature: A client reads their own email history
     Then my email history reports itself unavailable
     And no request is made against any email-history resource
 
+  # The errored limb of the loading/empty/errored triad: the boot list read is a
+  # recorded 500 (Generator forceStatus — a control response), so the collection
+  # settles errored on a genuine request the recording overrides.
+  @AC-4 @collection @errored
+  Scenario: Know when my email history has errored
+    Given I am an authenticated client whose email history cannot be read
+    Then my history reports that it errored
+
+  # The same recorded-500 boot as AC-4: the failure is shown ON my history's own
+  # state for me to read, and the module surfaces it rather than throwing — the
+  # boot settles on the error instead of raising it.
+  @AC-21 @collection @errored
+  Scenario: A problem with my history is shown to me where I read it, not thrown
+    Given I am an authenticated client whose email history cannot be read
+    When I inspect my history after a read has failed
+    Then I can read that my history errored
+
   Rule: A signed-in client reads their own history
 
     Background:
@@ -163,13 +180,6 @@ Feature: A client reads their own email history
   # === WRITTEN DOWN, NOT YET DRIVEN ==========================================
   # Each carries the blocker that keeps it off the World seam today.
 
-  # The errored limb of the loading/empty/errored triad: the boot list read is a
-  # recorded 500 (Generator forceStatus — a control response), so the collection
-  # settles errored on a genuine request the recording overrides.
-  @AC-4 @collection @errored
-  Scenario: Know when my email history has errored
-    Then my history reports that it errored
-
   # @moved: the request-URL retarget and the auth-token identity transport are
   # proven in the query / session-store / auth modules, not here (operator ruling
   # 2026-09-24). This module resolves whose history it reads from the scope it was
@@ -179,11 +189,3 @@ Feature: A client reads their own email history
     Given every request resolves whose history it is reading from the scope I opened
     When that resolution is broken so it instead reads from a global setting
     Then every read in this module turns red
-
-  # The same recorded-500 boot as AC-4: the failure is shown ON my history's own
-  # state for me to read, and the module surfaces it rather than throwing — the
-  # boot settles on the error instead of raising it.
-  @AC-21 @collection @errored
-  Scenario: A problem with my history is shown to me where I read it, not thrown
-    When I inspect my history after a read has failed
-    Then I can read that my history errored
