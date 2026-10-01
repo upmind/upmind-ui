@@ -14,9 +14,9 @@ import type {
 import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/client-orders.types
+ * @module orders/orders.types
  * @description Types for the client order-history collection
- * (`useClientOrders`) — a client's own placed orders (`new_contract`
+ * (`useOrders`) — a client's own placed orders (`new_contract`
  * invoices), scoped `client x self` only (FE-3237 Out of Scope). The module
  * has no delegated entity the oracle names
  * (`docs/sdd/FE-3237/parity.yaml`), so it mints NO context enum —
@@ -24,14 +24,14 @@ import type { ComputedRef, Ref } from "vue";
  * slot" — and its matrix refuses every `.for()` cell (design 5.2 [h15]).
  *
  * @decision
- * what: type names below (`ClientOrdersCollectionScopeMatrix`,
- * `ClientOrdersFilterActions`, `ClientOrdersSortableColumn`) depart from
- * design.md 5.2's literal names (`ClientOrdersScopeMatrix`,
- * `ClientOrdersFilters`, `ClientOrdersSortableProperties`). The same
+ * what: type names below (`OrdersCollectionScopeMatrix`,
+ * `OrdersFilterActions`, `OrdersSortableColumn`) depart from
+ * design.md 5.2's literal names (`OrdersScopeMatrix`,
+ * `OrdersFilters`, `OrdersSortableProperties`). The same
  * collision, same reason, applies to each layer file's derived
- * `UseClientOrdersCollection<Layer>` export (`useClientOrders.actions.ts` /
+ * `UseOrdersCollection<Layer>` export (`useOrders.actions.ts` /
  * `.context.ts` / `.meta.ts` / `.internals.ts`) — the mock declares
- * `UseClientOrders<Layer>` by hand for all four.
+ * `UseOrders<Layer>` by hand for all four.
  * why: `hooks/graphify-gate.sh` (U12) denies those three names outright —
  * `apps/portal-nuxt/app/portal/mock/contracts/client-orders.ts` already
  * exports them, as the portal's stand-in CONTRACT for this module ahead of
@@ -54,45 +54,43 @@ import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 
 /**
- * Scope matrix for `useClientOrders`. Every `.for()` cell is `null as
+ * Scope matrix for `useOrders`. Every `.for()` cell is `null as
  * never` — `.as('self')` still resolves through the scope builder; this
  * withdraws retargeting only (design 8.6, FE-3237 Out of Scope: no
  * `.for('client', id)`).
  */
-export const CLIENT_ORDERS_SCOPE_MATRIX = {
+export const ORDERS_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
   [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
-/** Scope matrix type for `useClientOrders` (derived from the runtime const). */
-export type ClientOrdersCollectionScopeMatrix =
-  typeof CLIENT_ORDERS_SCOPE_MATRIX;
+/** Scope matrix type for `useOrders` (derived from the runtime const). */
+export type OrdersCollectionScopeMatrix = typeof ORDERS_SCOPE_MATRIX;
 
 /**
- * Scope matrix for `useClientOrder` (the single-order manager). The order
+ * Scope matrix for `useOrder` (the single-order manager). The order
  * being read is a RECORD ID (`.withId(id)`), never a scope context — there
  * is no actor-context cell to declare, so every `.for()` cell here is `null
  * as never` too (design 5.2, the `useClientReceivedEmail` precedent).
  */
-export const CLIENT_ORDER_MANAGER_SCOPE_MATRIX = {
+export const ORDER_MANAGER_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
   [ScopeActorTypes.STAFF]: null as never,
   [ScopeActorTypes.CLIENT]: null as never,
   [ScopeActorTypes.GUEST]: null as never
 } as const;
 
-/** Scope matrix type for `useClientOrder` (derived from the runtime const). */
-export type ClientOrderManagerScopeMatrix =
-  typeof CLIENT_ORDER_MANAGER_SCOPE_MATRIX;
+/** Scope matrix type for `useOrder` (derived from the runtime const). */
+export type OrderManagerScopeMatrix = typeof ORDER_MANAGER_SCOPE_MATRIX;
 
 // -----------------------------------------------------------------------------
 // SORTING
 // -----------------------------------------------------------------------------
 
 /** The whole sortable vocabulary (ruling R2 — keeps `id`, no `DEFAULT` member). */
-export enum ClientOrdersSortableColumn {
+export enum OrdersSortableColumn {
   ID = "id",
   TOTAL_AMOUNT = "total_amount",
   STATUS_ID = "status_id",
@@ -100,14 +98,14 @@ export enum ClientOrdersSortableColumn {
 }
 
 /** One sort entry — the model's ordered form; precedence is position. */
-export type ClientOrdersSortEntry = {
-  field: ClientOrdersSortableColumn;
+export type OrdersSortEntry = {
+  field: OrdersSortableColumn;
   dir: SortDirection;
 };
 
 /** The boot order — `order=-created_at` (design 8.3). */
-export const CLIENT_ORDERS_DEFAULT_SORT: ClientOrdersSortEntry[] = [
-  { field: ClientOrdersSortableColumn.CREATED_AT, dir: SortDirection.DESC }
+export const ORDERS_DEFAULT_SORT: OrdersSortEntry[] = [
+  { field: OrdersSortableColumn.CREATED_AT, dir: SortDirection.DESC }
 ];
 
 // -----------------------------------------------------------------------------
@@ -120,7 +118,7 @@ export const CLIENT_ORDERS_DEFAULT_SORT: ClientOrdersSortEntry[] = [
  * `invoice_adjusted` — sent as the single csv-joined wire value below, never
  * as two enum values.
  */
-export type ClientOrderStatusChoice =
+export type OrderStatusChoice =
   | "invoice_paid"
   | "invoice_unpaid,invoice_adjusted"
   | "invoice_overdue"
@@ -134,7 +132,7 @@ export type RelativeDateValue = string;
 export type AbsoluteDateValue = string;
 
 /** The comparison operators a many-comparison numeric column accepts. */
-export type ClientOrdersComparisonLeaf<TValue> = {
+export type OrdersComparisonLeaf<TValue> = {
   eq?: TValue;
   neq?: TValue;
   gt?: TValue;
@@ -144,7 +142,7 @@ export type ClientOrdersComparisonLeaf<TValue> = {
 };
 
 /** The date column's comparison leaf — the two date-value domains (design 8.3). */
-export type ClientOrdersDateLeaf = {
+export type OrdersDateLeaf = {
   gt?: AbsoluteDateValue;
   gte?: AbsoluteDateValue;
   lt?: AbsoluteDateValue;
@@ -160,20 +158,20 @@ export type ClientOrdersDateLeaf = {
  * The instance is validated against `useQuerySchema()`; `list()`'s
  * translator maps it to the wire triple.
  */
-export type ClientOrdersQueryModel = {
+export type OrdersQueryModel = {
   filters?: {
     /** Forced — `const: "new_contract"`, no control (design 8.3, D-3). */
     "category.slug"?: "new_contract";
     /** Text + the search. The search writes `eq` (design 8.3). */
     number?: { like?: string; eq?: string; neq?: string };
-    total_amount?: ClientOrdersComparisonLeaf<number>;
+    total_amount?: OrdersComparisonLeaf<number>;
     /** `maxProperties: 1` — `eq`/`neq` never together (design 8.3, D-24). */
     "status.code"?: {
-      eq?: ClientOrderStatusChoice[];
-      neq?: ClientOrderStatusChoice[];
+      eq?: OrderStatusChoice[];
+      neq?: OrderStatusChoice[];
     };
-    created_at?: ClientOrdersDateLeaf;
-    paid_datetime?: ClientOrdersDateLeaf;
+    created_at?: OrdersDateLeaf;
+    paid_datetime?: OrdersDateLeaf;
     "products.product.name"?: { like?: string; eq?: string; neq?: string };
     "products.product.category.name"?: {
       like?: string;
@@ -186,38 +184,33 @@ export type ClientOrdersQueryModel = {
       neq?: string;
     };
   };
-  sort?: ClientOrdersSortEntry[];
+  sort?: OrdersSortEntry[];
   pagination?: { limit?: number; offset?: number };
 };
 
-/** The nested filter model — the `filters` branch of {@link ClientOrdersQueryModel}. */
-export type ClientOrdersFilterModel = NonNullable<
-  ClientOrdersQueryModel["filters"]
->;
+/** The nested filter model — the `filters` branch of {@link OrdersQueryModel}. */
+export type OrdersFilterModel = NonNullable<OrdersQueryModel["filters"]>;
 
-/** The ordered sort model — the `sort` branch of {@link ClientOrdersQueryModel}. */
-export type ClientOrdersSortModel = NonNullable<ClientOrdersQueryModel["sort"]>;
+/** The ordered sort model — the `sort` branch of {@link OrdersQueryModel}. */
+export type OrdersSortModel = NonNullable<OrdersQueryModel["sort"]>;
 
 /**
- * The named setters object AC7-AC12 name (design 5.2 `ClientOrdersFilters`
+ * The named setters object AC7-AC12 name (design 5.2 `OrdersFilters`
  * — renamed here per this file's head `@decision`). Each setter composes a
  * fresh copy of the live `filters` with its one leaf changed (design 8.3
  * write rules, D-7).
  */
-export type ClientOrdersFilterActions = {
+export type OrdersFilterActions = {
   query: (term?: string) => void;
-  status: (values?: ClientOrderStatusChoice[], op?: "eq" | "neq") => void;
-  total: (
-    value?: number,
-    op?: keyof ClientOrdersComparisonLeaf<number>
-  ) => void;
+  status: (values?: OrderStatusChoice[], op?: "eq" | "neq") => void;
+  total: (value?: number, op?: keyof OrdersComparisonLeaf<number>) => void;
   dateCreated: (
     value?: RelativeDateValue | AbsoluteDateValue,
-    op?: keyof ClientOrdersDateLeaf
+    op?: keyof OrdersDateLeaf
   ) => void;
   datePaid: (
     value?: RelativeDateValue | AbsoluteDateValue,
-    op?: keyof ClientOrdersDateLeaf
+    op?: keyof OrdersDateLeaf
   ) => void;
   itemName: (value?: string, op?: "like" | "eq" | "neq") => void;
   categoryName: (value?: string, op?: "like" | "eq" | "neq") => void;
@@ -229,25 +222,21 @@ export type ClientOrdersFilterActions = {
 // -----------------------------------------------------------------------------
 
 /**
- * The reactive list query, minted ONCE per scope in `useClientOrders.ts`.
+ * The reactive list query, minted ONCE per scope in `useOrders.ts`.
  * Aliased from the query platform's own `ListQuery` — never derived with
  * `ReturnType<typeof localServiceFn>`.
  */
-export type ClientOrdersListQuery = ListQuery<
-  IOrder[],
-  IOrder[],
-  ClientOrdersQueryModel
->;
+export type OrdersListQuery = ListQuery<IOrder[], IOrder[], OrdersQueryModel>;
 
 /**
- * The contract `createClientOrdersServices` resolves to — the ONE services
- * file both `useClientOrders` (the collection) and `useClientOrder` (the
+ * The contract `createOrdersServices` resolves to — the ONE services
+ * file both `useOrders` (the collection) and `useOrder` (the
  * manager) consume, so the two composables can never disagree about whose
  * order history, or which order, is being read. Armless (clause 2 — one
  * actor, `client`, resolves; no second actor has an exclusive or overriding
  * member, so no `.{actor}.ts` arm is earned).
  */
-export type ClientOrdersServices = {
+export type OrdersServices = {
   /** The module's base cache key (design 8.4, D-4 — under the `invoices` root). */
   queryKey: QueryKey;
   /**
@@ -260,23 +249,21 @@ export type ClientOrdersServices = {
   /** Always `undefined` — no services-level error state beyond the query's own. */
   error: ComputedRef<ResponseError | undefined>;
   /** Takes nothing: the request state is the declared query schema. */
-  loadList: () => ClientOrdersListQuery;
+  loadList: () => OrdersListQuery;
   /** The single-order read — `GET api/invoices/{id}` (design 8.1). */
-  loadOne: (id?: IOrder["id"]) => ClientOrderItemQuery;
+  loadOne: (id?: IOrder["id"]) => OrderItemQuery;
   /**
    * The item-catalogue-image read — `GET api/products` (design 8.1, D-14).
    * Reactive over the LIVE snapshot product ids, because they resolve only
    * once the single read settles.
    */
-  loadItemImages: (productIds: Ref<string[]>) => ClientOrderItemImagesQuery;
+  loadItemImages: (productIds: Ref<string[]>) => OrderItemImagesQuery;
   /**
    * The online-gateway count read — `GET api/brands/{id}/gateways` (design
    * 8.1, D-15, D-26). Reactive over the order's own `brand_id`, which
    * resolves only once the single read settles.
    */
-  loadOnlineGateways: (
-    brandId: Ref<string | undefined>
-  ) => ClientOrderGatewaysQuery;
+  loadOnlineGateways: (brandId: Ref<string | undefined>) => OrderGatewaysQuery;
 };
 
 // -----------------------------------------------------------------------------
@@ -287,7 +274,7 @@ export type ClientOrdersServices = {
  * The reactive single-order item query, minted once per scope. `data` is
  * `undefined` until a record resolves, and on a failed read (design 8.11).
  */
-export type ClientOrderItemQuery = Omit<SimpleQuery<IOrder, IOrder>, "data"> & {
+export type OrderItemQuery = Omit<SimpleQuery<IOrder, IOrder>, "data"> & {
   data: ComputedRef<IOrder | undefined>;
 };
 
@@ -296,7 +283,7 @@ export type ClientOrderItemQuery = Omit<SimpleQuery<IOrder, IOrder>, "data"> & {
  * keeps its record name; the client, address and administrator blocks are
  * not published.
  */
-export type ClientOrderDetail = {
+export type OrderDetail = {
   id: IOrder["id"] | undefined;
   number: IOrder["number"] | undefined;
   status: IOrder["status"] | undefined;
@@ -325,7 +312,7 @@ export type MapOrderItemsOptions = {
 };
 
 /** One quantifiable or non-quantifiable sub-item row (design 8.7 rule 4). */
-export type ClientOrderSubItem = {
+export type OrderSubItem = {
   id: string;
   name: string;
   quantity: number;
@@ -334,7 +321,7 @@ export type ClientOrderSubItem = {
 };
 
 /** The item projection `mapOrderItems` produces (design 8.7). */
-export type ClientOrderItem = {
+export type OrderItem = {
   id: string;
   brandId: IBrand["id"] | undefined;
   contractProductId: IContractProduct["id"] | null | undefined;
@@ -350,8 +337,8 @@ export type ClientOrderItem = {
   billingCycle: IBillingCycle | undefined;
   image: string | undefined;
   tags: unknown[];
-  quantifiableItems: ClientOrderSubItem[];
-  nonQuantifiableItems: ClientOrderSubItem[];
+  quantifiableItems: OrderSubItem[];
+  nonQuantifiableItems: OrderSubItem[];
   hasSubItems: boolean;
   canLink: boolean;
 };
@@ -359,9 +346,9 @@ export type ClientOrderItem = {
 /**
  * The injectable cancellation port (D-21). FE-3040 registers the live flow
  * with `provideOrderCancellation`; until then `cancel()` rejects with
- * {@link OrderCancellationUnavailableError} (`client-orders.errors.ts`).
+ * {@link OrderCancellationUnavailableError} (`orders.errors.ts`).
  */
-export type ClientOrderCancellationPort = (
+export type OrderCancellationPort = (
   contractId: IOrder["contract_id"]
 ) => Promise<void>;
 
@@ -370,7 +357,7 @@ export type ClientOrderCancellationPort = (
  * (design 8.1, D-14), mapped to a `{ id -> full_url }` map keyed by the
  * linked catalogue product id.
  */
-export type ClientOrderItemImagesQuery = SimpleQuery<
+export type OrderItemImagesQuery = SimpleQuery<
   { id: string; image?: { full_url?: string } }[],
   Record<string, string>
 >;
@@ -381,7 +368,7 @@ export type ClientOrderItemImagesQuery = SimpleQuery<
  * `total`), so this is its own light reactive shape, not a `SimpleQuery`
  * (no declared criteria schema sits behind this read).
  */
-export type ClientOrderGatewaysQuery = {
+export type OrderGatewaysQuery = {
   data: ComputedRef<number>;
   error: ComputedRef<ResponseError | undefined>;
   isFetched: ComputedRef<boolean>;
@@ -392,12 +379,12 @@ export type ClientOrderGatewaysQuery = {
 
 /**
  * The manager's cross-cutting resolved state (design 6.3, 8.5, D-16, D-17,
- * D-25) — minted ONCE in `useClientOrder.ts` and handed to the context,
+ * D-25) — minted ONCE in `useOrder.ts` and handed to the context,
  * meta and actions layers, so all three read the SAME billing-cycle list,
  * image map, gateway count and cancel-in-flight flag rather than each
  * deriving its own copy.
  */
-export type ClientOrderExtras = {
+export type OrderExtras = {
   /** D-25 — the manager's own resolved billing-cycle list. */
   billingCycles: Ref<IBillingCycle[]>;
   /** D-14 — the catalogue image map, keyed by `item.product.id`. */
@@ -413,6 +400,6 @@ export type ClientOrderExtras = {
 };
 
 // The manager's single read and its three delegated reads are members of
-// {@link ClientOrdersServices} above — ONE services type for both composables
+// {@link OrdersServices} above — ONE services type for both composables
 // (`useClientReceivedEmail`/`useClientReceivedEmails` precedent). No second
 // services type is minted here.

@@ -1,16 +1,16 @@
 import { createScopedComposable } from "../scope";
-import createClientOrdersServices from "./client-orders.services";
-import { CLIENT_ORDERS_SCOPE_MATRIX } from "./client-orders.types";
-import { createClientOrdersActions } from "./useClientOrders.actions";
-import { createClientOrdersContext } from "./useClientOrders.context";
-import { createClientOrdersInternals } from "./useClientOrders.internals";
-import { createClientOrdersMeta } from "./useClientOrders.meta";
-import type { ClientOrdersCollectionScopeMatrix } from "./client-orders.types";
+import createOrdersServices from "./orders.services";
+import { ORDERS_SCOPE_MATRIX } from "./orders.types";
+import { createOrdersActions } from "./useOrders.actions";
+import { createOrdersContext } from "./useOrders.context";
+import { createOrdersInternals } from "./useOrders.internals";
+import { createOrdersMeta } from "./useOrders.meta";
+import type { OrdersCollectionScopeMatrix } from "./orders.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrders
+ * @module orders/useOrders
  * @description Scoped, query-backed collection of a client's own placed
  * orders (`new_contract` invoices): one TanStack list query per scope,
  * minted once at construction so it survives component lifecycles.
@@ -24,7 +24,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
  * actor; the scope builder resolves SELF before this factory runs.
  */
-function createClientOrdersForScope(config: ScopeConfig, scopeKey: ScopeKey) {
+function createOrdersForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
@@ -32,18 +32,13 @@ function createClientOrdersForScope(config: ScopeConfig, scopeKey: ScopeKey) {
    * nowhere else, so every request the collection issues resolves the same
    * target client.
    */
-  const service = createClientOrdersServices(actorScope, config.context);
+  const service = createOrdersServices(actorScope, config.context);
 
   /** Mint the list query ONCE per scope. */
   const query = service.loadList();
 
   /** ONE actions instance per scope; the layers below stay lazy. */
-  const actions = createClientOrdersActions(
-    actorScope,
-    service,
-    query,
-    scopeKey
-  );
+  const actions = createOrdersActions(actorScope, service, query, scopeKey);
 
   return {
     // --- Sub-composables (no direct props — clause 1 four-layer return)
@@ -51,13 +46,13 @@ function createClientOrdersForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     useActions: () => actions,
 
     /** Sub-composable for collection context (reactive list + criteria/schemas). */
-    useContext: () => createClientOrdersContext(actorScope, service, query),
+    useContext: () => createOrdersContext(actorScope, service, query),
 
     /** Sub-composable for advanced debugging and internal access. */
-    useInternals: () => createClientOrdersInternals(actorScope, query),
+    useInternals: () => createOrdersInternals(actorScope, query),
 
     /** Sub-composable for collection meta (state flags). */
-    useMeta: () => createClientOrdersMeta(actorScope, service, query)
+    useMeta: () => createOrdersMeta(actorScope, service, query)
   };
 }
 // -----------------------------------------------------------------------------
@@ -66,16 +61,16 @@ function createClientOrdersForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  *
  * @example
  * ```ts
- * const orders = useClientOrders().as('self')
+ * const orders = useOrders().as('self')
  * const { data, pagination } = orders.useContext()
  * await orders.useActions().isReady()
  * orders.useActions().setPage(2)
  * ```
  */
-export const useClientOrders = createScopedComposable<
-  ReturnType<typeof createClientOrdersForScope>,
-  ClientOrdersCollectionScopeMatrix
->("client-orders", createClientOrdersForScope, CLIENT_ORDERS_SCOPE_MATRIX);
+export const useOrders = createScopedComposable<
+  ReturnType<typeof createOrdersForScope>,
+  OrdersCollectionScopeMatrix
+>("orders", createOrdersForScope, ORDERS_SCOPE_MATRIX);
 
 // Type export for consumers
-export type UseClientOrders = ReturnType<typeof useClientOrders>;
+export type UseOrders = ReturnType<typeof useOrders>;

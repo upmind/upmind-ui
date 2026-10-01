@@ -1,16 +1,16 @@
 import { computed } from "vue";
-import { mapOrderDetail, mapOrderItems } from "./client-orders.mappers";
+import { mapOrderDetail, mapOrderItems } from "./orders.mappers";
 import { mapToHeadlessError } from "../../utils";
 import type {
-  ClientOrderExtras,
-  ClientOrderItemQuery,
-  ClientOrdersServices
-} from "./client-orders.types";
+  OrderExtras,
+  OrderItemQuery,
+  OrdersServices
+} from "./orders.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrder.context
+ * @module orders/useOrder.context
  * @description Manager context — the raw order (D-2), its detail and item
  * projections (design 8.7), the contract id and the captured error.
  *
@@ -19,11 +19,11 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  *
  * @doctrine clause 2 — shared-only (armless).
  */
-export function createClientOrderContext(
+export function createOrderContext(
   _actorScope: ScopeActorTypes,
-  service: ClientOrdersServices,
-  query: ClientOrderItemQuery,
-  extras: ClientOrderExtras
+  service: OrdersServices,
+  query: OrderItemQuery,
+  extras: OrderExtras
 ) {
   const error = computed<ResponseError | undefined>(
     () =>
@@ -44,7 +44,7 @@ export function createClientOrderContext(
   const contractId = computed(() => query.data.value?.contract_id);
 
   // --- actor-specific context: none earned yet (clause 2). When a scope
-  // earns one, add `useClientOrder.context.{actor}.ts` and spread it LAST.
+  // earns one, add `useOrder.context.{actor}.ts` and spread it LAST.
 
   return {
     /** The raw order this scope resolved (D-2). */
@@ -68,6 +68,4 @@ export function createClientOrderContext(
 }
 
 // Type export for consumers
-export type UseClientOrderManagerContext = ReturnType<
-  typeof createClientOrderContext
->;
+export type UseOrderManagerContext = ReturnType<typeof createOrderContext>;

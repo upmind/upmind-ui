@@ -9,28 +9,28 @@ import {
   isOverdue,
   isPartiallyPaid,
   isPaid
-} from "./client-orders.utils";
+} from "./orders.utils";
 import { some } from "lodash-es";
 import type {
-  ClientOrderExtras,
-  ClientOrderItemQuery,
-  ClientOrdersServices
-} from "./client-orders.types";
+  OrderExtras,
+  OrderItemQuery,
+  OrdersServices
+} from "./orders.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrder.meta
+ * @module orders/useOrder.meta
  * @description Manager meta — the order conditions (design 8.5, ruling R1)
  * plus the read-lifecycle flags. `isDue`/`isCancellable` are consumed from
  * the FE-3029 `contract-product` barrel; the delegated marker and pending
  * payment reuse `mapInvoice` from `invoices` (design 5.1, [h12]).
  * @doctrine clause 2 — shared-only (armless).
  */
-export function createClientOrderMeta(
+export function createOrderMeta(
   _actorScope: ScopeActorTypes,
-  service: ClientOrdersServices,
-  query: ClientOrderItemQuery,
-  extras: ClientOrderExtras
+  service: OrdersServices,
+  query: OrderItemQuery,
+  extras: OrderExtras
 ) {
   const { activeUser } = useActiveSession().useContext();
 
@@ -55,7 +55,7 @@ export function createClientOrderMeta(
   });
 
   // --- actor-specific meta: none earned yet (clause 2). When a scope earns
-  // one, add `useClientOrder.meta.{actor}.ts` and spread it LAST.
+  // one, add `useOrder.meta.{actor}.ts` and spread it LAST.
 
   return {
     /** True while the order is due — status in `InvoiceStatusGroups.UNPAID` (design 8.5). */
@@ -134,6 +134,4 @@ export function createClientOrderMeta(
 }
 
 // Type export for consumers
-export type UseClientOrderManagerMeta = ReturnType<
-  typeof createClientOrderMeta
->;
+export type UseOrderManagerMeta = ReturnType<typeof createOrderMeta>;

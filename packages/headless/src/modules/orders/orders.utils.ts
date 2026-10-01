@@ -3,7 +3,7 @@ import { isCancellable, isDue } from "../contract-product";
 import type { IOrder } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/client-orders.utils
+ * @module orders/orders.utils
  * @description The order conditions (design 8.5, ruling R1) — the six new
  * pure predicates this module owns. `isDue`/`isCancellable` are consumed
  * from the FE-3029 `contract-product` barrel, never re-implemented here
@@ -61,7 +61,7 @@ export function canCancel(order: Pick<IOrder, "status">): boolean {
  * ["@context.oneTimePurchases"] === "hidden"`). Feeds `mapOrderItems`' `canLink`.
  *
  * @decision
- * what: derive the gate inside client-orders instead of publishing it from
+ * what: derive the gate inside orders instead of publishing it from
  *   `useBrand`. The brand `portal` scope is NOT on `useBrand`'s public surface,
  *   so the rule is not forced here — the same interim as
  *   `contract-product.utils.ts:hidesOneTimePurchasesForced`, pending FE-3244

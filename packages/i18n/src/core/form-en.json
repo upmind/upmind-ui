@@ -726,37 +726,37 @@
     "false": "Unverified",
     "null": "All"
   },
-  "client_orders_category_name_filter": {
+  "orders_category_name_filter": {
     "description": null,
     "label": "Category name",
     "placeholder": "Search category name"
   },
-  "client_orders_created_filter": {
+  "orders_created_filter": {
     "description": null,
     "label": "Created",
     "placeholder": null
   },
-  "client_orders_item_name_filter": {
+  "orders_item_name_filter": {
     "description": null,
     "label": "Item name",
     "placeholder": "Search item name"
   },
-  "client_orders_number_filter": {
+  "orders_number_filter": {
     "description": null,
     "label": "Order number",
     "placeholder": "Search order number"
   },
-  "client_orders_paid_filter": {
+  "orders_paid_filter": {
     "description": null,
     "label": "Paid",
     "placeholder": null
   },
-  "client_orders_service_identifier_filter": {
+  "orders_service_identifier_filter": {
     "description": null,
     "label": "Service identifier",
     "placeholder": "Search service identifier"
   },
-  "client_orders_sort": {
+  "orders_sort": {
     "description": null,
     "label": "Sort",
     "placeholder": null,
@@ -765,7 +765,7 @@
     "status_id": "Status",
     "created_at": "Date created"
   },
-  "client_orders_status_filter": {
+  "orders_status_filter": {
     "description": null,
     "label": "Status",
     "placeholder": null,
@@ -776,7 +776,7 @@
     "invoice_cancelled": "Cancelled",
     "invoice_refunded": "Refunded"
   },
-  "client_orders_total_filter": {
+  "orders_total_filter": {
     "description": null,
     "label": "Total",
     "placeholder": null

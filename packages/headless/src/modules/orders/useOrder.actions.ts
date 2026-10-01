@@ -3,35 +3,35 @@ import { usePayment as usePaymentEngine } from "../payment";
 import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
-import { OrderCancellationUnavailableError } from "./client-orders.errors";
-import { resolveOrderCancellationPort } from "./client-orders.ports";
-import { canCancel } from "./client-orders.utils";
+import { OrderCancellationUnavailableError } from "./orders.errors";
+import { resolveOrderCancellationPort } from "./orders.ports";
+import { canCancel } from "./orders.utils";
 import { NotAuthenticatedError } from "../../utils";
 import type {
-  ClientOrderExtras,
-  ClientOrderItemQuery,
-  ClientOrdersServices
-} from "./client-orders.types";
+  OrderExtras,
+  OrderItemQuery,
+  OrdersServices
+} from "./orders.types";
 import type { PaymentArgs } from "../payment";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { IOrder } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrder.actions
+ * @module orders/useOrder.actions
  * @description Manager actions — readiness, lifecycle, the pay delegate
  * (D-11) and the cancel delegate (D-13, D-21). Query-backed: `destroy()`
  * removes the registry entry, because there is no service to stop.
  *
  * @doctrine clause 2 (fresh modules start armless) — this factory returns
- * ONLY shared members; no `useClientOrder.actions.{actor}.ts` file exists.
+ * ONLY shared members; no `useOrder.actions.{actor}.ts` file exists.
  */
-export function createClientOrderActions(
+export function createOrderActions(
   _actorScope: ScopeActorTypes,
-  service: ClientOrdersServices,
-  query: ClientOrderItemQuery,
+  service: OrdersServices,
+  query: OrderItemQuery,
   scopeKey: string,
   orderId: IOrder["id"] | undefined,
-  extras: ClientOrderExtras
+  extras: OrderExtras
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
@@ -133,7 +133,7 @@ export function createClientOrderActions(
    *   `payment` is its replacement and needs the chosen method up front — it
    *   resolves none itself. The manager owns `orderId`, not the method, so the
    *   caller supplies the `paymentDetail` that `payment-details` produced.
-   * rejected: re-implementing pay inside client-orders (breaks the delegation
+   * rejected: re-implementing pay inside orders (breaks the delegation
    *   law, D-1); editing `payment` to restore the old orderId-only signature
    *   ("do not extend orders", out of scope); a `pay(paymentDetailId?)` member
    *   on the manager surface (D-11 keeps `pay` off the manager).
@@ -187,7 +187,7 @@ export function createClientOrderActions(
 
   // --- actor-specific actions: none earned yet (clause 2 — fresh modules
   // start armless). When a scope earns one, add
-  // `useClientOrder.actions.{actor}.ts` and spread it LAST so it wins.
+  // `useOrder.actions.{actor}.ts` and spread it LAST so it wins.
 
   return {
     /** D-13, D-21 — delegates cancellation to the injected port (design 8.2, 6.5). */
@@ -222,6 +222,4 @@ export function createClientOrderActions(
 }
 
 // Type export for consumers
-export type UseClientOrderManagerActions = ReturnType<
-  typeof createClientOrderActions
->;
+export type UseOrderManagerActions = ReturnType<typeof createOrderActions>;

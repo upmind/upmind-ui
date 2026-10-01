@@ -5,18 +5,18 @@ import { OnlineGatewayTypes } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
-import { isMultibrand } from "./client-orders.mappers";
-import { useQuerySchema } from "./client-orders.schemas";
+import { isMultibrand } from "./orders.mappers";
+import { useQuerySchema } from "./orders.schemas";
 import { NotAuthenticatedError, useTime } from "../../utils";
 import { isEmpty, reduce } from "lodash-es";
 import type {
-  ClientOrderGatewaysQuery,
-  ClientOrderItemImagesQuery,
-  ClientOrderItemQuery,
-  ClientOrdersListQuery,
-  ClientOrdersQueryModel,
-  ClientOrdersServices
-} from "./client-orders.types";
+  OrderGatewaysQuery,
+  OrderItemImagesQuery,
+  OrderItemQuery,
+  OrdersListQuery,
+  OrdersQueryModel,
+  OrdersServices
+} from "./orders.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeContext } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -28,7 +28,7 @@ import type { Ref } from "vue";
 const ONLINE_GATEWAY_TYPES = OnlineGatewayTypes;
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/client-orders.services
+ * @module orders/orders.services
  * @description The ONE services file both halves consume — the order list
  * read (`GET api/invoices`, forced to the `new_contract` category by the
  * query schema's `const`, design 8.1, 8.3, D-3) and the single-order manager's
@@ -36,13 +36,13 @@ const ONLINE_GATEWAY_TYPES = OnlineGatewayTypes;
  * only (FE-3237 Out of Scope).
  *
  * WARNING: Do not import directly from another module. Resolve via
- * `useClientOrders.ts` / `useClientOrder.ts` only
+ * `useOrders.ts` / `useOrder.ts` only
  * (`@internal/no-cross-module-imports`).
  */
 // -----------------------------------------------------------------------------
 
 /** The module's base cache key — under the shared `invoices` root (design 8.4, D-4). */
-export const queryKey: QueryKey = ["invoices", "client-orders"];
+export const queryKey: QueryKey = ["invoices", "orders"];
 
 /**
  * `loadList`'s include set — the oracle's own read (design 8.1). `brand` is
@@ -66,7 +66,7 @@ function isAddressable(clientId?: string): boolean {
  * whole `with` param at request time from the LIVE `isMultibrand`, because
  * `useUrl` freezes its parameters at build ([h27]).
  */
-function loadList(): ClientOrdersListQuery {
+function loadList(): OrdersListQuery {
   const { list, useUrl } = useQuery();
   const { activeUser } = useActiveSession().useContext();
   const clientId = computed(() => activeUser.value?.id);
@@ -95,7 +95,7 @@ function loadList(): ClientOrdersListQuery {
     { immediate: true }
   );
 
-  return list<IOrder[], IOrder[], ClientOrdersQueryModel>({
+  return list<IOrder[], IOrder[], OrdersQueryModel>({
     criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId, brand: brandId }],
     url,
@@ -124,9 +124,9 @@ function loadList(): ClientOrdersListQuery {
  * The single-order read — `GET api/invoices/{id}` (design 8.1). Publishes
  * the RAW `IOrder` (D-2), or `undefined` when no record resolves (design
  * 8.11); the detail/item projections run in the context layer over
- * `client-orders.mappers.ts`, never a query `select`.
+ * `orders.mappers.ts`, never a query `select`.
  */
-function loadOne(orderId?: IOrder["id"]): ClientOrderItemQuery {
+function loadOne(orderId?: IOrder["id"]): OrderItemQuery {
   const { query, useUrl } = useQuery();
   const { activeUser } = useActiveSession().useContext();
   const clientId = computed(() => activeUser.value?.id);
@@ -181,7 +181,7 @@ function loadOne(orderId?: IOrder["id"]): ClientOrderItemQuery {
  * build pattern `loadList` uses (D-22, [h27]), and the ref itself rides in
  * `queryKey` so a new id list re-keys the query.
  */
-function loadItemImages(productIds: Ref<string[]>): ClientOrderItemImagesQuery {
+function loadItemImages(productIds: Ref<string[]>): OrderItemImagesQuery {
   const { query, useUrl } = useQuery();
 
   /**
@@ -236,7 +236,7 @@ function loadItemImages(productIds: Ref<string[]>): ClientOrderItemImagesQuery {
  */
 function loadOnlineGateways(
   brandId: Ref<string | undefined>
-): ClientOrderGatewaysQuery {
+): OrderGatewaysQuery {
   const { request, useUrl, queryClient } = useQuery();
 
   // Own a detached scope only off the no-active-scope path; `destroy()` stops
@@ -301,25 +301,25 @@ function loadOnlineGateways(
 function scopedServices(
   scopeActor: ScopeActorTypes,
   _scopeContext?: ScopeContext
-): Partial<ClientOrdersServices> {
+): Partial<OrdersServices> {
   switch (scopeActor) {
     // case ScopeActorTypes.CLIENT:
-    //   return createClientClientOrdersServices(scopeContext);
+    //   return createOrdersServices(scopeContext);
     default:
       return {};
   }
 }
 
 /**
- * One services instance per scope — the ONE factory both `useClientOrders`
- * (the collection) and `useClientOrder` (the manager) consume, so the two
+ * One services instance per scope — the ONE factory both `useOrders`
+ * (the collection) and `useOrder` (the manager) consume, so the two
  * composables share one identity seam, one cache key and one arm-resolution
  * switch (`useClientReceivedEmails`/`useClientReceivedEmail` precedent).
  */
-export const createClientOrdersServices = (
+export const createOrdersServices = (
   scopeActor: ScopeActorTypes,
   scopeContext?: ScopeContext
-): ClientOrdersServices => {
+): OrdersServices => {
   const { activeUser } = useActiveSession().useContext();
 
   return {
@@ -334,4 +334,4 @@ export const createClientOrdersServices = (
   };
 };
 
-export default createClientOrdersServices;
+export default createOrdersServices;

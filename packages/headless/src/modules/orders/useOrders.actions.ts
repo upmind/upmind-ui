@@ -12,18 +12,18 @@ import {
   omitBy
 } from "lodash-es";
 import type {
-  ClientOrderStatusChoice,
-  ClientOrdersComparisonLeaf,
-  ClientOrdersDateLeaf,
-  ClientOrdersFilterActions,
-  ClientOrdersFilterModel,
-  ClientOrdersListQuery,
-  ClientOrdersQueryModel,
-  ClientOrdersServices,
-  ClientOrdersSortEntry,
-  ClientOrdersSortModel,
-  ClientOrdersSortableColumn
-} from "./client-orders.types";
+  OrderStatusChoice,
+  OrdersComparisonLeaf,
+  OrdersDateLeaf,
+  OrdersFilterActions,
+  OrdersFilterModel,
+  OrdersListQuery,
+  OrdersQueryModel,
+  OrdersServices,
+  OrdersSortEntry,
+  OrdersSortModel,
+  OrdersSortableColumn
+} from "./orders.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 
 /** D-3 — every module writer re-asserts the forced leaf on its fresh copy (ADR-032 decision 5 rule 2). */
@@ -33,18 +33,18 @@ const FORCED_CATEGORY = "new_contract" as const;
 const SEARCH_DEBOUNCE_MS = 250;
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrders.actions
+ * @module orders/useOrders.actions
  * @description Collection actions — readiness, paging (design 8.3), the P5b
  * zero-row recovery watch (D-6), and lifecycle. Query-backed: `destroy()`
  * removes the registry entry, because there is no service to stop.
  *
  * @doctrine clause 2 (fresh modules start armless) — this factory returns
- * ONLY shared members; no `useClientOrders.actions.{actor}.ts` file exists.
+ * ONLY shared members; no `useOrders.actions.{actor}.ts` file exists.
  */
-export function createClientOrdersActions(
+export function createOrdersActions(
   _actorScope: ScopeActorTypes,
-  service: ClientOrdersServices,
-  query: ClientOrdersListQuery,
+  service: OrdersServices,
+  query: OrdersListQuery,
   scopeKey: string
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
@@ -198,10 +198,8 @@ export function createClientOrdersActions(
   // re-asserts `"category.slug"` on its own copy before it writes (D-3).
 
   /** Composes a fresh filters copy, lets `mutate` change it, then writes it. */
-  function writeFilters(
-    mutate: (filters: ClientOrdersFilterModel) => void
-  ): void {
-    const filters: ClientOrdersFilterModel = {
+  function writeFilters(mutate: (filters: OrdersFilterModel) => void): void {
+    const filters: OrdersFilterModel = {
       ...(query.criteria.value.filters ?? {})
     };
     mutate(filters);
@@ -273,10 +271,7 @@ export function createClientOrdersActions(
   }
 
   /** The status filter — REPLACES the whole branch, so `maxProperties: 1` never fails a module write (design 8.3, D-24). */
-  function status(
-    values?: ClientOrderStatusChoice[],
-    op: "eq" | "neq" = "eq"
-  ): void {
+  function status(values?: OrderStatusChoice[], op: "eq" | "neq" = "eq"): void {
     writeFilters(filters => {
       if (!values || values.length === 0) delete filters["status.code"];
       else filters["status.code"] = { [op]: values };
@@ -285,16 +280,16 @@ export function createClientOrdersActions(
 
   function total(
     value?: number,
-    op?: keyof ClientOrdersComparisonLeaf<number>
+    op?: keyof OrdersComparisonLeaf<number>
   ): void {
     writeComparison("total_amount", value, op);
   }
 
-  function dateCreated(value?: string, op?: keyof ClientOrdersDateLeaf): void {
+  function dateCreated(value?: string, op?: keyof OrdersDateLeaf): void {
     writeComparison("created_at", value, op);
   }
 
-  function datePaid(value?: string, op?: keyof ClientOrdersDateLeaf): void {
+  function datePaid(value?: string, op?: keyof OrdersDateLeaf): void {
     writeComparison("paid_datetime", value, op);
   }
 
@@ -316,7 +311,7 @@ export function createClientOrdersActions(
     writeTextColumn("products.service_identifier", value, op);
   }
 
-  const filters: ClientOrdersFilterActions = {
+  const filters: OrdersFilterActions = {
     query: search,
     status,
     total,
@@ -332,7 +327,7 @@ export function createClientOrdersActions(
    * `intent`, never `intent` itself: keeps the live `number.eq` leaf when
    * `intent` does not name `number`, and re-asserts the forced leaf (D-3).
    */
-  function filterBy(intent: ClientOrdersFilterModel): void {
+  function filterBy(intent: OrdersFilterModel): void {
     writeFilters(filters => {
       Object.assign(filters, intent);
 
@@ -357,14 +352,11 @@ export function createClientOrdersActions(
    * leaf and keeps only `eq` of a `status.code` eq+neq pair. Branches left
    * out stand; `sort` and `pagination` pass through as given, in ONE write.
    */
-  function setCriteria(intent: Partial<ClientOrdersQueryModel>): void {
-    const next: Partial<ClientOrdersQueryModel> = omitBy(
-      { ...intent },
-      isUndefined
-    );
+  function setCriteria(intent: Partial<OrdersQueryModel>): void {
+    const next: Partial<OrdersQueryModel> = omitBy({ ...intent }, isUndefined);
 
     if (intent.filters) {
-      const filters: ClientOrdersFilterModel = { ...intent.filters };
+      const filters: OrdersFilterModel = { ...intent.filters };
       const statusBranch = filters["status.code"];
       if (statusBranch?.eq && statusBranch?.neq) {
         filters["status.code"] = { eq: statusBranch.eq };
@@ -377,7 +369,7 @@ export function createClientOrdersActions(
   }
 
   /** Writes the whole `sort` branch. The page stays — `pagination` rides along unchanged (design 8.3, P4). */
-  function sortBy(intent: ClientOrdersSortModel): void {
+  function sortBy(intent: OrdersSortModel): void {
     query.setCriteria({
       sort: intent,
       pagination: query.criteria.value.pagination
@@ -386,15 +378,15 @@ export function createClientOrdersActions(
 
   /** Convenience single-column sort over {@link sortBy} (design 8.6). */
   function sort(
-    property: ClientOrdersSortableColumn,
-    direction: ClientOrdersSortEntry["dir"]
+    property: OrdersSortableColumn,
+    direction: OrdersSortEntry["dir"]
   ): void {
     sortBy([{ field: property, dir: direction }]);
   }
 
   // --- actor-specific actions: none earned yet (clause 2 — fresh modules
   // start armless). When a scope earns one, add
-  // `useClientOrders.actions.{actor}.ts` and spread it LAST so it wins.
+  // `useOrders.actions.{actor}.ts` and spread it LAST so it wins.
 
   return {
     /** Destroys this scoped instance — removes it from the registry. */
@@ -454,8 +446,6 @@ export function createClientOrdersActions(
   };
 }
 
-// Type export for consumers. Named `...Collection...` — `UseClientOrdersActions`
-// collides with the portal mock contract (`client-orders.types.ts` head `@decision`).
-export type UseClientOrdersCollectionActions = ReturnType<
-  typeof createClientOrdersActions
->;
+// Type export for consumers. Named `...Collection...` — `UseOrdersActions`
+// collides with the portal mock contract (`orders.types.ts` head `@decision`).
+export type UseOrdersCollectionActions = ReturnType<typeof createOrdersActions>;

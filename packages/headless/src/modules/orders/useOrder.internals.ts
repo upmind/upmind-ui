@@ -1,15 +1,15 @@
-import type { ClientOrderItemQuery } from "./client-orders.types";
+import type { OrderItemQuery } from "./orders.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrder.internals
+ * @module orders/useOrder.internals
  * @description Manager internals (debugging). Exposes the raw TanStack
  * query object backing the single read.
  * @doctrine clause 1 (uniform four-layer default) — TanStack-variant form.
  */
-export function createClientOrderInternals(
+export function createOrderInternals(
   actorScope: ScopeActorTypes,
-  query: ClientOrderItemQuery
+  query: OrderItemQuery
 ) {
   return {
     /** Actor scope for this instance. */
@@ -21,6 +21,4 @@ export function createClientOrderInternals(
 }
 
 // Type export for consumers
-export type UseClientOrderManagerInternals = ReturnType<
-  typeof createClientOrderInternals
->;
+export type UseOrderManagerInternals = ReturnType<typeof createOrderInternals>;

@@ -1,17 +1,15 @@
 <template>
-  <Page :data-attrs="{ 'data-test-key': 'client-order-page' }">
+  <Page :data-attrs="{ 'data-test-key': 'order-page' }">
     <PageHeader>
-      <PageTitle>{{ t("labs.client_order_title") }}</PageTitle>
-      <PageDescription>{{
-        t("labs.client_order_description")
-      }}</PageDescription>
+      <PageTitle>{{ t("labs.order_title") }}</PageTitle>
+      <PageDescription>{{ t("labs.order_description") }}</PageDescription>
     </PageHeader>
 
     <PageBody class="gap-6">
       <EmptyState
         v-if="!manager"
-        :title="t('labs.client_order_needs_id')"
-        :data-attrs="{ 'data-test-key': 'client-order-needs-id' }"
+        :title="t('labs.order_needs_id')"
+        :data-attrs="{ 'data-test-key': 'order-needs-id' }"
       >
         <template #icon><Icon icon="receipt" /></template>
       </EmptyState>
@@ -20,15 +18,15 @@
         <div class="flex flex-wrap gap-3">
           <Button
             v-if="!isOpen"
-            :data-attrs="{ 'data-test-key': 'client-order-enter' }"
+            :data-attrs="{ 'data-test-key': 'order-enter' }"
             @click="enter"
           >
-            {{ t("labs.client_order_enter") }}
+            {{ t("labs.order_enter") }}
           </Button>
           <Button
             v-else
             variant="ghost"
-            :data-attrs="{ 'data-test-key': 'client-order-leave' }"
+            :data-attrs="{ 'data-test-key': 'order-leave' }"
             @click="isOpen = false"
           >
             {{ t("action.close") }}
@@ -38,7 +36,7 @@
         <section
           v-if="isOpen"
           class="flex flex-col gap-6"
-          data-test-key="client-order-view"
+          data-test-key="order-view"
         >
           <div class="flex flex-wrap gap-2">
             <Badge
@@ -76,33 +74,31 @@
               context!.error.value?.message ||
               t('error.something_went_wrong')
             "
-            :data-attrs="{ 'data-test-key': 'client-order-alert' }"
+            :data-attrs="{ 'data-test-key': 'order-alert' }"
           />
 
           <template v-if="context!.data.value">
             <Hero
-              :title="
-                context!.detail.value.number ?? t('labs.client_order_title')
-              "
+              :title="context!.detail.value.number ?? t('labs.order_title')"
               :badge="heroBadge"
               size="lg"
             />
 
-            <Section :label="t('labs.client_order_summary')" icon="receipt">
+            <Section :label="t('labs.order_summary')" icon="receipt">
               <DescriptionListRoot
                 align="between"
                 class="gap-y-2"
-                data-test-key="client-order-detail"
+                data-test-key="order-detail"
               >
                 <DescriptionItem
                   v-if="statusName"
-                  :term="t('labs.client_orders_col_status')"
+                  :term="t('labs.orders_col_status')"
                 >
                   <Badge
                     size="sm"
                     appearance="outline"
                     :variant="statusVariant"
-                    data-test-key="client-order-detail-status"
+                    data-test-key="order-detail-status"
                   >
                     {{ statusName }}
                   </Badge>
@@ -112,7 +108,7 @@
                   :key="row.key"
                   :term="t(row.labelKey)"
                 >
-                  <span :data-test-key="`client-order-detail-${row.key}`">
+                  <span :data-test-key="`order-detail-${row.key}`">
                     {{ row.value }}
                   </span>
                 </DescriptionItem>
@@ -124,7 +120,7 @@
                   :key="row.key"
                   :term="t(row.labelKey)"
                 >
-                  <span :data-test-key="`client-order-total-${row.key}`">
+                  <span :data-test-key="`order-total-${row.key}`">
                     {{ row.value }}
                   </span>
                 </DescriptionItem>
@@ -132,13 +128,13 @@
 
               <div class="text-faint mt-4 flex flex-col gap-1 text-xs">
                 <p
-                  data-test-key="client-order-contract-id"
+                  data-test-key="order-contract-id"
                   :data-test-value="context!.contractId.value"
                 >
                   {{ context!.contractId.value }}
                 </p>
                 <p
-                  data-test-key="client-order-data"
+                  data-test-key="order-data"
                   :data-test-value="context!.data.value.id"
                 >
                   {{ context!.data.value.number }}
@@ -146,19 +142,13 @@
               </div>
             </Section>
 
-            <Section
-              :label="t('labs.client_order_items')"
-              icon="shopping-bag-02"
-            >
-              <ul
-                class="flex flex-col gap-3"
-                data-test-key="client-order-products"
-              >
+            <Section :label="t('labs.order_items')" icon="shopping-bag-02">
+              <ul class="flex flex-col gap-3" data-test-key="order-products">
                 <li
                   v-for="item in context!.products.value"
                   :key="item.id"
                   class="rounded-card flex flex-col gap-2 border border-current/10 p-3"
-                  data-test-key="client-order-product"
+                  data-test-key="order-product"
                   :data-test-value="item.id"
                 >
                   <div class="flex flex-wrap items-center gap-3">
@@ -167,7 +157,7 @@
                       :src="item.image"
                       :alt="item.name"
                       class="size-10 rounded-md object-cover"
-                      data-test-key="client-order-product-image"
+                      data-test-key="order-product-image"
                     />
                     <div class="flex flex-1 flex-col">
                       <span class="font-medium">{{ item.name }}</span>
@@ -177,7 +167,7 @@
                       <span
                         v-if="item.billingCycle?.name"
                         class="text-faint text-xs"
-                        data-test-key="client-order-product-billing-cycle"
+                        data-test-key="order-product-billing-cycle"
                       >
                         {{ item.billingCycle.name }}
                       </span>
@@ -219,38 +209,38 @@
           <div class="flex flex-wrap gap-3">
             <Button
               variant="ghost"
-              :data-attrs="{ 'data-test-key': 'client-order-refresh' }"
+              :data-attrs="{ 'data-test-key': 'order-refresh' }"
               @click="run(() => actions!.refresh())"
             >
               {{ t("action.refresh") }}
             </Button>
             <Button
               variant="ghost"
-              :data-attrs="{ 'data-test-key': 'client-order-invalidate' }"
+              :data-attrs="{ 'data-test-key': 'order-invalidate' }"
               @click="run(() => actions!.invalidate())"
             >
-              {{ t("labs.client_orders_invalidate") }}
+              {{ t("labs.orders_invalidate") }}
             </Button>
             <Button
               variant="ghost"
               :data-attrs="{
-                'data-test-key': 'client-order-is-ready',
+                'data-test-key': 'order-is-ready',
                 'data-test-value': String(readiness ?? '')
               }"
               @click="run(async () => (readiness = await actions!.isReady()))"
             >
-              {{ t("labs.client_orders_is_ready") }}
+              {{ t("labs.orders_is_ready") }}
             </Button>
             <Button
               variant="ghost"
-              :data-attrs="{ 'data-test-key': 'client-order-reset' }"
+              :data-attrs="{ 'data-test-key': 'order-reset' }"
               @click="run(() => actions!.reset())"
             >
               {{ t("action.reset") }}
             </Button>
             <Button
               variant="ghost"
-              :data-attrs="{ 'data-test-key': 'client-order-destroy' }"
+              :data-attrs="{ 'data-test-key': 'order-destroy' }"
               @click="run(() => actions!.destroy())"
             >
               {{ t("action.destroy") }}
@@ -258,14 +248,14 @@
             <Button
               variant="outline"
               :disabled="meta!.isProcessing.value"
-              :data-attrs="{ 'data-test-key': 'client-order-cancel' }"
+              :data-attrs="{ 'data-test-key': 'order-cancel' }"
               @click="run(() => actions!.cancel())"
             >
               {{ t("action.cancel") }}
             </Button>
           </div>
 
-          <ClientOrderPayment v-if="meta!.canPay.value" :actions="actions!" />
+          <OrderPayment v-if="meta!.canPay.value" :actions="actions!" />
         </section>
       </template>
     </PageBody>
@@ -274,16 +264,16 @@
 
 <script lang="ts" setup>
 /**
- * @module scenarios/useClientOrder/client-order.page
- * @description One client order, drawn directly — `/useClientOrder/:oid`
- * (design 8.12). The page holds ONE `useClientOrder().as(ScopeActorTypes.SELF)
+ * @module scenarios/useOrder/order.page
+ * @description One client order, drawn directly — `/useOrder/:oid`
+ * (design 8.12). The page holds ONE `useOrder().as(ScopeActorTypes.SELF)
  * .withId(oid)` instance for its whole life, with `oid` from the route param
  * only. It mounts with the order view closed; each enter opens the view and
  * calls `refresh()` on that same instance (D-12, parity row 25), so the
  * second enter adds exactly one single read. The view is modelled on the
  * invoice `OrderView`: a hero with the status badge, a summary section of
  * formatted fields, a styled item list with sub-items and a totals block.
- * Each published member carries its own `client-order-<member>` test key. The
+ * Each published member carries its own `order-<member>` test key. The
  * payment component mounts only while `canPay` is true and calls `usePayment()`
  * in its own setup (design 6.4).
  */
@@ -304,12 +294,12 @@ import {
 } from "@upmind/ui";
 import { computed, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { ScopeActorTypes, useClientOrder } from "@upmind-automation/client-vue";
+import { ScopeActorTypes, useOrder } from "@upmind-automation/client-vue";
 import { Hero, Icon, Section } from "@upmind-automation/foundation";
-import ClientOrderPayment from "./client-order.payment.vue";
+import OrderPayment from "./order.payment.vue";
 import { concat, filter, isArray, isEmpty, map, toString } from "lodash-es";
 import type { BadgeVariants } from "@upmind/ui";
-import type { ClientOrderItem } from "@upmind-automation/client-vue";
+import type { OrderItem } from "@upmind-automation/client-vue";
 
 definePageMeta({
   key: route => route.path
@@ -324,7 +314,7 @@ const oid = computed(() => {
 });
 
 const manager = oid.value
-  ? useClientOrder().as(ScopeActorTypes.SELF).withId(oid.value)
+  ? useOrder().as(ScopeActorTypes.SELF).withId(oid.value)
   : undefined;
 
 const actions = manager?.useActions();
@@ -337,7 +327,7 @@ const readiness = ref<boolean>();
 
 const readouts = computed(() => [
   {
-    key: "client-order-error",
+    key: "order-error",
     label: "error",
     value: context?.error.value?.message ?? ""
   }
@@ -347,29 +337,29 @@ const metaFlags = computed(() => {
   if (!meta) return [];
   return map(
     [
-      ["client-order-is-due", meta.isDue],
-      ["client-order-is-payable", meta.isPayable],
-      ["client-order-is-cancellable", meta.isCancellable],
-      ["client-order-is-overdue", meta.isOverdue],
-      ["client-order-is-paid", meta.isPaid],
-      ["client-order-is-cancelled", meta.isCancelled],
-      ["client-order-is-partially-paid", meta.isPartiallyPaid],
-      ["client-order-can-pay", meta.canPay],
-      ["client-order-can-cancel", meta.canCancel],
-      ["client-order-has-pending-payment", meta.hasPendingPayment],
-      ["client-order-is-delegated", meta.isDelegated],
-      ["client-order-has-online-gateways", meta.hasOnlineGateways],
-      ["client-order-is-available", meta.isAvailable],
-      ["client-order-is-complete", meta.isComplete],
-      ["client-order-is-empty", meta.isEmpty],
-      ["client-order-is-loading", meta.isLoading],
-      ["client-order-is-processing", meta.isProcessing],
-      ["client-order-has-error", meta.hasError]
+      ["order-is-due", meta.isDue],
+      ["order-is-payable", meta.isPayable],
+      ["order-is-cancellable", meta.isCancellable],
+      ["order-is-overdue", meta.isOverdue],
+      ["order-is-paid", meta.isPaid],
+      ["order-is-cancelled", meta.isCancelled],
+      ["order-is-partially-paid", meta.isPartiallyPaid],
+      ["order-can-pay", meta.canPay],
+      ["order-can-cancel", meta.canCancel],
+      ["order-has-pending-payment", meta.hasPendingPayment],
+      ["order-is-delegated", meta.isDelegated],
+      ["order-has-online-gateways", meta.hasOnlineGateways],
+      ["order-is-available", meta.isAvailable],
+      ["order-is-complete", meta.isComplete],
+      ["order-is-empty", meta.isEmpty],
+      ["order-is-loading", meta.isLoading],
+      ["order-is-processing", meta.isProcessing],
+      ["order-has-error", meta.hasError]
     ] as const,
     ([key, flag]) => ({
       key,
       value: !!flag.value,
-      label: key.replace("client-order-", "")
+      label: key.replace("order-", "")
     })
   );
 });
@@ -397,42 +387,42 @@ const summaryRows = computed(() => {
     [
       {
         key: "number",
-        labelKey: "labs.client_orders_col_number",
+        labelKey: "labs.orders_col_number",
         value: detail.number
       },
       {
         key: "created",
-        labelKey: "labs.client_orders_col_created",
+        labelKey: "labs.orders_col_created",
         value: detail.createdAt
       },
       {
         key: "paid",
-        labelKey: "labs.client_orders_col_paid",
+        labelKey: "labs.orders_col_paid",
         value: detail.paidDatetime
       },
       {
         key: "due",
-        labelKey: "labs.client_orders_col_due",
+        labelKey: "labs.orders_col_due",
         value: detail.dueDate
       },
       {
         key: "cancelled",
-        labelKey: "labs.client_orders_col_cancelled",
+        labelKey: "labs.orders_col_cancelled",
         value: detail.cancellationDatetime
       },
       {
         key: "cancellation-reason",
-        labelKey: "labs.client_order_cancellation_reason",
+        labelKey: "labs.order_cancellation_reason",
         value: detail.cancellationReason
       },
       {
         key: "notes",
-        labelKey: "labs.client_order_notes",
+        labelKey: "labs.order_notes",
         value: detail.notes
       },
       {
         key: "referrer",
-        labelKey: "labs.client_order_referrer",
+        labelKey: "labs.order_referrer",
         value: detail.referrer?.fullname
       }
     ],
@@ -447,25 +437,25 @@ const totals = computed(() => {
     [
       {
         key: "subtotal",
-        labelKey: "labs.client_order_subtotal",
+        labelKey: "labs.order_subtotal",
         value: order.net_amount_formatted,
         show: !isEmpty(toString(order.net_amount_formatted))
       },
       {
         key: "promotions",
-        labelKey: "labs.client_order_promotions",
+        labelKey: "labs.order_promotions",
         value: order.total_discount_amount_formatted,
         show: !!order.total_discount_amount
       },
       {
         key: "taxes",
-        labelKey: "labs.client_order_taxes",
+        labelKey: "labs.order_taxes",
         value: order.tax_amount_formatted,
         show: !!order.tax_amount
       },
       {
         key: "total",
-        labelKey: "labs.client_orders_col_total",
+        labelKey: "labs.orders_col_total",
         value: order.total_amount_formatted,
         show: !isEmpty(toString(order.total_amount_formatted))
       }
@@ -474,7 +464,7 @@ const totals = computed(() => {
   );
 });
 
-function subItemsOf(item: ClientOrderItem) {
+function subItemsOf(item: OrderItem) {
   return concat(item.quantifiableItems, item.nonQuantifiableItems);
 }
 

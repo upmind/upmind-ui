@@ -16,19 +16,19 @@ import {
   map
 } from "lodash-es";
 import type {
-  ClientOrderDetail,
-  ClientOrderItem,
-  ClientOrderSubItem,
+  OrderDetail,
+  OrderItem,
+  OrderSubItem,
   MapOrderItemsOptions
-} from "./client-orders.types";
+} from "./orders.types";
 import type { IInvoiceProduct, IOrder } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/client-orders.mappers
+ * @module orders/orders.mappers
  * @description Pure projections over the raw `IOrder` record (design 5.3,
  * 8.7, D-2) — `mapOrderDetail`, `mapOrderItems` — plus the two brand-derived
- * rules `isMultibrand`/`showStore` that `useClientOrders.services.ts` and
- * `useClientOrders.meta.ts` both read from THIS one copy (design 5.3 "rule
+ * rules `isMultibrand`/`showStore` that `useOrders.services.ts` and
+ * `useOrders.meta.ts` both read from THIS one copy (design 5.3 "rule
  * copies").
  */
 // -----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ export function showStore(): boolean {
 // -----------------------------------------------------------------------------
 
 /** Pure projection over the raw record — guarded reads, no throw on a thin record. */
-export function mapOrderDetail(raw?: IOrder): ClientOrderDetail {
+export function mapOrderDetail(raw?: IOrder): OrderDetail {
   return {
     id: raw?.id,
     number: raw?.number,
@@ -105,19 +105,19 @@ function subItemName(subItem: IInvoiceProduct): string {
 function mapSubItems(
   item: IInvoiceProduct
 ): Pick<
-  ClientOrderItem,
+  OrderItem,
   "quantifiableItems" | "nonQuantifiableItems" | "hasSubItems"
 > {
   const asRows = (
     source: IInvoiceProduct[] | Record<string, IInvoiceProduct>
   ) => (isArray(source) ? source : lodashValues(source ?? {}));
 
-  const quantifiableItems: ClientOrderSubItem[] = [];
-  const nonQuantifiableItems: ClientOrderSubItem[] = [];
+  const quantifiableItems: OrderSubItem[] = [];
+  const nonQuantifiableItems: OrderSubItem[] = [];
 
   function collect(rows: IInvoiceProduct[], fromAttributes: boolean) {
     for (const subItem of rows) {
-      const row: ClientOrderSubItem = {
+      const row: OrderSubItem = {
         id: subItem.id,
         name: subItemName(subItem),
         quantity: subItem.unit_quantity ?? 1,
@@ -152,9 +152,7 @@ function mapSubItems(
   return { quantifiableItems, nonQuantifiableItems, hasSubItems };
 }
 
-function itemPeriod(
-  item: IInvoiceProduct
-): ClientOrderItem["period"] | undefined {
+function itemPeriod(item: IInvoiceProduct): OrderItem["period"] | undefined {
   const from = item.display_from_date ?? item.from_date;
   const to = item.display_to_date ?? item.to_date;
   return from && to ? { from, to } : undefined;
@@ -180,7 +178,7 @@ export function rawOrderItems(order?: IOrder): IInvoiceProduct[] {
 export function mapOrderItems(
   order: IOrder | undefined,
   { billingCycles, imageMap, hideOneTimePurchases }: MapOrderItemsOptions
-): ClientOrderItem[] {
+): OrderItem[] {
   if (!order) return [];
 
   const source = rawOrderItems(order);

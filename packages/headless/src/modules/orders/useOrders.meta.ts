@@ -1,25 +1,22 @@
 import { computed } from "vue";
 import { useBrand } from "../brand";
-import { isMultibrand, showStore } from "./client-orders.mappers";
+import { isMultibrand, showStore } from "./orders.mappers";
 import { isEmpty, omit } from "lodash-es";
-import type {
-  ClientOrdersListQuery,
-  ClientOrdersServices
-} from "./client-orders.types";
+import type { OrdersListQuery, OrdersServices } from "./orders.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrders.meta
+ * @module orders/useOrders.meta
  * @description Collection meta — computed state flags, one computed per
  * flag, plus the store-CTA meta (D-16 — `showStore`/`storefrontUrl` are a
  * FRESH computation over `getConfigValue`/`uiCart`, not `useBrand`'s own
  * `hasStorefront`/`storefrontUrl`, which lose the external-store case).
  * @doctrine clause 2 — shared-only (armless).
  */
-export function createClientOrdersMeta(
+export function createOrdersMeta(
   _actorScope: ScopeActorTypes,
-  service: ClientOrdersServices,
-  query: ClientOrdersListQuery
+  service: OrdersServices,
+  query: OrdersListQuery
 ) {
   const { uiCart } = useBrand();
 
@@ -49,7 +46,7 @@ export function createClientOrdersMeta(
   const storefrontUrl = computed(() => uiCart.value?.storefront_url);
 
   // --- actor-specific meta: none earned yet (clause 2). When a scope earns
-  // one, add `useClientOrders.meta.{actor}.ts` and spread it LAST.
+  // one, add `useOrders.meta.{actor}.ts` and spread it LAST.
 
   return {
     /** True if the list query failed. */
@@ -94,8 +91,6 @@ export function createClientOrdersMeta(
   };
 }
 
-// Type export for consumers. Named `...Collection...` — `UseClientOrdersMeta`
-// collides with the portal mock contract (`client-orders.types.ts` head `@decision`).
-export type UseClientOrdersCollectionMeta = ReturnType<
-  typeof createClientOrdersMeta
->;
+// Type export for consumers. Named `...Collection...` — `UseOrdersMeta`
+// collides with the portal mock contract (`orders.types.ts` head `@decision`).
+export type UseOrdersCollectionMeta = ReturnType<typeof createOrdersMeta>;

@@ -1,19 +1,19 @@
 import { translateQuery } from "../query";
 import type { QueryProps } from "../query";
-import type { ClientOrdersListQuery } from "./client-orders.types";
+import type { OrdersListQuery } from "./orders.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrders.internals
+ * @module orders/useOrders.internals
  * @description Collection internals (debugging). Exposes the raw TanStack
  * query object backing the collection and the wire the live criteria
  * BUILDS — nothing here is requested. The playground filter bar writes
  * through `query.setCriteria` (design 8.3 "the raw setter").
  * @doctrine clause 1 (uniform four-layer default) — TanStack-variant form.
  */
-export function createClientOrdersInternals(
+export function createOrdersInternals(
   actorScope: ScopeActorTypes,
-  query: ClientOrdersListQuery
+  query: OrdersListQuery
 ) {
   return {
     /** Actor scope for this instance. */
@@ -29,8 +29,8 @@ export function createClientOrdersInternals(
 }
 
 // Type export for consumers. Named `...Collection...` —
-// `UseClientOrdersInternals` collides with the portal mock contract
-// (`client-orders.types.ts` head `@decision`).
-export type UseClientOrdersCollectionInternals = ReturnType<
-  typeof createClientOrdersInternals
+// `UseOrdersInternals` collides with the portal mock contract
+// (`orders.types.ts` head `@decision`).
+export type UseOrdersCollectionInternals = ReturnType<
+  typeof createOrdersInternals
 >;

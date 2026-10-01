@@ -3,19 +3,16 @@ import {
   useQuerySchema,
   useQueryUischema,
   useSortUischema
-} from "./client-orders.schemas";
+} from "./orders.schemas";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
-import type {
-  ClientOrdersListQuery,
-  ClientOrdersServices
-} from "./client-orders.types";
+import type { OrdersListQuery, OrdersServices } from "./orders.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { IOrder } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrders.context
+ * @module orders/useOrders.context
  * @description Collection context — the reactive current page of orders.
  * Query-backed: no client-side mapping runs here (design D2 publishes the
  * raw `IOrder`).
@@ -25,10 +22,10 @@ import type { IOrder } from "@upmind-automation/types";
  *
  * @doctrine clause 2 — shared-only (armless).
  */
-export function createClientOrdersContext(
+export function createOrdersContext(
   _actorScope: ScopeActorTypes,
-  service: ClientOrdersServices,
-  query: ClientOrdersListQuery
+  service: OrdersServices,
+  query: OrdersListQuery
 ) {
   const { findOne, getOne } = useCollection<IOrder>(query.data);
 
@@ -46,7 +43,7 @@ export function createClientOrdersContext(
   );
 
   // --- actor-specific context: none earned yet (clause 2). When a scope
-  // earns one, add `useClientOrders.context.{actor}.ts` and spread it LAST.
+  // earns one, add `useOrders.context.{actor}.ts` and spread it LAST.
 
   return {
     /** The reactive current page of this scope's orders (always an array). */
@@ -88,8 +85,6 @@ export function createClientOrdersContext(
   };
 }
 
-// Type export for consumers. Named `...Collection...` — `UseClientOrdersContext`
-// collides with the portal mock contract (`client-orders.types.ts` head `@decision`).
-export type UseClientOrdersCollectionContext = ReturnType<
-  typeof createClientOrdersContext
->;
+// Type export for consumers. Named `...Collection...` — `UseOrdersContext`
+// collides with the portal mock contract (`orders.types.ts` head `@decision`).
+export type UseOrdersCollectionContext = ReturnType<typeof createOrdersContext>;

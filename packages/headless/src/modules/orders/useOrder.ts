@@ -1,22 +1,22 @@
 import { computed, ref } from "vue";
 import { createScopedComposable } from "../scope";
 import { useSystem } from "../system";
-import { rawOrderItems } from "./client-orders.mappers";
-import createClientOrdersServices from "./client-orders.services";
-import { hidesOneTimePurchases } from "./client-orders.utils";
-import { createClientOrderActions } from "./useClientOrder.actions";
-import { createClientOrderContext } from "./useClientOrder.context";
-import { createClientOrderInternals } from "./useClientOrder.internals";
-import { createClientOrderMeta } from "./useClientOrder.meta";
+import { rawOrderItems } from "./orders.mappers";
+import createOrdersServices from "./orders.services";
+import { hidesOneTimePurchases } from "./orders.utils";
+import { createOrderActions } from "./useOrder.actions";
+import { createOrderContext } from "./useOrder.context";
+import { createOrderInternals } from "./useOrder.internals";
+import { createOrderMeta } from "./useOrder.meta";
 import { compact, map, uniq } from "lodash-es";
-import type { ClientOrderExtras } from "./client-orders.types";
-import type { ClientOrderManagerScopeMatrix } from "./client-orders.types";
+import type { OrderExtras } from "./orders.types";
+import type { OrderManagerScopeMatrix } from "./orders.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { IBillingCycle, IOrder } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/useClientOrder
+ * @module orders/useOrder
  * @description Scoped, query-backed read of ONE of a client's own placed
  * orders (a `new_contract` invoice): one TanStack item query per concrete
  * `(actor, id)` scope, minted once at construction. The order being read is
@@ -31,15 +31,15 @@ import type { IBillingCycle, IOrder } from "@upmind-automation/types";
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
  * actor; the scope builder resolves SELF before this factory runs.
  */
-function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
+function createOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
   const orderId = config.id as IOrder["id"] | undefined;
 
   /**
    * ONE services instance for this scope — the same factory
-   * `useClientOrders.ts` calls, so both composables share one identity seam.
+   * `useOrders.ts` calls, so both composables share one identity seam.
    */
-  const service = createClientOrdersServices(actorScope, config.context);
+  const service = createOrdersServices(actorScope, config.context);
 
   // Mint the item query ONCE per scope. `config.id` is the builder's own
   // `.withId(id)`, already folded into the scope key.
@@ -72,10 +72,10 @@ function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
       // not the order (D-25).
     });
 
-  // D-17 — the one-time-purchases gate (client-orders.utils, @decision there).
+  // D-17 — the one-time-purchases gate (orders.utils, @decision there).
   const hideOneTimePurchases = computed(() => hidesOneTimePurchases());
 
-  const extras: ClientOrderExtras = {
+  const extras: OrderExtras = {
     billingCycles,
     imageMap: imagesQuery.data,
     hasOnlineGateways: computed(() => gatewaysQuery.data.value > 0),
@@ -85,7 +85,7 @@ function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   };
 
   /** ONE actions instance per scope; the layers below stay lazy. */
-  const actions = createClientOrderActions(
+  const actions = createOrderActions(
     actorScope,
     service,
     query,
@@ -100,14 +100,13 @@ function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     useActions: () => actions,
 
     /** Sub-composable for single-read context (the raw order + projections). */
-    useContext: () =>
-      createClientOrderContext(actorScope, service, query, extras),
+    useContext: () => createOrderContext(actorScope, service, query, extras),
 
     /** Sub-composable for advanced debugging and internal access. */
-    useInternals: () => createClientOrderInternals(actorScope, query),
+    useInternals: () => createOrderInternals(actorScope, query),
 
     /** Sub-composable for single-read meta (order conditions + state flags). */
-    useMeta: () => createClientOrderMeta(actorScope, service, query, extras)
+    useMeta: () => createOrderMeta(actorScope, service, query, extras)
   };
 }
 // -----------------------------------------------------------------------------
@@ -116,15 +115,15 @@ function createClientOrderForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  *
  * @example
  * ```ts
- * const order = useClientOrder().as('self').withId(orderId)
+ * const order = useOrder().as('self').withId(orderId)
  * const { data, detail, products } = order.useContext()
  * await order.useActions().isReady()
  * ```
  */
-export const useClientOrder = createScopedComposable<
-  ReturnType<typeof createClientOrderForScope>,
-  ClientOrderManagerScopeMatrix
->("client-orders", createClientOrderForScope);
+export const useOrder = createScopedComposable<
+  ReturnType<typeof createOrderForScope>,
+  OrderManagerScopeMatrix
+>("orders", createOrderForScope);
 
 // Type export for consumers
-export type UseClientOrder = ReturnType<typeof useClientOrder>;
+export type UseOrder = ReturnType<typeof useOrder>;

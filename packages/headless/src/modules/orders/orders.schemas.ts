@@ -1,15 +1,12 @@
 /** @internal */
 import { SortDirection } from "../query/query.types";
 import { PAGINATION } from "../query/query.utils";
-import {
-  CLIENT_ORDERS_DEFAULT_SORT,
-  ClientOrdersSortableColumn
-} from "./client-orders.types";
+import { ORDERS_DEFAULT_SORT, OrdersSortableColumn } from "./orders.types";
 import type { QuerySchema } from "../query/query.types";
 import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
 /**
- * @module client-orders/client-orders.schemas
+ * @module orders/orders.schemas
  * @description The order-history query schema and its filter-bar and sort
  * uischemas (design 8.3). One model over `filters · sort · pagination`, no
  * top-level `query` property — the search writes `filters.number.eq`.
@@ -130,7 +127,7 @@ export function useQuerySchema(): QuerySchema {
       },
       sort: {
         type: "array",
-        default: CLIENT_ORDERS_DEFAULT_SORT,
+        default: ORDERS_DEFAULT_SORT,
         minItems: 1,
         uniqueItems: true,
         items: {
@@ -138,7 +135,7 @@ export function useQuerySchema(): QuerySchema {
           additionalProperties: false,
           required: ["field", "dir"],
           properties: {
-            field: { enum: Object.values(ClientOrdersSortableColumn) },
+            field: { enum: Object.values(OrdersSortableColumn) },
             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
           }
         }
@@ -166,7 +163,7 @@ export function useQuerySchema(): QuerySchema {
  *   binds instead of the fallback object renderer,
  * - `status.code` scopes its `eq` array leaf so `FilterMultiSelectRenderer`
  *   (an `array`/`uniqueItems`/`enum` leaf + `multi-select`) binds, its option
- *   labels resolving by the `form.client_orders_status_filter.<value>` i18n
+ *   labels resolving by the `form.orders_status_filter.<value>` i18n
  *   convention rather than the raw status codes,
  * - the numeric and date columns stay scoped at the column object with
  *   `format: range`, which `FilterRangeRenderer` reads as a `gte`/`lte` pair.
@@ -182,52 +179,52 @@ export function useQueryUischema(): UISchemaElement {
       {
         type: "Control",
         scope: "#/properties/filters/properties/number/properties/eq",
-        i18n: "form.client_orders_number_filter",
+        i18n: "form.orders_number_filter",
         options: { format: "search", optionalText: "" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/status.code/properties/eq",
-        i18n: "form.client_orders_status_filter",
+        i18n: "form.orders_status_filter",
         options: { format: "multi-select", optionalText: "" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/total_amount",
-        i18n: "form.client_orders_total_filter",
+        i18n: "form.orders_total_filter",
         options: { format: "range", optionalText: "" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/created_at",
-        i18n: "form.client_orders_created_filter",
+        i18n: "form.orders_created_filter",
         options: { format: "range", optionalText: "" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/paid_datetime",
-        i18n: "form.client_orders_paid_filter",
+        i18n: "form.orders_paid_filter",
         options: { format: "range", optionalText: "" }
       },
       {
         type: "Control",
         scope:
           "#/properties/filters/properties/products.product.name/properties/like",
-        i18n: "form.client_orders_item_name_filter",
+        i18n: "form.orders_item_name_filter",
         options: { format: "search", optionalText: "" }
       },
       {
         type: "Control",
         scope:
           "#/properties/filters/properties/products.product.category.name/properties/like",
-        i18n: "form.client_orders_category_name_filter",
+        i18n: "form.orders_category_name_filter",
         options: { format: "search", optionalText: "" }
       },
       {
         type: "Control",
         scope:
           "#/properties/filters/properties/products.service_identifier/properties/like",
-        i18n: "form.client_orders_service_identifier_filter",
+        i18n: "form.orders_service_identifier_filter",
         options: { format: "search", optionalText: "" }
       }
     ]
@@ -238,6 +235,6 @@ export function useSortUischema(): ControlElement {
   return {
     type: "Control",
     scope: "#/properties/sort",
-    i18n: "form.client_orders_sort"
+    i18n: "form.orders_sort"
   };
 }
