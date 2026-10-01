@@ -18,12 +18,7 @@ import {
 } from "lodash-es";
 import type { BasketProduct } from "../basket-product";
 import type { LookupItem } from "../lookup";
-import type {
-  InvoiceBundleGroup,
-  Invoice,
-  InvoiceUnpaidAmount,
-  Payment
-} from "./invoices.types";
+import type { InvoiceBundleGroup, Invoice, Payment } from "./invoices.types";
 import type {
   IContract,
   IContractProduct,
@@ -90,6 +85,11 @@ export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
     client: mapClient(raw.client)!,
     address: raw.address ? mapAddress(raw.address) : undefined,
     currency: mapCurrency(raw.currency),
+    // No explicit pay currency means the invoice pays in its own currency —
+    // the same priority the machine applies (`payment_currency ?? currency`).
+    currencyPayment: raw.payment_currency
+      ? mapCurrency(raw.payment_currency)
+      : mapCurrency(raw.currency),
     products,
     productsSummary: mapProductsSummary(products),
     payments,
@@ -131,21 +131,6 @@ export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
     dateCreated: useDate(raw.create_datetime, undefined, "MMM Do, YYYY"),
     dateDue: useDate(raw.due_date, undefined, "MMM Do, YYYY"),
     datePaid: useDate(raw.paid_datetime, undefined, "MMM Do, YYYY h:mm A")
-  };
-}
-
-/**
- * Maps the raw unpaid-amount envelope (AC1). The endpoint's real response
- * carries exactly `unpaid_amount` / `unpaid_amount_formatted` — see
- * {@link InvoiceUnpaidAmount}'s `@decision`.
- */
-export function mapUnpaidAmount(raw: {
-  unpaid_amount: number;
-  unpaid_amount_formatted: string;
-}): InvoiceUnpaidAmount {
-  return {
-    amount: raw.unpaid_amount,
-    amountFormatted: raw.unpaid_amount_formatted
   };
 }
 

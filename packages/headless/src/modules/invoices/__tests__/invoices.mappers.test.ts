@@ -317,6 +317,22 @@ describe("mapInvoice — identity, status, and money summary", () => {
   });
 });
 
+describe("mapInvoice — the pay currency (currencyPayment)", () => {
+  it("falls back currencyPayment to the invoice's own currency when the raw row carries no payment_currency", () => {
+    // The recorded unpaid row carries payment_currency: null — the real shape
+    // of the fallback premise; a re-recording that adds one breaks this guard
+    // loudly rather than passing the assertion below for the wrong reason.
+    expect(
+      (unpaidRaw as { payment_currency?: unknown }).payment_currency
+    ).toBeFalsy();
+
+    const mapped = mapInvoice(unpaidRaw);
+
+    expect(mapped.currency).toBeTruthy();
+    expect(mapped.currencyPayment).toStrictEqual(mapped.currency);
+  });
+});
+
 describe("mapInvoice — the frozen client snapshot", () => {
   it("keeps the client embedded on the record, not a live join", () => {
     const mapped = mapInvoice(paidRaw);

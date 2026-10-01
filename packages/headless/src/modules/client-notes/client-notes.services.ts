@@ -1,6 +1,7 @@
 /** @internal */
 import { computed, ref } from "vue";
 import { BrandConfigKeys } from "@upmind-automation/types";
+import { useBrand } from "../brand";
 import { useFeedback } from "../feedback";
 import { useQuery, invalidateQueryByKey } from "../query";
 import { useActiveSession } from "../session-store";
@@ -126,33 +127,25 @@ function resolveClientId(scopeContext?: ScopeContext) {
 }
 
 /**
- * The vault gate (`security.ui.allow_vault`), read FRESH through a raw request —
- * never `useBrand().getConfigValue`, whose query is `staleTime:"static"` +
- * localStorage-persisted and serves a stale value that survives a cache clear
- * (the `client-billing-settings.loadBrandGates` precedent, 2026-09-09). Held in
- * a ref so the sync gates (`enabled`, `isAvailable`) read it reactively.
+ * The vault gate (`security.ui.allow_vault`), read through the brand module.
+ * Held in a ref so the sync gates (`enabled`, `isAvailable`) read it reactively.
  */
 const vaultGate = ref(false);
 
-/** Fetches the gate fresh and publishes it on {@link vaultGate}; a rejection reads as OFF. */
-async function refreshVaultGate(): Promise<boolean> {
-  const { request, useUrl } = useQuery();
-  try {
-    const response = await request<Partial<Record<BrandConfigKeys, unknown>>>({
-      url: useUrl("config/brand/values", {
-        keys: BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED
-      }),
-      withAccessToken: true,
-      withoutLocale: true
-    });
-    vaultGate.value = !!get(
-      response.data,
-      BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED
-    );
-  } catch {
-    vaultGate.value = false;
-  }
-  return vaultGate.value;
+/** Reads the gate and publishes it on {@link vaultGate}; a rejection reads as OFF. */
+function refreshVaultGate(): Promise<boolean> {
+  return useBrand()
+    .ensureConfig(BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED)
+    .then(config => {
+      vaultGate.value = !!get(
+        config,
+        BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED
+      );
+    })
+    .catch(() => {
+      vaultGate.value = false;
+    })
+    .then(() => vaultGate.value);
 }
 
 /**

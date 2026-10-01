@@ -1,0 +1,88 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/config/brand/values?keys=analytics.google.measurement_id%2Canalytics.gtm.container_id%2Cui.basket.default_currency%2Cui.basket.add_to_basket_funnelling%2Cui.basket.payment_term_descriptions%2Cbilling.gateway.force_auto_payment_for_stored_details%2Cbilling.gateway.force_card_storage%2Cui.checkout.checkout_flow%2Cui.checkout.hide_promotions_field%2Cinvoices.common.require_phone_for_orders%2Cui.checkout.checkout_summary_color_stop1%2Cui.checkout.checkout_summary_color_stop2%2Cui.checkout.checkout_summary_contrast_mode%2Csecurity.ui.allow_vault%2Cui.client_area.homepage%2Cinvoices.common.default_payment_period%2Cui.client_area.hide_registration_forms%2Cinvoices.guest_checkout.enabled%2Cprovisioning.domain_names.search_method%2Cbilling.gateway.client_allow_partial_payments%2Cinvoices.common.is_available_pay_later%2Cbilling.gateway.allow_card_removal_replacement%2Cinvoices.common.display_price_type%2Cinvoices.common.require_address_for_orders%2Cinvoices.common.require_company_for_orders%2Cui.client_registration.require_phone%2Cinvoices.common.required_region_in_address%2Csecurity.orders.require_verified_email%2Cui.basket.truncate_product_description%2Cui.client_area.show_catalog%2Cinvoices.common.show_promotion_as%2Ctickets.support.support_pin_enabled%2Cprice_tax.tax.enable_automatic_vat_validation%2Cui.client_area.disable_support_system%2Cui.client_area.page_after_login%2Cui.client_area.enter_key_action%2Cui.client_area.price_before_discount_position",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a433619c38dd33e5-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 12:55:20 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=MBw2j3eeQfavWFIx%2Bmj%2B%2B2GRO1OOe67FQY0d3UXk4Hd9FB9KZHzhSJXw5rWlF8T%2FJgNzWv%2BRQ6EugA9d8sgiBxXHoeVztjib%2FbWCD2T6sMJ5BJglu2%2BZu0vHnZ8BwKcsNsYP60ck0w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "invoices.guest_checkout.enabled": true,
+        "invoices.common.is_available_pay_later": true,
+        "invoices.common.display_price_type": "lowest_monthly_price",
+        "invoices.common.show_promotion_as": "percentage",
+        "invoices.common.default_payment_period": 1,
+        "invoices.common.require_address_for_orders": false,
+        "invoices.common.require_company_for_orders": false,
+        "invoices.common.required_region_in_address": true,
+        "invoices.common.require_phone_for_orders": false,
+        "billing.gateway.client_allow_partial_payments": true,
+        "billing.gateway.force_card_storage": false,
+        "billing.gateway.allow_card_removal_replacement": false,
+        "billing.gateway.force_auto_payment_for_stored_details": false,
+        "security.ui.allow_vault": true,
+        "security.orders.require_verified_email": false,
+        "price_tax.tax.enable_automatic_vat_validation": false,
+        "ui.client_area.homepage": "login",
+        "ui.client_area.page_after_login": "dashboard",
+        "ui.client_area.show_catalog": "show",
+        "ui.client_area.enter_key_action": "mock-ui.client_area.enter_key_action",
+        "ui.client_area.disable_support_system": false,
+        "ui.client_area.hide_registration_forms": false,
+        "ui.client_registration.require_phone": false,
+        "ui.basket.default_currency": "brand",
+        "ui.basket.add_to_basket_funnelling": "none",
+        "ui.basket.price_before_discount_position": "before",
+        "ui.basket.payment_term_descriptions": "yearly",
+        "ui.basket.truncate_product_description": true,
+        "ui.checkout.checkout_flow": "stepped",
+        "ui.checkout.checkout_summary_color_stop1": "#323232",
+        "ui.checkout.checkout_summary_color_stop2": "#FDFD7A",
+        "ui.checkout.checkout_summary_contrast_mode": "dark",
+        "ui.checkout.hide_promotions_field": false,
+        "tickets.support.support_pin_enabled": false,
+        "analytics.gtm.container_id": "G-9QKJBFZHN2",
+        "analytics.google.enabled": false,
+        "analytics.google.measurement_id": null,
+        "provisioning.domain_names.search_method": "smart-suggest"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T12:55:20.058Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "where-this-brand-requires-a-region-i-must-give-one"
+  }
+}

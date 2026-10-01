@@ -25,6 +25,7 @@ import ac21LoadOne from "./scenarios/change-one-of-my-existing-vault-assets/04/g
 import ac21Put from "./scenarios/change-one-of-my-existing-vault-assets/05/put-clients-id-vault-id.json";
 import editorClearNote from "./scenarios/clearing-the-editor-gives-me-a-blank-note-not-the-one-i-was-editing/04/get-clients-id-vault-id.json";
 import deleteRecording from "./scenarios/delete-an-asset-from-my-vault-list/05/delete-clients-id-vault-id.json";
+import ac27Put from "./scenarios/everything-i-do-acts-on-my-own-vault-as-me/04/put-clients-id-vault-id.json";
 import ac22LoadOne from "./scenarios/i-attach-one-of-my-notes-to-a-product-i-bought-and-detach-it/04/get-clients-id-vault-id.json";
 import ac22Attach from "./scenarios/i-attach-one-of-my-notes-to-a-product-i-bought-and-detach-it/05/put-clients-id-vault-id.json";
 import ac19SecretPost from "./scenarios/i-write-a-new-note-or-a-new-secret/09/post-clients-id-vault.json";
@@ -34,13 +35,12 @@ import editorOpenDecrypt from "./scenarios/open-one-of-my-secrets-for-editing-an
 import editorOpenNote from "./scenarios/open-one-of-my-secrets-for-editing-and-see-its-real-value/07/get-clients-id-vault-id.json";
 import pinRecording from "./scenarios/pin-and-unpin-an-asset-from-my-vault-list/05/put-clients-id-vault-id.json";
 import revealRecording from "./scenarios/reveal-one-of-my-secrets-hide-it-again-and-reveal-it-once-more/05/get-clients-id-vault-id-decrypt.json";
+import ac37LoadOne from "./scenarios/the-editor-only-offers-me-fields-it-will-actually-save/04/get-clients-id-vault-id.json";
 import ac23LoadOne from "./scenarios/turn-an-unlabelled-note-into-a-secret-by-giving-it-a-label/04/get-clients-id-vault-id.json";
 import ac23Put from "./scenarios/turn-an-unlabelled-note-into-a-secret-by-giving-it-a-label/07/put-clients-id-vault-id.json";
 import convertBoot from "./scenarios/turn-one-of-my-notes-into-a-secret-and-a-secret-back-into-a-note/01/get-clients-id-vault-with-staged-imports-1.json";
 import convertToNote from "./scenarios/turn-one-of-my-notes-into-a-secret-and-a-secret-back-into-a-note/05/put-clients-id-vault-id.json";
 import convertToSecret from "./scenarios/turn-one-of-my-notes-into-a-secret-and-a-secret-back-into-a-note/07/put-clients-id-vault-id.json";
-import ac27Put from "./scenarios/everything-i-do-acts-on-my-own-vault-as-me/04/put-clients-id-vault-id.json";
-import ac37LoadOne from "./scenarios/the-editor-only-offers-me-fields-it-will-actually-save/04/get-clients-id-vault-id.json";
 import ac26Put from "./scenarios/what-i-save-in-the-editor-is-my-last-edit-and-my-vault-list-shows-it/05/put-clients-id-vault-id.json";
 import ac36LoadOne from "./scenarios/what-i-wrote-is-still-there-when-i-come-back-to-it/04/get-clients-id-vault-id.json";
 import { find, findLast, first, includes, map, split, values } from "lodash-es";

@@ -4,7 +4,7 @@
  * ## Job To Be Done
  * Prove the brand module's API interactions work against recorded fixtures:
  * - GET /brand/settings returns identity bundle (AC-1)
- * - GET /config/brand/values uses filter[keys|eq] wire format (AC-2)
+ * - GET /config/brand/values uses the keys= wire param (AC-2)
  * - GET /config/organisation/values returns feature flags (AC-3)
  * - GET /org/modules returns modules list (AC-4)
  *

@@ -37,12 +37,12 @@ import {
   stepDirDrift,
   stepFixturesDir
 } from "../../../testing/scenario-fixtures";
+import { seedSessionFor, SIGNED_OUT_TAG } from "../../../testing/session-seed";
 import {
   resetClientEmailHistoryScopes,
   seedClientSession,
   seedGuestSession
 } from "./client-email-history.int-helpers";
-import { seedSessionFor, SIGNED_OUT_TAG } from "../../../testing/session-seed";
 import {
   arrangeState,
   CLIENT_EMAIL_HISTORY_SCENARIO,

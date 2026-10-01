@@ -12,10 +12,7 @@
  * (`PERSONAL_DETAILS_SCOPE_MATRIX`), the page is driven at `/as/client`.
  */
 
-import {
-  usePersonalDetails,
-  usePersonalDetailsManager
-} from "@upmind-automation/headless";
+import { usePersonalDetails } from "@upmind-automation/headless";
 import {
   actionsUischema,
   cardUischema,
@@ -38,7 +35,7 @@ const SAVE_FEEDBACK = {
 export default {
   key: CLIENT_PERSONAL_DETAILS_SCENARIO,
   useList: usePersonalDetails,
-  useMutate: usePersonalDetailsManager,
+  useMutate: usePersonalDetails,
   identifier: "id",
   // `useDetail` is omitted — there is no single-record fetch composable, and
   // the row already carries everything an overlay would show (design.md D3:

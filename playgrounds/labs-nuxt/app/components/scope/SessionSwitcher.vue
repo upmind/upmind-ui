@@ -477,33 +477,35 @@ const debouncedSearch = debounce(
       return;
     }
     isSearching.value = true;
-    try {
-      if (type === "client") {
-        const response = await queryGet<{ data: IClient[] }>({
-          queryKey: ["impersonate-client-search", query],
-          url: useUrl("admin/clients", { query, limit: 12 }),
-          staleTime: 30000
-        });
-        impersonateResults.value = map(response.data, client => ({
-          id: client.id,
-          label: client.fullname || client.email || client.id
-        }));
-      } else {
-        const response = await queryGet<{ data: IUser[] }>({
-          queryKey: ["impersonate-staff-search", query],
-          url: useUrl("admin/users", { query, limit: 12 }),
-          staleTime: 30000
-        });
-        impersonateResults.value = map(response.data, user => ({
-          id: user.id,
-          label: user.fullname || user.email || user.id
-        }));
-      }
-    } catch {
-      impersonateResults.value = [];
-    } finally {
-      isSearching.value = false;
-    }
+    return (
+      type === "client"
+        ? queryGet<{ data: IClient[] }>({
+            queryKey: ["impersonate-client-search", query],
+            url: useUrl("admin/clients", { query, limit: 12 }),
+            staleTime: 30000
+          }).then(response => {
+            impersonateResults.value = map(response.data, client => ({
+              id: client.id,
+              label: client.fullname || client.email || client.id
+            }));
+          })
+        : queryGet<{ data: IUser[] }>({
+            queryKey: ["impersonate-staff-search", query],
+            url: useUrl("admin/users", { query, limit: 12 }),
+            staleTime: 30000
+          }).then(response => {
+            impersonateResults.value = map(response.data, user => ({
+              id: user.id,
+              label: user.fullname || user.email || user.id
+            }));
+          })
+    )
+      .catch(() => {
+        impersonateResults.value = [];
+      })
+      .finally(() => {
+        isSearching.value = false;
+      });
   },
   300
 );
@@ -525,22 +527,20 @@ async function doImpersonate(id: string) {
   impersonateOpen.value = false;
 }
 
-async function impersonateClient(clientId: string): Promise<void> {
-  try {
-    const token = await impersonateClientService(clientId);
-    await addSessionToStore(token);
-  } catch (e) {
-    console.error("[SessionSwitcher] Failed to impersonate client:", e);
-  }
+function impersonateClient(clientId: string): Promise<void> {
+  return impersonateClientService(clientId)
+    .then(token => addSessionToStore(token))
+    .catch(e => {
+      console.error("[SessionSwitcher] Failed to impersonate client:", e);
+    });
 }
 
-async function impersonateStaff(userId: string): Promise<void> {
-  try {
-    const token = await impersonateUserService(userId);
-    await addSessionToStore(token);
-  } catch (e) {
-    console.error("[SessionSwitcher] Failed to impersonate staff:", e);
-  }
+function impersonateStaff(userId: string): Promise<void> {
+  return impersonateUserService(userId)
+    .then(token => addSessionToStore(token))
+    .catch(e => {
+      console.error("[SessionSwitcher] Failed to impersonate staff:", e);
+    });
 }
 
 const hasStaffAccess = computed(

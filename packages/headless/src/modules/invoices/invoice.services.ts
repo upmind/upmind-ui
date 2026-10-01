@@ -1,17 +1,22 @@
 /** @internal */
-import { useBasketCurrency } from "../basket";
-import { useQuery } from "../query";
+import { BrandConfigKeys } from "@upmind-automation/types";
+import { useBrand } from "../brand";
+import { invalidateQueryByKey, useQuery } from "../query";
 import { useActiveSession } from "../session-store";
 import { useLocale } from "../system-localisation";
-import { mapUnpaidAmount } from "./invoices.mappers";
-import { DetailedError, ErrorOrigin, NotAuthenticatedError } from "../../utils";
-import { isEmpty } from "lodash-es";
+import {
+  DetailedError,
+  ErrorOrigin,
+  NotAuthenticatedError,
+  responseCodes
+} from "../../utils";
+import { find } from "lodash-es";
 import type {
   Invoice,
+  InvoiceCurrencyConversion,
+  InvoiceLookups,
   InvoicePayContext,
-  InvoicePaymentDetailsModel,
-  InvoiceUnpaidAmount,
-  InvoiceUnpaidAmountQuery
+  InvoicePaymentDetailsModel
 } from "./invoices.types";
 import type { IInvoice } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
@@ -20,7 +25,7 @@ import type { AnyEventObject } from "xstate";
 /**
  * @module invoices/invoice.services
  * @description Services for the single-invoice pay orchestrator machine, plus
- * the reads and writes the single invoice owns: the live unpaid-amount read
+ * the reads and writes the single invoice owns: the pay-currency conversion
  * (`GET invoices/unpaid_amount/{id}`), the payment-method assignment
  * (`PATCH invoices/{id}/payment_details`) and the PDF download
  * (`GET invoices/{id}/download`). Self only — client and guest read their own
@@ -30,7 +35,7 @@ import type { AnyEventObject } from "xstate";
 async function loadLookups(
   { invoiceId }: InvoicePayContext,
   _event: AnyEventObject
-): Promise<IInvoice> {
+): Promise<InvoiceLookups> {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { activeUser } = useActiveSession().useContext();
   const { get, useUrl } = useQuery();
@@ -39,7 +44,11 @@ async function loadLookups(
     throw new NotAuthenticatedError();
   }
 
-  return get<IInvoice>({
+  const config = await useBrand().ensureConfig([
+    BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+  ]);
+
+  const invoice = await get<IInvoice>({
     url: useUrl(`/invoices/${invoiceId}`, {
       with: [
         "brand",
@@ -67,49 +76,57 @@ async function loadLookups(
     staleTime: 0,
     gcTime: 0
   });
+
+  return { ...invoice, config };
 }
 
 /**
- * The invoice's live unpaid amount, converted to the client's selected
- * currency. The currency rides through the query layer's `withCurrency`
- * (finding 12 — NOT a manual `url.searchParams` write): it reads the basket
- * currency and re-keys the query on a change, so switching the payment currency
- * re-reads the converted amount (`invoicePaymentModal.vue:502`,
- * `invoiceStatusMsg.vue:184-205`). The endpoint 422s without a currency, so the
- * read is gated on one being set.
+ * Converts the invoice's unpaid amount to the pay currency `event.data.code`
+ * (`GET invoices/unpaid_amount/{id}?currency_code=`). Legacy oracle:
+ * `invoicePaymentModal.vue:500-511`.
+ * @throws {DetailedError} when the code is not a brand currency.
+ * @throws {NotAuthenticatedError} when the session cannot address a client.
  */
-export function loadUnpaidAmount(
-  invoiceId: Invoice["id"]
-): InvoiceUnpaidAmountQuery {
+async function convertCurrency(
+  { invoiceId }: InvoicePayContext,
+  { data }: AnyEventObject
+): Promise<InvoiceCurrencyConversion> {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { activeUser } = useActiveSession().useContext();
-  const { currencyCode } = useBasketCurrency();
-  const { query, useUrl } = useQuery();
+  const { get, useUrl } = useQuery();
 
-  return query<
-    { unpaid_amount: number; unpaid_amount_formatted: string },
-    InvoiceUnpaidAmount
-  >({
-    queryKey: ["invoices", "unpaid_amount", invoiceId],
-    url: useUrl(`invoices/unpaid_amount/${invoiceId}`),
+  if (!isAuthenticated.value || !activeUser.value?.id) {
+    throw new NotAuthenticatedError();
+  }
+
+  const currency = find(useBrand().currencies.value, ["code", data?.code]);
+  if (!currency) {
+    throw new DetailedError(
+      "Currency not available",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      { code: data?.code }
+    );
+  }
+
+  const result = await get<{
+    unpaid_amount: number;
+    unpaid_amount_formatted: string;
+  }>({
+    url: useUrl(`invoices/unpaid_amount/${invoiceId}`, {
+      currency_code: currency.code
+    }),
+    queryKey: ["invoices", "unpaid_amount", invoiceId, currency.code],
     withAccessToken: true,
-    withCurrency: true,
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (!invoiceId || !isAuthenticated.value || !activeUser.value?.id) {
-          reject(new NotAuthenticatedError());
-          return;
-        }
-        resolve(true);
-      }),
-    enabled: () =>
-      !!invoiceId &&
-      isAuthenticated.value &&
-      !!activeUser.value?.id &&
-      !isEmpty(currencyCode.value),
-    select: mapUnpaidAmount,
-    staleTime: 0
+    staleTime: 0,
+    gcTime: 0
   });
+
+  return {
+    currency,
+    unpaidAmount: result.unpaid_amount,
+    unpaidAmountFormatted: result.unpaid_amount_formatted
+  };
 }
 
 /**
@@ -186,8 +203,25 @@ export async function downloadPdf(invoiceId: Invoice["id"]): Promise<Blob> {
   return response.blob();
 }
 
+/**
+ * Re-reads the invoice after a captured payment (the `available.refreshing`
+ * state's only caller), then invalidates the sibling caches a payment mutates —
+ * the order read (`["order", id]`) and the invoice list (`["invoices"]`) — so a
+ * host page underneath refetches its now-stale, pre-payment cache.
+ */
+async function refresh(
+  context: InvoicePayContext,
+  event: AnyEventObject
+): Promise<InvoiceLookups> {
+  const invoice = await loadLookups(context, event);
+  await invalidateQueryByKey(["order", context.invoiceId], { exact: false })();
+  await invalidateQueryByKey(["invoices"], { exact: false })();
+  return invoice;
+}
+
 export default {
+  convertCurrency,
   loadLookups,
-  refresh: loadLookups, // alias
+  refresh,
   isAuthenticated: () => useActiveSession().useActions().isReady()
 };

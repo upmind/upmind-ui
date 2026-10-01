@@ -51,8 +51,7 @@ const MODULE_DIR = join(import.meta.dirname, "..");
 const EXPECTED_RUNTIME_EXPORTS = [
   "CLIENT_BILLING_SETTINGS_SCOPE_MATRIX",
   "ClientBillingSettingsContextTypes",
-  "useBillingSettings",
-  "useBillingSettingsManager"
+  "useBillingSettings"
 ];
 
 const barrelSource = (): string =>
@@ -91,11 +90,8 @@ function compileProbe(lines: string[]): number[] {
 // -----------------------------------------------------------------------------
 
 describe("client-billing-settings public surface", () => {
-  it("offers both composables — the settings read half and the editor half", () => {
+  it("offers the one composable — the settings editor", () => {
     expect(typeof clientBillingSettings.useBillingSettings).toBe("function");
-    expect(typeof clientBillingSettings.useBillingSettingsManager).toBe(
-      "function"
-    );
   });
 
   it("exports exactly the curated value surface — nothing internal leaks", () => {
@@ -128,16 +124,16 @@ describe("client-billing-settings public surface", () => {
     ).toBeNull();
   });
 
-  it("AC-1 compiles `.for(CLIENT, id)` for both composables as the CLIENT actor, and for no other actor", () => {
+  it("AC-1 compiles `.for(CLIENT, id)` for the composable as the CLIENT actor, and for no other actor", () => {
     const diagnostics = compileProbe([
-      `import { useBillingSettings, useBillingSettingsManager, ClientBillingSettingsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
+      `import { useBillingSettings, ClientBillingSettingsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
       `import { ScopeActorTypes } from ${JSON.stringify(join(MODULE_DIR, "../scope/scope.types"))};`,
       `import { CLIENT_BILLING_SETTINGS_SCOPE_MATRIX } from ${JSON.stringify(MODULE_DIR)};`,
       `import type { ClientBillingSettingsScopeMatrix } from ${JSON.stringify(MODULE_DIR)};`,
-      // 5-6 — controls: `.for(CLIENT, id)` is the sanctioned channel on both
-      // composables, so a probe that merely fails to resolve cannot pass.
+      // 5-6 — controls: `.for(CLIENT, id)` is the sanctioned channel, so a
+      // probe that merely fails to resolve cannot pass.
       `useBillingSettings().as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.CLIENT, "x");`,
-      `useBillingSettingsManager().as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.CLIENT, "x");`,
+      `useBillingSettings().as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.CLIENT, "y");`,
       // 7-9 — the gate: `.for()` is unspellable for every non-CLIENT actor.
       `useBillingSettings().as(ScopeActorTypes.STAFF).for(ClientBillingSettingsContextTypes.CLIENT, "x");`,
       `useBillingSettings().as(ScopeActorTypes.GUEST).for(ClientBillingSettingsContextTypes.CLIENT, "x");`,

@@ -146,12 +146,16 @@ export const cardUischema: CardUischema = {
  */
 export const detailUischema: DetailUischema = {
   type: "DetailLayout",
-  siblings: ["unpaidAmount"],
   elements: [
     {
       type: "TableCellText",
-      scope: "#/properties/unpaidAmount/properties/amountFormatted",
+      scope: "#/properties/summary/properties/unpaidAmountFormatted",
       i18n: "invoices.detail.unpaid_amount"
+    },
+    {
+      type: "TableCellText",
+      scope: "#/properties/currencyPayment/properties/code",
+      i18n: "invoices.detail.currency_payment"
     },
     {
       type: "TableCellText",
@@ -294,6 +298,15 @@ export const actionsUischema: ActionsUischema = {
     //   variant: "outline",
     //   placement: ActionPlacementTypes.OVERFLOW
     // },
+    {
+      type: "Action",
+      name: "open",
+      navigate: "/useInvoice/:id",
+      i18n: "action.go_to_invoice",
+      icon: "link-external-01",
+      variant: "outline",
+      placement: ActionPlacementTypes.VISIBLE
+    },
     {
       type: "Action",
       name: "view",

@@ -8,8 +8,8 @@
  * recorded answers are armed. A request no step of the scenario recorded fails
  * the scenario by name. A `@todo` scenario is skipped by name.
  *
- * Every recorded write is answered after {@link HELD_WRITE_MS}, the same for
- * every step, so a step can read the window before a change lands.
+ * A `@held-write` scenario has every recorded write answered after a hold
+ * (`scenarioTiming`), so a step can read the window before a change lands.
  *
  * The recordings come from `pnpm fixtures:generate contract`.
  *
@@ -26,6 +26,7 @@ import {
   createStepMatcher,
   parseFeatureScenarios
 } from "@upmind-automation/scenario-harness";
+import { scenarioTiming } from "@upmind-automation/test-fixtures/fixture-handlers";
 import {
   replayStep,
   startScenarioReplay
@@ -59,14 +60,6 @@ const feature = readFileSync(
   join(import.meta.dirname, "contract.feature"),
   "utf-8"
 );
-
-/** How long every recorded write is held before its answer is served. */
-const HELD_WRITE_MS = 400;
-
-const heldWrites = {
-  delayMs: (request: Request): number =>
-    request.method === "GET" ? 0 : HELD_WRITE_MS
-};
 
 let replay: ReturnType<typeof startScenarioReplay> | undefined;
 let currentScenario = "";
@@ -103,7 +96,7 @@ function cleanupScenario(): void {
 /** Arms the answers THIS step recorded; a step that made no request has none. */
 function armStep(scenario: FeatureScenario, index: number): void {
   const dir = stepFixturesDir(import.meta.dirname, scenario, index);
-  if (existsSync(dir)) replayStep(server, dir, heldWrites);
+  if (existsSync(dir)) replayStep(server, dir, scenarioTiming(scenario.tags));
 }
 
 // -----------------------------------------------------------------------------

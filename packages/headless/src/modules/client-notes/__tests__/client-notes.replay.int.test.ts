@@ -75,7 +75,7 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
     );
 
   replay = startScenarioReplay(server);
-  // The @vault-gate scenario (AC-14) records its own single-key gate read
+  // The @vault-gate scenario (AC-14) records its own accumulated-key gate read
   // (allow_vault:false) in its "I look at my vault" step, armed by armStep like
   // any other step — no bundle arming here.
   await seedSessionFor(scenario, seedClientSession, seedGuestSession);

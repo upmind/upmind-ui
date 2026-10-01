@@ -1,7 +1,9 @@
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/usePersonalDetails/client-personal-details.scenario.ts b/playgrounds/labs-nuxt/modules/scenarios/usePersonalDetails/client-personal-details.scenario.ts
+index 479260fed6..e13350c281 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/usePersonalDetails/client-personal-details.scenario.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/usePersonalDetails/client-personal-details.scenario.ts
-@@ -54,7 +54,7 @@
-     edit: { feedback: SAVE_FEEDBACK }
+@@ -61,7 +61,7 @@ export default {
+     }
    },
    // The MODULE whose committed `.feature` and step catalog this page plays.
 -  tracks: "client-personal-details",

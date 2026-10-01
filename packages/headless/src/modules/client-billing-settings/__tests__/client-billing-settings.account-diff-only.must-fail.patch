@@ -1,0 +1,36 @@
+# client-billing-settings.account-diff-only.must-fail.patch
+#
+# Targets: the account-currency PUT is diff-only — only the currency field that
+# actually changed is written, never the whole pair, so an unchanged leaf never
+# clobbers a concurrent writer on `accounts/{id}`.
+#
+# Mutates: client-billing-settings.mappers.ts mapIAccountCurrencyFields —
+# replaces the `omitBy(isEqual)` wire diff with the whole `toAccountWire(model)`
+# body, so both currency leaves are always sent.
+#
+# Expected RED (integration): client-billing-settings.replay.int.test.ts —
+# AC-21/AC-22 record a PUT body of only the changed field; the always-both body
+# is a request shape the scenario never recorded, a capture gap that fails the
+# scenario by name.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm exec vitest run src/modules/client-billing-settings/__tests__/client-billing-settings.replay.int.test.ts   # RED
+#   git apply -R <this file>
+#
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.mappers.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.mappers.ts
+@@ -76,12 +76,7 @@ export function mapIAccountCurrencyFields(
+   model: BillingSettingsModel,
+   baseModel: BillingSettingsModel = {}
+ ): AccountCurrencyUpdateBody | undefined {
+-  const next = toAccountWire(model);
+-  const previous = toAccountWire(baseModel);
+-
+-  const diff = omitBy(next, (value, key) =>
+-    isEqual(previous[key as keyof AccountCurrencyUpdateBody], value)
+-  ) as AccountCurrencyUpdateBody;
++  const diff = toAccountWire(model);
+ 
+   return Object.keys(diff).length ? diff : undefined;
+ }

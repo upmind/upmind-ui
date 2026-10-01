@@ -32,6 +32,7 @@
  */
 
 import { chromium } from "@playwright/test";
+import { flatten, map } from "lodash-es";
 import { spawn } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -183,126 +184,164 @@ async function sweep({ out, routes, selectors }) {
   const browser = await chromium.launch();
   const observations = [];
 
-  try {
-    for (const routePath of routes) {
-      for (const [viewportName, viewport] of Object.entries(VIEWPORTS)) {
-        const page = await browser.newPage({ viewport });
-        await page.addInitScript(props => {
-          window.__READBACK_STYLE_PROPS__ = props;
-        }, COMPUTED_STYLE_PROPERTIES);
+  const nested = await Promise.all(
+    map(routes, routePath =>
+      Promise.all(
+        map(Object.entries(VIEWPORTS), ([viewportName, viewport]) =>
+          browser.newPage({ viewport }).then(page => {
+            let historyLengthBefore;
+            let title;
+            let resolvedPath;
+            let historyLengthAfter;
+            let heading;
+            let landmarks;
+            const observedSelectors = {};
+            return page
+              .addInitScript(props => {
+                window.__READBACK_STYLE_PROPS__ = props;
+              }, COMPUTED_STYLE_PROPERTIES)
+              .then(() =>
+                // Warm the page inside the app's own origin FIRST, so the
+                // "before" count is a real reading of the app rather than
+                // `about:blank`'s constant 1 (see the header's note).
+                page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" })
+              )
+              .then(() => page.evaluate(() => window.history.length))
+              .then(before => {
+                historyLengthBefore = before;
+                return page.goto(`${BASE_URL}${routePath}`, {
+                  waitUntil: "networkidle"
+                });
+              })
+              .then(() =>
+                // `document.fonts.ready` only waits for faces already
+                // REQUESTED, so a page whose webfont demand lands late
+                // resolves it while the text is still in the fallback face —
+                // two trees then differ by which face was rasterised, not by
+                // any chrome change. Demand every face the rendered text
+                // actually resolves to, THEN settle.
+                page.evaluate(async () => {
+                  const faces = new Set();
+                  for (const element of document.querySelectorAll(
+                    "body,h1,h2,h3,h4,p,a,span,button,label,li,td,th,input"
+                  )) {
+                    const style = getComputedStyle(element);
+                    faces.add(
+                      `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+                    );
+                  }
+                  await Promise.all(
+                    [...faces].map(face =>
+                      document.fonts.load(face).catch(() => {})
+                    )
+                  );
+                  await document.fonts.ready;
+                })
+              )
+              .then(() => page.title())
+              .then(pageTitle => {
+                title = pageTitle;
+                return page.evaluate(() => window.location.pathname);
+              })
+              .then(path_ => {
+                resolvedPath = path_;
+                return page.evaluate(() => window.history.length);
+              })
+              .then(after => {
+                historyLengthAfter = after;
+                return page.evaluate(() => {
+                  const inMain = document.querySelector("main h1");
+                  const anywhere = document.querySelector("h1");
+                  const element = inMain ?? anywhere;
+                  return element === null ? null : element.textContent.trim();
+                });
+              })
+              .then(pageHeading => {
+                heading = pageHeading;
+                return page.evaluate(() =>
+                  [
+                    ...document.querySelectorAll(
+                      "header,nav,main,aside,footer,form,section,[role]"
+                    )
+                  ]
+                    .map(element => {
+                      const explicit = element.getAttribute("role");
+                      const implicit = {
+                        HEADER: "banner",
+                        NAV: "navigation",
+                        MAIN: "main",
+                        ASIDE: "complementary",
+                        FOOTER: "contentinfo"
+                      }[element.tagName];
+                      const role = explicit ?? implicit;
+                      if (role === undefined || role === null) return null;
+                      const label =
+                        element.getAttribute("aria-label") ??
+                        document
+                          .getElementById(
+                            element.getAttribute("aria-labelledby") ?? ""
+                          )
+                          ?.textContent?.trim() ??
+                        null;
+                      return {
+                        role,
+                        label,
+                        tag: element.tagName.toLowerCase()
+                      };
+                    })
+                    .filter(entry => entry !== null)
+                );
+              })
+              .then(pageLandmarks => {
+                landmarks = pageLandmarks;
+                return Promise.all(
+                  map(Object.entries(selectors), ([name, selector]) =>
+                    observeSelector(page, selector).then(observed => {
+                      observedSelectors[name] = observed;
+                    })
+                  )
+                );
+              })
+              .then(() =>
+                // Nuxt DevTools paints a floating badge with a live
+                // render-time readout ("32 ms"), which differs between any
+                // two runs and lands in a full-page capture. Hide it so the
+                // diff sees the app only.
+                page.addStyleTag({
+                  content:
+                    "#nuxt-devtools-anchor,#nuxt-devtools-container{display:none !important}"
+                })
+              )
+              .then(() => {
+                const screenshotPath = path.join(
+                  out,
+                  `${slugFor(routePath)}--${viewportName}.png`
+                );
+                return page
+                  .screenshot({ path: screenshotPath, fullPage: true })
+                  .then(() => {
+                    const observation = {
+                      route: routePath,
+                      viewport: viewportName,
+                      title,
+                      heading,
+                      landmarks,
+                      resolvedPath,
+                      historyLengthBefore,
+                      historyLengthAfter,
+                      selectors: observedSelectors,
+                      screenshot: screenshotPath
+                    };
+                    return page.close().then(() => observation);
+                  });
+              });
+          })
+        )
+      )
+    )
+  ).finally(() => browser.close().then(() => stopServer(server)));
 
-        // Warm the page inside the app's own origin FIRST, so the "before"
-        // count is a real reading of the app rather than `about:blank`'s
-        // constant 1 (see the corrected note in the header).
-        await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
-        const historyLengthBefore = await page.evaluate(
-          () => window.history.length
-        );
-        await page.goto(`${BASE_URL}${routePath}`, {
-          waitUntil: "networkidle"
-        });
-
-        // `document.fonts.ready` only waits for faces already REQUESTED, so a
-        // page whose webfont demand lands late resolves it while the text is
-        // still in the fallback face — two trees then differ by which face was
-        // rasterised, not by any chrome change. Demand every face the rendered
-        // text actually resolves to, THEN settle.
-        await page.evaluate(async () => {
-          const faces = new Set();
-          for (const element of document.querySelectorAll(
-            "body,h1,h2,h3,h4,p,a,span,button,label,li,td,th,input"
-          )) {
-            const style = getComputedStyle(element);
-            faces.add(
-              `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
-            );
-          }
-          await Promise.all(
-            [...faces].map(face => document.fonts.load(face).catch(() => {}))
-          );
-          await document.fonts.ready;
-        });
-
-        const title = await page.title();
-        const resolvedPath = await page.evaluate(
-          () => window.location.pathname
-        );
-        const historyLengthAfter = await page.evaluate(
-          () => window.history.length
-        );
-        const heading = await page.evaluate(() => {
-          const inMain = document.querySelector("main h1");
-          const anywhere = document.querySelector("h1");
-          const element = inMain ?? anywhere;
-          return element === null ? null : element.textContent.trim();
-        });
-        const landmarks = await page.evaluate(() =>
-          [
-            ...document.querySelectorAll(
-              "header,nav,main,aside,footer,form,section,[role]"
-            )
-          ]
-            .map(element => {
-              const explicit = element.getAttribute("role");
-              const implicit = {
-                HEADER: "banner",
-                NAV: "navigation",
-                MAIN: "main",
-                ASIDE: "complementary",
-                FOOTER: "contentinfo"
-              }[element.tagName];
-              const role = explicit ?? implicit;
-              if (role === undefined || role === null) return null;
-              const label =
-                element.getAttribute("aria-label") ??
-                document
-                  .getElementById(element.getAttribute("aria-labelledby") ?? "")
-                  ?.textContent?.trim() ??
-                null;
-              return { role, label, tag: element.tagName.toLowerCase() };
-            })
-            .filter(entry => entry !== null)
-        );
-
-        const observedSelectors = {};
-        for (const [name, selector] of Object.entries(selectors)) {
-          observedSelectors[name] = await observeSelector(page, selector);
-        }
-
-        // Nuxt DevTools paints a floating badge with a live render-time
-        // readout ("32 ms"), which differs between any two runs and lands in
-        // a full-page capture. Hide it so the diff sees the app only.
-        await page.addStyleTag({
-          content:
-            "#nuxt-devtools-anchor,#nuxt-devtools-container{display:none !important}"
-        });
-
-        const screenshotPath = path.join(
-          out,
-          `${slugFor(routePath)}--${viewportName}.png`
-        );
-        await page.screenshot({ path: screenshotPath, fullPage: true });
-
-        observations.push({
-          route: routePath,
-          viewport: viewportName,
-          title,
-          heading,
-          landmarks,
-          resolvedPath,
-          historyLengthBefore,
-          historyLengthAfter,
-          selectors: observedSelectors,
-          screenshot: screenshotPath
-        });
-
-        await page.close();
-      }
-    }
-  } finally {
-    await browser.close();
-    stopServer(server);
-  }
+  observations.push(...flatten(nested));
 
   const observationsPath = path.join(out, "observations.json");
   await writeFile(observationsPath, JSON.stringify(observations, null, 2));

@@ -1,5 +1,7 @@
 import { computed } from "vue";
 import {
+  useInvoicePickerSchema,
+  useInvoicePickerUischema,
   useLookupsSchema,
   useLookupsUischema,
   useQuerySchema,
@@ -115,6 +117,16 @@ export function createInvoicesContext(
       lookups: {
         schema: useLookupsSchema(),
         uischema: useLookupsUischema(lookups)
+      },
+      /**
+       * The invoice finder's pair, its lookup already bound to THIS scope's
+       * service. A surface renders it and reaches no service of its own — the
+       * same shape `useTickets` publishes as `ticketPicker`. It finds ONE
+       * invoice to open; it does not retarget the list.
+       */
+      invoicePicker: {
+        schema: useInvoicePickerSchema(),
+        uischema: useInvoicePickerUischema(lookups)
       }
     }
 

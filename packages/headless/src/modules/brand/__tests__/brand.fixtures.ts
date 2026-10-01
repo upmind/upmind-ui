@@ -9,7 +9,7 @@
  *
  * ## Captures (brand.feature AC-1,2,3,4)
  * - GET /api/brand/settings (AC-1)
- * - GET /api/config/brand/values with filter[keys|eq] (AC-2)
+ * - GET /api/config/brand/values with keys= (AC-2)
  * - GET /api/config/organisation/values (AC-3)
  * - GET /api/org/modules (AC-4)
  *
@@ -68,7 +68,7 @@ const BRAND_CONFIG_KEYS = [
  * boot defaults plus the basket's key (already `required_region_in_address` is
  * among the defaults) plus the one key only the editor needs,
  * `clients.settings.allow_address_update`. Recorded here, with the OWNER, in the
- * exact accumulated `filter[keys|eq]` order the runtime produces, so a signed-in
+ * exact accumulated `keys=` order the runtime produces, so a signed-in
  * address editor's boot read is answered by the brand's own recording.
  */
 const ADDRESS_CONFIG_KEYS = [
@@ -107,7 +107,7 @@ describe("brand fixtures generator", () => {
   it("captures GET /api/config/brand/values (AC-2)", async () => {
     generator.setBearerToken(clientToken!.access_token);
     const { status } = await generator.get(
-      `/api/config/brand/values?filter[keys|eq]=${encodeURIComponent(BRAND_CONFIG_KEYS)}`
+      `/api/config/brand/values?keys=${encodeURIComponent(BRAND_CONFIG_KEYS)}`
     );
     generator.clearBearerToken();
     if (status !== 200) {
@@ -118,7 +118,7 @@ describe("brand fixtures generator", () => {
   it("captures GET /api/config/brand/values for the boot's key list", async () => {
     generator.setBearerToken(clientToken!.access_token);
     const { status } = await generator.get(
-      `/api/config/brand/values?filter[keys|eq]=${encodeURIComponent(defaultBrandConfigKeys.join(","))}`
+      `/api/config/brand/values?keys=${encodeURIComponent(defaultBrandConfigKeys.join(","))}`
     );
     generator.clearBearerToken();
     if (status !== 200) {
@@ -133,7 +133,7 @@ describe("brand fixtures generator", () => {
       BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS
     ];
     const { status } = await generator.get(
-      `/api/config/brand/values?filter[keys|eq]=${encodeURIComponent(keys.join(","))}`
+      `/api/config/brand/values?keys=${encodeURIComponent(keys.join(","))}`
     );
     generator.clearBearerToken();
     if (status !== 200) {
@@ -146,7 +146,7 @@ describe("brand fixtures generator", () => {
   it("captures GET /api/config/brand/values for the address editor's key list", async () => {
     generator.setBearerToken(clientToken!.access_token);
     const { status } = await generator.get(
-      `/api/config/brand/values?filter[keys|eq]=${encodeURIComponent(ADDRESS_CONFIG_KEYS)}`
+      `/api/config/brand/values?keys=${encodeURIComponent(ADDRESS_CONFIG_KEYS)}`
     );
     generator.clearBearerToken();
     if (status !== 200) {

@@ -59,51 +59,73 @@ async function main() {
   const browser = await chromium.launch();
   const observations = [];
 
-  try {
+  await browser
     // 1440px — the desktop rail.
-    const desktop = await browser.newPage({
-      viewport: { width: 1440, height: 900 }
-    });
-    await desktop.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
-    observations.push({
-      viewport: "1440x900",
-      drawer: "n/a",
-      counts: await countAll(desktop)
-    });
-    await desktop.screenshot({
-      path: path.join(out, `${label}--menu-1440.png`)
-    });
-    await desktop.close();
-
+    .newPage({ viewport: { width: 1440, height: 900 } })
+    .then(desktop =>
+      desktop
+        .goto(`${BASE_URL}/`, { waitUntil: "networkidle" })
+        .then(() => countAll(desktop))
+        .then(counts => {
+          observations.push({ viewport: "1440x900", drawer: "n/a", counts });
+        })
+        .then(() =>
+          desktop.screenshot({
+            path: path.join(out, `${label}--menu-1440.png`)
+          })
+        )
+        .then(() => desktop.close())
+    )
     // 390px — open the drawer, then count.
-    const mobile = await browser.newPage({
-      viewport: { width: 390, height: 844 }
-    });
-    await mobile.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
-    const closed = await countAll(mobile);
-    const trigger = mobile.locator('[data-slot="shell-sidebar-trigger"]');
-    const triggerCount = await trigger.count();
-    let opened = null;
-    if (triggerCount > 0) {
-      await trigger.first().click();
-      await mobile.waitForSelector('[role="dialog"]', { timeout: 5000 });
-      await mobile.waitForTimeout(400);
-      opened = await countAll(mobile);
-      await mobile.screenshot({
-        path: path.join(out, `${label}--menu-390-drawer-open.png`)
-      });
-    }
-    observations.push({
-      viewport: "390x844",
-      drawer: "closed",
-      counts: closed,
-      triggerCount
-    });
-    observations.push({ viewport: "390x844", drawer: "open", counts: opened });
-    await mobile.close();
-  } finally {
-    await browser.close();
-  }
+    .then(() => browser.newPage({ viewport: { width: 390, height: 844 } }))
+    .then(mobile =>
+      mobile
+        .goto(`${BASE_URL}/`, { waitUntil: "networkidle" })
+        .then(() => countAll(mobile))
+        .then(closed => {
+          const trigger = mobile.locator('[data-slot="shell-sidebar-trigger"]');
+          return trigger.count().then(triggerCount => {
+            const openDrawer =
+              triggerCount > 0
+                ? trigger
+                    .first()
+                    .click()
+                    .then(() =>
+                      mobile.waitForSelector('[role="dialog"]', {
+                        timeout: 5000
+                      })
+                    )
+                    .then(() => mobile.waitForTimeout(400))
+                    .then(() => countAll(mobile))
+                    .then(opened =>
+                      mobile
+                        .screenshot({
+                          path: path.join(
+                            out,
+                            `${label}--menu-390-drawer-open.png`
+                          )
+                        })
+                        .then(() => opened)
+                    )
+                : Promise.resolve(null);
+            return openDrawer.then(opened => {
+              observations.push({
+                viewport: "390x844",
+                drawer: "closed",
+                counts: closed,
+                triggerCount
+              });
+              observations.push({
+                viewport: "390x844",
+                drawer: "open",
+                counts: opened
+              });
+              return mobile.close();
+            });
+          });
+        })
+    )
+    .finally(() => browser.close());
 
   const file = path.join(out, `${label}--nav-count.json`);
   await writeFile(

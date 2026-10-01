@@ -1078,14 +1078,12 @@ function vaultSaved(title: string, label: string): MockActionResult {
  * jsdom) the toast still says "Copied" — the mock has no second outcome to
  * offer, and a silent failure reads worse than an optimistic receipt.
  */
-async function writeToClipboard(text: string): Promise<void> {
-  if (typeof navigator === "undefined") return;
-  if (navigator.clipboard === undefined) return;
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch {
+function writeToClipboard(text: string): Promise<void> {
+  if (typeof navigator === "undefined") return Promise.resolve();
+  if (navigator.clipboard === undefined) return Promise.resolve();
+  return navigator.clipboard.writeText(text).catch(() => {
     // A denied permission is the browser's answer, not an app error.
-  }
+  });
 }
 
 /**

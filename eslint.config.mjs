@@ -77,6 +77,8 @@ import vueParser from "vue-eslint-parser";
 import globals from "globals";
 import scopeBasedPlugin from "@upmind-automation/eslint-plugin-scope-based";
 import fileResponsibilityPlugin from "@upmind-automation/eslint-plugin-file-responsibility";
+import endpointOwnershipPlugin from "@upmind-automation/eslint-plugin-endpoint-ownership";
+import asyncDisciplinePlugin from "@upmind-automation/eslint-plugin-async-discipline";
 import uiPlugin from "@upmind-automation/eslint-plugin-ui";
 
 // typescript-eslint's flat/recommended is a 3-config array:
@@ -845,6 +847,7 @@ export default [
     ignores: [
       "**/node_modules/**",
       "**/dist/**",
+      "**/storybook-static/**",
       "**/build/**",
       "**/.nuxt/**",
       "**/.output/**",
@@ -919,6 +922,8 @@ export default [
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
       "tests/fixtures/**/*.{mjs,js,ts}",
       "packages/eslint-plugin-scope-based/**/*.{js,mjs}",
+      "packages/eslint-plugin-endpoint-ownership/**/*.{js,mjs}",
+      "packages/eslint-plugin-async-discipline/**/*.{js,mjs}",
       "packages/*/scripts/**/*.{ts,mts,cts,js,cjs,mjs}"
     ],
     languageOptions: {
@@ -1365,7 +1370,77 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 11. Prettier compatibility — MUST be last. Disables every stylistic rule so
+  // 11. endpoint-ownership — a brand-owned or system-owned endpoint is loaded
+  //     once by the `brand` / `system` module; every other module reads it
+  //     through useBrand()/useSystem(), never by re-requesting the URL. The rule
+  //     self-exempts the owning modules and session-transfer's brand/settings
+  //     carve-out; the globs scope it to the request-making surface, minus
+  //     tests and fixtures.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "packages/headless/src/modules/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    plugins: { "endpoint-ownership": endpointOwnershipPlugin },
+    rules: {
+      "endpoint-ownership/owned-endpoint-boundary": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11b. no-direct-tanstack-query — TanStack Query entry points are reached only
+  //     through the internal useQuery wrapper in the query module. A value
+  //     import of one from @tanstack/vue-query or @tanstack/query-core outside
+  //     that module forks the boundary. The rule self-exempts the query module;
+  //     the globs scope it to source, minus tests, fixtures and the test
+  //     harness (packages/headless/src/testing).
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "packages/headless/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts",
+      "packages/headless/src/testing/**"
+    ],
+    plugins: { "endpoint-ownership": endpointOwnershipPlugin },
+    rules: {
+      "endpoint-ownership/no-direct-tanstack-query": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11c. async-discipline — the house async hygiene preset. Covers ALL code,
+  //     tests and fixtures included.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["**/*.{ts,tsx,mts,cts,js,mjs,cjs,vue}"],
+    plugins: { "async-discipline": asyncDisciplinePlugin },
+    rules: {
+      "async-discipline/no-promise-try-catch": "error",
+      "async-discipline/no-await-only-return": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 12. Prettier compatibility — MUST be last. Disables every stylistic rule so
   //    prettier is the sole formatter (330 rule names switched off).
   // ---------------------------------------------------------------------------
   eslintConfigPrettier

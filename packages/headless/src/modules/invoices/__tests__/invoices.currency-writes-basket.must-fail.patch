@@ -1,0 +1,27 @@
+# must-fail: invoices.feature @AC-1 > "Changing the pay currency of an invoice
+# leaves my basket alone" (invoices.replay.int.test.ts). Plan PC-1 / PC-3,
+# docs/plans/fix-invoices-no-basket.md step 15. Authored by the developer seat.
+#
+# Mutation: `useInvoice().useActions().setCurrency(code)` writes the basket
+# currency again (`useBasketCurrency().update({ code })`, the removed [c6]
+# path) before it sends `SET_CURRENCY`. The replay then meets a
+# `PUT orders/{basket}/currency` request its recording does not hold, and the
+# scenario fails by name.
+diff --git a/packages/headless/src/modules/invoices/useInvoice.actions.ts b/packages/headless/src/modules/invoices/useInvoice.actions.ts
+index 6e4467d55a..877b7fdb56 100644
+--- a/packages/headless/src/modules/invoices/useInvoice.actions.ts
++++ b/packages/headless/src/modules/invoices/useInvoice.actions.ts
+@@ -1,4 +1,5 @@
+ import { waitFor } from "xstate/lib/waitFor";
++import { useBasketCurrency } from "../basket";
+ import { remove as removeFromRegistry } from "../scope";
+ import {
+   downloadPdf as downloadInvoicePdf,
+@@ -123,6 +124,7 @@ export function createInvoiceActions(
+    * unless `useMeta().hasPaymentCurrencyChoice` is true.
+    */
+   function setCurrency(code: string): void {
++    void useBasketCurrency().update({ code });
+     send({ type: "SET_CURRENCY", data: { code } });
+   }
+ 

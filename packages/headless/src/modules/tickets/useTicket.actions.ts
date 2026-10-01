@@ -126,26 +126,24 @@ export function createTicketActions(
       attachmentsOnly?: boolean;
     } = {}
   ): Promise<void> {
+    const id = requireTicketId();
     feed.isLoading.value = true;
-    try {
-      const id = requireTicketId();
-      const [{ rows, hasMore }, logs] = await Promise.all([
-        service.loadMessages(id, options),
-        options.attachmentsOnly
-          ? Promise.resolve([])
-          : service.loadStatusLogs(id)
-      ]);
-
-      feed.entries.value = mergeFeed(rows, logs);
-      if (options.before) feed.hasOlder.value = hasMore;
-      else if (options.after) feed.hasNewer.value = hasMore;
-      else {
-        feed.hasOlder.value = hasMore;
-        feed.hasNewer.value = false;
-      }
-    } finally {
-      feed.isLoading.value = false;
-    }
+    return Promise.all([
+      service.loadMessages(id, options),
+      options.attachmentsOnly ? Promise.resolve([]) : service.loadStatusLogs(id)
+    ])
+      .then(([{ rows, hasMore }, logs]) => {
+        feed.entries.value = mergeFeed(rows, logs);
+        if (options.before) feed.hasOlder.value = hasMore;
+        else if (options.after) feed.hasNewer.value = hasMore;
+        else {
+          feed.hasOlder.value = hasMore;
+          feed.hasNewer.value = false;
+        }
+      })
+      .finally(() => {
+        feed.isLoading.value = false;
+      });
   }
 
   /**

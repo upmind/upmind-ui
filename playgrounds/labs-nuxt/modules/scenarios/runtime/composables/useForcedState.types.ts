@@ -14,6 +14,7 @@
  */
 
 import type { ForceRecipeId, ForcedState } from "../force/states.types";
+import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 import type { ComputedRef, Ref } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -181,7 +182,10 @@ export type UseForcedState = {
    * collection the last pass moved. (`ForcedState` is consumed from
    * `force/states.types.ts`; see `graphify-out/GRAPH_REPORT.md`.)
    */
-  arm: (next: ForcedState | "replay", scenario?: string) => Promise<void>;
+  arm: (
+    next: ForcedState | "replay",
+    scenario?: Pick<FeatureScenario, "name" | "tags">
+  ) => Promise<void>;
   /** Returns to Live: the worker is stopped AND its registration unregistered. */
   disarm: () => Promise<void>;
   /**

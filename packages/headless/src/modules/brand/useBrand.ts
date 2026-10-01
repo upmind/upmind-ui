@@ -22,7 +22,7 @@ import {
   reduce,
   isArray,
   isEmpty,
-  forEach,
+  map,
   includes,
   keys,
   sortBy
@@ -353,10 +353,7 @@ export const useBrand = () => {
   };
 
   // --- Utility methods for cache management and re-fetching
-  const refresh = async () => {
-    // Invalidate all related queries that feed into state via services.ts
-    forEach(queries, q => q?.refetch());
-  };
+  const refresh = () => Promise.all(map(queries, q => q?.refetch()));
 
   const invalidate = () => {
     // A broader invalidating for anything under the "brand" query key namespace

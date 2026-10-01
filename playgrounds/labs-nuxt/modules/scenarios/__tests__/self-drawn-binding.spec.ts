@@ -15,15 +15,15 @@
  *
  * The hazard that buys is obvious: an additive member on a shared registry can
  * quietly move every other declaration that was excluded by the same filter.
- * Seven directories draw their own page; TWO of them opt in (`useTicket`,
- * `useContractProduct`). The other five — `useInvoice`,
+ * Seven directories draw their own page; THREE of them opt in (`useTicket`,
+ * `useContractProduct`, `useInvoice`). The other four —
  * `usePaymentDetailAdd` and the three `overlay-*` pages — must be untouched in all three respects: out of the
  * registry the harness boots from, unbootable through the world, and still
  * declaring no `tracks`.
  *
  * So this reads the LIVE registry rather than a list: a seventh self-drawn page
  * landing tomorrow is inside this verdict the moment it lands, and the named set
- * below is the assertion that today's five are exactly today's five.
+ * below is the assertion that today's four are exactly today's four.
  *
  * ## What Breaks If These Fail
  * Either the opt-in does not work (the manager's bar has nothing to boot and
@@ -36,6 +36,7 @@ import { describe, expect, it } from "vitest";
 import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
 import { registry, scenarioRegistry } from "../runtime/registry";
 import { CONTRACT_PRODUCT_SCENARIO } from "../useContractProduct/contract-product.scenario";
+import { INVOICE_SCENARIO } from "../useInvoice/invoice.scenario";
 import { TICKET_SCENARIO } from "../useTicket/ticket.scenario";
 import { filter, includes, keys, map, sortBy, values } from "lodash-es";
 import type { ScenarioKey } from "../runtime/scenario.types";
@@ -49,12 +50,12 @@ const selfDrawnKeys = (): ScenarioKey[] =>
     key => !registry[key].useList && !registry[key].useMutate
   );
 
-/** Of those, the ones that did NOT opt in. Today's five. */
+/** Of those, the ones that did NOT opt in. Today's four. */
 const unboundKeys = (): ScenarioKey[] =>
   filter(selfDrawnKeys(), key => !registry[key].useManage);
 
 /**
- * The five by ROUTE — the directory each declaration was found in, which is what
+ * The four by ROUTE — the directory each declaration was found in, which is what
  * a reader recognises them by. Named so the set itself is falsifiable: an opt-in
  * that leaked onto one of these fails here before it can fail anywhere subtler.
  */
@@ -62,7 +63,6 @@ const UNBOUND_ROUTES = [
   "overlay-pay",
   "overlay-payment",
   "overlay-upgrade",
-  "useInvoice",
   "usePaymentDetailAdd"
 ];
 
@@ -80,25 +80,25 @@ describe("a self-drawn page binds nothing — unless it says otherwise", () => {
     expect(scenarioRegistry[TICKET_SCENARIO]).toBeTypeOf("function");
   });
 
-  it("leaves every other self-drawn page exactly where it was — the five, by name", () => {
+  it("leaves every other self-drawn page exactly where it was — the four, by name", () => {
     expect(
       sortBy(map(unboundKeys(), key => registry[key].route))
     ).toStrictEqual(UNBOUND_ROUTES);
   });
 
-  it("keeps all five out of the registry the harness boots from", () => {
+  it("keeps all four out of the registry the harness boots from", () => {
     expect(
       filter(unboundKeys(), key => includes(keys(scenarioRegistry), key))
     ).toStrictEqual([]);
   });
 
-  it("keeps all five declaring no playlist, so their bar is Live-only as before", () => {
+  it("keeps all four declaring no playlist, so their bar is Live-only as before", () => {
     expect(filter(unboundKeys(), key => !!registry[key].tracks)).toStrictEqual(
       []
     );
   });
 
-  it("still THROWS when the world is asked to boot one of the five", async () => {
+  it("still THROWS when the world is asked to boot one of the four", async () => {
     // `registry.ts`'s own sentence, still true: "there is no thunk to build for
     // it and asking for one throws". A narrowed binding map is handed in so the
     // refusal is the BINDING's, never a missing key.
@@ -110,23 +110,28 @@ describe("a self-drawn page binds nothing — unless it says otherwise", () => {
       );
   });
 
-  it("boots the one that opted in without throwing at the binding", () => {
+  it("boots the ones that opted in without throwing at the binding", () => {
     // Read off the registry rather than called: enumerating must instantiate no
     // scope (`scenario.types.ts` — a declaration names the BUILDER). What is
     // graded here is that the thunk closes over a real composable, which is the
-    // exact absence the five above still carry.
+    // exact absence the four above still carry.
     const bound = values(
       filter(keys(scenarioRegistry), key =>
-        includes([TICKET_SCENARIO, CONTRACT_PRODUCT_SCENARIO], key)
+        includes(
+          [TICKET_SCENARIO, CONTRACT_PRODUCT_SCENARIO, INVOICE_SCENARIO],
+          key
+        )
       )
     );
 
     expect(sortBy(bound)).toStrictEqual(
-      sortBy([TICKET_SCENARIO, CONTRACT_PRODUCT_SCENARIO])
+      sortBy([TICKET_SCENARIO, CONTRACT_PRODUCT_SCENARIO, INVOICE_SCENARIO])
     );
     expect(registry[CONTRACT_PRODUCT_SCENARIO].useList).toBeUndefined();
     expect(registry[CONTRACT_PRODUCT_SCENARIO].useMutate).toBeUndefined();
     expect(registry[TICKET_SCENARIO].useList).toBeUndefined();
     expect(registry[TICKET_SCENARIO].useMutate).toBeUndefined();
+    expect(registry[INVOICE_SCENARIO].useList).toBeUndefined();
+    expect(registry[INVOICE_SCENARIO].useMutate).toBeUndefined();
   });
 });

@@ -124,9 +124,11 @@ async function ensureOptionSelected(
 ): Promise<void> {
   const item = page.getByTestId(optionTileKey(optionId)).first();
 
-  try {
-    await item.waitFor({ state: "visible", timeout: OPTION_CARD_TIMEOUT });
-  } catch {
+  const appeared = await item
+    .waitFor({ state: "visible", timeout: OPTION_CARD_TIMEOUT })
+    .then(() => true)
+    .catch(() => false);
+  if (!appeared) {
     // The option card never rendered within OPTION_CARD_TIMEOUT. This remains a
     // deliberate SKIP (the documented hand-code path: a native <select> or a
     // collapsed group — see docs/13-schema-driven-form-filling.md); semantics

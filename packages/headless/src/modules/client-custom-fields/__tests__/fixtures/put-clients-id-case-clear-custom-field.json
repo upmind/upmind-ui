@@ -21,14 +21,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a41c618d0ecff01f-JNB",
+      "cf-ray": "a4334c1c29c30ade-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Sun, 27 Sep 2026 17:55:49 GMT",
+      "date": "Wed, 30 Sep 2026 12:40:42 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1HBTuLqDo06k6L18VGfiYwwW%2BupVFJb5GN3M97czZ96WorSQIM5lnq240FkGu4j9p8R%2BFm11grzh0LoUIHw2sKiQdgsIrnbv0jvk6Q9Lgf5ktoPPkCnd3pyfNNMFytZj75xdgAV1%2Bg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=FcbRF5cLIdBPrldxvSStk9UmyDFHs%2FFyNcQqAz%2Br2SogYhjHXnBB%2FRxhhEDhIBGMWQOIeAyKLOTa%2B3HSLYzE8Ot%2FKrZP47eHLf1wgNhTZORMy4dOT0SX6HBO%2BHVGP2E1RBfMNWbvZw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -55,7 +55,7 @@
         "location_ip": null,
         "user_id": "sys",
         "created_at": "2025-06-02 16:00:34",
-        "updated_at": "2026-09-27 17:55:36",
+        "updated_at": "2026-09-30 12:40:29",
         "reseller_account_id": null,
         "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
         "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -72,7 +72,7 @@
         "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
         "picture": 0,
         "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-        "last_login": "2026-09-27 17:55:36",
+        "last_login": "2026-09-30 12:40:29",
         "last_password_change_at": "mock-last_password_change_at",
         "fraud_policy": 3,
         "fraud_status": 1,
@@ -87,8 +87,8 @@
         },
         "order_template_code": null,
         "invoice_consolidation_enabled": 1,
-        "invoice_consolidation_base_rule": null,
-        "invoice_consolidation_base_rule_date_of_month_day": null,
+        "invoice_consolidation_base_rule": "date_of_month",
+        "invoice_consolidation_base_rule_date_of_month_day": 1,
         "invoice_consolidation_base_rule_day_of_week": null,
         "invoice_consolidation_due_date_day": null,
         "block_new_tickets_from_email": false,
@@ -97,7 +97,7 @@
         "tax_exempt_number": null,
         "before_due_date_charge_interval": null,
         "before_due_date_charge_interval_dd": null,
-        "never_suspend": false,
+        "never_suspend": true,
         "never_cancel": false,
         "never_close": false,
         "status_id": "825d96e7-63ed-0913-0dc4-174825283406",
@@ -382,7 +382,7 @@
             "county": null,
             "postcode": "SW1A 2AB",
             "created_at": "2025-06-04 09:05:58",
-            "updated_at": "2026-09-27 08:31:20",
+            "updated_at": "2026-09-28 12:18:20",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -405,7 +405,7 @@
             "county": null,
             "postcode": "SW1A 2AD",
             "created_at": "2025-06-26 12:23:59",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -428,7 +428,7 @@
             "county": null,
             "postcode": "GU4 8PH",
             "created_at": "2025-06-26 12:26:18",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -451,7 +451,7 @@
             "county": null,
             "postcode": "E1 8JL",
             "created_at": "2025-06-26 12:27:07",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -474,7 +474,7 @@
             "county": null,
             "postcode": "SW1A 2AB",
             "created_at": "2025-06-27 08:15:55",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -497,7 +497,7 @@
             "county": null,
             "postcode": "PO11 5TC",
             "created_at": "2025-07-01 10:02:52",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -520,7 +520,7 @@
             "county": null,
             "postcode": "NE11 1EG",
             "created_at": "2025-07-04 13:47:46",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -543,7 +543,7 @@
             "county": null,
             "postcode": "72300",
             "created_at": "2025-10-10 12:59:02",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -566,7 +566,7 @@
             "county": null,
             "postcode": "0027",
             "created_at": "2025-10-10 13:03:35",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -589,7 +589,7 @@
             "county": null,
             "postcode": "10115",
             "created_at": "2025-11-24 14:37:49",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -612,7 +612,7 @@
             "county": null,
             "postcode": "10001",
             "created_at": "2025-11-25 11:44:20",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -635,7 +635,7 @@
             "county": null,
             "postcode": "1011",
             "created_at": "2025-11-25 15:03:01",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -658,7 +658,7 @@
             "county": null,
             "postcode": "75008",
             "created_at": "2026-01-26 13:21:37",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -681,7 +681,7 @@
             "county": null,
             "postcode": "G3 6LG",
             "created_at": "2026-02-06 15:28:52",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -704,7 +704,7 @@
             "county": null,
             "postcode": "101",
             "created_at": "2026-02-06 15:34:23",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -727,7 +727,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:05:51",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -750,7 +750,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:09:25",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -773,7 +773,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:11:25",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -796,7 +796,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:16:07",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -819,7 +819,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:17:18",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -842,7 +842,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:27:48",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -865,7 +865,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:32:43",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -888,7 +888,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:50:32",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -911,7 +911,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:51:15",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -934,7 +934,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:51:57",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -957,7 +957,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 17:53:11",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -980,7 +980,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 18:04:01",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1003,7 +1003,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 18:04:03",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1026,7 +1026,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 18:04:04",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1049,7 +1049,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 18:04:08",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1072,7 +1072,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 18:06:03",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1095,7 +1095,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-06 18:07:50",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1118,7 +1118,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 08:37:46",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1141,7 +1141,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 08:39:46",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1164,7 +1164,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 08:58:12",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1187,7 +1187,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 09:08:13",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1210,7 +1210,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 09:11:57",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1233,7 +1233,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 09:20:58",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1256,7 +1256,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 09:21:47",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1279,7 +1279,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 09:35:37",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1302,7 +1302,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 09:36:29",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1325,7 +1325,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 10:50:08",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1348,7 +1348,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 10:50:47",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1371,7 +1371,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 10:53:05",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1394,7 +1394,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 10:54:04",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1417,7 +1417,7 @@
             "county": null,
             "postcode": "EH7 5AP",
             "created_at": "2026-02-09 11:04:59",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1440,7 +1440,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 11:06:53",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1463,7 +1463,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 11:10:37",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1486,7 +1486,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 11:17:13",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1509,7 +1509,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 11:19:39",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1532,7 +1532,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-09 11:20:46",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1555,7 +1555,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-10 15:33:31",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1578,7 +1578,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-18 11:20:07",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1601,7 +1601,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-18 11:55:00",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1624,7 +1624,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-18 15:14:01",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1647,7 +1647,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-18 16:47:58",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1670,7 +1670,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-18 16:57:07",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1693,7 +1693,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-19 14:10:16",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -1716,7 +1716,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-25 09:10:48",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1739,7 +1739,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-02-25 09:21:15",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1762,7 +1762,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-04 10:46:16",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1785,7 +1785,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-05 08:51:55",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1808,7 +1808,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-06 13:20:23",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1831,7 +1831,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-06 14:19:05",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1854,7 +1854,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-06 15:52:04",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1877,7 +1877,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-06 18:14:40",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1900,7 +1900,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-06 20:35:43",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1923,7 +1923,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-09 08:45:35",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1946,7 +1946,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-09 10:07:06",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1969,7 +1969,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-09 13:20:08",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -1992,7 +1992,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-03-09 14:05:26",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -2015,7 +2015,7 @@
             "county": null,
             "postcode": "SW1A 2AB",
             "created_at": "2026-03-10 14:24:38",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -2038,7 +2038,7 @@
             "county": null,
             "postcode": "560034",
             "created_at": "2026-03-24 11:46:35",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2061,7 +2061,7 @@
             "county": null,
             "postcode": "560034",
             "created_at": "2026-03-24 11:47:39",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2084,7 +2084,7 @@
             "county": null,
             "postcode": "3630",
             "created_at": "2026-04-08 07:35:22",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2107,7 +2107,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-04-21 10:39:11",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2130,7 +2130,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-04-21 10:45:04",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2153,7 +2153,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-04-21 10:52:18",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2176,7 +2176,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-04-21 10:55:28",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2199,7 +2199,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-04-21 10:56:55",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2222,7 +2222,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-04-21 11:01:03",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2245,7 +2245,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-04-21 11:54:34",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2268,7 +2268,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-04-21 15:06:38",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2291,7 +2291,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-14 07:57:23",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -2314,7 +2314,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-14 10:07:29",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -2337,7 +2337,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-20 08:17:56",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": true
@@ -2360,7 +2360,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 08:38:24",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2383,7 +2383,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 08:44:19",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2406,7 +2406,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 08:45:31",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2429,7 +2429,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 08:46:56",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2452,7 +2452,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 08:49:45",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2475,7 +2475,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 09:02:30",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2498,7 +2498,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 09:03:53",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2521,7 +2521,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 09:05:03",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2544,7 +2544,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 09:05:50",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2567,7 +2567,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 09:13:23",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2590,7 +2590,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 09:17:49",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -2613,7 +2613,7 @@
             "county": null,
             "postcode": "SW1A 2AA",
             "created_at": "2026-05-21 11:19:28",
-            "updated_at": "2026-09-27 08:32:11",
+            "updated_at": "2026-09-28 12:19:12",
             "deleted_at": null,
             "verified": 0,
             "can_delete": false
@@ -5180,7 +5180,7 @@
             "user_id": "sys",
             "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
             "created_at": "2025-06-02 16:00:35",
-            "updated_at": "2026-09-27 17:45:08",
+            "updated_at": "2026-09-30 08:17:16",
             "name": "Default",
             "status_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
             "account_type_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -5190,9 +5190,9 @@
             "invoice_account_id": null,
             "multi_currency_balance": 0,
             "auto_consume_on_due_date": 2,
-            "affiliate_tier_id": null,
-            "affiliate_payout_paypal_email_id": null,
-            "affiliate_payout_destination_id": null,
+            "affiliate_tier_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+            "affiliate_payout_paypal_email_id": "20e43579-5e78-d184-430c-31643202d986",
+            "affiliate_payout_destination_id": "57898574-2648-9701-25c2-1e325d0ed369",
             "topup_enabled": true,
             "preferred_payment_currency_id": null,
             "affiliate_referral_pricelist_id": null,
@@ -5219,7 +5219,7 @@
               "suffix": "",
               "code": "GBP",
               "created_at": "2017-10-18 14:16:22",
-              "updated_at": "2026-07-23 13:41:01",
+              "updated_at": "2026-09-28 11:08:14",
               "base": true,
               "decimals": true,
               "manual": 0
@@ -5228,7 +5228,7 @@
               "id": "2785d26e-9678-3d16-999f-314502e70439",
               "name": "QA Automation Testing",
               "created_at": "2025-05-07 08:38:43",
-              "updated_at": "2026-09-27 17:55:14",
+              "updated_at": "2026-09-30 12:40:10",
               "code": "kn6x1dzbtcgb",
               "brand_type": 1,
               "reseller_account_id": null,
@@ -5264,7 +5264,7 @@
                 "suffix": "",
                 "code": "GBP",
                 "created_at": "2017-10-18 14:16:22",
-                "updated_at": "2026-07-23 13:41:01",
+                "updated_at": "2026-09-28 11:08:14",
                 "base": true,
                 "decimals": true,
                 "manual": 0
@@ -5282,7 +5282,7 @@
             "object_type": "client",
             "value": null,
             "created_at": "2026-08-10 10:44:51",
-            "updated_at": "2026-09-27 17:55:45",
+            "updated_at": "2026-09-30 12:40:39",
             "image_url": null
           },
           {
@@ -5294,7 +5294,7 @@
             "object_type": "client",
             "value": null,
             "created_at": "2026-08-10 10:49:59",
-            "updated_at": "2026-09-27 17:32:46",
+            "updated_at": "2026-09-27 17:56:51",
             "image_url": null
           },
           {
@@ -5308,6 +5308,18 @@
             "created_at": "2026-09-27 17:33:17",
             "updated_at": "2026-09-27 17:33:33",
             "image_url": null
+          },
+          {
+            "id": "5952098d-3de4-0917-376a-31578626e347",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "field_id": "3de78642-de53-9714-9ef2-1208469530d0",
+            "object_type": "client",
+            "value": null,
+            "created_at": "2026-09-27 17:57:04",
+            "updated_at": "2026-09-27 17:57:20",
+            "image_url": null
           }
         ]
       },
@@ -5318,7 +5330,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-27T17:55:49.086Z",
+  "captured_at": "2026-09-30T12:40:43.003Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

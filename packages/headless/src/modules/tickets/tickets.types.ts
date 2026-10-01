@@ -527,10 +527,6 @@ export type TicketsServices = {
   uploadFile: (file: File) => Promise<TicketAttachmentRef>;
 
   loadBrandDepartments: () => Promise<IBrandTicketDepartment[]>;
-  loadDepartments: () => Promise<ITicketDepartment[]>;
-  loadTicketStatuses: () => Promise<
-    { code: TicketStatusCodes; name: string }[]
-  >;
 
   saveSupportPrefs: (
     prefs: Partial<TicketSupportPrefs>

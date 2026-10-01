@@ -114,24 +114,26 @@ const highlighted = ref("");
 const isLoading = ref(true);
 const hasFailed = ref(false);
 
-async function highlight() {
+function highlight() {
   isLoading.value = true;
   hasFailed.value = false;
-  try {
-    const highlighter = await getHighlighter();
-    const theme = isDark.value ? "github-dark" : "github-light";
-    highlighted.value = highlighter.codeToHtml(props.code, {
-      lang: props.lang ?? "typescript",
-      theme
+  return getHighlighter()
+    .then(highlighter => {
+      const theme = isDark.value ? "github-dark" : "github-light";
+      highlighted.value = highlighter.codeToHtml(props.code, {
+        lang: props.lang ?? "typescript",
+        theme
+      });
+    })
+    .catch(() => {
+      // The rejected promise is cached per instance, so a retry would replay the
+      // same failure forever — drop it and let the next attempt build a fresh one.
+      highlighterPromise = undefined;
+      hasFailed.value = true;
+    })
+    .finally(() => {
+      isLoading.value = false;
     });
-  } catch {
-    // The rejected promise is cached per instance, so a retry would replay the
-    // same failure forever — drop it and let the next attempt build a fresh one.
-    highlighterPromise = undefined;
-    hasFailed.value = true;
-  } finally {
-    isLoading.value = false;
-  }
 }
 
 watch([() => props.code, () => props.lang, isDark], highlight, {

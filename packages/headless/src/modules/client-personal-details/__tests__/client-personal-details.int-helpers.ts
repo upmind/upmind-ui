@@ -119,11 +119,8 @@ function installGuestTokenStub(): void {
 
 // -----------------------------------------------------------------------------
 
-/** This module's two registry namespaces — read half and editor. */
-const SCOPE_NAMESPACES = [
-  "client-personal-details",
-  "client-personal-details-manager"
-];
+/** This module's one registry namespace. */
+const SCOPE_NAMESPACES = ["client-personal-details"];
 
 /** The namespace of the custom-fields collection the editor composes for its schema. */
 const CONSUMED_NAMESPACES = ["client-custom-fields"];

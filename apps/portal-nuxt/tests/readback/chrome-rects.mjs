@@ -12,6 +12,7 @@
  */
 
 import { chromium } from "@playwright/test";
+import { map } from "lodash-es";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -92,30 +93,35 @@ async function main() {
   const pageErrors = [];
   const record = {};
 
-  try {
-    for (const [name, viewport] of Object.entries({
-      desktop: { width: 1440, height: 900 },
-      mobile: { width: 390, height: 844 }
-    })) {
-      const page = await browser.newPage({ viewport });
-      page.on("console", message => {
-        if (message.type() === "error") {
-          consoleErrors.push({ viewport: name, text: message.text() });
-        }
-      });
-      page.on("pageerror", error => {
-        pageErrors.push({ viewport: name, text: String(error) });
-      });
-      await page.goto(`${BASE_URL}${route}`, { waitUntil: "networkidle" });
-      record[name] = await observe(page);
-      await page.screenshot({
-        path: path.join(out, `${label}--${name}.png`)
-      });
-      await page.close();
-    }
-  } finally {
-    await browser.close();
-  }
+  await Promise.all(
+    map(
+      Object.entries({
+        desktop: { width: 1440, height: 900 },
+        mobile: { width: 390, height: 844 }
+      }),
+      ([name, viewport]) =>
+        browser.newPage({ viewport }).then(page => {
+          page.on("console", message => {
+            if (message.type() === "error") {
+              consoleErrors.push({ viewport: name, text: message.text() });
+            }
+          });
+          page.on("pageerror", error => {
+            pageErrors.push({ viewport: name, text: String(error) });
+          });
+          return page
+            .goto(`${BASE_URL}${route}`, { waitUntil: "networkidle" })
+            .then(() => observe(page))
+            .then(observed => {
+              record[name] = observed;
+            })
+            .then(() =>
+              page.screenshot({ path: path.join(out, `${label}--${name}.png`) })
+            )
+            .then(() => page.close());
+        })
+    )
+  ).finally(() => browser.close());
 
   const payload = { label, route, ...record, consoleErrors, pageErrors };
   const file = path.join(out, `${label}--chrome-rects.json`);

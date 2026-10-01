@@ -1,124 +1,164 @@
-import { ref } from "vue";
+import { watch } from "vue";
+import { interpret } from "xstate";
+import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope";
-import { createClientBillingSettingsServices } from "./client-billing-settings.services";
+import { useI18n } from "../system-localisation";
+import createClientBillingSettingsServices from "./client-billing-settings.services";
 import { createBillingSettingsActions } from "./useBillingSettings.actions";
 import { createBillingSettingsContext } from "./useBillingSettings.context";
 import { createBillingSettingsInternals } from "./useBillingSettings.internals";
+import { createBillingSettingsMachineConfig } from "./useBillingSettings.machine";
 import { createBillingSettingsMeta } from "./useBillingSettings.meta";
+import {
+  createActor,
+  contextMatches,
+  DetailedError,
+  ErrorOrigin,
+  responseCodes
+} from "../../utils";
 import type { ClientBillingSettingsScopeMatrix } from "./client-billing-settings.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/useBillingSettings
- * @description Scoped, query-backed read of a client's own invoice-consolidation
- * preference: one reactive record query per concrete `(actor, context)` scope,
- * minted once at construction so it survives component lifecycles. Its
- * sibling is `useBillingSettingsManager` — a second scoped composable in the
- * same module, sharing the SAME scope matrix (design.md §4.2) but registered
- * under its OWN registry name (`useBillingSettingsManager.ts`'s own
- * `@decision` explains why).
+ * @description Scoped `dataManagerMachine`-backed editor for a client's own
+ * invoice-consolidation preference. One interpreter per concrete
+ * `(actor, context)` scope.
  *
- * @doctrine clause 1 (uniform four-layer default).
+ * @decision registered under its OWN registry name, not the read half's.
+ * what:    this composable's `createScopedComposable` call names
+ *          "client-billing-settings", not "client-billing-settings".
+ * why:     `generateScopeKey(name, config)` is `name:actor[:context.type:
+ *          context.id][:brand][:fresh]` (`scope.utils.ts`) — NOTHING else
+ *          differentiates two composables sharing one name. This module's
+ *          shared `CLIENT` context has no `.for()`/`.withId()` segment to
+ *          differentiate on in the normal self case — `.as('client')` with no
+ *          `.for()` is the NORMAL call for BOTH halves (a client has exactly
+ *          one consolidation preference), which would make the read half's and
+ *          the manager's scope keys IDENTICAL under a shared name — the
+ *          registry would hand one consumer the other's instance. Two
+ *          DISTINCT registry names is the fix; the SHARED scope MATRIX
+ *          (design.md §4.2) still holds — both use the same
+ *          `ClientBillingSettingsContextTypes.CLIENT` context and the same
+ *          identity seam, only the registry key's `name:` segment differs.
+ *          Mirrors `usePersonalDetailsManager.ts`'s own `@decision`.
+ * rejected: keeping one shared name and requiring every manager call site to
+ *          add `.for('client', clientId)` — rejected: it forces every
+ *          caller to know and re-supply the client's own id just to avoid a
+ *          collision, for an entity that already has exactly one preference;
+ *          brittle and easy to forget.
+ *
+ * @doctrine clause 1 (uniform four-layer default) — identical return shape
+ * to the read half.
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
- * actor; the scope builder resolves SELF before this factory runs.
+ * actor; never branch on SELF in this file.
  */
 function createBillingSettingsForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
+  const { t } = useI18n();
+
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * ONE services instance for this scope. `config.context` goes in here and
-   * nowhere else, so every request the read half issues resolves the same
-   * target client.
+   * ONE services instance for this scope, threaded into the machine config.
+   * `config.context` goes in here and nowhere else — every request the
+   * manager issues, directly or through the machine, inherits the same
+   * resolved client.
    */
   const service = createClientBillingSettingsServices(
     actorScope,
     config.context
   );
 
-  /**
-   * The reactive settings query, minted ONCE per scope — a
-   * `service.loadSettings()` call inside a layer factory would mint a
-   * second query with its own refs, key and effect scope.
-   */
-  const query = service.loadSettings();
+  const machineService = interpret(
+    dataManagerMachine
+      .withConfig(createBillingSettingsMachineConfig(service))
+      .withContext({
+        // The settings record IS the client (`clients/{id}`), so the record id
+        // and the client id are one — both fields seed from the ONE resolved
+        // client seam.
+        id: service.clientId.value,
+        clientId: service.clientId.value,
+        lookups: {},
+        // Scoped instances are persistent editors — stay editable after a
+        // save (the machine returns to `available` instead of the
+        // `complete` final state) so a remounting form re-uses the same
+        // instance.
+        allowMultipleEdits: true
+      }),
+    {
+      id: scopeKey,
+      devTools: false
+    }
+  );
+  machineService.start();
 
-  /**
-   * Row O8's AND row B6's brand gates, resolved per scope in ONE call and
-   * shared between `useActions().isReady()`/`refresh()` (which (re-)await
-   * `loadVisibility()`) and `useMeta().isVisible`/`hasPaymentCurrencyChoice`/
-   * `hasVisibilityError` (which read the settled refs synchronously) — the
-   * SAME refs, never a second independent fetch that could still be in
-   * flight when a consumer reads them right after `isReady()` resolves.
-   *
-   * Re-invocable, not a one-shot promise: a transient failure used to leave
-   * both gates `undefined` forever, since nothing ever re-ran the fetch.
-   * `refresh()` now calls this again, and a failure is recorded in
-   * `visibilityError` rather than silently swallowed.
-   */
-  const restrictToStaff = ref<boolean | undefined>(undefined);
-  const differentCurrencyPayment = ref<boolean | undefined>(undefined);
-  const visibilityError = ref(false);
-
-  function loadVisibility(): Promise<void> {
-    return service
-      .loadBrandGates()
-      .then(gates => {
-        restrictToStaff.value = gates.restrictToStaff;
-        differentCurrencyPayment.value = gates.differentCurrencyPayment;
-        visibilityError.value = false;
-      })
-      .catch(() => {
-        visibilityError.value = true;
-      });
+  const actorRef = createActor(machineService);
+  if (!actorRef) {
+    throw new DetailedError(
+      t("error.client_billing_settings_not_available"),
+      responseCodes.Service_Unavailable,
+      ErrorOrigin.Headless,
+      { scope: config }
+    );
   }
 
-  const visibilitySettled = loadVisibility();
+  /**
+   * Late top-up ONLY. The machine's `hasSubscription` guard holds it in
+   * `subscribing` until a client id exists, and at construction the session
+   * may not have resolved yet. The id is watched off `service.clientId` —
+   * the ONE identity seam, never a second session read — and
+   * `refreshContext` keeps an already-present value, so this can never
+   * clobber a resolved retarget.
+   */
+  const stopClientIdTopUp = watch(service.clientId, clientId => {
+    if (!clientId || contextMatches(actorRef.state, "clientId")) return;
+    stopClientIdTopUp();
+    actorRef.send({ type: "REFRESH", data: { clientId, id: clientId } });
+  });
+
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: `input`
+   * is debounced, so a debouncer minted per call gives two keystrokes two
+   * independent timers.
+   */
+  const actions = createBillingSettingsActions(
+    actorScope,
+    actorRef,
+    service,
+    scopeKey
+  );
 
   return {
     // --- Sub-composables (no direct props — clause 1 four-layer return)
-    /** Sub-composable for read actions (readiness, refresh). */
-    useActions: () =>
-      createBillingSettingsActions(
-        actorScope,
-        service,
-        query,
-        scopeKey,
-        visibilitySettled,
-        loadVisibility
-      ),
+    /** Sub-composable for manager actions (form input, save, revert, lifecycle). */
+    useActions: () => actions,
 
-    /** Sub-composable for read context (the consolidation preference and the account values). */
-    useContext: () => createBillingSettingsContext(actorScope, service, query),
+    /** Sub-composable for manager context (model, schema, errors, account values). */
+    useContext: () => createBillingSettingsContext(actorScope, actorRef),
 
     /** Sub-composable for advanced debugging and internal access. */
-    useInternals: () => createBillingSettingsInternals(actorScope, query),
+    useInternals: () => createBillingSettingsInternals(actorScope, actorRef),
 
-    /** Sub-composable for read meta (state flags). */
-    useMeta: () =>
-      createBillingSettingsMeta(
-        actorScope,
-        service,
-        query,
-        restrictToStaff,
-        differentCurrencyPayment,
-        visibilityError
-      )
+    /** Sub-composable for manager meta (state flags). */
+    useMeta: () => createBillingSettingsMeta(actorScope, actorRef)
   };
 }
 // -----------------------------------------------------------------------------
 /**
- * Scoped composable for reading a client's own invoice-consolidation
- * preference.
+ * Scoped composable for editing a client's own invoice-consolidation
+ * preference. Callable bare — `useBillingSettings().as('client')`
+ * constructs and settles without a caller-supplied option.
  *
  * @example
  * ```ts
- * const settings = useBillingSettings().as('client')
- * const { data } = settings.useContext()
- * await settings.useActions().isReady()
+ * const manager = useBillingSettings().as('client')
+ * const { model, schema, uischema } = manager.useContext()
+ * await manager.useActions().isReady()
+ * await manager.useActions().update({ enabled: InvoiceConsolidationTypes.DISABLED })
  * ```
  */
 export const useBillingSettings = createScopedComposable<

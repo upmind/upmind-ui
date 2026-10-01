@@ -439,7 +439,6 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_LOGIN]: {
-      entry: ["setCurrency"],
       invoke: {
         src: "guardSession",
         onDone: {

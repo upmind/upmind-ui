@@ -11,7 +11,7 @@
     },
     "body": {
       "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-      "prices": [8.25, 0]
+      "prices": [31.45, 0]
     }
   },
   "response": {
@@ -20,14 +20,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a429abff89124eca-JNB",
+      "cf-ray": "a435b6688cfcc6ca-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 29 Sep 2026 08:38:29 GMT",
+      "date": "Wed, 30 Sep 2026 19:42:44 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=cLhtT5NedDMa82QV%2BrbQ0HgEE70qckS9jXu0MgRm%2Fu5%2BvtBoYcxHeKdJ%2FpAEQHWvabLd1Rv8mZmv3kWiNX%2FKoh3tY8%2FMXVJ22I7z6Yv%2BFHsEkJm3gBA5s5cK4AT3KIqR3smtp8EYnw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=sd%2FANYkOrm5nfEDMAB6mBvYIRsg4SYtUGhetCulResBKjrM4AzEgCrUNKi%2Bbesjcweihzlzx06LRONCvIz2mNJFQz9XFQVRRzpbp9vUhekAt9Yvw5k52ft%2BYbiDfRMQ%2B5sO4CBUtdw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,9 +36,9 @@
     "body": {
       "status": "ok",
       "data": {
-        "total": 8.25,
-        "total_formatted": "£8.25",
-        "prices": [8.25, 0]
+        "total": 31.45,
+        "total_formatted": "£31.45",
+        "prices": [31.45, 0]
       },
       "related": null,
       "total": null,
@@ -47,7 +47,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-29T08:38:29.312Z",
+  "captured_at": "2026-09-30T19:42:44.758Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

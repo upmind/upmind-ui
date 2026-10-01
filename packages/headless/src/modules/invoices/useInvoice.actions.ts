@@ -14,7 +14,6 @@ import {
   ErrorOrigin,
   responseCodes
 } from "../../utils";
-import type { useBasketCurrency } from "../basket";
 import type { Invoice, InvoicePaymentDetailsModel } from "./invoices.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -24,9 +23,8 @@ import type { Ref } from "vue";
  * @module invoices/useInvoice.actions
  * @description Single-invoice actions — pay/retry/refresh, readiness, lifecycle,
  * the PDF download, the payment-method assignment and the pay-currency switch,
- * plus the inline 3DS challenge controls. Writes take no value arguments: the
- * payment-method model is set with `input()`, the currency through the exposed
- * basket-currency composable, then the write saves the current model.
+ * plus the inline 3DS challenge controls. The payment-method model is staged
+ * with `input()`, then `updatePaymentDetails()` saves it.
  */
 export function createInvoiceActions(
   _actorScope: ScopeActorTypes,
@@ -34,8 +32,7 @@ export function createInvoiceActions(
   scopeKey: string,
   invoiceId: string,
   paymentFailed: Ref<boolean>,
-  paymentDetailsModel: Ref<InvoicePaymentDetailsModel>,
-  basketCurrency: ReturnType<typeof useBasketCurrency>
+  paymentDetailsModel: Ref<InvoicePaymentDetailsModel>
 ) {
   const { state, send, service } = actor;
   const invoice = useContext<Invoice | undefined>(state, "invoice");
@@ -120,14 +117,13 @@ export function createInvoiceActions(
   }
 
   /**
-   * Sets the basket pay currency, re-reading the converted
-   * `unpaidAmount` through the query layer's `withCurrency` — the convert-on-
-   * switch the legacy pay modal drives (`invoicePaymentModal.vue:502`).
+   * Changes the invoice's pay currency to the brand currency `code`. The
+   * machine converts the unpaid amount (`model.summary`, `model.currencyPayment`)
+   * and restarts the payment form in it; the basket is never touched. Ignored
+   * unless `useMeta().hasPaymentCurrencyChoice` is true.
    */
-  function setCurrency(
-    currency?: Parameters<typeof basketCurrency.update>[0]
-  ): Promise<void> {
-    return basketCurrency.update(currency);
+  function setCurrency(code: string): void {
+    send({ type: "SET_CURRENCY", data: { code } });
   }
 
   function destroy(): void {
@@ -163,7 +159,7 @@ export function createInvoiceActions(
     /** Retries a failed payment. */
     retry,
 
-    /** Sets the pay currency; re-reads the converted `unpaidAmount`. */
+    /** Changes the pay currency; converts the unpaid amount. */
     setCurrency,
 
     /** Saves the staged payment-method model, then re-reads the invoice. */

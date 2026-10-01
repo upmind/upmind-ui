@@ -19,14 +19,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a420cfd7bc64ae35-DUR",
+      "cf-ray": "a43ba49d3c317410-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Mon, 28 Sep 2026 06:50:05 GMT",
+      "date": "Thu, 01 Oct 2026 12:59:10 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Qdwg4KI8iTJ60dhJJQBy7X1M0kjOzTdxqZsslMIWd%2F4iOGHywMMeUqzjFdNjUuvSnAL99dRMxUD7lY3jAcF0heQ9O19OsAHvh5Ey3GTEfyHjV0J53SoFv5Ba89T%2BRT8bVNTl8HmqPA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=hASP3QBCv5e5IKLVruD43A0WoCB5OszBRYfLnf5aiRE9AP%2FK4MoEo%2BVxQ%2FvDuqBlUnl691YaquFDZlUGK0gBfImEjZ9sOxw5kbIEJCNZGusYdiweCWV2%2Ba1%2B8nkOn0NAJyzWrpBkRA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -42,7 +42,7 @@
         "user_id": "sys",
         "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
         "created_at": "2025-06-02 16:00:35",
-        "updated_at": "2026-09-28 06:50:05",
+        "updated_at": "2026-10-01 12:59:10",
         "name": "Default",
         "status_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
         "account_type_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -52,9 +52,9 @@
         "invoice_account_id": null,
         "multi_currency_balance": 0,
         "auto_consume_on_due_date": 2,
-        "affiliate_tier_id": null,
-        "affiliate_payout_paypal_email_id": null,
-        "affiliate_payout_destination_id": null,
+        "affiliate_tier_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+        "affiliate_payout_paypal_email_id": "20e43579-5e78-d184-430c-31643202d986",
+        "affiliate_payout_destination_id": "57898574-2648-9701-25c2-1e325d0ed369",
         "topup_enabled": true,
         "preferred_payment_currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
         "affiliate_referral_pricelist_id": null,
@@ -77,7 +77,7 @@
           "suffix": "",
           "code": "GBP",
           "created_at": "2017-10-18 14:16:22",
-          "updated_at": "2026-07-23 13:41:01",
+          "updated_at": "2026-09-28 11:08:14",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -86,7 +86,7 @@
           "id": "2785d26e-9678-3d16-999f-314502e70439",
           "name": "QA Automation Testing",
           "created_at": "2025-05-07 08:38:43",
-          "updated_at": "2026-09-28 06:45:14",
+          "updated_at": "2026-10-01 12:55:12",
           "code": "kn6x1dzbtcgb",
           "brand_type": 1,
           "reseller_account_id": null,
@@ -122,13 +122,27 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
           }
         },
-        "affiliate_payout_destination": null
+        "affiliate_payout_destination": {
+          "id": "57898574-2648-9701-25c2-1e325d0ed369",
+          "code": "paypal",
+          "name": "PayPal",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "meta": {
+            "paypal_gateway_id": "47d73824-8507-9315-734f-81e642d59e06"
+          },
+          "deleted_at": null,
+          "created_at": "2026-09-30 08:12:59",
+          "updated_at": "2026-09-30 08:12:59",
+          "default": false,
+          "visible_for_clients": true,
+          "name_translated": "PayPal"
+        }
       },
       "related": null,
       "total": null,
@@ -137,7 +151,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-28T06:50:05.756Z",
+  "captured_at": "2026-10-01T12:59:10.599Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

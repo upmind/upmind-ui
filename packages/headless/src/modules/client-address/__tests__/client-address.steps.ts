@@ -17,10 +17,9 @@
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import switchedRegionsRecording from "./scenarios/changing-the-country-gives-me-that-countrys-regions/04/get-countries-id-regions.json";
-import lockEditorRecording from "./scenarios/i-cannot-change-the-country-of-an-address-i-already-saved/04/get-clients-id-addresses-id.json";
-import regionGateRegionsRecording from "./scenarios/where-this-brand-requires-a-region-i-must-give-one/04/get-countries-id-regions.json";
 import pageOneRecording from "./scenarios/i-can-page-through-a-long-list-of-addresses/03/get-clients-id-addresses.json";
 import pageTwoRecording from "./scenarios/i-can-page-through-a-long-list-of-addresses/05/get-clients-id-addresses.json";
+import lockEditorRecording from "./scenarios/i-cannot-change-the-country-of-an-address-i-already-saved/04/get-clients-id-addresses-id.json";
 import editableOneRecording from "./scenarios/i-change-the-town-of-a-saved-address-and-save-it/03/get-clients-id-addresses-id.json";
 import filteredRecording from "./scenarios/i-find-an-address-by-typing-part-of-it/03/get-clients-id-addresses-filter-name-like-scenario-filter-needle.json";
 import editorOneRecording from "./scenarios/i-open-one-of-my-saved-addresses-in-the-editor/03/get-clients-id-addresses-id.json";
@@ -29,6 +28,7 @@ import setDefaultRecording from "./scenarios/the-playground-makes-a-non-default-
 import removeRecording from "./scenarios/the-playground-removes-a-non-default-address/04/delete-clients-id-addresses-id.json";
 import removeListRecording from "./scenarios/the-playground-removes-a-non-default-address/04/get-clients-id-addresses.json";
 import faultDeleteRecording from "./scenarios/when-a-change-to-my-addresses-fails-i-am-told-not-interrupted/04/delete-clients-id-addresses-id.json";
+import regionGateRegionsRecording from "./scenarios/where-this-brand-requires-a-region-i-must-give-one/04/get-countries-id-regions.json";
 import { findLast, first, map, split, values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 

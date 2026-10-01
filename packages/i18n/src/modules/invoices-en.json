@@ -15,6 +15,7 @@
     "consolidation_invoice": "Consolidation invoice",
     "credit_invoice": "Credit invoice",
     "currency": "Currency",
+    "currency_payment": "Pay currency",
     "date_paid": "Date paid",
     "discount": "Discount",
     "next_charge_date": "Next charge date",
@@ -23,6 +24,7 @@
     "payments": "Payments",
     "products": "Products",
     "subtotal": "Subtotal",
+    "switch_currency": "Switch currency",
     "unpaid_amount": "Unpaid"
   },
   "filter": {

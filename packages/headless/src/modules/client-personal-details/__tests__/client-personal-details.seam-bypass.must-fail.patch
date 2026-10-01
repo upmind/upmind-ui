@@ -9,21 +9,17 @@
 # that knows the exact line it changed authors the mutant; the prover applies
 # it blind, confirms RED, then reverts — never reading src to construct it).
 #
-# REBASED (developer seat, FE-3240 second pass): the prior hunk went stale on
-# `develop` — a `fieldPath: customFields.${code}` field was inserted between
-# `code` and `title` (commit 53811230d, pre-FE-3240; mappers.ts is untouched by
-# FE-3240 itself), shifting the context the old hunk searched for. Same
-# mutation, new context.
+# REBASED (one-composable refactor): `mapProfileFields` now projects the edit
+# model's code-keyed `customFields` against the definitions, so there is ONE
+# custom-field mapping site. Same mutation, new context.
 #
-# Mutates: client-personal-details.mappers.ts — both custom-field mapping sites
-# swap `mapCustomFieldValue(...)` for `String(...)`, bypassing the seam.
+# Mutates: client-personal-details.mappers.ts — the one custom-field mapping
+# site swaps `mapCustomFieldValue(...)` for `String(...)`, bypassing the seam.
 #
 # Expected RED: client-personal-details.mappers.test.ts —
 # "AC-59 projects a custom field's value exactly as A's own seam
 # (mapCustomFieldValues) coerces it — never re-derived locally" — the value must
-# ride A's coercion seam, never a local String(). Collateral:
-# definition-driven-read.int.test.ts AC-63 also reddens (an absent value renders
-# the literal "undefined" instead of the type's oracle empty value).
+# ride A's coercion seam, never a local String().
 #
 # Apply / verify / revert:
 #   git apply <this file>
@@ -31,24 +27,14 @@
 #   git apply -R <this file>
 #
 diff --git a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
-index 27c2517fe..0fcdbf749 100644
 --- a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
 +++ b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
-@@ -173,7 +173,7 @@ export function mapProfileFields(
-         code: field.code,
-         fieldPath: `customFields.${field.code}`,
-         title: field.name,
--        value: mapCustomFieldValue(value.value, field),
-+        value: String(value.value),
-         meta: { ...field.meta, isCustomField: true }
-       });
-       return result;
-@@ -225,7 +225,7 @@ export function mapProfileFields(
-         code: field.code,
-         fieldPath: `customFields.${field.code}`,
-         title: field.name,
--        value: mapCustomFieldValue(value?.value, field),
-+        value: String(value?.value),
-         meta: { ...field.meta, isCustomField: true }
-       };
-     }),
+@@ -142,7 +142,7 @@ export function mapProfileFields(
+       code: field.code,
+       fieldPath: `customFields.${field.code}`,
+       title: field.name,
+-      value: mapCustomFieldValue(model.customFields?.[field.code], field),
++      value: String(model.customFields?.[field.code]),
+       meta: { ...field.meta, isCustomField: true }
+     }))
+   ];

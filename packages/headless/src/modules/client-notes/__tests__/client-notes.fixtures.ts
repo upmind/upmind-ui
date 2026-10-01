@@ -58,6 +58,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import {
   prepareScenarioDirs,
   recordedStepDir
@@ -68,6 +69,7 @@ import {
   mintGuestToken,
   mintStaffToken
 } from "../../auth/__tests__/auth.tokens";
+import { defaultBrandConfigKeys } from "../../brand/brand.constants";
 import {
   filter,
   find,
@@ -116,6 +118,20 @@ const WITH = [
   "editor_client",
   "editor_client.image"
 ].join(",");
+
+/**
+ * The module's boot-time brand-config read: `useBrand().ensureConfig(...)` sends
+ * the FULL accumulated brand key list, not this module's one gate key. The vault
+ * gate `security.ui.allow_vault` rides inside the default set. Derived from the
+ * platform's own `defaultBrandConfigKeys` export (plus the basket's zero-amount-
+ * orders key) rather than retyped, so a key added there is recorded here.
+ */
+const BRAND_VALUES_KEYS = [
+  ...defaultBrandConfigKeys,
+  BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS
+];
+
+const BRAND_VALUES_URL = `/api/config/brand/values?keys=${BRAND_VALUES_KEYS.join(",")}`;
 
 // -----------------------------------------------------------------------------
 
@@ -285,11 +301,9 @@ describe("Client-Notes (Vault) API Fixtures Generator", () => {
     generator.clearBearerToken();
   });
 
-  it("captures GET /api/config/brand/values?keys=security.ui.allow_vault (C14 gate — BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED)", async () => {
+  it("captures GET /api/config/brand/values?keys=<accumulated> (C14 gate — the module's real ensureConfig read carrying security.ui.allow_vault)", async () => {
     generator.setBearerToken(clientToken.access_token);
-    await generator.get(
-      "/api/config/brand/values?keys=security.ui.allow_vault"
-    );
+    await generator.get(BRAND_VALUES_URL);
     generator.clearBearerToken();
   });
 
@@ -686,8 +700,9 @@ const feature = readFileSync(
 /** The Background step every scenario opens with — it boots and reads the vault. */
 const OPEN = "I am an authenticated client acting on my own vault";
 
-/** The vault brand-gate flag the boot reads (client-notes' own feature gate). */
-const FLAG = "/api/config/brand/values?keys=security.ui.allow_vault";
+/** The vault brand-gate read the boot makes — the full accumulated key list
+ * `useBrand().ensureConfig(...)` sends, with `security.ui.allow_vault` inside it. */
+const FLAG = BRAND_VALUES_URL;
 
 type WireAsset = { id: string; encrypted?: boolean | number };
 
@@ -848,11 +863,12 @@ describe("Client-Notes scenario recordings", () => {
   }, 30000);
 
   // --- AC-14: the vault gate OFF (top-level @vault-gate) ---------------------
-  // The module reads the vault gate with its OWN single-key request
-  // GET /api/config/brand/values?keys=security.ui.allow_vault. The staff
-  // administrator switches `security.ui.allow_vault` off, the client's own gate
-  // read is recorded returning it off into the scenario's "I look at my vault"
-  // step, and the flag is restored (never flipped inside a recording, ADR 035).
+  // The module reads the vault gate through `useBrand().ensureConfig(...)`, which
+  // sends the FULL accumulated brand key list (BRAND_VALUES_URL), not a single
+  // key. The staff administrator switches `security.ui.allow_vault` off, the
+  // client's own gate read is recorded returning it off into the scenario's
+  // "I look at my vault" step, and the flag is restored (never flipped inside a
+  // recording, ADR 035).
   // With the gate off the module folds it into isAvailable and asks NOTHING of the
   // vault, so any vault request at replay is unmatched and the wall fails the
   // scenario by name.

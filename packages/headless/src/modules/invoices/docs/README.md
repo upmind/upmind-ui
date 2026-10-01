@@ -8,7 +8,7 @@ An invoice is a frozen bill. This module reads a client's invoices — the whole
 
 - **List** = read a filtered, sorted, paginated page of a client's invoices, with the server's total. `useInvoices` — list-only, no write.
 - **Read one, and pay it** = fetch one invoice in full by id, trigger/retry payment, handle an inline challenge, download the PDF, and assign/clear the payment method. `useInvoice` — scoped `.as('client' | 'guest' | 'self').withId(id)`.
-- **Re-read unpaid amount** = a live, on-demand re-check of what's still owed on one invoice.
+- **Pay currency** = the brand currency an invoice is paid in. The invoice machine converts the unpaid amount when it changes; the basket plays no part.
 - **Count** = "does this client owe anything at all?" and "how many could be consolidated?", each from its own dedicated read.
 - **Assign / clear payment method** = the one write `useInvoice` owns.
 - **Derive** = payment-progress flags and row attribution off already-loaded data.
@@ -76,7 +76,7 @@ See [Usage](./usage.md) for the full API.
 | ------------------------------------------ | ------ | ----------------------------------------------------------------------------- |
 | Read a filtered/sorted/paginated list      | ✅     | `GET /invoices`, declared filters/sort/pagination only                        |
 | Read one invoice                           | ✅     | `GET /invoices/{id}`, mapped to the customer shape                            |
-| Re-read the live unpaid amount             | ✅     | `GET /invoices/unpaid_amount/{id}`, re-reads on currency change               |
+| Change the pay currency                    | ✅     | `useInvoice().useActions().setCurrency(code)`; converts via `GET /invoices/unpaid_amount/{id}?currency_code=`; read `model.currencyPayment` / `model.summary` |
 | "Does this client owe anything?" count     | ✅     | dedicated existence read, own query, never the visible list                   |
 | Consolidatable-invoices count              | ✅     | dedicated count read; coexists with the visible list                          |
 | Assign / clear the payment method          | ✅     | `PATCH /invoices/{id}/payment_details`, on `useInvoice`; clearing sends `null` present |

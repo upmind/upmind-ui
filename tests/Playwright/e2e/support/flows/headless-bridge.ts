@@ -402,38 +402,37 @@ export async function pressQuantityStepperViaHeadless(
 
   let sends = 1;
   let last: ProductConfigQuiet | null = null;
-  try {
-    await expect
-      .poll(
-        async () => {
-          const state = await readProductConfigQuietViaHeadless(page, target);
-          last = state ?? last;
-          // Mid-render: no handle to read, so neither taken nor dropped.
-          if (!state) return false;
-          // The actor HAS the change.
-          if (typeof state.quantity === "number" && state.quantity > before)
-            return true;
-          // Busy: the change is in flight, so never send a second one.
-          if (!state.isQuiet) return false;
-          // Settled on the old quantity — the press never reached the handler.
-          if (sends >= MAX_STEPPER_SENDS) return false;
-          sends += 1;
-          await stepper.click({ timeout: 5000 }).catch(() => {});
-          return false;
-        },
-        { timeout: POLL_TIMEOUT }
-      )
-      .toBe(true);
-  } catch (error) {
-    throw new Error(
-      `pressQuantityStepperViaHeadless: the config actor for ${JSON.stringify(
-        target
-      )} never advanced past quantity ${before} — sent ${sends} press(es); state at failure ${JSON.stringify(
-        last
-      )}.`,
-      { cause: error }
-    );
-  }
+  await expect
+    .poll(
+      async () => {
+        const state = await readProductConfigQuietViaHeadless(page, target);
+        last = state ?? last;
+        // Mid-render: no handle to read, so neither taken nor dropped.
+        if (!state) return false;
+        // The actor HAS the change.
+        if (typeof state.quantity === "number" && state.quantity > before)
+          return true;
+        // Busy: the change is in flight, so never send a second one.
+        if (!state.isQuiet) return false;
+        // Settled on the old quantity — the press never reached the handler.
+        if (sends >= MAX_STEPPER_SENDS) return false;
+        sends += 1;
+        await stepper.click({ timeout: 5000 }).catch(() => {});
+        return false;
+      },
+      { timeout: POLL_TIMEOUT }
+    )
+    .toBe(true)
+    .catch((error: unknown) => {
+      throw new Error(
+        `pressQuantityStepperViaHeadless: the config actor for ${JSON.stringify(
+          target
+        )} never advanced past quantity ${before} — sent ${sends} press(es); state at failure ${JSON.stringify(
+          last
+        )}.`,
+        { cause: error }
+      );
+    });
 
   return (
     (await readProductConfigQuietViaHeadless(page, target))?.quantity ?? before

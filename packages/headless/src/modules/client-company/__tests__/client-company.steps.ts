@@ -23,9 +23,9 @@ import ac17BootRegions from "./scenarios/choosing-a-country-re-offers-the-right-
 import ac17ChangeRegions from "./scenarios/choosing-a-country-re-offers-the-right-regions/05/get-countries-id-regions.json";
 import deleteRecording from "./scenarios/delete-one-of-my-companies/03/delete-clients-id-companies-id.json";
 import openEditRecording from "./scenarios/i-open-a-company-for-editing-with-what-i-already-have-on-file/03/get-clients-id-companies-id.json";
+import ac20AddressesRecording from "./scenarios/i-supply-a-brand-new-inline-email-and-my-company-is-saved-against-it/03/get-clients-id-addresses.json";
 import setDefaultRecording from "./scenarios/make-one-of-my-companies-the-default/03/put-clients-id-companies-id.json";
 import saveChangeRecording from "./scenarios/save-a-change-to-a-company-i-am-editing/04/put-clients-id-companies-id.json";
-import ac20AddressesRecording from "./scenarios/i-supply-a-brand-new-inline-email-and-my-company-is-saved-against-it/03/get-clients-id-addresses.json";
 import taxListRecording from "./scenarios/see-what-each-company-is/01/get-clients-id-companies-with-staged-imports-1.json";
 import { find, findLast, first, get, split, values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";

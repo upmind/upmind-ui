@@ -107,29 +107,32 @@ const glyph = computed(() => {
 
 const svg = ref<string | undefined>(undefined);
 
-watchEffect(async () => {
+watchEffect(() => {
   if (glyph.value) {
     svg.value = undefined;
     return;
   }
 
-  try {
-    let result = await loadIcon(props.icon, { variant: variant.value });
-    if (!result && props.fallback) {
-      result = await loadIcon(props.fallback, { variant: variant.value });
-    }
-    svg.value = result;
+  loadIcon(props.icon, { variant: variant.value })
+    .then(result =>
+      !result && props.fallback
+        ? loadIcon(props.fallback, { variant: variant.value })
+        : result
+    )
+    .then(result => {
+      svg.value = result;
 
-    // Nothing resolved anywhere — the visible fallback renders; warn in dev
-    // so the missing name surfaces and can be added to the lucide map.
-    if (!result && name.value && import.meta.env.DEV) {
-      console.warn(
-        `[Icon] "${name.value}" is neither in the lucide name-map nor the registered SVG assets — rendering the fallback glyph.`
-      );
-    }
-  } catch (e) {
-    emit("error", e as Error);
-    svg.value = undefined;
-  }
+      // Nothing resolved anywhere — the visible fallback renders; warn in dev
+      // so the missing name surfaces and can be added to the lucide map.
+      if (!result && name.value && import.meta.env.DEV) {
+        console.warn(
+          `[Icon] "${name.value}" is neither in the lucide name-map nor the registered SVG assets — rendering the fallback glyph.`
+        );
+      }
+    })
+    .catch(e => {
+      emit("error", e as Error);
+      svg.value = undefined;
+    });
 });
 </script>

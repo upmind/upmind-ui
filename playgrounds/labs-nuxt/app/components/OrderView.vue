@@ -258,7 +258,7 @@ const supportedTemplates = {
   [ORDER_TEMPLATE.INSET]: OrderInsetTemplate
 };
 
-const props = defineProps<OrderProps>();
+const props = defineProps<OrderProps & { invoiceId?: string }>();
 
 // -----------------------------------------------------------------------------
 
@@ -285,11 +285,12 @@ watch(
     if (was === payOverlayName && toString(now).indexOf("--") === -1) refresh();
   }
 );
-// The route declares the param (`invoice.scenario.ts` `params: ["oid"]`), so
-// the id is always present; `toString` states that to the compiler without a
-// cast, and reads the same value the optional chain did.
+// A replayed track's own invoice (`invoiceId`) wins over the route's. The route
+// declares the param (`invoice.scenario.ts` `params: ["oid"]`), so an id is
+// always present; `toString` states that to the compiler without a cast.
 const orderId = toString(
-  get(route.params, QUERY_PARAMS.ORDER_ID) ||
+  props.invoiceId ||
+    get(route.params, QUERY_PARAMS.ORDER_ID) ||
     get(route.query, QUERY_PARAMS.ORDER_ID)
 );
 
@@ -312,7 +313,7 @@ const invoiceCell = useInvoice().withId(toString(orderId));
 const { model: orderData, error: errors } = invoiceCell.useContext();
 const { paymentDetail } = invoiceCell.useInternals();
 const invoiceMeta = invoiceCell.useMeta();
-const { cancelChallenge, isReady, pay, refresh, renderChallenge, retry } =
+const { cancelChallenge, isReady, refresh, renderChallenge, retry } =
   invoiceCell.useActions();
 
 await isReady();
