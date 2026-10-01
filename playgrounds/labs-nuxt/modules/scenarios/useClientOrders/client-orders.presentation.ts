@@ -6,10 +6,18 @@
  * record (D-2, no `select` mapper — `useClientOrders.context.ts`), so every
  * scope below points at a raw record field (`client-orders.row-shape` pins the
  * field set): `number`, `status`, `total_amount_formatted`,
- * `unpaid_amount_formatted`, `create_datetime`, `products_count` and the
- * `delegate_related` marker. Dates are raw timestamp strings, not `useDate`
- * descriptors, so each draws through `TableCellText` rather than
- * `TableCellDate`.
+ * `unpaid_amount_formatted`, `create_datetime` and `products_count`. Dates are
+ * raw timestamp strings, not `useDate` descriptors, so each draws through
+ * `TableCellText` rather than `TableCellDate`.
+ *
+ * NO DELEGATED COLUMN. The marker is `!parentClientId && !!delegate_related`, a
+ * single raw boolean. `TableCellBadges` needs an OBJECT scope keyed by the flag
+ * (the `/useInvoices` twin scopes its mapped `attribution` object); the only
+ * object carrying `delegate_related` is the row root, and a `#` scope resolves
+ * to the empty data path, which gives the column an empty id and breaks the
+ * table. The raw `IOrder` row (D-2, no mapper) carries no clean badge object, so
+ * the marker is not a list column: it lives in the MANAGER view, where
+ * `useClientOrder` publishes `meta.isDelegated` (`client-order-is-delegated`).
  *
  * The detail overlay fetches: `client-orders.scenario.ts` declares
  * `useDetail: useClientOrder`, so `view` boots the manager `.withId(<row.id>)`.
@@ -30,29 +38,10 @@ import type {
   ActionsUischema,
   CardUischema,
   DetailUischema,
-  TableBadge,
   TableUischema
 } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
-
-/**
- * The delegation marker, drawn ONLY when the order is truly delegated. The
- * module's rule is `!parentClientId && !!delegate_related`; on this recorded
- * corpus `parent_client_config` is always null, so the raw `delegate_related`
- * flag alone is faithful. `TableCellBadges` stays silent on a falsy flag, so a
- * non-delegated row shows nothing — unlike `TableCellIcon`, which draws a glyph
- * on every row (`R6-34`). The badge reads the flag off the ROW root (scope
- * `#`), mirroring the `/useInvoices` twin's attribution badges.
- */
-const DELEGATED_BADGES: TableBadge[] = [
-  {
-    flag: "delegate_related",
-    i18n: "labs.client_orders_col_delegated",
-    color: "warning",
-    icon: "users-01"
-  }
-];
 
 export const tableUischema: TableUischema = {
   type: "TableLayout",
@@ -86,12 +75,6 @@ export const tableUischema: TableUischema = {
       type: "TableCellText",
       scope: "#/properties/products_count",
       i18n: "labs.client_orders_col_items"
-    },
-    {
-      type: "TableCellBadges",
-      scope: "#",
-      i18n: "labs.client_orders_col_delegated",
-      options: { badges: DELEGATED_BADGES }
     }
   ]
 };
