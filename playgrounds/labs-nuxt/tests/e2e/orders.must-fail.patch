@@ -1,11 +1,12 @@
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.page.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.page.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.page.vue
-@@ -265,7 +265,6 @@
+@@ -482,7 +482,7 @@
 
  function enter(): void {
    isOpen.value = true;
 -  void run(() => actions?.refresh());
++  if (!context?.data.value) void run(() => actions?.refresh());
  }
 
- onUnmounted(() => actions?.destroy());
+ onMounted(() => {
