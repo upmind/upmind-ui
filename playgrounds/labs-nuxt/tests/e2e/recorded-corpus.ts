@@ -27,10 +27,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 // eslint-disable-next-line @workspace/no-cross-package-path-imports -- design 8.12: the one shared resolver, by relative path in the Playwright process
-import {
-  createCorpusSession,
-  resolveCorpusRequest
-} from "../../../../tests/fixtures/corpus-replay";
+import { resolveCorpusRequest } from "../../../../tests/fixtures/corpus-replay";
 import {
   castArray,
   endsWith,
@@ -73,6 +70,28 @@ const bootRecordings = fileURLToPath(
 /** The fixtures directory of one headless module. */
 export const moduleRecordings = (module: string): string =>
   join(packages, `headless/src/modules/${module}/__tests__/fixtures`);
+
+/** A read pool over the recorded captures, read by `resolveCorpusRequest`. */
+type CorpusSession = {
+  bodies: () => CorpusBodies;
+  apply: (method: string, url: URL, body: unknown, answered: unknown) => void;
+};
+
+/**
+ * Wraps one module's recorded captures as the lane's read pool. FE-3145
+ * (`4de1d19778`) folded `corpus-replay`'s stateful session into
+ * `resolveCorpusRequest`, which this lane reads directly, so the session is now
+ * only the pool `resolveCorpusRequest` reads from. The client-orders collection
+ * is READ-ONLY — pay and cancel are the manager's own, through the payment
+ * engine and the cancellation port, never an invoice write — so no served write
+ * lands on the pool: every read is answered by its own recorded capture.
+ */
+function createCorpusSession(source: CorpusBodies): CorpusSession {
+  return {
+    bodies: () => source,
+    apply: () => {}
+  };
+}
 
 const IDENTIFIER =
   /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mock-uuid-\d+)$/i;

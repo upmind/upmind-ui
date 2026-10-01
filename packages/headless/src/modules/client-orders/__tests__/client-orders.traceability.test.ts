@@ -230,22 +230,20 @@ describe("client-orders traceability — the proofs", () => {
   });
 });
 
-describe("client-orders traceability — the AC-22 known gap", () => {
+describe("client-orders traceability — the AC-22 status-filter proof", () => {
   const laneSource = existsSync(LANE_SPEC)
     ? readFileSync(LANE_SPEC, "utf-8")
     : "";
 
-  it("AC-22 keeps a live lane proof besides the one known-gap fixme", () => {
+  it("AC-22 has a live lane proof and no scenario is held back", () => {
     expect(laneProvesAc22()).toBe(true);
-    expect([...laneSource.matchAll(/\btest\.fixme\(/g)]).toHaveLength(1);
+    expect([...laneSource.matchAll(/\btest\.fixme\(/g)]).toHaveLength(0);
     expect(laneSource).not.toMatch(/\btest\.skip\(/);
   });
 
-  it("the known gap names the design-system renderer cause and the operator ruling", () => {
-    expect(laneSource).toMatch(
-      /design-system\/packages\/ui\/src\/form\/renderers\/utils\.ts/
-    );
-    expect(laneSource).toMatch(/operator ruling 2026-09-29, known gap/);
+  it("the lane proves the status multi-select writes filter[status.code|eq] (gap closed)", () => {
+    expect(laneSource).toMatch(/filter\[status\.code\|eq\]/);
+    expect(laneSource).toMatch(/gap closed/);
   });
 });
 

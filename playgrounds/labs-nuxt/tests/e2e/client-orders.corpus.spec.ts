@@ -16,7 +16,7 @@
  */
 
 import { expect, test } from "@playwright/test";
-import { CLIENT_ORDERS_PINS, clientEmailsRoute } from "./catalogs";
+import { CLIENT_ORDERS_PINS, clientEmailsRoute } from "./catalogs.pins";
 import {
   endpointShape,
   installRecordedCorpus,

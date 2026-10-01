@@ -71,22 +71,6 @@ async function bootSelfCollection() {
   return orders;
 }
 
-/** Every object inside `node` that names a status choice beside an `i18n` key. */
-function choicesWithI18n(node: unknown): string[] {
-  if (Array.isArray(node)) return node.flatMap(choicesWithI18n);
-  if (!node || typeof node !== "object") return [];
-  const record = node as Record<string, unknown>;
-  const own =
-    typeof record.i18n === "string"
-      ? Object.values(record).filter(
-          (value): value is string =>
-            typeof value === "string" &&
-            CHOICES.includes(value as ClientOrderStatusChoice)
-        )
-      : [];
-  return [...own, ...Object.values(record).flatMap(choicesWithI18n)];
-}
-
 let orders: Awaited<ReturnType<typeof bootSelfCollection>>;
 let observer: ReturnType<typeof observeOrderRequests>;
 
@@ -250,15 +234,41 @@ describe("client-orders — the Unpaid choice and the status exclusion (AC-9)", 
     expect(status.neq.items.enum).toEqual(CHOICES);
   });
 
-  it("the uischema status control lists the five choices in order, each with an i18n key", () => {
+  it("the uischema presents status.code as one multi-select over the eq leaf, labelled, offering the five choices in order", () => {
     const uischema = orders.useContext().schemas.query.uischema as {
-      elements: Array<{ scope?: string }>;
+      elements: Array<{
+        scope?: string;
+        i18n?: string;
+        options?: { format?: string };
+      }>;
     };
-    const control = uischema.elements.find(
-      element => element.scope === "#/properties/filters/properties/status.code"
+    const statusControls = uischema.elements.filter(element =>
+      element.scope?.startsWith("#/properties/filters/properties/status.code")
     );
-    expect(control).toBeDefined();
-    expect(choicesWithI18n(control)).toEqual(CHOICES);
+    expect(statusControls).toHaveLength(1);
+
+    const [control] = statusControls;
+    expect(control.scope).toBe(
+      "#/properties/filters/properties/status.code/properties/eq"
+    );
+    expect(control.options?.format).toBe("multi-select");
+    expect(typeof control.i18n).toBe("string");
+    expect(control.i18n).not.toBe("");
+
+    const schema = orders.useContext().schemas.query.schema as {
+      properties: {
+        filters: {
+          properties: Record<
+            string,
+            { properties: Record<string, { items: { enum: string[] } }> }
+          >;
+        };
+      };
+    };
+    expect(
+      schema.properties.filters.properties["status.code"].properties.eq.items
+        .enum
+    ).toEqual(CHOICES);
   });
 
   it.each([
