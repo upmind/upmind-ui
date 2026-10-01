@@ -726,6 +726,36 @@
     "false": "Unverified",
     "null": "All"
   },
+  "client_orders_category_name_filter": {
+    "description": null,
+    "label": "Category name",
+    "placeholder": "Search category name"
+  },
+  "client_orders_created_filter": {
+    "description": null,
+    "label": "Created",
+    "placeholder": null
+  },
+  "client_orders_item_name_filter": {
+    "description": null,
+    "label": "Item name",
+    "placeholder": "Search item name"
+  },
+  "client_orders_number_filter": {
+    "description": null,
+    "label": "Order number",
+    "placeholder": "Search order number"
+  },
+  "client_orders_paid_filter": {
+    "description": null,
+    "label": "Paid",
+    "placeholder": null
+  },
+  "client_orders_service_identifier_filter": {
+    "description": null,
+    "label": "Service identifier",
+    "placeholder": "Search service identifier"
+  },
   "client_orders_sort": {
     "description": null,
     "label": "Sort",
@@ -741,8 +771,14 @@
     "placeholder": null,
     "invoice_paid": "Paid",
     "invoice_unpaid": "Unpaid",
+    "invoice_unpaid,invoice_adjusted": "Unpaid",
     "invoice_overdue": "Overdue",
     "invoice_cancelled": "Cancelled",
     "invoice_refunded": "Refunded"
+  },
+  "client_orders_total_filter": {
+    "description": null,
+    "label": "Total",
+    "placeholder": null
   }
 }

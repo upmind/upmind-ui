@@ -64,6 +64,7 @@
   "notification_revert_changes": "Revert changes",
   "open_contract": "Open contract",
   "open_contract_product": "Open product",
+  "open_order": "Open order",
   "open_ticket": "Open ticket",
   "pay_now": "Pay now",
   "pay_today": "Pay {amount} today",

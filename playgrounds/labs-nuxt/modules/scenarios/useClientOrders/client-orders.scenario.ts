@@ -2,29 +2,46 @@
 /**
  * @module scenarios/useClientOrders/client-orders.scenario
  * @description A client's order history — the `client-orders` collection
- * (`useClientOrders`), booted as self (FE-3237, design 8.12).
+ * (`useClientOrders`) as the shared list, filterable, sortable and paged, its
+ * rows opening into the self-drawn manager page (`useClientOrder`). An order IS
+ * an invoice, so this pair is the twin of `useInvoices`/`useInvoice`.
  *
- * This module DRAWS ITSELF: `client-orders.page.vue` beside this file is the
- * route's component. What keeps it self-drawn is the test-key rule of design
- * 8.12 — each published member carries its own `client-orders-<member>` key,
- * which the shared renderer cannot give. `useManage` binds the collection for
- * booting only, so the scenario bar and the BDD world drive the same cell the
- * page draws. `tracks` names the module whose `.feature` the page plays.
+ * The FILE is named for the module it declares and the DIRECTORY is the url
+ * segment and the route name (`/useClientOrders`), so nothing here declares a
+ * route. No scope is declared: the page boots as self with no context.
+ *
+ * No `useMutate` — the collection has no generic write (pay and cancel are the
+ * manager's own). `useDetail: useClientOrder` lets `view` fetch one order's full
+ * record: the manager boots `.withId(<row.id>)` and publishes it as `data`, the
+ * detail overlay's own default feed, so no `siblings` is declared.
  */
 
-import { useClientOrders } from "@upmind-automation/headless";
+import { useClientOrder, useClientOrders } from "@upmind-automation/headless";
+import {
+  actionsUischema,
+  cardUischema,
+  detailUischema,
+  tableUischema
+} from "./client-orders.presentation";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
 
-/** This module's key — the identity a `.feature` and the BDD world name it by. */
+/** This scenario's key — the identity a `.feature` and the BDD world name it by. */
 export const CLIENT_ORDERS_SCENARIO = "client-orders";
 
 export default {
   key: CLIENT_ORDERS_SCENARIO,
-  useManage: useClientOrders,
+  useList: useClientOrders,
+  useDetail: useClientOrder,
+  persistCriteria: true,
+  // The MODULE whose committed `.feature` and step catalog this page plays.
   tracks: "client-orders",
   presentation: {
-    icon: "receipt"
+    icon: "receipt",
+    table: tableUischema,
+    card: cardUischema,
+    detail: detailUischema,
+    actions: actionsUischema
   }
 } satisfies ScenarioDeclaration;

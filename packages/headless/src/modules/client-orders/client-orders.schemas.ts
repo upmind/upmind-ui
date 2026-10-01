@@ -33,30 +33,6 @@ const STATUS_CHOICES = [
   "invoice_refunded"
 ] as const;
 
-/** The status control's options, in {@link STATUS_CHOICES} order, each with its own i18n key (design 8.3). */
-const STATUS_CHOICE_ITEMS = [
-  {
-    value: STATUS_CHOICES[0],
-    i18n: "form.client_orders_status_filter.invoice_paid"
-  },
-  {
-    value: STATUS_CHOICES[1],
-    i18n: "form.client_orders_status_filter.invoice_unpaid"
-  },
-  {
-    value: STATUS_CHOICES[2],
-    i18n: "form.client_orders_status_filter.invoice_overdue"
-  },
-  {
-    value: STATUS_CHOICES[3],
-    i18n: "form.client_orders_status_filter.invoice_cancelled"
-  },
-  {
-    value: STATUS_CHOICES[4],
-    i18n: "form.client_orders_status_filter.invoice_refunded"
-  }
-];
-
 function dateLeafSchema(): QuerySchema {
   return {
     type: "object",
@@ -179,31 +155,47 @@ export function useQuerySchema(): QuerySchema {
   } satisfies QuerySchema;
 }
 
+/**
+ * The filter-bar layout (design 8.3). Every control scopes a single operator
+ * LEAF, never the comparison object, so the shared `FilterBar` renders one
+ * compact control per column instead of the full operator bag:
+ *
+ * - the text columns (`number`, the three `products.*` columns) scope their own
+ *   leaf — `number.eq` is the quick-search leaf (D-8), the `products.*` columns
+ *   their `like` leaf — so `FilterSearchRenderer` (a STRING control + `search`)
+ *   binds instead of the fallback object renderer,
+ * - `status.code` scopes its `eq` array leaf so `FilterMultiSelectRenderer`
+ *   (an `array`/`uniqueItems`/`enum` leaf + `multi-select`) binds, its option
+ *   labels resolving by the `form.client_orders_status_filter.<value>` i18n
+ *   convention rather than the raw status codes,
+ * - the numeric and date columns stay scoped at the column object with
+ *   `format: range`, which `FilterRangeRenderer` reads as a `gte`/`lte` pair.
+ *
+ * The wire keys, the operators and the schema channel are untouched: the leaf
+ * each control scopes is already a schema operator, and a deeper scope is a
+ * presentation choice the shared renderers read, not a new filter shape.
+ */
 export function useQueryUischema(): UISchemaElement {
   return {
     type: "FilterBar",
     elements: [
       {
         type: "Control",
-        scope: "#/properties/filters/properties/number",
+        scope: "#/properties/filters/properties/number/properties/eq",
         i18n: "form.client_orders_number_filter",
         options: { format: "search", optionalText: "" }
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/status.code",
+        scope: "#/properties/filters/properties/status.code/properties/eq",
         i18n: "form.client_orders_status_filter",
-        options: {
-          format: "multi-select",
-          optionalText: "",
-          items: STATUS_CHOICE_ITEMS
-        }
+        options: { format: "multi-select", optionalText: "" }
       },
       {
         type: "Control",
         scope: "#/properties/filters/properties/total_amount",
         i18n: "form.client_orders_total_filter",
-        options: { optionalText: "" }
+        options: { format: "range", optionalText: "" }
       },
       {
         type: "Control",
@@ -219,19 +211,22 @@ export function useQueryUischema(): UISchemaElement {
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/products.product.name",
+        scope:
+          "#/properties/filters/properties/products.product.name/properties/like",
         i18n: "form.client_orders_item_name_filter",
         options: { format: "search", optionalText: "" }
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/products.product.category.name",
+        scope:
+          "#/properties/filters/properties/products.product.category.name/properties/like",
         i18n: "form.client_orders_category_name_filter",
         options: { format: "search", optionalText: "" }
       },
       {
         type: "Control",
-        scope: "#/properties/filters/properties/products.service_identifier",
+        scope:
+          "#/properties/filters/properties/products.service_identifier/properties/like",
         i18n: "form.client_orders_service_identifier_filter",
         options: { format: "search", optionalText: "" }
       }
