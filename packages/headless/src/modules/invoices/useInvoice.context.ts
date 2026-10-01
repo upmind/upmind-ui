@@ -1,22 +1,21 @@
 import { useContext } from "../../utils";
-import type { Invoice, InvoiceUnpaidAmount } from "./invoices.types";
+import type { Invoice } from "./invoices.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice.context
  * @description Single-invoice context — the mapped invoice record (published as
- * `model`, the runtime's render key, never a `data` node), its captured error,
- * and the live unpaid amount converted to the selected currency (AC1).
+ * `model`, the runtime's render key, never a `data` node) and its captured
+ * error. The pay currency and its unpaid amount ride on `model`
+ * (`currencyPayment`, `summary`).
  *
  * ERRORS ARE STATE, NOT EVENTS. `error` is the scope's captured failure,
  * exposed for the consumer to render. This layer never raises it.
  */
 export function createInvoiceContext(
   _actorScope: ScopeActorTypes,
-  actor: UseActor,
-  unpaidAmount: Ref<InvoiceUnpaidAmount | undefined>
+  actor: UseActor
 ) {
   const { state } = actor;
 
@@ -25,10 +24,7 @@ export function createInvoiceContext(
     error: useContext<ResponseError | undefined>(state, "error"),
 
     /** The mapped invoice record this scope resolved. */
-    model: useContext<Invoice | undefined>(state, "invoice"),
-
-    /** AC1 — the live unpaid amount, converted to the selected currency. */
-    unpaidAmount
+    model: useContext<Invoice | undefined>(state, "invoice")
   };
 }
 

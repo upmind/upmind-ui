@@ -14,7 +14,7 @@
  * needed.
  *
  * ## What Breaks If This Fails
- * The declaration stops binding both halves, drops `tracks`, or the step
+ * The declaration stops binding the composable, drops `tracks`, or the step
  * catalog the tracks channel needs goes missing — any of which would make the
  * feature un-driveable from the playground page, silently.
  */
@@ -46,11 +46,11 @@ describe("client-personal-details Nuxt scenario declaration — AC-60", () => {
     );
   });
 
-  it("AC-60 the scenario binds both usePersonalDetails and usePersonalDetailsManager", () => {
+  it("AC-60 the scenario binds usePersonalDetails as both the list and the editor", () => {
     const source = readFileSync(SCENARIO_FILE, "utf-8");
 
     expect(source).toMatch(/useList:\s*usePersonalDetails\b/);
-    expect(source).toMatch(/useMutate:\s*usePersonalDetailsManager\b/);
+    expect(source).toMatch(/useMutate:\s*usePersonalDetails\b/);
   });
 
   it('AC-60 the scenario declares tracks: "client-personal-details"', () => {

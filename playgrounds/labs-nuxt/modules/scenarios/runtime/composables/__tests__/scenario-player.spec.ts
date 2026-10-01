@@ -79,7 +79,14 @@ const BOOT_CRITERIA = { filters: {} };
 
 const FILTERED_CRITERIA = { filters: { verified: { eq: false } } };
 
+const UNFILTERED_BOOT_CRITERIA = {
+  sort: [{ field: "created_at", direction: "desc" }],
+  pagination: { page: 1, limit: 10 }
+};
+
 const POLL_MS = 10;
+
+const GIVEN_DWELL_MS = 1000;
 
 /** Wide enough to cover one scene's beat, short enough to fail a stall. */
 const UNTIL_BUDGET_MS = 4000;
@@ -115,8 +122,10 @@ function forcedState(isAvailable = true): UseForcedState {
   };
 }
 
-function criteriaState(): ModulePortCriteria & { writes: unknown[] } {
-  const model = ref<Record<string, unknown>>({ ...BOOT_CRITERIA });
+function criteriaState(
+  boot: Record<string, unknown> = BOOT_CRITERIA
+): ModulePortCriteria & { writes: unknown[] } {
+  const model = ref<Record<string, unknown>>({ ...boot });
   const writes: unknown[] = [];
 
   return {
@@ -295,7 +304,7 @@ let world: ReturnType<typeof playerWorld>;
 let navigate: ReturnType<typeof vi.fn>;
 let pageScope: WorldScope;
 
-function build(tracks: FeatureTrack[], available = true) {
+function build(tracks: FeatureTrack[], available = true, dwell?: number) {
   forced = forcedState(available);
   world = playerWorld();
 
@@ -306,7 +315,8 @@ function build(tracks: FeatureTrack[], available = true) {
     forced,
     url,
     scope: () => pageScope,
-    navigate
+    navigate,
+    ...(dwell === undefined ? {} : { dwell })
   });
 }
 
@@ -583,6 +593,58 @@ describe("T4.2 play · next · prev · seek (AC2.5 · §3.1 ruling 1)", () => {
   });
 });
 
+describe("T4.2 a played scene holds the screen for its dwell (AC2.5)", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("play holds each scene for the dwell it was given, and a pause issued during that hold leaves the playhead where it stopped", async () => {
+    const scenesRun = () => filter(log, entry => includes(entry, "scene:"));
+    const track = buildTrack("Filtering narrows the collection");
+    const player = build([track], true, GIVEN_DWELL_MS);
+    await player.arm(track);
+    vi.useFakeTimers();
+
+    const running = player.play();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(scenesRun()).toStrictEqual(["scene:0"]);
+    expect(player.playhead.value).toBe(0);
+    expect(player.status.value).toBe(SCENARIO_PLAYER_STATUS.PLAYING);
+
+    await vi.advanceTimersByTimeAsync(GIVEN_DWELL_MS - 1);
+
+    expect(scenesRun()).toStrictEqual(["scene:0"]);
+    expect(player.status.value).toBe(SCENARIO_PLAYER_STATUS.PLAYING);
+
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(scenesRun()).toStrictEqual(["scene:0", "scene:1"]);
+
+    await vi.advanceTimersByTimeAsync(GIVEN_DWELL_MS * size(track.scenes));
+    await running;
+    vi.useRealTimers();
+    await player.arm(track);
+    vi.useFakeTimers();
+    log.length = 0;
+
+    const resumed = player.play();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(scenesRun()).toStrictEqual(["scene:0"]);
+
+    log.length = 0;
+    player.pause();
+    await vi.advanceTimersByTimeAsync(GIVEN_DWELL_MS * size(track.scenes));
+    await resumed;
+    await player.whenSettled();
+
+    expect(scenesRun()).toStrictEqual([]);
+    expect(player.playhead.value).toBe(0);
+    expect(player.status.value).toBe(SCENARIO_PLAYER_STATUS.PAUSED);
+  });
+});
+
 describe("T4.2 stop returns the page to Live (AC2.3 · §3.1 ruling 3)", () => {
   it("drops the track, the preset and the playhead", async () => {
     const track = buildTrack("Filtering narrows the collection");
@@ -611,6 +673,60 @@ describe("T4.2 stop returns the page to Live (AC2.3 · §3.1 ruling 3)", () => {
 
     expect(url.track.value).toBeUndefined();
     expect(criteria.model.value).toStrictEqual(BOOT_CRITERIA);
+  });
+});
+
+describe("T4.2 a branch the boot criteria lacked is removed, never merged over", () => {
+  const addsFilters = (): FeatureTrack => ({
+    name: "Filtering a collection that booted unfiltered",
+    slug: "filtering-a-collection-that-booted-unfiltered",
+    tags: [],
+    line: 1,
+    isPlayable: true,
+    scenes: [
+      scene(0, scoped => scoped.boot(KEY, PAGE_SCOPE)),
+      scene(1, async scoped => {
+        criteria.set(FILTERED_CRITERIA);
+        await scoped.fire("filterBy", FILTERED_CRITERIA);
+      }),
+      scene(2, scoped => scoped.fire("refresh"))
+    ]
+  });
+
+  // `set` only merges, so a cleared branch reads back as `filters: undefined`.
+  beforeEach(() => {
+    criteria = criteriaState(UNFILTERED_BOOT_CRITERIA);
+  });
+
+  it("stop drops the filters branch a scene added", async () => {
+    const track = addsFilters();
+    const player = build([track]);
+    await player.arm(track);
+    await player.play();
+    expect(criteria.model.value.filters).toStrictEqual(
+      FILTERED_CRITERIA.filters
+    );
+
+    await player.stop();
+
+    expect(criteria.model.value.filters).toBeUndefined();
+    expect(criteria.model.value).toEqual(UNFILTERED_BOOT_CRITERIA);
+  });
+
+  it("seeking back before the filtering scene drops the filters branch it added", async () => {
+    const track = addsFilters();
+    const player = build([track]);
+    await player.arm(track);
+    await player.play();
+    expect(criteria.model.value.filters).toStrictEqual(
+      FILTERED_CRITERIA.filters
+    );
+
+    await player.seek(0);
+
+    expect(player.playhead.value).toBe(0);
+    expect(criteria.model.value.filters).toBeUndefined();
+    expect(criteria.model.value).toEqual(UNFILTERED_BOOT_CRITERIA);
   });
 });
 

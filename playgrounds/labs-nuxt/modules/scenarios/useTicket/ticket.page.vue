@@ -742,7 +742,7 @@ import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
 import { registry } from "../runtime/registry";
 import { scenarioPlayground } from "../runtime/ScenarioPlayground.styles";
 import scenario, { TICKET_SCENARIO } from "./ticket.scenario";
-import { isArray } from "lodash-es";
+import { isArray, reduce } from "lodash-es";
 import type { TabItem } from "@upmind/ui";
 import type {
   TicketAttachmentRef,
@@ -1000,13 +1000,13 @@ async function resolveReferenceToId(
 ): Promise<string | undefined> {
   const tickets = useTickets().as(ScopeActorTypes.SELF).fresh();
   const collection = tickets.useActions();
-  try {
-    collection.setCriteria({ filters: { reference } });
-    await collection.isReady();
-    return tickets.useContext().data.value[0]?.id;
-  } finally {
-    collection.destroy();
-  }
+  collection.setCriteria({ filters: { reference } });
+  return collection
+    .isReady()
+    .then(() => tickets.useContext().data.value[0]?.id)
+    .finally(() => {
+      collection.destroy();
+    });
 }
 
 async function openTicket(): Promise<void> {
@@ -1021,16 +1021,17 @@ async function openTicket(): Promise<void> {
 
   resolving.value = true;
   notFoundReference.value = undefined;
-  try {
-    const id = await resolveReferenceToId(input);
-    if (!id) {
-      notFoundReference.value = input;
-      return;
-    }
-    router.push(`/useTicket/${id}/as/client`);
-  } finally {
-    resolving.value = false;
-  }
+  return resolveReferenceToId(input)
+    .then(id => {
+      if (!id) {
+        notFoundReference.value = input;
+        return;
+      }
+      router.push(`/useTicket/${id}/as/client`);
+    })
+    .finally(() => {
+      resolving.value = false;
+    });
 }
 
 function report(error: unknown): void {
@@ -1042,25 +1043,26 @@ async function run(work: () => Promise<unknown>): Promise<void> {
   pending.value = true;
   actionError.value = undefined;
   actionNotice.value = undefined;
-  try {
-    await work();
-  } catch (error) {
-    report(error);
-  } finally {
-    pending.value = false;
-  }
+  return work()
+    .catch(error => {
+      report(error);
+    })
+    .finally(() => {
+      pending.value = false;
+    });
 }
 
-async function loadThread(): Promise<void> {
-  if (!actions.value) return;
+function loadThread(): Promise<void> {
+  if (!actions.value) return Promise.resolve();
   feedLoading.value = true;
-  try {
-    await actions.value.loadOlder();
-  } catch (error) {
-    report(error);
-  } finally {
-    feedLoading.value = false;
-  }
+  return actions.value
+    .loadOlder()
+    .catch(error => {
+      report(error);
+    })
+    .finally(() => {
+      feedLoading.value = false;
+    });
 }
 
 /**
@@ -1191,51 +1193,58 @@ async function pickFiles(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement;
   const chosen = [...(input.files ?? [])];
   if (!chosen.length || !actions.value) return;
+  const ticketActions = actions.value;
 
   uploading.value = true;
   actionError.value = undefined;
-  try {
-    for (const file of chosen) {
-      pendingFiles.value = [
-        ...pendingFiles.value,
-        await actions.value.uploadAttachment(file)
-      ];
-    }
-  } catch (error) {
-    report(error);
-  } finally {
-    uploading.value = false;
-    try {
-      input.value = "";
-    } catch {
-      // Some benches lock the picker's value; the selection simply stays put.
-    }
-  }
+  return reduce(
+    chosen,
+    (chain, file) =>
+      chain.then(() =>
+        ticketActions.uploadAttachment(file).then(ref => {
+          pendingFiles.value = [...pendingFiles.value, ref];
+        })
+      ),
+    Promise.resolve()
+  )
+    .catch(error => {
+      report(error);
+    })
+    .finally(() => {
+      uploading.value = false;
+      try {
+        input.value = "";
+      } catch {
+        // Some benches lock the picker's value; the selection simply stays put.
+      }
+    });
 }
 
-async function loadNewer(): Promise<void> {
-  if (!actions.value) return;
+function loadNewer(): Promise<void> {
+  if (!actions.value) return Promise.resolve();
   feedLoading.value = true;
-  try {
-    await actions.value.loadNewer();
-  } catch (error) {
-    report(error);
-  } finally {
-    feedLoading.value = false;
-  }
+  return actions.value
+    .loadNewer()
+    .catch(error => {
+      report(error);
+    })
+    .finally(() => {
+      feedLoading.value = false;
+    });
 }
 
 /** AC15 — the attachments view is its own REQUEST, never a filter over rows held. */
-async function loadAttachments(): Promise<void> {
-  if (!actions.value) return;
+function loadAttachments(): Promise<void> {
+  if (!actions.value) return Promise.resolve();
   feedLoading.value = true;
-  try {
-    await actions.value.loadAttachments();
-  } catch (error) {
-    report(error);
-  } finally {
-    feedLoading.value = false;
-  }
+  return actions.value
+    .loadAttachments()
+    .catch(error => {
+      report(error);
+    })
+    .finally(() => {
+      feedLoading.value = false;
+    });
 }
 
 function selectView(value: string | number): void {
@@ -1245,16 +1254,17 @@ function selectView(value: string | number): void {
     : loadThread());
 }
 
-async function refresh(): Promise<void> {
-  if (!actions.value) return;
+function refresh(): Promise<void> {
+  if (!actions.value) return Promise.resolve();
   feedLoading.value = true;
-  try {
-    await actions.value.refresh();
-  } catch (error) {
-    report(error);
-  } finally {
-    feedLoading.value = false;
-  }
+  return actions.value
+    .refresh()
+    .catch(error => {
+      report(error);
+    })
+    .finally(() => {
+      feedLoading.value = false;
+    });
 }
 
 onMounted(async () => {

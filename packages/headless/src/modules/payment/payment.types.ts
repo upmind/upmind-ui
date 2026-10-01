@@ -1,6 +1,7 @@
 import type { ResponseError } from "../../utils";
 import type { PaymentDetailData } from "../payment-details";
 import type {
+  ICurrency,
   IGateway,
   IInvoice,
   IOrder,
@@ -23,6 +24,12 @@ export type PaymentArgs = {
    */
   orderId: IOrder["id"];
   paymentDetail: PaymentDetailData;
+  /**
+   * The pay currency, when it differs from the document currency. Sent as
+   * `currency_code` and used for the gateway list; absent, the document
+   * currency applies.
+   */
+  currencyCode?: ICurrency["code"];
   /**
    * The id of the machine that invoked this one, when it was invoked as a child.
    *

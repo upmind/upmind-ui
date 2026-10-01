@@ -10,11 +10,15 @@
  *
  *   pnpm fixtures:generate client-billing-settings
  *
- * The module's own reads are the client record (`GET clients/{id}`) and its
- * brand-gate config call (`GET config/brand/values`); its own write is the
- * consolidation `PUT clients/{id}`. Boot reads the session makes (brand
- * settings, system, basket, token, `/self`) are answered at replay by the
- * OWNER modules' recordings, never recorded here.
+ * The module's own reads are the shared client record (`GET clients/{id}?with=
+ * custom_fields,…`), the client's account (`GET clients/{id}?with=accounts,
+ * accounts.currency`) and its brand-gate config call (the accumulated
+ * `GET config/brand/values?keys=…`); its writes are the consolidation
+ * `PUT clients/{id}` and the currency `PUT accounts/{id}`. The boot step also
+ * records `GET brand/settings`, which the module's reset re-reads
+ * (client-personal-details precedent). The other session boot reads (system,
+ * basket, token, `/self`) are answered at replay by the OWNER modules'
+ * recordings, never recorded here.
  *
  * ## Why this is not a normal test
  * It makes REAL `fetch` calls against `VITE_API_URL` and needs staging
@@ -32,12 +36,21 @@ import { join } from "node:path";
 import { describe, it, beforeAll, afterAll, afterEach } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { GrantTypes } from "@upmind-automation/types";
+import { BrandConfigKeys, GrantTypes } from "@upmind-automation/types";
 import {
   prepareScenarioDirs,
   recordedStepDir
 } from "../../../testing/scenario-fixtures";
-import { filter, find, forEach, kebabCase, map, split } from "lodash-es";
+import { defaultBrandConfigKeys } from "../../brand/brand.constants";
+import {
+  filter,
+  find,
+  forEach,
+  includes,
+  kebabCase,
+  map,
+  split
+} from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -67,19 +80,21 @@ const feature = readFileSync(
 );
 
 /**
- * The brand-gate config call the module makes on boot — the two gate keys plus
- * the four brand consolidation defaults the schedule rules read. Recorded in
- * the SAME `?keys=<comma-joined>&lang=en` form the module (via
- * `useBrand().ensureConfig`) sends, so the recording matches by identity.
- * Confirmed against the replay's capture-gap message.
+ * The brand-gate config call the module makes on boot. `useBrand().ensureConfig`
+ * sends the FULL accumulated brand key list — the platform's boot set, then the
+ * two gate keys and the four brand consolidation defaults the schedule rules
+ * read — not this module's six alone. Recorded verbatim from the request the
+ * module makes at replay (tickets.fixtures.ts / client-notes.fixtures.ts
+ * precedent); confirmed against the replay's capture-gap message.
  */
 const GATE_KEYS = [
-  "invoices.consolidation.restrict_to_staff",
-  "billing.payment_currencies.enable_different_currency_payment",
-  "invoices.consolidation.enabled",
-  "invoices.consolidation.base_rule",
-  "invoices.consolidation.base_rule_day_of_week",
-  "invoices.consolidation.base_rule_date_of_month_day"
+  ...defaultBrandConfigKeys,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF,
+  BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_ENABLED,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_BASE_RULE,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_WEEK_DAY,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_DATE
 ].join(",");
 
 type WireClient = {
@@ -264,6 +279,7 @@ describe("Client-Billing-Settings scenario recordings", () => {
 
   const clientRecord = () => `/api/clients/${clientId}`;
   const withCustomFields = "?with=custom_fields,custom_fields.field";
+  const withAccounts = "?with=accounts,accounts.currency";
 
   /** Records the requests one step makes into that step's own folder. */
   async function recordStep(
@@ -292,10 +308,20 @@ describe("Client-Billing-Settings scenario recordings", () => {
     generator.save();
   }
 
-  /** The module's boot reads — the client record and the brand-gate config. */
+  /**
+   * The module's boot reads — the brand settings its reset re-reads, the
+   * client record, the account, and the brand-gate config. The record and the
+   * account are one fixture identity (`GET clients/:id` — `with` is not an
+   * identity param), so they share one
+   * file and the account read is recorded LAST: its body carries every base
+   * field the record read maps (the five consolidation fields, `never_suspend`)
+   * plus the `accounts` relation, so the one recording answers both reads.
+   */
   const readBoot = async (generator: Generator) => {
+    await generator.get("/api/brand/settings");
     await generator.get(`${clientRecord()}${withCustomFields}`);
-    await generator.get(`/api/config/brand/values?keys=${GATE_KEYS}&lang=en`);
+    await generator.get(`${clientRecord()}${withAccounts}`);
+    await generator.get(`/api/config/brand/values?keys=${GATE_KEYS}`);
   };
 
   /** A consolidation write, echoing the saved field(s). */
@@ -595,13 +621,26 @@ describe("Client-Billing-Settings scenario recordings", () => {
     let basePreferred: string | null;
     let altCurrencyId: string;
     let altCurrencyId2: string;
+    let unsupportedCurrencyId: string;
 
     const CURRENCY_GATE =
       "billing.payment_currencies.enable_different_currency_payment";
     const accountRecord = () => `/api/accounts/${accountId}`;
+    const adminAccount = () => `/api/admin/accounts/${accountId}`;
     const putCurrencies =
       (body: Record<string, unknown>) => (generator: Generator) =>
         generator.put(accountRecord(), body);
+
+    /** Staff-arranged: an admin currency write bypasses the brand-support gate a client PUT enforces. */
+    async function adminSetAccountCurrency(currencyId: string): Promise<void> {
+      const { status, body } = await call("PUT", adminAccount(), staffToken, {
+        currency_id: currencyId
+      });
+      if (status !== 200)
+        throw new Error(
+          `admin set of account currency ${currencyId} returned ${status}: ${JSON.stringify(body).slice(0, 200)}`
+        );
+    }
 
     async function restoreAccount(): Promise<void> {
       await call("PUT", accountRecord(), clientToken.access_token, {
@@ -637,14 +676,12 @@ describe("Client-Billing-Settings scenario recordings", () => {
         "/api/brand/settings",
         clientToken.access_token
       );
-      const supported = filter(
-        map(
-          (brand.body as { data?: { currencies?: Array<{ id: string }> } })
-            ?.data?.currencies ?? [],
-          currency => currency.id
-        ),
-        id => id !== baseCurrencyId
+      const brandCurrencyIds = map(
+        (brand.body as { data?: { currencies?: Array<{ id: string }> } })?.data
+          ?.currencies ?? [],
+        currency => currency.id
       );
+      const supported = filter(brandCurrencyIds, id => id !== baseCurrencyId);
       altCurrencyId = supported[0];
       altCurrencyId2 = supported[1] ?? supported[0];
       if (!altCurrencyId)
@@ -652,8 +689,28 @@ describe("Client-Billing-Settings scenario recordings", () => {
           "The brand supports no currency other than the account's own — cannot record a currency change."
         );
 
+      // Row B2/B3: a system currency the brand does NOT support — the own-currency
+      // append (combineCurrencyOptions) only runs when the account bills in one.
+      const system = await call(
+        "GET",
+        "/api/currencies?limit=500",
+        clientToken.access_token
+      );
+      const systemCurrencyIds = map(
+        (system.body as { data?: Array<{ id: string }> })?.data ?? [],
+        currency => currency.id
+      );
+      unsupportedCurrencyId = filter(
+        systemCurrencyIds,
+        id => !includes(brandCurrencyIds, id)
+      )[0];
+      if (!unsupportedCurrencyId)
+        throw new Error(
+          "Every system currency is brand-supported — cannot record an account on a brand-unsupported currency."
+        );
+
       console.log(
-        `[client-billing-settings recorder] account=${accountId} currency=${baseCurrencyId} preferred=${basePreferred ?? "none"} alt=${altCurrencyId} alt2=${altCurrencyId2}`
+        `[client-billing-settings recorder] account=${accountId} currency=${baseCurrencyId} preferred=${basePreferred ?? "none"} alt=${altCurrencyId} alt2=${altCurrencyId2} unsupported=${unsupportedCurrencyId}`
       );
     }, 30000);
 
@@ -665,13 +722,20 @@ describe("Client-Billing-Settings scenario recordings", () => {
     }, 30000);
 
     // AC-20 — read only: the boot carries the gate-on config and the session
-    // account currencies, so only the boot is recorded.
-    it(`${OPEN} — account currencies read (AC-20)`, () =>
-      recordStep(
-        "I can see the currency my account bills in, and my preferred payment currency if I have one",
-        OPEN,
-        readBoot
-      ));
+    // account currencies, so only the boot is recorded. The account is staff-set
+    // to a brand-unsupported currency first (row B2/B3), so the boot records it
+    // billing in a currency the brand's pick-list omits; afterEach restores it.
+    // Titled by the scenario so `--scenario "<title>"` selects it.
+    const AC20 =
+      "I can see the currency my account bills in, and my preferred payment currency if I have one";
+    it(`${AC20} — ${OPEN}`, async () => {
+      await adminSetAccountCurrency(unsupportedCurrencyId);
+      // A client PUT cannot move the account off a brand-unsupported currency
+      // (409); the admin route is the only reset, so it owns the restore here.
+      await recordStep(AC20, OPEN, readBoot).finally(() =>
+        adminSetAccountCurrency(baseCurrencyId)
+      );
+    });
 
     // AC-21 — set a preferred payment currency, then clear it. The no-change save
     // step makes no request.

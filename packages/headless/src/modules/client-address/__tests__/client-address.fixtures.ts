@@ -149,8 +149,8 @@ const BRAND_FIXTURES = join(
  * forbidding copy is recorded for all of them — the module's editor boot reads one
  * of them and we cannot know which by identity, so all are armed at replay.
  */
-const REGION_BUNDLE_HASHES = ["18352d6c", "e325b875", "fad5b056", "8ebc17a8"];
-const LOCK_BUNDLE_HASHES = ["18352d6c", "e325b875", "fad5b056", "8ebc17a8"];
+const REGION_BUNDLE_HASHES = ["1c963981", "c52ff370", "d158227c", "f57ff14a"];
+const LOCK_BUNDLE_HASHES = ["1c963981", "c52ff370", "d158227c", "f57ff14a"];
 const REGION_KEY = "invoices.common.required_region_in_address";
 const LOCK_KEY = "clients.settings.allow_address_update";
 

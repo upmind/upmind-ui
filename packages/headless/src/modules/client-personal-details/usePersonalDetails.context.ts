@@ -1,130 +1,147 @@
 import { computed } from "vue";
-import { useBrand } from "../brand";
-// A's own definitions collection (R2) — the read half's display list must
-// enumerate the brand's DEFINITIONS, not just the client's answered values
-// (the FE-2824-shaped defect this threading fixes: a client with zero
-// values learned about zero definitions and rendered zero rows).
-import {
-  ClientCustomFieldsContextTypes,
-  useClientCustomFields
-} from "../client-custom-fields";
-import { ScopeActorTypes } from "../scope/scope.types";
+import { useI18n } from "../system-localisation";
 import { mapProfileFields } from "./client-personal-details.mappers";
-import { ClientPersonalDetailsContextTypes } from "./client-personal-details.types";
-import { mapToHeadlessError, useCollection } from "../../utils";
+import {
+  fieldsFromValidationErrors,
+  pickUischemaControls,
+  useCollection,
+  useContext
+} from "../../utils";
+import { concat, uniq } from "lodash-es";
 import type {
-  ClientPersonalDetailsRecordQuery,
-  ProfileField
+  ProfileContext,
+  ProfileField,
+  ProfileModel,
+  UischemaForOptions
 } from "./client-personal-details.types";
-import type { ResponseError } from "../../utils";
-import type { ScopeContext } from "../scope";
+import type { ResponseError, UseActor } from "../../utils";
+import type { CustomField } from "../client-custom-fields";
+import type { ScopeActorTypes } from "../scope/scope.types";
+import type { UISchemaElement } from "@jsonforms/core";
+import type { ILanguage } from "@upmind-automation/types";
+import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/usePersonalDetails.context
- * @description Read context — the reactive profile display list and its
- * lookup helpers, plus the client's own raw custom-field values.
+ * @description Manager context — the reactive read side of the machine
+ * context. Every member goes through the `useContext` state-read utility;
+ * `state.value.context` is never read directly.
  *
- * ERRORS ARE STATE, NOT EVENTS. `error` is the query's own captured
- * failure, exposed for the consumer to render. This layer never raises it.
+ * THIS is where the schema and uischema surface. They enter the system in
+ * `usePersonalDetails.machine.ts`'s `setSchemas`, live in machine
+ * context, and reach consumers HERE — the barrel exports no bare pair.
+ *
+ * ERRORS ARE STATE, NOT EVENTS. `errors` and `validationErrors` are the
+ * machine's captured failure, exposed for the consumer to render.
  *
  * @doctrine clause 2 — shared-only (armless).
  */
+
 export function createPersonalDetailsContext(
   _actorScope: ScopeActorTypes,
-  query: ClientPersonalDetailsRecordQuery,
-  scopeContext?: ScopeContext
+  actor: UseActor
 ) {
-  // Resolves the language row's DISPLAY name in `mapProfileFields` — the
-  // same brand languages list the manager's schema enum is built from
-  // (`client-personal-details.schemas.ts`'s `languageOptions`). Read-only
-  // projection; `ProfileModel.language` (AC-33) never passes through this.
-  const { languages } = useBrand();
+  const { state } = actor;
+  const { t } = useI18n();
+
+  // --- actor-specific context: none earned yet (clause 2).
+
+  const uischemaRef = useContext<ProfileContext["uischema"]>(state, "uischema");
+  const validationErrorsRef = useContext<ErrorObject[]>(state, "error.data");
+  const modelRef = useContext<ProfileModel | undefined>(state, "model");
+  const fieldsRef = useContext<CustomField[]>(state, "lookups.fields");
+  const languagesRef = useContext<ILanguage[]>(state, "lookups.languages");
 
   /**
-   * @decision retarget A's own scope ONLY when THIS module's own scope was
-   * explicitly retargeted (an explicit `.for('client', id)`); a bare
-   * `.as(actor)` call is left UNPINNED on A's side too.
-   * what:    `.for(CLIENT, scopeContext.id)` only fires when `scopeContext`
-   *          names a `CLIENT` context — the SAME check `resolveClientId`
-   *          (`client-personal-details.services.ts`) makes to decide between
-   *          the given id and the session's own. Otherwise this calls
-   *          `useClientCustomFields().as(ScopeActorTypes.CLIENT)` with no
-   *          `.for()` at all, letting A's OWN `resolveClientId` fall back to the
-   *          session's `activeUser` id — reactively, resolving late exactly
-   *          like this module's own query does for the SAME self case.
-   * why:     a bare self scope has no id to give A YET on a cold boot
-   *          (AC-41 — the session resolves its client id LATE), and A's own
-   *          `.for()` context id is a STATIC snapshot, captured once and
-   *          never revisited — pinning it to `undefined` here would freeze
-   *          A's collection unaddressable for this scope's whole lifetime,
-   *          even after the session resolves. `.for('client', id)` is
-   *          different: that id is caller-supplied and already known
-   *          synchronously (design.md/AC-30's retarget), so pinning it
-   *          immediately is both safe and required — A's brand/definitions
-   *          must resolve for the SAME named profile B's own read/write
-   *          seam addresses, never silently the session's own client.
-   * rejected: always calling `.for(CLIENT, id)` with `resolveClientId`'s
-   *          resolved id — rejected: the manager's `loadLookups` can do this
-   *          safely because it runs inside an async XState service invoked
-   *          only once the machine already knows the scope is addressable;
-   *          this factory runs eagerly, at `.useContext()` call time, with
-   *          no such guard, and `resolveClientId` itself is `@internal` to
-   *          `client-personal-details.services.ts` — not reachable from here
-   *          without exporting it past its own module boundary.
+   * The reactive profile display list — native fields, then custom fields —
+   * projected off machine context so the ONE composable's read surface matches
+   * the query-backed read half it replaced.
    */
-  // `ScopeActorTypes.CLIENT` is hardcoded, not `_actorScope` — this module's
-  // own matrix (`PERSONAL_DETAILS_SCOPE_MATRIX`) resolves ONLY `CLIENT`, and
-  // A's own matrix likewise resolves ONLY `CLIENT`; `client-personal-details.services.ts`'s
-  // `loadLookups` is the precedent for hardcoding rather than threading the
-  // (always-CLIENT) param through.
-  const customFieldsScope =
-    scopeContext?.type === ClientPersonalDetailsContextTypes.CLIENT &&
-    scopeContext.id
-      ? useClientCustomFields()
-          .as(ScopeActorTypes.CLIENT)
-          .for(ClientCustomFieldsContextTypes.CLIENT, scopeContext.id)
-      : useClientCustomFields().as(ScopeActorTypes.CLIENT);
-  const { data: definitions, error: definitionsError } =
-    customFieldsScope.useContext();
-
   const data = computed<ProfileField[]>(() =>
-    mapProfileFields(query.data.value, languages.value, definitions.value)
+    mapProfileFields(modelRef.value, fieldsRef.value, languagesRef.value, t)
   );
 
   const { findOne, getOne } = useCollection<ProfileField>(data);
 
   /**
-   * A failed/pending definitions load never blanks the profile (degrade,
-   * don't blank): `mapProfileFields`'s own `definitions` default keeps the
-   * four native fields rendering regardless, and A's error is surfaced here
-   * — reachable — only when B's OWN read has nothing to report.
+   * Returns a uischema narrowed to the given fields. Reads the CURRENT whole
+   * uischema and validation errors off machine state and composes them.
+   *
+   * When `includeInvalid` is true (the default), fields with validation errors
+   * are merged in — full-schema validation refuses a save while a required
+   * field outside the view is empty, so pulling invalid fields in is what
+   * lets the save proceed.
+   *
+   * @param fields The field tokens to include (e.g. `['firstName']` or
+   * `['customFields.age']`).
+   * @param options Optional settings.
    */
-  const error = computed<ResponseError | undefined>(
-    () =>
-      (query.error.value ? mapToHeadlessError(query.error.value) : undefined) ??
-      definitionsError.value
-  );
+  function uischemaFor(
+    fields: string[],
+    options: UischemaForOptions = {}
+  ): UISchemaElement | undefined {
+    const { includeInvalid = true } = options;
+    const base = uischemaRef.value;
 
-  /** The client's own raw custom field values, as read (AC-30's read verb). */
-  const customFields = computed(() => query.data.value.customFieldValues ?? []);
+    let effectiveFields = fields;
+    if (includeInvalid) {
+      const invalidFields = fieldsFromValidationErrors(
+        validationErrorsRef.value
+      );
+      effectiveFields = uniq(concat(fields, invalidFields));
+    }
 
-  // --- actor-specific context: none earned yet (clause 2).
+    return pickUischemaControls(base, effectiveFields);
+  }
 
   return {
-    /** The client's custom field values, raw (each carrying its own embedded definition). */
-    customFields,
+    /** The full data-manager context object. */
+    context: useContext<ProfileContext>(state),
 
     /** The reactive profile display list — native fields, then custom fields. */
     data,
 
-    /** The query's own captured error — read, never raised. */
-    error,
+    /** The machine's captured error object — read, never raised. */
+    error: useContext<ResponseError | undefined>(state, "error"),
 
-    /** Finds a single field by a partial mapping. */
+    /** Machine-captured error message, if any — read, never raised. */
+    errors: useContext<ResponseError["message"]>(state, "error.message"),
+
+    /** Finds a single profile field by a partial mapping. */
     findOne,
 
-    /** Finds a single field by id. */
-    getOne
+    /** Finds a single profile field by id. */
+    getOne,
+
+    /** The list of custom-field definitions this scope's lookups resolved. */
+    fields: useContext<CustomField[]>(state, "lookups.fields"),
+
+    /** The id of the profile being managed — the owning client's own id. */
+    id: useContext<string | undefined>(state, "id"),
+
+    /** The current form model. */
+    model: useContext<ProfileModel | undefined>(state, "model"),
+
+    /** The base (persisted) model `revert()` restores to. */
+    baseModel: useContext<ProfileModel | undefined>(state, "baseModel"),
+
+    /** The JSON schema for the form (from machine context — see JSDoc). */
+    schema: useContext<ProfileContext["schema"]>(state, "schema"),
+
+    /** Display title of the profile. */
+    title: useContext<string | undefined>(state, "title"),
+
+    /** The UI schema for the form (from machine context — see JSDoc). */
+    uischema: useContext<ProfileContext["uischema"]>(state, "uischema"),
+
+    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+    validationErrors: validationErrorsRef,
+
+    /**
+     * Returns a uischema narrowed to the given fields. Composes the current
+     * whole uischema with validation errors (when `includeInvalid` is true).
+     */
+    uischemaFor
 
     // The arm merges in HERE, last.
     // ...actorContext

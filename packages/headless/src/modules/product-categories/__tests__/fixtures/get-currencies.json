@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bfae83ffb9090-DUB",
+      "cf-ray": "a43424a0688db910-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:19:51 GMT",
+      "date": "Wed, 30 Sep 2026 15:08:27 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=P0u%2FlHBRGLAvBKNFxBfWy0Di7sOGJdxXBrJfooD6ob0z%2F4%2FTextTjPVt3b1MrrtcRs1yCuLzDakqvIzlC%2FSj%2FNhKfqNpkz5Hr2GmnuPfG4HgH5XmaNEccNCBe8m8cNE10dJGkNOF0g%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qgzzKc2TmL0Y0ZLahUslZLSnYKhC3hjbamP4SVJLEjOZtUOhCBGAxK63RRNmR3dcugBbPCuqhUMzA7nws4KQxQxO3dle%2BorGbErjjqzJDX92%2BT3C1P9Tdy83A854ItCteW%2FTj8VGxA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -41,7 +41,7 @@
           "suffix": "",
           "code": "DZD",
           "created_at": "2022-09-28 14:40:15",
-          "updated_at": "2026-07-23 13:41:03",
+          "updated_at": "2026-09-28 11:08:15",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -53,7 +53,7 @@
           "suffix": "",
           "code": "AOA",
           "created_at": "2022-09-05 16:16:23",
-          "updated_at": "2026-07-23 13:41:03",
+          "updated_at": "2026-09-28 11:08:15",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -65,7 +65,7 @@
           "suffix": "",
           "code": "ARS",
           "created_at": "2024-06-18 13:34:53",
-          "updated_at": "2026-07-23 13:41:03",
+          "updated_at": "2026-09-28 11:08:15",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -77,7 +77,7 @@
           "suffix": "",
           "code": "AUD",
           "created_at": "2020-02-12 09:02:29",
-          "updated_at": "2026-07-23 13:41:01",
+          "updated_at": "2026-09-28 11:08:14",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -89,7 +89,7 @@
           "suffix": "",
           "code": "AZN",
           "created_at": "2024-05-07 08:18:06",
-          "updated_at": "2026-07-23 13:41:03",
+          "updated_at": "2026-09-28 11:08:15",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -101,7 +101,7 @@
           "suffix": "৳",
           "code": "BDT",
           "created_at": "2022-05-25 09:25:07",
-          "updated_at": "2026-07-23 13:41:02",
+          "updated_at": "2026-09-28 11:08:15",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -113,7 +113,7 @@
           "suffix": "BBD",
           "code": "BBD",
           "created_at": "2024-10-08 10:12:25",
-          "updated_at": "2026-07-23 13:41:03",
+          "updated_at": "2026-09-28 11:08:16",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -125,7 +125,7 @@
           "suffix": "",
           "code": "BOB",
           "created_at": "2024-06-18 13:34:53",
-          "updated_at": "2026-07-23 13:41:03",
+          "updated_at": "2026-09-28 11:08:15",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -137,7 +137,7 @@
           "suffix": "",
           "code": "BWP",
           "created_at": "2026-02-05 12:08:08",
-          "updated_at": "2026-07-23 13:41:04",
+          "updated_at": "2026-09-28 11:08:16",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -149,7 +149,7 @@
           "suffix": "",
           "code": "BRL",
           "created_at": "2020-02-12 09:02:29",
-          "updated_at": "2026-07-23 13:41:01",
+          "updated_at": "2026-09-28 11:08:14",
           "base": true,
           "decimals": true,
           "manual": 0
@@ -162,7 +162,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:19:51.240Z",
+  "captured_at": "2026-09-30T15:08:27.777Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

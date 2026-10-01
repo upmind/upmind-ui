@@ -21,7 +21,14 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
+import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
+import {
+  GrantTypes,
+  PaymentType,
+  TrialEndActionTypes,
+  UserMetaKeys
+} from "@upmind-automation/types";
 import {
   prepareScenarioDirs,
   recordedStepDir
@@ -33,13 +40,6 @@ import {
   mintStaffToken,
   mintToken
 } from "../../auth/__tests__/auth.tokens";
-import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
-import {
-  GrantTypes,
-  PaymentType,
-  TrialEndActionTypes,
-  UserMetaKeys
-} from "@upmind-automation/types";
 import { find, isEmpty } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
@@ -1239,13 +1239,11 @@ describe("Contract-Product scenario recordings", () => {
       throw new Error(
         `Setting the trial to end by cancelling answered ${status}.`
       );
-    try {
-      return await orderTrial();
-    } finally {
-      await asStaff("PUT", catalogue, {
+    return orderTrial().finally(() =>
+      asStaff("PUT", catalogue, {
         trial_end_action: before ?? TrialEndActionTypes.CONTINUE
-      });
-    }
+      })
+    );
   }
 
   recordArrangedScenario(

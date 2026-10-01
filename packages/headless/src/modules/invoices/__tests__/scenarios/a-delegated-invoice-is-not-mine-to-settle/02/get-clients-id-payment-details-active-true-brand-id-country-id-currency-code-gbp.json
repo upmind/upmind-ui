@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/63250798-065d-1ed5-685c-8174e234e98d/payment_details?limit=0&brand_id=2785d26e-9678-3d16-999f-314502e70439&country_id=320e4357-95e7-8d18-484f-31643202d986&currency_code=GBP&active=true&with=gateway%2Cclient&order=-default%2Cid&lang=en",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a435b3fe49b290cf-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 19:41:05 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=riwWCb6Pogalkfrit%2Bh1s645BBmVll4%2BQIuQd2alXn%2BeFzaZc8BLD9FcxnvigbCeqvmjEVyiIzl2iPBdlqzjRxYv%2BYpksmxb5G2YRl0ZPcitu899SHtGZHvksIbI64xET4%2F67l%2FUFw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "d0a18277582cc901805601271daa64f76c0a5550",
+        "type": 0,
+        "code": 403,
+        "message": "Unauthorized access to client!",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T19:41:05.844Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

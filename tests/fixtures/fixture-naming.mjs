@@ -15,13 +15,29 @@
  */
 export const EXCLUDE_PARAMS = [
   "lang",
-  "currency_code",
   "order",
   "with",
   "with_count",
   "limit",
   "offset"
 ];
+
+/**
+ * Params whose value is a comma-joined list whose ORDER carries no meaning —
+ * `keys` names which config values to read. Two requests asking for the same set
+ * in a different order are the same question, so the value is split/sorted/joined
+ * before it enters the identity; without this, key order would fork the identity
+ * and gap the replay.
+ */
+const NORMALIZE_LIST_PARAMS = ["keys"];
+
+/** A param value as it enters the identity: ids masked, list params order-normalised. */
+function identityValue(key, value) {
+  if (isId(value)) return null;
+  if (NORMALIZE_LIST_PARAMS.includes(key))
+    return value.split(",").filter(Boolean).sort().join(",");
+  return value;
+}
 
 const UUID_SEGMENT =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -60,7 +76,7 @@ export function fixtureIdentity(method, path) {
       ([key, value]) =>
         !EXCLUDE_PARAMS.includes(key) || (key === "limit" && value === "count")
     )
-    .map(([key, value]) => [key, isId(value) ? null : value])
+    .map(([key, value]) => [key, identityValue(key, value)])
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 
   return { method: method.toUpperCase(), path: pathname, params };

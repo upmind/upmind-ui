@@ -4,7 +4,10 @@ import { InvoiceStatusGroups } from "@upmind-automation/types";
 import { paymentMachine } from "../payment";
 import { authSubscription } from "../session-store";
 import services from "./invoice.services";
-import { spawnInvoicePaymentDetail } from "./invoice.utils";
+import {
+  canChangePaymentCurrency,
+  spawnInvoicePaymentDetail
+} from "./invoice.utils";
 import { mapInvoice } from "./invoices.mappers";
 import {
   mapToHeadlessError,
@@ -13,7 +16,12 @@ import {
   isStoppedService
 } from "../../utils";
 import { get, includes, isEmpty } from "lodash-es";
-import type { InvoicePayContext, LastPaymentModel } from "./invoices.types";
+import type {
+  InvoiceCurrencyConversion,
+  InvoiceLookups,
+  InvoicePayContext,
+  LastPaymentModel
+} from "./invoices.types";
 import type { PaymentArgs } from "../payment";
 import type { IInvoice } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
@@ -86,6 +94,26 @@ export default createMachine(
               },
               PAY: {
                 actions: ["forwardPay"]
+              },
+              SET_CURRENCY: {
+                target: "#converting",
+                cond: "canChangeCurrency"
+              }
+            }
+          },
+
+          // Convert the unpaid amount to the chosen pay currency
+          converting: {
+            id: "converting",
+            invoke: {
+              src: "convertCurrency",
+              onDone: {
+                target: "#collecting",
+                actions: ["setPaymentCurrency", "clearLastPaymentModel"]
+              },
+              onError: {
+                target: "#collecting",
+                actions: ["setConversionError"]
               }
             }
           },
@@ -96,10 +124,17 @@ export default createMachine(
             invoke: {
               id: "payment",
               src: paymentMachine,
-              data: ({ invoice, paymentDetail }: InvoicePayContext) => {
+              data: ({
+                invoice,
+                rawInvoice,
+                paymentDetail
+              }: InvoicePayContext) => {
                 return {
                   orderId: invoice?.id,
                   paymentDetail,
+                  currencyCode:
+                    rawInvoice?.payment_currency?.code ??
+                    rawInvoice?.currency?.code,
                   parentId: "invoiceManager"
                 } as PaymentArgs;
               },
@@ -173,11 +208,42 @@ export default createMachine(
       }),
 
       setInvoice: assign(
-        (_context: InvoicePayContext, { data }: AnyEventObject) => ({
-          rawInvoice: data as IInvoice,
-          invoice: mapInvoice(data as IInvoice)
-        })
+        (_context: InvoicePayContext, { data }: AnyEventObject) => {
+          const { config, ...rawInvoice } = data as InvoiceLookups;
+          return {
+            rawInvoice: rawInvoice as IInvoice,
+            invoice: mapInvoice(rawInvoice as IInvoice),
+            config
+          };
+        }
       ),
+
+      setPaymentCurrency: assign(
+        ({ rawInvoice }: InvoicePayContext, { data }: AnyEventObject) => {
+          const { currency, unpaidAmount, unpaidAmountFormatted } =
+            data as InvoiceCurrencyConversion;
+          const copy = {
+            ...rawInvoice,
+            payment_currency: currency,
+            payment_currency_id: currency.id,
+            unpaid_amount_converted: unpaidAmount,
+            unpaid_amount_formatted: unpaidAmountFormatted
+          } as IInvoice;
+          return {
+            rawInvoice: copy,
+            invoice: mapInvoice(copy),
+            error: undefined,
+            conversionError: undefined
+          };
+        }
+      ),
+
+      setConversionError: assign({
+        conversionError: (
+          _context: InvoicePayContext,
+          { data }: AnyEventObject
+        ) => mapToHeadlessError(data)
+      }),
 
       setPaymentDetail: assign({
         paymentDetail: (
@@ -235,6 +301,9 @@ export default createMachine(
     },
 
     guards: {
+      canChangeCurrency: ({ config, invoice }: InvoicePayContext) =>
+        canChangePaymentCurrency(config, invoice),
+
       isFreeOrPaid: (_context: InvoicePayContext, { data }: AnyEventObject) => {
         const raw = data as IInvoice;
         return includes(InvoiceStatusGroups.PAID, raw.status.code);

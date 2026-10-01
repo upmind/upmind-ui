@@ -5,10 +5,51 @@
  * @description Auth model mappers.
  */
 
+import { UserMetaKeys } from "@upmind-automation/types";
 import { map, slice, first, includes } from "lodash-es";
-import type { Account, Client } from "./";
+import type { Account, Client, ClientRecord } from "./";
 import type { IAccount, IClient } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
+
+/** The wire's `""` spelling of "unset" onto this model's `null` (follow the brand). */
+function emptyToNull<T>(value: T | ""): T | null {
+  return value === "" ? null : value;
+}
+
+/** `"1"`/`1` → true, `"0"`/`0` → false, absent → undefined. */
+function mapExcludeDelegatedProducts(value: unknown): boolean | undefined {
+  if (value === "1" || value === 1) return true;
+  if (value === "0" || value === 0) return false;
+  return undefined;
+}
+
+/**
+ * Maps the raw client record into the one shared view-model the sibling client
+ * modules read their own slice from.
+ */
+export function mapClientRecord(raw: IClient): ClientRecord {
+  return {
+    id: raw.id,
+    brandId: raw.brand_id,
+    firstName: raw.firstname,
+    lastName: raw.lastname,
+    publicName: raw.public_name,
+    language: raw.interface_language_id,
+    interfaceLanguageCode: raw.interface_language_code,
+    excludeDelegatedProducts: mapExcludeDelegatedProducts(
+      raw.meta?.[UserMetaKeys.UI_PRODUCTS_EXCLUDE_DELEGATES]
+    ),
+    customFieldValues: raw.custom_fields ?? [],
+    enabled: raw.invoice_consolidation_enabled,
+    baseRule: emptyToNull(raw.invoice_consolidation_base_rule),
+    dayOfWeek: emptyToNull(raw.invoice_consolidation_base_rule_day_of_week),
+    dateOfMonthDay: raw.invoice_consolidation_base_rule_date_of_month_day,
+    dueDateDay: raw.invoice_consolidation_due_date_day,
+    neverSuspend: !!raw.never_suspend,
+    meta: raw.meta,
+    account: raw.accounts?.length ? mapAccount(first(raw.accounts)!) : null
+  };
+}
 
 /**
  * Compute avatar initials from the client's public name.

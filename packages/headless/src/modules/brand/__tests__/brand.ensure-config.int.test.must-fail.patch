@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/brand/brand.services.ts b/packages/headless/src/modules/brand/brand.services.ts
+index b869cc9f89..c6fc0f81f2 100644
+--- a/packages/headless/src/modules/brand/brand.services.ts
++++ b/packages/headless/src/modules/brand/brand.services.ts
+@@ -57,7 +57,7 @@ function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
+       url.searchParams.set("keys", brandConfigKeysStore.state.join());
+       return true;
+     },
+-    queryKey: ["brand", "config"],
++    queryKey: ["brand", "config", brandConfigKeysStore.state],
+     criteria: { schema: useQuerySchema() },
+     select: data => mapBrandConfig(data, brandConfigKeysStore.state),
+     staleTime: "static",

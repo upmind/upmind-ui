@@ -5,9 +5,8 @@
 # ruling 2026-09-24, ADR 035 + Amendment 1) replayed through the World, or a
 # capability proven no-network by one of this module's PURE `*.test.ts` (which
 # Amendment 1 keeps). Only a capability NO test can honestly prove here is
-# `@todo`, with its one-line blocker. Two composables are booted: the read half
-# (`usePersonalDetails`) under `client_personal_details`, and the FORM EDITOR
-# (`usePersonalDetailsManager`) under `client_personal_details_manager`.
+# `@todo`, with its one-line blocker. One composable is booted: `usePersonalDetails`
+# under `client_personal_details` — it serves both the profile read and the editor.
 #
 # Which test proves each non-driven capability:
 #   - client-personal-details.mappers.test.ts — AC-32, AC-33, AC-48, AC-49, AC-59.

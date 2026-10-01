@@ -266,13 +266,13 @@ export function ticketsScopeKeys(): string[] {
  */
 export async function resetTicketsScopes(): Promise<void> {
   for (const key of ticketsScopeKeys()) remove(key);
-  try {
-    await vi.waitFor(() => expect(queryClient.isFetching()).toBe(0), {
+  await vi
+    .waitFor(() => expect(queryClient.isFetching()).toBe(0), {
       timeout: 2000
+    })
+    .catch(() => {
+      // best-effort settle window elapsed; fall through to explicit cancellation.
     });
-  } catch {
-    // best-effort settle window elapsed; fall through to explicit cancellation.
-  }
   await queryClient.cancelQueries();
   queryClient.clear();
 }

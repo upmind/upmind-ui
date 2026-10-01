@@ -20,7 +20,7 @@
  * @module client-billing-settings/client-billing-settings.types
  * @description Types for a client's own invoice-consolidation preference —
  * the query-backed read half (`useBillingSettings`) and the
- * `dataManagerMachine`-backed editor half (`useBillingSettingsManager`). Both
+ * `dataManagerMachine`-backed editor half (`useBillingSettings`). Both
  * composables share the SAME scope matrix and `CLIENT` context enum
  * (design.md §4.2): the client whose settings are read/edited is named by a
  * matrix-gated `.for('client', id)` retarget, or falls back to the active
@@ -34,22 +34,13 @@ import {
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
-import type { ResponseError } from "../../utils";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
 import type { EnumOption, JsonSchema7 } from "@jsonforms/core";
-import type {
-  DefaultError,
-  QueryKey,
-  useQuery as vueUseQuery
-} from "@tanstack/vue-query";
-// See the @graphify-citation block above (graphify-out/graph.json) — IAccount
-// and ICurrency are consumed unchanged, net-new to this file only; the three
-// enums above are value imports because the label maps key on their members.
+import type { QueryKey } from "@tanstack/vue-query";
 import type {
   IAccount,
   IClient,
-  IClientBillingConsolidationForm,
-  ICurrency
+  IClientBillingConsolidationForm
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
@@ -62,7 +53,7 @@ import type { AnyEventObject } from "xstate";
  *
  * what:   A net-new module at packages/headless/src/modules/client-billing-settings/,
  *         hybrid variant, registry names "client-billing-settings" (read) and
- *         "client-billing-settings-manager" (editor). It mints its OWN model
+ *         "client-billing-settings" (editor). It mints its OWN model
  *         (BillingSettingsRecord / BillingSettingsModel / BillingSettingsUpdateBody).
  *         Neither packages/headless/src/modules/client/ nor .../client-personal-details/
  *         is modified.
@@ -113,7 +104,7 @@ export enum ClientBillingSettingsContextTypes {
 }
 
 /**
- * Scope matrix shared by `useBillingSettings` and `useBillingSettingsManager`
+ * Scope matrix shared by `useBillingSettings` and `useBillingSettings`
  * — both composables scope on the same entity. `client` is the only actor
  * that resolves; `self`, `staff` and `guest` are `null as never`, which makes
  * `.as('staff')` / `.as('guest')` / `.as('self')` compile-time errors rather
@@ -178,21 +169,6 @@ export const WEEKDAY_LABEL: Readonly<Record<DaysOfWeekTypes, string>> = {
   [DaysOfWeekTypes.FRIDAY]: "Friday",
   [DaysOfWeekTypes.SATURDAY]: "Saturday",
   [DaysOfWeekTypes.SUNDAY]: "Sunday"
-};
-
-/**
- * The client's invoice-consolidation preference as read off the wire — the
- * five persisted fields.
- */
-export type BillingSettingsRecord = {
-  id: IClient["id"];
-  enabled: InvoiceConsolidationTypes;
-  baseRule: InvoiceConsolidationRuleTypes | null;
-  dayOfWeek: DaysOfWeekTypes | null;
-  dateOfMonthDay: number | null;
-  dueDateDay: number | null;
-  /** The client's own `never_suspend` flag — legacy's extra gate on the due-date day (`showDueDateDayField`). (graphify-out/graph.json — net-new field.) */
-  neverSuspend: boolean;
 };
 
 /**
@@ -295,50 +271,17 @@ export type BrandConsolidationDefaults = {
 };
 
 /**
- * The reactive single-record read query, minted ONCE per scope in
- * `useBillingSettings.ts`. Mirrors `ClientPersonalDetailsRecordQuery` — no
- * platform-level alias exists for a REACTIVE single-object query (only
- * {@link ListQuery} does, for paginated collections), so this is a hand-typed
- * alias rather than `ReturnType<typeof loadSettings>`.
- */
-export type ClientBillingSettingsRecordQuery = ReturnType<
-  typeof vueUseQuery<IClient, DefaultError, BillingSettingsRecord>
-> & {
-  data: ComputedRef<BillingSettingsRecord>;
-};
-
-/**
- * The contract `createClientBillingSettingsServices` resolves to — consumed
- * by BOTH composables, so the read half and the editor half address the same
- * client through the same seam.
+ * The contract `createClientBillingSettingsServices` resolves to — the editor
+ * addresses its client through this one seam.
  */
 export type ClientBillingSettingsServices = {
-  /** The module's base cache key prefix (the resolved id + record segment are appended at request/invalidation time). */
+  /** The module's base cache key prefix. */
   queryKey: QueryKey;
   /** The target client this scope resolved. */
   clientId: ComputedRef<string | undefined>;
   /** The reactive form of the ONE addressability predicate every request gate calls. */
   isAvailable: ComputedRef<boolean>;
-  /** The last failed mutation, captured as state — never raised. */
-  error: ComputedRef<ResponseError | undefined>;
-  /**
-   * The session-resolved account's id (row X4) — a literal absence, never
-   * substituted, when the addressed client is not the session's own (row X7).
-   */
-  accountId: ComputedRef<string | undefined>;
-  /** The account's own billing currency id, off the session's own account list (rows B1/B5). */
-  currencyId: ComputedRef<string | undefined>;
-  /** The account's preferred payment currency id, or a literal absence when unset (rows B1/B4). */
-  preferredPaymentCurrencyId: ComputedRef<string | null | undefined>;
-  /**
-   * The currency options both account-currency controls offer — the brand's
-   * supported currencies ordered by name, plus the account's own currency
-   * when the brand list omits it (rows B2/B3).
-   */
-  currencyOptions: ComputedRef<ICurrency[]>;
-  /** The reactive settings read, minted once per scope. */
-  loadSettings: () => ClientBillingSettingsRecordQuery;
-  /** One-shot settings read + both brand gates, floored to the schema-parsed base model. */
+  /** One-shot record + account read + both brand gates, floored to the schema-parsed base model. */
   loadLookups: (
     context: BillingSettingsContext
   ) => Promise<Partial<BillingSettingsContext>>;
@@ -386,6 +329,10 @@ export type ClientBillingSettingsServices = {
   ) => Promise<IAccount>;
   /** Invalidates the shared client-record cache prefix so every reader refetches. */
   refresh: () => Promise<void>;
+  /** Marks this scope's own account read stale so the next read refetches, keeping the rows. */
+  invalidate: () => Promise<unknown>;
+  /** Drops this scope's own account read so the next read starts from loading. */
+  reset: () => Promise<unknown>;
 };
 
 /**
@@ -394,7 +341,7 @@ export type ClientBillingSettingsServices = {
  * on entering its state rather than failing to compile, so read
  * `data-manager/data-manager.machine.ts` before trimming this list.
  */
-export type ClientBillingSettingsManagerMachineServices = {
+export type ClientBillingSettingsMachineServices = {
   /** `loading` — the context patch the form starts from. */
   loadLookups: (
     context: BillingSettingsContext

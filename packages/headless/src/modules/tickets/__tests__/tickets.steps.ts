@@ -120,24 +120,23 @@ import {
   TICKET_ATTACHMENT_MAX_BYTES,
   TicketsContextTypes
 } from "../tickets.types";
-import managerTicketRecording from "./scenarios/open-one-of-my-tickets/03/get-tickets-id-with-staged-imports-1.json";
-import ac16MessageRecording from "./scenarios/re-read-one-message-on-its-own/04/get-tickets-id-messages-id.json";
-import reopenTicketRecording from "./scenarios/reopen-a-ticket-that-was-closed/03/get-tickets-id-with-staged-imports-1.json";
-import editTicketRecording from "./scenarios/correct-a-message-i-wrote/03/get-tickets-id-with-staged-imports-1.json";
-import withdrawRecording from "./scenarios/withdraw-a-message-i-wrote/04/delete-tickets-id-messages-id.json";
-import editMessagesRecording from "./scenarios/correct-a-message-i-wrote/03/get-tickets-id-messages-filter-is-log-0.json";
-import withdrawMessagesRecording from "./scenarios/withdraw-a-message-i-wrote/03/get-tickets-id-messages-filter-is-log-0.json";
-import downloadTicketRecording from "./scenarios/download-a-file-from-the-conversation/03/get-tickets-id-with-staged-imports-1.json";
-import downloadMessagesRecording from "./scenarios/download-a-file-from-the-conversation/03/get-tickets-id-messages-filter-is-log-0.json";
-import removeFileTicketRecording from "./scenarios/remove-a-file-i-attached/03/get-tickets-id-with-staged-imports-1.json";
-import removeFileMessagesRecording from "./scenarios/remove-a-file-i-attached/03/get-tickets-id-messages-filter-is-log-0.json";
-import filesTicketRecording from "./scenarios/reply-to-a-ticket-that-has-files-attached/03/get-tickets-id-with-staged-imports-1.json";
-import filesUploadRecording from "./scenarios/reply-to-a-ticket-that-has-files-attached/03/post-ticket-messages-files.json";
 import pollClosedTicketRecording from "./scenarios/a-resolved-ticket-is-not-watched/03/get-tickets-id-with-staged-imports-1.json";
-import notMineEditTicketRecording from "./scenarios/i-cannot-correct-a-message-that-is-not-mine/03/get-tickets-id-with-staged-imports-1.json";
+import editMessagesRecording from "./scenarios/correct-a-message-i-wrote/03/get-tickets-id-messages-filter-is-log-0.json";
+import editTicketRecording from "./scenarios/correct-a-message-i-wrote/03/get-tickets-id-with-staged-imports-1.json";
+import downloadMessagesRecording from "./scenarios/download-a-file-from-the-conversation/03/get-tickets-id-messages-filter-is-log-0.json";
+import downloadTicketRecording from "./scenarios/download-a-file-from-the-conversation/03/get-tickets-id-with-staged-imports-1.json";
 import lockedTicketRecording from "./scenarios/i-cannot-close-a-locked-ticket/03/get-tickets-id-with-staged-imports-1.json";
 import notMineEditMessagesRecording from "./scenarios/i-cannot-correct-a-message-that-is-not-mine/03/get-tickets-id-messages-filter-is-log-0.json";
+import notMineEditTicketRecording from "./scenarios/i-cannot-correct-a-message-that-is-not-mine/03/get-tickets-id-with-staged-imports-1.json";
+import managerTicketRecording from "./scenarios/open-one-of-my-tickets/03/get-tickets-id-with-staged-imports-1.json";
+import ac16MessageRecording from "./scenarios/re-read-one-message-on-its-own/04/get-tickets-id-messages-id.json";
+import removeFileMessagesRecording from "./scenarios/remove-a-file-i-attached/03/get-tickets-id-messages-filter-is-log-0.json";
+import removeFileTicketRecording from "./scenarios/remove-a-file-i-attached/03/get-tickets-id-with-staged-imports-1.json";
+import reopenTicketRecording from "./scenarios/reopen-a-ticket-that-was-closed/03/get-tickets-id-with-staged-imports-1.json";
+import filesTicketRecording from "./scenarios/reply-to-a-ticket-that-has-files-attached/03/get-tickets-id-with-staged-imports-1.json";
+import filesUploadRecording from "./scenarios/reply-to-a-ticket-that-has-files-attached/03/post-ticket-messages-files.json";
 import conflictTicketRecording from "./scenarios/reply-when-an-agent-has-replied-first/03/get-tickets-id-with-staged-imports-1.json";
+import withdrawRecording from "./scenarios/withdraw-a-message-i-wrote/04/delete-tickets-id-messages-id.json";
 import { findLast, split, uniq, values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 
@@ -351,9 +350,6 @@ const firstMessage = (
 const EDIT_TICKET_ID = recordedId(editTicketRecording as RecordedRequest);
 const EDIT_MESSAGE_ID = firstMessage(
   editMessagesRecording as MessagesRecording
-).id;
-const WITHDRAW_MESSAGE_ID = firstMessage(
-  withdrawMessagesRecording as MessagesRecording
 ).id;
 
 /** AC-20's own throwaway ticket and the real file its reply carries. */

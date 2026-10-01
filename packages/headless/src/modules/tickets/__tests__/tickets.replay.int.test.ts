@@ -66,13 +66,13 @@ import {
   stepDirDrift,
   stepFixturesDir
 } from "../../../testing/scenario-fixtures";
+import { server } from "./setup.integration";
 import { resetTicketsScopes, seedClientSession } from "./tickets.int-helpers";
 import {
   TICKETS_SCENARIO,
   TICKET_SCENARIO,
   ticketsSteps
 } from "./tickets.steps";
-import { server } from "./setup.integration";
 import { forEach, includes, reject } from "lodash-es";
 import type { NodeComposable } from "../../../testing";
 import type { FeatureScenario } from "@upmind-automation/scenario-harness";

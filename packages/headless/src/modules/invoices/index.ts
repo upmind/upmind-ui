@@ -33,7 +33,6 @@ export type {
   InvoiceSortableField,
   InvoiceSortEntry,
   InvoiceSortModel,
-  InvoiceUnpaidAmount,
   Payment
 } from "./invoices.types";
 

@@ -1,11 +1,9 @@
 import { ref, watch } from "vue";
 import { interpret } from "xstate";
-import { useBasketCurrency } from "../basket";
 import { usePaymentDetail, usePaymentGateway } from "../payment-details";
 import { useQueryParams } from "../routing/useQueryParams";
 import { createScopedComposable } from "../scope";
 import invoiceMachine from "./invoice.machine";
-import { loadUnpaidAmount } from "./invoice.services";
 import { INVOICE_SCOPE_MATRIX } from "./invoices.types";
 import { createInvoiceActions } from "./useInvoice.actions";
 import { createInvoiceContext } from "./useInvoice.context";
@@ -76,7 +74,6 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const paymentDetailActor = useContextActor(actor.state, "paymentDetailActor");
   const paymentDetail = usePaymentDetail(paymentDetailActor);
   const gateway = usePaymentGateway(paymentDetail.gateway);
-  const basketCurrency = useBasketCurrency();
 
   // The payment-method model staged by `useActions().input()` and saved by
   // `updatePaymentDetails()`; owned here so it survives across `useActions()`
@@ -84,11 +81,6 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const paymentDetailsModel = ref<InvoicePaymentDetailsModel>({
     payment_details_id: null
   });
-
-  // The live unpaid amount, converted to the client's selected currency; it
-  // re-reads through the query layer's `withCurrency` when `setCurrency` moves
-  // the basket currency (AC1 — the legacy pay modal's convert-on-switch).
-  const unpaidAmountQuery = loadUnpaidAmount(invoiceId);
 
   const errors = useContext<ResponseError | undefined>(actor.state, "error");
 
@@ -126,23 +118,15 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
         scopeKey,
         invoiceId,
         paymentFailed,
-        paymentDetailsModel,
-        basketCurrency
+        paymentDetailsModel
       ),
 
-    /** Sub-composable for single-invoice context (mapped invoice, unpaid amount). */
-    useContext: () =>
-      createInvoiceContext(actorScope, actor, unpaidAmountQuery.data),
+    /** Sub-composable for single-invoice context (mapped invoice, error). */
+    useContext: () => createInvoiceContext(actorScope, actor),
 
     /** Sub-composable for advanced debugging and the delegated payment composables. */
     useInternals: () =>
-      createInvoiceInternals(
-        actorScope,
-        actor,
-        paymentDetail,
-        gateway,
-        basketCurrency
-      ),
+      createInvoiceInternals(actorScope, actor, paymentDetail, gateway),
 
     /** Sub-composable for single-invoice meta (state flags). */
     useMeta: () => createInvoiceMeta(actorScope, actor, paymentFailed)
@@ -156,7 +140,7 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  * ```ts
  * const invoice = useInvoice().withId(invoiceId)          // as self
  * const guestInvoice = useInvoice().as('guest').withId(invoiceId)
- * const { invoice: data, unpaidAmount } = invoice.useContext()
+ * const { model } = invoice.useContext()
  * await invoice.useActions().isReady()
  * invoice.useActions().pay()
  * ```

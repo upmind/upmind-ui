@@ -67,6 +67,7 @@ import type {
   UseForcedState
 } from "./useForcedState.types";
 import type { ForcedState } from "../force/states.types";
+import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
@@ -152,7 +153,7 @@ function create(): ForcedStateHandle {
 
   // The scenario a `replay` arm plays (FE-3145) — whose first step's answers
   // the arm installs, and whose steps `replayStep` arms after it.
-  let replayed: string | undefined;
+  let replayed: Pick<FeatureScenario, "name" | "tags"> | undefined;
 
   // The capture gaps the armed scenario has hit — requests no step of it
   // recorded. Emptied on every arm.
@@ -177,11 +178,13 @@ function create(): ForcedStateHandle {
    * each scene then arms its own step (`replayStep`); every other preset is
    * answered from the module's corpus.
    */
-  async function handlersFor(preset: ForcePreset): Promise<unknown[]> {
+  async function handlersFor(preset: ForcePreset) {
     const { createForceHandlers, createScenarioWall, createStepHandlers } =
       await import("../force/handlers");
     const { runtimeRecordsScenarios, runtimeStepFixtures } =
       await import("../force/corpus");
+    const { scenarioTiming } =
+      await import("@upmind-automation/test-fixtures/fixture-handlers");
 
     if (preset !== REPLAY || !replayed || !runtimeRecordsScenarios())
       return createForceHandlers(preset);
@@ -190,7 +193,10 @@ function create(): ForcedStateHandle {
     // every arm ends on re-reads the page at once, and that read is the
     // scenario's opening one — answered by the wall alone, it fails.
     return [
-      ...createStepHandlers(await runtimeStepFixtures(replayed, 0)),
+      ...createStepHandlers(
+        await runtimeStepFixtures(replayed.name, 0),
+        scenarioTiming(replayed.tags)
+      ),
       ...createScenarioWall(gaps)
     ];
   }
@@ -308,7 +314,7 @@ function create(): ForcedStateHandle {
 
   async function arm(
     next: ForcedState | "replay",
-    scenario?: string
+    scenario?: Pick<FeatureScenario, "name" | "tags">
   ): Promise<void> {
     const armed = next === "replay" ? undefined : next;
     replayed = armed ? undefined : scenario;
@@ -355,8 +361,13 @@ function create(): ForcedStateHandle {
       return;
 
     const { createStepHandlers } = await import("../force/handlers");
+    const { scenarioTiming } =
+      await import("@upmind-automation/test-fixtures/fixture-handlers");
     worker.use(
-      ...createStepHandlers(await runtimeStepFixtures(replayed, index))
+      ...createStepHandlers(
+        await runtimeStepFixtures(replayed.name, index),
+        scenarioTiming(replayed.tags)
+      )
     );
   }
 

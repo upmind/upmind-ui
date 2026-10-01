@@ -50,11 +50,9 @@ function makeGuardedRouter(): GuardHarness {
     const oid = to.query.oid as string | undefined;
     if (!oid) return true;
 
-    try {
-      await executeOperation(oid);
-    } catch (error) {
+    await executeOperation(oid).catch(error => {
       caught = error;
-    }
+    });
     return { path: to.path, query: omit(to.query, "oid") };
   });
 

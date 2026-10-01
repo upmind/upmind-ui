@@ -124,26 +124,30 @@ async function executeOperation<T>(oid: string): Promise<T> {
   // concurrent call cannot pass the busy check during the isReady microtask.
   updateState({ currentOid: oid, isExecuting: true });
 
-  try {
-    const ready = await isReady(operation.key);
-    if (!ready)
-      throw new DetailedError(
-        t("error.operation_handler_not_found"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      );
+  return isReady(operation.key)
+    .then(ready => {
+      if (!ready)
+        throw new DetailedError(
+          t("error.operation_handler_not_found"),
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        );
 
-    const handler = handlers.get(operation.key)!;
-    const result = await handler(operation.payload);
-    updateState({ lastResult: result, lastError: null });
-    return result as T;
-  } catch (error) {
-    updateState({ lastError: error as Error });
-    throw error;
-  } finally {
-    clearOperation(oid);
-    updateState({ currentOid: null, isExecuting: false });
-  }
+      const handler = handlers.get(operation.key)!;
+      return handler(operation.payload);
+    })
+    .then(result => {
+      updateState({ lastResult: result, lastError: null });
+      return result as T;
+    })
+    .catch(error => {
+      updateState({ lastError: error as Error });
+      throw error;
+    })
+    .finally(() => {
+      clearOperation(oid);
+      updateState({ currentOid: null, isExecuting: false });
+    });
 }
 
 export function useOperations() {

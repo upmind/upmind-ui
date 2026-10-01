@@ -10,7 +10,7 @@
  * is no DOM read, no request read and no import of the module's own source
  * here.
  *
- * The driven scenarios boot the editor half (`useBillingSettingsManager`)
+ * The driven scenarios boot the one composable (`useBillingSettings`)
  * under ONE scenario key: it loads the record on entry (so the read
  * capability is driven), then edits and saves it (so the write capabilities
  * are). Every save asserts the value it drove against the model the machine
@@ -31,6 +31,7 @@ import ac22CurrencyRecording from "./scenarios/i-can-change-the-currency-my-acco
 import ac22BothRecording from "./scenarios/i-can-change-the-currency-my-account-bills-in/06/put-accounts-id.json";
 import ac21SetRecording from "./scenarios/i-can-choose-a-preferred-payment-currency-for-my-account-and-clear-it-again/04/put-accounts-id.json";
 import ac21ClearRecording from "./scenarios/i-can-choose-a-preferred-payment-currency-for-my-account-and-clear-it-again/06/put-accounts-id.json";
+import ac20BootRecording from "./scenarios/i-can-see-the-currency-my-account-bills-in-and-my-preferred-payment-currency-if-i-have-one/01/get-clients-id.json";
 import { values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 
@@ -101,11 +102,13 @@ const savedCurrency = (rec: AccountRecording): string =>
 const savedPreferred = (rec: AccountRecording): string | null =>
   rec.response.body.data.preferred_payment_currency_id;
 
-/** The account's own billing currency, read off a recorded account PUT response. */
-const ACCOUNT_CURRENCY = savedCurrency(ac21SetRecording as AccountRecording);
+type BootRecording = {
+  response: { body: { data: { accounts: { currency_id: string }[] } } };
+};
 
-/** Set by AC-13's Given: the save left in flight (fired, not awaited) so the next step reads mid-save meta. */
-let inFlightSave: Promise<void> | undefined;
+/** The account's own billing currency, read off the AC-20 boot record read. */
+const OWN_ACCOUNT_CURRENCY = (ac20BootRecording as BootRecording).response.body
+  .data.accounts[0]!.currency_id;
 
 /** Re-runs a world expectation until the scope settles on it. */
 async function settles(assertion: () => Promise<void>): Promise<void> {
@@ -426,8 +429,10 @@ export const clientBillingSettingsSteps = defineSteps(
         await world.fire(CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.input, {
           enabled: InvoiceConsolidationTypes.DISABLED
         });
-        inFlightSave = world.fire(
-          CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update
+        await world.fireHold!(
+          CLIENT_BILLING_SETTINGS_COVERED_ACTIONS.update,
+          undefined,
+          CLIENT_BILLING_SETTINGS_SCENARIO
         );
       }
     );
@@ -444,8 +449,7 @@ export const clientBillingSettingsSteps = defineSteps(
     Then(
       "once the save settles, whether it succeeded or failed, every control becomes available again",
       async world => {
-        await inFlightSave;
-        inFlightSave = undefined;
+        await world.settle!(CLIENT_BILLING_SETTINGS_SCENARIO);
         await settles(() => world.expectMeta({ isProcessing: false }));
       }
     );
@@ -474,7 +478,7 @@ export const clientBillingSettingsSteps = defineSteps(
     // the boot resolves; the billing currency reads back off a recorded account PUT
     // response, the preferred is unset. ------------------------------------------
     Given(
-      "I hold a real account with a billing currency, addressed as my own",
+      "I hold a real account billing in a currency my brand no longer offers, addressed as my own",
       world => open(world)
     );
 
@@ -483,12 +487,29 @@ export const clientBillingSettingsSteps = defineSteps(
     );
 
     Then("I see the currency my account actually bills in", world =>
-      expectModel(world, { currencyId: ACCOUNT_CURRENCY })
+      expectModel(world, { currencyId: OWN_ACCOUNT_CURRENCY })
     );
 
     Then(
       "I see my preferred payment currency exactly when one is actually set, never a substitute for it",
       world => expectModel(world, { preferredPaymentCurrencyId: null })
+    );
+
+    Then(
+      "the currencies I can choose from still include the currency my account bills in, even when my brand no longer offers it",
+      world => {
+        if (!world.expectContext)
+          throw new Error("this World cannot read context");
+        return settles(() =>
+          world.expectContext!({
+            schema: {
+              definitions: {
+                currencyId: { options: [{ value: OWN_ACCOUNT_CURRENCY }] }
+              }
+            }
+          })
+        );
+      }
     );
 
     // --- AC-21: set a preferred payment currency, clear it, then a no-change save

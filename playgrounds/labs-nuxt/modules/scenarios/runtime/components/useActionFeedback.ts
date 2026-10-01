@@ -128,20 +128,20 @@ export function useActionFeedback(
     pull(succeeded.value, key);
     const before = observe?.();
 
-    try {
-      await invoke();
-      const refusal = await captured(before);
-      if (!isNil(refusal)) return refuse(key, refusal, copy);
+    return Promise.resolve(invoke())
+      .then(() => captured(before))
+      .then(refusal => {
+        if (!isNil(refusal)) return refuse(key, refusal, copy);
 
-      if (copy) report(copy.success, "success");
-      succeeded.value.push(key);
-      delay(() => pull(succeeded.value, key), SUCCESS_CUE_MS);
-      return true;
-    } catch (error) {
-      return refuse(key, error, copy);
-    } finally {
-      pull(pending.value, key);
-    }
+        if (copy) report(copy.success, "success");
+        succeeded.value.push(key);
+        delay(() => pull(succeeded.value, key), SUCCESS_CUE_MS);
+        return true;
+      })
+      .catch(error => refuse(key, error, copy))
+      .finally(() => {
+        pull(pending.value, key);
+      });
   }
 
   return {

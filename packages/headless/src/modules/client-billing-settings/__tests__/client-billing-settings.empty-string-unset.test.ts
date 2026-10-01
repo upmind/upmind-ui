@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { useValidation } from "../../../utils/useValidation";
-import { mapBillingSettings } from "../client-billing-settings.mappers";
+import { mapClientRecord } from "../../client";
 import { useSchema } from "../client-billing-settings.schemas";
 import type { BillingSettingsContext } from "../client-billing-settings.types";
 import type { IClient } from "@upmind-automation/types";
@@ -12,15 +12,15 @@ import type { IClient } from "@upmind-automation/types";
  * Observed LIVE 2026-09-11 (MinistryOfPhotography, acting as self, the
  * `useBillingSettingsManager` playground page): the client record came back
  * with `invoice_consolidation_base_rule_day_of_week: ""`. Carried verbatim,
- * that `""` is restored by `restoreCompactedFields` after `useModelParser`
- * compacts it, reaches `validate` on the machine's own LOAD path, and is
+ * that `""` reaches `validate` on the machine's own LOAD path, and is
  * rejected by `dayOfWeek`'s enum — the editor lands in `invalid` and the form
  * never renders.
  *
  * These are PURE mapper + schema assertions over a synthetic `IClient`. They
  * are NOT a recorded contract and must never be read as one: the only
  * recorded claim here is the `""` value above, which the live console
- * surfaced. `BillingSettingsRecord` types both string fields `<enum> | null`,
+ * surfaced. The shared record mapper (`mapClientRecord`, the `client`
+ * module's) types both string fields `<enum> | null`,
  * so `""` is off-contract for this module whatever the API's reason for it.
  */
 
@@ -40,7 +40,7 @@ function rawClient(overrides: Partial<IClient> = {}): IClient {
 
 describe("client-billing-settings — the wire's empty-string unset", () => {
   it("maps an empty-string day of week to null, never to the empty string", () => {
-    const record = mapBillingSettings(
+    const record = mapClientRecord(
       rawClient({
         invoice_consolidation_base_rule_day_of_week: "" as never
       })
@@ -50,7 +50,7 @@ describe("client-billing-settings — the wire's empty-string unset", () => {
   });
 
   it("maps an empty-string base rule to null, never to the empty string", () => {
-    const record = mapBillingSettings(
+    const record = mapClientRecord(
       rawClient({ invoice_consolidation_base_rule: "" as never })
     );
 
@@ -58,7 +58,7 @@ describe("client-billing-settings — the wire's empty-string unset", () => {
   });
 
   it("leaves a real enum member untouched", () => {
-    const record = mapBillingSettings(
+    const record = mapClientRecord(
       rawClient({
         invoice_consolidation_base_rule: "day_of_week" as never,
         invoice_consolidation_base_rule_day_of_week: "monday" as never
@@ -70,7 +70,7 @@ describe("client-billing-settings — the wire's empty-string unset", () => {
   });
 
   it("leaves a real null untouched", () => {
-    const record = mapBillingSettings(rawClient());
+    const record = mapClientRecord(rawClient());
 
     expect(record.baseRule).toBe("daily");
     expect(record.dayOfWeek).toBeNull();
@@ -84,7 +84,7 @@ describe("client-billing-settings — the wire's empty-string unset", () => {
    * error the live page showed.
    */
   it("produces a record the editor's own schema accepts", () => {
-    const record = mapBillingSettings(
+    const record = mapClientRecord(
       rawClient({
         invoice_consolidation_base_rule: "" as never,
         invoice_consolidation_base_rule_day_of_week: "" as never

@@ -26,10 +26,11 @@ export async function interceptAndPatchResponse(
   await context.route(urlPattern, async (route: Route) => {
     const response = await route.fetch();
 
-    let body: any;
-    try {
-      body = await response.json();
-    } catch (e) {
+    let failed = false;
+    const body: any = await response.json().catch(() => {
+      failed = true;
+    });
+    if (failed) {
       console.warn("Could not parse JSON body, returning as-is");
       return route.fulfill({ response });
     }

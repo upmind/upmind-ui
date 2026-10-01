@@ -5,12 +5,11 @@
  * ADR-028 i18n straggler (unit)
  *
  * ## Job To Be Done
- * Prove AC-55 (no name collision/shadowing — `UsePersonalDetails` /
- * `UsePersonalDetailsManager` resolve as types with no runtime value
- * shadowing them), AC-56 (no docstring in this module talks about phone,
+ * Prove AC-55 (no name collision/shadowing — `UsePersonalDetails` resolves
+ * as a type with no runtime value shadowing it), AC-56 (no docstring in this module talks about phone,
  * address, or basket — the copy-paste tell from the conversion's shared
  * ancestry), AC-57 (curated named exports, no `export *`, the empty
- * `client-personal-details.utils.ts` stub is gone) and AC-44's grep-shaped
+ * restore helpers are gone) and AC-44's grep-shaped
  * half (no `from "vue-i18n"` import remains under this module).
  *
  * The FE-3240 identity channel is the same one EVERY sibling client module
@@ -64,8 +63,7 @@ const MODULE_DIR = join(import.meta.dirname, "..");
 const EXPECTED_RUNTIME_EXPORTS = [
   "ClientPersonalDetailsContextTypes",
   "PERSONAL_DETAILS_SCOPE_MATRIX",
-  "usePersonalDetails",
-  "usePersonalDetailsManager"
+  "usePersonalDetails"
 ];
 
 const barrelSource = (): string =>
@@ -113,11 +111,8 @@ function moduleSourceFiles(): string[] {
 // -----------------------------------------------------------------------------
 
 describe("client-personal-details public surface", () => {
-  it("AC-57 offers both composables, curated by name — no export *", () => {
+  it("AC-57 offers the one composable, curated by name — no export *", () => {
     expect(typeof clientPersonalDetails.usePersonalDetails).toBe("function");
-    expect(typeof clientPersonalDetails.usePersonalDetailsManager).toBe(
-      "function"
-    );
     expect(barrelSource()).not.toMatch(/^\s*export\s+\*/m);
   });
 
@@ -141,16 +136,16 @@ describe("client-personal-details public surface", () => {
     expect(PERSONAL_DETAILS_SCOPE_MATRIX[ScopeActorTypes.GUEST]).toBeNull();
   });
 
-  it("AC-57 compiles `.for(CLIENT, id)` for both composables as the CLIENT actor, and for no other actor", () => {
+  it("AC-57 compiles `.for(CLIENT, id)` for the composable as the CLIENT actor, and for no other actor", () => {
     const diagnostics = compileProbe([
-      `import { usePersonalDetails, usePersonalDetailsManager, ClientPersonalDetailsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
+      `import { usePersonalDetails, ClientPersonalDetailsContextTypes } from ${JSON.stringify(MODULE_DIR)};`,
       `import { ScopeActorTypes } from ${JSON.stringify(join(MODULE_DIR, "../scope/scope.types"))};`,
       `import { PERSONAL_DETAILS_SCOPE_MATRIX } from ${JSON.stringify(MODULE_DIR)};`,
       `import type { PersonalDetailsScopeMatrix } from ${JSON.stringify(MODULE_DIR)};`,
-      // 5-6 — controls: `.for(CLIENT, id)` is the sanctioned channel on both
-      // composables, so a probe that merely fails to resolve cannot pass.
+      // 5-6 — controls: `.for(CLIENT, id)` is the sanctioned channel, so a
+      // probe that merely fails to resolve cannot pass.
       `usePersonalDetails().as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`,
-      `usePersonalDetailsManager().as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`,
+      `usePersonalDetails().as(ScopeActorTypes.CLIENT).for(ClientPersonalDetailsContextTypes.CLIENT, "y");`,
       // 7-9 — the gate: `.for()` is unspellable for every non-CLIENT actor.
       `usePersonalDetails().as(ScopeActorTypes.STAFF).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`,
       `usePersonalDetails().as(ScopeActorTypes.GUEST).for(ClientPersonalDetailsContextTypes.CLIENT, "x");`,
@@ -160,15 +155,13 @@ describe("client-personal-details public surface", () => {
     expect(diagnostics).toEqual([7, 8, 9]);
   }, 60000);
 
-  it("AC-57 client-personal-details.utils.ts is never an empty stub — it exports the pure helpers the services file may not hold", () => {
-    const source = readFileSync(
-      join(MODULE_DIR, "client-personal-details.utils.ts"),
-      "utf8"
-    );
-
-    expect(source).toMatch(/export function recordQueryKey\b/);
-    expect(source).toMatch(/export function isClearIntent\b/);
-    expect(source).toMatch(/export function restoreClearedFields\b/);
+  it("AC-57 keeps no restore helper — a clear leaves on the wire, never re-filled from the base", () => {
+    for (const file of moduleSourceFiles()) {
+      const content = readFileSync(join(MODULE_DIR, file), "utf-8");
+      expect(content, `${file} should hold no restore helper`).not.toMatch(
+        /\b(restoreClearedFields|isClearIntent)\b/
+      );
+    }
   });
 
   it("AC-57 every internal file (services/mappers/schemas/machine) carries a line-1 @internal marker", () => {
@@ -176,7 +169,7 @@ describe("client-personal-details public surface", () => {
       "client-personal-details.services.ts",
       "client-personal-details.mappers.ts",
       "client-personal-details.schemas.ts",
-      "usePersonalDetailsManager.machine.ts"
+      "usePersonalDetails.machine.ts"
     ];
 
     for (const file of internalFiles) {
@@ -233,10 +226,8 @@ describe("client-personal-details public surface", () => {
     // annotation, not by a runtime assertion (no external consumer's compile
     // to stand in for — same reasoning as client-email.surface.test.ts).
     const typeCheck: (
-      details: import("..").UsePersonalDetails,
-      manager: import("..").UsePersonalDetailsManager
-    ) => boolean = (details, manager) =>
-      typeof details === "object" && typeof manager === "object";
+      details: import("..").UsePersonalDetails
+    ) => boolean = details => typeof details === "object";
 
     expect(typeof typeCheck).toBe("function");
   });

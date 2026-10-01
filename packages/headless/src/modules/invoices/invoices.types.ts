@@ -55,7 +55,7 @@ import type { Address } from "../client-address/client-address.types";
 import type { Currency } from "../currency/currency.types";
 import type { LookupItem } from "../lookup";
 import type { PaymentDetailData, PaymentDetailModel } from "../payment-details";
-import type { ListQuery, SimpleQuery } from "../query";
+import type { InfiniteListQuery, ListQuery } from "../query";
 import type { ScopeContext } from "../scope";
 import type { QueryKey } from "@tanstack/vue-query";
 // IInvoice added for InvoicesListQuery/InvoiceItemQuery's wire-type argument
@@ -66,6 +66,7 @@ import type {
   CreditNoteStatus,
   IContract,
   IContractProduct,
+  ICurrency,
   IInvoice
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -333,6 +334,8 @@ export type Invoice = {
   client: Client;
   address?: Address;
   currency: Currency;
+  /** The pay currency the platform holds for this invoice, when it has one. */
+  currencyPayment?: Currency;
   products: BasketProduct[];
   /**
    * A list-shaped read of {@link Invoice.products} for a text cell —
@@ -482,30 +485,14 @@ export type Payment = {
 };
 
 /**
- * AC1's response shape for the standalone unpaid-amount re-read.
- *
- * @decision
- * what: no `amountConverted` / `currencyId` members, though the oracle's
- * counterpart is named `getUnpaidConvertedAmount` (`oracle:621-633`).
- * why: the real endpoint's response carries exactly
- * `["unpaid_amount","unpaid_amount_formatted"]` — confirmed against the
- * shipped fixture
- * (`__tests__/fixtures/get-invoices-unpaid-amount-id-currency-id.json`) and a
- * fresh staging capture. A "converted" figure is unavailable from this
- * endpoint; `currencyId` is already the caller's own input
- * (`useInvoice.actions.ts`'s `refreshUnpaidAmount`), so echoing it back would
- * teach a consumer nothing the request didn't already carry.
- * rejected: keeping both fields with a `@decision` explaining neither can
- * ever populate — a VM field the wire never sends, left in place, implies a
- * capability ("converted") that does not exist here; removing it is the
- * honest shape. `graphify query "InvoiceUnpaidAmount amountConverted
- * currencyId consumers"` against `graphify-out/graph.json` (2026-09-08)
- * confirms no consumer outside this module's own services/mappers reads
- * either member — reshaping, not a widely-depended-on removal.
+ * The `convertCurrency` machine service's result — the brand currency record
+ * for the chosen code and the invoice's unpaid amount converted to it
+ * (`GET invoices/unpaid_amount/{id}?currency_code=`).
  */
-export type InvoiceUnpaidAmount = {
-  amount: number;
-  amountFormatted: string;
+export type InvoiceCurrencyConversion = {
+  currency: ICurrency;
+  unpaidAmount: number;
+  unpaidAmountFormatted: string;
 };
 
 /**
@@ -560,9 +547,21 @@ export type InvoicePayContext = {
   /** Persisted payment selections for retry/partial UX. */
   lastPaymentModel?: LastPaymentModel;
 
+  /** The brand gate for a pay-currency change, read at load. */
+  config?: InvoiceBrandConfig;
+
   /** Error from the last operation. */
   error?: ResponseError;
+
+  /** Error from the last pay-currency change; never a payment failure. */
+  conversionError?: ResponseError;
 };
+
+/** The brand config values the single invoice reads at load. */
+export type InvoiceBrandConfig = Record<string, unknown>;
+
+/** The `loadLookups` / `refresh` machine-service result. */
+export type InvoiceLookups = IInvoice & { config: InvoiceBrandConfig };
 
 /**
  * The `usePaymentChallenge` provide/inject contract — the ONE shape the pay
@@ -596,17 +595,6 @@ export type InvoicesListQuery = ListQuery<
 >;
 
 /**
- * The single invoice's live unpaid-amount query, minted once in `useInvoice.ts`.
- * The currency rides through the query layer's `withCurrency` (finding 12 — no
- * manual `url.searchParams` write): it re-keys on the client's selected basket
- * currency so a currency change re-reads the converted amount.
- */
-export type InvoiceUnpaidAmountQuery = SimpleQuery<
-  InvoiceUnpaidAmount,
-  InvoiceUnpaidAmount
->;
-
-/**
  * The contract `createInvoicesServices` resolves to — consumed by BOTH
  * composables, so the collection and the single read address the same client
  * through the same seam. Hand-declared: the `scopedServices()` switch needs
@@ -632,6 +620,12 @@ export type InvoicesServices = {
   error: ComputedRef<ResponseError | undefined>;
   /** The async PARENT-invoice lookup a `.for('invoice', id)` picker drives. */
   loadInvoiceLookup: () => InvoiceLookupQuery;
+  /**
+   * The async finder lookup the `invoicePicker` drives — the scope's OWN
+   * invoices, credited or not, with no parent filter. Distinct from
+   * {@link loadInvoiceLookup}, which offers only credited parents.
+   */
+  loadInvoicePickerLookup: () => InvoiceLookupQuery;
   /** The async CONTRACT lookup a `.for('contract', id)` picker drives. */
   loadContractLookup: () => ContractLookupQuery;
   /** The async CONTRACT-PRODUCT lookup a `.for('contracts_product', id)` picker drives. */
@@ -683,7 +677,7 @@ export type InvoiceLookupQueryModel = {
  * control's `options.lookup.service` as a thunk (below). It offers the PARENT
  * invoices the `.for('invoice', id)` scope slot takes.
  */
-export type InvoiceLookupQuery = ListQuery<
+export type InvoiceLookupQuery = InfiniteListQuery<
   IInvoice[],
   LookupItem[],
   InvoiceLookupQueryModel
@@ -738,12 +732,15 @@ export type ContractProductLookupQuery = ListQuery<
 export type ContractProductLookupService = () => ContractProductLookupQuery;
 
 /**
- * The three relationship lookups a scope publishes — one thunk per RETARGET
- * context type, keyed by that type's own enum VALUE so a picker can resolve
- * the right one from the context it is rendering.
+ * The lookups a scope publishes: the three RETARGET relationship thunks — one
+ * per context type, keyed by that type's own enum VALUE so a `.for()` picker
+ * can resolve the right one from the context it is rendering — plus the
+ * `invoicePicker` finder, a plain search over the scope's own invoices
+ * (credited or not) that opens ONE invoice without retargeting the list.
  */
 export type InvoicesScopeLookups = {
   contract: ContractLookupService;
   contracts_product: ContractProductLookupService;
   invoice: InvoiceLookupService;
+  invoicePicker: InvoiceLookupService;
 };

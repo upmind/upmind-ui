@@ -15,11 +15,13 @@
  * recordings, armed in front of these by the replay.
  */
 
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { replayStep } from "@upmind-automation/test-fixtures/replay-server";
+import { useBrand } from "../../brand";
 import { queryClient } from "../../query/client";
 import { getRegistry, remove } from "../../scope/scope.registry";
 import {
@@ -120,25 +122,44 @@ export function clientBillingSettingsScopeKeys(): string[] {
 /**
  * Evict every client-billing-settings scope entry (both namespaces) so each
  * scenario starts from a fresh instance against ITS OWN recordings. The
- * registry entry and the TanStack query cache are separate lifetimes, so the
- * shared cache is cleared too.
+ * registry entry, the TanStack query cache and `useBrand`'s append-only config
+ * store are separate lifetimes — all cleared so each scenario's boot reads are
+ * real, and the brand singleton no longer carries the previous scenario's gate
+ * values.
  */
 export function resetClientBillingSettingsScopes(): void {
   for (const key of clientBillingSettingsScopeKeys()) remove(key);
   queryClient.clear();
+  useBrand().invalidate();
 }
 
 // -----------------------------------------------------------------------------
+
+/**
+ * The current scenario's step-01 (boot step) recording, armed over the next
+ * boot's config read so the brand gate value `useBrand` caches is this
+ * scenario's own, not the previous scenario's.
+ */
+let pendingBootStepDir: string | undefined;
+
+/** Arms the given scenario step-01 dir over the next boot's config read. */
+export function armBootStep(dir: string): void {
+  pendingBootStepDir = dir;
+}
 
 /** Seeds a real authenticated client session; returns its resolved client id. */
 export async function seedClientSession(): Promise<{
   clientId: string;
   accessToken: string;
 }> {
-  resetClientBillingSettingsScopes();
   installBackgroundStubs();
 
   const { clientToken, selfBody } = recordedClientCredentials();
+
+  if (pendingBootStepDir && existsSync(pendingBootStepDir))
+    replayStep(server, pendingBootStepDir);
+  resetClientBillingSettingsScopes();
+  await useBrand().refresh();
 
   await useSessionStore().initStore();
   await useSessionStore()

@@ -1,0 +1,38 @@
+# client-billing-settings.account-clear-null.must-fail.patch
+#
+# Targets: AC-20 — the account's own currency values are seeded into the model
+# on load, so the client reads the currency their account actually bills in.
+# (Re-authored: the original stripped the two account keys from the services
+# MODEL_KEYS whitelist; that whitelist is gone — the model now carries the
+# account leaves via the loadLookups seeding this mutant removes. Re-targeted
+# again: the seeding moved out of an object-merge into the `seed` literal.)
+#
+# Mutates: client-billing-settings.services.ts loadLookups — drops the
+# `currencyId` / `preferredPaymentCurrencyId` seeding, so the account currency
+# never reaches the base model.
+#
+# Expected RED (integration): client-billing-settings.replay.int.test.ts —
+# AC-20 "I see the currency my account actually bills in" — the model carries no
+# `currencyId`, so `expectModel({ currencyId: ACCOUNT_CURRENCY })` fails.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm exec vitest run src/modules/client-billing-settings/__tests__/client-billing-settings.replay.int.test.ts   # RED
+#   git apply -R <this file>
+#
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
+@@ -171,13 +171,6 @@
+     }),
+     brand: brandGates.defaults,
+     neverSuspend: record.neverSuspend,
+-    ...(account?.currencyId !== undefined && {
+-      currencyId: account.currencyId
+-    }),
+-    // Seeded only on an explicit truthy brand opt-in.
+-    ...(brandGates.differentCurrencyPayment && account
+-      ? { preferredPaymentCurrencyId: account.preferredPaymentCurrencyId }
+-      : {})
+   };
+
+   // `context.schema` is not set yet at this point in the machine's lifecycle

@@ -110,16 +110,17 @@ async function openUnder(
   arrangement: Arrangement
 ): Promise<Placement> {
   const context = await browser.newContext({ viewport: VIEWPORT });
-  try {
-    interceptUISchema(context, { "@context.auth.template": arrangement });
-    const page = await context.newPage();
-    await page.goto(url);
-    const form = sessionForm(page, screen);
-    await expect(form).toBeVisible({ timeout: 30000 });
-    return await placementOf(form);
-  } finally {
-    await context.close();
-  }
+  interceptUISchema(context, { "@context.auth.template": arrangement });
+  return context
+    .newPage()
+    .then(page => page.goto(url).then(() => page))
+    .then(page => {
+      const form = sessionForm(page, screen);
+      return expect(form)
+        .toBeVisible({ timeout: 30000 })
+        .then(() => placementOf(form));
+    })
+    .finally(() => context.close());
 }
 
 // -----------------------------------------------------------------------------

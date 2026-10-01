@@ -81,7 +81,23 @@ const REFUSED_FROM = 400;
  * so a live read asking for one is answering the same question as a capture run
  * that never spelt it.
  */
-const CRITERIA_IGNORED = ["case", "with", "keys", "lang"];
+const CRITERIA_IGNORED = ["case", "with", "lang"];
+
+/**
+ * Params whose comma-joined value names an unordered set (`keys` — which config
+ * values to read) so a live read asking for the same keys in another order is the
+ * same question. `keys` SELECTS which config values the response carries, so it
+ * is identity in both naming and replay; only its element order is dropped.
+ * Sorted before it enters the criteria, matching `fixtureIdentity`'s own
+ * list-param normalisation.
+ */
+const NORMALIZE_LIST_PARAMS = ["keys"];
+
+function criteriaValue(key: string, value: string): string {
+  return NORMALIZE_LIST_PARAMS.includes(key)
+    ? split(value, ",").filter(Boolean).sort().join(",")
+    : value;
+}
 
 /** The offset a read asking for none was recorded at. */
 const FIRST_PAGE = "0";
@@ -364,7 +380,9 @@ function criteriaOf(params: URLSearchParams): string {
       !(key === "offset" && value === FIRST_PAGE)
   );
 
-  return sortBy(map(stated, ([key, value]) => `${key}=${value}`)).join("&");
+  return sortBy(
+    map(stated, ([key, value]) => `${key}=${criteriaValue(key, value)}`)
+  ).join("&");
 }
 
 // -----------------------------------------------------------------------------

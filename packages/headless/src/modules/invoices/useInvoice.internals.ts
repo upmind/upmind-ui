@@ -1,17 +1,15 @@
 import type { UseActor } from "../../utils";
-import type { useBasketCurrency } from "../basket";
 import type { usePaymentDetail, usePaymentGateway } from "../payment-details";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice.internals
  * @description Single-invoice internals — the raw machine handles for debugging,
- * plus the delegated composables the pay UI provides/injects: `gateway`,
- * `paymentDetail`, and `basketCurrency` (the pay currency
- * `useActions().setCurrency()` sets).
+ * plus the delegated composables the pay UI provides/injects: `gateway` and
+ * `paymentDetail`.
  *
  * @decision
- * what: expose the delegated `gateway` / `paymentDetail` / `basketCurrency`
+ * what: expose the delegated `gateway` / `paymentDetail`
  * composables on internals rather than on context (a departure from the
  * canonical internals, which carries only `send` / `state` / `service`).
  * why: the scenario port reflects `useContext()` with
@@ -26,15 +24,11 @@ export function createInvoiceInternals(
   actorScope: ScopeActorTypes,
   actor: UseActor,
   paymentDetail: ReturnType<typeof usePaymentDetail>,
-  gateway: ReturnType<typeof usePaymentGateway>,
-  basketCurrency: ReturnType<typeof useBasketCurrency>
+  gateway: ReturnType<typeof usePaymentGateway>
 ) {
   return {
     /** Actor scope for this instance. */
     actorScope,
-
-    /** Delegated basket-currency composable; `input()` stages the pay currency. */
-    basketCurrency,
 
     /** Delegated payment-gateway composable. */
     gateway,

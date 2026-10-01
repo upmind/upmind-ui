@@ -37,12 +37,12 @@ import {
   stepDirDrift,
   stepFixturesDir
 } from "../../../testing/scenario-fixtures";
+import { seedSessionFor, SIGNED_OUT_TAG } from "../../../testing/session-seed";
 import {
   resetInvoiceScopes,
   seedClientSession,
   seedGuestSession
 } from "./invoices.int-helpers";
-import { seedSessionFor, SIGNED_OUT_TAG } from "../../../testing/session-seed";
 import {
   INVOICE_SCENARIO,
   INVOICES_SCENARIO,

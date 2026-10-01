@@ -392,3 +392,45 @@ export function useLookupsUischema(
     ]
   } as UISchemaElement;
 }
+
+// -----------------------------------------------------------------------------
+// The invoice picker: one searchable lookup over this client's own invoices.
+// -----------------------------------------------------------------------------
+
+/** A surface's invoice-finder — one searchable lookup over the client's own
+ *  invoices, keyed by the id the single-invoice read loads by. Distinct from
+ *  the `.for()` context form above: this finds ONE invoice, it does not
+ *  retarget the list, and its control is the invoice finder alone — no client,
+ *  contract or contract-product control. */
+export function useInvoicePickerSchema(): QuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      invoice: { type: ["string", "null"] }
+    }
+  } satisfies QuerySchema;
+}
+
+export function useInvoicePickerUischema(
+  lookups: InvoicesScopeLookups
+): UISchemaElement {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Lookup",
+        scope: "#/properties/invoice",
+        i18n: "form.invoice_picker",
+        options: {
+          lookup: {
+            service: lookups.invoicePicker,
+            searchScope: "filters.number.like"
+          },
+          optionalText: ""
+        }
+      }
+    ]
+  } as UISchemaElement;
+}

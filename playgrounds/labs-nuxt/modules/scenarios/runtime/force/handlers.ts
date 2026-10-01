@@ -37,6 +37,7 @@ import { isUndefined, map } from "lodash-es";
 import type { CorpusBodies } from "./corpus";
 import type { RecordedFixture } from "./corpus.source.types";
 import type { ForcePreset } from "../composables/useForcedState.types";
+import type { ReplayTiming } from "@upmind-automation/test-fixtures/fixture-handlers";
 import type { ApiFixtureV3 } from "@upmind-automation/test-fixtures/types";
 import type { HttpHandler, HttpResponseResolver, JsonBodyType } from "msw";
 
@@ -143,13 +144,16 @@ export function createScenarioWall(
  * test answers it.
  *
  * @param fixtures The step's recordings, keyed by fixture name.
+ * @param timing The replayed scenario's answer timing; absent answers at once.
  */
 export function createStepHandlers(
-  fixtures: Record<string, RecordedFixture>
+  fixtures: Record<string, RecordedFixture>,
+  timing?: ReplayTiming
 ): HttpHandler[] {
   return handlersFor(
     map(fixtures, (fixture, name) =>
       normalizeRecording(fixture as unknown as ApiFixtureV3, name)
-    )
+    ),
+    timing
   );
 }
