@@ -216,11 +216,8 @@ import {
 } from "@upmind/ui";
 import { computed, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  Icon,
-  ScopeActorTypes,
-  useClientOrder
-} from "@upmind-automation/client-vue";
+import { ScopeActorTypes, useClientOrder } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import ClientOrderPayment from "./client-order.payment.vue";
 import { isArray, isNil, isObject, kebabCase, map } from "lodash-es";
 

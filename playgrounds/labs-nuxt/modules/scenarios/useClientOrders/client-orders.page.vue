@@ -390,12 +390,11 @@ import { computed, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   ClientOrdersSortableColumn,
-  Icon,
   ScopeActorTypes,
   resolveSelfActor,
-  useClientOrders,
-  useFormI18n
+  useClientOrders
 } from "@upmind-automation/client-vue";
+import { Icon, useFormI18n } from "@upmind-automation/foundation";
 import FilterBar from "../runtime/components/FilterBar.vue";
 import ScenarioBar from "../runtime/components/ScenarioBar.vue";
 import { useScenarioTransport } from "../runtime/composables/useScenarioTransport";
