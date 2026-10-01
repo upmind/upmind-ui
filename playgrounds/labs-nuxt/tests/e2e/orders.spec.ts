@@ -9,8 +9,9 @@
  * multi-select, the sort toolbar and the pager each send the `GET api/invoices`
  * keys and window the design names, and a row's open control reaches the
  * MANAGER view. The MANAGER stays self-drawn: every published member is
- * reachable by its test key, and each enter of the order view reads the order
- * again, so the manager single read counts `N + 1` after the second enter.
+ * reachable by its test key. The order opens on mount (an id in the route needs
+ * no button press, operator ruling 2026-10-01), so the manager single read fires
+ * once on load; each re-enter after a leave reads it again, counting `N + 1`.
  *
  * The `bdd` project drives the six collection scenarios of the same feature;
  * `orders.driven.jq` holds that run to exactly those six. This lane
@@ -153,7 +154,6 @@ test("@FE-3237 AC-22 A hand drives the two composables — every published membe
 }) => {
   const order = new OrderPage(page);
   await order.open(recordedOrder.data.id);
-  await order.enter();
   await expect(order.detailNumber()).toHaveText(recordedOrder.data.number);
 
   const unreachable: string[] = [];
@@ -175,7 +175,6 @@ test("@FE-3237 AC-22 A hand drives the two composables — each enter of the ord
   const order = new OrderPage(page);
   await order.open(recordedOrder.data.id);
 
-  await order.enter();
   await expect(order.detailNumber()).toHaveText(recordedOrder.data.number);
   await page.waitForLoadState("networkidle");
   const settled = reads.length;

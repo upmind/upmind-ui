@@ -569,11 +569,11 @@ function leaf(column: string, op: string): string {
   return `filter[${column}|${op}]=${encodeURIComponent(wire)}`;
 }
 
-function scenarioListPath(filters: string[]): string {
+function scenarioListPath(filters: string[], offset = 0): string {
   const clauses = [FORCED, ...filters].join("&");
   return (
     `/api/invoices?${clauses}&with=${LIST_WITH}&with_count=products` +
-    `&order=-created_at&limit=10&offset=0`
+    `&order=-created_at&limit=10&offset=${offset}`
   );
 }
 
@@ -584,7 +584,9 @@ describe("Orders scenario recordings (FE-3145, design 8.12)", () => {
   async function recordStep(
     scenario: string,
     step: string,
-    requests: (record: (filters: string[]) => Promise<unknown>) => Promise<void>
+    requests: (
+      record: (filters: string[], offset?: number) => Promise<unknown>
+    ) => Promise<void>
   ): Promise<void> {
     if (!prepared.has(scenario)) {
       prepareScenarioDirs(import.meta.dirname, scenarioFeature, scenario);
@@ -602,11 +604,12 @@ describe("Orders scenario recordings (FE-3145, design 8.12)", () => {
       name: "orders"
     });
     generator.setBearerToken(clientToken.access_token);
-    const record = async (filters: string[]): Promise<unknown> => {
-      const { status } = await generator.get(scenarioListPath(filters));
+    const record = async (filters: string[], offset = 0): Promise<unknown> => {
+      const path = scenarioListPath(filters, offset);
+      const { status } = await generator.get(path);
       if (status !== 200) {
         throw new Error(
-          `${scenario} / ${step}: ${scenarioListPath(filters)} returned ${status}. Stop and tell the operator.`
+          `${scenario} / ${step}: ${path} returned ${status}. Stop and tell the operator.`
         );
       }
       return undefined;
@@ -619,11 +622,58 @@ describe("Orders scenario recordings (FE-3145, design 8.12)", () => {
     clientToken = await mintClientToken();
   }, 30000);
 
+  // --- AC-1: a signed-in client reads the history ----------------------------
+  // The boot read — the default forced-category first page — so the labs page's
+  // opening scene replays from its own recording instead of staging (FE-3237).
+
+  describe("A signed-in client reads the history", () => {
+    const scenario = "A signed-in client reads the history";
+
+    it("a signed-in client with placed orders opens the order history", () =>
+      recordStep(
+        scenario,
+        "a signed-in client with placed orders opens the order history",
+        record => record([])
+      ));
+  });
+
+  // --- AC-3: a client moves between pages ------------------------------------
+  // Boot plus the page-two window the walk reads; the walk back to page one
+  // re-reads the boot window, answered by the Given step's own recording.
+
+  describe("A client moves between pages", () => {
+    const scenario = "A client moves between pages";
+
+    it("a signed-in client with more than one page of orders in the order history", () =>
+      recordStep(
+        scenario,
+        "a signed-in client with more than one page of orders in the order history",
+        record => record([])
+      ));
+
+    it("the client moves to page two of the order history and back to page one", () =>
+      recordStep(
+        scenario,
+        "the client moves to page two of the order history and back to page one",
+        record => record([], 10)
+      ));
+  });
+
   // --- AC-7: each client column and comparison -------------------------------
 
   describe("Each client column and comparison sets the history criteria", () => {
     const scenario =
       "Each client column and comparison sets the history criteria";
+
+    it("a signed-in client on page two of the order history", () =>
+      recordStep(
+        scenario,
+        "a signed-in client on page two of the order history",
+        async record => {
+          await record([]);
+          await record([], 10);
+        }
+      ));
 
     it("the client sets each order history filter below", () =>
       recordStep(
@@ -667,6 +717,16 @@ describe("Orders scenario recordings (FE-3145, design 8.12)", () => {
   describe("The newest order comes first, and a sort keeps the page", () => {
     const scenario = "The newest order comes first, and a sort keeps the page";
 
+    it("a signed-in client on page two of the order history", () =>
+      recordStep(
+        scenario,
+        "a signed-in client on page two of the order history",
+        async record => {
+          await record([]);
+          await record([], 10);
+        }
+      ));
+
     it("the client sorts the order history by each legacy field", () =>
       recordStep(
         scenario,
@@ -685,7 +745,11 @@ describe("Orders scenario recordings (FE-3145, design 8.12)", () => {
       recordStep(
         scenario,
         "a status filter is active on page two of the order history",
-        record => record([statusFilter])
+        async record => {
+          await record([]);
+          await record([statusFilter]);
+          await record([statusFilter], 10);
+        }
       ));
 
     it("the client searches the order history for an order number", () =>
@@ -701,6 +765,13 @@ describe("Orders scenario recordings (FE-3145, design 8.12)", () => {
 
   describe("The forced category survives each writer", () => {
     const scenario = "The forced category survives each writer";
+
+    it("a signed-in client reads the order history", () =>
+      recordStep(
+        scenario,
+        "a signed-in client reads the order history",
+        record => record([])
+      ));
 
     it("each order history writer changes the criteria, the playground filter bar included", () =>
       recordStep(

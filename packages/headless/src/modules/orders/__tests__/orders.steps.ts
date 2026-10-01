@@ -22,6 +22,8 @@
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import pageTwoRecording from "./scenarios/a-client-moves-between-pages/02/get-invoices-filter-category-slug-new-contract.json";
+import bootRecording from "./scenarios/a-signed-in-client-reads-the-history/01/get-invoices-filter-category-slug-new-contract.json";
 import {
   flatMap,
   fromPairs,
@@ -62,23 +64,32 @@ export const coveredActionIds: readonly string[] = values(
   ORDERS_COVERED_ACTIONS
 );
 
+const PAGE_SIZE = 10;
+
+type ListRecording = {
+  response: { body: { total: number; data: Array<{ id: string }> } };
+};
+
+const bootBody = (bootRecording as ListRecording).response.body;
+const pageTwoBody = (pageTwoRecording as ListRecording).response.body;
+
 /**
- * The values the recordings hold. A `World` step cannot read a capture, so
- * each value is named here with the capture it comes from.
+ * The values the recordings hold. The list total, its page count and the row
+ * ids are READ from the committed scenario recordings — never copied — so a
+ * re-record moves every assertion with the data (invoices.steps.ts, `PAGE_ONE_TOTAL`).
+ * The probe and criteria literals are the design 8.3 constants the generator
+ * records each filter request with, so a recording answers the exact request a
+ * step fires.
  *
- * @see fixtures/get-invoices-case-orders-default.json — `total: 919`, the
- * first row `52098d3d-…` (`QA-INV-25144`).
- * @see fixtures/get-invoices-case-orders-page-2.json — the first row
- * `e78642de-…` at offset 10.
- * @see fixtures/get-invoices-case-orders-*-probe.json — the probe value of
- * each operator-form capture (design 8.8).
+ * @see scenarios/a-signed-in-client-reads-the-history/01/ — the boot page.
+ * @see scenarios/a-client-moves-between-pages/02/ — the page-two window.
  */
 const RECORDED = {
-  total: 919,
-  pages: 92,
-  pageSize: 10,
-  firstRowId: "52098d3d-e409-17e0-d957-c31578626e34",
-  pageTwoFirstRowId: "e78642de-5397-145d-8688-b21208469530",
+  total: bootBody.total,
+  pages: Math.ceil(bootBody.total / PAGE_SIZE),
+  pageSize: PAGE_SIZE,
+  firstRowId: bootBody.data[0].id,
+  pageTwoFirstRowId: pageTwoBody.data[0].id,
   orderNumber: "QA-INV-25144",
   totalAmount: 4.8,
   absoluteDate: "2026-09-01 00:00:00",

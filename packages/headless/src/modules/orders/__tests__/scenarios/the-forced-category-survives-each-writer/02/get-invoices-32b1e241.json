@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a431bfac7bf3940f-LHR",
+      "cf-ray": "a43c73cddbaeef50-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 08:10:02 GMT",
+      "date": "Thu, 01 Oct 2026 15:20:37 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=fSasomzbMwph1wcG5K4U6cFYnhVIun59q8gatP%2BI4ZEMiM2Po6hkzaJTHfmd8b4XZqWio8sS%2BPijrxwbD89jFKueXShTDmEpt5%2FjFm4hi4yIScX1P%2BNp%2BVmrhp8gu6pPqwkLnI1LiA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=iadLKYYZARgxguOLaWyOO9Eq5PxD51qYp4ksT9FfMJ3cW%2B0zuHJApJQAnISJzsh8Fa2g0Qxybkpuw1zsYKvCzqDcLuROcHmKMYP%2B0GJ9PHk3Q7wdJXHpBFwMIHZbeh9ucBVefQ35DA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -189,7 +189,7 @@
             "location_ip": null,
             "user_id": "sys",
             "created_at": "2025-06-02 16:00:34",
-            "updated_at": "2026-09-30 08:09:59",
+            "updated_at": "2026-10-01 15:20:08",
             "reseller_account_id": null,
             "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
             "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -206,7 +206,7 @@
             "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
             "picture": 0,
             "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-            "last_login": "2026-09-30 08:09:59",
+            "last_login": "2026-10-01 15:20:08",
             "last_password_change_at": "mock-last_password_change_at",
             "fraud_policy": 3,
             "fraud_status": 1,
@@ -641,10 +641,10 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T08:10:02.163Z",
+  "captured_at": "2026-10-01T15:20:37.651Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {
-    "case": "client-orders"
+    "case": "orders"
   }
 }

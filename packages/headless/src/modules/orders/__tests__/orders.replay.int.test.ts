@@ -52,6 +52,13 @@ const feature = readFileSync(
   "utf-8"
 );
 
+/**
+ * The shared corpus carries the boot and the chrome reads a signed-in client
+ * makes; each scenario's own per-step recordings (FE-3237) arm on top for the
+ * order-history reads the labs-nuxt playground serves from those same folders.
+ * This mirrors the labs wall, which walls the module's own subject and bypasses
+ * every other read to staging (handlers.ts `createScenarioWall`).
+ */
 async function arrangeRecordedCorpus(): Promise<void> {
   await seedClientSession();
   installCorpusReplay(server, await loadModuleCorpus("orders"));
