@@ -66,7 +66,7 @@ export const useTheme = (initial?: string) => {
   } = useBrand();
 
   const { themes } = useTheming();
-  const { data, ui } = useConfig({ context: UIContext.ALL });
+  const { data, ui } = useConfig({ context: UIContext.ALL, basket: undefined });
 
   // --- state
 
