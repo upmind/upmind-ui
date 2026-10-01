@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+index 0c496c1..944cbfd 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+@@ -140,8 +140,6 @@ export function createAffiliatePayoutDestinationManagerActions(
+         );
+         if (stateMatches(s, ["available.error", "available.invalid"]))
+           return saved as AffiliatePayoutDestinationFormModel;
+-        const accountId = contextValue<string | undefined>(state, "accountId");
+-        send({ type: "REFRESH", data: { accountId } });
+         return saved as AffiliatePayoutDestinationFormModel;
+       })
+       .catch(() =>

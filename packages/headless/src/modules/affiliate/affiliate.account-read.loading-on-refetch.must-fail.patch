@@ -1,0 +1,15 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+index e3862c339b..fd7b0a9b55 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -108,8 +108,8 @@ function createClientAffiliateForScope(config: ScopeConfig) {
+ 
+   const isLoading = computed(
+     () =>
+-      accountQuery.isLoading.value ||
+-      balanceQuery.isLoading.value ||
++      accountQuery.isFetching.value ||
++      balanceQuery.isFetching.value ||
+       settingsLoading.value
+   );
+ 

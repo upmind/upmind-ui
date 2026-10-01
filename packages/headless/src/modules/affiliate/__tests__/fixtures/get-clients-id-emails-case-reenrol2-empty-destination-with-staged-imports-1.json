@@ -1,0 +1,69 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/7d738248-5079-3153-398a-81e642d59e06/emails?limit=0&offset=0&order=-default,-id&with_staged_imports=1&case=reenrol2-empty-destination",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43e93ef6aa40339-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 21:32:04 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xMBjMs%2F5blmgAGLqagOH9PtQcGS7K9qnRii3Wd1PnoJNFr%2Bqwg23kUSpyG0SvaJEHHggxaDoTfT8WDHisgfh7PxqYuZjydjggqBfhfmp%2BelIiTUVdG0lpqK4FWhj%2ByxgzsG0gZvNiw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "d0367942-4d0e-7109-9e8b-3153698d582e",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "7d738248-5079-3153-398a-81e642d59e06",
+          "user_id": "sys",
+          "type": 1,
+          "default": true,
+          "verified": false,
+          "email": "mock-email-1@example.com",
+          "receive_emails": false,
+          "bounced": false,
+          "created_at": "2025-06-05 07:55:07",
+          "updated_at": "2025-06-05 07:55:07",
+          "bounced_at": null,
+          "can_delete": false
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T21:32:04.568Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "affiliate"
+  }
+}

@@ -1,0 +1,67 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.schemas.ts b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+index 153344b182..1622633612 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.schemas.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+@@ -243,61 +243,61 @@
+     type: "Control",
+     scope: "#/properties/sort",
+     i18n: "form.affiliate_referrals_sort"
+   };
+ }
+ 
+ // -----------------------------------------------------------------------------
+ // Commissions (design.md §8.3)
+ 
+ export function useCommissionsQuerySchema(): JsonSchema7 {
+   return {
+     $schema: "http://json-schema.org/draft-07/schema#",
+     type: "object",
+     additionalProperties: false,
+     properties: {
+       filters: {
+         type: "object",
+         additionalProperties: false,
+         properties: { created_at: dateFilterSchema() }
+       },
+       sort: {
+         type: "array",
+         default: AFFILIATE_DEFAULT_SORT,
+         minItems: 1,
+         uniqueItems: true,
+         items: {
+           type: "object",
+           additionalProperties: false,
+           required: ["field", "dir"],
+           properties: {
+-            field: { enum: ["amount", "created_at"] },
++            field: { enum: ["created_at"] },
+             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+           }
+         }
+       },
+       pagination: paginationSchema(10)
+     }
+   } satisfies JsonSchema7;
+ }
+ 
+ export function useCommissionsSortUischema(): ControlElement {
+   return {
+     type: "Control",
+     scope: "#/properties/sort",
+     i18n: "form.affiliate_commissions_sort"
+   };
+ }
+ 
+ // -----------------------------------------------------------------------------
+ // Payouts (design.md §8.3)
+ 
+ export function usePayoutsQuerySchema(): JsonSchema7 {
+   return {
+     $schema: "http://json-schema.org/draft-07/schema#",
+     type: "object",
+     additionalProperties: false,
+     properties: {
+       filters: {
+         type: "object",
+         additionalProperties: false,
+         properties: { created_at: dateFilterSchema() }

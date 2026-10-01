@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.schemas.ts b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+index 153344b182..0c32174364 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.schemas.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+@@ -135,7 +135,7 @@ export function useLinksQuerySchema(): JsonSchema7 {
+         properties: {
+           name: stringFilterSchema(),
+           redirect_url: stringFilterSchema(),
+-          visit_count: numberFilterSchema(),
++          visit_count: { type: "number" },
+           referral_count: numberFilterSchema(),
+           created_at: dateFilterSchema()
+         }

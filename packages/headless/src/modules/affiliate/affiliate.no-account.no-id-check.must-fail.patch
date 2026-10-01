@@ -1,0 +1,18 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+index a26f845394..2cf060b132 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -374,12 +374,11 @@ export function loadAffiliateLinksList(
+     queryKey: [...AFFILIATE_LINKS_QUERY_KEY, { account: accountId }],
+     url,
+     guard: async () => {
+-      if (!accountId.value) return Promise.reject(new NotAuthenticatedError());
+       url.pathname = targetUrl().pathname;
+       return true;
+     },
+     withAccessToken: true,
+-    enabled: () => !!accountId.value,
++    enabled: () => true,
+     placeholderData
+   });
+ }

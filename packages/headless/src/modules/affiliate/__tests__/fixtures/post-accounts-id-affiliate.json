@@ -1,0 +1,64 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/accounts/04038696-e547-21d5-564f-518d9305e7d2/affiliate",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43985efdc2aef97-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 06:48:42 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=3ei%2BhB%2F3iZGkR88hvkGJ5XtjZ4nXWFHg3cSY9iGimun92VGhC5bLS1VR7YXRZEZFIPRfXdJOIEQj9FRT11FOzzJYvkqZRmLlle1i30Z5cJ4YIBE639hmIdDsa1UH5EbU1TOSRzNb5w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "45952098-d3de-4091-76a3-1578626e347e",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "external_client_id": null,
+        "imported_link_visit_count": null,
+        "imported_referral_count": 0,
+        "account_id": "04038696-e547-21d5-564f-518d9305e7d2",
+        "disabled": false,
+        "referral_count": 0,
+        "link_visit_count": 0,
+        "created_at": "2026-10-01 06:48:42",
+        "updated_at": "2026-10-01 06:48:42",
+        "deleted_at": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T06:48:42.332Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "affiliate"
+  }
+}

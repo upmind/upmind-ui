@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+index 49d26a67dc..ed880c3b99 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+@@ -64,7 +64,7 @@ async function loadLookups(
+       name: link?.name ?? "",
+       redirectUrl: link?.redirect_url ?? ""
+     };
+-    return { model, baseModel: model, brandName };
++    return { model, baseModel: {}, brandName };
+   }
+ 
+   const clientAffiliate = useClientAffiliate().as(ScopeActorTypes.CLIENT);

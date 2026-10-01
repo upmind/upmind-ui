@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+@@ -147,7 +147,7 @@ export function createAffiliatePayoutDestinationManagerActions(
+       .catch(() =>
+         Promise.reject(
+           new DetailedError(
+-            t("error.affiliate_payout_destination_form_timeout"),
++            t("affiliate_payout_destination_form_timeout"),
+             responseCodes.Timeout,
+             ErrorOrigin.Headless,
+             { state: state.value }

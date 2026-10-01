@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.meta.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.meta.ts
+index 615ff9f..d736b7c 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.meta.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.meta.ts
+@@ -50,7 +50,6 @@ export function createAffiliateLinkManagerMeta(
+    */
+   const isDirty = computed(
+     () =>
+-      isNew.value ||
+       !isEqual(
+         contextValue<AffiliateLinkManagerContext["model"]>(state, "model"),
+         contextValue<AffiliateLinkManagerContext["baseModel"]>(

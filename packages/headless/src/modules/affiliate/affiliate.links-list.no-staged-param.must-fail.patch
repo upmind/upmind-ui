@@ -1,0 +1,15 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+index a26f845394..492f6b8815 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -364,9 +364,7 @@ export function loadAffiliateLinksList(
+ ): AffiliateLinksListQuery {
+   const { list, useUrl } = useQuery();
+   const targetUrl = () =>
+-    useUrl(`accounts/${accountId.value}/affiliate/links`, {
+-      with_staged_imports: 1
+-    });
++    useUrl(`accounts/${accountId.value}/affiliate/links`);
+   const url = targetUrl();
+ 
+   return list<IAffiliateLink[], IAffiliateLink[], AffiliateLinksQueryModel>({

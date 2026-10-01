@@ -1,0 +1,17 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
+index d7f188c597..3a1b2c4d5e 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
+@@ -43,11 +43,7 @@ export function createClientAffiliateMeta(
+   const hasPayableCommissions = computed(
+     () => !!deps.balances.value?.balance?.ALL?.amount
+   );
+
+-  const canWithdraw = computed(
+-    () =>
+-      !!deps.areaSettings.value[BrandConfigKeys.AFFILIATES_WITHDRAW_REQUEST] &&
+-      hasPayableCommissions.value
+-  );
++  const canWithdraw = computed(() => hasPayableCommissions.value);
+
+   return {

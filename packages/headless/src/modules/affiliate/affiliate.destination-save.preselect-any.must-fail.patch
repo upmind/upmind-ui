@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.utils.ts b/packages/headless/src/modules/affiliate/affiliate.utils.ts
+index 6dd8f0914e..d97007b8c0 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.utils.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.utils.ts
+@@ -130,10 +130,7 @@ export function preselectPaypalEmail(
+   destinations: IAffiliateBrandPayoutDestination[] = [],
+   emails: IEmail[] = []
+ ): AffiliatePayoutDestinationFormModel {
+-  if (
+-    model.paypalEmailId ||
+-    !isPaypalDestination(model.payoutDestinationId, destinations)
+-  ) {
++  if (model.paypalEmailId) {
+     return model;
+   }
+   const defaultEmail = defaultPayoutEmail(emails);

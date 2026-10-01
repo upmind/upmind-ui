@@ -1,0 +1,14 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -153,9 +153,9 @@ function createClientAffiliateForScope(config: ScopeConfig) {
+    */
+   async function isReady(): Promise<boolean> {
+     if (!isClientActor.value) return false;
++    if (!accountId.value) return false;
+     const resolverReady = await resolverActions.isReady();
+     if (!resolverReady) return false;
+-    if (!accountId.value) return false;
+ 
+     const settled = (): boolean | undefined => {
+       if (!accountId.value) return false;

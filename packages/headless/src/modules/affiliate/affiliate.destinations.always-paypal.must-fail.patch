@@ -1,0 +1,24 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.meta.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.meta.ts
+index 91c95c55b3..8ea8c5400b 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.meta.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.meta.ts
+@@ -70,18 +70,7 @@ export function createAffiliatePayoutDestinationManagerMeta(
+   );
+ 
+   /** True for the current model's PayPal destination (audit DI-5). */
+-  const isPaypal = computed(() =>
+-    isPaypalDestination(
+-      contextValue<AffiliatePayoutDestinationFormModel | undefined>(
+-        state,
+-        "model"
+-      )?.payoutDestinationId,
+-      contextValue<AffiliatePayoutDestinationManagerContext["destinations"]>(
+-        state,
+-        "destinations"
+-      )
+-    )
+-  );
++  const isPaypal = computed(() => true);
+ 
+   const defaultDestination = computed(() =>
+     defaultPayoutDestination(

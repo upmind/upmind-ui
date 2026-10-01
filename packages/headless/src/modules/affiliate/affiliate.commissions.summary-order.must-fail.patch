@@ -1,0 +1,22 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.utils.ts b/packages/headless/src/modules/affiliate/affiliate.utils.ts
+index 6435509412..aceb9c4a4c 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.utils.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.utils.ts
+@@ -159,16 +159,16 @@ export function commissionTagStatus(
+   if (isPendingApproval(commission)) return "pending_approval";
+   if (isCancelled(commission)) return "cancelled";
+   return "approved";
+ }
+
+ /** The summary order (`commissionSummary.vue:64-163`, audit DI-3). */
+ export function commissionSummaryStatus(
+   commission: IAffiliatePendingCommission
+ ): CommissionStatus {
+   if (isRejected(commission)) return "rejected";
++  if (isOnHold(commission)) return "on_hold";
+   if (isAwaitingPayment(commission)) return "awaiting_payment";
+   if (isPendingApproval(commission)) return "pending_approval";
+-  if (isOnHold(commission)) return "on_hold";
+   if (isCancelled(commission)) return "cancelled";
+   return "approved";
+ }

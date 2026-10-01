@@ -1,0 +1,25 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -190,18 +190,9 @@ function createClientAffiliateForScope(config: ScopeConfig) {
+     try {
+       await enrolAffiliate(id);
+       writeError.value = undefined;
+-      await Promise.all([
+-        invalidateQueryByKey([...AFFILIATE_ACCOUNT_QUERY_KEY, id], {
+-          exact: false
+-        })(undefined),
+-        invalidateQueryByKey([...AFFILIATE_BALANCE_QUERY_KEY, id], {
+-          exact: false
+-        })(undefined),
+-        loadAreaSettings(resolvedBrandId.value).then(
+-          v => (areaSettings.value = v),
+-          () => (areaSettings.value = {})
+-        )
+-      ]);
++      await invalidateQueryByKey([...AFFILIATE_ACCOUNT_QUERY_KEY, id], {
++        exact: false
++      })(undefined);
+     } catch (err) {
+       writeError.value = mapToHeadlessError(err);
+     } finally {

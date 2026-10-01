@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.types.ts b/packages/headless/src/modules/affiliate/affiliate.types.ts
+index 30bb399410..b814e0e758 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.types.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.types.ts
+@@ -46,7 +46,7 @@ import type {
+ export const CLIENT_AFFILIATE_SCOPE_MATRIX = {
+   [ScopeActorTypes.SELF]: null as never,
+   [ScopeActorTypes.STAFF]: null as never,
+-  [ScopeActorTypes.CLIENT]: null as never,
++  [ScopeActorTypes.CLIENT]: "client" as const,
+   [ScopeActorTypes.GUEST]: null as never
+ } as const;
+ 

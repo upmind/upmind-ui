@@ -1,0 +1,42 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+@@ -1,6 +1,6 @@
+ import { waitFor } from "xstate/lib/waitFor";
+ import { remove as removeFromRegistry } from "../scope/scope.registry";
+-import { useActiveSession } from "../session-store";
++import { useActiveSession, useSessionStore } from "../session-store";
+ import { useI18n } from "../system-localisation";
+ import { loadAffiliateClientEmails } from "./affiliate.services";
+ import {
+@@ -16,6 +16,7 @@
+ import type { AffiliatePayoutDestinationFormModel } from "./affiliate.types";
+ import type { UseActor } from "../../utils";
+ import type { ScopeActorTypes } from "../scope/scope.types";
++import { AccessRoleTypes } from "@upmind-automation/types";
+ import type { IEmail } from "@upmind-automation/types";
+ // -----------------------------------------------------------------------------
+ /**
+@@ -145,6 +146,22 @@
+           return saved as AffiliatePayoutDestinationFormModel;
+         const accountId = contextValue<string | undefined>(state, "accountId");
+         send({ type: "REFRESH", data: { accountId } });
++        const store = useSessionStore();
++        const { activeSessionId, activeUser } = store.useContext();
++        const user = activeUser.value;
++        if (activeSessionId.value && user?.accounts?.length) {
++          store.useActions().updateUser(AccessRoleTypes.CLIENT, activeSessionId.value, {
++            ...user,
++            accounts: [
++              {
++                ...user.accounts[0],
++                affiliatePayoutDestinationId: saved?.payoutDestinationId,
++                affiliatePayoutPaypalEmailId: saved?.paypalEmailId
++              },
++              ...user.accounts.slice(1)
++            ]
++          } as never);
++        }
+         return saved as AffiliatePayoutDestinationFormModel;
+       })
+       .catch(() =>

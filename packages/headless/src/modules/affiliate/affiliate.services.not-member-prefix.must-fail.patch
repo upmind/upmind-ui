@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+index 826393cd37..e101cc331b 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -350,7 +350,7 @@ function assertAccountMembership(accountId?: string): void {
+   );
+   if (!accountId || !isMember) {
+     throw new DetailedError(
+-      useI18n().t("error.affiliate_account_not_member"),
++      useI18n().t("affiliate_account_not_member"),
+       responseCodes.Forbidden,
+       ErrorOrigin.Headless
+     );

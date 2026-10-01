@@ -1,0 +1,46 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+index a26f845394..1e6b80e751 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -410,19 +410,28 @@ export async function saveAffiliateLink(
+   const { post, put, useUrl } = useQuery();
+   const data = { name: model.name, redirect_url: model.redirectUrl };
+ 
+-  const saved = linkId
+-    ? await put<IAffiliateLink>({
+-        mutationKey: [...AFFILIATE_LINKS_QUERY_KEY, accountId, linkId],
+-        url: useUrl(`accounts/${accountId}/affiliate/links/${linkId}`),
+-        data,
+-        withAccessToken: true
+-      })
+-    : await post<IAffiliateLink>({
+-        mutationKey: [...AFFILIATE_LINKS_QUERY_KEY, accountId, "create"],
+-        url: useUrl(`accounts/${accountId}/affiliate/links`),
+-        data,
+-        withAccessToken: true
+-      });
++  let saved: IAffiliateLink | undefined;
++  try {
++    saved = linkId
++      ? await put<IAffiliateLink>({
++          mutationKey: [...AFFILIATE_LINKS_QUERY_KEY, accountId, linkId],
++          url: useUrl(`accounts/${accountId}/affiliate/links/${linkId}`),
++          data,
++          withAccessToken: true
++        })
++      : await post<IAffiliateLink>({
++          mutationKey: [...AFFILIATE_LINKS_QUERY_KEY, accountId, "create"],
++          url: useUrl(`accounts/${accountId}/affiliate/links`),
++          data,
++          withAccessToken: true
++        });
++  } catch (err) {
++    await invalidateQueryByKey(
++      [...AFFILIATE_LINKS_QUERY_KEY, { account: accountId }],
++      { exact: false }
++    )(undefined);
++    throw err;
++  }
+ 
+   await invalidateQueryByKey(
+     [...AFFILIATE_LINKS_QUERY_KEY, { account: accountId }],

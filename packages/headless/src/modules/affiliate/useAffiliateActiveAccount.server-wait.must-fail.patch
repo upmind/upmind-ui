@@ -1,0 +1,15 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateActiveAccount.ts b/packages/headless/src/modules/affiliate/useAffiliateActiveAccount.ts
+index 49d26a67dc..4bc915f01f 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateActiveAccount.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateActiveAccount.ts
+@@ -281,6 +281,10 @@ async function isReady(): Promise<boolean> {
+  */
+ async function isReady(): Promise<boolean> {
+   bootstrap();
++  if (state.value === "inert") {
++    await useSessionStore().useActions().isReady();
++    return true;
++  }
+   if (isTerminalResolverState(state.value)) return true;
+
+   return new Promise(resolve => {

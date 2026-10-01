@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+index a26f845394..49243affab 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -324,7 +324,7 @@ export async function requestAffiliateWithdrawal(
+   const response = await post<{ id?: string }>({
+     mutationKey: ["affiliate", "withdraw", accountId],
+     url: useUrl(`accounts/${accountId}/affiliate/withdraw`),
+-    data: { message },
++    data: {},
+     withAccessToken: true
+   });
+   return response?.id;

@@ -1,0 +1,21 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+index a26f845394..3caec18d15 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -424,10 +424,12 @@ export async function saveAffiliateLink(
+         withAccessToken: true
+       });
+ 
+-  await invalidateQueryByKey(
+-    [...AFFILIATE_LINKS_QUERY_KEY, { account: accountId }],
+-    { exact: false }
+-  )(undefined);
++  if (!linkId) {
++    await invalidateQueryByKey(
++      [...AFFILIATE_LINKS_QUERY_KEY, { account: accountId }],
++      { exact: false }
++    )(undefined);
++  }
+ 
+   return saved as IAffiliateLink | undefined;
+ }

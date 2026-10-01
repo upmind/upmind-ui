@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinks.actions.ts b/packages/headless/src/modules/affiliate/useAffiliateLinks.actions.ts
+index 79b09dd319..852ccab2bb 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinks.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinks.actions.ts
+@@ -80,6 +80,11 @@ export function createAffiliateLinksActions(
+     const accountId = keyAccountId.value;
+     if (!accountId) throw new NotAuthenticatedError();
+     try {
++      query.setCriteria({
++        filters: {},
++        sort: undefined,
++        pagination: undefined
++      });
+       await removeLink(accountId, linkId);
+       writeError.value = undefined;
+     } catch (err) {

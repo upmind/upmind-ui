@@ -1,0 +1,22 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
+index 4f9b3cde0c..f1520f5e98 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
+@@ -67,17 +67,6 @@ function createAffiliatePayoutDestinationManagerForScope(
+     );
+   }
+ 
+-  const stopTopUp = watch(resolverContext.activeAccountId, next => {
+-    if (
+-      !isClientScopeActor(actorScope) ||
+-      !next ||
+-      contextMatches(actorRef.state, "accountId")
+-    )
+-      return;
+-    stopTopUp();
+-    actorRef.send({ type: "REFRESH", data: { accountId: next } });
+-  });
+-
+   const actions = createAffiliatePayoutDestinationManagerActions(
+     actorScope,
+     actorRef,

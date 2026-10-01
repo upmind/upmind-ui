@@ -1,0 +1,17 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+index e3862c339b..b59b331d94 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -234,11 +234,7 @@ function createClientAffiliateForScope(config: ScopeConfig) {
+    * rejected: widening `IUser` in `packages/types` — beyond the scope this
+    *      run names (R-SCOPE-MODULE, review-notes.md).
+    */
+-  const brand = computed(
+-    () =>
+-      data.value?.account?.brand ??
+-      (selfRecord.value?.actor as { brand?: IBrand } | undefined)?.brand
+-  );
++  const brand = computed(() => data.value?.account?.brand);
+
+   /** The active account id AND non-empty account data, as legacy (design.md §8.5, `o36`). */
+   const isEnrolled = computed(() => !!accountId.value && !isEmpty(data.value));

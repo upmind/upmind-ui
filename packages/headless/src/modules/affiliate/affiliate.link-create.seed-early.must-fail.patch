@@ -1,0 +1,32 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+index 49d26a67dc..11ebcbb4c0 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+@@ -68,6 +68,13 @@ async function loadLookups(
+   }
+ 
+   const clientAffiliate = useClientAffiliate().as(ScopeActorTypes.CLIENT);
++  const defaultRedirectUrl =
++    clientAffiliate.useContext().defaultRedirectUrl.value ?? "";
++  const model: AffiliateLinkFormModel = {
++    name: "",
++    redirectUrl: defaultRedirectUrl
++  };
++
+   const [isReady, brandName] = await Promise.all([
+     clientAffiliate.useActions().isReady(),
+     loadSelfBrandName()
+@@ -83,13 +90,6 @@ async function loadLookups(
+     );
+   }
+ 
+-  const defaultRedirectUrl =
+-    clientAffiliate.useContext().defaultRedirectUrl.value ?? "";
+-  const model: AffiliateLinkFormModel = {
+-    name: "",
+-    redirectUrl: defaultRedirectUrl
+-  };
+-
+   return { model, baseModel: {}, defaultRedirectUrl, brandName };
+ }
+ 

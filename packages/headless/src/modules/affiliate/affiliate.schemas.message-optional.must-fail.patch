@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.schemas.ts b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+index 153344b182..c796151907 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.schemas.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+@@ -96,7 +96,7 @@ export const useWithdrawalSchema = (): JsonSchema7 => ({
+     message: { type: "string", minLength: 1, trim: true } as JsonSchema7 &
+       Record<"trim", boolean>
+   },
+-  required: ["message"]
++  required: []
+ });
+ 
+ /** The withdrawal request form uischema. */

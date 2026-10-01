@@ -1,0 +1,28 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+index 3a9578b401..eca2dc78bf 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+@@ -69,17 +69,12 @@ function createAffiliateLinkVisitForScope(config: ScopeConfig) {
+     }
+
+     if (response.referralCookie) {
+-      useCookies().setTopLevel(
+-        REFERRAL_COOKIE,
+-        response.referralCookie,
+-        {
+-          path: "/",
+-          ...(response.referralCookieMaxAge
+-            ? { "max-age": response.referralCookieMaxAge }
+-            : {})
+-        },
+-        identityEncoder
+-      );
++      useCookies().setTopLevel(REFERRAL_COOKIE, response.referralCookie, {
++        path: "/",
++        ...(response.referralCookieMaxAge
++          ? { "max-age": response.referralCookieMaxAge }
++          : {})
++      });
+     } else {
+       useCookies().removeTopLevel(REFERRAL_COOKIE, { path: "/" });
+     }

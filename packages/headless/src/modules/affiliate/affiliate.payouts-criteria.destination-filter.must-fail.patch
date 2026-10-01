@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.schemas.ts b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+index 153344b182..aab6e7b4c2 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.schemas.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+@@ -300,7 +300,10 @@ export function usePayoutsQuerySchema(): JsonSchema7 {
+       filters: {
+         type: "object",
+         additionalProperties: false,
+-        properties: { created_at: dateFilterSchema() }
++        properties: {
++          created_at: dateFilterSchema(),
++          destination: stringFilterSchema()
++        }
+       },
+       sort: {
+         type: "array",

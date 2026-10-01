@@ -1,0 +1,21 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+index a26f845394..322166d1ed 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -195,6 +195,7 @@ export function loadAffiliateBalanceQuery(
+   const { queryClient } = useQuery();
+   const currentScope = getCurrentScope();
+   const scope = currentScope?.active ? currentScope : effectScope(true);
++  const instanceId = Math.random();
+ 
+   return scope.run(() =>
+     vueUseQuery<
+@@ -203,7 +204,7 @@ export function loadAffiliateBalanceQuery(
+       IAffiliateBalance | undefined
+     >(
+       {
+-        queryKey: [...AFFILIATE_BALANCE_QUERY_KEY, accountId],
++        queryKey: [...AFFILIATE_BALANCE_QUERY_KEY, accountId, instanceId],
+         queryFn: async () => {
+           const id = accountId.value;
+           if (!id) return null;

@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+index 49d26a67dc..fec4a30e3d 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+@@ -140,11 +140,6 @@ export function createAffiliateLinkManagerMachineConfig(
+       })
+     },
+ 
+-    guards: {
+-      hasSubscription: (context: AffiliateLinkManagerContext) =>
+-        !!context.accountId || !isClientScopeActor(actorScope)
+-    },
+-
+     services: {
+       loadLookups: context => loadLookups(context, actorScope),
+ 

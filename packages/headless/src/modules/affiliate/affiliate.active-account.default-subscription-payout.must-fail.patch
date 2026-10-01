@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+index e3f331d09a..b341edea29 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+@@ -113,11 +113,6 @@ export function createAffiliatePayoutDestinationManagerMachineConfig(
+       })
+     },
+ 
+-    guards: {
+-      hasSubscription: (context: AffiliatePayoutDestinationManagerContext) =>
+-        !!context.accountId || !isClientScopeActor(actorScope)
+-    },
+-
+     services: {
+       loadLookups: context => loadLookups(context, actorScope),
+ 

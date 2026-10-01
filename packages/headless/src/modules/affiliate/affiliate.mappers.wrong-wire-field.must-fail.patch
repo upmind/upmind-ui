@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.mappers.ts b/packages/headless/src/modules/affiliate/affiliate.mappers.ts
+index 442f9a7f96..4a4a88ca30 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.mappers.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.mappers.ts
+@@ -16,7 +16,7 @@ export function mapAffiliatePayout(row: IAffiliatePayout): AffiliatePayoutRow {
+     id: row.id,
+     createdAt: row.created_at,
+     amount: row.amount,
+-    amountFormatted: row.amount_converted_formatted,
++    amountFormatted: String(row.amount),
+     success: row.success,
+     paymentLog: row.payment_log ?? null,
+     destinationName: row.affiliate_payout_destination?.name_translated ?? ""

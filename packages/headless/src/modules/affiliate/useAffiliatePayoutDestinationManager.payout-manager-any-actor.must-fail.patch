@@ -1,0 +1,29 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
+index 35eb996733..d3eef1238f 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
+@@ -41,9 +41,7 @@ function createAffiliatePayoutDestinationManagerForScope(
+   const resolverContext = resolver.useContext();
+
+   const initialContext: AffiliatePayoutDestinationManagerContext = {
+-    accountId: isClientScopeActor(actorScope)
+-      ? resolverContext.activeAccountId.value
+-      : undefined,
++    accountId: resolverContext.activeAccountId.value,
+     allowMultipleEdits: true
+   };
+
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+index 35eb996733..d3eef1238f 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+@@ -44,9 +44,6 @@ async function loadLookups(
+   context: AffiliatePayoutDestinationManagerContext,
+   actorScope: ScopeActorTypes
+ ): Promise<Partial<AffiliatePayoutDestinationManagerContext>> {
+-  if (!isClientScopeActor(actorScope))
+-    return Promise.reject(notAvailableError());
+-
+   const accountId = context.accountId;
+   if (!accountId) return Promise.reject(notAvailableError());
+

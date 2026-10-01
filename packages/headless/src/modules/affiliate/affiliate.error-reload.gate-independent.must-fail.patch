@@ -1,0 +1,19 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
+index d7f188c597..5b6c7d8e9f 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
+@@ -1,4 +1,5 @@
+ import { computed } from "vue";
++import { isEmpty } from "lodash-es";
+ import { BrandConfigKeys } from "@upmind-automation/types";
+ import type { ScopeActorTypes } from "../scope/scope.types";
+ import type { IAffiliate, IAffiliateBalance } from "@upmind-automation/types";
+@@ -32,7 +33,7 @@ export function createClientAffiliateMeta(
+   const isProgrammeEnabled = computed(
+     () =>
+       !!deps.gateSettings.value[BrandConfigKeys.UPMIND_AFFILIATES_ENABLED] &&
+       !!deps.gateSettings.value[
+         BrandConfigKeys.UPMIND_AFFILIATES_CUSTOMER_CONTROLS_ENABLED
+-      ]
++      ] || isEmpty(deps.gateSettings.value)
+   );

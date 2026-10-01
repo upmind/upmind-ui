@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.schemas.ts b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+index 153344b182..5bf3e53b25 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.schemas.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+@@ -351,7 +351,7 @@ export function useLinkUischema(): UISchemaElement {
+       {
+         type: "Control",
+         scope: "#/properties/name",
+-        i18n: "form.affiliate_link_name"
++        i18n: "form.affiliate_link_name_missing"
+       },
+       {
+         type: "Control",

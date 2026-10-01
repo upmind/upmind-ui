@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+@@ -148,11 +148,7 @@
+           model: preselectPaypalEmail(
+             {
+               ...model,
+-              ...(get(
+-                event.data,
+-                "model",
+-                event.data
+-              ) as Partial<AffiliatePayoutDestinationFormModel>)
++              ...(event.data as Partial<AffiliatePayoutDestinationFormModel>)
+             },
+             destinations,
+             nextEmails

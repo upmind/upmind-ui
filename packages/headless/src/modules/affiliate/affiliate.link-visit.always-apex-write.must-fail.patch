@@ -1,0 +1,35 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+index 3a9578b401..12e684bbfe 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+@@ -1,3 +1,4 @@
++import { parse, type ParsedDomain } from "psl";
+ import { ref } from "vue";
+ import { createScopedComposable } from "../scope";
+ import { visitAffiliateLink } from "./affiliate.services";
+@@ -27,6 +28,11 @@ const REFERRAL_COOKIE = "upm_aff";
+ const identityDecoder = (value: string): string => value;
+ const identityEncoder = (value: unknown): string => value as string;
+
++function apexDomain(): string {
++  const parsed = parse(window.location.hostname) as ParsedDomain;
++  return parsed?.domain || window.location.hostname;
++}
++
+ function buildModel(overrides?: Partial<AffiliateLinkVisitModel>) {
+   return {
+     visitUrl: overrides?.visitUrl ?? window.location.href,
+@@ -69,11 +75,12 @@ function createAffiliateLinkVisitForScope(config: ScopeConfig) {
+     }
+
+     if (response.referralCookie) {
+-      useCookies().setTopLevel(
++      useCookies().set(
+         REFERRAL_COOKIE,
+         response.referralCookie,
+         {
+           path: "/",
++          domain: apexDomain(),
+           ...(response.referralCookieMaxAge
+             ? { "max-age": response.referralCookieMaxAge }
+             : {})

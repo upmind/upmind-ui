@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+index e3862c339b..a39de1f4d3 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -196,6 +196,7 @@ function createClientAffiliateForScope(config: ScopeConfig) {
+       ]);
+     } catch (err) {
+       writeError.value = mapToHeadlessError(err);
++      await refresh();
+     } finally {
+       isProcessing.value = false;
+     }

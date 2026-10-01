@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+index 45303c24a3..7e763edd30 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -238,7 +238,7 @@ function createClientAffiliateForScope(config: ScopeConfig) {
+   );
+ 
+   /** The active account id AND non-empty account data, as legacy (design.md §8.5, `o36`). */
+-  const isEnrolled = computed(() => !!accountId.value && !isEmpty(data.value));
++  const isEnrolled = computed(() => !!accountId.value);
+ 
+   return {
+     // --- sub-composables

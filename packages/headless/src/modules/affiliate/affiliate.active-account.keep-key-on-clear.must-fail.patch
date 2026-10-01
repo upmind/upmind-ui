@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinks.ts b/packages/headless/src/modules/affiliate/useAffiliateLinks.ts
+index 23e36d68f7..e1d59b3a11 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinks.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinks.ts
+@@ -76,7 +76,6 @@ function createAffiliateLinksForScope(config: ScopeConfig, scopeKey: ScopeKey) {
+     activeAccountId,
+     next => {
+       if (next === undefined) {
+-        keyAccountId.value = undefined;
+         return;
+       }
+       if (

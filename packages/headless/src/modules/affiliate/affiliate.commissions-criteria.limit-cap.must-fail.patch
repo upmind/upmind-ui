@@ -1,0 +1,20 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.schemas.ts b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+index 153344b182..3da3a706e3 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.schemas.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+@@ -275,7 +275,14 @@ export function useCommissionsQuerySchema(): JsonSchema7 {
+           }
+         }
+       },
+-      pagination: paginationSchema(10)
++      pagination: {
++        type: "object",
++        additionalProperties: false,
++        properties: {
++          limit: { type: "integer", minimum: 2, default: 10 },
++          offset: { type: "integer", minimum: 0, default: PAGINATION.offset }
++        }
++      }
+     }
+   } satisfies JsonSchema7;
+ }

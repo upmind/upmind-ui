@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+@@ -49,8 +49,7 @@ function buildTarget(redirectUrl: string, referrerUrl: string): string {
+   try {
+     const url = new URL(redirectUrl);
+     url.searchParams.set("upm_aff", "1");
+-    if (referrerUrl)
+-      url.searchParams.set("upm_referrer", encodeURI(referrerUrl));
++    url.searchParams.set("upm_referrer", encodeURI(referrerUrl));
+     return url.toString();
+   } catch {
+     return redirectUrl;

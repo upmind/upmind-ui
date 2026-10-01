@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
+@@ -136,7 +136,7 @@ export function createAffiliateLinkManagerActions(
+       .catch(() =>
+         Promise.reject(
+           new DetailedError(
+-            t("error.affiliate_link_form_timeout"),
++            t("affiliate_link_form_timeout"),
+             responseCodes.Timeout,
+             ErrorOrigin.Headless,
+             { state: state.value }

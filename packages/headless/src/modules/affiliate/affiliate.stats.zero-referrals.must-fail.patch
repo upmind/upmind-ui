@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
+index 21275c467b..3d12cb21cf 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
+@@ -73,6 +73,6 @@ export function createClientAffiliateMeta(
+ 
+     affiliateSince: computed(() => deps.data.value?.created_at),
+     linkVisitCount: computed(() => deps.data.value?.link_visit_count ?? 0),
+-    referralCount: computed(() => deps.data.value?.referral_count ?? 0)
++    referralCount: computed(() => 0)
+   };
+ }

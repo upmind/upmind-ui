@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.utils.ts b/packages/headless/src/modules/affiliate/affiliate.utils.ts
+index 6dd8f0914e..076fd50b4b 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.utils.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.utils.ts
+@@ -103,9 +103,8 @@ export function isPaypalDestination(
+   destinationId: string | null | undefined,
+   destinations: IAffiliateBrandPayoutDestination[] = []
+ ): boolean {
+-  const target = destinationId
+-    ? find(destinations, ["id", destinationId])
+-    : find(destinations, "default");
++  if (!destinationId) return false;
++  const target = find(destinations, ["id", destinationId]);
+   return target?.code === AffiliatePayoutDestinationCode.PAYPAL;
+ }
+ 

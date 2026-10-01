@@ -1,0 +1,16 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+index a26f845394..ecc58fc615 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -534,10 +534,7 @@ export function loadAffiliateCommissionsList(
+ 
+ export const AFFILIATE_PAYOUTS_QUERY_KEY = ["affiliate", "payouts"];
+ 
+-const AFFILIATE_PAYOUTS_WITH = [
+-  "affiliate_payout_destination",
+-  "payment_log"
+-].join(",");
++const AFFILIATE_PAYOUTS_WITH = ["affiliate_payout_destination"].join(",");
+ 
+ export function loadAffiliatePayoutsList(
+   accountId: Ref<string | undefined>,

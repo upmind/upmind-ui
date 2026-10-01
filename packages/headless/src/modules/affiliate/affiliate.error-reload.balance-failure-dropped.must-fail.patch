@@ -1,0 +1,14 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+index 1a2b3c4d5e..6f7a8b9c0d 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -116,7 +116,6 @@ function createClientAffiliateForScope(config: ScopeConfig) {
+   const hasError = computed(
+     () =>
+       !!writeError.value ||
+-      accountQuery.isError.value ||
+-      balanceQuery.isError.value
++      accountQuery.isError.value
+   );
+
+   const error = computed<ResponseError | undefined>(

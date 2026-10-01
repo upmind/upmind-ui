@@ -1,0 +1,11 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+@@ -176,6 +176,7 @@
+       data: { ...model, paypalEmailId: email.id },
+       emails
+     });
++    send({ type: "REFRESH", data: { accountId: contextValue<string | undefined>(state, "accountId") } });
+   }
+ 
+   /** Resolves true once a save has completed, false if it never settles. */

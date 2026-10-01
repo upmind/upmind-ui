@@ -1,0 +1,90 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/accounts/d0367942-4d0e-7109-92eb-3153698d582e/affiliate/balance?with_staged_imports=1",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4371f87e9e5cd83-WAW",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 23:49:16 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9ScChNaTN2SXWrR6hmjFldUPn%2BLvytkjahHC6RWnyZ5mjjvv4fVXlfl1tYeaQ2MEKW%2FgA8zWjWx328CrPcyMAxCckiRDfhnZBuagVm2vUXWxpBpWAxz%2BHRItGOLmS2hmG8Q5iQWNcA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "balance": {
+          "ALL": {
+            "amount": 5,
+            "amount_formatted": "£5.00"
+          },
+          "GBP": {
+            "amount": 5,
+            "amount_formatted": "£5.00"
+          }
+        },
+        "withdrawn_balance": {
+          "ALL": {
+            "amount": 5,
+            "amount_formatted": "£5.00"
+          },
+          "GBP": {
+            "amount": 5,
+            "amount_formatted": "£5.00"
+          }
+        },
+        "pending_balance": {
+          "ALL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "commission_count": 0,
+            "referral_count": 0,
+            "order_count": 0,
+            "min_date": null,
+            "max_date": null
+          }
+        },
+        "suspended_balance": {
+          "ALL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "commission_count": 0,
+            "referral_count": 0,
+            "order_count": 0
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T23:49:16.223Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "affiliate"
+  }
+}

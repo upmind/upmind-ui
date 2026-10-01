@@ -1,0 +1,54 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.schemas.ts b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+index 153344b182..c2ae7f54a7 100644
+--- a/packages/headless/src/modules/affiliate/affiliate.schemas.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+@@ -138,41 +138,48 @@
+           visit_count: numberFilterSchema(),
+           referral_count: numberFilterSchema(),
+           created_at: dateFilterSchema()
+         }
+       },
+       sort: {
+         type: "array",
+         default: AFFILIATE_DEFAULT_SORT,
+         minItems: 1,
+         uniqueItems: true,
+         items: {
+           type: "object",
+           additionalProperties: false,
+           required: ["field", "dir"],
+           properties: {
+             field: { enum: ["created_at", "visit_count", "referral_count"] },
+             dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+           }
+         }
+       },
+-      pagination: paginationSchema(10)
++      pagination: {
++        type: "object",
++        additionalProperties: false,
++        properties: {
++          limit: { type: "integer", minimum: 0, maximum: 15, default: 10 },
++          offset: { type: "integer", minimum: 0, default: PAGINATION.offset }
++        }
++      }
+     }
+   } satisfies JsonSchema7;
+ }
+ 
+ export function useLinksQueryUischema(): UISchemaElement {
+   return {
+     type: "FilterBar",
+     elements: [
+       {
+         type: "Control",
+         scope: "#/properties/filters/properties/name/properties/like",
+         i18n: "form.affiliate_links_search",
+         options: { format: "search", noLabel: true, optionalText: "" }
+       }
+     ]
+   } as UISchemaElement;
+ }
+ 
+ export function useLinksSortUischema(): ControlElement {
+   return {

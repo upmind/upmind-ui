@@ -1,0 +1,168 @@
+diff --git a/packages/headless/src/modules/affiliate/affiliate.services.ts b/packages/headless/src/modules/affiliate/affiliate.services.ts
+--- a/packages/headless/src/modules/affiliate/affiliate.services.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.services.ts
+@@ -350,7 +350,7 @@
+   );
+   if (!accountId || !isMember) {
+     throw new DetailedError(
+-      useI18n().t("error.affiliate_account_not_member"),
++      useI18n().t("affiliate_account_not_member"),
+       responseCodes.Forbidden,
+       ErrorOrigin.Headless
+     );
+diff --git a/packages/headless/src/modules/affiliate/affiliate.schemas.ts b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+--- a/packages/headless/src/modules/affiliate/affiliate.schemas.ts
++++ b/packages/headless/src/modules/affiliate/affiliate.schemas.ts
+@@ -117,7 +117,7 @@
+   amount?: string;
+ }): AffiliateWithdrawalFormModel {
+   const { t } = useI18n();
+-  return { message: t("text.affiliate_withdraw_balance", { amount }) };
++  return { message: t("affiliate_withdraw_balance", { amount }) };
+ }
+
+ // -----------------------------------------------------------------------------
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
+@@ -60,7 +60,7 @@
+       .catch(error =>
+         Promise.reject(
+           new DetailedError(
+-            t("error.affiliate_link_form_timeout"),
++            t("affiliate_link_form_timeout"),
+             responseCodes.Timeout,
+             ErrorOrigin.Headless,
+             { error, state: state.value }
+@@ -85,7 +85,7 @@
+       .catch(() =>
+         Promise.reject(
+           new DetailedError(
+-            t("error.affiliate_link_not_available"),
++            t("affiliate_link_not_available"),
+             responseCodes.Forbidden,
+             ErrorOrigin.Headless
+           )
+@@ -136,7 +136,7 @@
+       .catch(() =>
+         Promise.reject(
+           new DetailedError(
+-            t("error.affiliate_link_form_timeout"),
++            t("affiliate_link_form_timeout"),
+             responseCodes.Timeout,
+             ErrorOrigin.Headless,
+             { state: state.value }
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+@@ -37,7 +37,7 @@
+   if (!isClientScopeActor(actorScope)) {
+     return Promise.reject(
+       new DetailedError(
+-        t("error.affiliate_link_not_available"),
++        t("affiliate_link_not_available"),
+         responseCodes.No_Content,
+         ErrorOrigin.Headless
+       )
+@@ -48,7 +48,7 @@
+   if (!accountId) {
+     return Promise.reject(
+       new DetailedError(
+-        t("error.affiliate_link_not_available"),
++        t("affiliate_link_not_available"),
+         responseCodes.No_Content,
+         ErrorOrigin.Headless
+       )
+@@ -76,7 +76,7 @@
+   if (!isReady) {
+     return Promise.reject(
+       new DetailedError(
+-        t("error.affiliate_link_not_available"),
++        t("affiliate_link_not_available"),
+         responseCodes.No_Content,
+         ErrorOrigin.Headless
+       )
+@@ -167,7 +167,7 @@
+           ? saveAffiliateLink(accountId, undefined, model)
+           : Promise.reject(
+               new DetailedError(
+-                useI18n().t("error.affiliate_link_not_available"),
++                useI18n().t("affiliate_link_not_available"),
+                 responseCodes.No_Content,
+                 ErrorOrigin.Headless
+               )
+@@ -178,7 +178,7 @@
+           ? saveAffiliateLink(accountId, id, model)
+           : Promise.reject(
+               new DetailedError(
+-                useI18n().t("error.affiliate_link_not_available"),
++                useI18n().t("affiliate_link_not_available"),
+                 responseCodes.No_Content,
+                 ErrorOrigin.Headless
+               )
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
+@@ -62,7 +62,7 @@
+   const actorRef = createActor(machineService);
+   if (!actorRef) {
+     throw new DetailedError(
+-      t("error.affiliate_link_not_available"),
++      t("affiliate_link_not_available"),
+       responseCodes.Service_Unavailable,
+       ErrorOrigin.Headless,
+       { scope: config }
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+@@ -54,7 +54,7 @@
+       .catch(error =>
+         Promise.reject(
+           new DetailedError(
+-            t("error.affiliate_payout_destination_form_timeout"),
++            t("affiliate_payout_destination_form_timeout"),
+             responseCodes.Timeout,
+             ErrorOrigin.Headless,
+             { error, state: state.value }
+@@ -78,7 +78,7 @@
+       .catch(() =>
+         Promise.reject(
+           new DetailedError(
+-            t("error.affiliate_payout_destination_not_available"),
++            t("affiliate_payout_destination_not_available"),
+             responseCodes.Forbidden,
+             ErrorOrigin.Headless
+           )
+@@ -147,7 +147,7 @@
+       .catch(() =>
+         Promise.reject(
+           new DetailedError(
+-            t("error.affiliate_payout_destination_form_timeout"),
++            t("affiliate_payout_destination_form_timeout"),
+             responseCodes.Timeout,
+             ErrorOrigin.Headless,
+             { state: state.value }
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+@@ -34,7 +34,7 @@
+
+ function notAvailableError(): DetailedError {
+   return new DetailedError(
+-    useI18n().t("error.affiliate_payout_destination_not_available"),
++    useI18n().t("affiliate_payout_destination_not_available"),
+     responseCodes.No_Content,
+     ErrorOrigin.Headless
+   );
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts
+@@ -60,7 +60,7 @@
+   const actorRef = createActor(machineService);
+   if (!actorRef) {
+     throw new DetailedError(
+-      t("error.affiliate_payout_destination_not_available"),
++      t("affiliate_payout_destination_not_available"),
+       responseCodes.Service_Unavailable,
+       ErrorOrigin.Headless,
+       { scope: config }

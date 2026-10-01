@@ -1,0 +1,22 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
+index 329ad7c1db..0f9f852aae 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
+@@ -74,17 +74,6 @@ function createAffiliateLinkManagerForScope(
+    * top-up of design.md §8.4, Editors (D-42). `refreshContext` keeps an
+    * already-present value, so this never clobbers a resolved pin.
+    */
+-  const stopTopUp = watch(resolverContext.activeAccountId, next => {
+-    if (
+-      !isClientScopeActor(actorScope) ||
+-      !next ||
+-      contextMatches(actorRef.state, "accountId")
+-    )
+-      return;
+-    stopTopUp();
+-    actorRef.send({ type: "REFRESH", data: { accountId: next } });
+-  });
+-
+   const actions = createAffiliateLinkManagerActions(
+     actorScope,
+     actorRef,

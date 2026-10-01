@@ -1,0 +1,36 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
+index 49d26a67dc..4bc915f01f 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts
+@@ -45,9 +45,7 @@ function createAffiliateLinkManagerForScope(
+
+   const initialContext: AffiliateLinkManagerContext = {
+     id: linkId,
+-    accountId: isClientScopeActor(actorScope)
+-      ? resolverContext.activeAccountId.value
+-      : undefined,
++    accountId: resolverContext.activeAccountId.value,
+     allowMultipleEdits: true
+   };
+
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+index 49d26a67dc..4bc915f01f 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.machine.ts
+@@ -34,16 +34,6 @@ async function loadLookups(
+ ): Promise<Partial<AffiliateLinkManagerContext>> {
+   const { t } = useI18n();
+
+-  if (!isClientScopeActor(actorScope)) {
+-    return Promise.reject(
+-      new DetailedError(
+-        t("error.affiliate_link_not_available"),
+-        responseCodes.No_Content,
+-        ErrorOrigin.Headless
+-      )
+-    );
+-  }
+-
+   const accountId = context.accountId;
+   if (!accountId) {
+     return Promise.reject(

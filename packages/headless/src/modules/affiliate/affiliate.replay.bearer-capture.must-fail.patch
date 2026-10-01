@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/__tests__/fixtures/get-self.json b/packages/headless/src/modules/affiliate/__tests__/fixtures/get-self.json
+index 5d5bce3e1e..6d3c86e947 100644
+--- a/packages/headless/src/modules/affiliate/__tests__/fixtures/get-self.json
++++ b/packages/headless/src/modules/affiliate/__tests__/fixtures/get-self.json
+@@ -7,7 +7,7 @@
+       "Content-Type": "application/json",
+       "Accept": "application/json",
+       "Origin": "http://qa-automation.local:5173",
+-      "Authorization": "mock-Authorization"
++      "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.leaked-token-value"
+     },
+     "body": null
+   },

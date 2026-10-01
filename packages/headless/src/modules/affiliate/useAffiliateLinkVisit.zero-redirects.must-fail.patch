@@ -1,0 +1,17 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+index 3a9578b401..5c234bc16f 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+@@ -63,9 +63,9 @@ function createAffiliateLinkVisitForScope(config: ScopeConfig) {
+     try {
+       response = await visitAffiliateLink(model, referralCookie ?? undefined);
+     } catch {
+-      const origin = window.location.origin;
+-      lastResponse.value = { target: origin };
+-      return origin;
++      const marked = model.visitUrl;
++      lastResponse.value = { target: marked };
++      return marked;
+     }
+ 
+     if (response.referralCookie) {
