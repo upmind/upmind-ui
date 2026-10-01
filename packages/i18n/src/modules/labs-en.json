@@ -318,5 +318,13 @@
   "client_order_needs_id": "No order named",
   "client_order_enter": "Open the order",
   "client_order_pay": "Pay",
-  "client_order_retry": "Retry"
+  "client_order_retry": "Retry",
+  "client_order_summary": "Order summary",
+  "client_order_items": "Items",
+  "client_order_cancellation_reason": "Cancellation reason",
+  "client_order_notes": "Notes",
+  "client_order_referrer": "Referrer",
+  "client_order_subtotal": "Subtotal",
+  "client_order_promotions": "Promotions",
+  "client_order_taxes": "Taxes"
 }

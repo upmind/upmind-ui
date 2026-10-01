@@ -37,7 +37,7 @@
 
         <section
           v-if="isOpen"
-          class="flex flex-col gap-4"
+          class="flex flex-col gap-6"
           data-test-key="client-order-view"
         >
           <div class="flex flex-wrap gap-2">
@@ -79,57 +79,142 @@
             :data-attrs="{ 'data-test-key': 'client-order-alert' }"
           />
 
-          <Card v-if="context!.data.value" size="sm" class="gap-3">
-            <dl
-              class="grid grid-cols-2 gap-3 text-sm"
-              data-test-key="client-order-detail"
-            >
-              <template
-                v-for="(value, field) in context!.detail.value"
-                :key="field"
-              >
-                <dt class="text-faint">{{ field }}</dt>
-                <dd :data-test-key="`client-order-detail-${kebabCase(field)}`">
-                  {{ display(value) }}
-                </dd>
-              </template>
-            </dl>
-            <p
-              data-test-key="client-order-contract-id"
-              :data-test-value="context!.contractId.value"
-            >
-              {{ context!.contractId.value }}
-            </p>
-            <p
-              data-test-key="client-order-data"
-              :data-test-value="context!.data.value.id"
-            >
-              {{ context!.data.value.number }}
-            </p>
-          </Card>
+          <template v-if="context!.data.value">
+            <Hero
+              :title="
+                context!.detail.value.number ?? t('labs.client_order_title')
+              "
+              :badge="heroBadge"
+              size="lg"
+            />
 
-          <ul class="flex flex-col gap-2" data-test-key="client-order-products">
-            <li
-              v-for="item in context!.products.value"
-              :key="item.id"
-              class="flex flex-wrap items-center gap-3"
-              data-test-key="client-order-product"
-              :data-test-value="item.id"
+            <Section :label="t('labs.client_order_summary')" icon="receipt">
+              <DescriptionListRoot
+                align="between"
+                class="gap-y-2"
+                data-test-key="client-order-detail"
+              >
+                <DescriptionItem
+                  v-if="statusName"
+                  :term="t('labs.client_orders_col_status')"
+                >
+                  <Badge
+                    size="sm"
+                    appearance="outline"
+                    :variant="statusVariant"
+                    data-test-key="client-order-detail-status"
+                  >
+                    {{ statusName }}
+                  </Badge>
+                </DescriptionItem>
+                <DescriptionItem
+                  v-for="row in summaryRows"
+                  :key="row.key"
+                  :term="t(row.labelKey)"
+                >
+                  <span :data-test-key="`client-order-detail-${row.key}`">
+                    {{ row.value }}
+                  </span>
+                </DescriptionItem>
+              </DescriptionListRoot>
+
+              <DescriptionListRoot align="between" class="mt-4 gap-y-2">
+                <DescriptionItem
+                  v-for="row in totals"
+                  :key="row.key"
+                  :term="t(row.labelKey)"
+                >
+                  <span :data-test-key="`client-order-total-${row.key}`">
+                    {{ row.value }}
+                  </span>
+                </DescriptionItem>
+              </DescriptionListRoot>
+
+              <div class="text-faint mt-4 flex flex-col gap-1 text-xs">
+                <p
+                  data-test-key="client-order-contract-id"
+                  :data-test-value="context!.contractId.value"
+                >
+                  {{ context!.contractId.value }}
+                </p>
+                <p
+                  data-test-key="client-order-data"
+                  :data-test-value="context!.data.value.id"
+                >
+                  {{ context!.data.value.number }}
+                </p>
+              </div>
+            </Section>
+
+            <Section
+              :label="t('labs.client_order_items')"
+              icon="shopping-bag-02"
             >
-              <img
-                v-if="item.image"
-                :src="item.image"
-                :alt="item.name"
-                class="size-8"
-                data-test-key="client-order-product-image"
-              />
-              <span>{{ item.name }}</span>
-              <span data-test-key="client-order-product-billing-cycle">
-                {{ item.billingCycle?.name }}
-              </span>
-              <span>{{ item.total }}</span>
-            </li>
-          </ul>
+              <ul
+                class="flex flex-col gap-3"
+                data-test-key="client-order-products"
+              >
+                <li
+                  v-for="item in context!.products.value"
+                  :key="item.id"
+                  class="rounded-card flex flex-col gap-2 border border-current/10 p-3"
+                  data-test-key="client-order-product"
+                  :data-test-value="item.id"
+                >
+                  <div class="flex flex-wrap items-center gap-3">
+                    <img
+                      v-if="item.image"
+                      :src="item.image"
+                      :alt="item.name"
+                      class="size-10 rounded-md object-cover"
+                      data-test-key="client-order-product-image"
+                    />
+                    <div class="flex flex-1 flex-col">
+                      <span class="font-medium">{{ item.name }}</span>
+                      <span v-if="item.period" class="text-faint text-xs">
+                        {{ item.period.from }} &ndash; {{ item.period.to }}
+                      </span>
+                      <span
+                        v-if="item.billingCycle?.name"
+                        class="text-faint text-xs"
+                        data-test-key="client-order-product-billing-cycle"
+                      >
+                        {{ item.billingCycle.name }}
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-4 text-sm">
+                      <span v-if="item.quantity"
+                        >&times;{{ item.quantity }}</span
+                      >
+                      <span v-if="item.price">{{ item.price }}</span>
+                      <span v-if="item.total" class="font-medium">{{
+                        item.total
+                      }}</span>
+                    </div>
+                  </div>
+
+                  <ul
+                    v-if="item.hasSubItems"
+                    class="text-faint flex flex-col gap-1 border-t border-current/10 pt-2 pl-4 text-xs"
+                  >
+                    <li
+                      v-for="subItem in subItemsOf(item)"
+                      :key="subItem.id"
+                      class="flex items-center justify-between gap-3"
+                    >
+                      <span>{{ subItem.name }}</span>
+                      <span class="flex items-center gap-3">
+                        <span v-if="subItem.quantity > 1"
+                          >&times;{{ subItem.quantity }}</span
+                        >
+                        <span>{{ subItem.total || subItem.price }}</span>
+                      </span>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </Section>
+          </template>
 
           <div class="flex flex-wrap gap-3">
             <Button
@@ -195,17 +280,20 @@
  * .withId(oid)` instance for its whole life, with `oid` from the route param
  * only. It mounts with the order view closed; each enter opens the view and
  * calls `refresh()` on that same instance (D-12, parity row 25), so the
- * second enter adds exactly one single read. Each published member carries
- * its own `client-order-<member>` test key. The payment component mounts
- * only while `canPay` is true and calls `usePayment()` in its own setup
- * (design 6.4).
+ * second enter adds exactly one single read. The view is modelled on the
+ * invoice `OrderView`: a hero with the status badge, a summary section of
+ * formatted fields, a styled item list with sub-items and a totals block.
+ * Each published member carries its own `client-order-<member>` test key. The
+ * payment component mounts only while `canPay` is true and calls `usePayment()`
+ * in its own setup (design 6.4).
  */
 
 import {
   Alert,
   Badge,
   Button,
-  Card,
+  DescriptionItem,
+  DescriptionListRoot,
   EmptyState,
   Page,
   PageBody,
@@ -217,9 +305,11 @@ import {
 import { computed, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { ScopeActorTypes, useClientOrder } from "@upmind-automation/client-vue";
-import { Icon } from "@upmind-automation/foundation";
+import { Hero, Icon, Section } from "@upmind-automation/foundation";
 import ClientOrderPayment from "./client-order.payment.vue";
-import { isArray, isNil, isObject, kebabCase, map } from "lodash-es";
+import { concat, filter, isArray, isEmpty, map, toString } from "lodash-es";
+import type { BadgeVariants } from "@upmind/ui";
+import type { ClientOrderItem } from "@upmind-automation/client-vue";
 
 definePageMeta({
   key: route => route.path
@@ -284,9 +374,108 @@ const metaFlags = computed(() => {
   );
 });
 
-function display(value: unknown): string {
-  if (isNil(value)) return "";
-  return isObject(value) ? JSON.stringify(value) : String(value);
+const statusName = computed(() => context?.detail.value.status?.name);
+
+const statusVariant = computed<BadgeVariants["variant"]>(() => {
+  if (meta?.isPaid.value) return "success";
+  if (meta?.isCancelled.value) return "neutral";
+  if (meta?.isOverdue.value) return "danger";
+  if (meta?.isPartiallyPaid.value || meta?.isDue.value) return "warning";
+  return "neutral";
+});
+
+const heroBadge = computed(() =>
+  statusName.value
+    ? { label: statusName.value, variant: statusVariant.value }
+    : undefined
+);
+
+const summaryRows = computed(() => {
+  const detail = context?.detail.value;
+  if (!detail) return [];
+  return filter(
+    [
+      {
+        key: "number",
+        labelKey: "labs.client_orders_col_number",
+        value: detail.number
+      },
+      {
+        key: "created",
+        labelKey: "labs.client_orders_col_created",
+        value: detail.createdAt
+      },
+      {
+        key: "paid",
+        labelKey: "labs.client_orders_col_paid",
+        value: detail.paidDatetime
+      },
+      {
+        key: "due",
+        labelKey: "labs.client_orders_col_due",
+        value: detail.dueDate
+      },
+      {
+        key: "cancelled",
+        labelKey: "labs.client_orders_col_cancelled",
+        value: detail.cancellationDatetime
+      },
+      {
+        key: "cancellation-reason",
+        labelKey: "labs.client_order_cancellation_reason",
+        value: detail.cancellationReason
+      },
+      {
+        key: "notes",
+        labelKey: "labs.client_order_notes",
+        value: detail.notes
+      },
+      {
+        key: "referrer",
+        labelKey: "labs.client_order_referrer",
+        value: detail.referrer?.fullname
+      }
+    ],
+    row => !isEmpty(toString(row.value))
+  );
+});
+
+const totals = computed(() => {
+  const order = context?.data.value;
+  if (!order) return [];
+  return filter(
+    [
+      {
+        key: "subtotal",
+        labelKey: "labs.client_order_subtotal",
+        value: order.net_amount_formatted,
+        show: !isEmpty(toString(order.net_amount_formatted))
+      },
+      {
+        key: "promotions",
+        labelKey: "labs.client_order_promotions",
+        value: order.total_discount_amount_formatted,
+        show: !!order.total_discount_amount
+      },
+      {
+        key: "taxes",
+        labelKey: "labs.client_order_taxes",
+        value: order.tax_amount_formatted,
+        show: !!order.tax_amount
+      },
+      {
+        key: "total",
+        labelKey: "labs.client_orders_col_total",
+        value: order.total_amount_formatted,
+        show: !isEmpty(toString(order.total_amount_formatted))
+      }
+    ],
+    row => row.show
+  );
+});
+
+function subItemsOf(item: ClientOrderItem) {
+  return concat(item.quantifiableItems, item.nonQuantifiableItems);
 }
 
 async function run(work: () => unknown): Promise<void> {

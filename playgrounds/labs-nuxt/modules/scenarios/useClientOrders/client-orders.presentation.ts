@@ -30,10 +30,29 @@ import type {
   ActionsUischema,
   CardUischema,
   DetailUischema,
+  TableBadge,
   TableUischema
 } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * The delegation marker, drawn ONLY when the order is truly delegated. The
+ * module's rule is `!parentClientId && !!delegate_related`; on this recorded
+ * corpus `parent_client_config` is always null, so the raw `delegate_related`
+ * flag alone is faithful. `TableCellBadges` stays silent on a falsy flag, so a
+ * non-delegated row shows nothing — unlike `TableCellIcon`, which draws a glyph
+ * on every row (`R6-34`). The badge reads the flag off the ROW root (scope
+ * `#`), mirroring the `/useInvoices` twin's attribution badges.
+ */
+const DELEGATED_BADGES: TableBadge[] = [
+  {
+    flag: "delegate_related",
+    i18n: "labs.client_orders_col_delegated",
+    color: "warning",
+    icon: "users-01"
+  }
+];
 
 export const tableUischema: TableUischema = {
   type: "TableLayout",
@@ -69,10 +88,10 @@ export const tableUischema: TableUischema = {
       i18n: "labs.client_orders_col_items"
     },
     {
-      type: "TableCellIcon",
-      scope: "#/properties/delegate_related",
+      type: "TableCellBadges",
+      scope: "#",
       i18n: "labs.client_orders_col_delegated",
-      options: { icon: "users-01" }
+      options: { badges: DELEGATED_BADGES }
     }
   ]
 };
