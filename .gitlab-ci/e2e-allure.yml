@@ -43,6 +43,8 @@ e2e:allure:
     # the mapped tenant domain the API expects. Map it to loopback in-container so
     # Playwright's readiness poll can reach vite (which binds localhost).
     - echo "127.0.0.1 qa-automation.local" >> /etc/hosts
+    # vite binds `localhost`, which can resolve to ::1 only — map both families.
+    - echo "::1 qa-automation.local" >> /etc/hosts
     # Install pnpm the same way as the shared template. The `dependencies`
     # artifact is glibc-matched to this image, so it needs no reinstall.
     - !reference [.pnpm, before_script]
@@ -180,6 +182,8 @@ e2e:full:
   before_script:
     # Identical setup to e2e:allure.
     - echo "127.0.0.1 qa-automation.local" >> /etc/hosts
+    # vite binds `localhost`, which can resolve to ::1 only — map both families.
+    - echo "::1 qa-automation.local" >> /etc/hosts
     - !reference [.pnpm, before_script]
   script:
     # Time the full cross-browser run. Capture (don't propagate) test failure so
