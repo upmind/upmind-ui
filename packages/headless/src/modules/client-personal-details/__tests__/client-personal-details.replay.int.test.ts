@@ -43,7 +43,6 @@ import {
   seedGuestSession
 } from "./client-personal-details.int-helpers";
 import {
-  arrangeState,
   CLIENT_PERSONAL_DETAILS_SCENARIO,
   clientPersonalDetailsSteps
 } from "./client-personal-details.steps";
@@ -69,7 +68,6 @@ let activeScenario = "";
 async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
   activeScenario = scenario.name;
   const signedOut = includes(scenario.tags, SIGNED_OUT_TAG);
-  arrangeState.errored = includes(scenario.tags, "@errored");
   if (
     !signedOut &&
     !existsSync(scenarioDir(import.meta.dirname, scenario.name))
