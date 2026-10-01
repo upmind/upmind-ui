@@ -1,6 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig/vue-package.json",
+  "compilerOptions": {
+    // `paths` replaces the base map; compiler-sfc resolves FormModalProps' `extends` through it.
+    "baseUrl": ".",
+    "paths": {
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
+      "@upmind-automation/headless": ["../headless/src/index.ts"],
+      "@upmind-automation/foundation": ["../modules-foundation/src/index.ts"],
+      "@upmind-automation/types": ["../types/src/index.ts"]
+    }
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }

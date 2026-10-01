@@ -82,7 +82,7 @@
   <GuestEmail v-show="showCheckout" :disabled="meta.guestEmailDisabled" />
 
   <!-- Payment -->
-  <PaymentDetails
+  <UpmPaymentDetails
     v-show="showCheckout"
     v-bind="paymentDetailsTestAttrs"
     :disabled="meta.paymentDisabled"
@@ -103,10 +103,10 @@ import {
   useProductSetup
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
+import { UpmPaymentDetails } from "@upmind-automation/payment";
 import BasketAlerts from "../../basket/components/BasketAlerts.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import BasketProductSkeleton from "../../basket-product/components/card/BasketProductSkeleton.vue";
-import PaymentDetails from "../../payment/components/PaymentDetails.vue";
 import CheckoutBilling from "./CheckoutBilling.vue";
 import CheckoutProductSetup from "./CheckoutProductSetup.vue";
 import CheckoutSetupSkeleton from "./CheckoutSetupSkeleton.vue";

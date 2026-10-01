@@ -118,6 +118,10 @@ export default defineConfig(({ mode, command }) => {
           __dirname,
           "../../packages/modules-client/src/index.ts"
         ),
+        "@upmind-automation/payment/styles": resolve(
+          __dirname,
+          "../../packages/modules-payment/src/styles.css"
+        ),
         "@upmind-automation/payment": resolve(
           __dirname,
           "../../packages/modules-payment/src/index.ts"

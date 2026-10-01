@@ -1,0 +1,17 @@
+# Negative control — the pay page binds the invoice id under a name the
+# organism does not declare, so the organism mounts with no invoice id.
+#
+# Intended RED:
+#   apps/payment/tests/routes.test.ts
+#     "hands the pay link's invoice id through the page to the organism"
+
+diff --git a/apps/payment/src/Pay.vue b/apps/payment/src/Pay.vue
+--- a/apps/payment/src/Pay.vue
++++ b/apps/payment/src/Pay.vue
+@@ -1,5 +1,5 @@
+ <template>
+-  <UpmPayment :invoice-id="invoiceId" />
++  <UpmPayment :id="invoiceId" />
+ </template>
+ 
+ <script lang="ts" setup>

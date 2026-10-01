@@ -37,7 +37,7 @@
       >
         <template #icon><Icon :icon="primaryAlert.icon" /></template>
       </Alert>
-      <PaymentDetails
+      <UpmPaymentDetails
         v-if="!orderMeta.isLocked"
         v-show="!orderMeta.isProcessing"
         :label="t('action.pay_now')"
@@ -54,7 +54,7 @@
             <template #icon><Icon :icon="secondaryAlert.icon" /></template>
           </Alert>
         </template>
-      </PaymentDetails>
+      </UpmPaymentDetails>
     </template>
 
     <template v-if="!orderMeta.isUnavailable" #order-details>
@@ -190,7 +190,7 @@
     </template>
   </component>
 
-  <PaymentProcessing v-if="orderMeta.isProcessing" />
+  <UpmPaymentProcessing v-if="orderMeta.isProcessing" />
 </template>
 
 <script lang="ts" setup>
@@ -217,9 +217,11 @@ import {
   type InvoicePaymentChallenge
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
+import {
+  UpmPaymentDetails,
+  UpmPaymentProcessing
+} from "@upmind-automation/payment";
 import { useAnnouncement } from "../../components/announcement/useAnnouncement";
-import PaymentDetails from "../payment/components/PaymentDetails.vue";
-import PaymentProcessing from "../payment/components/PaymentProcessing.vue";
 import { useThemes } from "../theming";
 import OrderProducts from "./components/OrderProducts.vue";
 import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";

@@ -95,13 +95,13 @@ import {
 import { computed, provide, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  UpmPaymentDetails,
   useActiveSession,
   useBasketCurrency,
   usePaymentDetailAdd,
   usePaymentDetails
 } from "@upmind-automation/client-vue";
 import { Icon, Section } from "@upmind-automation/foundation";
+import { UpmPaymentDetails } from "@upmind-automation/payment";
 import { compact, join, map } from "lodash-es";
 import type { ListRow } from "@upmind/ui";
 import type { UsePaymentDetailAdd } from "@upmind-automation/client-vue";

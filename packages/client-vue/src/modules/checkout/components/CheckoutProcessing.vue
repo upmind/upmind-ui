@@ -13,7 +13,7 @@
     :text="processingText"
   />
 
-  <PaymentProcessing :open="meta.isPaying || meta.needsApproval" />
+  <UpmPaymentProcessing :open="meta.isPaying || meta.needsApproval" />
 </template>
 
 <script lang="ts" setup>
@@ -24,7 +24,7 @@ import {
   useBasket,
   useBasketPaymentDetails
 } from "@upmind-automation/headless";
-import PaymentProcessing from "../../payment/components/PaymentProcessing.vue";
+import { UpmPaymentProcessing } from "@upmind-automation/payment";
 
 // -----------------------------------------------------------------------------
 

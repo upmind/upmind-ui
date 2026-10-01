@@ -46,6 +46,11 @@ const PACKAGES = [
     name: "client-vue",
     controls: async () =>
       (await import("@upmind-automation/client-vue")).formRenderers
+  },
+  {
+    name: "payment",
+    controls: async () =>
+      (await import("@upmind-automation/payment")).paymentRenderers
   }
 ];
 

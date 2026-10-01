@@ -4,7 +4,7 @@
  * @description Type definitions for payment module components.
  */
 
-import type { ButtonVariants } from "@upmind/ui";
+import type { ButtonVariants, FormProps } from "@upmind/ui";
 import type {
   AccountCredit,
   PaymentDetailsContext
@@ -16,6 +16,18 @@ import type { HtmlHTMLAttributes } from "vue";
 // --- types
 
 // -----------------------------------------------------------------------------
+
+export type PaymentProps = {
+  invoiceId: string;
+};
+
+export interface FormModalProps extends Omit<FormProps, "ajv"> {
+  open?: boolean;
+  title?: string;
+  description?: string;
+  label?: string;
+  cancelLabel?: string;
+}
 
 export type PaymentDetailsProps = {
   class?: HtmlHTMLAttributes["class"];

@@ -1,0 +1,21 @@
+# Negative control — the renderer reads the payment types off the gateway
+# control's own schema, not the form's root. It never finds pay later, so a
+# brand that allows deferring loses the tile.
+#
+# Intended RED:
+#   packages/modules-payment/src/__tests__/gateways-renderer.test.ts
+#     "adds pay later as the last choice when the payment types allow deferring"
+
+diff --git a/packages/modules-payment/src/renderers/GatewaysRenderer.vue b/packages/modules-payment/src/renderers/GatewaysRenderer.vue
+index 0e7c4cb..931d362 100644
+--- a/packages/modules-payment/src/renderers/GatewaysRenderer.vue
++++ b/packages/modules-payment/src/renderers/GatewaysRenderer.vue
+@@ -118,7 +118,7 @@ const items = computed<GatewayTile[]>(() => {
+   });
+ 
+   // Syntactic Sugar...Add a "special" option to force pay-later.
+-  if (rootSchema?.definitions?.type?.enum?.includes(PaymentType.PAY_LATER)) {
++  if (schema?.definitions?.type?.enum?.includes(PaymentType.PAY_LATER)) {
+     gateways.push({
+       value: PaymentType.PAY_LATER,
+       label: t("form.payment_method_type.pay-later"),
