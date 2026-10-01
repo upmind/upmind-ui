@@ -12446,12 +12446,6 @@
       "path": "packages/client-vue/src/components/footer/useFooter.ts",
       "title": "useFooter.ts"
     },
-    "file:packages/client-vue/src/components/form/FormModal.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/form/FormModal.vue",
-      "title": "FormModal.vue"
-    },
     "file:packages/client-vue/src/components/form/index.ts": {
       "kind": "file",
       "module": "",
@@ -12470,12 +12464,6 @@
       "path": "packages/client-vue/src/components/form/renderers/DomainRenderer.vue",
       "title": "DomainRenderer.vue"
     },
-    "file:packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue",
-      "title": "GatewaysRenderer.vue"
-    },
     "file:packages/client-vue/src/components/form/renderers/ImageRenderer.vue": {
       "kind": "file",
       "module": "",
@@ -12487,12 +12475,6 @@
       "module": "",
       "path": "packages/client-vue/src/components/form/renderers/ManageRenderer.vue",
       "title": "ManageRenderer.vue"
-    },
-    "file:packages/client-vue/src/components/form/renderers/PaymentDetailsRenderer.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/form/renderers/PaymentDetailsRenderer.vue",
-      "title": "PaymentDetailsRenderer.vue"
     },
     "file:packages/client-vue/src/components/form/renderers/SLDRenderer.vue": {
       "kind": "file",
@@ -12523,12 +12505,6 @@
       "module": "",
       "path": "packages/client-vue/src/components/form/renderers/utils.ts",
       "title": "utils.ts"
-    },
-    "file:packages/client-vue/src/components/form/types.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/form/types.ts",
-      "title": "types.ts"
     },
     "file:packages/client-vue/src/components/header/Header.vue": {
       "kind": "file",
@@ -13573,78 +13549,6 @@
       "module": "order",
       "path": "packages/client-vue/src/modules/order/utils.ts",
       "title": "utils.ts"
-    },
-    "file:packages/client-vue/src/modules/payment/components/AccountCredit.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-      "title": "AccountCredit.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PayLater.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PayLater.vue",
-      "title": "PayLater.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PaymentActions.vue",
-      "title": "PaymentActions.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PaymentAmount.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PaymentAmount.vue",
-      "title": "PaymentAmount.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-      "title": "PaymentDetails.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-      "title": "PaymentGateway.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PaymentGateways.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PaymentGateways.vue",
-      "title": "PaymentGateways.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PaymentGatewaysUnavailable.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PaymentGatewaysUnavailable.vue",
-      "title": "PaymentGatewaysUnavailable.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PaymentNotRequired.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PaymentNotRequired.vue",
-      "title": "PaymentNotRequired.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/PaymentProcessing.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/PaymentProcessing.vue",
-      "title": "PaymentProcessing.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/components/StoredPaymentMethods.vue": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/components/StoredPaymentMethods.vue",
-      "title": "StoredPaymentMethods.vue"
-    },
-    "file:packages/client-vue/src/modules/payment/types.ts": {
-      "kind": "file",
-      "module": "payment",
-      "path": "packages/client-vue/src/modules/payment/types.ts",
-      "title": "types.ts"
     },
     "file:packages/client-vue/src/modules/product-setup/ProductSetup.vue": {
       "kind": "file",
@@ -18292,21 +18196,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-01T15:12:27.516Z",
-    "corpus_version": "1+aa043aacd102",
+    "built_at": "2026-10-01T19:20:21.566Z",
+    "corpus_version": "1+d9be692a9314",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
       "guides": 174,
-      "indexEntries": 2106,
-      "relationEdges": 5589,
-      "relationsPruned": 1948,
+      "indexEntries": 2090,
+      "relationEdges": 5543,
+      "relationsPruned": 1994,
       "symbols": 896
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "a190c0b022f827d9b1255785ef681480819ed2c7"
+    "source_commit": "c7313dc6a14db0df436f5e61e8a153571e5f239f"
   },
   "relations": {
     "edges": [
@@ -24864,30 +24768,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/FormModal.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/form/FormModal.vue",
-        "to": "file:packages/client-vue/src/components/form/FormModal.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/FormModal.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/form/FormModal.vue",
-        "to": "file:packages/client-vue/src/components/form/FormModal.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/FormModal.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/FormModal.vue",
-        "to": "file:packages/client-vue/src/components/form/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
         "granularity": "file",
         "relation": "calls",
@@ -24941,22 +24821,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/form/renderers/DomainRenderer.vue",
         "to": "file:packages/client-vue/src/modules/domain/SmartDomainField.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue",
-        "to": "file:packages/headless/src/modules/config/useConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue",
-        "to": "file:packages/types/src/index.ts"
       },
       {
         "confidence": 1,
@@ -25044,14 +24908,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/form/renderers/index.ts",
-        "to": "file:packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/index.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/index.ts",
         "to": "file:packages/client-vue/src/components/form/renderers/ImageRenderer.vue"
       },
       {
@@ -25061,14 +24917,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/form/renderers/index.ts",
         "to": "file:packages/client-vue/src/components/form/renderers/ManageRenderer.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/index.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/index.ts",
-        "to": "file:packages/client-vue/src/components/form/renderers/PaymentDetailsRenderer.vue"
       },
       {
         "confidence": 1,
@@ -29068,14 +28916,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutContent.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/CheckoutContent.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutContent.vue",
         "to": "file:packages/headless/src/modules/basket-fields/useBasketFields.ts"
       },
       {
@@ -29133,14 +28973,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutPricing.vue",
         "to": "file:packages/headless/src/modules/basket/useBasket.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/checkout/components/CheckoutProcessing.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/checkout/components/CheckoutProcessing.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentProcessing.vue"
       },
       {
         "confidence": 1,
@@ -30076,22 +29908,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentProcessing.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
         "to": "file:packages/headless/src/modules/account/useAccount.ts"
       },
       {
@@ -30413,286 +30229,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/order/utils.ts",
         "to": "file:packages/headless/src/modules/product/product.utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-        "to": "file:packages/client-vue/src/components/form/FormModal.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/AccountCredit.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/AccountCredit.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/AccountCredit.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PayLater.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PayLater.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PayLater.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentActions.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentActions.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentAmount.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentAmount.vue",
-        "to": "file:packages/client-vue/src/components/form/FormModal.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentAmount.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentAmount.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/AccountCredit.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PayLater.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentAmount.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentGateways.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentGatewaysUnavailable.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentNotRequired.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/StoredPaymentMethods.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/headless/src/modules/payment-details/usePaymentDetail.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentDetails.vue",
-        "to": "file:packages/headless/src/utils/useError.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "to": "file:packages/headless/src/modules/payment-details/usePaymentDetail.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "to": "file:packages/headless/src/modules/payment-gateways/usePaymentGateway.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateway.vue",
-        "to": "file:packages/headless/src/utils/useError.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGateways.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGateways.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentGatewaysUnavailable.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentGatewaysUnavailable.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentNotRequired.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentNotRequired.vue",
-        "to": "file:packages/client-vue/src/modules/payment/components/PaymentActions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentNotRequired.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentNotRequired.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/PaymentProcessing.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/PaymentProcessing.vue",
-        "to": "file:packages/headless/src/utils/useError.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/components/StoredPaymentMethods.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/components/StoredPaymentMethods.vue",
-        "to": "file:packages/client-vue/src/modules/payment/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/payment/types.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/payment/types.ts",
-        "to": "file:packages/headless/src/modules/payment-details/payment-details.types.ts"
       },
       {
         "confidence": 1,
@@ -63023,7 +62559,7 @@
         "to": "file:packages/types/src/models/images.ts"
       }
     ],
-    "prunedCount": 1948,
+    "prunedCount": 1994,
     "sourcedAt": ""
   },
   "symbols": {
