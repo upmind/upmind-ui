@@ -268,9 +268,10 @@
  * @description One client order, drawn directly — `/useOrder/:oid`
  * (design 8.12). The page holds ONE `useOrder().as(ScopeActorTypes.SELF)
  * .withId(oid)` instance for its whole life, with `oid` from the route param
- * only. It mounts with the order view closed; each enter opens the view and
- * calls `refresh()` on that same instance (D-12, parity row 25), so the
- * second enter adds exactly one single read. The view is modelled on the
+ * only. It opens the order view on mount whenever an `oid` is present, through
+ * the same enter path the button uses; each enter opens the view and calls
+ * `refresh()` on that same instance (D-12, parity row 25), so a re-enter adds
+ * exactly one single read. The view is modelled on the
  * invoice `OrderView`: a hero with the status badge, a summary section of
  * formatted fields, a styled item list with sub-items and a totals block.
  * Each published member carries its own `order-<member>` test key. The
@@ -292,7 +293,7 @@ import {
   PageTitle,
   Spinner
 } from "@upmind/ui";
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { ScopeActorTypes, useOrder } from "@upmind-automation/client-vue";
 import { Hero, Icon, Section } from "@upmind-automation/foundation";
@@ -483,6 +484,10 @@ function enter(): void {
   isOpen.value = true;
   void run(() => actions?.refresh());
 }
+
+onMounted(() => {
+  if (manager) enter();
+});
 
 onUnmounted(() => actions?.destroy());
 </script>
