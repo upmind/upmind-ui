@@ -4141,6 +4141,7 @@
       "headings": [
         "Invoices Architecture",
         "Overview",
+        "Pay currency",
         "Data flow",
         "Sub-units",
         "Dependencies",
@@ -4215,7 +4216,7 @@
         "Contract — `IContract`",
         "Applied tax — `IAppliedTax`",
         "Invoice content snapshot — `IInvoiceContent`",
-        "Unpaid-amount re-read — response shape",
+        "Unpaid-amount conversion — response shape",
         "Dependencies",
         "Dependants — modules that read from this one",
         "This module's own dependencies",
@@ -4270,10 +4271,10 @@
         "Assigning or clearing the payment method",
         "Downloading the PDF",
         "Switching the pay currency",
-        "Re-reading the live unpaid amount",
         "Single-invoice meta flags",
         "Reading an entitled client's invoices",
         "Scoping the collection to a relationship",
+        "Finding one invoice — `schemas.invoicePicker`",
         "Assigning the payment method",
         "Refresh & invalidate",
         "Mapping a raw record",
@@ -5965,12 +5966,6 @@
       "path": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
       "title": "BillingSettingsModel"
     },
-    "@upmind-automation/headless!BillingSettingsRecord": {
-      "kind": "symbol",
-      "module": "client-billing-settings",
-      "path": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "title": "BillingSettingsRecord"
-    },
     "@upmind-automation/headless!BillingSettingsUpdateBody": {
       "kind": "symbol",
       "module": "client-billing-settings",
@@ -6306,6 +6301,12 @@
       "module": "client-phone",
       "path": "packages/headless/src/modules/client-phone/client-phone.types.ts",
       "title": "ClientPhonesScopeMatrix"
+    },
+    "@upmind-automation/headless!ClientRecord": {
+      "kind": "symbol",
+      "module": "client",
+      "path": "packages/headless/src/modules/client/client.types.ts",
+      "title": "ClientRecord"
     },
     "@upmind-automation/headless!ClientTemplateSlotCodes": {
       "kind": "symbol",
@@ -7045,12 +7046,6 @@
       "path": "packages/headless/src/modules/invoices/invoices.types.ts",
       "title": "InvoiceSortableField"
     },
-    "@upmind-automation/headless!InvoiceUnpaidAmount": {
-      "kind": "symbol",
-      "module": "invoices",
-      "path": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "title": "InvoiceUnpaidAmount"
-    },
     "@upmind-automation/headless!InvoicesContextTypes": {
       "kind": "symbol",
       "module": "invoices",
@@ -7716,12 +7711,6 @@
       "module": "client-personal-details",
       "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
       "title": "ProfileModel"
-    },
-    "@upmind-automation/headless!ProfileRecord": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "title": "ProfileRecord"
     },
     "@upmind-automation/headless!PromotionDetails": {
       "kind": "symbol",
@@ -8731,36 +8720,6 @@
       "path": "packages/headless/src/modules/client-billing-settings/useBillingSettings.internals.ts",
       "title": "UseBillingSettingsInternals"
     },
-    "@upmind-automation/headless!UseBillingSettingsManager": {
-      "kind": "symbol",
-      "module": "client-billing-settings",
-      "path": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.ts",
-      "title": "UseBillingSettingsManager"
-    },
-    "@upmind-automation/headless!UseBillingSettingsManagerActions": {
-      "kind": "symbol",
-      "module": "client-billing-settings",
-      "path": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.actions.ts",
-      "title": "UseBillingSettingsManagerActions"
-    },
-    "@upmind-automation/headless!UseBillingSettingsManagerContext": {
-      "kind": "symbol",
-      "module": "client-billing-settings",
-      "path": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.context.ts",
-      "title": "UseBillingSettingsManagerContext"
-    },
-    "@upmind-automation/headless!UseBillingSettingsManagerInternals": {
-      "kind": "symbol",
-      "module": "client-billing-settings",
-      "path": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.internals.ts",
-      "title": "UseBillingSettingsManagerInternals"
-    },
-    "@upmind-automation/headless!UseBillingSettingsManagerMeta": {
-      "kind": "symbol",
-      "module": "client-billing-settings",
-      "path": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.meta.ts",
-      "title": "UseBillingSettingsManagerMeta"
-    },
     "@upmind-automation/headless!UseBillingSettingsMeta": {
       "kind": "symbol",
       "module": "client-billing-settings",
@@ -9553,36 +9512,6 @@
       "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.internals.ts",
       "title": "UsePersonalDetailsInternals"
     },
-    "@upmind-automation/headless!UsePersonalDetailsManager": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-      "title": "UsePersonalDetailsManager"
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManagerActions": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.actions.ts",
-      "title": "UsePersonalDetailsManagerActions"
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManagerContext": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.context.ts",
-      "title": "UsePersonalDetailsManagerContext"
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManagerInternals": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.internals.ts",
-      "title": "UsePersonalDetailsManagerInternals"
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManagerMeta": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.meta.ts",
-      "title": "UsePersonalDetailsManagerMeta"
-    },
     "@upmind-automation/headless!UsePersonalDetailsMeta": {
       "kind": "symbol",
       "module": "client-personal-details",
@@ -10201,6 +10130,12 @@
       "path": "packages/headless/src/modules/client/client.mappers.ts",
       "title": "mapClient"
     },
+    "@upmind-automation/headless!mapClientRecord": {
+      "kind": "symbol",
+      "module": "client",
+      "path": "packages/headless/src/modules/client/client.mappers.ts",
+      "title": "mapClientRecord"
+    },
     "@upmind-automation/headless!mapContractProduct": {
       "kind": "symbol",
       "module": "contract-product",
@@ -10597,12 +10532,6 @@
       "path": "packages/headless/src/modules/client-billing-settings/useBillingSettings.ts",
       "title": "useBillingSettings"
     },
-    "@upmind-automation/headless!useBillingSettingsManager": {
-      "kind": "symbol",
-      "module": "client-billing-settings",
-      "path": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.ts",
-      "title": "useBillingSettingsManager"
-    },
     "@upmind-automation/headless!useBrand": {
       "kind": "symbol",
       "module": "brand",
@@ -10908,12 +10837,6 @@
       "module": "client-personal-details",
       "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
       "title": "usePersonalDetails"
-    },
-    "@upmind-automation/headless!usePersonalDetailsManager": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-      "title": "usePersonalDetailsManager"
     },
     "@upmind-automation/headless!usePlaces": {
       "kind": "symbol",
@@ -15067,12 +14990,6 @@
       "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
       "title": "usePersonalDetails.ts"
     },
-    "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts": {
-      "kind": "file",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-      "title": "usePersonalDetailsManager.ts"
-    },
     "file:packages/headless/src/modules/client-phone/client-phone.schemas.ts": {
       "kind": "file",
       "module": "client-phone",
@@ -18375,21 +18292,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-09-29T20:35:48.080Z",
-    "corpus_version": "1+f6ad775a61b1",
+    "built_at": "2026-10-01T15:12:27.516Z",
+    "corpus_version": "1+aa043aacd102",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
       "guides": 174,
-      "indexEntries": 2120,
-      "relationEdges": 5604,
-      "relationsPruned": 1933,
-      "symbols": 909
+      "indexEntries": 2106,
+      "relationEdges": 5589,
+      "relationsPruned": 1948,
+      "symbols": 896
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "2ecfc1c9e72f55b2e3be3e8e497b3ce9319427b9"
+    "source_commit": "a190c0b022f827d9b1255785ef681480819ed2c7"
   },
   "relations": {
     "edges": [
@@ -19351,54 +19268,6 @@
         "granularity": "file",
         "relation": "calls",
         "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-        "to": "file:packages/headless/src/utils/useState.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
-        "granularity": "symbol",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "@upmind-automation/headless!UseActiveSession"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
-        "granularity": "symbol",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "@upmind-automation/headless!UseBrand"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
-        "granularity": "symbol",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "@upmind-automation/headless!useI18n"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/client-personal-details.services.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/utils/useState.ts"
-      },
-      {
-        "confidence": 0.8,
-        "from": "@upmind-automation/headless!UsePersonalDetailsManager",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
         "to": "file:packages/headless/src/utils/useState.ts"
       },
       {
@@ -44787,78 +44656,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "@upmind-automation/headless!UsePersonalDetailsManager"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/brand/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/client-custom-fields/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/client-personal-details.services.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/client-personal-details/client-personal-details.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/data-manager/data-manager.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/data-manager/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/modules/session-store/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-        "to": "file:packages/headless/src/utils/index.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/headless/src/modules/client-phone/client-phone.schemas.ts",
         "granularity": "file",
         "relation": "contains",
@@ -63226,7 +63023,7 @@
         "to": "file:packages/types/src/models/images.ts"
       }
     ],
-    "prunedCount": 1933,
+    "prunedCount": 1948,
     "sourcedAt": ""
   },
   "symbols": {
@@ -63304,7 +63101,7 @@
       "name": "Account",
       "signature": "Symbol Account",
       "sourceFile": "packages/headless/src/modules/client/client.types.ts",
-      "sourceLine": 83,
+      "sourceLine": 137,
       "tsdoc": "Parsed client account."
     },
     "@upmind-automation/headless!AccountContextTypes": {
@@ -63337,7 +63134,7 @@
       "name": "AccountCurrencyUpdateBody",
       "signature": "Symbol AccountCurrencyUpdateBody",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "sourceLine": 249,
+      "sourceLine": 225,
       "tsdoc": "The `PUT accounts/{accountId}` body `mapIAccountCurrencyFields` produces —\nthe account's own two writable keys, never the client's (design.md §15.3).\nA SEPARATE type from `BillingSettingsUpdateBody`: `preferred_payment_currency_id`\nis an `IAccount` key, and `BillingSettingsUpdateBody` is a `Pick` over five\n`IClient` keys — widening it to carry an `IAccount` key is a compile error\nby that type's own design. Net-new (see the @graphify-citation, top of\nfile, graphify-out/graph.json — \"No matching nodes found\")."
     },
     "@upmind-automation/headless!AccountScopeMatrix": {
@@ -63788,7 +63585,7 @@
       "name": "BillingSettingsContext",
       "signature": "Symbol BillingSettingsContext",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "sourceLine": 268,
+      "sourceLine": 244,
       "tsdoc": "The manager's machine context — the shared machine's, over this form\nmodel. `lookups.restrictToStaff` (row O8) is read via the generic\n`lookups?: Record<string, any[]>` `DataManagerContext` already declares —\nnever widened here, matching `ProfileContext`'s own precedent."
     },
     "@upmind-automation/headless!BillingSettingsModel": {
@@ -63799,19 +63596,8 @@
       "name": "BillingSettingsModel",
       "signature": "Symbol BillingSettingsModel",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "sourceLine": 209,
+      "sourceLine": 185,
       "tsdoc": "The form/request model for the editor. Every field optional (`Partial`\nshaped, mirroring `ProfileModel`), because the model parser compacts and\nthe diff mapper reads absence as \"untouched\".\n\n`enabled` is deliberately NOT `| null` — hazard X3/H5. \"Follow the brand\"\nis the third enum member `InvoiceConsolidationTypes.INHERIT`, not absence,\nso this field is never modelled nullable. The other four fields ARE\nnullable: `null` means \"follow the brand's value for this field\"\n(`packages/types/src/models/clients.ts:58-62`)."
-    },
-    "@upmind-automation/headless!BillingSettingsRecord": {
-      "id": "@upmind-automation/headless!BillingSettingsRecord",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-billing-settings",
-      "name": "BillingSettingsRecord",
-      "signature": "Symbol BillingSettingsRecord",
-      "sourceFile": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "sourceLine": 187,
-      "tsdoc": "The client's invoice-consolidation preference as read off the wire — the\nfive persisted fields."
     },
     "@upmind-automation/headless!BillingSettingsUpdateBody": {
       "id": "@upmind-automation/headless!BillingSettingsUpdateBody",
@@ -63821,7 +63607,7 @@
       "name": "BillingSettingsUpdateBody",
       "signature": "Symbol BillingSettingsUpdateBody",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "sourceLine": 259,
+      "sourceLine": 235,
       "tsdoc": "The `PUT clients/{id}` body `mapIBillingSettingsFields` produces —\n`Partial<IClientBillingConsolidationForm>` rather than five restated keys,\nso a future field addition to that `Pick` in `packages/types` is a compile\nerror here rather than a silent gap (AC3)."
     },
     "@upmind-automation/headless!BreadcrumbVariant": {
@@ -63909,8 +63695,8 @@
       "name": "CLIENT_BILLING_SETTINGS_SCOPE_MATRIX",
       "signature": "CLIENT_BILLING_SETTINGS_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "sourceLine": 123,
-      "tsdoc": "Scope matrix shared by `useBillingSettings` and `useBillingSettingsManager`\n— both composables scope on the same entity. `client` is the only actor\nthat resolves; `self`, `staff` and `guest` are `null as never`, which makes\n`.as('staff')` / `.as('guest')` / `.as('self')` compile-time errors rather\nthan advertised-but-absent capabilities. Mirrors\n`PERSONAL_DETAILS_SCOPE_MATRIX`."
+      "sourceLine": 114,
+      "tsdoc": "Scope matrix shared by `useBillingSettings` and `useBillingSettings`\n— both composables scope on the same entity. `client` is the only actor\nthat resolves; `self`, `staff` and `guest` are `null as never`, which makes\n`.as('staff')` / `.as('guest')` / `.as('self')` compile-time errors rather\nthan advertised-but-absent capabilities. Mirrors\n`PERSONAL_DETAILS_SCOPE_MATRIX`."
     },
     "@upmind-automation/headless!CLIENT_COMPANIES_SCOPE_MATRIX": {
       "id": "@upmind-automation/headless!CLIENT_COMPANIES_SCOPE_MATRIX",
@@ -64118,7 +63904,7 @@
       "name": "Client",
       "signature": "Symbol Client",
       "sourceFile": "packages/headless/src/modules/client/client.types.ts",
-      "sourceLine": 26,
+      "sourceLine": 80,
       "tsdoc": "Profile and authentication details of an authenticated client."
     },
     "@upmind-automation/headless!ClientAddressContextTypes": {
@@ -64173,7 +63959,7 @@
       "name": "ClientBillingSettingsContextTypes",
       "signature": "Enum ClientBillingSettingsContextTypes",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "sourceLine": 110,
+      "sourceLine": 101,
       "tsdoc": "Context type for BOTH halves — WHICH client's settings are being\nread/edited. `.for('client', id)` names the client being addressed; with\nnone, the seam falls back to the active session's own client. The member and\nwire value match every sibling client module (`ClientPhonesContextTypes.CLIENT`\n= `AccessRoleTypes.CLIENT`). (`graphify-out/graph.json` — no new node; the\nmember is renamed, not minted.)"
     },
     "@upmind-automation/headless!ClientBillingSettingsScopeMatrix": {
@@ -64184,7 +63970,7 @@
       "name": "ClientBillingSettingsScopeMatrix",
       "signature": "Symbol ClientBillingSettingsScopeMatrix",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/client-billing-settings.types.ts",
-      "sourceLine": 131,
+      "sourceLine": 122,
       "tsdoc": "Scope matrix type, shared by both composables (derived from the runtime const)."
     },
     "@upmind-automation/headless!ClientCompaniesContextTypes": {
@@ -64382,7 +64168,7 @@
       "name": "ClientPersonalDetailsContextTypes",
       "signature": "Enum ClientPersonalDetailsContextTypes",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 48,
+      "sourceLine": 43,
       "tsdoc": "Context type for BOTH halves — WHICH client's profile is being read/edited.\n`.for('client', id)` names the client being addressed; with none, the seam\nfalls back to the active session's own client. The member and wire value\nmatch every sibling client module (`ClientPhonesContextTypes.CLIENT`,\n`ClientNotesContextTypes.CLIENT` = `AccessRoleTypes.CLIENT`).\n(`graphify-out/graph.json` — no new node; the member is renamed, not minted.)"
     },
     "@upmind-automation/headless!ClientPhoneContextTypes": {
@@ -64428,6 +64214,17 @@
       "sourceFile": "packages/headless/src/modules/client-phone/client-phone.types.ts",
       "sourceLine": 67,
       "tsdoc": "Scope matrix type for `useClientPhones` (derived from the runtime const)."
+    },
+    "@upmind-automation/headless!ClientRecord": {
+      "id": "@upmind-automation/headless!ClientRecord",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client",
+      "name": "ClientRecord",
+      "signature": "Symbol ClientRecord",
+      "sourceFile": "packages/headless/src/modules/client/client.types.ts",
+      "sourceLine": 35,
+      "tsdoc": "The client record view-model produced by the one mapper, `mapClientRecord`.\nEach sibling client module owns its own `clients/{id}` request and passes\nthe raw record through this one mapper, then reads only its own fields:\n`client-billing-settings` requests `with=accounts,accounts.currency` and\nreads `account`; `client-personal-details` requests\n`with=custom_fields,custom_fields.field` and reads `customFieldValues`.\nThe mapper maps `account` from the first of `raw.accounts` (`null` when\nabsent, never `undefined`) and `customFieldValues` from `raw.custom_fields`\n(an empty array when absent). A field a module does not request is absent\nfrom the mapped record — the module reads only the slice its request loads."
     },
     "@upmind-automation/headless!ClientTemplateSlotCodes": {
       "id": "@upmind-automation/headless!ClientTemplateSlotCodes",
@@ -65581,7 +65378,7 @@
       "name": "INVOICES_SCOPE_MATRIX",
       "signature": "INVOICES_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 150,
+      "sourceLine": 151,
       "tsdoc": "Scope matrix for `useInvoices`.\n\n`STAFF: null as never` states, in code, the operator ruling of 2026-09-01\n(verbatim): \"this is client only, staff is being deprecated.\" This\nwithdraws the oracle's admin path (`oracle:25-34` -> `api/admin/invoices`,\n`oracle:279-542` every admin-only write) for this resource. No Linear issue\nis owed for a retiring platform capability\n(`docs/sdd/FE-3031/parity.yaml`, cells `staff x self` / `staff x client`,\n`signoff: op:dom@upmind.com:2026-09-01`). A matrix cell states what the\nshipped code does, never what the wire can do (design D6).\n\n`SELF: never` withdraws `.for()` only — `.as('self')` still resolves and\nfalls through `resolveClientId` to the reading client's own id, which IS\nthe `client x self` cell (`invoices.services.ts`). A cell governs `.for()`\nONLY (`client-email-history.types.ts:74-77`).\n\nThe `CLIENT` actor's cell is an ARRAY of RETARGET members (`scope.types.ts`\narray-cell form): `client` is the `client x client` cell (a declared\n`client_id` filter column on `useQuerySchema()`, never a path segment — the\nclient lane has no `api/clients/{id}/invoices` route, `oracle:25-34`), and\n`contract` / `contracts_product` / `invoice` are the three entity\nrelationships (FE-3031 F3, OR-1), each a declared filter column the scope\nseam seeds (`INVOICES_CONTEXT_WIRE_KEYS`)."
     },
     "@upmind-automation/headless!IPhoneData": {
@@ -65691,7 +65488,7 @@
       "name": "Invoice",
       "signature": "Symbol Invoice",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 328,
+      "sourceLine": 329,
       "tsdoc": "A billable invoice raised against an order — the client, currency, line\nitems, payment history, and amount/status summary, extended with the\nconsolidation/credit, bundle, attribution and next-charge surfaces this\nstory adds."
     },
     "@upmind-automation/headless!InvoiceBundleGroup": {
@@ -65702,7 +65499,7 @@
       "name": "InvoiceBundleGroup",
       "signature": "Symbol InvoiceBundleGroup",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 456,
+      "sourceLine": 459,
       "tsdoc": "One group of an invoice's bundled line items, grouped by originating\nsubscription (AC5). Grouped on `contracts_product_id`\n(`packages/types/src/models/baskets.ts:157`), falling back to\n`contract_id` (`:155`); un-linked lines land in one trailing group where\nboth ids are `null`."
     },
     "@upmind-automation/headless!InvoiceFilterModel": {
@@ -65713,7 +65510,7 @@
       "name": "InvoiceFilterModel",
       "signature": "Symbol InvoiceFilterModel",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 276,
+      "sourceLine": 277,
       "tsdoc": "The nested filter model — the `filters` branch of InvoiceQueryModel."
     },
     "@upmind-automation/headless!InvoicePaymentChallenge": {
@@ -65724,7 +65521,7 @@
       "name": "InvoicePaymentChallenge",
       "signature": "Symbol InvoicePaymentChallenge",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 572,
+      "sourceLine": 571,
       "tsdoc": "The `usePaymentChallenge` provide/inject contract — the ONE shape the pay\nhost provides (`Order.vue`) and the challenge renderer injects\n(`PaymentProcessing.vue`). `meta` is read for the two challenge flags only."
     },
     "@upmind-automation/headless!InvoicePaymentDetailsModel": {
@@ -65735,7 +65532,7 @@
       "name": "InvoicePaymentDetailsModel",
       "signature": "Symbol InvoicePaymentDetailsModel",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 516,
+      "sourceLine": 503,
       "tsdoc": "AC4's write model. `payment_details_id` is nullable ON PURPOSE: clearing\nthe assignment sends `null` as a PRESENT key, never an omitted one (design\nD1) — \"none selected\" is a sent value, not the absence of one."
     },
     "@upmind-automation/headless!InvoiceQueryModel": {
@@ -65746,7 +65543,7 @@
       "name": "InvoiceQueryModel",
       "signature": "Symbol InvoiceQueryModel",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 229,
+      "sourceLine": 230,
       "tsdoc": "The whole request state as one model — `filters` (nested column -> operator\n-> value), `sort` (ordered, precedence = position) and `pagination`. The\ninstance validated against `useQuerySchema()`; `list()`'s translator maps\nit to the wire triple. Every column here is named in `design.md`'s \"Filter\ncolumns\" table with the oracle receipt for its operator set — no column or\noperator here is invented."
     },
     "@upmind-automation/headless!InvoiceSortEntry": {
@@ -65757,7 +65554,7 @@
       "name": "InvoiceSortEntry",
       "signature": "Symbol InvoiceSortEntry",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 203,
+      "sourceLine": 204,
       "tsdoc": "One sort entry — the MODEL's ordered form; precedence is position."
     },
     "@upmind-automation/headless!InvoiceSortModel": {
@@ -65768,7 +65565,7 @@
       "name": "InvoiceSortModel",
       "signature": "Symbol InvoiceSortModel",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 300,
+      "sourceLine": 301,
       "tsdoc": "The ordered sort model — the `sort` branch of InvoiceQueryModel."
     },
     "@upmind-automation/headless!InvoiceSortableField": {
@@ -65779,19 +65576,8 @@
       "name": "InvoiceSortableField",
       "signature": "Symbol InvoiceSortableField",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 192,
+      "sourceLine": 193,
       "tsdoc": "The WHOLE vocabulary of sortable columns — the sort control offers exactly\nthese and nothing else. Receipts: `sorters/invoices.ts:5-33` (all but\n`number`) + `sorters/creditNotes.ts:4-21` (`number`)."
-    },
-    "@upmind-automation/headless!InvoiceUnpaidAmount": {
-      "id": "@upmind-automation/headless!InvoiceUnpaidAmount",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "invoices",
-      "name": "InvoiceUnpaidAmount",
-      "signature": "Symbol InvoiceUnpaidAmount",
-      "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 506,
-      "tsdoc": "AC1's response shape for the standalone unpaid-amount re-read."
     },
     "@upmind-automation/headless!InvoicesContextTypes": {
       "id": "@upmind-automation/headless!InvoicesContextTypes",
@@ -65801,7 +65587,7 @@
       "name": "InvoicesContextTypes",
       "signature": "Enum InvoicesContextTypes",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 90,
+      "sourceLine": 91,
       "tsdoc": "Context types for the invoice COLLECTION — the entity a read is scoped to.\nEvery relationship value is sourced from the canonical object-type enum\n(`UpmindObjectTypes`), never a minted literal — `IdContextsForActor` extracts\nthe string VALUE, so `.for('contract', id)` only spells if that value is\n`\"contract\"` (`scope.types.ts`)."
     },
     "@upmind-automation/headless!InvoicesScopeMatrix": {
@@ -65812,7 +65598,7 @@
       "name": "InvoicesScopeMatrix",
       "signature": "Symbol InvoicesScopeMatrix",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 163,
+      "sourceLine": 164,
       "tsdoc": "Scope matrix type for `useInvoices` (derived from the runtime const)."
     },
     "@upmind-automation/headless!IsReadyOptions": {
@@ -66109,7 +65895,7 @@
       "name": "ORDER_PAY_RETURN_KEY",
       "signature": "ORDER_PAY_RETURN_KEY: \"order-pay-return\"",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 528,
+      "sourceLine": 515,
       "tsdoc": "The operations-registry key the outbound writer mints a pay return under and\nthe return handler registers against (FE-3030 / FE-3133)."
     },
     "@upmind-automation/headless!ORIENTATION": {
@@ -66285,7 +66071,7 @@
       "name": "PAYMENT_STATE",
       "signature": "Enum PAYMENT_STATE",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 312,
+      "sourceLine": 313,
       "tsdoc": "The five states a payment can settle into. Kept from the pre-conversion\nmodule (`invoices.types.ts:8-16`) — wired, not deleted (design D3): the\ndead enum now backs `useInvoice.meta.ts`'s `paymentState`, replacing four\nbooleans that could previously disagree with each other."
     },
     "@upmind-automation/headless!PERSONAL_DETAILS_SCOPE_MATRIX": {
@@ -66296,8 +66082,8 @@
       "name": "PERSONAL_DETAILS_SCOPE_MATRIX",
       "signature": "PERSONAL_DETAILS_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 73,
-      "tsdoc": "Scope matrix shared by `usePersonalDetails` and `usePersonalDetailsManager`\n(design.md §3.2 — a deliberate divergence from `client-email`'s two\nmatrices, since both composables here scope on the same entity). `client`\nis the only actor that resolves; `self`, `staff` and `guest` are\n`null as never`.\n\nWHAT THE TYPE SYSTEM ACTUALLY ENFORCES. `ScopeBuilderResult` accepts EVERY\n`ScopeActorTypes` and reads the matrix row only to decide whether `.for()`\nexists, so a `null as never` row removes `.for(...)` and nothing else:\n`.as('staff')` and `.as('guest')` COMPILE, resolving to an instance with no\n`.for()`, and are refused at RUNTIME — with no context to name a target,\n`resolveClientId` falls back to the active session's own id and\n`isAddressable` gates the request. The compile-time errors are\n`.as('staff' | 'guest' | 'self').for(...)`, while `.as('client').for(...)`\ntype-checks. A designed boundary rather than an advertised-but-absent\ncapability. Same correction as `client-address.types.ts`, whose note carries\nthe `ts.createProgram` probe this rests on. (`graphify-out/graph.json` — the\n`CLIENT` row is the retarget grant, not a new node.)"
+      "sourceLine": 68,
+      "tsdoc": "Scope matrix shared by `usePersonalDetails` and `usePersonalDetails`\n(design.md §3.2 — a deliberate divergence from `client-email`'s two\nmatrices, since both composables here scope on the same entity). `client`\nis the only actor that resolves; `self`, `staff` and `guest` are\n`null as never`.\n\nWHAT THE TYPE SYSTEM ACTUALLY ENFORCES. `ScopeBuilderResult` accepts EVERY\n`ScopeActorTypes` and reads the matrix row only to decide whether `.for()`\nexists, so a `null as never` row removes `.for(...)` and nothing else:\n`.as('staff')` and `.as('guest')` COMPILE, resolving to an instance with no\n`.for()`, and are refused at RUNTIME — with no context to name a target,\n`resolveClientId` falls back to the active session's own id and\n`isAddressable` gates the request. The compile-time errors are\n`.as('staff' | 'guest' | 'self').for(...)`, while `.as('client').for(...)`\ntype-checks. A designed boundary rather than an advertised-but-absent\ncapability. Same correction as `client-address.types.ts`, whose note carries\nthe `ts.createProgram` probe this rests on. (`graphify-out/graph.json` — the\n`CLIENT` row is the retarget grant, not a new node.)"
     },
     "@upmind-automation/headless!POST_BASKET_CONTEXTS": {
       "id": "@upmind-automation/headless!POST_BASKET_CONTEXTS",
@@ -66395,7 +66181,7 @@
       "name": "Payment",
       "signature": "Symbol Payment",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 463,
+      "sourceLine": 466,
       "tsdoc": null
     },
     "@upmind-automation/headless!PaymentArgs": {
@@ -66406,7 +66192,7 @@
       "name": "PaymentArgs",
       "signature": "Symbol PaymentArgs",
       "sourceFile": "packages/headless/src/modules/payment/payment.types.ts",
-      "sourceLine": 20,
+      "sourceLine": 21,
       "tsdoc": "Interface representing the arguments required to initiate a payment.\nThese details are essential for processing a transaction."
     },
     "@upmind-automation/headless!PaymentContext": {
@@ -66417,7 +66203,7 @@
       "name": "PaymentContext",
       "signature": "Symbol PaymentContext",
       "sourceFile": "packages/headless/src/modules/payment/payment.types.ts",
-      "sourceLine": 46,
+      "sourceLine": 53,
       "tsdoc": "Interface representing the context for a payment operation, typically managed by an XState machine.\nIt extends PaymentArgs with additional details for handling payment cancellations,\napprovals, and tracking the payment attempt itself."
     },
     "@upmind-automation/headless!PaymentDetail": {
@@ -66494,7 +66280,7 @@
       "name": "PaymentState",
       "signature": "Symbol PaymentState",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 320,
+      "sourceLine": 321,
       "tsdoc": null
     },
     "@upmind-automation/headless!PendingOperation": {
@@ -66527,7 +66313,7 @@
       "name": "PersonalDetailsScopeMatrix",
       "signature": "Symbol PersonalDetailsScopeMatrix",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 81,
+      "sourceLine": 76,
       "tsdoc": "Scope matrix type, shared by both composables (derived from the runtime const)."
     },
     "@upmind-automation/headless!Phone": {
@@ -66989,7 +66775,7 @@
       "name": "ProfileContext",
       "signature": "Symbol ProfileContext",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 168,
+      "sourceLine": 146,
       "tsdoc": "The manager's machine context — the shared machine's, over this form\nmodel. Was `FieldsContext` — renamed to resolve its collision with\n`basket-fields.types.ts:11` (design.md §0). `lookups.fields` /\n`.filterFields` / `.languages` are read via the generic `lookups?: Record<string, any[]>`\nDataManagerContext already declares — never widened here, matching\n`EmailContext = DataManagerContext<EmailModel>`'s own precedent."
     },
     "@upmind-automation/headless!ProfileField": {
@@ -67000,8 +66786,8 @@
       "name": "ProfileField",
       "signature": "Symbol ProfileField",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 171,
-      "tsdoc": "One profile field projected for display — native or custom."
+      "sourceLine": 154,
+      "tsdoc": "One profile field projected for display — native or custom. The read side of\nthe ONE machine-backed composable publishes an array of these off machine\ncontext (`usePersonalDetails.context.ts` `data`), one row per native field\nthen per custom-field definition, for the playground's table/card/detail."
     },
     "@upmind-automation/headless!ProfileModel": {
       "id": "@upmind-automation/headless!ProfileModel",
@@ -67011,19 +66797,8 @@
       "name": "ProfileModel",
       "signature": "Symbol ProfileModel",
       "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 108,
+      "sourceLine": 86,
       "tsdoc": "The form/request model for the profile editor. Was `FieldsModel` — renamed\nto resolve its collision with `basket-fields.types.ts:6` (design.md §0)."
-    },
-    "@upmind-automation/headless!ProfileRecord": {
-      "id": "@upmind-automation/headless!ProfileRecord",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "ProfileRecord",
-      "signature": "Symbol ProfileRecord",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts",
-      "sourceLine": 92,
-      "tsdoc": "The client's profile as read off the wire — native fields plus the raw\nembedded custom field values (each carrying its own definition, AC-16).\n`mapProfile` produces this; `mapProfileFields` projects it for display."
     },
     "@upmind-automation/headless!PromotionDetails": {
       "id": "@upmind-automation/headless!PromotionDetails",
@@ -68298,7 +68073,7 @@
       "name": "TicketSupportPrefs",
       "signature": "Symbol TicketSupportPrefs",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 545,
+      "sourceLine": 541,
       "tsdoc": "AC33 (R7) — the two client-owned support prefs plus the AC3 page size.\n`ui/support/messageSignature` (FE-1931's key) is preserved by the\nread-modify-write but never exposed here."
     },
     "@upmind-automation/headless!TicketsContextTypes": {
@@ -68837,7 +68612,7 @@
       "name": "UseBillingSettings",
       "signature": "Symbol UseBillingSettings",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettings.ts",
-      "sourceLine": 130,
+      "sourceLine": 170,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseBillingSettingsActions": {
@@ -68848,7 +68623,7 @@
       "name": "UseBillingSettingsActions",
       "signature": "Symbol UseBillingSettingsActions",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettings.actions.ts",
-      "sourceLine": 129,
+      "sourceLine": 227,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseBillingSettingsContext": {
@@ -68859,7 +68634,7 @@
       "name": "UseBillingSettingsContext",
       "signature": "Symbol UseBillingSettingsContext",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettings.context.ts",
-      "sourceLine": 69,
+      "sourceLine": 78,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseBillingSettingsInternals": {
@@ -68870,62 +68645,7 @@
       "name": "UseBillingSettingsInternals",
       "signature": "Symbol UseBillingSettingsInternals",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettings.internals.ts",
-      "sourceLine": 22,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UseBillingSettingsManager": {
-      "id": "@upmind-automation/headless!UseBillingSettingsManager",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-billing-settings",
-      "name": "UseBillingSettingsManager",
-      "signature": "Symbol UseBillingSettingsManager",
-      "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.ts",
-      "sourceLine": 171,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UseBillingSettingsManagerActions": {
-      "id": "@upmind-automation/headless!UseBillingSettingsManagerActions",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-billing-settings",
-      "name": "UseBillingSettingsManagerActions",
-      "signature": "Symbol UseBillingSettingsManagerActions",
-      "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.actions.ts",
-      "sourceLine": 215,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UseBillingSettingsManagerContext": {
-      "id": "@upmind-automation/headless!UseBillingSettingsManagerContext",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-billing-settings",
-      "name": "UseBillingSettingsManagerContext",
-      "signature": "Symbol UseBillingSettingsManagerContext",
-      "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.context.ts",
-      "sourceLine": 79,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UseBillingSettingsManagerInternals": {
-      "id": "@upmind-automation/headless!UseBillingSettingsManagerInternals",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-billing-settings",
-      "name": "UseBillingSettingsManagerInternals",
-      "signature": "Symbol UseBillingSettingsManagerInternals",
-      "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.internals.ts",
       "sourceLine": 26,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UseBillingSettingsManagerMeta": {
-      "id": "@upmind-automation/headless!UseBillingSettingsManagerMeta",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-billing-settings",
-      "name": "UseBillingSettingsManagerMeta",
-      "signature": "Symbol UseBillingSettingsManagerMeta",
-      "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.meta.ts",
-      "sourceLine": 154,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseBillingSettingsMeta": {
@@ -68936,7 +68656,7 @@
       "name": "UseBillingSettingsMeta",
       "signature": "Symbol UseBillingSettingsMeta",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettings.meta.ts",
-      "sourceLine": 92,
+      "sourceLine": 141,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseBrand": {
@@ -68947,7 +68667,7 @@
       "name": "UseBrand",
       "signature": "Symbol UseBrand",
       "sourceFile": "packages/headless/src/modules/brand/useBrand.ts",
-      "sourceLine": 597,
+      "sourceLine": 594,
       "tsdoc": "Type definition for the return value of the `useBrand` composable,\nensuring type safety for consumers by providing an explicit signature."
     },
     "@upmind-automation/headless!UseClientAddressManager": {
@@ -70102,7 +69822,7 @@
       "name": "UseInvoice",
       "signature": "Symbol UseInvoice",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.ts",
-      "sourceLine": 170,
+      "sourceLine": 154,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceActions": {
@@ -70113,7 +69833,7 @@
       "name": "UseInvoiceActions",
       "signature": "Symbol UseInvoiceActions",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.actions.ts",
-      "sourceLine": 175,
+      "sourceLine": 171,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceContext": {
@@ -70124,7 +69844,7 @@
       "name": "UseInvoiceContext",
       "signature": "Symbol UseInvoiceContext",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.context.ts",
-      "sourceLine": 36,
+      "sourceLine": 32,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceInternals": {
@@ -70135,7 +69855,7 @@
       "name": "UseInvoiceInternals",
       "signature": "Symbol UseInvoiceInternals",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.internals.ts",
-      "sourceLine": 57,
+      "sourceLine": 51,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceMeta": {
@@ -70146,7 +69866,7 @@
       "name": "UseInvoiceMeta",
       "signature": "Symbol UseInvoiceMeta",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.meta.ts",
-      "sourceLine": 110,
+      "sourceLine": 136,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoices": {
@@ -70157,7 +69877,7 @@
       "name": "UseInvoices",
       "signature": "Symbol UseInvoices",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoices.ts",
-      "sourceLine": 125,
+      "sourceLine": 126,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoicesActions": {
@@ -70179,7 +69899,7 @@
       "name": "UseInvoicesContext",
       "signature": "Symbol UseInvoicesContext",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoices.context.ts",
-      "sourceLine": 127,
+      "sourceLine": 139,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoicesInternals": {
@@ -70267,7 +69987,7 @@
       "name": "UseOperations",
       "signature": "Symbol UseOperations",
       "sourceFile": "packages/headless/src/modules/system-operations/useOperations.ts",
-      "sourceLine": 195,
+      "sourceLine": 199,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePayment": {
@@ -70344,7 +70064,7 @@
       "name": "UsePersonalDetails",
       "signature": "Symbol UsePersonalDetails",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-      "sourceLine": 89,
+      "sourceLine": 178,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePersonalDetailsActions": {
@@ -70355,7 +70075,7 @@
       "name": "UsePersonalDetailsActions",
       "signature": "Symbol UsePersonalDetailsActions",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.actions.ts",
-      "sourceLine": 185,
+      "sourceLine": 288,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePersonalDetailsContext": {
@@ -70366,7 +70086,7 @@
       "name": "UsePersonalDetailsContext",
       "signature": "Symbol UsePersonalDetailsContext",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.context.ts",
-      "sourceLine": 135,
+      "sourceLine": 152,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePersonalDetailsInternals": {
@@ -70377,62 +70097,7 @@
       "name": "UsePersonalDetailsInternals",
       "signature": "Symbol UsePersonalDetailsInternals",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.internals.ts",
-      "sourceLine": 22,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManager": {
-      "id": "@upmind-automation/headless!UsePersonalDetailsManager",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "UsePersonalDetailsManager",
-      "signature": "Symbol UsePersonalDetailsManager",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-      "sourceLine": 179,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManagerActions": {
-      "id": "@upmind-automation/headless!UsePersonalDetailsManagerActions",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "UsePersonalDetailsManagerActions",
-      "signature": "Symbol UsePersonalDetailsManagerActions",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.actions.ts",
-      "sourceLine": 283,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManagerContext": {
-      "id": "@upmind-automation/headless!UsePersonalDetailsManagerContext",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "UsePersonalDetailsManagerContext",
-      "signature": "Symbol UsePersonalDetailsManagerContext",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.context.ts",
-      "sourceLine": 119,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManagerInternals": {
-      "id": "@upmind-automation/headless!UsePersonalDetailsManagerInternals",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "UsePersonalDetailsManagerInternals",
-      "signature": "Symbol UsePersonalDetailsManagerInternals",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.internals.ts",
       "sourceLine": 26,
-      "tsdoc": null
-    },
-    "@upmind-automation/headless!UsePersonalDetailsManagerMeta": {
-      "id": "@upmind-automation/headless!UsePersonalDetailsManagerMeta",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "UsePersonalDetailsManagerMeta",
-      "signature": "Symbol UsePersonalDetailsManagerMeta",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.meta.ts",
-      "sourceLine": 100,
       "tsdoc": null
     },
     "@upmind-automation/headless!UsePersonalDetailsMeta": {
@@ -70443,7 +70108,7 @@
       "name": "UsePersonalDetailsMeta",
       "signature": "Symbol UsePersonalDetailsMeta",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.meta.ts",
-      "sourceLine": 54,
+      "sourceLine": 100,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseProductCatalogue": {
@@ -70542,7 +70207,7 @@
       "name": "UseSystem",
       "signature": "Symbol UseSystem",
       "sourceFile": "packages/headless/src/modules/system/useSystem.ts",
-      "sourceLine": 327,
+      "sourceLine": 376,
       "tsdoc": "The return type of useSystem composable."
     },
     "@upmind-automation/headless!UseTermsAndConditions": {
@@ -70575,7 +70240,7 @@
       "name": "UseTicketActions",
       "signature": "Symbol UseTicketActions",
       "sourceFile": "packages/headless/src/modules/tickets/useTicket.actions.ts",
-      "sourceLine": 442,
+      "sourceLine": 440,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseTicketContext": {
@@ -70630,7 +70295,7 @@
       "name": "UseTicketsActions",
       "signature": "Symbol UseTicketsActions",
       "sourceFile": "packages/headless/src/modules/tickets/useTickets.actions.ts",
-      "sourceLine": 237,
+      "sourceLine": 245,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseTicketsContext": {
@@ -71543,7 +71208,7 @@
       "name": "mapAccount",
       "signature": "mapAccount(raw: IAccount): Account",
       "sourceFile": "packages/headless/src/modules/client/client.mappers.ts",
-      "sourceLine": 26,
+      "sourceLine": 67,
       "tsdoc": "Map a raw IAccount to a parsed Account."
     },
     "@upmind-automation/headless!mapAddress": {
@@ -71565,8 +71230,19 @@
       "name": "mapClient",
       "signature": "mapClient(raw: IClient, accounts: IAccount[]): Client | undefined",
       "sourceFile": "packages/headless/src/modules/client/client.mappers.ts",
-      "sourceLine": 46,
+      "sourceLine": 87,
       "tsdoc": "Map a raw IClient (plus optional accounts) to the Client view model.\n\nF5 invariant: isGuest is NOT set here.\nThe single actor.is_guest → isGuest mapping lives in\nsession-store/session-store.mappers.ts mapSessionUser."
+    },
+    "@upmind-automation/headless!mapClientRecord": {
+      "id": "@upmind-automation/headless!mapClientRecord",
+      "kind": "Function",
+      "lessons": [],
+      "module": "client",
+      "name": "mapClientRecord",
+      "signature": "mapClientRecord(raw: IClient): ClientRecord",
+      "sourceFile": "packages/headless/src/modules/client/client.mappers.ts",
+      "sourceLine": 30,
+      "tsdoc": "Maps the raw client record into the one shared view-model the sibling client\nmodules read their own slice from."
     },
     "@upmind-automation/headless!mapContractProduct": {
       "id": "@upmind-automation/headless!mapContractProduct",
@@ -71642,7 +71318,7 @@
       "name": "mapInitials",
       "signature": "mapInitials(client: IClient, chars: number): string",
       "sourceFile": "packages/headless/src/modules/client/client.mappers.ts",
-      "sourceLine": 16,
+      "sourceLine": 57,
       "tsdoc": "Compute avatar initials from the client's public name."
     },
     "@upmind-automation/headless!mapInvoice": {
@@ -71653,7 +71329,7 @@
       "name": "mapInvoice",
       "signature": "mapInvoice(raw: IInvoice, readingClientId: string): Invoice",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.mappers.ts",
-      "sourceLine": 80,
+      "sourceLine": 75,
       "tsdoc": "Maps one raw invoice to the VM. `readingClientId` is OPTIONAL, but it is\nNOT reader-independent for every attribution flag: `isDelegated` is\ncomputed from `raw` alone (`!parentClientId && !!raw.delegate_related`,\nsee mapAttribution) and does not depend on `readingClientId` at\nall. Only `isChildOfClient` (and, through it, `isOwn`/`isSettleable`) is\nconservative-by-default when `readingClientId` is absent.\n`orders/order.machine.ts:176` calls this with one argument, so a\n`delegate_related` invoice with no parent client maps `isDelegated: true`\nfrom that call site too (design D2 — `orders/` is protected core and is\nnot changed by this module)."
     },
     "@upmind-automation/headless!mapInvoices": {
@@ -71664,7 +71340,7 @@
       "name": "mapInvoices",
       "signature": "mapInvoices(raw: IInvoice | IInvoice[], readingClientId: string): Invoice[]",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.mappers.ts",
-      "sourceLine": 61,
+      "sourceLine": 56,
       "tsdoc": "Maps one or many raw invoices to the VM. `readingClientId` — the scope's\nresolved target — is supplied by the services layer's `select:` closure and\ndrives the co-mingled row Invoice.attribution (AC13)."
     },
     "@upmind-automation/headless!mapSessionUser": {
@@ -72291,19 +71967,8 @@
       "name": "useBillingSettings",
       "signature": "useBillingSettings: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettings.ts",
-      "sourceLine": 124,
-      "tsdoc": "Scoped composable for reading a client's own invoice-consolidation\npreference."
-    },
-    "@upmind-automation/headless!useBillingSettingsManager": {
-      "id": "@upmind-automation/headless!useBillingSettingsManager",
-      "kind": "Variable",
-      "lessons": [],
-      "module": "client-billing-settings",
-      "name": "useBillingSettingsManager",
-      "signature": "useBillingSettingsManager: ScopedComposable<object, object>",
-      "sourceFile": "packages/headless/src/modules/client-billing-settings/useBillingSettingsManager.ts",
-      "sourceLine": 165,
-      "tsdoc": "Scoped composable for editing a client's own invoice-consolidation\npreference. Callable bare — `useBillingSettingsManager().as('client')`\nconstructs and settles without a caller-supplied option."
+      "sourceLine": 164,
+      "tsdoc": "Scoped composable for editing a client's own invoice-consolidation\npreference. Callable bare — `useBillingSettings().as('client')`\nconstructs and settles without a caller-supplied option."
     },
     "@upmind-automation/headless!useBrand": {
       "id": "@upmind-automation/headless!useBrand",
@@ -72731,7 +72396,7 @@
       "name": "useInvoice",
       "signature": "useInvoice: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.ts",
-      "sourceLine": 164,
+      "sourceLine": 148,
       "tsdoc": "Scoped composable for one invoice, read and paid."
     },
     "@upmind-automation/headless!useInvoices": {
@@ -72742,7 +72407,7 @@
       "name": "useInvoices",
       "signature": "useInvoices: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoices.ts",
-      "sourceLine": 119,
+      "sourceLine": 120,
       "tsdoc": "Scoped composable for a client's invoices."
     },
     "@upmind-automation/headless!useLocale": {
@@ -72797,7 +72462,7 @@
       "name": "useOperations",
       "signature": "useOperations(): object",
       "sourceFile": "packages/headless/src/modules/system-operations/useOperations.ts",
-      "sourceLine": 149,
+      "sourceLine": 153,
       "tsdoc": null
     },
     "@upmind-automation/headless!usePayment": {
@@ -72863,19 +72528,8 @@
       "name": "usePersonalDetails",
       "signature": "usePersonalDetails: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
-      "sourceLine": 83,
-      "tsdoc": "Scoped composable for reading a client's own profile."
-    },
-    "@upmind-automation/headless!usePersonalDetailsManager": {
-      "id": "@upmind-automation/headless!usePersonalDetailsManager",
-      "kind": "Variable",
-      "lessons": [],
-      "module": "client-personal-details",
-      "name": "usePersonalDetailsManager",
-      "signature": "usePersonalDetailsManager: ScopedComposable<object, object>",
-      "sourceFile": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-      "sourceLine": 173,
-      "tsdoc": "Scoped composable for editing a client's own profile. Callable bare\n(AC-43) — `usePersonalDetailsManager().as('client')` constructs and\nsettles without a caller-supplied option."
+      "sourceLine": 172,
+      "tsdoc": "Scoped composable for editing a client's own profile. Callable bare\n(AC-43) — `usePersonalDetails().as('client')` constructs and\nsettles without a caller-supplied option."
     },
     "@upmind-automation/headless!usePlaces": {
       "id": "@upmind-automation/headless!usePlaces",
@@ -73105,7 +72759,7 @@
       "name": "useSystem",
       "signature": "useSystem(): object",
       "sourceFile": "packages/headless/src/modules/system/useSystem.ts",
-      "sourceLine": 45,
+      "sourceLine": 47,
       "tsdoc": "The `useSystem` composable provides a simple interface to interact with the system API\nand includes utility methods for fetching data."
     },
     "@upmind-automation/headless!useTermsAndConditions": {
