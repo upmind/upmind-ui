@@ -2,11 +2,11 @@
 #
 # Single entry point for the Playwright e2e suite.
 #
-#   1. Shuts down anything already on the test port.
+#   1. Frees the test port and the payment app's preview port.
 #   2. Starts the test-mode cart server (vite --mode test) on that port.
 #   3. Waits until it is actually serving.
 #   4. Runs the suite for the requested browser.
-#   5. Always shuts the server down again on exit.
+#   5. Always shuts the server down and frees both ports on exit.
 #
 # Usage: run-e2e.sh [chrome|firefox|safari|all] [extra playwright args...]
 #        (default browser: chrome)
@@ -20,6 +20,21 @@ TEST_PORT=4000
 BASE_URL="http://qa-automation.local:${TEST_PORT}/"
 ROOT="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
 
+# Free the payment preview port too: Playwright silently reuses a stale server.
+PAYMENT_PREVIEW_PORT=4020
+PORTS=("${TEST_PORT}" "${PAYMENT_PREVIEW_PORT}")
+
+free_port() {
+  local port="$1"
+  local pids
+  pids="$(lsof -ti "tcp:${port}" || true)"
+  if [ -n "${pids}" ]; then
+    echo "  killing ${port}: ${pids//$'\n'/ }"
+    kill -9 ${pids} 2>/dev/null || true
+    sleep 1
+  fi
+}
+
 # Opt-in video capture. Playwright has no native --video flag, so intercept it
 # here, set PW_VIDEO (read by playwright.config.ts), and strip it from the args
 # forwarded to Playwright (which would otherwise reject the unknown option).
@@ -32,13 +47,11 @@ for arg in "${@:2}"; do
   fi
 done
 
-# 1. Free the test port so we never reuse a stale/wrong server.
-echo "▶ freeing port ${TEST_PORT} ..."
-PIDS="$(lsof -ti "tcp:${TEST_PORT}" || true)"
-if [ -n "${PIDS}" ]; then
-  kill -9 ${PIDS} 2>/dev/null || true
-  sleep 1
-fi
+# 1. Free every port the suite serves on, so we never reuse a stale/wrong build.
+echo "▶ freeing ports ${PORTS[*]} ..."
+for port in "${PORTS[@]}"; do
+  free_port "${port}"
+done
 
 # 2. Start the test-mode cart server on the correct port. (Invoke vite
 #    directly — `pnpm start:test -- --port` leaks a stray `--` that vite
@@ -48,10 +61,11 @@ echo "▶ starting test server (vite --mode test) on ${TEST_PORT} ..."
 SERVER_PID=$!
 
 cleanup() {
-  echo "▶ shutting down test server ..."
+  echo "▶ shutting down test server and payment preview ..."
   kill -9 "${SERVER_PID}" 2>/dev/null || true
-  REMAINING="$(lsof -ti "tcp:${TEST_PORT}" || true)"
-  [ -n "${REMAINING}" ] && kill -9 ${REMAINING} 2>/dev/null || true
+  for port in "${PORTS[@]}"; do
+    free_port "${port}"
+  done
 }
 trap cleanup EXIT
 

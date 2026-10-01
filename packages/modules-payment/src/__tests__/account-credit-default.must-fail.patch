@@ -1,0 +1,21 @@
+# Negative control — the tick applies the whole credit, whatever the invoice
+# owes. An invoice that owes less than the credit takes more than it owes, and
+# the label names a different figure from the one the tick sends.
+#
+# Intended RED:
+#   packages/modules-payment/src/__tests__/account-credit.test.ts
+#     "applies only the amount due to an invoice that owes less, and names it"
+
+diff --git a/packages/modules-payment/src/components/AccountCredit.vue b/packages/modules-payment/src/components/AccountCredit.vue
+index 1d491cc..8c740c6 100644
+--- a/packages/modules-payment/src/components/AccountCredit.vue
++++ b/packages/modules-payment/src/components/AccountCredit.vue
+@@ -76,7 +76,7 @@ const checked = computed({
+   set: (value: string[]) => {
+     model.value = {
+       wallet_amount: value.includes("account-credit")
+-        ? Math.min(props.amount, props.accountCredit.total.value)
++        ? props.accountCredit.total.value
+         : 0
+     };
+   }

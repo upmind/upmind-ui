@@ -44,10 +44,8 @@
 import { Spinner } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import {
-  OverlayType,
-  UpmPaymentProcessing
-} from "@upmind-automation/client-vue";
+import { OverlayType } from "@upmind-automation/client-vue";
+import { UpmPaymentProcessing } from "@upmind-automation/payment";
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import OrderPayment from "./OrderPayment.vue";
 import { get, omit, toString } from "lodash-es";

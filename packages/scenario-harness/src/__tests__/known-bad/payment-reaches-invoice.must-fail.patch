@@ -1,0 +1,41 @@
+diff --git a/packages/modules-payment/src/components/Payment.vue b/packages/modules-payment/src/components/Payment.vue
+--- a/packages/modules-payment/src/components/Payment.vue
++++ b/packages/modules-payment/src/components/Payment.vue
+@@ -5,7 +5,7 @@
+       v-show="!orderMeta.isProcessing"
+       :label="t('action.pay_now')"
+       :processing="orderMeta.isProcessing"
+-      @resolve="pay"
++      @resolve="payFromInvoice"
+     />
+   </template>
+
+@@ -19,6 +19,7 @@ import {
+   useInvoice,
+   type InvoicePaymentChallenge
+ } from "@upmind-automation/headless";
++import { payInvoice } from "@upmind-automation/invoice";
+ import PaymentDetails from "./PaymentDetails.vue";
+ import PaymentProcessing from "./PaymentProcessing.vue";
+ import type { PaymentProps } from "../types";
+@@ -34,8 +35,7 @@ const { t } = useI18n();
+ const invoiceCell = useInvoice().withId(props.invoiceId);
+ const { paymentDetail } = invoiceCell.useInternals();
+ const invoiceMeta = invoiceCell.useMeta();
+-const { cancelChallenge, isReady, pay, renderChallenge } =
+-  invoiceCell.useActions();
++const { cancelChallenge, isReady, renderChallenge } = invoiceCell.useActions();
+
+ await isReady();
+
+@@ -65,6 +65,10 @@ provide("usePaymentChallenge", {
+   meta: orderMeta
+ } satisfies InvoicePaymentChallenge);
+
++function payFromInvoice() {
++  payInvoice(props.invoiceId);
++}
++
+ // -----------------------------------------------------------------------------
+
+ watch(

@@ -9,6 +9,7 @@
 
 @import "@upmind-automation/auth/styles";
 @import "@upmind-automation/foundation/styles";
+@import "@upmind-automation/payment/styles";
 
 @source './**/*.{html,vue,js,tsx,ts}';
 

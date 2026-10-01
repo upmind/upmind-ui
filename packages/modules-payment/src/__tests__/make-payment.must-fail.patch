@@ -1,0 +1,37 @@
+# make-payment.must-fail.patch
+#
+# Targets: make-payment.int.test.ts — the money-path fact that the payment form
+# stays mounted, and only hidden, while the charge is processing (a gateway's
+# card iframe dies with the form).
+# Mutant: fold develop's `v-show="!orderMeta.isProcessing"` into the `v-if`, so
+# processing unmounts the form instead of hiding it. Cut by the prover seat; no
+# test assertion was touched to produce it.
+#
+# Apply from the repo root: `git apply packages/modules-payment/src/__tests__/make-payment.must-fail.patch`
+# Then: `pnpm --filter @upmind-automation/payment test --run`
+#
+# Measured RED, 3 of 31 in the package:
+#   - "never unmounts the payment form, from its first appearance through the charge"
+#       the payment form was torn down while the charge was in flight
+#   - "shows the processing screen over the still-mounted form once the charge starts, and scrolls to the top"
+#       the payment form was torn down while the charge was processing
+#   - "leaves the customer the pay form when the API refuses the charge"
+#       the payment form was taken away after the API refused the charge
+#
+# Measured GREEN under the mutant, correctly — 28 of 31: the charge still goes
+# to the named invoice, and the gate, amount and gateway facts do not rest on
+# how the form is hidden.
+#
+diff --git a/packages/modules-payment/src/components/Payment.vue b/packages/modules-payment/src/components/Payment.vue
+--- a/packages/modules-payment/src/components/Payment.vue
++++ b/packages/modules-payment/src/components/Payment.vue
+@@ -1,8 +1,7 @@
+ <template>
+   <template v-if="orderMeta.isAvailable">
+     <PaymentDetails
+-      v-if="!orderMeta.isLocked"
+-      v-show="!orderMeta.isProcessing"
++      v-if="!orderMeta.isLocked && !orderMeta.isProcessing"
+       :label="t('action.pay_now')"
+       :processing="orderMeta.isProcessing"
+       @resolve="pay"
