@@ -1,4 +1,4 @@
-# client-orders Gotchas
+# orders Gotchas
 
 Edge cases, known issues, and the differences from the legacy application that this module keeps on purpose.
 
@@ -11,10 +11,10 @@ Edge cases, known issues, and the differences from the legacy application that t
 The legacy application sends an equal-comparison filter as a bare column key, e.g. `filter[number]=QA-INV-25144`. This module always sends the explicit equal-comparison suffix instead: `filter[number|eq]=QA-INV-25144`. Both mean the same comparison on the wire; only the spelling differs.
 
 ```ts
-// ❌ The legacy wire shape — do not expect this from client-orders
+// ❌ The legacy wire shape — do not expect this from orders
 // filter[number]=QA-INV-25144
 
-// ✅ What client-orders actually sends
+// ✅ What orders actually sends
 // filter[number|eq]=QA-INV-25144
 ```
 
@@ -30,7 +30,7 @@ The legacy application holds the quick search and the number filter as two indep
 // ❌ Do not expect two independent leaves that fall back to one another
 // (legacy shape: filter-bar value survives under a cleared search box)
 
-// ✅ client-orders holds ONE `number.eq` leaf. The last write — search or
+// ✅ orders holds ONE `number.eq` leaf. The last write — search or
 // filter-bar — is the live value; clearing it removes the leaf.
 ```
 
@@ -60,7 +60,7 @@ The legacy application, when a page request lands past the true end of the histo
 The legacy application exposes a single `pay` control that opens a payment dialog. This module has no `pay` member on its own action surface at all — paying an order means mounting the payment component inside the caller's own page and calling the payment delegate from inside that component's own setup, because the underlying payment engine binds its own lifecycle to whichever component is mounted when it starts.
 
 ```ts
-// ❌ There is no `pay()` action on useClientOrder().useActions()
+// ❌ There is no `pay()` action on useOrder().useActions()
 // order.useActions().pay() // does not exist
 
 // ✅ Call the payment delegate from inside the payment component's own
@@ -72,25 +72,20 @@ const { pay } = order.useActions().usePayment(paymentDetail);
 
 ---
 
-## Known gap — the playground filter-bar status control sends no request
+## The delegated marker is on the order, not in the list
 
-On the labs-nuxt playground page, clicking a status choice in the filter-bar control sends no request at all. The gap is in the shared design-system form renderer (`design-system/packages/ui/src/form/renderers/utils.ts`), not in this module: a filter column name that carries a dot, such as `status.code`, is a control whose JSON Forms scope segments are `["status", "code"]`. The renderer's write path dispatches the update against those segments cast to a single string instead of writing through them one at a time, so the value lands one level too deep in the form's own data tree and the control's change never reaches this module's criteria write at all.
-
-This module's own data layer is not implicated. The dotted-operators integration coverage drives `useInternals().query.setCriteria` directly — bypassing the form renderer — and proves that a `filter[status.code|eq]` and a `filter[status.code|neq]` write each reach the wire correctly once they reach this module's criteria writer. The gap is entirely upstream of this module, in the control that is supposed to hand it the write.
-
-The browser-driven proof for this control is marked as a known failure until the design-system defect is fixed.
+The history list has no Delegated column. The raw order row carries a single `delegate_related` boolean, and no table cell shape can read it off the row root: scoping a cell at the row root yields an empty data path, which gives the column an empty id and crashes the table's header model — the list renders zero rows. The manager publishes the marker instead, as `meta.isDelegated`, mapped through the invoices capability's attribution logic.
 
 ```ts
-// ❌ Clicking a status choice on the labs-nuxt playground page — no request
-// is sent; the write lands one level too deep in the form's own data tree.
+// ❌ Looking for a delegated flag on the history context
+const delegatedRows = orders.useContext().data.value.filter(o => o.delegate_related);
 
-// ✅ Writing the same filter directly through the module's own criteria
-// writer reaches the wire correctly — proven by the dotted-operators
-// integration coverage, independent of the form renderer.
-orders.useActions().filters.status(["invoice_paid"]);
+// ✅ Read the marker from the single-order manager
+const order = useOrder().as(ScopeActorTypes.SELF).withId(orderId);
+const isDelegated = order.useMeta().isDelegated;
 ```
 
-**Test scenario:** N/A for this module's own suite — the defect is in the shared form renderer, not in this module's criteria writer or wire translation.
+**Test scenario:** Load a delegated order through the manager — assert `meta.isDelegated` is true; load an own order — assert it is false.
 
 ---
 
@@ -146,9 +141,9 @@ A page write replaces the whole pagination window, not just the offset. Writing 
 Both composables' readiness signal always settles — even against a stalled connection — rather than hanging a caller's `await` open indefinitely. Branch on it rather than on the raw loading flag when a caller genuinely needs to wait for the first read.
 
 ```ts
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 await orders.useActions().isReady();
 ```
 
@@ -156,10 +151,10 @@ await orders.useActions().isReady();
 
 ```ts
 import { onUnmounted } from "vue";
-import { ScopeActorTypes, useClientOrder } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrder } from "@upmind-automation/headless";
 
 declare const orderId: string;
-const order = useClientOrder().as(ScopeActorTypes.SELF).withId(orderId);
+const order = useOrder().as(ScopeActorTypes.SELF).withId(orderId);
 onUnmounted(() => order.useActions().destroy());
 ```
 

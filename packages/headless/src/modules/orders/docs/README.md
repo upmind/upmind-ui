@@ -1,4 +1,4 @@
-# client-orders Module
+# orders Module
 
 Reads a signed-in client's own placed orders — the history, one order in full, and the gates for paying or cancelling it.
 
@@ -6,8 +6,8 @@ Reads a signed-in client's own placed orders — the history, one order in full,
 
 Think of it like a customer's own order-history page at any online shop: a list you can search and filter, and a receipt-style detail page for one order.
 
-- **`useClientOrders`** = the history list — search, filter, sort, page through your own orders.
-- **`useClientOrder`** = one order's receipt page — its items, its status, and the pay/cancel buttons' on/off state.
+- **`useOrders`** = the history list — search, filter, sort, page through your own orders.
+- **`useOrder`** = one order's receipt page — its items, its status, and the pay/cancel buttons' on/off state.
 
 > **🧪 For Testers:** The four accepted differences from the legacy app (equal-filter spelling, the search/filter-bar interaction, the past-the-last-page landing spot, and the pay control's surface shape) are in [gotchas.md](./gotchas.md).
 
@@ -16,9 +16,9 @@ Think of it like a customer's own order-history page at any online shop: a list 
 ## Quick Start
 
 ```ts
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 const { data, pagination } = orders.useContext();
 const { isLoading, isEmpty } = orders.useMeta();
 
@@ -38,13 +38,13 @@ See [Usage](./usage.md) for the complete API reference.
 | Online-gateway condition | ✅ | Read from the response envelope's reported total, never a row count. |
 | Pay delegate | ✅ | Delegates to the existing payment engine; the completed-payment stale-mark still needs a real staging payment to prove end-to-end. |
 | Cancel delegate | ✅ | Delegates through an injectable port; rejects distinctly until a contract-cancellation flow connects to it. |
-| Playground / browser-driven proof | ⏳ | The scoped composables are complete; the labs-nuxt driven page and its e2e harness are a separate, not-yet-landed lane. |
+| Playground / browser-driven proof | ✅ | `/useOrders` renders on the shared playground renderer (the same surface as `/useInvoices`); `/useOrder/:id` is a self-drawn order view. |
 
 ## Key Concepts
 
 ### The history and the single read are separate composables
 
-`useClientOrders` (the history) and `useClientOrder` (one order) are two independent scoped composables sharing the same underlying request shape and cache root. They do not share a query instance — reading the history does not load one order, and opening one order does not refresh the history, though a pay or a cancel on one order marks both stale.
+`useOrders` (the history) and `useOrder` (one order) are two independent scoped composables sharing the same underlying request shape and cache root. They do not share a query instance — reading the history does not load one order, and opening one order does not refresh the history, though a pay or a cancel on one order marks both stale.
 
 ### Everything client, everything self
 
@@ -59,10 +59,10 @@ Paying hands the order to the platform's existing payment engine and republishes
 The module uses the scoped composable pattern with `.as()`, but only ever resolves the client (self) actor:
 
 ```ts
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
 // The only supported actor — a customer reading their OWN orders.
-const clientOrders = useClientOrders().as(ScopeActorTypes.SELF);
+const orderHistory = useOrders().as(ScopeActorTypes.SELF);
 
 // A staff actor, or a `.for('client', id)` retarget, does not compile here —
 // there is no staff cell and no delegated-entity cell for this module.
@@ -81,15 +81,15 @@ const clientOrders = useClientOrders().as(ScopeActorTypes.SELF);
 
 ## Playground
 
-A runnable demo lives in the labs playground, once its driven page lands:
+A runnable demo lives in the labs playground:
 
 ```bash
 cd playgrounds/labs-nuxt
 pnpm dev
 ```
 
-Then navigate to `/useClientOrders` (the history) or `/useClientOrder/<orderId>` (one order).
+Then navigate to `/useOrders` (the history, drawn by the shared renderer) or `/useOrder/<orderId>` (one order, a self-drawn order view).
 
-**Playground location:** `playgrounds/labs-nuxt/modules/scenarios/useClientOrders/`, `playgrounds/labs-nuxt/modules/scenarios/useClientOrder/`.
+**Playground location:** `playgrounds/labs-nuxt/modules/scenarios/useOrders/`, `playgrounds/labs-nuxt/modules/scenarios/useOrder/`.
 
-> **🔧 For Contributors:** The driven browser page and its e2e proof are a separate lane from this module's own test suite — do not assume the playground page is live just because the composables are.
+> **🔧 For Contributors:** The history list has no Delegated column. The delegated marker lives on the single-order view, read from the manager's `meta.isDelegated`.

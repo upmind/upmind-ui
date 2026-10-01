@@ -1,8 +1,8 @@
-# Module: client-orders
+# Module: orders
 
 ## What it is
 
-`client-orders` is the read view a signed-in customer gets of the orders they themselves have placed. A placed order is an invoice of the "new contract" category — the document the platform produces the moment a customer's basket converts into a billable order, as opposed to a renewal, a one-off add-on, or a credit note against an earlier order. The module offers two working surfaces over that same underlying record: a **history**, which lists, filters, sorts, quick-searches and paginates a customer's own placed orders, and a **detail read**, which loads one order in full — its items, its dates, its custom fields, and the conditions that decide whether the customer can pay it or cancel it. Every read in this module is addressed to the signed-in customer's own identity; there is no path in this module that lets one customer read another customer's orders, and there is no path that lets an operator act on a customer's behalf through it.
+`orders` is the read view a signed-in customer gets of the orders they themselves have placed. A placed order is an invoice of the "new contract" category — the document the platform produces the moment a customer's basket converts into a billable order, as opposed to a renewal, a one-off add-on, or a credit note against an earlier order. The module offers two working surfaces over that same underlying record: a **history**, which lists, filters, sorts, quick-searches and paginates a customer's own placed orders, and a **detail read**, which loads one order in full — its items, its dates, its custom fields, and the conditions that decide whether the customer can pay it or cancel it. Every read in this module is addressed to the signed-in customer's own identity; there is no path in this module that lets one customer read another customer's orders, and there is no path that lets an operator act on a customer's behalf through it.
 
 The module surfaces the gating conditions for paying and for cancelling an order, and it hands both actions off rather than performing them itself: paying delegates the order to the platform's existing payment capability, and cancelling hands the order's underlying contract off through an injectable seam to a separate contract-cancellation capability that connects to it independently.
 
@@ -185,7 +185,7 @@ type OrderSubItem = {
 
 ### Dependants — capabilities that read from this one
 
-No capability in the codebase reads from `client-orders` yet — it is newly delivered, and the customer-facing pages that will render its history and detail views have not been built against it. Once built, the intended reader is the presentation layer: a customer's order-history list view and single-order view.
+No capability in the codebase reads from `orders` yet — it is newly delivered. The intended reader is the presentation layer: a customer's order-history list view and single-order view.
 
 ### This module's own dependencies
 

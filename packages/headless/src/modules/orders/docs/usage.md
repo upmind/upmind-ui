@@ -1,13 +1,13 @@
-# client-orders Usage & API
+# orders Usage & API
 
-Two scoped composables share this module: `useClientOrders` (the history — a list) and `useClientOrder` (one order, addressed by id). Both are client-only — neither accepts a staff actor, and neither accepts a `.for(client, id)` retarget. Every read is against the signed-in client's own identity.
+Two scoped composables share this module: `useOrders` (the history — a list) and `useOrder` (one order, addressed by id). Both are client-only — neither accepts a staff actor, and neither accepts a `.for(client, id)` retarget. Every read is against the signed-in client's own identity.
 
-## The history — `useClientOrders`
+## The history — `useOrders`
 
 ```ts
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 
 const { data, error, findOne, getOne, pagination, query, schemas } =
   orders.useContext();
@@ -47,9 +47,9 @@ const {
 `data` defaults to `[]` until the first read settles. Await `isReady()` before branching on the list:
 
 ```ts
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 await orders.useActions().isReady(); // always settles — never hangs
 ```
 
@@ -58,9 +58,9 @@ await orders.useActions().isReady(); // always settles — never hangs
 Each named setter composes a fresh copy of the live filters and writes it back — it never mutates the live model in place:
 
 ```ts
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 const { filters } = orders.useActions();
 
 // Narrow to unpaid orders (one choice, two underlying statuses under the hood).
@@ -81,9 +81,9 @@ filters.status(undefined);
 `setCriteria` applies a `filters` / `sort` / `pagination` intent as one write, branch by branch — a `filters` intent you pass **replaces** the whole filters branch, the same way the named setters above do, and re-asserts the forced `category.slug` leaf on the copy it writes:
 
 ```ts
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 const { setCriteria } = orders.useActions();
 
 setCriteria({
@@ -96,20 +96,20 @@ setCriteria({
 
 ```ts
 import {
-  ClientOrdersSortableColumn,
+  OrdersSortableColumn,
   ScopeActorTypes,
   SortDirection,
-  useClientOrders
+  useOrders
 } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 const { nextPage, prevPage, setPage, setLimit, sort } = orders.useActions();
 
 setPage(2);
 setLimit(25); // returns to page one
 nextPage();
 prevPage();
-sort(ClientOrdersSortableColumn.TOTAL_AMOUNT, SortDirection.DESC);
+sort(OrdersSortableColumn.TOTAL_AMOUNT, SortDirection.DESC);
 ```
 
 ### Rendering a row
@@ -128,21 +128,21 @@ sort(ClientOrdersSortableColumn.TOTAL_AMOUNT, SortDirection.DESC);
 </template>
 
 <script setup lang="ts">
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 const { data } = orders.useContext();
 const { hasError, isLoading } = orders.useMeta();
 </script>
 ```
 
-## One order — `useClientOrder`
+## One order — `useOrder`
 
 ```ts
-import { ScopeActorTypes, useClientOrder } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrder } from "@upmind-automation/headless";
 
 declare const orderId: string;
-const order = useClientOrder().as(ScopeActorTypes.SELF).withId(orderId);
+const order = useOrder().as(ScopeActorTypes.SELF).withId(orderId);
 
 const { contractId, data, detail, error, products } = order.useContext();
 const {
@@ -173,10 +173,10 @@ const { cancel, destroy, invalidate, isReady, refresh, usePayment } =
 ### Reading the detail and the items
 
 ```ts
-import { ScopeActorTypes, useClientOrder } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrder } from "@upmind-automation/headless";
 
 declare const orderId: string;
-const order = useClientOrder().as(ScopeActorTypes.SELF).withId(orderId);
+const order = useOrder().as(ScopeActorTypes.SELF).withId(orderId);
 const { detail, products } = order.useContext();
 
 // `detail` is the projected field set (number, status, totals, dates, …).
@@ -190,14 +190,14 @@ const { detail, products } = order.useContext();
 
 ```vue
 <script setup lang="ts">
-import { ScopeActorTypes, useClientOrder } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrder } from "@upmind-automation/headless";
 import type { PaymentDetailData } from "@upmind-automation/headless";
 
 const props = defineProps<{
   orderId: string;
   paymentDetail: PaymentDetailData;
 }>();
-const order = useClientOrder().as(ScopeActorTypes.SELF).withId(props.orderId);
+const order = useOrder().as(ScopeActorTypes.SELF).withId(props.orderId);
 const { canPay } = order.useMeta();
 
 // Call usePayment(paymentDetail) only while canPay is true, and only in THIS
@@ -212,10 +212,10 @@ const { meta, pay } = payment;
 ### Cancelling
 
 ```ts
-import { ScopeActorTypes, useClientOrder } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrder } from "@upmind-automation/headless";
 
 declare const orderId: string;
-const order = useClientOrder().as(ScopeActorTypes.SELF).withId(orderId);
+const order = useOrder().as(ScopeActorTypes.SELF).withId(orderId);
 const { cancel } = order.useActions();
 
 try {
@@ -259,17 +259,17 @@ All return Vue `ComputedRef`:
 | `query` | history | — | The live criteria model — read-only; write through `useActions()`. |
 | `schemas.query` | history | — | The criteria schema plus its filter-bar and sort UI schemas. |
 | `data` | order | `IOrder \| undefined` | The raw order record. |
-| `detail` | order | `ClientOrderDetail` | The projected detail fields. |
-| `products` | order | `ClientOrderItem[]` | The projected item list. |
+| `detail` | order | `OrderDetail` | The projected detail fields. |
+| `products` | order | `OrderItem[]` | The projected item list. |
 | `contractId` | order | `string \| undefined` | The order's contract id — `cancel()`'s argument. |
 | `error` | both | — | The scope's captured failure, read-only. |
 
 ## Lifecycle
 
 ```ts
-import { ScopeActorTypes, useClientOrders } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
 
-const orders = useClientOrders().as(ScopeActorTypes.SELF);
+const orders = useOrders().as(ScopeActorTypes.SELF);
 
 // Wait for the first read to settle. Always settles.
 await orders.useActions().isReady();
@@ -299,10 +299,10 @@ orders.useActions().destroy();
 </template>
 
 <script setup lang="ts">
-import { ScopeActorTypes, useClientOrder } from "@upmind-automation/headless";
+import { ScopeActorTypes, useOrder } from "@upmind-automation/headless";
 
 const props = defineProps<{ orderId: string }>();
-const order = useClientOrder().as(ScopeActorTypes.SELF).withId(props.orderId);
+const order = useOrder().as(ScopeActorTypes.SELF).withId(props.orderId);
 const { error } = order.useContext();
 const { canCancel, canPay, hasError, isLoading, isProcessing } =
   order.useMeta();

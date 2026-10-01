@@ -1,15 +1,15 @@
-# client-orders Architecture
+# orders Architecture
 
 ## Overview
 
-`client-orders` ships two query-backed scoped composables with no state machine: `useClientOrders` (the history collection, one TanStack list query per scope) and `useClientOrder` (the single-order manager, one TanStack item query per `(actor, id)` scope). Every write this module owns is a criteria write against its own list query — the only writes that touch the network delegate to engines this module does not own: paying an order hands it wholesale to the existing payment engine, and cancelling hands the order's contract id to an injectable port. Both composables resolve the client (self) actor only; every `.for()` cell on both scope matrices is `null as never`, so a staff actor or a delegated-entity retarget is a compile-time error, not a runtime guard.
+`orders` ships two query-backed scoped composables with no state machine: `useOrders` (the history collection, one TanStack list query per scope) and `useOrder` (the single-order manager, one TanStack item query per `(actor, id)` scope). Every write this module owns is a criteria write against its own list query — the only writes that touch the network delegate to engines this module does not own: paying an order hands it wholesale to the existing payment engine, and cancelling hands the order's contract id to an injectable port. Both composables resolve the client (self) actor only; every `.for()` cell on both scope matrices is `null as never`, so a staff actor or a delegated-entity retarget is a compile-time error, not a runtime guard.
 
 ## Data Flow
 
 ```text
 ┌───────────────────┐     ┌────────────────────┐     ┌────────────────────┐
 │  Criteria write    │────▶│  TanStack list      │────▶│  GET /invoices      │
-│  (filters/sort/    │     │  query (forced      │     │  (client-orders.    │
+│  (filters/sort/    │     │  query (forced      │     │  (orders.           │
 │  pagination)       │     │  new_contract)       │     │   services.ts)      │
 └───────────────────┘     └────────────────────┘     └────────────────────┘
                                      │
@@ -52,19 +52,19 @@ Both roots are **armless** — one actor (`client`) resolves for this client-sel
 
 ## Services
 
-There is no per-actor service split — the module resolves `client` only. `client-orders.services.ts` exports **one** factory, `createClientOrdersServices(scopeActor, scopeContext)`, consumed by both composables so the collection and the manager share one identity seam and one cache key:
+There is no per-actor service split — the module resolves `client` only. `orders.services.ts` exports **one** factory, `createOrdersServices(scopeActor, scopeContext)`, consumed by both composables so the collection and the manager share one identity seam and one cache key:
 
 | Factory | Reads | Endpoints |
 | --- | --- | --- |
-| `createClientOrdersServices` | `loadList`, `loadOne(id)`, `loadItemImages`, `loadOnlineGateways` | `GET /invoices`, `GET /invoices/{id}`, `GET /products`, `GET /brands/{id}/gateways` |
+| `createOrdersServices` | `loadList`, `loadOne(id)`, `loadItemImages`, `loadOnlineGateways` | `GET /invoices`, `GET /invoices/{id}`, `GET /products`, `GET /brands/{id}/gateways` |
 
-`useClientOrders.ts` calls `service.loadList()`; `useClientOrder.ts` calls the same instance's `service.loadOne(orderId)`, `service.loadItemImages(productIds)` and `service.loadOnlineGateways(brandId)`. Neither root instantiates its own services factory.
+`useOrders.ts` calls `service.loadList()`; `useOrder.ts` calls the same instance's `service.loadOne(orderId)`, `service.loadItemImages(productIds)` and `service.loadOnlineGateways(brandId)`. Neither root instantiates its own services factory.
 
 The billing-cycle reference list is read by the `system` module's own lazy singleton query (`useSystem().ensureBillingCycles()`); this module's manager root calls it once per scope and keeps the resolved list in its own ref — it never issues that request itself and never awaits it as part of readiness.
 
 ## Dependencies
 
-### client-orders Depends On
+### orders Depends On
 
 | Module | Usage |
 | --- | --- |
@@ -77,7 +77,7 @@ The billing-cycle reference list is read by the `system` module's own lazy singl
 | `contract-product` | `isDue`, `isCancellable` — the due/cancellable judgment this module's order conditions build on |
 | `payment` | `usePayment({ orderId, paymentDetail })` (aliased `usePaymentEngine`) — the payment engine this module's own `usePayment()` delegates to |
 
-### Modules That Depend On client-orders
+### Modules That Depend On orders
 
 None yet — the module is newly delivered and has no consumers in the codebase. The intended consumer is the presentation layer's order-history and single-order pages, which have not been built against it.
 
@@ -89,7 +89,7 @@ None yet — the module is newly delivered and has no consumers in the codebase.
 | **Platform `api/products`** | The item-image read, keyed by each item's linked catalogue product id — never the item's own line id. |
 | **Platform `api/brands/{id}/gateways`** | The online-gateway count, read as the response envelope's `total` rather than through the shared `query()`/`list()` primitives (both drop `total`). |
 | **Payment engine (`payment` module)** | `usePayment()` injects the manager's own `orderId`, takes the caller's chosen `paymentDetail`, and forwards `{ orderId, paymentDetail }` to the `payment` engine inside the caller's own component setup — the engine binds `onUnmounted` to whatever component is active when it runs, so this delegate must never be memoised at the composable-factory level. |
-| **Cancellation port** | `client-orders.ports.ts` holds one module-level registration slot (`provideOrderCancellation`); `cancel()` reads it at call time. A later registration's remover is the only thing that can clear it — an earlier remover is a no-op once superseded. |
+| **Cancellation port** | `orders.ports.ts` holds one module-level registration slot (`provideOrderCancellation`); `cancel()` reads it at call time. A later registration's remover is the only thing that can clear it — an earlier remover is a no-op once superseded. |
 | **Cache root** | Every key this module owns lives under the shared `["invoices", ...]` root, since an order is an invoice, so an `invoices`-module invalidation with `exact: false` reaches this module's keys too, and vice versa after a pay or a cancel. |
 
 ## Known structural risks
