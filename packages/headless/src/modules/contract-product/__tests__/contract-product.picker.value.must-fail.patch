@@ -1,0 +1,23 @@
+# Negative-control mutant — the picked option's value is the id the manager loads by (R38 item 2; B7)
+#
+# Spec it must flip: contract-product.picker.test.ts,
+#   "picks each product by its id".
+# RED-verified 2026-09-29.
+#
+# Mutation: a picker option's `value` is the owning contract's id, so picking
+#   a product opens a different record, or none.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -388,7 +388,7 @@
+   raw: IContractProduct
+ ): LookupItem {
+   return {
+-    value: raw.id,
++    value: raw.contract_id,
+     label: mapContractProductTitle(raw) || raw.id
+   };
+ }

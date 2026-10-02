@@ -222,11 +222,12 @@ import { Tooltip } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
 import { useConfig, type ProductModel } from "@upmind-automation/headless";
-import { Icon } from "../../../../components/icon";
-import { isMobile } from "../../../../composables/isMobile";
-import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
-import ExPrice from "../../../product/components/pricing/ExPrice.vue";
+import { CurrentPrice } from "@upmind-automation/product";
+import { ExPrice } from "@upmind-automation/product";
+import { Promotion } from "@upmind-automation/product";
 import {
   productSummaryArticleVariants,
   productSummaryHeaderRootVariants,
@@ -250,7 +251,6 @@ import {
 import BasketProductConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductTermSelector from "./components/BasketProductTermSelector.vue";
 import BasketQuantityField from "./components/BasketQuantityField.vue";
-import Promotion from "./components/Promotion.vue";
 import RenewDescription from "./components/RenewDescription.vue";
 import RequiredAlert from "./components/RequiredAlert.vue";
 import { filter, isEmpty, includes } from "lodash-es";

@@ -24,8 +24,8 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Hero } from "@upmind-automation/foundation";
 import { useBasket } from "@upmind-automation/headless";
-import Hero from "../../../components/hero/Hero.vue";
 import { CHECKOUT_TEMPLATE } from "../types";
 import type { CheckoutHeroProps } from "../types";
 

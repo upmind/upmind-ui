@@ -39,7 +39,7 @@
 The plugin law is cited, not restated: recording is step one, and fabricated fixture JSON is never a fallback. This repo's ONE capture chain — the seat runs it verbatim, no link re-derived:
 
 1. **Generator**: colocated `<module>/__tests__/<unit>.fixtures.ts`, recording into the module's own `__tests__/fixtures/*.json` (v3, PII-masked — ADR 025 §A1.3).
-2. **Command**: `pnpm fixtures:generate <unit>` (repo root; auto-runs `lint:fixtures`).
+2. **Command**: `pnpm fixtures:generate <unit>` (repo root; auto-runs `lint:fixtures`). To re-record ONE scenario, add `--scenario "<scenario title>"` — the other recordings stay as they are (`tests/fixtures/README.md`).
 3. **Recording env**: `packages/headless/.env.recording` (`VITE_API_URL`, `RECORDING_BRAND_ORIGIN`).
 4. **Credentials**: `tests/fixtures/credentials.ts` (`API_CREDENTIALS`, imported as `@upmind-automation/test-fixtures/credentials`).
 

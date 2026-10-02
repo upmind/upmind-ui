@@ -187,7 +187,23 @@ server.events.on("request:start", ({ request }) => {
   outbound.push(`${request.method} ${new URL(request.url).pathname}`);
 });
 
+/** Answer `initStore()`'s guest-token bootstrap with session-store's capture. */
+function installGuestTokenStub(): void {
+  const guest = getFixture("post-oauth-access-token-guest", {
+    recordingsDir: sessionRecordingsDir
+  });
+  server.use(
+    http.post("*/oauth/access_token", () =>
+      HttpResponse.json(guest.response.body as Record<string, unknown>, {
+        status: guest.response.status
+      })
+    )
+  );
+}
+
 async function seedClientSession(): Promise<void> {
+  installGuestTokenStub();
+
   const { useSessionStore, useActiveSession } =
     await import("../../session-store");
   const { mapSessionUser } =
@@ -625,6 +641,7 @@ describe("braintreeServices.add", () => {
     queryClient.clear();
     await seedClientSession();
     replay("get", "*/api/brands/:brandId/gateways", GATEWAYS_BRAINTREE);
+    replay("post", "*/api/gateway/frontend/tokenize-begin/*", BEGIN_BRAINTREE);
   });
 
   afterEach(() => {
@@ -771,6 +788,8 @@ describe("braintreeServices error paths", () => {
     const { queryClient } = await import("../../query");
     queryClient.clear();
     await seedClientSession();
+    replay("get", "*/api/brands/:brandId/gateways", GATEWAYS_BRAINTREE);
+    replay("post", "*/api/gateway/frontend/tokenize-begin/*", BEGIN_BRAINTREE);
   });
 
   afterEach(() => {

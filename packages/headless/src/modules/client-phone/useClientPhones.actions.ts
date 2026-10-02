@@ -1,4 +1,4 @@
-import { watch } from "vue";
+import { onScopeDispose, watch } from "vue";
 import { invalidateQueryByKey, resetQueryByKey } from "../query";
 // Deep path, never the `../scope` barrel — see useClientPhones.ts for the
 // aggregator-barrel `export *` hazard this sidesteps.
@@ -12,6 +12,14 @@ import type {
   SortModel
 } from "./client-phone.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
+// -----------------------------------------------------------------------------
+
+/**
+ * The bound a readiness wait cannot exceed. Mirrors `client-address`'s own
+ * `READINESS_TIMEOUT_MS`: a watcher on a session or a list that never settles
+ * is a readiness wait that cannot end — the defect, not a timer.
+ */
+const READINESS_TIMEOUT_MS = 15_000;
 // -----------------------------------------------------------------------------
 /**
  * @module client-phone/useClientPhones.actions
@@ -36,6 +44,24 @@ export function createClientPhonesActions(
     useActiveSession().useMeta();
 
   /**
+   * Every readiness watch this scope has open. A readiness wait creates its
+   * watch LAZILY — when a consumer calls `isReady`, outside the registry
+   * `effectScope` the factory ran in — so `remove()`'s `scope.stop()` does not
+   * reach it. Tracking each here and stopping them all from `onScopeDispose`
+   * (registered DURING factory execution, so it belongs to that scope) is what
+   * makes `destroy()` dispose the collection's session subscription rather than
+   * leave a watch on the session settling past the scope's own life, into the
+   * next cell (FE-3145 wave 2).
+   */
+  const pendingWaits = new Set<(outcome: boolean) => void>();
+
+  onScopeDispose(() => {
+    // A disposed scope settles every pending wait as not addressable.
+    pendingWaits.forEach(end => end(false));
+    pendingWaits.clear();
+  });
+
+  /**
    * This scope's settled ADDRESSABILITY outcome, or `undefined` while the
    * session is still settling.
    *
@@ -55,35 +81,55 @@ export function createClientPhonesActions(
 
   /**
    * Resolves the addressability outcome, waiting only while the session is
-   * still settling.
+   * still settling. The watch is tracked in `pendingWaits` and self-removes on
+   * settle, so a `destroy()` mid-wait disposes it (see `pendingWaits`).
    */
   function whenSessionSettles(): Promise<boolean> {
     const settled = addressableOutcome();
     if (settled !== undefined) return Promise.resolve(settled);
 
     return new Promise<boolean>(resolve => {
+      const timer = setTimeout(() => end(false), READINESS_TIMEOUT_MS);
       const stop = watch(
         [service.isAvailable, isSessionInitialised, isSessionSettling],
         () => {
           const outcome = addressableOutcome();
           if (outcome === undefined) return;
-          stop();
-          resolve(outcome);
+          end(outcome);
         }
       );
+      const end = (outcome: boolean): void => {
+        clearTimeout(timer);
+        stop();
+        pendingWaits.delete(end);
+        resolve(outcome);
+      };
+      pendingWaits.add(end);
     });
   }
 
-  /** Resolves once the list query has completed its first fetch. */
+  /**
+   * Resolves once the list query has completed its first fetch, or `false` at
+   * {@link READINESS_TIMEOUT_MS} if it never does — a list that never arrives
+   * must not leave the wait pending forever (the `client-address` sibling
+   * precedent). Tracked in `pendingWaits`, so `destroy()` disposes it.
+   */
   function whenListFetched(): Promise<boolean> {
     if (query.isFetched.value) return Promise.resolve(true);
 
     return new Promise<boolean>(resolve => {
+      const timer = setTimeout(() => end(false), READINESS_TIMEOUT_MS);
       const stop = watch(query.isFetched, fetched => {
         if (!fetched) return;
-        stop();
-        resolve(true);
+        end(true);
       });
+      const end = (outcome: boolean): void => {
+        clearTimeout(timer);
+        stop();
+        pendingWaits.delete(end);
+        resolve(outcome);
+      };
+      pendingWaits.add(end);
     });
   }
 

@@ -18,7 +18,7 @@
  * (`useModulePort.ts:113-119`) — STAFF is the signed drop FE-3137.
  */
 
-import { useBillingSettingsManager } from "@upmind-automation/headless";
+import { useBillingSettings } from "@upmind-automation/headless";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ export const CLIENT_BILLING_SETTINGS_SCENARIO = "client_billing_settings";
 
 export default {
   key: CLIENT_BILLING_SETTINGS_SCENARIO,
-  useMutate: useBillingSettingsManager,
+  useMutate: useBillingSettings,
   // `useList` is OMITTED — the module ships no collection.
   // `identifier` is OMITTED — identity is `id` (`DEFAULT_ROW_IDENTIFIER`,
   // `scenario.types.ts:48`).

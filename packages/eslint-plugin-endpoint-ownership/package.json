@@ -1,0 +1,23 @@
+{
+  "name": "@upmind-automation/eslint-plugin-endpoint-ownership",
+  "version": "1.0.0",
+  "description": "ESLint rule pinning brand-owned and system-owned endpoints to the brand/system modules; every other module reads them through useBrand()/useSystem().",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test:unit": "node --test endpoint-ownership.test.mjs"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.50.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "eslint": "9.39.2"
+  }
+}

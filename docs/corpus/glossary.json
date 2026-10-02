@@ -231,11 +231,11 @@
         "kind": "domain",
         "referents": [
           {
-            "id": "@upmind-automation/headless!useOrder",
+            "id": "@upmind-automation/headless!useInvoice",
             "type": "symbol"
           },
           {
-            "id": "@upmind-automation/headless!OrderContext",
+            "id": "@upmind-automation/headless!UseInvoiceContext",
             "type": "symbol"
           }
         ],
@@ -280,10 +280,6 @@
         "referents": [
           {
             "id": "@upmind-automation/headless!usePersonalDetails",
-            "type": "symbol"
-          },
-          {
-            "id": "@upmind-automation/headless!usePersonalDetailsManager",
             "type": "symbol"
           },
           {
@@ -490,12 +486,6 @@
       "path": "packages/headless/src/modules/invoices/invoices.types.ts",
       "title": "Invoice"
     },
-    "@upmind-automation/headless!OrderContext": {
-      "kind": "symbol",
-      "module": "orders",
-      "path": "packages/headless/src/modules/orders/order.types.ts",
-      "title": "OrderContext"
-    },
     "@upmind-automation/headless!PaymentContext": {
       "kind": "symbol",
       "module": "payment",
@@ -519,6 +509,12 @@
       "module": "product",
       "path": "packages/headless/src/modules/product/product.types.ts",
       "title": "PromotionModel"
+    },
+    "@upmind-automation/headless!UseInvoiceContext": {
+      "kind": "symbol",
+      "module": "invoices",
+      "path": "packages/headless/src/modules/invoices/useInvoice.context.ts",
+      "title": "UseInvoiceContext"
     },
     "@upmind-automation/headless!useAccount": {
       "kind": "symbol",
@@ -658,12 +654,6 @@
       "path": "packages/headless/src/modules/invoices/useInvoice.ts",
       "title": "useInvoice"
     },
-    "@upmind-automation/headless!useOrder": {
-      "kind": "symbol",
-      "module": "orders",
-      "path": "packages/headless/src/modules/orders/useOrder.ts",
-      "title": "useOrder"
-    },
     "@upmind-automation/headless!usePayment": {
       "kind": "symbol",
       "module": "payment",
@@ -681,12 +671,6 @@
       "module": "client-personal-details",
       "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
       "title": "usePersonalDetails"
-    },
-    "@upmind-automation/headless!usePersonalDetailsManager": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-      "title": "usePersonalDetailsManager"
     },
     "@upmind-automation/headless!useProductCatalogue": {
       "kind": "symbol",

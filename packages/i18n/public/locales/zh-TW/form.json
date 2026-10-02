@@ -91,6 +91,21 @@
     "label": "公司編號",
     "placeholder": "公司識別號碼"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "國家",
     "placeholder": "選擇國家"
@@ -106,6 +121,9 @@
     "label": "電子郵件",
     "placeholder": "姓名@email.com",
     "title": "新增電子郵件 | 更新電子郵件"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "訂單備註"

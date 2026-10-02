@@ -229,10 +229,11 @@ export function interceptBasketUpsells(
     }
 
     const response = await route.fetch(PROXY_FETCH);
-    let body: any;
-    try {
-      body = await response.json();
-    } catch {
+    let failed = false;
+    const body: any = await response.json().catch(() => {
+      failed = true;
+    });
+    if (failed) {
       await route.fulfill({ response });
       return;
     }
@@ -492,10 +493,11 @@ function ensureRouteRegistered(page: Page): RecommendationsMockState {
       }
 
       const response = await route.fetch(PROXY_FETCH);
-      let body: any;
-      try {
-        body = await response.json();
-      } catch {
+      let failed = false;
+      const body: any = await response.json().catch(() => {
+        failed = true;
+      });
+      if (failed) {
         await route.fulfill({ response });
         return;
       }

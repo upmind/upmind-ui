@@ -2,8 +2,9 @@
 /**
  * @module testing/fixtures
  * @description The package's RECORDINGS-ONLY entry — every module's committed
- * `__tests__/fixtures/*.json`, keyed by the module that owns them, and nothing
- * else. No `.feature`, no step catalog, no `@internal` kit, no integration
+ * `__tests__/fixtures/*.json` and its scenario recordings
+ * (`__tests__/scenarios/<scenario>/<NN>/*.json`), keyed by the module that
+ * owns them, and nothing else. No `.feature`, no step catalog, no `@internal` kit, no integration
  * setup.
  *
  * That separation is what this entry exists for (FE-3113). `./testing`
@@ -24,11 +25,23 @@
  * the vitest lanes and is inert in a process that is neither.
  */
 
-import { reduce, set } from "lodash-es";
+import { kebabCase, padStart, reduce, set } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const FIXTURE = /\/modules\/([^/]+)\/__tests__\/fixtures\/(.+)\.json$/;
+
+const SCENARIO_FIXTURE =
+  /\/modules\/([^/]+)\/__tests__\/scenarios\/([^/]+)\/(\d+)\/(.+)\.json$/;
+
+// -----------------------------------------------------------------------------
+
+/** A scenario's folder name — its `.feature` title, kebab-cased (FE-3145). */
+export const scenarioSlug = (scenario: string): string => kebabCase(scenario);
+
+/** A step's folder name — its 1-based place in the scenario, two digits. */
+export const stepKey = (index: number): string =>
+  padStart(String(index + 1), 2, "0");
 
 /**
  * Each module's recorded bodies, keyed module -> fixture name -> loader. Two
@@ -49,4 +62,32 @@ export const recordedBodies: Record<
     return moduleName ? set(bodies, [moduleName, name], load) : bodies;
   },
   {} as Record<string, Record<string, () => Promise<unknown>>>
+);
+
+/**
+ * Each module's SCENARIO recordings (FE-3145), keyed module -> scenario slug
+ * -> step key -> fixture name -> loader: the answers each step of each
+ * scenario recorded, from `__tests__/scenarios/<scenario>/<NN>/*.json`. Lazy
+ * for the same reason {@link recordedBodies} is. A step that made no request
+ * holds no fixture, so it has no key here.
+ */
+export const scenarioRecordings: Record<
+  string,
+  Record<string, Record<string, Record<string, () => Promise<unknown>>>>
+> = reduce(
+  import.meta.glob<unknown>("../modules/*/__tests__/scenarios/*/*/*.json", {
+    import: "default"
+  }),
+  (recordings, load, path) => {
+    const [, moduleName, scenario, step, name] =
+      SCENARIO_FIXTURE.exec(path) ?? [];
+
+    return moduleName
+      ? set(recordings, [moduleName, scenario, step, name], load)
+      : recordings;
+  },
+  {} as Record<
+    string,
+    Record<string, Record<string, Record<string, () => Promise<unknown>>>>
+  >
 );

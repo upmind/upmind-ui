@@ -1,0 +1,37 @@
+# Negative-control mutant 6 — offer-empty (FE-3206)
+#
+# Mutation: count and offer with no allowed plan: drop the allowed-plans clause of the gate and of the read inputs.
+# Spec it must turn red: "... not offered when my plan allows no change".
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -404,7 +404,6 @@
+     !acceptedRequest &&
+     !hasAutoExpireEnabled(product) &&
+     product.productType === ProductTypes.SINGLE_PRODUCT &&
+-    !isEmpty(product.allowedMigrations) &&
+     includes(
+       [ContractStatusCodes.ACTIVE, ContractStatusCodes.SUSPENDED],
+       code
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.ts b/packages/headless/src/modules/contract-product/useContractProduct.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.ts
+@@ -134,11 +134,7 @@
+     const ids = compact(
+       map(product?.allowedMigrations, "migration_product_id")
+     );
+-    if (
+-      !ids.length ||
+-      !product?.contractCurrencyId ||
+-      !product.contractAccountId
+-    )
++    if (!product?.contractCurrencyId || !product.contractAccountId)
+       return null;
+ 
+     return {

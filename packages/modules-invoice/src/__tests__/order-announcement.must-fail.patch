@@ -1,0 +1,28 @@
+# Negative control — the order page announces into a copy of its own. Its
+# `show()` and `dismiss()` go to page-local state, the shape of the app and
+# `client-vue` copies this batch deletes, so the shell's bar — which draws
+# `foundation`'s one announcement — never hears a paid order and never loses a
+# stale banner.
+#
+# Intended RED:
+#   packages/modules-invoice/src/__tests__/order-announcement.int.test.ts
+#     "puts a paid order's success banner on the announcement the bar draws"
+#     "takes a left-over banner down for an order with nothing to announce"
+#     "takes its banner down when the order page goes away"
+
+diff --git a/packages/modules-invoice/src/components/Order.vue b/packages/modules-invoice/src/components/Order.vue
+--- a/packages/modules-invoice/src/components/Order.vue
++++ b/packages/modules-invoice/src/components/Order.vue
+@@ -293,8 +293,10 @@
+ } satisfies InvoicePaymentChallenge);
+ provide("orderInvoice", orderData);
+ 
+-const { show: showAnnouncement, dismiss: dismissAnnouncement } =
+-  useAnnouncement();
++const privateAnnouncements: unknown[] = [];
++const showAnnouncement = (options: unknown) =>
++  privateAnnouncements.push(options);
++const dismissAnnouncement = () => privateAnnouncements.splice(0);
+ 
+ // Component-level guest-registration state, derived from the order's headless
+ // meta plus session + props. isGuestRegister → the action CTA routes to a

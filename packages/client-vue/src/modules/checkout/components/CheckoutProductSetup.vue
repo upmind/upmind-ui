@@ -57,10 +57,10 @@ import { Button } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 // --- internal
+import { Section } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
 import { useProductSetup } from "@upmind-automation/headless";
 // --- components
-import Section from "../../../components/section/Section.vue";
-import { isMobile } from "../../../composables/isMobile";
 import ProductSetupForm from "../../product-setup/components/ProductSetupForm.vue";
 import { setupContinueVariants, setupProductNameVariants } from "../variants";
 import CheckoutSetupSkeleton from "./CheckoutSetupSkeleton.vue";

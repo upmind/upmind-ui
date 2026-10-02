@@ -1,0 +1,35 @@
+# Negative-control mutant — a pending contract is offered no SCHEDULE_FUTURE option (W1/B2, AC-11)
+#
+# Scenario it must flip: research.md:1496 names five eligibility conditions for
+#   booking a future cancellation: product cancellation, NOT a pending contract,
+#   no hard request, no existing scheduled request, an anniversary anchor. The
+#   cancellation form's `option` enum is built from `cancellationOptions`, so the
+#   pending exclusion that governs what a page can offer lives on that pure
+#   selector — NOT on the useContractProduct.meta.ts convenience flag the earlier
+#   version mutated, which no schema reads (that is why it was inert).
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   "AC-11 a product whose contract is pending is not offered SCHEDULE_FUTURE in
+#   the cancellation form" — it overrides the recorded product's contract to
+#   PENDING, opens the cancellation form, and asserts the schema's `option.enum`
+#   does NOT contain SCHEDULE_FUTURE. Dropping `!isPending` from the
+#   SCHEDULE_FUTURE branch pushes that option for the pending product, so the
+#   enum now contains it and `expect(options).not.toContain(SCHEDULE_FUTURE)`
+#   flips.
+# Mutation: drops the `!isPending` guard from `cancellationOptions`'
+#   SCHEDULE_FUTURE branch, offering a future-cancellation booking on a pending
+#   contract.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -140,7 +140,7 @@
+   // HARD — request immediate cancellation (ADR-25, ADR-27).
+   options.push(ContractProductCancelOption.HARD);
+   // SCHEDULE_FUTURE — needs a live subscription and an anniversary anchor.
+-  if (!isPending && !!anniversaryAnchor(product)) {
++  if (!!anniversaryAnchor(product)) {
+     options.push(ContractProductCancelOption.SCHEDULE_FUTURE);
+   }
+ 

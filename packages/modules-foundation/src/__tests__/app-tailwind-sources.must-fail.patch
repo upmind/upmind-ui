@@ -1,0 +1,19 @@
+# Negative control — the cart drops the auth package's styles entry. The
+# organisms still mount, but Tailwind never scans `modules-auth`, so the sign-in
+# pages render with their utility classes missing.
+#
+# Intended RED:
+#   packages/modules-foundation/src/__tests__/app-tailwind-sources.test.ts
+#     "'apps/cart' > reaches packages/modules-auth's sources"
+
+diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
+--- a/apps/cart/src/main.css
++++ b/apps/cart/src/main.css
+@@ -7,7 +7,6 @@
+ /* client-vue's own layer: the max-w-app utilities and the .prose font rule. */
+ @import "@upmind-automation/client-vue/styles";
+ 
+-@import "@upmind-automation/auth/styles";
+ @import "@upmind-automation/client/styles";
+ @import "@upmind-automation/foundation/styles";
+ @import "@upmind-automation/invoice/styles";

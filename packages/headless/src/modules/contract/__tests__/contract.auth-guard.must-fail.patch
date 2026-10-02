@@ -1,0 +1,30 @@
+# Negative-control mutant — contract auth guard (AC-16)
+#
+# RE-CUT (FE-3206): `createContractServices`'s return object gained a `lookups:`
+#   member between `refresh,` and `...scopedServices`, which shifted the trailing
+#   context. The mutation is unchanged — only the hunk is rebased.
+#
+# Scenario it must flip: contract.feature >
+#   "Nothing is read or changed on my contracts without an authenticated client session"
+# Test that goes red: contract.auth-guard.int.test.ts >
+#   "AC-16 never reports the collection ready while the session never authenticates"
+#   (expects `isReady()` to resolve `false`; with the guard gone the collection
+#   reports itself addressable, waits on a list fetch that never fires, and the
+#   race resolves "never-settled" instead).
+# Mutation: `createContractServices` hardwires `isAvailable` to `true` — the
+#   session predicate every request gate and `isReady()` read is removed.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.services.ts b/packages/headless/src/modules/contract/contract.services.ts
+--- a/packages/headless/src/modules/contract/contract.services.ts
++++ b/packages/headless/src/modules/contract/contract.services.ts
+@@ -311,7 +311,7 @@ export const createContractServices = (
+   return {
+     queryKey,
+     clientId,
+-    isAvailable: computed(() => isAuthenticated.value && !!clientId.value),
++    isAvailable: computed(() => true),
+     loadList: () => loadList(scopeContext),
+     refresh,
+     lookups: {

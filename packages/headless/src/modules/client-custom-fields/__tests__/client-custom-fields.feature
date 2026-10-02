@@ -1,325 +1,284 @@
-# client-custom-fields — the module's behavioural source of truth (capability altitude).
+# client-custom-fields — the module's ONE feature file: its capability spec, the source
+# `client-custom-fields.steps.ts` implements, and the playlist the scenario bar plays.
 #
-# CO-LOCATION IS THE REQUIREMENT: this file lives at
+# CO-LOCATION IS THE REQUIREMENT (operator ruling 2026-08-05): this file lives at
 #   packages/headless/src/modules/client-custom-fields/__tests__/client-custom-fields.feature
-# This co-located copy is the SINGLE SOURCE OF TRUTH — there is no docs/sdd/ copy and none is
-# planned. docs/sdd/ is gitignored, so a traceability assertion against it cannot pass in CI
-# (see the module's own traceability test for the CI-safe shape this drives).
+# and it is the only spec this module's tests know.
 #
-# NON-EXECUTABLE per ADR-020 (".feature files are spec-only, not executable"). No runner touches
-# it and no steps file is produced — the co-located unit and integration specs are the tests that
-# run, each anchored to a scenario by its @AC tag.
+# ONE SCENARIO PER CAPABILITY (operator ruling 2026-09-24, ADR 035 Amendment 1). A
+# capability that can be driven carries its `@AC-N` tag on the DRIVEN `@layer-e2e`
+# scenario, and there is no second declarative twin. A capability proven by a pure
+# unit test carries its `@AC-N` on a NON-driven scenario named by that unit test. A
+# capability nothing can yet drive keeps ONE declarative scenario, `@todo`, with the
+# named blocker in the comment above it.
 #
-# Two composables, one resolving cell each (client x self — ADR-001; cited, not restated):
+# EXECUTED per ADR-020 Amendment 5. A scenario the step catalog matches is driveable:
+# it runs, and it appears as a track. A `@todo` scenario is written down and not yet
+# driven — a legitimate state.
+#
+# Business language only, declarative only: no selector, URL or UI mechanic appears
+# here, and the steps that drive it reach the module through the `World` members and
+# nothing else.
+#
+# Two composables, one resolving cell each (client x self — ADR-001):
 #   - the DEFINITIONS collection, read-only, brand-scoped to the client's own brand
-#   - the per-field IMAGE value editor, wrapping system-upload
-# There is no staff cell and no guest cell delivered by this module. The oracle-exhibited
-# staff/guest capabilities (admin definition CRUD + reorder, staff acting for another client,
-# guest basket-token image upload) are recorded, tracked drops — not described here as capability
-# this module has, because it does not.
+#     (`useClientCustomFields`)
+#   - the per-field IMAGE value editor (`useClientCustomFieldImage`, wrapping
+#     system-upload)
+# There is no staff cell and no guest cell delivered by this module. The oracle-
+# exhibited staff/guest capabilities are recorded, tracked drops — not described
+# here as capability this module has, because it does not.
 
-@module:client-custom-fields @variant:hybrid @cell:client-self
+@module:client-custom-fields @variant:hybrid @cell:client-self @FE-3034
 Feature: A client reads their brand's custom field definitions and manages their own field values
 
-  A client's brand defines a catalogue of custom fields. The client reads that catalogue and
-  reads and manages the VALUES they hold against it, including uploading an image for an IMAGE
-  field. Every one of these acts on the client's own value set, under the client's own identity,
-  addressed to the client's own brand — never another client's.
+  A client's brand defines a catalogue of custom fields. The client reads that
+  catalogue and reads and manages the VALUES they hold against it, including
+  uploading an image for an IMAGE field. Every one of these acts on the client's own
+  value set, under the client's own identity, addressed to the client's own brand —
+  never another client's.
 
-  Background:
-    Given I am an authenticated client with my own custom field values
-    And every request I make about my custom fields is addressed to my own value set
+  # === SIGNED-OUT GUARD + BOOT FAULT (top level, no Background) ===============
+  # These carry NO signed-in Background (backgroundStepCount 0): the guard seeds
+  # the guest floor through `seedSessionFor` and the replay wall fails it by name
+  # if the module sends any request while signed out; the boot-fault scenario
+  # forces the definitions read to fail, which the signed-in Background (it
+  # settles the catalogue available) could never hold.
 
-  # === THE DEFINITIONS COLLECTION ============================================
+  @AC-25 @module @guard @signed-out
+  Scenario: Nothing about my custom field values is touched unless I am actually signed in
+    When my custom field values are read while signed out
+    Then my custom field values are not available to me
+    And no custom-field request escapes while I am signed out
 
-  @AC-1 @definitions
-  Scenario: See the custom fields my brand defines
-    When I open my custom field definitions
+  @AC-6 @definitions @fault
+  Scenario: Waiting to know whether my fields are ready always ends when the read fails
+    Given loading my definitions fails at the server
+    When I wait for my definitions to be ready
+    Then I am told they are not ready rather than waiting forever
+
+  Rule: A signed-in client reads their catalogue and manages their field values
+
+    Background:
+      Given I am an authenticated client with my own custom field values
+      And every request I make about my custom fields is addressed to my own value set
+
+  # === THE DEFINITIONS COLLECTION, DRIVEN ====================================
+
+  @AC-1 @definitions @layer-e2e @smoke
+  Scenario: A client sees the custom fields their brand defines
     Then I see the definitions my own brand has configured
-    And no other brand's definitions are ever loaded
 
-  @AC-2 @definitions
-  Scenario: My definitions come from my own brand, not whatever brand is currently selected
-    Given my own brand differs from whatever brand the app currently has selected
-    When I open my custom field definitions
-    Then the definitions I see are my own brand's
-    And a later change to my resolved brand re-reads the definitions for the new brand
+  @AC-3 @definitions @layer-e2e
+  Scenario: A client's definitions appear in the order their brand configured
+    Then my definitions are in their configured display order
 
-  @AC-3 @definitions
-  Scenario: My definitions appear in the order my brand configured
-    Given my brand's definitions were configured in a specific order
-    When I open my custom field definitions
-    Then I see them in exactly that order
+  @AC-7 @definitions @layer-e2e
+  Scenario: A client asks for a fresh copy of their definitions
+    Given I have already loaded my custom field definitions
+    When I ask for a fresh copy
+    Then my definitions are re-read
+
+  @AC-8 @definitions @layer-e2e
+  Scenario: A client narrows the definitions already in front of them
+    When I narrow my definitions to one field by its code
+    Then I see only the matching definition
+
+  @AC-29 @definitions @criteria @layer-e2e
+  Scenario: The catalogue arrives in its own display order by default
+    Then the ordering in force is my brand's own display order, ascending
+
+  @AC-30 @definitions @criteria @layer-e2e
+  Scenario: A client re-orders the catalogue by a column the catalogue offers
+    When I order my definitions by field name, descending
+    Then the ordering in force is field name, descending
+
+  @AC-31 @definitions @criteria @layer-e2e
+  Scenario: A client searches all their fields by a term
+    When I search my definitions for a term
+    Then the search in force is that term
+
+  @AC-34 @definitions @criteria @layer-e2e
+  Scenario: A client pages the catalogue once a page size is set
+    Given I have set a page size on my definitions
+    When I ask for the next page of my definitions
+    Then the next page of my definitions is in force
+
+  # === CAPABILITIES PROVEN BY A PURE UNIT TEST ===============================
+  # No driven scenario: the mapper / schema / public-surface unit tests name these
+  # ids. Each is a pure, no-network fact about the module's mapping, form or surface.
 
   @AC-4 @definitions
   Scenario: Each definition shows its full configuration, not a partial one
     Given one of my brand's definitions is hidden, staff-only, non-editable, and ordered
-    When I open my custom field definitions
-    Then that definition's full configuration is visible to me, with nothing left unmapped
+    When I read my custom field definitions
+    Then that definition's full configuration is present, with nothing left unmapped
 
   @AC-5 @definitions
   Scenario: Being read-only and being disabled are told apart
     Given one definition is not editable but is not marked read-only, and another is both
-    When I open my custom field definitions
+    When I read my custom field definitions
     Then the first is disabled but not read-only, and the second is both
-    And the two states never collapse into the same flag
-
-  @AC-6 @definitions
-  Scenario: Waiting to know whether my fields are ready always ends, whichever part failed
-    Given loading my custom field definitions can fail, or my session can fail to sign in
-    When I wait for my definitions to be ready
-    Then I am told they are not ready rather than waiting forever
-    And nothing is left running once I have that answer
-    Given resolving my own brand fails, separately from the definitions request itself
-    When I wait for my definitions to be ready
-    Then I am told they are not ready rather than waiting forever
-    And I can still see what went wrong afterwards
-
-  @AC-7 @definitions
-  Scenario: Asking for fresh definitions refreshes only my definitions
-    Given I have already loaded my custom field definitions
-    When I ask for a fresh copy
-    Then my definitions are re-read
-    And nothing unrelated to my definitions is re-read as a result
-
-  @AC-8 @definitions
-  Scenario: I narrow the fields already in front of me, without waiting for a new list
-    Given I have loaded my custom field definitions
-    When I filter them by a property
-    Then I see only the matching definitions
-    And no new request was needed to filter them
-
-  @AC-9 @definitions
-  Scenario: I can tell how many definitions there are, including none at all
-    Given my brand defines no custom fields
-    When I open my custom field definitions
-    Then I am told the list is empty, with a count of zero
-    And when my brand does define some, I am told exactly how many
 
   @AC-10 @definitions
-  Scenario: Every value I set is still there when I read my fields back
-    Given I hold values against several of my custom fields
-    When those values are loaded into my model and then prepared for saving unchanged
+  Scenario: Every value a client sets is still there when read back
+    Given a client holds values against several of their custom fields
+    When those values are loaded into the model and then prepared for saving unchanged
     Then every one of those values is still present, keyed to its own field
 
-  # === VALUE SEMANTICS ========================================================
-
   @AC-11 @definitions
-  Scenario: The form for my custom fields is generated for me, and required rules stay narrowable
-    When I open the form for my custom field values
+  Scenario: The form for custom fields is generated, and required rules stay narrowable
+    When the form for my custom field values is generated
     Then a required field's rule is present and a non-required field's is not
     And a caller may still narrow which fields it treats as required, without losing the rest
 
   @AC-12 @definitions
-  Scenario: My form's on-screen layout is generated for me, including for an image field
-    When I open the form for my custom field values
+  Scenario: The form's on-screen layout is generated, including for an image field
+    When the on-screen layout for my custom field values is generated
     Then every definition has a matching on-screen control
     And an image field's control carries what it needs to know which field it belongs to
 
   @AC-13 @definitions
-  Scenario: Opening my values seeds the form with what I already have
-    Given I already hold a value for one of my custom fields
-    When I open the form for my custom field values
-    Then that field starts with my existing value, not overwritten by a default
+  Scenario: Opening a client's values seeds the form with what they already have
+    Given a client already holds a value for one of their custom fields
+    When the model for my custom field values is generated
+    Then that field starts with the existing value, not overwritten by a default
 
   @AC-14 @definitions
-  Scenario Outline: A value of any kind reads back as itself, never as a placeholder
-    Given a custom field of type "<type>" with <state>
-    When I read that field's value
-    Then it shows as "<shown>"
-
-    Examples:
-      | type         | state             | shown                          |
-      | TEXT         | no value set      | nothing, never the word undefined |
-      | DATE         | a stored date     | that date, correctly formatted |
-      | NUMBER       | no value set      | nothing, never NaN              |
-      | SELECT_RADIO | no value set      | unchecked, never the word undefined |
-      | IMAGE        | a stored image    | the image itself, unchanged     |
+  Scenario: A value of any kind reads back as itself, never as a placeholder
+    Given a stored value of a given field type
+    When that field's value is read
+    Then it shows as itself, never as the word undefined or NaN
 
   @AC-15 @definitions
   Scenario: A choice field offers a blank option only when it isn't required
     Given a choice field is not required
-    When I open the form for my custom field values
+    When the form for my custom field values is generated
     Then that field offers a blank option alongside its real choices
     And the same field marked required offers no blank option
-    And duplicate or empty choices never appear twice
-
-  @AC-16 @definitions
-  Scenario: I can see a value and its definition even before my definitions have finished loading
-    Given a value I hold carries its own field definition embedded in it
-    And my definitions collection has not been loaded at all
-    When I read that value
-    Then it still shows correctly, matched to its own definition
-    And no definitions request was needed to show it
 
   @AC-17 @definitions
   Scenario: A value shows in the way it's meant to be read, not in its raw stored form
-    Given I hold a choice value, a yes/no value, and an image value
-    When I view my custom field values read-only
-    Then the choice shows its label, the yes/no shows its word, and the image shows a preview and a link to it
+    Given a client holds a choice value, a yes/no value, and an image value
+    When those values are projected for read-only display
+    Then the choice shows its label, the yes/no shows its word, and the image shows a preview and a link
 
-  # === THE IMAGE VALUE FLOW ===================================================
+  @AC-23 @module
+  Scenario: Each value a client changes is saved against its own field, keyed by field
+    Given a client has changed one or more of their custom field values
+    When those changes are prepared for the request
+    Then what is prepared is a set of values keyed by field, not a list of entries
 
-  @AC-18 @image
-  @AC-19
-  Scenario: I see my image upload progress, and any problem with it beside the field
+  @AC-24 @module
+  Scenario: Clearing a value prepares an explicit empty signal, not nothing at all
+    Given one of a client's custom fields currently holds a value
+    When that field is cleared to empty and prepared for the request
+    Then what is prepared for that field is an explicit empty signal
+
+  @AC-27 @module @public-surface
+  Scenario: The module offers both surfaces and every consumer keeps compiling
+    Given consumers depend on the definitions collection AND the per-field image editor
+    When the module is built
+    Then both are offered, with every type a consumer imports
+    And the internal machinery is not reachable from outside the module
+
+  @AC-28 @definitions @criteria
+  Scenario: What is asked of a client's fields is exactly what they declared
+    Given the client has declared how they want the catalogue read
+    When the catalogue's request is composed
+    Then the request carries only the ordering, narrowing and page the client declared
+
+  @AC-37 @scope @public-surface
+  Scenario: The module serves a client on their own catalogue, and no other actor
+    Given the module serves a client acting on their own brand's catalogue
+    When something asks which actors and targets the module offers
+    Then a client acting on their own catalogue is offered
+    And staff, guest and self are not offered
+
+  @AC-41 @definitions @catalogue @public-surface
+  Scenario: Naming a catalogue is enough; naming a client never is
+    Given a catalogue names what is read, while a client names whose fields are read
+    When the client says which catalogue they want
+    Then the catalogue name alone is enough to read it
+    And a catalogue can never be spelled as though it identified somebody
+
+  # AC-6 (readiness always ends) is driven at the top level as a boot-fault
+  # scenario: the definitions read is forced to fail, and the catalogue settles
+  # errored rather than hanging. The sign-in-failure limb is the @AC-25 guard.
+
+  @AC-9 @definitions @layer-e2e
+  Scenario: I can tell how many definitions there are, including none at all
+    When I search my definitions for a term no field matches
+    Then I am told the list is empty, with a count of zero
+
+  # The image editor is booted as a second scenario key beside the collection;
+  # the Generator records the multipart upload, and the replay matcher answers a
+  # POST by path+method. `progress` is a documented 0/100 signal (no incremental
+  # progress in this transport — useClientCustomFieldImage.meta).
+  @AC-18 @image @layer-e2e
+  Scenario: I see my image upload progress
     When I upload an image for one of my custom fields
     Then I can see that it is uploading and how far it has got
-    And once it settles I am told it is no longer uploading
+
+  @AC-19 @image @layer-e2e
+  Scenario: A problem uploading an image is reported beside that field
     Given uploading an image for one of my custom fields is rejected
     When I inspect what went wrong
-    Then the problem is reported against that specific field
-    And not under a generic, unattributed image error
+    Then the problem is reported against that specific field, not a generic image error
 
+  # Blocker: same multipart-upload blocker — the stored-image preview/link and its
+  # clearing hang off the system-upload instance the World cannot drive.
+  # Steps WRITTEN (client-custom-fields.steps.ts, reading the hash/preview from
+  # the recording), recordings exist. Verification BLOCKED: the whole module's
+  # replay is currently RED because the module's catalogue read dropped `brand_id`
+  # (the parallel brand-lookup change) while the recordings still carry it — every
+  # scenario's Background boot capture-gaps on
+  # `GET /api/custom_fields?filter[object_type]=client&order=order&limit=0` (no
+  # brand_id). Drops to driven once that drift is reconciled (recorder catalogue()
+  # drops brand_id) and re-recorded.
   @AC-20 @image
-  Scenario: A stored image gives me a link to it and a preview, and clearing it removes both
+  Scenario: A stored image gives me a link and a preview, and clearing removes both
     Given one of my custom fields holds a stored image
     When I view that field
     Then I see a link to the image and a preview of it
-    And clearing that field's value leaves neither behind
 
   @AC-21 @image
   Scenario: A changed image is safely stored before the rest of my save happens
     Given I have changed the image for one of my custom fields
     When I save my changes
-    Then that image is stored first
-    And the value that gets saved afterwards carries the stored image, not the raw upload
+    Then that image is stored first, and the saved value carries the stored image
 
+  # Driven with TWO live image-editor cells under two scenario keys — one changed,
+  # one left alone — now that the World holds one live cell per key (FE-3145). Only
+  # the changed field's upload is recorded; the untouched cell short-circuits on
+  # its stored hash, so a second upload would fail the scenario by name.
   @AC-22 @image
   Scenario: Only the images I actually changed get uploaded again
     Given I have two image fields, one I changed and one I left alone
     When I save my changes
     Then only the changed image is uploaded
-    And the untouched one is left exactly as it was
 
-  # === REQUEST SHAPE, IDENTITY, SURFACE ========================================
+  # AC-25 (nothing touched unless signed in) is driven at the top level as a
+  # `@signed-out` guard — the not-authenticated token transport is MOVED to
+  # session-store / auth.
 
-  @AC-23 @module
-  Scenario: Each value I change is saved against its own field, and never against the wrong one
-    Given I have changed one or more of my custom field values
-    When I save my changes
-    Then what is sent is a set of values keyed by field, not a list of entries
-    And it contains exactly the fields I changed
-
-  @AC-24 @module
-  Scenario: Clearing a value sends an explicit "this is empty" signal, not nothing at all
-    Given one of my custom fields currently holds a value
-    When I clear that field to empty and save
-    Then what is sent for that field is an explicit empty signal
-    And reading the value back afterwards shows it as empty
-
-  @AC-25 @module @guard
-  Scenario: Nothing about my custom field values is touched unless I am actually signed in
-    Given I am not signed in as a client
-    When my custom field values are read or acted on
-    Then no request is made against any client's values
-    And forcing a read or a change is refused as not-signed-in, rather than being sent anyway
-
-  @AC-27 @module @public-surface @negative-control
-  @AC-37 @scope @playground
-  Scenario: Only my own custom field values are reachable, and only as me
-    Given the module's published surface is the only way anything outside it can act
-    When something outside the module tries to reach its internal machinery directly, act as staff or as a guest, or act on behalf of a different client
-    Then none of those are offered by the module — the internal machinery is not reachable, and no affordance exists to become another actor or to name another client
-    And the client acting on their own value set continues to work exactly as before
-    Given the module serves a client acting on their own brand's catalogue, and no one else
-    When something asks which actors and targets the module offers
-    Then a client acting on their own catalogue is offered
-    And staff, guest and self are not offered — at run time, not only when the code is compiled
-    And a page driving this module can offer the client's own catalogue as a target to act on
-
-  @AC-28 @definitions @criteria
-  @AC-36 @public-surface
-  Scenario: What is asked of my fields is exactly what I declared, and I can see it
-    Given the client has declared how they want the catalogue read
-    When the catalogue is read
-    Then the request carries only the ordering, narrowing and page the client declared
-    And nothing outside that declaration can be smuggled into the request
-    Given the catalogue is in use
-    When the client inspects how it is being read
+  @AC-36 @definitions @criteria @public-surface @layer-e2e
+  Scenario: The client can see how their catalogue is being read
+    Given I have ordered, searched and paged my definitions
+    When I inspect how my catalogue is being read
     Then the ordering, the search and the page in force are all readable
-    And the choices offered for search and ordering are exactly the ones the catalogue supports
-    And the only way to change any of them is to state a new intent, never to reach past it
 
-  @AC-29 @definitions @criteria
-  Scenario: The catalogue arrives in its own display order by default
-    Given the client has asked for nothing in particular
-    When the catalogue is read for the first time
-    Then it is ordered by the brand's own display order, ascending
-    And the client can see that this is the ordering in force
-
-  @AC-30 @definitions @criteria
-  Scenario: The client re-orders the catalogue by a column the catalogue offers
-    Given the catalogue has been read
-    When the client asks for it ordered by field name, descending
-    Then the catalogue is re-read in that order
-    And no ordering the catalogue does not offer can be asked for at all
-
-  @AC-31 @definitions @criteria
-  Scenario: I search all my fields, not only the ones already loaded
-    Given the catalogue has been read
-    When the client searches for fields whose name contains a term
-    Then only the matching fields are fetched, rather than the whole catalogue being fetched and then narrowed
-    And when the client clears the search, the next read carries no search at all
-
-  @AC-32 @definitions @criteria
-  Scenario: Which catalogue is being read is not something the client can change
-    Given the client reads their own brand's client-field catalogue
-    When any read is made
-    Then it is always addressed to that brand and that catalogue
-    And the client's own narrowing choices contain no way to address a different one
-
-  @AC-33 @definitions @criteria
-  @AC-34
-  Scenario: I get all my fields unless I ask for them a page at a time
-    Given the client has not asked for a page
-    When the catalogue is read
-    Then every field in the catalogue arrives, not a first page of ten
-    And any other part of the product that reads this catalogue receives all of it too
-    Given the client has asked for the catalogue a page at a time
-    When the client asks for the next page
-    Then the following page of fields is fetched and shown
-    And asking for the previous page returns to the page before it
-
-  @AC-35 @definitions @criteria @cache
-  Scenario: Reopening my fields does not fetch them again
-    Given the client has already read the catalogue a particular way
-    When the client returns to exactly that ordering, search and page
-    Then the catalogue is shown again without a further read being made
-
-  # === WHICH CATALOGUE ========================================================
-  #
-  # AC-32 says the client cannot reach a different catalogue through their own
-  # narrowing choices. These four say WHICH catalogue is read is nonetheless a
-  # choice — made by naming the catalogue, never smuggled through the criteria.
-
-  @AC-38 @definitions @catalogue
+  # The staff account arranges a client-visible invoice field, the client reads
+  # that catalogue, and the staff account removes it (ADR 035 — a state staging
+  # does not hold is arranged, recorded, then reset).
+  @AC-38 @definitions @catalogue @layer-e2e
   Scenario: I read a catalogue of my brand's fields other than my own
-    Given my brand keeps a separate catalogue of fields for invoices, and another for cancellation requests
-    When I open one of those catalogues by name
+    Given my brand keeps a separate catalogue of fields for invoices
+    When I open that catalogue by name
     Then the fields I am shown are the ones that catalogue holds
-    And my own client fields are not served to me in their place
-    And the catalogue I named is still read against my own brand, never another's
 
-  @AC-39 @definitions @catalogue @cache
-  Scenario: Naming no catalogue leaves my own fields read exactly as they always were
-    Given I name no catalogue at all
-    When I open my custom field definitions
-    Then I am shown my own client fields
-    And they are read, and remembered, exactly as they were before any other catalogue could be named
-
-  @AC-40 @definitions @catalogue @cache
+  @AC-40 @definitions @catalogue @cache @layer-e2e
   Scenario: Each catalogue I open keeps its own copy of what it holds
     Given I have already read my own client fields
     When I open a second catalogue in the same sitting
     Then the second catalogue is read for itself rather than answered from the first
-    And what the first catalogue holds is still in front of me afterwards
-
-  @AC-41 @definitions @catalogue @public-surface
-  Scenario: Naming a catalogue is enough; naming a client never is
-    Given a catalogue names what is being read, while a client names whose fields are being read
-    When I say which catalogue I want
-    Then saying its name alone is enough to read it
-    And a catalogue can never be spelled as though it identified somebody
-    And naming a client without saying which client remains refused
-

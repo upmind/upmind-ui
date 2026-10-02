@@ -1,0 +1,20 @@
+Negative control for useContract.context.ts `validationErrors` (R37 B5).
+
+NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+  green under it — no driven scenario pins this behaviour yet.
+
+Mutation: drops the `validationErrors` member from the manager context
+factory.
+diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
+--- a/packages/headless/src/modules/contract/useContract.context.ts
++++ b/packages/headless/src/modules/contract/useContract.context.ts
+@@ -93,8 +93,5 @@ export function createContractContext(
+
+     /** Display title of the record. */
+-    title,
+-
+-    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+-    validationErrors: useContext<ErrorObject[]>(state, "error.data")
++    title
+   };
+ }

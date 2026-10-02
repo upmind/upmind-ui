@@ -1,0 +1,24 @@
+# Negative-control mutant 8 — start-status (FE-3206)
+#
+# Mutation: drop the status clause.
+# Spec it must turn red: the AC-26 unit spec, the change rule.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -405,10 +405,6 @@
+     !hasAutoExpireEnabled(product) &&
+     product.productType === ProductTypes.SINGLE_PRODUCT &&
+     !isEmpty(product.allowedMigrations) &&
+-    includes(
+-      [ContractStatusCodes.ACTIVE, ContractStatusCodes.SUSPENDED],
+-      code
+-    ) &&
+     !product.stagedImport &&
+     !product.proRataPending
+   );

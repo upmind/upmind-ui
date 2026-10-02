@@ -10,6 +10,8 @@
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
+import { captureGap } from "./fixture-handlers";
+import type { ReplayTiming } from "./fixture-handlers";
 import { buildHandlers } from "./msw-handlers";
 import type { HttpHandler } from "msw";
 import type { SetupServer } from "msw/node";
@@ -96,6 +98,57 @@ function unansweredRequestWall(): HttpHandler[] {
       return HttpResponse.error();
     })
   ];
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Starts ONE scenario (FE-3145): nothing answers but the wall. The module's
+ * shared `fixtures/` are dropped, so a request only a step's own fixtures can
+ * answer — anything else is a capture gap, answered with a network error and
+ * RECORDED, so the scenario fails naming the request rather than the check it
+ * broke.
+ *
+ * The wall is a RUNTIME handler, in front of the unit's shared fixtures, and
+ * each {@link replayStep} sits in front of the wall. So the `afterEach`
+ * `resetHandlers()` drops the wall and every step with it: the next test in
+ * the file starts on the shared fixtures again.
+ *
+ * @param server - The live MSW handle from {@link startReplayServer}.
+ * @returns The capture gaps this scenario has hit so far.
+ */
+export function startScenarioReplay(server: SetupServer | undefined): {
+  gaps: () => string[];
+} {
+  const gaps: string[] = [];
+
+  server?.use(
+    http.all("*", ({ request }) => {
+      gaps.push(captureGap(request));
+      console.error(`[MSW] ${captureGap(request)}`);
+      return HttpResponse.error();
+    })
+  );
+
+  return { gaps: () => [...gaps] };
+}
+
+/**
+ * Arms the fixtures ONE scenario step recorded, in front of every step before
+ * it. A request this step recorded gets this step's answer; one it did not
+ * record keeps the answer of the latest step that did — the state a scenario
+ * carries until a step changes it.
+ *
+ * @param server - The live MSW handle from {@link startReplayServer}.
+ * @param recordingsDir - The step's own fixtures directory.
+ * @param timing - When the step's answers are served; see `handlersFor`.
+ */
+export function replayStep(
+  server: SetupServer | undefined,
+  recordingsDir: string,
+  timing?: ReplayTiming
+): void {
+  server?.use(...buildHandlers({ recordingsDir, ...timing }));
 }
 
 // -----------------------------------------------------------------------------

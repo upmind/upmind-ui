@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/basket/products?limit=count&filter[billing_cycle_months|neq]=0&account_id=d0367942-4d0e-7109-92eb-3153698d582e&currency_id=3825d96e-763e-d091-3dc4-174825283406&filter[id]=47d73824-8507-9315-9e0b-81e642d59e06&filter[available_for_sales]=1&filter[clients_can_order]=1&filter[provision_blueprint.category.code|neq]=domain-names&order=order&with=image,images,prices,products_attributes,products_options,products_options.prices,category.top_category.top_category.top_category.top_category",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43a9fc7bedb33e5-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 10:01:07 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1F49FUVOohW94rSDaqMuHPPWYMxVxpjriCviHIDUfKEiYrrVlUHwUq2t3VF2jv1GMHOhqMo%2B7yvNs3bqaHilIsVTjxkXWkmIw%2FH5loLavsPA9yfTJr8tjr%2FaRQQv5czGQohz%2BRg%2FYg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "0"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": 0,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T10:01:06.917Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

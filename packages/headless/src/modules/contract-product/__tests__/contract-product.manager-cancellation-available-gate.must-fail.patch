@@ -1,0 +1,24 @@
+# Negative-control mutant — the cancellation flag refuses an unavailable product (AC-11)
+#
+# Scenario it must flip: contract-product.feature >
+#   "I am told whether the cancellation form is offered before I open it — a cancelled subscription"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then I am told the cancellation form is not offered" — `hasCancellationOptions`
+#   reads true on the cancelled product.
+# Mutation: `hasCancellationOptions` drops the `isAvailable` gate and reads the
+#   record predicate alone.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+index f450389bc..9cbbdcf14 100644
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -119,7 +119,6 @@ export function createContractProductMeta(
+      */
+     hasCancellationOptions: computed(
+       () =>
+-        isAvailable.value &&
+         !!contractProduct.value &&
+         !isEmpty(cancellationOptions(contractProduct.value))
+     ),

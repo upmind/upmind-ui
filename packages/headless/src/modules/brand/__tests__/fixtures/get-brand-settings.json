@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38c43ab1de0b7ca-DUB",
+      "cf-ray": "a43339a729fec479-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 06:09:31 GMT",
+      "date": "Wed, 30 Sep 2026 12:28:03 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=nV8C%2B2OB9REDfze44%2F8YeRDNrSk3%2FDzupnImfuYHLYUGuku2eldApWWOhZ4ndd%2BfYSREE%2F21xFDykh8IcQ%2FQgdlb1VO9UK17qx0EnkCtqL884YVTH2QWwZbsaphbl8xR794u9Gf9Dw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Sb9jmsxRPb%2Fw9GhWN3lvuFScNFUhrInpSU3XH5DAQxF%2BCZfxG47d23NUOOMJlfzfn1bUwtW16o1upeGvFkkByWQu0yRefxs3nLr%2Bs8lXO7wJfA%2F6zDxgGHcro8ofIx4wSU9PfUKCpA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -82,7 +82,7 @@
             "suffix": "",
             "code": "DZD",
             "created_at": "2022-09-28 14:40:15",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -94,7 +94,7 @@
             "suffix": "",
             "code": "AOA",
             "created_at": "2022-09-05 16:16:23",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -106,7 +106,7 @@
             "suffix": "",
             "code": "ARS",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -118,7 +118,7 @@
             "suffix": "",
             "code": "AUD",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -130,7 +130,7 @@
             "suffix": "",
             "code": "AZN",
             "created_at": "2024-05-07 08:18:06",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -142,7 +142,7 @@
             "suffix": "৳",
             "code": "BDT",
             "created_at": "2022-05-25 09:25:07",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -154,7 +154,7 @@
             "suffix": "BBD",
             "code": "BBD",
             "created_at": "2024-10-08 10:12:25",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -166,7 +166,7 @@
             "suffix": "",
             "code": "BOB",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -178,7 +178,7 @@
             "suffix": "",
             "code": "BRL",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -190,7 +190,7 @@
             "suffix": "",
             "code": "GBP",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -202,7 +202,7 @@
             "suffix": "BGN",
             "code": "BGN",
             "created_at": "2023-07-03 11:31:52",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -214,7 +214,7 @@
             "suffix": "",
             "code": "CAD",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -226,7 +226,7 @@
             "suffix": "",
             "code": "CVE",
             "created_at": "2024-01-02 12:34:08",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -238,7 +238,7 @@
             "suffix": "",
             "code": "KYD",
             "created_at": "2023-11-24 14:25:23",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -250,7 +250,7 @@
             "suffix": "FCFA",
             "code": "XAF",
             "created_at": "2020-06-17 14:17:52",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": false,
             "decimals": true,
             "manual": 0
@@ -262,7 +262,7 @@
             "suffix": "CLP",
             "code": "CLP",
             "created_at": "2022-09-05 16:16:23",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": false,
             "manual": 0
@@ -274,7 +274,7 @@
             "suffix": "",
             "code": "CNY",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -286,7 +286,7 @@
             "suffix": "",
             "code": "COP",
             "created_at": "2022-08-05 08:29:49",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -298,7 +298,7 @@
             "suffix": "",
             "code": "CRC",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -310,7 +310,7 @@
             "suffix": "Kč",
             "code": "CZK",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -322,7 +322,7 @@
             "suffix": "kr.",
             "code": "DKK",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -334,7 +334,7 @@
             "suffix": "",
             "code": "DOP",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -346,7 +346,7 @@
             "suffix": "",
             "code": "EGP",
             "created_at": "2023-04-11 08:28:30",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -358,7 +358,7 @@
             "suffix": "",
             "code": "ETB",
             "created_at": "2022-11-10 08:51:28",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -370,7 +370,7 @@
             "suffix": "",
             "code": "FJD",
             "created_at": "2022-05-30 11:27:01",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -382,7 +382,7 @@
             "suffix": "GEL",
             "code": "GEL",
             "created_at": "2025-01-29 17:06:31",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -394,7 +394,7 @@
             "suffix": "",
             "code": "GHS",
             "created_at": "2022-08-05 08:29:50",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -406,7 +406,7 @@
             "suffix": "",
             "code": "GTQ",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -418,7 +418,7 @@
             "suffix": "",
             "code": "HNL",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -430,7 +430,7 @@
             "suffix": "",
             "code": "HKD",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -442,7 +442,7 @@
             "suffix": "Ft",
             "code": "HUF",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": false,
             "manual": 0
@@ -454,7 +454,7 @@
             "suffix": "Kr",
             "code": "ISK",
             "created_at": "2023-05-30 09:13:13",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -466,7 +466,7 @@
             "suffix": "",
             "code": "INR",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -478,7 +478,7 @@
             "suffix": "Rp",
             "code": "IDR",
             "created_at": "2022-05-25 09:25:07",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -490,7 +490,7 @@
             "suffix": "ع.د",
             "code": "IQD",
             "created_at": "2025-03-18 13:40:47",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -502,7 +502,7 @@
             "suffix": "",
             "code": "ILS",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": false,
             "decimals": true,
             "manual": 0
@@ -514,7 +514,7 @@
             "suffix": "",
             "code": "JPY",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": false,
             "decimals": false,
             "manual": 0
@@ -526,7 +526,7 @@
             "suffix": "/=",
             "code": "KES",
             "created_at": "2022-08-05 08:29:50",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -538,7 +538,7 @@
             "suffix": "",
             "code": "MYR",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -550,7 +550,7 @@
             "suffix": "Rf",
             "code": "MVR",
             "created_at": "2022-05-25 09:25:07",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -562,7 +562,7 @@
             "suffix": "",
             "code": "MUR",
             "created_at": "2024-07-30 11:17:49",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -574,7 +574,7 @@
             "suffix": "",
             "code": "MXN",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -586,7 +586,7 @@
             "suffix": "DH",
             "code": "MAD",
             "created_at": "2022-05-19 14:21:19",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -598,7 +598,7 @@
             "suffix": "MT",
             "code": "MZN",
             "created_at": "2023-08-10 16:00:08",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -610,7 +610,7 @@
             "suffix": "रु",
             "code": "NPR",
             "created_at": "2022-05-25 09:25:07",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -622,7 +622,7 @@
             "suffix": "",
             "code": "TWD",
             "created_at": "2022-06-16 13:03:04",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -634,7 +634,7 @@
             "suffix": "",
             "code": "NZD",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -646,7 +646,7 @@
             "suffix": "",
             "code": "NIO",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -658,7 +658,7 @@
             "suffix": "",
             "code": "NGN",
             "created_at": "2022-06-01 07:35:15",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -670,7 +670,7 @@
             "suffix": "kr",
             "code": "NOK",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -682,7 +682,7 @@
             "suffix": "",
             "code": "PEN",
             "created_at": "2024-01-02 12:34:08",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -694,7 +694,7 @@
             "suffix": "",
             "code": "PKR",
             "created_at": "2022-09-05 16:16:23",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -706,7 +706,7 @@
             "suffix": "K",
             "code": "PGK",
             "created_at": "2024-05-07 08:18:06",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -718,7 +718,7 @@
             "suffix": "",
             "code": "PYG",
             "created_at": "2022-08-05 08:29:49",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": false,
             "manual": 0
@@ -730,7 +730,7 @@
             "suffix": "",
             "code": "PHP",
             "created_at": "2023-08-01 13:52:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -742,7 +742,7 @@
             "suffix": "zł",
             "code": "PLN",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": false,
             "decimals": true,
             "manual": 0
@@ -754,7 +754,7 @@
             "suffix": "",
             "code": "RON",
             "created_at": "2022-10-28 10:03:31",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -766,7 +766,7 @@
             "suffix": "",
             "code": "RUB",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": false,
             "decimals": true,
             "manual": 0
@@ -778,7 +778,7 @@
             "suffix": "",
             "code": "RWF",
             "created_at": "2022-08-05 08:29:50",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": false,
             "manual": 0
@@ -790,7 +790,7 @@
             "suffix": "",
             "code": "SAR",
             "created_at": "2024-08-05 09:02:25",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -802,7 +802,7 @@
             "suffix": "",
             "code": "RSD",
             "created_at": "2023-11-24 14:25:23",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -814,7 +814,7 @@
             "suffix": "",
             "code": "SGD",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -826,7 +826,7 @@
             "suffix": "R",
             "code": "ZAR",
             "created_at": "2022-05-27 08:59:52",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -838,7 +838,7 @@
             "suffix": "",
             "code": "LKR",
             "created_at": "2024-02-12 15:29:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -850,7 +850,7 @@
             "suffix": "kr",
             "code": "SEK",
             "created_at": "2020-02-12 09:02:29",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -862,7 +862,7 @@
             "suffix": "fr.",
             "code": "CHF",
             "created_at": "2020-02-12 09:02:30",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -874,7 +874,7 @@
             "suffix": "/=",
             "code": "TZS",
             "created_at": "2022-08-05 08:29:50",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -886,7 +886,7 @@
             "suffix": "",
             "code": "THB",
             "created_at": "2020-02-12 09:02:30",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -898,7 +898,7 @@
             "suffix": "TT$",
             "code": "TTD",
             "created_at": "2023-07-26 12:20:44",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -910,7 +910,7 @@
             "suffix": "DT",
             "code": "TND",
             "created_at": "2023-09-19 08:08:10",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -922,7 +922,7 @@
             "suffix": "",
             "code": "TRY",
             "created_at": "2023-08-08 08:58:29",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -934,7 +934,7 @@
             "suffix": "/=",
             "code": "UGX",
             "created_at": "2022-08-05 08:29:50",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": false,
             "manual": 0
@@ -946,7 +946,7 @@
             "suffix": "DH",
             "code": "AED",
             "created_at": "2022-05-25 09:25:07",
-            "updated_at": "2026-07-23 13:41:02",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -958,7 +958,7 @@
             "suffix": "",
             "code": "USD",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -970,7 +970,7 @@
             "suffix": "franc",
             "code": "XOF",
             "created_at": "2022-12-02 13:36:34",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -982,7 +982,7 @@
             "suffix": "",
             "code": "ZMW",
             "created_at": "2024-04-26 14:29:32",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:15",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -994,7 +994,7 @@
             "suffix": "",
             "code": "UYU",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -1006,7 +1006,7 @@
             "suffix": "",
             "code": "VND",
             "created_at": "2024-06-18 13:34:53",
-            "updated_at": "2026-07-23 13:41:03",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -1018,7 +1018,7 @@
             "suffix": "€",
             "code": "EUR",
             "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2026-07-23 13:41:01",
+            "updated_at": "2026-09-28 11:08:14",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -1030,7 +1030,7 @@
             "suffix": "",
             "code": "UAH",
             "created_at": "2025-11-11 16:15:50",
-            "updated_at": "2026-07-23 13:41:04",
+            "updated_at": "2026-09-28 11:08:16",
             "base": true,
             "decimals": true,
             "manual": 0
@@ -1133,17 +1133,6 @@
             "pivot": {
               "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
               "language_id": "3825d96e-763e-d091-3dc4-174825283406"
-            }
-          },
-          {
-            "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
-            "language": "Danish",
-            "code": "da",
-            "created_at": "2017-10-18 14:16:22",
-            "updated_at": "2017-10-18 14:16:22",
-            "pivot": {
-              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-              "language_id": "85d085e6-9d56-2371-9ea2-18e940d42370"
             }
           },
           {
@@ -1431,6 +1420,17 @@
               "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
               "language_id": "320e4357-95e7-8d18-48c3-1643202d9860"
             }
+          },
+          {
+            "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+            "language": "Danish",
+            "code": "da",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "language_id": "85d085e6-9d56-2371-9ea2-18e940d42370"
+            }
           }
         ],
         "image": {
@@ -1521,7 +1521,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T06:09:31.616Z",
+  "captured_at": "2026-09-30T12:28:03.655Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

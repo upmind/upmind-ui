@@ -91,6 +91,21 @@
     "label": "Номер компании",
     "placeholder": "Идентификационный номер компании"
   },
+  "contract_product_category": {
+    "label": "Category"
+  },
+  "contract_product_name_search": {
+    "placeholder": "Search by product name..."
+  },
+  "contract_product_one_time_only": {
+    "label": "One-time purchases"
+  },
+  "contract_product_sort": {
+    "label": "Sort by"
+  },
+  "contract_product_status": {
+    "label": "Status"
+  },
   "country": {
     "label": "Страна",
     "placeholder": "Выберите страну"
@@ -106,6 +121,9 @@
     "label": "Электронная почта",
     "placeholder": "имя@email.com",
     "title": "Добавить новый адрес электронной почты | Обновить адрес электронной почты"
+  },
+  "exclude_delegated_products": {
+    "label": "Show delegated products"
   },
   "field_notes": {
     "label": "Примечания к заказу"

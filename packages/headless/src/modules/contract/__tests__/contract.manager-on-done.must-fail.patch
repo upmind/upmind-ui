@@ -1,0 +1,52 @@
+Negative control for useContract.actions.ts `onDone` (R37 B9).
+
+Proves: contract.feature > "While my payment-method change is being sent I am told it is in progress"
+NOT YET RED-VERIFIED: that scenario is red on the live defect where the
+  manager keeps its first read after a re-read (FE-3145 prover hand-back).
+
+Specs that must flip: contract.manager-members.int.test.ts
+("When my payment-method change finishes I am told it is done",
+contract.feature:329) — awaits `useActions().onDone()` across a
+payment-method write and expects it to resolve true only once that write
+finishes; and ("With no payment-method change under way I am not told a
+change is done", contract.feature:348) — expects `onDone()` to stay pending
+while the form is idle.
+
+Mutation: keeps the `onDone` member but resolves true at once, without
+waiting for a write to leave `changingPaymentMethod.processing`.
+diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
+--- a/packages/headless/src/modules/contract/useContract.actions.ts
++++ b/packages/headless/src/modules/contract/useContract.actions.ts
+@@ -60,31 +60,7 @@
+    *   the re-read, from either parent; false if the machine stops first.
+    */
+   function onDone(): Promise<boolean> {
+-    const processing = [
+-      "available.changingPaymentMethod.processing",
+-      "unavailable.changingPaymentMethod.processing"
+-    ];
+-    const failed = [
+-      "available.changingPaymentMethod.available.error",
+-      "unavailable.changingPaymentMethod.available.error"
+-    ];
+-    let writing = false;
+-
+-    return waitFor(
+-      service,
+-      s => {
+-        if (s.done) return true;
+-        if (stateMatches(s, processing)) {
+-          writing = true;
+-          return false;
+-        }
+-        if (writing && stateMatches(s, failed)) writing = false;
+-        return writing;
+-      },
+-      { timeout: Infinity }
+-    )
+-      .then(s => !s.done)
+-      .catch(() => false);
++    return Promise.resolve(true);
+   }
+ 
+   /**

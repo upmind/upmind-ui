@@ -15,15 +15,17 @@
     "consolidation_invoice": "Consolidation invoice",
     "credit_invoice": "Credit invoice",
     "currency": "Currency",
+    "currency_payment": "Pay currency",
     "date_paid": "Date paid",
     "discount": "Discount",
     "next_charge_date": "Next charge date",
-    "paid_amount": "Paid",
+    "paid_amount": "Amount paid",
     "payment_method": "Payment method",
     "payments": "Payments",
     "products": "Products",
     "subtotal": "Subtotal",
-    "unpaid_amount": "Unpaid"
+    "switch_currency": "Switch currency",
+    "unpaid_amount": "Amount due"
   },
   "filter": {
     "category": "Category",
@@ -94,11 +96,11 @@
       "additional_service": "Additional service",
       "consolidation": "Consolidation",
       "credit_note": "Credit note",
-      "credit_note_for_refund": "Credit note for refund",
-      "migration_pro_rata": "Migration pro rata",
-      "new_contract": "New contract",
+      "credit_note_for_refund": "Refund credit note",
+      "migration_pro_rata": "Migration",
+      "new_contract": "New order",
       "one_time_service": "One-time service",
-      "recurrent": "Recurring"
+      "recurrent": "Renewal"
     },
     "status": {
       "invoice_adjusted": "Adjusted",
@@ -124,7 +126,7 @@
     "category": "Category",
     "client": "Client",
     "date_created": "Created",
-    "date_due": "Due",
+    "date_due": "Due date",
     "locked": "Locked",
     "number": "Number",
     "status": "Status",

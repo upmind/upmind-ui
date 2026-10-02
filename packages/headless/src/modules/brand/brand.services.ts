@@ -1,69 +1,18 @@
 /** @internal */
 import { Store } from "@tanstack/vue-store";
-import {
-  OrgFeatureKeys,
-  BrandConfigKeys,
-  type IUpmindModule,
-  type IBrandSettings
-} from "@upmind-automation/types";
 import { localStoragePersister, useQuery } from "../query";
+import {
+  defaultBrandConfigKeys,
+  defaultOrgFeatureKeys
+} from "./brand.constants";
 import { mapBrandConfig, mapBrandSettings } from "./brand.mappers";
 import { useQuerySchema } from "./brand.schemas";
-import { castArray, pick, uniq } from "lodash-es";
+import { castArray, difference, pick, uniq } from "lodash-es";
 import type { QueryModel } from "./brand.types";
+import type { IUpmindModule, IBrandSettings } from "@upmind-automation/types";
+import type { OrgFeatureKeys, BrandConfigKeys } from "@upmind-automation/types";
 
 // --- types
-
-const defaultBrandConfigKeys = [
-  BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID,
-  BrandConfigKeys.ANALYTICS_GTM_CONTAINER_ID,
-  BrandConfigKeys.BASKET_DEFAULT_CURRENCY,
-  BrandConfigKeys.BASKET_FUNNELLING,
-  BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS,
-  BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT,
-  BrandConfigKeys.BILLING_GATEWAY_FORCE_CARD_STORAGE,
-  BrandConfigKeys.CHECKOUT_FLOW,
-  BrandConfigKeys.CHECKOUT_HIDE_DISCOUNT_CODE_FIELD,
-  BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
-  BrandConfigKeys.CHECKOUT_SUMMARY_COLOR_STOP1,
-  BrandConfigKeys.CHECKOUT_SUMMARY_COLOR_STOP2,
-  BrandConfigKeys.CHECKOUT_SUMMARY_CONTRAST_MODE,
-  BrandConfigKeys.CLIENT_NOTES_AND_SECRETS_ENABLED,
-  BrandConfigKeys.DEFAULT_CLIENT_HOMEPAGE,
-  BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
-  BrandConfigKeys.DISABLE_CLIENT_REGISTRATION,
-  BrandConfigKeys.GUEST_CHECKOUT_ENABLED,
-  BrandConfigKeys.DOMAIN_SEARCH_METHOD,
-  BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
-  BrandConfigKeys.PAY_LATER_ENABLED,
-  BrandConfigKeys.PREVENT_CARD_REMOVAL_IF_LAST,
-  BrandConfigKeys.PRICE_DISPLAY_TYPE,
-  BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS,
-  BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
-  BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION,
-  BrandConfigKeys.REQUIRE_REGION_IN_ADDRESS,
-  BrandConfigKeys.SECURITY_ORDERS_REQUIRE_VERIFIED_EMAIL,
-  BrandConfigKeys.SHOP_TRUNCATE_DESCRIPTIONS,
-  BrandConfigKeys.SHOW_CLIENT_STORE,
-  BrandConfigKeys.SHOW_PROMOTION_AS,
-  BrandConfigKeys.SUPPORT_PIN_ENABLED,
-  BrandConfigKeys.TAX_NUMBER_VALIDATION_ENABLED,
-  BrandConfigKeys.UI_CLIENT_APP_DISABLE_SUPPORT_SYSTEM,
-  BrandConfigKeys.UI_CLIENT_APP_PAGE_AFTER_LOGIN,
-  BrandConfigKeys.UI_ENTER_KEY_ACTION,
-  BrandConfigKeys.UI_PRICE_BEFORE_DISCOUNT_POSITION
-];
-
-const defaultOrgFeatureKeys = [
-  OrgFeatureKeys.CREATE_USER_API_TOKENS,
-  OrgFeatureKeys.BULK_NOTIFICATIONS_ENABLED,
-  OrgFeatureKeys.MULTI_BRAND_ENABLED,
-  OrgFeatureKeys.PRODUCT_PROVISIONING_ENABLED,
-  OrgFeatureKeys.REMOVE_UPMIND_BRANDING_ENABLED,
-  OrgFeatureKeys.UNLIMITED_PAYMENT_GATEWAYS,
-  OrgFeatureKeys.UNLIMITED_PROVISION_CONFIGURATIONS,
-  OrgFeatureKeys.WEBHOOKS
-];
 
 // -----------------------------------------------------------------------------
 
@@ -86,20 +35,8 @@ function fetchBrandSettings() {
 }
 
 /**
- * Registers the brand-config query for the ACCUMULATED key set — never for
- * `keys` alone.
- *
- * Keys are append-only — they accumulate in `brandConfigKeysStore` across calls
- * and are never removed, so every call requests a superset of all previously
- * requested keys, `keys` included.
- *
- * The key list rides the CRITERIA, reaching the wire as `filter[keys|eq]=a,b,c`
- * (`translateQuery` joins the array). The `queryKey` below is the CONSTANT
- * `["brand", "config"]`; distinct key-sets stay distinct cache entries anyway,
- * because `query()` appends its own `{ sort, filters, query }` object as the
- * key's last element and the translated `filter[keys|eq]` string sits in it. A
- * widened set is therefore a fresh entry rather than one entry silently reused
- * for a different question.
+ * Registers the append-only brand-config query under one stable queryKey; the
+ * `keys=` param is written at request time so the single cached entry widens.
  *
  * @param keys - Brand config keys to add to the requested set. Defaults to the core set.
  */
@@ -108,17 +45,20 @@ function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
 
   brandConfigKeysStore.setState(uniq([...brandConfigKeysStore.state, ...keys]));
 
+  const url = useUrl("config/brand/values");
+
   return query<
     Record<BrandConfigKeys, unknown>,
     Record<BrandConfigKeys, unknown>,
     QueryModel
   >({
-    url: useUrl("config/brand/values"),
-    queryKey: ["brand", "config"],
-    criteria: {
-      schema: useQuerySchema(),
-      model: { filters: { keys: { eq: brandConfigKeysStore.state } } }
+    url,
+    guard: async () => {
+      url.searchParams.set("keys", brandConfigKeysStore.state.join());
+      return true;
     },
+    queryKey: ["brand", "config"],
+    criteria: { schema: useQuerySchema() },
     select: data => mapBrandConfig(data, brandConfigKeysStore.state),
     staleTime: "static",
     withoutLocale: true,
@@ -127,14 +67,18 @@ function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
 }
 
 /**
- * Ensures `keys` are answered by the brand config, and resolves once they are.
+ * Ensures `keys` are answered by the brand config, and resolves once they are;
+ * a genuinely new key forces the one refetch that re-requests the widened set,
+ * a key already held resolves from the cached entry without a request.
  *
  * @param keys - Brand config keys to ensure are fetched.
  */
 async function ensureBrandConfig(keys: BrandConfigKeys | BrandConfigKeys[]) {
   const safekeys = castArray(keys) as BrandConfigKeys[];
+  const isWidened = difference(safekeys, brandConfigKeysStore.state).length > 0;
   const result = fetchBrandConfig(safekeys);
-  await result.promise.value;
+  if (isWidened) await result.refetch();
+  else await result.promise.value;
   return pick(result.data.value, safekeys);
 }
 

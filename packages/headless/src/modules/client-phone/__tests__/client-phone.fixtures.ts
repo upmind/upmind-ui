@@ -1,85 +1,51 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview Client-Phone API Fixtures Generator (ADR 025 §A1.3)
+ * @fileoverview Client-Phone API Fixtures Generator (ADR 025 §A1.3, ADR 035)
  *
  * ## Job To Be Done
- * Declare the real `clients/{id}/phones[...]` endpoints (plus `/countries`,
- * which `loadLookups` depends on) the `client-phone` module hits for its ONE
- * in-scope cell (client × self) and (re)generate their sanitised v3 fixtures
- * into this module's OWN co-located `fixtures/` dir — the same files the
- * integration tests replay through MSW. Run on demand:
+ * Record, against real staging, the TWO fixture families the `client-phone`
+ * suite replays — no third kind (operator ruling, FE-3145):
+ *
+ * 1. FLAT captures (`fixtures/*.json`) — ONE file per request, read by the pure
+ *    unit tests that transform a recorded wire row (the mapper suite). No
+ *    integration test reads them: every module capability is a driven scenario.
+ * 2. SCENARIO recordings (`scenarios/<slug>/<NN>/`) — one folder per step of
+ *    each DRIVEN `client-phone.feature` scenario, for a flow that asks the SAME
+ *    request again after something changes (a refresh, a delete then re-read, a
+ *    set-default then re-read, a page walk, a re-sort, a filter). Replayed by
+ *    `client-phone.replay.int.test.ts` against the real composable.
  *
  *   pnpm fixtures:generate client-phone
  *
  * ## Why this is not a normal test
  * It makes REAL `fetch` calls against `VITE_API_URL` and needs staging
- * credentials — so it is EXCLUDED from the normal `*.test.ts` /
- * `*.int.test.ts` suites by the `*.fixtures.ts` suffix (see the package vitest
- * configs). It has no assertions: an `it()` succeeds when the capture
- * completes. `save()` in `afterAll` writes every capture once.
+ * credentials — EXCLUDED from the normal suites by the `*.fixtures.ts` suffix.
+ * It has no assertions: an `it()` succeeds when the capture completes.
  *
- * This module starts from ZERO baseline coverage (parity.yaml row X4) — there
- * is no prior recorded acceptance to regress against, so every capture below
- * is a first recording, not a re-recording.
- *
- * ## Captures (design.md §8.2 / tasks.md T-1)
- * `get-clients-id-phones` (list, ≥3 rows — the account's own default plus two
- * throwaway numbers this run creates and deletes) · `get-clients-id-phones-id`
- * (the manager's per-record read) · `get-clients-id-phones-case-page-1` /
- * `-case-page-2` (a caller-supplied `limit=2` walk) · `post-clients-id-phones`
- * (add) · `put-clients-id-phones-id` (edit) ·
- * `put-clients-id-phones-id-case-set-default` (AC-8 success) ·
- * `put-clients-id-phones-id-case-error` (a genuine 4xx against a
- * non-existent phone id — AC-9's rejected-mutation material) ·
- * `delete-clients-id-phones-id` · `get-countries` (loadLookups) ·
- * `get-org-modules` / `get-brand-settings` / `get-config-brand-values` /
- * `get-config-organisation-values` — the brand-readiness bootstrap
- * `loadLookups` waits on via `useSystem().ensureCountries() ->
- * ensureBrandReady() -> useBrand().isReady()` before it ever reaches
- * `/countries`. Captured from the SAME staging session/brand as every other
- * capture in this file so `brand/settings`'s `country_id` genuinely resolves
- * against THIS run's own `get-countries` list — a cross-brand reuse of
- * another module's brand fixtures was tried first and rejected because its
- * `country_id` cannot resolve against this module's own recorded countries
- * (see the prover's Test-stage gate notes).
- * NO `admin/*` captures — those belong to the dropped staff cell (S1-S7).
- *
- * ## Why the paged captures carry a `?case=` marker
- * `limit` and `offset` are in the naming utility's `EXCLUDE_PARAMS`
- * (`tests/fixtures/fixture-naming.mjs`), so two reads of the same collection at
- * different offsets share ONE fixture identity and would overwrite each other.
- * `case` is an identity param, so `?case=page-1` / `?case=page-2` keep the two
- * REAL responses as two files — the same disambiguator the set-default and
- * error captures use.
- *
- * ## Recording limits (surfaced, not papered over)
- * - `meta.isVerified` / `meta.canDelete`: whichever of the account's real
- *   phones or this run's throwaway numbers the API actually returns those
- *   flags as is what the mapper tests and int fixtures see — neither is
- *   forced client-side. If the captured list happens to hold no
- *   `verified:0` or no `can_delete:false` row, `client-phone.mappers.test.ts`
- *   and `collection.int.test.ts` build the AC-2 literal combination by
- *   OVERRIDING a recorded row (the client-email `acTwoRow()` pattern), never
- *   by hand-writing a wire body from nothing.
- * - The AC-9 error capture targets a well-formed but NON-EXISTENT phone id
- *   rather than a business-rule rejection (no known client-triggerable
- *   business rule exists for phone set-default/delete, unlike client-email's
- *   unverified-default 409) — a genuine recorded 4xx for exactly the
- *   `remove`/`setDefault` request shape AC-9 exercises.
+ * ## Boot reads are the owning modules' recordings
+ * The brand-readiness bootstrap and `/countries` the editor resolves against are
+ * answered in the suite by the `brand`, `system` and `basket` modules' OWN
+ * recordings (`installBackgroundStubs`), so this generator captures none of them.
  *
  * ## Staging hygiene
- * Every mutation targets a phone number this run CREATES, and the run deletes
- * it again — including the extra number the paging capture needs. The
- * account's own default is set-defaulted back onto itself (or left alone if
- * it never had one) so a re-record cannot leave the shared staging client
- * pointing at a throwaway default.
+ * Every mutation targets a phone number this run CREATES (prefix `770`), and the
+ * run deletes every such throwaway before it snapshots the account and again
+ * after, so a re-record cannot accumulate rows on the shared staging client. The
+ * account's own default is set back onto itself.
  */
 
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
+import { ForcedErrorCode } from "@upmind-automation/test-fixtures/types";
+import {
+  prepareScenarioDirs,
+  recordedStepDir
+} from "../../../testing/scenario-fixtures";
 // eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
 import { mintClientToken } from "../../auth/__tests__/auth.tokens";
+import { find, forEach } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -105,15 +71,37 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
+/**
+ * The free-text needle the filter scenario searches by. The account's real
+ * numbers cluster on `7111…`, so `111` narrows a genuine subset staging
+ * returns (`filter[phone|like]=%111%`).
+ */
+const NEEDLE = "111";
+
 type WirePhone = {
   id: string;
   phone: string;
-  phone_code?: string;
-  phone_country_code?: string;
   default?: boolean | number;
-  verified?: boolean | number;
-  can_delete?: boolean | number;
 };
+
+/**
+ * The module's real collection read — the schema's declared window (unpaged,
+ * `created_at` ascending) plus the staged-imports scoping legacy always sent.
+ * `with_staged_imports` IS fixture identity (`fixture-naming.mjs` EXCLUDE_PARAMS
+ * omits it) and the module sends it on every collection read, so a scenario's
+ * recorded read must carry it or it would never match the wire; `order`/`limit`/
+ * `offset` are excluded from identity, so they are fidelity, not matching.
+ */
+const LIST = "?order=created_at&limit=0&offset=0&with_staged_imports=1";
+
+/** A well-formed GB mobile shape (10 digits) unique per run and sequence. */
+const NUMBER_BASE = Date.now();
+const uniquePhone = (seq: number): string =>
+  `770${String((NUMBER_BASE % 10000000) + seq)
+    .padStart(7, "0")
+    .slice(-7)}`;
+
+const THROWAWAY_PREFIX = "770";
 
 // -----------------------------------------------------------------------------
 
@@ -151,24 +139,62 @@ async function fetchClientId(accessToken: string): Promise<string | undefined> {
 const isTruthyFlag = (value: unknown): boolean =>
   value === true || value === 1 || value === "1";
 
+const phonePayload = (phone: string): Record<string, unknown> => ({
+  phone,
+  phone_code: "+44",
+  phone_country_code: "GB"
+});
+
+/** Deletes every throwaway number the generator has ever left on the account. */
+async function healStaging(
+  accessToken: string,
+  clientId: string
+): Promise<void> {
+  const { body } = await call(
+    "GET",
+    `/api/clients/${clientId}/phones?limit=0`,
+    accessToken
+  );
+  const rows = ((body as { data?: WirePhone[] })?.data ?? []) as WirePhone[];
+  for (const row of rows)
+    if (String(row.phone ?? "").startsWith(THROWAWAY_PREFIX))
+      await call(
+        "DELETE",
+        `/api/clients/${clientId}/phones/${row.id}`,
+        accessToken
+      );
+}
+
+// -----------------------------------------------------------------------------
+// FILE-LEVEL SELF-HEAL — remove any throwaway a prior interrupted run left on
+// the shared staging client, so every describe below snapshots the account's
+// TRUE contents and every recording reflects it, not a polluted collection.
 // -----------------------------------------------------------------------------
 
-describe("Client-Phone API Fixtures Generator", () => {
+let healToken: IToken | undefined;
+let healClientId: string | undefined;
+
+beforeAll(async () => {
+  healToken = await mintClientToken();
+  healClientId = await fetchClientId(healToken.access_token);
+  if (healToken && healClientId)
+    await healStaging(healToken.access_token, healClientId);
+}, 30000);
+
+afterAll(async () => {
+  if (healToken && healClientId)
+    await healStaging(healToken.access_token, healClientId);
+});
+
+// -----------------------------------------------------------------------------
+// FLAT CAPTURES — the account's real collection, the ONE flat file the mapper
+// unit suite reads to transform a recorded wire row.
+// -----------------------------------------------------------------------------
+
+describe("Client-Phone API Fixtures Generator — flat captures", () => {
   let generator: Generator;
   let clientToken: IToken;
   let clientId: string;
-  let createdPhoneId: string | undefined;
-  let pagingPhoneId: string | undefined;
-  let originalDefaultId: string | undefined;
-
-  // UK mobile numbers are 10 digits (7XXXXXXXXX). A 4-digit literal prefix +
-  // a 7-digit stamp produces 11 digits, which libphonenumber-js's GB
-  // metadata rejects as syntactically invalid (captured proof: this bug
-  // shipped `post-clients-id-phones.json` / `put-clients-id-phones-id.json`
-  // with `"syntax_valid": false` and a 77009330616 / 77019330616 body — see
-  // parity row M7/M8's Test-stage gate notes). A 3-digit literal prefix
-  // keeps the total at 10 digits and a genuinely valid GB mobile shape.
-  const stamp = Date.now().toString().slice(-7);
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -177,295 +203,518 @@ describe("Client-Phone API Fixtures Generator", () => {
       source: "case",
       name: "client-phone"
     });
-
-    const token = await mintClientToken();
-    clientToken = token;
-
+    clientToken = await mintClientToken();
     const id = await fetchClientId(clientToken.access_token);
-    if (!id) {
-      throw new Error(
-        "Could not resolve the client id from /self — cannot capture the " +
-          "clients/{id}/phones fixtures."
-      );
-    }
+    if (!id) throw new Error("Could not resolve the client id from /self.");
     clientId = id;
-
-    // The account's current default, so the run can leave the shared staging
-    // client pointing at the same default it started with.
-    const { body } = await call(
-      "GET",
-      `/api/clients/${clientId}/phones`,
-      clientToken.access_token
-    );
-    const rows = ((body as { data?: WirePhone[] })?.data ?? []) as WirePhone[];
-    originalDefaultId = rows.find(row => isTruthyFlag(row.default))?.id;
+    await healStaging(clientToken.access_token, clientId);
   }, 30000);
 
   afterAll(() => {
     generator.save();
   });
 
-  it("captures GET /api/clients/{id}/phones (list — AC-1/AC-2)", async () => {
+  it("captures GET /api/clients/{id}/phones (the account's real collection)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(`/api/clients/${clientId}/phones`);
     generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(
-        `List capture returned ${status} — refusing to ship a fixture that ` +
-          "does not represent a readable collection."
-      );
-    }
+    if (status !== 200) throw new Error(`List capture returned ${status}.`);
   });
 
-  it("captures POST /api/clients/{id}/phones (add — AC-13/AC-22)", async () => {
+  // The collection read exactly as the labs page's boot issues it (the module's
+  // own `LIST` window), so the forced-state corpus answers the page's real read
+  // by identity — `order`/`limit`/`offset` are excluded from the fixture name,
+  // `with_staged_imports` is its identity (FE-3145, ADR 035).
+  it("captures GET /api/clients/{id}/phones (labs page boot read)", async () => {
     generator.setBearerToken(clientToken.access_token);
-    const { status, body } = await generator.post(
-      `/api/clients/${clientId}/phones`,
-      {
-        phone: `770${stamp}`,
-        phone_code: "+44",
-        phone_country_code: "GB"
-      }
+    const { status } = await generator.get(
+      `/api/clients/${clientId}/phones${LIST}`
     );
     generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`Add capture returned ${status}; cannot continue.`);
-    }
-    const added = (body as { data?: { id?: string; syntax_valid?: boolean } })
-      ?.data;
-    createdPhoneId = added?.id;
-    if (!createdPhoneId) {
-      throw new Error(
-        "The add capture returned no id — the remaining per-phone captures " +
-          "have nothing to address."
-      );
-    }
-    if (added?.syntax_valid === false) {
-      throw new Error(
-        `The add capture's own number ${`770${stamp}`} came back ` +
-          "syntax_valid:false — the API itself rejects this number's shape. " +
-          "Every downstream save read-back (AC-22/AC-23/AC-24) would replay an " +
-          "invalid number. Refusing to ship it; adjust the generator's number " +
-          "shape and re-run."
-      );
-    }
+    if (status !== 200)
+      throw new Error(`Boot-read capture returned ${status}.`);
   });
+});
 
-  it("captures GET /api/clients/{id}/phones/{id} (load one — M2/loadOne)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    await generator.get(`/api/clients/${clientId}/phones/${createdPhoneId}`);
-    generator.clearBearerToken();
-  });
+// -----------------------------------------------------------------------------
+// SCENARIOS (FE-3145) — one recording per DRIVEN `client-phone.feature`
+// scenario, one fixtures folder per step, named from the feature by
+// `recordedStepDir`. Only the `@scenario-include` page-driven scenarios have
+// full step coverage in `client-phone.steps.ts`; the rest are spec-only.
+// -----------------------------------------------------------------------------
 
-  it("captures PUT /api/clients/{id}/phones/{id} (edit — AC-23)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status, body } = await generator.put(
-      `/api/clients/${clientId}/phones/${createdPhoneId}`,
-      {
-        phone: `771${stamp}`,
-        phone_code: "+44",
-        phone_country_code: "GB"
-      }
+const feature = readFileSync(
+  join(import.meta.dirname, "client-phone.feature"),
+  "utf-8"
+);
+
+/** The Background step every scenario opens with — it reads the collection. */
+const BG_OPEN = "I am an authenticated client managing my own phone numbers";
+const ERRORED_OPEN =
+  "I am an authenticated client whose phone list cannot be read";
+/** The page-driven boot Given — it opens the collection again. */
+const PAGE_BOOT = "the client-phone playground boots for the active client";
+
+describe("Client-Phone scenario recordings", () => {
+  let clientToken: IToken;
+  let clientId: string;
+  let originalDefaultId: string | undefined;
+  const prepared = new Set<string>();
+
+  const phones = () => `/api/clients/${clientId}/phones`;
+
+  async function arrangePhone(seq: number): Promise<string> {
+    const { body } = await call(
+      "POST",
+      phones(),
+      clientToken.access_token,
+      phonePayload(uniquePhone(seq))
     );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      console.warn(
-        `[client-phone.fixtures] edit returned ${status} — kept as an honest ` +
-          "capture; inspect it before the integration tests rely on it."
-      );
-    }
-    const edited = (body as { data?: { syntax_valid?: boolean } })?.data;
-    if (edited?.syntax_valid === false) {
-      throw new Error(
-        `The edit capture's own number ${`771${stamp}`} came back ` +
-          "syntax_valid:false — AC-23's save-a-change read-back would replay " +
-          "an invalid number. Refusing to ship it; adjust the generator's " +
-          "number shape and re-run."
-      );
-    }
-  });
+    return (body as { data: { id: string } }).data.id;
+  }
 
-  it("captures PUT /api/clients/{id}/phones/{id} ?case=set-default (AC-8)", async () => {
+  async function recordStep(
+    scenario: string,
+    step: string,
+    requests: (generator: Generator) => Promise<unknown>
+  ): Promise<void> {
+    if (!prepared.has(scenario)) {
+      prepareScenarioDirs(import.meta.dirname, feature, scenario);
+      prepared.add(scenario);
+    }
+    const generator = new Generator(API_URL, {
+      recordingsDir: recordedStepDir(
+        import.meta.dirname,
+        feature,
+        scenario,
+        step
+      ),
+      origin: ORIGIN,
+      source: "case",
+      name: "client-phone"
+    });
     generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}/phones/${createdPhoneId}?case=set-default`,
-      { default: true }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(
-        `Set-default capture returned ${status} against this run's own ` +
-          "throwaway number — AC-8 has no recorded success to replay."
-      );
-    }
+    await requests(generator);
+    generator.save();
+  }
 
-    // Staging hygiene: restore whichever number was the account's default
-    // before this run moved it.
-    if (originalDefaultId && originalDefaultId !== createdPhoneId) {
+  const readList = (generator: Generator) =>
+    generator.get(`${phones()}${LIST}`);
+
+  /** Staging back as it was: the original default, every throwaway removed. */
+  async function restoreStaging(): Promise<void> {
+    if (originalDefaultId)
       await call(
         "PUT",
-        `/api/clients/${clientId}/phones/${originalDefaultId}`,
+        `${phones()}/${originalDefaultId}`,
         clientToken.access_token,
         { default: true }
       );
-    }
+    await healStaging(clientToken.access_token, clientId);
+  }
+
+  beforeAll(async () => {
+    clientToken = await mintClientToken();
+    clientId = (await fetchClientId(clientToken.access_token)) ?? "";
+    await healStaging(clientToken.access_token, clientId);
+    const { body } = await call("GET", phones(), clientToken.access_token);
+    const rows = (body as { data: WirePhone[] }).data;
+    originalDefaultId = find(rows, row => isTruthyFlag(row.default))?.id;
+  }, 30000);
+
+  afterAll(restoreStaging);
+
+  describe("Refresh the phone collection from the playground", () => {
+    const scenario = "Refresh the phone collection from the playground";
+
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+    it("the client refreshes the phone collection", () =>
+      recordStep(
+        scenario,
+        "the client refreshes the phone collection",
+        readList
+      ));
   });
 
-  it("captures PUT /api/clients/{id}/phones/{id} ?case=error (a real 4xx against a non-existent phone — AC-9)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}/phones/00000000-0000-0000-0000-000000000000?case=error`,
-      { default: true }
-    );
-    generator.clearBearerToken();
-    if (status < 400) {
-      console.warn(
-        `[client-phone.fixtures] set-default against a non-existent phone ` +
-          `returned ${status}, expected 4xx — AC-9's rejected-mutation ` +
-          "capture no longer carries an error body. Inspect before relying on it."
-      );
-    }
+  describe("Remove a non-default phone from the playground", () => {
+    const scenario = "Remove a non-default phone from the playground";
+    let removableId: string;
+
+    beforeAll(async () => {
+      removableId = await arrangePhone(10);
+    });
+    afterAll(restoreStaging);
+
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+    it("the client removes a non-default phone", () =>
+      recordStep(
+        scenario,
+        "the client removes a non-default phone",
+        async generator => {
+          await generator.delete(`${phones()}/${removableId}`);
+          await readList(generator);
+        }
+      ));
   });
 
-  it("captures GET /api/clients/{id}/phones?limit=2 pages 1 and 2 (pagination, caller-supplied limit)", async () => {
-    // The paged walk needs a collection larger than one page. The account
-    // holds its own numbers plus this run's throwaway (1 so far); a second
-    // throwaway makes `limit=2` a genuine two-page read.
-    const created = await call(
-      "POST",
-      `/api/clients/${clientId}/phones`,
-      clientToken.access_token,
-      {
-        phone: `772${stamp}`,
-        phone_code: "+44",
-        phone_country_code: "GB"
+  describe("Promote a phone to default from the playground", () => {
+    const scenario = "Promote a phone to default from the playground";
+    let promotableId: string;
+
+    beforeAll(async () => {
+      promotableId = await arrangePhone(11);
+    });
+    afterAll(restoreStaging);
+
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+    it("the client makes a non-default phone the default", () =>
+      recordStep(
+        scenario,
+        "the client makes a non-default phone the default",
+        async generator => {
+          await generator.put(`${phones()}/${promotableId}`, {
+            default: true
+          });
+          await readList(generator);
+        }
+      ));
+  });
+
+  describe("Page through my phone numbers from the playground", () => {
+    const scenario = "Page through my phone numbers from the playground";
+
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+    it("the client sets a page size of two", () =>
+      recordStep(scenario, "the client sets a page size of two", generator =>
+        generator.get(
+          `${phones()}?order=created_at&limit=2&offset=0&with_staged_imports=1`
+        )
+      ));
+    it("the client advances to the next page", () =>
+      recordStep(scenario, "the client advances to the next page", generator =>
+        generator.get(
+          `${phones()}?order=created_at&limit=2&offset=2&with_staged_imports=1`
+        )
+      ));
+  });
+
+  describe("Order my phone numbers from the playground", () => {
+    const scenario = "Order my phone numbers from the playground";
+
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+    it("the client orders by created_at descending", () =>
+      recordStep(
+        scenario,
+        "the client orders by created_at descending",
+        generator =>
+          generator.get(
+            `${phones()}?order=-created_at&limit=0&with_staged_imports=1`
+          )
+      ));
+    it("the client reverses the order to ascending", () =>
+      recordStep(
+        scenario,
+        "the client reverses the order to ascending",
+        generator =>
+          generator.get(
+            `${phones()}?order=created_at&limit=0&with_staged_imports=1`
+          )
+      ));
+  });
+
+  describe("Filter my phone numbers from the playground", () => {
+    const scenario = "Filter my phone numbers from the playground";
+
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+    it("the client filters by the free-text needle", () =>
+      recordStep(
+        scenario,
+        "the client filters by the free-text needle",
+        generator =>
+          generator.get(
+            `${phones()}?filter[phone|like]=${encodeURIComponent(
+              `%${NEEDLE}%`
+            )}&order=created_at&limit=0&with_staged_imports=1`
+          )
+      ));
+  });
+
+  describe("List my own phone numbers", () => {
+    const scenario = "List my own phone numbers";
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+  });
+
+  describe("Read my default phone number", () => {
+    const scenario = "Read my default phone number";
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+  });
+
+  describe("A refused request never narrows my list and never reaches the wire", () => {
+    const scenario =
+      "A refused request never narrows my list and never reaches the wire";
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+  });
+
+  describe("A new filter sends me back to the first page", () => {
+    const scenario = "A new filter sends me back to the first page";
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+    it("the client sets a page size of two", () =>
+      recordStep(scenario, "the client sets a page size of two", generator =>
+        generator.get(
+          `${phones()}?order=created_at&limit=2&offset=0&with_staged_imports=1`
+        )
+      ));
+    it("the client advances to the next page", () =>
+      recordStep(scenario, "the client advances to the next page", generator =>
+        generator.get(
+          `${phones()}?order=created_at&limit=2&offset=2&with_staged_imports=1`
+        )
+      ));
+    it("I apply a new filter", () =>
+      recordStep(scenario, "I apply a new filter", generator =>
+        generator.get(
+          `${phones()}?filter[phone|like]=${encodeURIComponent(
+            `%${NEEDLE}%`
+          )}&order=created_at&limit=2&offset=0&with_staged_imports=1`
+        )
+      ));
+  });
+
+  describe("A misspelled filter reaches no wire and leaves my list alone", () => {
+    const scenario =
+      "A misspelled filter reaches no wire and leaves my list alone";
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it(PAGE_BOOT, () => recordStep(scenario, PAGE_BOOT, readList));
+  });
+
+  // --- editor scenarios: one arranged number, opened by id ------------------
+  // Booted through the manager composable in replay. This is the last describe,
+  // so its throwaway is fresh (no earlier heal) and stable across its scenarios.
+
+  describe("editor", () => {
+    let editorId: string;
+    const OPEN_EDITOR = "the phone editor opens one of my existing numbers";
+    const openOne = (generator: Generator) =>
+      generator.get(`${phones()}/${editorId}`);
+
+    beforeAll(async () => {
+      editorId = await arrangePhone(60);
+    });
+    afterAll(restoreStaging);
+
+    forEach(
+      [
+        "Open one of my phone numbers in the editor",
+        "A mistyped number is flagged in the editor before anything is sent",
+        "The editor resolves my country before it is usable",
+        "The editor gives me the form's schema and UI definition",
+        "Typing a number parses it against my resolved country",
+        "The editor reports its progress as I work"
+      ],
+      scenario => {
+        it(`${scenario} — ${BG_OPEN}`, () =>
+          recordStep(scenario, BG_OPEN, readList));
+        it(`${scenario} — ${OPEN_EDITOR}`, () =>
+          recordStep(scenario, OPEN_EDITOR, openOne));
       }
     );
-    pagingPhoneId = (created.body as { data?: { id?: string } })?.data?.id;
-    if (!pagingPhoneId) {
-      throw new Error(
-        `Could not create the second throwaway number the paging capture ` +
-          `needs (status ${created.status}) — pagination has no recorded second page.`
-      );
-    }
 
-    await (async () => {
-      generator.setBearerToken(clientToken.access_token);
-      const pageOne = await generator.get(
-        `/api/clients/${clientId}/phones?limit=2&offset=0&case=page-1`
-      );
-      const pageTwo = await generator.get(
-        `/api/clients/${clientId}/phones?limit=2&offset=2&case=page-2`
-      );
-      generator.clearBearerToken();
+    describe("Save a change to a phone number from the editor", () => {
+      const scenario = "Save a change to a phone number from the editor";
+      it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+      it(OPEN_EDITOR, () => recordStep(scenario, OPEN_EDITOR, openOne));
+      it("I change the number in the editor and save", () =>
+        recordStep(
+          scenario,
+          "I change the number in the editor and save",
+          async generator => {
+            // A fresh throwaway number, not one the account already holds (that
+            // would 422 "already exists") — and still `770*` so the heal cleans
+            // it. The step reads it back from this recording, never a literal.
+            await generator.put(
+              `${phones()}/${editorId}`,
+              phonePayload(uniquePhone(62))
+            );
+            await readList(generator);
+            await openOne(generator);
+          }
+        ));
+    });
 
-      if (pageOne.status !== 200 || pageTwo.status !== 200) {
-        throw new Error(
-          `Paged list capture returned ${pageOne.status}/${pageTwo.status} — ` +
-            "refusing to ship a fixture that does not represent a real page."
-        );
-      }
-    })().finally(async () => {
-      await call(
-        "DELETE",
-        `/api/clients/${clientId}/phones/${pagingPhoneId}`,
-        clientToken.access_token
-      );
+    describe("Save a brand-new phone number from the editor", () => {
+      const scenario = "Save a brand-new phone number from the editor";
+      // A fresh editor makes no per-record read; only the create POST is on the
+      // wire. The created number is a fresh `770*` throwaway the heal cleans.
+      it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+      it("I enter a new number in the editor and save", () =>
+        recordStep(
+          scenario,
+          "I enter a new number in the editor and save",
+          generator => generator.post(phones(), phonePayload(uniquePhone(63)))
+        ));
+    });
+
+    // AC-24 — the collection AND the editor together: the editor saves a real
+    // change and the collection re-reads it. The list re-read carries the saved
+    // number because staging really applied the PUT; the heal cleans the `770*`.
+    describe("Saving in the editor updates my list", () => {
+      const scenario = "Saving in the editor updates my list";
+      let listEditorId: string;
+      const openListEditor = (generator: Generator) =>
+        generator.get(`${phones()}/${listEditorId}`);
+
+      beforeAll(async () => {
+        listEditorId = await arrangePhone(70);
+      });
+      afterAll(restoreStaging);
+
+      it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+      it("my phone numbers are open in one place and the editor in another", () =>
+        recordStep(
+          scenario,
+          "my phone numbers are open in one place and the editor in another",
+          openListEditor
+        ));
+      it("I save a change in the editor", () =>
+        recordStep(
+          scenario,
+          "I save a change in the editor",
+          async generator => {
+            await generator.put(
+              `${phones()}/${listEditorId}`,
+              phonePayload(uniquePhone(71))
+            );
+            await readList(generator);
+            await openListEditor(generator);
+          }
+        ));
     });
   });
 
-  // Re-recorded with `limit=0` (prover fix, 2026-08-23): the ORIGINAL
-  // capture omitted the schema's own pagination default, so the exercised
-  // wire shape (`?order=...`) did not match what a real `sortBy()` call
-  // sends against the PROD boot state (`?order=...&limit=0`, per the
-  // branch-level-merge law — a sort write does not touch the standing
-  // pagination branch). Re-captured against the same staging session.
-  it("captures GET /api/clients/{id}/phones?order=-created_at&limit=0 and order=created_at&limit=0 (sort — AC-36/AC-38)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const desc = await generator.get(
-      `/api/clients/${clientId}/phones?order=-created_at&limit=0&case=sort-desc`
+  // AC-3 / AC-4 — the list read is issued for real, its response forced to a
+  // 500, so the collection settles errored on a genuine request.
+  describe("When my phone list cannot be read, I am told it failed", () => {
+    const scenario = "When my phone list cannot be read, I am told it failed";
+    it(ERRORED_OPEN, () =>
+      recordStep(scenario, ERRORED_OPEN, generator =>
+        generator.get(
+          `${phones()}${LIST}`,
+          undefined,
+          ForcedErrorCode.Internal_Server_Error
+        )
+      )
     );
-    const asc = await generator.get(
-      `/api/clients/${clientId}/phones?order=created_at&limit=0&case=sort-asc`
-    );
-    generator.clearBearerToken();
-
-    if (desc.status !== 200 || asc.status !== 200) {
-      throw new Error(
-        `Sort capture returned ${desc.status}/${asc.status} — refusing to ` +
-          "ship a fixture that does not represent a real sorted read."
-      );
-    }
   });
 
-  it("captures GET /api/countries (loadLookups)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    await generator.get("/api/countries");
-    generator.clearBearerToken();
+  // AC-9 — a real DELETE against an arranged phone, its response forced to a
+  // 500, so the collection lands the failure. The real request DOES remove the
+  // phone on staging; the heal cleans the `770*` throwaway after.
+  describe("A failed delete shows up in the collection error state", () => {
+    const scenario = "A failed delete shows up in the collection error state";
+    let faultId: string;
+    beforeAll(async () => {
+      faultId = await arrangePhone(80);
+    });
+    afterAll(restoreStaging);
+
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it("I delete a phone and the server refuses", () =>
+      recordStep(
+        scenario,
+        "I delete a phone and the server refuses",
+        generator =>
+          generator.delete(
+            `${phones()}/${faultId}`,
+            undefined,
+            ForcedErrorCode.Internal_Server_Error
+          )
+      ));
   });
 
-  it("captures GET /api/countries?filter[code]=GB — this run's ORIGINAL /countries capture predates limit=0 and holds only the API's default 10-row page (of 248), which does not include GB; every GB-context manager scenario needs a genuinely recorded GB row. `filter[code]` keeps this a SEPARATE fixture identity from the bare /countries capture above (never touched), served alongside it by the test harness rather than replacing it.", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status, body } = await generator.get(
-      "/api/countries?filter[code]=GB"
-    );
-    generator.clearBearerToken();
-    if (status !== 200 || !(body as { data?: unknown[] })?.data?.length) {
-      throw new Error(
-        `GB country capture returned ${status} with no row — every GB-context ` +
-          "manager scenario (AC-18, AC-20, AC-21, AC-23...) has no recorded " +
-          "country to resolve against."
-      );
-    }
+  // AC-20 — debounced input: open, type several values, then save. Only the
+  // settled value is parsed and saved; the PUT re-read carries it.
+  describe("I enter a number and it is checked once I stop, not on every keystroke", () => {
+    const scenario =
+      "I enter a number and it is checked once I stop, not on every keystroke";
+    let ac20Id: string;
+    const openAc20 = (generator: Generator) =>
+      generator.get(`${phones()}/${ac20Id}`);
+    beforeAll(async () => {
+      ac20Id = await arrangePhone(90);
+    });
+    afterAll(restoreStaging);
+
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it("I am typing a phone number into the editor", () =>
+      recordStep(
+        scenario,
+        "I am typing a phone number into the editor",
+        openAc20
+      ));
+    it("saving right after typing uses what I actually typed, never a stale value", () =>
+      recordStep(
+        scenario,
+        "saving right after typing uses what I actually typed, never a stale value",
+        async generator => {
+          await generator.put(
+            `${phones()}/${ac20Id}`,
+            phonePayload(uniquePhone(91))
+          );
+          await readList(generator);
+          await openAc20(generator);
+        }
+      ));
   });
 
-  it("captures the brand-readiness bootstrap loadLookups waits on before /countries (org/modules, brand/settings, config/brand/values, config/organisation/values)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const modules = await generator.get("/api/org/modules");
-    const settings = await generator.get("/api/brand/settings");
-    const brandConfig = await generator.get(
-      "/api/config/brand/values?keys=ui.basket.default_currency"
-    );
-    const orgConfig = await generator.get(
-      "/api/config/organisation/values?keys=package.enabled_features.product_provisioning"
-    );
-    generator.clearBearerToken();
+  // AC-23 — save straight after typing: the flush settles the typed value into
+  // the model before the save, so the PUT carries the just-typed number.
+  describe("Save a change to an existing phone number without losing what I just typed", () => {
+    const scenario =
+      "Save a change to an existing phone number without losing what I just typed";
+    let ac23Id: string;
+    const openAc23 = (generator: Generator) =>
+      generator.get(`${phones()}/${ac23Id}`);
+    beforeAll(async () => {
+      ac23Id = await arrangePhone(93);
+    });
+    afterAll(restoreStaging);
 
-    if (
-      modules.status !== 200 ||
-      settings.status !== 200 ||
-      brandConfig.status !== 200 ||
-      orgConfig.status !== 200
-    ) {
-      throw new Error(
-        `Brand-readiness bootstrap capture returned ` +
-          `${modules.status}/${settings.status}/${brandConfig.status}/${orgConfig.status} — ` +
-          "loadLookups cannot resolve country from an unreadable brand."
-      );
-    }
-
-    const settingsData = (settings.body as { data?: { country_id?: string } })
-      ?.data;
-    if (!settingsData?.country_id) {
-      throw new Error(
-        "brand/settings captured with no country_id — loadLookups's default " +
-          "country resolution would throw on this recording exactly as it did " +
-          "against the hand-stubbed empty body this capture replaces."
-      );
-    }
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
+    it("I have opened one of my phone numbers in the editor", () =>
+      recordStep(
+        scenario,
+        "I have opened one of my phone numbers in the editor",
+        openAc23
+      ));
+    it("I change it and save straight away, before any pause in my typing", () =>
+      recordStep(
+        scenario,
+        "I change it and save straight away, before any pause in my typing",
+        async generator => {
+          await generator.put(
+            `${phones()}/${ac23Id}`,
+            phonePayload(uniquePhone(94))
+          );
+          await readList(generator);
+          await openAc23(generator);
+        }
+      ));
   });
 
-  it("captures DELETE /api/clients/{id}/phones/{id}", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.delete(
-      `/api/clients/${clientId}/phones/${createdPhoneId}`
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(
-        `Delete capture returned ${status} — the throwaway number ` +
-          `${createdPhoneId} is still on the staging client. Clean it up.`
-      );
-    }
+  // AC-27 — a fresh draft cleared back to empty: no per-record read, only the
+  // collection's Background list read.
+  describe("Clear the form back to where it started", () => {
+    const scenario = "Clear the form back to where it started";
+    it(BG_OPEN, () => recordStep(scenario, BG_OPEN, readList));
   });
 });

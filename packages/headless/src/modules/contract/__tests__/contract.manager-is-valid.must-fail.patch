@@ -1,0 +1,19 @@
+Negative control for useContract.meta.ts `isValid` (R37 B12).
+
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.feature > "Close the payment-method form without changing how my contract is paid for"
+
+Mutation: reverts the meta flag back to the pre-restore `isPaymentMethodValid`
+name.
+diff --git a/packages/headless/src/modules/contract/useContract.meta.ts b/packages/headless/src/modules/contract/useContract.meta.ts
+--- a/packages/headless/src/modules/contract/useContract.meta.ts
++++ b/packages/headless/src/modules/contract/useContract.meta.ts
+@@ -49,7 +49,7 @@ export function createContractMeta(
+     ]),
+
+     /** True when the open payment-method form passes validation, from either parent. */
+-    isValid: useStateMatches(state, [
++    isPaymentMethodValid: useStateMatches(state, [
+       "available.changingPaymentMethod.available.valid",
+       "unavailable.changingPaymentMethod.available.valid"
+     ]),

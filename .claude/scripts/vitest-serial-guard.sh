@@ -20,17 +20,35 @@ cmd=$(printf '%s' "$payload" | python3 -c 'import json,sys
 try: print(json.load(sys.stdin).get("tool_input",{}).get("command",""))
 except Exception: print("")' 2>/dev/null)
 
-# Only guard commands that actually start a test run.
-printf '%s' "$cmd" | grep -qE '(^|[^a-z-])vitest( |$)|test:unit|test:integration|pnpm +(-r +)?test' || exit 0
+# Operator ruling 2026-09-29: guard END-TO-END runs only. The e2e suite (a
+# browser per worker) is what exhausts the box; unit and integration runs are
+# unrestricted and may run side by side.
+printf '%s' "$cmd" | grep -qE 'playwright +test|test:e2e|bddgen|test-run-suite' || exit 0
 # ...but never guard a command that merely reads about them.
 printf '%s' "$cmd" | grep -qE '^\s*(cat|grep|rg|head|tail|ls|find|git) ' && exit 0
 
-live=$(pgrep -fl "node.*vitest" 2>/dev/null | grep -v "pgrep" | wc -l | tr -d ' ')
+# Operator ruling 2026-09-25: one run per project, and no limit across
+# projects. A run is its MAIN vitest process — titled "node (vitest)", or a
+# CLI still named vitest.mjs — never its workers ("node (vitest 1)",
+# forks.js). Its project is its working directory.
+project="${CLAUDE_PROJECT_DIR:-$PWD}"
 
-if [ "${live:-0}" -gt 0 ]; then
-  holders=$(pgrep -fl "node.*vitest" 2>/dev/null | head -3 | sed 's/^/    /')
+mains=$(ps -Ao pid=,command= 2>/dev/null |
+  awk '$2 == "node" && $0 ~ /playwright.* test/ { print $1 }')
+
+live=0
+here=0
+for pid in $mains; do
+  live=$((live + 1))
+  cwd=$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p')
+  case "$cwd" in "$project" | "$project"/*) here=$((here + 1)) ;; esac
+done
+
+if [ "$here" -gt 0 ]; then
+  holders=$(pgrep -fl "node.*playwright" 2>/dev/null | head -3 | sed 's/^/    /')
   cat >&2 <<MSG
-DENIED: a vitest run is already in progress ($live process(es)).
+DENIED: an end-to-end run is already in progress in this project ($live on the
+machine; the limit is one per project).
 
 Running two test suites at once has hard-crashed this machine twice
 (2026-08-28, ~50GB resident). Worker caps bound ONE run; they do not

@@ -1,4 +1,4 @@
-import type { IconProps } from "../../../components/icon";
+import type { IconProps } from "@upmind-automation/foundation";
 import type {
   Recommendation,
   Benefit,

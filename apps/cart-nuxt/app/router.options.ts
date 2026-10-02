@@ -11,11 +11,8 @@
  *
  * @see apps/cart/src/router/routes.ts — the legacy SPA route table this mirrors.
  */
-import {
-  OverlayType,
-  SESSION_FORMS,
-  useAssetRecovery
-} from "@upmind-automation/client-vue";
+import { AUTH_FORMS } from "@upmind-automation/auth";
+import { OverlayType, useAssetRecovery } from "@upmind-automation/client-vue";
 import { BID_PREFIX, RegexMatch, ROUTE } from "./funnels/types";
 import { filter, flatMap, map, reduce } from "lodash-es";
 import type {
@@ -55,7 +52,7 @@ const OVERLAY_ROUTES: RouteRecordRaw[] = [
     meta: {
       overlay: OverlayType.CUSTOM,
       dismissable: false,
-      mode: SESSION_FORMS.VERIFY
+      mode: AUTH_FORMS.VERIFY
     }
   }
 ];

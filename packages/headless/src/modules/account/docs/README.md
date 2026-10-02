@@ -84,7 +84,3 @@ The guest state hosts two forms — the **upgrade** (register) form and the **or
 - [gotchas.md](./gotchas.md) — the sharp edges (verify no-op, 409 semantics, scoping).
 - [foundation.md](./foundation.md) — framework-neutral platform spec (for teams rebuilding on the Upmind back end).
 - [CHANGELOG.md](./CHANGELOG.md)
-
-## Playground
-
-None yet. Drive the arc through the cart's verify-email overlay and the guest-upgrade / order-receipt-email forms.

@@ -71,7 +71,7 @@ import { Button, DropdownMenu } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { useBrand, useActiveSession } from "@upmind-automation/headless";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import {

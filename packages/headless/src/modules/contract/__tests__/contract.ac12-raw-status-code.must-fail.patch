@@ -1,0 +1,32 @@
+# Negative-control mutant — AC-12's status code is published as it arrived, never
+# a coerced substitute (design 8.7)
+#
+# RE-CUT (FE-3206): `mapContract`'s `status:` member is now a multi-line group
+# carrying both `code` and a translated `name` (R38 item 9). The mutation is
+# unchanged — only the hunk is rebased onto the current `status.code` line.
+#
+# Scenario it must flip: contract.feature > the @AC-12 status scenario.
+# Test that goes red: contract.reads.int.test.ts >
+#   "AC-12 the manager publishes the REAL record's own raw status.code, never a
+#   coerced substitute". The one recorded capture is `contract_active`
+#   (status.code === "contract_active"); `mapContract` now hardwires every
+#   contract's `status.code` to "contract_cancelled", so the published
+#   `contract.value.status.code` no longer equals `row.status.code` and
+#   `expect(...).toBe(row.status.code)` flips.
+# Mutation: `mapContract` coerces every contract's `status.code` to a fixed
+#   "contract_cancelled" instead of carrying the record's own code.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -91,7 +91,7 @@ export function mapContract(raw: IContract): Contract {
+   return {
+     id: raw.id,
+     status: {
+-      code: raw.status.code as ContractStatusCodes,
++      code: "contract_cancelled" as ContractStatusCodes,
+       name: useTranslateName(raw.status)
+     },
+     meta: {

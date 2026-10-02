@@ -38,17 +38,15 @@
 import { computed } from "vue";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
-import { mapClientModuleItems } from "./module.mappers";
+import { map, castArray } from "lodash-es";
+import { map{Module} } from "./module.mappers";
 import { ModuleContextTypes } from "./module.types";
 import { useTime, DEBOUNCE_DELAY } from "../../utils";
 import { queryKey } from "./module.services";
 import type { QueryParams } from "../query";
 import type { ScopeContext } from "../scope";
-import type {
-  ClientModuleItem,
-  ClientModuleWireItem,
-  ModuleServices
-} from "./module.types";
+import type { {Module}, ModuleServices } from "./module.types";
+import type { I{Module} } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -57,6 +55,59 @@ import type {
  * module has earned a services arm (clause 3). Shared services stay in
  * `module.services.ts`.
  */
+
+// -----------------------------------------------------------------------------
+// This arm's own wire/view pair and mapper
+//
+// They live HERE, not in `module.types.ts` / `module.mappers.ts`, because the
+// shared files export exactly what every module exports and this arm is their
+// only consumer. The day the arm is earned, lift the two types into
+// `module.types.ts` and the two mappers into `module.mappers.ts` as EXTRA
+// exports — the shape gate grades missing exports, never extra ones — so types
+// and mappers stay in their one place (`code-typescript.companion.md`
+// "Types-module suffix", `code-quality.md`).
+
+/**
+ * The CLIENT surface's shape for the same record. This arm reads the
+ * collection from `clients/{id}/module-items` with extra includes, which
+ * returns everything the shared read does PLUS its own fields — so it needs
+ * its own wire type and its own mapper. Replace the illustrative extras with
+ * this module's real client-only fields.
+ */
+type IClient{Module} = I{Module} & {
+  internal_notes?: string;
+  flagged_by?: string;
+};
+
+/**
+ * The view-model half of the pair. `mapClient{Module}s` maps `IClient{Module}`
+ * to this; `loadList` below names both as its `list<Wire[], View[]>` generics.
+ * A wire type without its view-model half does not build — add them together.
+ */
+type Client{Module} = {Module} & {
+  internalNotes?: string;
+  flaggedBy?: string;
+};
+
+/**
+ * ACTOR-NAMED MAPPER — this arm asks for extra fields, so its `loadList` maps
+ * with THIS instead of `map{Module}s`. A mapper is a pure function with no
+ * actor-scoped state, so there is no `{module}.mappers.{actor}.ts`
+ * (`ARMS.md`, operator ruling 2026-07-28); the per-actor divergence is which
+ * mapper THIS call site selects.
+ * @doctrine `code-quality.md`'s Lodash mandate.
+ */
+const mapClient{Module} = (raw: IClient{Module}): Client{Module} => ({
+  ...map{Module}(raw),
+  // --- the extra fields only the client surface returns (absent from the
+  // shared read, which never asks for them)
+  internalNotes: raw.internal_notes,
+  flaggedBy: raw.flagged_by
+});
+
+const mapClient{Module}s = (
+  raw: IClient{Module} | IClient{Module}[]
+): Client{Module}[] => map(castArray(raw), mapClient{Module});
 
 /**
  * EXCLUSIVE MEMBER worked example — a capability only this actor has, absent
@@ -94,9 +145,9 @@ function registerAsGuest(): Promise<unknown> {
  * canonical split case.
  * @decision
  * what: this arm asks the list endpoint for the extra `with` includes below,
- *   maps the richer response with `mapClientModuleItems`, and caches it under
+ *   maps the richer response with `mapClient{Module}s`, and caches it under
  *   the base key extended by those includes. The shared read asks for none of
- *   them and maps with `mapModuleItems`.
+ *   them and maps with `map{Module}s`.
  * why: what this actor needs from the response differs, so the includes and the
  *   mapper differ with it. One shared implementation cannot express both without
  *   branching on actor inside the shared file (clause 4 violation), and every
@@ -106,7 +157,7 @@ function registerAsGuest(): Promise<unknown> {
  *   builder before this factory is ever constructed, so the arm IS the branch.
  */
 function loadList(
-  params: Partial<QueryParams<ClientModuleWireItem[], ClientModuleItem[]>> = {
+  params: Partial<QueryParams<IClient{Module}[], Client{Module}[]>> = {
     pagination: { limit: 0 }
   },
   scopeContext?: ScopeContext
@@ -130,7 +181,7 @@ function loadList(
   // once because the URL and the cache key below must not drift apart.
   const includes = ["internal_notes", "flagged_by"];
 
-  return list<ClientModuleWireItem[], ClientModuleItem[]>({
+  return list<IClient{Module}[], Client{Module}[]>({
     ...params,
     // EXTENDS the shared base key — never a parallel one (`module.services.ts`'s
     // own note). What it appends is the includes, not the reader: `list()` caches
@@ -146,14 +197,14 @@ function loadList(
     withAccessToken: true,
     // THE DIVERGENCE, part 2 — the mapper, because DIVERGENCE 1 changed the response
     // shape. The extra includes come back as extra wire fields, so this arm
-    // maps with `mapClientModuleItems` (`module.mappers.ts`) against
-    // `ClientModuleWireItem`. Schema and mapper move together — asking for
+    // maps with `mapClient{Module}s` (this file, see its head) against
+    // `IClient{Module}`. Schema and mapper move together — asking for
     // fields you do not map is wasted bytes; mapping fields you did not ask
     // for is undefined.
     //
-    // Mappers are NOT arm-scoped: they are pure functions in the shared util
-    // file, and the per-actor choice is this call site.
-    select: mapClientModuleItems,
+    // Mappers are NOT arm-scoped: they are pure functions, and the per-actor
+    // choice is this call site.
+    select: mapClient{Module}s,
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () => isAuthenticated.value && !!clientId.value

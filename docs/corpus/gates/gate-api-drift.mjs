@@ -37,6 +37,8 @@
 //   node docs/corpus/gates/gate-api-drift.mjs            (default root = repo root)
 //   node docs/corpus/gates/gate-api-drift.mjs <root>     (fixture tree root)
 //   node docs/corpus/gates/gate-api-drift.mjs --root <r>
+//   node docs/corpus/gates/gate-api-drift.mjs --pages <dir>   (EMITTED = <dir>/reference,
+//        a fresh emit; a missing <dir>, missing or .mdx-less <dir>/reference is fail-closed)
 // Output one finding per line: `<file>:<line-or-block> — <reason>` (paths
 // relative to <root>). Exit 0 no drift. Exit 1 at least one finding — ALL are
 // printed first. Fail-closed: a missing / unreadable reflection, corpus, or
@@ -54,21 +56,34 @@ const HEADLESS_PKG = '@upmind-automation/headless'; // build.mjs's entry package
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url)); // <root>/docs/corpus/gates
 const DEFAULT_ROOT = resolve(SCRIPT_DIR, '..', '..', '..'); // <root>
 
+const VALUE_FLAGS = new Set(['--root', '--pages']);
+
+function flagValue(argv, name) {
+  const i = argv.indexOf(name);
+  return i !== -1 ? argv[i + 1] : null;
+}
+
 // Optional root override: a positional `<root>` or `--root <dir>` retargets the
 // whole check onto a fixture tree (the T5/T10 drift fixtures). Default = repo root.
 function parseRoot(argv) {
-  const i = argv.indexOf('--root');
-  const flag = i !== -1 ? argv[i + 1] : null;
-  const positional = argv.find((a, n) => !a.startsWith('-') && argv[n - 1] !== '--root');
-  return resolve(process.cwd(), flag ?? positional ?? DEFAULT_ROOT);
+  const positional = argv.find((a, n) => !a.startsWith('-') && !VALUE_FLAGS.has(argv[n - 1]));
+  return resolve(process.cwd(), flagValue(argv, '--root') ?? positional ?? DEFAULT_ROOT);
 }
-const ROOT = parseRoot(process.argv.slice(2));
+const ARGV = process.argv.slice(2);
+const ROOT = parseRoot(ARGV);
+
+// `--pages <dir>` (FE-3271 B3): read stale pages from a fresh emit, not the committed tree.
+const PAGES_ARG = flagValue(ARGV, '--pages');
+const PAGES_DIR = PAGES_ARG == null ? null : resolve(process.cwd(), PAGES_ARG);
 
 const REFLECTION_PATH = join(ROOT, 'docs/corpus/.reflection.json');
 const CORPUS_PATH = join(ROOT, 'docs/corpus/corpus.json');
-const REF_TREE = join(ROOT, 'docs/published-docs/developers/reference');
+const REF_TREE = PAGES_DIR ? join(PAGES_DIR, 'reference') : join(ROOT, 'docs/published-docs/developers/reference');
 
-const rel = (abs) => relative(ROOT, abs).replace(/\\/g, '/') || abs;
+const rel = (abs) => {
+  const r = relative(ROOT, abs).replace(/\\/g, '/');
+  return r && !r.startsWith('../') ? r : abs;
+};
 const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 // Compare signatures/kinds whitespace-insensitively — the emitter collapses
 // blank runs, so a byte diff there would be noise, not drift.
@@ -190,8 +205,12 @@ for (const id of freshIds) {
 
 // Emitted reference tree: every page must document a live symbol with the live
 // signature. A page whose id no longer resolves in FRESH is a stale page.
-if (!existsSync(REF_TREE)) {
+if (PAGES_DIR && !existsSync(PAGES_DIR)) {
+  add(PAGES_ARG, 'dir', `--pages directory not found: ${PAGES_DIR} — cannot verify emitted API against source (fail-closed)`);
+} else if (!existsSync(REF_TREE)) {
   add(rel(REF_TREE), 'tree', `emitted reference tree not found — cannot verify emitted API against source (fail-closed)`);
+} else if (PAGES_DIR && walkMdx(REF_TREE).length === 0) {
+  add(rel(REF_TREE), 'tree', `--pages reference directory has zero .mdx files: ${REF_TREE} (fail-closed)`);
 } else {
   for (const abs of walkMdx(REF_TREE)) {
     const relPath = rel(abs);

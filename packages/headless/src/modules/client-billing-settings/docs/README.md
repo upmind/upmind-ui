@@ -1,39 +1,26 @@
 # client-billing-settings
 
-> A client's own invoice-consolidation preference — read and edited through a diff-only save.
+> A client's own invoice-consolidation preference — edited through a diff-only save.
 
 ## What Is This?
 
 `client-billing-settings` holds one client's own **invoice-consolidation preference**: whether their invoices are grouped into one consolidated bill, on what cadence, and on which due date. It ships as a **new sibling module**, deliberately named for the wider billing-settings surface it will eventually anchor — the legacy client-billing page groups this preference together with several other billing panels, and those are a separate, not-yet-built capability. This module owns only the preference itself.
 
-The module ships **two composables**, because reading and editing are different jobs:
+The module ships **one composable**, `useBillingSettings`, which opens the client's saved preference in a validated form and saves only what changed.
 
-| Surface | Composable | Use it when |
-| --- | --- | --- |
-| **The read view** | `useBillingSettings` | You are showing the client's currently saved preference |
-| **The editor** | `useBillingSettingsManager` | You are showing a form to change the preference |
+It acts on the calling client's own record — the only actor the composable resolves is `client`; `self`, `staff`, and `guest` are all compile-time errors. There is no capability here for one client to act on another's preference, and no capability for staff to administer it. A legacy admin surface over this same preference exists and is deliberately not built here — see [dropped-capabilities.md](./dropped-capabilities.md) for the six capabilities that surface names, and the tracked issue where they would be picked up.
 
-Both act on the calling client's own record — the only actor either composable resolves is `client`; `self`, `staff`, and `guest` are all compile-time errors. There is no capability here for one client to act on another's preference, and no capability for staff to administer it. A legacy admin surface over this same preference exists and is deliberately not built here — see [dropped-capabilities.md](./dropped-capabilities.md) for the six capabilities that surface names, and the tracked issue where they would be picked up.
-
-> **🧪 For Testers:** The only actor that resolves on either composable is `client`. `staff` and `guest` are compile-time errors — there is nothing in this module for a staff member or a guest to reach a preference with.
+> **🧪 For Testers:** The only actor that resolves on the composable is `client`. `staff` and `guest` are compile-time errors — there is nothing in this module for a staff member or a guest to reach a preference with.
 
 ## Quick Start
 
 ```ts
-import {
-  useBillingSettings,
-  useBillingSettingsManager,
-  ScopeActorTypes
-} from "@upmind-automation/headless";
+import { useBillingSettings, ScopeActorTypes } from "@upmind-automation/headless";
 
-// --- The read view
-const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
-const { data } = settings.useContext(); // the five persisted values + isStaged
-await settings.useActions().isReady();
-
-// --- The editor: change a value and save
-const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT); // callable bare — a client has exactly one preference
+// Change a value and save
+const manager = useBillingSettings().as(ScopeActorTypes.CLIENT); // callable bare — a client has exactly one preference
 await manager.useActions().isReady();
+const { model } = manager.useContext(); // the five persisted values (plus the account's currency fields)
 await manager.useActions().input({ enabled: 0 }); // turn consolidation off
 await manager.useActions().update();
 ```
@@ -42,22 +29,21 @@ await manager.useActions().update();
 
 | Capability | Surface | What it does |
 | --- | --- | --- |
-| Read own preference | `useBillingSettings().useContext().data` | The five persisted values, plus `isStaged` |
-| Know whether to show the surface at all | `useBillingSettings().useMeta().isVisible` (and the manager's own `isVisible`) | `true` only when the brand has explicitly opted clients in — defaults hidden |
-| Edit the preference | `useBillingSettingsManager().useActions().input()` + `.update()` | Validated form input, diff-only save |
+| Read own preference | `useBillingSettings().useContext().model` / `.baseModel` | The current and last-saved values — the five consolidation fields plus the account's currency fields |
+| Know whether to show the surface at all | `useBillingSettings().useMeta().isVisible` | `true` only when the brand has explicitly opted clients in — defaults hidden |
+| Edit the preference | `useBillingSettings().useActions().input()` + `.update()` | Validated form input, diff-only save — also persists the account's currency choices when they changed |
 | Revert unsaved changes | `…useActions().revert()` | Restores the last-saved values |
 | Clear the form | `…useActions().clear()` | Resets the editor to its starting state |
-| Lock the editor externally | `…useActions().setDisabled(true)` | Refuses input/save independent of the record's own state |
-| Know whether a save is safe right now | `…useMeta().isEditable` | `false` while staged, processing, or externally locked |
+| Know whether the editor is open for input | `…useMeta().isAvailable` | `false` until the brand has opted clients into managing consolidation themselves |
 | Validate as the client edits | `…useActions().input()` + `useMeta().isValid` | Reports acceptance and which field is wrong |
 
 ## Key Concepts
 
-### Two composables, one preference, two DIFFERENT registry names
+### One composable, one preference
 
-The read view and the editor share one scope matrix and one identity seam — whichever one issues a request, it resolves the same target client. A client has exactly one preference, so the editor is **callable bare**: `useBillingSettingsManager().as(ScopeActorTypes.CLIENT)` with no further argument constructs and settles.
+The composable resolves one target client for every request it issues. A client has exactly one preference, so it is **callable bare**: `useBillingSettings().as(ScopeActorTypes.CLIENT)` with no further argument constructs and settles.
 
-> **👩‍💻 For Developers:** Because both composables share a single-member context, the "no `.for()` supplied" call produces the identical scope key for both — so, unlike some other converted modules, this module registers the two composables under two DIFFERENT internal names (`"client-billing-settings"` and `"client-billing-settings-manager"`) rather than one shared name. See [architecture.md](./architecture.md).
+> **👩‍💻 For Developers:** The composable is registered under one internal name (`"client-billing-settings"`). See [architecture.md](./architecture.md).
 
 ### The on/off/follow switch is never `null` — the other four fields are
 
@@ -71,11 +57,13 @@ The read view and the editor share one scope matrix and one identity seam — wh
 
 > **🧪 For Testers:** Set `enabled: 0` and assert the outgoing body carries the literal key `invoice_consolidation_enabled: 0` — not an omitted key, and not `false`.
 
-### The visibility gate defaults to hidden
+### The visibility gate defaults to hidden — and the same key gates whether the editor is open at all
 
-`useBillingSettings().useMeta().isVisible` and the manager's own `isVisible` are both `true` only when the brand has explicitly configured the surface to show for clients. An absent or unreadable configuration value, or a fetch that fails outright, all resolve to hidden — never to shown.
+`useBillingSettings().useMeta().isVisible` is `true` only when the brand has explicitly configured the surface to show for clients. An absent or unreadable configuration value, or a fetch that fails outright, all resolve to hidden — never to shown.
 
-> **🧪 For Testers:** Seed the brand config key absent, `true`, and `false` and confirm only the `false` case reports `isVisible: true`, on BOTH composables.
+The editor's `isAvailable` reads the identical brand configuration: the form only reports itself available once the machine has settled **and** the brand has explicitly opted clients into managing this preference themselves. A brand that never sets the key, or sets it in the staff-only direction, leaves the editor permanently unavailable — the same failure-closed default as `isVisible`.
+
+> **🧪 For Testers:** Seed the brand config key absent, `true`, and `false` and confirm only the `false` case reports `isVisible: true` — and that only the `false` case ever lets the editor's `isAvailable` settle `true`.
 
 ### Saves are diff-only, and an empty diff is a genuine no-op
 
@@ -83,26 +71,22 @@ The read view and the editor share one scope matrix and one identity seam — wh
 
 > **🧪 For Testers:** Change nothing and call `update()` — assert zero network activity, not a request with an empty body.
 
-### A staged, unprocessed import locks the editor
+### Saving also writes the account's own currency choices, in the same call
 
-While the owning client record is a staged, not-yet-processed import, every save is refused before any request is sent — a check independent of the machine's own general edit-lock, so calling the service directly cannot bypass it.
+`update()` persists two different records in one call when both are dirty: the five consolidation fields, and the account's own billing currency / preferred payment currency. Each is diffed and sent independently — a save touching only one of the two issues exactly one request, never a second, empty one for the other. The preferred-payment-currency field can only ever be written when the brand has separately opted clients into paying in a different currency; the model does not offer the field at all when that choice is closed.
 
 ### Errors are state — the module raises nothing
 
-No toast, no notification. Every failure is captured where the consumer can read and render it: `useContext().error` / `useMeta().hasErrors` on the read view; `useContext().errors` / `.validationErrors` and `useMeta().hasErrors` on the editor.
+No toast, no notification. Every failure is captured where the consumer can read and render it: `useContext().errors` / `.validationErrors` and `useMeta().hasErrors`.
 
 ## Documentation
 
 | Doc | Audience | Content |
 | --- | --- | --- |
 | **This README** | Everyone | Overview, concepts, quick start |
-| [usage.md](./usage.md) | All devs | Full API reference for both composables |
+| [usage.md](./usage.md) | All devs | Full API reference |
 | [architecture.md](./architecture.md) | Internal / contributors | Data flow, the shared identity seam, dependencies |
-| [gotchas.md](./gotchas.md) | All | The sharp edges — the falsy-zero hazard, the shared cache key, the visibility tri-state, the `clear()` debounce race |
+| [gotchas.md](./gotchas.md) | All | The sharp edges — the falsy-zero hazard, the visibility tri-state, the `clear()` debounce race |
 | [foundation.md](./foundation.md) | Teams building against the platform on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes |
 | [dropped-capabilities.md](./dropped-capabilities.md) | All | The staff-administration surface this module deliberately does not build, and where it is tracked |
 | [CHANGELOG.md](./CHANGELOG.md) | All | Change history |
-
-## Playground
-
-No playground page exists yet for this module. It is a newly introduced sibling module; the client-billing page a playground would drive also mounts the not-yet-built sibling capability this module's own scope forwards to (brand-default resolution and the combined multi-panel save) — a playground page is expected once that capability lands.

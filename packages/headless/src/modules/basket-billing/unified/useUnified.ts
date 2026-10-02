@@ -197,11 +197,13 @@ export const useUnified = (
       });
   }
 
-  function clear(): void {
+  async function clear(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     service.send({ type: "CLEAR" });
   }
 
-  function stop(): void {
+  async function stop(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(service);
   }
   // ---------------------------------------------------------------------------

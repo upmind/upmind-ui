@@ -1,21 +1,23 @@
 // -----------------------------------------------------------------------------
 /**
  * @module client-custom-fields/__tests__/client-custom-fields.int-helpers
- * @description Shared integration scaffolding for client-custom-fields'
- * `*.int.test.ts` files: seed a real authenticated client session, evict this
- * module's scope-registry entries between tests, expose the RECORDED wire
- * bodies every handler serves, and capture outbound requests.
+ * @description Shared integration scaffolding for the module's ONE integration
+ * test (`client-custom-fields.replay.int.test.ts`): seed a real authenticated
+ * client session whose boot reads are answered by the OWNER modules' own
+ * recordings, and evict this module's scope-registry entries between scenarios.
  *
- * Every response body served here comes from a fixture captured by
- * `pnpm fixtures:generate client-custom-fields` against real staging — no
- * test builds a wire body of its own.
+ * Every response body served here comes from a fixture captured against real
+ * staging — the module's own `scenarios/` recordings and the brand / system /
+ * basket / session-store modules' own `fixtures/` — no test builds a wire body
+ * of its own (FE-3145, ADR 035).
  */
 
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { expect, vi } from "vitest";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
-import { narrowByLike, windowOf } from "../../../__tests__/criteria-int-kit";
+import { replayStep } from "@upmind-automation/test-fixtures/replay-server";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import { queryClient } from "../../query/client";
 import { getRegistry, remove } from "../../scope/scope.registry";
 import {
@@ -23,144 +25,49 @@ import {
   useActiveSession,
   useSessionStore
 } from "../../session-store";
-import { recordingsDir, server } from "./setup.integration";
+import { server } from "./setup.integration";
 import type { IToken } from "@upmind-automation/types";
-import type { SetupServer } from "msw/node";
 
 // -----------------------------------------------------------------------------
 
-/** The Upmind response envelope, as the recorded fixtures carry it. */
-export type Envelope<T> = {
-  status: string;
-  data: T;
-  total: number | null;
-  error: { code: number; message: string; data?: unknown } | null;
-  messages: unknown;
-  meta: unknown;
-};
+/** The brand's own recordings — its boot reads included. */
+const BRAND_RECORDINGS = join(
+  import.meta.dirname,
+  "../../brand/__tests__/fixtures"
+);
 
-/** One custom field definition as the recorded wire carries it. */
-export type WireField = {
-  id: string;
-  code: string;
-  name: string;
-  type: number;
-  type_code: string;
-  order: number;
-  hidden: boolean;
-  client_readonly: boolean;
-  required: boolean;
-  editable?: boolean;
-  user_only: boolean;
-  show_on_order_form: boolean;
-  show_on_invoice: boolean;
-  brand_id: string;
-  values: unknown;
-  display_contexts?: unknown;
-};
+/** The basket's own recordings — the claim a client sign-in makes. */
+const BASKET_RECORDINGS = join(
+  import.meta.dirname,
+  "../../basket/__tests__/fixtures"
+);
 
-/** One custom field value as the recorded wire carries it. */
-export type WireFieldValue = {
-  id: string;
-  field_id: string;
-  object_type: string;
-  value: unknown;
-  image_url: string | null;
-  created_at: string;
-  updated_at: string;
-  field?: WireField;
-};
+/** The system module's own recordings — the basket's reference data. */
+const SYSTEM_RECORDINGS = join(
+  import.meta.dirname,
+  "../../system/__tests__/fixtures"
+);
+
+/** Session-store's own OAuth token + `/self` captures — the seed material. */
+export const sessionStoreRecordingsDir = join(
+  import.meta.dirname,
+  "../../session-store/__tests__/fixtures"
+);
 
 /**
- * The recorded bodies, by capture. Each getter reads the co-located fixture
- * this module's generator wrote from staging.
- */
-export const recorded = {
-  /** `GET custom_fields?filter[object_type]=client&brand_id=...` — the real 2-row catalogue. */
-  definitions: () =>
-    getFixtureBody<Envelope<WireField[]>>(
-      "get-custom-fields-brand-id-filter-object-type-client-sort-order-asc",
-      { recordingsDir }
-    ),
-  /** `GET clients/{id}?with=custom_fields,custom_fields.field` — a real embedded value. */
-  withValues: () =>
-    getFixtureBody<Envelope<{ id: string; custom_fields: WireFieldValue[] }>>(
-      "get-clients-id-case-with-values",
-      { recordingsDir }
-    ),
-  /** `PUT clients/{id}` `{custom_fields:{age:"42"}}` — the real set response. */
-  setCustomField: () =>
-    getFixtureBody<Envelope<{ id: string; custom_fields: WireFieldValue[] }>>(
-      "put-clients-id-case-set-custom-field",
-      { recordingsDir }
-    ),
-  /** `PUT clients/{id}` `{custom_fields:{age:null}}` — the real clear response (value:null, not omitted). */
-  clearCustomField: () =>
-    getFixtureBody<Envelope<{ id: string; custom_fields: WireFieldValue[] }>>(
-      "put-clients-id-case-clear-custom-field",
-      { recordingsDir }
-    ),
-  /** `POST clients/fields/{id}/image` — the real successful upload. */
-  imageUpload: () =>
-    getFixtureBody<Envelope<WireFieldValue>>("post-clients-fields-id-image", {
-      recordingsDir
-    }),
-  /** `POST clients/fields/{id}/image` a non-image file — the real 422. */
-  imageUploadRejected: () =>
-    getFixture("post-clients-fields-id-image-case-rejected", { recordingsDir })
-};
-
-/** The two real definitions: NUMBER "age" and IMAGE "profile_picture". */
-export function recordedDefinitions(): WireField[] {
-  return recorded.definitions().data;
-}
-
-/** The real `field_id` + `brand_id` this module's captures were taken against. */
-export function recordedIds(): {
-  clientId: string;
-  brandId: string;
-  ageFieldId: string;
-  imageFieldId: string;
-} {
-  const defs = recordedDefinitions();
-  const age = defs.find(field => field.code === "age");
-  const image = defs.find(field => field.code === "profile_picture");
-  if (!age || !image) {
-    throw new Error(
-      "Recorded definitions capture is missing the age/profile_picture rows " +
-        "this suite's ids are read from."
-    );
-  }
-  return {
-    clientId: recorded.withValues().data.id,
-    brandId: age.brand_id,
-    ageFieldId: age.id,
-    imageFieldId: image.id
-  };
-}
-
-// -----------------------------------------------------------------------------
-
-/**
- * Background bootstrap calls unrelated to any AC (brand/org config) fire as a
- * side effect of `initStore()`; stub them harmlessly so they never surface as
- * noise against a suite scoped to client-custom-fields.
+ * The boot reads every signed-in test makes as a side effect of `initStore()`
+ * — answered by the RECORDINGS of the modules that own them, never by a body
+ * written here (FE-3145, ADR 035). Re-applied on every seed; the replay
+ * server's own `afterEach` resets handlers between tests.
  */
 export function installBackgroundStubs(): void {
-  server?.use(
-    http.get("*/org/modules", () =>
-      HttpResponse.json({ status: "ok", data: [] })
-    ),
-    http.get("*/config/brand/values", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    ),
-    http.get("*/config/organisation/values", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    ),
-    http.get("*/brand/settings", () =>
-      HttpResponse.json({ status: "ok", data: {} })
-    )
-  );
+  replayStep(server, BRAND_RECORDINGS);
+  replayStep(server, SYSTEM_RECORDINGS);
+  replayStep(server, BASKET_RECORDINGS);
+  replayStep(server, sessionStoreRecordingsDir);
+  // Last, so it answers first: every token grant shares one url and differs
+  // only by its body, so the grant a boot mints — the guest's — is named.
+  installGuestTokenStub();
 }
 
 // -----------------------------------------------------------------------------
@@ -176,8 +83,8 @@ export function clientCustomFieldsScopeKeys(): string[] {
 }
 
 /**
- * Evict every client-custom-fields scope entry so each test starts from a
- * fresh instance against ITS OWN handlers, and clear the shared query cache —
+ * Evict every client-custom-fields scope entry so each scenario starts from a
+ * fresh instance against ITS OWN recordings, and clear the shared query cache —
  * the registry entry and the TanStack cache are separate lifetimes.
  */
 export function resetClientCustomFieldsScopes(): void {
@@ -187,11 +94,7 @@ export function resetClientCustomFieldsScopes(): void {
 
 // -----------------------------------------------------------------------------
 
-export const sessionStoreRecordingsDir = join(
-  import.meta.dirname,
-  "../../session-store/__tests__/fixtures"
-);
-
+/** Answers `initStore()`'s guest-token bootstrap with session-store's capture. */
 function installGuestTokenStub(): void {
   const guestFixture = getFixture("post-oauth-access-token-guest", {
     recordingsDir: sessionStoreRecordingsDir
@@ -205,6 +108,7 @@ function installGuestTokenStub(): void {
   );
 }
 
+/** The recorded client token + `/self` body every seed below starts from. */
 function recordedClientCredentials(): {
   clientToken: IToken;
   selfBody: { data: { actor: { id: string; brand_id: string } } };
@@ -219,40 +123,22 @@ function recordedClientCredentials(): {
   };
 }
 
-/**
- * Seeds a real authenticated client session. `overrides` lets a caller
- * substitute the resolved client id / brand id for a SECOND, distinct
- * session (AC-2's "a different resolved client/brand" scenario) — the
- * session-store token/self shape stays the real recorded one; only the two
- * identity fields a scope resolves against are swapped, which is the same
- * "recorded envelope, documented override for the AC's own contract"
- * technique `client-email.mappers.test.ts` and `client-email.int-helpers.ts`
- * already use (never a fresh hand-authored session).
- */
-export async function seedClientSession(overrides?: {
-  clientId?: string;
-  brandId?: string;
-}): Promise<{ clientId: string; brandId: string; accessToken: string }> {
+/** Seeds a real authenticated client session; returns its resolved ids. */
+export async function seedClientSession(): Promise<{
+  clientId: string;
+  brandId: string;
+  accessToken: string;
+}> {
   resetClientCustomFieldsScopes();
   installBackgroundStubs();
 
   const { clientToken, selfBody } = recordedClientCredentials();
   installGuestTokenStub();
 
-  const actor = {
-    ...selfBody.data.actor,
-    id: overrides?.clientId ?? selfBody.data.actor.id,
-    brand_id: overrides?.brandId ?? selfBody.data.actor.brand_id
-  };
-
   await useSessionStore().initStore();
   await useSessionStore()
     .useActions()
-    .add(
-      clientToken,
-      true,
-      mapSessionUser({ ...selfBody.data, actor } as never)
-    );
+    .add(clientToken, true, mapSessionUser(selfBody.data as never));
 
   await vi.waitFor(() => {
     const meta = useActiveSession().useMeta();
@@ -261,38 +147,36 @@ export async function seedClientSession(overrides?: {
   });
 
   return {
-    clientId: actor.id,
-    brandId: actor.brand_id,
+    clientId: selfBody.data.actor.id,
+    brandId: selfBody.data.actor.brand_id,
     accessToken: clientToken.access_token
   };
 }
 
 /**
- * Seeds a session that AUTHENTICATES but resolves NO client id — the second
- * limb of the addressability predicate (AC-25).
+ * Seeds a clean GUEST floor for a `@signed-out` scenario: the owner boot
+ * recordings are armed and the store's guest session stands, but NO client is
+ * signed in. `seedSessionFor` calls this for a scenario tagged `@signed-out`, so
+ * the client×self module has no one to act for — it reports itself unavailable
+ * and the replay wall fails the scenario by name if it sends any request.
  */
-export async function seedAuthenticatedSessionWithoutClientId(): Promise<void> {
+export async function seedGuestSession(): Promise<void> {
   resetClientCustomFieldsScopes();
   installBackgroundStubs();
-  installGuestTokenStub();
-
-  const { clientToken, selfBody } = recordedClientCredentials();
 
   await useSessionStore().initStore();
-  await useSessionStore()
-    .useActions()
-    .add(
-      clientToken,
-      true,
-      mapSessionUser({
-        ...selfBody.data,
-        actor_id: undefined,
-        actor: { ...selfBody.data.actor, id: undefined }
-      } as never)
-    );
+  await Promise.resolve(useSessionStore().useActions().logout()).catch(
+    () => undefined
+  );
+  resetClientCustomFieldsScopes();
 
   await vi.waitFor(() => {
-    expect(useActiveSession().useMeta().isAuthenticated.value).toBe(true);
+    expect(useActiveSession().useMeta().isAuthenticated.value).toBe(false);
+  });
+  await vi.waitFor(() => {
+    expect(
+      useSessionStore().useActions().get(AccessRoleTypes.GUEST)
+    ).toBeTruthy();
   });
 }
 
@@ -306,203 +190,12 @@ export async function logoutClientSession(): Promise<void> {
   await vi.waitFor(() => {
     expect(useActiveSession().useMeta().isAuthenticated.value).toBe(false);
   });
-}
-
-// -----------------------------------------------------------------------------
-
-/** One observed outbound request. */
-export type ObservedRequest = {
-  method: string;
-  url: string;
-  headers: Record<string, string>;
-};
-
-/**
- * Passively observes every request whose URL contains `fragment`. Passive (an
- * MSW `request:start` listener) rather than an override handler, so it never
- * races the fixture replay for the same route.
- */
-export function observeRequests(fragment: string): {
-  all: () => ObservedRequest[];
-  first: () => ObservedRequest;
-  count: () => number;
-  stop: () => void;
-} {
-  const seen: ObservedRequest[] = [];
-  const listener = ({ request }: { request: Request }): void => {
-    if (!request.url.includes(fragment)) return;
-    seen.push({
-      method: request.method,
-      url: request.url,
-      headers: Object.fromEntries(request.headers.entries())
-    });
-  };
-  server?.events.on("request:start", listener);
-
-  return {
-    all: () => seen,
-    first: () => seen[0],
-    count: () => seen.length,
-    stop: () => server?.events.removeListener("request:start", listener)
-  };
-}
-
-/** Every header key the identity-transport read-back (A7) must NOT carry. */
-export function assertNoActingAsHeaders(headers: Record<string, string>): void {
-  const keys = Object.keys(headers).map(key => key.toLowerCase());
-  expect(keys).toEqual(
-    expect.not.arrayContaining([
-      "x-acting-as",
-      "x-impersonate",
-      "x-on-behalf-of",
-      "x-staff-id",
-      "x-admin-id",
-      "impersonation"
-    ])
-  );
-}
-
-/**
- * The full A7 read-back for one observed request: the URL addresses the
- * TARGET id (never the session client's own, when the two differ), the
- * bearer token is the session's own (a retargeted VALUES context is an
- * entity id, never an actor swap — no second token is ever minted), and no
- * acting-as header is present.
- */
-export function assertRetargetIdentityTransport(
-  observed: ObservedRequest,
-  targetId: string,
-  accessToken: string
-): void {
-  expect(observed.url).toContain(`/clients/${targetId}`);
-  expect(observed.headers.authorization ?? observed.headers.Authorization).toBe(
-    `Bearer ${accessToken}`
-  );
-  assertNoActingAsHeaders(observed.headers);
-}
-
-/**
- * Serves the definitions list from a MUTABLE row set, wrapped in the RECORDED
- * envelope, so an "empty brand" / "scrambled order" scenario is a real
- * envelope with substituted `data` — never a fresh hand-authored fixture.
- */
-export function installDefinitionsHandler(
-  mswServer: SetupServer | undefined,
-  brandId: string,
-  rows: WireField[]
-): { reads: () => number; lastUrl: () => string | undefined } {
-  const envelope = recorded.definitions();
-  let reads = 0;
-  let lastUrl: string | undefined;
-
-  mswServer?.use(
-    http.get("*/custom_fields", ({ request }) => {
-      reads += 1;
-      lastUrl = request.url;
-      const url = new URL(request.url);
-      if (url.searchParams.get("brand_id") !== brandId) {
-        return HttpResponse.json(
-          { ...envelope, data: [], total: 0 },
-          { status: 200 }
-        );
-      }
-      return HttpResponse.json(
-        { ...envelope, data: rows, total: rows.length },
-        { status: 200 }
-      );
-    })
-  );
-
-  return { reads: () => reads, lastUrl: () => lastUrl };
-}
-
-/**
- * The catalogue the recorded corpus was captured against — the only
- * `filter[object_type]` this module has real rows for. The recording brand
- * carries no `contract_request` field, so staging answers that catalogue 200
- * with zero rows (`docs/sdd/FE-3034/review-notes.md`, 2026-09-16).
- */
-export const RECORDED_CATALOGUE = "client";
-
-/**
- * The catalogue-partitioned sibling of {@link installDefinitionsHandler}:
- * serves the RECORDED corpus only for the catalogue it was captured against,
- * and the recorded envelope with zero rows for every other catalogue — what
- * staging answers for this brand. Counts reads per `filter[object_type]`.
- */
-export function installCatalogueAwareDefinitionsHandler(
-  mswServer: SetupServer | undefined,
-  brandId: string
-): { reads: (objectType: string) => number; total: () => number } {
-  const envelope = recorded.definitions();
-  const corpus = recordedDefinitions();
-  const reads = new Map<string, number>();
-
-  mswServer?.use(
-    http.get("*/custom_fields", ({ request }) => {
-      const params = new URL(request.url).searchParams;
-      const objectType = params.get("filter[object_type]") ?? "";
-      reads.set(objectType, (reads.get(objectType) ?? 0) + 1);
-
-      const rows =
-        params.get("brand_id") === brandId && objectType === RECORDED_CATALOGUE
-          ? corpus
-          : [];
-
-      return HttpResponse.json(
-        { ...envelope, data: rows, total: rows.length },
-        { status: 200, headers: { "x-total-count": String(rows.length) } }
-      );
-    })
-  );
-
-  return {
-    reads: objectType => reads.get(objectType) ?? 0,
-    total: () => [...reads.values()].reduce((sum, count) => sum + count, 0)
-  };
-}
-
-/**
- * The criteria-aware sibling of {@link installDefinitionsHandler}: that
- * handler ignores every param but `brand_id`, so it cannot back a filter,
- * sort or page assertion. This one narrows the RECORDED two-row corpus by
- * the request's own `filter[name|like]` and windows it by `limit`/`offset`,
- * mirroring `product-catalogue.int-helpers.ts`'s `installProductsHandler`
- * (`narrowByLike` / `windowOf`, `../../../__tests__/criteria-int-kit`) —
- * this module's own recorded rows, the platform's established technique.
- */
-export function installCriteriaAwareDefinitionsHandler(
-  mswServer: SetupServer | undefined,
-  brandId: string
-): { reads: () => number } {
-  const envelope = recorded.definitions();
-  const corpus = recordedDefinitions();
-  let reads = 0;
-
-  mswServer?.use(
-    http.get("*/custom_fields", ({ request }) => {
-      reads += 1;
-      const params = new URL(request.url).searchParams;
-      if (params.get("brand_id") !== brandId) {
-        return HttpResponse.json(
-          { ...envelope, data: [], total: 0 },
-          { status: 200 }
-        );
-      }
-      const narrowed = narrowByLike(corpus, params, "name", row => row.name);
-      return HttpResponse.json(
-        {
-          ...envelope,
-          data: windowOf(narrowed, params),
-          total: narrowed.length
-        },
-        // `x-total-count` — the pager's page-count math reads this header,
-        // not the body's `total` field (see the recorded page-1/page-2
-        // fixtures, which both carry it alongside an identical body.total).
-        { status: 200, headers: { "x-total-count": String(narrowed.length) } }
-      );
-    })
-  );
-
-  return { reads: () => reads };
+  // A logout re-mints the guest in the background. Awaited here, while this
+  // test's recordings still answer it: left in flight, it lands after the
+  // server closes and leaves the process for the real API.
+  await vi.waitFor(() => {
+    expect(
+      useSessionStore().useActions().get(AccessRoleTypes.GUEST)
+    ).toBeTruthy();
+  });
 }

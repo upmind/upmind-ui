@@ -34,7 +34,8 @@ const DECLARED_TYPES: TableCell["type"][] = [
   "TableCellDate",
   "TableCellIcon",
   "TableCellBadges",
-  "TableCellList"
+  "TableCellList",
+  "TableCellStatus"
 ];
 
 const NO_SCHEMA = {} as JsonSchema;

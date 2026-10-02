@@ -18,12 +18,11 @@ The single most important property of this module is that **every request resolv
 ```mermaid
 flowchart TD
   call["useClientCustomFields().as(ScopeActorTypes.CLIENT).for(ClientCustomFieldsContextTypes.CLIENT, clientId)"] --> resolve["resolveClientId derives the target client from the scope context, falling back to the session's own id"]
-  resolve --> brand["one-shot read of the target client's OWN brand id, under this module's own cache key"]
-  brand --> mint["mint the definitions list query ONCE for this scope, gated on the client AND the brand having resolved"]
+  resolve --> mint["mint the definitions list query ONCE for this scope, gated on the client having resolved"]
   mint --> ready["return the four sub-composable factories, all closed over the same query"]
 ```
 
-The definitions request carries the **target client's** brand id, never the calling session's own brand — a client whose brand differs from the session's own still sees that client's definitions. The brand id is itself read from the same client record the profile module also reads. Both modules build their own cache key toward matching each other, but a small asymmetry in how each side forms its own key means the two end up as separate entries rather than one shared one — see "Two independently-keyed reads" under Dependencies below for why that gap is left alone rather than closed by force.
+The definitions request carries no brand or client identifier of its own — the API scopes the read by the access token. The `clientId` resolved from the scope gates whether the request fires at all (addressability), but the definitions returned are whichever brand the token itself belongs to.
 
 ### Instantiation — the image editor
 
@@ -70,9 +69,8 @@ One services file serves both composables, split into two factories that share t
 | Concern                             | Where it lives                                                                                                                                                                                   |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Target-client resolution            | one function, branching on the resolved scope context, consumed by every request-issuing path                                                                                                    |
-| Addressability predicate            | one function; its reactive form is what `isAvailable` exposes on both composables                                                                                                                |
-| The target client's own brand id    | resolved once per scope, under this module's own cache key — never the calling session's brand                                                                                                   |
-| Definitions read + client-side sort | one function, gated on the client **and** the brand having settled (success or failure) — not merely having succeeded, which is what previously left readiness unbounded on a brand-read failure |
+| Addressability predicate            | one function — authenticated, with a resolved client id; its reactive form is what `isAvailable` exposes on both composables                                                                     |
+| Definitions read + client-side sort | one function, gated on the client having resolved; the request itself carries no brand or client identifier — the API scopes it by the access token                                              |
 | Wire ↔ view-model mapping           | pure mappers, no actor awareness                                                                                                                                                                 |
 | The image upload wrapper            | wraps the platform's existing upload interpreter; this module implements no upload endpoint of its own                                                                                           |
 | The aggregate image flush           | resolves every dirty (pending-upload) value in a value set, using a throwaway upload instance per field rather than the persistent per-field one the image editor holds                          |
@@ -85,7 +83,7 @@ Errors are **state**, not events. Nothing in this module raises a toast or notif
 
 | Surface                                            | Where a failure lands                                                                                                     |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Collection mutation (validation, brand resolution) | the services instance's captured error → `useContext().error`, `useMeta().hasError`                                       |
+| Collection mutation (validation)                   | the services instance's captured error → `useContext().error`, `useMeta().hasError`                                       |
 | Definitions read                                   | the query's own error → the same two members                                                                              |
 | Image upload                                       | the services instance's captured error, rewritten onto the field's own code → `useContext().errors`, `useMeta().hasError` |
 
@@ -110,11 +108,7 @@ Errors are **state**, not events. Nothing in this module raises a toast or notif
 | Account                       | the definition mapper, for custom fields returned alongside an account read                                                                  |
 | In-basket custom fields       | the definition mapper and the definition type, for custom fields collected against a basket                                                  |
 
-Every consumer above imports only the barrel's curated exports; none reaches into this module's internal services, mappers, or schema re-export file.
-
-### Two independently-keyed reads of the same client record
-
-This module's own brand-id read and the profile module's own read both target the identical underlying client record. Both are built to key against it as closely to each other as each side's own transport allows, but end up as **two separate cache entries today, not one shared one**, because of a small asymmetry in how each side forms its own key. That gap is left alone rather than closed by force: the underlying request platform bakes its own field-selection logic inside the cached fetch function itself, so a genuinely shared entry would be populated by whichever side's request happened to resolve first, silently corrupting the other side's read with the wrong shape. See [gotchas.md](./gotchas.md) and the profile module's own architecture doc for the full account — **do not quote a specific per-boot request count anywhere downstream of this doc**; the mechanism is settled, the count is not.
+Every consumer above imports only the barrel's curated exports; none reaches into this module's internal services, mappers, or schema re-export file. This module no longer reads the shared `clients/{id}` resource at all — the definitions request is scoped entirely by the access token, so it shares no cache key or request with `client-personal-details` or `client-billing-settings`.
 
 ## Load-order note
 

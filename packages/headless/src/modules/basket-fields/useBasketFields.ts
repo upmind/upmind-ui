@@ -93,7 +93,8 @@ export const useBasketFields = () => {
 
   // --- methods
 
-  function input(value: FieldsModel) {
+  async function input(value: FieldsModel): Promise<void> {
+    await debouncedUpdate.flush()?.catch(() => undefined);
     actor.value?.send({ type: "SET", data: toRaw(unref(value)) });
   }
 
@@ -130,7 +131,10 @@ export const useBasketFields = () => {
       });
   }
 
-  function clear(): void {
+  const debouncedUpdate = debounce(update, DEBOUNCE_DELAY);
+
+  async function clear(): Promise<void> {
+    await debouncedUpdate.flush()?.catch(() => undefined);
     actor.value?.send({ type: "CLEAR" });
   }
   // ---------------------------------------------------------------------------
@@ -196,7 +200,7 @@ export const useBasketFields = () => {
      * @param {FieldsModel} value The new fields model to set.
      * @returns {Promise<void>} Resolves when updated, rejects on error.
      */
-    update: debounce(update, DEBOUNCE_DELAY)
+    update: debouncedUpdate
   };
 };
 

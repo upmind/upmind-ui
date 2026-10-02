@@ -1,7 +1,7 @@
 import { isArray, join } from "lodash-es";
 import {
   parseScopeSuffix,
-  stripScopeSuffix
+  stripScopeCatchAll
 } from "~/composables/scope/scope-mapper";
 /**
  * Global Scope Middleware
@@ -32,7 +32,7 @@ export default defineNuxtRouteMiddleware(to => {
 
   if (!parsed.valid) {
     // Invalid scope format - redirect to base route without scope
-    const basePath = stripScopeSuffix(to.path);
+    const basePath = stripScopeCatchAll(to.path, rawSuffix);
     console.warn(
       `[scope middleware] Invalid scope suffix: ${parsed.error}. Redirecting to: ${basePath}`
     );

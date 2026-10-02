@@ -129,7 +129,3 @@ No toast, no notification, no message is raised on your behalf. Every failure is
 | [gotchas.md](./gotchas.md)           | All                                                         | The sharp edges — the `.for()` hazard, outcome precedence, filters  |
 | [foundation.md](./foundation.md)     | Teams building against the Upmind back end on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes |
 | [CHANGELOG.md](./CHANGELOG.md)       | All                                                         | Change history and porting notes                                    |
-
-## Playground
-
-None yet. Drive both composables through wherever a client's account area shows their email history.

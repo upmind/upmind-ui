@@ -32,13 +32,15 @@ import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { GrantTypes } from "@upmind-automation/types";
+import { GrantTypes, PaymentType } from "@upmind-automation/types";
 // eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
 import {
   mintClientToken,
   mintGuestToken,
-  mintStaffToken
+  mintStaffToken,
+  mintToken
 } from "../../auth/__tests__/auth.tokens";
+import { map } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -95,6 +97,26 @@ const ADMIN_SELF_QUERY =
 
 // -----------------------------------------------------------------------------
 
+/** A control call OUTSIDE the capture pipeline — it moves staging state (grant scope arrange/restore) and is never recorded. */
+async function control(
+  method: string,
+  path: string,
+  token?: string,
+  body?: unknown
+): Promise<unknown> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method,
+    headers: {
+      Accept: "application/json",
+      Origin: ORIGIN,
+      ...(body ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    ...(body ? { body: JSON.stringify(body) } : {})
+  });
+  return response.json().catch(() => null);
+}
+
 // -----------------------------------------------------------------------------
 
 describe("Session-Store API Fixtures Generator", () => {
@@ -102,6 +124,7 @@ describe("Session-Store API Fixtures Generator", () => {
   let clientToken: IToken;
   let staffToken: IToken | undefined;
   let guestToken: IToken | undefined;
+  let memberToken: IToken | undefined;
 
   beforeAll(async () => {
     generator = new Generator(API_URL, {
@@ -127,6 +150,23 @@ describe("Session-Store API Fixtures Generator", () => {
       console.warn(
         "[session-store.fixtures] OMISSION: staff credentials rejected on " +
           "the recording brand; GET admin/self (200) not captured."
+      );
+    }
+
+    // The delegate MEMBER holds a standing account-level grant from the delegate
+    // owner (tests/fixtures/credentials.ts, FE-3036), so its `/self` is the only
+    // account on staging whose `delegated_ids` is populated. Recorded here so
+    // this module's OWN co-located fixtures carry the populated map its delegate
+    // scenarios replay (ADR 025 co-location — no cross-module reuse).
+    memberToken = await mintToken({
+      grant_type: "password",
+      username: API_CREDENTIALS.delegateMember.username,
+      password: API_CREDENTIALS.delegateMember.password
+    }).catch(() => undefined);
+    if (!memberToken) {
+      console.warn(
+        "[session-store.fixtures] OMISSION: delegate-member credentials " +
+          "rejected; the populated delegated_ids /self was not captured."
       );
     }
   }, 30000);
@@ -252,4 +292,536 @@ describe("Session-Store API Fixtures Generator", () => {
       );
     }
   });
+
+  // --- the delegate member: a POPULATED delegated_ids surface -----------------
+  // The delegate member holds a standing account-level grant, so its `/self`
+  // carries `delegated_ids.client = [ownerId]` — the populated map DG1/DG4/DG7's
+  // TRUE path replays. The grant is account-level only, so the map holds the
+  // `client` key ALONE; `contracts_product` and `ticket` need per-record grants
+  // that ride FE-3041 (DG1-product / DG8-ticket stay blocked, see feature).
+
+  it("captures GET /api/self for the delegate member (200, populated delegated_ids.client)", async () => {
+    if (!memberToken?.access_token) return;
+    generator.setBearerToken(memberToken.access_token);
+    const { status, body } = await generator.get(
+      `/api/self?case=delegated&${SELF_QUERY}`
+    );
+    generator.clearBearerToken();
+    if (status !== 200) {
+      console.warn(
+        `[session-store.fixtures] member /self returned ${status}, not 200.`
+      );
+      return;
+    }
+    const delegatedIds = (
+      body as { data?: { delegated_ids?: Record<string, string[]> } }
+    ).data?.delegated_ids;
+    if (!delegatedIds?.client?.length) {
+      console.warn(
+        "[session-store.fixtures] member /self carries no delegated_ids.client " +
+          "— the standing grant may have been revoked; re-run delegates fixtures."
+      );
+    }
+  });
+
+  // --- delegated per-record surfaces (the invoice / contract-product rows the
+  //     member reads by delegation), for isDelegated / getOwnerForDelegatedRecord.
+  // Invoices embed the owning client (`delegate_related` + `client`); contract
+  // products carry `is_delegated_object`. The no-owner variant omits `with=client`
+  // so a row carries no owner, backing the getOwnerForDelegatedRecord empty case.
+
+  it("captures GET /api/invoices for the delegate member with the owner embedded (200)", async () => {
+    if (!memberToken?.access_token) return;
+    generator.setBearerToken(memberToken.access_token);
+    await generator.get(
+      "/api/invoices?case=delegated&with=client,client.parent_client_config&order=-created_at&limit=25"
+    );
+    generator.clearBearerToken();
+  });
+
+  it("captures GET /api/invoices for the delegate member WITHOUT the owner embedded (200)", async () => {
+    if (!memberToken?.access_token) return;
+    generator.setBearerToken(memberToken.access_token);
+    await generator.get(
+      "/api/invoices?case=no-owner&order=-created_at&limit=5"
+    );
+    generator.clearBearerToken();
+  });
+
+  it("captures GET /api/contract_products for the delegate member with the owner embedded (200)", async () => {
+    if (!memberToken?.access_token) return;
+    generator.setBearerToken(memberToken.access_token);
+    await generator.get(
+      "/api/contract_products?case=delegated&with=client,client.parent_client_config&limit=25"
+    );
+    generator.clearBearerToken();
+  });
+
+  // --- DG1-product: a scoped (non-full) per-product grant surfaces the
+  //     `contracts_product` key on the member's delegated_ids. The owner's grant
+  //     is switched from full to product-scoped, the member /self recorded, then
+  //     the full grant is RESTORED in the same step's `finally` so staging is
+  //     left exactly as found (operator ruling 2026-09-24 — arrange, record, reset).
+
+  it("captures GET /api/self for the delegate member under a product-scoped grant (200, contracts_product key)", async () => {
+    if (!memberToken?.access_token) return;
+    const ownerToken = await mintToken({
+      grant_type: "password",
+      username: API_CREDENTIALS.delegateOwner.username,
+      password: API_CREDENTIALS.delegateOwner.password
+    }).catch(() => undefined);
+    if (!ownerToken?.access_token) {
+      console.warn(
+        "[session-store.fixtures] OMISSION: delegate-owner token rejected; " +
+          "the product-scoped /self was not captured (DG1-product)."
+      );
+      return;
+    }
+    const ownerId = ownerToken.actor_id as string;
+    const bearer = ownerToken.access_token;
+
+    const delegates = (await control(
+      "GET",
+      `/api/clients/${ownerId}/delegates`,
+      bearer
+    )) as { data?: { id: string; invite_email: string }[] };
+    const record = (delegates?.data ?? []).find(
+      row => row.invite_email === API_CREDENTIALS.delegateMember.username
+    );
+    const products = (await control(
+      "GET",
+      `/api/contract_products?limit=1`,
+      bearer
+    )) as { data?: { id: string }[] };
+    const cpId = products?.data?.[0]?.id;
+    if (!record || !cpId) {
+      console.warn(
+        "[session-store.fixtures] OMISSION: no delegate record or no contract " +
+          "product to scope; product-scoped /self not captured (DG1-product)."
+      );
+      return;
+    }
+
+    const memberBearer = memberToken.access_token;
+    await control(
+      "PUT",
+      `/api/clients/${ownerId}/delegates/${record.id}`,
+      bearer,
+      { full_delegate: false, add_contract_product_ids: [cpId] }
+    )
+      .then(() => {
+        generator.setBearerToken(memberBearer);
+        return generator.get(`/api/self?case=delegated-product&${SELF_QUERY}`);
+      })
+      .then(({ body }) => {
+        generator.clearBearerToken();
+        const keys = Object.keys(
+          (body as { data?: { delegated_ids?: Record<string, string[]> } }).data
+            ?.delegated_ids ?? {}
+        );
+        if (!keys.includes("contracts_product")) {
+          console.warn(
+            `[session-store.fixtures] product-scoped /self keys=${JSON.stringify(keys)} ` +
+              "— no contracts_product key surfaced (DG1-product)."
+          );
+        }
+      })
+      .finally(() =>
+        // Remove the per-product grant this arrange added before restoring the
+        // full grant, so no `contracts_product` grant lingers on the record for
+        // DG8.
+        control(
+          "PUT",
+          `/api/clients/${ownerId}/delegates/${record.id}`,
+          bearer,
+          { full_delegate: true, remove_contract_product_ids: [cpId] }
+        )
+      );
+  }, 60000);
+
+  // --- DG8: a ticket-only grant surfaces the `ticket` key ALONE (no `client`,
+  //     no `contracts_product`), so hasDelegatedProducts reads false. The member
+  //     holds full grants from EVERY owner in its delegated_ids.client, so ALL of
+  //     them are scoped to ticket-only (admin PUT, staff token) around the record
+  //     and RESTORED to full in `finally`. Each owner needs a ticket of its own,
+  //     created (admin) for the arrange and reused thereafter.
+
+  it("captures GET /api/self for the delegate member under a ticket-only grant (200, ticket key alone)", async () => {
+    if (!memberToken?.access_token) return;
+    const staffToken = await mintStaffToken().catch(() => undefined);
+    if (!staffToken?.access_token) {
+      console.warn(
+        "[session-store.fixtures] OMISSION: staff token rejected; ticket-only " +
+          "/self not captured (DG8)."
+      );
+      return;
+    }
+    const staff = staffToken.access_token;
+    const memberId = memberToken.actor_id as string;
+    const memberBearer = memberToken.access_token;
+
+    const selfBody = (await control(
+      "GET",
+      `/api/self?${SELF_QUERY}`,
+      memberToken.access_token
+    )) as { data?: { delegated_ids?: { client?: string[] } } };
+    const ownerIds = selfBody?.data?.delegated_ids?.client ?? [];
+    if (!ownerIds.length) {
+      console.warn(
+        "[session-store.fixtures] OMISSION: member holds no delegated owners; " +
+          "ticket-only /self not captured (DG8)."
+      );
+      return;
+    }
+
+    // A ticket create needs a department. The create route is the admin
+    // contextual POST /api/admin/tickets carrying the owner as `client_id`
+    // (vue-app store/modules/data/tickets/index.ts `create` → apiPath().contextual).
+    const departments = (await control(
+      "GET",
+      "/api/admin/tickets/departments?limit=1",
+      staff
+    )) as { data?: { id?: string }[] };
+    const departmentId = departments?.data?.[0]?.id;
+
+    const scoped: { ownerId: string; recordId: string }[] = [];
+    await Promise.all(
+      map(ownerIds, ownerId =>
+        control("GET", `/api/admin/clients/${ownerId}/delegates`, staff).then(
+          delsRaw => {
+            const dels = delsRaw as {
+              data?: {
+                id: string;
+                invite_email?: string;
+                delegate_client_id?: string;
+              }[];
+            };
+            const rec = (dels?.data ?? []).find(
+              r =>
+                r.delegate_client_id === memberId ||
+                r.invite_email === API_CREDENTIALS.delegateMember.username
+            );
+            if (!rec) {
+              console.warn(
+                `[session-store.fixtures] DG8: no delegate record for the member on owner ${ownerId}.`
+              );
+              return undefined;
+            }
+            return control("POST", "/api/admin/tickets", staff, {
+              client_id: ownerId,
+              subject: "FE-3145 delegated-access fixture ticket",
+              body: "Arranged to record a ticket-only delegated grant.",
+              ...(departmentId ? { ticket_department_id: departmentId } : {})
+            }).then(ticketRaw => {
+              const ticket = ticketRaw as {
+                data?: { id?: string };
+                error?: { message?: string };
+              };
+              const ticketId = ticket?.data?.id;
+              if (!ticketId) {
+                console.warn(
+                  `[session-store.fixtures] DG8: ticket create for owner ${ownerId} returned no id ` +
+                    `(${JSON.stringify(ticket?.error ?? ticket)?.slice(0, 200)}).`
+                );
+                return undefined;
+              }
+              return control(
+                "PUT",
+                `/api/admin/clients/${ownerId}/delegates/${rec.id}`,
+                staff,
+                { full_delegate: false, add_ticket_ids: [ticketId] }
+              )
+                .then(() =>
+                  // With the full grant off, only the explicit per-product
+                  // grants remain (the DG1-product arrange leaves one on the
+                  // record); remove them so `ticket` is the ONLY key on the
+                  // member's delegated_ids. `limit=0` returns EVERY granted
+                  // contract product in one page — owner 25d96e76 has more than
+                  // fit a default page, so an unpaginated read left the rest
+                  // behind and the `contracts_product` key persisted.
+                  control(
+                    "GET",
+                    `/api/admin/clients/${ownerId}/delegates/${rec.id}/contract_products?limit=0`,
+                    staff
+                  )
+                )
+                .then(grantedCpsRaw => {
+                  const grantedCps = grantedCpsRaw as {
+                    data?: { id: string }[];
+                  };
+                  const cpIds = (grantedCps?.data ?? []).map(row => row.id);
+                  console.log(
+                    `[session-store.fixtures] DG8 owner ${ownerId}: granted CPs before remove=${cpIds.length}`
+                  );
+                  const removeStep = cpIds.length
+                    ? control(
+                        "PUT",
+                        `/api/admin/clients/${ownerId}/delegates/${rec.id}`,
+                        staff,
+                        {
+                          full_delegate: false,
+                          remove_contract_product_ids: cpIds
+                        }
+                      ).then(removed =>
+                        control(
+                          "GET",
+                          `/api/admin/clients/${ownerId}/delegates/${rec.id}/contract_products?limit=0`,
+                          staff
+                        ).then(afterCpsRaw => {
+                          const afterCps = afterCpsRaw as {
+                            data?: { id: string }[];
+                          };
+                          console.log(
+                            `[session-store.fixtures] DG8 owner ${ownerId}: remove status=${removed.status} ` +
+                              `granted CPs after remove=${(afterCps?.data ?? []).length}`
+                          );
+                        })
+                      )
+                    : Promise.resolve();
+                  return removeStep.then(() => {
+                    scoped.push({ ownerId, recordId: rec.id });
+                  });
+                });
+            });
+          }
+        )
+      )
+    )
+      .then(() => {
+        if (scoped.length !== ownerIds.length) {
+          console.warn(
+            `[session-store.fixtures] DG8: scoped ${scoped.length}/${ownerIds.length} owners ` +
+              "to ticket-only — the `client` key may persist; ticket-only /self not reliable."
+          );
+        }
+
+        generator.setBearerToken(memberBearer);
+        return generator.get(
+          `/api/self?case=delegated-ticket-only&${SELF_QUERY}`
+        );
+      })
+      .then(({ body }) => {
+        generator.clearBearerToken();
+        const keys = Object.keys(
+          (body as { data?: { delegated_ids?: Record<string, string[]> } }).data
+            ?.delegated_ids ?? {}
+        );
+        console.log(
+          `[session-store.fixtures] DG8 ticket-only /self keys=${JSON.stringify(keys)}`
+        );
+      })
+      .finally(() =>
+        Promise.all(
+          map(scoped, s =>
+            control(
+              "PUT",
+              `/api/admin/clients/${s.ownerId}/delegates/${s.recordId}`,
+              staff,
+              { full_delegate: true }
+            )
+          )
+        )
+      );
+  }, 120000);
+
+  // --- DG2 child-account arms: a record whose OWNING CLIENT is a child account.
+  //     `isDelegated` excludes such an invoice (the child-first gate — any parent
+  //     on the client makes it hierarchy, not delegation) but KEEPS such a
+  //     contract product. Staging holds none, so a child client is created (admin)
+  //     under the delegate OWNER, given an invoice + contract product through its
+  //     OWN order→convert flow, and read back by the OWNER (the parent) — whose
+  //     co-mingled invoices/contract_products list carries its own rows PLUS the
+  //     child's, the child's embedding `client.parent_client_config` (its
+  //     parent_client_id === the reading owner). Non-fatal throughout: a failed
+  //     arrange logs and skips so the rest of the generator still records.
+
+  it("captures the owner's co-mingled child-account invoice + contract product (200)", async () => {
+    const staffToken = await mintStaffToken().catch(() => undefined);
+    const ownerToken = await mintToken({
+      grant_type: GrantTypes.PASSWORD,
+      username: API_CREDENTIALS.delegateOwner.username,
+      password: API_CREDENTIALS.delegateOwner.password
+    }).catch(() => undefined);
+    if (!staffToken?.access_token || !ownerToken?.access_token) {
+      console.warn(
+        "[session-store.fixtures] OMISSION: staff/owner token rejected; " +
+          "child-account records not captured (DG2 units)."
+      );
+      return;
+    }
+    const staff = staffToken.access_token;
+    const ownerId = ownerToken.actor_id as string;
+
+    const settings = (await control(
+      "GET",
+      "/api/brand/settings",
+      ownerToken.access_token
+    )) as { data?: { id?: string } };
+    const brandId = settings?.data?.id;
+    if (!brandId) {
+      console.warn(
+        "[session-store.fixtures] OMISSION: no brand id from /api/brand/settings; " +
+          "child-account records not captured (DG2 units)."
+      );
+      return;
+    }
+
+    const stamp = Date.now();
+    const childEmail = `nathan.robinson+fe3145child${stamp}@upmind.com`;
+    const childPassword = "Password1";
+
+    // The client-create 404s "Currency not found!" with a null currency, so a real
+    // brand currency is resolved first (the owner's own — it shares the brand).
+    const currencies = (await control(
+      "GET",
+      "/api/currencies?limit=1",
+      ownerToken.access_token
+    )) as { data?: { id?: string }[] };
+    const currencyId = currencies?.data?.[0]?.id;
+
+    // Create a child client. The body follows the admin client-create shape; if a
+    // required field is missing on this brand the API 422s and this step skips
+    // (disclosed), leaving the DG2 unit scenarios @todo rather than mis-recording.
+    const created = (await control("POST", "/api/admin/clients", staff, {
+      brand_id: brandId,
+      firstname: "FE3145",
+      lastname: "Child",
+      username: childEmail,
+      email: childEmail,
+      password: childPassword,
+      language: "en",
+      ...(currencyId ? { currency_id: currencyId } : {})
+    })) as { data?: { id?: string }; error?: { message?: string } };
+    const childId = created?.data?.id;
+    if (!childId) {
+      console.warn(
+        "[session-store.fixtures] DG2 units: child client create returned no id " +
+          `(${JSON.stringify(created?.error ?? created)?.slice(0, 300)}). ` +
+          "Scenarios stay @todo; report the required client-create body."
+      );
+      return;
+    }
+
+    await control(
+      "POST",
+      `/api/admin/clients/${ownerId}/child_configs`,
+      staff,
+      {
+        child_client_id: childId,
+        allow_impersonation: true,
+        inherit_payment_details: true
+      }
+    )
+      .then(() =>
+        // Give the child its own invoice + contract product through the ADMIN
+        // order flow — a freshly created child cannot log in to self-order (the
+        // child-token mint fails), so the order is placed as STAFF for the
+        // child, then converted pay-later (invoices.fixtures.ts AC-13 shape).
+        control("POST", "/api/admin/orders", staff, {
+          client_id: childId,
+          brand_id: brandId,
+          ...(currencyId ? { currency_id: currencyId } : {}),
+          category_slug: "new_contract",
+          products: [
+            {
+              product_id: "3de78642-de53-9714-76df-21208469530d",
+              quantity: 1,
+              billing_cycle_months: 1
+            }
+          ]
+        })
+      )
+      .then(orderRaw => {
+        const order = orderRaw as {
+          status?: number;
+          data?: { id?: string };
+          error?: unknown;
+        };
+        const basketId = order?.data?.id;
+        return (
+          basketId
+            ? control("PATCH", `/api/admin/orders/${basketId}/convert`, staff, {
+                type: PaymentType.PAY_LATER,
+                amount: 0
+              })
+            : Promise.resolve(undefined)
+        ).then(convert => {
+          console.log(
+            `[session-store.fixtures] DG2 child ${childId}: admin order status=${order.status} ` +
+              `basket=${basketId ?? "none"} order.error=${JSON.stringify(order.error)?.slice(0, 300)} ` +
+              `convert status=${convert?.status ?? "skipped"} convert.error=${JSON.stringify((convert?.body as { error?: unknown })?.error)?.slice(0, 200)}`
+          );
+        });
+      })
+      .then(() =>
+        // Verify the child's parent points at the OWNER whose list we record — a
+        // mismatch means the co-mingled read would never surface the child.
+        control(
+          "GET",
+          `/api/admin/clients/${childId}?with=parent_client_config`,
+          staff
+        )
+      )
+      .then(childRecordRaw => {
+        const childRecord = childRecordRaw as {
+          data?: { parent_client_config?: { parent_client_id?: string } };
+        };
+        console.log(
+          `[session-store.fixtures] DG2 child ${childId}: parent_client_id=${childRecord?.data?.parent_client_config?.parent_client_id} ownerId=${ownerId}`
+        );
+        return control(
+          "GET",
+          `/api/invoices?client_id=${childId}&limit=5`,
+          staff
+        );
+      })
+      .then(childInvoicesRaw => {
+        const childInvoices = childInvoicesRaw as { data?: unknown[] };
+        return control(
+          "GET",
+          `/api/contract_products?client_id=${childId}&limit=5`,
+          staff
+        ).then(childCpsRaw => {
+          const childCps = childCpsRaw as { data?: unknown[] };
+          console.log(
+            `[session-store.fixtures] DG2 child ${childId}: own invoices=${childInvoices?.data?.length ?? 0} own CPs=${childCps?.data?.length ?? 0}`
+          );
+        });
+      })
+      .then(() => {
+        // The OWNER (the parent) reads its own co-mingled subtree; the child's
+        // rows embed `client.parent_client_config` pointing back to this owner.
+        generator.setBearerToken(ownerToken.access_token);
+        return generator.get(
+          "/api/invoices?case=child-account&with=client,client.parent_client_config&order=-created_at&limit=100"
+        );
+      })
+      .then(ownerInvoices =>
+        generator
+          .get(
+            "/api/contract_products?case=child-account&with=client,client.parent_client_config&limit=100"
+          )
+          .then(() => {
+            generator.clearBearerToken();
+            const ownerRows =
+              (
+                ownerInvoices?.body as {
+                  data?: {
+                    client?: { id?: string; parent_client_config?: unknown };
+                  }[];
+                }
+              )?.data ?? [];
+            console.log(
+              `[session-store.fixtures] DG2 owner co-mingled invoices=${ownerRows.length} ` +
+                `withParentConfig=${ownerRows.filter(r => r.client?.parent_client_config).length} ` +
+                `childRows=${ownerRows.filter(r => r.client?.id === childId).length}`
+            );
+          })
+      )
+      .finally(() =>
+        // Deactivate the arranged child so it does not linger as active staging
+        // data.
+        control("DELETE", `/api/admin/clients/${childId}`, staff)
+      );
+  }, 120000);
 });

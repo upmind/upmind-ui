@@ -158,14 +158,19 @@ const surfaceActions = computed<SurfaceActions>(() => port?.actions ?? {});
 // or the clicked row. The row-data path carries no meta, which reads READY.
 //
 // `presentation.siblings` (2026-09-09 operator sign-off) folds NAMED context
-// siblings (e.g. `useInvoice().useContext().unpaidAmount`) into `model`
+// siblings of `model` on a cell's `useContext()` into `model`
 // additively: no declared siblings, `pick` returns `{}` and `model` is `data`
 // alone, byte-for-byte as before this field existed.
 const snapshot = computed<ModulePortSnapshot>(() => {
   if (port) {
     const snap = port.snapshot();
+    // A single-view cell publishes its mapped record as `model`; a list-style
+    // cell as `data`. Read whichever the cell exposes — never a fixed `data`.
+    const record = (snap.context.model ?? snap.context.data) as
+      | Record<string, unknown>
+      | undefined;
     const model = {
-      ...(snap.context.data as Record<string, unknown> | undefined),
+      ...record,
       ...pick(snap.context, props.presentation?.siblings ?? [])
     };
     return { ...snap, context: { ...snap.context, model } };

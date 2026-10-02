@@ -19,7 +19,7 @@
 
 <script lang="ts" setup>
 import { Button } from "@upmind/ui";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 
 // -----------------------------------------------------------------------------
 

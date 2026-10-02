@@ -1,0 +1,25 @@
+# Negative-control mutant 20 — repreview (FE-3206)
+#
+# Mutation: do not run the dry run again on a change: `previewed` takes no `MIGRATION.CHANGED`.
+# Spec it must turn red: "Changing an option ... re-prices what the change costs".
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -466,11 +466,6 @@
+                   },
+                   previewed: {
+                     on: {
+-                      "MIGRATION.CHANGED": {
+-                        target: "previewing",
+-                        actions: "setMigrationModel",
+-                        cond: "isNewMigrationModel"
+-                      },
+                       MIGRATE: {
+                         target: "processing",
+                         cond: "isMigrationTargetReady"

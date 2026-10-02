@@ -1,0 +1,25 @@
+# Negative-control mutant — the consolidation flag refuses an unavailable product (AC-9)
+#
+# Scenario it must flip: contract-product.feature >
+#   "I am told whether the consolidation form is offered before I open it — a cancelled subscription, for its invoicing"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then I am told the consolidation form is not offered" — `canConsolidate` reads
+#   true on the cancelled subscription.
+# Mutation: `canConsolidate` drops the `isAvailable` gate and reads the record
+#   predicate alone.
+# Collateral: the AC-9 row "a lapsed subscription, for its invoicing".
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+index f450389bc..9cb7aa4d4 100644
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -66,7 +66,6 @@ export function createContractProductMeta(
+      */
+     canConsolidate: computed(
+       () =>
+-        isAvailable.value &&
+         !!contractProduct.value &&
+         isConsolidationEligible(contractProduct.value)
+     ),

@@ -934,6 +934,17 @@
       "count": 2
     }
   },
+  "packages/modules-auth/src/components/Auth.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "no-fallthrough": {
+      "count": 3
+    },
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
   "packages/client-vue/src/components/emailHistory/EmailHistoryListing.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1099,6 +1110,11 @@
       "count": 4
     }
   },
+  "packages/client-vue/src/modules/order/Order.vue": {
+    "vue/return-in-computed-property": {
+      "count": 2
+    }
+  },
   "packages/client-vue/src/modules/payment/components/AccountCredit.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1164,6 +1180,61 @@
   "packages/client-vue/src/modules/system/Error.vue": {
     "no-fallthrough": {
       "count": 1
+    }
+  },
+  "packages/modules-foundation/src/forms/Form.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/modules-foundation/src/forms/useFormI18n.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/modules-foundation/src/manage/Form.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/modules-foundation/src/manage/List.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    }
+  },
+  "packages/modules-foundation/src/manage/Manage.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    },
+    "vue/no-useless-template-attributes": {
+      "count": 1
+    }
+  },
+  "packages/modules-foundation/src/manage/Select.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/modules-foundation/src/manage/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 12
+    }
+  },
+  "packages/modules-foundation/src/navigation/useBreadcrumbs.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
     }
   },
   "packages/headless/src/modules/account/account.types.ts": {
@@ -1634,6 +1705,11 @@
       "count": 1
     }
   },
+  "packages/headless/src/modules/invoices/invoices.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
   "packages/headless/src/modules/lookup/useLookup.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
@@ -1642,11 +1718,6 @@
       "count": 1
     },
     "file-responsibility/types-in-types-file": {
-      "count": 2
-    }
-  },
-  "packages/headless/src/modules/orders/order.types.ts": {
-    "@typescript-eslint/no-explicit-any": {
       "count": 2
     }
   },
@@ -2266,6 +2337,44 @@
   "packages/headless/src/utils/useValidationKeywords.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    }
+  },
+  "packages/modules-payment/src/components/AccountCredit.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/modules-payment/src/components/FormModal.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/modules-payment/src/components/PaymentAmount.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "packages/modules-product/src/components/Configure.vue": {
+    "vue/no-expose-after-await": {
+      "count": 1
+    }
+  },
+  "packages/modules-product/src/components/card/ProductBenefits.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/modules-product/src/renderers/SubProductRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/modules-product/src/renderers/TermsRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
     }
   },
   "packages/ui/src/utils/isDeepEmpty.ts": {

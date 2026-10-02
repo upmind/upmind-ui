@@ -133,7 +133,7 @@ describe("unified lookups fixtures generator", () => {
   it("captures GET /api/config/brand/values", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(
-      `/api/config/brand/values?filter[keys|eq]=${encodeURIComponent(BRAND_CONFIG_KEYS)}`
+      `/api/config/brand/values?keys=${encodeURIComponent(BRAND_CONFIG_KEYS)}`
     );
     generator.clearBearerToken();
     if (status !== 200)

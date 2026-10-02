@@ -1,18 +1,22 @@
 <template>
-  <ul :class="cellList.root()" data-test-key="cell-list">
+  <ul :class="cellList.root({ layout })" data-test-key="cell-list">
     <li
       v-for="(item, index) in items"
       :key="itemKey(item, index)"
-      :class="cellList.item()"
+      :class="cellList.item({ layout })"
       data-test-key="cell-list-item"
     >
-      <component
-        :is="resolveTableCell(element)?.renderer"
+      <span
         v-for="element in props.element.options.elements"
         :key="element.scope"
-        :element="element"
-        :row="item"
-      />
+        :class="cellList.part()"
+      >
+        <component
+          :is="resolveTableCell(element)?.renderer"
+          :element="element"
+          :row="item"
+        />
+      </span>
     </li>
   </ul>
 </template>
@@ -32,6 +36,8 @@ import type { ListRow } from "../surfaces/ListSurface.types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<TableCellProps<TableCellList>>();
+
+const layout = computed(() => props.element.options.layout);
 
 const items = computed<ListRow[]>(() => {
   const value = resolveScope(props.row, props.element.scope);

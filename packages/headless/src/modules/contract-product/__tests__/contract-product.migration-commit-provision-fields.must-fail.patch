@@ -1,0 +1,27 @@
+# Negative-control mutant 40 — commit-provision-fields (FE-3206)
+#
+# Mutation: put the child's provision fields in the change body.
+# Spec it must turn red: "A plan that needs provisioning details ..." ("carries no provisioning details"), and the AC-32 unit spec.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -491,8 +491,11 @@
+     ),
+     attributes: flatMap(model.attributes, category =>
+       map(category, value => ({ product_id: value.productId }))
+-    )
+-  };
++    ),
++    ...(model.provisionFields
++      ? { provision_fields: model.provisionFields }
++      : {})
++  } as ChangeProductBody;
+ }
+ 
+ /**

@@ -84,12 +84,12 @@ import { Link } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useBasket,
   useBasketBilling,
   useBasketFields
 } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import {
   basketAlertsRootVariants,
   basketAlertsListVariants,

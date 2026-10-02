@@ -35,12 +35,12 @@
 import { NumberField } from "@upmind/ui";
 import { Button } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
 import { basketProductActionsVariants } from "../basket-product.variants";
 
 // --- types

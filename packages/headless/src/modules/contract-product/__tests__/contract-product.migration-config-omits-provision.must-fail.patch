@@ -1,0 +1,25 @@
+# Negative-control mutant 56 — config-omits-provision (FE-3206)
+#
+# Mutation: Let `migrationConfig` expose the provision members.
+# Spec it must turn red: a unit spec: `migrationConfig` has no provision member (prover authors it; this patch is the contract).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.ts b/packages/headless/src/modules/contract-product/useContractProduct.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.ts
+@@ -48,10 +48,7 @@ const MIGRATION_CONFIG_OMITTED = [
+   "updateQuantity",
+   "incrementQuantity",
+   "decrementQuantity",
+-  "provisionFields",
+-  "provisionFieldsSchema",
+-  "setProvisioningFields",
+-  "getProvisioningField",
++
+   "setTrial"
+ ];
+ 

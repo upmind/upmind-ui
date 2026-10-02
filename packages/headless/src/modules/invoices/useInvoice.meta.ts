@@ -1,125 +1,144 @@
 import { computed } from "vue";
-import { PAYMENT_STATE } from "./invoices.types";
+import { useActiveSession } from "../session-store";
+import { canChangePaymentCurrency } from "./invoice.utils";
+import {
+  machineMatches,
+  stateMatches,
+  useChildActor,
+  useContext,
+  useContextActor
+} from "../../utils";
 import { isEmpty, some } from "lodash-es";
-import type {
-  Invoice,
-  InvoiceItemQuery,
-  InvoiceUnpaidAmountQuery,
-  InvoicesServices,
-  PaymentState
-} from "./invoices.types";
+import type { Invoice, InvoiceBrandConfig } from "./invoices.types";
+import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice.meta
- * @description Single-read meta — computed state flags, one computed per
- * flag. `paymentState` wires the pre-conversion dead {@link PAYMENT_STATE}
- * enum (design D3), replacing four booleans (`invoices.ts:24-44`
- * pre-conversion) that could previously disagree with each other with ONE
- * discriminated value.
- * @doctrine clause 2 — shared-only (armless).
+ * @description Single-invoice meta — one computed per flag, the payment-state
+ * flags derived from the invoice summary and machine state.
  */
 export function createInvoiceMeta(
   _actorScope: ScopeActorTypes,
-  service: InvoicesServices,
-  query: InvoiceItemQuery,
-  unpaidAmountQuery: InvoiceUnpaidAmountQuery
+  actor: UseActor,
+  paymentFailed: Ref<boolean>
 ) {
-  // Folds in the unpaid-amount read's own error (W1) — otherwise a failed
-  // AC1 re-read is unobservable: `unpaidAmount` just stays stale.
-  const hasError = computed(
+  const { state } = actor;
+  const { isAuthenticated, isGuestClient } = useActiveSession().useMeta();
+
+  const invoice = useContext<Invoice | undefined>(state, "invoice");
+  const errors = useContext<ResponseError | undefined>(state, "error");
+  const conversionError = useContext<ResponseError | undefined>(
+    state,
+    "conversionError"
+  );
+  const config = useContext<InvoiceBrandConfig | undefined>(state, "config");
+  const paymentDetailActor = useContextActor(state, "paymentDetailActor");
+  const payment = useChildActor(state, "payment");
+
+  const isAvailable = computed(() => stateMatches(state, ["available"]));
+  const isFailed = computed(
     () =>
-      !!service.error.value ||
-      !!query.error.value ||
-      !!unpaidAmountQuery.error.value
+      (stateMatches(state, ["available.collecting"]) &&
+        !isEmpty(errors.value)) ||
+      paymentFailed.value
   );
-
-  const isEmptyResult = computed(() => isEmpty(query.data.value?.id));
-
-  const isLoading = computed(
-    () => query.isLoading.value || !query.isFetched.value
+  const hasPendingPayment = computed(() =>
+    some(invoice.value?.payments, "meta.isPending")
   );
-
-  const isComplete = computed(() => query.isFetched.value);
-
-  /**
-   * ONE discriminated derivation over `summary.unpaidAmount` /
-   * `summary.paidAmount` / `payments[]` — the source the four pre-conversion
-   * booleans each read independently and could disagree over.
-   *
-   * A failed/absent load reports `FAILED`, never a guessed state (AC-16's
-   * guard scenario): `FAILED` is the one member the four booleans below
-   * never wrap, so a load failure cannot masquerade as a genuine payment
-   * outcome. `hasError` is what tells the two apart from a real failed
-   * payment attempt.
-   */
-  const paymentState = computed<PaymentState>(() => {
-    const invoice = query.data.value;
-    if (isEmpty(invoice?.summary)) return PAYMENT_STATE.FAILED;
-
-    const { payments, summary } = invoice as Invoice;
-
-    if (summary.unpaidAmount === 0) {
-      return isEmpty(payments) ? PAYMENT_STATE.FREE : PAYMENT_STATE.COMPLETE;
-    }
-    if (summary.paidAmount > 0) return PAYMENT_STATE.PARTIAL;
-    if (some(payments, payment => payment.meta.isPending)) {
-      return PAYMENT_STATE.PENDING;
-    }
-    return isEmpty(payments) ? PAYMENT_STATE.PENDING : PAYMENT_STATE.FAILED;
-  });
-
-  // --- actor-specific meta: none earned yet (clause 2). When a scope earns
-  // one, add `useInvoice.meta.{actor}.ts` and spread it LAST.
+  const paidAmount = computed(() => invoice.value?.summary.paidAmount ?? 0);
+  const unpaidAmount = computed(() => invoice.value?.summary.unpaidAmount ?? 0);
 
   return {
-    /** True if the item query, or the unpaid-amount read, failed. */
-    hasError,
+    /** True while an error, a failed attempt or a failed pay-currency change
+     * sits on an available invoice. */
+    hasError: computed(
+      () =>
+        isAvailable.value && (isFailed.value || !isEmpty(conversionError.value))
+    ),
 
-    /**
-     * True while this scope can address a client — authenticated, with a
-     * resolved client id. Handed straight through from the services
-     * instance: this IS the predicate the request gates call, not a second
-     * copy of it.
-     */
-    isAvailable: service.isAvailable,
+    /** True while the invoice is owed and unlocked — the gate legacy offers
+     * "change payment method" on (`invoiceActions.vue`, `isPayable`). */
+    canUpdatePaymentMethod: computed(
+      () =>
+        isAvailable.value && unpaidAmount.value > 0 && !invoice.value?.locked
+    ),
 
-    /** True once the first fetch has completed, regardless of outcome. */
-    isComplete,
+    /** True when the brand allows a different pay currency and nothing of the
+     * invoice is paid yet — the gate `useActions().setCurrency()` obeys. */
+    hasPaymentCurrencyChoice: computed(
+      () =>
+        isAvailable.value &&
+        canChangePaymentCurrency(config.value, invoice.value)
+    ),
 
-    /** True if this scope's invoice carries no id. */
-    isEmpty: isEmptyResult,
+    /** True when the reading session is authenticated. */
+    isAuthenticated: computed(() => isAuthenticated.value),
+
+    /** True once the invoice has loaded and the pay flow is active. */
+    isAvailable,
+
+    /** True when the reading client is a guest — no full account yet. */
+    isGuestClient: computed(() => isGuestClient.value),
+
+    /** True once the pay flow has completed (paid in full or free). */
+    isComplete: computed(() => stateMatches(state, ["complete"])),
 
     /** True if this invoice is free — never charged, nothing owed. */
-    isFree: computed(() => paymentState.value === PAYMENT_STATE.FREE),
+    isFree: computed(
+      () => isEmpty(invoice.value?.payments) && unpaidAmount.value === 0
+    ),
 
-    /** True if the invoice is locked (cannot accept new payment methods). */
-    isLocked: computed(() => !!query.data.value?.locked),
+    /** True while the invoice is loading. */
+    isLoading: computed(() => stateMatches(state, ["subscribing", "loading"])),
 
-    /** True while the read is loading or has not completed its first fetch. */
-    isLoading,
-
-    /** True if this invoice is paid in full. */
-    isPaid: computed(() => paymentState.value === PAYMENT_STATE.COMPLETE),
+    /** True if the invoice cannot accept a new payment method. */
+    isLocked: computed(() => !!invoice.value?.locked),
 
     /** True if some but not all of this invoice has been paid. */
-    isPartiallyPaid: computed(
-      () => paymentState.value === PAYMENT_STATE.PARTIAL
+    isPartial: computed(
+      () => isAvailable.value && paidAmount.value > 0 && unpaidAmount.value > 0
     ),
 
-    /** True while this invoice has no settled payment and something is owed. */
-    isPending: computed(() => paymentState.value === PAYMENT_STATE.PENDING),
-
-    /** AC13 — false for a delegated invoice (`invoiceStatusMsg.vue:118-124`). */
-    isSettleable: computed(
-      () => query.data.value?.attribution?.isSettleable ?? false
+    /** True while payment is due and nothing is settled or pending. */
+    isPaymentDue: computed(
+      () =>
+        isAvailable.value &&
+        !isFailed.value &&
+        !hasPendingPayment.value &&
+        paidAmount.value === 0 &&
+        unpaidAmount.value > 0
     ),
 
-    /** The wired discriminated payment state (design D3). */
-    paymentState
+    /** True while a payment is in flight (pending settlement). */
+    isPending: computed(() => isAvailable.value && hasPendingPayment.value),
 
-    // The arm merges in HERE, last.
-    // ...actorMeta
+    /** True while a payment, refresh or pay-currency conversion is processing. */
+    isProcessing: computed(
+      () =>
+        stateMatches(state, [
+          "available.converting",
+          "available.paying",
+          "available.refreshing"
+        ]) || machineMatches(paymentDetailActor, ["processing", "finalising"])
+    ),
+
+    /** True during the post-payment balance re-fetch — the machine enters this
+     * refresh only after a payment captures, so it is the "a payment landed"
+     * signal (full or partial). */
+    isSettling: computed(() => stateMatches(state, ["available.refreshing"])),
+
+    /** True while an inline 3DS challenge awaits approval. */
+    needsApproval: computed(() => machineMatches(payment, ["challenging"])),
+
+    /** True while an inline challenge is rendering into its container. */
+    isRenderingChallenge: computed(() =>
+      machineMatches(payment, ["challenging.render"])
+    ),
+
+    /** True if the invoice could not be loaded. */
+    isUnavailable: computed(() => stateMatches(state, ["unavailable"]))
   };
 }
 

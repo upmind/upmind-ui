@@ -1,0 +1,41 @@
+# Negative-control mutant — the row status is a translated-badge-ready `meta`
+# group, not a bare `{ code }` (G2, R38 item 9)
+#
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Narrow my contracts to the ones in one state"
+#   contract.feature > "Read my contracts again to see how they stand now"
+#
+# Mutation: `mapContractMeta` ignores the contract's OWN `status.code` and
+#   returns every flag `false` — no badge is ever true, so a hand sees a
+#   contract with no status at all.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 0000000..1111111 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -35,15 +35,15 @@
+ }
+ 
+ /** The translated-badge flags for a contract's own `status.code` (R38 item 9, G2). */
+-export function mapContractMeta(code: ContractStatusCodes): ContractMeta {
++export function mapContractMeta(_code: ContractStatusCodes): ContractMeta {
+   return {
+-    isActive: code === ContractStatusCodes.ACTIVE,
+-    isAwaitingActivation: code === ContractStatusCodes.AWAITING_ACTIVATION,
+-    isCancelled: code === ContractStatusCodes.CANCELLED,
+-    isClosed: code === ContractStatusCodes.CLOSED,
+-    isFraud: code === ContractStatusCodes.FRAUD,
+-    isPending: code === ContractStatusCodes.PENDING,
+-    isSuspended: code === ContractStatusCodes.SUSPENDED
++    isActive: false,
++    isAwaitingActivation: false,
++    isCancelled: false,
++    isClosed: false,
++    isFraud: false,
++    isPending: false,
++    isSuspended: false
+   };
+ }
+ 

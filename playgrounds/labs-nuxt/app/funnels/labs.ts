@@ -1,10 +1,10 @@
+import { AUTH_FORMS } from "@upmind-automation/auth";
 import {
   type AnyEventObject,
   assign,
   type FunnelContext,
   type FunnelProps,
-  QUERY_PARAMS,
-  SESSION_FORMS
+  QUERY_PARAMS
 } from "@upmind-automation/client-vue";
 import {
   AUTH_SCOPE_MATRIX,
@@ -155,7 +155,7 @@ export function authOverlayTarget(
         ...(authNamedActor(named)
           ? { [ACTOR_PARAM]: toString(named) }
           : undefined),
-        [MODE_PARAM]: SESSION_FORMS.LOGIN,
+        [MODE_PARAM]: AUTH_FORMS.LOGIN,
         [QUERY_PARAMS.CANCEL_URL]: ROUTE.HOME
       };
 
@@ -207,6 +207,22 @@ export function intentOverlayTarget(
 ) {
   return {
     name: `${overlayParent(route)}--${overlayId}`,
+    params: route?.params,
+    query: omit(route?.query, [QUERY_PARAMS.INIT])
+  };
+}
+
+/**
+ * The page itself MINUS a refused or unrecognised `?init` intent. Refusing by
+ * re-target, never by resolving in place, is what keeps the spent param out of
+ * the url: the middleware and the engine both navigate the funnel's target, and
+ * a resolve in place hands back the route that still carries it.
+ */
+export function intentRefusedTarget(
+  route: Pick<RouteLocation, "name" | "params" | "query"> | undefined
+) {
+  return {
+    name: route?.name,
     params: route?.params,
     query: omit(route?.query, [QUERY_PARAMS.INIT])
   };
@@ -439,7 +455,6 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_LOGIN]: {
-      entry: ["setCurrency"],
       invoke: {
         src: "guardSession",
         onDone: {

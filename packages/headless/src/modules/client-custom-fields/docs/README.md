@@ -117,7 +117,3 @@ Naming a client's id here is addressing an **entity**, not adopting an **actor**
 | [gotchas.md](./gotchas.md)           | All                                                  | The sharp edges — the type discriminator, the image-upload progress gap, load-order, scope typing |
 | [foundation.md](./foundation.md)     | Teams building against the platform on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes                               |
 | [CHANGELOG.md](./CHANGELOG.md)       | All                                                  | Change history and porting notes                                                                  |
-
-## Playground
-
-None yet. Drive the collection and the image editor through wherever a client's custom fields are rendered — currently the client profile pages under `playgrounds/labs/src/pages/account/profile/`.

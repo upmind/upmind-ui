@@ -67,7 +67,8 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const lookups: InvoicesScopeLookups = {
     contract: once(() => service.loadContractLookup()),
     contracts_product: once(() => service.loadContractProductLookup()),
-    invoice: once(() => service.loadInvoiceLookup())
+    invoice: once(() => service.loadInvoiceLookup()),
+    invoicePicker: once(() => service.loadInvoicePickerLookup())
   };
 
   /** ONE actions instance per scope; the layers below stay lazy. */

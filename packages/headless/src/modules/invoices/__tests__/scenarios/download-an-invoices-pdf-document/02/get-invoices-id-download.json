@@ -1,0 +1,45 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices/085e69d5-6237-1972-8996-c218e940d423/download",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Origin, X-Requested-With, Content-Type, Accept, Token-Type",
+      "cache-control": "private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a435d0678be415d5-JNB",
+      "connection": "keep-alive",
+      "content-disposition": "attachment; filename=\"QA-INV-25561.pdf\"",
+      "content-length": "24005",
+      "content-type": "application/pdf",
+      "date": "Wed, 30 Sep 2026 20:00:29 GMT",
+      "etag": "\"5da7510641e04cd2ad2d9a51086dc3f5\"",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=nrrr9XHUqBhnqncfhSEs8Oe6LtH%2B3kJf%2BXP14l2wJYravtaJtfaDTDSUiFVhsOau7aLUG6XDiVahqaVAo1ujxc7um%2FL1ZCTNfMdCZGjkW1iQH54Chggnc1TCk1Pg5hSmec9TPKgtuQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "vary": "Origin",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "__binary": true,
+      "byteLength": 24005
+    }
+  },
+  "captured_at": "2026-09-30T20:00:30.054Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

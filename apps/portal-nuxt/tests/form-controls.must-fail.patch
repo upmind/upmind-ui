@@ -1,0 +1,18 @@
+# Negative control — payment's entry stops registering its controls, so the portal starts without them.
+#
+# Intended RED:
+#   apps/portal-nuxt/tests/form-controls.test.ts
+#     "holds the form controls of 'payment'"
+
+diff --git a/packages/modules-payment/src/index.ts b/packages/modules-payment/src/index.ts
+--- a/packages/modules-payment/src/index.ts
++++ b/packages/modules-payment/src/index.ts
+@@ -6,8 +6,6 @@
+ import { registerFormRenderers } from "@upmind-automation/foundation";
+ import { paymentRenderers } from "./renderers";
+ 
+-registerFormRenderers(paymentRenderers);
+-
+ // --- Export Views
+ export { default as UpmPayment } from "./components/Payment.vue";
+ 

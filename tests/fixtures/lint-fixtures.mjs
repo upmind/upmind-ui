@@ -5,6 +5,7 @@
  * Scans the v3 fixture surface, which now lives PER UNIT (no central pool, no
  * `cases/`):
  *   - module units:  packages/headless/src/modules/<m>/__tests__/fixtures/**
+ *   - scenario step units: packages/headless/src/modules/<m>/__tests__/scenarios/<slug>/<NN>/**
  *   - journey units: tests/<surface>/<flow>/<slug>/fixtures/**
  *
  * Fails (exit 1) on any of:
@@ -108,6 +109,7 @@ function jsonFiles(dir) {
 /**
  * A unit = a `fixtures/` directory owned by one module or one journey.
  * Module units: packages/headless/src/modules/<m>/__tests__/fixtures
+ * Scenario step units: packages/headless/src/modules/<m>/__tests__/scenarios/<slug>/<NN>
  * Journey units: tests/<surface>/<flow>/<slug>/fixtures
  */
 function findUnitDirs() {
@@ -116,6 +118,14 @@ function findUnitDirs() {
   for (const moduleDir of subdirs(MODULES_ROOT)) {
     const fixturesDir = join(moduleDir, "__tests__", "fixtures");
     if (existsSync(fixturesDir)) units.push(fixturesDir);
+
+    // One unit per module scenario STEP (FE-3145):
+    // `__tests__/scenarios/<scenario-slug>/<NN>`. Replay
+    // arms one step's folder at a time, so a request two steps both make is
+    // two answers, never a duplicate.
+    for (const scenario of subdirs(join(moduleDir, "__tests__", "scenarios"))) {
+      units.push(...subdirs(scenario));
+    }
   }
 
   for (const surface of subdirs(JOURNEYS_ROOT)) {

@@ -1,83 +1,172 @@
+import { watch } from "vue";
+import { interpret } from "xstate";
+import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope";
-import { createClientPersonalDetailsServices } from "./client-personal-details.services";
+import { useI18n } from "../system-localisation";
+import createClientPersonalDetailsServices from "./client-personal-details.services";
 import { createPersonalDetailsActions } from "./usePersonalDetails.actions";
 import { createPersonalDetailsContext } from "./usePersonalDetails.context";
 import { createPersonalDetailsInternals } from "./usePersonalDetails.internals";
+import { createPersonalDetailsMachineConfig } from "./usePersonalDetails.machine";
 import { createPersonalDetailsMeta } from "./usePersonalDetails.meta";
+import {
+  createActor,
+  contextMatches,
+  DetailedError,
+  ErrorOrigin,
+  responseCodes
+} from "../../utils";
 import type { PersonalDetailsScopeMatrix } from "./client-personal-details.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/usePersonalDetails
- * @description Scoped, query-backed read of a client's own profile: one
- * reactive record query per concrete `(actor, context)` scope, minted once
- * at construction so it survives component lifecycles. Its sibling is
- * `usePersonalDetailsManager` — a second scoped composable in the same
- * module, sharing the SAME scope matrix (design.md §3.2) but registered
- * under its OWN registry name (`usePersonalDetailsManager.ts`'s own
- * `@decision` explains why a shared name would collide here, unlike
- * `client-email`'s).
+ * @description Scoped `dataManagerMachine`-backed editor for a client's own
+ * profile. One interpreter per concrete `(actor, context)` scope.
  *
- * @doctrine clause 1 (uniform four-layer default).
+ * @decision registered under its OWN registry name, not the read half's.
+ * what:    this composable's `createScopedComposable` call names
+ *          `"client-personal-details"`, not
+ *          `"client-personal-details"` — a deliberate departure from
+ *          `useClientEmailManager`'s literal precedent (same name as
+ *          `useClientEmails`).
+ * why:     `generateScopeKey(name, config)` is `name:actor[:context.type:
+ *          context.id][:brand][:fresh]` (`scope.utils.ts`) — NOTHING else
+ *          differentiates two composables sharing one name. `client-email`
+ *          gets away with sharing a name only because its manager is NEVER
+ *          called bare: every call site supplies either `.withId(id)`
+ *          (an existing address) or `.fresh()` (a new draft), both of which
+ *          add a segment the collection's own `.as('client')` (no `.for()`)
+ *          never has. This module's shared `CLIENT` context has no such
+ *          guarantee — `.as('client')` with NO `.for()` is the
+ *          NORMAL call for BOTH halves (a client has exactly one profile, so
+ *          there is nothing to pick), which would make the read half's and
+ *          the manager's scope keys IDENTICAL under a shared name — the
+ *          registry would hand one consumer the other's instance. A modules
+ *          two DISTINCT registry names is the fix; the SHARED scope MATRIX
+ *          (design.md §3.2) still holds — both use the same
+ *          `ClientPersonalDetailsContextTypes.CLIENT` context and the same
+ *          identity seam, only the registry key's `name:` segment differs.
+ * rejected: keeping one shared name and requiring every manager call site to
+ *          add `.for('client', clientId)` — rejected: it forces every
+ *          caller to know and re-supply the client's own id just to avoid a
+ *          collision, for an entity that already has exactly one profile;
+ *          brittle and easy to forget.
+ *
+ * @doctrine clause 1 (uniform four-layer default) — identical return shape
+ * to the read half.
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
- * actor; the scope builder resolves SELF before this factory runs.
+ * actor; never branch on SELF in this file.
  */
 function createPersonalDetailsForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
+  const { t } = useI18n();
+
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
-   * ONE services instance for this scope. `config.context` goes in here and
-   * nowhere else, so every request the read half issues resolves the same
-   * target client.
+   * ONE services instance for this scope, threaded into the machine config.
+   * `config.context` goes in here and nowhere else — every request the
+   * manager issues, directly or through the machine, inherits the same
+   * resolved client.
    */
   const service = createClientPersonalDetailsServices(
     actorScope,
     config.context
   );
 
+  const machineService = interpret(
+    dataManagerMachine
+      .withConfig(createPersonalDetailsMachineConfig(service))
+      .withContext({
+        // The profile record IS the client (`clients/{id}`), so the record id
+        // and the client id are one (design.md §3.4) — both fields seed from
+        // the ONE resolved client seam.
+        id: service.clientId.value,
+        clientId: service.clientId.value,
+        lookups: { fields: [], filterFields: [], languages: [] },
+        // Scoped instances are persistent editors — stay editable after a
+        // save (the machine returns to `available` instead of the
+        // `complete` final state) so a remounting form re-uses the same
+        // instance.
+        allowMultipleEdits: true
+      }),
+    {
+      id: scopeKey,
+      devTools: false
+    }
+  );
+  machineService.start();
+
+  const actorRef = createActor(machineService);
+  if (!actorRef) {
+    throw new DetailedError(
+      t("error.client_personal_details_not_available"),
+      responseCodes.Service_Unavailable,
+      ErrorOrigin.Headless,
+      { scope: config }
+    );
+  }
+
   /**
-   * The reactive profile query, minted ONCE per scope — a `service.loadProfile()`
-   * call inside a layer factory would mint a second query with its own refs,
-   * key and effect scope. Mirrors `useClientCustomFields`.
+   * Late top-up ONLY. The machine's `hasSubscription` guard holds it in
+   * `subscribing` until a client id exists, and at construction the session
+   * may not have resolved yet. The id is watched off `service.clientId` —
+   * the ONE identity seam, never a second session read — and
+   * `refreshContext` keeps an already-present value, so this can never
+   * clobber a resolved retarget. A session that never authenticates simply
+   * never fires it, leaving the machine in `subscribing` with no
+   * unaddressed request (AC-42).
    */
-  const query = service.loadProfile();
+  const stopClientIdTopUp = watch(service.clientId, clientId => {
+    if (!clientId || contextMatches(actorRef.state, "clientId")) return;
+    stopClientIdTopUp();
+    actorRef.send({ type: "REFRESH", data: { clientId, id: clientId } });
+  });
+
+  /**
+   * ONE actions instance per scope, not one per `useActions()` call: `input`
+   * is debounced, so a debouncer minted per call gives two keystrokes two
+   * independent timers.
+   */
+  const actions = createPersonalDetailsActions(
+    actorScope,
+    actorRef,
+    service,
+    scopeKey
+  );
 
   return {
     // --- Sub-composables (no direct props — clause 1 four-layer return)
-    /** Sub-composable for read actions (readiness, refresh). */
-    useActions: () =>
-      createPersonalDetailsActions(
-        actorScope,
-        service,
-        query,
-        scopeKey,
-        config.context
-      ),
+    /** Sub-composable for manager actions (form input, save, revert, lifecycle). */
+    useActions: () => actions,
 
-    /** Sub-composable for read context (the profile, its custom fields, lookups). */
-    useContext: () =>
-      createPersonalDetailsContext(actorScope, query, config.context),
+    /** Sub-composable for manager context (model, schema, errors). */
+    useContext: () => createPersonalDetailsContext(actorScope, actorRef),
 
     /** Sub-composable for advanced debugging and internal access. */
-    useInternals: () => createPersonalDetailsInternals(actorScope, query),
+    useInternals: () => createPersonalDetailsInternals(actorScope, actorRef),
 
-    /** Sub-composable for read meta (state flags). */
-    useMeta: () => createPersonalDetailsMeta(actorScope, service, query)
+    /** Sub-composable for manager meta (state flags). */
+    useMeta: () => createPersonalDetailsMeta(actorScope, actorRef)
   };
 }
 // -----------------------------------------------------------------------------
 /**
- * Scoped composable for reading a client's own profile.
+ * Scoped composable for editing a client's own profile. Callable bare
+ * (AC-43) — `usePersonalDetails().as('client')` constructs and
+ * settles without a caller-supplied option.
  *
  * @example
  * ```ts
- * const profile = usePersonalDetails().as('client')
- * const { data } = profile.useContext()
- * await profile.useActions().isReady()
+ * const manager = usePersonalDetails().as('self')
+ * const { model, schema, uischema } = manager.useContext()
+ * manager.useActions().filterFields(['firstName'])
+ * await manager.useActions().isReady()
+ * await manager.useActions().update({ firstName: 'New' })
  * ```
  */
 export const usePersonalDetails = createScopedComposable<

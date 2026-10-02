@@ -15,7 +15,7 @@ import {
 import { InvoiceStatus } from "@upmind-automation/types";
 import { ROUTE } from "..";
 import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
-import { intentOverlayTarget } from "../labs";
+import { intentOverlayTarget, intentRefusedTarget } from "../labs";
 import { INIT_INTENT_OVERLAY, InitIntent } from "../labs.constants";
 import {
   endsWith,
@@ -30,7 +30,7 @@ import {
 import type { RouteLocation } from "vue-router";
 import {
   parseScopeSuffix,
-  stripScopeSuffix
+  stripScopeCatchAll
 } from "~/composables/scope/scope-mapper";
 import { usePlaygroundUrlState } from "~/composables/usePlaygroundUrlState";
 // -----------------------------------------------------------------------------
@@ -65,11 +65,9 @@ function bounded(ready: Promise<boolean>): Promise<boolean> {
  * admitted them. An invoice that never arrived admits nothing: a 404 leaves
  * nothing to pay and no surface to open over.
  *
- * The readiness wait is BOUNDED, and hitting the bound is a refusal.
- * `useInvoice.isReady()` resolves only from a bare `setInterval` poll with no
- * timeout and no reject (`packages/headless/src/modules/invoices/useInvoice.ts:46-58`),
- * and this guard is awaited inside navigation-blocking middleware
- * (`app/middleware/routing.global.ts:30`) — so an unsettled wait would be an app
+ * The readiness wait is BOUNDED, and hitting the bound is a refusal. This guard
+ * is awaited inside navigation-blocking middleware
+ * (`app/middleware/routing.global.ts:30`), so an unsettled wait would be an app
  * with no page.
  */
 async function admitsIntent(
@@ -87,8 +85,8 @@ async function admitsIntent(
   const invoice = useInvoice().withId(toString(invoiceId));
   if (!(await bounded(invoice.useActions().isReady()))) return false;
 
-  const { data } = invoice.useContext();
-  return !isEmpty(data.value) && data.value?.status !== InvoiceStatus.PAID;
+  const { model: loaded } = invoice.useContext();
+  return !isEmpty(loaded.value) && loaded.value?.status !== InvoiceStatus.PAID;
 }
 
 /**
@@ -136,7 +134,8 @@ async function guardScenario({
 /**
  * `?init=<intent>` — the EMAIL's instruction to the screen. It reads the param,
  * waits for that screen's own data to settle, decides per value, and rejects
- * with the overlay child which answers the intent. It opens nothing itself: the
+ * with the overlay child which answers the intent — or, refused, with the page
+ * itself minus the param. It opens nothing itself: the
  * funnel assigns the target and the middleware navigates it, the exercised
  * `guardAuthenticated` → `authOverlayTarget` shape.
  *
@@ -155,22 +154,24 @@ async function guardInitIntent({
   const intent = useQueryParams(route).getParam(QUERY_PARAMS.INIT);
   if (!intent) return { type: FunnelActions.NEXT };
 
-  try {
-    const overlay = get(INIT_INTENT_OVERLAY, toString(intent));
-
-    if (overlay && (await admitsIntent(intent as InitIntent, route)))
-      return Promise.reject({
-        target: intentOverlayTarget(route, overlay)
-      } as FunnelResponse);
-
-    return { type: FunnelActions.NEXT };
-  } finally {
+  const overlay = get(INIT_INTENT_OVERLAY, toString(intent));
+  const admits = overlay
+    ? admitsIntent(intent as InitIntent, route)
+    : Promise.resolve(false);
+  const settle = admits.then(admitted =>
+    Promise.reject<FunnelResponse>({
+      target: admitted
+        ? intentOverlayTarget(route, overlay)
+        : intentRefusedTarget(route)
+    })
+  );
+  return settle.finally(() => {
     // The playground's ONE url writer, and `undefined` is its clear sentinel.
     // `useQueryParams().unsetParam` writes `window.location` behind the bag,
     // whose next write of any surface param rebuilds the whole query from its
     // own stale state and re-stamps `init` (`usePlaygroundUrlState.ts:13-18`).
     usePlaygroundUrlState().write({ [QUERY_PARAMS.INIT]: undefined });
-  }
+  });
 }
 
 // -----------------------------------------------------------------------------
@@ -203,7 +204,7 @@ export default {
 
     if (!parsed.valid) {
       // Invalid scope format - redirect to base route without scope
-      const basePath = stripScopeSuffix(targetRoute.path || "");
+      const basePath = stripScopeCatchAll(targetRoute.path || "", rawSuffix);
       console.warn(
         `[extractScope] Invalid scope suffix: ${parsed.error}. Redirecting to: ${basePath}`
       );

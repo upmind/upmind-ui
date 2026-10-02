@@ -1,0 +1,19 @@
+# Negative control — the sign-in page ignores the brand's basket-summary
+# setting and draws the summary for every brand.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/page-slots.test.ts
+#     "the login page > draws no summary where the brand hides it"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -76,7 +76,7 @@
+       </slot>
+     </template>
+ 
+-    <template v-if="ui.basketSummary.isVisible" #summary>
++    <template #summary>
+       <slot name="summary" v-bind="summarySlot" />
+     </template>
+ 

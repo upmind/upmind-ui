@@ -1,0 +1,18 @@
+# Negative control — with no funnel, recovery's back control does nothing. The
+# portal's forgotten-password page waits for `reject` to go back to sign-in.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/host-mode-back-control.test.ts
+#     "keeps recovery's control, and it hands back to the host as a reject"
+
+diff --git a/packages/modules-auth/src/components/RecoverPassword.vue b/packages/modules-auth/src/components/RecoverPassword.vue
+--- a/packages/modules-auth/src/components/RecoverPassword.vue
++++ b/packages/modules-auth/src/components/RecoverPassword.vue
+@@ -161,7 +161,6 @@ function doReject() {
+       isResolving.value = false;
+     });
+   } else {
+-    emit("reject");
+   }
+ }
+ 

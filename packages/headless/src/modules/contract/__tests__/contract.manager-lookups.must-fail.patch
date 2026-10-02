@@ -1,0 +1,19 @@
+Negative control for useContract.context.ts `lookups` (R37 B3).
+
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.feature > "Open one of my contracts with everything the account area needs"
+
+Mutation: drops the `lookups` member from the manager context factory.
+diff --git a/packages/headless/src/modules/contract/useContract.context.ts b/packages/headless/src/modules/contract/useContract.context.ts
+--- a/packages/headless/src/modules/contract/useContract.context.ts
++++ b/packages/headless/src/modules/contract/useContract.context.ts
+@@ -77,9 +77,6 @@ export function createContractContext(
+     /** The id of the contract being managed. */
+     id: useContext<IContract["id"]>(state, "contractId"),
+
+-    /** The reused lookups the payment-method form draws from (`loadLookups`). */
+-    lookups: useContext<ContractContext["lookups"]>(state, "lookups"),
+-
+     /**
+      * The open payment-method form: `schema`, `uischema` and the parsed `model`
+      * (R35), set on the `PAYMENT_METHOD` open transition and offering the

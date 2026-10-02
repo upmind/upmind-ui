@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-import Hero from "../../../components/hero/Hero.vue";
+import { Hero } from "@upmind-automation/foundation";
 import DomainSearch from "./DomainSearch.vue";
 import type { DomainSlotProps } from "../types";
 

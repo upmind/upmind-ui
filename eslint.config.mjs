@@ -12,7 +12,7 @@
  *   per-package clones existed ONLY to re-state shared rules — flat config
  *   `files`/`ignores` give us per-area scoping without duplicate files.
  *   packages/ui, apps/velia, apps/hosting are standalone submodules that get a
- *   FULL BYTE-COPY of this file (kept in lockstep via .claude/scripts/lint/sync-configs.mjs).
+ *   FULL BYTE-COPY of this file (kept in lockstep via etc/ci/lint/sync-configs.mjs).
  *
  * Correctness baselines (the floor that was lost in the flat migration — every
  * rule in eslint:recommended, typescript-eslint/recommended, and vue3-essential
@@ -45,12 +45,12 @@
  *
  * THE FIX: every lint entrypoint (root `pnpm lint`, `pnpm -r lint`,
  * `pnpm --filter <pkg> lint`, and CI) routes through
- * `.claude/scripts/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
+ * `etc/ci/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
  * root while targeting the invoking package, so all entrypoints resolve the
  * IDENTICAL suppression state. That wrapper — not this config — is the single
  * source of truth for how the ledger is loaded (ESLint offers no config-level
  * hook for the suppressions location; it is purely a CLI concern).
- * `.claude/scripts/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
+ * `etc/ci/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
  * `pnpm lint:verify`) guards the invariant so the entrypoints cannot silently
  * diverge again. Git-submodule packages (packages/ui, apps/hosting, apps/velia)
  * must adopt the same wrapper in their OWN repos — the parent cannot edit their
@@ -77,6 +77,8 @@ import vueParser from "vue-eslint-parser";
 import globals from "globals";
 import scopeBasedPlugin from "@upmind-automation/eslint-plugin-scope-based";
 import fileResponsibilityPlugin from "@upmind-automation/eslint-plugin-file-responsibility";
+import endpointOwnershipPlugin from "@upmind-automation/eslint-plugin-endpoint-ownership";
+import asyncDisciplinePlugin from "@upmind-automation/eslint-plugin-async-discipline";
 import uiPlugin from "@upmind-automation/eslint-plugin-ui";
 
 // typescript-eslint's flat/recommended is a 3-config array:
@@ -163,11 +165,12 @@ const nuxtAutoImportGlobals = {
 // ruling §3). Governance switch is the `@internal` head marker, NOT a filename
 // suffix and NOT a frozen exception list: a file is internal iff its first ~15
 // lines carry `@internal`. Importing such a file from a DIFFERENT module
-// directory under packages/headless/src/modules is an error; same-module wiring
-// (a service importing its own mapper, basket.utils → sibling machine) is fine.
-//
-// Scoped (via the config block below) to files under packages/headless/src/modules.
+// directory under the importer's OWN `<package>/src/modules` is an error;
+// same-module wiring (a service importing its own mapper, basket.utils →
+// sibling machine) is fine.
 // -----------------------------------------------------------------------------
+
+const PACKAGES_ROOT = resolve(import.meta.dirname, "packages");
 
 const MODULES_ROOT = resolve(
   import.meta.dirname,
@@ -231,11 +234,36 @@ function isInternalFile(absPath) {
   return internal;
 }
 
+const moduleRootCache = new Map();
+
+function moduleRootOf(absPath) {
+  if (!absPath.startsWith(`${PACKAGES_ROOT}/`)) return null;
+
+  const rest = absPath.slice(PACKAGES_ROOT.length + 1);
+  const slash = rest.indexOf("/");
+
+  if (slash === -1) return null;
+
+  const pkg = rest.slice(0, slash);
+  const cached = moduleRootCache.get(pkg);
+
+  if (cached !== undefined) return cached;
+
+  const root = resolve(PACKAGES_ROOT, pkg, "src/modules");
+  const found = existsSync(root) && statSync(root).isDirectory() ? root : null;
+
+  moduleRootCache.set(pkg, found);
+
+  return found;
+}
+
 /** The module directory (immediate child of modules/) that a file lives in. */
 function moduleDirOf(absPath) {
-  if (!absPath.startsWith(`${MODULES_ROOT}/`)) return null;
+  const root = moduleRootOf(absPath);
 
-  const rest = absPath.slice(MODULES_ROOT.length + 1);
+  if (!root || !absPath.startsWith(`${root}/`)) return null;
+
+  const rest = absPath.slice(root.length + 1);
   const slash = rest.indexOf("/");
 
   return slash === -1 ? rest : rest.slice(0, slash);
@@ -248,14 +276,16 @@ const internalBarrierPlugin = {
         type: "problem",
         docs: {
           description:
-            "Disallow importing an @internal-marked headless module file from a different module."
+            "Disallow importing an @internal-marked module file from a different module in the same package."
         },
         schema: []
       },
       create(context) {
         const importerFile = context.filename ?? context.getFilename();
+        const importerRoot = moduleRootOf(importerFile);
 
-        if (!importerFile.startsWith(`${MODULES_ROOT}/`)) return {};
+        if (!importerRoot || !importerFile.startsWith(`${importerRoot}/`))
+          return {};
 
         const importerModule = moduleDirOf(importerFile);
 
@@ -269,6 +299,7 @@ const internalBarrierPlugin = {
             const target = resolveRelativeTarget(importerFile, specifier);
 
             if (!target) return;
+            if (moduleRootOf(target) !== importerRoot) return;
             if (!isInternalFile(target)) return;
 
             const targetModule = moduleDirOf(target);
@@ -759,6 +790,55 @@ const workspaceBoundaryPlugin = {
   }
 };
 
+// -----------------------------------------------------------------------------
+// Package-graph enforcement — `import/no-cycle` + `import/no-internal-modules`.
+//
+// The node resolver knows .js/.json only; without these extensions both rules pass vacuously.
+// -----------------------------------------------------------------------------
+const IMPORT_RESOLVE_EXTENSIONS = [
+  ".js",
+  ".mjs",
+  ".cjs",
+  ".jsx",
+  ".ts",
+  ".mts",
+  ".cts",
+  ".tsx",
+  ".vue"
+];
+
+const importGraphSettings = {
+  "import/resolver": { node: { extensions: IMPORT_RESOLVE_EXTENSIONS } },
+  "import/extensions": IMPORT_RESOLVE_EXTENSIONS,
+  "import/parsers": {
+    "@typescript-eslint/parser": [".ts", ".tsx", ".mts"],
+    "vue-eslint-parser": [".vue"]
+  }
+};
+
+const SCOPE = "@upmind-automation/";
+
+const DOMAIN_PACKAGES = [
+  { dir: "modules-auth", name: "@upmind-automation/auth" },
+  { dir: "modules-basket", name: "@upmind-automation/basket" },
+  { dir: "modules-catalogue", name: "@upmind-automation/catalogue" },
+  { dir: "modules-client", name: "@upmind-automation/client" },
+  { dir: "modules-domain", name: "@upmind-automation/domain" },
+  { dir: "modules-foundation", name: "@upmind-automation/foundation" },
+  { dir: "modules-invoice", name: "@upmind-automation/invoice" },
+  { dir: "modules-payment", name: "@upmind-automation/payment" },
+  { dir: "modules-product", name: "@upmind-automation/product" },
+  { dir: "modules-recommendations", name: "@upmind-automation/recommendations" }
+];
+
+const DOMAIN_PACKAGE_FILES = DOMAIN_PACKAGES.map(
+  p => `packages/${p.dir}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`
+);
+
+const DOMAIN_PACKAGE_INTERNALS = `${SCOPE}{${DOMAIN_PACKAGES.map(p =>
+  p.name.slice(SCOPE.length)
+).join(",")}}/**`;
+
 export default [
   // ---------------------------------------------------------------------------
   // 1. Global ignores
@@ -767,6 +847,7 @@ export default [
     ignores: [
       "**/node_modules/**",
       "**/dist/**",
+      "**/storybook-static/**",
       "**/build/**",
       "**/.nuxt/**",
       "**/.output/**",
@@ -841,6 +922,8 @@ export default [
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
       "tests/fixtures/**/*.{mjs,js,ts}",
       "packages/eslint-plugin-scope-based/**/*.{js,mjs}",
+      "packages/eslint-plugin-endpoint-ownership/**/*.{js,mjs}",
+      "packages/eslint-plugin-async-discipline/**/*.{js,mjs}",
       "packages/*/scripts/**/*.{ts,mts,cts,js,cjs,mjs}"
     ],
     languageOptions: {
@@ -864,17 +947,11 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 5b. portal-nuxt: headless is a TYPES-ONLY dependency WHILE THE APP IS
-  //     MOCK-ONLY. The app aliases @upmind-automation/headless to source so
-  //     mock facades can be typed against the real composable contracts; a
-  //     VALUE import executes the barrel, which module-load-interprets the
-  //     routing machine in an app with no headless runtime wired. The go-real
-  //     MR that lands the first real composable deliberately takes the runtime
-  //     dependency and DELETES this block (or narrows it to app/portal/mock/**).
+  // 5b. portal-nuxt's MOCK FACADES keep headless as a TYPES-ONLY dependency.
   //     (docs/plans/portal-mock-composable-facades.md R3)
   // ---------------------------------------------------------------------------
   {
-    files: ["apps/portal-nuxt/**/*.{ts,tsx,mts,cts,vue}"],
+    files: ["apps/portal-nuxt/app/portal/mock/**/*.{ts,tsx,mts,cts,vue}"],
     rules: {
       "@typescript-eslint/no-restricted-imports": [
         "error",
@@ -884,7 +961,7 @@ export default [
               name: "@upmind-automation/headless",
               allowTypeImports: true,
               message:
-                "portal-nuxt consumes headless as types only — a value import executes the headless barrel (routing machine interprets at module load)."
+                "portal-nuxt's mock facades consume headless as types only — a value import there serves a mock from the real barrel, which is the coupling they exist to avoid."
             }
           ]
         }
@@ -899,7 +976,11 @@ export default [
     files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: {
       parser: typescriptParser,
-      parserOptions: { ecmaVersion: "latest", sourceType: "module" }
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        parser: typescriptParser
+      }
     },
     plugins: {
       import: eslintPluginImport,
@@ -933,13 +1014,13 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8. @internal barrier — custom marker-based rule, scoped to headless modules.
+  // 8. @internal barrier — custom marker-based rule, per-package resolver.
   //    A file is internal iff its head carries `@internal`; importing it from a
   //    different module directory is an error. Same-module wiring is allowed.
   //    Replaces the coarse suffix-glob no-restricted-imports (FE-2820 ruling §3).
   // ---------------------------------------------------------------------------
   {
-    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    files: ["packages/*/src/modules/**/*.{ts,tsx,mts,cts,vue}"],
     plugins: {
       "@internal": internalBarrierPlugin
     },
@@ -990,7 +1071,8 @@ export default [
       "scope-based/complete-layer-set": "error",
       "scope-based/actor-scope-first": "error",
       "scope-based/arm-in-matrix": "error",
-      "scope-based/no-private-instance-axis": "error"
+      "scope-based/no-private-instance-axis": "error",
+      "scope-based/no-self-context": "error"
     }
   },
 
@@ -1087,6 +1169,38 @@ export default [
     ignores: ["packages/scenario-harness/**"],
     rules: {
       "no-restricted-imports": noWorkspaceSubpathImportsRule(true)
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8i. No deep reach INTO a domain package.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "apps/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "packages/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    plugins: { import: eslintPluginImport },
+    settings: importGraphSettings,
+    rules: {
+      "import/no-internal-modules": [
+        "error",
+        { forbid: [DOMAIN_PACKAGE_INTERNALS] }
+      ]
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8j. No import cycles in the domain packages.
+  // ---------------------------------------------------------------------------
+  {
+    files: DOMAIN_PACKAGE_FILES,
+    plugins: { import: eslintPluginImport },
+    settings: importGraphSettings,
+    rules: {
+      "import/no-cycle": ["error", { maxDepth: Infinity }]
     }
   },
 
@@ -1256,7 +1370,79 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 11. Prettier compatibility — MUST be last. Disables every stylistic rule so
+  // 11. endpoint-ownership — a brand-owned or system-owned endpoint is loaded
+  //     once by the `brand` / `system` module; every other module reads it
+  //     through useBrand()/useSystem(), never by re-requesting the URL. The rule
+  //     self-exempts the owning modules and session-transfer's brand/settings
+  //     carve-out; the globs scope it to the request-making surface, minus
+  //     tests and fixtures.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "packages/headless/src/modules/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    plugins: { "endpoint-ownership": endpointOwnershipPlugin },
+    rules: {
+      "endpoint-ownership/owned-endpoint-boundary": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11b. no-direct-tanstack-query — TanStack Query entry points are reached only
+  //     through the internal useQuery wrapper in the query module. A value
+  //     import of one from @tanstack/vue-query or @tanstack/query-core outside
+  //     that module forks the boundary. The rule self-exempts the query module;
+  //     the globs scope it to source, minus tests, fixtures and the test
+  //     harness (packages/headless/src/testing).
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "packages/headless/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts",
+      "packages/headless/src/testing/**"
+    ],
+    plugins: { "endpoint-ownership": endpointOwnershipPlugin },
+    rules: {
+      "endpoint-ownership/no-direct-tanstack-query": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11c. async-discipline — the house async hygiene preset. Covers ALL code,
+  //     tests and fixtures included.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["**/*.{ts,tsx,mts,cts,js,mjs,cjs,vue}"],
+    plugins: { "async-discipline": asyncDisciplinePlugin },
+    rules: {
+      "async-discipline/no-promise-try-catch": "error",
+      "async-discipline/no-await-only-return": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 12. Prettier compatibility — MUST be last. Disables every stylistic rule so
   //    prettier is the sole formatter (330 rule names switched off).
   // ---------------------------------------------------------------------------
   eslintConfigPrettier

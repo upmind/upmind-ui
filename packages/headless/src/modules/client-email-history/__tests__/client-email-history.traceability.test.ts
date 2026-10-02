@@ -1,27 +1,23 @@
 // -----------------------------------------------------------------------------
 /**
  * @module client-email-history/__tests__/client-email-history.traceability
- * @description The module's ONE traceability gate, carrying BOTH jobs: the AC
- * link in both directions, and the spec-to-catalog drift gate.
+ * @description The module's ONE traceability test, carrying both jobs the module
+ * owes its ONE `.feature`: the AC link (a tagged scenario has a proving spec —
+ * a driven scenario carries its own `@AC-N`, or a sibling unit spec names it —
+ * and a spec claims no AC the feature never tagged), and the spec-to-catalog gate
+ * (an orphan definition, a half-matched scenario, a duplicated phrasing, an
+ * uncompilable pattern and an over-reported covered action all fail; a scenario
+ * nothing matches passes, because a capability written down and not yet driven is
+ * a legitimate state).
  *
- * GENERIC BY CONSTRUCTION — it reads the WHOLE feature and the WHOLE catalog,
- * so there is no hardcoded scenario count, no per-scenario list and no
- * exception list. A scenario or a definition appended later is inside this
- * verdict the moment it lands, and the driveable count is in the test NAME
- * rather than asserted, so a spec outgrowing its catalog is a number the
- * operator reads instead of a silence.
- *
- * The verdicts: an orphan step definition FAILS (dead code, or a scenario
- * renamed underneath it); a scenario whose steps match only in PART FAILS (the
- * dangerous case — it reads as driveable and silently is not); a malformed step
- * pattern FAILS; a pattern another module's catalog already claims FAILS; an
- * action id the catalog declares covered that no step fires FAILS. A scenario
- * nothing matches PASSES — it is a capability written down and not yet driven,
- * which is a legitimate state.
+ * Generic by construction — it reads the WHOLE feature and the WHOLE catalog, so
+ * no scenario count and no AC list is written down here. A driven scenario is one
+ * the catalog matches, dir or no dir — so a `@signed-out` guard (which arms no
+ * recording, and RED on any request) and an `@errored` boot both prove their AC.
  *
  * ## What Breaks If These Fail
- * A capability silently loses its proof — shape present, behaviour unproven —
- * or the playground plays a track that no longer drives what it claims to.
+ * A capability silently loses its proof — shape present, behaviour unproven — or
+ * the spec and the catalog that drives it drift apart.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -32,7 +28,8 @@ import {
   featureAcTags
 } from "@upmind-automation/scenario-harness";
 import { stepCatalogs } from "../../../testing";
-import clientEmailHistorySteps, {
+import {
+  clientEmailHistorySteps,
   coveredActionIds
 } from "./client-email-history.steps";
 import {
@@ -42,44 +39,19 @@ import {
   includes,
   map,
   reject,
+  union,
   uniq
 } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const TEST_DIR = import.meta.dirname;
+const SELF = "client-email-history.traceability.test.ts";
 
-const rawFeatureText = readFileSync(
+const featureText = readFileSync(
   join(TEST_DIR, "client-email-history.feature"),
   "utf-8"
 );
-
-/**
- * Pre-processes the feature text to join multi-line step continuations. The
- * feature file uses informal line wrapping for readability, but the Gherkin
- * parser expects steps on single lines. This joins continuation lines (those
- * starting with whitespace but no keyword) back to their parent step.
- */
-function normalizeFeatureText(text: string): string {
-  const lines = text.split("\n");
-  const normalized: string[] = [];
-  const _STEP_KEYWORDS = /^\s*(Given|When|Then|And|But|\*)\s+/;
-  const CONTINUATION = /^\s{2,}[a-z]/;
-
-  for (const line of lines) {
-    if (CONTINUATION.test(line) && normalized.length > 0) {
-      const last = normalized.length - 1;
-      normalized[last] = normalized[last] + " " + line.trim();
-    } else {
-      normalized.push(line);
-    }
-  }
-
-  return normalized.join("\n");
-}
-
-const featureText = normalizeFeatureText(rawFeatureText);
-
 const catalogSource = readFileSync(
   join(TEST_DIR, "client-email-history.steps.ts"),
   "utf-8"
@@ -94,69 +66,136 @@ const {
   malformedStepDefs
 } = createTraceabilityCheck(featureText, clientEmailHistorySteps, stepCatalogs);
 
-/**
- * The AC ids a sibling spec names in a `describe`/`it` title, as an ARRAY —
- * lodash `difference` reads a Set as having no elements, so a Set on either
- * side of the link assertion below would pass vacuously in both directions.
- *
- * FILE-LOCAL on purpose: it reads the test directory, and `node:fs` may never
- * enter the harness's own barrel, which is production source every browser
- * consumer imports.
- */
+/** The `AC-<n>` ids a sibling PURE-unit spec claims in a `describe`/`it` title. */
 function acsNamedBySiblingSpecs(directory: string): string[] {
   const specs = filter(
     readdirSync(directory),
     file =>
       file.endsWith(".test.ts") &&
-      file !== "client-email-history.traceability.test.ts"
+      !file.endsWith(".int.test.ts") &&
+      file !== SELF
   );
 
   return uniq(
     flatMap(specs, file => {
-      const source = readFileSync(join(directory, file), "utf-8");
-      const titles = map(
-        [...source.matchAll(/(?:describe|it)\(\s*["'`]([^"'`]*)["'`]/g)],
-        match => match[1]
+      const titles = readFileSync(join(directory, file), "utf-8").matchAll(
+        /(?:describe|it)\(\s*["'`]([^"'`]*)["'`]/g
       );
-      return flatMap(titles, title =>
-        map([...title.matchAll(/AC-\d+/g)], hit => hit[0])
+      return flatMap([...titles], title =>
+        map([...title[1].matchAll(/AC-(\d+)/g)], ac => `AC-${ac[1]}`)
       );
     })
   );
 }
 
+/** The `@AC-<n>` tags on the NAMED scenarios, read from the feature text. */
+function acTagsForScenarioNames(feature: string, names: string[]): string[] {
+  const wanted = new Set(names);
+  let pending: string[] = [];
+
+  return uniq(
+    flatMap(feature.split("\n"), raw => {
+      const line = raw.trim();
+      if (line.startsWith("@")) {
+        pending = [...pending, ...(line.match(/@AC-\d+/g) ?? [])];
+        return [];
+      }
+      const scenario = line.match(/^Scenario(?: Outline)?:\s*(.+)$/);
+      if (scenario) {
+        const acs = wanted.has(scenario[1].trim())
+          ? map(pending, tag => tag.slice(1))
+          : [];
+        pending = [];
+        return acs;
+      }
+      if (line === "" || line.startsWith("#")) return [];
+      pending = [];
+      return [];
+    })
+  );
+}
+
+/**
+ * The `AC-<n>` ids whose EVERY carrying scenario is exempt from a driven proof —
+ * `@todo` (a named blocker) or `@moved` (proven in query / session-store / auth).
+ * An AC also carried by a driven scenario is not exempt: the driven one proves it.
+ */
+function exemptAcTags(feature: string): string[] {
+  const carrying = new Map<string, boolean[]>();
+  let pendingAcs: string[] = [];
+  let pendingExempt = false;
+
+  for (const raw of feature.split("\n")) {
+    const line = raw.trim();
+    if (line.startsWith("@")) {
+      pendingAcs = [
+        ...pendingAcs,
+        ...map(line.match(/@AC-\d+/g) ?? [], tag => tag.slice(1))
+      ];
+      if (/@todo|@moved/.test(line)) pendingExempt = true;
+      continue;
+    }
+    if (/^Scenario(?: Outline)?:/.test(line)) {
+      for (const ac of pendingAcs)
+        carrying.set(ac, [...(carrying.get(ac) ?? []), pendingExempt]);
+      pendingAcs = [];
+      pendingExempt = false;
+      continue;
+    }
+    if (line === "" || line.startsWith("#")) continue;
+    pendingAcs = [];
+    pendingExempt = false;
+  }
+
+  const exempt: string[] = [];
+  for (const [ac, flags] of carrying) if (flags.every(Boolean)) exempt.push(ac);
+  return uniq(exempt);
+}
+
 // -----------------------------------------------------------------------------
 
-describe("client-email-history — the module's ONE traceability gate", () => {
-  it("links every tagged scenario to a proving spec, and back", () => {
+describe("client-email-history traceability — the module's one feature, both jobs", () => {
+  it("proves every tagged AC by a driven scenario or a unit test, and back", () => {
     const tagged = featureAcTags(featureText);
+    const drivenAcs = acTagsForScenarioNames(
+      featureText,
+      map(driveable, "name")
+    );
     const named = acsNamedBySiblingSpecs(TEST_DIR);
+    const proven = union(drivenAcs, named, exemptAcTags(featureText));
 
+    expect(tagged.length).toBeGreaterThan(0);
     expect(
-      difference(tagged, named),
-      "Unproven scenarios (no sibling spec names this AC)"
-    ).toEqual([]);
+      difference(tagged, proven),
+      "AC(s) the feature tags that no driven scenario carries, no unit test names, and no @todo/@moved exempts — shape present, behaviour unproven"
+    ).toStrictEqual([]);
     expect(
       difference(named, tagged),
-      "Spec(s) name an AC the feature does not tag — the feature gains the " +
-        "scenario, coverage never falls"
-    ).toEqual([]);
+      "unit test(s) naming an AC the feature does not tag — the feature gains the scenario, coverage never falls"
+    ).toStrictEqual([]);
   });
 
   it(`drives ${driveable.length} of ${scenarios.length} scenarios`, () => {
-    expect(map(partial, "name"), "Half-matched scenarios").toEqual([]);
+    expect(
+      map(partial, "name"),
+      "scenario(s) matched only in part — they read as driveable and silently are not"
+    ).toStrictEqual([]);
     expect(
       map(orphanStepDefs, "pattern"),
-      "Step definitions nothing calls"
-    ).toEqual([]);
-    expect(
-      map(malformedStepDefs, "pattern"),
-      "Patterns that do not compile"
-    ).toEqual([]);
+      "step definition(s) no scenario uses"
+    ).toStrictEqual([]);
     expect(
       duplicatedPatterns,
-      "Patterns another catalog already claims"
-    ).toEqual([]);
+      "phrasing(s) another module's catalog also claims"
+    ).toStrictEqual([]);
+    expect(
+      map(malformedStepDefs, "pattern"),
+      "step pattern(s) that do not compile as a cucumber expression"
+    ).toStrictEqual([]);
+    expect(driveable.length).toBeGreaterThan(0);
+  });
+
+  it("fires every action it declares as covered", () => {
     expect(
       reject(coveredActionIds, id =>
         includes(
@@ -164,7 +203,7 @@ describe("client-email-history — the module's ONE traceability gate", () => {
           `fire(CLIENT_EMAIL_HISTORY_COVERED_ACTIONS.${id}`
         )
       ),
-      "Declared covered but fired by no step"
-    ).toEqual([]);
+      "declared covered but fired by no step"
+    ).toStrictEqual([]);
   });
 });

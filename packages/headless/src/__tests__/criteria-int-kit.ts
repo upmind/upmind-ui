@@ -183,6 +183,41 @@ export function observeRequests(
   };
 }
 
+/** One observed outbound request and the promise of its JSON body. */
+export type ObservedBody = {
+  method: string;
+  url: string;
+  body: Promise<unknown>;
+};
+
+/**
+ * Passively observes the JSON body of every request whose URL contains
+ * `fragment`. It adds no handler, so the recorded answer still serves; each
+ * body resolves after the listener returns, so a reader awaits it.
+ */
+export function observeRequestBodies(
+  server: SetupServer | undefined,
+  fragment: string
+): { all: () => ObservedBody[]; stop: () => void } {
+  const seen: ObservedBody[] = [];
+  const listener = ({ request }: { request: Request }): void => {
+    if (!request.url.includes(fragment)) return;
+    seen.push({
+      method: request.method,
+      url: request.url,
+      body: request
+        .clone()
+        .json()
+        .catch(() => undefined)
+    });
+  };
+  server?.events.on("request:start", listener);
+  return {
+    all: () => seen,
+    stop: () => server?.events.removeListener("request:start", listener)
+  };
+}
+
 // -----------------------------------------------------------------------------
 
 /**

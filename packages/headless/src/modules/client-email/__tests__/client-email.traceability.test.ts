@@ -41,6 +41,7 @@ import {
   includes,
   map,
   reject,
+  union,
   uniq
 } from "lodash-es";
 
@@ -91,21 +92,57 @@ function acsNamedBySiblingSpecs(directory: string): string[] {
   );
 }
 
+/**
+ * The `AC-<n>` ids tagged on the NAMED scenarios, read from the feature text —
+ * so a driven scenario's own `@AC-N` tag can prove that AC without a sibling
+ * spec having to name it in a title.
+ */
+function acTagsForScenarioNames(feature: string, names: string[]): string[] {
+  const wanted = new Set(names);
+  let pending: string[] = [];
+
+  return uniq(
+    flatMap(feature.split("\n"), raw => {
+      const line = raw.trim();
+      if (line.startsWith("@")) {
+        pending = [...pending, ...(line.match(/@AC-\d+/g) ?? [])];
+        return [];
+      }
+      const scenario = line.match(/^Scenario(?: Outline)?:\s*(.+)$/);
+      if (scenario) {
+        const acs = wanted.has(scenario[1].trim())
+          ? map(pending, tag => tag.slice(1))
+          : [];
+        pending = [];
+        return acs;
+      }
+      if (line === "" || line.startsWith("#")) return [];
+      pending = [];
+      return [];
+    })
+  );
+}
+
 // -----------------------------------------------------------------------------
 
 describe("client-email traceability — the module's one feature, both jobs", () => {
-  it("links every tagged scenario to a proving spec, and back", () => {
+  it("proves every tagged AC by a driven scenario or a unit test, and back", () => {
     const tagged = featureAcTags(featureText);
+    const drivenAcs = acTagsForScenarioNames(
+      featureText,
+      map(driveable, "name")
+    );
     const named = acsNamedBySiblingSpecs(TEST_DIR);
+    const proven = union(drivenAcs, named);
 
     expect(tagged.length).toBeGreaterThan(0);
     expect(
-      difference(tagged, named),
-      "scenario(s) the feature tags that no sibling spec names — shape present, behaviour unproven"
+      difference(tagged, proven),
+      "AC(s) the feature tags that no driven scenario carries and no unit test names — shape present, behaviour unproven"
     ).toStrictEqual([]);
     expect(
       difference(named, tagged),
-      "spec(s) naming an AC the feature does not tag — the feature gains the scenario, coverage never falls"
+      "unit test(s) naming an AC the feature does not tag — the feature gains the scenario, coverage never falls"
     ).toStrictEqual([]);
   });
 

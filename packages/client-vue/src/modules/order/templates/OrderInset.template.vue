@@ -26,14 +26,14 @@
 import { onMounted } from "vue";
 
 // --- internal
+import { isMobile } from "@upmind-automation/foundation";
 import { useFooter } from "../../../components/footer/useFooter";
-import { useSection } from "../../../components/section/useSection";
+import { useSection } from "@upmind-automation/foundation";
 
 // --- components
 import InsetLayout from "../../../components/layout/layouts/Inset.layout.vue";
 
 // --- utils
-import { isMobile } from "../../../composables/isMobile";
 
 // -----------------------------------------------------------------------------
 

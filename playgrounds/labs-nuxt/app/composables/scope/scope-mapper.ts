@@ -4,7 +4,17 @@
  */
 
 import { ScopeActorTypes } from "@upmind-automation/headless";
-import { filter, includes, values } from "lodash-es";
+import {
+  compact,
+  dropRight,
+  filter,
+  includes,
+  isArray,
+  join,
+  size,
+  split,
+  values
+} from "lodash-es";
 import type { ScopeContext } from "@upmind-automation/headless";
 
 export type ParsedScope = {
@@ -127,4 +137,28 @@ export function stripScopeSuffix(path: string): string {
     /\/(?:as\/[^/]+(?:\/for\/[^/]+(?:\/[^/]+)?)?|for\/[^/]+(?:\/[^/]+)?)$/,
     ""
   );
+}
+
+/**
+ * Strip a route's WHOLE `scopeSuffix` catch-all from its path.
+ * Used for redirecting an invalid scope back to base route: an invalid suffix
+ * need not look like a scope, so `stripScopeSuffix` can leave the path as it
+ * is and the redirect lands on itself. Counts segments, so a trailing slash or
+ * an encoded path does not matter.
+ *
+ * @param path - Full route path
+ * @param suffix - The route's `scopeSuffix` param, as the router gives it
+ * @returns Path without the catch-all segments
+ *
+ * @example
+ * stripScopeCatchAll("/useContractProduct/78985742/as/client/", ["78985742", "as", "client", ""])
+ * // => "/useContractProduct"
+ */
+export function stripScopeCatchAll(
+  path: string,
+  suffix: string | string[]
+): string {
+  const suffixSegments = compact(isArray(suffix) ? suffix : split(suffix, "/"));
+  const pathSegments = compact(split(path, "/"));
+  return `/${join(dropRight(pathSegments, size(suffixSegments)), "/")}`;
 }

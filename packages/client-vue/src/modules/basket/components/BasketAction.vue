@@ -42,9 +42,9 @@
 <script lang="ts" setup>
 import { Button } from "@upmind/ui";
 import { RouterLink } from "vue-router";
+import { Icon } from "@upmind-automation/foundation";
 import { useBasket, useActiveSession } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
-import { Icon } from "../../../components/icon";
 // --- types
 import type { BasketActionProps } from "./types";
 

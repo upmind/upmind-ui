@@ -1,0 +1,28 @@
+# Negative-control mutant — contract-product staff route (AC-16)
+#
+# Scenario it must flip: contract-product.feature >
+#   "Decide whether one subscription joins my consolidated invoice — opted in"
+#   (the staff-route outline was deleted per legacy grading; the replay wall
+#   proves no staff route on every driven write).
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   the consolidation write goes to the staff `manual_status` route, which no
+#   recording holds, so the wall fails it as a capture gap.
+# Mutation: `setConsolidation` PUTs to the staff `manual_status` route instead
+#   of the client `properties` route.
+# Collateral: every driven consolidation write (AC-9 rows) goes red too.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+index f9de1acf0..f23c8d6b2 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -429,7 +429,7 @@ async function setConsolidation(
+
+   return put<IContractProduct>({
+     mutationKey: [...queryKey, context.contractProductId, "consolidation"],
+-    url: await productUrl(context, "properties"),
++    url: await productUrl(context, "manual_status"),
+     data: toConsolidationBody(model),
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));

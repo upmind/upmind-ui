@@ -1,0 +1,25 @@
+# Negative-control mutant — payment-method form schema reads the live contract (AC-8, R34/R35, D3/D4)
+#
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Nothing is sent when I select no method at all"
+#   contract.feature > "Nothing is sent when I select the method my contract already uses"
+#   contract.feature > "Close the payment-method form without changing how my contract is paid for"
+#
+# Mutation: `useSetPaymentMethodSchema` hardwires the property `default` to
+#   `undefined` instead of the contract's current `paymentDetailsId`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.schemas.ts b/packages/headless/src/modules/contract/contract.schemas.ts
+index 379ebd1c5..7a8891eeb 100644
+--- a/packages/headless/src/modules/contract/contract.schemas.ts
++++ b/packages/headless/src/modules/contract/contract.schemas.ts
+@@ -64,7 +64,7 @@ export function useSetPaymentMethodSchema({
+       paymentDetailsId: {
+         ...useStoredPaymentMethodsSchema(storedPaymentMethods),
+         title: "Payment method",
+-        default: paymentDetailsId ?? undefined
++        default: undefined
+       }
+     }
+   } as JsonSchema7;

@@ -19,6 +19,13 @@
  * `boot` looks the key up in the composable map its caller supplies, and
  * everything else reads the cell that resolved.
  *
+ * It holds one live cell PER scenario key: booting a key replaces only THAT
+ * key's cell, and cells under different keys live together — a list and any
+ * number of editors at once (two image editors re-uploading independently,
+ * client-custom-fields AC-22). A step addresses a cell by its scenario key
+ * (`fire` / `expectMeta` / `expectContext`'s optional `key`); with none, the
+ * last-booted cell answers.
+ *
  * @remarks Lives beside the harness half of the test artefacts rather than in
  * `@upmind-automation/scenario-harness`: building a cell is `.as()`/`.for()`,
  * which is headless's own scope builder, and that package is vue-free by lint
@@ -26,16 +33,21 @@
  */
 
 import { unref } from "vue";
-import { matchesExpectation } from "@upmind-automation/scenario-harness";
+import {
+  fireArgv,
+  matchesExpectation
+} from "@upmind-automation/scenario-harness";
 import {
   difference,
   get,
   isEmpty,
   isFunction,
+  isNumber,
   keys,
   mapValues,
   omitBy,
-  pick
+  pick,
+  isNil
 } from "lodash-es";
 import type { World, WorldScope } from "@upmind-automation/scenario-harness";
 
@@ -59,6 +71,15 @@ export type NodeScopedCell = {
    * one, mirroring `WorldScope.context`.
    */
   for?: (type: string, id?: string) => NodeScopedCell;
+  /** Present on a single read: marks the ONE record it fetches (`WorldScope.id`). */
+  withId?: (id: string) => NodeScopedCell;
+  /**
+   * Spawns a DISTINCT instance, never the scope registry's cached one — the
+   * builder's own `.fresh()`. A list and its editor register under one module
+   * name, so a bare `{ actor }` editor booted beside a live list would otherwise
+   * adopt the list's cached cell; `.fresh()` gives it its own instance.
+   */
+  fresh?: () => NodeScopedCell;
 };
 
 /** The module builder a scenario key resolves to — `useBillingSettingsManager` and its kind. */
@@ -100,6 +121,22 @@ function named(values: readonly string[]): string {
   return isEmpty(values) ? "none" : values.join(", ");
 }
 
+/**
+ * Serialises an already-unwrapped layer snapshot to a searchable string,
+ * dropping cycles (a published `query` handle holds circular reactive refs) so
+ * a whole-layer substring search never throws on them.
+ */
+function searchable(snapshot: unknown): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(snapshot, (_key, val) => {
+    if (typeof val === "object" && val !== null) {
+      if (seen.has(val)) return undefined;
+      seen.add(val);
+    }
+    return val;
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -111,22 +148,72 @@ function named(values: readonly string[]): string {
 export function createNodeWorld<K extends string>(
   source: NodeWorldSource<K>
 ): World<K> {
-  let cell: NodeScopedCell | undefined;
+  /** One live cell per scenario key — cells under different keys coexist. */
+  const live = new Map<K, NodeScopedCell>();
 
-  function requireCell(): NodeScopedCell {
-    if (!cell) fail("boot() has not been called yet");
-    return cell;
+  /** The key booted last — the cell a step addresses when it names no key. */
+  let lastKey: K | undefined;
+
+  /** The action a `fireHold` left running on a cell, awaited by `settle`. */
+  const inflight = new Map<NodeScopedCell, Promise<unknown>>();
+
+  /**
+   * The cell a step targets: the one booted under `key` when a step names one,
+   * else the last-booted cell. A named key that no live cell booted is a
+   * REFUSAL, not a silent fall-through to the wrong cell.
+   */
+  function targetCell(key?: K): NodeScopedCell {
+    if (key !== undefined) {
+      const cell = live.get(key);
+      if (!cell)
+        fail(
+          `no live cell for key "${key}" — booted ${named([...live.keys()])}`
+        );
+      return cell;
+    }
+
+    if (lastKey === undefined || !live.has(lastKey))
+      fail("boot() has not been called yet");
+    return live.get(lastKey)!;
   }
 
   /**
-   * One `unref` pass per layer, never a deep walk — `useCompositionPort`'s own
-   * rule, and for its reason: the four-layer contract puts refs at the TOP of a
-   * layer over plain values. Meta is coerced to real booleans because
-   * `expectMeta` is typed `Record<string, boolean>`, so a truthy non-boolean
-   * can never satisfy a `true` expectation by identity alone.
+   * Resolves an action off a cell and calls it with the argv `fireArgv` derives:
+   * a spread `args(...)` envelope, an empty argv for a bare `undefined` (an
+   * optional-parameter action called bare), or the lone value otherwise. Returns
+   * the action's own result so `fireHold` can park the pending promise.
    */
-  function liveMeta(): Record<string, boolean> {
-    return mapValues(requireCell().useMeta(), flag => !!unref(flag));
+  function invoke(
+    cell: NodeScopedCell,
+    actionId: string,
+    input?: unknown
+  ): unknown {
+    const actions = cell.useActions();
+    const action = get(actions, actionId);
+
+    if (!isFunction(action))
+      fail(
+        `unknown action "${actionId}" — the booted composable publishes ${named(keys(actions))}`
+      );
+
+    return (action as (...values: unknown[]) => unknown)(...fireArgv(input));
+  }
+
+  /**
+   * The meta layer unwrapped ONE `unref` pass deep, then read PER expectation:
+   * a key the step expects as a number keeps its raw value (a count reads as
+   * itself); every other key is coerced to a real boolean, so a truthy
+   * non-boolean cannot satisfy a `true` expectation by identity alone. The
+   * unwrap-not-deep-walk rule is `useCompositionPort`'s, for its reason: the
+   * four-layer contract puts refs at the TOP of a layer over plain values.
+   */
+  function liveMeta(
+    cell: NodeScopedCell,
+    expected: Record<string, boolean | number>
+  ): Record<string, unknown> {
+    return mapValues(cell.useMeta(), (flag, name) =>
+      isNumber(get(expected, name)) ? unref(flag) : !!unref(flag)
+    );
   }
 
   /**
@@ -134,8 +221,8 @@ export function createNodeWorld<K extends string>(
    * legitimately publishes functions (`default`, `findOne`), and `isMatch` over
    * a closure can only ever compare identity.
    */
-  function liveContext(): Record<string, unknown> {
-    return omitBy(mapValues(requireCell().useContext(), unref), isFunction);
+  function liveContext(cell: NodeScopedCell): Record<string, unknown> {
+    return omitBy(mapValues(cell.useContext(), unref), isFunction);
   }
 
   /**
@@ -165,23 +252,25 @@ export function createNodeWorld<K extends string>(
       );
   }
 
-  async function dispose(): Promise<void> {
-    // `destroy()` stops the machine AND deregisters the scope entry, so the
-    // next `boot` at the same scope key builds a genuinely fresh instance
-    // rather than adopting the previous scenario's settled one.
+  /**
+   * Destroys ONE cell: `destroy()` stops the machine AND deregisters the scope
+   * entry, so the next `boot` at the same scope key builds a genuinely fresh
+   * instance rather than adopting the previous scenario's settled one.
+   */
+  function disposeCell(cell: NodeScopedCell | undefined): void {
     const destroy = get(cell?.useActions() ?? {}, "destroy");
     if (isFunction(destroy)) (destroy as () => void)();
-    cell = undefined;
+  }
+
+  async function dispose(): Promise<void> {
+    for (const cell of live.values()) disposeCell(cell);
+    live.clear();
+    inflight.clear();
+    lastKey = undefined;
   }
 
   return {
     async boot(key: K, scope: WorldScope) {
-      // Dispose-then-boot, never adopt: the playground adopts because the cell
-      // it holds IS the rendered surface, and destroying it would tear the page
-      // down mid-track. Nothing is rendered here, and a scenario's arrangement
-      // wants the instance its own `Given` built — not the Background's.
-      await dispose();
-
       const composable = get(source.composables, key) as
         | NodeComposable
         | undefined;
@@ -209,39 +298,101 @@ export function createNodeWorld<K extends string>(
       // (`scenario-harness/src/world/scope-actor.ts`) and shares its wire
       // values, so a feature may name the actor and it lands as the enum the
       // scope builder takes.
-      const scoped = composable().as(scope.actor as never);
+      const actorScoped = composable().as(scope.actor as never);
+
+      // A bare boot (no context, no id) keys under the module's BASE scope key,
+      // which a list and its editor share (they register under one module name).
+      // With any other cell already live, the scope registry would hand this boot
+      // that cell rather than build a new one — a second editor adopting the
+      // first, or the editor adopting the live list. `.fresh()` forces a distinct
+      // instance so cells under different keys coexist, exactly as the labs
+      // new-record editor opens (`useModulePort` `fresh`).
+      const based =
+        live.size > 0 &&
+        !scope.context &&
+        !scope.id &&
+        isFunction(actorScoped.fresh)
+          ? actorScoped.fresh()
+          : actorScoped;
+
+      // `.withId(id)` marks the ONE record a single read fetches, exactly as
+      // the labs port applies it (`useModulePort.ts`): after `.as()`, before
+      // `.for()`, because the two compose (FE-3095).
+      const scoped =
+        scope.id && isFunction(based.withId) ? based.withId(scope.id) : based;
 
       // `.for(type, id)` names an entity the ACTOR acts upon; a module whose
       // matrix offers no context publishes no `.for`, and a scope that names
       // none never reaches for it.
-      cell =
-        scope.context && isFunction(scoped.for)
-          ? scoped.for(scope.context.type, scope.context.id)
+      // The world is generic over every module, so the cell's `.for` is read
+      // through the one signature both patterns share: `(type, id?)` — a
+      // context with no id retargets by type alone (develop, FE-3029).
+      const retarget = (
+        scoped as { for?: (type: string, id?: string) => NodeScopedCell }
+      ).for;
+      const built =
+        scope.context && isFunction(retarget)
+          ? isNil(scope.context.id)
+            ? retarget(scope.context.type)
+            : retarget(scope.context.type, scope.context.id)
           : scoped;
+
+      // Keep every other key's live cell; dispose only a PREVIOUS cell booted
+      // under THIS key. A keyed re-boot that resolves to the SAME cached instance
+      // (`built === held`) is left in place rather than destroyed — never tearing
+      // down the cell just handed back.
+      const held = live.get(key);
+      if (held && held !== built) disposeCell(held);
+
+      live.set(key, built);
+      lastKey = key;
     },
 
-    async fire(actionId: string, input?: unknown) {
-      const actions = requireCell().useActions();
-      const action = get(actions, actionId);
+    async fire(actionId: string, input?: unknown, key?: K) {
+      await invoke(targetCell(key), actionId, input);
+    },
 
-      if (!isFunction(action))
+    async fireHold(actionId: string, input?: unknown, key?: K) {
+      const cell = targetCell(key);
+      // Start the action WITHOUT awaiting it: the response is held open
+      // (`replayStep`'s `delayMs`), so this returns while the machine sits in
+      // `processing`, letting the next step observe `isProcessing`. The pending
+      // promise is parked per cell for `settle` to await — its rejection is
+      // swallowed here so an unhandled rejection cannot escape between the two
+      // steps; `settle` is the one that surfaces (or, per AC13, ignores) it.
+      const pending = Promise.resolve(invoke(cell, actionId, input)).catch(
+        () => undefined
+      );
+      inflight.set(cell, pending);
+    },
+
+    async settle(key?: K) {
+      const cell = targetCell(key);
+      const pending = inflight.get(cell);
+      if (!pending) return;
+      inflight.delete(cell);
+      await pending;
+    },
+
+    async expectMeta(expected: Record<string, boolean | number>, key?: K) {
+      const cell = targetCell(key);
+      expectSubset("meta", liveMeta(cell, expected), expected);
+    },
+
+    async expectContext(expected: Record<string, unknown>, key?: K) {
+      expectSubset("context", liveContext(targetCell(key)), expected);
+    },
+
+    async expectAbsent(value: string, key?: K) {
+      const cell = targetCell(key);
+      const published = {
+        context: omitBy(mapValues(cell.useContext(), unref), isFunction),
+        meta: omitBy(mapValues(cell.useMeta(), unref), isFunction)
+      };
+      if (searchable(published).includes(value))
         fail(
-          `unknown action "${actionId}" — the booted composable publishes ${named(keys(actions))}`
+          `expected "${value}" to appear nowhere in the addressed cell's published context or meta, but it does`
         );
-
-      const call = action as (value?: unknown) => unknown;
-
-      // Called bare when the step carried no input: an action with an optional
-      // parameter reads an explicit `undefined` as a supplied one.
-      await (input === undefined ? call() : call(input));
-    },
-
-    async expectMeta(expected: Record<string, boolean>) {
-      expectSubset("meta", liveMeta(), expected);
-    },
-
-    async expectContext(expected: Record<string, unknown>) {
-      expectSubset("context", liveContext(), expected);
     },
 
     dispose

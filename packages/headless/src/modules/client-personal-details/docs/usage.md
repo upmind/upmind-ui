@@ -1,32 +1,25 @@
 # client-personal-details — Usage
 
-Full API reference for the module's two composables:
+Full API reference for the module's one composable, **`usePersonalDetails`** — it reads the calling client's own profile (including custom field values), opens it in a validated form, and saves only what changed.
 
-- **`usePersonalDetails`** — the read view. Reads the calling client's own profile, including their custom field values.
-- **`usePersonalDetailsManager`** — the editor. Opens the profile in a validated form and saves only what changed.
-
-Both usually act on the calling client's own profile — the target is always an explicit entity id, not validated locally against who is calling. Every capability below carries a 🧪 **For Testers** expected-behaviour statement.
+It usually acts on the calling client's own profile — the target is always an explicit entity id, not validated locally against who is calling. Every capability below carries a 🧪 **For Testers** expected-behaviour statement.
 
 ## Getting an instance
 
 ```ts
 import {
   usePersonalDetails,
-  usePersonalDetailsManager,
   ScopeActorTypes,
   ClientPersonalDetailsContextTypes
 } from "@upmind-automation/headless";
 
 const someClientId = "825d96e7-63ed-0913-46c4-174825283406";
 
-// The read view — the calling client's own profile
-const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
+// The calling client's own profile — callable bare; a client has exactly one profile
+const manager = usePersonalDetails().as(ScopeActorTypes.SELF);
 
-// The editor — callable bare; a client has exactly one profile
-const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
-
-// Either composable can instead retarget to a NAMED client via a matrix-gated
-// .for() context — only the `client` actor may spell it
+// Or retarget to a NAMED client via a matrix-gated .for() context — only the
+// `client` actor may spell it
 const otherProfile = usePersonalDetails()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientPersonalDetailsContextTypes.CLIENT, someClientId);
@@ -34,86 +27,32 @@ const otherProfile = usePersonalDetails()
 
 > **🧪 For Testers:** Only `client` (and `self`, which resolves to the calling client via the scope builder, before either matrix is even consulted) address a real profile. `.for(ClientPersonalDetailsContextTypes.CLIENT, id)` retargets to a named client, and it is spellable only for the `client` actor — the matrix pins `self`, `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error. A bare `.as(ScopeActorTypes.STAFF)`/`.as(ScopeActorTypes.GUEST)` — no context — falls back to the active session's own id and is refused by this module's own addressability check at runtime. Naming a different client's id via `.for(CLIENT, id)` compiles and addresses that client's own resource, on the caller's own session bearer, with no local check that the id matches the caller. See [gotchas.md](./gotchas.md).
 
-Both composables return the same four sub-composables:
+The composable returns four sub-composables:
 
-| Layer     | Access            | Read view contains                                 | Editor contains                                       |
-| --------- | ----------------- | -------------------------------------------------- | ----------------------------------------------------- |
-| Actions   | `.useActions()`   | readiness, refresh, lifecycle                      | form input, save, revert, clear, narrowing, lifecycle |
-| Context   | `.useContext()`   | the display list, raw custom field values, lookups | model, base model, schema, uischema, errors           |
-| Meta      | `.useMeta()`      | four state flags                                   | eight state flags                                     |
-| Internals | `.useInternals()` | the raw query                                      | the raw machine state and sender                      |
-
----
-
-## The read view — `usePersonalDetails`
-
-### Read actions — `useActions()`
-
-#### `isReady()` — waiting for the profile
-
-Resolves once the profile is ready to read.
-
-**Returns:** `Promise<boolean>` — `true` once the first fetch has settled without error; `false` if the session settles unaddressable, or the fetch itself errors. Never hangs.
-
-#### `refresh()`
-
-Forces a re-read of the profile from the server.
-
-**Returns:** `Promise<void>`.
-
-**Throws:** `NotAuthenticatedError` when the scope cannot address a client.
-
-#### `destroy()`
-
-Removes this scoped instance from the registry.
-
-**Returns:** `void`.
-
-### Read context — `useContext()`
-
-| Property       | Type                                                                                                                      | Meaning                                                                                                                     |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `data`         | `ComputedRef<ProfileField[]>`                                                                                             | Native fields, then custom field values, projected for display — the language row shows the resolved name, never the raw id |
-| `customFields` | `ComputedRef<ICustomFieldValue[]>` — `ICustomFieldValue` is from `@upmind-automation/types`, not this module's own barrel | The client's own raw custom field values, each carrying its own embedded definition                                         |
-| `error`        | `ComputedRef<ResponseError \| undefined>`                                                                                 | The read's own captured error — read, never raised                                                                          |
-| `findOne()`    | `(mapping, data?) => ProfileField \| undefined`                                                                           | Finds one display field by a partial mapping                                                                                |
-| `getOne(id)`   | `(id, data?) => ProfileField \| undefined`                                                                                | Finds one display field by id                                                                                               |
-
-> **🧪 For Testers:** `customFields` is the raw client record's own values — use it when you need the value's own embedded definition without going through the display projection. `data`'s language row shows the resolved language NAME; the raw id lives on `customFields`/the editor's model, never here.
-
-### Read meta — `useMeta()`
-
-| Flag          | True when                                                           |
-| ------------- | ------------------------------------------------------------------- |
-| `hasError`    | The profile read failed                                             |
-| `isAvailable` | The session is authenticated **and** the scope resolved a client id |
-| `isEmpty`     | The profile read has not yet returned any fields                    |
-| `isLoading`   | The read is loading or has not completed its first fetch            |
-
-### Read internals — `useInternals()`
-
-| Property     | Meaning                               |
-| ------------ | ------------------------------------- |
-| `actorScope` | The resolved actor for this instance  |
-| `query`      | The raw query object backing the read |
+| Layer     | Access            | Contains                                                                       |
+| --------- | ----------------- | ------------------------------------------------------------------------------ |
+| Actions   | `.useActions()`   | form input, save, revert, clear, narrowing, refresh, lifecycle                 |
+| Context   | `.useContext()`   | the display list, model, base model, schema, uischema, errors                  |
+| Meta      | `.useMeta()`      | eight state flags                                                              |
+| Internals | `.useInternals()` | the raw machine state and sender                                               |
 
 ---
 
-## The editor — `usePersonalDetailsManager`
+## The profile — `usePersonalDetails`
 
 ```ts
 import {
-  usePersonalDetailsManager,
+  usePersonalDetails,
   ScopeActorTypes
 } from "@upmind-automation/headless";
 
-const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+const manager = usePersonalDetails().as(ScopeActorTypes.SELF);
 
 await manager.useActions().isReady();
 await manager.useActions().update({ firstName: "New" });
 ```
 
-### Editor actions — `useActions()`
+### Actions — `useActions()`
 
 #### `isReady()` — waiting for the form
 
@@ -179,6 +118,12 @@ Resolves once a save has completed.
 
 **Returns:** `Promise<boolean>`.
 
+#### `refresh()`
+
+Re-reads the profile from the server — re-enters loading and re-runs the record read.
+
+**Returns:** `void`.
+
 #### `stop()` — pausing the editor
 
 Stops the underlying machine, leaving the registry entry in place.
@@ -191,13 +136,18 @@ Stops the machine **and** removes it from the registry.
 
 **Returns:** `void`.
 
-### Editor context — `useContext()`
+### Context — `useContext()`
 
 | Property           | Type                                        | Meaning                                                                                 |
 | ------------------ | ------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `context`          | `ComputedRef<ProfileContext \| undefined>`  | The full editor context object                                                          |
 | `model`            | `ComputedRef<ProfileModel \| undefined>`    | The current form model                                                                  |
 | `baseModel`        | `ComputedRef<ProfileModel \| undefined>`    | The persisted baseline `revert()` restores to                                           |
+| `data`             | `ComputedRef<ProfileField[]>`               | Native fields, then custom field values, projected for display — the language row shows the resolved name, never the raw id |
+| `error`            | `ComputedRef<ResponseError \| undefined>`   | The captured error object — read, never raised                                          |
+| `findOne()`        | `(mapping, data?) => ProfileField \| undefined` | Finds one display field by a partial mapping                                       |
+| `getOne(id)`       | `(id, data?) => ProfileField \| undefined`  | Finds one display field by id                                                           |
+| `uischemaFor()`    | `(fields: string[], options?) => UISchemaElement \| undefined` | The uischema narrowed to the named fields, pulling in invalid fields by default |
 | `schema`           | `ComputedRef<JsonSchema \| undefined>`      | The form's JSON schema — consumes the sibling module's own custom-field schema contract |
 | `uischema`         | `ComputedRef<UISchemaElement \| undefined>` | The form's UI definition, paired with `schema`                                          |
 | `fields`           | `ComputedRef<CustomField[]>`                | The custom field definitions this scope's lookups resolved                              |
@@ -208,7 +158,7 @@ Stops the machine **and** removes it from the registry.
 
 > **🧪 For Testers:** `errors` and `validationErrors` are state, never events. A rejected save lands here and stays readable until the next operation supersedes it.
 
-### Editor meta — `useMeta()`
+### Meta — `useMeta()`
 
 | Flag           | True when                                                         |
 | -------------- | ----------------------------------------------------------------- |
@@ -223,7 +173,7 @@ Stops the machine **and** removes it from the registry.
 
 > **🧪 For Testers:** `isLoading` includes the phase where the editor is waiting for its client id to resolve — that state is loading, not broken.
 
-### Editor internals — `useInternals()`
+### Internals — `useInternals()`
 
 | Property     | Meaning                              |
 | ------------ | ------------------------------------ |
@@ -236,7 +186,7 @@ Stops the machine **and** removes it from the registry.
 
 ## The form definition — paste-ready
 
-The editor serves its form definition at runtime through **`usePersonalDetailsManager().useContext().schema`** and **`.uischema`**. The four native controls are this module's own; the `customFields` sub-schema and its controls are the sibling custom-fields module's contract, consumed rather than re-derived.
+The editor serves its form definition at runtime through **`usePersonalDetails().useContext().schema`** and **`.uischema`**. The four native controls are this module's own; the `customFields` sub-schema and its controls are the sibling custom-fields module's contract, consumed rather than re-derived.
 
 The two blocks below are that same pair rendered as plain JSON, built from the two real custom field definitions this environment has (`age`, a NUMBER field; `profile_picture`, an IMAGE field). Paste them into [jsonforms.io](https://jsonforms.io/examples/basic) — schema on the left, UI schema on the right — to see the rendered form.
 
@@ -352,24 +302,14 @@ Notes for the paste:
 ## Errors are state, never announcements
 
 ```ts
-import {
-  usePersonalDetails,
-  usePersonalDetailsManager,
-  ScopeActorTypes
-} from "@upmind-automation/headless";
+import { usePersonalDetails, ScopeActorTypes } from "@upmind-automation/headless";
 
-const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
-const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+const manager = usePersonalDetails().as(ScopeActorTypes.SELF);
 
-// Read view
-const { error } = profile.useContext();
-const { hasError } = profile.useMeta();
-
-// Editor
-const { errors, validationErrors } = manager.useContext();
+const { error, errors, validationErrors } = manager.useContext();
 const { hasErrors } = manager.useMeta();
 
-// Success signal for the editor
+// Success signal for a save
 await manager.useActions().onDone();
 ```
 
@@ -378,7 +318,6 @@ await manager.useActions().onDone();
 ```ts
 import {
   usePersonalDetails,
-  usePersonalDetailsManager,
   PERSONAL_DETAILS_SCOPE_MATRIX,
   ClientPersonalDetailsContextTypes,
   type UsePersonalDetails,
@@ -386,16 +325,10 @@ import {
   type UsePersonalDetailsContext,
   type UsePersonalDetailsMeta,
   type UsePersonalDetailsInternals,
-  type UsePersonalDetailsManager,
-  type UsePersonalDetailsManagerActions,
-  type UsePersonalDetailsManagerContext,
-  type UsePersonalDetailsManagerMeta,
-  type UsePersonalDetailsManagerInternals,
   type PersonalDetailsScopeMatrix,
   type ProfileContext,
   type ProfileField,
-  type ProfileModel,
-  type ProfileRecord
+  type ProfileModel
 } from "@upmind-automation/headless";
 ```
 

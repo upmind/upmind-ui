@@ -1,0 +1,23 @@
+# Negative-control mutant — a row's status badge reads its `meta` flag (R38 item 9, G4; B5)
+#
+# Spec it must flip: contract-product.replay.int.test.ts,
+#   "Each of my products shows its status in words, with one flag for that
+#   status".
+# RED-verified 2026-09-29.
+#
+# Mutation: `isClosed` is always false, so a closed product draws no badge.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -70,7 +70,7 @@ export function mapContractProductMeta(
+     isActive: code === ContractStatusCodes.ACTIVE,
+     isAwaitingActivation: code === ContractStatusCodes.AWAITING_ACTIVATION,
+     isCancelled: code === ContractStatusCodes.CANCELLED,
+-    isClosed: code === ContractStatusCodes.CLOSED,
++    isClosed: false,
+     isFraud: code === ContractStatusCodes.FRAUD,
+     isPending: code === ContractStatusCodes.PENDING,
+     isSuspended: code === ContractStatusCodes.SUSPENDED

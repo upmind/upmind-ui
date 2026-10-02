@@ -9,6 +9,7 @@
 - [ADR 020: Gherkin Test Planning](./020-gherkin-test-planning.md) — the `.feature` planning artefact, now co-located in the journey folder. Amended (Amendment 1) to redirect its `.feature` location clause here.
 - [ADR 007: Headless Architecture](./007-headless-architecture.md) — the module boundary that defines "single-module" vs "cross-module".
 - [ADR 001: Scope-Based Composables](./001-scope-based-composables.md) — the source of the per-module scope matrix the module-level loop iterates.
+- [ADR 035: One Scenario, One Recording](./035-one-scenario-one-recording.md) — applies this unit's principles to a single module's scenarios, co-located in the module.
 - Linear: **FE-2773** (integration Vitest project), **FE-2775** (fixture infrastructure rebuild), **FE-2774** (`@next` migration) — the test-platform stream this restructure rides on.
 
 ---

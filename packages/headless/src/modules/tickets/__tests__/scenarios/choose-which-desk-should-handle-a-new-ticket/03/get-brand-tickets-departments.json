@@ -1,0 +1,99 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/brand/tickets/departments",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a433477edafe93d1-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 12:37:30 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=wAlIm%2FgWw%2BvOHZTzyHNWFRO%2FnmPoUdTlwO738BQr8NrDlAnQErmx79pWtqvt%2Fl7dmbemj2fboLSWG0IhQ%2FbA8O7ongEawPRnSX%2BL4oVNJORts8UgPgqwvk5kcDM0GD9Ej72kbBFwpA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "3"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "47d73824-8507-9315-332f-81e642d59e06",
+          "ticket_department_id": "8d632507-9806-5d1e-33eb-8174e234e98d",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "username": null,
+          "name": null,
+          "default": true,
+          "is_public": true,
+          "limited": false,
+          "created_at": "2025-05-07 08:38:43",
+          "updated_at": "2025-05-07 08:38:43",
+          "deleted_at": null,
+          "name_translated": null,
+          "translations": []
+        },
+        {
+          "id": "78985742-6489-7012-024c-21e325d0ed36",
+          "ticket_department_id": "47d73824-8507-9315-3e2b-81e642d59e06",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "username": null,
+          "name": null,
+          "default": false,
+          "is_public": true,
+          "limited": true,
+          "created_at": "2025-12-08 14:27:16",
+          "updated_at": "2025-12-08 17:07:42",
+          "deleted_at": null,
+          "name_translated": null,
+          "translations": []
+        },
+        {
+          "id": "320e4357-95e7-8d18-40ea-31643202d986",
+          "ticket_department_id": "5952098d-3de4-0917-e95c-31578626e347",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "username": null,
+          "name": null,
+          "default": false,
+          "is_public": true,
+          "limited": true,
+          "created_at": "2025-12-08 14:27:18",
+          "updated_at": "2025-12-08 17:10:13",
+          "deleted_at": null,
+          "name_translated": null,
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 3,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T12:37:30.342Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

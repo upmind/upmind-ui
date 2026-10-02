@@ -1,4 +1,4 @@
-import { toRaw, computed } from "vue";
+import { toRaw, computed, effectScope } from "vue";
 import {
   type ILanguage,
   type ICurrency,
@@ -22,7 +22,7 @@ import {
   reduce,
   isArray,
   isEmpty,
-  forEach,
+  map,
   includes,
   keys,
   sortBy
@@ -55,6 +55,20 @@ let organisationConfigQuery: ReturnType<
 >;
 let config: ReturnType<typeof useConfig>;
 
+/**
+ * A detached, process-lived scope that OWNS the singleton query observers. The
+ * queries below are minted lazily on the first `useBrand()` call, and
+ * `useQuery().query()` binds a new observer to whatever `effectScope` is active
+ * at that moment. Without this, the first caller — often a transient scoped
+ * composable running inside the scope registry's `effectScope` — owns the
+ * observers, and its `destroy()` (`scope.stop()`) tears down the SHARED brand
+ * singletons, leaving every later `useBrand().isReady()` polling four
+ * permanently-unfetched queries forever (FE-3145: a signed-out collection boot
+ * hung a later editor's `isReady` at its timeout). Minting inside this detached
+ * scope makes the singletons outlive any consumer, as a singleton must.
+ */
+const brandQueryScope = effectScope(true);
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -65,10 +79,16 @@ let config: ReturnType<typeof useConfig>;
  * @returns An object containing brand data, meta-information, and utility methods.
  */
 export const useBrand = () => {
-  modulesQuery ??= services.fetchModules();
-  brandConfigQuery ??= services.fetchBrandConfig();
-  brandSettingsQuery ??= services.fetchBrandSettings();
-  organisationConfigQuery ??= services.fetchOrganisationConfig();
+  // Mint the singleton observers inside the detached `brandQueryScope` (never
+  // the caller's scope), so a consumer's `destroy()` cannot dispose them.
+  if (!modulesQuery) {
+    brandQueryScope.run(() => {
+      modulesQuery = services.fetchModules();
+      brandConfigQuery = services.fetchBrandConfig();
+      brandSettingsQuery = services.fetchBrandSettings();
+      organisationConfigQuery = services.fetchOrganisationConfig();
+    });
+  }
 
   // --- state
 
@@ -155,6 +175,10 @@ export const useBrand = () => {
 
   const uischema = computed<BrandMeta["uischema"]>(
     () => get(brandSettings.value, "meta.uischema") as BrandMeta["uischema"]
+  );
+
+  const portal = computed<BrandMeta["portal"]>(
+    () => get(brandSettings.value, "meta.portal") as BrandMeta["portal"]
   );
 
   const currency = computed<ICurrency | undefined>(
@@ -329,10 +353,7 @@ export const useBrand = () => {
   };
 
   // --- Utility methods for cache management and re-fetching
-  const refresh = async () => {
-    // Invalidate all related queries that feed into state via services.ts
-    forEach(queries, q => q?.refetch());
-  };
+  const refresh = () => Promise.all(map(queries, q => q?.refetch()));
 
   const invalidate = () => {
     // A broader invalidating for anything under the "brand" query key namespace
@@ -466,6 +487,9 @@ export const useBrand = () => {
 
     /** The storefront URL for the brand, if configured. */
     storefrontUrl,
+
+    /** The brand's portal visibility settings (`brand/settings` `meta.portal`). */
+    portal,
 
     /** The storefront route object for the brand, containing either 'to' for internal routes or 'href' for external URLs. */
     storefrontRoute,

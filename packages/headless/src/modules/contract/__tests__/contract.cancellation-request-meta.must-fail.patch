@@ -1,0 +1,30 @@
+# Negative-control mutant — the cancellation request's own status is ALSO a
+# translated-badge-ready `meta` group, not a bare `{ code }` (G2, R38 item 9)
+#
+# RE-CUT (FE-3206): the `cancellationRequest` branch now carries a translated
+#   `status.name` alongside `code`, and its `meta` reuses the hoisted
+#   `requestMeta` local. The mutation is unchanged — only the hunk is rebased.
+#
+# Scenario it must flip: a contract carrying a `cancellation_request` whose
+#   `status.code` is one of the five `CancellationRequestStatusCodes` gets a
+#   `cancellationRequest.meta` with exactly the matching flag true, the same
+#   `TableCellBadges` channel the row's own status uses.
+# Mutation: `mapContract` drops `meta: requestMeta` off the `cancellationRequest`
+#   branch, reverting it to the bare `{ status: { code, name } }` shape — no badge
+#   channel for the cancellation request survives (`meta?` is optional, so this is
+#   a behavioural break, not a type error).
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -103,8 +103,7 @@ export function mapContract(raw: IContract): Contract {
+           cancellationRequest: {
+             status: {
+               code: requestCode,
+               name: useTranslateName(requestStatus)
+             },
+-            meta: requestMeta
+           }
+         }

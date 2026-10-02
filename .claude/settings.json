@@ -84,8 +84,6 @@
     ]
   },
   "enabledPlugins": {
-    "notion@claude-plugins-official": true,
-    "gitlab@claude-plugins-official": true,
     "upmind-agent@upmind-agent": true
   },
   "extraKnownMarketplaces": {

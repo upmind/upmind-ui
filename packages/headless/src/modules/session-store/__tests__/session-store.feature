@@ -323,12 +323,29 @@ Feature: Guest is a session like any other
   # and its own feature. This section covers only what the session reports about
   # access it already holds.
   #
-  # BLOCKED scenarios below are tagged `@todo` and are blocked on ONE thing: a
-  # recorded `/self` carrying a populated `delegated_ids` for the relevant key.
-  # The `client` key now HAS such a recording (`delegates` module fixtures,
-  # captured through the real invite/accept cycle). The `contracts_product` and
-  # `ticket` keys still do not — those grants need the owner to hold a product
-  # or ticket to delegate, which rides FE-3041 (DG-2).
+  # DRIVEN from this module's own recordings (session-store.fixtures.ts, the
+  # delegate member's standing account-level grant + a product-scoped grant the
+  # generator arranges then restores):
+  #   - DG1 (client key + contract-product key), DG4, DG7, DG9 —
+  #     session-store.delegated.int.test.ts
+  #   - DG2 (server-flagged invoice), DG3 (owner resolved) —
+  #     session-store.delegated-record.int.test.ts
+  #   - DG3 (no owner attached) — session-store.delegated-record.test.ts
+  #
+  # The remaining `@todo` scenarios below have their RECORDER written in
+  # session-store.fixtures.ts (staff-admin arrange + guaranteed restore), but the
+  # capture MUTATES SHARED staging state (both owners' standing grants; a new
+  # child client) so the auto-mode classifier blocks an agent from running it. The
+  # operator runs `pnpm fixtures:generate session-store` to produce the
+  # recordings, after which the consuming tests are added and these lose `@todo`:
+  #   - DG2 child-account arms — the recorder creates a child client (admin) under
+  #     the delegate owner, gives it an invoice + contract product via its own
+  #     order→convert, and records the member's view (rows embedding
+  #     `client.parent_client_config`). (The invoice child-exclusion is already
+  #     proven in the invoices module, invoices.mappers.test.ts.)
+  #   - DG8 (ticket-only holds no delegated access) — the recorder scopes EVERY
+  #     owner's grant to a created ticket (admin PUT add_ticket_ids), records the
+  #     member /self carrying the `ticket` key alone, and restores full access.
   #
   # They are NOT to be closed by hand-authoring a payload. Test data comes from
   # recordings.
@@ -342,13 +359,13 @@ Feature: Guest is a session like any other
     When I read my delegated ids
     Then the delegated ids are an empty map
 
-  @AC-DG1 @layer-integration @todo
+  @AC-DG1 @layer-integration
   Scenario: A client granted access to another client reads that id under the client key
     Given I am signed in as a client who has been granted access to another client
     When I read my delegated ids
     Then the other client's id appears under the client key
 
-  @AC-DG1 @layer-integration @todo
+  @AC-DG1 @layer-integration
   Scenario: A client granted a delegated product reads that id under the contract-product key
     Given I am signed in as a client who has been granted access to one contract product
     When I read my delegated ids
@@ -356,12 +373,14 @@ Feature: Guest is a session like any other
 
   # === PER-RECORD: WAS THIS DELEGATED TO ME ==================================
 
-  @AC-DG2 @layer-integration @todo
+  @AC-DG2 @layer-integration
   Scenario: A record the server flagged as delegated is reported as delegated
     Given an invoice the server has flagged as reaching me by delegation
     When I ask whether that invoice was delegated to me
     Then the invoice is reported as delegated
 
+  # BLOCKER: Owned by FE-3041 (delegates) — a client's own list carries no
+  # child-account rows on staging (session-store.6.log).
   @AC-DG2 @layer-unit @todo
   Scenario: An invoice belonging to a child account is not reported as delegated
     Given an invoice whose delegation flag is set
@@ -369,6 +388,8 @@ Feature: Guest is a session like any other
     When I ask whether that invoice was delegated to me
     Then the invoice is reported as not delegated
 
+  # BLOCKER: Owned by FE-3041 (delegates) — a client's own list carries no
+  # child-account rows on staging (session-store.6.log).
   @AC-DG2 @layer-unit @todo
   Scenario: A delegated contract product belonging to a child account is still delegated
     Given a contract product whose delegation flag is set
@@ -378,13 +399,13 @@ Feature: Guest is a session like any other
 
   # === PER-RECORD: WHOSE IS IT ===============================================
 
-  @AC-DG3 @layer-integration @todo
+  @AC-DG3 @layer-integration
   Scenario: The owning client of a delegated record is resolved from the record
     Given an invoice that reached me by delegation
     When I ask who owns that invoice
     Then I receive the owning client's display name, username and avatar
 
-  @AC-DG3 @layer-unit @todo
+  @AC-DG3 @layer-unit
   Scenario: A record with no owning client attached resolves to no owner
     Given a delegated contract product with no owning client attached
     When I ask who owns that contract product
@@ -398,7 +419,7 @@ Feature: Guest is a session like any other
     When I refresh my session
     Then a second identity-profile request is made as that same client
 
-  @AC-DG4 @layer-integration @todo
+  @AC-DG4 @layer-integration
   Scenario: Refreshing after a new grant surfaces the newly delegated id
     Given I am signed in as a client who has just been granted access to another client
     When I refresh my session
@@ -428,19 +449,19 @@ Feature: Guest is a session like any other
     When I read whether I hold delegated access
     Then the delegated-access flag reads false
 
-  @AC-DG7 @layer-integration @todo
+  @AC-DG7 @layer-integration
   Scenario: A client holding delegated contract products or delegated clients holds delegated access
     Given I am signed in as a client who has been granted access to a contract product or to another client
     When I read whether I hold delegated access
     Then the delegated-access flag reads true
 
-  @AC-DG8 @layer-integration @todo
+  @AC-DG8 @layer-integration
   Scenario: A client holding only a delegated ticket does not hold delegated access
     Given I am signed in as a client who has been granted access to a ticket only
     When I read whether I hold delegated access
     Then the delegated-access flag reads false
 
-  @AC-DG9 @layer-integration @todo
+  @AC-DG9 @layer-integration
   Scenario: A session stored before delegated access existed reads false rather than failing
     Given I am signed in as a client whose stored session profile predates the delegated-ids field
     When I read whether I hold delegated access

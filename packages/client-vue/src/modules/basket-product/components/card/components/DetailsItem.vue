@@ -39,12 +39,12 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import {
   parseBillingCycle,
   useMoney,
   useConfig
 } from "@upmind-automation/headless";
-import { Icon } from "../../../../../components/icon";
 import { isEmpty } from "lodash-es";
 import { has } from "lodash-es";
 import type { DetailsItemProps } from "./types";

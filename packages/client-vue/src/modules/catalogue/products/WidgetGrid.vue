@@ -116,6 +116,7 @@ import { useUrlSearchParams } from "@vueuse/core";
 import { watch, ref, computed, useTemplateRef, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { Icon } from "@upmind-automation/foundation";
 import {
   useProductCatalogue,
   useProductCategories,
@@ -127,11 +128,7 @@ import {
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { Icon } from "../../../components/icon";
-import {
-  ProductCard,
-  ProductCardSkeleton
-} from "../../product/components/card";
+import { ProductCard, ProductCardSkeleton } from "@upmind-automation/product";
 import {
   productsMainRootVariants,
   productsMainControlsVariants,

@@ -1,9 +1,9 @@
 /**
  * @module form/renderers/__tests__/filter.harness
  * @description Mounts the REAL surface the filter renderers are bound through —
- * client-vue's `UpmForm`, which is where `formRenderers` is registered — against
- * the two consumer query declarations and the real `packages/i18n` `src/core`
- * catalogue.
+ * foundation's `UpmForm`, which reads the controls client-vue's entry registers —
+ * against the two consumer query declarations and the real `packages/i18n`
+ * `src/core` catalogue.
  *
  * PROVENANCE. `clientEmailQuery()` / `clientEmailHistoryQuery()` are transcribed
  * verbatim from the shipped declarations at
@@ -24,16 +24,16 @@ import { Form, provideFormIcon } from "@upmind/ui";
 import { DOMWrapper, mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { createI18n } from "vue-i18n";
+import { Icon, useFormI18n } from "@upmind-automation/foundation";
 import {
   PAGINATION,
   SortDirection,
+  useContractProducts,
   useI18n as useLocalisation,
   useInvoices
 } from "@upmind-automation/headless";
-import { Icon } from "../../../icon";
-import { UpmForm } from "../../index";
-import { useFormI18n } from "../../useFormI18n";
 import { formRenderers } from "../index";
+import "../../../../index";
 import {
   cloneDeep,
   compact,
@@ -58,6 +58,9 @@ export type QueryDeclaration = {
   schema: JsonSchema7;
   uischema: UISchemaElement;
 };
+
+// `@upmind/ui` also exports a `Form` (the bare engine), so the wrapper is read by name.
+const { Form: UpmForm } = await import("@upmind-automation/foundation");
 
 /**
  * The SHIPPED catalogue, loaded the way the app loads it: headless's own
@@ -286,6 +289,19 @@ export const invoicesQuery = (): QueryDeclaration => {
 };
 
 /**
+ * The `contract-products` collection's live-published query declaration, pulled
+ * off `useContractProducts().as("self").useContext().schemas.query` for the same
+ * reason as `invoicesQuery`: a transcription cannot go stale unnoticed here.
+ */
+export const contractProductsQuery = (): QueryDeclaration => {
+  const { schemas } = useContractProducts().as("self").useContext();
+  return {
+    schema: schemas.query.schema as JsonSchema7,
+    uischema: schemas.query.uischema as UISchemaElement
+  };
+};
+
+/**
  * A two-ended date column and the element that scopes it — the `range` format's
  * declaration. No consumer bar draws one yet, so unlike the two above this is a
  * declaration the format's own contract defines rather than a transcription.
@@ -343,7 +359,7 @@ export type FilterMount = {
 };
 
 /**
- * Mounts a declaration through the renderer registry `UpmForm` binds.
+ * Mounts a declaration through the control registry `UpmForm` reads.
  *
  * @param options.translate - `false` swaps `UpmForm` for `@upmind/ui`'s bare
  *   engine `Form` carrying the same renderer set and NO `i18n` prop, so the

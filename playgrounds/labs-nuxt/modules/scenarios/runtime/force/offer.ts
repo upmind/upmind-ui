@@ -65,15 +65,18 @@ const isLoading = (state: ForcedState) =>
  *
  * @param feature The module's committed `.feature` text.
  * @param bodies That module's own recordings, keyed by fixture name.
+ * @param without The lane tags this page leaves out — a scenario tagged with
+ * one is another page's, so its states are not this page's to offer.
  */
 export function offeredForcedStates(
   feature: string,
-  bodies: Record<string, RecordedFixture>
+  bodies: Record<string, RecordedFixture>,
+  without?: readonly string[]
 ): ForcedState[] {
   // One entry per RECIPE: three scenarios that each say "loading" are one
   // state on the picker, named by the first of them.
   const declared = uniqBy(
-    filter(featureForcedStates(feature), state =>
+    filter(featureForcedStates(feature, without), state =>
       answersRecipe(state.recipe, bodies)
     ),
     state => forcedStateRecipeId(state.recipe)
@@ -92,12 +95,15 @@ export function offeredForcedStates(
  *
  * @param feature The module's committed `.feature` text.
  * @param bodies That module's own recordings, keyed by fixture name.
+ * @param without The lane tags this page leaves out — a gap on another page's
+ * scenario is not this page's to report.
  */
 export function forcedStateGaps(
   feature: string,
-  bodies: Record<string, RecordedFixture>
+  bodies: Record<string, RecordedFixture>,
+  without?: readonly string[]
 ): ForcedState[] {
-  return reject(featureForcedStates(feature), state =>
+  return reject(featureForcedStates(feature, without), state =>
     answersRecipe(state.recipe, bodies)
   );
 }

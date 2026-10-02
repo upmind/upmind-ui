@@ -1,0 +1,2099 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/contract_products/785d26e9-6783-d169-497f-314502e70439?with=contract,contract.account,contract.address,contract.brand.currency,contract.cancellation_request.status,contract.cancellation_request.custom_fields.field,contract.client,contract.client.tags,contract.client.image,contract.gateway,contract.import.credentials,contract.import.source,contract.moved_to_contract,contract.moved_to_contract.products,contract.payment_details,contract.payment_details.gateway,contract.promotions,contract.status,allowed_migrations,attributes.product.image,brand,contract_request,contract_request.custom_fields.field,future_cancellation_request,options.product.image,product,product.brand.currency,product.image,product.images,product.provision_blueprint,product.provision_category,scheduled_actions,status,tags,unpaid_recurring_invoices",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a42b2843ca8d97ee-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 12:58:05 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=eoBSYvPGQQRFWfrfRVmFWg%2FI%2BD95ltPVPLM3XAj13n0PnaniAOZGCxHFJOKDHNVopvnLaOAs8CsToMEm2vAZ53LoxvSzzhayvs2qp3lLGCyojZTY7H%2BZ9WptnrjR4Ov0QBanDgkuqw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "785d26e9-6783-d169-497f-314502e70439",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+        "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+        "contract_id": "89857426-4897-0122-24ef-21e325d0ed36",
+        "product_id": "2785d26e-9678-3d16-934b-314502e70439",
+        "name": "Single Use Promo",
+        "service_identifier": null,
+        "client_label": null,
+        "description": "Promo Products - Single Use Promo",
+        "cost": 0,
+        "cost_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "base_price": 4,
+        "base_price_currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "selling_price": 4,
+        "cost_exchange_rate": "1.000000",
+        "base_price_exchange_rate": "1.000000",
+        "quantity": 1,
+        "unit_quantity": null,
+        "vat_country_id": "320e4357-95e7-8d18-484f-31643202d986",
+        "vat_percentage": "20.00",
+        "billing_cycle_months": 1,
+        "product_set_id": null,
+        "product_group_id": null,
+        "created_at": "2025-10-02 16:04:22",
+        "updated_at": "2026-09-29 12:58:04",
+        "deleted_at": null,
+        "status_id": "4d036794-24d0-e710-94a3-153698d582e8",
+        "start_date": "2025-10-02",
+        "end_date": null,
+        "amount": 4.8,
+        "invoice_id": "63250798-065d-1e55-d24b-8174e234e98d",
+        "invoice_product_id": "e78642de-5397-1467-998f-21208469530d",
+        "next_invoice_date": "2026-10-02",
+        "next_due_date": "2026-10-02",
+        "discount_amount": 0,
+        "last_invoice_id": "e78642de-5397-143e-097c-21208469530d",
+        "provision_provider_id": null,
+        "provision_configuration_id": null,
+        "provision_setup_fields_confirmed": true,
+        "provision_server_id": null,
+        "provision_center_id": null,
+        "main_contracts_product_id": null,
+        "provision_lock": 0,
+        "calculated_suspend_date": "2026-11-01",
+        "calculated_cancel_date": "2026-11-16",
+        "calculated_close_date": "2026-12-01",
+        "suspend_interval": 30,
+        "cancel_interval": 45,
+        "close_interval": 60,
+        "not_suspend_until": null,
+        "not_cancel_until": null,
+        "not_close_until": null,
+        "main_invoice_product_id": null,
+        "net_selling_price": "4.0000",
+        "net_product_discount_amount": 0,
+        "net_global_discount_amount": 0,
+        "net_amount": 4,
+        "tax_amount": 0.8,
+        "total_amount": 4.8,
+        "total_discount_amount": 0,
+        "is_provisioned": false,
+        "activation_date": "2025-10-02",
+        "billing_cycle_days": 30,
+        "suspended_date": null,
+        "cancelled_date": null,
+        "closed_date": null,
+        "pro_rata_pending": false,
+        "renew": true,
+        "notes": null,
+        "next_invoice_date_archive": null,
+        "original_product_id": null,
+        "price_type": "pricelist",
+        "main_invoice_id": "63250798-065d-1e55-d24b-8174e234e98d",
+        "main_invoice_number": "QAT-INV-03585",
+        "manual_status": false,
+        "auto_create_renew_invoice": true,
+        "payment_days_term": 0,
+        "create_invoice_term": 0,
+        "expire_notice_date": "2026-10-01",
+        "accounting_revenue_recognition": 0,
+        "moved_from_contract_product_id": null,
+        "moved_to_contract_product_id": null,
+        "moved": false,
+        "in_trial": false,
+        "trial_duration": 0,
+        "trial_end_action": 0,
+        "trial_pre_expire_notification": 0,
+        "trial_pre_expire_notification_date": null,
+        "trial_end_date": null,
+        "trial_end_action_time": null,
+        "invoice_consolidation_enabled": 0,
+        "invoice_consolidation_enabled_calculated": false,
+        "last_reconciled_at": "2026-09-02 00:40:32",
+        "retention_status_id": "825d96e7-63ed-0913-9dc4-174825283406",
+        "retention_reason_id": null,
+        "retention_status_updated_at": "2026-09-29 12:29:34",
+        "retention_updated_at": "2026-09-29 12:29:34",
+        "product_name": "Single Use Promo",
+        "currency_code": "GBP",
+        "cost_currency_code": "GBP",
+        "base_currency_code": "GBP",
+        "cost_formatted": "£0.00",
+        "base_price_formatted": "£4.00",
+        "selling_price_formatted": "£4.00",
+        "selling_price_converted": 4,
+        "net_selling_price_formatted": "£4.00",
+        "net_unit_selling_price_formatted": "£4.00",
+        "total_unit_selling_price_formatted": "£4.80",
+        "total_unit_selling_price_converted": 4.8,
+        "net_product_discount_amount_formatted": "£0.00",
+        "net_global_discount_amount_formatted": "£0.00",
+        "total_discount_amount_formatted": "£0.00",
+        "net_amount_formatted": "£4.00",
+        "net_amount_without_discount_formatted": "£4.00",
+        "tax_amount_formatted": "£0.80",
+        "total_amount_formatted": "£4.80",
+        "total_amount_without_discount_formatted": "£4.80",
+        "total_amount_without_discount_converted": 4.8,
+        "configuration_selling_price_formatted": "£4.80",
+        "configuration_selling_price": 4.8,
+        "configuration_total_amount": 4.8,
+        "configuration_total_amount_formatted": "£4.80",
+        "configuration_total_recurring_amount_formatted": "£4.80",
+        "configuration_total_recurring_amount_converted": 4.8,
+        "configuration_total_recurring_discounted_amount_formatted": "£4.80",
+        "configuration_total_recurring_net_amount_formatted": "£4.00",
+        "configuration_total_recurring_net_amount": 4,
+        "configuration_total_recurring_net_discounted_amount_formatted": "£4.00",
+        "configuration_net_selling_price_formatted": "£4.00",
+        "configuration_net_amount_formatted": "£4.00",
+        "configuration_selling_price_discount_formatted": "£0.00",
+        "configuration_total_discount_amount_formatted": "£0.00",
+        "configuration_net_amount_discount_formatted": "£0.00",
+        "configuration_net_selling_price_discount_formatted": "£0.00",
+        "configuration_selling_price_discounted_formatted": "£4.80",
+        "configuration_total_discounted_amount_formatted": "£4.80",
+        "configuration_net_amount_discounted_formatted": "£4.00",
+        "configuration_net_selling_price_discounted_formatted": "£4.00",
+        "options": [],
+        "attributes": [],
+        "set_products": [],
+        "is_due": false,
+        "can_create_next_invoice": true,
+        "paid_future_invoices": false,
+        "can_modify": true,
+        "can_cancel": true,
+        "status": {
+          "id": "4d036794-24d0-e710-94a3-153698d582e8",
+          "object_type": "contract",
+          "code": "contract_active",
+          "order": 3,
+          "name": "Active"
+        },
+        "recommended_money_back_period": 45,
+        "active_for_months": 11,
+        "due_in_days": 3,
+        "tax_entity_details": {
+          "company_name": null,
+          "company_tax_number": null,
+          "company_reg_number": null,
+          "address_id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
+          "company_id": null,
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "postal_code": "GU4 8PH",
+          "region_id": "d085e69d-5623-719e-095b-218e940d4237",
+          "address_1": "40 Reichert Grange",
+          "address_2": ""
+        },
+        "tax_entity_hash": "93ab4ec27e7a2f31fb2d2aaa095ef421",
+        "calculated_next_invoice_due_date": "2026-10-02",
+        "promotion_codes": null,
+        "is_parent": null,
+        "is_delegated_object": false,
+        "future_renewal_price": null,
+        "configuration_future_renewal_price": null,
+        "contract": {
+          "id": "89857426-4897-0122-24ef-21e325d0ed36",
+          "import_id": null,
+          "staged_import": false,
+          "finished_staged_import": null,
+          "external_id": null,
+          "name": null,
+          "notes": null,
+          "start_date": "2025-10-02",
+          "end_date": "0000-00-00",
+          "next_due_date": "2026-10-02",
+          "next_invoice_date": "2026-10-02",
+          "cancellation_date": null,
+          "cancellation_reason": null,
+          "activation_date": "2025-10-02",
+          "status_id": "4d036794-24d0-e710-94a3-153698d582e8",
+          "total_recurrent_amount": 76.8,
+          "total_amount": 76.8,
+          "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+          "user_id": "sys",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "company_id": null,
+          "phone_id": null,
+          "address_id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
+          "billing_cycle_months": 1,
+          "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "main_invoice_id": "63250798-065d-1e55-d24b-8174e234e98d",
+          "main_invoice_number": "QAT-INV-03585",
+          "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+          "payment_details_id": "785d26e9-6783-d16e-738f-314502e70439",
+          "promotion_id": null,
+          "promotion_code": null,
+          "created_at": "2025-10-02 16:04:22",
+          "updated_at": "2026-09-29 12:29:35",
+          "reseller_account_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+          "fraud_status": 1,
+          "currency_exchange_rate": "1.000000",
+          "locked": null,
+          "billing_cycle_days": 30,
+          "reconciliation_strict": 0,
+          "tax_type": 0,
+          "moved_from_contract_id": null,
+          "moved_to_contract_id": null,
+          "moved": false,
+          "partially_moved": false,
+          "total_recurrent_amount_formatted": "£76.80",
+          "total_amount_formatted": "£76.80",
+          "currency": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "British Pound",
+            "prefix": "£",
+            "suffix": "",
+            "code": "GBP",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-09-28 11:08:14",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          "account": {
+            "id": "d0367942-4d0e-7109-92eb-3153698d582e",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "user_id": "sys",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "created_at": "2025-06-02 16:00:35",
+            "updated_at": "2026-09-28 06:50:51",
+            "name": "Default",
+            "status_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+            "account_type_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "reseller_account_id": null,
+            "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+            "invoice_account_id": null,
+            "multi_currency_balance": 0,
+            "auto_consume_on_due_date": 2,
+            "affiliate_tier_id": null,
+            "affiliate_payout_paypal_email_id": null,
+            "affiliate_payout_destination_id": null,
+            "topup_enabled": true,
+            "preferred_payment_currency_id": null,
+            "affiliate_referral_pricelist_id": null,
+            "enable_negative_wallet_balance": false,
+            "negative_wallet_allowance": 0,
+            "wallet_statement_day_of_month": 1,
+            "negative_wallet_allowance_calculated": 50,
+            "wallet_statement_day_of_month_calculated": 1,
+            "is_reseller": false,
+            "negative_wallet_allowance_formatted": "£50.00",
+            "negative_wallet_allowance_converted": 50,
+            "negative_wallet_allowance_converted_formatted": "£50.00",
+            "negative_wallet_allowance_calculated_formatted": "£50.00",
+            "negative_wallet_allowance_calculated_converted": 50,
+            "negative_wallet_allowance_calculated_converted_formatted": "£50.00",
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            },
+            "brand": {
+              "id": "2785d26e-9678-3d16-999f-314502e70439",
+              "name": "QA Automation Testing",
+              "created_at": "2025-05-07 08:38:43",
+              "updated_at": "2026-09-29 12:55:12",
+              "code": "kn6x1dzbtcgb",
+              "brand_type": 1,
+              "reseller_account_id": null,
+              "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+              "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+              "company_name": "QA Automation Testing",
+              "vat_number": "GB12345678",
+              "company_address": "123",
+              "company_phone": "",
+              "company_email": "mock-email-1@example.com",
+              "tax_type": 0,
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "prefix": "kn6x1dzbtcgb",
+              "autoapply": 1,
+              "payment_days_term": 0,
+              "create_invoice_term": 0,
+              "user_id": "sys",
+              "deleted_at": null,
+              "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+              "vat_exempt": 0,
+              "non_recurring_due_interval": 0,
+              "notifications_disabled": false,
+              "wipe_data": false,
+              "demo_data_import_id": null,
+              "region_id": null,
+              "domain": "kn6x1dzbtcgb.staging.upmind.dev",
+              "has_demo_data": false,
+              "currency": {
+                "id": "3825d96e-763e-d091-3dc4-174825283406",
+                "name": "British Pound",
+                "prefix": "£",
+                "suffix": "",
+                "code": "GBP",
+                "created_at": "2017-10-18 14:16:22",
+                "updated_at": "2026-09-28 11:08:14",
+                "base": true,
+                "decimals": true,
+                "manual": 0
+              }
+            }
+          },
+          "address": {
+            "id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+            "user_id": "sys",
+            "default": false,
+            "type": 1,
+            "name": "13 Downside Rd",
+            "address_1": "40 Reichert Grange",
+            "address_2": "",
+            "region_id": "d085e69d-5623-719e-095b-218e940d4237",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "city": "Guildford",
+            "county": null,
+            "postcode": "GU4 8PH",
+            "created_at": "2025-06-26 12:26:18",
+            "updated_at": "2026-09-28 12:19:12",
+            "deleted_at": null,
+            "verified": 0,
+            "can_delete": false
+          },
+          "brand": {
+            "id": "2785d26e-9678-3d16-999f-314502e70439",
+            "name": "QA Automation Testing",
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2026-09-29 12:55:12",
+            "code": "kn6x1dzbtcgb",
+            "brand_type": 1,
+            "reseller_account_id": null,
+            "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "company_name": "QA Automation Testing",
+            "vat_number": "GB12345678",
+            "company_address": "123",
+            "company_phone": "",
+            "company_email": "mock-email-1@example.com",
+            "tax_type": 0,
+            "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "prefix": "kn6x1dzbtcgb",
+            "autoapply": 1,
+            "payment_days_term": 0,
+            "create_invoice_term": 0,
+            "user_id": "sys",
+            "deleted_at": null,
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "vat_exempt": 0,
+            "non_recurring_due_interval": 0,
+            "notifications_disabled": false,
+            "wipe_data": false,
+            "demo_data_import_id": null,
+            "region_id": null,
+            "domain": "kn6x1dzbtcgb.staging.upmind.dev",
+            "has_demo_data": false,
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "cancellation_request": null,
+          "client": {
+            "id": "25d96e76-3ed0-913d-d52c-417482528340",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "support_pin": null,
+            "support_pin_expiry_datetime": null,
+            "firstname": "Checkout",
+            "lastname": "Test",
+            "public_name": "Checkout T.",
+            "has_login": true,
+            "email": "mock-email-2@example.com",
+            "username": "mock-email-2@example.com",
+            "location_source": "default_address",
+            "location_town": "London",
+            "location_country_code": "IS",
+            "location_ip": null,
+            "user_id": "sys",
+            "created_at": "2025-06-02 16:00:34",
+            "updated_at": "2026-09-29 12:57:58",
+            "reseller_account_id": null,
+            "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "deleted_at": null,
+            "verified": true,
+            "apply_credit": 0,
+            "credit": null,
+            "consolidate_invoice": 0,
+            "consolidation_day": null,
+            "bf_id": "none",
+            "ip_address": null,
+            "enabled_2fa": false,
+            "provider_2fa_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "picture": 0,
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "last_login": "2026-09-29 12:57:58",
+            "last_password_change_at": "mock-last_password_change_at",
+            "fraud_policy": 3,
+            "fraud_status": 1,
+            "failed_login_attempts": 0,
+            "failed_2fa_attempts": 0,
+            "is_guest": false,
+            "notifications_disabled": false,
+            "meta": {
+              "ui/support/submitWithShortcut": true,
+              "ui/support/newLineKey": "mock-ui/support/newLineKey",
+              "ui/support/limit": 25
+            },
+            "order_template_code": null,
+            "invoice_consolidation_enabled": 1,
+            "invoice_consolidation_base_rule": "date_of_month",
+            "invoice_consolidation_base_rule_date_of_month_day": 1,
+            "invoice_consolidation_base_rule_day_of_week": null,
+            "invoice_consolidation_due_date_day": null,
+            "block_new_tickets_from_email": false,
+            "tax_type": 0,
+            "tax_exempt_code": null,
+            "tax_exempt_number": null,
+            "before_due_date_charge_interval": null,
+            "before_due_date_charge_interval_dd": null,
+            "never_suspend": true,
+            "never_cancel": false,
+            "never_close": false,
+            "status_id": "825d96e7-63ed-0913-0dc4-174825283406",
+            "number": null,
+            "allow_cancellation_with_overdue": false,
+            "interface_language_code": "en",
+            "document_language_code": "en",
+            "fullname": "Checkout Test",
+            "secret_2fa_exists": true,
+            "image_url": "https://www.gravatar.com/avatar/b1669c49335e93cf10e18f3e6d448714?d=blank&s=200",
+            "topup_enabled": null,
+            "upmind_package_limits": [],
+            "has_legacy_invoices": false,
+            "settings": [],
+            "default_email": {
+              "id": "20e43579-5e78-d184-430c-31643202d986",
+              "import_id": null,
+              "staged_import": false,
+              "external_id": null,
+              "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+              "user_id": "sys",
+              "type": 1,
+              "default": true,
+              "verified": true,
+              "email": "mock-email-2@example.com",
+              "receive_emails": false,
+              "bounced": false,
+              "created_at": "2025-06-02 16:00:35",
+              "updated_at": "2026-09-25 17:57:52",
+              "bounced_at": null,
+              "can_delete": false
+            },
+            "parent_client_config": null,
+            "tags": [],
+            "image": null
+          },
+          "gateway": {
+            "id": "5d085e69-d562-3719-e98a-218e940d4237",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "name": "Stripe",
+            "short_description": null,
+            "provider": "Stripe_PaymentIntents",
+            "created_at": "2025-10-10 13:23:55",
+            "updated_at": "2025-11-11 12:05:12",
+            "deleted_at": null,
+            "type": 1,
+            "auth_type": "settings",
+            "gateway_provider_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "payment_instructions": "",
+            "hash": "5d2d3a6efd89e151fe2063fc6a60b5a2",
+            "oauth_application_access_token_id": null,
+            "name_translated": "Stripe",
+            "short_description_translated": null,
+            "gateway_settings": [
+              {
+                "id": "47d73824-8507-9315-980b-81e642d59e06",
+                "private": true
+              },
+              {
+                "id": "5952098d-3de4-0917-240f-31578626e347",
+                "private": true
+              },
+              {
+                "id": "20403869-6e54-721d-845b-518d9305e7d2",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "publicKey",
+                "value": "pk_test_51RmB6eQEz8uaHZG6uA8JwbEUYJtkLcfXKsDYKy05YM00GI0O4wkR9c3WNhgn1qZVM5VYe1gwgMUsPTjsatuuV2af00CwryXnwB",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2026-04-16 10:09:42",
+                "deleted_at": null
+              },
+              {
+                "id": "3de78642-de53-9714-936a-21208469530d",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "stored",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2026-04-09 17:09:16",
+                "deleted_at": null
+              },
+              {
+                "id": "78985742-6489-7012-748b-21e325d0ed36",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "frontendImplementation",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "320e4357-95e7-8d18-d8da-31643202d986",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "customer_for_guests",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "2785d26e-9678-3d16-453b-314502e70439",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "reuse_customer_id_from_payment_methods",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "2785d26e-9678-3d16-458f-314502e70439",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "recognize_stripe_customer_by_email",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "825d96e7-63ed-0913-589a-417482528340",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "paymentMethodCard",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-10 13:23:55",
+                "deleted_at": null
+              },
+              {
+                "id": "5d085e69-d562-3719-63df-218e940d4237",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "paymentMethodPayPal",
+                "value": "0",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2026-02-12 10:57:31",
+                "deleted_at": null
+              },
+              {
+                "id": "4d036794-24d0-e710-70dc-3153698d582e",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "paymentMethodSepaDebit",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-17 10:25:57",
+                "deleted_at": null
+              },
+              {
+                "id": "8d632507-9806-5d1e-688a-8174e234e98d",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "paymentMethodIdeal",
+                "value": "1",
+                "private": false,
+                "created_at": "2025-10-10 13:23:55",
+                "updated_at": "2025-10-17 10:25:57",
+                "deleted_at": null
+              },
+              {
+                "id": "4d036794-24d0-e710-e70c-3153698d582e",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                "field": "showStoredDetails",
+                "value": "1",
+                "private": false,
+                "created_at": "2026-04-09 17:03:06",
+                "updated_at": "2026-04-09 17:10:27",
+                "deleted_at": null
+              }
+            ],
+            "payment_instructions_translated": "",
+            "is_stored": true,
+            "use_frontend_implementation": true,
+            "allow_manual_store": true,
+            "require_stored": false,
+            "provider_logo": null,
+            "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/5d085e69-d562-3719-e98a-218e940d4237",
+            "store_on_payment": true,
+            "store_on_payment_force": false,
+            "store_outside_payment": true,
+            "currencies": [
+              {
+                "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                "currency_code": "AED"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                "currency_code": "DZD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                "currency_code": "AOA"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                "currency_code": "ARS"
+              },
+              {
+                "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                "currency_code": "AUD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                "currency_code": "AZN"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                "currency_code": "BDT"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                "currency_code": "BBD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                "currency_code": "BOB"
+              },
+              {
+                "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                "currency_code": "BRL"
+              },
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "currency_code": "GBP"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                "currency_code": "BGN"
+              },
+              {
+                "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                "currency_code": "CAD"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                "currency_code": "CVE"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                "currency_code": "KYD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                "currency_code": "XAF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                "currency_code": "CLP"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                "currency_code": "CNY"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                "currency_code": "COP"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                "currency_code": "CRC"
+              },
+              {
+                "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                "currency_code": "CZK"
+              },
+              {
+                "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "currency_code": "DKK"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                "currency_code": "DOP"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                "currency_code": "EGP"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                "currency_code": "ETB"
+              },
+              {
+                "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "currency_code": "EUR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                "currency_code": "FJD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                "currency_code": "GEL"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                "currency_code": "GHS"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                "currency_code": "GTQ"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                "currency_code": "HNL"
+              },
+              {
+                "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                "currency_code": "HKD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                "currency_code": "HUF"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                "currency_code": "ISK"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                "currency_code": "INR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                "currency_code": "IDR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                "currency_code": "IQD"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                "currency_code": "ILS"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                "currency_code": "JPY"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                "currency_code": "KES"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                "currency_code": "MYR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                "currency_code": "MVR"
+              },
+              {
+                "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                "currency_code": "MUR"
+              },
+              {
+                "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                "currency_code": "MXN"
+              },
+              {
+                "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                "currency_code": "MAD"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                "currency_code": "MZN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                "currency_code": "NPR"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                "currency_code": "TWD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                "currency_code": "NZD"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                "currency_code": "NIO"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                "currency_code": "NGN"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "currency_code": "NOK"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                "currency_code": "PEN"
+              },
+              {
+                "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                "currency_code": "PKR"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                "currency_code": "PGK"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                "currency_code": "PYG"
+              },
+              {
+                "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                "currency_code": "PHP"
+              },
+              {
+                "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "currency_code": "PLN"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                "currency_code": "RON"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                "currency_code": "RUB"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                "currency_code": "RWF"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                "currency_code": "SAR"
+              },
+              {
+                "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                "currency_code": "RSD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                "currency_code": "SGD"
+              },
+              {
+                "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                "currency_code": "ZAR"
+              },
+              {
+                "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                "currency_code": "LKR"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                "currency_code": "SEK"
+              },
+              {
+                "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                "currency_code": "CHF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                "currency_code": "TZS"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                "currency_code": "THB"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                "currency_code": "TTD"
+              },
+              {
+                "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                "currency_code": "TND"
+              },
+              {
+                "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                "currency_code": "TRY"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                "currency_code": "UGX"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                "currency_code": "UYU"
+              },
+              {
+                "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "currency_code": "USD"
+              },
+              {
+                "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                "currency_code": "VND"
+              },
+              {
+                "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                "currency_code": "XOF"
+              },
+              {
+                "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                "currency_code": "ZMW"
+              }
+            ],
+            "card_types": [
+              {
+                "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                "name": "American Express",
+                "code": "american-express",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "45952098-d3de-4091-76a3-1578626e347e",
+                "name": "Diners Club",
+                "code": "diners-club",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                "name": "Discover",
+                "code": "discover",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "name": "Maestro",
+                "code": "maestro",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "3825d96e-763e-d091-3dc4-174825283406",
+                "name": "MasterCard",
+                "code": "mastercard",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              },
+              {
+                "id": "24d03679-424d-0e71-04b3-153698d582e8",
+                "name": "Visa",
+                "code": "visa",
+                "created_at": null,
+                "updated_at": null,
+                "deleted_at": null
+              }
+            ],
+            "translations": [],
+            "gateway_provider": {
+              "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+              "name": "Stripe",
+              "short_description": "Payments with Stripe. Support various integrations like card and PayPal",
+              "code": "Stripe_PaymentIntents",
+              "created_at": "2020-01-09 12:24:06",
+              "updated_at": "2024-06-07 12:21:32",
+              "display_fields": "card_type,card_num,card_expire_date,card_cvv",
+              "type": 1,
+              "store_type": "either",
+              "auth_type": "settings",
+              "oauth_application_code": null,
+              "external_payment": false,
+              "external_store": false,
+              "instructions": "",
+              "needs_address": false,
+              "requires_name": false,
+              "store_on_payment": true,
+              "supports_refund": true,
+              "supported_currencies": null,
+              "store_on_payment_force": false,
+              "external_billing_charge": false,
+              "supports_frontend_implementation": true,
+              "store_outside_payment": true,
+              "name_translated": "Stripe",
+              "short_description_translated": "Payments with Stripe. Support various integrations like card and PayPal",
+              "external": false,
+              "translations": []
+            }
+          },
+          "import": null,
+          "moved_to_contract": null,
+          "payment_details": {
+            "id": "785d26e9-6783-d16e-738f-314502e70439",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "user_id": "sys",
+            "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+            "name": "Visa ending 4242",
+            "currency_id": null,
+            "default": true,
+            "address_id": "20e43579-5e78-d184-78db-31643202d986",
+            "card_type": "visa",
+            "card_last4": "4242",
+            "card_expire_date": "1/2030",
+            "allow_bacs": null,
+            "allow_cheque": null,
+            "created_at": "2026-02-12 12:30:22",
+            "updated_at": "2026-04-16 00:10:42",
+            "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+            "type": 1,
+            "pre_expiry_notification": "2030-01-26",
+            "manual": false,
+            "next_action": null,
+            "sca_verified": false,
+            "auto_payment": true,
+            "payment_method_type": "credit",
+            "autopayment_blocked": false,
+            "autopayment_blocked_reason": null,
+            "active": true,
+            "can_delete": true,
+            "errors": [],
+            "gateway": {
+              "id": "5d085e69-d562-3719-e98a-218e940d4237",
+              "import_id": null,
+              "staged_import": false,
+              "external_id": null,
+              "name": "Stripe",
+              "short_description": null,
+              "provider": "Stripe_PaymentIntents",
+              "created_at": "2025-10-10 13:23:55",
+              "updated_at": "2025-11-11 12:05:12",
+              "deleted_at": null,
+              "type": 1,
+              "auth_type": "settings",
+              "gateway_provider_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+              "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+              "payment_instructions": "",
+              "hash": "5d2d3a6efd89e151fe2063fc6a60b5a2",
+              "oauth_application_access_token_id": null,
+              "name_translated": "Stripe",
+              "short_description_translated": null,
+              "gateway_settings": [
+                {
+                  "id": "47d73824-8507-9315-980b-81e642d59e06",
+                  "private": true
+                },
+                {
+                  "id": "5952098d-3de4-0917-240f-31578626e347",
+                  "private": true
+                },
+                {
+                  "id": "20403869-6e54-721d-845b-518d9305e7d2",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "publicKey",
+                  "value": "pk_test_51RmB6eQEz8uaHZG6uA8JwbEUYJtkLcfXKsDYKy05YM00GI0O4wkR9c3WNhgn1qZVM5VYe1gwgMUsPTjsatuuV2af00CwryXnwB",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2026-04-16 10:09:42",
+                  "deleted_at": null
+                },
+                {
+                  "id": "3de78642-de53-9714-936a-21208469530d",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "stored",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2026-04-09 17:09:16",
+                  "deleted_at": null
+                },
+                {
+                  "id": "78985742-6489-7012-748b-21e325d0ed36",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "frontendImplementation",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2025-10-10 13:23:55",
+                  "deleted_at": null
+                },
+                {
+                  "id": "320e4357-95e7-8d18-d8da-31643202d986",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "customer_for_guests",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2025-10-10 13:23:55",
+                  "deleted_at": null
+                },
+                {
+                  "id": "2785d26e-9678-3d16-453b-314502e70439",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "reuse_customer_id_from_payment_methods",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2025-10-10 13:23:55",
+                  "deleted_at": null
+                },
+                {
+                  "id": "2785d26e-9678-3d16-458f-314502e70439",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "recognize_stripe_customer_by_email",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2025-10-10 13:23:55",
+                  "deleted_at": null
+                },
+                {
+                  "id": "825d96e7-63ed-0913-589a-417482528340",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "paymentMethodCard",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2025-10-10 13:23:55",
+                  "deleted_at": null
+                },
+                {
+                  "id": "5d085e69-d562-3719-63df-218e940d4237",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "paymentMethodPayPal",
+                  "value": "0",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2026-02-12 10:57:31",
+                  "deleted_at": null
+                },
+                {
+                  "id": "4d036794-24d0-e710-70dc-3153698d582e",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "paymentMethodSepaDebit",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2025-10-17 10:25:57",
+                  "deleted_at": null
+                },
+                {
+                  "id": "8d632507-9806-5d1e-688a-8174e234e98d",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "paymentMethodIdeal",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2025-10-10 13:23:55",
+                  "updated_at": "2025-10-17 10:25:57",
+                  "deleted_at": null
+                },
+                {
+                  "id": "4d036794-24d0-e710-e70c-3153698d582e",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+                  "field": "showStoredDetails",
+                  "value": "1",
+                  "private": false,
+                  "created_at": "2026-04-09 17:03:06",
+                  "updated_at": "2026-04-09 17:10:27",
+                  "deleted_at": null
+                }
+              ],
+              "payment_instructions_translated": "",
+              "is_stored": true,
+              "use_frontend_implementation": true,
+              "allow_manual_store": true,
+              "require_stored": false,
+              "provider_logo": null,
+              "webhook_url": "https://api.staging.upmind.io/omnibridge/callback/5d085e69-d562-3719-e98a-218e940d4237",
+              "store_on_payment": true,
+              "store_on_payment_force": false,
+              "store_outside_payment": true,
+              "currencies": [
+                {
+                  "currency_id": "8d632507-9806-5d1e-56a8-174e234e98d2",
+                  "currency_code": "AED"
+                },
+                {
+                  "currency_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                  "currency_code": "DZD"
+                },
+                {
+                  "currency_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                  "currency_code": "AOA"
+                },
+                {
+                  "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
+                  "currency_code": "ARS"
+                },
+                {
+                  "currency_id": "45952098-d3de-4091-76a3-1578626e347e",
+                  "currency_code": "AUD"
+                },
+                {
+                  "currency_id": "78985742-6489-7012-d5f2-1e325d0ed369",
+                  "currency_code": "AZN"
+                },
+                {
+                  "currency_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+                  "currency_code": "BDT"
+                },
+                {
+                  "currency_id": "2785d26e-9678-3d16-d0c3-14502e70439d",
+                  "currency_code": "BBD"
+                },
+                {
+                  "currency_id": "2785d26e-9678-3d16-80a3-14502e70439d",
+                  "currency_code": "BOB"
+                },
+                {
+                  "currency_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                  "currency_code": "BRL"
+                },
+                {
+                  "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "currency_code": "GBP"
+                },
+                {
+                  "currency_id": "20403869-6e54-721d-89b5-18d9305e7d23",
+                  "currency_code": "BGN"
+                },
+                {
+                  "currency_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                  "currency_code": "CAD"
+                },
+                {
+                  "currency_id": "47d73824-8507-9315-66a8-1e642d59e063",
+                  "currency_code": "CVE"
+                },
+                {
+                  "currency_id": "4d036794-24d0-e710-54c3-153698d582e8",
+                  "currency_code": "KYD"
+                },
+                {
+                  "currency_id": "5d085e69-d562-3719-eef2-18e940d42370",
+                  "currency_code": "XAF"
+                },
+                {
+                  "currency_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                  "currency_code": "CLP"
+                },
+                {
+                  "currency_id": "825d96e7-63ed-0913-edb4-174825283406",
+                  "currency_code": "CNY"
+                },
+                {
+                  "currency_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                  "currency_code": "COP"
+                },
+                {
+                  "currency_id": "5d085e69-d562-3719-9eb2-18e940d42370",
+                  "currency_code": "CRC"
+                },
+                {
+                  "currency_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                  "currency_code": "CZK"
+                },
+                {
+                  "currency_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                  "currency_code": "DKK"
+                },
+                {
+                  "currency_id": "4d036794-24d0-e710-e4c3-153698d582e8",
+                  "currency_code": "DOP"
+                },
+                {
+                  "currency_id": "47d73824-8507-9315-96c8-1e642d59e063",
+                  "currency_code": "EGP"
+                },
+                {
+                  "currency_id": "4d036794-24d0-e710-74b3-153698d582e8",
+                  "currency_code": "ETB"
+                },
+                {
+                  "currency_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                  "currency_code": "EUR"
+                },
+                {
+                  "currency_id": "320e4357-95e7-8d18-78f3-1643202d9860",
+                  "currency_code": "FJD"
+                },
+                {
+                  "currency_id": "825d96e7-63ed-0913-9dc4-174825283406",
+                  "currency_code": "GEL"
+                },
+                {
+                  "currency_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                  "currency_code": "GHS"
+                },
+                {
+                  "currency_id": "8d632507-9806-5d1e-26f8-174e234e98d2",
+                  "currency_code": "GTQ"
+                },
+                {
+                  "currency_id": "47d73824-8507-9315-26c8-1e642d59e063",
+                  "currency_code": "HNL"
+                },
+                {
+                  "currency_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                  "currency_code": "HKD"
+                },
+                {
+                  "currency_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+                  "currency_code": "HUF"
+                },
+                {
+                  "currency_id": "5952098d-3de4-0917-26f3-1578626e347e",
+                  "currency_code": "ISK"
+                },
+                {
+                  "currency_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                  "currency_code": "INR"
+                },
+                {
+                  "currency_id": "5952098d-3de4-0917-96f3-1578626e347e",
+                  "currency_code": "IDR"
+                },
+                {
+                  "currency_id": "5d085e69-d562-3719-5ea2-18e940d42370",
+                  "currency_code": "IQD"
+                },
+                {
+                  "currency_id": "5d085e69-d562-3719-7ec2-18e940d42370",
+                  "currency_code": "ILS"
+                },
+                {
+                  "currency_id": "4d036794-24d0-e710-94a3-153698d582e8",
+                  "currency_code": "JPY"
+                },
+                {
+                  "currency_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                  "currency_code": "KES"
+                },
+                {
+                  "currency_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                  "currency_code": "MYR"
+                },
+                {
+                  "currency_id": "3de78642-de53-9714-6ea2-1208469530d0",
+                  "currency_code": "MVR"
+                },
+                {
+                  "currency_id": "78985742-6489-7012-e5b2-1e325d0ed369",
+                  "currency_code": "MUR"
+                },
+                {
+                  "currency_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                  "currency_code": "MXN"
+                },
+                {
+                  "currency_id": "4d036794-24d0-e710-24c3-153698d582e8",
+                  "currency_code": "MAD"
+                },
+                {
+                  "currency_id": "2785d26e-9678-3d16-30f3-14502e70439d",
+                  "currency_code": "MZN"
+                },
+                {
+                  "currency_id": "20403869-6e54-721d-69c5-18d9305e7d23",
+                  "currency_code": "NPR"
+                },
+                {
+                  "currency_id": "825d96e7-63ed-0913-7da4-174825283406",
+                  "currency_code": "TWD"
+                },
+                {
+                  "currency_id": "5952098d-3de4-0917-e6c3-1578626e347e",
+                  "currency_code": "NZD"
+                },
+                {
+                  "currency_id": "5952098d-3de4-0917-66a3-1578626e347e",
+                  "currency_code": "NIO"
+                },
+                {
+                  "currency_id": "2785d26e-9678-3d16-90c3-14502e70439d",
+                  "currency_code": "NGN"
+                },
+                {
+                  "currency_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                  "currency_code": "NOK"
+                },
+                {
+                  "currency_id": "8d632507-9806-5d1e-e6b8-174e234e98d2",
+                  "currency_code": "PEN"
+                },
+                {
+                  "currency_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                  "currency_code": "PKR"
+                },
+                {
+                  "currency_id": "3de78642-de53-9714-8eb2-1208469530d0",
+                  "currency_code": "PGK"
+                },
+                {
+                  "currency_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                  "currency_code": "PYG"
+                },
+                {
+                  "currency_id": "78985742-6489-7012-75c2-1e325d0ed369",
+                  "currency_code": "PHP"
+                },
+                {
+                  "currency_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                  "currency_code": "PLN"
+                },
+                {
+                  "currency_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+                  "currency_code": "RON"
+                },
+                {
+                  "currency_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                  "currency_code": "RUB"
+                },
+                {
+                  "currency_id": "5952098d-3de4-0917-76b3-1578626e347e",
+                  "currency_code": "RWF"
+                },
+                {
+                  "currency_id": "320e4357-95e7-8d18-38c3-1643202d9860",
+                  "currency_code": "SAR"
+                },
+                {
+                  "currency_id": "5d085e69-d562-3719-8ec2-18e940d42370",
+                  "currency_code": "RSD"
+                },
+                {
+                  "currency_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                  "currency_code": "SGD"
+                },
+                {
+                  "currency_id": "78985742-6489-7012-25b2-1e325d0ed369",
+                  "currency_code": "ZAR"
+                },
+                {
+                  "currency_id": "5952098d-3de4-0917-d6c3-1578626e347e",
+                  "currency_code": "LKR"
+                },
+                {
+                  "currency_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                  "currency_code": "SEK"
+                },
+                {
+                  "currency_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                  "currency_code": "CHF"
+                },
+                {
+                  "currency_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                  "currency_code": "TZS"
+                },
+                {
+                  "currency_id": "825d96e7-63ed-0913-6db4-174825283406",
+                  "currency_code": "THB"
+                },
+                {
+                  "currency_id": "3de78642-de53-9714-9ef2-1208469530d0",
+                  "currency_code": "TTD"
+                },
+                {
+                  "currency_id": "825d96e7-63ed-0913-2da4-174825283406",
+                  "currency_code": "TND"
+                },
+                {
+                  "currency_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+                  "currency_code": "TRY"
+                },
+                {
+                  "currency_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                  "currency_code": "UGX"
+                },
+                {
+                  "currency_id": "20403869-6e54-721d-d9c5-18d9305e7d23",
+                  "currency_code": "UYU"
+                },
+                {
+                  "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                  "currency_code": "USD"
+                },
+                {
+                  "currency_id": "3de78642-de53-9714-4ea2-1208469530d0",
+                  "currency_code": "VND"
+                },
+                {
+                  "currency_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+                  "currency_code": "XOF"
+                },
+                {
+                  "currency_id": "20403869-6e54-721d-09a5-18d9305e7d23",
+                  "currency_code": "ZMW"
+                }
+              ],
+              "card_types": [
+                {
+                  "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                  "name": "American Express",
+                  "code": "american-express",
+                  "created_at": null,
+                  "updated_at": null,
+                  "deleted_at": null
+                },
+                {
+                  "id": "45952098-d3de-4091-76a3-1578626e347e",
+                  "name": "Diners Club",
+                  "code": "diners-club",
+                  "created_at": null,
+                  "updated_at": null,
+                  "deleted_at": null
+                },
+                {
+                  "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                  "name": "Discover",
+                  "code": "discover",
+                  "created_at": null,
+                  "updated_at": null,
+                  "deleted_at": null
+                },
+                {
+                  "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                  "name": "Maestro",
+                  "code": "maestro",
+                  "created_at": null,
+                  "updated_at": null,
+                  "deleted_at": null
+                },
+                {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "MasterCard",
+                  "code": "mastercard",
+                  "created_at": null,
+                  "updated_at": null,
+                  "deleted_at": null
+                },
+                {
+                  "id": "24d03679-424d-0e71-04b3-153698d582e8",
+                  "name": "Visa",
+                  "code": "visa",
+                  "created_at": null,
+                  "updated_at": null,
+                  "deleted_at": null
+                }
+              ],
+              "translations": [],
+              "gateway_provider": {
+                "id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                "name": "Stripe",
+                "short_description": "Payments with Stripe. Support various integrations like card and PayPal",
+                "code": "Stripe_PaymentIntents",
+                "created_at": "2020-01-09 12:24:06",
+                "updated_at": "2024-06-07 12:21:32",
+                "display_fields": "card_type,card_num,card_expire_date,card_cvv",
+                "type": 1,
+                "store_type": "either",
+                "auth_type": "settings",
+                "oauth_application_code": null,
+                "external_payment": false,
+                "external_store": false,
+                "instructions": "",
+                "needs_address": false,
+                "requires_name": false,
+                "store_on_payment": true,
+                "supports_refund": true,
+                "supported_currencies": null,
+                "store_on_payment_force": false,
+                "external_billing_charge": false,
+                "supports_frontend_implementation": true,
+                "store_outside_payment": true,
+                "name_translated": "Stripe",
+                "short_description_translated": "Payments with Stripe. Support various integrations like card and PayPal",
+                "external": false,
+                "translations": []
+              }
+            },
+            "client": {
+              "id": "25d96e76-3ed0-913d-d52c-417482528340",
+              "import_id": null,
+              "staged_import": false,
+              "external_id": null,
+              "support_pin": null,
+              "support_pin_expiry_datetime": null,
+              "firstname": "Checkout",
+              "lastname": "Test",
+              "public_name": "Checkout T.",
+              "has_login": true,
+              "email": "mock-email-2@example.com",
+              "username": "mock-email-2@example.com",
+              "location_source": "default_address",
+              "location_town": "London",
+              "location_country_code": "IS",
+              "location_ip": null,
+              "user_id": "sys",
+              "created_at": "2025-06-02 16:00:34",
+              "updated_at": "2026-09-29 12:57:58",
+              "reseller_account_id": null,
+              "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "deleted_at": null,
+              "verified": true,
+              "apply_credit": 0,
+              "credit": null,
+              "consolidate_invoice": 0,
+              "consolidation_day": null,
+              "bf_id": "none",
+              "ip_address": null,
+              "enabled_2fa": false,
+              "provider_2fa_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+              "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+              "picture": 0,
+              "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+              "last_login": "2026-09-29 12:57:58",
+              "last_password_change_at": "mock-last_password_change_at",
+              "fraud_policy": 3,
+              "fraud_status": 1,
+              "failed_login_attempts": 0,
+              "failed_2fa_attempts": 0,
+              "is_guest": false,
+              "notifications_disabled": false,
+              "meta": {
+                "ui/support/submitWithShortcut": true,
+                "ui/support/newLineKey": "mock-ui/support/newLineKey",
+                "ui/support/limit": 25
+              },
+              "order_template_code": null,
+              "invoice_consolidation_enabled": 1,
+              "invoice_consolidation_base_rule": "date_of_month",
+              "invoice_consolidation_base_rule_date_of_month_day": 1,
+              "invoice_consolidation_base_rule_day_of_week": null,
+              "invoice_consolidation_due_date_day": null,
+              "block_new_tickets_from_email": false,
+              "tax_type": 0,
+              "tax_exempt_code": null,
+              "tax_exempt_number": null,
+              "before_due_date_charge_interval": null,
+              "before_due_date_charge_interval_dd": null,
+              "never_suspend": true,
+              "never_cancel": false,
+              "never_close": false,
+              "status_id": "825d96e7-63ed-0913-0dc4-174825283406",
+              "number": null,
+              "allow_cancellation_with_overdue": false,
+              "interface_language_code": "en",
+              "document_language_code": "en",
+              "fullname": "Checkout Test",
+              "secret_2fa_exists": true,
+              "image_url": null,
+              "topup_enabled": null,
+              "upmind_package_limits": [],
+              "has_legacy_invoices": false,
+              "settings": [],
+              "default_email": {
+                "id": "20e43579-5e78-d184-430c-31643202d986",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+                "user_id": "sys",
+                "type": 1,
+                "default": true,
+                "verified": true,
+                "email": "mock-email-2@example.com",
+                "receive_emails": false,
+                "bounced": false,
+                "created_at": "2025-06-02 16:00:35",
+                "updated_at": "2026-09-25 17:57:52",
+                "bounced_at": null,
+                "can_delete": false
+              },
+              "parent_client_config": null
+            }
+          },
+          "promotions": [],
+          "status": {
+            "id": "4d036794-24d0-e710-94a3-153698d582e8",
+            "object_type": "contract",
+            "code": "contract_active",
+            "order": 3,
+            "name": "Active"
+          },
+          "company": null
+        },
+        "sub_products": [],
+        "product": {
+          "id": "2785d26e-9678-3d16-934b-314502e70439",
+          "import_id": null,
+          "staged_import": false,
+          "finished_staged_import": true,
+          "external_id": null,
+          "module_code": null,
+          "module_sub_id": null,
+          "name": "Single Use Promo",
+          "short_description": null,
+          "code": null,
+          "billing_cycle_months": 1,
+          "clients_can_order": 1,
+          "available_for_sales": 1,
+          "created_at": "2025-06-17 12:39:19",
+          "updated_at": "2025-07-31 12:29:23",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "user_id": "78985742-6489-7012-084f-21e325d0ed36",
+          "reseller_account_id": null,
+          "deleted_at": null,
+          "product_type": 1,
+          "order_type": 1,
+          "unit_quantity": 0,
+          "start_date": null,
+          "end_date": null,
+          "set_order_type": 0,
+          "min_order_quantity": 0,
+          "max_order_quantity": 0,
+          "set_price_type": 0,
+          "contract_type": 0,
+          "currency_id": "none",
+          "max_order_billing_cycle": 0,
+          "max_set_use_period": 0,
+          "voucher_value": null,
+          "voucher_currency_id": null,
+          "voucher_type": null,
+          "voucher_use_months": null,
+          "set_end_date": 0,
+          "auto_renew": 0,
+          "manual_assistance": 0,
+          "manual_price": 0,
+          "provision_category_id": null,
+          "provision_provider_id": null,
+          "provision_configuration_mode": "static",
+          "provision_configuration_id": null,
+          "provision_blueprint_id": null,
+          "old_provision_blueprint_id": null,
+          "provision_setup_field_defer_mode": null,
+          "main_product": 1,
+          "in_group": 0,
+          "original_product_id": null,
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "affiliate_product_id": null,
+          "tld_id": null,
+          "operation_type": null,
+          "products_category_id": "78985742-6489-7012-0e4c-21e325d0ed36",
+          "products_options_category_id": "78985742-6489-7012-0e4c-21e325d0ed36",
+          "products_attributes_category_id": "78985742-6489-7012-0e4c-21e325d0ed36",
+          "description": "",
+          "order": 29,
+          "category_id": "78985742-6489-7012-0e4c-21e325d0ed36",
+          "additional_currency_recalculation": 1,
+          "unit_id": null,
+          "tax_template_id": "2785d26e-9678-3d16-70b3-14502e70439d",
+          "default_payment_period": 0,
+          "allow_affiliate": true,
+          "suspend_interval": null,
+          "cancel_interval": null,
+          "close_interval": null,
+          "due_date_free_change": true,
+          "due_date_restriction": null,
+          "reactivate_status_restriction": null,
+          "cancel_anytime": true,
+          "recommended_money_back_period": null,
+          "payment_days_term": null,
+          "create_invoice_term": null,
+          "auto_create_renew_invoice": true,
+          "post_paid": false,
+          "hide_catalog": false,
+          "ui_settings": null,
+          "accounting_revenue_recognition": 0,
+          "meta": null,
+          "provision_meta": null,
+          "trial_supported": false,
+          "trial_duration": 0,
+          "trial_end_action": 0,
+          "trial_pre_expire_notification": 0,
+          "trial_force": false,
+          "can_disable_auto_create_renew_invoice": false,
+          "invoice_consolidation_enabled": 1,
+          "auto_accept_cancel_request": 0,
+          "report_code_1": null,
+          "report_code_2": null,
+          "brand_ticket_department_id": null,
+          "hidden": false,
+          "manual_recurring_days_before_due_date": null,
+          "split_quantity": false,
+          "name_translated": "Single Use Promo",
+          "short_description_translated": null,
+          "description_translated": "",
+          "display_price": null,
+          "display_price_billing_cycle_months": null,
+          "is_trial_only": false,
+          "translations": [],
+          "category": {
+            "id": "78985742-6489-7012-0e4c-21e325d0ed36",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "module_code": null,
+            "module_sub_id": null,
+            "name": "Promo Products",
+            "description": "",
+            "short_description": "",
+            "parent_id": null,
+            "level": 1,
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "user_id": "78985742-6489-7012-084f-21e325d0ed36",
+            "reseller_account_id": null,
+            "created_at": "2025-06-17 12:13:39",
+            "updated_at": "2025-06-17 12:13:39",
+            "deleted_at": null,
+            "order": 3,
+            "category_type": 1,
+            "multiple": false,
+            "required": false,
+            "provision_setup_field_defer_mode": "none",
+            "meta": null,
+            "price_override": false,
+            "ui_settings": null,
+            "hidden": false,
+            "name_translated": "Promo Products",
+            "description_translated": "",
+            "short_description_translated": "",
+            "translations": []
+          },
+          "brand": {
+            "id": "2785d26e-9678-3d16-999f-314502e70439",
+            "name": "QA Automation Testing",
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2026-09-29 12:55:12",
+            "code": "kn6x1dzbtcgb",
+            "brand_type": 1,
+            "reseller_account_id": null,
+            "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "company_name": "QA Automation Testing",
+            "vat_number": "GB12345678",
+            "company_address": "123",
+            "company_phone": "",
+            "company_email": "mock-email-1@example.com",
+            "tax_type": 0,
+            "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "prefix": "kn6x1dzbtcgb",
+            "autoapply": 1,
+            "payment_days_term": 0,
+            "create_invoice_term": 0,
+            "user_id": "sys",
+            "deleted_at": null,
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "vat_exempt": 0,
+            "non_recurring_due_interval": 0,
+            "notifications_disabled": false,
+            "wipe_data": false,
+            "demo_data_import_id": null,
+            "region_id": null,
+            "domain": "kn6x1dzbtcgb.staging.upmind.dev",
+            "has_demo_data": false,
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "image": null,
+          "images": [],
+          "provision_blueprint": null,
+          "provision_category": null
+        },
+        "brand": {
+          "id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name": "QA Automation Testing",
+          "created_at": "2025-05-07 08:38:43",
+          "updated_at": "2026-09-29 12:55:12",
+          "code": "kn6x1dzbtcgb",
+          "brand_type": 1,
+          "reseller_account_id": null,
+          "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "company_name": "QA Automation Testing",
+          "vat_number": "GB12345678",
+          "company_address": "123",
+          "company_phone": "",
+          "company_email": "mock-email-1@example.com",
+          "tax_type": 0,
+          "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "prefix": "kn6x1dzbtcgb",
+          "autoapply": 1,
+          "payment_days_term": 0,
+          "create_invoice_term": 0,
+          "user_id": "sys",
+          "deleted_at": null,
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "vat_exempt": 0,
+          "non_recurring_due_interval": 0,
+          "notifications_disabled": false,
+          "wipe_data": false,
+          "demo_data_import_id": null,
+          "region_id": null,
+          "domain": "kn6x1dzbtcgb.staging.upmind.dev",
+          "has_demo_data": false,
+          "currency": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "British Pound",
+            "prefix": "£",
+            "suffix": "",
+            "code": "GBP",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-09-28 11:08:14",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          }
+        },
+        "allowed_migrations": [],
+        "contract_request": null,
+        "future_cancellation_request": null,
+        "scheduled_actions": [],
+        "tags": [],
+        "unpaid_recurring_invoices": []
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T12:58:05.581Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

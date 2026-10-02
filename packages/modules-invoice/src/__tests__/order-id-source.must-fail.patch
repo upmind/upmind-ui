@@ -1,0 +1,19 @@
+# Negative control — the organism reads the order id from the query string, not
+# from the route's `oid` parameter, so an order page asks for no order at all.
+#
+# Intended RED:
+#   packages/modules-invoice/src/__tests__/order-id-source.int.test.ts
+#     "goes to the order the route names"
+
+diff --git a/packages/modules-invoice/src/components/Order.vue b/packages/modules-invoice/src/components/Order.vue
+--- a/packages/modules-invoice/src/components/Order.vue
++++ b/packages/modules-invoice/src/components/Order.vue
+@@ -247,7 +247,7 @@ const props = defineProps<OrderProps>();
+ const { t } = useI18n();
+ const route = useRoute();
+ const router = useRouter();
+-const orderId = route.params?.[QUERY_PARAMS.ORDER_ID]?.toString();
++const orderId = route.query?.[QUERY_PARAMS.ORDER_ID]?.toString();
+ 
+ // -----------------------------------------------------------------------------
+ 

@@ -9,16 +9,15 @@ phone and domain_name validation among them.
 MUST red: validator > "rejects a value only headless's own Ajv knows how
 to reject". The paired bare-engine twin MUST stay green; if both red, the
 test is reading ambient state rather than the seam.
-diff --git a/packages/client-vue/src/components/form/Form.vue b/packages/client-vue/src/components/form/Form.vue
-index f8269612c8..cf4ba48eb3 100644
---- a/packages/client-vue/src/components/form/Form.vue
-+++ b/packages/client-vue/src/components/form/Form.vue
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
 @@ -3,7 +3,7 @@
      :key="locale"
      v-bind="forwarded"
      :i18n="i18n"
 -    :ajv="ajv"
 +
-     :additional-renderers="formRenderers"
+     :additional-renderers="renderers"
      :optional-text="t('text.optional')"
-     :dataAttrs="{ 'data-test-key': 'form', ...props.dataAttrs }"
+     :dataAttrs="assign({ 'data-test-key': 'form' }, props.dataAttrs)"

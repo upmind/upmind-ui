@@ -1,0 +1,26 @@
+# Negative control — LayoutProvider stops filling the layout with its own named slots: the layout gets the page's slots only.
+#
+# Intended RED:
+#   packages/modules-foundation/src/slots/__tests__/LayoutProvider.test.ts
+#     "fills every slot of a self-closing layout with the main component's slot"
+#     "lets a page slot replace the main component's slot, and keeps the others"
+#     "hands the layout a page slot the main component does not give"
+#     "renders each of its slots with the main component's values"
+#     "re-renders its slots when the main component's value changes"
+#     "puts its own slot back when the page stops writing that slot, and the page's when it writes it again"
+#     "updates a page slot when the page re-renders for another reason"
+#     "looks through nested Fragments to the layout inside them"
+#     "passes elements, comments and text beside the layout through untouched"
+
+diff --git a/packages/modules-foundation/src/slots/LayoutProvider.vue b/packages/modules-foundation/src/slots/LayoutProvider.vue
+--- a/packages/modules-foundation/src/slots/LayoutProvider.vue
++++ b/packages/modules-foundation/src/slots/LayoutProvider.vue
+@@ -42,7 +42,7 @@ function isLayout(vnode: VNode): boolean {
+ 
+ /** The main component's slots first, the page's own slots on top. */
+ function fillSlots(layout: VNode): VNode {
+-  const filled = assign(omit(slots, "default"), layout.children);
++  const filled = assign({}, layout.children);
+   return assign(
+     createVNode(layout.type, get(layout, "props"), filled),
+     pick(layout, PAGE_FIELDS)

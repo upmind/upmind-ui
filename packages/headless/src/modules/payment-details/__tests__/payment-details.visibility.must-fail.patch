@@ -1,0 +1,27 @@
+# Negative-control mutant — the ADD context offers a client's stored cards (FE-3130)
+#
+# Scenario it must flip: the ADD context (save a card) NEVER offers the client's
+#   existing stored methods — only PAY-family contexts pick from the stored list.
+#   The published meta table (usePaymentDetail JSDoc) marks ADD > showStored ❌.
+# Test that goes red: payment-details.visibility.int.test.ts >
+#   "the add context offers the gateways and never the stored methods"
+#   (expects `showStoredPaymentMethods: false` in the ADD context; with the
+#   isPayContext guard gone, the client's real stored cards — now flowing after
+#   the FE-3130 mapper fix — turn `showStoredPaymentMethods` true in ADD, and the
+#   `toEqual` flips).
+# Mutation: `showStoredPaymentMethods` drops its `isPayContext` guard.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/payment-details/usePaymentDetail.ts b/packages/headless/src/modules/payment-details/usePaymentDetail.ts
+index e00f0ba20..bd511001d 100644
+--- a/packages/headless/src/modules/payment-details/usePaymentDetail.ts
++++ b/packages/headless/src/modules/payment-details/usePaymentDetail.ts
+@@ -273,7 +273,6 @@ export const usePaymentDetail = (
+     //   payment-state flag other meta flags read, so changing it there would
+     //   ripple beyond this row.
+     const showStoredPaymentMethods =
+-      isPayContext &&
+       needsPayment &&
+       hasStoredPaymentMethods &&
+       !hasSelectedGateway &&

@@ -1,0 +1,47 @@
+# Negative-control mutant — the consolidation submit REFUSES an invalid model
+# before it writes (D68), exactly as the cancellation submit does.
+#
+# Naming: the sibling spec `contract-product.mutations.int.test.ts` already owns
+#   `contract-product.mutations.consolidation-open-guard.must-fail.patch` (the
+#   open gate), so this second concern for the same spec takes the
+#   `<spec-basename>.<concern>` form, mirroring the cancellation pair
+#   (`contract-product.mutations.cancellation-invalid-model.must-fail.patch`).
+#
+# Scenario it must flip: `submitConsolidation()` reads the open form's model and
+#   resolves `false` when `invoiceConsolidationEnabled` is absent — a freshly
+#   opened form whose empty model failed `checking` — so it SENDS NOTHING and
+#   the validation errors from `checking` stay on context (D68). This mirrors
+#   `submitCancellation()`, which resolves `false` on a model with no `option`.
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   the AC-9 consolidation submit driven with an empty (invalid) model:
+#   `submitConsolidation()` must resolve `false`, issue no
+#   `PUT .../properties` (the consolidation write), and leave `validationErrors` set.
+#   With the guard removed the submit sends `SET_CONSOLIDATION` unconditionally,
+#   the machine's own `processing` re-validation lands in the form's `error`
+#   region, and `resolveFormWrite` REJECTS — so the resolve-`false` assertion
+#   flips and the "no request" assertion sees the write attempt.
+# Mutation: drops the pre-send model guard (and its now-unused `isNil` import),
+#   restoring the throw path the empty model took before D68.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+@@ -16,7 +16,7 @@
+   stopService,
+   waitForProcessing
+ } from "../../utils";
+-import { find, isNil } from "lodash-es";
++import { find } from "lodash-es";
+ import type {
+   CancellationModel,
+   ContractProduct,
+@@ -212,7 +212,6 @@
+       state,
+       "consolidation.model"
+     );
+-    if (isNil(model?.invoiceConsolidationEnabled)) return false;
+     if (
+       model.invoiceConsolidationEnabled ===
+       contextValue<number>(

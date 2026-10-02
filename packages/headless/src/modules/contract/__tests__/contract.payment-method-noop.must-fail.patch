@@ -1,0 +1,24 @@
+# Negative-control mutant — the payment-method submit refuses a no-op change (AC-8, R31)
+#
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Nothing is sent when I select no method at all"
+#   contract.feature > "Nothing is sent when I select the method my contract already uses"
+#
+# Mutation: `update` drops its R31 no-op refusal (the model/current
+#   comparison never fires), so an empty or unchanged selection is written.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/useContract.actions.ts b/packages/headless/src/modules/contract/useContract.actions.ts
+index 80a0623a5..3c8e7db48 100644
+--- a/packages/headless/src/modules/contract/useContract.actions.ts
++++ b/packages/headless/src/modules/contract/useContract.actions.ts
+@@ -126,7 +126,7 @@ export function createContractActions(
+       state,
+       "contract.paymentDetailsId"
+     );
+-    if (!model?.paymentDetailsId || model.paymentDetailsId === current) {
++    if (false) {
+       return false;
+     }
+ 

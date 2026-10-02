@@ -1,0 +1,28 @@
+# Negative control — useContract single-read id (B1/D95 repair).
+#
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Open one of my contracts with everything the account area needs"
+#   contract.feature > "When reading a contract fails I am shown why, instead of the contract I had open"
+#
+# Mutation: `createContractForScope` stops reading the id off `config.id`
+#   (the `.withId(id)` value) and hardcodes `undefined`, so the manager boots
+#   with no contract id at all regardless of what `.withId()` was called
+#   with — the single-read contract (templates/SINGLE-READ.md) is silently
+#   dropped.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/useContract.ts b/packages/headless/src/modules/contract/useContract.ts
+--- a/packages/headless/src/modules/contract/useContract.ts
++++ b/packages/headless/src/modules/contract/useContract.ts
+@@ -32,9 +32,7 @@ function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
+
+   const actorScope = config.actor as ScopeActorTypes;
+
+-  // SINGLE-READ step 3: the id comes from `.withId(id)` — `config.id` — and is
+-  // never re-derived from `config.context` (templates/SINGLE-READ.md).
+-  const contractId = config.id;
++  const contractId = undefined;
+
+   const machineService = interpret(
+     contractMachine.withContext({ contractId }),

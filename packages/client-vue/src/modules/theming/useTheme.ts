@@ -1,8 +1,8 @@
 import { ref, computed } from "vue";
+import { setIconVariant } from "@upmind-automation/foundation";
 import { useBrand, useTheming } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
-import { setIconVariant } from "../../components/icon";
 import { COLOR_MODE } from "./types";
 import { useColorMode } from "./useColorMode";
 import {
@@ -66,7 +66,7 @@ export const useTheme = (initial?: string) => {
   } = useBrand();
 
   const { themes } = useTheming();
-  const { data, ui } = useConfig({ context: UIContext.ALL });
+  const { data, ui } = useConfig({ context: UIContext.ALL, basket: undefined });
 
   // --- state
 

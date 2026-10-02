@@ -23,7 +23,7 @@ export class GuestCheckout {
   readonly upgradeMenuItem: Locator;
   /**
    * The guest upgrade form. Rendered by the shared session-form; for a guest
-   * client `currentForm` is `SESSION_FORMS.GUEST` (`"guest"`), carried on the
+   * client `currentForm` is `AUTH_FORMS.GUEST` (`"guest"`), carried on the
    * static `data-test-key="session-form"` via `data-test-value="guest"`.
    */
   readonly upgradeForm: Locator;

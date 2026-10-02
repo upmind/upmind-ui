@@ -209,13 +209,13 @@ Folding the criteria rejection into `hasError` is what makes an ignored write vi
 
 ### Modules that read from this one
 
-None today. `useTickets` is consumed by the `labs-nuxt` playground scenario and by the client-facing ticket views; no other headless module builds on top of it.
+None today. `useTickets` is consumed by the client-facing ticket views; no other headless module builds on top of it.
 
 ## Platform additions this build required
 
 **None.** This module consumes the shared `query` module exactly as every other scoped composable does. Where the shared layer could not serve a need — a binary response body, a guard hook that never runs — the module routed around it locally rather than patching the core. `packages/headless/src/modules/query/**` is untouched.
 
-The one platform change this build made is in `packages/types`: `ITicket` was extended **additively** with `contract_product_id`, `contract_product: IContractProduct` and `invoice`, rather than this module carrying a local intersection type or re-declaring `ITicket`.
+The one platform change this build made is in `packages/types`: `ITicket` was extended **additively** with `contract_product_id` and `invoice` (it carries the id only, not the embedded `contract_product` relation), rather than this module re-declaring `ITicket`. The embedded `contract_product` relation lives on the module's `Ticket` view model as `ContractProductEmbedded`, mapped by the contract-product module's `mapContractProductEmbedded`.
 
 ## Module boundary
 

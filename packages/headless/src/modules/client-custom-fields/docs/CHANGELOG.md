@@ -15,7 +15,7 @@ All notable changes to the `client-custom-fields` module are documented here. Fo
 - **`CustomFieldModel`** — the code-keyed value record type is now a real, filled-in shape (was an empty placeholder).
 - **Full-fidelity definition mapping** — `hidden`, `user_only`, `editable`, `display_contexts`, and `order` are now all mapped onto a definition; none is left unmapped.
 - **`isReadOnly` and `isDisabled` no longer collapse to the same flag** — each now derives from its own source field.
-- **Bounded, error-settling readiness** — `isReady()` now resolves `false` on a definitions-read failure or a brand-resolution failure, rather than an uncapped poll that only ever resolved on success.
+- **Bounded, error-settling readiness** — `isReady()` now resolves `false` on a definitions-read failure, rather than an uncapped poll that only ever resolved on success.
 - **`invalidate()` is restored**, scoped to this module's own cache key.
 - **A dirty-only, code-keyed request diff** (`mapCustomFieldValuesToRequest`) — an empty string normalises to `null` so a value can be cleared; `undefined` signals an empty diff.
 - **Per-type value coercion covers all 8 field types** and never emits the literal string `"undefined"` or `"null"`; for a number, a nullish or empty raw value coerces to `undefined` rather than `NaN`.
@@ -25,7 +25,7 @@ All notable changes to the `client-custom-fields` module are documented here. Fo
 
 ### Changed
 
-- **The definitions request now targets the target client's OWN brand**, resolved through the same identity seam every request in this module uses — never the calling session's own brand.
+- **The definitions request carries no brand or client identifier of its own** — the API scopes the read by the access token. The one-shot brand lookup this module used to issue against `clients/{id}` is removed; the target client id resolved from the scope only gates addressability now.
 - **Definitions are sorted client-side** by display order, regardless of what order the server returns them in.
 - **Client-side filtering matches the reference conversion's own pattern** — a partial-match predicate over the already-loaded list, issuing no new request.
 - **The collection's context member is renamed from `VALUES` to `CLIENT`**, matching every sibling client module. The former name described the RESOURCE being addressed (the value set) while the id it carried was the CLIENT's own — a mismatch a since-reversed change misread as `.for()` itself being wrong, briefly dropping the context entirely in favour of a bare `.withId()`. `ClientCustomFieldsContextTypes`, `CLIENT_CUSTOM_FIELDS_SCOPE_MATRIX`, and `ClientCustomFieldsScopeMatrix` are exported from the module barrel (and the package root) as before. The image editor's own `ClientCustomFieldContextTypes.FIELD` context is unaffected — it names a real entity (which field), not an owner, and keeps its `.for(FIELD, id)` shape. See [gotchas.md](./gotchas.md#6-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
@@ -44,7 +44,7 @@ Six request/response pairs captured against a live environment back the document
 
 | Fixture                                                                    | Covers                                                                                                      |
 | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `get-custom-fields-brand-id-filter-object-type-client-sort-order-asc.json` | the brand-scoped definitions read                                                                           |
+| `get-custom-fields-filter-object-type-client-sort-order-asc.json`         | the token-scoped definitions read                                                                            |
 | `get-clients-id-case-with-values.json`                                     | a client record with embedded custom field values, used to exercise the embedded-definition resolution path |
 | `post-clients-fields-id-image.json`                                        | a successful image upload                                                                                   |
 | `post-clients-fields-id-image-case-rejected.json`                          | the `422` rejection shape for an invalid image                                                              |

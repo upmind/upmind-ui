@@ -111,5 +111,4 @@ export function createClientModuleMeta(actor: UseActor) {
   };
 }
 
-// Type export for consumers
 export type ClientModuleMeta = ReturnType<typeof createClientModuleMeta>;

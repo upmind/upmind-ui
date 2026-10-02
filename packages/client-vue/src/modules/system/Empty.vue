@@ -40,8 +40,8 @@ import { Interstitial, Button, useTestAttrs } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink, useRoute } from "vue-router";
-import { Icon } from "../../components/icon";
-import type { StorefrontRoute } from "../../types";
+import { Icon } from "@upmind-automation/foundation";
+import type { StorefrontRoute } from "@upmind-automation/foundation";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(

@@ -85,11 +85,6 @@ Every layer (services, schemas, actions, context, meta) is **armless** — no ac
 
 None today — this is a leaf preferences surface with no shared reference data another domain module consumes.
 
-## Integration Points
-
-- **The playground's generic form-flow surface** drives the editor entirely through the published `schema`/`uischema` pair and its existing generic "open a form, save it" handoff path — no bespoke per-cell grid component was added to the shared playground runtime to make this work; the shared runtime stays untouched, and the module side publishes a real, non-empty form definition instead.
-- **The playground's generic table renderer** drives the collection as one row per topic, with the locked-topic flag surfaced as a badge derived from the same `canOptOut` field the write-side guard reads — never a second source of truth.
-
 ## Module boundary
 
 - This module owns **preferences only** — topics, channels, and the opt-out set. It does not own an inbox, a message feed, or a "mark read" capability; those, if they exist on the platform, belong to a different module.

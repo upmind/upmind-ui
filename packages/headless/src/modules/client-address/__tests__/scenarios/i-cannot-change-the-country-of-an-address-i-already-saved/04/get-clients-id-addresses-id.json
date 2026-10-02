@@ -1,0 +1,71 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/20e43579-5e78-d184-78db-31643202d986?with=region,country",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43362685821bbf0-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 12:55:52 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=gMdAjYP8xIpehwYovU8UZBxFCgFnM8Omrk0%2F3gETSgjoLx0I8Clcyrq0tY3%2F4gAJbFu112v5gHyPvG9xxyTyEaBMrwOxBtRCEhJNGINcCOaLQ8cjB%2BPzuIj2dMlDbYYHrfmQwZMB9g%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "20e43579-5e78-d184-78db-31643202d986",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "user_id": "sys",
+        "default": true,
+        "type": 1,
+        "name": "10 Downing St",
+        "address_1": "197 Highfield Road",
+        "address_2": "",
+        "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+        "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+        "city": "London",
+        "county": null,
+        "postcode": "SW1A 2AB",
+        "created_at": "2025-06-04 09:05:58",
+        "updated_at": "2026-09-30 12:44:20",
+        "deleted_at": null,
+        "verified": 0,
+        "can_delete": false
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T12:55:52.782Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "i-cannot-change-the-country-of-an-address-i-already-saved"
+  }
+}

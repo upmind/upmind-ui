@@ -1,80 +1,56 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview Client-Billing-Settings API Fixtures Generator (ADR 025 §A1.3)
+ * @fileoverview Client-Billing-Settings scenario recorder (FE-3145, ADR 035)
  *
  * ## Job To Be Done
- * Declare the real `clients/{id}` and `brand/settings` endpoints this module
- * hits for its ONE in-scope cell (client × settings) and (re)generate their
- * sanitised v3 fixtures into this module's OWN co-located `fixtures/` dir —
- * the same files the integration tests replay through MSW. Run on demand:
+ * Record ONE recording per DRIVEN `client-billing-settings.feature` scenario,
+ * one fixtures folder per step, named from the feature by `recordedStepDir`.
+ * Each scenario records the module's OWN requests its steps make against real
+ * staging, in step order, and leaves staging exactly as it found it. Run:
  *
  *   pnpm fixtures:generate client-billing-settings
  *
+ * The module's own reads are the shared client record (`GET clients/{id}?with=
+ * custom_fields,…`), the client's account (`GET clients/{id}?with=accounts,
+ * accounts.currency`) and its brand-gate config call (the accumulated
+ * `GET config/brand/values?keys=…`); its writes are the consolidation
+ * `PUT clients/{id}` and the currency `PUT accounts/{id}`. The boot step also
+ * records `GET brand/settings`, which the module's reset re-reads
+ * (client-personal-details precedent). The other session boot reads (system,
+ * basket, token, `/self`) are answered at replay by the OWNER modules'
+ * recordings, never recorded here.
+ *
  * ## Why this is not a normal test
  * It makes REAL `fetch` calls against `VITE_API_URL` and needs staging
- * credentials — excluded from the normal `*.test.ts` / `*.int.test.ts` suites
- * by the `*.fixtures.ts` suffix (see `vitest.fixtures.config.ts`). It has no
- * assertions: an `it()` succeeds when the capture completes. `save()` in
- * `afterAll` writes every capture once.
- *
- * ## Captures
- * `get-clients-id` (the read half, AC1/AC2/AC16/AC19) · one `PUT` case per
- * legacy state this module's write half must reach the wire — `enabled`
- * on/off/inherit (AC3, and AC18's literal zero), `base_rule` set/clear (AC4),
- * `day_of_week` set/clear (AC5), `day_of_month` set/clear (AC6),
- * `due_date_day` set/clear (AC7), and one multi-field `diff-only` case
- * (AC12's exact-key-set assertion) · `get-brand-settings` (O8/AC17 — the
- * brand's own `restrict_to_staff` value, replayed as recorded and, inside the
- * integration specs, cloned with ONLY that one key overridden to exercise the
- * other two branches — the same single-flag-override technique the exemplar
- * uses for its own `required: true` case, never a fabricated body).
- *
- * ## Staging reality (recorded, not assumed)
- * This is the same staging client account `client-personal-details` records
- * against (`API_CREDENTIALS.client`). Its live `invoice_consolidation_*`
- * values are whatever the account currently holds — not asserted on here;
- * only the OUTBOUND PUT bodies these captures produce matter to the read-backs.
- *
- * ## What is deliberately NOT captured here
- * The staged-import lockout (AC14) has no real staged-import account on this
- * brand to capture against — the integration spec clones the real
- * `get-clients-id` envelope and overrides only `staged_import` to `true`
- * (the same single-flag-override technique as the brand-gate case above,
- * never a fabricated envelope). The `500` (AC16) IS captured, as a forced
- * fixture (`case=server-error`, generator `forceStatus`): the real request,
- * its response overridden to the wire error envelope — the playground's
- * forced `Errored` state is served from it.
+ * credentials — excluded from the normal suites by the `*.fixtures.ts` suffix.
+ * It has no assertions: an `it()` succeeds when the capture completes.
  *
  * ## Staging hygiene
- * Every field this run touches is restored to the account's own recorded
- * baseline value at the end of the run so a re-record does not leave the
- * shared staging client permanently altered.
- *
- * ## Account-currency slice captures (folded in 2026-09-09, T23/T24)
- * `GET config/brand/values` with BOTH gate keys (O8's `restrict_to_staff`
- * AND B6's `enable_different_currency_payment`) — re-recorded here because
- * `design.md` §15.6 widens the single `ensureConfig()` call to carry both
- * keys, which changes the outbound key set AC17's landed read-back already
- * depends on (T23). `GET brand/settings` — a REAL `currencies` array for
- * AC24, replacing the throwaway `{ languages: [] }` stub the harness answers
- * with elsewhere. `PUT accounts/{accountId}` — one case per AC21/AC22
- * branch (`case-currency-set`, `case-preferred-set`, `case-preferred-clear`,
- * `case-both`), against the SAME staging account `client-personal-details`
- * and this module's own consolidation captures use. `GET self` re-captured
- * once, immediately after `case-preferred-set`, into this module's own
- * `fixtures/` (never into `session-store`'s) — the "a preference IS set"
- * read state AC20/AC26 need, which the shared `session-store` capture
- * cannot supply (its own recorded baseline has `preferred_payment_currency_id:
- * null`). Every account field this run touches is restored at the end,
- * mirroring the existing consolidation restore.
+ * The account's five `invoice_consolidation_*` fields are restored to their
+ * recorded baseline after every scenario that writes them, so a re-record never
+ * leaves the shared staging client altered.
  */
 
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, it, beforeAll, afterAll } from "vitest";
+import { describe, it, beforeAll, afterAll, afterEach } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { ForcedErrorCode } from "@upmind-automation/test-fixtures/types";
-import { GrantTypes } from "@upmind-automation/types";
+import { BrandConfigKeys, GrantTypes } from "@upmind-automation/types";
+import {
+  prepareScenarioDirs,
+  recordedStepDir
+} from "../../../testing/scenario-fixtures";
+import { defaultBrandConfigKeys } from "../../brand/brand.constants";
+import {
+  filter,
+  find,
+  forEach,
+  includes,
+  kebabCase,
+  map,
+  split
+} from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -98,10 +74,32 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
       );
     })();
 
-const recordingsDir = join(import.meta.dirname, "fixtures");
+const feature = readFileSync(
+  join(import.meta.dirname, "client-billing-settings.feature"),
+  "utf-8"
+);
+
+/**
+ * The brand-gate config call the module makes on boot. `useBrand().ensureConfig`
+ * sends the FULL accumulated brand key list — the platform's boot set, then the
+ * two gate keys and the four brand consolidation defaults the schedule rules
+ * read — not this module's six alone. Recorded verbatim from the request the
+ * module makes at replay (tickets.fixtures.ts / client-notes.fixtures.ts
+ * precedent); confirmed against the replay's capture-gap message.
+ */
+const GATE_KEYS = [
+  ...defaultBrandConfigKeys,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF,
+  BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_ENABLED,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_BASE_RULE,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_WEEK_DAY,
+  BrandConfigKeys.INVOICE_CONSOLIDATION_DATE
+].join(",");
 
 type WireClient = {
   id: string;
+  never_suspend?: boolean;
   invoice_consolidation_enabled?: number;
   invoice_consolidation_base_rule?: string | null;
   invoice_consolidation_base_rule_day_of_week?: string | null;
@@ -109,10 +107,17 @@ type WireClient = {
   invoice_consolidation_due_date_day?: number | null;
 };
 
+/** The session account carries the billing currency + optional preferred payment currency. */
 type WireAccount = {
-  id: string;
-  currency_id: string;
-  preferred_payment_currency_id: string | null;
+  id?: string;
+  currency_id?: string;
+  preferred_payment_currency_id?: string | null;
+};
+
+/** `/self` — the session account id and the account list the manager reads currencies off. */
+type WireSelf = {
+  account_id?: string;
+  accounts?: WireAccount[];
 };
 
 // -----------------------------------------------------------------------------
@@ -164,528 +169,170 @@ async function fetchClientId(accessToken: string): Promise<string | undefined> {
 }
 
 // -----------------------------------------------------------------------------
+// Admin brand-config arrange (FE-3145) — set a brand gate with the STAFF
+// (administrator) account, record the client's boot with that value, then
+// restore the original. Dotted key `{category}.{group}.{field}`; write body
+// `{ groups: { <group>: { fields: { <field>: value } } } }` on `brand/{category}`.
+// -----------------------------------------------------------------------------
 
-describe("Client-Billing-Settings API Fixtures Generator", () => {
-  let generator: Generator;
+type BrandField = { code?: string; value?: { value?: unknown } | null };
+type BrandGroup = {
+  code?: string;
+  fields?: { data?: BrandField[] } | BrandField[];
+};
+
+async function mintStaffToken(): Promise<string> {
+  const token = await mintToken({
+    grant_type: GrantTypes.ADMIN,
+    username: API_CREDENTIALS.staff.username,
+    password: API_CREDENTIALS.staff.password
+  });
+  if (!token?.access_token)
+    throw new Error(
+      "Could not mint a staff (admin) token for the brand arrange."
+    );
+  return token.access_token;
+}
+
+async function resolveBrandId(clientAccessToken: string): Promise<string> {
+  const { body } = await call("GET", "/api/brand/settings", clientAccessToken);
+  const id = String((body as { data?: { id?: string } })?.data?.id ?? "");
+  if (!id)
+    throw new Error(
+      "Could not resolve the staging brand id for the admin arrange."
+    );
+  return id;
+}
+
+/** Every field of a category group as `{ code: currentValue }` (the value's `.value`). */
+async function readGroupFields(
+  staffToken: string,
+  brandId: string,
+  category: string,
+  group: string
+): Promise<Record<string, unknown>> {
+  const { status, body } = await call(
+    "GET",
+    `/api/admin/config/brand/categories/${category}/groups?brand_id=${brandId}&with=fields.value`,
+    staffToken
+  );
+  if (status !== 200)
+    throw new Error(`admin read of ${category}/${group} returned ${status}.`);
+  const groups = (body as { data?: BrandGroup[] })?.data ?? [];
+  const grp = find(groups, g => g.code === group);
+  if (!grp) throw new Error(`admin group ${category}/${group} not found.`);
+  const fields = Array.isArray(grp.fields)
+    ? grp.fields
+    : (grp.fields?.data ?? []);
+  const map: Record<string, unknown> = {};
+  forEach(fields, f => {
+    if (f.code) map[f.code] = (f.value as { value?: unknown })?.value ?? null;
+  });
+  return map;
+}
+
+async function readBrandValue(
+  staffToken: string,
+  brandId: string,
+  dottedKey: string
+): Promise<unknown> {
+  const [category, group, field] = split(dottedKey, ".");
+  const fields = await readGroupFields(staffToken, brandId, category, group);
+  return fields[field] ?? null;
+}
+
+/**
+ * Writes `{category}.{group}.{field}`. The whole group's current fields are
+ * echoed back with only the target changed — a group with interdependent fields
+ * (e.g. `invoices.consolidation`) 422s a single-field body.
+ */
+async function writeBrandValue(
+  staffToken: string,
+  brandId: string,
+  dottedKey: string,
+  value: unknown
+): Promise<void> {
+  const [category, group, field] = split(dottedKey, ".");
+  const fields = await readGroupFields(staffToken, brandId, category, group);
+  fields[field] = value;
+  const { status, body } = await call(
+    "PUT",
+    `/api/admin/config/brand/${category}?brand_id=${brandId}`,
+    staffToken,
+    { groups: { [group]: { fields } } }
+  );
+  if (status !== 200)
+    throw new Error(
+      `admin write of ${dottedKey}=${JSON.stringify(value)} returned ${status}: ${JSON.stringify(body).slice(0, 300)}`
+    );
+}
+
+// -----------------------------------------------------------------------------
+// SCENARIOS — one recording per DRIVEN `.feature` scenario.
+// -----------------------------------------------------------------------------
+
+describe("Client-Billing-Settings scenario recordings", () => {
   let clientToken: IToken;
   let clientId: string;
   let baseline: WireClient | undefined;
-  let accountBaseline: WireAccount | undefined;
-  /** A REAL currency id from the brand's own list, distinct from the account's baseline currency (case-currency-set / case-both). */
-  let altCurrencyId: string | undefined;
-  /** A SECOND real currency id, distinct from both the baseline and `altCurrencyId` (case-preferred-set / case-both). */
-  let altPreferredCurrencyId: string | undefined;
+  const prepared = new Set<string>();
 
-  beforeAll(async () => {
-    generator = new Generator(API_URL, {
-      recordingsDir,
+  const clientRecord = () => `/api/clients/${clientId}`;
+  const withCustomFields = "?with=custom_fields,custom_fields.field";
+  const withAccounts = "?with=accounts,accounts.currency";
+
+  /** Records the requests one step makes into that step's own folder. */
+  async function recordStep(
+    scenario: string,
+    step: string,
+    requests: (generator: Generator) => Promise<unknown>
+  ): Promise<void> {
+    if (!prepared.has(scenario)) {
+      prepareScenarioDirs(import.meta.dirname, feature, scenario);
+      prepared.add(scenario);
+    }
+
+    const generator = new Generator(API_URL, {
+      recordingsDir: recordedStepDir(
+        import.meta.dirname,
+        feature,
+        scenario,
+        step
+      ),
       origin: ORIGIN,
       source: "case",
-      name: "client-billing-settings"
+      name: kebabCase(scenario)
     });
-
-    const token = await mintToken({
-      grant_type: GrantTypes.PASSWORD,
-      username: API_CREDENTIALS.client.username,
-      password: API_CREDENTIALS.client.password
-    });
-    if (!token) {
-      throw new Error(
-        "Could not mint a client token with the staging credentials — " +
-          "check tests/fixtures/credentials.ts against the recording brand."
-      );
-    }
-    clientToken = token;
-
-    const id = await fetchClientId(clientToken.access_token);
-    if (!id) {
-      throw new Error(
-        "Could not resolve the client id from /self — cannot capture the " +
-          "clients/{id} fixtures."
-      );
-    }
-    clientId = id;
-
-    const { body, status } = await call(
-      "GET",
-      `/api/clients/${clientId}?with=custom_fields,custom_fields.field`,
-      clientToken.access_token
-    );
-    if (status !== 200) {
-      throw new Error(
-        `Baseline read returned ${status} — cannot resolve the account's ` +
-          "current consolidation values to restore after the write captures."
-      );
-    }
-    baseline = (body as { data: WireClient }).data;
-
-    // The account-currency slice's own baseline (T24) — a RAW, unrecorded
-    // read (mirrors `baseline` above), so the real ids below never touch a
-    // saved fixture; only the sanitised captures do.
-    const selfWithAccounts = await call(
-      "GET",
-      "/api/self?with=accounts",
-      clientToken.access_token
-    );
-    const account = (
-      selfWithAccounts.body as {
-        data?: { accounts?: WireAccount[] };
-      }
-    )?.data?.accounts?.[0];
-    if (selfWithAccounts.status !== 200 || !account) {
-      throw new Error(
-        `Account baseline read returned ${selfWithAccounts.status} — cannot ` +
-          "resolve the session's own account to capture or restore the " +
-          "account-currency writes."
-      );
-    }
-    accountBaseline = account;
-
-    const brandSettings = await call(
-      "GET",
-      "/api/brand/settings",
-      clientToken.access_token
-    );
-    const currencies =
-      (
-        brandSettings.body as {
-          data?: { currencies?: { id: string; code: string }[] };
-        }
-      )?.data?.currencies ?? [];
-    if (brandSettings.status !== 200 || currencies.length === 0) {
-      throw new Error(
-        `Brand settings read returned ${brandSettings.status} with ` +
-          `${currencies.length} currencies — cannot pick real, distinct ` +
-          "currency ids for the account-currency write captures."
-      );
-    }
-    altCurrencyId = currencies.find(
-      currency => currency.id !== accountBaseline?.currency_id
-    )?.id;
-    altPreferredCurrencyId = currencies.find(
-      currency =>
-        currency.id !== accountBaseline?.currency_id &&
-        currency.id !== altCurrencyId
-    )?.id;
-    if (!altCurrencyId || !altPreferredCurrencyId) {
-      throw new Error(
-        "Could not find two REAL currency ids distinct from the account's " +
-          "own baseline currency — the brand's currency list is too small " +
-          "to capture the account-currency write cases."
-      );
-    }
-  }, 30000);
-
-  afterAll(async () => {
+    generator.setBearerToken(clientToken.access_token);
+    await requests(generator);
     generator.save();
-    if (clientToken && clientId && baseline) {
-      await call("PUT", `/api/clients/${clientId}`, clientToken.access_token, {
-        invoice_consolidation_enabled: baseline.invoice_consolidation_enabled,
-        invoice_consolidation_base_rule:
-          baseline.invoice_consolidation_base_rule,
-        invoice_consolidation_base_rule_day_of_week:
-          baseline.invoice_consolidation_base_rule_day_of_week,
-        invoice_consolidation_base_rule_date_of_month_day:
-          baseline.invoice_consolidation_base_rule_date_of_month_day,
-        invoice_consolidation_due_date_day:
-          baseline.invoice_consolidation_due_date_day
-      });
-    }
-    if (clientToken && accountBaseline) {
-      await call(
-        "PUT",
-        `/api/accounts/${accountBaseline.id}`,
-        clientToken.access_token,
-        {
-          currency_id: accountBaseline.currency_id,
-          preferred_payment_currency_id:
-            accountBaseline.preferred_payment_currency_id
-        }
-      );
-    }
-  });
-
-  it("captures GET /api/clients/{id}?with=custom_fields,custom_fields.field (read — AC1/AC2/AC16/AC19)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      `/api/clients/${clientId}?with=custom_fields,custom_fields.field`
-    );
-    generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(
-        `Read capture returned ${status} — refusing to ship a fixture that ` +
-          "does not represent a readable client record."
-      );
-    }
-  });
-
-  // The failed READ (AC16) as the module's OWN recording: staging never refuses
-  // a valid read, so the generator's `forceStatus` keeps the REAL request and
-  // stores the wire error envelope in its place — the same technique
-  // `basket-billing.fixtures.ts` uses for its `case=server-error` captures.
-  // This is the recording the playground's forced `Errored` state is served
-  // from; nothing in labs authors a failure.
-  it("captures FORCED 5xx GET /api/clients/{id}?with=custom_fields,custom_fields.field&case=server-error (AC16 — the failed read)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      `/api/clients/${clientId}?with=custom_fields,custom_fields.field&case=server-error`,
-      undefined,
-      ForcedErrorCode.Internal_Server_Error
-    );
-    generator.clearBearerToken();
-    if (status !== 500)
-      throw new Error(`forced client read stored ${status}, expected 500`);
-  });
-
-  it("captures GET /api/clients/{absent}?with=custom_fields,custom_fields.field&case=absent — the REAL no-such-record read, the single-record EMPTY state's own evidence", async () => {
-    // A signed-in read of an id that does not exist. Mirrors
-    // `client-personal-details.fixtures.ts`'s own absent capture: the labs
-    // force seam answers a single-record page's `empty` state ONLY from a
-    // recorded absence of its own (`captureGaps` names the debt otherwise),
-    // and the body is never authored by hand.
-    const ABSENT_CLIENT_ID = "00000000-0000-0000-0000-000000000000";
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      `/api/clients/${ABSENT_CLIENT_ID}?with=custom_fields,custom_fields.field&case=absent`
-    );
-    generator.clearBearerToken();
-    if (status < 400 || status === 401 || status === 403) {
-      const captures = generator.getCapturedFixtures();
-      for (const [key, { fixture }] of captures) {
-        if (fixture.request.path.includes("case=absent")) captures.delete(key);
-      }
-      throw new Error(
-        `A signed-in read of a client id that does not exist returned ` +
-          `${status} — neither an absent record nor a non-auth refusal, so ` +
-          "the single-record EMPTY state has nothing of its own to serve and " +
-          "the capture was DROPPED rather than shipped under its name."
-      );
-    }
-  });
-
-  it("captures GET /api/config/brand/values?keys=invoices.consolidation.restrict_to_staff (O8/AC17)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      "/api/config/brand/values?keys=invoices.consolidation.restrict_to_staff"
-    );
-    generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(
-        `restrict_to_staff config capture returned ${status} — AC17 has no ` +
-          "real brand-gate fixture to replay."
-      );
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=enabled-on (AC3 — enabled=1)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=enabled-on`,
-      { invoice_consolidation_enabled: 1 }
-    );
-    generator.clearBearerToken();
-    if (status >= 400)
-      throw new Error(`enabled-on capture returned ${status}.`);
-  });
-
-  it("captures PUT /api/clients/{id}?case=enabled-off (AC3/AC18 — the literal zero)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=enabled-off`,
-      { invoice_consolidation_enabled: 0 }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`enabled-off capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=enabled-inherit (AC3 — enabled=2)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=enabled-inherit`,
-      { invoice_consolidation_enabled: 2 }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`enabled-inherit capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=base-rule-set (AC4 — day_of_week rule)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=base-rule-set`,
-      { invoice_consolidation_base_rule: "day_of_week" }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`base-rule-set capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=base-rule-clear (AC4 — explicit null)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=base-rule-clear`,
-      { invoice_consolidation_base_rule: null }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`base-rule-clear capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=day-of-week-set (AC5 — monday)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=day-of-week-set`,
-      { invoice_consolidation_base_rule_day_of_week: "monday" }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`day-of-week-set capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=day-of-week-clear (AC5 — explicit null)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=day-of-week-clear`,
-      { invoice_consolidation_base_rule_day_of_week: null }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`day-of-week-clear capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=day-of-month-set (AC6 — 15)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=day-of-month-set`,
-      { invoice_consolidation_base_rule_date_of_month_day: 15 }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`day-of-month-set capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=day-of-month-clear (AC6 — explicit null)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=day-of-month-clear`,
-      { invoice_consolidation_base_rule_date_of_month_day: null }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`day-of-month-clear capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=due-date-day-set (AC7 — 7)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=due-date-day-set`,
-      { invoice_consolidation_due_date_day: 7 }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`due-date-day-set capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=due-date-day-clear (AC7 — explicit null)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=due-date-day-clear`,
-      { invoice_consolidation_due_date_day: null }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`due-date-day-clear capture returned ${status}.`);
-    }
-  });
-
-  it("captures PUT /api/clients/{id}?case=diff-only (AC12 — a two-field diff, exact key set)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/clients/${clientId}?case=diff-only`,
-      {
-        invoice_consolidation_enabled: 1,
-        invoice_consolidation_base_rule: "daily"
-      }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`diff-only capture returned ${status}.`);
-    }
-  });
-
-  // === Account-currency slice (T23/T24) ===================================
-
-  it("captures GET /api/config/brand/values with BOTH gate keys (O8's restrict_to_staff + B6's enable_different_currency_payment)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      "/api/config/brand/values?keys=invoices.consolidation.restrict_to_staff,billing.payment_currencies.enable_different_currency_payment"
-    );
-    generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(
-        `Two-key brand-gates capture returned ${status} — AC17 and AC23 ` +
-          "have no real two-key brand-gate fixture to replay."
-      );
-    }
-  });
-
-  it("captures GET /api/config/brand/values with the gate keys AND the brand's four consolidation defaults (legacy showBasicRuleFields / effectiveBaseRule)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      "/api/config/brand/values?keys=invoices.consolidation.restrict_to_staff,billing.payment_currencies.enable_different_currency_payment,invoices.consolidation.enabled,invoices.consolidation.base_rule,invoices.consolidation.base_rule_day_of_week,invoices.consolidation.base_rule_date_of_month_day"
-    );
-    generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(
-        `Six-key brand-gates capture returned ${status} — the schedule ` +
-          "show/hide rules have no real brand-defaults fixture to replay."
-      );
-    }
-  });
-
-  it("captures GET /api/brand/settings (AC24 — a real currencies array)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get("/api/brand/settings");
-    generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(
-        `brand/settings capture returned ${status} — AC24 has no real ` +
-          "currency-options fixture to replay."
-      );
-    }
-  });
-
-  it("captures PUT /api/accounts/{accountId}?case=currency-set (AC22 — currency_id alone)", async () => {
-    if (!accountBaseline || !altCurrencyId) {
-      throw new Error("No account baseline/altCurrencyId — see beforeAll.");
-    }
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/accounts/${accountBaseline.id}?case=currency-set`,
-      { currency_id: altCurrencyId }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`currency-set capture returned ${status}.`);
-    }
-  });
+  }
 
   /**
-   * `preferred_payment_currency_id` set to a non-null value is REJECTED by
-   * the real API on this staging brand with a genuine `409` — "Payments in
-   * different than the document (invoice) currencies are disabled!" — because
-   * `billing.payment_currencies.enable_different_currency_payment` is
-   * genuinely `false` here (confirmed by the two-key capture above). This is
-   * the backend's OWN enforcement of row B6's gate, not a fixture artefact.
-   * Recording it honestly (as a real `409`) is correct; presenting it as a
-   * `200` would be fabrication. The SUCCESS shape AC21/AC22/AC26 need for the
-   * "preference is set" case cannot be recorded on this brand without an
-   * admin enabling that brand-wide setting — a cross-cutting change no
-   * prover run makes unilaterally. Per `design.md` §15.10's own anticipated
-   * risk and `tasks.md` T24 action 4, that state is instead DERIVED — a
-   * single-field override of this exact `currency-set` success envelope's
-   * shape, declared as a derivation at its point of use in
-   * `client-billing-settings.int-helpers.ts`, never dressed up as a capture.
+   * The module's boot reads — the brand settings its reset re-reads, the
+   * client record, the account, and the brand-gate config. The record and the
+   * account are one fixture identity (`GET clients/:id` — `with` is not an
+   * identity param), so they share one
+   * file and the account read is recorded LAST: its body carries every base
+   * field the record read maps (the five consolidation fields, `never_suspend`)
+   * plus the `accounts` relation, so the one recording answers both reads.
    */
-  it("captures PUT /api/accounts/{accountId}?case=preferred-set (AC21 — the REAL 409 this brand's closed B6 gate returns)", async () => {
-    if (!accountBaseline || !altPreferredCurrencyId) {
-      throw new Error(
-        "No account baseline/altPreferredCurrencyId — see beforeAll."
-      );
-    }
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/accounts/${accountBaseline.id}?case=preferred-set`,
-      { preferred_payment_currency_id: altPreferredCurrencyId }
-    );
-    generator.clearBearerToken();
-    if (status !== 409) {
-      throw new Error(
-        `preferred-set capture returned ${status}, expected the KNOWN real ` +
-          "409 (brand gate closed) — if this brand's config changed and a " +
-          "200 is now possible, replace this derivation-based case with a " +
-          "genuine recorded success and update the int-helpers docstring."
-      );
-    }
-  });
+  const readBoot = async (generator: Generator) => {
+    await generator.get("/api/brand/settings");
+    await generator.get(`${clientRecord()}${withCustomFields}`);
+    await generator.get(`${clientRecord()}${withAccounts}`);
+    await generator.get(`/api/config/brand/values?keys=${GATE_KEYS}`);
+  };
 
-  it("captures PUT /api/accounts/{accountId}?case=preferred-clear (AC21 — the explicit null clear)", async () => {
-    if (!accountBaseline) {
-      throw new Error("No account baseline — see beforeAll.");
-    }
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/accounts/${accountBaseline.id}?case=preferred-clear`,
-      { preferred_payment_currency_id: null }
-    );
-    generator.clearBearerToken();
-    if (status >= 400) {
-      throw new Error(`preferred-clear capture returned ${status}.`);
-    }
-  });
+  /** A consolidation write, echoing the saved field(s). */
+  const putConsolidation =
+    (body: Record<string, unknown>) => (generator: Generator) =>
+      generator.put(clientRecord(), body);
 
-  /**
-   * The joint write is REJECTED for the SAME reason as `case-preferred-set`
-   * above — the non-null `preferred_payment_currency_id` leaf alone trips
-   * the real, server-side B6 gate on this brand, regardless of what
-   * `currency_id` carries in the same body. Recorded honestly as the real
-   * `409`; AC22's "both keys in one request" success shape is DERIVED from
-   * `case-currency-set`'s genuine success envelope (see int-helpers).
-   */
-  it("captures PUT /api/accounts/{accountId}?case=both (AC22 — the REAL 409 this brand's closed B6 gate returns)", async () => {
-    if (!accountBaseline || !altCurrencyId || !altPreferredCurrencyId) {
-      throw new Error("No account baseline/alt currency ids — see beforeAll.");
-    }
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.put(
-      `/api/accounts/${accountBaseline.id}?case=both`,
-      {
-        currency_id: altCurrencyId,
-        preferred_payment_currency_id: altPreferredCurrencyId
-      }
-    );
-    generator.clearBearerToken();
-    if (status !== 409) {
-      throw new Error(
-        `both capture returned ${status}, expected the KNOWN real 409 ` +
-          "(brand gate closed) — if this brand's config changed and a 200 " +
-          "is now possible, replace this derivation-based case with a " +
-          "genuine recorded success and update the int-helpers docstring."
-      );
-    }
-  });
-
-  it("captures PUT /api/accounts/{accountId}?case=restore (staging hygiene — restores the account's own baseline)", async () => {
-    if (!accountBaseline) {
-      throw new Error(
-        "No account baseline captured — cannot record the account restore case."
-      );
-    }
-    generator.setBearerToken(clientToken.access_token);
-    await generator.put(`/api/accounts/${accountBaseline.id}?case=restore`, {
-      currency_id: accountBaseline.currency_id,
-      preferred_payment_currency_id:
-        accountBaseline.preferred_payment_currency_id
-    });
-    generator.clearBearerToken();
-  });
-
-  it("captures PUT /api/clients/{id}?case=restore (staging hygiene — restores the account's own baseline)", async () => {
-    if (!baseline) {
-      throw new Error("No baseline captured — cannot record the restore case.");
-    }
-    generator.setBearerToken(clientToken.access_token);
-    await generator.put(`/api/clients/${clientId}?case=restore`, {
+  /** Restores the account's five consolidation fields to the recorded baseline. */
+  async function restoreStaging(): Promise<void> {
+    if (!baseline) return;
+    await call("PUT", clientRecord(), clientToken.access_token, {
       invoice_consolidation_enabled: baseline.invoice_consolidation_enabled,
       invoice_consolidation_base_rule: baseline.invoice_consolidation_base_rule,
       invoice_consolidation_base_rule_day_of_week:
@@ -695,6 +342,454 @@ describe("Client-Billing-Settings API Fixtures Generator", () => {
       invoice_consolidation_due_date_day:
         baseline.invoice_consolidation_due_date_day
     });
-    generator.clearBearerToken();
+  }
+
+  beforeAll(async () => {
+    const token = await mintToken({
+      grant_type: GrantTypes.PASSWORD,
+      username: API_CREDENTIALS.client.username,
+      password: API_CREDENTIALS.client.password
+    });
+    if (!token)
+      throw new Error(
+        "Could not mint a client token with the staging credentials — " +
+          "check tests/fixtures/credentials.ts against the recording brand."
+      );
+    clientToken = token;
+
+    const id = await fetchClientId(clientToken.access_token);
+    if (!id)
+      throw new Error(
+        "Could not resolve the client id from /self — cannot capture the " +
+          "clients/{id} fixtures."
+      );
+    clientId = id;
+
+    const { body, status } = await call(
+      "GET",
+      `${clientRecord()}${withCustomFields}`,
+      clientToken.access_token
+    );
+    if (status !== 200)
+      throw new Error(
+        `Baseline read returned ${status} — cannot resolve the account's ` +
+          "current consolidation values to restore after the write captures."
+      );
+    baseline = (body as { data: WireClient }).data;
+  }, 30000);
+
+  afterEach(restoreStaging);
+
+  const OPEN = "I am an authenticated client";
+
+  // --- read-only: only the Background boot is recorded ---------------------
+  forEach(
+    [
+      "My preference shows my actual saved values, addressed to my own record",
+      "I am told when I have unsaved changes, compared against what was last loaded",
+      "I can abandon my unsaved changes and get back exactly what was last loaded",
+      "I cannot save an invalid value — the save is refused and nothing is sent"
+    ],
+    scenario => {
+      it(`${scenario} — ${OPEN}`, () => recordStep(scenario, OPEN, readBoot));
+    }
+  );
+
+  // --- AC-3: turn consolidation on / off / inherit -------------------------
+  describe("I can turn consolidation on, off, or set it to follow my brand", () => {
+    const scenario =
+      "I can turn consolidation on, off, or set it to follow my brand";
+    it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+    it("I choose to turn consolidation on, off, or to follow my brand, and save", () =>
+      recordStep(
+        scenario,
+        "I choose to turn consolidation on, off, or to follow my brand, and save",
+        putConsolidation({ invoice_consolidation_enabled: 0 })
+      ));
+  });
+
+  // --- AC-4: base rule set / clear -----------------------------------------
+  describe("I can choose a base rule for my consolidation cadence, or follow my brand's", () => {
+    const scenario =
+      "I can choose a base rule for my consolidation cadence, or follow my brand's";
+    it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+    it("I choose a base rule and save, and later clear that choice and save again", () =>
+      recordStep(
+        scenario,
+        "I choose a base rule and save, and later clear that choice and save again",
+        putConsolidation({ invoice_consolidation_base_rule: "day_of_week" })
+      ));
+    it("clearing it is saved as an explicit choice to follow my brand's rule, not left unspecified", () =>
+      recordStep(
+        scenario,
+        "clearing it is saved as an explicit choice to follow my brand's rule, not left unspecified",
+        putConsolidation({ invoice_consolidation_base_rule: null })
+      ));
+  });
+
+  // --- AC-5: day of week set / clear ---------------------------------------
+  describe("I can choose which day of the week my weekly cadence runs on, or follow my brand's", () => {
+    const scenario =
+      "I can choose which day of the week my weekly cadence runs on, or follow my brand's";
+    it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+    it("my base rule is a weekly cadence", () =>
+      recordStep(
+        scenario,
+        "my base rule is a weekly cadence",
+        putConsolidation({ invoice_consolidation_base_rule: "day_of_week" })
+      ));
+    it("I choose a day of the week and save, and later clear that choice and save again", () =>
+      recordStep(
+        scenario,
+        "I choose a day of the week and save, and later clear that choice and save again",
+        putConsolidation({
+          invoice_consolidation_base_rule_day_of_week: "monday"
+        })
+      ));
+    it("clearing it is saved as an explicit choice to follow my brand's day, not left unspecified", () =>
+      recordStep(
+        scenario,
+        "clearing it is saved as an explicit choice to follow my brand's day, not left unspecified",
+        putConsolidation({ invoice_consolidation_base_rule_day_of_week: null })
+      ));
+  });
+
+  // --- AC-6: day of month set / restore ------------------------------------
+  describe("I can choose which day of the month my monthly cadence runs on, or restore my brand's default", () => {
+    const scenario =
+      "I can choose which day of the month my monthly cadence runs on, or restore my brand's default";
+    it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+    it("my base rule is a monthly cadence", () =>
+      recordStep(
+        scenario,
+        "my base rule is a monthly cadence",
+        // The monthly rule's wire value is `date_of_month`
+        // (`InvoiceConsolidationRuleTypes.DAY_OF_MONTH`), and the API refuses
+        // it without a day, so a day rides in the recorded arrangement.
+        putConsolidation({
+          invoice_consolidation_base_rule: "date_of_month",
+          invoice_consolidation_base_rule_date_of_month_day: 1
+        })
+      ));
+    it("I choose a valid day of the month and save, and later restore the default and save again", () =>
+      recordStep(
+        scenario,
+        "I choose a valid day of the month and save, and later restore the default and save again",
+        putConsolidation({
+          invoice_consolidation_base_rule_date_of_month_day: 15
+        })
+      ));
+    it("restoring the default is saved as an explicit choice to follow my brand's day, not left unspecified", () =>
+      recordStep(
+        scenario,
+        "restoring the default is saved as an explicit choice to follow my brand's day, not left unspecified",
+        putConsolidation({
+          invoice_consolidation_base_rule_date_of_month_day: null
+        })
+      ));
+  });
+
+  // --- AC-7: due-date day (never-suspended client + monthly rule) -----------
+  // The due-date field is drawn only for a monthly rule on a never-suspended
+  // client. Staff sets never_suspend on the shared client via the admin route;
+  // the monthly rule is re-arranged before each captured PUT because the
+  // describe's afterEach restores the consolidation baseline between steps.
+  // never_suspend is restored to its recorded baseline in afterAll.
+  describe("I can choose the day my invoice is due, or leave it at the earliest available day", () => {
+    const scenario =
+      "I can choose the day my invoice is due, or leave it at the earliest available day";
+    const WHEN =
+      "I choose a valid due-date day and save, and later clear that choice and save again";
+    const CLEAR =
+      "clearing it is saved as an explicit choice for the earliest available day, not left unspecified";
+    let staffToken: string;
+
+    const adminClient = () => `/api/admin/clients/${clientId}`;
+    const arrangeMonthly = () =>
+      call("PUT", clientRecord(), clientToken.access_token, {
+        invoice_consolidation_enabled: 1,
+        invoice_consolidation_base_rule: "date_of_month",
+        invoice_consolidation_base_rule_date_of_month_day: 1
+      });
+    const putDueDate = (day: number | null) => async (generator: Generator) => {
+      await arrangeMonthly();
+      await generator.put(clientRecord(), {
+        invoice_consolidation_due_date_day: day
+      });
+    };
+
+    beforeAll(async () => {
+      staffToken = await mintStaffToken();
+      await call("PUT", adminClient(), staffToken, { never_suspend: true });
+      await arrangeMonthly();
+    }, 30000);
+
+    afterAll(async () => {
+      await call("PUT", adminClient(), staffToken, {
+        never_suspend: baseline?.never_suspend ?? false
+      });
+    }, 30000);
+
+    it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+    it(WHEN, () => recordStep(scenario, WHEN, putDueDate(10)));
+    it(CLEAR, () => recordStep(scenario, CLEAR, putDueDate(null)));
+  });
+
+  // --- AC-13: the in-flight save window. Boot, then ONE consolidation PUT whose
+  // response the replay holds open (replayStep `delayMs`) so `isProcessing` is
+  // observable while the save is in flight. Only the boot + the PUT are recorded;
+  // the When/Then/And steps make no request.
+  describe("While my save is in progress, every control is unavailable, and recovers once the save settles", () => {
+    const scenario =
+      "While my save is in progress, every control is unavailable, and recovers once the save settles";
+    it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+    it("I have started saving a change to my consolidation preference", () =>
+      recordStep(
+        scenario,
+        "I have started saving a change to my consolidation preference",
+        putConsolidation({ invoice_consolidation_enabled: 0 })
+      ));
+  });
+
+  // --- AC-23 / AC-17: brand-gated availability, split one scenario per gate
+  // state (operator option B). Each arranges its gate value with the staff admin,
+  // records the client's boot with that value, and restores the original. ------
+
+  function gateScenario(
+    title: string,
+    dottedKey: string,
+    gateValue: boolean
+  ): void {
+    describe(title, () => {
+      let staffToken: string;
+      let brandId: string;
+      let original: unknown;
+      beforeAll(async () => {
+        staffToken = await mintStaffToken();
+        brandId = await resolveBrandId(clientToken.access_token);
+        original = await readBrandValue(staffToken, brandId, dottedKey);
+        await writeBrandValue(staffToken, brandId, dottedKey, gateValue);
+      }, 30000);
+      afterAll(async () => {
+        await writeBrandValue(staffToken, brandId, dottedKey, original);
+      }, 30000);
+      it(OPEN, () => recordStep(title, OPEN, readBoot));
+    });
+  }
+
+  // AC-17: restricted brand — the client's manager must report itself unavailable.
+  // Staff sets `restrict_to_staff:true`, the client's boot is recorded reading it,
+  // and it is restored. Only the boot is recorded: a restricted editor issues no
+  // write, so any PUT at replay is an unmatched request the wall fails.
+  gateScenario(
+    "My preference surface is hidden unless my brand has explicitly opted clients in",
+    "invoices.consolidation.restrict_to_staff",
+    true
+  );
+
+  gateScenario(
+    "My preferred payment currency choice is not offered when my brand disallows a different currency",
+    "billing.payment_currencies.enable_different_currency_payment",
+    false
+  );
+  gateScenario(
+    "My preferred payment currency choice is offered once my brand allows a different currency",
+    "billing.payment_currencies.enable_different_currency_payment",
+    true
+  );
+
+  // ---------------------------------------------------------------------------
+  // AC-20/21/22/26: the account currencies. The client's own account carries a
+  // billing `currency_id` and an optional `preferred_payment_currency_id`; the
+  // manager reads them off the session account and writes them through
+  // `PUT accounts/{id}` (design.md §15.3 — confirmed by the module's existing flat
+  // fixtures `put-accounts-id-case-*.json`). The preferred-payment-currency field
+  // is offered only when the brand allows a different payment currency, so the gate
+  // `billing.payment_currencies.enable_different_currency_payment` is staff-arranged
+  // ON for these scenarios and restored after. The account id, its current
+  // currency, and a real alternate currency (a brand-supported currency other than
+  // the account's own, off `GET brand/settings`) are resolved live inside the run
+  // and logged; the account's `currency_id` + `preferred_payment_currency_id` are
+  // restored to their recorded baseline after every step that writes them.
+  // ---------------------------------------------------------------------------
+  describe("account currencies (AC-20/21/22/26)", () => {
+    let staffToken: string;
+    let brandId: string;
+    let gateOriginal: unknown;
+    let accountId: string;
+    let baseCurrencyId: string;
+    let basePreferred: string | null;
+    let altCurrencyId: string;
+    let altCurrencyId2: string;
+    let unsupportedCurrencyId: string;
+
+    const CURRENCY_GATE =
+      "billing.payment_currencies.enable_different_currency_payment";
+    const accountRecord = () => `/api/accounts/${accountId}`;
+    const adminAccount = () => `/api/admin/accounts/${accountId}`;
+    const putCurrencies =
+      (body: Record<string, unknown>) => (generator: Generator) =>
+        generator.put(accountRecord(), body);
+
+    /** Staff-arranged: an admin currency write bypasses the brand-support gate a client PUT enforces. */
+    async function adminSetAccountCurrency(currencyId: string): Promise<void> {
+      const { status, body } = await call("PUT", adminAccount(), staffToken, {
+        currency_id: currencyId
+      });
+      if (status !== 200)
+        throw new Error(
+          `admin set of account currency ${currencyId} returned ${status}: ${JSON.stringify(body).slice(0, 200)}`
+        );
+    }
+
+    async function restoreAccount(): Promise<void> {
+      await call("PUT", accountRecord(), clientToken.access_token, {
+        currency_id: baseCurrencyId,
+        preferred_payment_currency_id: basePreferred
+      });
+    }
+
+    beforeAll(async () => {
+      staffToken = await mintStaffToken();
+      brandId = await resolveBrandId(clientToken.access_token);
+      gateOriginal = await readBrandValue(staffToken, brandId, CURRENCY_GATE);
+      await writeBrandValue(staffToken, brandId, CURRENCY_GATE, true);
+
+      // The module takes the account from `first(activeUser.accounts)`, and the
+      // session reads it with `with=accounts` — a bare `/self` omits the list.
+      const { body } = await call(
+        "GET",
+        "/api/self?with=actor,accounts",
+        clientToken.access_token
+      );
+      const account = (body as { data?: WireSelf })?.data?.accounts?.[0];
+      if (!account?.id || !account?.currency_id)
+        throw new Error(
+          "Could not resolve the session account (accounts[0]) / currency from /self?with=accounts."
+        );
+      accountId = account.id;
+      baseCurrencyId = account.currency_id;
+      basePreferred = account.preferred_payment_currency_id ?? null;
+
+      const brand = await call(
+        "GET",
+        "/api/brand/settings",
+        clientToken.access_token
+      );
+      const brandCurrencyIds = map(
+        (brand.body as { data?: { currencies?: Array<{ id: string }> } })?.data
+          ?.currencies ?? [],
+        currency => currency.id
+      );
+      const supported = filter(brandCurrencyIds, id => id !== baseCurrencyId);
+      altCurrencyId = supported[0];
+      altCurrencyId2 = supported[1] ?? supported[0];
+      if (!altCurrencyId)
+        throw new Error(
+          "The brand supports no currency other than the account's own — cannot record a currency change."
+        );
+
+      // Row B2/B3: a system currency the brand does NOT support — the own-currency
+      // append (combineCurrencyOptions) only runs when the account bills in one.
+      const system = await call(
+        "GET",
+        "/api/currencies?limit=500",
+        clientToken.access_token
+      );
+      const systemCurrencyIds = map(
+        (system.body as { data?: Array<{ id: string }> })?.data ?? [],
+        currency => currency.id
+      );
+      unsupportedCurrencyId = filter(
+        systemCurrencyIds,
+        id => !includes(brandCurrencyIds, id)
+      )[0];
+      if (!unsupportedCurrencyId)
+        throw new Error(
+          "Every system currency is brand-supported — cannot record an account on a brand-unsupported currency."
+        );
+
+      console.log(
+        `[client-billing-settings recorder] account=${accountId} currency=${baseCurrencyId} preferred=${basePreferred ?? "none"} alt=${altCurrencyId} alt2=${altCurrencyId2} unsupported=${unsupportedCurrencyId}`
+      );
+    }, 30000);
+
+    afterEach(restoreAccount);
+
+    afterAll(async () => {
+      await restoreAccount();
+      await writeBrandValue(staffToken, brandId, CURRENCY_GATE, gateOriginal);
+    }, 30000);
+
+    // AC-20 — read only: the boot carries the gate-on config and the session
+    // account currencies, so only the boot is recorded. The account is staff-set
+    // to a brand-unsupported currency first (row B2/B3), so the boot records it
+    // billing in a currency the brand's pick-list omits; afterEach restores it.
+    // Titled by the scenario so `--scenario "<title>"` selects it.
+    const AC20 =
+      "I can see the currency my account bills in, and my preferred payment currency if I have one";
+    it(`${AC20} — ${OPEN}`, async () => {
+      await adminSetAccountCurrency(unsupportedCurrencyId);
+      // A client PUT cannot move the account off a brand-unsupported currency
+      // (409); the admin route is the only reset, so it owns the restore here.
+      await recordStep(AC20, OPEN, readBoot).finally(() =>
+        adminSetAccountCurrency(baseCurrencyId)
+      );
+    });
+
+    // AC-21 — set a preferred payment currency, then clear it. The no-change save
+    // step makes no request.
+    describe("I can choose a preferred payment currency for my account, and clear it again", () => {
+      const scenario =
+        "I can choose a preferred payment currency for my account, and clear it again";
+      it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+      it("I choose a preferred payment currency and save, and later clear that choice and save again", () =>
+        recordStep(
+          scenario,
+          "I choose a preferred payment currency and save, and later clear that choice and save again",
+          putCurrencies({ preferred_payment_currency_id: altCurrencyId })
+        ));
+      it("clearing it is recorded as an explicit choice to have no preferred payment currency, not left unspecified", () =>
+        recordStep(
+          scenario,
+          "clearing it is recorded as an explicit choice to have no preferred payment currency, not left unspecified",
+          putCurrencies({ preferred_payment_currency_id: null })
+        ));
+    });
+
+    // AC-22 — change the billing currency; then change both currencies in one PUT.
+    describe("I can change the currency my account bills in", () => {
+      const scenario = "I can change the currency my account bills in";
+      it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+      it("I change the currency my account bills in and save", () =>
+        recordStep(
+          scenario,
+          "I change the currency my account bills in and save",
+          putCurrencies({ currency_id: altCurrencyId })
+        ));
+      it("changing both my billing currency and my preferred payment currency together saves them in one request", () =>
+        recordStep(
+          scenario,
+          "changing both my billing currency and my preferred payment currency together saves them in one request",
+          putCurrencies({
+            currency_id: altCurrencyId2,
+            preferred_payment_currency_id: altCurrencyId
+          })
+        ));
+    });
+
+    // AC-26 — save a new preferred payment currency; the re-read is served from the
+    // save response, so only the boot + the save PUT are recorded.
+    describe("After I save a new preferred payment currency, that is what I and the rest of the app see next", () => {
+      const scenario =
+        "After I save a new preferred payment currency, that is what I and the rest of the app see next";
+      it(OPEN, () => recordStep(scenario, OPEN, readBoot));
+      it("I have just saved a new preferred payment currency for my account", () =>
+        recordStep(
+          scenario,
+          "I have just saved a new preferred payment currency for my account",
+          putCurrencies({ preferred_payment_currency_id: altCurrencyId })
+        ));
+    });
   });
 });

@@ -43,7 +43,7 @@
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
-import { values } from "lodash-es";
+import { findLast, first, split, values } from "lodash-es";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import type { World } from "@upmind-automation/scenario-harness";
 
@@ -97,14 +97,33 @@ const SETTLE_INTERVAL_MS = 250;
 /** Re-runs a world expectation until the collection settles on it. */
 async function settles(assertion: () => Promise<void>): Promise<void> {
   for (let attempt = 1; attempt < SETTLE_ATTEMPTS; attempt++) {
-    try {
-      return await assertion();
-    } catch {
-      await new Promise(resolve => setTimeout(resolve, SETTLE_INTERVAL_MS));
-    }
+    const err = await assertion()
+      .then(() => undefined)
+      .catch((e: unknown) => e);
+    if (!err) return;
+    await new Promise(resolve => setTimeout(resolve, SETTLE_INTERVAL_MS));
   }
   return assertion();
 }
+
+/**
+ * The record id a recorded request addressed — the LAST id segment of its
+ * path, so `…/<id>/send_verify` names the record, not the verb. A step that
+ * acts on ONE row reads its id off the scenario recording that addressed it
+ * (`import deleteRecording from "./scenarios/<scenario>/<NN>/<fixture>.json"`),
+ * never a copied literal: every generator run records new ids.
+ */
+const RECORD_ID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export const recordedId = ({
+  request
+}: {
+  request: { path: string };
+}): string =>
+  findLast(split(first(split(request.path, "?")), "/"), segment =>
+    RECORD_ID.test(segment)
+  ) ?? "";
 
 // The error flag is the BOOTED composable's own meta key, read off its
 // `.meta.ts`, never this template's: a collection (`useList`) publishes
@@ -126,26 +145,22 @@ export const modulesSteps = defineSteps(({ Given, When, Then }) => {
     open(world, { actor: ScopeActorTypes.CLIENT })
   );
 
-  Given("a staff member acting for that client", world =>
-    open(world, {
-      actor: ScopeActorTypes.STAFF,
-      context: { type: "client", id: "mock-uuid-1" }
-    })
-  );
-
   When("the client refreshes the collection", world =>
     world.fire(MODULES_COVERED_ACTIONS.refresh)
   );
 
-  Then("the collection holds {int} items", (world, total) =>
-    settles(() => world.expectContext({ pagination: { total } }))
+  // An OUTCOME, never a fixed count (ADR 035): a count is true of one
+  // capture run only, and the scenario's recording is what decides the rows.
+  Then("I see my modules", world =>
+    settles(() => world.expectMeta({ isEmpty: false, hasError: false }))
   );
 
   // A WRITING scenario ends on the COLLECTION, never on the absence of an
   // error: "reports no failure" passes while the surface shows the same rows it
   // showed before, which is the replay reading as cosplay. Every track that
-  // writes closes on what the user can see changed — the count, the new record
-  // listed, the flag moved (operator ruling 2026-08-13).
+  // writes closes on what the user can see changed — the new record listed,
+  // the flag moved (operator ruling 2026-08-13) — named by the value its
+  // generator step sent.
   Then("{string} is listed", (world, name) =>
     settles(() => world.expectContext({ data: [{ name }] }))
   );

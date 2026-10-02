@@ -17,19 +17,19 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf5ef3eb0be37-DUB",
+      "cf-ray": "a422b663abee4c65-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:16:27 GMT",
+      "date": "Mon, 28 Sep 2026 12:22:14 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=BnU3GxL6DzbhEK3M2gVrWQ8zn8pedvqrxYnwSm%2FGvK5o44J9Q4P%2BOJSnX2wGKvxoSDM22SXDUQuop5etbPDpGUi6Aua9QCkEfVj3Suhbtcvf4zACJihYatNChj4D2Qc%2BW%2FO3vJ5uJQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=3S9pWoUD9G7vbaXrpSWZslWNlqSW1CuyrBcpaOdAf%2BLWQM%2BeC7rc%2Bu7hiEc6%2Bdfnfa%2FkV7kfzJsZKXlET1vHt%2FrPJup8UZ08ruf0he5G7QWRMy1vN%2F3%2BfTgcwveO%2B6TsZp97ZkH7jg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
       "x-frame-options": "SAMEORIGIN",
-      "x-total-count": "989"
+      "x-total-count": "1029"
     },
     "body": {
       "status": "ok",
@@ -64,7 +64,7 @@
           "product_set_id": null,
           "product_group_id": null,
           "created_at": "2025-06-04 09:56:08",
-          "updated_at": "2026-09-08 08:06:09",
+          "updated_at": "2026-09-28 06:49:23",
           "deleted_at": null,
           "status_id": "2785d26e-9678-3d16-70b3-14502e70439d",
           "start_date": "2025-06-04",
@@ -210,7 +210,7 @@
             "address_2": ""
           },
           "tax_entity_hash": "b4127cb90e1161ed535232d23ee63c72",
-          "calculated_next_invoice_due_date": "2026-09-10",
+          "calculated_next_invoice_due_date": "2026-09-28",
           "promotion_codes": null,
           "is_parent": null,
           "is_delegated_object": false,
@@ -463,7 +463,7 @@
           "product_set_id": null,
           "product_group_id": null,
           "created_at": "2025-06-04 09:56:09",
-          "updated_at": "2026-09-08 08:06:09",
+          "updated_at": "2026-09-28 06:49:23",
           "deleted_at": null,
           "status_id": "2785d26e-9678-3d16-70b3-14502e70439d",
           "start_date": "2025-06-04",
@@ -609,7 +609,7 @@
             "address_2": ""
           },
           "tax_entity_hash": "b4127cb90e1161ed535232d23ee63c72",
-          "calculated_next_invoice_due_date": "2026-09-10",
+          "calculated_next_invoice_due_date": "2026-09-28",
           "promotion_codes": null,
           "is_parent": null,
           "is_delegated_object": false,
@@ -834,13 +834,13 @@
         }
       ],
       "related": null,
-      "total": 989,
+      "total": 1029,
       "error": null,
       "messages": [],
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:16:27.601Z",
+  "captured_at": "2026-09-28T12:22:14.894Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

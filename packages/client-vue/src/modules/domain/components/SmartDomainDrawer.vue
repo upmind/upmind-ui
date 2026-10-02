@@ -68,8 +68,8 @@
 <script setup lang="ts">
 import { Button } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../../../components/icon";
-import { isMobile } from "../../../composables/isMobile";
+import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
 import DomainDrawer from "../templates/DomainDrawer.template.vue";
 import { DOMAIN_TEMPLATE } from "../types";
 import DomainCards from "./DomainCards.vue";

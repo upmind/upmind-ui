@@ -91,10 +91,12 @@ beforeEach(() => {
     phones: [],
     emails: []
   }));
-  services.parse.mockImplementation(async (context: UnifiedContext) => ({
-    ...context,
-    model: PERSONAL_MODEL
-  }));
+  services.parse.mockImplementation(
+    async (context: UnifiedContext, event?: { data?: unknown }) => ({
+      ...context,
+      model: event?.data ? PERSONAL_MODEL : undefined
+    })
+  );
   services.validate.mockImplementation(async () => true);
   services.add.mockImplementation(async () => SAVED_MODEL);
   services.invalidate.mockImplementation(async () => undefined);
@@ -156,7 +158,7 @@ describe("useUnified — clearing and stopping a billing detail", () => {
     const detail = await open();
     expect(detail.model.value).toEqual(PERSONAL_MODEL);
 
-    detail.clear();
+    await detail.clear();
 
     expect(detail.model.value).toBeUndefined();
   });
@@ -164,7 +166,7 @@ describe("useUnified — clearing and stopping a billing detail", () => {
   it("AC-13 tears the service down on stop", async () => {
     const detail = await open();
 
-    detail.stop();
+    await detail.stop();
 
     expect(stopService).toHaveBeenCalledTimes(1);
   });

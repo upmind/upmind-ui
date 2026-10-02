@@ -1,6 +1,7 @@
-import type { IconProps } from "../../../components/icon";
 import type { ButtonVariants } from "@upmind/ui";
 import type { AnimatedIconVariants } from "@upmind/ui";
+import type { IconProps } from "@upmind-automation/foundation";
+import type { ICurrency } from "@upmind-automation/types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // Mirrors @upmind/ui AnimatedIcon's public props (the lib doesn't
@@ -50,6 +51,14 @@ export interface BasketModalProps {
 
 export interface BasketActionProps {
   basketRoute?: RouteLocationAsRelativeGeneric;
+}
+
+export interface CurrencySelectProps {
+  /** The selected currency code. */
+  modelValue?: ICurrency["code"];
+  /** The currencies offered in the list. */
+  currencies?: ICurrency[];
+  disabled?: boolean;
 }
 
 export interface BasketCheckoutProps {

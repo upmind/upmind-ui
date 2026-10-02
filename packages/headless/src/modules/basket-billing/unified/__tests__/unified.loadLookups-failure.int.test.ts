@@ -48,7 +48,7 @@ const sessionRecordingsDir = join(
 
 function serve(route: string, key: string): void {
   const recorded = getFixture(key, { recordingsDir }).response;
-  server.use(
+  server?.use(
     http.get(route, () =>
       HttpResponse.json(recorded.body as Record<string, unknown>, {
         status: recorded.status
@@ -68,7 +68,7 @@ function serveHealthyExceptCountries(): void {
   serve("*/api/clients/:id/companies", "get-clients-id-companies");
   serve("*/api/billing_cycles", "get-billing-cycles");
   serve("*/api/countries/:id/regions", "get-countries-id-regions");
-  server.use(
+  server?.use(
     http.get("*/api/countries", () =>
       HttpResponse.json({ error: "server error" }, { status: 500 })
     )
@@ -107,23 +107,30 @@ describe("unified loadLookups — countries boundary failure", () => {
     serveHealthyExceptCountries();
   });
 
-  afterEach(() => server.resetHandlers());
+  afterEach(() => server?.resetHandlers());
 
   it("lands a 5xx countries read as a handled verdict, never an unhandled hang", async () => {
     const services = useUnifiedServices();
 
     let threw: unknown;
-    let resolved: (UnifiedContext & { countries?: unknown[] }) | undefined;
-    try {
-      resolved = (await services.loadLookups({
-        type: UnifiedType.PERSONAL,
-        model: {}
-      } as unknown as UnifiedContext)) as UnifiedContext & {
-        countries?: unknown[];
-      };
-    } catch (error) {
-      threw = error;
-    }
+    let resolved: UnifiedContext | undefined;
+    const context: UnifiedContext = {
+      type: UnifiedType.PERSONAL,
+      model: {},
+      countries: [],
+      addresses: [],
+      companies: [],
+      phones: [],
+      emails: []
+    };
+    await services
+      .loadLookups(context)
+      .then(loaded => {
+        resolved = loaded;
+      })
+      .catch(error => {
+        threw = error;
+      });
 
     if (threw === undefined) {
       expect(resolved).toBeDefined();

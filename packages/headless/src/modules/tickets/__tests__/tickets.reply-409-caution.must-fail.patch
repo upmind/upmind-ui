@@ -1,15 +1,14 @@
 # must-fail: 04-reply-409-caution
 # Target assertion: AC17 "post a reply" — asserts a 409 ticket_has_more_recent_reply resolves as a caution, not a thrown error
 diff --git a/packages/headless/src/modules/tickets/tickets.services.ts b/packages/headless/src/modules/tickets/tickets.services.ts
-index 5418e6e3c..73e0e6554 100644
 --- a/packages/headless/src/modules/tickets/tickets.services.ts
 +++ b/packages/headless/src/modules/tickets/tickets.services.ts
-@@ -338,7 +338,7 @@ async function postReply(
-   } catch (error) {
-     if (
-       error instanceof DetailedError &&
--      error.apiCode === "ticket_has_more_recent_reply"
-+      error.apiCode === "ticket_wrong_code"
-     ) {
-       return undefined;
-     }
+@@ -614,7 +614,7 @@
+     .catch(error => {
+       if (
+         error instanceof DetailedError &&
+-        error.apiCode === "ticket_has_more_recent_reply"
++        error.apiCode === "ticket_wrong_code"
+       ) {
+         return undefined;
+       }

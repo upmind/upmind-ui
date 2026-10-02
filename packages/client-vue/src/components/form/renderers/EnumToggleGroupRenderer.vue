@@ -96,14 +96,16 @@ const drawsRest = computed(
   () => get(appliedOptions.value, "format") === "button-group"
 );
 
-/** The DRAWN positions — nil never, the rest member only when it is drawn. */
+/**
+ * The DRAWN positions. The rest member draws only in `button-group` (the bar's
+ * `All │ Yes │ No`), where it is the clear position — including a `null` rest,
+ * which `toggle-group` instead leaves to the un-press. Any OTHER nil member has
+ * no position to stand for.
+ */
 const positions = computed<Position[]>(() =>
   map(
-    reject(
-      options.value,
-      option =>
-        isNil(option.value) ||
-        (!drawsRest.value && option.value === restValue.value)
+    reject(options.value, option =>
+      option.value === restValue.value ? !drawsRest.value : isNil(option.value)
     ),
     option => ({
       key: toString(option.value),
@@ -115,8 +117,10 @@ const positions = computed<Position[]>(() =>
 
 const selected = computed(() => {
   const { data } = control.value;
-  if (isNil(data)) return undefined;
-  if (!drawsRest.value && data === restValue.value) return undefined;
+  // `button-group` draws the rest as its own position, so an unset leaf presses
+  // it rather than pressing nothing.
+  if (drawsRest.value) return toString(isNil(data) ? restValue.value : data);
+  if (isNil(data) || data === restValue.value) return undefined;
   return toString(data);
 });
 

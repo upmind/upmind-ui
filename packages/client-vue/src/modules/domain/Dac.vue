@@ -87,6 +87,8 @@
 import { Button } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
 import { useDac, DomainTypes } from "@upmind-automation/headless";
 import {
   useBasket,
@@ -94,8 +96,6 @@ import {
   useQuery
 } from "@upmind-automation/headless";
 import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
-import { Icon } from "../../components/icon";
-import { isMobile } from "../../composables/isMobile";
 import DomainCards from "./components/DomainCards.vue";
 import DomainHero from "./components/DomainHero.vue";
 import DomainSearch from "./components/DomainSearch.vue";

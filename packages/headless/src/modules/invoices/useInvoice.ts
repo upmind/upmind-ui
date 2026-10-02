@@ -1,121 +1,166 @@
 import { ref, watch } from "vue";
+import { interpret } from "xstate";
+import { usePaymentDetail, usePaymentGateway } from "../payment-details";
+import { useQueryParams } from "../routing/useQueryParams";
 import { createScopedComposable } from "../scope";
-import createInvoicesServices from "./invoices.services";
+import invoiceMachine from "./invoice.machine";
+import { INVOICE_SCOPE_MATRIX } from "./invoices.types";
 import { createInvoiceActions } from "./useInvoice.actions";
 import { createInvoiceContext } from "./useInvoice.context";
 import { createInvoiceInternals } from "./useInvoice.internals";
 import { createInvoiceMeta } from "./useInvoice.meta";
-import type { InvoiceScopeMatrix } from "./invoices.types";
-import type { Currency } from "../currency/currency.types";
-import type { ScopeConfig, ScopeKey } from "../scope";
+import {
+  createActor,
+  stateMatches,
+  useContext,
+  useContextActor,
+  DetailedError,
+  ErrorOrigin,
+  responseCodes
+} from "../../utils";
+import { isEmpty } from "lodash-es";
+import type { PaymentDetail } from "../payment-details";
+import type {
+  InvoicePayContext,
+  InvoicePaymentDetailsModel,
+  InvoiceScopeMatrix
+} from "./invoices.types";
+import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice
- * @description Scoped, query-backed read of ONE invoice: one TanStack item
- * query per concrete `(actor, id)` scope, minted once at construction. Its
- * sibling is `useInvoices`, registered under the SAME module name.
- * `generateScopeKey` builds `[name, actor, context?, id?]`
- * (`scope/scope.utils.ts:29-58`) — the composable's own name plays NO part
- * in the key (W3); the two stay apart in the registry only because this
- * read always adds a `.withId(id)` segment `useInvoices` never does —
- * pre-existing platform behaviour, not fixed here.
- *
- * The invoice being read is a RECORD ID (`.withId(id)`), never a scope
- * context: there is no actor-context cell to declare, so the matrix this
- * passes as its `TMatrix` refuses every actor. That is not paperwork — the
- * default `ActorContextMatrix` widens every context to `string`, so omitting
- * the type argument would leave `.for("anything", id)` type-checking
- * (`templates/SINGLE-READ.md`).
- *
- * @doctrine clause 1 (uniform four-layer default).
- * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
- * actor; the scope builder resolves SELF before this factory runs.
+ * @description Scoped single-invoice composable — reads ONE invoice and
+ * orchestrates its payment via the invoice machine (spawns paymentDetail,
+ * invokes payment, supports retry/partial loops), and owns the PDF download,
+ * payment-method assignment and pay-currency switch. Client and guest only.
+ * Reference implementation: `modules/auth/`.
+ */
+// -----------------------------------------------------------------------------
+/**
+ * Builds the single-invoice composable for one resolved scope. The actor is
+ * already resolved by the scope builder (SELF → concrete actor); the invoice is
+ * the `.withId(id)` record on `config.id`.
+ * @private
  */
 function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
+  const invoiceId = config.id as string;
+  const { getParam, setParam } = useQueryParams();
 
-  /**
-   * ONE services instance for this scope. `config.context` goes in here and
-   * nowhere else, so every request this read issues resolves the same
-   * target client.
-   */
-  const service = createInvoicesServices(actorScope, config.context);
+  // Seeded from an offsite gateway return (`?payment_success=false`); mirrored
+  // back on outcome. `useQueryParams` no-ops without a router, so a headless
+  // caller reads `undefined` here and writes nothing.
+  const paymentFailed = ref(getParam("payment_success") === false);
 
-  // Mint the item query ONCE per scope. `config.id` is the builder's own
-  // `.withId(id)`, already folded into the scope key.
-  const query = service.loadOne(config.id);
+  const service = interpret(
+    invoiceMachine.withContext({ invoiceId } as InvoicePayContext),
+    { devTools: true }
+  );
+  service.start();
 
-  /**
-   * AC1's currency for the live unpaid-amount re-read — owned here as ONE
-   * reactive ref threaded into the mint below, so a currency change re-keys
-   * the SAME query rather than re-minting it.
-   */
-  const currencyId = ref<Currency["id"] | undefined>(undefined);
+  const actor = createActor(service);
+  if (!actor) {
+    throw new DetailedError(
+      "Invoice unavailable",
+      responseCodes.Service_Unavailable,
+      ErrorOrigin.Headless,
+      { scope: config }
+    );
+  }
 
-  /**
-   * The invoice's OWN currency, seeded as the default the moment the read
-   * settles. `GET /invoices/unpaid_amount/{id}` 422s without an explicit
-   * currency (the recorded control response
-   * `get-invoices-unpaid-amount-id-case-missing-currency.json`), and this
-   * query is enabled the moment the scope is addressable — so an unseeded ref
-   * means the FIRST, automatic re-read always goes out bare and always fails.
-   * A caller asking for another currency through
-   * `refreshUnpaidAmount(nextCurrencyId)` still wins: this only fills the
-   * default, and only while nobody has chosen one.
-   */
+  // The spawned paymentDetail child drives gateway selection and payment; the
+  // machine re-spawns it on each `collecting` entry, so it is read reactively.
+  const paymentDetailActor = useContextActor(actor.state, "paymentDetailActor");
+  const paymentDetail = usePaymentDetail(paymentDetailActor);
+  const gateway = usePaymentGateway(paymentDetail.gateway);
+
+  // The payment-method model staged by `useActions().input()` and saved by
+  // `updatePaymentDetails()`; owned here so it survives across `useActions()`
+  // calls. `null` clears the assignment.
+  const paymentDetailsModel = ref<InvoicePaymentDetailsModel>({
+    payment_details_id: null
+  });
+
+  // The client's stored cards the payment-method form picks from, read by
+  // `useActions().openPaymentMethod()` and held until the scope is destroyed.
+  const storedPaymentMethods = ref<PaymentDetail[]>();
+
+  const errors = useContext<ResponseError | undefined>(actor.state, "error");
+
+  // Mirror the pay outcome onto the `?payment_success` param, so an offsite
+  // return lands back on the right state.
   watch(
-    () => query.data.value?.currency?.id,
-    invoiceCurrencyId => {
-      if (invoiceCurrencyId && !currencyId.value)
-        currencyId.value = invoiceCurrencyId;
-    },
-    { immediate: true }
+    () => stateMatches(actor.state, ["available.refreshing", "complete"]),
+    success => {
+      if (success) {
+        paymentFailed.value = false;
+        setParam("payment_success", "true", true);
+      }
+    }
   );
 
-  const unpaidAmountQuery = service.loadUnpaidAmount(config.id, currencyId);
-
-  const actions = createInvoiceActions(
-    actorScope,
-    service,
-    query,
-    unpaidAmountQuery,
-    currencyId,
-    scopeKey
+  watch(
+    () =>
+      stateMatches(actor.state, ["available.collecting"]) &&
+      !isEmpty(errors.value),
+    failed => {
+      if (failed) {
+        paymentFailed.value = true;
+        setParam("payment_success", "false", true);
+      }
+    }
   );
 
   return {
-    // --- Sub-composables (no direct props — clause 1 four-layer return)
-    /** Sub-composable for single-read actions (lifecycle, AC1). */
-    useActions: () => actions,
+    // --- Sub-composables (no direct props)
+    /** Sub-composable for single-invoice actions (pay, lifecycle, writes). */
+    useActions: () =>
+      createInvoiceActions(
+        actorScope,
+        actor,
+        scopeKey,
+        invoiceId,
+        paymentFailed,
+        paymentDetailsModel,
+        storedPaymentMethods
+      ),
 
-    /** Sub-composable for single-read context (the mapped invoice + unpaid amount). */
+    /** Sub-composable for single-invoice context (mapped invoice, error). */
     useContext: () =>
-      createInvoiceContext(actorScope, service, query, unpaidAmountQuery),
+      createInvoiceContext(
+        actorScope,
+        actor,
+        paymentDetailsModel,
+        storedPaymentMethods
+      ),
 
-    /** Sub-composable for advanced debugging and internal access. */
-    useInternals: () => createInvoiceInternals(actorScope, query),
+    /** Sub-composable for advanced debugging and the delegated payment composables. */
+    useInternals: () =>
+      createInvoiceInternals(actorScope, actor, paymentDetail, gateway),
 
-    /** Sub-composable for single-read meta (state flags, `paymentState`). */
-    useMeta: () =>
-      createInvoiceMeta(actorScope, service, query, unpaidAmountQuery)
+    /** Sub-composable for single-invoice meta (state flags). */
+    useMeta: () => createInvoiceMeta(actorScope, actor, paymentFailed)
   };
 }
 // -----------------------------------------------------------------------------
 /**
- * Scoped composable for one invoice, read in full.
+ * Scoped composable for one invoice, read and paid.
  *
  * @example
  * ```ts
- * const invoice = useInvoice().withId(invoiceId)
- * const { data } = invoice.useContext()
+ * const invoice = useInvoice().withId(invoiceId)          // as self
+ * const guestInvoice = useInvoice().as('guest').withId(invoiceId)
+ * const { model } = invoice.useContext()
  * await invoice.useActions().isReady()
+ * invoice.useActions().pay()
  * ```
  */
 export const useInvoice = createScopedComposable<
   ReturnType<typeof createInvoiceForScope>,
   InvoiceScopeMatrix
->("invoices", createInvoiceForScope);
+>("invoices", createInvoiceForScope, INVOICE_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseInvoice = ReturnType<typeof useInvoice>;

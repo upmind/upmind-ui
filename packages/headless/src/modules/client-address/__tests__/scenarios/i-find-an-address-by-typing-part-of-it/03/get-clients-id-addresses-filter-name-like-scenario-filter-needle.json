@@ -1,0 +1,87 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses?with=region,country&limit=0&filter[name|like]=%25scenario-filter-needle%25",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a422b11b4bc973ea-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 12:18:38 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=WNpvaez1xwDBMyYjXRn3ZSs9FGqW%2BMTJFEbUJ%2FVNQ684KvGPvM5e6Ct9k11kLxGRHm66VJBt7ViMbozAHVwR1j6N2Y6xtGHRLIcIB6vx5NAB95iDU8syFOyn2gAOS%2FtEd7peGsQpvQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "d0367942-4d0e-7108-950b-3153698d582e",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": false,
+          "type": 1,
+          "name": "scenario-filter-needle",
+          "address_1": "1 Scenario Street",
+          "address_2": "",
+          "region_id": "none",
+          "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+          "city": "Guildford",
+          "county": null,
+          "postcode": "GU1 1AA",
+          "created_at": "2026-09-28 12:18:34",
+          "updated_at": "2026-09-28 12:18:34",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": true,
+          "region": null,
+          "country": {
+            "id": "825d96e7-63ed-0913-46c4-174825283406",
+            "name": "Iceland",
+            "code": "IS",
+            "code3": "",
+            "created_at": "2017-10-18 14:16:21",
+            "updated_at": "2026-09-28 11:08:35",
+            "vat": "7.50",
+            "eea": 1,
+            "phone_code": "+354",
+            "post_code_regex": "^\\d{3}$"
+          }
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T12:18:38.280Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "i-find-an-address-by-typing-part-of-it"
+  }
+}

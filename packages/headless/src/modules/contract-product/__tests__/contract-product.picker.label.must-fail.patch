@@ -1,0 +1,22 @@
+# Negative-control mutant — a picker option is labelled by what a client recognises (R38 item 2; B7)
+#
+# Spec it must flip: contract-product.picker.test.ts,
+#   "names each product by its name and its service identifier".
+# NOT RED-verifiable yet: the spec is red without this patch (live labels are the bare service identifier).
+#
+# Mutation: every option is labelled with its bare id.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -389,7 +389,7 @@
+ ): LookupItem {
+   return {
+     value: raw.id,
+-    label: mapContractProductTitle(raw) || raw.id
++    label: raw.id
+   };
+ }
+ 

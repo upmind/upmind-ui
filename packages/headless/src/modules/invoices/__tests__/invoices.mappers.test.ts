@@ -317,6 +317,22 @@ describe("mapInvoice — identity, status, and money summary", () => {
   });
 });
 
+describe("mapInvoice — the pay currency (currencyPayment)", () => {
+  it("falls back currencyPayment to the invoice's own currency when the raw row carries no payment_currency", () => {
+    // The recorded unpaid row carries payment_currency: null — the real shape
+    // of the fallback premise; a re-recording that adds one breaks this guard
+    // loudly rather than passing the assertion below for the wrong reason.
+    expect(
+      (unpaidRaw as { payment_currency?: unknown }).payment_currency
+    ).toBeFalsy();
+
+    const mapped = mapInvoice(unpaidRaw);
+
+    expect(mapped.currency).toBeTruthy();
+    expect(mapped.currencyPayment).toStrictEqual(mapped.currency);
+  });
+});
+
 describe("mapInvoice — the frozen client snapshot", () => {
   it("keeps the client embedded on the record, not a live join", () => {
     const mapped = mapInvoice(paidRaw);
@@ -427,7 +443,7 @@ describe("mapPayments (via mapInvoice) — payment meaning and order", () => {
   });
 });
 
-describe("invoices — the invoice's OWN assigned payment method (AC-4, read half)", () => {
+describe("invoices — AC-4 the invoice's own assigned payment method, read half", () => {
   it("carries the assigned method's id and card details off the real recorded row", () => {
     const assigned = paidRaw.payment_details;
     // Guards the toggle below against a re-recording that drops the card: an
@@ -478,5 +494,61 @@ describe("invoices — the invoice's OWN assigned payment method (AC-4, read hal
 
     expect(raw.payments?.[0]?.payment_details).toBeTruthy();
     expect(mapInvoice(raw).paymentMethod.id).toBeNull();
+  });
+});
+
+describe("mapInvoice — the platform's translated status name (statusName)", () => {
+  it("carries the status record's own translated name, not its code", () => {
+    const status = paidRaw.status as unknown as { code: string; name: string };
+    expect(status.name).toBe("Paid");
+    expect(status.name).not.toBe(mapInvoice(paidRaw).status);
+
+    expect(mapInvoice(paidRaw).statusName).toBe("Paid");
+  });
+
+  it("carries the unpaid status name off its own recorded row", () => {
+    expect((unpaidRaw.status as unknown as { name: string }).name).toBe(
+      "Unpaid"
+    );
+
+    expect(mapInvoice(unpaidRaw).statusName).toBe("Unpaid");
+  });
+});
+
+describe("mapPayments (via mapInvoice) — the paying method's own label", () => {
+  const realPayment = paidRaw.payments[0];
+
+  it("reads the payment detail's own name as the label", () => {
+    expect(realPayment.payment_details?.name).toBe("Visa ending 4242");
+
+    expect(mapInvoice(paidRaw).payments[0].label).toBe("Visa ending 4242");
+  });
+
+  it("falls back to the card type and last four when the detail carries no name", () => {
+    const withCardOnly: IPayment = {
+      ...realPayment,
+      payment_details: {
+        ...(realPayment.payment_details as object),
+        name: null,
+        card_type: "visa",
+        card_last4: "4242"
+      } as IPayment["payment_details"]
+    };
+    const raw = { ...paidRaw, payments: [withCardOnly] } as IInvoice;
+    const label = mapInvoice(raw).payments[0].label;
+
+    expect(label).not.toBe("");
+    expect(label).toContain("4242");
+    expect(label.toLowerCase()).toContain("visa");
+  });
+
+  it("draws no label when the payment carries no detail at all", () => {
+    const withoutDetail = {
+      ...realPayment,
+      payment_details: null
+    } as unknown as IPayment;
+    const raw = { ...paidRaw, payments: [withoutDetail] } as IInvoice;
+
+    expect(mapInvoice(raw).payments[0].label).toBe("");
   });
 });

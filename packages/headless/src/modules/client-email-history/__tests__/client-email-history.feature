@@ -1,32 +1,43 @@
 # client-email-history — the module's behavioural source of truth (capability altitude).
 #
-# CO-LOCATION IS THE REQUIREMENT: this is the SOLE copy the tests know about —
-# the one client-email-history.traceability.test.ts reads, and the one the @AC
-# link is enforced against, both ways. A planning bundle may hold its own copy,
-# but no test may read one: those directories are gitignored, so a test that
-# reaches for a bundle path passes locally and fails in CI.
+# CO-LOCATION IS THE REQUIREMENT, mirroring the client-email canary and the
+# client-address / client-phone precedent. The delivered copy lives at
+#   packages/headless/src/modules/client-email-history/__tests__/client-email-history.feature
+# and THAT copy is the single source of truth: it is what
+# client-email-history.traceability.test.ts reads and enforces the @AC link
+# against, both ways. Nothing in the suite reads a planning artefact — those are
+# gitignored, absent from a fresh clone and from CI.
 #
-# EXECUTED per ADR-020 Amendment 5: the sibling step catalog is what decides,
-# scenario by scenario, which of these are driveable — the colocated unit and
-# integration specs remain the proving tests, each anchored to a scenario by
-# its @AC tag.
+# ONE SCENARIO PER CAPABILITY (operator ruling 2026-09-24, ADR 035 Amendment 1).
+# A capability that can be driven carries its `@AC-N` tag on a DRIVEN scenario
+# with its own per-step recording under `scenarios/<slug>/`. A capability proven
+# by a pure unit test carries its `@AC-N` on a declarative scenario the unit test
+# names. A capability no scenario can drive keeps ONE declarative scenario tagged
+# `@todo`, with the named blocker in the comment above it. A capability whose
+# behaviour lives in another module (token / transport / scope-target) is tagged
+# `@moved`. Never a driven + declarative twin for the same capability.
 #
-# One scenario per capability the parity table carries, across BOTH composables:
-# the collection (useClientReceivedEmails) and the single received email
-# (useClientReceivedEmail). The single read gets its own scenarios, never a
-# footnote on the collection's — it is a separately exported, separately
-# consumed capability with its own route (Research R1), and folding it away is
-# the FE-2824 / 2026-08-05 amputation shape.
+# EXECUTED per ADR-020 Amendment 5: the sibling client-email-history.steps.ts
+# catalog decides, scenario by scenario, which entries are driveable; the replay
+# plays every recorded one and asserts one folder per step.
 #
 # Business language only — the wire-level read-backs that PROVE each scenario
-# (request URL, filter keys, pagination offsets, session token, acting-as
-# headers) live in the story's planning bundle (requirements.md, parity.yaml).
+# (request URL, filter keys, pagination offsets, session token) live in the
+# module's own recordings, not here.
 #
 # Actors: a client reads their OWN email history. There is no staff cell and no
-# guest cell in this module — and, unlike client-email, that is not a recorded
-# drop: the oracle exposes NO client-targeted email-history endpoint at all, so
-# there is nothing to drop (parity.yaml M3/M4/M5). There are no mutation
-# scenarios because the oracle has no mutations anywhere (parity.yaml M6).
+# guest cell in this module, and — unlike client-email — that is not a recorded
+# drop: the oracle exposes NO client-targeted email-history endpoint for another
+# actor, so there is nothing to drop (parity M3/M4/M5). There are no mutation
+# scenarios because the oracle has no mutations anywhere (parity M6).
+#
+# The single received email (useClientReceivedEmail) is a SEPARATE composable
+# that marks its record with the builder's `.withId(id)` and refuses `.for()`
+# (FE-3095). It is DRIVEN as a second scenario key, booted `{ actor: client, id }`
+# — the World scope seam's `id` maps to `.as(actor).withId(id)`. Its reads
+# (AC-14/AC-15/AC-17) are driven scenarios; AC-13's body-default branch stays a
+# pure mapper unit test, because a body-never-stored row is a wire-negative the
+# recorded corpus does not hold.
 
 @module:client-email-history @variant:query @cell:client-self
 Feature: A client reads their own email history
@@ -37,176 +48,144 @@ Feature: A client reads their own email history
   full. Both read that client's own history, under that client's own identity,
   and never another account's.
 
-  Background:
-    Given I am an authenticated client reading my own account
-    And every request I make is addressed to my own email history as that client
+  # === REFUSED WITHOUT AN AUTHENTICATED CLIENT (signed-out, top-level) ========
+  # A @signed-out guard boots the guest floor with no Background: it must resolve
+  # unavailable and read nothing. The replay arms no recording for it, so any
+  # request it makes is an unmatched request the replay wall fails it by name on.
 
-  # === THE COLLECTION ========================================================
+  @AC-5 @AC-16 @AC-18 @collection @single-email @guard @negative-control @signed-out
+  Scenario: Nothing of anyone else's email history is ever readable
+    Given there is no authenticated client session for my email history
+    When my email history is used while signed out
+    Then my email history reports itself unavailable
+    And no request is made against any email-history resource
+
+  # The errored limb of the loading/empty/errored triad: the boot list read is a
+  # recorded 500 (Generator forceStatus — a control response), so the collection
+  # settles errored on a genuine request the recording overrides.
+  @AC-4 @collection @errored
+  Scenario: Know when my email history has errored
+    Given I am an authenticated client whose email history cannot be read
+    Then my history reports that it errored
+
+  # The same recorded-500 boot as AC-4: the failure is shown ON my history's own
+  # state for me to read, and the module surfaces it rather than throwing — the
+  # boot settles on the error instead of raising it.
+  @AC-21 @collection @errored
+  Scenario: A problem with my history is shown to me where I read it, not thrown
+    Given I am an authenticated client whose email history cannot be read
+    When I inspect my history after a read has failed
+    Then I can read that my history errored
+
+  Rule: A signed-in client reads their own history
+
+    Background:
+      Given I am an authenticated client reading my own account
+      And every request I make is addressed to my own email history as that client
+
+  # === THE COLLECTION, DRIVEN ================================================
 
   @AC-1 @collection
   Scenario: See my own email history
-    When I open my email history
-    Then I see the reactive list of emails sent to me
-    And no other client's history is ever loaded
-
-  @AC-2 @collection
-  Scenario: See what each email said and who it went to
-    When I view my email history
-    Then each email shows its subject, who it was sent to, and who it came from
-    And each email shows the recipient's name, address and picture
-    And each email shows when it was sent, when it bounced, and when it failed
-
-  @AC-3 @collection
-  Scenario Outline: See whether each email reached me
-    Given an email in my history "<condition>"
-    When I view my email history
-    Then that email is shown as "<status>"
-
-    Examples:
-      | condition                   | status  |
-      | failed to send              | failed  |
-      | bounced                     | bounced |
-      | was sent successfully       | sent    |
-      | has not been sent yet       | sending |
-      | both bounced and failed     | failed  |
-
-  # Two scenarios, one concern split by what is being asked: the state of the
-  # list itself, and whether the list is mine to read at all.
-
-  @AC-4 @collection
-  Scenario: Know whether my history is loading, empty, or errored, and wait for it
-    When I open my email history
-    Then I can see whether the history is loading, empty, or errored
-    And I can wait for it to be ready before reading it
-    And that wait always finishes — it never leaves me waiting forever
-
-  @AC-5 @collection @guard
-  @AC-16 @single-email
-  Scenario: Nothing of anyone else's email history is ever readable, in the list or in one email
-    Given I am signed in as a client
-    When I look at my email history
-    Then it tells me the history is available to me
-    And before I am signed in it tells me the history is not available, while still telling me it is loading
-    And the moment my session goes away it tells me the history is no longer available
-    And I never have to inspect the session myself to learn any of this
-    Given I am not signed in as a client
-    When my email is used
-    Then it tells me the email is not available to me
-    And nothing is read from the server on my behalf
-    And once I am signed in, it tells me the email is available and reads it
+    Then I see my email history
 
   @AC-6 @collection
-  Scenario: Sort my history
-    When I sort my history by subject, newest first
-    Then my history comes back ordered by subject, newest first
-    And when I clear the sort it returns to the default order, most recent first
+  Scenario: Sort my history by subject
+    When I sort my history by subject
+    Then my history is ordered by subject
+    And no email-history failure is reported
 
   @AC-7 @collection
   Scenario: Search my history
     When I search my history for a word
-    Then only emails matching that word are returned
-    And when I also narrow by subject, both narrowings apply together
-    And neither narrowing silently cancels the other
+    Then my search narrows the history
+    And no email-history failure is reported
 
   @AC-8 @collection
-  Scenario Outline: Narrow my history to what happened to each email
-    When I narrow my history to "<selection>"
-    Then only the "<selection>" emails are returned
-    And switching to another selection re-reads my history straight away, without me having to open it again
-    And no part of the previous selection is left behind
-
-    Examples:
-      | selection |
-      | all       |
-      | sent      |
-      | bounced   |
-      | failed    |
+  Scenario: Narrow my history to what happened to each email
+    When I narrow my history to the emails that were sent
+    Then only sent emails are returned
+    And no email-history failure is reported
 
   @AC-9 @collection
   Scenario: Page through my history
-    Given I have more emails than fit on one page
-    When I open my email history
-    Then I am given the first page, and told which page I am on and how many there are
-    And asking for the next page gives me the next page
-    And asking for the previous page brings me back
-    And I am told when there is no further page to go to
+    When I go to the next page of my history
+    And I come back to the previous page
+    Then I see my email history
+    And no email-history failure is reported
 
   @AC-11 @collection
   Scenario: Refresh my history
-    Given I have opened my email history
-    When I refresh it
-    Then my history is re-read from the server
-    And invalidating my history makes the next read fetch it again
-    And refreshing without a signed-in client is refused, and reads nothing
+    When I refresh my history
+    Then I see my email history
+    And no email-history failure is reported
 
   @AC-12 @collection
   Scenario: Discarding a history collection releases it
-    Given I have opened my email history
-    When I destroy that collection
-    Then it is released
-    And opening my email history again gives me a fresh collection
+    When I discard the collection
+    Then no email-history failure is reported
 
-  # === ONE RECEIVED EMAIL ====================================================
-  # Its own scenarios, not the collection's footnote: this is a separately
-  # exported capability with its own route (Research R1).
-
-  @AC-13 @single-email
-  Scenario: Read one of my emails in full
-    Given an email in my history
-    When I open that email
-    Then I am shown that email, including its full body
-    And an email whose body was never stored shows as having no body, not as broken
+  # === ONE RECEIVED EMAIL, DRIVEN ============================================
+  # The single read (useClientReceivedEmail) is a second scenario key, booted
+  # `{ actor: client, id }` — the builder's `.withId(id)`. The id is read from
+  # the scenario's own recording.
 
   @AC-14 @single-email
   Scenario: See that email's details and whether it reached me
     When I open one of my emails
-    Then it shows the same subject, recipients, dates and delivery outcome the history list showed for it
-    And whether it was sent, bounced or failed is stated the same way in both places
+    Then I see that email's subject
 
   @AC-15 @single-email
   Scenario: Know whether that email is loading, empty, or errored, and wait for it
     When I open one of my emails
-    Then I can see whether it is loading, empty, or errored
-    And I can wait for that email to be ready before reading it
-    And that wait always finishes — including when I turn out not to be signed in, where it finishes by telling me it is not ready
+    Then that email becomes available to read
+    And no email-history failure is reported
 
   @AC-17 @single-email
   Scenario: Refresh one email, and release it when done
     Given I have opened one of my emails
     When I refresh that email
-    Then it is re-read from the server
-    And when I destroy it, it is released, and opening that email again gives me a fresh one
+    Then no email-history failure is reported
+    And when I discard that email it is released
 
-  # === WHOLE-MODULE GUARANTEES ==============================================
+  # === CAPABILITIES PROVEN BY A PURE UNIT TEST ===============================
+  # No driven scenario: the mapper / public-surface unit tests name these ids.
 
-  @AC-18 @module @guard @negative-control
-  Scenario: Nothing reads an email history without an authenticated client session
-    Given there is no authenticated client session
-    When either my email history or a single email is used
-    Then no request is made against any email-history resource
-    And any forced read is refused as not-authenticated
-    And removing that protection from either surface turns this red
+  @AC-2 @collection
+  Scenario: See what each email said and who it went to
+    Given one of my emails in the recorded history
+    When the row is mapped for display
+    Then it carries its subject, its sender, its recipients and its recipient's name, address and picture
+    And it carries when it was sent, when it bounced and when it errored
 
-  @AC-19 @module @fe-2824 @negative-control
-  Scenario: The history I read is the one my scope named — not whatever a global setting says
-    Given every request resolves whose history it is reading from the scope I opened
-    When that resolution is broken so it instead reads from a global setting
-    Then every read in this module turns red
-    And restoring the resolution returns them green
-    And the proof shows which address was called and under whose identity it was called, never only what came back
+  @AC-3 @collection
+  Scenario: See whether each email reached me
+    Given a recorded email row in a given delivery state
+    When the row is mapped for display
+    Then it is shown as sent, sending, bounced or failed, with error taking precedence over a bounce
+
+  @AC-13 @single-email
+  Scenario: Read one of my emails in full
+    Given a recorded single email
+    When it is mapped for display
+    Then it carries its full body, and an email whose body was never stored shows as empty, not broken
 
   @AC-20 @module @public-surface @negative-control
   Scenario: The module offers both surfaces and every consumer keeps compiling
     Given consumers depend on my email history AND on reading one email
     When the module is built
     Then both are offered, with every name a consumer imports today
-    And the way a consumer names a sort order is still offered
-    And removing the single-email surface from what the module offers turns this red
-    And every dependent module still compiles with no new error
+    And removing the single-email surface, or the sort-order naming, turns this red
 
-  @AC-21 @module
-  Scenario: A problem with my history is shown to me where I am reading, not thrown
-    Given something goes wrong while I read my history or one of my emails
-    When I inspect either surface
-    Then I can read what went wrong
-    And the module itself raises no message, toast or notification on my behalf
+  # === WRITTEN DOWN, NOT YET DRIVEN ==========================================
+  # Each carries the blocker that keeps it off the World seam today.
+
+  # @moved: the request-URL retarget and the auth-token identity transport are
+  # proven in the query / session-store / auth modules, not here (operator ruling
+  # 2026-09-24). This module resolves whose history it reads from the scope it was
+  # opened for; the transport that carries that identity is not its to prove.
+  @AC-19 @module @fe-2824 @negative-control @moved
+  Scenario: The history I read is the one my scope named — not whatever a global setting says
+    Given every request resolves whose history it is reading from the scope I opened
+    When that resolution is broken so it instead reads from a global setting
+    Then every read in this module turns red

@@ -15,10 +15,10 @@
 
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { UpmAccount } from "@upmind-automation/client-vue";
+import { UpmAccount } from "@upmind-automation/auth";
 import { ROUTE } from "../../router";
 import { get } from "lodash-es";
-import type { SessionProps } from "@upmind-automation/client-vue";
+import type { AuthProps } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ const mode = computed(() => {
     route,
     "query.mode",
     get(route, "meta.mode", "login")
-  ) as SessionProps["modelValue"];
+  ) as AuthProps["modelValue"];
   return mode;
 });
 

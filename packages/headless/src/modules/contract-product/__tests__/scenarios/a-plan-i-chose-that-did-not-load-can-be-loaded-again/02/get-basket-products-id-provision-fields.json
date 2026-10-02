@@ -1,0 +1,53 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/basket/products/8d632507-9806-5d1e-688a-8174e234e98d/provision_fields",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43aa6403caf8f53-JNB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 10:05:31 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=q7vWWf92%2BfDIwcbGfpNHb6n6DuDMiCH%2B4oTTtIPqiUUTxeHziQfj0Li2wP92uIvk0qykxSlXWdRGHXApS3OPehNO92GoUR5DQ8ER5qygrqs0WpXfaPogw%2F7wRP6jUlYwcHIS4jZ2Yg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "9113643c54a921135d1b5318e32ed05d69884397",
+        "type": 0,
+        "code": 409,
+        "message": "This product is not currently for sale",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T10:05:31.841Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

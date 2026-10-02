@@ -20,18 +20,18 @@ import Layout from "../../../components/layout/Layout.vue";
 import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
-import { useSection } from "../../../components/section/useSection";
+import { useSection } from "@upmind-automation/foundation";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
 import {
   FOOTER_LAYOUT,
   FOOTER_BACKGROUND
 } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
-import type { SessionRoutes } from "../types";
+import type { AuthRoutes } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<SessionRoutes>();
+const props = defineProps<AuthRoutes>();
 
 // -----------------------------------------------------------------------------
 

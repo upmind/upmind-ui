@@ -40,7 +40,12 @@
  * is a single nullable id (see `InvoicePaymentDetailsModel`).
  */
 
-import { AccessRoleTypes, UpmindObjectTypes } from "@upmind-automation/types";
+import {
+  AccessRoleTypes,
+  InvoiceCategoryCode,
+  InvoiceStatusGroups,
+  UpmindObjectTypes
+} from "@upmind-automation/types";
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { FormattedDate, ResponseError } from "../../utils";
@@ -49,23 +54,24 @@ import type { Client } from "../client";
 import type { Address } from "../client-address/client-address.types";
 import type { Currency } from "../currency/currency.types";
 import type { LookupItem } from "../lookup";
-import type { ListQuery, SimpleQuery } from "../query";
+import type { PaymentDetailData, PaymentDetailModel } from "../payment-details";
+import type { InfiniteListQuery, ListQuery } from "../query";
 import type { ScopeContext } from "../scope";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 // IInvoice added for InvoicesListQuery/InvoiceItemQuery's wire-type argument
 // (S1) — already imported and used elsewhere in this module's own services
 // file; not a new type (see this file's head `graphify-out/` citation).
 import type {
-  InvoiceCategoryCode,
   InvoiceStatus,
   CreditNoteStatus,
   IContract,
   IContractProduct,
+  ICurrency,
   IInvoice
 } from "@upmind-automation/types";
-// MaybeRef added for loadUnpaidAmount's reactive currency param — widening an
-// existing member, not a new type (see this file's head `graphify-out/` citation).
-import type { ComputedRef, MaybeRef } from "vue";
+import type { ComputedRef } from "vue";
+import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 // SCOPE — two matrices, one context enum
@@ -96,6 +102,7 @@ export enum InvoicesContextTypes {
 
 /** The static request param each relationship `.for()` context adds, as the legacy portal sends it. */
 export const INVOICES_CONTEXT_WIRE_PARAMS = {
+  [InvoicesContextTypes.CLIENT]: "client_id",
   [InvoicesContextTypes.CONTRACT]: "filter[contracts.id]",
   [InvoicesContextTypes.CONTRACT_PRODUCT]:
     "filter[products.contracts_product_id]",
@@ -158,22 +165,12 @@ export const INVOICES_SCOPE_MATRIX = {
 export type InvoicesScopeMatrix = typeof INVOICES_SCOPE_MATRIX;
 
 /**
- * Scope matrix for `useInvoice` — the SINGLE read. Every actor is
- * `null as never`, so `.for(type, id)` is a compile-time error for all four.
- * One invoice is marked with `.withId(id)`, never with a scope context — an
- * ADR-001 context names an entity the actor acts UPON, and a single invoice
- * being read is not one (`templates/SINGLE-READ.md`).
- *
- * Its TYPE is passed as `createScopedComposable`'s `TMatrix`, exactly like
- * `InvoicesScopeMatrix` above — NEITHER composable's matrix VALUE is passed
- * as a third (runtime) argument (`useInvoice.ts` / `useInvoices.ts`), so no
- * runtime matrix reaches the registry for either read (W3: this file
- * previously implied an asymmetry here that does not exist; not a new type,
- * see this file's head `graphify-out/` citation). Dropping the TYPE
- * argument here specifically would still re-open `.for("anything", id)`
- * because the default `ActorContextMatrix` widens every cell to `string` —
- * not optional paperwork. Not re-exported from the module barrel: it names
- * no context a consumer can spell.
+ * Scope matrix for `useInvoice` — the SINGLE invoice, read and paid. Every
+ * actor is `null as never`, so `.for(type, id)` is a compile-time error for
+ * all four: one invoice is marked with `.withId(id)`, never a scope context.
+ * `.as('client')` / `.as('guest')` (and the `.as('self')` that resolves to
+ * either) still resolve; there is no staff arm — client and guest only, the
+ * same operator ruling `INVOICES_SCOPE_MATRIX` records above.
  */
 export const INVOICE_SCOPE_MATRIX = {
   [ScopeActorTypes.SELF]: null as never,
@@ -280,6 +277,27 @@ export type InvoiceQueryModel = {
 /** The nested filter model — the `filters` branch of {@link InvoiceQueryModel}. */
 export type InvoiceFilterModel = NonNullable<InvoiceQueryModel["filters"]>;
 
+/**
+ * AC2 — the consolidatable-invoice filter preset, shared by the list action
+ * (`useInvoices.actions.ts`'s `filterConsolidatable`) and the dedicated count
+ * read (`invoices.services.ts`'s `loadConsolidatableCount`). `client_id` is
+ * merged in at each call site, so the preset holds no scope.
+ */
+export const CONSOLIDATABLE_FILTER: InvoiceFilterModel = {
+  "status.code": InvoiceStatusGroups.UNPAID,
+  is_consolidation: false,
+  "category.slug": [InvoiceCategoryCode.RECURRENT],
+  paid_amount: 0
+};
+
+/** AC7 — the credit-notes filter preset (`filterCreditNotes`). */
+export const CREDIT_NOTE_FILTER: InvoiceFilterModel = {
+  "category.slug": [
+    InvoiceCategoryCode.CREDIT_NOTE,
+    InvoiceCategoryCode.CREDIT_NOTE_FOR_REFUND
+  ]
+};
+
 /** The ordered sort model — the `sort` branch of {@link InvoiceQueryModel}. */
 export type InvoiceSortModel = NonNullable<InvoiceQueryModel["sort"]>;
 
@@ -313,11 +331,15 @@ export type Invoice = {
   id: string;
   locked: boolean;
   status: InvoiceStatus;
+  /** The platform's translated name for {@link Invoice.status} (`"Paid"`); `""` on an unsaved dry run. */
+  statusName: string;
   number: string;
   client: Client;
   address?: Address;
   currency: Currency;
-  products: BasketProduct[];
+  /** The pay currency the platform holds for this invoice, when it has one. */
+  currencyPayment?: Currency;
+  products: InvoiceLineItem[];
   /**
    * A list-shaped read of {@link Invoice.products} for a text cell —
    * "`<title> x<quantity>`" per line item. Not a source of truth: re-derive
@@ -431,6 +453,15 @@ export type Invoice = {
 };
 
 /**
+ * One line item — the mapped {@link BasketProduct} plus the subscription it
+ * bills (`contracts_product_id`, `contract_id`), `null` on an un-linked line.
+ */
+export type InvoiceLineItem = BasketProduct & {
+  contractId: string | null;
+  contractsProductId: string | null;
+};
+
+/**
  * One group of an invoice's bundled line items, grouped by originating
  * subscription (AC5). Grouped on `contracts_product_id`
  * (`packages/types/src/models/baskets.ts:157`), falling back to
@@ -452,6 +483,12 @@ export type Payment = {
   };
   cardType: string | null;
   cardLast4: string | null;
+  /**
+   * The paying method as the client knows it — the payment detail's own
+   * `name` (`"Visa ending 4242"`), else `"<Card type> •••• <last4>"`
+   * (`invoicePaymentItem.vue`); `""` when the payment carries no detail.
+   */
+  label: string;
   amountFormatted: string;
   createdAt: string;
   /**
@@ -466,30 +503,14 @@ export type Payment = {
 };
 
 /**
- * AC1's response shape for the standalone unpaid-amount re-read.
- *
- * @decision
- * what: no `amountConverted` / `currencyId` members, though the oracle's
- * counterpart is named `getUnpaidConvertedAmount` (`oracle:621-633`).
- * why: the real endpoint's response carries exactly
- * `["unpaid_amount","unpaid_amount_formatted"]` — confirmed against the
- * shipped fixture
- * (`__tests__/fixtures/get-invoices-unpaid-amount-id-currency-id.json`) and a
- * fresh staging capture. A "converted" figure is unavailable from this
- * endpoint; `currencyId` is already the caller's own input
- * (`useInvoice.actions.ts`'s `refreshUnpaidAmount`), so echoing it back would
- * teach a consumer nothing the request didn't already carry.
- * rejected: keeping both fields with a `@decision` explaining neither can
- * ever populate — a VM field the wire never sends, left in place, implies a
- * capability ("converted") that does not exist here; removing it is the
- * honest shape. `graphify query "InvoiceUnpaidAmount amountConverted
- * currencyId consumers"` against `graphify-out/graph.json` (2026-09-08)
- * confirms no consumer outside this module's own services/mappers reads
- * either member — reshaping, not a widely-depended-on removal.
+ * The `convertCurrency` machine service's result — the brand currency record
+ * for the chosen code and the invoice's unpaid amount converted to it
+ * (`GET invoices/unpaid_amount/{id}?currency_code=`).
  */
-export type InvoiceUnpaidAmount = {
-  amount: number;
-  amountFormatted: string;
+export type InvoiceCurrencyConversion = {
+  currency: ICurrency;
+  unpaidAmount: number;
+  unpaidAmountFormatted: string;
 };
 
 /**
@@ -499,6 +520,87 @@ export type InvoiceUnpaidAmount = {
  */
 export type InvoicePaymentDetailsModel = {
   payment_details_id: string | null;
+};
+
+/**
+ * One single-invoice write form — `useContext().paymentMethod` (with the
+ * staged {@link InvoicePaymentDetailsModel}) or `useContext().currency` (no
+ * model: the caller holds the pick).
+ */
+export type InvoiceForm = {
+  schema?: JsonSchema7;
+  uischema?: UISchemaElement;
+  model?: InvoicePaymentDetailsModel;
+};
+
+// -----------------------------------------------------------------------------
+// SINGLE-INVOICE PAY ENGINE (flat `useInvoice`)
+// -----------------------------------------------------------------------------
+
+/**
+ * The operations-registry key the outbound writer mints a pay return under and
+ * the return handler registers against (FE-3030 / FE-3133).
+ */
+export const ORDER_PAY_RETURN_KEY = "order-pay-return";
+
+/**
+ * Persisted payment selections for retry/partial payment UX. These values seed
+ * the paymentDetail machine on re-spawn so the user sees their previous choices
+ * pre-filled.
+ */
+export type LastPaymentModel = Pick<
+  PaymentDetailModel,
+  "amount" | "gateway_id" | "wallet_amount"
+>;
+
+/** Context for the single-invoice pay orchestrator machine. */
+export type InvoicePayContext = {
+  /** The invoice ID being paid. */
+  invoiceId: string;
+
+  /** Spawned auth subscription actor. */
+  authHelper?: ActorRef<any>;
+
+  /** The raw IInvoice API response. */
+  rawInvoice?: IInvoice;
+
+  /** The parsed invoice data. */
+  invoice?: Invoice;
+
+  /** Spawned paymentDetail child actor. */
+  paymentDetailActor?: ActorRef<any>;
+
+  /** The resolved payment detail data from the paymentDetail machine. */
+  paymentDetail?: PaymentDetailData;
+
+  /** Persisted payment selections for retry/partial UX. */
+  lastPaymentModel?: LastPaymentModel;
+
+  /** The brand gate for a pay-currency change, read at load. */
+  config?: InvoiceBrandConfig;
+
+  /** Error from the last operation. */
+  error?: ResponseError;
+
+  /** Error from the last pay-currency change; never a payment failure. */
+  conversionError?: ResponseError;
+};
+
+/** The brand config values the single invoice reads at load. */
+export type InvoiceBrandConfig = Record<string, unknown>;
+
+/** The `loadLookups` / `refresh` machine-service result. */
+export type InvoiceLookups = IInvoice & { config: InvoiceBrandConfig };
+
+/**
+ * The `usePaymentChallenge` provide/inject contract — the ONE shape the pay
+ * host provides (`Order.vue`) and the challenge renderer injects
+ * (`PaymentProcessing.vue`). `meta` is read for the two challenge flags only.
+ */
+export type InvoicePaymentChallenge = {
+  renderChallenge: (container: HTMLElement) => void;
+  cancelChallenge: () => void;
+  meta: ComputedRef<{ isRenderingChallenge: boolean; needsApproval: boolean }>;
 };
 
 // -----------------------------------------------------------------------------
@@ -522,30 +624,6 @@ export type InvoicesListQuery = ListQuery<
 >;
 
 /**
- * The reactive single-item query, minted ONCE per scope in `useInvoice.ts`.
- * Aliases the platform's own `SimpleQuery`, the same way
- * {@link InvoicesListQuery} aliases `ListQuery` — `TQueryFnData` is the WIRE
- * type (`IInvoice`), `TData` the mapped type (`Invoice`), matching the
- * `query<IInvoice, Invoice>` call site (S1).
- */
-export type InvoiceItemQuery = SimpleQuery<IInvoice, Invoice>;
-
-/**
- * The reactive unpaid-amount query (AC1). A plain `SimpleQuery` with no
- * criteria model — currency rides as a plain `currency_id` query param the
- * services layer writes onto the url directly in a `watch`
- * (`invoices.services.ts`), NOT through `query()`'s `withCurrency` flag:
- * that flag derives `currency_code` from the basket (`useQuery.ts:174-178`)
- * and cannot carry an arbitrary target currency. Not through the criteria
- * channel either — a single read does not have one. Not a new type (see
- * this file's head `graphify-out/` citation).
- */
-export type InvoiceUnpaidAmountQuery = SimpleQuery<
-  InvoiceUnpaidAmount,
-  InvoiceUnpaidAmount
->;
-
-/**
  * The contract `createInvoicesServices` resolves to — consumed by BOTH
  * composables, so the collection and the single read address the same client
  * through the same seam. Hand-declared: the `scopedServices()` switch needs
@@ -564,33 +642,25 @@ export type InvoicesServices = {
    */
   isAvailable: ComputedRef<boolean>;
   /**
-   * Always `undefined` today — `updatePaymentDetails` is a fire-and-forget
-   * PATCH (design D1) whose failure the caller's own promise rejection
-   * surfaces, not a persisted services-level error. Present for four-layer
+   * Always `undefined` today — the list surfaces query errors through the
+   * query handle, not a persisted services-level error. Present for four-layer
    * shape uniformity.
    */
   error: ComputedRef<ResponseError | undefined>;
   /** The async PARENT-invoice lookup a `.for('invoice', id)` picker drives. */
   loadInvoiceLookup: () => InvoiceLookupQuery;
+  /**
+   * The async finder lookup the `invoicePicker` drives — the scope's OWN
+   * invoices, credited or not, with no parent filter. Distinct from
+   * {@link loadInvoiceLookup}, which offers only credited parents.
+   */
+  loadInvoicePickerLookup: () => InvoiceLookupQuery;
   /** The async CONTRACT lookup a `.for('contract', id)` picker drives. */
   loadContractLookup: () => ContractLookupQuery;
   /** The async CONTRACT-PRODUCT lookup a `.for('contracts_product', id)` picker drives. */
   loadContractProductLookup: () => ContractProductLookupQuery;
   /** Takes NOTHING: the request state is the declared query schema. */
   loadList: () => InvoicesListQuery;
-  loadOne: (invoiceId?: Invoice["id"]) => InvoiceItemQuery;
-  /**
-   * `currencyId` rides as a plain service argument, in the query key — a
-   * single read has no criteria channel (AC1). `MaybeRef` so the composable
-   * layer can own one reactive ref across the query's lifetime, rather than
-   * re-minting the query on every currency change. Widening an existing
-   * member's signature, not a new type — see this file's head
-   * `graphify-out/` citation.
-   */
-  loadUnpaidAmount: (
-    invoiceId?: Invoice["id"],
-    currencyId?: MaybeRef<Currency["id"] | undefined>
-  ) => InvoiceUnpaidAmountQuery;
   /** The unpaid-existence count read (AC10) — the same `list()`, a fixed preset. */
   loadUnpaidExistence: () => InvoicesListQuery;
   /**
@@ -617,19 +687,6 @@ export type InvoicesServices = {
    * `useMeta().consolidatableCount` is actually consumed.
    */
   requestConsolidatableCount: () => void;
-  updatePaymentDetails: (
-    invoiceId: Invoice["id"],
-    model: InvoicePaymentDetailsModel
-  ) => Promise<unknown>;
-  /**
-   * AC A — downloads this invoice's raw PDF blob via
-   * `GET invoices/{id}/download`. A credit note is an invoice with a
-   * different `category` and rides the SAME reader (no branch). The CALLER
-   * derives the save filename from the already-loaded invoice's `number`
-   * (`useInvoice.actions.ts`), never this layer. Not a new type — see this
-   * file's head `graphify-out/` citation, re-queried for `downloadPdf`.
-   */
-  downloadPdf: (invoiceId: Invoice["id"]) => Promise<Blob>;
 };
 
 // Re-export so a consumer building a scope-aware call site can spell the
@@ -649,7 +706,7 @@ export type InvoiceLookupQueryModel = {
  * control's `options.lookup.service` as a thunk (below). It offers the PARENT
  * invoices the `.for('invoice', id)` scope slot takes.
  */
-export type InvoiceLookupQuery = ListQuery<
+export type InvoiceLookupQuery = InfiniteListQuery<
   IInvoice[],
   LookupItem[],
   InvoiceLookupQueryModel
@@ -704,12 +761,15 @@ export type ContractProductLookupQuery = ListQuery<
 export type ContractProductLookupService = () => ContractProductLookupQuery;
 
 /**
- * The three relationship lookups a scope publishes — one thunk per RETARGET
- * context type, keyed by that type's own enum VALUE so a picker can resolve
- * the right one from the context it is rendering.
+ * The lookups a scope publishes: the three RETARGET relationship thunks — one
+ * per context type, keyed by that type's own enum VALUE so a `.for()` picker
+ * can resolve the right one from the context it is rendering — plus the
+ * `invoicePicker` finder, a plain search over the scope's own invoices
+ * (credited or not) that opens ONE invoice without retargeting the list.
  */
 export type InvoicesScopeLookups = {
   contract: ContractLookupService;
   contracts_product: ContractProductLookupService;
   invoice: InvoiceLookupService;
+  invoicePicker: InvoiceLookupService;
 };

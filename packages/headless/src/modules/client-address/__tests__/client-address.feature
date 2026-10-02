@@ -76,6 +76,11 @@
 #   N3  Google Places script loading, session tokens and prediction UI —
 #       browser-bound, stays with the consumer. The region-resolution half is
 #       headless and IS carried (see AC-19 and parity row L9).
+#
+# THE SIGNED-OUT GUARDS SIT AT TOP LEVEL, outside the `Rule:` that carries the
+# signed-in Background (operator-approved restructure, FE-3145 wave 2). A guard
+# boots for itself under a guest session, so it does not inherit the signed-in
+# boot — parseFeatureScenarios gives it backgroundStepCount 0.
 
 Feature: A client manages their own postal addresses
 
@@ -83,31 +88,11 @@ Feature: A client manages their own postal addresses
   I want to keep my postal addresses up to date
   So that my orders, invoices and billing details go to the right place
 
-  Background:
-    Given I am signed in as a client managing my addresses
-    And my account has saved postal addresses
-
-
   # ---------------------------------------------------------------------------
-  # The collection — reading my addresses
+  # The signed-out guards (no Background)
   # ---------------------------------------------------------------------------
 
-  @AC-1 @collection @client
-  Scenario: I see the addresses saved on my account
-    When I open my saved addresses
-    Then I see every address on my account
-    And each one shows its name, its full written-out address and its country
-
-  @AC-2 @collection @client @identity
-  Scenario: I only ever see my own addresses
-    When I open my saved addresses
-    Then the addresses I am shown belong to my account and no other
-
-  @AC-3
-  @AC-11
-  @AC-13
-  @AC-34
-  @collection @scope @guard @not-supported @fix
+  @AC-3 @AC-11 @AC-13 @AC-34 @collection @scope @guard @not-supported @signed-out @layer-e2e
   Scenario: Signed out, nothing of mine is read or changed
     Given I am not signed in
     When something tries to open my saved addresses
@@ -118,291 +103,290 @@ Feature: A client manages their own postal addresses
     When something tries to change my default address
     Then no change is attempted at all
     When a signed-out visitor tries to open an address to manage
-    Then this simply is not something they can ask for
+    Then the address editor is not theirs to open
 
-  @AC-4
-  @AC-26
-  @collection @editor @readiness @fix
-  Scenario: Waiting always ends, on my list and on the form
-    Given my addresses are slow to load and never arrive
-    When I wait for them to be ready
-    Then the wait ends within a known limit and tells me they are not ready
-    And nothing is left waiting in the background
-    Given the countries and regions never arrive
-    When I wait for the form to be ready
-    Then the wait ends within a known limit and I am told it failed
+  @AC-4 @AC-26 @editor @readiness @guard @signed-out @layer-e2e
+  Scenario: The address form is inert without an authenticated client session
+    Given I open the address form without an authenticated client session
+    Then the form reports itself unavailable
+    And no request is made against any address resource
 
-  @AC-5 @collection @default
-  Scenario: I can tell which address is my default
-    Given one of my addresses is marked as my default
-    When I ask which address is my default
-    Then I am told which one it is
+  @AC-4 @AC-26 @collection @readiness @errored @layer-e2e
+  Scenario: When my address list cannot be read, I am told it failed
+    Given I am signed in as a client whose address list cannot be read
+    Then the address collection reports it errored
 
-  @AC-6 @collection @lookup
-  Scenario: I can pick out one address I already know of
-    When I look up one of my addresses by the one I mean
-    Then I get that address back
+  Rule: A signed-in client manages their own addresses
 
-  @AC-7
-  @AC-8
-  @collection @lookup @filter @fix
-  Scenario: I find an address by typing part of it
-    When I search my addresses for the one in a particular town
-    Then I get the address in that town back
-    When I search with part of an address
-    Then I am shown only the addresses matching my search
-
-  @AC-9 @collection @pagination
-  Scenario: I can page through a long list of addresses
-    Given I have more addresses than fit on one page
-    When I move to the next page and then back
-    Then I am shown the right addresses for each page
-    And asking for a page that does not exist fails cleanly rather than crashing
+    Background:
+      Given I am signed in as a client managing my addresses
+      And my account has saved postal addresses
 
 
-  # ---------------------------------------------------------------------------
-  # The collection — changing my addresses
-  # ---------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # The collection — reading my addresses
+    # -------------------------------------------------------------------------
 
-  @AC-10 @collection @remove
-  Scenario: I delete an address I no longer use
-    When I delete one of my addresses
-    Then that address is removed from my account
-    And my list of addresses no longer shows it
+    @AC-1 @collection @client
+    Scenario: I see the addresses saved on my account
+      When I open my saved addresses
+      Then I see every address on my account
+      And each one shows its name, its full written-out address and its country
 
-  @AC-12 @collection @default
-  Scenario: I choose which address is my default
-    When I make one of my addresses my default
-    Then that address becomes my default
-    And my list reflects the change
+    @AC-2 @collection @client @identity
+    @moved
+    # @moved: request-URL retarget + auth-token transport is proven in the query / session-store / auth modules, not here (operator rule 2026-09-24).
+    Scenario: I only ever see my own addresses
+      When I open my saved addresses
+      Then the addresses I am shown belong to my account and no other
 
-  @AC-14 @collection @errors
-  Scenario: When a change to my addresses fails, I am told, not interrupted
-    Given deleting an address will fail
-    When I delete that address
-    Then I am shown why it failed, by the addresses themselves
-    And nothing I was doing is thrown off course
+    @AC-5 @collection @default @layer-e2e
+    Scenario: I can tell which address is my default
+      Then one of my addresses is shown as my default
 
-  @AC-15 @collection @refresh
-  Scenario: An address I have just saved shows up in my list
-    When I save a new address
-    Then my list of addresses includes it without my having to reload
+    @AC-7
+    @AC-8
+    @collection @lookup @filter @fix @layer-e2e
+    Scenario: I find an address by typing part of it
+      When I search my addresses for part of one
+      Then only the addresses matching my search remain
 
-
-  # ---------------------------------------------------------------------------
-  # The editor — adding and changing an address
-  # ---------------------------------------------------------------------------
-
-  @AC-16
-  @AC-17
-  @editor @create @edit
-  Scenario: I open an address to change it, or start a blank one
-    When I start adding a new address
-    Then I get an empty form
-    And the country is already set to the one this brand usually serves
-    When I open one of my addresses to edit
-    Then the form shows that address as it stands
-
-  @AC-18 @editor @lookups
-  Scenario: The form waits until it can offer me real countries and regions
-    When I open the address form
-    Then it is not usable until the list of countries and regions has arrived
-    And once they have, I can choose from them
-
-  @AC-19 @editor @dependent-fields
-  Scenario: Changing the country gives me that country's regions
-    Given my address is in one country with a region of that country chosen
-    When I change the country
-    Then I am offered the new country's regions
-    And the region I had chosen is cleared, because it does not belong there
-
-  @AC-20 @editor @validation
-  Scenario: Where this brand requires a region, I must give one
-    Given this brand requires a region on every address
-    When I complete the address form
-    Then a region is required of me
-    And where the brand does not require one, it is optional
-
-  @AC-21 @editor @lock-country @fix
-  Scenario: I cannot change the country of an address I already saved
-    Given this brand does not allow saved addresses to be changed freely
-    When I open one of my existing addresses to edit
-    Then the country is shown but locked
-    And when I am adding a brand new address, the country is mine to choose
-
-  @AC-22 @editor @type @fix
-  Scenario: I say what kind of address this is
-    When I edit one of my addresses
-    Then I can label it as my home, my office, a holiday address or a company address
-    And the label I chose is saved with it
-
-  @AC-23 @editor @diff-update @fix
-  Scenario: Saving a change sends only what I changed
-    Given I open one of my addresses to edit
-    When I change only the town and save
-    Then only the town is sent
-    And nothing I left alone is re-sent
-
-  @AC-24 @editor @create
-  Scenario: I add a brand new address
-    When I provide a new address and save it
-    Then the address is added to my account
-    And it is the one I provided
-
-  @AC-25 @editor @validation
-  Scenario: An incomplete address is not saved
-    When I leave out my postcode and try to save
-    Then I am told the postcode is missing
-    And nothing is saved
-
-  @AC-27 @editor @schema
-  Scenario: The form I am shown is the form that is checked
-    When I open the address form
-    Then the fields I am shown are exactly the fields my address is checked against
-
-  @AC-28 @editor @clear
-  Scenario: I abandon my changes
-    Given I have started changing an address
-    When I clear the form
-    Then my changes are gone and the address stands as it was
-
-  @AC-29 @editor @isolation
-  Scenario: I edit two addresses at once without them interfering
-    Given I have two addresses open for editing
-    When I change one of them
-    Then the other is untouched
-
-  @AC-30 @editor @identity
-  Scenario: The address I edit belongs to the account the editor was opened for
-    When I save a change to an address
-    Then the change is made to that account's address
-    And it stays that account's address even if my sign-in state changes mid-save
+    @AC-9 @collection @pagination @layer-e2e
+    Scenario: I can page through a long list of addresses
+      When I set my address page size to one
+      Then I am shown the first page of my addresses
+      When I move to the next page of addresses
+      Then I am shown the next page of my addresses
 
 
-  # ---------------------------------------------------------------------------
-  # How an address reads
-  # ---------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # The collection — changing my addresses
+    # -------------------------------------------------------------------------
 
-  @AC-31 @display @fix
-  Scenario: My address is written the same way here as everywhere else in the product
-    Given my address has a street, a second line, a town, a state, a postcode, a region and a country
-    When I see it written out
-    Then it reads street, second line, town, state, postcode, region, country — in that order
-    And nothing about it is missing
+    @AC-10 @collection @remove
+    Scenario: I delete an address I no longer use
+      When I delete one of my addresses
+      Then that address is removed from my account
+      And my list of addresses no longer shows it
 
-  @AC-32 @display @verified
-  Scenario: I can see whether my address has been verified
-    When I look at one of my addresses
-    Then I can tell whether it has been verified
-    And how far that verification went is not thrown away
+    @AC-12 @collection @default
+    Scenario: I choose which address is my default
+      When I make one of my addresses my default
+      Then that address becomes my default
+      And my list reflects the change
 
+    @AC-14 @collection @errors @layer-e2e
+    Scenario: When a change to my addresses fails, I am told, not interrupted
+      Given deleting an address will fail
+      When I delete that address
+      Then I am shown why it failed, by the addresses themselves
+      And nothing I was doing is thrown off course
 
-  # ---------------------------------------------------------------------------
-  # What this module deliberately does not do
-  # ---------------------------------------------------------------------------
-
-  # AC-33 is enforced at the point of asking for an ADDRESS, not at the point of
-  # naming the actor — see the exact enforcement in the header. AC-34 carries the
-  # same enforcement and now rides the signed-out guard above.
-
-  @AC-33 @scope @drop
-  Scenario: Nobody can use this to open someone's address as a member of staff
-    When someone tries to open an address to manage as a member of staff
-    Then this simply is not something they can ask for
-    And the staff capability the legacy portal does have is recorded as owed, not as missing by accident
-
-  @AC-35 @surface
-  Scenario: There is one front door to this module
-    When another part of the product uses addresses
-    Then it goes through the module's published surface
-    And nothing reaches inside it by another route
-
-  @AC-36 @surface @no-cosplay
-  Scenario: Nothing is offered that does not work
-    When I look at everything this module offers
-    Then every single thing it offers actually does something
-    And nothing is advertised that has no effect
+    @AC-15 @collection @refresh
+    Scenario: An address I have just saved shows up in my list
+      When I save a new address
+      Then my list of addresses includes it without my having to reload
 
 
-  # ---------------------------------------------------------------------------
-  # The rest of the product
-  # ---------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # The editor — adding and changing an address
+    # -------------------------------------------------------------------------
 
-  @AC-37 @consumers
-  Scenario: Everywhere in the product that uses my default address still gets the right one
-    Given the product asks for my default address in several places
-    When each of those places asks
-    Then each one gets my actual default address
-    And none of them silently gets nothing
+    @AC-16 @editor @manager @create
+    Scenario: I start a blank address form
+      Given I am starting a brand new address
+      Then the editor gives me an empty form that reports itself new
 
-  @AC-38 @consumers @e2e
-  Scenario: Checkout and billing journeys still set up an address the same way
-    When a checkout or billing journey needs an address on my account
-    Then it gets one
-    And it does so exactly as it did before this change
+    @AC-17 @editor @manager
+    Scenario: I open one of my saved addresses in the editor
+      Given I am editing one of my saved addresses
+      Then the editor shows that saved address and reports it is not new
 
-  @AC-39 @consumers @manage
-  Scenario: I still manage my addresses from the billing page
-    When I open the billing page's address section
-    Then I see my addresses listed there
-    And I can add, edit and delete one from that page
-    And the one it treats as my default is a real address of mine
+    @AC-18 @editor @lookups @layer-e2e
+    Scenario: The form offers me real countries and regions
+      Given I am editing an address that has a region
+      Then the form offers me countries and regions to choose from
 
-  @AC-40 @feedback
-  Scenario: Changing my addresses still tells me what happened
-    When I delete one of my addresses
-    Then I am told it was deleted
-    And when I make one my default, I am told that too
-    And when either fails instead, I am told why
+    @AC-19 @editor @dependent-fields @layer-e2e
+    Scenario: Changing the country gives me that country's regions
+      Given I am editing an address that has a region
+      When I change the country to another
+      Then I am offered the new country's regions
+      And the region I had chosen is cleared
+
+    @AC-20 @editor @validation @region-gate @layer-e2e
+    Scenario: Where this brand requires a region, I must give one
+      Given this brand requires a region on every address
+      When I complete the address form without a region
+      Then a region is required of me
+
+    @AC-21 @editor @lock-country @fix @lock-gate @layer-e2e
+    Scenario: I cannot change the country of an address I already saved
+      Given this brand does not allow saved addresses to be changed freely
+      When I open one of my existing addresses to edit
+      Then the country is shown but locked
+
+    @AC-24 @editor @manager @create
+    Scenario: I add a brand new address
+      Given I am starting a brand new address
+      When I provide a new address and save it
+      Then the new address is added and the editor is no longer new
+
+    @AC-27 @editor @schema @layer-e2e
+    Scenario: The form I am shown is the form that is checked
+      Given I am editing one of my saved addresses
+      Then the address editor offers its form schema and UI definition
+
+    # AC-29 (I edit two addresses at once without them interfering) DELETED as a
+    # scenario per operator ruling (FE-3145 wave 2): the World holds at most one
+    # editor cell, so two independent editors cannot be observed side by side.
+
+    @AC-30 @editor @identity
+    @moved
+    # @moved: the save-URL retarget + token transport is proven in the query / session-store / auth modules, not here (operator rule 2026-09-24).
+    Scenario: The address I edit belongs to the account the editor was opened for
+      When I save a change to an address
+      Then the change is made to that account's address
+      And it stays that account's address even if my sign-in state changes mid-save
 
 
-  # ---------------------------------------------------------------------------
-  # The collection — filter-bar and sort infrastructure (FE-3103 gap closure)
-  # ---------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # How an address reads
+    # -------------------------------------------------------------------------
 
-  @AC-41
-  @AC-42
-  @AC-44
-  @collection @filter @sort @schema
-  Scenario: I get a filter bar and a sort over my addresses without one being hand-built
-    When something wants to render a filter control for searching my addresses
-    Then it is offered a ready-made filter-bar description
-    And that description points at the same search my addresses are narrowed by
-    When something asks how my addresses may be sorted
-    Then it is told sorting by name or by date added are the choices on offer
-    When something wants to bind a filter bar to my address search
-    Then it can read both the search rules and the filter-bar description from the one place
-    And it does not need to reach past the module for either
+    @AC-31 @display @fix
+    Scenario: My address is written the same way here as everywhere else in the product
+      Given my address has a street, a second line, a town, a state, a postcode, a region and a country
+      When I see it written out
+      Then it reads street, second line, town, state, postcode, region, country — in that order
+      And nothing about it is missing
 
-  @AC-43 @collection @criteria
-  Scenario: My address list opens already sorted and searchable the way my account declares
-    When I open my saved addresses
-    Then the window I see comes from the declared paging rules
-    And nothing about that starting view is a fixed value hidden in code
+    @AC-32 @display @verified
+    Scenario: I can see whether my address has been verified
+      When I look at one of my addresses
+      Then I can tell whether it has been verified
+      And how far that verification went is not thrown away
 
-  # ---------------------------------------------------------------------------
-  # Page-driven scenarios (appended by the factory scenario lane)
-  # ---------------------------------------------------------------------------
 
-  @FE-3103 @playground
-  Scenario: The addresses playground lists my saved addresses
-    Given I am an authenticated client on the addresses page
-    Then no failure is reported
+    # -------------------------------------------------------------------------
+    # What this module deliberately does not do
+    # -------------------------------------------------------------------------
 
-  @FE-3103 @playground
-  Scenario: The playground refreshes my address collection
-    Given I am an authenticated client on the addresses page
-    When I refresh the address collection
-    Then no failure is reported
+    # AC-33 is enforced at the point of asking for an ADDRESS, not at the point of
+    # naming the actor — see the exact enforcement in the header. AC-34 carries the
+    # same enforcement and rides the signed-out guard at top level.
 
-  @FE-3103 @playground
-  Scenario: The playground removes a non-default address
-    Given I am an authenticated client on the addresses page
-    When I remove a non-default address
-    Then the collection shows the address I removed is gone
+    @AC-33 @scope @drop
+    Scenario: Nobody can use this to open someone's address as a member of staff
+      When someone tries to open an address to manage as a member of staff
+      Then this simply is not something they can ask for
+      And the staff capability the legacy portal does have is recorded as owed, not as missing by accident
 
-  @FE-3103 @playground
-  Scenario: The playground makes a non-default address the default
-    Given I am an authenticated client on the addresses page
-    When I make the non-default address my default
-    Then the newly defaulted address is now the default
+    @AC-35 @surface
+    Scenario: There is one front door to this module
+      When another part of the product uses addresses
+      Then it goes through the module's published surface
+      And nothing reaches inside it by another route
+
+    @AC-36 @surface @no-cosplay
+    Scenario: Nothing is offered that does not work
+      When I look at everything this module offers
+      Then every single thing it offers actually does something
+      And nothing is advertised that has no effect
+
+
+    # -------------------------------------------------------------------------
+    # The rest of the product
+    # -------------------------------------------------------------------------
+
+    @AC-37 @consumers
+    Scenario: Everywhere in the product that uses my default address still gets the right one
+      Given the product asks for my default address in several places
+      When each of those places asks
+      Then each one gets my actual default address
+      And none of them silently gets nothing
+
+    @AC-38 @consumers @e2e
+    Scenario: Checkout and billing journeys still set up an address the same way
+      When a checkout or billing journey needs an address on my account
+      Then it gets one
+      And it does so exactly as it did before this change
+
+    @AC-39 @consumers @manage
+    Scenario: I still manage my addresses from the billing page
+      When I open the billing page's address section
+      Then I see my addresses listed there
+      And I can add, edit and delete one from that page
+      And the one it treats as my default is a real address of mine
+
+
+    # -------------------------------------------------------------------------
+    # The collection — filter-bar and sort infrastructure (FE-3103 gap closure)
+    # -------------------------------------------------------------------------
+
+    @AC-41
+    @AC-42
+    @AC-44
+    @collection @filter @sort @schema @layer-e2e
+    Scenario: I get a filter bar and a sort over my addresses from one place
+      Then I am offered a filter-bar description and the sort choices from one place
+
+    @AC-43 @collection @criteria @layer-e2e
+    Scenario: My address list opens already sorted and searchable the way my account declares
+      Then my address list opens with the declared sort and paging
+
+    # -------------------------------------------------------------------------
+    # Page-driven scenarios (appended by the factory scenario lane)
+    # -------------------------------------------------------------------------
+
+    @AC-1 @FE-3103 @playground
+    Scenario: The addresses playground lists my saved addresses
+      Given I am an authenticated client on the addresses page
+      Then no failure is reported
+
+    @AC-15 @FE-3103 @playground
+    Scenario: The playground refreshes my address collection
+      Given I am an authenticated client on the addresses page
+      When I refresh the address collection
+      Then no failure is reported
+
+    @AC-10 @FE-3103 @playground
+    Scenario: The playground removes a non-default address
+      Given I am an authenticated client on the addresses page
+      When I remove a non-default address
+      Then the collection shows the address I removed is gone
+
+    @AC-12 @FE-3103 @playground
+    Scenario: The playground makes a non-default address the default
+      Given I am an authenticated client on the addresses page
+      When I make the non-default address my default
+      Then the newly defaulted address is now the default
+
+
+    # -------------------------------------------------------------------------
+    # The editor — driven through the per-address manager (AC-22/23/25/28)
+    # -------------------------------------------------------------------------
+
+    @AC-23 @editor @manager
+    Scenario: I change the town of a saved address and save it
+      Given I am editing a saved address of mine
+      When I change the town and save
+      Then the editor shows the town I saved
+
+    @AC-22 @editor @manager
+    Scenario: I change the kind of a saved address and save it
+      Given I am editing a saved address of mine
+      When I change the address type and save
+      Then the editor shows the type I saved
+
+    @AC-25 @editor @manager @validation
+    Scenario: An incomplete address is refused before it is saved
+      Given I am editing a saved address of mine
+      When I clear the postcode
+      Then the editor refuses to save an incomplete address
+
+    @AC-28 @editor @manager
+    Scenario: I abandon my changes to a saved address
+      Given I am editing a saved address of mine
+      When I change the town and then discard my changes
+      Then the editor shows the address as it was loaded

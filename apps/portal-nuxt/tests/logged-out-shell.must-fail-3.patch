@@ -1,0 +1,19 @@
+# Negative control — the store shortcut writes its test key by hand instead of
+# through the design system's test-attribute composable, so a production build
+# still ships it.
+#
+# Intended RED (tests/logged-out-shell.test.ts), in both frames:
+#   "the store shortcut > keeps its test key out of a production build"
+
+diff --git a/apps/portal-nuxt/app/portal/auth/PortalAuthStore.vue b/apps/portal-nuxt/app/portal/auth/PortalAuthStore.vue
+--- a/apps/portal-nuxt/app/portal/auth/PortalAuthStore.vue
++++ b/apps/portal-nuxt/app/portal/auth/PortalAuthStore.vue
+@@ -6,7 +6,7 @@
+     :as="store.as"
+     :to="store.to"
+     :href="store.href"
+-    :data-attrs="{ 'data-test-key': 'logged-out-store' }"
++    data-test-key="logged-out-store"
+   >
+     <Icon icon="basket" />
+     Place new order

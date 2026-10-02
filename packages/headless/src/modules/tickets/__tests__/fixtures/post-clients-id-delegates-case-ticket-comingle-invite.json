@@ -20,14 +20,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a3b7d9b40bba7203-LHR",
+      "cf-ray": "a433468de80e93d1-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 15 Sep 2026 13:06:45 GMT",
+      "date": "Wed, 30 Sep 2026 12:36:52 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=tI%2BIhJUxx623ss%2FOTF76A1Fe5fq6iL0GRdbMirGTc9RUZWqeS8yeInC%2BZ8NEj7oF94lHrqw%2B%2FdEmr7ELAJ4CTKGKqdOKKrJKKw2kdGQQW2Xc78KReMGER8XWD6oAGXTzWbFs%2B2q5RA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=osDyOMeAaq5lSiRYZt0%2Ff4S7e2GhjPIlmHSTSmJ7IaV02JBzMNy8nadhlCGa69Bzsz84C1d%2FY7O22ut3RdRelnpLFnnsgF9fyIDa5bUQFbgY2GvxeE2ZJXqvWfnBO8dMJi0mwIzVog%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,18 +36,19 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "5d085e69-d562-3719-4eb2-18e940d42370",
+        "id": "4d036794-24d0-e710-e4c3-153698d582e8",
         "owner_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
         "invite_email": "mock-email-3@example.com",
         "is_full_delegate": true,
         "active": false,
-        "created_at": "2026-09-15 13:06:45",
-        "updated_at": "2026-09-15 13:06:45",
+        "created_at": "2026-09-30 12:36:52",
+        "updated_at": "2026-09-30 12:36:52",
         "public_name": null,
         "email": "mock-email-3@example.com",
         "image_url": "https://www.gravatar.com/avatar/a925eb218fa3f6a55761d04674c380fb?d=blank&s=200",
-        "num_delegated_cps": 993,
-        "num_delegated_tickets": 25
+        "num_delegated_cps": 1266,
+        "num_delegated_tickets": 474,
+        "notification_subscriptions": []
       },
       "related": null,
       "total": null,
@@ -56,7 +57,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-15T13:06:45.235Z",
+  "captured_at": "2026-09-30T12:36:52.530Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

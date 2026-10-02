@@ -1,0 +1,18 @@
+# Negative control — Form stops passing the registered controls to the engine.
+#
+# Intended RED:
+#   packages/modules-foundation/src/forms/__tests__/form-controls.test.ts
+#     "draws the control a package registered for its field"
+
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
+@@ -4,7 +4,7 @@
+     v-bind="forwarded"
+     :i18n="i18n"
+     :ajv="ajv"
+-    :additional-renderers="renderers"
++    :additional-renderers="[]"
+     :optional-text="t('text.optional')"
+     :dataAttrs="assign({ 'data-test-key': 'form' }, props.dataAttrs)"
+   >

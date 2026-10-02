@@ -33,7 +33,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import {
   filter,
   flatMap,

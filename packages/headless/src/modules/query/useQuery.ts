@@ -33,6 +33,7 @@ import {
 } from "../../utils";
 import {
   assign,
+  cloneDeep,
   flatMap,
   forEach,
   get,
@@ -43,6 +44,7 @@ import {
   isObject,
   isString,
   map,
+  noop,
   set,
   size,
   toNumber,
@@ -171,7 +173,11 @@ export const useQuery = () => {
       }
 
       // set "currency" parameter
-      if (withCurrency) {
+      if (
+        withCurrency &&
+        !url.searchParams.has("currency_id") &&
+        !url.searchParams.has("currency_code")
+      ) {
         const { currencyCode } = useBasketCurrency();
         if (!isEmpty(currencyCode?.value))
           url.searchParams.set("currency_code", currencyCode.value as string);
@@ -383,6 +389,7 @@ export const useQuery = () => {
     queryKey,
     withCurrency,
     withBasket,
+    withoutBasket,
     withoutLocale,
     withAccessToken,
     withSplitCount,
@@ -398,8 +405,10 @@ export const useQuery = () => {
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
 
-    const { currencyCode } = useBasketCurrency();
-    const { basketId } = useBasket();
+    const currencyCode = withoutBasket
+      ? undefined
+      : useBasketCurrency().currencyCode;
+    const basketId = withoutBasket ? undefined : useBasket().basketId;
 
     // Constructed here, never handed in: a module declares a schema and passes
     // it, so it cannot wire the pipeline wrongly. Undeclared still yields a
@@ -535,21 +544,37 @@ export const useQuery = () => {
         [sort, filters, quickSearch],
         (next, previous) => {
           if (isEqual(next, previous)) return;
-          countRequest({
-            queryKey,
-            url,
-            sort: sort.value,
-            filters: filters.value,
-            query: quickSearch.value,
-            withCurrency,
-            withoutLocale,
-            init: {
-              ...init
-            },
-            withAccessToken
-          }).then(count => {
-            total.value = count as number;
-          });
+          const asked = cloneDeep(next);
+          // The count is the list's own read, so it waits on the SAME guard
+          // the page read does: a session the guard refuses sends neither.
+          const safeguard: Promise<void | boolean> = isPromise(guard)
+            ? guard()
+            : Promise.resolve();
+          safeguard
+            .then(() =>
+              countRequest({
+                queryKey,
+                url,
+                sort: sort.value,
+                filters: filters.value,
+                query: quickSearch.value,
+                withCurrency,
+                withoutLocale,
+                init: {
+                  ...init
+                },
+                withAccessToken
+              })
+            )
+            .then(count => {
+              // An answer for criteria since replaced is stale: a later ask owns the total.
+              if (
+                isEqual(asked, [sort.value, filters.value, quickSearch.value])
+              )
+                total.value = count as number;
+            })
+            // A refused guard is the page read's to report; the count stays unset.
+            .catch(noop);
         },
         { immediate: true }
       );
@@ -632,7 +657,8 @@ export const useQuery = () => {
       fetchNextPage: (): void => {
         const { t } = useI18n();
 
-        total.value = response?.data?.value?.total ?? 0;
+        // A split-count page carries no total; keep the one the count read set.
+        total.value = response?.data?.value?.total ?? total.value;
         const pages = resolvePageTotal(total.value, limit.value);
 
         if (!response?.isPlaceholderData.value && pageIndex.value >= pages) {
@@ -689,6 +715,7 @@ export const useQuery = () => {
     queryKey,
     withCurrency,
     withBasket,
+    withoutBasket,
     withoutLocale,
     withAccessToken,
     withSplitCount,
@@ -701,8 +728,10 @@ export const useQuery = () => {
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
 
-    const { currencyCode } = useBasketCurrency();
-    const { basketId } = useBasket();
+    const currencyCode = withoutBasket
+      ? undefined
+      : useBasketCurrency().currencyCode;
+    const basketId = withoutBasket ? undefined : useBasket().basketId;
 
     const criteria = useQueryCriteria<TModel>(withPageWindow(declaration));
 
@@ -801,21 +830,37 @@ export const useQuery = () => {
         [sort, filters, quickSearch],
         (next, previous) => {
           if (isEqual(next, previous)) return;
-          countRequest({
-            queryKey,
-            url,
-            sort: sort.value,
-            filters: filters.value,
-            query: quickSearch.value,
-            withCurrency,
-            withoutLocale,
-            init: {
-              ...init
-            },
-            withAccessToken
-          }).then(count => {
-            total.value = count as number;
-          });
+          const asked = cloneDeep(next);
+          // The count is the list's own read, so it waits on the SAME guard
+          // the page read does: a session the guard refuses sends neither.
+          const safeguard: Promise<void | boolean> = isPromise(guard)
+            ? guard()
+            : Promise.resolve();
+          safeguard
+            .then(() =>
+              countRequest({
+                queryKey,
+                url,
+                sort: sort.value,
+                filters: filters.value,
+                query: quickSearch.value,
+                withCurrency,
+                withoutLocale,
+                init: {
+                  ...init
+                },
+                withAccessToken
+              })
+            )
+            .then(count => {
+              // An answer for criteria since replaced is stale: a later ask owns the total.
+              if (
+                isEqual(asked, [sort.value, filters.value, quickSearch.value])
+              )
+                total.value = count as number;
+            })
+            // A refused guard is the page read's to report; the count stays unset.
+            .catch(noop);
         },
         { immediate: true }
       );

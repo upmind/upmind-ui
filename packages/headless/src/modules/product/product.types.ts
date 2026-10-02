@@ -26,6 +26,17 @@ export {
 
 // -----------------------------------------------------------------------------
 /**
+ * The configured instance of a product that names it — a basket product or
+ * the contract product it becomes after checkout. `useProductName` and
+ * `useUischemaTitle` read only these members.
+ */
+export type ProductInstance = {
+  service_identifier?: string | null;
+  product?: Pick<IProduct, "provision_blueprint"> | null;
+};
+
+// -----------------------------------------------------------------------------
+/**
  * The price details for any price, allowing for gross/net and discount breakdowns.
  */
 export type Price = {
@@ -936,4 +947,13 @@ export type ProductConfigContext = {
   parseBasketProduct?: (item: ProductModel) => ProductModel;
   /** A function to parse a {@link BasketProduct} for comparison with a partial {@link ProductModel}. */
   parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
+};
+
+/**
+ * The context the product `load` service reads. `promotions: false` omits
+ * promotions from the load (`omit_promotions=1`, no `promotions`) and is part
+ * of its cache key. An array behaves as it does for every other caller.
+ */
+export type ProductLoadContext = Omit<ProductConfigContext, "promotions"> & {
+  promotions?: IBasketPromotion[] | false;
 };

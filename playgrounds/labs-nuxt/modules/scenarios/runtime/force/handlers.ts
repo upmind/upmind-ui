@@ -20,37 +20,44 @@
  */
 
 import { HttpResponse, delay, http, passthrough } from "msw";
+import {
+  captureGap,
+  handlersFor,
+  normalizeRecording
+} from "@upmind-automation/test-fixtures/fixture-handlers";
 import { corpusCapabilities } from "./capabilities";
-import { createCorpusSession, runtimeCorpus, runtimeFeature } from "./corpus";
+import {
+  runtimeCorpus,
+  runtimeFeature,
+  runtimeRecordsScenarios
+} from "./corpus";
 import { PENDING, presetAnswer } from "./presets";
 import { moduleRoutes } from "./routes";
 import { isUndefined, map } from "lodash-es";
-import type { CorpusBodies, CorpusSession } from "./corpus";
+import type { CorpusBodies } from "./corpus";
 import type { RecordedFixture } from "./corpus.source.types";
 import type { ForcePreset } from "../composables/useForcedState.types";
+import type { ReplayTiming } from "@upmind-automation/test-fixtures/fixture-handlers";
+import type { ApiFixtureV3 } from "@upmind-automation/test-fixtures/types";
 import type { HttpHandler, HttpResponseResolver, JsonBodyType } from "msw";
 
 // -----------------------------------------------------------------------------
 
-/** Below it the server accepted the write, so the collection moved with it. */
-const REFUSED_FROM = 400;
-
 function presetResolver(
   preset: ForcePreset,
-  session: CorpusSession,
+  bodies: CorpusBodies,
   failure: RecordedFixture | undefined
 ): HttpResponseResolver {
   return async ({ request }) => {
     const url = new URL(request.url);
-    // What the page sent, read once: it picks the recording of the same write
-    // and, once served, is what lands on the collection or the record.
+    // What the page sent, read once: it picks the recording of the same write.
     const sent = await request
       .clone()
       .json()
       .catch(() => undefined);
     const answer = presetAnswer(
       preset,
-      session.bodies(),
+      bodies,
       request.method,
       url,
       failure,
@@ -62,14 +69,6 @@ function presetResolver(
     // that gets no answer.
     if (answer === PENDING) return delay("infinite");
     if (!answer) return passthrough();
-
-    // The answer is served as recorded and the collection moves AFTER it: the
-    // read the module fires next is the one that shows the write landed, which
-    // is the whole of "the surface follows the scene" (`R7-4`). A refusal lands
-    // nothing — `error-action` forces exactly that. The request's own body
-    // rides along so what lands is the write the wire accepted.
-    if (answer.status < REFUSED_FROM)
-      session.apply(request.method, url, sent, answer.body);
 
     // A recording served with its sentence withheld carries no body at all, so
     // the status is the whole answer — `json(undefined)` would put the string
@@ -107,9 +106,54 @@ export function createForceHandlers(
   // than named here (FE-3113).
   const { failure } = corpusCapabilities(bodies);
 
-  // One session per LIST: re-arming is how a replay goes back to the recording,
-  // so the mutations a track played never outlive the arm that played them.
-  const resolve = presetResolver(preset, createCorpusSession(bodies), failure);
+  const resolve = presetResolver(preset, bodies, failure);
 
   return map(moduleRoutes(feature, bodies), route => http.all(route, resolve));
+}
+
+/**
+ * What a TRACK of a module that records its scenarios one by one (FE-3145) is
+ * armed with before its first scene: a wall over the module's own subject, and
+ * nothing else. Each scene arms its own step's answers in front of it
+ * (`createStepHandlers`), so a request to the subject that no step of the
+ * scenario recorded is a capture gap — a network error, never a guess and
+ * never staging — and is pushed onto `gaps`, so the scene fails naming it.
+ * Empty for a module that does not record its scenarios.
+ *
+ * @param gaps Where each capture gap is recorded.
+ */
+export function createScenarioWall(
+  gaps: string[],
+  bodies: CorpusBodies | undefined = runtimeCorpus(),
+  feature: string = runtimeFeature()
+): HttpHandler[] {
+  if (!bodies || !runtimeRecordsScenarios()) return [];
+
+  return map(moduleRoutes(feature, bodies), route =>
+    http.all(route, ({ request }) => {
+      gaps.push(captureGap(request));
+      return HttpResponse.error();
+    })
+  );
+}
+
+/**
+ * The answers ONE scenario step recorded, as handlers a scene arms in front of
+ * every step before it (FE-3145). The matching is the node lanes' own
+ * (`handlersFor`), so a step is answered in the labs exactly as its replay
+ * test answers it.
+ *
+ * @param fixtures The step's recordings, keyed by fixture name.
+ * @param timing The replayed scenario's answer timing; absent answers at once.
+ */
+export function createStepHandlers(
+  fixtures: Record<string, RecordedFixture>,
+  timing?: ReplayTiming
+): HttpHandler[] {
+  return handlersFor(
+    map(fixtures, (fixture, name) =>
+      normalizeRecording(fixture as unknown as ApiFixtureV3, name)
+    ),
+    timing
+  );
 }

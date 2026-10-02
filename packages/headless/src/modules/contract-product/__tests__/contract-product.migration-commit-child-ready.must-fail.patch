@@ -1,0 +1,43 @@
+# Negative-control mutant 31 — commit-child-ready (FE-3206)
+#
+# Mutation: drop the child-ready guard from `MIGRATE`.
+# Spec it must turn red: the AC-34 unit spec, the forced commit.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -472,8 +472,7 @@
+                         cond: "isNewMigrationModel"
+                       },
+                       MIGRATE: {
+-                        target: "processing",
+-                        cond: "isMigrationTargetReady"
++                        target: "processing"
+                       }
+                     }
+                   },
+@@ -486,8 +485,7 @@
+                         cond: "isNewMigrationModel"
+                       },
+                       MIGRATE: {
+-                        target: "processing",
+-                        cond: "isMigrationTargetReady"
++                        target: "processing"
+                       }
+                     }
+                   },
+@@ -500,8 +498,7 @@
+                         cond: "isNewMigrationModel"
+                       },
+                       MIGRATE: {
+-                        target: "processing",
+-                        cond: "isMigrationTargetReady"
++                        target: "processing"
+                       }
+                     }
+                   },

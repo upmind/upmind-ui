@@ -1,0 +1,39 @@
+# Negative-control mutant — the category-name filter draws a control (JTBD gap 2)
+#
+# Scenario / gap it must flip:
+# jtbd-readback gap 2 — `ProductCategoryNameFilter`
+# (`product.category.name.like`) had a schema leaf but `useQueryUischema()`
+# drew no control.
+# What the prover asserts (public-surface hand-off — spec authored by the
+# prover seat, not the developer):
+# the prover asserts `useQueryUischema()` carries a control scoped to
+# `#/properties/filters/properties/product.category.name/properties/like`.
+# With the element gone the capability is undriveable.
+# Mutation:
+# `useQueryUischema()` drops the category-name control.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+index 20c8a2ef6..a1b45b876 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -184,18 +184,6 @@ export function useQueryUischema(): UISchemaElement {
+           optionalText: ""
+         }
+       },
+-      {
+-        type: "Control",
+-        scope:
+-          "#/properties/filters/properties/product.category.name/properties/like",
+-        i18n: "form.contract_product_category_name",
+-        options: {
+-          format: "search",
+-          icon: "search-md",
+-          noLabel: true,
+-          optionalText: ""
+-        }
+-      },
+       {
+         type: "Control",
+         scope: "#/properties/filters/properties/product.category.id",

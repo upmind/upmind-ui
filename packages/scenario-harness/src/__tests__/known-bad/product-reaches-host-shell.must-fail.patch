@@ -1,0 +1,20 @@
+diff --git a/packages/modules-product/src/components/Configure.vue b/packages/modules-product/src/components/Configure.vue
+index f38cf2e..1424351 100644
+--- a/packages/modules-product/src/components/Configure.vue
++++ b/packages/modules-product/src/components/Configure.vue
+@@ -1,6 +1,6 @@
+ <template>
+   <LayoutProvider>
+-    <slot :template="template" />
++    <slot :template="template" :layout="PRODUCT_TEMPLATES[template]" />
+ 
+     <template v-if="!isSlotHidden('product-details')" #product-details>
+       <slot
+@@ -236,6 +236,7 @@
+ import { useClipboard } from "@vueuse/core";
+ import { computed, onUnmounted, provide, watch } from "vue";
+ import { useI18n } from "vue-i18n";
++import { PRODUCT_TEMPLATES } from "@upmind-automation/client-vue";
+ import { Section } from "@upmind-automation/foundation";
+ import { Icon } from "@upmind-automation/foundation";
+ import { isMobile } from "@upmind-automation/foundation";

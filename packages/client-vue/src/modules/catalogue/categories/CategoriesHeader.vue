@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useSlots } from "@upmind/ui";
-import Hero from "../../../components/hero/Hero.vue";
+import { Hero } from "@upmind-automation/foundation";
 import { isEmptySlot } from "../../../utils/isEmptySlot";
 import type { CategoriesItemProps } from "./types";
 

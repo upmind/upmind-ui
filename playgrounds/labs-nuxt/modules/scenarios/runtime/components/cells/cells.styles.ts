@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+import { TableCellListLayoutTypes } from "../../scenario.types";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/cells/cells.styles
@@ -30,6 +31,27 @@ export const cellIcon = cva("block", {
 export const cellHtml = cva("text-sm leading-relaxed break-words");
 
 export const cellList = {
-  root: cva("flex flex-col gap-3"),
-  item: cva("border-border flex flex-col gap-1 rounded-md border p-3")
+  root: cva("flex flex-col", {
+    variants: {
+      layout: {
+        [TableCellListLayoutTypes.CARDS]: "gap-3",
+        [TableCellListLayoutTypes.ROWS]: "gap-1"
+      }
+    },
+    defaultVariants: { layout: TableCellListLayoutTypes.CARDS }
+  }),
+  item: cva("", {
+    variants: {
+      layout: {
+        [TableCellListLayoutTypes.CARDS]:
+          "border-stroke flex flex-col gap-1 rounded-md border p-3",
+        [TableCellListLayoutTypes.ROWS]:
+          "flex items-baseline justify-between gap-4 tabular-nums"
+      }
+    },
+    defaultVariants: { layout: TableCellListLayoutTypes.CARDS }
+  }),
+  // A text cell renders a bare text node, so each cell gets its own box or
+  // adjacent cells run together.
+  part: cva("min-w-0")
 };

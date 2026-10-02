@@ -1,0 +1,62 @@
+# basket-free.must-fail.patch
+#
+# Targets: basket-free.spec.ts — the network fact that an auth surface issues no
+# order or basket request.
+# Authored by: developer seat. This is commit 0659b21238 ("stop the auth views
+# pulling an order and the basket catalogue") reversed by git, so the mutated
+# line is the developer's own; the prover applied it, confirmed RED, and
+# reverted (agent-seat-separation.companion.md).
+#
+# Mutates THREE lines: drops the `basket: undefined` opt-out from each auth
+# view's `useConfig` call. `useConfig` consults the basket unless the `basket`
+# key is present, so without the opt-out every auth surface boots the basket
+# machine and issues `GET /orders/current` + `GET /basket_fields`.
+#
+# Apply from the repo root: `git apply tests/Playwright/e2e/e2e-tests/auth-app/basket-free.must-fail.patch`
+# The app is rebuilt by the lane's own webServer, so no manual build is needed.
+#
+# Expected RED: 4 of 5.
+#   - "/login issues no order or basket request"
+#   - "/register issues no order or basket request"
+#   - "/recover issues no order or basket request"
+#   - "/signed-in issues no order or basket request"
+# Still GREEN, correctly — "every surface renders content a visitor can read":
+# the coupling costs requests, it does not break the screen. That is exactly why
+# no other gate catches it.
+#
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -144,8 +144,6 @@ const {
+ } = useRoutingEngine();
+ 
+ const { ui } = useConfig({
+-  // The key must be present to opt out, or useConfig fetches the basket on every auth page.
+-  basket: undefined,
+   context: UIContext.AUTH,
+   provide: true
+ });
+diff --git a/packages/modules-auth/src/components/RecoverPassword.vue b/packages/modules-auth/src/components/RecoverPassword.vue
+--- a/packages/modules-auth/src/components/RecoverPassword.vue
++++ b/packages/modules-auth/src/components/RecoverPassword.vue
+@@ -111,8 +111,6 @@ const {
+ } = useRoutingEngine();
+ 
+ const { ui } = useConfig({
+-  // The key must be present to opt out, or useConfig fetches the basket on every auth page.
+-  basket: undefined,
+   context: UIContext.AUTH,
+   provide: true
+ });
+diff --git a/packages/modules-auth/src/components/Register.vue b/packages/modules-auth/src/components/Register.vue
+--- a/packages/modules-auth/src/components/Register.vue
++++ b/packages/modules-auth/src/components/Register.vue
+@@ -237,8 +237,6 @@ const {
+ const { brandId } = useBrand();
+ 
+ const { ui } = useConfig({
+-  // The key must be present to opt out, or useConfig fetches the basket on every auth page.
+-  basket: undefined,
+   context: UIContext.AUTH,
+   provide: true
+ });

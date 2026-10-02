@@ -1,0 +1,41 @@
+Negative control for contract.machine.ts top-level `error` node (D43 B14).
+
+RE-CUT (FE-3206): loading status placement moved from a separate `always` list
+to the `onDone` array, and `onError` moved onto the `invoke` object. The
+mutation is unchanged in effect: it drops the `error` state node and re-targets
+BOTH `#error` references — loading's invoke `onError` and the final (no-cond)
+`onDone` fallback branch — back to no target, leaving the machine parked in
+`loading`.
+
+Specs that must flip: contract.manager-members.int.test.ts
+("A failed read of my contract stops loading and settles on an error instead
+of hanging", contract.feature:283; "A failed read tells me at once that my
+contract is not ready", contract.feature:289) — a failed `load` must leave
+`isLoading` false with `hasError` true, and `isReady()` must resolve false
+at once. Also: contract.manager-unrecognised-status.test.ts.
+diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
+--- a/packages/headless/src/modules/contract/contract.machine.ts
++++ b/packages/headless/src/modules/contract/contract.machine.ts
+@@ -103,21 +103,16 @@ export default createMachine(
+             {
+               target: ContractState.ACTIVE,
+               cond: "isActive",
+               actions: ["setContract", "setLookups"]
+             },
+             {
+-              target: "#error",
+               // No status this machine knows (AC12).
+               actions: ["setContract", "setLookups", "setStatusError"]
+             }
+           ],
+-          onError: { target: "#error", actions: ["setError"] }
++          onError: { actions: ["setError"] }
+         }
+       },
+
+-      error: {
+-        id: "error"
+-      },
+-
+       available: {
+         id: "available",

@@ -4,19 +4,21 @@ All notable changes to the `tickets` module are documented here. Format follows 
 
 ## [Unreleased]
 
-The module is **net-new**. Nothing existed under `packages/headless/src/modules/tickets/` before this build — a knowledge-graph query for every tickets construct returned no node in this tree. The only prior tickets-shaped surface in the repo was a portal mock (`apps/portal-nuxt/app/portal/mock/contracts/tickets.ts`), which this module **corrects rather than copies**: the mock's collection matrix spelled `.for('client', id)`, which is forbidden here.
+The module is **net-new**. Nothing existed under `packages/headless/src/modules/tickets/` before this build — a knowledge-graph query for every tickets construct returned no node in this tree.
 
 ### Changed
 
 - **The product-scoped list is a SCOPE CONTEXT, not a filter column.** `filters.contract_product_id` is removed from `TicketsQueryModel` and from `useQuerySchema()`; AC-7 is now spelt `useTickets().as(CLIENT).for(TicketsContextTypes.CONTRACT_PRODUCT, id)`. The product a ticket is raised against is a RELATIONSHIP between two entities, and ADR-001 § 3/§ 4 already carries `product` in the `ContextType` union and grants it to the `client` actor — so the platform had a first-class home for it all along, while everything left under `filters` (`reference`, `subject`, `isClosed`, `created_at`) is a genuine attribute of a ticket. The collection matrix's previous all-`never` row conflated "may not be retargeted at another client" (true, and unchanged) with "has no contexts at all" (false), which is what left the relationship nowhere to live but a filter column.
   **The wire is unchanged**: `tickets.services.ts`'s `applyProductScopeFilter` re-spells the context onto `filter[contract_product_id]=<id>` at the module's own edge, the same seam `applyStatusCodeFilter` already uses, and an observed-request assertion in `tickets.collection.int.test.ts` pins it. The product id also joins the list query key, so a product-scoped read and the unscoped one can never serve each other's cached rows.
 
+- **`Ticket.contract_product` is now the camelCase `ContractProductEmbedded` view model, not the `IContractProduct` wire record.** The single read maps the linked product through the contract-product module's `mapContractProductEmbedded` (the contract-product view model without `allowedMigrations`, `clientInvoiceConsolidationEnabled`, `contractBillingCycleLabel`, `contractCurrencyId`, `contractStatus` and `contractTaxType`, which that read cannot supply). A reader of `relatedProduct.value.product_id` or `.service_identifier` moves to `productId` and `title`/`serviceIdentifier` on the view model. Only the single read (`ONE_WITH`) embeds the relation; list rows carry `contract_product_id` alone. `ONE_WITH` requests the same `contract_product.*` relations as the contract-product list read (clients with image and brand, status, product image, brand currency, provision blueprint and its category, contract request, future cancellation request, moved-to product with its clients, tags), so the embedded row is complete for display. `ITicket` in `packages/types` declares `contract_product_id` only; the embedded relation is added on `Ticket`, not on the platform type.
+
 ### Added
 
 #### The two composables
 
 - **`useTickets`** — the client's own ticket collection. Addressed `.as(ScopeActorTypes.SELF)` for the whole list, or `.as(ScopeActorTypes.CLIENT).for(TicketsContextTypes.CONTRACT_PRODUCT, id)` for the tickets raised about one of my contract products (AC-7). Its scope matrix declares that ONE member on the `client` row and leaves `self`, `staff` and `guest` `null as never`, so `.for('client', id)` cannot be reached at all.
-- **`useTicket`** — the per-ticket manager. Addressed `.as(ScopeActorTypes.CLIENT).for(TicketContextTypes.TICKET, id)`, because a ticket is a genuine addressable **context** in this platform's actor model — it owns its own records (its messages) and so is not a leaf record addressed by an id alone.
+- **`useTicket`** — the per-ticket manager. Addressed `.as(ScopeActorTypes.CLIENT).withId(id)`: a ticket is a record addressed by its id, and `.for()` carries a context, not an id.
 - Both registered under the same module name (`"tickets"`), both built from **one** services factory, so the two halves can never disagree about whose tickets are being read.
 
 #### Collection surface
@@ -75,7 +77,7 @@ The module is **net-new**. Nothing existed under `packages/headless/src/modules/
 
 ### Recorded fixtures
 
-**49** request/response pairs, every one captured against a live staging environment by this module's own generator (`pnpm fixtures:generate tickets`). **None was hand-authored**, and none is a hand-built wire body. The first 47 back the module's core behaviour; the final two are the playground's forced error states, recorded through the same generator rather than written by hand.
+**49** request/response pairs, every one captured against a live staging environment by this module's own generator (`pnpm fixtures:generate tickets`). **None was hand-authored**, and none is a hand-built wire body. The first 47 back the module's core behaviour; the final two are forced error states, recorded through the same generator rather than written by hand.
 
 | Group                         | Covers                                                                                                    |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
@@ -100,7 +102,7 @@ The module is **net-new**. Nothing existed under `packages/headless/src/modules/
 ### Notes
 
 - Both composables act on the calling client's own desk. There is no staff scope, no acting on behalf of another client, and no admin path anywhere in this module.
-- `Ticket` is `ITicket` **un-reduced** — the list row carries `department`, `settings` and `contract_product` in full, so drawing a rich row needs no second read.
+- `Ticket` is `ITicket` with the raw fields kept; the single read's `contract_product` is mapped to `ContractProductEmbedded` (see Unreleased).
 - `tickets.services.ts`, `tickets.schemas.ts` and `tickets.mappers.ts` are `@internal`; resolve them through `useTickets.ts` / `useTicket.ts` only. `index.ts` is curated named re-exports with **no `export *`**.
 
 ### Not captured
@@ -124,7 +126,7 @@ For a consumer moving off the legacy client-facing ticket views, or off the port
 - useTicket().withId(ticketId)
 + useTicket()
 +   .as(ScopeActorTypes.CLIENT)
-+   .for(TicketContextTypes.TICKET, ticketId)
++   .withId(ticketId)
 ```
 
 Enum members, never string literals. No cast on the scope builder — a whole-surface cast erases the matrix's type checking entirely, so a wrong actor or a wrong context compiles silently.

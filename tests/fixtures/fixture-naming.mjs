@@ -15,13 +15,29 @@
  */
 export const EXCLUDE_PARAMS = [
   "lang",
-  "currency_code",
   "order",
   "with",
   "with_count",
   "limit",
   "offset"
 ];
+
+/**
+ * Params whose value is a comma-joined list whose ORDER carries no meaning —
+ * `keys` names which config values to read. Two requests asking for the same set
+ * in a different order are the same question, so the value is split/sorted/joined
+ * before it enters the identity; without this, key order would fork the identity
+ * and gap the replay.
+ */
+const NORMALIZE_LIST_PARAMS = ["keys"];
+
+/** A param value as it enters the identity: ids masked, list params order-normalised. */
+function identityValue(key, value) {
+  if (isId(value)) return null;
+  if (NORMALIZE_LIST_PARAMS.includes(key))
+    return value.split(",").filter(Boolean).sort().join(",");
+  return value;
+}
 
 const UUID_SEGMENT =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -53,9 +69,14 @@ export function fixtureIdentity(method, path) {
     .map(segment => (isId(segment) ? ":id" : segment))
     .join("/");
 
+  // `limit=count` is the API's count-mode switch, not a page size: it selects a
+  // different response (the total, not a page), so it stays in the identity.
   const params = [...url.searchParams.entries()]
-    .filter(([key]) => !EXCLUDE_PARAMS.includes(key))
-    .map(([key, value]) => [key, isId(value) ? null : value])
+    .filter(
+      ([key, value]) =>
+        !EXCLUDE_PARAMS.includes(key) || (key === "limit" && value === "count")
+    )
+    .map(([key, value]) => [key, identityValue(key, value)])
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 
   return { method: method.toUpperCase(), path: pathname, params };
@@ -222,6 +243,10 @@ export function redactValue(value) {
     const seen = piiMaps.get(type);
 
     result = result.replace(pattern, match => {
+      // `example.com` is the reserved documentation domain (RFC 2606), so an
+      // address on it is nobody's — the lint's own `isMasked` rule. Kept as it
+      // was sent, a scenario that adds one reads back the address it added.
+      if (type === "email" && match.endsWith("@example.com")) return match;
       if (!seen.has(match)) {
         const next = piiCounters.get(type) + 1;
         piiCounters.set(type, next);

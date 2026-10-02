@@ -9,7 +9,7 @@
 import { Link } from "@upmind/ui";
 import { useClipboard } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-import { Icon } from "../icon";
+import { Icon } from "@upmind-automation/foundation";
 import type { ShareProps } from "./types";
 
 const { t } = useI18n();

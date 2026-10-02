@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/emails",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "email": "client-email-editor-new@example.com"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40bea0a7f17aa15-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 17:57:58 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xmY6zOvNSNo%2FzQdzLQx4Qwpos7e0NAyJRHWiAPZsK6eOUM5JxoaOf6k%2FGuhaHjZeME4YAB0k9NRw0zXnhDqi%2Bz4%2Fy%2BwMuHV2VmCIlgQ6G%2Bhk94abzkUa48W%2FtshMJiuJEluGMIpy3A%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "email": "client-email-editor-new@example.com",
+        "type": 1,
+        "verified": false,
+        "default": false,
+        "user_id": "sys",
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "updated_at": "2026-09-25 17:57:57",
+        "created_at": "2026-09-25 17:57:57",
+        "id": "5d96e763-ed09-1376-deef-417482528340",
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T17:57:58.197Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-client-saves-a-new-address-in-the-editor"
+  }
+}

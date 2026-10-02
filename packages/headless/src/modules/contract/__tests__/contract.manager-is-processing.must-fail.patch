@@ -1,0 +1,19 @@
+Negative control for useContract.meta.ts `isProcessing` (R37 B11).
+
+Proves: contract.feature > "While my payment-method change is being sent I am told it is in progress"
+NOT YET RED-VERIFIED: that scenario is red on the live defect where the
+  manager keeps its first read after a re-read (FE-3145 prover hand-back).
+
+Mutation: reverts the meta flag back to the pre-restore `isSubmitting` name.
+diff --git a/packages/headless/src/modules/contract/useContract.meta.ts b/packages/headless/src/modules/contract/useContract.meta.ts
+--- a/packages/headless/src/modules/contract/useContract.meta.ts
++++ b/packages/headless/src/modules/contract/useContract.meta.ts
+@@ -34,7 +34,7 @@ export function createContractMeta(
+     isLoading: useStateMatches(state, ["subscribing", "loading"]),
+
+     /** True while the payment-method write is being processed, from either parent. */
+-    isProcessing: useStateMatches(state, [
++    isSubmitting: useStateMatches(state, [
+       "available.changingPaymentMethod.processing",
+       "unavailable.changingPaymentMethod.processing"
+     ]),

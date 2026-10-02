@@ -16,6 +16,8 @@
  *                                fixtures, never a hand-rolled local builder
  *   no-private-instance-axis   — instance keying is the scope registry's, not the
  *                                module's: no computed registration name, no local memo
+ *   no-self-context            — a module never takes its own record as a `.for()`
+ *                                context; its own record comes from `.withId(id)`
  *
  * @module packages/eslint-plugin-scope-based
  */
@@ -28,6 +30,7 @@ import actorScopeFirst from "./rules/actor-scope-first.mjs";
 import armInMatrix from "./rules/arm-in-matrix.mjs";
 import noHandRolledIntFixture from "./rules/no-hand-rolled-int-fixture.mjs";
 import noPrivateInstanceAxis from "./rules/no-private-instance-axis.mjs";
+import noSelfContext from "./rules/no-self-context.mjs";
 
 const plugin = {
   meta: { name: "scope-based", version: "1.0.0" },
@@ -39,7 +42,8 @@ const plugin = {
     "actor-scope-first": actorScopeFirst,
     "arm-in-matrix": armInMatrix,
     "no-hand-rolled-int-fixture": noHandRolledIntFixture,
-    "no-private-instance-axis": noPrivateInstanceAxis
+    "no-private-instance-axis": noPrivateInstanceAxis,
+    "no-self-context": noSelfContext
   }
 };
 

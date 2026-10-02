@@ -430,16 +430,16 @@ export class ProductConfig {
 
   async addDomain(domain: string) {
     // Wait for the domain check to complete
-    try {
-      await this.page.waitForResponse(
+    await this.page
+      .waitForResponse(
         response =>
           response.url().includes("modules/web_hosting/domains/search") &&
           response.status() === 200,
         { timeout: 30000 }
-      );
-    } catch (e) {
-      console.log("Domain check response not detected or timed out");
-    }
+      )
+      .catch(() => {
+        console.log("Domain check response not detected or timed out");
+      });
     await this.page
       .getByTestId("drawer-content")
       .getByTestId(`checkbox-item-${domain}`)

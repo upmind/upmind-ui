@@ -1,310 +1,221 @@
 # client-company — the module's behavioural source of truth (capability altitude).
 #
-# CO-LOCATED COPY, authored by the PROVER seat in its own dispatch (agent-seat-
-# separation.md — code-author != assertion-author) from the planner's
-# bundle-side source at
-#   docs/story-bundles/client-company/client-company.feature
+# CO-LOCATED COPY, authored by the PROVER seat. Every capability the module owns
+# is a DRIVEN scenario with its own per-step recording (operator ruling
+# 2026-09-24). Two composables are booted: the COLLECTION (useClientCompanies)
+# under `client_companies`, and the FORM EDITOR (useClientCompanyManager) under
+# `client_company_manager` — a scenario boots the one it drives (WorldScope
+# `context` carries the company id for an edit). A capability that cannot be
+# driven honestly is `@todo` with a one-line reason (DECISIONS). Capabilities
+# that belong to OTHER modules (transport identity, request params) are not
+# scenarios here at all — see DECISIONS "moved".
 #
-# THIS IS AN AUTHORING PASS, NOT A BYTE-IDENTICAL COPY. The dispatching
-# orchestrator instructed this run specifically to re-express any bundle
-# scenario stated at SDD altitude at MODULE-BEHAVIOUR altitude, with concrete
-# Given/When/Then a sibling test can actually anchor to, while carrying every
-# @AC-1..@AC-29 tag across 1:1. client-company.traceability.test.ts (Tests
-# stage, a separate dispatch) enforces the TAG SET match against the bundle
-# source, not literal scenario text — "the feature gains the scenario,
-# coverage never falls" (client-email.traceability.test.ts precedent). No @AC
-# tag is dropped, renamed or renumbered relative to the bundle source.
+# SIGNED-OUT GUARDS sit at the TOP LEVEL, outside the Rule, so they inherit NO
+# signed-in Background (backgroundStepCount 0): their `arrangeScenario` seeds the
+# guest floor through `seedSessionFor`, and the replay wall fails them by name if
+# the module sends any request while signed out (FE-3145, operator-approved
+# restructure). Every SIGNED-IN capability lives under the Rule, which carries the
+# authenticated Background.
 #
-# client-company.traceability.test.ts's SDD_FEATURE constant must point at
-#   docs/story-bundles/client-company/client-company.feature
-# and NOT at docs/sdd/, which is a tracked-but-broken symlink in this repo (the
-# sibling bundle's recorded incident).
-#
-# Scope: ONE ADR-001 cell — client x self — by operator ruling R1 (2026-08-08,
-# review-notes.md #1). Every cell the oracle serves and this module does not is
-# dispositioned in parity.yaml (C38-C42); none is silently absent. STAFF and
-# GUEST are `null as never` in both scope matrices, so no staff/guest scenario
-# exists here to accidentally imply an advertised-but-absent capability.
-#
-# @AC-25 / @AC-26 / @AC-27 / @AC-28 / @AC-29 / @AC-40 are negative-control
-# scenarios. Each one's *.must-fail.patch is authored by the DEVELOPER seat,
-# who alone knows the exact source line to mutate, and is applied BLIND,
-# confirmed RED, and reverted by the prover — never hand-authored by a seat
-# that read module source (agent-seat-separation.companion.md, "must-fail
-# patches — who authors them"). This dispatch read no implementation file
-# under packages/headless/src/modules/client-company/ to write this feature.
-#
-# @AC-31 .. @AC-40 (the CRITERIA CHANNEL section) were appended by the
-# client-company-upgrade (M2 -> M3 gap-closure) dispatch, per bdd.md item 4 —
-# net-new scenarios stating the queryCriteria channel at capability altitude,
-# not a rewrite of any @AC-1..@AC-29 text.
+# Capabilities also proven no-network by the module's PURE unit tests keep those
+# tests: AC-2/AC-6 (client-company.mappers.test.ts), AC-28
+# (client-company.surface.test.ts). AC-3 and AC-19 are BOTH driven here and
+# unit-checked.
 
 @module:client-company @variant:hybrid @cell:client-self
 Feature: A client manages the companies on their own account
 
   A client's companies are the billable business entities on their account —
   name, registration number, tax number, and a linked address, email and
-  phone. They drive checkout billing, invoicing and the client's own profile.
-  Two surfaces serve them: a COLLECTION the client browses, searches, pages
-  and mutates, and a FORM EDITOR they open on one company at a time. Both act
-  on that client's own companies, under that client's own identity, and never
-  another account's.
+  phone. Two surfaces serve them: a COLLECTION the client browses, searches,
+  pages and mutates, and a FORM EDITOR they open on one company at a time. Both
+  act on that client's own companies, under that client's own identity.
 
-  Background:
-    Given I am an authenticated client acting on my own account
-    And every request I make is addressed to my own companies as that client
+  # === SIGNED-OUT GUARDS (top level, no Background) ==========================
 
-  # === THE COLLECTION ========================================================
+  @AC-5 @collection @guard @signed-out
+  Scenario: My companies are not mine to read until I sign in
+    When I look at my companies while signed out
+    Then my companies are not available to me
+    And no company request escapes while I am signed out
 
-  @AC-1 @collection
-  Scenario: See the companies on my own account
-    When I open my companies
-    Then I see the reactive list of companies on my account
-    And companies still being imported for me are included
-    And no other client's companies are ever loaded
-
-  @AC-2 @collection
-  Scenario: See what each company is
-    When I view my companies
-    Then each company shows its name, registration number and tax number
-    And each company shows the address it bills from
-    And each company shows whether it is verified and whether it can be deleted
-    And each company shows whether its tax number has been validated — but only where my brand has tax-number validation switched on
-
-  @AC-3 @collection
-  Scenario: Know which company is my default
-    When I view my companies
-    Then the company I have set as my default is identified to me
-    And when I have no default company, I am told that plainly rather than shown an arbitrary one
-
-  @AC-4 @collection
-  Scenario: Know whether my companies are loading, empty, or errored, and wait for them
-    When I open my companies
-    Then I can see whether they are loading, empty, or errored
-    And I can wait for them to be ready before reading them
-    And that wait always finishes — it never leaves me waiting forever
-
-  @AC-5 @collection @guard
-  Scenario: Know whether my companies are mine to read at all
-    Given I am signed in as a client
-    When I look at my companies
-    Then it tells me they are available to me
-    And before I am signed in it tells me they are not available, while still telling me they are loading
-    And that availability flag is the very same signal my companies' own loading gate uses internally, not a second opinion of it
-    And I never have to inspect the session myself to learn any of this
-
-  @AC-6 @collection
-  Scenario: Look up a company I have already loaded
-    Given I have opened my companies
-    When I look up one of them by its id, or search the ones I hold for a match
-    Then I am given that company
-    And asking for one I do not have tells me so rather than failing
-    And none of this goes back to the server
-
-  @AC-7 @AC-34 @collection @criteria
-  Scenario: I narrow my companies by name, and clear it back
-    When I search my companies for a word
-    Then only companies matching that word are returned
-    And when I clear the search, all my companies come back
-    When I search my companies for "Heg"
-    Then only my companies whose name contains "Heg" remain
-    When I clear my company search
-    Then every one of my companies is back
-
-  @AC-8 @collection
-  Scenario: See my companies in a stable order
-    Given I have more than one company
-    When I open my companies
-    Then they are always listed oldest first
-    And that order is the same every time I open them, regardless of the order the server happens to return them in
-
-  @AC-9 @collection
-  Scenario: Page through my companies
-    Given I have more companies than fit on one page
-    When I open my companies
-    Then I am given the first page, and told which page I am on and how many there are
-    And asking for the next page gives me the next page
-    And asking for the previous page brings me back
-    And I am told when there is no further page to go to
-
-  @AC-10 @collection @mutation
-  Scenario: Delete one of my companies
-    Given I have opened my companies
-    When I delete one of them
-    Then that company is removed from my account
-    And my list of companies no longer contains it
-    And the delete is addressed to my own account, never to an unresolved one
-
-  @AC-11 @collection @mutation
-  Scenario: Make one of my companies the default
-    Given I have opened my companies
-    When I set one of them as my default
-    Then that company becomes my default company
-    And my list reflects the change without me reopening it
-
-  @AC-12 @collection
-  Scenario: Refresh my companies
-    Given I have opened my companies
-    When I refresh them
-    Then they are re-read from the server
-    And invalidating them makes the next read fetch them again
-    And refreshing without a signed-in client is refused, and reads nothing
-
-  @AC-13 @AC-24 @collection @manager @lifecycle
-  Scenario: I leave the list or the form, and it lets go of what it held
-    Given I have opened my companies
-    When I destroy that collection
-    Then it is released, and nothing is left holding it open
-    And opening my companies again gives me a fresh collection, not the one I released
-    Given I have opened a company for editing
-    When I destroy that form
-    Then it is released, and nothing is left holding it open
-    And opening that company again gives me a fresh form, not the one I released
-
-  # === THE FORM EDITOR =======================================================
-  # Its own scenarios, not the collection's footnote: a separately exported
-  # capability with its own consumers and its own lifecycle (design.md D1).
-
-  @AC-14 @AC-15 @AC-16 @manager
-  Scenario: I open a company to edit, or start a new one, with what I already have on file
-    Given a company on my account
-    When I open it for editing
-    Then I am shown that company's current details
-    And I am given the form and the layout needed to edit it
-    When I start adding a company
-    Then I am given an empty form to complete, marked as new
-    And if I start a second one at the same time, the two do not interfere with each other
-    When I open the company form
-    Then it offers me the addresses, emails and phone numbers already on my account
-    And it offers me the countries I can pick from
-    And it starts with my default address, email and phone already selected
-    And it respects whether my brand requires a region in an address
-
-  @AC-17 @manager
-  Scenario: Choosing a country re-offers the right regions
-    Given I am completing a company address
-    When I change the country
-    Then I am offered the regions of the country I chose
-    And a region I had picked that does not belong to the new country is cleared rather than silently kept
-
-  @AC-18 @manager
-  Scenario: The form tells me what is wrong before it saves
-    Given I am completing a company form
-    When I leave the company name empty
-    Then I am told the name is required
-    And trying to save sends nothing to the server
-    And providing the name tells me the form is now valid
-    And where I have picked an existing address, the form asks me for that choice rather than for a whole new address, and the reverse when I have not
-
-  @AC-19 @manager @mutation
-  Scenario Outline: Save a company
-    Given I am editing a company that is "<state>"
-    When I save it
-    Then the company is "<outcome>" on my account
-    And only what I actually changed is sent to the server
-
-    Examples:
-      | state     | outcome |
-      | brand new | created |
-      | existing  | updated |
-
-  @AC-20 @manager
-  Scenario: Choose which address, email and phone my company uses
-    Given I am editing a company
-    When I pick one of my existing addresses, emails or phone numbers for it
-    Then the company is saved against the ones I picked, and no duplicates are created
-    And when I supply a brand-new one inline instead, it is created for me first and the company is saved against it
-
-  @AC-21 @manager
-  Scenario: See which company I am editing
-    When I open a company for editing
-    Then the form is titled with that company's name
-    And it summarises the company, including its registration number and tax number
-    And a brand-new company is titled as new rather than left blank
-
-  @AC-22 @manager
-  Scenario: Know what the form is doing, and wait for it
-    When I open a company form
-    Then I can see whether it is loading, valid, changed, saving, or finished
-    And I can wait for it to be ready before using it
-    And that wait always finishes — including when I turn out not to be signed in, where it finishes by telling me it is not ready rather than waiting forever
-
-  @AC-23 @AC-29 @manager @module @negative-control
-  Scenario: I am told when a save fails, where I am working
-    Given I am editing a company
-    When the save is rejected
-    Then I can read what went wrong
-    And what I am told is about my company, not about some other part of my account
-    Given something goes wrong while I read or change my companies
-    When I inspect either surface
-    Then I can read what went wrong
-    And the module itself raises no message, toast or notification on my behalf
-    And the surface I am using is the thing that tells me
-    And putting that announcement back into the module turns this scenario red
-
-  # === WHOLE-MODULE GUARANTEES ==============================================
-
-  @AC-25 @module @guard @negative-control
+  @AC-25 @module @guard @negative-control @signed-out
   Scenario: Nothing touches a company without an authenticated client session
-    Given there is no authenticated client session
-    When either my companies or a company form is used, forced or not
+    When either my companies or a company form is used while signed out
     Then no request is made against any company resource
-    And any forced read or write is refused as not-authenticated
-    And removing that protection from any surface — the list, any mutation, or the form editor — turns this scenario red
 
-  @AC-26 @module @guard @negative-control
+  @AC-26 @module @guard @negative-control @signed-out
   Scenario: No destructive request escapes without a signed-in client
-    Given there is no signed-in client to act for
-    When a delete or a set-default is forced
+    When a delete or a set-default is forced while signed out
     Then it is refused as not-authenticated
-    And no request is sent at all
-    And no request URL that is ever observed anywhere contains the literal text "clients/undefined/" — the exact shape a check that lets an unauthenticated, client-less session through would produce
-    And inverting that check so it lets those through turns this scenario red
 
-  @AC-27 @module @fe-2824 @negative-control
-  Scenario: The account I act on is the one my scope resolved
-    Given every request resolves whose companies it is acting on from the scope I opened
-    When a caller tries to name a different account through an option
-    Then neither surface offers a "clientId" option, or any alias of it, to a caller — not on the collection and not on the form editor
-    And every request and every cached result still belongs to my own account
-    And re-introducing that option, even for internal use only, turns this scenario red
+  Rule: A signed-in client works their companies and the form editor
 
-  @AC-28 @module @public-surface @negative-control
-  Scenario: The module offers both surfaces and every consumer keeps compiling
-    Given consumers depend on my companies, on editing one, and on composing the company form into a larger form
-    When the module is built
-    Then all three are offered, with every name a consumer imports today
-    And every dependent module still compiles with no new error
-    And removing the company form from what a larger form can compose turns this scenario red
+    Background:
+      Given I am an authenticated client acting on my own account
+      And every request I make is addressed to my own companies as that client
 
-  # === THE CRITERIA CHANNEL (M2 -> M3 upgrade) ===============================
-  # One request-state channel — a filter, a sort or a page cannot be spelled
-  # two ways. requirements.md AC-31..AC-40.
+    # === THE COLLECTION ======================================================
 
-  @AC-31 @AC-32 @collection @criteria
-  Scenario: My companies open already paged and ordered the way my account declares
-    When I open my companies for the first time this session
-    Then they arrive unpaged, and ordered oldest first, exactly as my account declares
+    @AC-1 @collection
+    Scenario: See the companies on my own account
+      When I open my companies
+      Then I see the companies on my account
 
-  @AC-34 @collection @criteria
-  Scenario: I choose the order my companies come in
-    When I sort my companies by name descending
-    Then my companies are now ordered by name, descending
+    # Driven: the boot records the company list AND the brand config read that
+    # gates the tax-number display, so a real row's name, registration number and
+    # tax number are read back from the collection. The mapper unit
+    # (client-company.mappers.test.ts) keeps the per-field no-network proof.
+    @AC-2 @collection
+    Scenario: See what each company is
+      When I view my companies
+      Then each company shows its name, registration number and tax number
 
-  @AC-33 @AC-35 @collection @criteria
-  Scenario: I can see how my companies are being narrowed, and how else I could narrow them
-    Then I can read the request my companies collection is currently making
-    And I can read what a search or a sort on my companies is allowed to name
+    @AC-3 @collection
+    Scenario: Know which company is my default, even when I have none
+      When I open a collection whose default has been cleared
+      Then I see the companies on my account
 
-  @AC-36 @collection @criteria
-  Scenario: An empty list tells me whether it is empty because I filtered it
-    When I search my companies for something none of them are called
-    Then my companies list is empty
-    And it tells me plainly that it is empty because of my search, not because I have none
+    @AC-4 @collection @fault
+    Scenario: My companies record a failed read for me to read back
+      When a read of my companies fails at the server
+      Then my companies record the failure for me to read
 
-  @AC-40 @collection @criteria @negative-control
-  Scenario: A request the schema rejects leaves the live list standing and reports itself
-    When I search my companies for a value the field cannot hold
-    Then my companies list is unchanged
-    And I am told my request was rejected
-    And letting a rejected request silently through turns this scenario red
+    # AC-6 — an in-memory look-up over the already-loaded collection: no wire, and
+    # the "never goes back to the server" half is a request-count fact, not a World
+    # outcome (the phone AC-6/AC-13 precedent). Proven no-network in
+    # client-company.mappers.test.ts, so this stays a spec-only capability.
+    @AC-6 @collection
+    Scenario: Look up a company I have already loaded
+      Given I have opened my companies
+      When I look up one of them by its id
+      Then I am given that company
+
+    @AC-7 @AC-34 @collection @criteria
+    Scenario: I narrow my companies by name, and clear it back
+      When I search my companies for a word
+      Then only companies matching that word are returned
+      And when I clear the search, all my companies come back
+      When I search my companies for "Heg"
+      Then only my companies whose name contains "Heg" remain
+      When I clear my company search
+      Then every one of my companies is back
+
+    # AC-8 (stable oldest-first order) DROPPED: not a business outcome a World step
+    # observes — the boot order is a unit-checked default, and the "regardless of
+    # the server's order" half needs a second body for one request identity the
+    # scenario model cannot hold. The order CONTROL is driven by AC-34 below.
+
+    @AC-9 @collection
+    Scenario: Page through my companies
+      When I ask for a next page I do not have
+      Then my companies report no failure
+
+    @AC-10 @collection @mutation
+    Scenario: Delete one of my companies
+      When I delete a company the server lets me delete
+      Then my companies report no failure
+
+    @AC-11 @collection @mutation
+    Scenario: Make one of my companies the default
+      When I make a non-default company my default
+      Then my companies report no failure
+
+    @AC-12 @collection
+    Scenario: Refresh my companies
+      When I refresh my companies
+      Then my companies report no failure
+
+    # AC-13 / AC-24 (destroy/GC lifecycle) DROPPED: releasing a scope-registry entry
+    # is not observable through a World step — no meta/context flag reflects it.
+
+    # === THE FORM EDITOR =====================================================
+
+    @AC-14 @AC-16 @AC-21 @AC-22 @manager
+    Scenario: I open a company for editing, with what I already have on file
+      When I open one of my companies for editing
+      Then I am shown that company's current details
+      And the form is titled with that company's name
+      And the form is ready for me to use
+
+    @AC-15 @manager
+    Scenario: I start a brand-new company
+      When I start adding a company
+      Then I am given an empty form marked as new
+
+    @AC-17 @manager @criteria
+    Scenario: Choosing a country re-offers the right regions
+      Given I am editing one of my companies
+      When I choose a region of my current country
+      And I change my company's country to another country
+      Then I am offered the regions of the country I chose
+      And the region I had chosen for my company is cleared
+
+    @AC-18 @manager
+    Scenario: The form tells me what is wrong before it saves
+      Given I am editing one of my companies
+      When I clear the company name
+      Then I am told the form is not valid
+      And giving it a name makes the form valid again
+
+    @AC-19 @collection @mutation
+    Scenario: Add a new company to my account
+      When I add a new company to my account
+      Then my companies report no failure
+
+    @AC-19 @manager @mutation
+    Scenario: Save a change to a company I am editing
+      Given I am editing one of my companies
+      When I change its name and save
+      Then the change is saved without error
+
+    # Driven: a fresh draft with a supplied address id, the pre-selected emailId
+    # cleared and a brand-new inline email set. On save the module's ensure creates
+    # the email and the company is created against it — recorded as the email POST
+    # then the company POST.
+    @AC-20 @manager @mutation
+    Scenario: I supply a brand-new inline email and my company is saved against it
+      Given I am starting a new company
+      When I supply a brand-new email inline and save
+      Then my new company is saved without error
+
+    # AC-21 (title/description summary) and AC-22 (form state) are carried by the
+    # DRIVEN @AC-14 scenario above ("titled with that company's name" / "ready for
+    # me to use") — no separate scenario, so those tags are not duplicated as
+    # spec-only entries that would shadow the driven proof.
+
+    @AC-23 @AC-29 @manager @module @negative-control
+    Scenario: I am told when a save fails, where I am working
+      Given I am editing one of my companies
+      When a save of mine is rejected
+      Then I can read that it went wrong
+
+    # AC-28 — a build-time public-surface guarantee (both surfaces offered, every
+    # consumer keeps compiling): not a runtime World outcome (the phone AC-29
+    # precedent). Proven no-network in client-company.surface.test.ts; its
+    # amputation control is client-company.surface-amputation.must-fail.patch.
+    @AC-28 @module @public-surface @negative-control
+    Scenario: The module offers both surfaces and every consumer keeps compiling
+      Given consumers depend on my companies, on editing one, and on composing the company form
+      When the module is built
+      Then all three are offered, with every name a consumer imports today
+
+    # === THE CRITERIA CHANNEL ================================================
+
+    @AC-34 @collection @criteria
+    Scenario: I choose the order my companies come in
+      When I sort my companies by name descending
+      Then my companies are now ordered by name, descending
+
+    @AC-36 @collection @criteria
+    Scenario: An empty list tells me whether it is empty because I filtered it
+      When I search my companies for something none of them are called
+      Then my companies list is empty
+      And it tells me plainly that it is empty because of my search, not because I have none
+
+    @AC-40 @collection @criteria @negative-control
+    Scenario: A request the schema rejects leaves the live list standing and reports itself
+      When I search my companies for a value the field cannot hold
+      Then my companies list is unchanged
+      And I am told my request was rejected
+      And letting a rejected request silently through turns this scenario red

@@ -29,6 +29,7 @@ export default defineNuxtConfig({
    */
 
   ssr: false, // SPA mode (set to true for server-side rendering)
+
   compatibilityDate: "2025-07-15",
   future: { compatibilityVersion: 4 },
   devtools: { enabled: true },
@@ -50,7 +51,15 @@ export default defineNuxtConfig({
       // plain `pnpm dev` boots DEFAULT_PORTAL_CONFIG_ID. `pnpm dev:hostgrid`
       // sets it, which is what lets a pinned server run beside a bare one
       // without a `?config=` on every URL.
-      portalConfig: ""
+      portalConfig: "",
+
+      API_NAME: process.env.VITE_API_NAME || "",
+      API_URL: process.env.VITE_API_URL || "",
+      API_REGION: process.env.VITE_API_REGION || "",
+      GOOGLE_RECAPTCHA_V3_SITE_KEY:
+        process.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY || "",
+      GOOGLE_RECAPTCHA_V3_ENABLED:
+        process.env.VITE_APP_GOOGLE_RECAPTCHA_V3_ENABLED || ""
     }
   },
 
@@ -66,10 +75,6 @@ export default defineNuxtConfig({
     "@": resolve(__dirname, "./app"),
 
     // Monorepo packages
-    // headless resolves to SOURCE, mirroring cart-nuxt — but here it is a
-    // TYPES-ONLY dependency: a value import executes the barrel, which
-    // module-load-interprets the routing machine. ESLint fences it
-    // (no-restricted-imports, allowTypeImports) in the root config.
     "@upmind-automation/headless": resolve(
       __dirname,
       "../../packages/headless/src/index.ts"
@@ -78,6 +83,8 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/types/src/index.ts"
     ),
+    // A directory, not a barrel: headless glob-imports the locale files.
+    "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
     "@upmind/ui/styles": resolve(
       __dirname,
       "../../design-system/packages/ui/src/styles/index.css"
@@ -85,6 +92,71 @@ export default defineNuxtConfig({
     "@upmind/ui": resolve(
       __dirname,
       "../../design-system/packages/ui/src/index.ts"
+    ),
+
+    "@upmind-automation/foundation/styles": resolve(
+      __dirname,
+      "../../packages/modules-foundation/src/styles.css"
+    ),
+    "@upmind-automation/foundation": resolve(
+      __dirname,
+      "../../packages/modules-foundation/src/index.ts"
+    ),
+    "@upmind-automation/product/styles": resolve(
+      __dirname,
+      "../../packages/modules-product/src/styles.css"
+    ),
+    "@upmind-automation/product": resolve(
+      __dirname,
+      "../../packages/modules-product/src/index.ts"
+    ),
+    "@upmind-automation/recommendations": resolve(
+      __dirname,
+      "../../packages/modules-recommendations/src/index.ts"
+    ),
+    "@upmind-automation/catalogue": resolve(
+      __dirname,
+      "../../packages/modules-catalogue/src/index.ts"
+    ),
+    "@upmind-automation/domain": resolve(
+      __dirname,
+      "../../packages/modules-domain/src/index.ts"
+    ),
+    "@upmind-automation/auth/styles": resolve(
+      __dirname,
+      "../../packages/modules-auth/src/styles.css"
+    ),
+    "@upmind-automation/auth": resolve(
+      __dirname,
+      "../../packages/modules-auth/src/index.ts"
+    ),
+    "@upmind-automation/client/styles": resolve(
+      __dirname,
+      "../../packages/modules-client/src/styles.css"
+    ),
+    "@upmind-automation/client": resolve(
+      __dirname,
+      "../../packages/modules-client/src/index.ts"
+    ),
+    "@upmind-automation/payment/styles": resolve(
+      __dirname,
+      "../../packages/modules-payment/src/styles.css"
+    ),
+    "@upmind-automation/payment": resolve(
+      __dirname,
+      "../../packages/modules-payment/src/index.ts"
+    ),
+    "@upmind-automation/invoice/styles": resolve(
+      __dirname,
+      "../../packages/modules-invoice/src/styles.css"
+    ),
+    "@upmind-automation/invoice": resolve(
+      __dirname,
+      "../../packages/modules-invoice/src/index.ts"
+    ),
+    "@upmind-automation/basket": resolve(
+      __dirname,
+      "../../packages/modules-basket/src/index.ts"
     )
   },
 

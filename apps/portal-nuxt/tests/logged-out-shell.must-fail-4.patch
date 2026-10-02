@@ -1,0 +1,18 @@
+# Negative control — the store shortcut draws a bare glyph, not foundation's
+# `Icon`: no brand icon pack reaches it and it carries no accessible name.
+#
+# Intended RED (tests/logged-out-shell.test.ts), in both frames:
+#   "the store shortcut > draws the store icon, not a bare glyph"
+
+diff --git a/apps/portal-nuxt/app/portal/auth/PortalAuthStore.vue b/apps/portal-nuxt/app/portal/auth/PortalAuthStore.vue
+--- a/apps/portal-nuxt/app/portal/auth/PortalAuthStore.vue
++++ b/apps/portal-nuxt/app/portal/auth/PortalAuthStore.vue
+@@ -8,7 +8,7 @@
+     :href="store.href"
+     :data-attrs="{ 'data-test-key': 'logged-out-store' }"
+   >
+-    <Icon icon="basket" />
++    <svg viewBox="0 0 24 24"><path d="M5 11h14" /></svg>
+     Place new order
+   </Button>
+ </template>

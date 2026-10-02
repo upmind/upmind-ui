@@ -65,9 +65,37 @@ import {
   mapReceivedEmail
 } from "../client-email-history.mappers";
 import { find } from "lodash-es";
-import type { Envelope, WireEmail } from "./client-email-history.int-helpers";
 
 // -----------------------------------------------------------------------------
+
+/** The Upmind response envelope, as the recorded fixtures carry it (local). */
+type Envelope<T> = {
+  status: string;
+  data: T;
+  total: number | null;
+  error: { code: number; message: string } | null;
+  messages: unknown;
+  meta: unknown;
+};
+
+/** One email row as the recorded wire carries it — full body at nested `data.body`. */
+type WireEmail = {
+  id: string;
+  sent: boolean;
+  bounced: boolean;
+  error_id: string | null;
+  subject: string;
+  data?: { body?: string };
+  from: string;
+  to: string | string[];
+  created_at: string;
+  bounced_at: string | null;
+  recipient?: {
+    fullname?: string;
+    email?: string;
+    image?: { full_url?: string };
+  };
+};
 
 /**
  * This module's recorded captures. Resolved directly rather than through
@@ -168,6 +196,53 @@ describe("client-email-history status resolution — precedence (AC-3)", () => {
 
     expect(mapEmailStatus(asSentEmail(bouncedAndSent))).toBe(
       SentEmailStatus.BOUNCED
+    );
+  });
+});
+
+describe("client-email-history display mapping — details (AC-2)", () => {
+  it("AC-2 carries the subject, sender, recipients and the recipient's name, address and picture from a real recorded row", () => {
+    const row = recordedErrorRow();
+
+    const mapped = mapReceivedEmail(asSentEmail(row));
+
+    expect(mapped.subject).toBe(row.subject);
+    expect(mapped.from).toBe(row.from);
+    expect(mapped.to).toStrictEqual(row.to);
+    expect(mapped.recipient).toEqual(
+      expect.objectContaining({
+        name: expect.anything(),
+        email: expect.anything(),
+        imageUrl: expect.anything()
+      })
+    );
+  });
+
+  it("AC-2 carries the sent, bounced and errored dates as date/relative pair members", () => {
+    const mapped = mapReceivedEmail(asSentEmail(recordedErrorRow()));
+
+    for (const field of ["dateSent", "dateBounced", "dateErrored"] as const) {
+      expect(mapped[field]).toEqual(expect.any(Object));
+    }
+    // The errored row carries a real errored date; the sent/bounced pairs are
+    // present but empty because it was never sent or bounced.
+    expect(mapped.dateErrored).toEqual(
+      expect.objectContaining({ date: expect.anything() })
+    );
+  });
+});
+
+describe("client-email-history single read — the same details as the list (AC-14)", () => {
+  it("AC-14 maps the single read through the same mapper, so its subject, delivery outcome and dates read the same way the list does", () => {
+    const row = recordedSingleRow();
+
+    const mapped = mapReceivedEmail(asSentEmail(row));
+
+    expect(mapped.subject).toBe(row.subject);
+    expect(mapped.status).toBe(mapEmailStatus(asSentEmail(row)));
+    expect(mapped.meta.isSent).toBe(row.sent);
+    expect(mapped.date).toEqual(
+      expect.objectContaining({ date: expect.anything() })
     );
   });
 });

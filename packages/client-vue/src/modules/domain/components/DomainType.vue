@@ -103,8 +103,8 @@
 import { RadioGroup, Skeleton, Select, Input } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon } from "@upmind-automation/foundation";
 import { FormControl } from "../../../components/form";
-import { Icon } from "../../../components/icon";
 import {
   domainRootVariants,
   domainFormRootVariants,

@@ -118,19 +118,19 @@ describe("systemOperations — dispatch", () => {
 
   it("AC-4 · rejects DetailedError after the ready timeout and removes the operation", async () => {
     vi.useFakeTimers();
-    try {
-      const { createOperation, executeOperation, getOperation } =
-        useOperations();
-      const oid = createOperation("ac4-never-registered", {});
+    const { createOperation, executeOperation, getOperation } = useOperations();
+    const oid = createOperation("ac4-never-registered", {});
+    const rejection = expect(executeOperation(oid)).rejects.toThrow();
 
-      const rejection = expect(executeOperation(oid)).rejects.toThrow();
-      await vi.advanceTimersByTimeAsync(5_000);
-      await rejection;
-
-      expect(getOperation(oid)).toBeNull();
-    } finally {
-      vi.useRealTimers();
-    }
+    await vi
+      .advanceTimersByTimeAsync(5_000)
+      .then(() => rejection)
+      .then(() => {
+        expect(getOperation(oid)).toBeNull();
+      })
+      .finally(() => {
+        vi.useRealTimers();
+      });
   });
 
   it("AC-11 · refuses a concurrent dispatch and keeps the second operation", async () => {

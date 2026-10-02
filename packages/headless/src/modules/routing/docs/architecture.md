@@ -215,4 +215,3 @@ onAfterEnter(() => scrollToTop());
 | `useOverlayRoute`  | Overlay close/dismiss    | `packages/client-vue/.../useOverlayRoute.ts` |
 | `useQueryParams`   | Type-safe query access   | `useQueryParams.ts`                          |
 | `useShell`         | Shell component tracking | `packages/client-vue/.../useShell.ts`        |
-| Funnel watchers    | Reactive navigation      | `apps/cart/src/router/funnels/watchers.ts`   |
