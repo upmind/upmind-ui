@@ -1,12 +1,32 @@
-diff --git a/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.page.vue
---- a/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.page.vue
-+++ b/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.page.vue
-@@ -482,7 +482,7 @@
+FE-3237 negative control — the /useOrder record draws Pay now on a payable order.
 
- function enter(): void {
-   isOpen.value = true;
--  void run(() => actions?.refresh());
-+  if (!context?.data.value) void run(() => actions?.refresh());
- }
+Target spec:  tests/e2e/orders.spec.ts
+Target case:  "Pay now shows on a payable order and opens the pay overlay"
+Mutation:     inverts the `canPay` gate on the Pay now header action in
+              order.presentation.ts — `gate: "canPay"` becomes `gate: "!canPay"`.
+              The record surface reads the `!` prefix as negation
+              (RecordSurface.vue isGateOpen), so on a payable order the gate now
+              closes and the Pay now action is not drawn.
+Why RED:      the recorded order is payable (canPay true), so the paired case
+              asserts Pay now is visible and the pay overlay opens. With the gate
+              inverted the action is hidden, so the visibility assertion fails.
+Why the rest stay GREEN: no other case reads the Pay now action — the other
+              record case draws the order whole, the single-read case counts the
+              load read, and the five collection cases never reach the record.
+Authored by:  developer seat (mutant only), anchored to d21241a5b. The prover
+              applies it blind, confirms RED, then reverts — never reading src to
+              construct it.
 
- onMounted(() => {
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.presentation.ts b/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.presentation.ts
+index 902b03a21f..5756d2109a 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.presentation.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/useOrder/order.presentation.ts
+@@ -258,7 +258,7 @@ export const orderRecord: RecordUischema = {
+       icon: "credit-card-01",
+       placement: RecordActionPlacementTypes.HEADER,
+       variant: "primary",
+-      gate: "canPay",
++      gate: "!canPay",
+       navigate: { query: { init: "pay" } }
+     },
+     {
