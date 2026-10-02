@@ -330,18 +330,7 @@
   "orders_col_cancelled": "Cancelled",
   "orders_col_items": "Items",
   "orders_col_delegated": "Delegated",
-  "order_title": "Order",
-  "order_description": "One of a client's placed orders, re-read on each enter of the order view.",
-  "order_needs_id": "No order named",
-  "order_enter": "Open the order",
-  "order_pay": "Pay",
-  "order_retry": "Retry",
-  "order_summary": "Order summary",
-  "order_items": "Items",
   "order_cancellation_reason": "Cancellation reason",
   "order_notes": "Notes",
-  "order_referrer": "Referrer",
-  "order_subtotal": "Subtotal",
-  "order_promotions": "Promotions",
-  "order_taxes": "Taxes"
+  "order_referrer": "Referrer"
 }
