@@ -177,12 +177,11 @@ export function createOrderActions(
     if (!port) throw new OrderCancellationUnavailableError();
 
     extras.isProcessing.value = true;
-    try {
-      await port(raw.contract_id);
-      await invalidateQueryByKey(["invoices"], { exact: false })();
-    } finally {
-      extras.isProcessing.value = false;
-    }
+    return port(raw.contract_id)
+      .then(() => invalidateQueryByKey(["invoices"], { exact: false })())
+      .finally(() => {
+        extras.isProcessing.value = false;
+      });
   }
 
   // --- actor-specific actions: none earned yet (clause 2 — fresh modules

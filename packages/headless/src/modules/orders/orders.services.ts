@@ -1,5 +1,5 @@
 /** @internal */
-import { keepPreviousData, useQuery as vueUseQuery } from "@tanstack/vue-query";
+import { keepPreviousData } from "@tanstack/vue-query";
 import { computed, effectScope, getCurrentScope, ref, watch } from "vue";
 import { OnlineGatewayTypes } from "@upmind-automation/types";
 import { useBrand } from "../brand";
@@ -20,7 +20,7 @@ import type {
 import type { ResponseError } from "../../utils";
 import type { ScopeContext } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { DefaultError, QueryKey } from "@tanstack/vue-query";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { IOrder } from "@upmind-automation/types";
 import type { Ref } from "vue";
 
@@ -228,11 +228,12 @@ function loadItemImages(productIds: Ref<string[]>): OrderItemImagesQuery {
 }
 
 /**
- * D-26 — the online-gateway count. `useQuery().query()` drops the response
- * envelope's `total` through its own `select`, and `list()`'s page window
- * refuses `limit=count`, so this reads over `useQuery().request` directly
- * (the `client-billing-settings` `loadSettings` precedent, [h39]) and keeps
- * the envelope `total` itself.
+ * D-26 — the online-gateway count. The wrapper's `query()`/`list()` publish
+ * only the response `data`, never the envelope `total` a `limit=count` read
+ * rides on, so this drives the read through the wrapper's own `request` +
+ * `queryClient.fetchQuery` (the `contract-product` `loadGroupedCounts`
+ * precedent) and keeps the envelope `total` itself. Reactive over `brandId`:
+ * the count re-reads once the single order read resolves the order's brand.
  */
 function loadOnlineGateways(
   brandId: Ref<string | undefined>
@@ -245,44 +246,63 @@ function loadOnlineGateways(
   const ownScope = currentScope?.active ? undefined : effectScope(true);
   const scope = ownScope ?? currentScope!;
 
-  const response = scope.run(() =>
-    vueUseQuery<number, DefaultError, number>(
-      {
-        queryKey: [...queryKey, "gateways", brandId],
-        queryFn: async () => {
-          const envelope = await request<unknown>({
-            /**
-             * @decision
-             * what: `filter[gateway.type]` names the online gateway `.type`
-             *   values (D-26) — an internal structural lookup, NOT a user
-             *   filter, so it is written straight into `useUrl` with no schema.
-             * why: this read counts online gateways for the order's brand; the
-             *   type set is a module constant, never client input.
-             * rejected: a criteria schema leaf (models a public filter that
-             *   this count read does not expose).
-             */
-            url: useUrl(`brands/${brandId.value}/gateways`, {
-              limit: "count",
-              "filter[gateway.type]": ONLINE_GATEWAY_TYPES.join(",")
-            }),
-            withAccessToken: true
+  const total = ref(0);
+  const error = ref<ResponseError | undefined>(undefined);
+  const isFetched = ref(false);
+  const isLoading = ref(false);
+
+  scope.run(() =>
+    watch(
+      brandId,
+      id => {
+        if (!id) return;
+        isLoading.value = true;
+        error.value = undefined;
+        queryClient
+          .fetchQuery<number>({
+            queryKey: [...queryKey, "gateways", id],
+            queryFn: async () => {
+              const envelope = await request<unknown>({
+                /**
+                 * @decision
+                 * what: `filter[gateway.type]` names the online gateway `.type`
+                 *   values (D-26) — an internal structural lookup, NOT a user
+                 *   filter, so it is written straight into `useUrl` with no schema.
+                 * why: this read counts online gateways for the order's brand; the
+                 *   type set is a module constant, never client input.
+                 * rejected: a criteria schema leaf (models a public filter that
+                 *   this count read does not expose).
+                 */
+                url: useUrl(`brands/${id}/gateways`, {
+                  limit: "count",
+                  "filter[gateway.type]": ONLINE_GATEWAY_TYPES.join(",")
+                }),
+                withAccessToken: true
+              });
+              return envelope.total ?? 0;
+            },
+            staleTime: useTime().DAY
+          })
+          .then(count => {
+            total.value = count;
+            isFetched.value = true;
+          })
+          .catch((caught: unknown) => {
+            error.value = caught as ResponseError;
+          })
+          .finally(() => {
+            isLoading.value = false;
           });
-          return envelope.total ?? 0;
-        },
-        enabled: () => !!brandId.value,
-        staleTime: useTime().DAY
       },
-      queryClient
+      { immediate: true }
     )
-  )!;
+  );
 
   return {
-    data: computed(() => response.data.value ?? 0),
-    error: computed(
-      () => response.error.value as unknown as ResponseError | undefined
-    ),
-    isFetched: computed(() => response.isFetched.value),
-    isLoading: computed(() => response.isLoading.value),
+    data: computed(() => total.value),
+    error: computed(() => error.value),
+    isFetched: computed(() => isFetched.value),
+    isLoading: computed(() => isLoading.value),
     stop: () => ownScope?.stop()
   };
 }
