@@ -301,8 +301,6 @@
   "orders_next_page": "Next page",
   "orders_page": "Page",
   "orders_limit": "Page size",
-  "orders_invalidate": "Invalidate",
-  "orders_is_ready": "Wait until ready",
   "orders_col_number": "Order number",
   "orders_col_status": "Status",
   "orders_col_total": "Total",

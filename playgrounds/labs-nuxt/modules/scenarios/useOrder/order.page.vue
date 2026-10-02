@@ -206,55 +206,6 @@
             </Section>
           </template>
 
-          <div class="flex flex-wrap gap-3">
-            <Button
-              variant="ghost"
-              :data-attrs="{ 'data-test-key': 'order-refresh' }"
-              @click="run(() => actions!.refresh())"
-            >
-              {{ t("action.refresh") }}
-            </Button>
-            <Button
-              variant="ghost"
-              :data-attrs="{ 'data-test-key': 'order-invalidate' }"
-              @click="run(() => actions!.invalidate())"
-            >
-              {{ t("labs.orders_invalidate") }}
-            </Button>
-            <Button
-              variant="ghost"
-              :data-attrs="{
-                'data-test-key': 'order-is-ready',
-                'data-test-value': String(readiness ?? '')
-              }"
-              @click="run(async () => (readiness = await actions!.isReady()))"
-            >
-              {{ t("labs.orders_is_ready") }}
-            </Button>
-            <Button
-              variant="ghost"
-              :data-attrs="{ 'data-test-key': 'order-reset' }"
-              @click="run(() => actions!.reset())"
-            >
-              {{ t("action.reset") }}
-            </Button>
-            <Button
-              variant="ghost"
-              :data-attrs="{ 'data-test-key': 'order-destroy' }"
-              @click="run(() => actions!.destroy())"
-            >
-              {{ t("action.destroy") }}
-            </Button>
-            <Button
-              variant="outline"
-              :disabled="meta!.isProcessing.value"
-              :data-attrs="{ 'data-test-key': 'order-cancel' }"
-              @click="run(() => actions!.cancel())"
-            >
-              {{ t("action.cancel") }}
-            </Button>
-          </div>
-
           <OrderPayment v-if="meta!.canPay.value" :actions="actions!" />
         </section>
       </template>
@@ -324,7 +275,6 @@ const meta = manager?.useMeta();
 
 const isOpen = ref(false);
 const actionError = ref<string>();
-const readiness = ref<boolean>();
 
 const readouts = computed(() => [
   {
