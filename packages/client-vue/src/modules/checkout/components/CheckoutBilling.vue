@@ -48,6 +48,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { Section } from "@upmind-automation/foundation";
 import { useSection } from "@upmind-automation/foundation";
+import { ManageSkeleton } from "@upmind-automation/foundation";
 import {
   UIContext,
   useBasket,
@@ -56,7 +57,6 @@ import {
   useRoutingEngine
 } from "@upmind-automation/headless";
 // --- components
-import ManageSkeleton from "../../../components/manage/Skeleton.vue";
 import BillingForm from "../../billing/components/BillingForm.vue";
 import BillingSummary from "../../billing/components/BillingSummary.vue";
 import BillingSummarySkeleton from "../../billing/components/BillingSummarySkeleton.vue";

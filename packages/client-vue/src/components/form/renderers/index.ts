@@ -1,6 +1,4 @@
 import { registerEntry } from "@upmind/ui";
-import AddressRenderer from "./AddressRenderer.vue";
-import { tester as addressTest } from "./AddressRenderer.vue";
 import DomainRenderer from "./DomainRenderer.vue";
 import { tester as domainTest } from "./DomainRenderer.vue";
 import EnumToggleGroupRenderer from "./EnumToggleGroupRenderer.vue";
@@ -23,8 +21,6 @@ import ImageRenderer from "./ImageRenderer.vue";
 import { tester as imageTest } from "./ImageRenderer.vue";
 import LookupRenderer from "./LookupRenderer.vue";
 import { tester as lookupTest } from "./LookupRenderer.vue";
-import ManageRenderer from "./ManageRenderer.vue";
-import { tester as manageTest } from "./ManageRenderer.vue";
 import SLDRenderer from "./SLDRenderer.vue";
 import { tester as sldTest } from "./SLDRenderer.vue";
 
@@ -33,10 +29,8 @@ import { tester as sldTest } from "./SLDRenderer.vue";
 export const formRenderers = [
   registerEntry(DomainRenderer, domainTest),
   registerEntry(SLDRenderer, sldTest),
-  registerEntry(AddressRenderer, addressTest),
   registerEntry(ImageRenderer, imageTest),
   registerEntry(LookupRenderer, lookupTest),
-  registerEntry(ManageRenderer, manageTest),
   registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
   registerEntry(
     FilterExclusiveToggleGroupRenderer,

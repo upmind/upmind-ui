@@ -58,6 +58,7 @@
     "@jsonforms/core": "catalog:",
     "@tailwindcss/typography": "^0.5.16",
     "@upmind-automation/auth": "workspace:*",
+    "@upmind-automation/client": "workspace:*",
     "@upmind-automation/payment": "workspace:*",
     "@upmind-automation/product": "workspace:*",
     "@upmind-automation/headless": "workspace:*",

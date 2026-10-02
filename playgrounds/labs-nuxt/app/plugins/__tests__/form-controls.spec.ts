@@ -46,6 +46,12 @@ const PACKAGES = [
     controls: async () =>
       (await importThroughClientVue("@upmind-automation/product"))
         .productRenderers
+  },
+  {
+    name: "client",
+    controls: async () =>
+      (await importThroughClientVue("@upmind-automation/client"))
+        .clientRenderers
   }
 ];
 

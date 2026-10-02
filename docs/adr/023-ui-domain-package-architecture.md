@@ -2,7 +2,7 @@
 
 **Date:** June 15, 2026
 **Updated:** June 15, 2026 — §10 rewritten as a two-axis SSR-safe state model (brand-invariant shared cache + per-user request scope), after reviewing the `@next-legacy` scope-based composables (`modules/scope/`). They are built and SPA-correct; the SSR gap is that the scope registry, `QueryClient`, and session-store are module-level (per-process) rather than per-request — fixable at one chokepoint (`ensure()`). **Accepted 2026-06-16** — all Open Questions (Q1–Q4) resolved.
-**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-11 (Amendment 3: a generic control is not a domain renderer — ratified, and it supersedes part of Amendment 2 ruling 1), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs), 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28), 2026-09-28 (Amendment 14: the theme belongs to the app; useAnnouncement lives in foundation; both ports are removed) and 2026-09-28 (Amendment 15: a page takes its templates from the page that mounts it; catalogue imports domain when a category needs it; headless stays as develop has it; the shell socket and the DAC port are removed). See the Amendments below.
+**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-11 (Amendment 3: a generic control is not a domain renderer — ratified, and it supersedes part of Amendment 2 ruling 1), 2026-09-15 (Amendment 4: genericness admits to `foundation` alongside the count — ratified 2026-09-16, WITHDRAWN 2026-09-17), 2026-09-17 (Amendment 7: `basket` may read `client`, and the subject rows go home — ratified), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs), 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28), 2026-09-28 (Amendment 14: the theme belongs to the app; useAnnouncement lives in foundation; both ports are removed) and 2026-09-28 (Amendment 15: a page takes its templates from the page that mounts it; catalogue imports domain when a category needs it; headless stays as develop has it; the shell socket and the DAC port are removed). See the Amendments below.
 **Authors:** Dom da Costa
 
 ---
@@ -48,7 +48,7 @@ Deciding rule: *does `ui`'s own primitives need it → `ui`; does it know about 
 
 **Two invariants keep `foundation` a *layer*, not a re-grown monolith:**
 
-> **Admission rule** — a thing earns a place in `foundation` only if **≥2 domain packages depend on it AND it knows no single domain**. Domain-specific things register *into* foundation via the socket (§7); they don't live there.
+> **Admission rule** — a thing earns a place in `foundation` only if **≥2 domain packages depend on it AND it knows no single domain**. Domain-specific things register *into* foundation via the socket (§7); they don't live there. *(A second route — admission on genericness alone — was proposed by [Amendment 4](#amendment-4-2026-09-15--genericness-admits-to-foundation-not-only-the-count) and withdrawn on 2026-09-17 by [Amendment 7](#amendment-7-2026-09-17--basket-may-read-client): the grant matrix that stranded its instance was the thing to change. The rule above is the only route.)*
 >
 > **Registry-ownership** — renderer/route/flow **entries** live in the contributing package's `feature.ts` (§8); `foundation` owns only the **empty typed registries + the inject API**. If entries lived in `foundation`, then `foundation → {product, domain}` — and since every domain imports `foundation`, that is a real typed cycle. This invariant is what keeps the socket pattern (§7) acyclic.
 
@@ -67,7 +67,7 @@ Ten domain packages (★ = shared base) plus the layer/support packages:
 | `client` | addresses · emails · companies · phones | + `auth` |
 | `payment` | make-payment | `ui`, `headless`, `foundation` |
 | `invoice` | invoice/order view (`useOrder` = `useInvoice`) | + `payment`, `recommendations`, `auth` |
-| `basket` | in-flight order: basketProduct · billing · promo · currency · **checkout flow** | + `product`, `recommendations`, `auth`, `payment`, `invoice` |
+| `basket` | in-flight order: basketProduct · billing · promo · currency · **checkout flow** | + `product`, `recommendations`, `auth`, `payment`, `invoice`, `client` |
 
 Support: `i18n`, `types`, `icons`. *(`icons` (ADR 003) sits on the floor with `types`/`i18n`. Caveat: its current `@icons`-alias → built `dist/assets` model is per-package dist, which constraint 1 forbids under source-consumption — reconcile during build-out: either source-consume the assets or treat `icons` as the one allowed asset-only dist exception.)*
 
@@ -75,12 +75,19 @@ Topological order:
 
 ```text
 types, i18n, icons (leaf floor) → ui, headless → foundation → product → recommendations → {catalogue, domain}
-                                     auth → client
+                                     auth → client → basket
                                      payment → invoice
-                                     basket (top of buy-funnel) → product, recommendations, auth, payment, invoice
+                                     basket (top of buy-funnel) → product, recommendations, auth, payment, invoice, client
 ```
 
 Acyclic by construction. `product`, `recommendations`, `payment`, `auth` are low/shared; `basket` is the top of the buy-funnel.
+
+> **This table grants; it does not describe.** The column is *May import*, so a row is a permission, and a permission can go unspent. Two are, measured 2026-09-14:
+>
+> - **Nothing imports `recommendations`.** Not `invoice`, not `basket`, not `catalogue`, and no `client-vue` module at all. Its two components are mounted **directly by the apps** — two pages in `cart`, one in `cart-nuxt`. That is the shape §7 intends: a cross-cutting package arrives through the socket or from the host, not by a sibling importing it. The three grants stand for the day one of them needs it.
+> - **`client` does not spend its `auth` grant.** Nothing in that box asks who is signed in yet, because the surface that would is the one still to be built.
+>
+> Read a row as "this edge would be legal", never as "this edge exists". A phase that creates an edge because the table lists it has misread the table.
 
 ### 4. Taxonomy (from the foundation docs — corrects intuitive but wrong groupings)
 
@@ -329,6 +336,52 @@ Detailed batches, agent ownership, and codemod specifics come from the **full im
    Separately: the portal's `product-area/setup` is a **different** surface with the same name — a post-purchase provisioning blueprint for a product the client already owns, with no basket in sight. It is new capability outside this ADR, and `apps/portal-nuxt/docs/client-vue-adoption.md` promises `UpmProductSetup` for it in one table while its own gap list records that the component cannot serve it. That table needs correcting.
 
 **Why this is worth a record rather than a judgement call each time.** Fifteen renderers were treated as one kind of thing because they shared a folder. Seven of them are not domain renderers at all, and the folder was the only thing saying otherwise. The test in this amendment is what stops the next one being filed by its neighbours.
+## Amendment 4 (2026-09-15) — genericness admits to `foundation`, not only the count
+
+**Scope.** Adds a second admission route to §2's rule. Additive to Amendments 1–3; the three layers, the roster, §3's grant matrix and the socket rule are unchanged.
+
+> ⚠️ **WITHDRAWN 2026-09-17 — superseded by [Amendment 7](#amendment-7-2026-09-17--basket-may-read-client).** Ratified on 2026-09-16 and withdrawn the next day, on a measurement nobody had taken. It is kept in full because the route it proposed will be argued again, and the reason it failed is the useful part: its instance was not stranded. The text below stands as written on 2026-09-15; the paragraph under **The instance** is measurably wrong, and Amendment 7 shows the measurement.
+
+**The rule.** §2 admits a thing to `foundation` on a measured count — two or more domain packages depend on it, and it knows no single domain. A presentational component that carries no domain behaviour may also be admitted on **genericness alone, without the count**, when §3's grant matrix would otherwise strand it in a package no other consumer can reach.
+
+Both halves are required. *Presentational and behaviour-free* means props in, markup and events out: no composable, no machine, no fetch, no save. A domain TYPE on the props is not domain behaviour — `foundation` already depends on `headless`, and `modules/manage/types.ts` is domain-typed, behaviour-free code sitting there today. *Stranded* means §3, not a preference: the count route is unavailable because the grant matrix forbids the second consumer from ever existing, so waiting for it is waiting for something the architecture has foreclosed.
+
+**The instance.** `AddressItem`, `CompanyItem` and `PhoneItem` — the rows `Manage` renders through its `item` slot. Each takes one headless type (`Address`, `Company`, `Phone`), renders a title, a description and an edit link, and emits `edit`. Their only importers are `client-vue`'s `TabBusiness` and `TabPersonal`, which §3 re-homes into `basket` at Phase 9 — one domain package, so the count is one and always will be. §3 grants `basket` no `client` and `client` no `basket`: left in `basket`, no account-side surface could ever render a saved address or company, though the markup is the same on both sides. They move to `packages/modules-foundation/src/modules/manage/`, beside the frames that render them.
+
+**Why this is narrower than it reads.** The count exists to stop `foundation` re-growing into the monolith it replaced, and behaviour is what made that monolith heavy. This route admits no behaviour at all: anything with a composable, a machine or a call in it still faces the count. A component that fails the count and is NOT stranded by §3 also still faces it — it waits for its second consumer, because one may arrive.
+
+---
+
+## Amendment 7 (2026-09-17) — `basket` may read `client`
+
+**Scope.** Adds one edge to §3's grant matrix, moves three components, and withdraws Amendment 4. Numbered 7 because Amendments 5 and 6 are Phase 10's, both withdrawn on the day they were written; a branch below that phase does not carry their text yet. The three layers, §2's admission rule, the socket rule and every other row of the matrix are unchanged. Ratified by the operator on 2026-09-17.
+
+**The grant.** `basket` may import `client`. The edge points down — `client` reads only `ui`, `headless`, `foundation` and `auth`, and may never read `basket` — so the graph stays acyclic and `client` sits between `auth` and `basket` in the topological order.
+
+**The three rows go home.** `AddressItem`, `CompanyItem` and `PhoneItem` move from `packages/modules-foundation/src/modules/manage/` to `packages/modules-client/src/rows/`, and ship from `client`'s barrel. The manage FRAMES stay in `foundation` on §2's count, untouched: three files in `basket` mount them and one in `client` mounts them, and they know no subject, because every row, schema and mutation arrives through the injected `useList` / `useMutate` pair.
+
+**Why Amendment 4 fell.** Its case rested on one sentence — the rows have one consumer, "so the count is one and always will be". Measured at the Phase 10 branch tip, in source, outside tests:
+
+| Row | drawn in `basket` | drawn in `client` |
+|-----|-------------------|-------------------|
+| `AddressItem` | `billing/TabPersonal.vue` | — |
+| `CompanyItem` | `billing/TabBusiness.vue` | — |
+| `PhoneItem` | `billing/Tab{Personal,Business}.vue` | — |
+
+No `client` surface draws them yet, so the count is one today. "Always will be" is the flaw: only §3's grant matrix stranded them, and this amendment changes the matrix instead.
+
+**Why the edge rather than a socket.** Three facts, each measured on the branch:
+
+1. **The data edge already exists.** `basket`'s billing tabs call seven `client-*` composables from `headless` — addresses, companies and phones, each with its editor. Checkout already reads and writes the customer's own records; only the markup was walled off.
+2. **No app pays for it.** Every app that ships `basket` already ships `client`: `cart`, `cart-nuxt` and `velia-nuxt`. Only `portal-nuxt` takes `client` alone.
+3. **A socket would have to be invented.** `foundation`'s only registry takes form-renderer entries (§7), not row components, and the billing tabs sit six components below the app. Handing the rows in would mean threading slots through all six or minting a second registry mid-migration — indirection with no consumer asking for it.
+
+**What this does NOT license.** The edge is granted for the rows the two surfaces genuinely share, not as a general opening of `client` to the buy funnel. `client`'s composables still come from `headless` (§6), the profile panels stay internal to `client`, and any further name `basket` takes from `client` is a decision on its own evidence, the same as this one. §3's own warning still binds: the table grants, it does not describe.
+
+**What travels with it.** `PhoneItem` has one consumer today, in `basket`. It still goes to `client`, because §3 names phones among `client`'s four subjects and because the direction of the new edge makes `client` the only home both surfaces can reach.
+
+---
+
 ## Amendment 9 (2026-09-21) — the feature contract is retired; the app owns its list, its routes and its names
 
 **Scope.** Retires §8 in full. Corrects §9's claim that the Nuxt module system is the loader.

@@ -61,6 +61,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/vue-query": "^5.83.1",
     "@upmind-automation/auth": "workspace:*",
+    "@upmind-automation/client": "workspace:*",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",
