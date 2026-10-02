@@ -9,7 +9,7 @@ Every cancellation write (soft, hard or scheduled) lives on the sibling `contrac
 - **`useContracts`** = the list view: "show me all my contracts, filtered, sorted, one page at a time."
 - **`useContract`** = the detail view: "load this one contract and let me change its payment method" — nothing else is writable here.
 
-> **🧪 For Testers:** See [gotchas.md](./gotchas.md) for the payment-method no-op refusal and the read's deliberately narrow `products` shape.
+> **🧪 For Testers:** See [gotchas.md](./gotchas.md) for the payment-method no-op refusal and the embedded `products` rows' unfilled members.
 
 > **👩‍💻 For Developers:** Both composables share one services file (`contract.services.ts`) and one cache key (`["contracts"]`) — the same root the sibling `contract-product` module writes through, so a cancellation write on a product also refreshes this module's own reads.
 

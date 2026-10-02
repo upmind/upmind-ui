@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/basket/products?limit=4&offset=0&filter[prices.billing_cycle_months]=0&account_id=d0367942-4d0e-7109-92eb-3153698d582e&currency_id=3825d96e-763e-d091-3dc4-174825283406&filter[id]=3de78642-de53-9714-76df-21208469530d,825d96e7-63ed-0913-752b-417482528340&filter[available_for_sales]=1&filter[clients_can_order]=1&filter[provision_blueprint.category.code|neq]=domain-names&order=order&with=image,images,prices,products_attributes,products_options,products_options.prices,category.top_category.top_category.top_category.top_category",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43a847ddddfe7d8-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 09:42:29 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=jePDP6PcrA%2BkSAFUvpwnvsS%2FVIeN0zch4ENlWBd4qMqmqXG3s0QhY%2FuDcqTImGeZgZlo7V4MyVbx8Ypwe2KghORWfq8lVcf3yUZNYh61I5GMzVduPMikOS659WiK8%2Fg%2F4h3SLaB2Iw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "0"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": 0,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T09:42:29.239Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "product-catalogue"
+  }
+}

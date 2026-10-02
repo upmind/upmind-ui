@@ -4,7 +4,16 @@ All notable changes to the contract-product module.
 
 ## [Unreleased]
 
+### Added
+
+- **Change of plan (client, self).** A client can move a recurring single product to one of the plans its current plan allows. `openMigration()` opens the plan list; `selectMigrationTarget(id)` chooses a plan and loads its configurator; `reloadMigrationTarget()` retries a plan that failed to load; `loadMoreMigrationTargets()` pages the list; `cancelMigration()` closes it; `migrate()` commits and resolves to the invoice the change raised.
+- **New context members** `migrationsCount`, `migrationTargets`, `migrationTarget`, `migrationConfig`, `migrationPreview` and `migrationResult`, and the meta flags `canMigrate`, `canCommitMigration`, `hasPendingProRata`, `isMigrationOpen`, `isChoosingMigrationTarget`, `isMigrationTargetsLoading`, `isMigrationTargetsLoadingMore`, `hasMigrationTargetsError`, `hasNoMigrationTargets`, `hasMoreMigrationTargets`, `isMigrationTargetLoading`, `isMigrationTargetUnavailable`, `isMigrationPreviewing`, `isMigrationPreviewed`, `isMigrationFree`, `isMigrationProcessing` and `requiresPayment`.
+- **New exported types** `MigrationConfig`, `MigrationPreview`, `MigrationResult` and `MigrationTarget`.
+- **`isProcessing` also covers an in-flight commit** of a change of plan.
+
 ### Changed
+
+- **New view-model field `contractBillingCycleLabel`.** The owning contract's translated billing-cycle label (the product record's "Contract billing cycle"). `undefined` when the read carries no contract relation.
 
 - **The settled read places the status node directly.** The load's completion is one ordered list of guarded transitions over the record it returned. A record with no known status now lands on `error` at once, so `isReady()` resolves `false` without a wait.
 - **`exclude_delegated` follows whether anything is delegated.** It is `1` whenever nothing is delegated to the client; otherwise it is the held choice, `0` by default.

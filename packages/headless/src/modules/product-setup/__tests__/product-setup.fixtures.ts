@@ -283,9 +283,13 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
                   get(
                     `/api/orders/${basketId}/products/${p.id}/provision_fields/values`
                   ),
-                  // config-machine hydration (product + blueprint, field defs)
+                  // config-machine hydration (product + blueprint, field defs).
+                  // R11 (useQuery withCurrency) skips currency_code when the URL
+                  // already carries currency_id, so this read sends no currency_code.
+                  // develop 122719bac3 dropped currency_code from EXCLUDE_PARAMS, so
+                  // it is now part of fixture identity — omit it to match the read.
                   get(
-                    `/api/basket/${basketId}/products/${p.id}?currency_id=${currencyId}&promotions=&with=${PRODUCT_WITH}&basket_id=${basketId}&basket_product_id=${p.id}&currency_code=${CURRENCY}`
+                    `/api/basket/${basketId}/products/${p.id}?currency_id=${currencyId}&promotions=&with=${PRODUCT_WITH}&basket_id=${basketId}&basket_product_id=${p.id}`
                   ),
                   get(`/api/basket/products/${p.product_id}/provision_fields`)
                 ])

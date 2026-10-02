@@ -88,6 +88,7 @@ export function mapClient(
   raw: IClient,
   accounts?: IAccount[]
 ): Client | undefined {
+  if (!raw) return undefined;
   return {
     accounts: map(accounts, mapAccount),
     avatar: {

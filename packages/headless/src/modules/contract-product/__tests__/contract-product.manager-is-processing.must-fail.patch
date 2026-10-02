@@ -14,7 +14,7 @@
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -222,8 +222,8 @@ export function createContractProductMeta(
+@@ -349,7 +349,7 @@
      isPending,
  
      /** True while a write is in flight. */
@@ -22,5 +22,4 @@ diff --git a/packages/headless/src/modules/contract-product/useContractProduct.m
 +    isSubmitting: useStateMatches(state, [
        "processing",
        "available.cancelling.processing",
-       "available.consolidating.processing"
-     ]),
+       "available.consolidating.processing",

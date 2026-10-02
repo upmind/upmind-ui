@@ -140,6 +140,27 @@ Neither form reads the platform's own actor-permission model (e.g. whether THIS 
 
 ---
 
+## A change of plan: the dry-run preview fails silently 🧪
+
+Each change to the chosen plan's options re-runs a dry run that prices the change. When the dry run fails, the module raises no error. It clears the cost, so `migrationPreview` is `undefined`, `isMigrationPreviewed` is `false` and `hasError` stays `false`. The form then waits for the next change, and the commit stays available. A UI that shows the cost only while `migrationPreview` is set shows no cost for a choice the platform cannot price.
+
+## A change of plan: the commit is forced and the platform judges it
+
+`migrate()` asks the configurator to commit with a forced update, so local validation does not gate it. `canCommitMigration` checks only that no dry run is in flight and the configurator can take the commit. The platform decides whether the change is valid. A refusal rejects `migrate()` with a `DetailedError`, and the form returns to its error state with the chosen plan kept. `migrate()` resolves `false` when the commit is not offered at all (no configurator ready).
+
+## A change of plan: the plan catalogue keeps the contract's currency and no promotions
+
+The plan list and the plan count read the catalogue with the contract's currency and account, not the basket's. They send `omit_promotions=1` when a plan loads, and they filter to orderable, recurring plans (the list also to the product's current billing term). They read no basket and no category tree. A plan's price can therefore differ from the storefront price a basket would show.
+
+## A change of plan: `migrate()` resolves when the write lands, even if the re-read fails
+
+The commit is one write, followed by a re-read of the product. `migrate()` resolves with the invoice as soon as the write succeeds. A failed re-read leaves the machine on its `error` node (`hasError` is `true`, `refresh()` retries), and does not reject `migrate()`. Check `migrationResult` for the outcome of the commit, and `hasError` for the state of the re-read.
+
+## A change of plan: `isMigrationTargetsLoading` is the first page only
+
+`isMigrationTargetsLoading` is `false` while a further page loads. Read `isMigrationTargetsLoadingMore` for that. `migrationsCount` is `0` until the count lands, so `0` does not mean "no plans". Read `hasNoMigrationTargets` once the list has loaded.
+
+## Common Mistakes
 ## Common Mistakes
 
 ### Reading `contractProduct.raw` for a field the view model already maps

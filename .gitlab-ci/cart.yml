@@ -46,7 +46,7 @@ build base:
     - ls -a apps/velia
     - ls -a packages/types
     - ls -a design-system/packages/ui
-    - pnpm -r --workspace-concurrency=1 build
+    - pnpm -r --workspace-concurrency=1 --filter '!@upmind-automation/labs-nuxt' build
 
 (apps/cart) build staging:
   extends: .pnpm

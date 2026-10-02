@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/basket/4038696e-5472-1d57-2066-f518d9305e7d/products/52098d3d-e409-1734-426f-31578626e347?currency_id=3825d96e-763e-d091-3dc4-174825283406&promotions=&with=image,images,prices,products_attributes,products_options,products_options.prices,provision_blueprint.category&basket_id=4038696e-5472-1d57-2066-f518d9305e7d&basket_product_id=52098d3d-e409-1734-426f-31578626e347&currency_code=GBP",
+    "path": "/api/basket/85d26e96-783d-1670-3578-f314502e7043/products/0e435795-e78d-1880-499f-31643202d986?currency_id=3825d96e-763e-d091-3dc4-174825283406&promotions=&with=image,images,prices,products_attributes,products_options,products_options.prices,provision_blueprint.category&basket_id=85d26e96-783d-1670-3578-f314502e7043&basket_product_id=0e435795-e78d-1880-499f-31643202d986",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
@@ -1117,7 +1117,404 @@
           "service_name_translated": "domain name",
           "name_translated": "Domain Names",
           "description_translated": "This blueprint enables domain name registrations/transfers/renewals and basic every-day management",
-          "translations": [],
+          "translations": [
+            {
+              "id": "4d036794-24d0-e710-965b-3153698d582e",
+              "language_id": "825d96e7-63ed-0913-ddf4-174825283406",
+              "language_code": "az",
+              "translated_fields": {
+                "service_name": "domen adı"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "domen adı"
+            },
+            {
+              "id": "825d96e7-63ed-0913-d07f-417482528340",
+              "language_id": "57898574-2648-9701-25c2-1e325d0ed369",
+              "language_code": "bg",
+              "translated_fields": {
+                "service_name": "Име на домейн"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Име на домейн"
+            },
+            {
+              "id": "47d73824-8507-9315-385b-81e642d59e06",
+              "language_id": "3de78642-de53-9714-7ec2-1208469530d0",
+              "language_code": "cs",
+              "translated_fields": {
+                "service_name": "Název domény"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Název domény"
+            },
+            {
+              "id": "47d73824-8507-9315-355c-81e642d59e06",
+              "language_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+              "language_code": "da",
+              "translated_fields": {
+                "service_name": "Domænenavn"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Domænenavn"
+            },
+            {
+              "id": "2785d26e-9678-3d16-72ea-314502e70439",
+              "language_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+              "language_code": "de",
+              "translated_fields": {
+                "service_name": "Domainname"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Domainname"
+            },
+            {
+              "id": "5d085e69-d562-3719-7d6f-218e940d4237",
+              "language_id": "9320e435-795e-78d1-88a3-1643202d9860",
+              "language_code": "el",
+              "translated_fields": {
+                "service_name": "domain name"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "domain name"
+            },
+            {
+              "id": "8d632507-9806-5d1e-302f-8174e234e98d",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "service_name": "domain name",
+                "name": "Domain Names",
+                "description": "This blueprint enables domain name registrations/transfers/renewals and basic every-day management"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "domain name",
+              "name": "Domain Names",
+              "description": "This blueprint enables domain name registrations/transfers/renewals and basic every-day management"
+            },
+            {
+              "id": "2785d26e-9678-3d16-76ea-314502e70439",
+              "language_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+              "language_code": "en-US",
+              "translated_fields": {
+                "service_name": "domain name"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "domain name"
+            },
+            {
+              "id": "3de78642-de53-9714-503c-21208469530d",
+              "language_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+              "language_code": "es",
+              "translated_fields": {
+                "service_name": "Nombre de dominio"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Nombre de dominio"
+            },
+            {
+              "id": "4d036794-24d0-e710-9d5a-3153698d582e",
+              "language_id": "47d73824-8507-9315-76a8-1e642d59e063",
+              "language_code": "es-419",
+              "translated_fields": {
+                "service_name": "nombre de dominio"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "nombre de dominio"
+            },
+            {
+              "id": "20403869-6e54-721d-593f-518d9305e7d2",
+              "language_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+              "language_code": "fr",
+              "translated_fields": {
+                "service_name": "nom de domaine"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "nom de domaine"
+            },
+            {
+              "id": "825d96e7-63ed-0913-d47b-417482528340",
+              "language_id": "4d036794-24d0-e710-44f3-153698d582e8",
+              "language_code": "fr-CA",
+              "translated_fields": {
+                "service_name": "Nom de domaine"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Nom de domaine"
+            },
+            {
+              "id": "78985742-6489-7012-046b-21e325d0ed36",
+              "language_id": "825d96e7-63ed-0913-5dc4-174825283406",
+              "language_code": "hu",
+              "translated_fields": {
+                "service_name": "Domain név"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Domain név"
+            },
+            {
+              "id": "47d73824-8507-9315-345f-81e642d59e06",
+              "language_id": "47d73824-8507-9315-36f8-1e642d59e063",
+              "language_code": "id",
+              "translated_fields": {
+                "service_name": "nama domain"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "nama domain"
+            },
+            {
+              "id": "320e4357-95e7-8d18-464a-31643202d986",
+              "language_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+              "language_code": "it",
+              "translated_fields": {
+                "service_name": "Nome del dominio"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Nome del dominio"
+            },
+            {
+              "id": "5952098d-3de4-0917-e88b-31578626e347",
+              "language_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+              "language_code": "nb",
+              "translated_fields": {
+                "service_name": "domenenavn"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "domenenavn"
+            },
+            {
+              "id": "8d632507-9806-5d1e-342b-8174e234e98d",
+              "language_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+              "language_code": "nl",
+              "translated_fields": {
+                "service_name": "domeinnaam"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "domeinnaam"
+            },
+            {
+              "id": "5952098d-3de4-0917-e58f-31578626e347",
+              "language_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "language_code": "pl",
+              "translated_fields": {
+                "service_name": "Nazwa domeny"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Nazwa domeny"
+            },
+            {
+              "id": "78985742-6489-7012-096c-21e325d0ed36",
+              "language_id": "45952098-d3de-4091-76a3-1578626e347e",
+              "language_code": "pt",
+              "translated_fields": {
+                "service_name": "Nome do domínio"
+              },
+              "created_at": "2026-09-29 07:48:35",
+              "updated_at": "2026-09-29 07:48:35",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Nome do domínio"
+            },
+            {
+              "id": "20403869-6e54-721d-533c-518d9305e7d2",
+              "language_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+              "language_code": "pt-BR",
+              "translated_fields": {
+                "service_name": "Nome do domínio"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Nome do domínio"
+            },
+            {
+              "id": "8d632507-9806-5d1e-392a-8174e234e98d",
+              "language_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+              "language_code": "ro",
+              "translated_fields": {
+                "service_name": "Nume domeniu"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Nume domeniu"
+            },
+            {
+              "id": "320e4357-95e7-8d18-494c-31643202d986",
+              "language_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+              "language_code": "ru",
+              "translated_fields": {
+                "service_name": "Доменное имя"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Доменное имя"
+            },
+            {
+              "id": "5952098d-3de4-0917-e38a-31578626e347",
+              "language_id": "78985742-6489-7012-85a2-1e325d0ed369",
+              "language_code": "sk",
+              "translated_fields": {
+                "service_name": "Názov domény"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Názov domény"
+            },
+            {
+              "id": "3de78642-de53-9714-523a-21208469530d",
+              "language_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+              "language_code": "sv",
+              "translated_fields": {
+                "service_name": "Domän namn"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Domän namn"
+            },
+            {
+              "id": "20403869-6e54-721d-5e3a-518d9305e7d2",
+              "language_id": "3de78642-de53-9714-5eb2-1208469530d0",
+              "language_code": "tr",
+              "translated_fields": {
+                "service_name": "Alan adı"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Alan adı"
+            },
+            {
+              "id": "3de78642-de53-9714-5e3b-21208469530d",
+              "language_id": "78985742-6489-7012-05f2-1e325d0ed369",
+              "language_code": "uk",
+              "translated_fields": {
+                "service_name": "Доменне ім'я"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "Доменне ім'я"
+            },
+            {
+              "id": "78985742-6489-7012-056f-21e325d0ed36",
+              "language_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+              "language_code": "ur",
+              "translated_fields": {
+                "service_name": "ڈومین نام"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "ڈومین نام"
+            },
+            {
+              "id": "5d085e69-d562-3719-706f-218e940d4237",
+              "language_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+              "language_code": "zh-TW",
+              "translated_fields": {
+                "service_name": "域名"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "service_name": "域名"
+            }
+          ],
           "category": {
             "id": "24d03679-424d-0e71-04b3-153698d582e8",
             "code": "domain-names",
@@ -1139,7 +1536,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T12:04:20.518Z",
+  "captured_at": "2026-10-02T12:20:04.736Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

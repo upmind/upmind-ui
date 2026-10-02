@@ -1,4 +1,5 @@
 import { waitFor } from "xstate/lib/waitFor";
+import { usePaymentDetails } from "../payment-details";
 import { remove as removeFromRegistry } from "../scope";
 import {
   downloadPdf as downloadInvoicePdf,
@@ -14,6 +15,7 @@ import {
   ErrorOrigin,
   responseCodes
 } from "../../utils";
+import type { PaymentDetail } from "../payment-details";
 import type { Invoice, InvoicePaymentDetailsModel } from "./invoices.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
@@ -23,8 +25,9 @@ import type { Ref } from "vue";
  * @module invoices/useInvoice.actions
  * @description Single-invoice actions — pay/retry/refresh, readiness, lifecycle,
  * the PDF download, the payment-method assignment and the pay-currency switch,
- * plus the inline 3DS challenge controls. The payment-method model is staged
- * with `input()`, then `updatePaymentDetails()` saves it.
+ * plus the inline 3DS challenge controls. The payment-method form opens with
+ * `openPaymentMethod()`, its model is staged with `input()`, then
+ * `updatePaymentDetails()` saves it.
  */
 export function createInvoiceActions(
   _actorScope: ScopeActorTypes,
@@ -32,7 +35,8 @@ export function createInvoiceActions(
   scopeKey: string,
   invoiceId: string,
   paymentFailed: Ref<boolean>,
-  paymentDetailsModel: Ref<InvoicePaymentDetailsModel>
+  paymentDetailsModel: Ref<InvoicePaymentDetailsModel>,
+  storedPaymentMethods: Ref<PaymentDetail[] | undefined>
 ) {
   const { state, send, service } = actor;
   const invoice = useContext<Invoice | undefined>(state, "invoice");
@@ -110,6 +114,20 @@ export function createInvoiceActions(
     paymentDetailsModel.value = model;
   }
 
+  /**
+   * Opens the payment-method form: stages the invoice's current method, then
+   * reads the client's stored cards into `useContext().paymentMethod`. The
+   * read reuses the client's own `usePaymentDetails` query.
+   */
+  async function openPaymentMethod(): Promise<void> {
+    paymentDetailsModel.value = {
+      payment_details_id: invoice.value?.paymentMethod.id ?? null
+    };
+    const payments = usePaymentDetails();
+    await payments.isReady();
+    storedPaymentMethods.value = payments.data.value ?? [];
+  }
+
   /** Saves the staged payment-method model, then re-reads the invoice. */
   async function updatePaymentDetails(): Promise<void> {
     await updateInvoicePaymentDetails(invoiceId, paymentDetailsModel.value);
@@ -143,6 +161,9 @@ export function createInvoiceActions(
 
     /** Stages the payment-method model the next `updatePaymentDetails` saves. */
     input,
+
+    /** Stages the current method and reads the stored cards the form picks from. */
+    openPaymentMethod,
 
     /** Resolves once the invoice machine is ready for interaction. */
     isReady,

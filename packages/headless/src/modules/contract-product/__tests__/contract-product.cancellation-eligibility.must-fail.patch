@@ -14,12 +14,11 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
-index 86220f7bf..c8730fb0a 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
-@@ -550,7 +550,7 @@ export const contractProductMachine = createMachine(
+@@ -902,7 +902,7 @@
+         stateMatches(migration?.ref, ["available"]),
  
-     guards: {
        hasCancellationOptions: ({ contractProduct }: ContractProductContext) =>
 -        !!contractProduct && !isEmpty(cancellationOptions(contractProduct)),
 +        !!contractProduct,

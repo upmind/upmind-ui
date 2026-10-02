@@ -12,7 +12,7 @@
  *   per-package clones existed ONLY to re-state shared rules — flat config
  *   `files`/`ignores` give us per-area scoping without duplicate files.
  *   packages/ui, apps/velia, apps/hosting are standalone submodules that get a
- *   FULL BYTE-COPY of this file (kept in lockstep via .claude/scripts/lint/sync-configs.mjs).
+ *   FULL BYTE-COPY of this file (kept in lockstep via etc/ci/lint/sync-configs.mjs).
  *
  * Correctness baselines (the floor that was lost in the flat migration — every
  * rule in eslint:recommended, typescript-eslint/recommended, and vue3-essential
@@ -45,12 +45,12 @@
  *
  * THE FIX: every lint entrypoint (root `pnpm lint`, `pnpm -r lint`,
  * `pnpm --filter <pkg> lint`, and CI) routes through
- * `.claude/scripts/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
+ * `etc/ci/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
  * root while targeting the invoking package, so all entrypoints resolve the
  * IDENTICAL suppression state. That wrapper — not this config — is the single
  * source of truth for how the ledger is loaded (ESLint offers no config-level
  * hook for the suppressions location; it is purely a CLI concern).
- * `.claude/scripts/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
+ * `etc/ci/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
  * `pnpm lint:verify`) guards the invariant so the entrypoints cannot silently
  * diverge again. Git-submodule packages (packages/ui, apps/hosting, apps/velia)
  * must adopt the same wrapper in their OWN repos — the parent cannot edit their

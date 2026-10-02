@@ -51,7 +51,22 @@
           "default_value": null,
           "defer_mode": "optional",
           "label_translated": "Account Domain Name",
-          "translations": []
+          "translations": [
+            {
+              "id": "4d036794-24d0-e710-927c-3153698d582e",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Account Domain Name"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "label": "Account Domain Name"
+            }
+          ]
         }
       ],
       "related": null,
@@ -61,7 +76,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T12:04:39.274Z",
+  "captured_at": "2026-10-02T12:20:23.409Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

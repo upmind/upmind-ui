@@ -1,15 +1,14 @@
 # must-fail: 08-path-law-no-admin
 # Target assertion: the path-law guard spec — asserts no api/admin/ string is ever issued from the client path
 diff --git a/packages/headless/src/modules/tickets/tickets.services.ts b/packages/headless/src/modules/tickets/tickets.services.ts
-index 006566f81..e82123f12 100644
 --- a/packages/headless/src/modules/tickets/tickets.services.ts
 +++ b/packages/headless/src/modules/tickets/tickets.services.ts
-@@ -227,7 +227,7 @@ function loadList(
- ): TicketsListQuery {
+@@ -275,7 +275,7 @@
    const { list, useUrl } = useQuery();
    const clientId = resolveClientId(scopeContext);
+   const contractProductId = resolveContractProductId(scopeContext);
 -  const url = useUrl("tickets", { with: LIST_WITH, with_staged_imports: 1 });
 +  const url = useUrl("admin/tickets", { with: LIST_WITH, with_staged_imports: 1 });
    const schema = useQuerySchema();
  
-   const ticketsList = list<ITicket[], Ticket[], TicketsQueryModel>({
+   // AC-7 — before `list()`, so the very first request carries the narrowing.

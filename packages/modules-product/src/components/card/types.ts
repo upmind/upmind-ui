@@ -58,6 +58,8 @@ export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   navigate?: boolean;
   color?: ButtonVariants["variant"];
   ratio?: ImageProps["ratio"];
+  /** Replaces the basket call-to-action label, for a card that does not add to a basket. */
+  actionLabel?: string;
 }
 
 export interface ProductInfo {

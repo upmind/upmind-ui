@@ -1,0 +1,22 @@
+# Negative-control mutant 54 — reload-clears-error (FE-3206)
+#
+# Mutation: Keep the load error after `MIGRATION.RELOAD`.
+# Spec it must turn red: a unit spec: after a failed plan load and a successful reload, `hasError` is false and `error` is undefined (prover authors it; this patch is the contract).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -442,7 +442,7 @@ export const contractProductMachine = createMachine(
+                     on: {
+                       "MIGRATION.RELOAD": {
+                         target: "#migrationConfiguring",
+-                        actions: ["clearError", "respawnMigrationTarget"]
++                        actions: "respawnMigrationTarget"
+                       }
+                     }
+                   },

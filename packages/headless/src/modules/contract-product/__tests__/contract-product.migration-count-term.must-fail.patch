@@ -1,0 +1,21 @@
+# Negative-control mutant 12 — count-term (FE-3206)
+#
+# Mutation: drop `billing_cycle_months|neq` from the count.
+# Spec it must turn red: "I am told how many plans ...".
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.ts b/packages/headless/src/modules/contract-product/useContractProduct.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.ts
+@@ -172,7 +172,6 @@
+         ids,
+         currencyId,
+         accountId,
+-        recurringOnly: true,
+         orderable: true,
+         countOnly: true,
+         categories: false

@@ -1,122 +1,53 @@
 # client-billing-settings — Usage
 
-Full API reference for the module's two composables:
+Full API reference for the module's one composable, **`useBillingSettings`** — it opens the calling client's own invoice-consolidation preference in a validated form and saves only what changed.
 
-- **`useBillingSettings`** — the read view. Reads the calling client's own invoice-consolidation preference.
-- **`useBillingSettingsManager`** — the editor. Opens the preference in a validated form and saves only what changed.
-
-Both act on the calling client's own preference. Every capability below carries a 🧪 **For Testers** expected-behaviour statement.
+It acts on the calling client's own preference. Every capability below carries a 🧪 **For Testers** expected-behaviour statement.
 
 ## Getting an instance
 
 ```ts
 import {
   useBillingSettings,
-  useBillingSettingsManager,
   ScopeActorTypes,
   ClientBillingSettingsContextTypes
 } from "@upmind-automation/headless";
 
 const someClientId = "825d96e7-63ed-0913-46c4-174825283406";
 
-// The read view
-const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
+// The calling client's own preference — callable bare; a client has exactly one
+const manager = useBillingSettings().as(ScopeActorTypes.CLIENT);
 
-// The editor — callable bare; a client has exactly one preference
-const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
-
-// Either composable can instead retarget to a NAMED client via a matrix-gated
-// .for() context — only the `client` actor may spell it
+// Or retarget to a NAMED client via a matrix-gated .for() context — only the
+// `client` actor may spell it
 const otherSettings = useBillingSettings()
   .as(ScopeActorTypes.CLIENT)
   .for(ClientBillingSettingsContextTypes.CLIENT, someClientId);
 ```
 
-> **🧪 For Testers:** Only `client` addresses a real client's preference on either composable — a bare `.as(ScopeActorTypes.STAFF)`/`.as(ScopeActorTypes.GUEST)` type-checks but falls back to the active session's own id and is refused by this module's own addressability check at runtime. `.for(ClientBillingSettingsContextTypes.CLIENT, id)` retargets to a named client and is spellable only for the `client` actor — the matrix pins `self`, `staff` and `guest` to `null as never`. See [gotchas.md](./gotchas.md#10-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
+> **🧪 For Testers:** Only `client` addresses a real client's preference — a bare `.as(ScopeActorTypes.STAFF)`/`.as(ScopeActorTypes.GUEST)` type-checks but falls back to the active session's own id and is refused by this module's own addressability check at runtime. `.for(ClientBillingSettingsContextTypes.CLIENT, id)` retargets to a named client and is spellable only for the `client` actor — the matrix pins `self`, `staff` and `guest` to `null as never`. See [gotchas.md](./gotchas.md#10-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
 
-Both composables return the same four sub-composables:
+The composable returns four sub-composables:
 
-| Layer | Access | Read view contains | Editor contains |
-| --- | --- | --- | --- |
-| Actions | `.useActions()` | readiness, refresh, lifecycle | form input, save, revert, clear, lifecycle |
-| Context | `.useContext()` | the preference, captured error | model, base model, schema, errors, visibility |
-| Meta | `.useMeta()` | state flags | state flags |
-| Internals | `.useInternals()` | the raw query | the raw machine state and sender |
-
----
-
-## The read view — `useBillingSettings`
-
-### Read actions — `useActions()`
-
-#### `isReady()` — waiting for the preference
-
-Resolves once the preference is ready to read, and once the visibility gate's own fetch has settled.
-
-**Returns:** `Promise<boolean>` — `true` once the first fetch has settled without error; `false` if the session settles unaddressable, or the fetch itself errors. Never hangs.
-
-#### `refresh()`
-
-Forces a re-read of the preference AND a re-check of the brand's visibility gate.
-
-**Returns:** `Promise<void>`.
-
-**Throws:** `NotAuthenticatedError` when the scope cannot address a client.
-
-#### `destroy()`
-
-Removes this scoped instance from the registry.
-
-**Returns:** `void`.
-
-### Read context — `useContext()`
-
-| Property | Type | Meaning |
+| Layer | Access | Contains |
 | --- | --- | --- |
-| `data` | `ComputedRef<BillingSettingsRecord>` | The five persisted consolidation fields |
-| `error` | `ComputedRef<ResponseError \| undefined>` | The read's own captured error — read, never raised |
-| `accountId` | `ComputedRef<string \| undefined>` | The session-resolved account's id — absent when the addressed client is not the session's own |
-| `currencyId` | `ComputedRef<string \| undefined>` | The account's own billing currency id |
-| `preferredPaymentCurrencyId` | `ComputedRef<string \| null \| undefined>` | The account's preferred payment currency id, or a literal absence when unset |
-| `currencyOptions` | `ComputedRef<ICurrency[]>` | The brand's supported currencies, ordered by name, plus the account's own currency when the brand list omits it |
-
-### Read meta — `useMeta()`
-
-| Flag | True when |
-| --- | --- |
-| `hasErrors` | The preference read failed |
-| `hasVisibilityError` | The brand's visibility-gate fetch failed and has not yet recovered |
-| `isAvailable` | The session is authenticated **and** the scope resolved a client id |
-| `isLoading` | The read is loading or has not completed its first fetch |
-| `isVisible` | The brand has explicitly opted clients into this surface — defaults `false` |
-| `hasPaymentCurrencyChoice` | The brand has explicitly opted clients into paying in a different currency |
-
-> **🧪 For Testers:** `isVisible` and `hasVisibilityError` are two different flags for a reason — a failed fetch reports `hasVisibilityError: true` and `isVisible: false`, which reads identically to an explicit brand opt-out unless you check both. Recovers on the next successful `refresh()`.
-
-### Read internals — `useInternals()`
-
-| Property | Meaning |
-| --- | --- |
-| `actorScope` | The resolved actor for this instance |
-| `query` | The raw query object backing the read |
+| Actions | `.useActions()` | form input, save, revert, clear, lifecycle |
+| Context | `.useContext()` | model, base model, schema, errors, currency options |
+| Meta | `.useMeta()` | state flags, brand visibility and currency-choice flags |
+| Internals | `.useInternals()` | the raw machine state and sender |
 
 ---
-
-## The editor — `useBillingSettingsManager`
 
 ```ts
-import {
-  ScopeActorTypes,
-  useBillingSettingsManager
-} from "@upmind-automation/headless";
+import { ScopeActorTypes, useBillingSettings } from "@upmind-automation/headless";
 
-const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
+const manager = useBillingSettings().as(ScopeActorTypes.CLIENT);
 
 await manager.useActions().isReady();
 await manager.useActions().update({ enabled: 0 });
 ```
 
-### Editor actions — `useActions()`
+### Actions — `useActions()`
 
 #### `isReady()` — waiting for the form
 
@@ -182,7 +113,7 @@ Stops the machine **and** removes it from the registry.
 
 **Returns:** `void`.
 
-### Editor context — `useContext()`
+### Context — `useContext()`
 
 | Property | Type | Meaning |
 | --- | --- | --- |
@@ -193,14 +124,13 @@ Stops the machine **and** removes it from the registry.
 | `uischema` | `ComputedRef<UISchemaElement \| undefined>` | The form's UI definition, paired with `schema` |
 | `id` | `ComputedRef<string \| undefined>` | The id of the client whose preference is being managed |
 | `title` | `ComputedRef<string \| undefined>` | Display title |
-| `isVisible` | `ComputedRef<boolean>` | `true` only when the brand has explicitly opted clients into this surface |
 | `currencyOptions` | `ComputedRef<ICurrency[]>` | The brand's supported currencies, ordered by name, plus the account's own currency when the brand list omits it |
 | `errors` | `ComputedRef<string \| undefined>` | Machine-captured error message — read, never raised |
 | `validationErrors` | `ComputedRef<ErrorObject[] \| undefined>` | Field-level validation errors (AJV shape) — read, never raised |
 
 > **🧪 For Testers:** `errors` and `validationErrors` are state, never events. A rejected save lands here and stays readable until the next operation supersedes it.
 
-### Editor meta — `useMeta()`
+### Meta — `useMeta()`
 
 | Flag | True when |
 | --- | --- |
@@ -217,7 +147,7 @@ Stops the machine **and** removes it from the registry.
 
 > **🧪 For Testers:** `isAvailable` folds the machine's own readiness together with the brand's consolidation opt-in into one flag — a brand that never opts clients in leaves the editor permanently unavailable, not merely read-only.
 
-### Editor internals — `useInternals()`
+### Internals — `useInternals()`
 
 | Property | Meaning |
 | --- | --- |
@@ -230,7 +160,7 @@ Stops the machine **and** removes it from the registry.
 
 ## The form definition — paste-ready
 
-The editor serves its form definition at runtime through **`useBillingSettingsManager().useContext().schema`** and **`.uischema`**. All five controls are this module's own.
+The editor serves its form definition at runtime through **`useBillingSettings().useContext().schema`** and **`.uischema`**. All five controls are this module's own.
 
 ```json
 {
@@ -275,7 +205,7 @@ Paste both into [jsonforms.io](https://jsonforms.io/examples/basic) — schema o
 
 ### Starting data
 
-The editor's baseline model — what an untouched form holds before a key is pressed, seeded from the read:
+The editor's baseline model — what an untouched form holds before a key is pressed, seeded from the client's saved record:
 
 ```json
 {
@@ -296,22 +226,14 @@ The editor's baseline model — what an untouched form holds before a key is pre
 ## Errors are state, never announcements
 
 ```ts
-import type {
-  UseBillingSettings,
-  UseBillingSettingsManager
-} from "@upmind-automation/headless";
-declare const settings: ReturnType<UseBillingSettings["fresh"]>;
-declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+import { useBillingSettings, ScopeActorTypes } from "@upmind-automation/headless";
 
-// Read view
-const { error } = settings.useContext();
-const { hasErrors } = settings.useMeta();
+const manager = useBillingSettings().as(ScopeActorTypes.CLIENT);
 
-// Editor
 const { errors, validationErrors } = manager.useContext();
-const { hasErrors: managerHasErrors } = manager.useMeta();
+const { hasErrors } = manager.useMeta();
 
-// Success signal for the editor
+// Success signal for a save
 await manager.useActions().onDone();
 ```
 
@@ -320,22 +242,18 @@ await manager.useActions().onDone();
 ```ts
 import {
   useBillingSettings,
-  useBillingSettingsManager,
   CLIENT_BILLING_SETTINGS_SCOPE_MATRIX,
   ClientBillingSettingsContextTypes,
   type ClientBillingSettingsScopeMatrix,
+  type AccountCurrencyUpdateBody,
   type BillingSettingsContext,
   type BillingSettingsModel,
-  type BillingSettingsRecord,
   type BillingSettingsUpdateBody,
+  type UseBillingSettings,
   type UseBillingSettingsActions,
   type UseBillingSettingsContext,
   type UseBillingSettingsMeta,
-  type UseBillingSettingsInternals,
-  type UseBillingSettingsManagerActions,
-  type UseBillingSettingsManagerContext,
-  type UseBillingSettingsManagerMeta,
-  type UseBillingSettingsManagerInternals
+  type UseBillingSettingsInternals
 } from "@upmind-automation/headless";
 ```
 

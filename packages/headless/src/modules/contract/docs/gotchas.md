@@ -2,7 +2,7 @@
 
 Edge cases, known issues, and things to watch out for.
 
-> **🧪 For Testers:** Focus on the payment-method no-op refusal and the deliberately narrow `products` relation below.
+> **🧪 For Testers:** Focus on the payment-method no-op refusal and the `products` relation below.
 
 ---
 
@@ -49,9 +49,9 @@ Whatever the status, the form's open event is refused for a one-off contract (`b
 
 ---
 
-## A contract's own read carries each product as an id-and-name stub, nothing more
+## An embedded product row is a product view model without some members
 
-`contract.products` is a list-row stub — each entry is the product's own `id` and `name`, its catalogue product's `name` where one exists, and its `isDelegatedObject` flag. It never carries that product's status, tags, brand currency, cancellation-request status, or a booked future-cancellation date, even when one genuinely exists on that product. A caller that needs any of those facts for one product must load that product directly through `useContractProduct`, not read them off the contract's embedded list.
+`contract.products` is `ContractProductEmbedded[]`: `ContractProduct` without `allowedMigrations`, `clientInvoiceConsolidationEnabled`, `contractBillingCycleLabel`, `contractCurrencyId`, `contractStatus` and `contractTaxType`. The sibling module's product mapper fills the rest — status, tags, brand currency, cancellation-request status, booked future-cancellation facts, any successor product and the delegated clients. The contract read requests no allowed migrations and no owning-contract relation, so those members are absent from the type, and a read of one is a compile error. A contract list row carries no products at all (`products: []`). A caller that needs those members for one product must load that product directly through `useContractProduct`.
 
 ```typescript
 import { ScopeActorTypes, useContract, useContractProduct } from "@upmind-automation/headless";
@@ -61,14 +61,14 @@ declare const productId: string;
 
 const { contract } = useContract().as(ScopeActorTypes.CLIENT).withId(contractId).useContext();
 
-// ❌ Wrong — the embedded stub never carries this
+// ❌ Wrong — the embedded row has no allowedMigrations; this does not compile
 const embedded = contract.value?.products.find(p => p.id === productId);
-if (embedded && "hasScheduledFutureCancellation" in embedded) { /* never true — not a field on the stub */ }
+// const canChangePlan = (embedded?.allowedMigrations.length ?? 0) > 0;
 
-// ✅ Correct — load the one product directly for its full facts
+// ✅ Correct — load the one product directly for its migration facts
 const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
 await product.useActions().isReady();
-const { hasScheduledFutureCancellation } = product.useMeta();
+const { canMigrate } = product.useMeta();
 ```
 
 ---

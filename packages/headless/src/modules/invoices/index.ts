@@ -25,6 +25,7 @@ export type { InvoicesScopeMatrix, PaymentState } from "./invoices.types";
 // --- Public model types
 export type {
   Invoice,
+  InvoiceLineItem,
   InvoiceBundleGroup,
   InvoiceFilterModel,
   InvoicePaymentChallenge,

@@ -2,9 +2,9 @@
 
 ## What it is
 
-The **client-personal-details** module covers a client's own profile record: reading it (a handful of native fields, plus the client's own custom field values), editing it through a validated form, and persisting only what actually changed. It is the entity-holding half of a pair — the definitions a client's custom fields answer, the rules for reading and coercing their values, and the image-upload flow for one field type all live in a sibling module; this module consumes that contract rather than re-deriving it, and owns only the client record itself and the persist.
+The **client-personal-details** module covers a client's own profile record: reading it (a handful of native fields, plus the client's own custom field values) for display, editing it through a validated form, and persisting only what actually changed. It is the entity-holding half of a pair — the definitions a client's custom fields answer, the rules for reading and coercing their values, and the image-upload flow for one field type all live in a sibling module; this module consumes that contract rather than re-deriving it, and owns only the client record itself and the persist.
 
-Two working surfaces sit over the same record: a **read view**, for rendering the client's current profile including their custom field values, and a **form editor**, used to change native fields and custom field values together and save only the difference from what was loaded. Both address a profile by its owning client's entity id, usually the caller's own.
+One working surface sits over the record: a **form editor** that also exposes the profile as a display list (native fields, then custom field values), used to render the client's current profile and to change native fields and custom field values together, saving only the difference from what was loaded. It addresses a profile by its owning client's entity id, usually the caller's own.
 
 ## Core concepts
 
@@ -30,8 +30,8 @@ Two working surfaces sit over the same record: a **read view**, for rendering th
 
 **Additional always-on behaviours:**
 
-- Reporting whether the read is addressable at all — whether a client has been resolved to read on behalf of.
-- Reporting whether the read is loading, empty, or errored, and resolving once it is settled (bounded — never an unbounded wait).
+- Reporting whether the profile is addressable at all — whether a client has been resolved to act on behalf of.
+- Reporting whether the profile load is in progress or errored, and resolving once it is settled (bounded — never an unbounded wait).
 - Re-reading the profile from the server on demand. A successful save also marks this module's own cached read stale on its own, so the next read reflects it without a separate call.
 - Reporting the editor's own progress: available, valid, dirty, saving, complete.
 

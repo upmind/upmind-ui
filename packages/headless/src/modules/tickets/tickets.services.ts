@@ -123,6 +123,33 @@ const LIST_WITH = [
   "users.image"
 ].join(",");
 
+/**
+ * @decision The embedded `contract_product` relation carries the relation set
+ *   the embedded mapper reads (FE-3206).
+ * what: each `contract_product.*` member mirrors `CONTRACT_PRODUCTS_LIST_WITH`
+ *   (`contract-product.services.ts`) with a `contract_product.` prefix, because
+ *   `mapTicket` maps the linked product through the contract-product module's
+ *   `mapContractProductEmbedded` — the ticket's `contract_product` is the
+ *   `ContractProduct` view model minus the members that need `allowed_migrations`
+ *   or the parent contract (`ContractProductEmbedded`), so the read must supply
+ *   the relations that mapper reads. Mirrors `CONTRACT_PRODUCTS_LIST_WITH`;
+ *   `CONTRACT_WITH`'s `products.*` set additionally carries `brand.currency`
+ *   under `products.product`, which this read does not request.
+ * why: legacy's ticket view requests only `contract_product.product.image`
+ *   (`vue-app src/components/app/global/tickets/ticketProvider.ts:484`),
+ *   because it maps the embedded product raw. The wider members are
+ *   mapper-strict — `mapContractProductEmbedded` runs the full `mapContractProduct`
+ *   before omitting its six derived members, so that inner map reads them:
+ *   `status`, `clients`/`clients.image`/`clients.brand` (delegating clients),
+ *   `brand.currency` (price), `product.provision_blueprint.category`
+ *   (`useProductName` switches on `.category.code`, `product/product.utils.ts`),
+ *   `contract_request`, `future_cancellation_request`,
+ *   `moved_to_contract_product`(`.clients`), `tags`. Legacy requests the same
+ *   per-product relations on its contract-products read
+ *   (`vue-app src/store/modules/data/contracts/products.ts` `withParam`).
+ * rejected: keeping the slim `contract_product,contract_product.product.image`
+ *   — it fit the raw passthrough `mapTicket` replaced with the embedded mapper.
+ */
 const ONE_WITH = [
   "account",
   "brand",
@@ -130,7 +157,19 @@ const ONE_WITH = [
   "client",
   "client.image",
   "contract_product",
+  "contract_product.clients",
+  "contract_product.clients.image",
+  "contract_product.clients.brand",
+  "contract_product.status",
   "contract_product.product.image",
+  "contract_product.brand.currency",
+  "contract_product.product.provision_blueprint",
+  "contract_product.product.provision_blueprint.category",
+  "contract_product.contract_request",
+  "contract_product.future_cancellation_request",
+  "contract_product.moved_to_contract_product",
+  "contract_product.moved_to_contract_product.clients",
+  "contract_product.tags",
   "delegates",
   "delegates.client",
   "delegates.client.image",

@@ -18,7 +18,7 @@
  * recorded.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -30,6 +30,10 @@ import {
   startScenarioReplay
 } from "@upmind-automation/test-fixtures/replay-server";
 import { useContractProduct, useContractProducts } from "..";
+import {
+  observeRequestBodies,
+  observeRequests
+} from "../../../__tests__/criteria-int-kit";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
   scenarioDir,
@@ -48,6 +52,7 @@ import {
   CONTRACT_PRODUCT_SCENARIO,
   contractProductSteps
 } from "./contract-product.steps";
+import { closeWire, openWire } from "./contract-product.wire";
 import { server } from "./setup.integration";
 import { forEach, includes, reject } from "lodash-es";
 import type { NodeComposable } from "../../../testing";
@@ -62,17 +67,40 @@ const feature = readFileSync(
 
 let replay: ReturnType<typeof startScenarioReplay> | undefined;
 
-// AC-22 books the product's next_due_date, which is only the earliest date
-// while it is still in the future: those scenarios replay on the day they were
-// recorded.
-const AC22_RECORDED_ON = new Date("2026-09-29T12:00:00Z");
+/**
+ * The earliest `captured_at` across a scenario's step recordings — the instant
+ * the scenario was recorded against staging. Replaying under this clock keeps
+ * every now-relative read (AC-22's earliest-cancellation-date, which the module
+ * derives from the product's next-due date and the current date) reading as it
+ * did at capture, so the suite is deterministic on any calendar date.
+ */
+function recordedInstant(scenario: FeatureScenario): Date | undefined {
+  const root = scenarioDir(import.meta.dirname, scenario.name);
+  if (!existsSync(root)) return undefined;
+
+  let earliest: number | undefined;
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(path);
+        continue;
+      }
+      if (!entry.name.endsWith(".json")) continue;
+      const { captured_at } = JSON.parse(readFileSync(path, "utf-8")) as {
+        captured_at?: string;
+      };
+      const ms = captured_at ? Date.parse(captured_at) : NaN;
+      if (!Number.isNaN(ms) && (earliest === undefined || ms < earliest))
+        earliest = ms;
+    }
+  };
+  walk(root);
+
+  return earliest === undefined ? undefined : new Date(earliest);
+}
 
 async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
-  if (includes(scenario.tags, "@AC-22")) {
-    vi.useFakeTimers({ toFake: ["Date"] });
-    vi.setSystemTime(AC22_RECORDED_ON);
-  }
-
   const signedOut = includes(scenario.tags, "@signed-out");
   if (
     !signedOut &&
@@ -82,7 +110,15 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
       `"${scenario.name}" has no recording — record it with pnpm fixtures:generate contract-product`
     );
 
+  const instant = signedOut ? undefined : recordedInstant(scenario);
+  if (instant) vi.useFakeTimers({ toFake: ["Date"], now: instant });
+
   replay = startScenarioReplay(server);
+  openWire(
+    scenario.name,
+    observeRequests(server, "/api/"),
+    observeRequestBodies(server, "/change")
+  );
   // Step 01 answers the seed's own boot reads (brand settings, the session's
   // `/self`), so it is armed before the session is seeded, not after.
   armBootStep(stepFixturesDir(import.meta.dirname, scenario, 0));
@@ -97,6 +133,7 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
 function cleanupScenario(scenario: FeatureScenario): void {
   vi.useRealTimers();
   resetContractProductScopes();
+  closeWire();
 
   const [gap] = replay?.gaps() ?? [];
   replay = undefined;

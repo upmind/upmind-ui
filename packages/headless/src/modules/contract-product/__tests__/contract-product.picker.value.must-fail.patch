@@ -12,12 +12,12 @@
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
-@@ -254,7 +254,7 @@ export function mapContractProductPickerItem(
+@@ -388,7 +388,7 @@
    raw: IContractProduct
  ): LookupItem {
    return {
 -    value: raw.id,
 +    value: raw.contract_id,
-     label: raw.service_identifier || raw.product_name || raw.name || raw.id
+     label: mapContractProductTitle(raw) || raw.id
    };
  }

@@ -1,0 +1,27 @@
+Negative control for the tickets linked-product mapping (FE-3206).
+
+FE-3206 maps the ticket's linked `contract_product` through the contract-product
+module's `mapContractProductEmbedded`, so the ticket serves the contract-product
+view model (title, status badge, formatted price, billing cycle, dates). Rule home: the `mapTicket` JSDoc in `tickets.mappers.ts`.
+
+The mutation passes the raw linked `contract_product` through untouched instead
+of through `mapContractProductEmbedded`. The derived view-model readings never appear,
+so the title/status/price/dates checks in
+"useTicket — the linked ticket carries the full ContractProduct map" go RED.
+Spec: packages/headless/src/modules/tickets/__tests__/tickets.reads.int.test.ts
+
+diff --git a/packages/headless/src/modules/tickets/tickets.mappers.ts b/packages/headless/src/modules/tickets/tickets.mappers.ts
+index c3fae46764..23d7276164 100644
+--- a/packages/headless/src/modules/tickets/tickets.mappers.ts
++++ b/packages/headless/src/modules/tickets/tickets.mappers.ts
+@@ -47,9 +47,7 @@ export const mapTicket = (raw: ITicket): Ticket => {
+
+   return {
+     ...raw,
+-    contract_product: linkedProduct
+-      ? mapContractProductEmbedded(linkedProduct)
+-      : undefined,
++    contract_product: linkedProduct as unknown as Ticket["contract_product"],
+     // The wire's `updated_at` is `YYYY-MM-DD HH:mm:ss`, and a surface draws a
+     // date through a `useDate` descriptor, never a raw string — `TableCellDate`
+     // reads `.relative` off one. The raw field stays; this is added beside it.

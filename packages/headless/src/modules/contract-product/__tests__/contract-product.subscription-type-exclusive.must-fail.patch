@@ -11,16 +11,16 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-index 07a4747dc..b1ddc4420 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-@@ -94,9 +94,6 @@ export function useQuerySchema(): ContractProductsQuerySchema {
+@@ -96,9 +96,7 @@
              type: "object",
              title: "text.billing_cycle",
              additionalProperties: false,
 -            // Mutually exclusive operators on ONE wire column — a client
 -            // never picks Subscriptions AND One-time at once (R38 item 1).
 -            not: { required: ["neq", "eq"] },
-             properties: {
-               neq: forced
-                 ? { type: "integer", const: 0, default: 0 }
++
+             // Forced, `eq` is undeclared: the parser drops a one-time ask
+             // and the brand's hide outranks it (legacy cProdsProvider).
+             properties: forced

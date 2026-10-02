@@ -47,6 +47,7 @@ export type { ContractsScopeMatrix } from "./contract.types";
 export type {
   Contract,
   ContractContext,
+  ContractEmbeddedProduct,
   SetPaymentMethodModel
 } from "./contract.types";
 

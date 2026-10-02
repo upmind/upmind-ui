@@ -1,0 +1,22 @@
+# Negative-control mutant 45 — list-term-truthy (FE-3206)
+#
+# Mutation: emit the term leaf only when the term is truthy.
+# Spec it must turn red: `product-catalogue.scope.test.ts`, "AC-28 — the scope instance" (term 0 case).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts b/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts
+--- a/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts
++++ b/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts
+@@ -32,7 +32,7 @@ export function useScopeFilters(
+   const filters: NonNullable<ProductQueryModel["filters"]> = {};
+   if (!scope) return filters;
+   if (scope.ids && !isEmpty(scope.ids)) filters.id = [...scope.ids];
+-  if (isNumber(scope.billingCycleMonths))
++  if (scope.billingCycleMonths)
+     filters["prices.billing_cycle_months"] = String(scope.billingCycleMonths);
+   if (scope.recurringOnly) filters.billing_cycle_months = { neq: "0" };
+   if (scope.orderable) {

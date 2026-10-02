@@ -25,7 +25,12 @@
  *
  * ## Captures (`design ✅.md` §8.1, §8.3)
  * `get-contracts` (list — AC-14) ·
- * `get-contracts-id` (the 8-member client read after ruling R34 — AC-3) ·
+ * `get-contracts-id` (the full client contract read — the per-product map plus
+ * `payment_details`, the members of `CONTRACT_WITH` below — AC-3; the recipe
+ * lodges a product cancellation request and books a product future-dated
+ * cancellation on this real contract before the read, then withdraws both after,
+ * so the read carries `products.contract_request` and
+ * `products.future_cancellation_request` — operator ruling: arrange, then reset) ·
  * `get-clients-id-payment-details` (the stored cards the payment-method form
  * offers — AC-8, D3) ·
  * `patch-contracts-id-payment_details` (AC-8, `setPaymentMethod`, idempotent
@@ -78,7 +83,7 @@ import {
   mintStaffToken,
   mintToken
 } from "../../auth/__tests__/auth.tokens";
-import { forEach, map } from "lodash-es";
+import { filter, forEach, groupBy, map } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -111,22 +116,35 @@ const CONTRACTS_LIST_WITH = [
   "cancellation_request.status"
 ].join(",");
 
-/** The 8 `with` members of the client contract read after ruling R34: the
- * contract keeps only contract facts, so the product cancellation members
- * (`products.contract_request`, `products.contract_request.custom_fields.field`,
- * `products.future_cancellation_request`) and `cancellation_request.custom_fields.field`
- * are DROPPED — each product loads its own cancellation state through
- * `useContractProduct`. Kept in lockstep with `CONTRACT_WITH_MEMBERS` in
- * `contract.reads.int.test.ts`, which asserts the module sends exactly these. */
+/** The `with` members of the client contract read: the full per-product map the
+ * account area shows (title, status/meta, price, dates, delegating clients,
+ * cancellation and future-cancellation state, the moved-to product), plus the
+ * contract's own status and cancellation request, the client image, and
+ * `payment_details` — the stored method that pays the contract, which
+ * `contract.paymentMethod` labels. Kept in lockstep, in this exact order, with
+ * the service's own `CONTRACT_WITH` (`contract.services.ts`) so the recorded
+ * request matches the outbound one; `CONTRACT_WITH_MEMBERS` in
+ * `contract.reads.int.test.ts` asserts the module sends exactly these. */
 const CONTRACT_WITH = [
+  "products.clients",
+  "products.clients.image",
+  "products.clients.brand",
+  "products.status",
   "products.product.image",
   "products.product.brand.currency",
-  "cancellation_request",
-  "products.status",
+  "products.brand.currency",
+  "products.product.provision_blueprint",
+  "products.product.provision_blueprint.category",
+  "products.contract_request",
+  "products.future_cancellation_request",
+  "products.moved_to_contract_product",
+  "products.moved_to_contract_product.clients",
   "products.tags",
+  "cancellation_request",
   "client.image",
   "status",
-  "cancellation_request.status"
+  "cancellation_request.status",
+  "payment_details"
 ].join(",");
 
 type WireContractProduct = {
@@ -418,15 +436,94 @@ describe("Contract API Fixtures Generator", () => {
     }
   });
 
-  it("captures GET /api/contracts/{id} (the 12-member client read — AC-3)", async () => {
-    generator.setBearerToken(clientToken.access_token);
-    const { status } = await generator.get(
-      `/api/contracts/${contractId}?with_staged_imports=1&with=${CONTRACT_WITH}`
+  it("captures GET /api/contracts/{id} (the full client read, products carrying cancellation state — AC-3)", async () => {
+    const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+
+    // A cancellation request and a future-dated cancellation are mutually
+    // exclusive on one product, so the read needs a contract with TWO active
+    // subscription products — one per state. Prefer such a contract of mine;
+    // fall back to the AC-6 contract (request only) when none exists. Both
+    // states are withdrawn in `finally`, so the sandbox is left as it was found.
+    const activeSubscriptions = filter(
+      (
+        (
+          await call(
+            "GET",
+            "/api/contracts_products?with=status&filter[status.code]=contract_active&limit=50",
+            clientToken.access_token
+          )
+        ).body as { data?: WireContractProduct[] }
+      )?.data ?? [],
+      product => product.billing_cycle_months > 0
     );
-    generator.clearBearerToken();
-    if (status !== 200) {
-      throw new Error(`Contract read capture returned ${status}.`);
+    const subsByContract = groupBy(activeSubscriptions, "contract_id");
+    const twoSubContractId = Object.keys(subsByContract).find(
+      id => subsByContract[id].length >= 2
+    );
+
+    const readContractId = twoSubContractId ?? contractId;
+    const requestProductId = twoSubContractId
+      ? subsByContract[twoSubContractId][0].id
+      : subscriptionProductId;
+    let futureProductId = twoSubContractId
+      ? subsByContract[twoSubContractId][1].id
+      : undefined;
+
+    await call(
+      "POST",
+      `/api/contracts/${readContractId}/cancel/request`,
+      clientToken.access_token,
+      {
+        product_ids: [requestProductId],
+        cancellation_reason: "prover read capture — withdrawn same run"
+      }
+    );
+    if (futureProductId) {
+      const { status } = await call(
+        "PUT",
+        `/api/contracts/${readContractId}/products/${futureProductId}/schedule-cancel`,
+        clientToken.access_token,
+        { future_cancellation_date: futureDate }
+      );
+      if (status !== 200) futureProductId = undefined;
     }
+
+    await (async () => {
+      generator.setBearerToken(clientToken.access_token);
+      const { status } = await generator.get(
+        `/api/contracts/${readContractId}?with_staged_imports=1&with=${CONTRACT_WITH}`
+      );
+      generator.clearBearerToken();
+      if (status !== 200) {
+        throw new Error(`Contract read capture returned ${status}.`);
+      }
+    })().finally(async () => {
+      const requestId = (
+        (
+          await call(
+            "GET",
+            `/api/contract_products/${requestProductId}?with=contract_request`,
+            clientToken.access_token
+          )
+        ).body as { data?: { contract_request?: { id?: string } } }
+      )?.data?.contract_request?.id;
+      if (requestId)
+        await call(
+          "DELETE",
+          `/api/contracts/${readContractId}/cancel/request`,
+          clientToken.access_token,
+          { contract_request_id: requestId }
+        ).catch(() => undefined);
+      if (futureProductId)
+        await call(
+          "PUT",
+          `/api/contracts/${readContractId}/products/${futureProductId}/schedule-cancel-revoke`,
+          clientToken.access_token,
+          {}
+        ).catch(() => undefined);
+    });
   });
 
   it("captures GET /api/contracts/{id} for an id I do not own (the real read failure)", async () => {

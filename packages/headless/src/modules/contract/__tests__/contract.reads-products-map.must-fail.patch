@@ -1,0 +1,26 @@
+# Negative-control mutant — each of a contract's products carries the full
+#   ContractProduct view model (FE-3206, commit 4f0025e19e).
+#
+# Spec it must flip: contract.reads.int.test.ts,
+#   "useContract — contract.products[] carries the full ContractProduct map"
+#   (title / status+meta / price+billing cycle / dates checks).
+# RED-verified 2026-10-02.
+#
+# Mutation: `contract.products` maps back to an id/name stub instead of the full
+#   `mapContractProductEmbedded`, so title, status, price and dates are all absent.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 77452a4909..10eec74b27 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -118,7 +118,7 @@ export function mapContract(raw: IContract): Contract {
+           }
+         }
+       : {}),
+-    products: map(raw.products, mapContractProductEmbedded),
++    products: map(raw.products, p => ({ id: p.id, name: p.name })) as unknown as Contract["products"],
+     name: raw.name,
+     title: mapContractTitle(raw),
+     nextDueDate: raw.next_due_date,

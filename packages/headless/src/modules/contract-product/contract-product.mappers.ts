@@ -4,18 +4,31 @@ import {
   CancellationRequestStatusCodes,
   ContractStatusCodes
 } from "@upmind-automation/types";
+import { mapInvoice } from "../invoices";
 import { parseBillingCycle } from "../product";
 import { useProductName, useUischemaTitle } from "../product/product.utils";
 import { useI18n } from "../system-localisation";
 import { removeTrailingZeroes, useDate, useTranslateName } from "../../utils";
-import { castArray, compact, isEmpty, join, map, pick } from "lodash-es";
+import {
+  castArray,
+  compact,
+  isEmpty,
+  isNil,
+  join,
+  map,
+  omit,
+  pick
+} from "lodash-es";
 import type { LookupItem } from "../lookup";
 import type {
   ConsolidationBody,
   ContractProduct,
   ContractProductClient,
+  ContractProductEmbedded,
   ContractProductMeta,
   ContractProductRequest,
+  MigrationPreview,
+  MigrationResult,
   MovedToContractProduct,
   RequestCancellationBody,
   RequestCancellationModel,
@@ -198,6 +211,25 @@ export function mapContractProduct(raw: IContractProduct): ContractProduct {
   return toContractProduct(raw);
 }
 
+/**
+ * One embedded product off a read that does not carry `allowed_migrations` or
+ * the parent `contract` relation: `mapContractProduct` without the members that
+ * read them, so the runtime matches `ContractProductEmbedded`. The `contract`
+ * read and the `tickets` single read both embed a product this way.
+ */
+export function mapContractProductEmbedded(
+  raw: IContractProduct
+): ContractProductEmbedded {
+  return omit(mapContractProduct(raw), [
+    "allowedMigrations",
+    "clientInvoiceConsolidationEnabled",
+    "contractBillingCycleLabel",
+    "contractCurrencyId",
+    "contractStatus",
+    "contractTaxType"
+  ]);
+}
+
 function toContractProduct(
   raw: IContractProduct,
   taxType?: BrandTaxTypes
@@ -245,6 +277,21 @@ function toContractProduct(
     title: mapContractProductTitle(raw),
     canCancel: raw.can_cancel,
     proRataPending: !!raw.pro_rata_pending,
+    canModify: !!raw.can_modify,
+    productType: raw.product?.product_type,
+    allowedMigrations: raw.allowed_migrations ?? [],
+    currentOptions: map(raw.options, option => ({
+      productId: option.product_id,
+      sellingPrice: option.selling_price
+    })),
+    contractCurrencyId: raw.contract?.currency_id,
+    contractCurrencyCode: raw.currency_code,
+    contractAccountId: raw.contract?.account_id ?? raw.account_id,
+    contractTaxType: raw.contract?.tax_type,
+    contractBillingCycleLabel:
+      raw.contract?.billing_cycle_months == null
+        ? undefined
+        : mapContractProductBillingCycle(raw.contract.billing_cycle_months),
     isDelegatedObject: raw.is_delegated_object,
     autoCreateRenewInvoice: raw.auto_create_renew_invoice,
     unpaidRecurringInvoices: map(
@@ -269,7 +316,8 @@ function toContractProduct(
           "name",
           "image",
           "provision_blueprint",
-          "invoice_consolidation_enabled"
+          "invoice_consolidation_enabled",
+          "product_type"
         ])
       : undefined,
     brand: raw.brand ? pick(raw.brand, ["id", "name", "currency"]) : undefined,
@@ -350,6 +398,37 @@ export function mapContractProductPickerItems(
   raw: IContractProduct[] = []
 ): LookupItem[] {
   return map(raw, mapContractProductPickerItem);
+}
+
+// -----------------------------------------------------------------------------
+// MIGRATION — the dry run and the commit of a change of plan (FE-3206)
+
+/**
+ * The dry run of a change of plan: its invoice, its formatted total, and
+ * whether it costs nothing. The figure is `total_amount_converted`, as legacy
+ * reads it [o15].
+ */
+export function mapMigrationPreview(raw: IInvoice): MigrationPreview {
+  return {
+    invoice: mapInvoice(raw),
+    total: raw.total_amount_formatted ?? "",
+    isFree: Math.abs(raw.total_amount_converted ?? 0) === 0
+  };
+}
+
+/**
+ * What a committed change of plan gave. A commit answer with no invoice gives
+ * no invoice id, nothing unpaid and no payment to make.
+ */
+export function mapMigrationResult(raw?: IInvoice): MigrationResult {
+  if (isNil(raw)) return { unpaidAmount: 0, requiresPayment: false };
+  const unpaidAmount = raw.unpaid_amount ?? 0;
+  return {
+    invoiceId: raw.id,
+    unpaidAmount,
+    requiresPayment: unpaidAmount !== 0,
+    invoice: mapInvoice(raw)
+  };
 }
 
 // -----------------------------------------------------------------------------

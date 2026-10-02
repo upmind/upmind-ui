@@ -25,7 +25,7 @@ export function createInvoiceMeta(
   paymentFailed: Ref<boolean>
 ) {
   const { state } = actor;
-  const { isAuthenticated } = useActiveSession().useMeta();
+  const { isAuthenticated, isGuestClient } = useActiveSession().useMeta();
 
   const invoice = useContext<Invoice | undefined>(state, "invoice");
   const errors = useContext<ResponseError | undefined>(state, "error");
@@ -58,6 +58,13 @@ export function createInvoiceMeta(
         isAvailable.value && (isFailed.value || !isEmpty(conversionError.value))
     ),
 
+    /** True while the invoice is owed and unlocked — the gate legacy offers
+     * "change payment method" on (`invoiceActions.vue`, `isPayable`). */
+    canUpdatePaymentMethod: computed(
+      () =>
+        isAvailable.value && unpaidAmount.value > 0 && !invoice.value?.locked
+    ),
+
     /** True when the brand allows a different pay currency and nothing of the
      * invoice is paid yet — the gate `useActions().setCurrency()` obeys. */
     hasPaymentCurrencyChoice: computed(
@@ -71,6 +78,9 @@ export function createInvoiceMeta(
 
     /** True once the invoice has loaded and the pay flow is active. */
     isAvailable,
+
+    /** True when the reading client is a guest — no full account yet. */
+    isGuestClient: computed(() => isGuestClient.value),
 
     /** True once the pay flow has completed (paid in full or free). */
     isComplete: computed(() => stateMatches(state, ["complete"])),

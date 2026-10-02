@@ -34,7 +34,12 @@ import type { IContract } from "@upmind-automation/types";
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
-/** The recorded single-contract read, cloned with only its status.code swapped. */
+/**
+ * The recorded single-contract read, cloned with its status.code swapped and
+ * its `cancellation_request` cleared — so the unknown code is the ONLY status
+ * signal the machine sees, not a cancellation request that would route it to
+ * `cancelling` first.
+ */
 function recordedRecord(statusCode: string): IContract {
   const envelope = getFixtureBody<{ data: IContract }>(
     "get-contracts-id-with-staged-imports-1",
@@ -42,8 +47,10 @@ function recordedRecord(statusCode: string): IContract {
   );
   const record = JSON.parse(JSON.stringify(envelope.data)) as IContract & {
     status: { code: string };
+    cancellation_request?: unknown;
   };
   record.status.code = statusCode;
+  delete record.cancellation_request;
   return record;
 }
 

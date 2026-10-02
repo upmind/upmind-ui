@@ -109,6 +109,8 @@ type Envelope<T> = {
 Recorded from the single read. The list rows carry the **same** shape — a rebuild does not need a second request to draw a rich row.
 
 ```ts
+import type { ContractProductEmbedded } from "@upmind-automation/headless";
+
 // Related records, each documented by its own module:
 type ContractProduct = Record<string, unknown>;
 type Department = Record<string, unknown>;
@@ -126,7 +128,7 @@ type Ticket = {
   status_id: string;              // NOTE: the expanded `status` relation may be absent
   priority_id: string | null;
   contract_product_id: string | null;
-  contract_product: ContractProduct | null;   // present when linked
+  contract_product?: ContractProductEmbedded;   // single read only, when linked
   invoice_id: string | null;
   department: Department | null;
   client: Client | null;

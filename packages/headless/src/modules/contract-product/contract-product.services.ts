@@ -25,8 +25,10 @@ import {
 } from "./contract-product.schemas";
 import { ContractProductsContextTypes } from "./contract-product.types";
 import {
+  buildChangeProductBody,
   resolveExcludeDelegated,
   validateForm,
+  watchMigrationTarget,
   whenPreferenceSettles
 } from "./contract-product.utils";
 import {
@@ -53,11 +55,13 @@ import type {
   SetConsolidationModel
 } from "./contract-product.types";
 import type { LookupItem } from "../lookup";
+import type { ProductModel } from "../product";
 import type { ScopeContext } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
   ICProdGroup,
   IContractProduct,
+  IInvoice,
   IProductCategory
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -646,6 +650,56 @@ async function revokeScheduledCancellation(
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
+/**
+ * The change body of the open change of plan: the last model that went to a
+ * request, its raw plan and the contract's old options. The dry run and the
+ * commit send the same body.
+ */
+async function changeBody(context: ContractProductContext) {
+  const { migration, contractProduct } = context;
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailable(context));
+  }
+
+  return buildChangeProductBody({
+    contractId: context.contractId,
+    contractProductId: context.contractProductId,
+    targetId: migration?.target?.id as string,
+    model: migration?.model as ProductModel,
+    rawProduct: migration?.rawProduct,
+    currentOptions: contractProduct?.currentOptions,
+    currencyId: contractProduct?.contractCurrencyId
+  });
+}
+
+/** `configuring.previewing` — the dry run: the platform prices the change and commits nothing. */
+async function previewMigration(
+  context: ContractProductContext
+): Promise<IInvoice> {
+  const { put } = useQuery();
+
+  return put<IInvoice>({
+    mutationKey: [...queryKey, context.contractProductId, "change", "preview"],
+    url: await productUrl(context, "change"),
+    data: { ...(await changeBody(context)), dry_run: true },
+    withAccessToken: true
+  });
+}
+
+/** `configuring.processing.sending` (AC-31) — the commit of the change of plan. */
+async function migrate(
+  context: ContractProductContext
+): Promise<IInvoice | undefined> {
+  const { put } = useQuery();
+
+  return put<IInvoice>({
+    mutationKey: [...queryKey, context.contractProductId, "change"],
+    url: await productUrl(context, "change"),
+    data: await changeBody(context),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
 /** The services map `contract-product.machine.ts` invokes, keyed by `invoke.src`. */
 export const contractProductMachineServices: ContractProductMachineServices = {
   load,
@@ -657,5 +711,8 @@ export const contractProductMachineServices: ContractProductMachineServices = {
   withdrawCancellation,
   setConsolidation,
   scheduleCancellation,
-  revokeScheduledCancellation
+  revokeScheduledCancellation,
+  previewMigration,
+  migrate,
+  watchMigrationTarget
 };

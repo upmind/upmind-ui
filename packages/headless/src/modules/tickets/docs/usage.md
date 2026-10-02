@@ -293,7 +293,7 @@ await ticket.useActions().reply("See attached.", { files: [ref] });
 | ---------------- | ----------------------------------------------- | ----------------------------------------------------- |
 | `data`           | `ComputedRef<Ticket \| undefined>`              | `undefined` before the first fetch settles.           |
 | `department`     | `ComputedRef<…>`                                | The ticket's desk relation.                           |
-| `relatedProduct` | `ComputedRef<…>`                                | The linked contract product, if any.                  |
+| `relatedProduct` | `ComputedRef<ContractProductEmbedded \| undefined>` | The linked contract product, if any. It omits `allowedMigrations`, `clientInvoiceConsolidationEnabled`, `contractBillingCycleLabel`, `contractCurrencyId`, `contractStatus` and `contractTaxType`; read the product through `useContractProduct` for plan-change facts. |
 | `error`          | `ComputedRef<ResponseError \| undefined>`       | Captured read failure. Local refusals **throw** instead. |
 | `feed`           | `{ entries, hasOlder, hasNewer, isLoading }`    | The merged message + status-log feed.                 |
 
@@ -380,4 +380,4 @@ Exported from `@upmind-automation/headless`:
 
 Runtime values: `TICKETS_SCOPE_MATRIX`, `TICKET_SCOPE_MATRIX`, `TicketsContextTypes`, `TicketsSortableProperties`.
 
-`Ticket` is deliberately `ITicket` with nothing stripped — the list row already carries `department`, `settings` and `contract_product` in full, so a consumer rarely needs a second read to draw a row.
+`Ticket` is `ITicket` with the raw fields kept, plus the date descriptors, `meta`, and `contract_product`. `contract_product` is present on the single read only. It is a `ContractProductEmbedded` view model (camelCase), mapped by `mapContractProductEmbedded`, not the wire record. It omits `allowedMigrations`, `clientInvoiceConsolidationEnabled`, `contractBillingCycleLabel`, `contractCurrencyId`, `contractStatus` and `contractTaxType`. List rows carry `contract_product_id` alone.

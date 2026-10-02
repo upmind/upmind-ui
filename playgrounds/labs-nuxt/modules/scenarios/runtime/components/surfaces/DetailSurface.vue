@@ -47,7 +47,7 @@
 
 import { computed } from "vue";
 import { useFormI18n } from "@upmind-automation/foundation";
-import { resolveScope } from "../../scenario.utils";
+import { isAbsentDate, resolveScope } from "../../scenario.utils";
 import { CellDispatcher } from "../cells";
 import ContextPanel from "../ContextPanel.vue";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
@@ -86,6 +86,7 @@ function isPopulated(element: TableCell): boolean {
   const value = resolveScope(model.value, element.scope);
 
   if (isNil(value) || value === "") return false;
+  if (element.type === "TableCellDate") return !isAbsentDate(value);
   // A flags object is populated by any flag that is actually set; a `useDate`
   // descriptor by a date being there at all.
   if (isPlainObject(value)) return some(values(value), part => !!part);

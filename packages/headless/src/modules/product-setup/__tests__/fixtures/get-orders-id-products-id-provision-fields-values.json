@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/orders/4038696e-5472-1d57-2066-f518d9305e7d/products/d7382485-0793-1580-096a-81e642d59e06/provision_fields/values",
+    "path": "/api/orders/85d26e96-783d-1670-3578-f314502e7043/products/98574264-8970-1248-059b-21e325d0ed36/provision_fields/values",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
@@ -39,7 +39,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T12:04:19.956Z",
+  "captured_at": "2026-10-02T12:20:04.317Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

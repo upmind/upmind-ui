@@ -201,6 +201,87 @@ describe("Product-Catalogue API Fixtures Generator", () => {
     }
   });
 
+  it("captures the storefront's first page with no scope", async () => {
+    generator.setBearerToken(accessToken);
+    // R11 (useQuery withCurrency) adds currency_code when the URL carries no
+    // currency_id, so the signed-in basket's first page sends currency_code=GBP.
+    // develop 122719bac3 dropped currency_code from EXCLUDE_PARAMS, so it is now
+    // part of fixture identity — the recorded URL must carry it to match.
+    const { status } = await generator.get(
+      `/api/basket/products?${SCOPE}&order=order&limit=10&offset=0&currency_code=GBP`
+    );
+    const levels = [1, 2, 3, 4].map(depth =>
+      Array.from({ length: depth }, () => "subcategories").join(".")
+    );
+    const tree = await generator.get(
+      `/api/basket/products_categories?with=${levels.map(level => `${level}.image`).join(",")}` +
+        `&with_count=products,${levels.map(level => `${level}.products`).join(",")}&limit=0&offset=0`
+    );
+    generator.clearBearerToken();
+
+    if (status !== 200 || tree.status !== 200) {
+      throw new Error(
+        `The storefront's first page returned ${status} — refusing to ship a ` +
+          "fixture that does not represent a real page."
+      );
+    }
+  });
+
+  it("captures the scoped plan page on the term 0 — a one-off subscription's change of plan", async () => {
+    generator.setBearerToken(accessToken);
+    const headers = {
+      Accept: "application/json",
+      Origin: ORIGIN,
+      Authorization: `Bearer ${accessToken}`
+    };
+    const contracts = (await (
+      await fetch(`${API_URL}/api/contracts_products?with=contract&limit=1`, {
+        headers
+      })
+    ).json()) as {
+      data?: { id: string }[];
+    };
+    const read = (await (
+      await fetch(
+        `${API_URL}/api/contract_products/${contracts.data?.[0]?.id}?with=contract`,
+        { headers }
+      )
+    ).json()) as {
+      data?: { contract?: { account_id?: string; currency_id?: string } };
+    };
+    const contract = {
+      account_id: read.data?.contract?.account_id,
+      currency_id: read.data?.contract?.currency_id
+    };
+    const plans = (await (
+      await fetch(`${API_URL}/api/basket/products?limit=2`, { headers })
+    ).json()) as { data?: { id: string }[] };
+    const ids = (plans.data ?? []).map(({ id }) => id);
+    if (!contract.account_id || !contract.currency_id || ids.length === 0) {
+      throw new Error(
+        "The client holds no contract product or the brand sells no plan — " +
+          "the scoped capture has no real account, currency or plan to send."
+      );
+    }
+
+    const { status } = await generator.get(
+      "/api/basket/products?limit=4&offset=0&filter[prices.billing_cycle_months]=0" +
+        `&account_id=${contract.account_id}&currency_id=${contract.currency_id}` +
+        `&filter[id]=${ids.join(",")}` +
+        "&filter[available_for_sales]=1&filter[clients_can_order]=1" +
+        `&filter[provision_blueprint.category.code|neq]=${ProvisionCategoryCodes.DOMAIN_NAMES}&order=order` +
+        "&with=image,images,prices,products_attributes,products_options,products_options.prices,category.top_category.top_category.top_category.top_category"
+    );
+    generator.clearBearerToken();
+
+    if (status !== 200) {
+      throw new Error(
+        `The scoped term-0 page returned ${status} — the API refuses the ` +
+          "migration filters on the one-off term."
+      );
+    }
+  });
+
   it("captures filter[products_category_id|eq] — the operator form replacing the legacy bare key", async () => {
     generator.setBearerToken(accessToken);
     const operatorForm = await generator.get(

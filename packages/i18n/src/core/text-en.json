@@ -239,5 +239,16 @@
   "user_only_label": "Staff only",
   "verified_label": "Verified",
   "welcome_back_msg": "Welcome back, {name}",
-  "yes": "Yes"
+  "yes": "Yes",
+  "after_invoice_payment": "After invoice payment",
+  "effective": "Effective",
+  "new_product": "New product",
+  "no_migration_products_available": "No migration products available",
+  "nothing_to_pay": "Nothing to pay",
+  "old_product": "Old product",
+  "pro_rata_fee": "Pro rata fee",
+  "review_changes_no_fee_msg": "You're about to change this product from '{oldProductName}' to '{newProductName}'. As there's nothing to pay, this change will take effect immediately. If you're happy to proceed, please click below.",
+  "review_changes_with_fee_msg": "You're about to change this product from '{oldProductName}' to '{newProductName}'. This change will incur a fee of {proRataAmount} (the difference in cost between the two products). Once confirmed, we'll redirect you to pay the pro rata invoice.",
+  "right_away": "Right away",
+  "select_new_product": "Select new product"
 }

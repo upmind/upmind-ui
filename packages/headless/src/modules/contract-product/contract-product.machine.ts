@@ -1,13 +1,18 @@
 /** @internal */
-import { assign, createMachine, spawn } from "xstate";
+import { assign, createMachine, pure, spawn, stop } from "xstate";
 import {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
   TrialEndActionTypes
 } from "@upmind-automation/types";
+import { productMachine } from "../product";
 import { authSubscription } from "../session-store";
 import { useI18n } from "../system-localisation";
-import { mapContractProduct } from "./contract-product.mappers";
+import {
+  mapContractProduct,
+  mapMigrationPreview,
+  mapMigrationResult
+} from "./contract-product.mappers";
 import {
   useCancellationSchema,
   useCancellationUischema,
@@ -17,9 +22,12 @@ import {
 import { contractProductMachineServices as services } from "./contract-product.services";
 import { ContractProductState } from "./contract-product.types";
 import {
+  buildMigrationSeed,
   canConsolidate,
+  canMigrateProduct,
   cancellationOptions,
   hasHardCancellationRequest,
+  migrationTargetConfig,
   minFutureCancellationDate
 } from "./contract-product.utils";
 import {
@@ -27,14 +35,17 @@ import {
   ErrorOrigin,
   mapToHeadlessError,
   responseCodes,
+  stateMatches,
   useModelParser,
   useValidationParser
 } from "../../utils";
-import { isEmpty } from "lodash-es";
+import { isEmpty, isEqual, some, uniqueId } from "lodash-es";
 import type {
   ContractProductContext,
   ContractProductLoaded,
-  ContractProductWriteModel
+  ContractProductWriteModel,
+  MigrationChange,
+  MigrationTarget
 } from "./contract-product.types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
@@ -46,6 +57,19 @@ import type { AnyEventObject } from "xstate";
  * the auth-shaped write forms, so an open form never leaves the status node.
  * `unavailable` holds staged · cancelled · lapsed · fraud.
  */
+
+/** Spawns the stock product machine for a chosen plan, with the change-of-plan overrides. */
+function spawnMigrationChild(
+  context: ContractProductContext,
+  target: MigrationTarget
+) {
+  return spawn(
+    productMachine
+      .withContext(buildMigrationSeed(context, target))
+      .withConfig(migrationTargetConfig),
+    { name: uniqueId("migrationTarget-") }
+  );
+}
 
 export const contractProductMachine = createMachine(
   {
@@ -64,7 +88,7 @@ export const contractProductMachine = createMachine(
         // A form's context slot is the form's own — outliving the read that
         // re-placed the product would leave a page drawing a dead form beside
         // its re-shown "open" control.
-        entry: ["clearCancellation", "clearConsolidation"],
+        entry: ["clearCancellation", "clearConsolidation", "clearMigration"],
         invoke: {
           src: "load",
           // The settled read places the status node; the guards read the
@@ -365,6 +389,164 @@ export const contractProductMachine = createMachine(
             }
           },
 
+          migrating: {
+            id: "migrating",
+            initial: "idle",
+            states: {
+              idle: {
+                on: {
+                  MIGRATION: {
+                    target: "choosing",
+                    actions: "clearMigrationResult",
+                    cond: "canMigrate"
+                  }
+                }
+              },
+              choosing: {
+                on: {
+                  "MIGRATION.SELECT": {
+                    target: "configuring",
+                    actions: "spawnMigrationTarget",
+                    cond: "isAllowedMigrationTarget"
+                  },
+                  "CANCEL.MIGRATION": {
+                    target: "idle",
+                    actions: "clearMigration"
+                  }
+                }
+              },
+              configuring: {
+                id: "migrationConfiguring",
+                initial: "loading",
+                invoke: { src: "watchMigrationTarget" },
+                on: {
+                  "MIGRATION.UNAVAILABLE": {
+                    target: ".unavailable",
+                    actions: ["setError", "clearMigrationPreview"]
+                  },
+                  "CANCEL.MIGRATION": {
+                    target: "idle",
+                    actions: "clearMigration"
+                  }
+                },
+                states: {
+                  loading: {
+                    on: {
+                      "MIGRATION.CHANGED": {
+                        target: "previewing",
+                        actions: "setMigrationModel"
+                      }
+                    }
+                  },
+                  unavailable: {
+                    on: {
+                      "MIGRATION.RELOAD": {
+                        target: "#migrationConfiguring",
+                        actions: ["clearError", "respawnMigrationTarget"]
+                      }
+                    }
+                  },
+                  previewing: {
+                    entry: "clearMigrationPreview",
+                    invoke: {
+                      src: "previewMigration",
+                      onDone: {
+                        target: "previewed",
+                        actions: "setMigrationPreview"
+                      },
+                      onError: { target: "unpreviewed" }
+                    },
+                    on: {
+                      "MIGRATION.CHANGED": {
+                        target: "previewing",
+                        actions: "setMigrationModel",
+                        cond: "isNewMigrationModel"
+                      }
+                    }
+                  },
+                  previewed: {
+                    on: {
+                      "MIGRATION.CHANGED": {
+                        target: "previewing",
+                        actions: "setMigrationModel",
+                        cond: "isNewMigrationModel"
+                      },
+                      MIGRATE: {
+                        target: "processing",
+                        cond: "isMigrationTargetReady"
+                      }
+                    }
+                  },
+                  unpreviewed: {
+                    entry: "clearMigrationPreview",
+                    on: {
+                      "MIGRATION.CHANGED": {
+                        target: "previewing",
+                        actions: "setMigrationModel",
+                        cond: "isNewMigrationModel"
+                      },
+                      MIGRATE: {
+                        target: "processing",
+                        cond: "isMigrationTargetReady"
+                      }
+                    }
+                  },
+                  error: {
+                    id: "migrationError",
+                    on: {
+                      "MIGRATION.CHANGED": {
+                        target: "previewing",
+                        actions: ["setMigrationModel", "clearError"],
+                        cond: "isNewMigrationModel"
+                      },
+                      MIGRATE: {
+                        target: "processing",
+                        cond: "isMigrationTargetReady"
+                      }
+                    }
+                  },
+                  processing: {
+                    entry: "clearError",
+                    initial: "requesting",
+                    // Forbidden: the PUT is out, so its invoice must land.
+                    on: {
+                      "CANCEL.MIGRATION": undefined,
+                      "MIGRATION.UNAVAILABLE": undefined,
+                      REFRESH: undefined
+                    },
+                    states: {
+                      requesting: {
+                        entry: "requestMigrationCommit",
+                        on: {
+                          "MIGRATION.COMMIT": {
+                            target: "sending",
+                            actions: "setMigrationModel"
+                          }
+                        }
+                      },
+                      sending: {
+                        invoke: {
+                          src: "migrate",
+                          onDone: {
+                            target: "#loading",
+                            actions: [
+                              "answerMigrationTargetDone",
+                              "setMigrationResult"
+                            ]
+                          },
+                          onError: {
+                            target: "#migrationError",
+                            actions: ["setError", "answerMigrationTargetError"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+
           consolidating: {
             id: "consolidating",
             initial: "idle",
@@ -582,6 +764,97 @@ export const contractProductMachine = createMachine(
 
       clearConsolidation: assign({ consolidation: undefined }),
 
+      clearMigrationResult: assign({ migrationResult: null }),
+
+      spawnMigrationTarget: assign(
+        (context: ContractProductContext, { data }: AnyEventObject) => {
+          const target = data as MigrationTarget;
+          return {
+            migration: { target, ref: spawnMigrationChild(context, target) }
+          };
+        }
+      ),
+
+      respawnMigrationTarget: pure<ContractProductContext, AnyEventObject>(
+        context => {
+          const { migration } = context;
+          if (!migration?.target) return undefined;
+
+          return [
+            ...(migration.ref
+              ? [stop<ContractProductContext, AnyEventObject>(migration.ref.id)]
+              : []),
+            assign<ContractProductContext, AnyEventObject>({
+              migration: {
+                target: migration.target,
+                ref: spawnMigrationChild(context, migration.target)
+              }
+            })
+          ];
+        }
+      ),
+
+      clearMigration: pure<ContractProductContext, AnyEventObject>(
+        ({ migration }) => [
+          ...(migration?.ref
+            ? [stop<ContractProductContext, AnyEventObject>(migration.ref.id)]
+            : []),
+          assign<ContractProductContext, AnyEventObject>({
+            migration: undefined
+          })
+        ]
+      ),
+
+      setMigrationModel: assign({
+        migration: (
+          { migration }: ContractProductContext,
+          { data }: AnyEventObject
+        ) => ({
+          ...migration,
+          model: (data as MigrationChange).model,
+          rawProduct: (data as MigrationChange).rawProduct
+        })
+      }),
+
+      setMigrationPreview: assign({
+        migration: (
+          { migration }: ContractProductContext,
+          { data }: AnyEventObject
+        ) => ({ ...migration, preview: mapMigrationPreview(data) })
+      }),
+
+      clearMigrationPreview: assign({
+        migration: ({ migration }: ContractProductContext) =>
+          migration && { ...migration, preview: undefined }
+      }),
+
+      setMigrationResult: assign({
+        migrationResult: (
+          _context: ContractProductContext,
+          { data }: AnyEventObject
+        ) => mapMigrationResult(data)
+      }),
+
+      // The child is asked to commit by a forced `UPDATE`; its `update`
+      // override answers with `MIGRATION.COMMIT`.
+      requestMigrationCommit: ({ migration }: ContractProductContext) => {
+        migration?.ref?.send({ type: "UPDATE", data: { forced: true } });
+      },
+
+      // Sent straight to the child, not through `sendTo`: a `sendTo` is
+      // delivered after the `loading` entry has stopped the child, so the
+      // answer would reach a dead actor.
+      answerMigrationTargetDone: ({ migration }: ContractProductContext) => {
+        migration?.ref?.send({ type: "UPDATED" });
+      },
+
+      answerMigrationTargetError: (
+        { migration }: ContractProductContext,
+        { data }: AnyEventObject
+      ) => {
+        migration?.ref?.send({ type: "ERROR", data });
+      },
+
       setError: assign({
         error: (_context: ContractProductContext, { data }: AnyEventObject) => {
           const error = mapToHeadlessError(data);
@@ -608,6 +881,26 @@ export const contractProductMachine = createMachine(
     },
 
     guards: {
+      canMigrate: ({ contractProduct }: ContractProductContext) =>
+        !!contractProduct && canMigrateProduct(contractProduct),
+
+      isAllowedMigrationTarget: (
+        { contractProduct }: ContractProductContext,
+        { data }: AnyEventObject
+      ) =>
+        some(contractProduct?.allowedMigrations, [
+          "migration_product_id",
+          (data as MigrationTarget)?.id
+        ]),
+
+      isNewMigrationModel: (
+        { migration }: ContractProductContext,
+        { data }: AnyEventObject
+      ) => !isEqual((data as MigrationChange)?.model, migration?.model),
+
+      isMigrationTargetReady: ({ migration }: ContractProductContext) =>
+        stateMatches(migration?.ref, ["available"]),
+
       hasCancellationOptions: ({ contractProduct }: ContractProductContext) =>
         !!contractProduct && !isEmpty(cancellationOptions(contractProduct)),
 

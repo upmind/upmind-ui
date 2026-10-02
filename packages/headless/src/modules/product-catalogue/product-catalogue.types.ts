@@ -1,5 +1,8 @@
 import { SortDirection } from "../query/query.types";
-import type { QuerySortEntry } from "../query/query.types";
+import type { Product } from "../product";
+import type { ListQuery, QuerySortEntry } from "../query/query.types";
+import type { IProduct } from "@upmind-automation/types";
+import type { MaybeRefOrGetter } from "vue";
 
 // -----------------------------------------------------------------------------
 // QUERY MODEL — the collection's whole request state as ONE model
@@ -34,8 +37,13 @@ export enum ProductSortableProperties {
  */
 export type ProductQueryModel = {
   filters?: {
+    id?: string[];
     products_category_id?: { eq?: string[] };
     name?: { like?: string };
+    "prices.billing_cycle_months"?: string;
+    available_for_sales?: string;
+    clients_can_order?: string;
+    billing_cycle_months?: { neq?: string };
   };
   sort?: QuerySortEntry[];
   pagination?: { limit?: number; offset?: number };
@@ -49,3 +57,59 @@ export type ProductQueryModel = {
 export const PRODUCT_DEFAULT_SORT: QuerySortEntry[] = [
   { field: ProductSortableProperties.DEFAULT, dir: SortDirection.ASC }
 ];
+
+// -----------------------------------------------------------------------------
+// SCOPE — the opt-in narrowing of one caller (FE-3206, R13)
+// -----------------------------------------------------------------------------
+
+/**
+ * The opt-in `scope` of `useProductCatalogue`. Each member except `enabled` is
+ * a RESOLVED plain value: the criteria compile one static schema, and each
+ * forced filter is a `const` leaf that needs its value when that schema is
+ * built. A caller builds the instance when every value is resolved and builds
+ * it again when one changes. With no `scope` the composable is unchanged.
+ *
+ * - `ids` — only these product ids (`filter[id]`, a comma list)
+ * - `billingCycleMonths` — only products priced on this term, 0 included
+ * - `recurringOnly` — only products on a recurring term
+ * - `orderable` — only products the brand sells that a client can order
+ * - `currencyId`, `accountId` — the caller's own currency and account
+ * - `countOnly` — ask for the count of matches, not a page of them
+ * - `categories` — `false` skips the category tree
+ * - `enabled` — gates the request
+ *
+ * A scope reads no basket: no basket id, no basket currency, no promotions.
+ */
+export type ProductCatalogueScope = {
+  ids?: string[];
+  billingCycleMonths?: number;
+  recurringOnly?: boolean;
+  orderable?: boolean;
+  currencyId?: string;
+  accountId?: string;
+  countOnly?: boolean;
+  categories?: boolean;
+  enabled?: MaybeRefOrGetter<boolean>;
+};
+
+/**
+ * The handle `countOnly` returns in place of a list: the envelope `total` on
+ * `pagination`, no rows on `data`, and no page to move.
+ */
+export type ProductCountQuery = Pick<
+  ListQuery<IProduct[], Product[], ProductQueryModel>,
+  | "data"
+  | "error"
+  | "isFetching"
+  | "isFetched"
+  | "refetch"
+  | "pagination"
+  | "meta"
+  | "criteria"
+  | "schema"
+  | "isFiltered"
+  | "criteriaError"
+  | "setCriteria"
+  | "fetchNextPage"
+  | "fetchPreviousPage"
+>;

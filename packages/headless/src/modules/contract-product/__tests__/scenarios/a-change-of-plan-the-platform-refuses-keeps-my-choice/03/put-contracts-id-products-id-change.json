@@ -1,0 +1,70 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/contracts/52098d3d-e409-17e9-d73c-31578626e347/products/63250798-065d-1e3e-440c-8174e234e98d/change",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "contract_id": "52098d3d-e409-17e9-d73c-31578626e347",
+      "contracts_product_id": "63250798-065d-1e3e-440c-8174e234e98d",
+      "product": {
+        "product_id": "8d632507-9806-5d1e-688a-8174e234e98d",
+        "billing_cycle_months": 1
+      },
+      "options": [
+        {
+          "product_id": "2785d26e-9678-3d16-458f-314502e70439",
+          "billing_cycle_months": 1,
+          "unit_quantity": 1,
+          "price": 3
+        }
+      ],
+      "attributes": []
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43aa3117e2c33e5-JNB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 10:03:22 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=cjAiam%2BUMLrVQl0396t5CAir0PvQWlvr3QXXZD7rHM4e%2B6XFfN5QC%2BpRxyi2NV1VD9wEKKBkJD881LdJmDmPq4ZeKn1gWmgpRn2TRjxMk2eFTT6%2BNn2kOU43TY5yQ2WW2kTmfyXhlQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "6f0be9ca5875e6d2130b618db15cfe1832f3b04e",
+        "type": 0,
+        "code": 409,
+        "message": "There are pending pro-rata changes for this product!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T10:03:22.597Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

@@ -19,6 +19,7 @@ import {
   responseCodes
 } from "../../utils";
 import { isEmpty } from "lodash-es";
+import type { PaymentDetail } from "../payment-details";
 import type {
   InvoicePayContext,
   InvoicePaymentDetailsModel,
@@ -82,6 +83,10 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     payment_details_id: null
   });
 
+  // The client's stored cards the payment-method form picks from, read by
+  // `useActions().openPaymentMethod()` and held until the scope is destroyed.
+  const storedPaymentMethods = ref<PaymentDetail[]>();
+
   const errors = useContext<ResponseError | undefined>(actor.state, "error");
 
   // Mirror the pay outcome onto the `?payment_success` param, so an offsite
@@ -118,11 +123,18 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
         scopeKey,
         invoiceId,
         paymentFailed,
-        paymentDetailsModel
+        paymentDetailsModel,
+        storedPaymentMethods
       ),
 
     /** Sub-composable for single-invoice context (mapped invoice, error). */
-    useContext: () => createInvoiceContext(actorScope, actor),
+    useContext: () =>
+      createInvoiceContext(
+        actorScope,
+        actor,
+        paymentDetailsModel,
+        storedPaymentMethods
+      ),
 
     /** Sub-composable for advanced debugging and the delegated payment composables. */
     useInternals: () =>

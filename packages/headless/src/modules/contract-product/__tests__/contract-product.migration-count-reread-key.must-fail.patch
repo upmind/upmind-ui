@@ -1,0 +1,25 @@
+# Negative-control mutant 49 — count-reread-key (FE-3206)
+#
+# Mutation: drop the ids leaf from the scope filters, so the criteria (and so
+# the query key) carry no ids and a re-read with changed ids sends no
+# `filter[id]` (R20).
+# Spec it must turn red: the AC-28 unit spec, the scope holders (the re-read
+# case) — `contract-product.migration.test.ts` (~line 985, the `filter[id]`
+# assertion on the last count read).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts b/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts
+--- a/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts
++++ b/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts
+@@ -31,7 +31,6 @@ export function useScopeFilters(
+ ): NonNullable<ProductQueryModel["filters"]> {
+   const filters: NonNullable<ProductQueryModel["filters"]> = {};
+   if (!scope) return filters;
+-  if (scope.ids && !isEmpty(scope.ids)) filters.id = [...scope.ids];
+   if (isNumber(scope.billingCycleMonths))
+     filters["prices.billing_cycle_months"] = String(scope.billingCycleMonths);
+   if (scope.recurringOnly) filters.billing_cycle_months = { neq: "0" };

@@ -160,6 +160,28 @@ const ORIGIN = process.env.RECORDING_BRAND_ORIGIN
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
 
+/**
+ * The exact `with` members the single ticket read (`useTicket`, ONE_WITH) sends
+ * since FE-3206 widened it to the full `contract_product.*` set. Captured from
+ * the module's own outbound request; every single-ticket GET in this recipe
+ * sends exactly this so the recording matches what the composable replays.
+ */
+const TICKET_ONE_WITH =
+  "account,brand,brand.image,client,client.image,contract_product," +
+  "contract_product.clients,contract_product.clients.image," +
+  "contract_product.clients.brand,contract_product.status," +
+  "contract_product.product.image,contract_product.brand.currency," +
+  "contract_product.product.provision_blueprint," +
+  "contract_product.product.provision_blueprint.category," +
+  "contract_product.contract_request," +
+  "contract_product.future_cancellation_request," +
+  "contract_product.moved_to_contract_product," +
+  "contract_product.moved_to_contract_product.clients,contract_product.tags," +
+  "delegates,delegates.client,delegates.client.image,department," +
+  "department.brand_ticket_departments,import.credentials,import.source," +
+  "invoice,invoice.status,lead,lead_user.image,settings,status,user," +
+  "users,users.image";
+
 // -----------------------------------------------------------------------------
 
 describe("Tickets API Fixtures Generator", () => {
@@ -403,7 +425,7 @@ describe("Tickets API Fixtures Generator", () => {
   it("captures GET tickets/{id} (rich `with`, AC-11/12)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(
-      `/api/tickets/${throwawayTicketId}?with=client,contract_product,department`
+      `/api/tickets/${throwawayTicketId}?with=${TICKET_ONE_WITH}&with_staged_imports=1`
     );
     generator.clearBearerToken();
     if (status !== 200)
@@ -444,7 +466,7 @@ describe("Tickets API Fixtures Generator", () => {
   it("captures GET tickets/{id}?with=contract_product while LINKED (AC-13)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(
-      `/api/tickets/${throwawayTicketId}?with=contract_product&case=linked`
+      `/api/tickets/${throwawayTicketId}?with=${TICKET_ONE_WITH}&with_staged_imports=1&case=linked`
     );
     generator.clearBearerToken();
     if (status !== 200) throw new Error(`Linked read-back returned ${status}.`);
@@ -482,7 +504,7 @@ describe("Tickets API Fixtures Generator", () => {
   it("captures GET tickets/{id}?with=contract_product after CHANGE (AC-13)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(
-      `/api/tickets/${throwawayTicketId}?with=contract_product&case=changed`
+      `/api/tickets/${throwawayTicketId}?with=${TICKET_ONE_WITH}&with_staged_imports=1&case=changed`
     );
     generator.clearBearerToken();
     if (status !== 200)
@@ -503,7 +525,7 @@ describe("Tickets API Fixtures Generator", () => {
   it("captures GET tickets/{id}?with=contract_product after UNLINK (AC-13)", async () => {
     generator.setBearerToken(clientToken.access_token);
     const { status } = await generator.get(
-      `/api/tickets/${throwawayTicketId}?with=contract_product&case=unlinked`
+      `/api/tickets/${throwawayTicketId}?with=${TICKET_ONE_WITH}&with_staged_imports=1&case=unlinked`
     );
     generator.clearBearerToken();
     if (status !== 200)
@@ -1574,9 +1596,6 @@ describe("Tickets scenario recordings (manager + delegated-in)", () => {
   const readManagerDefaultList = (generator: Generator) =>
     generator.get(DEFAULT_LIST);
 
-  const MANAGER_WITH =
-    "account,brand,brand.image,client,client.image,contract_product,contract_product.product.image,delegates,delegates.client,delegates.client.image,department,department.brand_ticket_departments,import.credentials,import.source,invoice,invoice.status,lead,lead_user.image,settings,status,user,users,users.image";
-
   const HOOK_CODES =
     "ticket_opened_hook,ticket_closed_hook,ticket_reopened_hook,ticket_in_progress_hook,ticket_client_replied_hook,ticket_waiting_response_hook";
 
@@ -1617,7 +1636,7 @@ describe("Tickets scenario recordings (manager + delegated-in)", () => {
    */
   const openManagerTicket = (id: string) => async (generator: Generator) => {
     await generator.get(
-      `/api/tickets/${id}?with=${MANAGER_WITH}&with_staged_imports=1`
+      `/api/tickets/${id}?with=${TICKET_ONE_WITH}&with_staged_imports=1`
     );
     await openThreadMessages(id)(generator);
     await readStatusLogs(id)(generator);

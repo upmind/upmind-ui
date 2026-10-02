@@ -1,5 +1,6 @@
 /** @internal */
 import { TicketStatusCodes } from "@upmind-automation/types";
+import { mapContractProductEmbedded } from "../contract-product";
 import { useDate } from "../../utils";
 import { isArray, map, orderBy } from "lodash-es";
 import type {
@@ -32,26 +33,41 @@ import type {
 export const mapTickets = (raw: ITicket | ITicket[]): Ticket[] =>
   map(isArray(raw) ? raw : [raw], mapTicket);
 
-/** Passthrough — `ITicket` already carries the corrected field names (AC-PM). */
-export const mapTicket = (raw: ITicket): Ticket => ({
-  ...raw,
-  // The wire's `updated_at` is `YYYY-MM-DD HH:mm:ss`, and a surface draws a
-  // date through a `useDate` descriptor, never a raw string — `TableCellDate`
-  // reads `.relative` off one. The raw field stays; this is added beside it.
-  dateUpdated: useDate(raw.updated_at, undefined, "MMM Do, YYYY h:mm A"),
-  dateCreated: useDate(raw.created_at, undefined, "MMM Do, YYYY h:mm A"),
-  meta: {
-    isOpen: raw.status?.code === TicketStatusCodes.OPEN,
-    isAwaitingResponse:
-      raw.status?.code === TicketStatusCodes.AWAITING_RESPONSE,
-    isClientReplied: raw.status?.code === TicketStatusCodes.CLIENT_REPLIED,
-    isInProgress: raw.status?.code === TicketStatusCodes.IN_PROGRESS,
-    isScheduled: raw.status?.code === TicketStatusCodes.SCHEDULED,
-    isClosed: raw.status?.code === TicketStatusCodes.CLOSED,
-    isDelegated: !!raw.is_delegated_object,
-    isLocked: !!raw.settings?.lock
-  }
-});
+/** `ITicket` carries the corrected field names (AC-PM); the one embedded
+ * relation that is NOT raw is `contract_product`, mapped through the
+ * contract-product module's `mapContractProductEmbedded` (the contract-product
+ * view model minus the members that need `allowed_migrations` or the parent
+ * contract relation, which the single read does not carry). */
+export const mapTicket = (raw: ITicket): Ticket => {
+  // `ITicket` types `contract_product_id` but not the embedded relation; the
+  // single read (`ONE_WITH`) returns it beside the id.
+  const linkedProduct = (
+    raw as ITicket & { contract_product?: IContractProduct }
+  ).contract_product;
+
+  return {
+    ...raw,
+    contract_product: linkedProduct
+      ? mapContractProductEmbedded(linkedProduct)
+      : undefined,
+    // The wire's `updated_at` is `YYYY-MM-DD HH:mm:ss`, and a surface draws a
+    // date through a `useDate` descriptor, never a raw string — `TableCellDate`
+    // reads `.relative` off one. The raw field stays; this is added beside it.
+    dateUpdated: useDate(raw.updated_at, undefined, "MMM Do, YYYY h:mm A"),
+    dateCreated: useDate(raw.created_at, undefined, "MMM Do, YYYY h:mm A"),
+    meta: {
+      isOpen: raw.status?.code === TicketStatusCodes.OPEN,
+      isAwaitingResponse:
+        raw.status?.code === TicketStatusCodes.AWAITING_RESPONSE,
+      isClientReplied: raw.status?.code === TicketStatusCodes.CLIENT_REPLIED,
+      isInProgress: raw.status?.code === TicketStatusCodes.IN_PROGRESS,
+      isScheduled: raw.status?.code === TicketStatusCodes.SCHEDULED,
+      isClosed: raw.status?.code === TicketStatusCodes.CLOSED,
+      isDelegated: !!raw.is_delegated_object,
+      isLocked: !!raw.settings?.lock
+    }
+  };
+};
 
 export const mapTicketMessages = (
   raw: ITicketMessage | ITicketMessage[]
