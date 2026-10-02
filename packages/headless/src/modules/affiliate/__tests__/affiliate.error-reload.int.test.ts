@@ -33,13 +33,11 @@
  * genuine balance-only-404 combination from. It stays `@todo` in
  * `affiliate.feature`, named there rather than silently dropped.
  *
- * ## Named gap — a real `default_redirect` value (honestly disclosed)
- * The recorded `area` key set capture carries no `default_redirect` value,
- * so `defaultRedirectUrl === ""` below cannot discriminate a genuinely-absent
- * setting from a wrong-key read. A real value needs the same
- * ARRANGE-RECORD-RESET staff write this file's sibling
- * `affiliate.programme-gate.int.test.ts` names as blocked by this story's
- * no-admin-paths run constraint. Stays `@todo` in `affiliate.feature`.
+ * ## A real `default_redirect` value (R-DATA-9)
+ * The recorded `area` key set capture now carries the brand's
+ * `default_redirect`. The area-failure test asserts `""` and the gate-failure
+ * test asserts the brand default, so each separates a failed area read from a
+ * wrong-key read.
  *
  * ## Named gap — the balance-404-bound case (honestly disclosed)
  * design.md §8.5/bdd.md AC25 name a fourth failure case: the account read
@@ -66,7 +64,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { BrandConfigKeys } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useClientAffiliate } from "../useClientAffiliate";
-import { seedRealClient, serveFailure } from "./affiliate.int-helpers";
+import {
+  BRAND_DEFAULT_REDIRECT,
+  seedRealClient,
+  serveFailure
+} from "./affiliate.int-helpers";
 import { recorded, server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
@@ -231,9 +233,9 @@ describe("affiliate.error-reload — a failed read reports its error, and a relo
     // `canWithdraw` to the gate read's presence (rather than the area read
     // and the balance alone) would flip this to `false`.
     expect(affiliate.useMeta().canWithdraw.value).toBe(true);
-    // Named gap (this file's own header, "a real `default_redirect` value"):
-    // the recorded area capture carries no `default_redirect` value, so this
-    // stays `""` rather than a real configured default (design.md §8.12).
-    expect(affiliate.useContext().defaultRedirectUrl.value).toBe("");
+    expect(BRAND_DEFAULT_REDIRECT).toBeTruthy();
+    expect(affiliate.useContext().defaultRedirectUrl.value).toBe(
+      BRAND_DEFAULT_REDIRECT
+    );
   });
 });

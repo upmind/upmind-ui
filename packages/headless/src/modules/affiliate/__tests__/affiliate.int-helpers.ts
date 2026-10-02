@@ -43,9 +43,22 @@ function fullFixture(name: string): {
 
 type SelfEnvelope = { data: ISelf };
 
+/**
+ * The brand's default link redirect, read from the real area-settings capture
+ * the create editor replays (review-notes.md R-DATA-3, R-DATA-9), never a
+ * hand-typed literal that goes stale on the next recording pass.
+ */
+export const BRAND_DEFAULT_REDIRECT = recorded<{
+  data: Record<string, string>;
+}>("get-config-brand-values-dba1bf2f").data[
+  "affiliate_systems.settings.default_redirect"
+];
+
 export const CLIENT_SELF_CAPTURE = "get-self";
 export const OTHER_CLIENT_SELF_CAPTURE = "get-self-case-otherclient";
 export const ENROL2_SELF_CAPTURE = "get-self-case-reenrol2-empty-destination";
+export const DISABLED_SELF_CAPTURE = "get-self-case-disabled";
+export const PAYPAL_DEFAULT_SELF_CAPTURE = "get-self-case-paypal-default";
 
 /**
  * The recorded `self` of ONE named client, matched by its exact file stem. A
@@ -126,37 +139,6 @@ export async function seedRecordedClient(
 /** The `client` credential's session: the single-account, ENROLLED `get-self`. */
 export function seedRealClient(): Promise<{ accountId: string }> {
   return seedRecordedClient(CLIENT_SELF_CAPTURE);
-}
-
-/**
- * Seed a client session from a DECLARED OVERRIDE of the recorded `self`
- * capture (design.md §8.9 "No hand edit" — the caller changes named fields
- * at the call site, never invents a shape the wire has not returned).
- * `patch` receives a clone of the real recorded `self` body; the caller
- * removes or changes only the named fields.
- */
-export async function seedRealClientWithSelfOverride(
-  patch: (self: ISelf) => ISelf
-): Promise<void> {
-  const self = patch(recordedSelf());
-
-  await useSessionStore()
-    .useActions()
-    .add(
-      {
-        access_token: "affiliate-int-test-session-token",
-        actor_id: self.actor_id,
-        actor_type: AccessRoleTypes.CLIENT,
-        expires_in: 3600,
-        refresh_expires_in: 36000,
-        refresh_token: "affiliate-int-test-refresh-token",
-        second_factor_required: false,
-        token_type: "Bearer",
-        twofa_provider: undefined as never
-      },
-      true,
-      mapSessionUser(self)
-    );
 }
 
 /**
@@ -393,6 +375,13 @@ export async function inputAndSettle(
   );
 }
 
+/** Yields to the macrotask queue `rounds` times so pending promise chains settle. */
+export async function flushTasks(rounds = 10): Promise<void> {
+  for (let round = 0; round < rounds; round += 1) {
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+}
+
 /** The outbound-request observer: every request path/method the replay server saw. */
 export function observeRequests(): { method: string; url: string }[] {
   const seen: { method: string; url: string }[] = [];
@@ -485,14 +474,16 @@ export async function bootFreshRealm(): Promise<{
 export function holdCapture(
   method: "get" | "post" | "put" | "delete",
   route: string,
-  name: string
+  name: string,
+  options?: { match?: Record<string, string> }
 ): { release: () => void } {
   let releaseGate: (() => void) | undefined;
   const gate = new Promise<void>(resolve => {
     releaseGate = resolve;
   });
   server?.use(
-    http[method](route, async () => {
+    http[method](route, async ({ request }) => {
+      if (!requestMatches(request, options?.match)) return undefined;
       await gate;
       const fixture = fullFixture(name);
       return HttpResponse.json(fixture.response.body as object, {

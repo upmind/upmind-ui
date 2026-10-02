@@ -40,7 +40,7 @@ Keys by lifecycle phase (brand configuration read as flat dotted keys):
 | 8 | **List pending commissions** (sort by amount or date, page, filter by date) | account id | Commission rows with invoice and invoice client |
 | 9 | **List payouts** (sort by amount or date, page, filter by date) | account id | Payout rows with the destination and payment log |
 | 10 | **Request a withdrawal** | account id; message text | The id of the support ticket the platform raises |
-| 11 | **Choose the payout destination** — read brand destinations and the client's emails, save the choice | brand id; client id; destination id; PayPal email id | Destination list, email list, the saved account |
+| 11 | **Choose the payout destination** — read brand destinations and the client's emails, save the choice, and after the caller adds an email, re-read the list and choose the new email (the module does not create the email) | brand id; client id; destination id; PayPal email id | Destination list, email list, the saved account |
 | 12 | **Record a referral-link visit** | visit URL, referrer URL, user agent, existing cookie value | Redirect target, cookie value and cookie lifetime |
 
 Derived from loaded records (client-side, no request):
@@ -54,7 +54,7 @@ Derived from loaded records (client-side, no request):
 | Can withdraw | The withdraw setting is truthy and there are payable commissions |
 | Referral URL | `{origin of the brand's default oauth client}/aff/{link hash}`; empty origin when the brand has no default client |
 | Commission status | Six values: rejected, on hold, awaiting payment, pending approval, cancelled, approved. Two orderings exist (see Lessons) |
-| PayPal destination | The chosen destination's code is `paypal`; an unset destination inherits the brand's default destination |
+| PayPal destination | The chosen destination's code is `paypal`; an unset destination inherits the brand's default destination (recorded for a wallet default and for a PayPal default; with a PayPal default the form offers PayPal and asks for a PayPal email) |
 
 Always-on behaviours: every client read is skipped while no account is active; a collection discards the previous account's rows the moment the active account clears; a reload re-reads account, balance and settings together.
 
@@ -320,7 +320,7 @@ curl "$API/accounts/$ACCOUNT_ID/affiliate?with_staged_imports=1&with=account,acc
 }
 ```
 
-Fixtures: `get-accounts-id-affiliate-with-staged-imports-1.json` (enrolled; sample trimmed), `get-accounts-id-affiliate-case-not-enrolled-with-staged-imports-1.json` (404 `{ "status": "error", "data": null, "error": { "code": 404, "message": "Affiliate Account not found!" } }`), `get-accounts-id-affiliate-case-reenrol2-empty-destination-with-staged-imports-1.json` (enrolled with no saved destination).
+Fixtures: `get-accounts-id-affiliate-with-staged-imports-1.json` (enrolled; sample trimmed), `get-accounts-id-affiliate-case-not-enrolled-with-staged-imports-1.json` (404 `{ "status": "error", "data": null, "error": { "code": 404, "message": "Affiliate Account not found!" } }`), `get-accounts-id-affiliate-case-reenrol2-empty-destination-with-staged-imports-1.json` (enrolled with no saved destination), `get-accounts-id-affiliate-case-disabled-with-staged-imports-1.json` (recorded disabled sample: `disabled: true`, `staged_import: false`, zero referrals and visits; the matching balance is `get-accounts-id-affiliate-balance-case-disabled-with-staged-imports-1.json`, and the session is `get-self-case-disabled.json`), `get-accounts-id-affiliate-case-paypal-default-with-staged-imports-1.json` (enrolled with no saved destination while the brand default is PayPal; the session is `get-self-case-paypal-default.json`).
 
 ### POST /accounts/{account}/affiliate
 
@@ -366,10 +366,10 @@ curl "$API/config/brand/values?keys=affiliate_systems.settings.default_redirect,
 ```
 
 ```json
-{ "status": "ok", "data": { "affiliate_systems.settings.withdraw_request": true } }
+{ "status": "ok", "data": { "affiliate_systems.settings.default_redirect": "https://kn6x1dzbtcgb.staging.upmind.dev/order/", "affiliate_systems.settings.withdraw_request": true } }
 ```
 
-Fixtures: `get-config-brand-values-6b52bc3c.json` (gate, both keys `true`), `get-config-brand-values-63a08b76.json` (area, no `brand_id`), `get-config-brand-values-dba1bf2f.json` (area, with `brand_id`). Each area capture holds `withdraw_request` and no `default_redirect`.
+Fixtures: `get-config-brand-values-6b52bc3c.json` (gate, both keys `true`), `get-config-brand-values-63a08b76.json` (area, no `brand_id`), `get-config-brand-values-dba1bf2f.json` (area, with `brand_id`). Both area captures hold `default_redirect` and `withdraw_request`. `get-config-brand-values-case-no-default-redirect.json` is an earlier answer for the same read that holds `withdraw_request` and no `default_redirect`: the state of a brand that sets none.
 
 ### GET /accounts/{account}/affiliate/links
 
@@ -540,11 +540,11 @@ curl "$API/brands/$BRAND_ID/affiliate_payout_destination?order=-created_at&limit
 }
 ```
 
-Fixture: `get-brands-id-affiliate-payout-destination.json` (first of the page shown).
+Fixtures: `get-brands-id-affiliate-payout-destination.json` (first of the page shown), `get-brands-id-affiliate-payout-destination-case-paypal-default.json` (the same page with PayPal as the default).
 
 ### GET /clients/{client}/emails
 
-Role: lists the client's emails for the PayPal email choice. Query: `with_staged_imports=1`, `order=-default,-id`, `limit=0` (all rows). Fixtures: `get-clients-id-emails-with-staged-imports-1.json`, `get-clients-id-emails-case-reenrol2-empty-destination-with-staged-imports-1.json`.
+Role: lists the client's emails for the PayPal email choice. Query: `with_staged_imports=1`, `order=-default,-id`, `limit=0` (all rows). Fixtures: `get-clients-id-emails-with-staged-imports-1.json`, `get-clients-id-emails-case-reenrol2-empty-destination-with-staged-imports-1.json`, `get-clients-id-emails-case-paypal-default-with-staged-imports-1.json` (the list a client with a PayPal default opens with), `get-clients-id-emails-case-after-add-with-staged-imports-1.json` (the list read after an email is added; it holds one more row than the list before the add).
 
 ### PUT /accounts/{account}
 
@@ -677,11 +677,14 @@ flowchart TD
   F --> H["PUT /accounts/{a}"]
   G --> H
   H --> I["GET /accounts/{a}/affiliate (re-read)"]
+  F -. "caller adds an email (request sent outside this module)" .-> J["email now exists"]
+  J --> K["GET /clients/{client}/emails (re-read)"]
+  K --> F
 ```
 
-Guarantees the platform holds: the save is a plain account update; the re-read returns the stored ids.
+Guarantees the platform holds: the save is a plain account update; the re-read returns the stored ids. The module does not create the email: the caller, or the client-account module that owns client emails, sends that request and then hands the new email to the editor. The editor re-reads the client's emails, which returns the full list with the new row, replaces its list with it and chooses the new email.
 
-Constraints the caller has to plan around: an unset destination (`null`) means the brand's default destination applies; a PayPal destination needs one of the client's own emails.
+Constraints the caller has to plan around: an unset destination (`null`) means the brand's default destination applies (a PayPal default is recorded: the form offers PayPal and asks for an email); a PayPal destination needs one of the client's own emails. When a PayPal destination (typed, or inherited from a PayPal default) is chosen with no email, the editor preselects the client's default email, else the first email in the list; this is recorded for a typed PayPal destination and for a client who opens with an empty destination under a PayPal default.
 
 ### Visit a referral link
 
@@ -706,11 +709,11 @@ Constraints the caller has to plan around: the call is anonymous; the existing c
 1. **A 404 is data on two reads.** The affiliate record and the balance answer 404 for a client who never enrolled. A fetch layer that treats every non-2xx as a fault reports an error for a normal state, and a fetch layer that rejects `undefined` results reports an error for an empty one.
 2. **Brand configuration answers a flat map of literal dotted keys.** `affiliate_systems.settings.withdraw_request` is one key, not a path into nested objects. Reading it by path returns nothing.
 3. **The area keys accept `brand_id`, and the recorded answers do not show what it changes.** The same key set read with and without `brand_id` answered identical values for the one recorded brand, so whether a brand-level value overrides an organisation-level one is not observed. The organisation-level id is never sent as `brand_id`.
-4. **The brand default redirect may be absent.** A brand whose default redirect is set in the admin settings can still answer an empty map for the key. Pre-filling a new link from it then yields an empty redirect.
+4. **The brand default redirect may be absent.** A brand that sets no default redirect answers a map without the key. A client that pre-fills a new link from this key opens with an empty redirect, so a missing key and an empty string are the same state. The settings read is separate from the account read and can answer after the editor opens, so a seed taken at open misses the late answer.
 5. **The own-account id of `/self` is the active account, and a second account is invisible.** A client holding several accounts resolves the one `/self` names; the rest are unreachable by design.
 6. **The two commission status orderings disagree.** The per-row tag checks rejected, on hold, awaiting payment, pending approval, cancelled, approved. The summary checks rejected, awaiting payment, pending approval, on hold, cancelled, approved. A held commission that is also awaiting payment is "on hold" in one and "awaiting payment" in the other. Both orderings also test "pending approval" before "cancelled", so a cancelled status is never produced by either.
 7. **Dotted filter columns stay literal on the wire.** The referral list filters link columns as `filter[affiliate_link.name|like]`; splitting the dot into a nested path produces a rejected parameter.
-8. **A like filter is contains-only.** The platform wraps the value in wildcards on both sides, so "starts with" and "ends with" are not expressible.
+8. **The `like` operator takes a SQL-style pattern, and this client sends it contains-only.** The platform's `like` matches a pattern, so a value of `v%` expresses starts-with and a value of `%v` expresses ends-with. This client wraps every value as `%v%`, so it can express only a contains match. No recorded capture proves the starts-with and ends-with patterns.
 9. **An empty filter value means "match empty", not "no filter".** A cleared control has to remove the parameter rather than send it blank.
 10. **The email page for the PayPal choice is unpaged.** `limit=0` returns every email; a default page can hide the client's default email.
 11. **Payouts and commissions carry different decimal types.** `currency_exchange_rate` is a number on commissions and a decimal string on payouts.

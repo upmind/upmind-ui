@@ -10,18 +10,21 @@
  * these three flags to one account's own id would stay green under the
  * `client`-only proof alone.
  *
+ * ## The disabled row (R-DATA-4, review-notes.md 2026-10-02) — CLOSED
+ * The operator disabled the affiliate account of a staging client. Its self,
+ * account and balance are recorded read-only (`affiliate.fixtures.ts`, R-DATA-4)
+ * and drive the disabled case through the real module.
+ *
  * ## What this does NOT provide (capture gap, named, not silently dropped)
- * `otherClient`'s account is a SECOND ENROLLED account, the SAME condition
- * `client`'s own account already proves — R-ENROL's capture loss
- * (`affiliate.fixtures.ts`'s own header) means no DISABLED or STAGED
- * condition exists to record from either account. `isDisabled`/`isStaged`
- * are asserted `false` here because that is what this real capture actually
- * holds — never a second discriminating condition. Closing that half still
- * needs a distinct disabled/staged account (design.md G3, NO-TWO-ACCOUNT), an
- * operator decision, not a prover-seat one.
+ * No STAGED account is recorded (NO-STAGED-LOGIN, R-DATA-5): the imported
+ * client on the other brand origin answers `401 The user credentials were
+ * incorrect.` to its login on every origin variant tried, so no staged
+ * account read exists to record. `isStaged` is asserted `false` on every
+ * recording this file holds, never `true`. The staged scenario stays `@todo`.
+ * Evidence: `docs/sdd/FE-3227/evidence/capture-r-data-5-staged-login.md`.
  *
  * ## The not-enrolled row (R-ENROL-2, review-notes.md 2026-10-01) — CLOSED
- * The not-enrolled-404 row is a DIFFERENT cause from the disabled/staged gap
+ * The not-enrolled-404 row is a DIFFERENT cause from the staged gap
  * above: it was capturable under a one-time enrol grant and is now recorded
  * (`affiliate.fixtures.ts`'s own R-ENROL-2 block). The test below drives
  * `useClientAffiliate` through the real not-enrolled capture — not a
@@ -39,6 +42,7 @@ import { mapSessionUser, useSessionStore } from "../../session-store";
 import { useAffiliateActiveAccount } from "../useAffiliateActiveAccount";
 import { useClientAffiliate } from "../useClientAffiliate";
 import {
+  DISABLED_SELF_CAPTURE,
   ENROL2_SELF_CAPTURE,
   recordedAccountId,
   seedRecordedClient,
@@ -139,6 +143,40 @@ describe("affiliate.account-conditions — a SECOND real enrolled account follow
     expect(affiliate.useMeta().isDisabled.value).toBe(false);
     expect(affiliate.useMeta().isStaged.value).toBe(false);
     // design.md §6.1: a 404 on the account read suppresses `hasError`/`error`.
+    expect(affiliate.useMeta().hasError.value).toBe(false);
+  });
+
+  it("A client whose affiliate account was disabled by staff reads as disabled", async () => {
+    await seedRecordedClient(DISABLED_SELF_CAPTURE);
+    serveCapture(
+      "get",
+      "*/api/accounts/:accountId/affiliate",
+      "get-accounts-id-affiliate-case-disabled-with-staged-imports-1"
+    );
+    serveCapture(
+      "get",
+      "*/api/accounts/:accountId/affiliate/balance",
+      "get-accounts-id-affiliate-balance-case-disabled-with-staged-imports-1"
+    );
+
+    const seenAccountGets: string[] = [];
+    server?.events.on("request:start", ({ request }) => {
+      const url = new URL(request.url);
+      if (request.method === "GET" && /\/affiliate$/.test(url.pathname))
+        seenAccountGets.push(url.pathname);
+    });
+
+    const affiliate = useClientAffiliate().as(ScopeActorTypes.CLIENT);
+    await affiliate.useActions().isReady();
+
+    expect(
+      seenAccountGets.some(path =>
+        path.includes(recordedAccountId(DISABLED_SELF_CAPTURE))
+      )
+    ).toBe(true);
+    expect(affiliate.useMeta().isDisabled.value).toBe(true);
+    expect(affiliate.useMeta().isEnrolled.value).toBe(true);
+    expect(affiliate.useMeta().isStaged.value).toBe(false);
     expect(affiliate.useMeta().hasError.value).toBe(false);
   });
 });

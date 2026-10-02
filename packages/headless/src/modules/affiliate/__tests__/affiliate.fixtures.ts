@@ -43,13 +43,13 @@
  * needed a second account — the resolver's rules 2/3/switch — is out of
  * scope entirely under operator ruling R-NO-SWITCH (2026-09-30): account
  * switching is removed from the module, not merely unrecorded.
- *   - `staff` grant (`nathan.robinson+staffuser@upmind.com` / `password123`)
+ *   - `staff` grant (`nathan.robinson+staffuser@upmind.com` / `<redacted>23`)
  *     returns `401` on this brand/origin — the wrong credential for this
  *     brand, independent of the account's affiliate state. `staff`,
  *     `GET admin/self` and the `refresh-client` grant stay unrecorded.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { createGenerator } from "@upmind-automation/test-fixtures/generator";
@@ -70,6 +70,55 @@ const AREA_CONFIG_KEYS = [
 const BASE_URL = process.env.VITE_API_URL;
 const ORIGIN = process.env.RECORDING_BRAND_ORIGIN;
 const RUN = process.env.FIXTURE_MODE === "record";
+
+const SELF_PATH =
+  "/api/self?with=actor,actor.account,actor.brand,actor.image," +
+  "actor.parent_client_config.parent_client," +
+  "actor.parent_client_config.parent_client.image,accounts," +
+  "delegated_ids,enabled_modules&with_count=actor.child_client_configs";
+
+const ACCOUNT_PATH = (accountId: string): string =>
+  `/api/accounts/${accountId}/affiliate?with_staged_imports=1&with=account,account.brand,` +
+  "account.clients,import.credentials,import.source,account.affiliate_payout_destination";
+
+async function passwordLogin(
+  username: string,
+  password: string,
+  label: string
+): Promise<string> {
+  const response = await fetch(`${BASE_URL}/oauth/access_token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+      ...(ORIGIN ? { Origin: ORIGIN } : {})
+    },
+    body: new URLSearchParams({
+      grant_type: "password",
+      username,
+      password
+    }).toString()
+  });
+  const login = (await response.json()) as { access_token?: string };
+  if (!login.access_token) {
+    throw new Error(
+      `[affiliate.fixtures] ${label} login failed on ${BASE_URL} — status ${response.status}. ` +
+        "G3: escalate to the operator, do not hand-author a capture."
+    );
+  }
+  return login.access_token;
+}
+
+async function rawGet(token: string, path: string): Promise<unknown> {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      ...(ORIGIN ? { Origin: ORIGIN } : {})
+    }
+  });
+  return response.json();
+}
 
 describe.runIf(RUN)("affiliate fixtures (record mode)", () => {
   it("captures the achievable, read-only, single-account subset", async () => {
@@ -808,6 +857,290 @@ describe.runIf(RUN)("affiliate fixtures (record mode)", () => {
     generator.save();
 
     expect(generator.getCapturedFixtures().size).toBe(3);
+  }, 30000);
+
+  // --- R-DATA-4 (review-notes.md, 2026-10-02) — READ-ONLY GETs only. The
+  // operator disabled the affiliate account of staging client
+  // `nathan.robinson+usYWgwGpcZ@upmind.com`. Records its self, account and
+  // balance under one `case`. Password from the env var only. The account's
+  // `disabled` flag is checked BEFORE `save()`, so a read that does not show
+  // the disabled state never writes a capture.
+  it("R-DATA-4: records the disabled client's self, account and balance (read-only GETs)", async () => {
+    if (!BASE_URL) {
+      throw new Error(
+        "[affiliate.fixtures] VITE_API_URL is not set — packages/headless/.env.recording is required."
+      );
+    }
+    const password = process.env.FE3227_DISABLED_PASSWORD;
+    if (!password) {
+      throw new Error(
+        "[affiliate.fixtures] FE3227_DISABLED_PASSWORD is not set — R-DATA-4 supplies the disabled " +
+          "client's password out-of-band; it is never hand-written into a committed file."
+      );
+    }
+    const token = await passwordLogin(
+      "nathan.robinson+usYWgwGpcZ@upmind.com",
+      password,
+      "R-DATA-4"
+    );
+    const rawSelf = await rawGet(token, "/api/self?with=accounts");
+    const accountId = (rawSelf as { data?: { accounts?: { id?: string }[] } })
+      .data?.accounts?.[0]?.id;
+    if (!accountId) {
+      throw new Error(
+        "[affiliate.fixtures] R-DATA-4: the self read of the disabled client carries no account id. G3: escalate to the operator."
+      );
+    }
+
+    const generator = createGenerator(BASE_URL, {
+      recordingsDir: new URL("./fixtures", import.meta.url).pathname,
+      origin: ORIGIN,
+      source: "case",
+      name: "affiliate"
+    });
+    generator.setBearerToken(token);
+
+    await generator.get(`${SELF_PATH}&case=disabled`);
+    const accountResponse = await generator.get(
+      `${ACCOUNT_PATH(accountId)}&case=disabled`
+    );
+    await generator.get(
+      `/api/accounts/${accountId}/affiliate/balance?with_staged_imports=1&case=disabled`
+    );
+
+    const disabled = (accountResponse.body as { data?: { disabled?: unknown } })
+      .data?.disabled;
+    if (accountResponse.status !== 200 || disabled !== true) {
+      throw new Error(
+        "[affiliate.fixtures] R-DATA-4: the account read does not show a disabled affiliate account " +
+          `(status ${accountResponse.status}, disabled ${JSON.stringify(disabled)}). Nothing was saved.`
+      );
+    }
+
+    generator.save();
+
+    expect(generator.getCapturedFixtures().size).toBe(3);
+  }, 30000);
+
+  // --- R-DATA-6 (review-notes.md, 2026-10-02) — READ-ONLY GETs only. The
+  // operator set PayPal as the brand's DEFAULT payout destination
+  // (temporary). Records the R-ENROL-2 client's self, account (destination
+  // empty), emails and the brand's destinations under one `case`. The default
+  // flag and the empty destination are checked BEFORE `save()`, so a re-run
+  // after the operator restores Wallet writes nothing.
+  it("R-DATA-6: records the R-ENROL-2 client's self, account, emails and the brand destinations while the brand default is PayPal (read-only GETs)", async () => {
+    if (!BASE_URL) {
+      throw new Error(
+        "[affiliate.fixtures] VITE_API_URL is not set — packages/headless/.env.recording is required."
+      );
+    }
+    const password = process.env.FE3227_ENROL2_PASSWORD;
+    if (!password) {
+      throw new Error(
+        "[affiliate.fixtures] FE3227_ENROL2_PASSWORD is not set — R-DATA-6 supplies the R-ENROL-2 " +
+          "client's password out-of-band; it is never hand-written into a committed file."
+      );
+    }
+    const token = await passwordLogin(
+      "nathan.robinson+iBfSQzWefk@upmind.com",
+      password,
+      "R-DATA-6"
+    );
+    const rawSelf = (await rawGet(token, "/api/self?with=accounts")) as {
+      data?: { actor_id?: string; accounts?: { id?: string }[] };
+    };
+    const accountId = rawSelf.data?.accounts?.[0]?.id;
+    const clientId = rawSelf.data?.actor_id;
+    if (!accountId || !clientId) {
+      throw new Error(
+        "[affiliate.fixtures] R-DATA-6: the self read carries no account id or actor id. G3: escalate to the operator."
+      );
+    }
+    const rawAccount = (await rawGet(
+      token,
+      `/api/accounts/${accountId}/affiliate?with=account`
+    )) as { data?: { account?: { brand_id?: string } } };
+    const brandId = rawAccount.data?.account?.brand_id;
+    if (!brandId) {
+      throw new Error(
+        "[affiliate.fixtures] R-DATA-6: the account read carries no brand id. G3: escalate to the operator."
+      );
+    }
+
+    const generator = createGenerator(BASE_URL, {
+      recordingsDir: new URL("./fixtures", import.meta.url).pathname,
+      origin: ORIGIN,
+      source: "case",
+      name: "affiliate"
+    });
+    generator.setBearerToken(token);
+
+    await generator.get(`${SELF_PATH}&case=paypal-default`);
+    const accountResponse = await generator.get(
+      `${ACCOUNT_PATH(accountId)}&case=paypal-default`
+    );
+    const emailsResponse = await generator.get(
+      `/api/clients/${clientId}/emails?limit=0&offset=0&order=-default,-id&with_staged_imports=1&case=paypal-default`
+    );
+    const destinationsResponse = await generator.get(
+      `/api/brands/${brandId}/affiliate_payout_destination?limit=10&offset=0&order=-created_at&case=paypal-default`
+    );
+
+    const defaultCode = (
+      destinationsResponse.body as {
+        data?: { code?: string; default?: boolean }[];
+      }
+    ).data?.find(destination => destination.default)?.code;
+    const destinationId = (
+      accountResponse.body as {
+        data?: {
+          account?: { affiliate_payout_destination_id?: string | null };
+        };
+      }
+    ).data?.account?.affiliate_payout_destination_id;
+    const defaultEmail = (
+      emailsResponse.body as { data?: { default?: boolean }[] }
+    ).data?.some(email => email.default);
+    if (
+      defaultCode !== "paypal" ||
+      destinationId !== null ||
+      defaultEmail !== true
+    ) {
+      throw new Error(
+        "[affiliate.fixtures] R-DATA-6: the state is not PayPal default + empty destination + a default email " +
+          `(default destination ${JSON.stringify(defaultCode)}, account destination id ${JSON.stringify(destinationId)}, ` +
+          `default email ${JSON.stringify(defaultEmail)}). Nothing was saved.`
+      );
+    }
+
+    generator.save();
+
+    expect(generator.getCapturedFixtures().size).toBe(4);
+  }, 30000);
+
+  // --- R-DATA-8 (review-notes.md, 2026-10-02) — adds ONE email to the
+  // R-ENROL-2 client, records the add response and the refreshed list, then
+  // DELETES that email in the same run. Guards, in order: (1) any recorded
+  // add-email capture on disk makes this a hard no-op (a prefix match, never
+  // a hand-built filename); (2) a live pre-flight read must show exactly one
+  // email, else nothing is added; (3) the captures are saved BEFORE the
+  // delete, which runs in `finally`; (4) the delete is verified by a live
+  // read, and a leftover throws with its id. The delete and the two live
+  // reads go through raw `fetch`, so only the add and the refreshed list are
+  // recorded.
+  it("R-DATA-8: adds one email to the R-ENROL-2 client, records the add and the refreshed list, then deletes it (one-time, guarded)", async () => {
+    if (!BASE_URL) {
+      throw new Error(
+        "[affiliate.fixtures] VITE_API_URL is not set — packages/headless/.env.recording is required."
+      );
+    }
+    const recordingsDir = new URL("./fixtures", import.meta.url).pathname;
+    const alreadyRecorded = readdirSync(recordingsDir).some(file =>
+      file.startsWith("post-clients-id-emails-case-add-email")
+    );
+    if (alreadyRecorded) {
+      console.log(
+        "[affiliate.fixtures] R-DATA-8 guard: an add-email capture already exists — hard no-op, 0 requests sent this run."
+      );
+      expect(alreadyRecorded).toBe(true);
+      return;
+    }
+
+    const password = process.env.FE3227_ENROL2_PASSWORD;
+    if (!password) {
+      throw new Error(
+        "[affiliate.fixtures] FE3227_ENROL2_PASSWORD is not set — R-DATA-8 supplies the R-ENROL-2 " +
+          "client's password out-of-band; it is never hand-written into a committed file."
+      );
+    }
+    const token = await passwordLogin(
+      "nathan.robinson+iBfSQzWefk@upmind.com",
+      password,
+      "R-DATA-8"
+    );
+    const clientId = (
+      (await rawGet(token, "/api/self?with=accounts")) as {
+        data?: { actor_id?: string };
+      }
+    ).data?.actor_id;
+    if (!clientId) {
+      throw new Error(
+        "[affiliate.fixtures] R-DATA-8: the self read carries no actor id. G3: escalate to the operator."
+      );
+    }
+    const emailsPath = `/api/clients/${clientId}/emails?limit=0&offset=0&order=-default,-id&with_staged_imports=1`;
+    const listIds = async (): Promise<string[]> =>
+      (
+        (await rawGet(token, emailsPath)) as { data?: { id: string }[] }
+      ).data?.map(email => email.id) ?? [];
+
+    const before = await listIds();
+    if (before.length !== 1) {
+      throw new Error(
+        `[affiliate.fixtures] R-DATA-8 pre-flight: the client holds ${before.length} emails, expected exactly 1. ` +
+          "Nothing was added. A leftover email from an earlier run needs the operator."
+      );
+    }
+
+    const generator = createGenerator(BASE_URL, {
+      recordingsDir,
+      origin: ORIGIN,
+      source: "case",
+      name: "affiliate"
+    });
+    generator.setBearerToken(token);
+
+    const addResponse = await generator.post(
+      `/api/clients/${clientId}/emails?case=add-email`,
+      { email: "nathan.robinson+fe3227-r-data-8@upmind.com" }
+    );
+    if (addResponse.status !== 200) {
+      throw new Error(
+        `[affiliate.fixtures] R-DATA-8: the add returned status ${addResponse.status}. Nothing was saved.`
+      );
+    }
+
+    let addedId: string | undefined;
+    let captureError: unknown;
+    try {
+      addedId = (await listIds()).find(id => !before.includes(id));
+      await generator.get(`${emailsPath}&case=after-add`);
+      generator.save();
+    } catch (error) {
+      captureError = error;
+    }
+    if (!addedId) {
+      throw (
+        captureError ??
+        new Error(
+          "[affiliate.fixtures] R-DATA-8: the add succeeded but the new email id was not found in the live list. The operator must check the client's emails."
+        )
+      );
+    }
+
+    const deleteResponse = await fetch(
+      `${BASE_URL}/api/clients/${clientId}/emails/${addedId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          ...(ORIGIN ? { Origin: ORIGIN } : {})
+        }
+      }
+    );
+    const after = await listIds();
+    console.log(
+      `[affiliate.fixtures] R-DATA-8 delete status ${deleteResponse.status}; emails after delete: ${after.length}.`
+    );
+    if (after.length !== 1) {
+      throw new Error(
+        `[affiliate.fixtures] R-DATA-8: the added email ${addedId} is still on the client after the delete ` +
+          `(delete status ${deleteResponse.status}, ${after.length} emails). The operator must remove it.`
+      );
+    }
+    if (captureError) throw captureError;
+    expect(generator.getCapturedFixtures().size).toBe(2);
   }, 30000);
 
   // --- R-ENROL (review-notes.md, 2026-09-30) — SPENT, permanently disabled.

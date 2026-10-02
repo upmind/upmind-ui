@@ -55,6 +55,14 @@
 # brand now carries a PayPal destination with a default email (AC22/AC23's
 # PayPal detection, email lookup and save are proven; NO-PAYPAL-DESTINATION
 # is closed).
+# Operator data of 2026-10-02 (R-DATA-4 to R-DATA-8, pass 18): the DISABLED
+# account row is recorded and driven, and proven by a RED control (CONTROLS.md row 84); the empty-destination client over a
+# PayPal brand default is recorded and proves the null-destination inherit and
+# the default-email preselect; one real email add and its refreshed list are
+# recorded (the email was deleted again). STILL OPEN: the STAGED row
+# (NO-STAGED-LOGIN, the staged client's login answers 401). The default
+# redirect is PROVEN since R-DATA-9 (2026-10-02, pass 31): the backend now
+# serves it and the area settings are re-recorded with it.
 # A scenario whose real capture now exists (links/referrals/commissions/
 # payouts BASE reads, link create/edit/delete) is still `@todo` below ONLY
 # where its full scope (filter/sort/paginate, or a write proof) is not yet
@@ -127,6 +135,19 @@ Feature: The client self-service affiliate data layer and the guest link visit
     Given a client whose session self record names an account id that differs from their first listed account
     When the client opens the affiliate area
     Then the resolver publishes the self record's own account, not the first listed account
+
+  @account-source @client @todo
+  # NO-SELF-WITHOUT-ACCOUNT-ID. The fallback half of R-NO-SWITCH's account
+  # source ("else the client's only account") has no proof. The old proof
+  # removed `account_id` from a recorded self at its call site, which flips a
+  # value inside a recording (ADR-035), so the case and its helper are gone.
+  # No read-only recording of a self with no `account_id` exists: every client
+  # that logs in on this brand returns one. Evidence:
+  # docs/sdd/FE-3227/evidence/capture-self-without-account-id-probe.md.
+  Scenario: The resolver falls back to the client's only listed account when the self record carries no account id
+    Given a client whose session self record carries no account id and one listed account
+    When the client opens the affiliate area
+    Then the resolver publishes the client's only listed account
 
   @AC34 @client
   Scenario: With no account, the client composables send nothing, and the visit still goes
@@ -212,16 +233,29 @@ Feature: The client self-service affiliate data layer and the guest link visit
     When the client opens the affiliate area
     Then isEnrolled, isDisabled and isStaged all read false and no error is shown
 
-  @AC5 @client @todo
-  # The enrolled row is proven by affiliate.account-conditions.int.test.ts's
-  # `otherClient` case. Still `@todo`: the DISABLED and STAGED rows, a
-  # SEPARATE, unrelated NO-TWO-ACCOUNT gap — the full truth table needs
-  # distinct disabled and staged accounts (design.md G3) staging does not
-  # hold for either credential this unit can build a session from.
-  Scenario: The enrolled, disabled and staged conditions follow the account
-    Given an enrolled client's account in one of three recorded conditions
+  @AC5 @client
+  # Proof: affiliate.account-conditions.int.test.ts, over the disabled client's
+  # own recorded self, account and balance (R-DATA-4, read-only GETs, the
+  # operator disabled the account). Control: `affiliate.account-conditions.
+  # always-not-disabled` flips the `isDisabled` assertion RED (CONTROLS.md
+  # row 84). The otherClient case proves the enrolled row, with `isDisabled`
+  # false.
+  Scenario: A client whose affiliate account was disabled by staff reads as disabled
+    Given an enrolled client whose affiliate account was disabled by staff
     When the client opens the affiliate area
-    Then isEnrolled, isDisabled and isStaged each follow that account's real condition
+    Then the client reads as enrolled and disabled, not staged, and no error is shown
+
+  @AC5 @client @todo
+  # NO-STAGED-LOGIN (R-DATA-5). The imported client on the brand origin
+  # http://ministryofphotography.upmind.com:8080/ answers its login with 401
+  # "The user credentials were incorrect." on every origin variant tried, so no
+  # staged account read exists to record. Nothing opts the client in. The
+  # create-link block of a staged account is not provable either.
+  # Evidence: docs/sdd/FE-3227/evidence/capture-r-data-5-staged-login.md.
+  Scenario: A client whose affiliate account is a staged import reads as staged
+    Given an enrolled client whose affiliate account is a staged import
+    When the client opens the affiliate area
+    Then isStaged reads true
 
   @AC6 @client
   # Proof: affiliate.stats.int.test.ts (real enrolled account + balance
@@ -335,6 +369,25 @@ Feature: The client self-service affiliate data layer and the guest link visit
     When the client opens the affiliate area
     Then the client sees the programme as unavailable, with no error shown, and their area settings are unaffected
 
+  @settings-guard @client
+  # Proof: useClientAffiliate.settings-guard.int.test.ts. The account changes
+  # through the real session store (the second recorded client replaces the
+  # first). No control: the patch for this guard is owed by the developer seat
+  # (CONTROLS.md, pass 25 finding).
+  Scenario: A client's readiness waits for the new account's settings after the account changes
+    Given an enrolled client whose settings have loaded
+    When the client's account changes and the new account's settings are slow to load
+    Then the client's readiness stays pending until the new account's settings load
+
+  @settings-guard @client
+  # Proof: useClientAffiliate.settings-guard.int.test.ts. The previous
+  # account's area answer is held and released verbatim after the change. The
+  # new account's own area read is a declared 500 control.
+  Scenario: A late settings answer of the previous account is discarded after the account changes
+    Given an enrolled client whose settings answer is still in flight
+    When the client's account changes and the old answer then arrives
+    Then the old answer is discarded and the new account's settings stand
+
   # ---------------------------------------------------------------------------
   # Links, referrals, commissions, payouts, the two managers (AC7-AC23)
   # ---------------------------------------------------------------------------
@@ -374,6 +427,15 @@ Feature: The client self-service affiliate data layer and the guest link visit
     When the client creates, edits or deletes a referral link
     Then the change is saved and reflected in the client's list of links
 
+  @AC11 @client
+  # Proof: useAffiliateLinkManager.retry-refused-save.int.test.ts. The first
+  # PUT is the recorded 422 and the second the recorded edit success. Control:
+  # useAffiliateLinkManager.retry-refused-save.
+  Scenario: A client retries a link save after the server refused it, and the second save is sent
+    Given an enrolled client whose link save the server refused
+    When the client saves the link again
+    Then the second save is sent
+
   @AC10 @client
   # Proof: affiliate.link-create-seed.int.test.ts. The create editor is dirty
   # on open (bdd.md AC10). Control: useAffiliateLinkManager.create-clean-on-open.
@@ -382,16 +444,34 @@ Feature: The client self-service affiliate data layer and the guest link visit
     When the client opens the editor for a new link
     Then the editor reports unsaved changes at once
 
-  @AC10 @client @todo
-  # NO-DEFAULT-REDIRECT-VISIBLE (R-DATA-3). The operator set the brand's
-  # "Default link redirect". Read-only GETs of the key (with and without
-  # brand_id, with the brand id of /self and of the account, under the origin
-  # of the brand that owns the link, and the organisation level) all return
-  # no `default_redirect` value, so no recording holds it and ADR-035 bars
-  # serving one. Control: affiliate.link-create.seed-early stays unproven.
-  # Evidence: docs/sdd/FE-3227/evidence/capture-r-data-3-reprobe.md.
+  @AC10 @client
+  # Proof: affiliate.link-create-seed.int.test.ts, serving the restored real
+  # capture get-config-brand-values-case-no-default-redirect (commit c48b1d0902,
+  # ruling R-NO-DEFAULT-CAPTURE) — recorded before the backend served
+  # `default_redirect`, so it holds none. No recording is edited. Control:
+  # useAffiliateLinkManager.create-clean-on-open.
+  Scenario: A new-link editor for a brand with no default redirect is already counted as changed when it opens
+    Given an enrolled client whose brand sets no default link redirect
+    When the client opens the editor for a new link
+    Then the editor reports unsaved changes at once
+
+  @AC10 @client
+  # Proof: affiliate.link-create.int.test.ts. The recorded area settings carry
+  # the brand's default link redirect (R-DATA-9, row 19), and the new link's
+  # redirect and the client's default redirect both read it. Control:
+  # affiliate.link-create.seed-early.
   Scenario: A new link starts from the brand's default redirect
     Given an enrolled client whose brand sets a default link redirect
+    When the client opens the editor for a new link
+    Then the new link's redirect is the brand's default redirect
+
+  @AC10 @client
+  # Proof: affiliate.link-create.int.test.ts, the settings answer is held until
+  # the editor has opened. Control: affiliate.link-create.seed-early flips the
+  # redirect assertion (expected undefined to be the brand default).
+  Scenario: A new link still starts from the brand's default redirect when the settings answer late
+    Given an enrolled client whose brand sets a default link redirect
+    And the brand settings answer later than the editor opens
     When the client opens the editor for a new link
     Then the new link's redirect is the brand's default redirect
 
@@ -487,20 +567,109 @@ Feature: The client self-service affiliate data layer and the guest link visit
     When the account read that follows the save has settled
     Then the editor reports no unsaved changes
 
-  @AC22 @client @todo
-  # NO-NULL-DESTINATION-STATE (CONTROLS.md row 50). Unproven, so not claimed.
-  # affiliate.payout-null-destination.int.test.ts characterises the open over
-  # the R-ENROL-2 client's own recorded self, account and emails (destination
-  # null), but it stays GREEN under
-  # useAffiliatePayoutDestinationManager.null-not-default: the brand default on
-  # staging is Wallet, so the inherit rule changes nothing observable. The rule
-  # shows only over a brand whose default is PayPal, which staging does not hold
-  # and a recording may not flip (ADR-035). No control flips the spec, so the
-  # scenario stays @todo.
-  Scenario: A client with no saved payout destination is offered the brand's default destination and asked for no PayPal email
-    Given an enrolled client whose payout destination was never set
+  @AC23 @client
+  # Proof: useAffiliatePayoutDestinationManager.retry-refused-save.int.test.ts.
+  # The refusal is a declared 422 control (NO-PAYOUT-SAVE-REJECTED-CAPTURE: no
+  # recording holds a refused account save), the second PUT the recorded save.
+  # Control: useAffiliatePayoutDestinationManager.retry-refused-save.
+  Scenario: A client retries a payout destination save after the server refused it, and the second save is sent
+    Given an enrolled client whose payout destination save the server refused
+    When the client saves the payout destination again
+    Then the second save is sent
+
+  @AC23 @client
+  # Proof: affiliate.destination-save.int.test.ts, over the R-ENROL-2 client's
+  # own recorded self, account and emails. R-DATA-8 recorded one real add
+  # (the add response and the emails list read after it) and deleted the email
+  # again in the same run, closing NO-AFTER-ADD-EMAILS-CAPTURE. The re-read
+  # answers with the after-add recording, and the case asserts the replaced
+  # `emails` list, the new email id, the kept edit and no account read.
+  # Controls: affiliate.destination-save.add-email-refresh flips the new-id
+  # assertion. affiliate.destination-save.add-email-keeps-list flips the
+  # replaced-list assertion on its own and reads RED (CONTROLS.md row 85).
+  Scenario: A client adds a PayPal email and keeps the unsaved destination choice
+    Given an enrolled client who has chosen another payout destination and not saved
+    When the client adds a PayPal email
+    Then the new email is chosen, the destination choice stays, and the emails are read again, replacing the list, with no account read
+
+  @AC23 @client
+  # Proof: affiliate.destination-save.int.test.ts. The session copy of the
+  # account carries no payout id fields in this build (mapSessionUser maps
+  # only currency, pricelist, meta and ids), so DV13 is asserted as
+  # "unchanged by the save", not as the two payout ids of the self capture.
+  # Control: affiliate.destination-save.reconcile-session.
+  Scenario: A saved payout destination leaves the session's copy of the account unchanged
+    Given an enrolled client who has saved a different payout destination
+    When the account read that follows the save has settled
+    Then the session's copy of the account is exactly what it was before the save
+
+  @AC23 @client
+  # Proof: affiliate.destination-save.int.test.ts, a declared 500 control on
+  # the emails route (no recording holds a failed emails read).
+  Scenario: A client whose emails cannot be read still gets the editor seeded from the account
+    Given an enrolled client whose emails read fails
     When the client opens the payout destination editor
-    Then the brand's default destination is the one offered, and no PayPal email is asked for
+    Then the editor holds the account's two payout ids, no emails, and no unsaved change
+
+  @AC23 @client
+  # Proof: affiliate.payout-null-destination.int.test.ts, over the R-ENROL-2
+  # client (destination null, so the brand default Wallet applies; no
+  # recording holds an explicit non-PayPal destination with no email). Control:
+  # affiliate.destination-save.preselect-any.
+  Scenario: A client whose saved destination is empty inherits the brand default and is asked for no PayPal email on open
+    Given an enrolled client who has saved no payout destination and who has a default email
+    When the client opens the payout destination editor
+    Then no PayPal email is chosen and the editor reports no unsaved changes
+
+  @AC23 @client
+  # Proof: useAffiliatePayoutDestinationManager.machine.int.test.ts. Control:
+  # useAffiliatePayoutDestinationManager.machine.parse-merges-lookups.
+  Scenario: The editor opens seeded with exactly the account's two payout ids
+    Given an enrolled client with a saved payout destination and email
+    When the client opens the payout destination editor
+    Then the editor holds exactly those two ids and nothing from the lookups
+
+  @AC23 @client
+  # Proof: useAffiliatePayoutDestinationManager.machine.int.test.ts. Control:
+  # affiliate.destination-save.refresh-on-failure flips the hasError assertion.
+  # The no-follow-up-read claim lives in the destination-save refused-save case.
+  Scenario: A refused payout save reports the error and keeps the unsaved edit
+    Given an enrolled client editing the payout destination
+    When the server refuses the save
+    Then the editor reports the error and keeps the edit
+
+  @AC23 @client
+  # Proof: affiliate.payout-null-destination.int.test.ts, over the R-ENROL-2
+  # client while the brand default is PayPal (R-DATA-6, R-DATA-7). Its empty
+  # destination resolves to PayPal and its PayPal email is empty, which is the
+  # PayPal-with-no-email open. Control:
+  # useAffiliatePayoutDestinationManager.null-not-default flips the preselect
+  # assertion (`expected null to be 'd0367942-...'`), CONTROLS.md row 50. The
+  # second candidate client (aldnajsdnajosndoasupmindnathan@yopmail.com) was
+  # read: it holds the same empty destination and empty email, so it adds no
+  # second state. A STORED PayPal destination with no email is not recorded and
+  # no client holds one; the form preselects the login email, so it is
+  # unreachable in practice. Evidence:
+  # docs/sdd/FE-3227/evidence/capture-r-data-6-7-paypal-default.md.
+  Scenario: A client whose payout destination resolves to PayPal and who has no PayPal email opens with the default email preselected
+    Given an enrolled client whose payout destination resolves to PayPal and who has no PayPal email
+    When the client opens the payout destination editor
+    Then the client's default email is chosen and the editor reports unsaved changes
+
+  @AC22 @client
+  # Proof: affiliate.payout-null-destination.int.test.ts, over the R-ENROL-2
+  # client while the brand default is PayPal (R-DATA-6, read-only GETs, the
+  # operator set PayPal as the brand default for the recording and restores
+  # Wallet after). The empty destination resolves to the brand default, PayPal,
+  # and the editor requires a PayPal email. Control:
+  # useAffiliatePayoutDestinationManager.null-not-default flips the `isPaypal`
+  # assertion (`expected false to be true`), CONTROLS.md row 50. Closes
+  # NO-NULL-DESTINATION-STATE. The Wallet-default open stays characterised by
+  # the AC23 scenario of an empty saved destination above.
+  Scenario: A client with no saved payout destination on a PayPal-default brand is offered PayPal and requires a PayPal email
+    Given an enrolled client whose payout destination was never set, on a brand whose default destination is PayPal
+    When the client opens the payout destination editor
+    Then PayPal is the destination offered and a PayPal email is required
 
   @account-member-guard @client
   # Unnumbered — this capability sits outside the AC26-AC33 account-switch

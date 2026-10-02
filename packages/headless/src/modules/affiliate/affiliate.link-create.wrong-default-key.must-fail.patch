@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.context.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.context.ts
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.context.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.context.ts
+@@ -52,7 +52,7 @@
+   const defaultRedirectUrl = computed(
+     () =>
+       (deps.areaSettings.value[
+-        BrandConfigKeys.AFFILIATES_DEFAULT_REDIRECT_LINK
++        BrandConfigKeys.AFFILIATES_WITHDRAW_REQUEST
+       ] as string | undefined) ?? ""
+   );
+ 

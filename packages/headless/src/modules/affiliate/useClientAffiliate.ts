@@ -90,33 +90,48 @@ function createClientAffiliateForScope(
     }
   }
 
+  let settingsGeneration = 0;
+
   async function loadSettings(): Promise<void> {
     const id = accountId.value;
     if (!id) return;
 
+    const generation = ++settingsGeneration;
     settingsLoading.value = !settingsLoaded.value;
 
+    let gate: Record<string, unknown> = {};
     try {
-      gateSettings.value = await loadGateSettings();
+      gate = await loadGateSettings();
     } catch {
-      gateSettings.value = {};
+      gate = {};
     }
 
+    let area: Record<string, unknown> = {};
     try {
-      areaSettings.value = await loadAreaSettings(resolvedBrandId.value);
+      area = await loadAreaSettings(resolvedBrandId.value);
     } catch {
-      areaSettings.value = {};
+      area = {};
     }
 
+    if (generation !== settingsGeneration) return;
+
+    gateSettings.value = gate;
+    areaSettings.value = area;
     settingsLoaded.value = true;
     settingsLoading.value = false;
 
     void loadSelfBrandIfNeeded();
   }
 
-  watch(accountId, id => void (id ? loadSettings() : undefined), {
-    immediate: true
-  });
+  watch(
+    accountId,
+    id => {
+      if (!id) return;
+      settingsLoaded.value = false;
+      void loadSettings();
+    },
+    { immediate: true }
+  );
 
   const isLoading = computed(
     () =>

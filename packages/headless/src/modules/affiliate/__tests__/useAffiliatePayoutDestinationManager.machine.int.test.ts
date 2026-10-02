@@ -68,8 +68,25 @@
  * the load-order test stays green, and the revert is GREEN. History:
  * CONTROLS.md.
  *
- * Stated omissions (ADR-021, design.md §8.2): this spec sends no write and
- * asserts no failure branch of its own.
+ * ## The seed and the refused-save cases
+ * The seed case pins the open to the account's own two payout ids, nothing
+ * more: `model` equals `{ payoutDestinationId, paypalEmailId }` read from the
+ * recorded account capture and the editor reports no unsaved change, so a
+ * parse step that folds the destinations or emails lookups into the editor
+ * models reddens it (`machine.parse-merges-lookups`). The refused-save case pins the
+ * error, the kept edit and no account read while a live `useClientAffiliate`
+ * observes the account (`machine.refresh-on-failure` flips its `hasError`
+ * assertion, `machine.invalidate-on-failure` flips its zero-read assertion).
+ *
+ * ## Named gap — NO-PAYPAL-NO-EMAIL-STATE
+ * design.md §8.6 (bdd.md AC23 "Preselect") opens an account that holds a
+ * PayPal destination with no email, and expects the default email preselected
+ * on open. No recording holds that state, and a recording may not flip a value
+ * (ADR-035). The preselect on a typed PayPal destination is proven in
+ * `affiliate.destinations.int.test.ts`. The on-open preselect stays `@todo`.
+ *
+ * Stated omissions (ADR-021, design.md §8.2): the refused save below is a
+ * declared 422 control, because no recording holds a refused account save.
  */
 import { describe, expect, it } from "vitest";
 import { ScopeActorTypes } from "../../scope/scope.types";
@@ -81,11 +98,21 @@ import {
   recordedAffiliateAccountBrandId,
   seedRealClient,
   serveCapture,
+  serveFailure,
   withBound
 } from "./affiliate.int-helpers";
 import { recorded, server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
+
+type AccountBody = {
+  data?: {
+    account?: {
+      affiliate_payout_destination_id?: string;
+      affiliate_payout_paypal_email_id?: string;
+    };
+  };
+};
 
 type SavePutResponseBody = {
   data?: {
@@ -220,6 +247,77 @@ describe("useAffiliatePayoutDestinationManager.machine — loading reads the acc
         .poll(() => manager.useContext().model.value?.payoutDestinationId)
         .toBe(reReadDestinationId);
       expect(manager.useMeta().hasError.value).toBe(false);
+    } finally {
+      manager.useActions().destroy();
+    }
+  });
+
+  it("The editor opens seeded with exactly the account's two payout ids", async () => {
+    await seedRealClient();
+    const account = recorded<AccountBody>(
+      "get-accounts-id-affiliate-with-staged-imports-1"
+    ).data?.account;
+    const expectedSeed = {
+      payoutDestinationId: account?.affiliate_payout_destination_id,
+      paypalEmailId: account?.affiliate_payout_paypal_email_id
+    };
+    expect(expectedSeed.payoutDestinationId).toBeTruthy();
+    expect(expectedSeed.paypalEmailId).toBeTruthy();
+
+    const manager = useAffiliatePayoutDestinationManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    try {
+      await manager.useActions().isReady();
+
+      expect(manager.useContext().model.value).toEqual(expectedSeed);
+      expect(manager.useMeta().isDirty.value).toBe(false);
+    } finally {
+      manager.useActions().destroy();
+    }
+  });
+
+  it("A refused payout save reports the error and keeps the unsaved edit", async () => {
+    await seedRealClient();
+
+    const liveAffiliate = useClientAffiliate().as(ScopeActorTypes.CLIENT);
+    const manager = useAffiliatePayoutDestinationManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    try {
+      await liveAffiliate.useActions().isReady();
+      await manager.useActions().isReady();
+
+      const { destinationId: nonPaypalId, emailId: nonPaypalEmailId } =
+        recordedNonPaypalSave();
+      await inputAndSettle(manager, {
+        payoutDestinationId: nonPaypalId,
+        paypalEmailId: nonPaypalEmailId
+      });
+
+      serveFailure("put", "*/api/accounts/:accountId", 422);
+
+      let accountGets = 0;
+      server?.events.on("request:start", ({ request }) => {
+        const path = new URL(request.url).pathname;
+        if (request.method === "GET" && /\/affiliate$/.test(path))
+          accountGets += 1;
+      });
+
+      await withBound(
+        manager.useActions().update(),
+        3000,
+        "[useAffiliatePayoutDestinationManager.machine] update()"
+      );
+      for (let round = 0; round < 10; round += 1) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+
+      expect(accountGets).toBe(0);
+      expect(manager.useMeta().hasError.value).toBe(true);
+      expect(manager.useContext().model.value?.payoutDestinationId).toBe(
+        nonPaypalId
+      );
     } finally {
       manager.useActions().destroy();
     }

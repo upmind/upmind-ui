@@ -35,6 +35,15 @@
  * this rule depends on. Named here and in `affiliate.feature`
  * (`@account-source @todo`), not silently claimed proven.
  *
+ * ## Named gap — NO-SELF-WITHOUT-ACCOUNT-ID (the fallback half)
+ * The "else the client's only account" half has no proof. The only way to
+ * reach it was a recorded `self` with `account_id` removed by a call-site
+ * override, which flips a value inside a recording (ADR-035). A read-only
+ * recording of a real `self` that carries no `account_id` is not available:
+ * all five staging client credentials of this repo that log in on this brand
+ * return one (evidence/capture-self-without-account-id-probe.md). The case is
+ * removed, and the feature keeps one `@todo` scenario for it.
+ *
  * Stated omissions (ADR-021, design.md §8.2): this spec sends no write and
  * asserts no failure branch of its own.
  */
@@ -44,10 +53,8 @@ import { useAffiliateActiveAccount } from "../useAffiliateActiveAccount";
 import {
   recordedAccountId,
   recordedSelf,
-  seedRealClient,
-  seedRealClientWithSelfOverride
+  seedRealClient
 } from "./affiliate.int-helpers";
-import { omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -67,26 +74,6 @@ describe("affiliate.account-source — the resolver addresses the client's own a
     // rather than one hard-coded literal, keeps the test honest about what
     // it can and cannot discriminate.
     expect(self.account_id).toBe(recordedAccountId());
-    expect(resolver.useContext().activeAccountId.value).toBe(
-      recordedAccountId()
-    );
-  });
-
-  it("the resolver falls back to the client's only listed account when the self record carries no account id", async () => {
-    // A declared override of the recorded `self` capture (design.md §8.9
-    // "No hand edit") with `account_id` removed — review-notes.md pass-7,
-    // blocker 6: the surviving "else the client's only account" half of the
-    // R-NO-SWITCH rule is provable WITHOUT a second account, by removing the
-    // primary source instead of diverging it. A resolver that reads ONLY
-    // `self.account_id` (with no fallback) would publish no account here;
-    // `accounts[0].id` is the only value this real capture can still supply.
-    await seedRealClientWithSelfOverride(
-      self => omit(self, ["account_id"]) as typeof self
-    );
-
-    const resolver = useAffiliateActiveAccount().as(ScopeActorTypes.CLIENT);
-    await resolver.useActions().isReady();
-
     expect(resolver.useContext().activeAccountId.value).toBe(
       recordedAccountId()
     );

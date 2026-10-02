@@ -1,0 +1,82 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/accounts/89857426-4897-0120-d7ea-21e325d0ed36/affiliate/balance?with_staged_imports=1&case=disabled",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a44209746c6ccd0d-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 02 Oct 2026 07:36:35 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1lHNbpP6C0Lor%2ByDOufZq9TYV5stVRaAFgbtX9gO8Jv0HXpxqj53LY7SvrEXWc9d0SPGo9FhnyRL9gB6DUSERcX2OHoCeyT8kUhUNwtLNFOeGPLGR9aB%2FcUnzFbOCHVpDw5JBGPCyA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "balance": {
+          "ALL": {
+            "amount": 0,
+            "amount_formatted": "£0.00"
+          }
+        },
+        "withdrawn_balance": {
+          "ALL": {
+            "amount": 0,
+            "amount_formatted": "£0.00"
+          }
+        },
+        "pending_balance": {
+          "ALL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "commission_count": 0,
+            "referral_count": 0,
+            "order_count": 0,
+            "min_date": null,
+            "max_date": null
+          }
+        },
+        "suspended_balance": {
+          "ALL": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "commission_count": 0,
+            "referral_count": 0,
+            "order_count": 0
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-02T07:36:35.466Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "affiliate"
+  }
+}

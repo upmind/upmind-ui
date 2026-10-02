@@ -116,7 +116,28 @@ const OWED_CAPTURES = [
   // self, account (empty payout destination) and emails reads, read-only.
   "get-self-case-reenrol2-empty-destination",
   "get-accounts-id-affiliate-case-reenrol2-empty-destination-with-staged-imports-1",
-  "get-clients-id-emails-case-reenrol2-empty-destination-with-staged-imports-1"
+  "get-clients-id-emails-case-reenrol2-empty-destination-with-staged-imports-1",
+  // R-DATA-4 (review-notes.md, 2026-10-02) — the disabled client's self,
+  // account and balance reads, read-only (AC5's disabled row).
+  "get-self-case-disabled",
+  "get-accounts-id-affiliate-case-disabled-with-staged-imports-1",
+  "get-accounts-id-affiliate-balance-case-disabled-with-staged-imports-1",
+  // R-DATA-6 (review-notes.md, 2026-10-02) — the R-ENROL-2 client's self,
+  // account, emails and the brand destinations while the brand default was
+  // PayPal, read-only (AC22 null destination, AC23 default-email preselect).
+  "get-self-case-paypal-default",
+  "get-accounts-id-affiliate-case-paypal-default-with-staged-imports-1",
+  "get-clients-id-emails-case-paypal-default-with-staged-imports-1",
+  "get-brands-id-affiliate-payout-destination-case-paypal-default",
+  // R-DATA-8 (review-notes.md, 2026-10-02) — one real email add on the
+  // R-ENROL-2 client and the emails list read after it. The email was deleted
+  // again in the same run (AC23 add-email refresh).
+  "post-clients-id-emails-case-add-email",
+  "get-clients-id-emails-case-after-add-with-staged-imports-1",
+  // R-NO-DEFAULT-CAPTURE (review-notes.md, 2026-10-02) — the area settings
+  // read as recorded before the backend served `default_redirect`, restored
+  // from commit c48b1d0902 (AC10 create-clean-on-open, row 73).
+  "get-config-brand-values-case-no-default-redirect"
 ];
 
 function fixtureFiles(): string[] {

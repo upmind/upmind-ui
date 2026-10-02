@@ -27,8 +27,14 @@
  * ## Open seed case
  * An untouched open over an account that already holds its PayPal email
  * triggers no preselect, so `isDirty` is false. A preselect open stays dirty by
- * design (AC23), and no recording holds a PayPal destination with no email, so
- * that open is a named gap here.
+ * design (AC23). That open is proven in `affiliate.payout-null-destination`,
+ * over the R-ENROL-2 client while the brand default is PayPal (R-DATA-6).
+ *
+ * ## Add-email case (R-DATA-8)
+ * The add response and the emails list read after it are two recordings of one
+ * real add on the R-ENROL-2 client (the email was deleted again in the same
+ * run). The re-read answers with the after-add recording, so the case asserts
+ * the replaced `emails` list and the chosen new id, not only the re-read.
  *
  * ## Named gap
  * No account read after a non-PayPal save is recorded (the generator reverts
@@ -63,19 +69,32 @@
  */
 import { describe, expect, it } from "vitest";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { useActiveSession } from "../../session-store";
 import { useAffiliatePayoutDestinationManager } from "../useAffiliatePayoutDestinationManager";
 import {
+  ENROL2_SELF_CAPTURE,
   inputAndSettle,
   seedRealClient,
+  seedRecordedClient,
   serveCapture,
   serveFailure,
   withBound
 } from "./affiliate.int-helpers";
 import { recorded, server } from "./setup.integration";
+import type { IEmail } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
 const SAVE_ROUTE = "*/api/accounts/:accountId";
+const ACCOUNT_ROUTE = "*/api/accounts/:accountId/affiliate";
+const EMAILS_ROUTE = "*/api/clients/:clientId/emails";
+const ENROL2_ACCOUNT_CAPTURE =
+  "get-accounts-id-affiliate-case-reenrol2-empty-destination-with-staged-imports-1";
+const ENROL2_EMAILS_CAPTURE =
+  "get-clients-id-emails-case-reenrol2-empty-destination-with-staged-imports-1";
+const ADD_EMAIL_CAPTURE = "post-clients-id-emails-case-add-email";
+const AFTER_ADD_EMAILS_CAPTURE =
+  "get-clients-id-emails-case-after-add-with-staged-imports-1";
 
 type RawAffiliateAccountBody = {
   data?: {
@@ -121,6 +140,15 @@ function recordedNonPaypalSave(): {
   return { destinationId, emailId: null };
 }
 
+type DestinationRow = { id: string; code: string; default: boolean };
+
+/** The session store's own copy of one account, as the live session holds it. */
+function sessionAccount(accountId: string): unknown {
+  const accounts = useActiveSession().useContext().activeUser.value?.accounts;
+  const entry = accounts?.find(account => account.id === accountId);
+  return entry ? JSON.parse(JSON.stringify(entry)) : undefined;
+}
+
 /** Read from the recorded account capture — never a hand-copied literal. */
 function recordedPaypalIds(): { destinationId: string; emailId: string } {
   const account = recorded<RawAffiliateAccountBody>(
@@ -142,7 +170,7 @@ function recordedPaypalIds(): { destinationId: string; emailId: string } {
  * the request observers saw. The caller destroys the manager.
  */
 async function saveNonPaypalDestination() {
-  await seedRealClient();
+  const { accountId } = await seedRealClient();
   const { destinationId } = recordedPaypalIds();
   const typed = recordedNonPaypalSave();
 
@@ -215,6 +243,7 @@ async function saveNonPaypalDestination() {
   );
 
   const dirtyBeforeSave = manager.useMeta().isDirty.value;
+  const sessionAccountBefore = sessionAccount(accountId);
 
   await withBound(
     manager.useActions().update(),
@@ -225,6 +254,8 @@ async function saveNonPaypalDestination() {
   return {
     manager,
     typed,
+    accountId,
+    sessionAccountBefore,
     dirtyBeforeSave,
     seenPuts,
     reReadRequests,
@@ -292,6 +323,106 @@ describe("affiliate.destination-save — the account's real PayPal destination i
       expect(saved.reReadRequests.length).toBeGreaterThan(0);
     } finally {
       saved.manager.useActions().destroy();
+    }
+  });
+
+  it("A saved payout destination leaves the session's copy of the account unchanged", async () => {
+    const saved = await saveNonPaypalDestination();
+    try {
+      expect(saved.seenPuts).toHaveLength(1);
+      await expect.poll(() => saved.reReadBodies.length).toBeGreaterThan(0);
+      await expect
+        .poll(() => saved.manager.useMeta().isDirty.value)
+        .toBe(false);
+
+      expect(saved.sessionAccountBefore).toMatchObject({ id: saved.accountId });
+      expect(sessionAccount(saved.accountId)).toEqual(
+        saved.sessionAccountBefore
+      );
+    } finally {
+      saved.manager.useActions().destroy();
+    }
+  });
+
+  it("A client whose emails cannot be read still gets the editor seeded from the account", async () => {
+    await seedRealClient();
+    serveFailure("get", EMAILS_ROUTE, 500);
+    const { destinationId, emailId } = recordedPaypalIds();
+
+    const manager = useAffiliatePayoutDestinationManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    try {
+      await manager.useActions().isReady();
+
+      expect(manager.useContext().emails.value ?? []).toHaveLength(0);
+      expect(manager.useContext().model.value?.payoutDestinationId).toBe(
+        destinationId
+      );
+      expect(manager.useContext().model.value?.paypalEmailId).toBe(emailId);
+      expect(manager.useMeta().isDirty.value).toBe(false);
+    } finally {
+      manager.useActions().destroy();
+    }
+  });
+
+  it("A client adds a PayPal email and keeps the unsaved destination choice", async () => {
+    await seedRecordedClient(ENROL2_SELF_CAPTURE);
+    serveCapture("get", ACCOUNT_ROUTE, ENROL2_ACCOUNT_CAPTURE);
+    serveCapture("get", EMAILS_ROUTE, ENROL2_EMAILS_CAPTURE);
+    const newEmail = recorded<{ data?: IEmail }>(ADD_EMAIL_CAPTURE)
+      .data as IEmail;
+    const emailsBefore = recorded<{ data?: IEmail[] }>(ENROL2_EMAILS_CAPTURE)
+      .data as IEmail[];
+    const emailsAfter = recorded<{ data?: IEmail[] }>(AFTER_ADD_EMAILS_CAPTURE)
+      .data as IEmail[];
+    const chosen = recorded<{ data?: DestinationRow[] }>(
+      "get-brands-id-affiliate-payout-destination"
+    ).data?.find(row => !row.default && row.code !== "paypal");
+    expect(newEmail?.id).toBeTruthy();
+    expect(chosen?.id).toBeTruthy();
+
+    const emailReads: string[] = [];
+    const accountReads: string[] = [];
+    server?.events.on("request:start", ({ request }) => {
+      const url = new URL(request.url);
+      if (request.method !== "GET") return;
+      if (url.pathname.endsWith("/emails")) emailReads.push(request.url);
+      if (/\/affiliate$/.test(url.pathname)) accountReads.push(request.url);
+    });
+
+    const manager = useAffiliatePayoutDestinationManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    try {
+      await manager.useActions().isReady();
+      const emailReadsAtOpen = emailReads.length;
+      const accountReadsAtOpen = accountReads.length;
+      expect(manager.useContext().model.value?.paypalEmailId ?? "").toBe("");
+      expect(
+        (manager.useContext().emails.value ?? []).map(email => email.id)
+      ).toEqual(emailsBefore.map(email => email.id));
+
+      await inputAndSettle(manager, { payoutDestinationId: chosen?.id });
+      serveCapture("get", EMAILS_ROUTE, AFTER_ADD_EMAILS_CAPTURE);
+      await withBound(
+        Promise.resolve(manager.useActions().addEmail(newEmail)),
+        3000,
+        "[affiliate.destination-save] addEmail()"
+      );
+
+      expect(manager.useContext().model.value?.payoutDestinationId).toBe(
+        chosen?.id
+      );
+      expect(manager.useContext().model.value?.paypalEmailId).toBe(newEmail.id);
+      expect(
+        (manager.useContext().emails.value ?? []).map(email => email.id)
+      ).toEqual(emailsAfter.map(email => email.id));
+      expect(emailReads).toHaveLength(emailReadsAtOpen + 1);
+      expect(emailReads[emailReads.length - 1]).toContain("limit=0");
+      expect(accountReads).toHaveLength(accountReadsAtOpen);
+    } finally {
+      manager.useActions().destroy();
     }
   });
 

@@ -54,7 +54,7 @@
         "term": "affiliate"
       },
       "affiliate-active-account": {
-        "aliases": ["affiliate account"],
+        "aliases": [],
         "definition": "The one account every affiliate read and write addresses: the account id the session's own record names when it is one of the client's accounts, else the client's only account. A client with several accounts and no matching id has no affiliate active account, so the affiliate composables report no account rather than guessing. It is resolved from the session, shared by every affiliate composable, and cleared on sign-out. There is no chooser and no way to switch it.",
         "kind": "domain",
         "referents": [

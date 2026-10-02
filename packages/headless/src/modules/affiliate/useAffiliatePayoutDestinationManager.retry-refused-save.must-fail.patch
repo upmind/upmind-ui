@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+index c8ebb69bd8..6a83fb05d4 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+@@ -107,8 +107,6 @@ export function createAffiliatePayoutDestinationManagerActions(
+     const retrying = stateMatches(state, ["available.error"]);
+     if (!isEmpty(value) && !isEqual(value, model)) {
+       send({ type: "SET", data: value, update: true });
+-    } else if (retrying) {
+-      send({ type: "SET", data: model, update: true });
+     } else {
+       send({ type: "UPDATE" });
+     }

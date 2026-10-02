@@ -23,7 +23,7 @@ The scope matrix is deliberately narrow: each cell is `null as never`, so `.as(.
   POST visit ──▶ cookie write ──▶ redirect target
 ```
 
-1. **Resolve** → the source reads `/self`, picks its `account_id` when the client holds that account, else the client's only account. A generation counter drops results of superseded runs.
+1. **Resolve** → the source reads `/self`, picks its `account_id` when the client holds that account, else the client's only account (the fall-back is unproven). A generation counter drops results of superseded runs.
 2. **Key** → each consumer derives its request key from the published id. A collection keeps its own key ref and clears it when the id clears, so rows of the previous account are never served.
 3. **Read** → account and balance reads use TanStack `useQuery` directly, so two instances under one account share one request each and a 404 resolves as empty data. Settings reads are raw one-shot requests outside the query cache.
 4. **Write** → services check membership of the pinned account (save services only), send the request, then invalidate the affected keys.

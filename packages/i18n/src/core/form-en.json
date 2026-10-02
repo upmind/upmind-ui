@@ -25,6 +25,69 @@
     "name": "Address name",
     "created_at": "Date added"
   },
+  "affiliate_commissions_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "amount": "Amount",
+    "created_at": "Date"
+  },
+  "affiliate_link_name": {
+    "description": null,
+    "label": "Name",
+    "placeholder": null
+  },
+  "affiliate_link_redirect_url": {
+    "description": null,
+    "label": "Redirect URL",
+    "placeholder": null
+  },
+  "affiliate_links_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search links..."
+  },
+  "affiliate_links_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "created_at": "Date",
+    "visit_count": "Visits",
+    "referral_count": "Referrals"
+  },
+  "affiliate_payout_destination": {
+    "description": null,
+    "label": "Payout destination",
+    "placeholder": null
+  },
+  "affiliate_payout_paypal_email": {
+    "description": null,
+    "label": "PayPal email",
+    "placeholder": null
+  },
+  "affiliate_payouts_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "amount": "Amount",
+    "created_at": "Date"
+  },
+  "affiliate_referrals_search": {
+    "description": null,
+    "label": null,
+    "placeholder": "Search referrals..."
+  },
+  "affiliate_referrals_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "created_at": "Date"
+  },
+  "affiliate_withdrawal_message": {
+    "description": null,
+    "label": "Message",
+    "placeholder": null
+  },
   "allow_auto_payment": {
     "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
     "label": "Allow auto payment",

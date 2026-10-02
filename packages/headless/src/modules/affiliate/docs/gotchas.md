@@ -132,6 +132,89 @@ Collections keep a key of their own. When the active account clears, the key cle
 
 ---
 
+## Text filters compare by contains only (DV1) 🧪
+
+The legacy listings let a client filter a text column by "starts with" or "ends with". This module sends `like` as contains-only, on four string columns: the links `name` and `redirect_url`, and the referrals `affiliate_link.name` and `affiliate_link.redirect_url`. A starts-with or ends-with leaf is refused as a schema violation, and no request goes out. The platform's `like` takes a SQL-style pattern, so `v%` and `%v` express starts-with and ends-with. The module does not offer them, and no recorded test claims them.
+
+**Test scenario:** Write a starts-with leaf on the links `name` column. The write is refused and the observer sees no request.
+
+---
+
+## A filter or sort write returns the page offset to zero (DV2)
+
+In the legacy table a filter or sort change kept the page the client was on. Here the offset returns to zero. A consumer that wants the legacy kept page restates `pagination` in the same `setCriteria` write. The behaviour is characterised by a spec and carries no negative control.
+
+---
+
+## An empty page lands on the last page (DV3)
+
+The legacy table re-read page one when the page past the end came back empty. Here the query core lands on the last page that holds rows. The behaviour is characterised by a spec and carries no negative control.
+
+---
+
+## A write during a load is honoured (DV4)
+
+The legacy table dropped a filter, sort or page write made while a load was in flight. Here the write is honoured, and the later window wins. A consumer that wants the legacy guard disables its control on `isLoading`. The behaviour is characterised by a spec and carries no negative control.
+
+---
+
+## A page or size write on an empty table is honoured (DV5)
+
+The legacy table ignored a page or page-size write when it held no rows. Here the write is honoured. A consumer that wants the legacy guard disables its control while the list holds no rows. The behaviour is characterised by a spec and carries no negative control.
+
+---
+
+## `isLoading` stays false on a refetch (DV6) 🧪
+
+The legacy view raised `isReloading` during a reload. Here `isLoading` is true for the first read only. It stays false on a refetch over loaded data, and on a refresh after a failed read. A consumer that shows a reload indicator cannot derive one from `isLoading`.
+
+**Test scenario:** Load the account, then refetch it. `isLoading` stays false while the refetch runs.
+
+---
+
+## A settings failure is silent (DV9)
+
+The legacy view went to an error state when the settings read failed. Here a failed settings read leaves its map empty (programme off, `canWithdraw` false) and raises no error. `hasError` stays false. This fixes a defect: a failed brand-level read no longer hides an account that loaded.
+
+---
+
+## A visit answer with status zero or an empty body still redirects (DV10) 🧪
+
+The legacy visit never redirected when the answer carried status zero. Here status zero and an empty body both resolve the visitor's own origin, so the visitor always has a target. This fixes a defect.
+
+**Test scenario:** Answer the visit request with status zero. `visit()` resolves the origin and does not reject.
+
+---
+
+## The cookie delete reaches the host-only cookie (DV11) 🧪
+
+`removeTopLevel` deletes the `upm_aff` cookie on the top-level domain. On a restricted apex domain it deletes the host-only cookie. On any other host it deletes the apex-domain cookie. A real browser keeps a host-only `upm_aff` there only if something else wrote one, and neither this module nor the legacy app writes one. The legacy delete missed a host-only cookie. This fixes a defect.
+
+---
+
+## The session copy of the account is not reconciled after a payout save (DV13)
+
+After a payout destination save the module re-reads its own account. The copy of the account held in the client session keeps the payout ids it had before the save. No reader of that copy exists today, so nothing shows the stale ids. A consumer that reads the payout ids from the session must read them from this module instead.
+
+---
+
+## Dates must be UTC or a relative token (DV14) 🧪
+
+An absolute date leaf carries a UTC value shaped `YYYY-MM-DD HH:mm:ss`. A relative leaf carries a token such as `-1_months`. A local time shifts the window by the UTC offset of the client.
+
+```typescript
+// ❌ Wrong: a local time
+"2026-10-02 09:00:00"; // built from new Date() in a UTC+2 zone
+
+// ✅ Correct: UTC, or a relative token
+"2026-10-02 07:00:00";
+"-1_months";
+```
+
+**Test scenario:** Filter the commissions by a local-time date in a zone away from UTC. The window sits at the UTC offset from the one the client meant.
+
+---
+
 ## Common Mistakes
 
 ### Using the Links list for a link edit
@@ -158,7 +241,8 @@ There is no account switching, no stored choice and no `.for(...)` retargeting. 
 | --- | --- | --- |
 | No account is active | Reads stay idle, `isAvailable` false | Manager `isReady()` settles `false` straight away |
 | A staff or guest actor opens a client composable | Refused at runtime | Managers settle `unavailable` with no request |
-| Brand has no default redirect | New link opens with an empty redirect | Wired, unproven (see below) |
+| Brand has no default redirect | New link opens with an empty redirect | The key is absent from the answer; the editor still opens dirty |
+| Brand sets a default redirect | New link opens with it as `redirectUrl` | Read when the area settings answer; a late answer still seeds it |
 | Payout destination is unset (`null`) | Treated as the brand's default destination | `isPaypal` follows the default's code |
 | PayPal destination, client has emails | Default email (else first) preselected | Only when the email is empty |
 | Destination or email lookup fails | Lookup is empty, the form still seeds | No error raised |
@@ -174,12 +258,10 @@ These behaviours are wired in the code. No recording or live state proves them, 
 
 | Handle | What is not proven |
 | --- | --- |
-| Disabled and staged conditions | The enrolled and not-enrolled states are proven. A disabled or staged account has no recording, so `isDisabled` and `isStaged` reading `true` is not exercised |
-| Brand default redirect pre-fill | A new link seeded from the brand's default redirect. The brand setting reads back no value, so no recording holds one, and a recording is never altered to supply it |
-| Never-saved payout destination | A never-saved destination offering the brand default. The staging brand's default is the wallet, so the inherit rule changes nothing observable. The open is characterised, not proven by a control |
-| Single-account fall-back | The fall-back to the client's only account when `/self` has no account id. Every client on the staging brand has one |
-| PayPal destination without email | Opening an account that already holds a PayPal destination and no email. The preselect on a typed PayPal destination is proven |
-| Emails list after adding an email | The emails list replaced after adding an email. The add-email path runs, but the shared client's re-read answers with the base capture, so the replacement is not asserted |
+| Staged condition (`NO-STAGED-LOGIN`) | `isStaged` reading `true`. The staged account could not be read (its login is refused), so the flag is read from `staged_import` as the legacy app does and no recording holds it |
+| Single-account fall-back (`NO-SELF-WITHOUT-ACCOUNT-ID`) | The fall-back to the client's only account when `/self` has no account id. Every client on the staging brand has one |
+
+Proven since the earlier list: a new link opens with the brand's default redirect as its redirect when the brand sets one, including when the settings answer after the editor opens, and opens with an empty redirect when the answer holds no such key. A disabled account reads `isDisabled` true with no error. A never-saved destination inherits a PayPal brand default, so PayPal is offered and a PayPal email is required. A client with an empty destination and no PayPal email opens with the default email preselected. After an email is added, the editor's list is replaced by the list read after the add, and the unsaved destination choice is kept. A stored PayPal destination with no PayPal email is unreachable in practice, so no state exists to record.
 
 Other proof limits: offset writes on the links and payouts lists, and the module-level mock-contract check, have no test. `vue-tsc -p tsconfig.testcheck.json` reported 13 errors in this module's test files and none in its source files, on 2026-10-02. The errors sit in test typing, such as a missing `happyDOM` global and shared test helpers. The check is not a CI gate.
 

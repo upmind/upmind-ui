@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
+index fa8e0ed202..721e683022 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkManager.actions.ts
+@@ -105,8 +105,6 @@ export function createAffiliateLinkManagerActions(
+     const retrying = stateMatches(state, ["available.error"]);
+     if (!isEmpty(value) && !isEqual(value, model)) {
+       send({ type: "SET", data: value, update: true });
+-    } else if (retrying) {
+-      send({ type: "SET", data: model, update: true });
+     } else {
+       send({ type: "UPDATE" });
+     }

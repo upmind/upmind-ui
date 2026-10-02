@@ -1066,9 +1066,7 @@
         "term": "affiliate"
       },
       "affiliate-active-account": {
-        "aliases": [
-          "affiliate account"
-        ],
+        "aliases": [],
         "definition": "The one account every affiliate read and write addresses: the account id the session's own record names when it is one of the client's accounts, else the client's only account. A client with several accounts and no matching id has no affiliate active account, so the affiliate composables report no account rather than guessing. It is resolved from the session, shared by every affiliate composable, and cleared on sign-out. There is no chooser and no way to switch it.",
         "kind": "domain",
         "referents": [
@@ -1682,6 +1680,7 @@
         "This module's own dependencies",
         "API endpoints",
         "GET /self",
+        "GET /self?with=actor.brand",
         "GET /accounts/{account}/affiliate",
         "POST /accounts/{account}/affiliate",
         "GET /accounts/{account}/affiliate/balance",
@@ -1727,6 +1726,17 @@
         "A collection must not keep another account's rows",
         "Settings reads can race an account change",
         "Two commission status orderings",
+        "Text filters compare by contains only (DV1) 🧪",
+        "A filter or sort write returns the page offset to zero (DV2)",
+        "An empty page lands on the last page (DV3)",
+        "A write during a load is honoured (DV4)",
+        "A page or size write on an empty table is honoured (DV5)",
+        "`isLoading` stays false on a refetch (DV6) 🧪",
+        "A settings failure is silent (DV9)",
+        "A visit answer with status zero or an empty body still redirects (DV10) 🧪",
+        "The cookie delete reaches the host-only cookie (DV11) 🧪",
+        "The session copy of the account is not reconciled after a payout save (DV13)",
+        "Dates must be UTC or a relative token (DV14) 🧪",
         "Common Mistakes",
         "Using the Links list for a link edit",
         "Joining the referral URL without the origin guard",
@@ -1755,6 +1765,7 @@
         "useAffiliateLinkManager",
         "useAffiliatePayoutDestinationManager",
         "useAffiliateLinkVisit",
+        "Consumer obligations",
         "Lifecycle",
         "Vue Component Integration"
       ],
@@ -18429,8 +18440,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-02T01:08:28.302Z",
-    "corpus_version": "1+35af3f789b7a",
+    "built_at": "2026-10-02T01:27:20.694Z",
+    "corpus_version": "1+78f266c6f2ac",
     "counts": {
       "adrs": 34,
       "changelogSymbols": 0,
@@ -18443,7 +18454,7 @@
       "symbols": 906
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "c48b1d09027af44557b2bded2bfbbef466660d4f"
+    "source_commit": "e37e8e0b137abe6c99f681989e680fea7af22aa1"
   },
   "relations": {
     "edges": [

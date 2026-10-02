@@ -1,0 +1,21 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+@@ -184,10 +184,13 @@
+   const { accountId, model } = context;
+   if (!accountId || !model) return Promise.reject(notAvailableError());
+ 
+-  await saveAffiliatePayoutDestination(accountId, model);
+-  await invalidateQueryByKey([...AFFILIATE_ACCOUNT_QUERY_KEY, accountId], {
+-    exact: false
+-  })(undefined);
++  try {
++    await saveAffiliatePayoutDestination(accountId, model);
++  } finally {
++    await invalidateQueryByKey([...AFFILIATE_ACCOUNT_QUERY_KEY, accountId], {
++      exact: false
++    })(undefined);
++  }
+ 
+   return model;
+ }

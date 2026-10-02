@@ -1,0 +1,23 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -127,7 +127,6 @@
+     accountId,
+     id => {
+       if (!id) return;
+-      settingsLoaded.value = false;
+       void loadSettings();
+     },
+     { immediate: true }
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
+@@ -113,8 +113,6 @@
+       area = {};
+     }
+ 
+-    if (generation !== settingsGeneration) return;
+-
+     gateSettings.value = gate;
+     areaSettings.value = area;
+     settingsLoaded.value = true;

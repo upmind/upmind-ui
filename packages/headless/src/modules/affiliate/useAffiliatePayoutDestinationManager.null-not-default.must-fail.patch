@@ -1,8 +1,8 @@
 diff --git a/packages/headless/src/modules/affiliate/affiliate.utils.ts b/packages/headless/src/modules/affiliate/affiliate.utils.ts
-index 6dd8f0914e..076fd50b4b 100644
+index d5e7b056f2..0405039c52 100644
 --- a/packages/headless/src/modules/affiliate/affiliate.utils.ts
 +++ b/packages/headless/src/modules/affiliate/affiliate.utils.ts
-@@ -103,9 +103,8 @@ export function isPaypalDestination(
+@@ -111,9 +111,8 @@ export function isPaypalDestination(
    destinationId: string | null | undefined,
    destinations: IAffiliateBrandPayoutDestination[] = []
  ): boolean {

@@ -1,15 +1,17 @@
 {
   "version": 3,
   "request": {
-    "method": "GET",
-    "path": "/api/config/brand/values?keys=affiliate_systems.settings.default_redirect,affiliate_systems.settings.withdraw_request&brand_id=2785d26e-9678-3d16-999f-314502e70439",
+    "method": "POST",
+    "path": "/api/clients/7d738248-5079-3153-398a-81e642d59e06/emails?case=add-email",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
       "Origin": "http://qa-automation.local:5173",
       "Authorization": "mock-Authorization"
     },
-    "body": null
+    "body": {
+      "email": "mock-email-1@example.com"
+    }
   },
   "response": {
     "status": 200,
@@ -17,14 +19,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a4431683dc7e5588-LHR",
+      "cf-ray": "a44209f71937b3b3-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Fri, 02 Oct 2026 10:40:16 GMT",
+      "date": "Fri, 02 Oct 2026 07:36:56 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=aLGWCS%2F7JszndFmCel8b1GN3iVmXRptVZkFar7X%2B8467bSWGjmH3LH7Z07uYP6%2B9AgziZYpnd%2FCT9VyRrUKPd7UyKbihDqAlCULFiZtdKNhAkX40eRAoeLVc%2F6l2a%2Bkg3OSZQntAwg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=j5r0AqSIEPEOdl%2FpfFxcznhaLG7K6Z8nthdQHDz2sg6Z5drEiQ1r9DOlcLgKsfK%2BfswnhLLMtv2GZBJXym%2Bn3FmZwEttF0uhzlEeokGVDgQ%2Bn5CLrrU5G0UMEjT3j05ofQHVKXl4DA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -33,8 +35,16 @@
     "body": {
       "status": "ok",
       "data": {
-        "affiliate_systems.settings.default_redirect": "https://kn6x1dzbtcgb.staging.upmind.dev/order/",
-        "affiliate_systems.settings.withdraw_request": true
+        "email": "mock-email-1@example.com",
+        "type": 1,
+        "verified": false,
+        "default": false,
+        "user_id": "sys",
+        "client_id": "7d738248-5079-3153-398a-81e642d59e06",
+        "updated_at": "2026-10-02 07:36:56",
+        "created_at": "2026-10-02 07:36:56",
+        "id": "085e69d5-6237-1944-884b-218e940d4237",
+        "can_delete": true
       },
       "related": null,
       "total": null,
@@ -43,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-10-02T10:40:16.176Z",
+  "captured_at": "2026-10-02T07:36:56.698Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

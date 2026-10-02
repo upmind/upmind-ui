@@ -1,0 +1,14 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+index c8ebb69bd8..80b4e242d9 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.actions.ts
+@@ -173,8 +173,7 @@ export function createAffiliatePayoutDestinationManagerActions(
+     );
+     send({
+       type: "SET",
+-      data: { ...model, paypalEmailId: email.id },
+-      emails
++      data: { ...model, paypalEmailId: email.id }
+     });
+   }
+ 

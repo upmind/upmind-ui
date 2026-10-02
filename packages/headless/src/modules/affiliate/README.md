@@ -35,7 +35,7 @@ See [Usage](./docs/usage.md) for the complete API.
 
 | Feature | Status | Notes |
 | --- | --- | --- |
-| Own-account resolution (session account, else the only account) | ✅ | Clears on logout and on session change |
+| Own-account resolution (session account) | ✅ | Clears on logout and on session change. The only-account fall-back is listed below as unproven |
 | Account read, enrolment, balance, statistics | ✅ | A 404 reads as "not enrolled" |
 | Programme gate and area settings | ✅ | Flat dotted brand configuration keys |
 | Links: list, search, sort, page, create, edit, delete | ✅ | Editor opens dirty on create |
@@ -43,14 +43,15 @@ See [Usage](./docs/usage.md) for the complete API.
 | Withdrawal request | ✅ | Returns the support ticket id |
 | Payout destination and PayPal email editor | ✅ | Re-seeds from the saved account |
 | Guest referral-link visit and `upm_aff` cookie | ✅ | Raw cookie, top-level domain |
-| Disabled and staged account conditions | ⏳ | Not proven: no recorded disabled or staged account |
-| Brand default redirect pre-fill on a new link | ⏳ | wired, not proven |
-| Empty (never saved) payout destination offers the brand default | ⏳ | not proven |
+| Disabled account condition | ✅ | A disabled account reads `isDisabled` true, enrolled, not staged, no error |
+| Empty (never saved) payout destination inherits the brand default | ✅ | Proven on a brand whose default is PayPal: PayPal is offered and a PayPal email is required |
+| PayPal destination with no email preselects the default email on open | ✅ | Proven on a client with an empty destination and no PayPal email |
+| Emails list replacement after adding an email | ✅ | The list read after the add replaces the earlier list; the unsaved destination choice is kept |
+| Brand default redirect pre-fill on a new link | ✅ | Proven on a brand that sets one; a brand without one opens the redirect empty and the editor still opens dirty |
+| Staged account condition | ⏳ | wired, not proven: no staged account could be read |
 | Fallback to the only account when `/self` has no account id | ⏳ | not proven |
-| PayPal destination with no email preselects the default email on open | ⏳ | not proven (the typed-PayPal preselect is proven) |
-| Emails list replacement after adding an email | ⏳ | the add-email path is exercised, the replaced list is not asserted |
 
-The `⏳` rows are tagged in `__tests__/affiliate.feature` as pending scenarios. They describe wired behaviour with no recording that proves it.
+The `⏳` rows are tagged in `__tests__/affiliate.feature` as pending scenarios. They describe wired behaviour with no recording that proves it. A stored PayPal destination with no PayPal email is unreachable in practice, so no state exists to record.
 
 ## Key Concepts
 

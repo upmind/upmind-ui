@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
+index d7f188c597..0725bec0dc 100644
+--- a/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
++++ b/packages/headless/src/modules/affiliate/useClientAffiliate.meta.ts
+@@ -37,7 +37,7 @@ export function createClientAffiliateMeta(
+       ]
+   );
+ 
+-  const isDisabled = computed(() => !!deps.data.value?.disabled);
++  const isDisabled = computed(() => false);
+   const isStaged = computed(() => !!deps.data.value?.staged_import);
+ 
+   const hasPayableCommissions = computed(

@@ -21,25 +21,46 @@
  * generator sent, so the replay pool's real recorded response is honestly
  * reached — never a value read back from the same fixture the module reads.
  *
+ * ## The brand default redirect (R-DATA-9)
+ * The recorded area settings capture carries the brand's `default_redirect`
+ * (the operator-saved `https://kn6x1dzbtcgb.staging.upmind.dev/order/`, held
+ * here as a hand-written literal). The two default-redirect cases assert it on
+ * the client's affiliate context and on the new-link model, once with the
+ * settings answered at once and once with that answer held until the editor
+ * has opened. Control: `affiliate.link-create.seed-early`.
+ *
  * Stated omissions (ADR-021, design.md §8.2): the 422 case below is this
  * spec's only failure branch; the 5xx case takes the same error-state path
  * per note 3, unexercised here to avoid re-proving the identical branch.
  */
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useAffiliateActiveAccount } from "../useAffiliateActiveAccount";
 import { useAffiliateLinkManager } from "../useAffiliateLinkManager";
 import { useAffiliateLinks } from "../useAffiliateLinks";
+import { useClientAffiliate } from "../useClientAffiliate";
 import {
+  BRAND_DEFAULT_REDIRECT,
+  holdCapture,
   inputAndSettle,
+  observeRequests,
   seedRealClient,
-  serveCapture
+  serveCapture,
+  withBound,
+  flushTasks
 } from "./affiliate.int-helpers";
 import { recorded, server } from "./setup.integration";
 
 // -----------------------------------------------------------------------------
 
 const LINKS_CREATE_ROUTE = "*/api/accounts/:accountId/affiliate/links";
+const BRAND_CONFIG_ROUTE = "*/api/config/brand/values";
+const AREA_KEYS = [
+  BrandConfigKeys.AFFILIATES_DEFAULT_REDIRECT_LINK,
+  BrandConfigKeys.AFFILIATES_WITHDRAW_REQUEST
+].join(",");
+const AREA_CAPTURE = "get-config-brand-values-dba1bf2f";
 
 type CreateLinkBody = {
   data?: { id?: string; name?: string; redirect_url?: string };
@@ -97,6 +118,73 @@ describe("affiliate.link-create — a client creates a referral link", () => {
       expect(manager.useMeta().hasError.value).toBe(false);
       expect(manager.useContext().id.value).toBe(createdLink?.id);
     } finally {
+      manager.useActions().destroy();
+    }
+  });
+
+  it("a new link starts from the brand's default redirect", async () => {
+    await useAffiliateActiveAccount()
+      .as(ScopeActorTypes.CLIENT)
+      .useActions()
+      .isReady();
+    const affiliate = useClientAffiliate().as(ScopeActorTypes.CLIENT);
+    await affiliate.useActions().isReady();
+
+    const manager = useAffiliateLinkManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    try {
+      await manager.useActions().isReady();
+
+      expect(BRAND_DEFAULT_REDIRECT).toBeTruthy();
+      expect(affiliate.useContext().defaultRedirectUrl.value).toBe(
+        BRAND_DEFAULT_REDIRECT
+      );
+      expect(manager.useContext().defaultRedirectUrl.value).toBe(
+        BRAND_DEFAULT_REDIRECT
+      );
+      expect(manager.useContext().model.value?.redirectUrl).toBe(
+        BRAND_DEFAULT_REDIRECT
+      );
+    } finally {
+      manager.useActions().destroy();
+    }
+  });
+
+  it("a new link still starts from the brand's default redirect when the settings answer late", async () => {
+    await useAffiliateActiveAccount()
+      .as(ScopeActorTypes.CLIENT)
+      .useActions()
+      .isReady();
+
+    const seen = observeRequests();
+    const hold = holdCapture("get", BRAND_CONFIG_ROUTE, AREA_CAPTURE, {
+      match: { keys: AREA_KEYS }
+    });
+    const manager = useAffiliateLinkManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    try {
+      const ready = manager.useActions().isReady();
+      await vi.waitFor(() =>
+        expect(
+          seen.some(request =>
+            request.url.includes("settings.default_redirect")
+          )
+        ).toBe(true)
+      );
+      await flushTasks();
+      expect(manager.useMeta().isAvailable.value).toBe(false);
+
+      hold.release();
+      await withBound(ready, 3000, "[link-create] isReady()");
+
+      expect(BRAND_DEFAULT_REDIRECT).toBeTruthy();
+      expect(manager.useContext().model.value?.redirectUrl).toBe(
+        BRAND_DEFAULT_REDIRECT
+      );
+    } finally {
+      hold.release();
       manager.useActions().destroy();
     }
   });

@@ -35,7 +35,7 @@ const { activeAccountId, error } = source.useContext();
 const { isAvailable, hasError } = source.useMeta();
 ```
 
-The id is the `/self` `account_id` when it names one of the client's accounts, otherwise the client's only account. A client with several accounts and no matching `account_id` resolves no id. The id clears and re-resolves on logout, on a session change and on a change of the account list. Server-side (no `window`) the source stays inert.
+The id is the `/self` `account_id` when it names one of the client's accounts, otherwise the client's only account (the only-account fall-back is wired and unproven: every recorded client has an `account_id`). A client with several accounts and no matching `account_id` resolves no id. The id clears and re-resolves on logout, on a session change and on a change of the account list. Server-side (no `window`) the source stays inert.
 
 ## useClientAffiliate
 
@@ -70,7 +70,7 @@ All `ComputedRef<boolean>` unless noted:
 | `isEmpty` | No affiliate record |
 | `isProgrammeEnabled` | Both gate keys are truthy |
 | `isEnrolled` | Account id active and affiliate record non-empty |
-| `isDisabled` / `isStaged` | The record's `disabled` / `staged_import` flag |
+| `isDisabled` / `isStaged` | The record's `disabled` / `staged_import` flag. `isDisabled` reading `true` is recorded on a disabled account. `isStaged` reading `true` is unproven: no staged account could be read |
 | `hasPayableCommissions` | Combined available balance is non-zero |
 | `canWithdraw` | The withdraw setting is truthy and there are payable commissions |
 | `balanceAvailable` / `balancePending` / `balanceWithdrawn` | Formatted strings, `""` when absent |
@@ -153,7 +153,7 @@ Actions: `input`, `update`, `revert`, `onDone`, `isReady`, `clear`, `stop`, `des
 - `update()` resolves with the model on a settled server failure. It does not reject. Read `hasError` and `errors` afterwards. Only a machine that never settles rejects, with a timeout error.
 - `errors` joins the per-field messages of a 422 before it falls back to the generic envelope message.
 - `update()` called again after a refused save sends the save again.
-- A create opens with the brand's default redirect as `redirectUrl` when the brand sets one, and a name of `""`.
+- A create opens with the brand's default redirect as `redirectUrl` when the brand sets one, and a name of `""`. When the area settings answer after the editor opens, the redirect is still seeded. A brand that sets no default redirect leaves the redirect empty, and the editor is still dirty.
 
 ## useAffiliatePayoutDestinationManager
 
@@ -166,11 +166,11 @@ const { isPaypal, isDirty, defaultDestination, hasError, isProcessing } = manage
 
 await manager.useActions().input({ payoutDestinationId, paypalEmailId });
 await manager.useActions().update();           // PUT accounts/{a}, then re-seeds from the saved account
-await manager.useActions().addEmail(newEmail); // re-reads the client's emails, chooses the new one
+await manager.useActions().addEmail(newEmail); // re-reads the client's emails, replaces the list with the re-read, chooses the new one
 ```
 
-- The form seeds from the account's two payout ids. An unset destination (`null`) reads as the brand's default destination for `isPaypal`.
-- A PayPal destination with no email chooses the client's default email (else the first email).
+- The form seeds from the account's two payout ids. An unset destination (`null`) reads as the brand's default destination for `isPaypal`. With a wallet default the form asks for no PayPal email. With a PayPal default the form offers PayPal and requires a PayPal email. Both are recorded.
+- A PayPal destination with no email chooses the client's default email (else the first email). The preselect is recorded for a typed PayPal destination and for a client who opens with an empty destination under a PayPal default. An account that stores PayPal with no PayPal email is unreachable in practice, so no state exists to record.
 - `update()` resolves on a settled server failure, with the edit kept and no re-read. A second `update()` after a refusal sends the save again.
 - A destinations or emails read that fails leaves that lookup empty. The form still seeds from the account.
 - The manager belongs to the account that was active when it opened. A save for an account the client no longer holds rejects with the "account no longer available" error before any request.
@@ -188,6 +188,13 @@ const { hasVisited } = useAffiliateLinkVisit().as("guest").useMeta();
 ```
 
 `visit(overrides?)` defaults `visitUrl`, `referrerUrl` and `userAgent` from the browser. It never rejects: a failed request resolves the visitor's own origin. It sends the existing `upm_aff` value back to the platform, writes or deletes the cookie from the answer and returns the redirect target.
+
+## Consumer obligations
+
+1. **Dates.** An absolute date leaf carries a UTC `YYYY-MM-DD HH:mm:ss` value. A relative leaf carries a token such as `-1_months`. A local time shifts the window by the UTC offset.
+2. **In-flight guard.** A consumer that wants the legacy guard against writes during a load disables its control on `isLoading`, or while the list holds no rows.
+3. **Kept page.** A consumer that wants the legacy kept page restates `pagination` in the same `setCriteria` write as the filter or sort.
+4. **Table state in the URL.** The affiliate pages keep the table state in the route query, as the legacy pages do. Each listing writes its filters, its sort and its page under its table id, and reads them back on a reload and on back and forward. The four table ids are `ALT1` for the links, `ART1` for the referrals, `APCT1` for the commissions and `APHT1` for the payouts. The page writes the route query from `setCriteria`. It restores the query through `setCriteria` before the first account resolves, and those criteria are kept. The module reads no route. This matches legacy parity row P85.
 
 ## Lifecycle
 

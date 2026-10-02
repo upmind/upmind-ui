@@ -15,6 +15,11 @@ All notable changes to the affiliate module.
 - Pure helpers: `referralOrigin`, `commissionTagStatus`, `commissionSummaryStatus`, `isPaypalDestination`, `defaultPayoutDestination`.
 - Translation keys `error.affiliate_*`, `text.affiliate_withdraw_balance` and `form.affiliate_*`.
 - Shared types in `packages/types`: the payout record (`IAffiliatePayout`) and `referral_count` on the affiliate link (`IAffiliateLink`) and `affiliate_link` on the referral (`IAffiliateReferral`).
+- Disabled account condition: `isDisabled` reads `true` on a disabled account.
+- A never-saved payout destination inherits a PayPal brand default and asks for a PayPal email.
+- A PayPal destination with no PayPal email preselects the client's default email on open.
+- The payout editor replaces its emails list with the list read after an email is added.
+- A new link opens with the brand default redirect; a brand without one opens empty and dirty.
 
 ### Changed
 
@@ -28,12 +33,8 @@ All notable changes to the affiliate module.
 
 These behaviours are wired and have no recording that proves them. See [Gotchas](./gotchas.md#known-unproven-behaviour).
 
-- Disabled and staged account conditions.
-- Brand default redirect pre-fill on a new link.
-- A never-saved payout destination offering the brand default.
+- Staged account condition.
 - Fall-back to the only account when `/self` has no account id.
-- A PayPal destination with no email on open.
-- The emails list replaced after adding an email.
 
 ### Out of scope
 
