@@ -1,0 +1,29 @@
+Negative control for the per-panel url namespace (RT1).
+
+An area stacks several collections on one page and each owns the same params
+(`sort`, `limit`, `offset`, `filter.*`, `track`). A panel's view of the url bag
+prefixes every param it writes with its key (`links.sort`), so two panels never
+share one. This mutant leaves the READ side namespaced and writes bare params:
+a panel's criteria go into the url as `sort=…`, where no panel reads them back
+and every other panel's write overwrites them — the first reload loses the
+filters of all but the last panel to write.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected red (module lane): criteria-url-roundtrip.spec.ts — a criteria write
+made under a panel namespace must reach the url as `<panel>.<param>` and must
+round-trip into the same panel only.
+
+diff --git a/playgrounds/labs-nuxt/app/composables/usePlaygroundUrlState.ts b/playgrounds/labs-nuxt/app/composables/usePlaygroundUrlState.ts
+--- a/playgrounds/labs-nuxt/app/composables/usePlaygroundUrlState.ts
++++ b/playgrounds/labs-nuxt/app/composables/usePlaygroundUrlState.ts
+@@ -178,8 +178,7 @@
+     )
+   );
+
+-  const write = (patch: PlaygroundUrlPatch): void =>
+-    base.write(mapKeys(patch, (_value, param) => qualify(param)));
++  const write = (patch: PlaygroundUrlPatch): void => base.write(patch);
+
+   return {
+     ...surfaceSlots(param => params.value[param], write),

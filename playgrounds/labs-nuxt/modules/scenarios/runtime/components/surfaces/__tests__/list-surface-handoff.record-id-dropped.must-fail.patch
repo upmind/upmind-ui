@@ -1,0 +1,26 @@
+Negative control for the edit handoff's record id (R-EDIT-HANDOFF, RT2).
+
+A handoff declaring `record: { from: "/id" }` opens its editor on the row's own
+record, addressed `.withId(<row id>)` — never `.for(type, id)`. The list surface
+reads that pointer off the clicked row and hands the id to the dialog beside the
+context. This mutant resolves the pointer and then throws the answer away, so
+every Edit opens as if no record were named: the editor boots a fresh draft and
+its save would CREATE a link instead of updating the one on the row.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected red (module lane): list-surface-handoff.spec.ts — an edit handoff with
+a `record` pointer must open the dialog with that row's id.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/ListSurface.vue
+@@ -989,7 +989,7 @@
+
+   manage.value = {
+     handoff,
+-    recordId: isNil(recordId) ? undefined : toString(recordId),
++    recordId: undefined,
+     // A context is only ever COMPLETE (`R6-30c`): no id off the row means a
+     // record that does not exist yet, which the editor boots fresh.
+     context:

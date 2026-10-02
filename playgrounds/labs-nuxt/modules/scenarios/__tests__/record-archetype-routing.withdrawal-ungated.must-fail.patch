@@ -1,0 +1,26 @@
+Negative control for the withdrawal request's gate (R-PAGES, Commissions tab).
+
+Request withdrawal is drawn only while the module's own `canWithdraw` flag is
+true — the brand setting is on AND the account holds a payable balance. This
+mutant deletes the gate from the DECLARATION: the control is offered to every
+client, including one with nothing to withdraw, and a request the module would
+refuse is one click away. The runtime still hides gated controls correctly; the
+declaration just stops asking it to.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected red (module lane): record-archetype-routing.spec.ts once it covers the
+affiliate withdrawal record — the `requestWithdrawal` action must carry
+`gate: "canWithdraw"`.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useClientAffiliate/affiliate.presentation.ts b/playgrounds/labs-nuxt/modules/scenarios/useClientAffiliate/affiliate.presentation.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/useClientAffiliate/affiliate.presentation.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/useClientAffiliate/affiliate.presentation.ts
+@@ -404,7 +404,6 @@
+       i18n: "labs.affiliate_request_withdrawal",
+       icon: "wallet-01",
+       color: RecordActionColorTypes.PRIMARY,
+-      gate: "canWithdraw",
+       busy: "isProcessing",
+       form: {
+         context: "withdrawal",

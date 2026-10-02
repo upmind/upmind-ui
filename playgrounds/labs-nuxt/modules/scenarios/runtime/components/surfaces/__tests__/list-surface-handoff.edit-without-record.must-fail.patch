@@ -1,0 +1,27 @@
+Negative control for the affiliate links panel's edit handoff declaration
+(R-EDIT-HANDOFF).
+
+The area's `links` panel hands Edit off through `record: { from: "/id" }`, so the
+link editor opens on the row's own record. This mutant deletes the pointer from
+the DECLARATION: the runtime is untouched and still correct, but the edit
+handoff now names neither a context nor a record, so Edit opens a fresh draft
+and Save creates a second link. It guards the declaration, not the surface.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected red: list-surface-handoff.spec.ts once it drives the affiliate links
+declaration's `edit` handoff — the dialog must be opened with the clicked row's
+id.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useClientAffiliate/affiliate.scenario.ts b/playgrounds/labs-nuxt/modules/scenarios/useClientAffiliate/affiliate.scenario.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/useClientAffiliate/affiliate.scenario.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/useClientAffiliate/affiliate.scenario.ts
+@@ -116,7 +116,7 @@
+           // names no record and `edit` points at the row's own id.
+           handoff: {
+             add: { feedback: LINK_SAVE_FEEDBACK },
+-            edit: { record: { from: "/id" }, feedback: LINK_SAVE_FEEDBACK }
++            edit: { feedback: LINK_SAVE_FEEDBACK }
+           },
+           tracks: tracksOf("@links"),
+           presentation: {

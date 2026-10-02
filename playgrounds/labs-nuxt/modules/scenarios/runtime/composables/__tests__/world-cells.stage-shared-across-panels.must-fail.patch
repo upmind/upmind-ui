@@ -1,0 +1,30 @@
+Negative control for the per-panel stage (RT1).
+
+The stage is where a mounted collection offers the controls a hand would press.
+On an area's page several collections are mounted at once (Links and Referrals
+both draw a Refresh), so each panel holds its own stage and a step presses the
+panel it booted. This mutant puts every panel back on the one shared stage: the
+last collection to mount wins, a step meant for Links presses Referrals' Refresh,
+and `remove` / `edit` are looked for on a collection that never drew them.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected red (unit lane): world-cells.spec.ts — a press made through a world
+built under one panel namespace must reach that panel's collection and never a
+sibling's.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioStage.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioStage.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioStage.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/composables/useScenarioStage.ts
+@@ -58,10 +58,7 @@
+ export function useScenarioStage(): ScenarioStage {
+   // Read once, here: a world presses from async callbacks long after setup,
+   // when there is no instance left to inject from.
+-  const namespace =
+-    (getCurrentInstance()
+-      ? inject(PLAYGROUND_URL_NAMESPACE, undefined)
+-      : undefined) ?? DEFAULT_NAMESPACE;
++  const namespace = DEFAULT_NAMESPACE;
+
+   function registerCollection(value: StageCollection): void {
+     collections.set(namespace, value);

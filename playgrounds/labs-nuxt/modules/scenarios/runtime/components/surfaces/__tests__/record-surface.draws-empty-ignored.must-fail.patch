@@ -1,0 +1,27 @@
+Negative control for the id-less record that draws at boot (RT3).
+
+A record declaring `drawsEmpty` has no fetch to wait on — the guest affiliate
+link visit holds nothing before its first visit — so the surface draws its
+header and its controls as soon as the cell is served. This mutant stops
+honouring the flag: an empty record reads as a load again, the surface sits on
+its skeleton, and the page can never show the Record visit control that would
+fill it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected red (component lane): record-surface.spec.ts — a record with
+`drawsEmpty` and an empty model must draw its header and footer actions, while
+one without it still draws the skeleton.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/RecordSurface.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/RecordSurface.vue
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/RecordSurface.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/surfaces/RecordSurface.vue
+@@ -501,7 +501,7 @@
+ const notice = computed(() => {
+   const state = resolveRecordState(meta.value, context.value);
+   if (state === ModuleState.UNSERVED) return state;
+-  if (props.uischema.drawsEmpty || !isEmpty(record.value)) return undefined;
++  if (!isEmpty(record.value)) return undefined;
+   return state === ModuleState.READY ? ModuleState.LOADING : state;
+ });
+

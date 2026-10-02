@@ -1,0 +1,27 @@
+Negative control for the area's panels being bootable by the harness (RT1).
+
+The registry flattens an area into one binding per panel, keyed
+`<area>.<panel>`, and the harness builds a boot thunk for every key that binds a
+composable. Without a thunk a replay step cannot boot the panel's cell and
+`World.boot("affiliate.links", …)` fails at the key. This mutant builds thunks
+for the single-surface scenarios only, so every panel of every area is
+unbootable while the pages still draw.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected red (module lane): self-drawn-binding.spec.ts — every panel key of an
+area must be present in the harness registry as a function, and an area's own
+key must not be.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/registry.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/registry.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/runtime/registry.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/registry.ts
+@@ -126,7 +126,7 @@
+  * none of the three is excluded exactly as before.
+  */
+ const boundKeys = filter(
+-  keys(bindings),
++  keys(registry),
+   key =>
+     !!(
+       get(bindings, [key, "useList"]) ??

@@ -1,0 +1,27 @@
+Negative control for the guest link-visit record's draw-at-boot declaration
+(R-GUEST, RT3).
+
+`useAffiliateLinkVisit` holds nothing before its first `visit()` — its one
+context key, `target`, is empty until a visit resolves. The record declares
+`drawsEmpty` so the surface draws its Record visit control at boot. This mutant
+drops the flag from the DECLARATION: the runtime is intact, but the page reads
+the empty record as a load and sits on a skeleton, so the visit that would end
+the load can never be made.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected red (module lane): record-archetype-routing.spec.ts once it covers the
+guest visit declaration — `presentation.record.drawsEmpty` must be true for a
+manager that publishes no record before its first write.
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useAffiliateLinkVisit/affiliate-link-visit.presentation.ts b/playgrounds/labs-nuxt/modules/scenarios/useAffiliateLinkVisit/affiliate-link-visit.presentation.ts
+--- a/playgrounds/labs-nuxt/modules/scenarios/useAffiliateLinkVisit/affiliate-link-visit.presentation.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/useAffiliateLinkVisit/affiliate-link-visit.presentation.ts
+@@ -21,7 +21,6 @@
+   record: "target",
+   // The module holds no record before the first visit: an empty one is the
+   // starting state, not a load to wait for.
+-  drawsEmpty: true,
+   header: {
+     titleI18n: "labs.affiliate_link_visit",
+     badges: [
