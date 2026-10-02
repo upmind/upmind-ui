@@ -1,0 +1,20 @@
+diff --git a/packages/modules-client/src/renderers/index.ts b/packages/modules-client/src/renderers/index.ts
+index fd161ebfa2..1b6a111abb 100644
+--- a/packages/modules-client/src/renderers/index.ts
++++ b/packages/modules-client/src/renderers/index.ts
+@@ -4,6 +4,7 @@
+  * @description The address and manage form renderers this package registers.
+  */
+ import { registerEntry } from "@upmind/ui";
++import { formRenderers } from "@upmind-automation/client-vue";
+ import AddressRenderer from "./AddressRenderer.vue";
+ import { tester as addressTester } from "./AddressRenderer.vue";
+ import ManageRenderer from "./ManageRenderer.vue";
+@@ -11,6 +12,7 @@ import { tester as manageTester } from "./ManageRenderer.vue";
+ import type { FormRendererEntry } from "@upmind-automation/foundation";
+ 
+ export const clientRenderers: FormRendererEntry[] = [
++  ...formRenderers,
+   registerEntry(AddressRenderer, addressTester),
+   registerEntry(ManageRenderer, manageTester)
+ ];

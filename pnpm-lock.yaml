@@ -468,6 +468,9 @@ importers:
       '@upmind-automation/auth':
         specifier: workspace:*
         version: link:../../packages/modules-auth
+      '@upmind-automation/client':
+        specifier: workspace:*
+        version: link:../../packages/modules-client
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
@@ -649,6 +652,9 @@ importers:
       '@upmind-automation/auth':
         specifier: workspace:*
         version: link:../../packages/modules-auth
+      '@upmind-automation/client':
+        specifier: workspace:*
+        version: link:../../packages/modules-client
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
@@ -1084,6 +1090,9 @@ importers:
       '@upmind-automation/auth':
         specifier: workspace:*
         version: link:../../packages/modules-auth
+      '@upmind-automation/client':
+        specifier: workspace:*
+        version: link:../../packages/modules-client
       '@upmind-automation/foundation':
         specifier: workspace:*
         version: link:../../packages/modules-foundation
@@ -1532,6 +1541,9 @@ importers:
       '@upmind-automation/auth':
         specifier: workspace:*
         version: link:../modules-auth
+      '@upmind-automation/client':
+        specifier: workspace:*
+        version: link:../modules-client
       '@upmind-automation/foundation':
         specifier: workspace:*
         version: link:../modules-foundation
@@ -2065,6 +2077,12 @@ importers:
 
   packages/modules-client:
     dependencies:
+      '@jsonforms/core':
+        specifier: ^3.6.0
+        version: 3.7.0
+      '@jsonforms/vue':
+        specifier: ^3.6.0
+        version: 3.7.0(@jsonforms/core@3.7.0)(vue@3.5.39(typescript@5.9.3))
       '@upmind-automation/foundation':
         specifier: workspace:*
         version: link:../modules-foundation
@@ -2074,9 +2092,28 @@ importers:
       '@upmind/ui':
         specifier: workspace:*
         version: link:../../design-system/packages/ui
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.18.1
       vue:
         specifier: 3.5.39
         version: 3.5.39(typescript@5.9.3)
+      vue-i18n:
+        specifier: ^11.1.1
+        version: 11.2.2(vue@3.5.39(typescript@5.9.3))
+    devDependencies:
+      '@types/lodash-es':
+        specifier: ^4.17.12
+        version: 4.17.12
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0(supports-color@10.2.2)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.3)(happy-dom@20.10.6)(jiti@2.7.0)(jsdom@26.1.0(supports-color@10.2.2))(lightningcss@1.32.0)(msw@2.14.6(@types/node@22.19.3)(typescript@5.9.3))(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(yaml@2.9.0)
 
   packages/modules-domain:
     dependencies:

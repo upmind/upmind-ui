@@ -1,6 +1,6 @@
 <template>
   <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4" v-auto-animate>
-    <Form
+    <ManageForm
       v-if="showForm"
       i18nKey="form.company"
       :useMutate="useUnifiedBillingDetail"
@@ -69,6 +69,10 @@
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { CompanyItem } from "@upmind-automation/client";
+import { PhoneItem } from "@upmind-automation/client";
+import { ManageForm } from "@upmind-automation/foundation";
+import { Manage } from "@upmind-automation/foundation";
 import {
   ClientCompanyContextTypes,
   ScopeActorTypes,
@@ -81,10 +85,6 @@ import {
   useFeedback
 } from "@upmind-automation/headless";
 import { UnifiedType } from "@upmind-automation/headless";
-import Form from "../../../components/manage/Form.vue";
-import Manage from "../../../components/manage/Manage.vue";
-import CompanyItem from "./CompanyItem.vue";
-import PhoneItem from "./PhoneItem.vue";
 import { find } from "lodash-es";
 import type {
   BillingModel,

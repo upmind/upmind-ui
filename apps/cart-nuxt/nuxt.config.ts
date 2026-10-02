@@ -172,6 +172,10 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/modules-auth/src/index.ts"
     ),
+    "@upmind-automation/client/styles": resolve(
+      __dirname,
+      "../../packages/modules-client/src/styles.css"
+    ),
     "@upmind-automation/client": resolve(
       __dirname,
       "../../packages/modules-client/src/index.ts"

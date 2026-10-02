@@ -20,10 +20,10 @@ import { and, uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControlWithDetail } from "@jsonforms/vue";
 import { FormField, useUpmindUIRenderer } from "@upmind/ui";
 import { computed } from "vue";
-import Manage from "../../manage/Manage.vue";
-import type { ManageRendererProps } from "../../manage/types";
+import { Manage } from "@upmind-automation/foundation";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+import type { ManageRendererProps } from "@upmind-automation/foundation";
 // --- external
 
 // -----------------------------------------------------------------------------

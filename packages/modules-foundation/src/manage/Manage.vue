@@ -58,12 +58,12 @@
 </template>
 
 <script setup lang="ts">
+import { FormLabel } from "@upmind/ui";
 import { computed, ref } from "vue";
-import { isFunction } from "xstate/lib/utils";
-import { FormLabel } from "../form";
 import Form from "./Form.vue";
 import List from "./List.vue";
 import Select from "./Select.vue";
+import { isFunction } from "lodash-es";
 import { get } from "lodash-es";
 import type { ManageRendererProps } from "./types";
 

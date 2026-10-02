@@ -9,5 +9,7 @@ export * from "./navigation";
 export * from "./viewport";
 export * from "./section";
 export * from "./forms";
+export * from "./manage";
+export * from "./overlays";
 export * from "./slots";
 export * from "./variants";

@@ -1192,6 +1192,46 @@
       "count": 2
     }
   },
+  "packages/modules-foundation/src/manage/Form.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/modules-foundation/src/manage/List.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    }
+  },
+  "packages/modules-foundation/src/manage/Manage.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    },
+    "vue/no-useless-template-attributes": {
+      "count": 1
+    }
+  },
+  "packages/modules-foundation/src/manage/Select.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/modules-foundation/src/manage/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 12
+    }
+  },
   "packages/modules-foundation/src/navigation/useBreadcrumbs.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 3
