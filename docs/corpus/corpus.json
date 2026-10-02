@@ -12395,18 +12395,6 @@
       "path": "packages/client-vue/src/components/LocaleSwitcher.vue",
       "title": "LocaleSwitcher.vue"
     },
-    "file:packages/client-vue/src/components/announcement/types.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/announcement/types.ts",
-      "title": "types.ts"
-    },
-    "file:packages/client-vue/src/components/announcement/useAnnouncement.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/announcement/useAnnouncement.ts",
-      "title": "useAnnouncement.ts"
-    },
     "file:packages/client-vue/src/components/footer/Footer.vue": {
       "kind": "file",
       "module": "",
@@ -13391,24 +13379,6 @@
       "path": "packages/client-vue/src/modules/feedback/components/Message.vue",
       "title": "Message.vue"
     },
-    "file:packages/client-vue/src/modules/order/Order.vue": {
-      "kind": "file",
-      "module": "order",
-      "path": "packages/client-vue/src/modules/order/Order.vue",
-      "title": "Order.vue"
-    },
-    "file:packages/client-vue/src/modules/order/components/OrderProducts.vue": {
-      "kind": "file",
-      "module": "order",
-      "path": "packages/client-vue/src/modules/order/components/OrderProducts.vue",
-      "title": "OrderProducts.vue"
-    },
-    "file:packages/client-vue/src/modules/order/components/OrderProductsRow.vue": {
-      "kind": "file",
-      "module": "order",
-      "path": "packages/client-vue/src/modules/order/components/OrderProductsRow.vue",
-      "title": "OrderProductsRow.vue"
-    },
     "file:packages/client-vue/src/modules/order/index.ts": {
       "kind": "file",
       "module": "order",
@@ -13438,18 +13408,6 @@
       "module": "order",
       "path": "packages/client-vue/src/modules/order/templates/OrderRTL.template.vue",
       "title": "OrderRTL.template.vue"
-    },
-    "file:packages/client-vue/src/modules/order/types.ts": {
-      "kind": "file",
-      "module": "order",
-      "path": "packages/client-vue/src/modules/order/types.ts",
-      "title": "types.ts"
-    },
-    "file:packages/client-vue/src/modules/order/utils.ts": {
-      "kind": "file",
-      "module": "order",
-      "path": "packages/client-vue/src/modules/order/utils.ts",
-      "title": "utils.ts"
     },
     "file:packages/client-vue/src/modules/product-setup/ProductSetup.vue": {
       "kind": "file",
@@ -17887,21 +17845,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-02T09:48:51.105Z",
-    "corpus_version": "1+cfe9542103ef",
+    "built_at": "2026-10-02T10:21:00.166Z",
+    "corpus_version": "1+ae3b5ad4bdc6",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
       "guides": 174,
-      "indexEntries": 2038,
-      "relationEdges": 5342,
-      "relationsPruned": 2195,
+      "indexEntries": 2031,
+      "relationEdges": 5310,
+      "relationsPruned": 2227,
       "symbols": 896
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "eae1961d4c66352a248d698265c2db81a89a3f49"
+    "source_commit": "28690ec986da00a7cb918fc909560c3f621e5d4f"
   },
   "relations": {
     "edges": [
@@ -23219,14 +23177,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:apps/velia/src/pages/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "apps/velia/src/pages/Order.vue",
-        "to": "file:packages/client-vue/src/modules/order/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:apps/velia/src/pages/ProductSetup.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -24047,14 +23997,6 @@
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/Upmind.vue",
-        "to": "file:packages/client-vue/src/components/announcement/useAnnouncement.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/Upmind.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/Upmind.vue",
         "to": "file:packages/client-vue/src/components/footer/Footer.vue"
       },
       {
@@ -24184,22 +24126,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/LocaleSwitcher.vue",
         "to": "file:packages/types/src/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/announcement/useAnnouncement.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/announcement/useAnnouncement.ts",
-        "to": "file:packages/client-vue/src/components/announcement/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/announcement/useAnnouncement.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/announcement/useAnnouncement.ts",
-        "to": "file:packages/client-vue/src/components/announcement/useAnnouncement.ts"
       },
       {
         "confidence": 1,
@@ -28642,14 +28568,6 @@
         "to": "file:packages/client-vue/src/modules/domain/types.ts"
       },
       {
-        "confidence": 0.8,
-        "from": "file:packages/client-vue/src/modules/domain/components/DomainDescription.vue",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/client-vue/src/modules/domain/components/DomainDescription.vue",
-        "to": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue"
-      },
-      {
         "confidence": 1,
         "from": "file:packages/client-vue/src/modules/domain/components/DomainDescription.vue",
         "granularity": "file",
@@ -28899,174 +28817,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/components/announcement/useAnnouncement.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/order/templates/OrderEnclosed.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/order/templates/OrderFull.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/order/templates/OrderLTR.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/order/templates/OrderRTL.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/client-vue/src/modules/order/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/headless/src/modules/account/useAccount.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/headless/src/modules/config/schema/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/headless/src/modules/config/useConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/headless/src/modules/routing/routing.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/headless/src/modules/scope/scope.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/headless/src/modules/session-transfer/useTransfer.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/Order.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/Order.vue",
-        "to": "file:packages/headless/src/utils/useUrl.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "to": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "to": "file:packages/client-vue/src/modules/order/components/OrderProductsRow.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "to": "file:packages/client-vue/src/modules/order/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "to": "file:packages/client-vue/src/modules/order/utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "to": "file:packages/headless/src/modules/invoices/invoices.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/components/OrderProducts.vue",
-        "to": "file:packages/headless/src/modules/product/product.utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/components/OrderProductsRow.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/components/OrderProductsRow.vue",
-        "to": "file:packages/client-vue/src/modules/order/types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/order/templates/OrderEnclosed.template.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -29232,54 +28982,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/order/templates/OrderRTL.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/utils.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/utils.ts",
-        "to": "file:packages/client-vue/src/modules/order/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/utils.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/order/utils.ts",
-        "to": "file:packages/client-vue/src/modules/order/utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/utils.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/order/utils.ts",
-        "to": "file:packages/client-vue/src/modules/order/utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/utils.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/order/utils.ts",
-        "to": "file:packages/client-vue/src/modules/order/utils.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/utils.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/utils.ts",
-        "to": "file:packages/headless/src/modules/product/product.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/order/utils.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/order/utils.ts",
-        "to": "file:packages/headless/src/modules/product/product.utils.ts"
       },
       {
         "confidence": 1,
@@ -60642,7 +60344,7 @@
         "to": "file:packages/types/src/models/images.ts"
       }
     ],
-    "prunedCount": 2195,
+    "prunedCount": 2227,
     "sourcedAt": ""
   },
   "symbols": {
