@@ -55,18 +55,18 @@ function resetSharedState(): void {
  * or more accounts and no matching `/self.account_id` resolves no account —
  * there is no chooser (R-NO-SWITCH).
  */
-async function resolveAccountId(
-  accounts: Account[]
-): Promise<string | undefined> {
-  try {
-    const self = await loadSelfAccount();
-    if (self?.account_id && some(accounts, a => a.id === self.account_id)) {
-      return self.account_id;
+function resolveAccountId(accounts: Account[]): Promise<string | undefined> {
+  const onlyAccountId = accounts.length === 1 ? accounts[0].id : undefined;
+  return loadSelfAccount().then(
+    self =>
+      self?.account_id && some(accounts, a => a.id === self.account_id)
+        ? self.account_id
+        : onlyAccountId,
+    err => {
+      error.value = mapToHeadlessError(err);
+      return onlyAccountId;
     }
-  } catch (err) {
-    error.value = mapToHeadlessError(err);
-  }
-  return accounts.length === 1 ? accounts[0].id : undefined;
+  );
 }
 
 function bootstrap(): void {

@@ -174,12 +174,13 @@ export function loadAffiliateAccountQuery(
         queryFn: async () => {
           const id = accountId.value;
           if (!id) return null;
-          try {
-            return (await loadAffiliateAccount(id)) ?? null;
-          } catch (err) {
-            if (isNotFoundError(err)) return null;
-            throw err;
-          }
+          return loadAffiliateAccount(id).then(
+            data => data ?? null,
+            err => {
+              if (isNotFoundError(err)) return null;
+              throw err;
+            }
+          );
         },
         select: data => data ?? undefined,
         enabled: () => !!accountId.value,
@@ -209,12 +210,13 @@ export function loadAffiliateBalanceQuery(
         queryFn: async () => {
           const id = accountId.value;
           if (!id) return null;
-          try {
-            return (await loadAffiliateBalance(id)) ?? null;
-          } catch (err) {
-            if (isNotFoundError(err)) return null;
-            throw err;
-          }
+          return loadAffiliateBalance(id).then(
+            data => data ?? null,
+            err => {
+              if (isNotFoundError(err)) return null;
+              throw err;
+            }
+          );
         },
         select: data => data ?? undefined,
         enabled: () => !!accountId.value,
@@ -286,12 +288,10 @@ export async function loadSelfBrand(): Promise<ISelf | undefined> {
  */
 export async function loadSelfBrandName(): Promise<string> {
   const { name } = useBrand();
-  try {
-    const self = await loadSelfBrand();
-    return self?.branding?.style?.brand_name ?? name.value ?? "";
-  } catch {
-    return name.value ?? "";
-  }
+  return loadSelfBrand().then(
+    self => self?.branding?.style?.brand_name ?? name.value ?? "",
+    () => name.value ?? ""
+  );
 }
 
 // -----------------------------------------------------------------------------

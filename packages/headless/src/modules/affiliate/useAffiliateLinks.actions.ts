@@ -81,12 +81,14 @@ export function createAffiliateLinksActions(
   async function remove(linkId: string): Promise<void> {
     const accountId = keyAccountId.value;
     if (!accountId) throw new NotAuthenticatedError();
-    try {
-      await removeLink(accountId, linkId);
-      writeError.value = undefined;
-    } catch (err) {
-      writeError.value = mapToHeadlessError(err);
-    }
+    return removeLink(accountId, linkId).then(
+      () => {
+        writeError.value = undefined;
+      },
+      err => {
+        writeError.value = mapToHeadlessError(err);
+      }
+    );
   }
 
   function destroy(): void {

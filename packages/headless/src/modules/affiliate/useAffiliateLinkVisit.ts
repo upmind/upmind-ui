@@ -79,16 +79,20 @@ function createAffiliateLinkVisitForScope(config: ScopeConfig) {
 
     isVisiting.value = true;
     hasFailed.value = false;
-    let response;
-    try {
-      response = await visitAffiliateLink(model, referralCookie ?? undefined);
-    } catch {
+    const response = await visitAffiliateLink(
+      model,
+      referralCookie ?? undefined
+    )
+      .catch(() => undefined)
+      .finally(() => {
+        isVisiting.value = false;
+      });
+
+    if (!response) {
       const origin = window.location.origin;
       hasFailed.value = true;
       lastResponse.value = { target: origin };
       return origin;
-    } finally {
-      isVisiting.value = false;
     }
 
     if (response.referralCookie) {

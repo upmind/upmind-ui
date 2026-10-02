@@ -1,13 +1,12 @@
 diff --git a/packages/headless/src/modules/affiliate/useClientAffiliate.ts b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
-index e3862c339b..c7ed4ae36d 100644
 --- a/packages/headless/src/modules/affiliate/useClientAffiliate.ts
 +++ b/packages/headless/src/modules/affiliate/useClientAffiliate.ts
-@@ -177,7 +177,7 @@ function createClientAffiliateForScope(config: ScopeConfig) {
-
+@@ -231,7 +231,7 @@
+ 
    async function enrol(): Promise<void> {
      const id = accountId.value;
 -    if (!id || !isClientActor.value || isEnrolled.value) return;
 +    if (!id || !isClientActor.value) return;
      isProcessing.value = true;
-     try {
-       await enrolAffiliate(id);
+     return enrolAffiliate(id)
+       .then(() => {

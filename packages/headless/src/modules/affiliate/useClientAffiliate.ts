@@ -83,11 +83,13 @@ function createClientAffiliateForScope(
 
   async function loadSelfBrandIfNeeded(): Promise<void> {
     if (data.value?.account?.brand || selfRecord.value) return;
-    try {
-      selfRecord.value = await loadSelfBrand();
-    } catch {
-      // Silent — the self read only ever backs a fallback (design.md §8.5).
-    }
+    // Silent on failure — the self read only ever backs a fallback (design.md §8.5).
+    return loadSelfBrand().then(
+      self => {
+        selfRecord.value = self;
+      },
+      () => undefined
+    );
   }
 
   let settingsGeneration = 0;
@@ -99,19 +101,12 @@ function createClientAffiliateForScope(
     const generation = ++settingsGeneration;
     settingsLoading.value = !settingsLoaded.value;
 
-    let gate: Record<string, unknown> = {};
-    try {
-      gate = await loadGateSettings();
-    } catch {
-      gate = {};
-    }
-
-    let area: Record<string, unknown> = {};
-    try {
-      area = await loadAreaSettings(resolvedBrandId.value);
-    } catch {
-      area = {};
-    }
+    const gate: Record<string, unknown> = await loadGateSettings().catch(
+      () => ({})
+    );
+    const area: Record<string, unknown> = await loadAreaSettings(
+      resolvedBrandId.value
+    ).catch(() => ({}));
 
     if (generation !== settingsGeneration) return;
 
@@ -238,26 +233,31 @@ function createClientAffiliateForScope(
     const id = accountId.value;
     if (!id || !isClientActor.value || isEnrolled.value) return;
     isProcessing.value = true;
-    try {
-      await enrolAffiliate(id);
-      writeError.value = undefined;
-      await Promise.all([
-        invalidateQueryByKey([...AFFILIATE_ACCOUNT_QUERY_KEY, id], {
-          exact: false
-        })(undefined),
-        invalidateQueryByKey([...AFFILIATE_BALANCE_QUERY_KEY, id], {
-          exact: false
-        })(undefined),
-        loadAreaSettings(resolvedBrandId.value).then(
-          v => (areaSettings.value = v),
-          () => (areaSettings.value = {})
-        )
-      ]);
-    } catch (err) {
-      writeError.value = mapToHeadlessError(err);
-    } finally {
-      isProcessing.value = false;
-    }
+    return enrolAffiliate(id)
+      .then(() => {
+        writeError.value = undefined;
+        return Promise.all([
+          invalidateQueryByKey([...AFFILIATE_ACCOUNT_QUERY_KEY, id], {
+            exact: false
+          })(undefined),
+          invalidateQueryByKey([...AFFILIATE_BALANCE_QUERY_KEY, id], {
+            exact: false
+          })(undefined),
+          loadAreaSettings(resolvedBrandId.value).then(
+            v => (areaSettings.value = v),
+            () => (areaSettings.value = {})
+          )
+        ]);
+      })
+      .then(
+        () => undefined,
+        err => {
+          writeError.value = mapToHeadlessError(err);
+        }
+      )
+      .finally(() => {
+        isProcessing.value = false;
+      });
   }
 
   async function requestWithdrawal(payload: {
@@ -267,16 +267,20 @@ function createClientAffiliateForScope(
     if (!id) return undefined;
 
     isProcessing.value = true;
-    try {
-      const ticketId = await requestAffiliateWithdrawal(id, payload.message);
-      writeError.value = undefined;
-      return ticketId;
-    } catch (err) {
-      writeError.value = mapToHeadlessError(err);
-      return undefined;
-    } finally {
-      isProcessing.value = false;
-    }
+    return requestAffiliateWithdrawal(id, payload.message)
+      .then(
+        ticketId => {
+          writeError.value = undefined;
+          return ticketId;
+        },
+        err => {
+          writeError.value = mapToHeadlessError(err);
+          return undefined;
+        }
+      )
+      .finally(() => {
+        isProcessing.value = false;
+      });
   }
 
   /**

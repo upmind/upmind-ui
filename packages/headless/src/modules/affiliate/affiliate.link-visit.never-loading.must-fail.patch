@@ -1,13 +1,12 @@
 diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
-index 4a504d9def..375731ec3b 100644
 --- a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
 +++ b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
-@@ -77,7 +77,7 @@ function createAffiliateLinkVisitForScope(config: ScopeConfig) {
+@@ -77,7 +77,7 @@
        identityDecoder
      ) as string | undefined;
  
 -    isVisiting.value = true;
 +    isVisiting.value = false;
      hasFailed.value = false;
-     let response;
-     try {
+     const response = await visitAffiliateLink(
+       model,
