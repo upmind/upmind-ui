@@ -703,6 +703,8 @@
         "Amendment 1 (2026-09-07) — a phased strangler replaces the big-bang wave",
         "Amendment 2 (2026-09-08) — four scope rulings before the run",
         "Amendment 3 (2026-09-11) — a generic control is not a domain renderer",
+        "Amendment 4 (2026-09-15) — genericness admits to `foundation`, not only the count",
+        "Amendment 7 (2026-09-17) — `basket` may read `client`",
         "Amendment 9 (2026-09-21) — the feature contract is retired; the app owns its list, its routes and its names",
         "Amendment 11 (2026-09-24) — Phase 0 holds only what Phase 0 needs",
         "Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`",
@@ -12453,12 +12455,6 @@
       "path": "packages/client-vue/src/components/form/index.ts",
       "title": "index.ts"
     },
-    "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-      "title": "AddressRenderer.vue"
-    },
     "file:packages/client-vue/src/components/form/renderers/DomainRenderer.vue": {
       "kind": "file",
       "module": "",
@@ -12470,12 +12466,6 @@
       "module": "",
       "path": "packages/client-vue/src/components/form/renderers/ImageRenderer.vue",
       "title": "ImageRenderer.vue"
-    },
-    "file:packages/client-vue/src/components/form/renderers/ManageRenderer.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/form/renderers/ManageRenderer.vue",
-      "title": "ManageRenderer.vue"
     },
     "file:packages/client-vue/src/components/form/renderers/SLDRenderer.vue": {
       "kind": "file",
@@ -12703,54 +12693,6 @@
       "kind": "file",
       "module": "",
       "path": "packages/client-vue/src/components/main/types.ts",
-      "title": "types.ts"
-    },
-    "file:packages/client-vue/src/components/manage/Actions.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/manage/Actions.vue",
-      "title": "Actions.vue"
-    },
-    "file:packages/client-vue/src/components/manage/Form.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/manage/Form.vue",
-      "title": "Form.vue"
-    },
-    "file:packages/client-vue/src/components/manage/Item.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/manage/Item.vue",
-      "title": "Item.vue"
-    },
-    "file:packages/client-vue/src/components/manage/List.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/manage/List.vue",
-      "title": "List.vue"
-    },
-    "file:packages/client-vue/src/components/manage/Manage.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/manage/Manage.vue",
-      "title": "Manage.vue"
-    },
-    "file:packages/client-vue/src/components/manage/Select.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/manage/Select.vue",
-      "title": "Select.vue"
-    },
-    "file:packages/client-vue/src/components/manage/Skeleton.vue": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/manage/Skeleton.vue",
-      "title": "Skeleton.vue"
-    },
-    "file:packages/client-vue/src/components/manage/types.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/client-vue/src/components/manage/types.ts",
       "title": "types.ts"
     },
     "file:packages/client-vue/src/components/navigation/Share.vue": {
@@ -13095,12 +13037,6 @@
       "path": "packages/client-vue/src/modules/billing/components/Actions.vue",
       "title": "Actions.vue"
     },
-    "file:packages/client-vue/src/modules/billing/components/AddressItem.vue": {
-      "kind": "file",
-      "module": "billing",
-      "path": "packages/client-vue/src/modules/billing/components/AddressItem.vue",
-      "title": "AddressItem.vue"
-    },
     "file:packages/client-vue/src/modules/billing/components/BillingForm.vue": {
       "kind": "file",
       "module": "billing",
@@ -13112,18 +13048,6 @@
       "module": "billing",
       "path": "packages/client-vue/src/modules/billing/components/BillingSummary.vue",
       "title": "BillingSummary.vue"
-    },
-    "file:packages/client-vue/src/modules/billing/components/CompanyItem.vue": {
-      "kind": "file",
-      "module": "billing",
-      "path": "packages/client-vue/src/modules/billing/components/CompanyItem.vue",
-      "title": "CompanyItem.vue"
-    },
-    "file:packages/client-vue/src/modules/billing/components/PhoneItem.vue": {
-      "kind": "file",
-      "module": "billing",
-      "path": "packages/client-vue/src/modules/billing/components/PhoneItem.vue",
-      "title": "PhoneItem.vue"
     },
     "file:packages/client-vue/src/modules/billing/components/Skeleton.vue": {
       "kind": "file",
@@ -17963,21 +17887,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-02T09:25:58.459Z",
-    "corpus_version": "1+b4cc6816d48e",
+    "built_at": "2026-10-02T09:48:51.105Z",
+    "corpus_version": "1+cfe9542103ef",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
       "guides": 174,
-      "indexEntries": 2051,
-      "relationEdges": 5389,
-      "relationsPruned": 2148,
+      "indexEntries": 2038,
+      "relationEdges": 5342,
+      "relationsPruned": 2195,
       "symbols": 896
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "64364f2b8e1357bed579582a00c46153f1282478"
+    "source_commit": "eae1961d4c66352a248d698265c2db81a89a3f49"
   },
   "relations": {
     "edges": [
@@ -24519,54 +24443,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "granularity": "file",
-        "relation": "calls",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "to": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "to": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "to": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "to": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "to": "file:packages/headless/src/modules/system-places/system-places.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/AddressRenderer.vue",
-        "to": "file:packages/headless/src/modules/system-places/usePlaces.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/components/form/renderers/DomainRenderer.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -24583,30 +24459,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/ManageRenderer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/ManageRenderer.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/ManageRenderer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/ManageRenderer.vue",
-        "to": "file:packages/client-vue/src/components/manage/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/index.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/index.ts",
-        "to": "file:packages/client-vue/src/components/form/renderers/AddressRenderer.vue"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/components/form/renderers/index.ts",
         "granularity": "file",
         "relation": "imports_from",
@@ -24620,14 +24472,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/form/renderers/index.ts",
         "to": "file:packages/client-vue/src/components/form/renderers/ImageRenderer.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/form/renderers/index.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/form/renderers/index.ts",
-        "to": "file:packages/client-vue/src/components/form/renderers/ManageRenderer.vue"
       },
       {
         "confidence": 1,
@@ -25532,206 +25376,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/components/main/Main.vue",
         "to": "file:packages/client-vue/src/components/main/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Form.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Form.vue",
-        "to": "file:packages/client-vue/src/components/manage/Actions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Form.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Form.vue",
-        "to": "file:packages/client-vue/src/components/manage/Skeleton.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Form.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Form.vue",
-        "to": "file:packages/client-vue/src/components/manage/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/List.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/List.vue",
-        "to": "file:packages/client-vue/src/components/manage/Item.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/List.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/List.vue",
-        "to": "file:packages/client-vue/src/components/manage/List.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/List.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/List.vue",
-        "to": "file:packages/client-vue/src/components/manage/List.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/List.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/List.vue",
-        "to": "file:packages/client-vue/src/components/manage/List.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/List.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/List.vue",
-        "to": "file:packages/client-vue/src/components/manage/List.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/List.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/List.vue",
-        "to": "file:packages/client-vue/src/components/manage/List.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/List.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/List.vue",
-        "to": "file:packages/client-vue/src/components/manage/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/List.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/Select.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Manage.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Manage.vue",
-        "to": "file:packages/client-vue/src/components/manage/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Select.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Select.vue",
-        "to": "file:packages/client-vue/src/components/manage/Item.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Select.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Select.vue",
-        "to": "file:packages/client-vue/src/components/manage/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/Skeleton.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/Skeleton.vue",
-        "to": "file:packages/client-vue/src/components/manage/Actions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/types.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/types.ts",
-        "to": "file:packages/headless/src/index.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/components/manage/types.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/components/manage/types.ts",
-        "to": "file:packages/headless/src/modules/query/query.types.ts"
       },
       {
         "confidence": 1,
@@ -27279,22 +26923,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/AddressItem.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/AddressItem.vue",
-        "to": "file:packages/client-vue/src/modules/billing/components/AddressItem.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/AddressItem.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/AddressItem.vue",
-        "to": "file:packages/headless/src/modules/client-address/client-address.types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/billing/components/BillingForm.vue",
         "granularity": "file",
         "relation": "imports_from",
@@ -27423,59 +27051,11 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/CompanyItem.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/CompanyItem.vue",
-        "to": "file:packages/headless/src/modules/client-company/client-company.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/PhoneItem.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/PhoneItem.vue",
-        "to": "file:packages/headless/src/modules/client-phone/client-phone.types.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/client-vue/src/modules/billing/components/Skeleton.vue",
         "granularity": "file",
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/billing/components/Skeleton.vue",
         "to": "file:packages/client-vue/src/modules/billing/components/Actions.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/TabBusiness.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/TabBusiness.vue",
-        "to": "file:packages/client-vue/src/components/manage/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/TabBusiness.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/TabBusiness.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/TabBusiness.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/TabBusiness.vue",
-        "to": "file:packages/client-vue/src/modules/billing/components/CompanyItem.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/TabBusiness.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/TabBusiness.vue",
-        "to": "file:packages/client-vue/src/modules/billing/components/PhoneItem.vue"
       },
       {
         "confidence": 1,
@@ -27532,38 +27112,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/billing/components/TabBusiness.vue",
         "to": "file:packages/headless/src/modules/client-phone/useClientPhones.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/TabPersonal.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/TabPersonal.vue",
-        "to": "file:packages/client-vue/src/components/manage/Form.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/TabPersonal.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/TabPersonal.vue",
-        "to": "file:packages/client-vue/src/components/manage/Manage.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/TabPersonal.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/TabPersonal.vue",
-        "to": "file:packages/client-vue/src/modules/billing/components/AddressItem.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/billing/components/TabPersonal.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/billing/components/TabPersonal.vue",
-        "to": "file:packages/client-vue/src/modules/billing/components/PhoneItem.vue"
       },
       {
         "confidence": 1,
@@ -61094,7 +60642,7 @@
         "to": "file:packages/types/src/models/images.ts"
       }
     ],
-    "prunedCount": 2148,
+    "prunedCount": 2195,
     "sourcedAt": ""
   },
   "symbols": {
