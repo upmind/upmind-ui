@@ -20,7 +20,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   createStepMatcher,
   parseFeatureScenarios
@@ -62,7 +62,17 @@ const feature = readFileSync(
 
 let replay: ReturnType<typeof startScenarioReplay> | undefined;
 
+// AC-22 books the product's next_due_date, which is only the earliest date
+// while it is still in the future: those scenarios replay on the day they were
+// recorded.
+const AC22_RECORDED_ON = new Date("2026-09-29T12:00:00Z");
+
 async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
+  if (includes(scenario.tags, "@AC-22")) {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(AC22_RECORDED_ON);
+  }
+
   const signedOut = includes(scenario.tags, "@signed-out");
   if (
     !signedOut &&
@@ -85,6 +95,7 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
  * symptom.
  */
 function cleanupScenario(scenario: FeatureScenario): void {
+  vi.useRealTimers();
   resetContractProductScopes();
 
   const [gap] = replay?.gaps() ?? [];
