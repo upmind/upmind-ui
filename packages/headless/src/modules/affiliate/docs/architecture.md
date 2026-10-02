@@ -52,7 +52,7 @@ The scope matrix is deliberately narrow: each cell is `null as never`, so `.as(.
 | `useMeta()` | State flags: loading, enrolled, can-withdraw, dirty, valid, has-error |
 | `useInternals()` | Raw state for debugging |
 
-The client-affiliate, links, referrals, commissions and payouts composables export no `Use*` type aliases from the barrel. The client portal's mock contract already exports those names, and the duplicate-type gate blocks a second declaration.
+The client-affiliate composable exports only the `UseClientAffiliate` type from the barrel; it and the links, referrals, commissions and payouts composables export no `Use*Actions`, `Use*Context`, `Use*Meta` or `Use*Internals` aliases. The client portal's mock contract already exports those names, and the duplicate-type gate blocks a second declaration.
 
 ## Services
 

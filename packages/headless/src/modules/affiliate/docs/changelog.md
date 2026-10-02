@@ -14,7 +14,7 @@ All notable changes to the affiliate module.
 - Guest referral-link visit: records the visit, writes or deletes the raw `upm_aff` cookie and returns the redirect target.
 - Pure helpers: `referralOrigin`, `commissionTagStatus`, `commissionSummaryStatus`, `isPaypalDestination`, `defaultPayoutDestination`.
 - Translation keys `error.affiliate_*`, `text.affiliate_withdraw_balance` and `form.affiliate_*`.
-- Shared types in `packages/types`: the payout record (`IAffiliatePayout`) and two payout fields (`affiliate_payout_destination_id`, `affiliate_payout_paypal_email_id`) on the affiliate record.
+- Shared types in `packages/types`: the payout record (`IAffiliatePayout`) and `referral_count` on the affiliate link (`IAffiliateLink`) and `affiliate_link` on the referral (`IAffiliateReferral`).
 
 ### Changed
 

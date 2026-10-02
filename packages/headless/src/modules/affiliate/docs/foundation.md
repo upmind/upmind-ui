@@ -250,7 +250,7 @@ No other headless module imports the affiliate module. Its only consumers are ap
 - **HTTP transport layer** — authenticated requests for every client call; the visit call is sent without credentials. Error normalisation turns failed responses into the module's error value.
 - **Session** — the client's own account list, client id and brand id.
 - **Brand** — brand id and name, and the brand's oauth clients (for the referral origin).
-- **Shared types / enums** — type-level only: `packages/types/src/models/` (the affiliate record types) and the brand configuration key enum and payout destination code enum in `packages/types/src/data/enums/`.
+- **Shared types / enums** — type-level only: `packages/types/src/models/` (the affiliate record types) the brand configuration key enum in `packages/types/src/data/constants.ts`, and the payout destination code enum in `packages/types/src/data/enums/`.
 
 ## API endpoints
 
@@ -272,7 +272,7 @@ Fixture: `get-self.json` (trimmed to the used keys; the capture carries the full
 
 ### GET /self?with=actor.brand
 
-Role: reads the signed-in client's own record with the client's brand attached. It backs two reads: the referral origin falls back to this brand's oauth clients when the affiliate account carries no brand, and the link editor takes the brand name from the record's branding value, else from the brand's name. A failed read leaves the brand name to the session's own brand name.
+Role: reads the signed-in client's own record with the client's brand attached. It backs two reads: the referral origin falls back to this brand's oauth clients when the affiliate account carries no brand, and the link editor takes the brand name from the record's branding value, else from the brand's name. A failed read, like a record with no branding value, falls back to the brand name from the brand context.
 
 Query: `with=actor.brand`.
 
@@ -330,7 +330,7 @@ Role: enrols the account. No request body. Returns the new affiliate record.
 curl -X POST "$API/accounts/$ACCOUNT_ID/affiliate" -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-Fixture: `post-accounts-id-affiliate.json` (200; `referral_count: 0`, `link_visit_count: 0`). An earlier repeated enrolment of an already-enrolled account answered 409; no capture of that response is retained.
+Fixture: `post-accounts-id-affiliate.json` (200; `referral_count: 0`, `link_visit_count: 0`). A repeated enrolment of an already-enrolled account answers 409 with the message `Affiliate account already exists`. Fixture: `post-accounts-id-affiliate-case-rejected.json`.
 
 ### GET /accounts/{account}/affiliate/balance
 
@@ -602,6 +602,7 @@ Fixtures: `post-affiliate-link-visit.json`, `post-affiliate-link-visit-case-unkn
 | --- | --- | --- |
 | Affiliate record, balance | 404 for an account that never enrolled. This is a state, not a fault: the account is "not enrolled". Other statuses are faults. | — |
 | Create / update link | 422, with the reason keyed by field in `error.data`, e.g. `{ "redirect_url": ["The redirect url field is required."] }`. The top-level `error.message` is only `"API request invalid!"`. | — |
+| Enrol | 409 `Affiliate account already exists` when the account is already enrolled. The record is unaffected. | — |
 | Delete link | 404 when the link is not found. The row is unaffected. | — |
 | Save payout destination | 422 or 5xx leaves the account unchanged. | — |
 | Visit | — | An unknown hash answers `200` with only `redirect_url` (the brand origin) and no cookie. A visit with no `referral_cookie` in the answer means "clear the cookie". |
@@ -643,7 +644,7 @@ flowchart TD
 
 Guarantees the platform holds: a 404 on the affiliate record and the balance is the "not enrolled" answer for the same account; enrolling needs no body and returns the new record.
 
-Constraints the caller has to plan around: the own-account id of `/self` may be missing; a client with more than one account and no usable own-account id has no active account; enrolling a second time was observed to answer 409, with no retained capture.
+Constraints the caller has to plan around: the own-account id of `/self` may be missing; a client with more than one account and no usable own-account id has no active account; enrolling a second time answers 409 (`Affiliate account already exists`).
 
 ### Withdraw
 

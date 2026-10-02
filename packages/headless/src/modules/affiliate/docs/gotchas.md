@@ -94,7 +94,7 @@ await manager.useActions().update();
 if (manager.useMeta().hasError.value) showError(manager.useContext().errors.value);
 ```
 
-For the link manager, `errors` joins the per-field 422 messages (for example `"The redirect url field is required."`) ahead of the generic `"API request invalid!"`. A second `update()` after a refused save sends the save again. The payout manager keeps the edit and does not re-read after a refusal.
+For the link manager, `errors` joins the per-field 422 messages (for example `"The redirect url field is required."`) ahead of the generic `"API request invalid!"`. A second `update()` after a refused save sends the save again. The payout manager behaves the same way: it keeps the edit, does not re-read after a refusal, and a second `update()` sends the save again.
 
 **Test scenario:** Create a link with an empty redirect. `update()` resolves, `hasError` is true, `errors` reads the field message. Fix the value and call `update()` again; a second request goes out.
 

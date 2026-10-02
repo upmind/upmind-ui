@@ -171,7 +171,7 @@ await manager.useActions().addEmail(newEmail); // re-reads the client's emails, 
 
 - The form seeds from the account's two payout ids. An unset destination (`null`) reads as the brand's default destination for `isPaypal`.
 - A PayPal destination with no email chooses the client's default email (else the first email).
-- `update()` resolves on a settled server failure, with the edit kept and no re-read.
+- `update()` resolves on a settled server failure, with the edit kept and no re-read. A second `update()` after a refusal sends the save again.
 - A destinations or emails read that fails leaves that lookup empty. The form still seeds from the account.
 - The manager belongs to the account that was active when it opened. A save for an account the client no longer holds rejects with the "account no longer available" error before any request.
 - Open the payout editor and a new-link editor with `.as("client").fresh()`. Open an existing-link editor with `.as("client").withId(linkId)`. The registry keeps an instance until `destroy()`, and it does not count mounted consumers. A remount on the same key without `.fresh()` gets the old instance with its old account and seed.

@@ -1,8 +1,8 @@
 # ADR 032: The Schema Family for Scoped Collection Composables — Query, Actions, Row
 
 **Date:** 2026-08-06
-**Status:** Accepted 2026-08-06. **Decision, partly built (amended 2026-10-02).** The translator and the query schema are built; the actions schema, the row schema and the registry contract are not. See [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) and *Implementation status*. Ratified by operator sign-off in the walkthrough of the design-council record below; that walkthrough supersedes the council wherever the two conflict, and the supersessions are recorded in *Alternatives considered*.
-**Amended 2026-08-06** (same day, operator walkthrough of the legacy filter inventory): decision **13** collapses the separate filter and sort schemas into one schema over the request state, and *Gap resolutions from the legacy filter inventory* adds nine rulings. The amendment certifies no capability either — the status was unchanged by it.
+**Status:** Accepted 2026-08-06. **Decision only — nothing recorded here is built.** Ratified by operator sign-off in the walkthrough of the design-council record below; that walkthrough supersedes the council wherever the two conflict, and the supersessions are recorded in *Alternatives considered*. ⚠️ SUPERSEDED in part by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) (2026-10-02): the translator and the query schema are built; the actions schema, the row schema and the registry contract are not.
+**Amended 2026-08-06** (same day, operator walkthrough of the legacy filter inventory): decision **13** collapses the separate filter and sort schemas into one schema over the request state, and *Gap resolutions from the legacy filter inventory* adds nine rulings. The amendment certifies no capability either — the status above is unchanged.
 **Amended 2026-10-02** — see [Amendments](#amendments). Decision 4's translation seam is superseded: the criteria pipeline is built in the query core. The status above is otherwise narrowed, not reversed; see *Implementation status*.
 **Authors:** Dominic da Costa
 
@@ -391,11 +391,9 @@ Recorded here as needing amendment; amending ADR-027 is not part of this record.
 
 ### Implementation status
 
-**Partly built (amended 2026-10-02).** The query-core criteria pipeline and the query schema are built; the actions schema, the row schema and the registry contract are not. The paragraph below is the original status, kept as history, and is superseded by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) for the translator and the query schema.
+**Not built.** This record fixes the shape so it can be built once; it certifies no delivered capability. The receipts above are all of existing code — the seam, the serialiser, the shipped precedents and the two blocking defects. The schema shapes, the translators and the registry contract are decided and unwritten. ⚠️ SUPERSEDED by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) (2026-10-02) for the translator and the query schema: both are built. The actions schema, the row schema and the registry contract remain unbuilt.
 
-~~**Not built.**~~ ⚠️ SUPERSEDED by Amendment 3 (2026-10-02) for the translator and the query schema. This record fixes the shape so it can be built once. The receipts above are all of existing code — the seam, the serialiser, the shipped precedents and the two blocking defects. The actions schema, the row schema and the registry contract are decided and unwritten.
-
-**Exception: decision 10's sort uischema is built.** The 2026-08-18 amendment's `useSortUischema()` mechanism ships on `client-email` (`client-email.schemas.ts`) and `client-email-history` (`client-email-history.schemas.ts`), published on each module's own list context (`sortUischema`) beside the query schema. The rest of this record's "not built" status is otherwise unchanged by that exception.
+**Exception: decision 10's sort uischema is built.** The 2026-08-18 amendment's `useSortUischema()` mechanism ships on `client-email` (`client-email.schemas.ts`) and `client-email-history` (`client-email-history.schemas.ts`), published on each module's own list context (`sortUischema`) beside the query schema. The rest of this record's "not built" status is otherwise unchanged.
 
 ---
 
